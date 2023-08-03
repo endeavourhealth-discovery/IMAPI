@@ -8,5 +8,8 @@
     "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "sn" : "http://snomed.info/sct#"
   },
-  "entities" : [ ]
+  "entities" : [ {
+    "@bn" : "genid-139281bceb1d4a268312243445d72f1326-b173",
+    "http://www.w3.org/ns/shacl#maxCount" : "1"
+  } ]
 }

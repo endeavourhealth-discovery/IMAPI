@@ -11,36 +11,42 @@
   "query" : {
     "name" : "Some Barts cerner codes with context including a regex",
     "match" : [ {
-      "path" : [ {
-        "@id" : "im:sourceContext"
-      } ],
-      "where" : [ {
-        "@id" : "im:sourceRegex"
+      "property" : [ {
+        "@id" : "im:scheme",
+        "in" : [ {
+          "@id" : "http://endhealth.info/bc#"
+        } ]
+      }, {
+        "@id" : "im:Concept",
+        "match" : {
+          "property" : [ {
+            "@id" : "im:sourceRegex"
+          } ]
+        },
+        "inverse" : true
       } ]
     } ],
-    "usePrefixes" : true,
     "return" : [ {
       "property" : [ {
         "@id" : "rdfs:label"
       }, {
         "@id" : "im:code"
       }, {
-        "node" : {
+        "@id" : "im:Concept",
+        "inverse" : true,
+        "return" : {
           "property" : [ {
-            "@id" : "im:sourceCodeScheme"
+            "@id" : "im:sourceValue"
           }, {
-            "@id" : "im:sourceHeading"
+            "@id" : "im:sourceRegex"
           }, {
             "@id" : "im:sourceSystem"
           }, {
             "@id" : "im:sourceTable"
           }, {
             "@id" : "im:sourceField"
-          }, {
-            "@id" : "im:sourceSchema"
           } ]
-        },
-        "@id" : "im:sourceContext"
+        }
       } ]
     } ]
   }

@@ -1,0 +1,66 @@
+{
+  "@context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
+  },
+  "entities" : [ {
+    "@id" : "urn:uuid:d42a3506-725d-44eb-ac0a-7df5c45fe213",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "A1) All patients who have received any COVID-19 vaccination dose"
+  }, {
+    "@id" : "urn:uuid:24e136d0-22ee-4a8e-9571-db5ffe7360e9",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "A2) All patients who have received a second COVID-19 vaccination dose"
+  }, {
+    "@id" : "urn:uuid:7791e2b7-79e9-4973-9269-e17beff02033",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "B) contraindicated for COVID-19 vaccination (excl vaccinated)"
+  }, {
+    "@id" : "urn:uuid:65f568b8-cf56-4f6b-b022-b2c933f87224",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "C) declined COVID-19 vaccination (excl vaccinated and contraindicated)"
+  }, {
+    "@id" : "urn:uuid:2fa3c8d3-9d5c-4513-85fa-7edf454d8a1e",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "COVID-19 Chronic heart disease (CHD)"
+  }, {
+    "@id" : "urn:uuid:09d960fc-ab20-45bb-a6e2-34b10b87118c",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "COVID-19 Chronic kidney disease (CKD)"
+  }, {
+    "@id" : "urn:uuid:0d334461-759c-44df-b089-13d5bcff6022",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "COVID-19 Chronic liver disease (CLD)"
+  }, {
+    "@id" : "urn:uuid:ae9b9934-2bc5-4279-b86c-285d6c703691",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "COVID-19 Chronic respiratory disease (CRD)"
+  }, {
+    "@id" : "urn:uuid:c339d6ff-f475-4843-ad29-6781f68491b8",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "COVID-19 Diabetes"
+  }, {
+    "@id" : "urn:uuid:ed7eecab-7ff4-45a6-8d55-ed059ea67d96",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "COVID-19 Immune deficiency diagnosis (code)"
+  }, {
+    "@id" : "urn:uuid:b44f715e-3292-4d66-8b8c-f7cc699e3203",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "COVID-19 Immunosuppressant medication (drug)"
+  }, {
+    "@id" : "urn:uuid:786ca593-b629-4ab4-85fa-8776a659fe48",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "COVID-19 Patients recorded as pregnant"
+  }, {
+    "@id" : "urn:uuid:4848461d-4140-4e34-843f-e4c216a10725",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "COVID-19 Patients with Asplenia or dysfunction of the spleen"
+  }, {
+    "@id" : "urn:uuid:22f49920-0f80-4862-bf75-b05e74564b26",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "COVID-19 Patients with CNS disease including significant learning disorder"
+  }, {
+    "@id" : "urn:uuid:f528f948-3886-4e74-a4a8-80ae61dbbc4f",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "COVID-19 Patients with morbid obesity"
+  }, {
+    "@id" : "urn:uuid:4793f789-cb3b-4f1a-a027-9da0b5374110",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "COVID-19 Severe mental illness"
+  }, {
+    "@id" : "urn:uuid:c1b5dec8-ba26-4d4b-b5cd-2c9b85d2fcb8",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "COVID-19 Wider learning disability"
+  }, {
+    "@id" : "urn:uuid:c0b7fa0c-3c57-4f03-9d60-60a193eec593",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "D) Invited for COVID-19 vaccination (excl vaccinated, declined, contraind)"
+  } ]
+}

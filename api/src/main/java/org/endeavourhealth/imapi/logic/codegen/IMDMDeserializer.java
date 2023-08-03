@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.SneakyThrows;
 
-import javax.activation.UnsupportedDataTypeException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -45,10 +45,12 @@ public class LuceneIndexer {
 				"            \"http://endhealth.info/im#Folder\",\n" +
 				"          \"http://endhealth.info/im#FormGenerator\",\n" +
 				"        \"http://endhealth.info/im#Function\",\n" +
+				"        \"http://endhealth.info/im#CohortQuery\",\n" +
+				"        \"http://endhealth.info/im#DataSetQuery\",\n" +
+				"        \"http://endhealth.info/im#Query\",\n" +
 				"\t\t\"http://www.w3.org/ns/shacl#NodeShape\",\n" +
 				"        \"http://www.w3.org/1999/02/22-rdf-syntax-ns#Class\",\n" +
-				"        \"http://www.w3.org/1999/02/22-rdf-syntax-ns#Property\",\n" +
-				"         \"http://www.w3.org/ns/shacl#Query\"]\n" +
+				"        \"http://www.w3.org/1999/02/22-rdf-syntax-ns#Property\"]\n" +
 				"    }\n" +
 				"''' .\n" +
 				"}";
@@ -71,7 +73,8 @@ public class LuceneIndexer {
 			BindingSet bs=rs.next();
 			connectors.add(bs.getValue("cntUri").stringValue());
 		}
-		if (connectors.contains("con-inst:im_fts")) {
+
+		if (connectors.contains("http://www.ontotext.com/connectors/lucene/instance#im_fts")) {
 
 			String spq = "PREFIX con: <http://www.ontotext.com/connectors/lucene#>\n" +
 				"PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>\n" +

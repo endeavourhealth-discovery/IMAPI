@@ -1,12 +1,31 @@
 package org.endeavourhealth.imapi.model.imq;
 
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class FunctionClause {
+public class FunctionClause extends Value{
 	private Function function;
 	private List<Argument> argument;
+	private Range range;
+
+	public Range getRange() {
+		return range;
+	}
+
+	public FunctionClause setRange(Range range) {
+		this.range = range;
+		return this;
+	}
+
+
+	public FunctionClause range(Consumer<Range> builder){
+		this.range= new Range();
+		builder.accept(this.range);
+		return this;
+	}
 
 	public Function getFunction() {
 		return function;
@@ -37,6 +56,30 @@ public class FunctionClause {
 		Argument argument= new Argument();
 		addArgument(argument);
 		builder.accept(argument);
+		return this;
+	}
+
+	public Value setDataType(TTIriRef dataType) {
+		super.setDataType(dataType);
+		return this;
+	}
+
+
+	public Value setOperator(Operator operator) {
+		super.setOperator(operator);
+		return this;
+	}
+
+
+	public Value setRelativeTo(PropertyRef relativeTo) {
+		super.setRelativeTo(relativeTo);
+		return this;
+	}
+
+
+	@Override
+	public Value setValue(String value) {
+		super.setValue(value);
 		return this;
 	}
 

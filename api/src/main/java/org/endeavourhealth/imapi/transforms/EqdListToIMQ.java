@@ -49,19 +49,19 @@ public class EqdListToIMQ {
 	}
 
 	private String getLastNode(Match match){
-		if (match.getPath()!=null){
-			return getLastNode(match.getPath().get(0));
+		if (match.getProperty()!=null){
+			return getLastNode(match.getProperty().get(0));
 		}
 		else
 			return match.getVariable();
 	}
 
-	private String getLastNode(Path path){
-			if (path.getMatch().getPath()==null) {
+	private String getLastNode(Property path){
+			if (path.getMatch().getProperty()==null) {
 				return path.getMatch().getVariable();
 			}
 			else
-				return getLastNode(path.getMatch().getPath().get(0));
+				return getLastNode(path.getMatch().getProperty().get(0));
 	}
 
 	private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws DataFormatException, IOException, QueryException {

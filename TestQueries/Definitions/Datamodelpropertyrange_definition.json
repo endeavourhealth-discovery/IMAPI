@@ -23,29 +23,38 @@
     "name" : "Data model property range",
     "description" : "get node, class or datatype value (range)  of property objects for specific data model and property",
     "match" : [ {
-      "path" : [ {
+      "parameter" : "myDataModel",
+      "property" : [ {
         "@id" : "sh:property",
         "match" : {
-          "where" : [ {
+          "variable" : "shaclProperty",
+          "bool" : "and",
+          "property" : [ {
             "@id" : "sh:path",
             "in" : [ {
               "parameter" : "myProperty"
             } ]
           }, {
-            "boolWhere" : "or",
-            "where" : [ {
-              "@id" : "sh:class"
+            "bool" : "or",
+            "property" : [ {
+              "@id" : "sh:class",
+              "match" : {
+                "variable" : "propType"
+              }
             }, {
-              "@id" : "sh:node"
+              "@id" : "sh:node",
+              "match" : {
+                "variable" : "propType"
+              }
             }, {
-              "@id" : "sh:datatype"
-            } ],
-            "variable" : "propType"
-          } ],
-          "variable" : "shaclProperty"
+              "@id" : "sh:datatype",
+              "match" : {
+                "variable" : "propType"
+              }
+            } ]
+          } ]
         }
-      } ],
-      "parameter" : "myDataModel"
+      } ]
     } ],
     "return" : [ {
       "nodeRef" : "propType",

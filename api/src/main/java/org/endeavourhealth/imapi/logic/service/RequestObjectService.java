@@ -16,6 +16,11 @@ public class RequestObjectService {
         return getPropertyValueFromJwt("cognito:username", token);
     }
 
+    public String getRequestAgentId(HttpServletRequest request) throws JsonProcessingException {
+        String token = request.getHeader("Authorization");
+        return getPropertyValueFromJwt("sub",token);
+    }
+
     private String getPropertyValueFromJwt(String propertyValue, String jwt) throws JsonProcessingException {
         String token = jwt.replace("Bearer ", "");
         String[] chunks = token.split("\\.");

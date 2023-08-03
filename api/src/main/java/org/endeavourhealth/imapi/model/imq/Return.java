@@ -15,6 +15,24 @@ public class Return {
 	private List<ReturnProperty> property;
 	private FunctionClause function;
 	private String as;
+	private List<String> valueRef;
+
+	public List<String> getValueRef() {
+		return valueRef;
+	}
+
+	public Return setValueRef(List<String> valueRef) {
+		this.valueRef = valueRef;
+		return this;
+	}
+
+	public Return addValueRef(String ref){
+		if (this.valueRef==null)
+			this.valueRef= new ArrayList<>();
+		this.valueRef.add(ref);
+		return this;
+	}
+
 
 	public String getAs() {
 		return as;

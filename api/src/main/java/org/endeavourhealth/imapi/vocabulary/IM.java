@@ -18,6 +18,7 @@ public class IM {
     public static final TTIriRef PREFERRED_NAME = iri(NAMESPACE + "preferredName");
     public static final TTIriRef HAS_SCHEME = iri(NAMESPACE + "scheme");
     public static final TTIriRef HAS_STATUS = iri(NAMESPACE + "status");
+    public static final TTIriRef CONTENT_TYPE = iri(NAMESPACE + "contentType");
     //public static final TTIriRef STATUS = iri(NAMESPACE + "Status");
    // public static final TTIriRef SHORT_NAME = iri(NAMESPACE + "shortName");
     public static final TTIriRef USAGE_STATS = iri(NAMESPACE + "usageStats");
@@ -26,6 +27,7 @@ public class IM {
 
     //Entity top level triples
     public static final TTIriRef DEFINITION = iri(NAMESPACE + "definition");
+    public static final TTIriRef RETURN_TYPE = iri(NAMESPACE + "returnType");
     public static final TTIriRef UPDATE_PROCEDURE = iri(NAMESPACE + "updateProcedure");
 
     //Specialised data model predicates
@@ -40,12 +42,12 @@ public class IM {
     public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
     public static final TTIriRef FUNCTION = iri(NAMESPACE + "FunctionClause");
     public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
+    public static final TTIriRef COHORT_QUERY = iri(NAMESPACE + "CohortQuery");
+    public static final TTIriRef DATASET_QUERY = iri(NAMESPACE + "DatasetQuery");
     public static final TTIriRef DATA_UPDATE = iri(NAMESPACE + "DataUpdate");
-    public static final TTIriRef QUERY_TEMPLATE = iri(NAMESPACE + "QueryTemplate");
     public static final TTIriRef PATH_QUERY = iri(NAMESPACE + "PathQuery");
     public static final TTIriRef PATH_TO = iri(NAMESPACE + "pathTo");
     public static final TTIriRef OPENSEARCH_QUERY = iri(NAMESPACE + "OpenSearchQuery");
-    public static final TTIriRef DATAMODEL_ENTITY = iri(NAMESPACE + "DataModelEntity");
     public static final TTIriRef DATAMODEL_PROPERTY = iri(NAMESPACE + "dataModelProperty");
     public static final TTIriRef TASK = iri(IM.NAMESPACE + "Task");
     public static final TTIriRef FIELD_GROUP = iri(NAMESPACE + "FieldGroup");
@@ -137,6 +139,8 @@ public class IM {
     public static final TTIriRef GRAPH_DISCOVERY = iri(IM.DOMAIN + "im#");
     public static final TTIriRef GRAPH_ICD10 = iri(DOMAIN + "icd10#");
     public static final TTIriRef GRAPH_EMIS = TTIriRef.iri(DOMAIN + "emis#");
+    public static final TTIriRef GRAPH_CPRD_MED = TTIriRef.iri(DOMAIN + "cprdm#");
+    public static final TTIriRef GRAPH_CPRD_PROD = TTIriRef.iri(DOMAIN + "cprdp#");
     public static final TTIriRef GRAPH_OPCS4 = TTIriRef.iri(DOMAIN + "opcs4#");
     public static final TTIriRef GRAPH_TPP = TTIriRef.iri(DOMAIN + "tpp#");
     public static final TTIriRef GRAPH_ODS = TTIriRef.iri(DOMAIN + "ods#");
@@ -164,6 +168,8 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_DISCOVERY = IM.GRAPH_DISCOVERY;
     public static final TTIriRef CODE_SCHEME_ICD10 = IM.GRAPH_ICD10;
     public static final TTIriRef CODE_SCHEME_EMIS = IM.GRAPH_EMIS;
+    public static final TTIriRef CODE_SCHEME_CPRD_MED = IM.GRAPH_CPRD_MED;
+    public static final TTIriRef CODE_SCHEME_CPRD_PROD = IM.GRAPH_CPRD_PROD;
     public static final TTIriRef CODE_SCHEME_OPCS4 = IM.GRAPH_OPCS4;
     public static final TTIriRef CODE_SCHEME_TPP = IM.GRAPH_TPP;
     public static final TTIriRef CODE_SCHEME_ODS = IM.GRAPH_ODS;

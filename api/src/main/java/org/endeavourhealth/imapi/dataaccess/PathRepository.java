@@ -37,11 +37,13 @@ public class PathRepository {
 
 	private int getLength(Match match){
 		int count=0;
-		if (match.getPath()==null)
+		if (match==null)
+			return 0;
+		if (match.getProperty()==null)
 			return 0;
 		else {
 			count++;
-			for (Path path:match.getPath())
+			for (Property path:match.getProperty())
 				count=count+getLength(path.getMatch());
 		}
 		return count;
@@ -73,15 +75,15 @@ public class PathRepository {
 							nextPath
 								.setType(bs.getValue("entity").stringValue())
 								.setName(bs.getValue("entityName").stringValue());
-							Path path= new Path();
-							nextPath.addPath(path);
+							Property path= new Property();
+							nextPath.addProperty(path);
 							path
 								.setIri(bs.getValue("path").stringValue())
 								.setName(bs.getValue("pathName").stringValue());
 							Match node= new Match();
 							path.setMatch(node);
 							node.setType(partial.getType());
-							node.setPath(partial.getPath());
+							node.setProperty(partial.getProperty());
 							if (nextPath.getType().equals(source))
 								full.add(nextPath);
 							else
@@ -106,7 +108,7 @@ public class PathRepository {
 		StringJoiner sql = new StringJoiner("\n");
 		sql.add(getDefaultPrefixes());
 		sql.add("Select ?entity ?entityName ?path ?pathName ?target")
-			.add("Where {")
+			.add("Where{")
 			.add("?target ^sh:node ?prop.")
 			.add("?prop sh:path ?path.")
 			.add("?path rdfs:label ?pathName.")
@@ -167,11 +169,11 @@ public class PathRepository {
 				match
 					.setType(bs.getValue("entity").stringValue())
 				  .setName(bs.getValue("entityName").stringValue());
-				Where where= new Where();
+				Property where= new Property();
 				if (bs.getValue("property")!=null) {
 					String propertyIri = bs.getValue("property").stringValue();
 					if (bs.getValue("conceptProperty")==null) {
-						match.addWhere(where);
+						match.addProperty(where);
 						where
 							.setIri(propertyIri)
 							.setName(bs.getValue("propertyName").stringValue())
@@ -180,13 +182,13 @@ public class PathRepository {
 								.setName(bs.getValue("targetName").stringValue()));
 					}
 					else {
-						Path path= new Path();
-						match.addPath(path);
+						Property path= new Property();
+						match.addProperty(path);
 						path
 							.setIri(propertyIri)
 							.setName(bs.getValue("propertyName").stringValue())
 							.match(mConcept->mConcept
-								.addWhere(where));
+								.addProperty(where));
 						where
 						.setIri(bs.getValue("conceptProperty").stringValue())
 						.setName(bs.getValue("conceptPropertyName").stringValue())

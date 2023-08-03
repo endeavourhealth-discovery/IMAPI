@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.iml.MapFunction;
 import org.endeavourhealth.imapi.model.iml.ListMode;
 import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
-import org.endeavourhealth.imapi.model.imq.Where;
+import org.endeavourhealth.imapi.model.imq.Match;
+import org.endeavourhealth.imapi.model.imq.Property;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class MapProperty extends TTIriRef {
 	private String source;
 	private String sourceVariable;
 	private ListMode listMode;
-	private Where where;
+	private Match where;
 	private MapFunction functionClause;
 	private String target;
 	private String valueData;
@@ -140,18 +141,18 @@ public class MapProperty extends TTIriRef {
 		return this;
 	}
 
-	public Where getWhere() {
+	public Match getWhere() {
 		return where;
 	}
 
 	@JsonSetter
-	public MapProperty setWhere(Where where) {
+	public MapProperty setWhere(Match where) {
 		this.where = where;
 		return this;
 	}
 
-	public MapProperty where (Consumer<Where> builder){
-		this.where= new Where();
+	public MapProperty where (Consumer<Match> builder){
+		this.where= new Match();
 		builder.accept(this.where);
 		return this;
 	}

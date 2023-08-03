@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +23,7 @@ public class EclModelServiceTest {
 
     @Test
     @Ignore
-    void getEcl_NotNullInferred() throws DataFormatException, JsonProcessingException {
+    void getEcl_NotNullInferred() throws QueryException, JsonProcessingException {
         String actual = eclService.getEcl(new Query());
         assertNotNull(actual);
     }

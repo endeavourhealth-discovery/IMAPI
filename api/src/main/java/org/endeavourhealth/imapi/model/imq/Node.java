@@ -15,6 +15,11 @@ public class Node extends Element{
 	private String type;
 	private String set;
 
+	@Override
+	public Node setRef(String ref) {
+		super.setRef(ref);
+		return this;
+	}
 
 	public Node setParameter(String parameter) {
 		super.setParameter(parameter);

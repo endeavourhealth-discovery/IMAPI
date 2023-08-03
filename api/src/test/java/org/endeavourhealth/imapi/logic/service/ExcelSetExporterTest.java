@@ -2,10 +2,12 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
+import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -19,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -42,24 +45,30 @@ public class ExcelSetExporterTest {
     EntityTripleRepository entityTripleRepository;
 
     @Mock
+    EntityRepository2 entityRepository2;
+
+    @Mock
     SetRepository setRepository;
 
     @Test
-    void getSetExport_NotNullIriNoConcept() throws DataFormatException, JsonProcessingException, QueryException {
+    void getSetExport_NotNullIriNoConcept() throws JsonProcessingException, QueryException {
         when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity()));
-        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115", true, true, false);
+        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115", true,true,
+                true, true, true, false, List.of());
         assertNotNull(actual);
     }
 
     @Test
-    void getSetExport_NotNullIriWithDefinition() throws DataFormatException, JsonProcessingException, QueryException {
+    void getSetExport_NotNullIriWithDefinition() throws JsonProcessingException, QueryException {
         when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(mockDefinition()));
-        when(setRepository.getSetExpansion(any(), anyBoolean(),any())).thenReturn(new HashSet<>());
-        when(setRepository.getSetMembers(any(), anyBoolean())).thenReturn(new HashSet<>());
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity().setName("Test")));
+        when(setRepository.getSetExpansion(any(), anyBoolean(),any(), anyList())).thenReturn(new HashSet<>());
+        when(setRepository.getSetMembers(any(), anyBoolean(), anyList())).thenReturn(new HashSet<>());
         when(setRepository.getSubsets(anyString())).thenReturn(new HashSet<>());
         ReflectionTestUtils.setField(excelSetExporter, "setExporter", setExporter);
 
-        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115", true, true, false);
+        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115", true,true,
+                true, true, true, false, List.of());
 
         assertNotNull(actual);
         assertEquals(3, actual.getNumberOfSheets());
@@ -70,24 +79,26 @@ public class ExcelSetExporterTest {
             .setIri("http://endhealth.info/im#CSET_BartsCVSSMeds")
             .setName("Concept SetModel- Barts Covid vaccine study medication concepts");
 
-        definition.set(IM.IS_CONTAINED_IN, new TTArray().add(iri("http://endhealth.info/im#CSET_BartsVaccineSafety", "Value sets for the Barts Vaccine safety study")));
+        definition.set(IM.IS_CONTAINED_IN, new TTArray().add(iri("http://endhealth.info/im#CSET_BartsVaccineSafety",
+                "Value sets for the Barts Vaccine safety study")));
 
         definition.set(IM.DEFINITION, TTLiteral.literal(new Query()
             .match(w->w
-              .setBoolMatch(Bool.or)
+              .setBool(Bool.or)
                 .match(f->f
                 .setIri("http://snomed.info/sct#39330711000001103").setName("COVID-19 vaccine (product)").setDescendantsOrSelfOf(true)))
                 .match(f->f
                     .setIri("http://snomed.info/sct#10363601000001109").setName("UK product (product)").setDescendantsOrSelfOf(true)
-                  .where(p->p
+                  .property(p->p
                     .setIri(IM.ROLE_GROUP.getIri())
-                    .where(p1->p1
+                    .match(m1->m1
+                    .property(p1->p1
                       .setIri("http://snomed.info/sct#10362601000001103")
                       .setName("Has VMP (attribute)")
                       .setDescendantsOrSelfOf(true)
                     .addIn(new Node().setIri("http://snomed.info/sct#39330711000001103")
                       .setName("COVID-19 vaccine (product)")
-                      .setDescendantsOrSelfOf(true)))))));
+                      .setDescendantsOrSelfOf(true))))))));
         return definition;
     }
 

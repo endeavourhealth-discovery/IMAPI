@@ -55,32 +55,30 @@ class SearchServiceTest {
 		}
 
 	}
-
  //@Test
 	void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
 		testDefinitions = System.getenv("folder") + "\\Definitions";
 		testResults = System.getenv("folder") + "\\Results";
 		String testSparql = System.getenv("folder") + "\\Sparql";
 		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
+	 output(TestQueries.getAllowableQueries());
+	 output(TestQueries.getAllowableSubtypes());
+		output(TestQueries.query6());
+		output(TestQueries.dataModelPropertyRange());
+	 output(TestQueries.rangeSuggestion());
+		output(TestQueries.getMembers());
+		output(TestQueries.pathQueryAtenolol3());
 
-		for (QueryRequest qr1 : List.of(
-			TestQueries.pathQueryAtenolol3(),
-			TestQueries.dataModelPropertyRange(),
-			TestQueries.getAllowableSubtypes(),
-			TestQueries.AllowablePropertiesForCovid(),
-			TestQueries.query1(),
-			TestQueries.query2(),
-			TestQueries.getShaclProperty(),
-			TestQueries.rangeSuggestion(),
-			TestQueries.pathToAtenolol(),
-			TestQueries.pathDobQuery(),
-			TestQueries.pathToPostCode(),
-			TestQueries.deleteSets()
+			output(TestQueries.AllowablePropertiesForCovid());
+			output(TestQueries.query1());
+			output(TestQueries.query2());
+			output(TestQueries.getShaclProperty());
 
+			output(TestQueries.pathToAtenolol());
+			output(TestQueries.pathDobQuery());
+			output(TestQueries.pathToPostCode());
+			output(TestQueries.deleteSets());
 
-		)) {
-			output(qr1);
-		}
 
 		for (QueryRequest qr1 : List.of(
 			TestQueries.getAllowableProperties(),
@@ -88,9 +86,11 @@ class SearchServiceTest {
 			TestQueries.rangeTextSearch(), TestQueries.getAllowableRanges(), TestQueries.oralNsaids(),
 			TestQueries.getAllowableProperties(), TestQueries.getIsas(),
 			TestQueries.getConcepts(),
-			TestQueries.query4(), TestQueries.query6())) {
+			TestQueries.query4())) {
 			output(qr1);
 		}
+
+
 	}
 
 
@@ -135,6 +135,7 @@ class SearchServiceTest {
 			try (FileWriter wr = new FileWriter(testResults + "\\" + name + "_result.json")) {
 				wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
 			}
+			System.out.println("found "+ result.getMatch().size()+" paths");
 		}
 
 	}
@@ -145,7 +146,7 @@ class SearchServiceTest {
 		TTEntity entity= es.getFullEntity(IM.NAMESPACE+"VSET_VitalSigns").getEntity();
 		String json = entity.get(IM.DEFINITION).asLiteral().getValue();
 		SetExporter exporter = new SetExporter();
-		Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE + "VSET_VitalSigns", false);
+		Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE + "VSET_VitalSigns", false, true, List.of());
 		System.out.println(concepts.size());
 	}
 }

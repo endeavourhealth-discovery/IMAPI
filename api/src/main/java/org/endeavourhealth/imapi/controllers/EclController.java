@@ -30,7 +30,7 @@ public class EclController {
     private final EclService eclService = new EclService();
 
     @PostMapping("/public/ecl")
-    public String getEcl(@RequestBody Query inferred) throws DataFormatException, JsonProcessingException {
+    public String getEcl(@RequestBody Query inferred) throws QueryException, JsonProcessingException {
         LOG.debug("getEcl");
         return eclService.getEcl(inferred);
     }
@@ -68,7 +68,7 @@ public class EclController {
         summary = "Get ecl from query",
         description = "MapObject an IM query to ecl"
     )
-    public String getECLFromQuery(@RequestBody Query query) throws DataFormatException {
+    public String getECLFromQuery(@RequestBody Query query) throws QueryException {
         return eclService.getECLFromQuery(query);
     }
 }

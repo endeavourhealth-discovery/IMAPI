@@ -12,19 +12,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"@context","iri","name","description","match","select","construct","subQuery","groupBy","orderBy","direction","limit","having"})
+@JsonPropertyOrder({"@context","iri","name","description","activeOnly","bool","match","return","construct","query","groupBy","orderBy"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Query extends TTIriRef {
+public class Query extends Match{
 	private String type;
 	private String set;
 	private String description;
 	private boolean activeOnly;
-	private boolean usePrefixes;
 	private List<Query> query;
 	private List<Match> match;
 	private List<OrderLimit> orderBy;
-	private List<Property> groupBy;
+	private List<PropertyRef> groupBy;
 	private List<Return> returx;
+
+	@Override
+	public Query setBool(Bool bool) {
+		super.setBool(bool);
+		return this;
+	}
 
 	public String getType() {
 		return type;
@@ -135,24 +140,24 @@ public class Query extends TTIriRef {
 	}
 
 
-	public List<Property> getGroupBy() {
+	public List<PropertyRef> getGroupBy() {
 		return groupBy;
 	}
 
-	public Query setGroupBy(List<Property> groupBy) {
+	public Query setGroupBy(List<PropertyRef> groupBy) {
 		this.groupBy = groupBy;
 		return this;
 	}
 
-	public Query addGroupBy(Property group){
+	public Query addGroupBy(PropertyRef group){
 		if (this.groupBy==null)
 			this.groupBy= new ArrayList<>();
 		this.groupBy.add(group);
 		return this;
 	}
 
-	public Query groupBy(Consumer<Property> builder){
-		Property group= new Property();
+	public Query groupBy(Consumer<PropertyRef> builder){
+		PropertyRef group= new PropertyRef();
 		addGroupBy(group);
 		builder.accept(group);
 		return this;
@@ -189,15 +194,6 @@ public class Query extends TTIriRef {
 
 	public Query setActiveOnly(boolean activeOnly) {
 		this.activeOnly = activeOnly;
-		return this;
-	}
-
-	public boolean isUsePrefixes() {
-		return usePrefixes;
-	}
-
-	public Query setUsePrefixes(boolean usePrefixes) {
-		this.usePrefixes = usePrefixes;
 		return this;
 	}
 

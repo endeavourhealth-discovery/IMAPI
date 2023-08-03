@@ -11,11 +11,10 @@
   "query" : {
     "name" : "oral none steroidals",
     "match" : [ {
-      "boolMatch" : "and",
       "match" : [ {
         "@id" : "sn:763158003",
         "descendantsOrSelfOf" : true,
-        "where" : [ {
+        "property" : [ {
           "@id" : "sn:127489000",
           "in" : [ {
             "@id" : "sn:372665008",
@@ -32,9 +31,9 @@
           "anyRoleGroup" : true,
           "descendantsOrSelfOf" : true
         } ]
-      } ]
+      } ],
+      "bool" : "and"
     } ],
-    "usePrefixes" : true,
     "return" : [ {
       "property" : [ {
         "@id" : "rdfs:label"

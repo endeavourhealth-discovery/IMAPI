@@ -110,7 +110,7 @@ public class PropertyRepository {
 			"    ?subObject ?subObPred ?subObOb.\n" +
 			"}\n" +
 			"where \n" +
-			"    {?entity rdf:type rdf:Property.\n" +
+			"    {?entity rdf:type rdf:PropertyRef.\n" +
 			"    ?entity ?predicate ?object.\n" +
 			"    filter (?predicate!=im:isA)\n" +
 			"    Optional {?predicate rdfs:label ?predicateLabel}\n" +

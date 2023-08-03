@@ -52,14 +52,14 @@ public class QueryRepository {
      * @throws JsonProcessingException if the json is invalid
      */
     public JsonNode queryIM(QueryRequest queryRequest) throws QueryException, DataFormatException,JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
-        result= mapper.createObjectNode();
+        result = mapper.createObjectNode();
+        unpackQueryRequest(queryRequest);
+        if (null != queryRequest.getTextSearch()) {
+            ObjectNode osResult = new OSQuery().openSearchQuery(queryRequest);
+            if (osResult != null)
+                return osResult;
+        }
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            unpackQueryRequest(queryRequest);
-            if (null != queryRequest.getTextSearch()) {
-                ObjectNode osResult = new OSQuery().openSearchQuery(queryRequest);
-               if (osResult!=null)
-                   return osResult;
-            }
             checkReferenceDate();
             new QueryValidator().validateQuery(queryRequest.getQuery());
             converter = new SparqlConverter(queryRequest);
@@ -196,40 +196,47 @@ public class QueryRepository {
     }
 
     private void bindProperty(BindingSet bs, ObjectNode node, ReturnProperty property) {
-        String iri = property.getIri();
-        String objectVariable= property.getValueVariable();
+        String predicate = property.getIri();
+        if (property.getAs()!=null)
+            predicate= property.getAs();
+        String objectVariable= property.getValueRef();
         Value object = bs.getValue(objectVariable);
         if (object != null) {
                 String nodeValue = object.stringValue();
                 if (object.isIRI()) {
                     ObjectNode iriNode= mapper.createObjectNode();
-                    node.set(iri, iriNode);
+                    node.set(predicate, iriNode);
                     iriNode.put("@id",nodeValue);
                 }
                 else if (object.isBNode()) {
-                    node.put(iri,nodeValue);
+                    node.put(predicate,nodeValue);
                 }
                 else
-                    node.put(iri,nodeValue);
+                    node.put(predicate,nodeValue);
         }
     }
 
     private void bindPath(BindingSet bs, ReturnProperty path, ObjectNode node) {
-        if (path.getNode()==null) {
+        if (path.getReturn()==null) {
             bindProperty(bs, node, path);
             return;
         }
         String iri=null;
         if (path.getIri()!=null)
             iri= path.getIri();
-        else {
-            Value pathVariable= bs.getValue(path.getPropertyRef());
-            if (pathVariable!=null)
-                iri= pathVariable.stringValue();
+        else if (path.getPropertyRef()!=null) {
+            Value pathVariable = bs.getValue(path.getPropertyRef());
+            if (pathVariable != null)
+                iri = pathVariable.stringValue();
         }
+        else
+            iri= path.getAs();
         if (iri!=null) {
-            Return returnNode = path.getNode();
-            String nodeVariable = returnNode.getNodeRef();
+            Return returnNode = path.getReturn();
+            String nodeVariable;
+            if(returnNode.getNodeRef() != null)
+                nodeVariable = returnNode.getNodeRef();
+            else nodeVariable = returnNode.getAs();
             Value nodeValue = bs.getValue(nodeVariable);
             if (nodeValue != null) {
                 if (node.get(iri)==null) {
@@ -343,24 +350,22 @@ public class QueryRepository {
                 if (property.getIri() != null) {
                     addToIriList(property.getIri(), ttIris, iris);
                 }
-                if (property.getNode()!=null){
-                    gatherReturnLabels(property.getNode(),ttIris,iris);
+                if (property.getReturn()!=null){
+                    gatherReturnLabels(property.getReturn(),ttIris,iris);
                 }
             }
         }
     }
 
-    private void gatherWhereLabels(Where where, List<TTIriRef> ttIris, Map<String, String> iris) {
+    private void gatherWhereLabels(Property where, List<TTIriRef> ttIris, Map<String, String> iris) {
         if (where.getId() != null)
             addToIriList(where.getId(), ttIris, iris);
-        if (where.getWhere() != null) {
-            for (Where subWhere : where.getWhere()) {
-                gatherWhereLabels(subWhere, ttIris, iris);
-            }
-        }
+
         if (where.getIn() != null)
             for (Element in : where.getIn())
                 addToIriList(in.getIri(), ttIris, iris);
+        if (where.getMatch()!=null)
+            gatherFromLabels(where.getMatch(),ttIris,iris);
     }
 
     private void gatherFromLabels(Match match, List<TTIriRef> ttIris, Map<String, String> iris) {
@@ -368,8 +373,8 @@ public class QueryRepository {
             addToIriList(match.getIri(), ttIris, iris);
         else if (match.getType() != null)
             addToIriList(match.getType(), ttIris, iris);
-        if (match.getWhere() != null) {
-            for (Where where : match.getWhere()) {
+        if (match.getProperty() != null) {
+            for (Property where : match.getProperty()) {
                 gatherWhereLabels(where, ttIris, iris);
             }
         }
@@ -379,8 +384,8 @@ public class QueryRepository {
         if (match.getSet() != null) {
             addToIriList(match.getSet(), ttIris, iris);
         }
-        if (match.getPath() != null) {
-            for (Path path:match.getPath()) {
+        if (match.getProperty() != null) {
+            for (Property path:match.getProperty()) {
                 addToIriList(path.getIri(), ttIris, iris);
             }
         }
@@ -421,8 +426,8 @@ public class QueryRepository {
             }
             match.setName(iriLabels.get(match.getType()));
         }
-        if (match.getWhere() != null) {
-            for (Where where : match.getWhere()) {
+        if (match.getProperty() != null) {
+            for (Property where : match.getProperty()) {
                 setWhereLabels(where,iriLabels);
             }
         }
@@ -431,11 +436,6 @@ public class QueryRepository {
         }
         if (match.getSet() != null) {
             match.setName(iriLabels.get(match.getSet()));
-        }
-        if (match.getPath() != null) {
-            for (Path path:match.getPath()) {
-                path.setName(iriLabels.get(path.getIri()));
-            }
         }
         if (match.getOrderBy() != null) {
             for(OrderLimit orderBy : match.getOrderBy()) {
@@ -450,27 +450,25 @@ public class QueryRepository {
         }
     }
 
-    private void setWhereLabels(Where where, Map<String, String> iris) {
+    private void setWhereLabels(Property where, Map<String, String> iris) {
         if (where.getId() != null)
             where.setName(iris.get(where.getId()));
-        if (where.getWhere() != null) {
-            for (Where subWhere : where.getWhere()) {
-                setWhereLabels(subWhere, iris);
-            }
-        }
         if (where.getIn() != null)
             for (Element in : where.getIn())
                 in.setName(iris.get(in.getIri()));
+        if (where.getMatch()!=null){
+            setMatchLabels(where.getMatch(),iris);
+        }
     }
 
     private void setReturnLabels(Return select, Map<String, String> iris) {
         if (select.getProperty()!=null) {
             for (ReturnProperty property : select.getProperty()) {
                 if (property.getIri() != null) {
-                    property.setName(iris.get(property.getIri()));
+                    property.setValue(iris.get(property.getIri()));
                 }
-                if (property.getNode()!=null){
-                    setReturnLabels(property.getNode(),iris);
+                if (property.getReturn()!=null){
+                    setReturnLabels(property.getReturn(),iris);
                 }
             }
         }

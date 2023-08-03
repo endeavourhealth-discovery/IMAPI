@@ -1,13 +1,15 @@
 package org.endeavourhealth.imapi.model.imq;
 
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
 public interface Assignable {
 	public Operator getOperator();
 
 	public Assignable setOperator(Operator operator);
 
-	public Property getRelativeTo();
+	public PropertyRef getRelativeTo();
 
-	public Assignable setRelativeTo(Property relativeTo);
+	public Assignable setRelativeTo(PropertyRef relativeTo);
 
 
 	public String getValue();
@@ -17,4 +19,8 @@ public interface Assignable {
 	public String getUnit();
 
 	public Assignable setUnit(String unit);
+
+	public Assignable setDataType(TTIriRef datatype);
+
+	public TTIriRef getDataType();
 }

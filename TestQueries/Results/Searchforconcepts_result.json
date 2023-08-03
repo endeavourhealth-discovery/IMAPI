@@ -1,18 +1,18 @@
 {
   "entities" : [ {
-    "@id" : "http://endhealth.info/vis#182__",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain"
-  }, {
     "@id" : "http://endhealth.info/bc#3848116",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain"
+  }, {
+    "@id" : "http://endhealth.info/vis#182__",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain"
   }, {
     "@id" : "http://endhealth.info/tpp#182__",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain"
   }, {
-    "@id" : "http://endhealth.info/tpp#182Z_",
+    "@id" : "http://endhealth.info/vis#182Z_",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain NOS"
   }, {
-    "@id" : "http://endhealth.info/vis#182Z_",
+    "@id" : "http://endhealth.info/tpp#182Z_",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain NOS"
   }, {
     "@id" : "http://endhealth.info/bc#3844666",
@@ -21,40 +21,40 @@
     "@id" : "http://endhealth.info/tpp#Y092a",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain: none"
   }, {
-    "@id" : "http://endhealth.info/tpp#X77QU",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain rating"
-  }, {
     "@id" : "http://endhealth.info/bc#332237058",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Clinic"
+  }, {
+    "@id" : "http://endhealth.info/tpp#X77QU",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain rating"
   }, {
     "@id" : "http://endhealth.info/tpp#Y0929",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain: unknown"
   }, {
-    "@id" : "http://endhealth.info/bc#3844663",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Location"
+    "@id" : "http://endhealth.info/tpp#Y2497",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain referral"
   }, {
     "@id" : "http://endhealth.info/tpp#~2473",
     "http://www.w3.org/2000/01/rdf-schema#label" : "chest pain referral"
   }, {
-    "@id" : "http://endhealth.info/tpp#Y2497",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain referral"
+    "@id" : "http://endhealth.info/bc#3844663",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Location"
   }, {
-    "@id" : "http://endhealth.info/bc#3844669",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Radiation"
+    "@id" : "http://endhealth.info/emis#406061010",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/vis#R065_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain"
   }, {
     "@id" : "http://endhealth.info/tpp#R065_",
     "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain"
   }, {
-    "@id" : "http://endhealth.info/vis#R065_",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain"
+    "@id" : "http://endhealth.info/tpp#R065z",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain NOS"
   }, {
     "@id" : "http://endhealth.info/bc#71842600",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Angina/Chest Pain"
   }, {
     "@id" : "http://endhealth.info/vis#R065z",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain NOS"
-  }, {
-    "@id" : "http://endhealth.info/tpp#R065z",
     "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain NOS"
   }, {
     "@id" : "http://endhealth.info/tpp#X200c",

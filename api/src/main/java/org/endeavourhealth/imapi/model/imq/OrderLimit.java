@@ -7,10 +7,20 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 @JsonPropertyOrder({"nodeVariable","id","count","direction"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class OrderLimit extends Property {
+public class OrderLimit extends PropertyRef {
 	private Order direction;
 	private int limit;
 	private String description;
+	private PropertyRef partitionBy;
+
+	public PropertyRef getPartitionBy() {
+		return partitionBy;
+	}
+
+	public OrderLimit setPartitionBy(PropertyRef partitionBy) {
+		this.partitionBy = partitionBy;
+		return this;
+	}
 
 	public String getDescription() {
 		return description;

@@ -15,7 +15,6 @@ import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.dto.*;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.iml.FormGenerator;
-import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
@@ -38,7 +37,6 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -528,8 +526,8 @@ public class EntityService {
             return new TTEntity();
         }
         List<String> excludedForSummary = Arrays.asList("None", RDFS.SUBCLASSOF.getIri(), "subtypes", IM.IS_CHILD_OF.getIri(), IM.HAS_CHILDREN.getIri(), "termCodes", "semanticProperties", "dataModelProperties");
-        List<ComponentLayoutItem> filteredConfigs = configs.stream().filter(config -> !excludedForSummary.contains(config.getPredicate())).collect(Collectors.toList());
-        List<String> predicates = filteredConfigs.stream().map(ComponentLayoutItem::getPredicate).collect(Collectors.toList());
+        List<ComponentLayoutItem> filteredConfigs = configs.stream().filter(config -> !excludedForSummary.contains(config.getPredicate())).toList();
+        List<String> predicates = filteredConfigs.stream().map(ComponentLayoutItem::getPredicate).toList();
         return getBundle(iri, new HashSet<>(predicates)).getEntity();
     }
 
@@ -698,7 +696,7 @@ public class EntityService {
 
         List<GraphDto> subtypes = getDefinitionSubTypes(iri).stream()
                 .map(subtype -> new GraphDto().setName(subtype.getName()).setIri(subtype.getIri()))
-                .collect(Collectors.toList());
+                .toList();
 
         GraphDto axiom = new GraphDto().setKey("0_2").setName("Axioms");
         GraphDto axiomWrapper = getWrapper(axiomGraph, "0_2_0");
@@ -751,7 +749,7 @@ public class EntityService {
         GraphDto wrapper = new GraphDto().setKey(key).setType(GraphType.PROPERTIES);
         wrapper.getLeafNodes()
                 .addAll(props.stream()
-                        .filter(prop -> prop.getInheritedFromIri() == null).collect(Collectors.toList()));
+                        .filter(prop -> prop.getInheritedFromIri() == null).toList());
         return wrapper;
     }
 
@@ -759,7 +757,7 @@ public class EntityService {
         GraphDto dataModelInheritedWrapper = new GraphDto().setKey("0_3_1_0").setType(GraphType.PROPERTIES);
         dataModelInheritedWrapper.getLeafNodes()
                 .addAll(dataModelProps.stream()
-                        .filter(prop -> prop.getInheritedFromIri() != null).collect(Collectors.toList()));
+                        .filter(prop -> prop.getInheritedFromIri() != null).toList());
         return dataModelInheritedWrapper;
     }
 
@@ -899,11 +897,12 @@ public class EntityService {
         return entityTripleRepository.getMatchedTo(iri, schemes);
     }
 
-    public XSSFWorkbook getSetExport(String iri, boolean core, boolean legacy, boolean flat) throws DataFormatException, JsonProcessingException, QueryException {
+    public XSSFWorkbook getSetExport(String iri, boolean definition, boolean core, boolean legacy, boolean includeSubsets,
+                                     boolean inlineLegacy, boolean im1id, List<String> schemes) throws JsonProcessingException, QueryException {
         if (iri == null || "".equals(iri)) {
             return null;
         }
-        return new ExcelSetExporter().getSetAsExcel(iri, core, legacy, flat);
+        return new ExcelSetExporter().getSetAsExcel(iri, definition, core, legacy, includeSubsets, inlineLegacy, im1id, schemes);
     }
 
     /**

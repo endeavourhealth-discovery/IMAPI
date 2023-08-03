@@ -8,16 +8,23 @@
     "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "sn" : "http://snomed.info/sct#"
   },
+  "textSearch" : "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not ",
   "argument" : [ {
-    "parameter" : "this",
-    "valueData" : "http://snomed.info/sct#417928002"
+    "parameter" : "dataModelIri",
+    "valueIri" : {
+      "@id" : "im:Patient"
+    }
   } ],
   "query" : {
-    "name" : "All subtypes of an entity, active only",
-    "activeOnly" : true,
+    "name" : "Allowable queries for patient cohort",
     "match" : [ {
-      "descendantsOrSelfOf" : true,
-      "parameter" : "this"
+      "@type" : "im:CohortQuery",
+      "property" : [ {
+        "@id" : "im:returnType",
+        "in" : [ {
+          "parameter" : "dataModelIri"
+        } ]
+      } ]
     } ],
     "return" : [ {
       "property" : [ {

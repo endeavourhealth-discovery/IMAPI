@@ -11,10 +11,10 @@
   "textSearch" : "chest pain",
   "query" : {
     "name" : "Search for concepts",
+    "activeOnly" : true,
     "match" : [ {
       "@type" : "im:Concept"
     } ],
-    "activeOnly" : true,
     "return" : [ {
       "property" : [ {
         "@id" : "rdfs:label"

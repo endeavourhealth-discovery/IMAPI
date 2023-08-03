@@ -661,8 +661,9 @@ public class EntityTripleRepository {
 
     public int getOrderNumber(String iri) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add("PREFIX shacl: <http://www.w3.org/ns/shacl#>")
                 .add("SELECT ?order {")
-                .add("?s im:order ?order")
+                .add("?s shacl:order ?order")
                 .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {

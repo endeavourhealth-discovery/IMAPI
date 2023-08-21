@@ -9,13 +9,11 @@
     "sn" : "http://snomed.info/sct#"
   },
   "entities" : [ {
-    "@id" : "http://www.w3.org/ns/shacl#NodeShape",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Data model/Node shape ",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "genid-954d39b39b5145f09b6f31a0058e5ccc26-b2038",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://www.w3.org/2000/01/rdf-schema#subClassOf"
-      }
-    } ]
+    "@bn" : "genid-954d39b39b5145f09b6f31a0058e5ccc26-b173",
+    "http://www.w3.org/ns/shacl#datatype" : [ {
+      "@id" : "http://www.w3.org/2001/XMLSchema#integer",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "integer"
+    } ],
+    "http://www.w3.org/ns/shacl#maxCount" : "1"
   } ]
 }

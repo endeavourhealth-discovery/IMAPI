@@ -106,7 +106,7 @@ public class EqdResources {
 		if ((eqCriteria.getPopulationCriterion() != null)) {
 			EQDOCSearchIdentifier srch = eqCriteria.getPopulationCriterion();
 			match
-				.setSet("urn:uuid:" + srch.getReportGuid())
+				.addInSet(new Node().setIri("urn:uuid:" + srch.getReportGuid()))
 				.setName(reportNames.get(srch.getReportGuid()));
 		} else {
 			convertCriterion(eqCriteria.getCriterion(),match);
@@ -136,7 +136,7 @@ public class EqdResources {
 			Property path = new Property();
 			match.addProperty(path);
 			path.setIri(elements[0]);
-			path.setMatch(new Match().setType(elements[1]));
+			path.setMatch(new Match().setTypeOf(elements[1]));
 		}
 	}
 
@@ -150,7 +150,7 @@ public class EqdResources {
 					path.setIri(paths[i]);
 					subMatch = new Match();
 					path.setMatch(subMatch);
-					subMatch.setType(paths[i + 1]);
+					subMatch.setTypeOf(paths[i + 1]);
 					node = subMatch;
 				}
 			}
@@ -221,17 +221,17 @@ public class EqdResources {
 				else
 					vsetName="unknown concept set";
 				valueLabel= valueLabel+ (valueLabel.equals("") ?"": ", ")+ vsetName;
-				Node iri = new Match().setSet("urn:uuid:" + vset);
+				Node iri = new Node().setIri("urn:uuid:" + vset);
 				if (vsetName!=null)
 					iri.setName(vsetName);
 				else
 					iri.setName("Unknown value set");
 				if (!notIn)
-					pv.addIn(iri);
+					pv.addInSet(iri);
 				else {
-					pv.addNotIn(iri);
+					pv.addNotInSet(iri);
 				}
-				storeLibraryItem(iri.getSet(),vsetName);
+				storeLibraryItem(iri.getIri(),vsetName);
 				if (valueLabel.equals(""))
 					valueLabel="Unknown value set";
 				pv.setValueLabel(valueLabel);
@@ -248,13 +248,13 @@ public class EqdResources {
 					pv.setValueLabel(labels.get(vs.getId()).toString());
 				}
 			if (vs.getAllValues() != null) {
-				pv.setNotIn(getExceptionSet(vs.getAllValues()));
+				pv.setIsNot(getExceptionSet(vs.getAllValues()));
 			} else {
 				if (!notIn) {
-					pv.setIn(getInlineValues(vs,pv));
+					pv.setIs(getInlineValues(vs,pv));
 				}
 				else {
-					pv.setNotIn(getInlineValues(vs,pv));
+					pv.setIsNot(getInlineValues(vs,pv));
 				}
 			}
 		}

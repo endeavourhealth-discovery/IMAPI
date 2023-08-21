@@ -42,7 +42,9 @@ public class EclController {
     )
     public Set<Concept> evaluateEcl(@RequestBody EclSearchRequest request) throws DataFormatException, QueryException,EclFormatException {
         try {
-            return eclService.evaluateECLQuery(request);
+            Set<Concept> result =eclService.evaluateECLQuery(request);
+            return result;
+            //return eclService.evaluateECLQuery(request);
         } catch (UnknownFormatConversionException | JsonProcessingException ex) {
             throw new EclFormatException("Invalid ECL format", ex);
         }

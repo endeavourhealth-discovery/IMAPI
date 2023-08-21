@@ -11,7 +11,7 @@
   "argument" : [ {
     "parameter" : "this",
     "valueIri" : {
-      "@id" : "im:EncounterSets"
+      "@id" : "im:Concept"
     }
   } ],
   "query" : {

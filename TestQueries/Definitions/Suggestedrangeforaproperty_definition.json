@@ -20,7 +20,7 @@
     "match" : [ {
       "property" : [ {
         "@id" : "sh:path",
-        "in" : [ {
+        "is" : [ {
           "parameter" : "this"
         } ]
       }, {

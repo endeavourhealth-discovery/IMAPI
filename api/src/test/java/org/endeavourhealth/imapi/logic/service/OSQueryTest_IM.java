@@ -31,7 +31,7 @@ class OSQueryTest_IM {
 
     @Test
     @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-    void imQuery_term() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
+    void imQuery_term() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1");
 
@@ -47,7 +47,7 @@ class OSQueryTest_IM {
 
     @Test
     @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-    void imQuery_term_multiScheme() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
+    void imQuery_term_multiScheme() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
             .setQuery(new Query()
@@ -56,7 +56,7 @@ class OSQueryTest_IM {
                         .setProperty(List.of(
                             new Property()
                                 .setIri(IM.HAS_SCHEME.getIri())
-                                .setIn(List.of(new Node().setIri(SNOMED.NAMESPACE)))
+                                .setIs(List.of(new Node().setIri(SNOMED.NAMESPACE)))
                         ))
                 ))
             );
@@ -71,15 +71,15 @@ class OSQueryTest_IM {
 
     @Test
     @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-    void imQuery_term_isA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
+    void imQuery_term_isA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
             .setQuery(new Query()
                 .setMatch(List.of(
                     new Match()
-                        .setIri("http://snomed.info/sct#57148006")
+                        .setInstanceOf(new Node().setIri("http://snomed.info/sct#57148006")
                         .setDescendantsOrSelfOf(true)
-                ))
+                )))
             );
 
         ObjectNode results = osq.openSearchQuery(req);
@@ -92,7 +92,7 @@ class OSQueryTest_IM {
 
     @Test
     @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-    void imQuery_term_multiIsA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
+    void imQuery_term_multiIsA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
             .addArgument(new Argument().setParameter("isas").setValueIriList(
@@ -101,9 +101,9 @@ class OSQueryTest_IM {
             .setQuery(new Query()
                 .setMatch(List.of(
                     new Match()
-                        .setParameter("$isas")
+                        .setInstanceOf(new Node().setParameter("$isas")
                         .setDescendantsOrSelfOf(true)
-                ))
+                )))
             );
 
         ObjectNode results = osq.openSearchQuery(req);
@@ -116,7 +116,7 @@ class OSQueryTest_IM {
 
     @Test
     @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-    void imQuery_term_multiMember() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
+    void imQuery_term_multiMember() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
             .setQuery(new Query()
@@ -125,7 +125,7 @@ class OSQueryTest_IM {
                         .addProperty(new Property()
                             .setIri(IM.HAS_MEMBER.getIri())
                             .setInverse(true)
-                            .setIn(List.of(new Node().setIri("http://endhealth.info/im#VSET_ASD")))
+                            .setIs(List.of(new Node().setIri("http://endhealth.info/im#VSET_ASD")))
                         )
                 ))
             );

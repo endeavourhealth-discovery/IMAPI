@@ -19,9 +19,11 @@
   "query" : {
     "name" : "Subtypes of concepts as a parameterised query",
     "match" : [ {
-      "descendantsOrSelfOf" : true,
-      "variable" : "c",
-      "parameter" : "this"
+      "instanceOf" : {
+        "parameter" : "this",
+        "descendantsOrSelfOf" : true
+      },
+      "variable" : "c"
     } ],
     "return" : [ {
       "nodeRef" : "c",

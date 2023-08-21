@@ -13,7 +13,9 @@
     "name" : "Search for concepts",
     "activeOnly" : true,
     "match" : [ {
-      "@type" : "im:Concept"
+      "typeOf" : {
+        "@id" : "im:Concept"
+      }
     } ],
     "return" : [ {
       "property" : [ {

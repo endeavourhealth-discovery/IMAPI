@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
 
 @Component
 public class EclService {
@@ -47,7 +46,7 @@ public class EclService {
                     .setCode(concept.getCode())
                     .setScheme(concept.getScheme())
                     .setStatus(concept.getStatus())
-                    .setEntityType(concept.getType())
+                    .setEntityType(concept.getEntityType())
             ).collect(Collectors.toList());
         SearchResponse result = new SearchResponse();
         result.setEntities(evaluatedAsSummary);

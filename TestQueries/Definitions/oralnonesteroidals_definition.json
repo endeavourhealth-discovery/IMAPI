@@ -12,25 +12,27 @@
     "name" : "oral none steroidals",
     "match" : [ {
       "match" : [ {
-        "@id" : "sn:763158003",
-        "descendantsOrSelfOf" : true,
         "property" : [ {
           "@id" : "sn:127489000",
-          "in" : [ {
+          "anyRoleGroup" : true,
+          "descendantsOrSelfOf" : true,
+          "is" : [ {
             "@id" : "sn:372665008",
             "descendantsOrSelfOf" : true
-          } ],
-          "anyRoleGroup" : true,
-          "descendantsOrSelfOf" : true
+          } ]
         }, {
           "@id" : "sn:411116001",
-          "in" : [ {
+          "anyRoleGroup" : true,
+          "descendantsOrSelfOf" : true,
+          "is" : [ {
             "@id" : "sn:385268001",
             "descendantsOrSelfOf" : true
-          } ],
-          "anyRoleGroup" : true,
+          } ]
+        } ],
+        "instanceOf" : {
+          "@id" : "sn:763158003",
           "descendantsOrSelfOf" : true
-        } ]
+        }
       } ],
       "bool" : "and"
     } ],

@@ -361,8 +361,8 @@ public class QueryRepository {
         if (where.getId() != null)
             addToIriList(where.getId(), ttIris, iris);
 
-        if (where.getIn() != null)
-            for (Element in : where.getIn())
+        if (where.getIs() != null)
+            for (Element in : where.getIs())
                 addToIriList(in.getIri(), ttIris, iris);
         if (where.getMatch()!=null)
             gatherFromLabels(where.getMatch(),ttIris,iris);
@@ -371,8 +371,8 @@ public class QueryRepository {
     private void gatherFromLabels(Match match, List<TTIriRef> ttIris, Map<String, String> iris) {
         if (match.getIri() != null)
             addToIriList(match.getIri(), ttIris, iris);
-        else if (match.getType() != null)
-            addToIriList(match.getType(), ttIris, iris);
+        else if (match.getTypeOf() != null)
+            addToIriList(match.getTypeOf().getIri(), ttIris, iris);
         if (match.getProperty() != null) {
             for (Property where : match.getProperty()) {
                 gatherWhereLabels(where, ttIris, iris);
@@ -381,9 +381,7 @@ public class QueryRepository {
         if (match.getMatch() != null) {
             match.getMatch().forEach(f -> gatherFromLabels(f, ttIris, iris));
         }
-        if (match.getSet() != null) {
-            addToIriList(match.getSet(), ttIris, iris);
-        }
+
         if (match.getProperty() != null) {
             for (Property path:match.getProperty()) {
                 addToIriList(path.getIri(), ttIris, iris);
@@ -420,11 +418,11 @@ public class QueryRepository {
         if (match.getIri() != null) {
             match.setName(iriLabels.get(match.getIri()));
         }
-        else if (match.getType() != null) {
-            if(!isIri(match.getType())) {
-                match.setType(IM.NAMESPACE + match.getType());
+        else if (match.getTypeOf() != null) {
+            if(!isIri(match.getTypeOf().getIri())) {
+                match.setTypeOf(IM.NAMESPACE + match.getTypeOf().getIri());
             }
-            match.setName(iriLabels.get(match.getType()));
+            match.setName(iriLabels.get(match.getTypeOf()));
         }
         if (match.getProperty() != null) {
             for (Property where : match.getProperty()) {
@@ -434,9 +432,7 @@ public class QueryRepository {
         if (match.getMatch() != null) {
             match.getMatch().forEach(f -> setMatchLabels(f,iriLabels));
         }
-        if (match.getSet() != null) {
-            match.setName(iriLabels.get(match.getSet()));
-        }
+
         if (match.getOrderBy() != null) {
             for(OrderLimit orderBy : match.getOrderBy()) {
                 setOrderLimitLabels(orderBy, iriLabels);
@@ -453,8 +449,8 @@ public class QueryRepository {
     private void setWhereLabels(Property where, Map<String, String> iris) {
         if (where.getId() != null)
             where.setName(iris.get(where.getId()));
-        if (where.getIn() != null)
-            for (Element in : where.getIn())
+        if (where.getIs() != null)
+            for (Element in : where.getIs())
                 in.setName(iris.get(in.getIri()));
         if (where.getMatch()!=null){
             setMatchLabels(where.getMatch(),iris);

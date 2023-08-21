@@ -11,13 +11,15 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"description","nodeVariable","iri","name","bool","match","property","range"
-	,"operator","isNull","value","unit","in","notIn","relativeTo","anyRoleGroup"})
+	,"operator","isNull","value","unit","in","isNot","notInSet","inSet","relativeTo","anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Property extends PropertyRef implements Assignable{
 	private String description;
 	private Range range;
-	private List<Node> in;
-	private List<Node> notIn;
+	private List<Node> is;
+	private List<Node> isNot;
+	private List<Node> inSet;
+	private List<Node> notInSet;
 	private Match match;
 	private Bool bool;
 	private List<Property> property;
@@ -28,6 +30,15 @@ public class Property extends PropertyRef implements Assignable{
 	private boolean anyRoleGroup;
 	private boolean isNull;
 	private PropertyRef relativeTo;
+
+	public List<Node> getNotInSet() {
+		return notInSet;
+	}
+
+	public Property setNotInSet(List<Node> notInSet) {
+		this.notInSet = notInSet;
+		return this;
+	}
 
 	public Bool getBool() {
 		return bool;
@@ -128,19 +139,26 @@ public class Property extends PropertyRef implements Assignable{
 
 
 
-	public List<Node> getNotIn() {
-		return notIn;
+	public List<Node> getIsNot() {
+		return isNot;
 	}
 
-	public Property setNotIn(List<Node> notIn) {
-		this.notIn = notIn;
+	public Property setIsNot(List<Node> isNot) {
+		this.isNot = isNot;
 		return this;
 	}
 
-	public Property addNotIn(Node notIn) {
-		if (this.notIn==null)
-			this.notIn = new ArrayList<>();
-		this.notIn.add(notIn);
+	public Property addIsNot(Node notIn) {
+		if (this.isNot ==null)
+			this.isNot = new ArrayList<>();
+		this.isNot.add(notIn);
+		return this;
+	}
+
+	public Property addNotInSet(Node notIn) {
+		if (this.notInSet==null)
+			this.notInSet = new ArrayList<>();
+		this.notInSet.add(notIn);
 		return this;
 	}
 
@@ -191,36 +209,70 @@ public class Property extends PropertyRef implements Assignable{
 
 
 
-	public List<Node> getIn() {
-		return in;
+	public List<Node> getIs() {
+		return is;
 	}
 
 	@JsonSetter
-	public Property setIn(List<Node> in) {
-		this.in = in;
+	public Property setIs(List<Node> is) {
+		this.is = is;
 		return this;
 	}
 
 
 
 
-	public Property addIn(Node in){
-		if (this.in==null)
-			this.in= new ArrayList<>();
-		this.in.add(in);
+	public Property addIs(Node in){
+		if (this.is ==null)
+			this.is = new ArrayList<>();
+		this.is.add(in);
 		return this;
 	}
 
-	public Property in(Consumer<Node> builder){
+	public Property is(Consumer<Node> builder){
 		Node in = new Node();
-		addIn(in);
+		addIs(in);
 		builder.accept(in);
 		return this;
 	}
 
-	public Property notIn(Consumer<Node> builder){
-		Match in = new Match();
-		addNotIn(in);
+	public Property notInSet(Consumer<Node> builder){
+		Node in = new Node();
+		addNotInSet(in);
+		builder.accept(in);
+		return this;
+	}
+
+	public List<Node> getInSet() {
+		return inSet;
+	}
+
+	@JsonSetter
+	public Property setInSet(List<Node> in) {
+		this.inSet = in;
+		return this;
+	}
+
+
+
+
+	public Property addInSet(Node in){
+		if (this.inSet==null)
+			this.inSet= new ArrayList<>();
+		this.inSet.add(in);
+		return this;
+	}
+
+	public Property inSet(Consumer<Node> builder){
+		Node in = new Node();
+		addInSet(in);
+		builder.accept(in);
+		return this;
+	}
+
+	public Property isNot(Consumer<Node> builder){
+		Node in = new Node();
+		addIsNot(in);
 		builder.accept(in);
 		return this;
 	}
@@ -230,10 +282,10 @@ public class Property extends PropertyRef implements Assignable{
 		return this;
 	}
 
-	public Property addIn(String in){
-		if (this.in==null)
-			this.in= new ArrayList<>();
-		this.in.add(new Match().setIri(in));
+	public Property addIs(String in){
+		if (this.is ==null)
+			this.is = new ArrayList<>();
+		this.is.add(new Node().setIri(in));
 		return this;
 	}
 

@@ -61,13 +61,16 @@ class SearchServiceTest {
 		testResults = System.getenv("folder") + "\\Results";
 		String testSparql = System.getenv("folder") + "\\Sparql";
 		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
-	 output(TestQueries.getAllowableQueries());
 	 output(TestQueries.getAllowableSubtypes());
+		output(TestQueries.query2());
+		output(TestQueries.pathQueryAtenolol3());
+
+	 output(TestQueries.getAllowableQueries());
+
 		output(TestQueries.query6());
 		output(TestQueries.dataModelPropertyRange());
 	 output(TestQueries.rangeSuggestion());
 		output(TestQueries.getMembers());
-		output(TestQueries.pathQueryAtenolol3());
 
 			output(TestQueries.AllowablePropertiesForCovid());
 			output(TestQueries.query1());
@@ -80,15 +83,16 @@ class SearchServiceTest {
 			output(TestQueries.deleteSets());
 
 
-		for (QueryRequest qr1 : List.of(
-			TestQueries.getAllowableProperties(),
-			TestQueries.subtypesParameterised(), TestQueries.substanceTextSearch(),
-			TestQueries.rangeTextSearch(), TestQueries.getAllowableRanges(), TestQueries.oralNsaids(),
-			TestQueries.getAllowableProperties(), TestQueries.getIsas(),
-			TestQueries.getConcepts(),
-			TestQueries.query4())) {
-			output(qr1);
-		}
+			output(TestQueries.getAllowableProperties());
+			output(TestQueries.subtypesParameterised());
+			output(TestQueries.substanceTextSearch());
+			output(TestQueries.rangeTextSearch());
+			output(TestQueries.getAllowableRanges());
+			output(TestQueries.oralNsaids());
+			output(TestQueries.getAllowableProperties());
+			output(TestQueries.getIsas());
+			output(TestQueries.getConcepts());
+			output(TestQueries.query4());
 
 
 	}

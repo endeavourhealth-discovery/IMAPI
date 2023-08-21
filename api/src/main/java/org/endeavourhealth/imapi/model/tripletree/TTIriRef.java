@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.tripletree;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,9 @@ public class TTIriRef implements TTValue, Serializable {
     public TTIriRef setIri(String iri) {
         this.iri = iri;
         if (iri != null && !iri.isEmpty() && !iriPattern.matcher(iri).matches()){
-            Thread.dumpStack();
+            iri= IM.NAMESPACE+iri;
+            if (!iriPattern.matcher(iri).matches())
+                Thread.dumpStack();
         }
         return this;
     }

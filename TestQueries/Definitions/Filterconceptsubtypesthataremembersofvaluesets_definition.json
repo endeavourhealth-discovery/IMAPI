@@ -14,22 +14,26 @@
     "match" : [ {
       "match" : [ {
         "match" : [ {
-          "@id" : "sn:57148006",
-          "descendantsOrSelfOf" : true
+          "instanceOf" : {
+            "@id" : "sn:57148006",
+            "descendantsOrSelfOf" : true
+          }
         }, {
-          "@id" : "sn:11164009",
-          "descendantsOrSelfOf" : true
+          "instanceOf" : {
+            "@id" : "sn:11164009",
+            "descendantsOrSelfOf" : true
+          }
         } ],
         "bool" : "or"
       } ],
       "property" : [ {
         "@id" : "im:hasMember",
-        "in" : [ {
+        "inverse" : true,
+        "is" : [ {
           "@id" : "im:VSET_Conditions"
         }, {
           "@id" : "im:VSET_ASD"
-        } ],
-        "inverse" : true
+        } ]
       } ]
     } ]
   }

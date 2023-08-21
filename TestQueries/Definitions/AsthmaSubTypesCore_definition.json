@@ -11,8 +11,10 @@
   "query" : {
     "name" : "AsthmaSubTypesCore",
     "match" : [ {
-      "@id" : "sn:195967001",
-      "descendantsOrSelfOf" : true
+      "instanceOf" : {
+        "@id" : "sn:195967001",
+        "descendantsOrSelfOf" : true
+      }
     } ],
     "return" : [ {
       "property" : [ {

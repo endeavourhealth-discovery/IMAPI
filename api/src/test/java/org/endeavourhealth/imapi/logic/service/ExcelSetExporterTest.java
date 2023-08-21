@@ -7,7 +7,6 @@ import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
-import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -22,7 +21,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -86,9 +84,9 @@ public class ExcelSetExporterTest {
             .match(w->w
               .setBool(Bool.or)
                 .match(f->f
-                .setIri("http://snomed.info/sct#39330711000001103").setName("COVID-19 vaccine (product)").setDescendantsOrSelfOf(true)))
+                .setInstanceOf(new Node().setIri("http://snomed.info/sct#39330711000001103").setName("COVID-19 vaccine (product)").setDescendantsOrSelfOf(true)))
                 .match(f->f
-                    .setIri("http://snomed.info/sct#10363601000001109").setName("UK product (product)").setDescendantsOrSelfOf(true)
+                    .setInstanceOf( new Node().setIri("http://snomed.info/sct#10363601000001109").setName("UK product (product)").setDescendantsOrSelfOf(true))
                   .property(p->p
                     .setIri(IM.ROLE_GROUP.getIri())
                     .match(m1->m1
@@ -96,9 +94,9 @@ public class ExcelSetExporterTest {
                       .setIri("http://snomed.info/sct#10362601000001103")
                       .setName("Has VMP (attribute)")
                       .setDescendantsOrSelfOf(true)
-                    .addIn(new Node().setIri("http://snomed.info/sct#39330711000001103")
+                    .addIs(new Node().setIri("http://snomed.info/sct#39330711000001103")
                       .setName("COVID-19 vaccine (product)")
-                      .setDescendantsOrSelfOf(true))))))));
+                      .setDescendantsOrSelfOf(true)))))))));
         return definition;
     }
 

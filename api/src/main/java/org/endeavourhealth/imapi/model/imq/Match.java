@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +12,10 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"exclude","nodeRef","boolMatch","boolWhere","boolPath","description","graph","iri","set","type","name","path","descendantsOrSelfOf","descendantsOf",
 	"ancestorsOf","description","match","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends Node{
+public class Match extends TTIriRef {
 	private Bool bool;
 	private List<Match> match;
-	private List<Node> in;
+	private List<Node> inSet;
 	private boolean exclude;
 	private Element graph;
 	private List<Property> property;
@@ -23,6 +24,49 @@ public class Match extends Node{
 	private String nodeRef;
 	private boolean optional;
 	private FunctionClause aggregate;
+	private Node instanceOf;
+	private Node typeOf;
+	private String variable;
+	private String name;
+
+
+	@Override
+	public Match setIri(String iri) {
+		super.setIri(iri);
+		return this;
+	}
+
+	public String getVariable() {
+		return variable;
+	}
+
+	public Match setVariable(String variable) {
+		this.variable = variable;
+		return this;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public Node getInstanceOf() {
+		return instanceOf;
+	}
+
+	public Match setInstanceOf(Node instanceOf) {
+		this.instanceOf = instanceOf;
+		return this;
+	}
+
+	public Node getTypeOf() {
+		return typeOf;
+	}
+
+	@JsonSetter
+	public Match setTypeOf(Node typeOf) {
+		this.typeOf = typeOf;
+		return this;
+	}
 
 	public FunctionClause getAggregate() {
 		return aggregate;
@@ -49,29 +93,29 @@ public class Match extends Node{
 		return this;
 	}
 
-	public List<Node> getIn() {
-		return in;
+	public List<Node> getInSet() {
+		return inSet;
 	}
 
 	@JsonSetter
-	public Match setIn(List<Node> in) {
-		this.in = in;
+	public Match setInSet(List<Node> inSet) {
+		this.inSet = inSet;
 		return this;
 	}
 
 
 
 
-	public Match addIn(Node in){
-		if (this.in==null)
-			this.in= new ArrayList<>();
-		this.in.add(in);
+	public Match addInSet(Node in){
+		if (this.inSet ==null)
+			this.inSet = new ArrayList<>();
+		this.inSet.add(in);
 		return this;
 	}
 
-	public Match in(Consumer<Node> builder){
+	public Match inSet(Consumer<Node> builder){
 		Node in = new Node();
-		addIn(in);
+		addInSet(in);
 		builder.accept(in);
 		return this;
 	}
@@ -96,15 +140,6 @@ public class Match extends Node{
 		return this;
 	}
 
-	public Match setIri(String iri){
-		super.setIri(iri);
-		return this;
-	}
-
-	public Match setParameter(String parameter){
-		super.setParameter(parameter);
-		return this;
-	}
 
 
 	public Match addOrderBy(OrderLimit orderBy) {
@@ -151,16 +186,10 @@ public class Match extends Node{
 	}
 
 
-	public Match setType(String type){
-		super.setType(type);
+	public Match setTypeOf(String type){
+		this.typeOf= new Node().setIri(type);
 		return this;
 	}
-
-	public Match setSet(String set){
-		super.setSet(set);
-		return this;
-	}
-
 
 
 
@@ -191,25 +220,8 @@ public class Match extends Node{
 
 
 
-
-	public Match setVariable(String variable){
-		super.setVariable(variable);
-		return this;
-	}
-
-
-	public Match setDescendantsOrSelfOf(boolean include){
-		super.setDescendantsOrSelfOf(include);
-		return this;
-	}
-
-	public Match setAncestorsOf(boolean include){
-		super.setAncestorsOf(include);
-		return this;
-	}
-
 	public Match setName(String name) {
-		super.setName(name);
+		this.name=name;
 		return this;
 	}
 

@@ -12,7 +12,7 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Entity {
 	private String iri;
-	private Set<TTIriRef> type;
+	private Set<TTIriRef> entityType;
 	private String name;
 	private String description;
 	private Set<TTIriRef> isContainedIn;
@@ -29,21 +29,21 @@ public class Entity {
 		return this;
 	}
 
-	public Set<TTIriRef> getType() {
-		return type;
+	public Set<TTIriRef> getEntityType() {
+		return entityType;
 	}
 
-	public Entity setType(Set<TTIriRef> type) {
-		this.type = type;
+	public Entity setEntityType(Set<TTIriRef> entityType) {
+		this.entityType = entityType;
 		return this;
 	}
 
 	public Entity addType(TTIriRef newType) {
-		if (null != type) {
-			type.add(newType);
+		if (null != entityType) {
+			entityType.add(newType);
 		} else {
-			type = new HashSet<>();
-			type.add(newType);
+			entityType = new HashSet<>();
+			entityType.add(newType);
 		}
 		return this;
 	}

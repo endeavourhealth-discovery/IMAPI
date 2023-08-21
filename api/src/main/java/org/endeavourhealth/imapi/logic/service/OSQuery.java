@@ -29,7 +29,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.zip.DataFormatException;
+
 
 /**
  * Class to create and runan open search text query
@@ -107,7 +107,7 @@ public class OSQuery {
      *
      * @param request Search request object
      * @return search request object
-     * @throws DataFormatException if problem with data format of query
+     * @throws QueryException if problem with data format of query
      */
     public List<SearchResultSummary>  multiPhaseQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
 
@@ -397,10 +397,10 @@ public class OSQuery {
      *
      * @param queryRequest Query request object containing any textSearch term, paging and a query.
      * @return ObjectNode as determined by select statement
-     * @throws DataFormatException if content of query definition is invalid
+     * @throws QueryException if content of query definition is invalid
      */
 
-    public ObjectNode openSearchQuery(QueryRequest queryRequest) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException, DataFormatException {
+    public ObjectNode openSearchQuery(QueryRequest queryRequest) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException, QueryException {
         if (queryRequest.getTextSearch() == null)
             return null;
         Query query = queryRequest.getQuery();
@@ -534,7 +534,7 @@ public class OSQuery {
     }
 
 
-    private SearchRequest convertIMToOS(QueryRequest imRequest) throws DataFormatException {
+    private SearchRequest convertIMToOS(QueryRequest imRequest) throws QueryException {
 
         SearchRequest request = new SearchRequest();
         if (imRequest.getPage() != null) {
@@ -580,7 +580,7 @@ public class OSQuery {
         }
     }
 
-    private static boolean validateFromList(SearchRequest request, Query query,QueryRequest imRequest) throws DataFormatException {
+    private static boolean validateFromList(SearchRequest request, Query query,QueryRequest imRequest) throws QueryException {
         if (query.getMatch() == null)
             return true;
 
@@ -591,20 +591,24 @@ public class OSQuery {
         return true;
     }
 
-    private static boolean addFromTypes(SearchRequest request, Match match, QueryRequest imRequest) throws DataFormatException {
-        if (match.getType() != null) {
-            request.addType(match.getType());
-            if (match.getMatch() != null)
-                return false;
-            return match.getProperty() == null;
-        } else if (match.isDescendantsOrSelfOf()) {
-            return processSubTypes(request, match, imRequest);
-        } else if (match.getProperty() != null) {
+    private static boolean addFromTypes(SearchRequest request, Match match, QueryRequest imRequest) throws QueryException {
+        if (match.getTypeOf() != null) {
+            if (match.getTypeOf().isDescendantsOrSelfOf()) {
+                if (!processSubTypes(request, match.getTypeOf(), imRequest))
+                    return false;
+            }
+        }
+        if (match.getInstanceOf() != null) {
+            if (match.getInstanceOf().isDescendantsOrSelfOf()) {
+                if (!processSubTypes(request, match.getInstanceOf(), imRequest))
+                    return false;
+            }
+        }
+        if (match.getProperty() != null) {
             return processProperties(request, match);
-        } else if (match.getIri() != null)
-            throw new DataFormatException("Text searches on sets or single instances not supported. Are you looking for types (match.sourceType= type, or subtypes match.isIncludeSubtypes(true");
+        }
 
-        else if (match.getMatch() != null) {
+        if (match.getMatch() != null) {
             if (match.getBool()!=Bool.or){
                 return false;
             }
@@ -618,8 +622,8 @@ public class OSQuery {
         return false;
     }
 
-    private static boolean processSubTypes(SearchRequest request, Match match, QueryRequest imRequest) throws DataFormatException {
-        List<String> isas= listFromAlias(match,imRequest);
+    private static boolean processSubTypes(SearchRequest request, Node node, QueryRequest imRequest) throws QueryException {
+        List<String> isas= listFromAlias(node,imRequest);
 
         if (isas==null || isas.isEmpty())
             return false;
@@ -628,7 +632,7 @@ public class OSQuery {
         return true;
     }
 
-    private static boolean processProperties(SearchRequest request, Match match) throws DataFormatException {
+    private static boolean processProperties(SearchRequest request, Match match) throws QueryException {
         for(Property w : match.getProperty()) {
             if (IM.HAS_SCHEME.getIri().equals(w.getIri())) {
                 processSchemeProperty(request, w);
@@ -642,26 +646,26 @@ public class OSQuery {
         return true;
     }
 
-    private static void processSchemeProperty(SearchRequest request, Property w) throws DataFormatException {
-        if (w.getIn() != null && !w.getIn().isEmpty())
-            request.setSchemeFilter(w.getIn().stream().map(IriLD::getIri).toList());
+    private static void processSchemeProperty(SearchRequest request, Property w) throws QueryException {
+        if (w.getIs() != null && !w.getIs().isEmpty())
+            request.setSchemeFilter(w.getIs().stream().map(Node::getIri).toList());
         else
-            throw new DataFormatException("Scheme filter must be a list (in)");
+            throw new QueryException("Scheme filter must be a list (is)");
     }
 
-    private static void processMemberProperty(SearchRequest request, Property w) throws DataFormatException {
-        if (w.getIn() != null && !w.getIn().isEmpty())
-            request.setMemberOf(w.getIn().stream().map(IriLD::getIri).toList());
+    private static void processMemberProperty(SearchRequest request, Property w) throws QueryException {
+        if (w.getIs() != null && !w.getIs().isEmpty())
+            request.setMemberOf(w.getIs().stream().map(Node::getIri).toList());
         else
-            throw new DataFormatException("Set membership filter must be a list (in)");
+            throw new QueryException("Set membership filter must be a list (is)");
     }
 
-    private static List<String> listFromAlias(Match match, QueryRequest queryRequest) throws DataFormatException {
-        if (match.getParameter() == null) {
-            return List.of(match.getIri());
+    private static List<String> listFromAlias(Node type, QueryRequest queryRequest) throws QueryException {
+        if (type.getParameter() == null) {
+            return List.of(type.getIri());
         }
 
-        String value = match.getParameter();
+        String value = type.getParameter();
         value = value.replace("$", "");
         if (null != queryRequest.getArgument()) {
             for (Argument argument : queryRequest.getArgument()) {
@@ -678,9 +682,9 @@ public class OSQuery {
                     }
                 }
             }
-            throw new DataFormatException("Query Variable " + value + " has not been assigned in the request");
+            throw new QueryException("Query Variable " + value + " has not been assigned is the request");
         } else
-            throw new DataFormatException("Query has a query variable but request has no arguments set");
+            throw new QueryException("Query has a query variable but request has no arguments set");
     }
 
 

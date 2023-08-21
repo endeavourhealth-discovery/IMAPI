@@ -4,12 +4,10 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
-import org.endeavourhealth.imapi.transforms.SetToSparql;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
 
 public class SparqlConverter {
 	private Query query;
@@ -59,8 +57,8 @@ public class SparqlConverter {
 			mainEntity= query.getMatch().get(0).getVariable();
 		StringBuilder whereQl = new StringBuilder();
 		whereQl.append("WHERE {");
-		if (query.getType()!=null){
-			whereQl.append("?").append(mainEntity).append(" rdf:type ").append(iriFromString(query.getType())+".\n");
+		if (query.getTypeOf()!=null){
+			whereQl.append("?").append(mainEntity).append(" rdf:type ").append(iriFromString(query.getTypeOf().getIri())+".\n");
 		}
 
 		if (null != queryRequest.getTextSearch()){
@@ -86,7 +84,7 @@ public class SparqlConverter {
 					statusStrings.add("<" + status.getIri() + ">");
 				}
 				whereQl.append("?").append(mainEntity).append(" im:status ?").append(statusVar).append(".\n");
-				whereQl.append("Filter (?").append(statusVar).append(" in(").append(String.join(",", statusStrings)).append("))\n");
+				whereQl.append("Filter (?").append(statusVar).append(" in (").append(String.join(",", statusStrings)).append("))\n");
 			}
 		if (query.isActiveOnly()) {
 					whereQl.append("?").append(mainEntity).append(" im:status im:Active.\n");
@@ -189,13 +187,14 @@ public class SparqlConverter {
 
 		o++;
 		String object = "object" + o;
-		if (match.getType() != null) {
-			type(whereQl, match, subject);
+		if (match.getTypeOf() != null) {
+			type(whereQl, match.getTypeOf(), subject);
 		}
 		else {
-			if (match.getIri() != null || match.getParameter() != null) {
-				String inList = iriFromAlias((match));
-				if (match.isDescendantsOrSelfOf()) {
+			if (match.getInstanceOf() != null) {
+				Node instance= match.getInstanceOf();
+				String inList = iriFromAlias(instance);
+				if (instance.isDescendantsOrSelfOf()) {
 					o++;
 					whereQl.append("?").append(subject).append(" im:isA ?").append(object).append(".\n");
 					whereQl.append("Filter (?").append(object);
@@ -205,7 +204,7 @@ public class SparqlConverter {
 						whereQl.append(" in (").append(inList).append("))\n");
 
 				}
-				else if (match.isDescendantsOf()) {
+				else if (instance.isDescendantsOf()) {
 					o++;
 					whereQl.append("?").append(subject).append(" im:isA ?").append(object).append(".\n");
 					whereQl.append("Filter (?").append(object);
@@ -213,10 +212,10 @@ public class SparqlConverter {
 						whereQl.append(" =").append(inList).append(")\n");
 					else
 						whereQl.append(" in (").append(inList).append("))\n");
-					whereQl.append("Filter (?").append(subject).append("!= ").append(iriFromAlias(match)).append(")\n");
+					whereQl.append("Filter (?").append(subject).append("!= ").append(inList).append(")\n");
 
 				}
-				else if (match.isAncestorsOf()) {
+				else if (instance.isAncestorsOf()) {
 					o++;
 					whereQl.append("?").append(subject).append(" ^im:isA ?").append(object).append(".\n");
 					whereQl.append("Filter (?").append(object);
@@ -255,8 +254,8 @@ public class SparqlConverter {
 				}
 			}
 		}
-		if (match.getIn()!=null){
-			in(whereQl,subject,match.getIn(),false);
+		if (match.getInSet()!=null){
+			inSet(whereQl,subject,match.getInSet(),false);
 		}
 		if (match.getGraph()!=null) {
 			whereQl.append("}");
@@ -321,9 +320,9 @@ public class SparqlConverter {
 				o++;
 				object= "o"+o;
 			}
-			if (where.getIn() != null) {
-				if (where.getIn().get(0).getVariable() != null) {
-					object = where.getIn().get(0).getVariable();
+			if (where.getIs() != null) {
+				if (where.getIs().get(0).getVariable() != null) {
+					object = where.getIs().get(0).getVariable();
 				}
 			}
 			if (where.isDescendantsOrSelfOf()) {
@@ -338,11 +337,17 @@ public class SparqlConverter {
 				else
 					whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromString(where.getIri())).append(" ?").append(object).append(".\n");
 			}
-			if (where.getIn() != null) {
-				in(whereQl, object, where.getIn(), false);
+			if (where.getIs() != null) {
+				in(whereQl, object, where.getIs(), false);
 			}
-			if (where.getNotIn() != null) {
-				in(whereQl, object, where.getNotIn(), true);
+			if (where.getIsNot() != null) {
+				in(whereQl, object, where.getIsNot(), true);
+			}
+			if (where.getInSet() != null) {
+				inSet(whereQl, object, where.getIs(), false);
+			}
+			if (where.getNotInSet() != null) {
+				inSet(whereQl, object, where.getIsNot(), true);
 			}
 			else if (where.getValue() != null) {
 				whereValue(whereQl, object, where);
@@ -370,6 +375,29 @@ public class SparqlConverter {
 		}
 	}
 
+
+
+	private void inSet(StringBuilder whereQl, String object, List<Node> in, boolean isNot) throws QueryException {
+		if (isNot)
+			whereQl.append("Filter not exists {\n");
+		o++;
+		String sets="sets"+o;
+			whereQl.append("?").append(object).append(" ^im:hasMember ").append("?").append(sets).append(".\n");
+
+		List<String> inList= new ArrayList<>();
+		for (Node iri:in){
+				if (iri.getRef()!=null)
+					inList.add("?"+iri.getRef());
+				else
+					inList.add(iriFromAlias(iri));
+		}
+		String inString = String.join(",", inList);
+		whereQl.append("Filter (?").append(sets).append(" in (").append(inString).append("))\n");
+		whereQl.append(inString);
+		whereQl.append("))\n");
+		if (isNot)
+			whereQl.append(" }");
+	}
 
 
 	private void in(StringBuilder whereQl, String object, List<Node> in, boolean isNot) throws QueryException {
@@ -401,31 +429,17 @@ public class SparqlConverter {
 		else {
 			whereQl.append("Filter (?").append(object).append(not).append(" in (");
 		}
-		if (in.size()==1&& in.get(0).getSet()!=null) {
-			try {
-				String expansion = new SetToSparql().getExpansionSparql(object, in.get(0).getSet());
-				if (!expansion.equals("")) {
-					whereQl.append(expansion);
-					whereQl.append("))\n");
-				}
-			}
-			catch (DataFormatException e){
-				throw new QueryException(e.getMessage());
-			}
-
-		}
-		else {
-			List<String> inList= new ArrayList<>();
-			for (Element iri:in){
+		List<String> inList= new ArrayList<>();
+		for (Element iri:in){
 				if (iri.getRef()!=null)
 					inList.add("?"+iri.getRef());
 				else
 					inList.add(iriFromAlias(iri));
-			}
-			String inString = String.join(",", inList);
-			whereQl.append(inString);
-			whereQl.append("))\n");
 		}
+		String inString = String.join(",", inList);
+		whereQl.append(inString);
+		whereQl.append("))\n");
+
 	}
 
 	private void whereValue(StringBuilder whereQl, String object, Property where) throws QueryException {
@@ -448,7 +462,7 @@ public class SparqlConverter {
 
 	/**
 	 * Resolves a query $ vaiable value using the query request argument map
-	 * @param value  the $alias in the query definition
+	 * @param value  the $alias is the query definition
 	 * @param queryRequest the Query request object submitted via the API
 	 * @return the value of the variable as a String
 	 * @throws QueryException if the variable is unresolvable
@@ -605,10 +619,10 @@ public class SparqlConverter {
 
 
 	public String iriFromAlias(Element alias) throws QueryException {
-		return getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getVariable());
+		return getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getVariable(),alias.getRef());
 	}
 
-	private String getIriFromAlias(String id, String parameter, String variable) throws QueryException {
+	private String getIriFromAlias(String id, String parameter, String variable,String valueRef) throws QueryException {
 		if (null == id) {
 			if (null!= parameter){
 				return iriFromString(resolveReference(parameter, queryRequest));
@@ -616,7 +630,8 @@ public class SparqlConverter {
 			else if (null != variable) {
 				return "?" + variable;
 			}
-			else
+			else if (null!=valueRef)
+				return "?"+ valueRef;
 				throw new QueryException("Type has no iri or variable or parameter variable");
 		}
 		else
@@ -625,10 +640,7 @@ public class SparqlConverter {
 
 
 	public String iriFromAlias(Node alias) throws QueryException {
-		if (null!=alias.getType()){
-			return iriFromString(alias.getType());
-		}
-		return getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getVariable());
+		return getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getVariable(),alias.getRef());
 	}
 
 

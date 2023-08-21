@@ -14,12 +14,11 @@ import java.util.*;
 
 public class PathRepository {
 	private RepositoryConnection conn;
-	private PathDocument document= new PathDocument();
+	private final PathDocument document= new PathDocument();
 	private TupleQuery queryToShape;
-	private TTContext context;
 
-	public PathDocument pathQuery(QueryRequest request) throws QueryException {
-		context= request.getAsContext();
+	public PathDocument pathQuery(QueryRequest request) {
+		TTContext context = request.getAsContext();
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()){
 			this.conn= conn;
 			PathQuery pathQuery = request.getPathQuery();
@@ -28,7 +27,7 @@ public class PathRepository {
 			String source = context.expand(pathQuery.getSource().getIri());
 			List<Match> paths= getAllPaths(source,targetIri,depth);
 			if (paths!=null) {
-				paths.sort(Comparator.comparing((Match m) -> getLength(m)));
+				paths.sort(Comparator.comparing(this::getLength));
 				document.setMatch(paths);
 				}
 		}
@@ -50,30 +49,30 @@ public class PathRepository {
 	}
 
 
-	private List<Match> getAllPaths(String source, String target,Integer depth) throws QueryException {
+	private List<Match> getAllPaths(String source, String target,Integer depth) {
 		queryToShape = conn.prepareTupleQuery(getPathSql());
-		List<Match> partial= new ArrayList<>();
+		List<Match> partial;
 		List<Match> full = new ArrayList<>();
 		partial = getPathsFromShape(source, target,full);
 		if (partial.isEmpty())
 			return null;
 		for (int tries = 1; tries < depth; tries++) {
-			partial = nextPaths(source, target, partial, full);
+			partial = nextPaths(source, partial, full);
 		}
 		return full;
 	}
 
-	private List<Match> nextPaths(String source, String target, List<Match> partials, List<Match> full) throws  QueryException{
+	private List<Match> nextPaths(String source, List<Match> partials, List<Match> full) {
 		List<Match> next= new ArrayList<>();
 		for (Match partial:partials){
-					queryToShape.setBinding("target", Values.iri(partial.getType()));
+					queryToShape.setBinding("target", Values.iri(partial.getTypeOf().getIri()));
 					try (TupleQueryResult rs = queryToShape.evaluate()) {
 						while (rs.hasNext()) {
 							BindingSet bs = rs.next();
 							Match nextPath= new Match();
 							next.add(nextPath);
 							nextPath
-								.setType(bs.getValue("entity").stringValue())
+								.setTypeOf(bs.getValue("entity").stringValue())
 								.setName(bs.getValue("entityName").stringValue());
 							Property path= new Property();
 							nextPath.addProperty(path);
@@ -82,9 +81,9 @@ public class PathRepository {
 								.setName(bs.getValue("pathName").stringValue());
 							Match node= new Match();
 							path.setMatch(node);
-							node.setType(partial.getType());
+							node.setTypeOf(partial.getTypeOf());
 							node.setProperty(partial.getProperty());
-							if (nextPath.getType().equals(source))
+							if (nextPath.getTypeOf().getIri().equals(source))
 								full.add(nextPath);
 							else
 								next.add(nextPath);
@@ -94,14 +93,6 @@ public class PathRepository {
 		return next;
 	}
 
-	private String getLocalName(String iri){
-		if (iri==null)
-			return null;
-		if (iri.contains("#"))
-			return iri.substring(iri.lastIndexOf("#")+1);
-		else
-			return iri.substring(iri.lastIndexOf(":")+1);
-	}
 
   private String getPathSql() {
 
@@ -118,7 +109,7 @@ public class PathRepository {
 	}
 
 
-	private List<Match> getPathsFromShape(String source, String target,List<Match> full) throws QueryException{
+	private List<Match> getPathsFromShape(String source, String target,List<Match> full) {
 		String targetIri = "<" + target + ">";
 		List<Match> pathsFromShape = new ArrayList<>();
 		//First get the shapes
@@ -167,7 +158,7 @@ public class PathRepository {
 				BindingSet bs = rs.next();
 				Match match= new Match();
 				match
-					.setType(bs.getValue("entity").stringValue())
+					.setTypeOf(bs.getValue("entity").stringValue())
 				  .setName(bs.getValue("entityName").stringValue());
 				Property where= new Property();
 				if (bs.getValue("property")!=null) {
@@ -177,7 +168,7 @@ public class PathRepository {
 						where
 							.setIri(propertyIri)
 							.setName(bs.getValue("propertyName").stringValue())
-							.addIn(new Node()
+							.addIs(new Node()
 								.setIri(targetIri)
 								.setName(bs.getValue("targetName").stringValue()));
 					}
@@ -193,12 +184,12 @@ public class PathRepository {
 						.setIri(bs.getValue("conceptProperty").stringValue())
 						.setName(bs.getValue("conceptPropertyName").stringValue())
 						.setAnyRoleGroup(true)
-						.addIn(new Node()
-						.setType(targetIri)
+						.addIs(new Node()
+						.setIri(targetIri)
 						.setName(bs.getValue("targetName").stringValue()));
 					}
 				}
-				if (match.getType().equals(source)){
+				if (match.getTypeOf().getIri().equals(source)){
 					full.add(match);
 				}
 				else

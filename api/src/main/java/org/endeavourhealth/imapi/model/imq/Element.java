@@ -12,7 +12,7 @@ import java.util.Objects;
 
 @JsonPropertyOrder({"parameter","iri","type","set","variable","name"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Element extends TTIriRef implements Entailment{
+public class Element extends IriLD implements Entailment{
 	private String variable;
 	private String parameter;
 	private boolean ancestorsOf;

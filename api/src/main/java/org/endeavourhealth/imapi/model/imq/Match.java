@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"exclude","nodeRef","boolMatch","boolWhere","boolPath","description","graph","iri","set","type","name","path","descendantsOrSelfOf","descendantsOf",
 	"ancestorsOf","description","match","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends TTIriRef {
+public class Match extends IriLD {
 	private Bool bool;
 	private List<Match> match;
 	private List<Node> inSet;

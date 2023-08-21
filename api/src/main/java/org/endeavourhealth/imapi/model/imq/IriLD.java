@@ -13,8 +13,6 @@ import java.util.Objects;
 @JsonPropertyOrder({"iri","type","set","name"})
 public class IriLD{
 	private String iri;
-	private String type;
-	private String set;
 	private String name;
 
 	@JsonProperty("@id")
@@ -24,26 +22,6 @@ public class IriLD{
 
 	public IriLD setIri(String iri) {
 		this.iri = assignIri(iri);
-		return this;
-	}
-
-	@JsonProperty("@type")
-	public String getType() {
-		return type;
-	}
-
-	public IriLD setType(String type) {
-		this.type = assignIri(set);
-		return this;
-	}
-
-	@JsonProperty("@set")
-	public String getSet() {
-		return set;
-	}
-
-	public IriLD setSet(String set) {
-		this.set = assignIri(set);
 		return this;
 	}
 

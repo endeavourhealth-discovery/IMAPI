@@ -278,6 +278,9 @@ public class TTBulkFiler  extends TTDocumentFiler {
              command = "importrdf preload -c " + config + "\\config.ttl --force -q "
                 + data + " " + data + "\\BulkImport*.nq";
          String startCommand = SystemUtils.OS_NAME.contains("Windows") ? "cmd /c " : "bash ";
+
+         LOG.info("Executing command [{}]", startCommand + command);
+
          Process process = Runtime.getRuntime()
                  .exec(startCommand + command,
                          null, new File(preloadPath));

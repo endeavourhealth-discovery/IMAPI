@@ -129,15 +129,22 @@ public class EqdResources {
 
 	}
 
-	private void setTablePath(String eqKey,Match match) throws DataFormatException, QueryException {
+	private Match setTablePath(String eqKey,Match match) throws DataFormatException, QueryException {
 		String pathMap = getPath(eqKey);
 		if (!pathMap.equals("")) {
-			String[] elements =pathMap.split(" ");
-			Property path = new Property();
-			match.addProperty(path);
-			path.setIri(elements[0]);
-			path.setMatch(new Match().setTypeOf(elements[1]));
+			String[] elements = pathMap.split(" ");
+			for (int i = 0; i < elements.length - 1; i = i + 2) {
+				Property path = new Property();
+				match.addProperty(path);
+				path.setIri(elements[i]);
+				path.setMatch(new Match().setTypeOf(elements[i+1]));
+				match = path.getMatch();
+				counter++;
+				String variable= "match_"+counter;
+				match.setVariable(variable);
+			}
 		}
+		return match;
 	}
 
 	private Match getPaths(Match node, String pathMap) throws QueryException {
@@ -172,7 +179,7 @@ public class EqdResources {
 
 		}
 		else {
-			setTablePath(eqCriterion.getTable(),match);
+			match= setTablePath(eqCriterion.getTable(),match);
 			convertColumns(eqCriterion, match);
 		}
 	}
@@ -277,7 +284,7 @@ public class EqdResources {
 			match.addMatch(restricted);
 		}
 
-		setTablePath(eqCriterion.getTable(),restricted);
+		restricted= setTablePath(eqCriterion.getTable(),restricted);
 		convertColumns(eqCriterion, restricted);
 		setRestriction(eqCriterion, restricted);
 
@@ -293,16 +300,6 @@ public class EqdResources {
 	}
 
 
-	private Match getLastNode(Property path) throws DataFormatException {
-		if (path.getMatch()!=null) {
-			if (path.getMatch().getProperty() == null) {
-				return path.getMatch();
-			}
-			else
-				return getLastNode(path.getMatch().getProperty().get(0));
-		}
-		throw new DataFormatException("Match path appears ccorrupted");
-	}
 
 
 	private void restrictionTest(EQDOCCriterion eqCriterion, Match testMatch,String nodeVariable) throws IOException, DataFormatException, QueryException {
@@ -329,7 +326,7 @@ public class EqdResources {
 			.getColumnOrder().getColumns().get(0).getColumn().get(0);
 		String orderBy= getPath(eqCriterion.getTable()+"/"+linkColumn);
 		counter++;
-		String linkElement= getLastNode(restricted.getProperty().get(0)).getVariable();
+		String linkElement= restricted.getProperty().get(0).getVariable();
 		restricted.orderBy(o->o.setIri(orderBy).setLimit(1).setDirection(direction));
 		return linkElement;
 	}

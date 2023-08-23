@@ -50,19 +50,15 @@ public class EqdListToIMQ {
 
 	private String getLastNode(Match match){
 		if (match.getProperty()!=null){
-			return getLastNode(match.getProperty().get(0));
+			if (match.getProperty().get(0).getMatch()!=null)
+				return getLastNode(match.getProperty().get(0).getMatch());
+			else
+				return match.getVariable();
 		}
 		else
 			return match.getVariable();
 	}
 
-	private String getLastNode(Property path){
-			if (path.getMatch().getProperty()==null) {
-				return path.getMatch().getVariable();
-			}
-			else
-				return getLastNode(path.getMatch().getProperty().get(0));
-	}
 
 	private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws DataFormatException, IOException, QueryException {
 		Return aReturn = new Return();
@@ -72,14 +68,25 @@ public class EqdListToIMQ {
 		resources.convertCriteria(eqColGroup.getCriteria(), match);
 		String node= getLastNode(match);
 		aReturn.setNodeRef(node);
-		ReturnProperty property= new ReturnProperty();
 		EQDOCListColumns eqCols = eqColGroup.getColumnar();
 		for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
 			String eqColumn = String.join("/", eqCol.getColumn());
 			String subPath = resources.getPath(eqTable + "/" + eqColumn);
-			String field= subPath.substring(subPath.lastIndexOf(" ")+1);
-			aReturn.property(p->p
-				.setIri(IM.NAMESPACE+field));
+			if (subPath.contains(" ")){
+				String elements[]= subPath.split(" ");
+				for (int i=0; i<elements.length; i=i+2){
+					ReturnProperty property= new ReturnProperty();
+					aReturn.addProperty(property);
+					property.setIri(IM.NAMESPACE+ elements[i]);
+					if (i<(elements.length-2)) {
+						property.setReturn(new Return());
+						aReturn = property.getReturn();
+					}
+				}
+			}
+			else {
+				aReturn.property(p->p.setIri(IM.NAMESPACE+subPath));
+			}
 		}
 	}
 

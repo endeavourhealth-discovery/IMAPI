@@ -406,7 +406,7 @@ public class OSQuery {
         Query query = queryRequest.getQuery();
 
         if (query != null) {
-            if (query.getReturn() != null && !validateReturn(query)) {
+            if (query.getReturn() != null && !validateQueryReturn(query)) {
                 return null;
             }
 
@@ -427,12 +427,29 @@ public class OSQuery {
     }
 
 
-    private static boolean validateReturn(Query query) {
-        if (query.getReturn()!=null) {
-            return query.getReturn().stream()
-                .map(Return::getProperty)
-                .flatMap(Collection::stream)
-                .noneMatch(p -> p != null && (p.getReturn() != null || (p.getIri() != null && !propIsSupported(p.getIri()))));
+    private static boolean validateQueryReturn(Query query) {
+        return validateReturnList(query.getReturn());
+    }
+
+    private static boolean validateReturnList(List<Return> returns) {
+        if (returns != null) {
+            for (Return r : returns) {
+                if (!validateReturn(r))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean validateReturn(Return r) {
+        for (ReturnProperty p : r.getProperty()) {
+            if (p != null) {
+                if (p.getIri() != null && !propIsSupported(p.getIri()))
+                    return false;
+
+                if (p.getReturn() != null && !validateReturn(p.getReturn()))
+                    return false;
+            }
         }
         return true;
     }
@@ -616,10 +633,8 @@ public class OSQuery {
                 if (!addFromTypes(request, subMatch, imRequest))
                     return false;
             }
-            return true;
-
         }
-        return false;
+        return true;
     }
 
     private static boolean processSubTypes(SearchRequest request, Node node, QueryRequest imRequest) throws QueryException {

@@ -129,45 +129,46 @@ public class EqdResources {
 
 	}
 
-	private Match setTablePath(String eqKey,Match match) throws DataFormatException, QueryException {
+	private Match getTablePath(String eqKey,Match match) throws DataFormatException, QueryException {
 		String pathMap = getPath(eqKey);
-		if (!pathMap.equals("")) {
-			String[] elements = pathMap.split(" ");
-			for (int i = 0; i < elements.length - 1; i = i + 2) {
+		if (pathMap.equals(""))
+			return match;
+		String[] paths= pathMap.split(" ");
+		for (int i=0; i<paths.length-2; i=i+2) {
 				Property path = new Property();
 				match.addProperty(path);
-				path.setIri(elements[i]);
-				path.setMatch(new Match().setTypeOf(elements[i+1]));
-				match = path.getMatch();
-				counter++;
-				String variable= "match_"+counter;
-				match.setVariable(variable);
-			}
+				path.setIri(paths[i]);
+				Match subMatch = new Match();
+				path.setMatch(subMatch);
+				subMatch.setTypeOf(paths[i + 1]);
+				match = subMatch;
 		}
 		return match;
 	}
 
-	private Match getPaths(Match node, String pathMap) throws QueryException {
+	private Match getPaths(Match match, String pathMap) throws QueryException {
 		String[] paths= pathMap.split(" ");
 			for (int i=0; i<paths.length-2; i=i+2) {
-				Match subMatch = getPathMatch(node, paths[i]);
+				Match subMatch = getPathMatch(match, paths[i]);
 				if (subMatch == null) {
 					Property path = new Property();
-					node.addProperty(path);
+					match.addProperty(path);
 					path.setIri(paths[i]);
 					subMatch = new Match();
 					path.setMatch(subMatch);
 					subMatch.setTypeOf(paths[i + 1]);
-					node = subMatch;
+					match = subMatch;
 				}
+				else
+					return subMatch;
 			}
-			return node;
+			return match;
 	}
 	private Match getPathMatch(Match match, String property){
 		if (match.getProperty()==null)
 			return null;
 		for (Property prop:match.getProperty()) {
-			if (prop.getIri().equals(property))
+			if (prop.getIri().equals(property)||prop.getIri().equals(IM.NAMESPACE+property))
 				return prop.getMatch();
 		}
 		return null;
@@ -179,7 +180,7 @@ public class EqdResources {
 
 		}
 		else {
-			match= setTablePath(eqCriterion.getTable(),match);
+			match= getTablePath(eqCriterion.getTable(),match);
 			convertColumns(eqCriterion, match);
 		}
 	}
@@ -284,7 +285,7 @@ public class EqdResources {
 			match.addMatch(restricted);
 		}
 
-		restricted= setTablePath(eqCriterion.getTable(),restricted);
+		restricted = getTablePath(eqCriterion.getTable(),restricted);
 		convertColumns(eqCriterion, restricted);
 		setRestriction(eqCriterion, restricted);
 

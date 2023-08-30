@@ -344,10 +344,10 @@ public class SparqlConverter {
 				in(whereQl, object, where.getIsNot(), true);
 			}
 			if (where.getInSet() != null) {
-				inSet(whereQl, object, where.getIs(), false);
+				inSet(whereQl, object, where.getInSet(), false);
 			}
 			if (where.getNotInSet() != null) {
-				inSet(whereQl, object, where.getIsNot(), true);
+				inSet(whereQl, object, where.getNotInSet(), true);
 			}
 			else if (where.getValue() != null) {
 				whereValue(whereQl, object, where);
@@ -393,8 +393,6 @@ public class SparqlConverter {
 		}
 		String inString = String.join(",", inList);
 		whereQl.append("Filter (?").append(sets).append(" in (").append(inString).append("))\n");
-		whereQl.append(inString);
-		whereQl.append("))\n");
 		if (isNot)
 			whereQl.append(" }");
 	}

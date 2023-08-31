@@ -38,6 +38,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static java.util.Comparator.comparingInt;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
@@ -47,7 +48,6 @@ public class EntityService {
     private boolean direct = false;
     private boolean desc = false;
 
-    public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 200;
 
     private EntityRepository entityRepository = new EntityRepository();
@@ -145,28 +145,21 @@ public class EntityService {
             rowNumber = (pageIndex - 1) * pageSize;
 
         for (TTIriRef c : getChildren(iri, schemeIris, rowNumber, pageSize, inactive)) {
-            EntityReferenceNode node = new EntityReferenceNode();
-            node.setIri(c.getIri()).setName(c.getName());
-            node.setType(entityTypeRepository.getEntityTypes(c.getIri()));
-            node.setHasChildren(entityTripleRepository.hasChildren(c.getIri(), schemeIris, inactive));
-            node.setHasGrandChildren(entityTripleRepository.hasGrandChildren(c.getIri(), schemeIris, inactive));
-            node.setOrderNumber(entityTripleRepository.getOrderNumber(c.getIri()));
-            result.add(node);
+            result.add(getEntityAsEntityReferenceNode(c.getIri()));
         }
+
+        result.sort(comparingInt(EntityReferenceNode::getOrderNumber).thenComparing(EntityReferenceNode::getName));
 
         return result;
     }
 
     public EntityReferenceNode getEntityAsEntityReferenceNode(String iri) {
+        return getEntityAsEntityReferenceNode(iri, null, false);
+    }
+        public EntityReferenceNode getEntityAsEntityReferenceNode(String iri, List<String> schemeIris, boolean inactive) {
         if (null == iri) return new EntityReferenceNode();
-        EntityReferenceNode node = new EntityReferenceNode();
-        TTIriRef entityIriRef = getEntityReference(iri);
-        node.setIri(entityIriRef.getIri());
-        node.setName(entityIriRef.getName());
-        node.setType(entityTypeRepository.getEntityTypes(entityIriRef.getIri()));
-        node.setHasChildren(entityTripleRepository.hasChildren(entityIriRef.getIri(), null, false));
-        node.setHasGrandChildren(entityTripleRepository.hasGrandChildren(entityIriRef.getIri(), null, false));
-        return node;
+
+        return entityTripleRepository.getEntityReferenceNode(iri, schemeIris, inactive);
     }
 
     public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
@@ -1166,7 +1159,7 @@ public class EntityService {
         int rowNumber = 0;
         if (null != page && null != size) rowNumber = (page - 1) * size;
 
-        Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getSuperiorPropertiesByConceptPagedWithTotalCount(iri,schemeIris,rowNumber,size,inactive);
+        Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getSuperiorPropertiesByConceptPagedWithTotalCount(iri,rowNumber,size,inactive);
         return iriRefPageableToEntityReferenceNodePageable(propertiesAndCount,schemeIris,inactive);
     }
 
@@ -1176,7 +1169,7 @@ public class EntityService {
         int rowNumber = 0;
         if (null != page && null != size) rowNumber = (page - 1) * size;
 
-        Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getSuperiorPropertiesByConceptBoolFocusPagedWithTotalCount(conceptIris,schemeIris,rowNumber,size,inactive);
+        Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getSuperiorPropertiesByConceptBoolFocusPagedWithTotalCount(conceptIris,rowNumber,size,inactive);
         return iriRefPageableToEntityReferenceNodePageable(propertiesAndCount,schemeIris,inactive);
     }
 
@@ -1187,7 +1180,7 @@ public class EntityService {
         if (null != page && null != size) rowNumber = (page - 1) * size;
 
 
-        Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getSuperiorPropertyValuesByPropertyPagedWithTotalCount(iri,schemeIris,rowNumber,size,inactive);
+        Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getSuperiorPropertyValuesByPropertyPagedWithTotalCount(iri,rowNumber,size,inactive);
         return iriRefPageableToEntityReferenceNodePageable(propertiesAndCount,schemeIris,inactive);
     }
 
@@ -1196,14 +1189,11 @@ public class EntityService {
         result.setTotalCount(iriRefPageable.getTotalCount());
         List<EntityReferenceNode> nodes = new ArrayList<>();
         for (TTIriRef p : iriRefPageable.getResult()) {
-            EntityReferenceNode node = new EntityReferenceNode();
-            node.setIri(p.getIri());
-            node.setName(p.getName());
-            node.setType(entityTypeRepository.getEntityTypes(p.getIri()));
-            node.setHasChildren(entityTripleRepository.hasChildren(p.getIri(),schemeIris,inactive));
-            node.setHasGrandChildren(entityTripleRepository.hasGrandChildren(p.getIri(),schemeIris,inactive));
-            nodes.add(node);
+            nodes.add(getEntityAsEntityReferenceNode(p.getIri(), schemeIris, inactive));
         }
+
+        nodes.sort(comparingInt(EntityReferenceNode::getOrderNumber).thenComparing(EntityReferenceNode::getName));
+
         result.setResult(nodes);
         return result;
     }

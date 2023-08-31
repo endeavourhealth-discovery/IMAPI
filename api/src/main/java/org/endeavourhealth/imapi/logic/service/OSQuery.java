@@ -36,23 +36,12 @@ import java.util.concurrent.ExecutionException;
  */
 public class OSQuery {
     private static final Logger LOG = LoggerFactory.getLogger(OSQuery.class);
-    private static final Set<String> resultCache = new HashSet<>();
     private static final String TERM_CODE_TERM = "termCode.term";
     private static final String MATCH_TERM = "matchTerm";
     private static final String SCHEME = "scheme";
     private static final String WEIGHTING = "weighting";
     private static final String STATUS = "status";
     private static final String COMMENT = "comment";
-
-    public Set<String> getResultCache() {
-        return resultCache;
-    }
-
-
-    public OSQuery addResult(String item) {
-        resultCache.add(item);
-        return this;
-    }
 
 
     private List<SearchResultSummary> codeIriQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
@@ -400,7 +389,7 @@ public class OSQuery {
      * @throws QueryException if content of query definition is invalid
      */
 
-    public ObjectNode openSearchQuery(QueryRequest queryRequest) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException, QueryException {
+    public List<SearchResultSummary> openSearchQuery(QueryRequest queryRequest) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException, QueryException {
         if (queryRequest.getTextSearch() == null)
             return null;
         Query query = queryRequest.getQuery();
@@ -422,7 +411,7 @@ public class OSQuery {
         if (results.isEmpty())
             return null;
         else
-            return convertOSResult(results, query);
+            return results;
 
     }
 
@@ -485,7 +474,7 @@ public class OSQuery {
         }
         return true;
     }
-    private ObjectNode convertOSResult(List<SearchResultSummary> searchResults, Query query) {
+    public ObjectNode convertOSResult(List<SearchResultSummary> searchResults, Query query) {
         try (CachedObjectMapper om = new CachedObjectMapper()) {
             ObjectNode result = om.createObjectNode();
             ArrayNode resultNodes = om.createArrayNode();

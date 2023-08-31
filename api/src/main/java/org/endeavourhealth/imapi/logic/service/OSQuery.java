@@ -595,11 +595,21 @@ public class OSQuery {
     }
 
     private static boolean processMatch(SearchRequest request, Match match, QueryRequest imRequest) throws QueryException {
-        if (match.getTypeOf() != null && !processEntityTypes(request, match.getTypeOf(), imRequest))
-            return false;
+        if (match.getTypeOf() != null) {
+            List<String> iris = listFromAlias(match.getTypeOf(),imRequest);
+            if (iris == null || iris.isEmpty())
+                return false;
 
-        if (match.getInstanceOf() != null && !processEntityTypes(request, match.getInstanceOf(), imRequest))
-            return false;
+            request.getTypeFilter().addAll(iris);
+        }
+
+        if (match.getInstanceOf() != null) {
+            List<String> iris = listFromAlias(match.getInstanceOf(),imRequest);
+            if (iris == null || iris.isEmpty())
+                return false;
+
+            request.getIsA().addAll(iris);
+        }
 
         if (match.getProperty() != null && !processProperties(request, match))
             return false;
@@ -614,16 +624,6 @@ public class OSQuery {
             }
         }
 
-        return true;
-    }
-
-    private static boolean processEntityTypes(SearchRequest request, Node node, QueryRequest imRequest) throws QueryException {
-        List<String> types = listFromAlias(node,imRequest);
-
-        if (types==null || types.isEmpty())
-            return false;
-
-        request.getTypeFilter().addAll(types);
         return true;
     }
 

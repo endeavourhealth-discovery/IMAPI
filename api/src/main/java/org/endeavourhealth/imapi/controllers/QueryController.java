@@ -49,7 +49,6 @@ public class QueryController {
     )
     public List<SearchResultSummary> queryIMSearch(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
         LOG.debug("queryIMSearch");
-
         return searchService.queryIMSearch(queryRequest);
     }
 

@@ -74,8 +74,7 @@ public class SearchService {
         );
 
         if (null != queryRequest.getTextSearch()) {
-            OSQuery osq = new OSQuery();
-            List<SearchResultSummary> osResult = osq.openSearchQuery(queryRequest);
+            List<SearchResultSummary> osResult = new OSQuery().openSearchQuery(queryRequest);
             if (osResult != null)
                 return osResult;
         }

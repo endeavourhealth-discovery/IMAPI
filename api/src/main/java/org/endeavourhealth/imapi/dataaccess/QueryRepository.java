@@ -11,8 +11,6 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.logic.service.OSQuery;
-import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -23,10 +21,8 @@ import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
-import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
@@ -38,10 +34,9 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 public class QueryRepository {
     private Query query;
     private final ObjectMapper mapper= new ObjectMapper();
-    private ObjectNode result ;
     private final Set<String> predicates = new HashSet<>();
     private QueryRequest queryRequest;
-    private SparqlConverter converter;
+
 
     /**
      * Generic query of IM with the select statements determining the response
@@ -51,20 +46,14 @@ public class QueryRepository {
      * @throws DataFormatException     if query syntax is invalid
      * @throws JsonProcessingException if the json is invalid
      */
-    public JsonNode queryIM(QueryRequest queryRequest) throws QueryException, DataFormatException,JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
-        result = mapper.createObjectNode();
-        unpackQueryRequest(queryRequest);
-        if (null != queryRequest.getTextSearch()) {
-            ObjectNode osResult = new OSQuery().openSearchQuery(queryRequest);
-            if (osResult != null)
-                return osResult;
-        }
+    public JsonNode queryIM(QueryRequest queryRequest) throws QueryException, JsonProcessingException {
+        ObjectNode result = mapper.createObjectNode();
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             checkReferenceDate();
             new QueryValidator().validateQuery(queryRequest.getQuery());
-            converter = new SparqlConverter(queryRequest);
+            SparqlConverter converter = new SparqlConverter(queryRequest);
             String spq = converter.getSelectSparql(null);
-            return graphSelectSearch(spq, conn);
+            return graphSelectSearch(spq, conn, result);
         }
     }
 
@@ -99,7 +88,7 @@ public class QueryRepository {
 
     }
 
-    private void unpackQueryRequest(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, QueryException {
+    public void unpackQueryRequest(QueryRequest queryRequest, ObjectNode result) throws DataFormatException, JsonProcessingException, QueryException {
         this.queryRequest = queryRequest;
         this.query = unpackQuery(queryRequest.getQuery(), queryRequest);
         queryRequest.setQuery(query);
@@ -145,7 +134,7 @@ public class QueryRepository {
         return query;
     }
 
-    private ObjectNode graphSelectSearch(String spq, RepositoryConnection conn) throws JsonProcessingException {
+    private ObjectNode graphSelectSearch(String spq, RepositoryConnection conn, ObjectNode result) {
         ArrayNode entities= result.putArray("entities");
         try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
             while (rs.hasNext()) {

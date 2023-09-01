@@ -36,23 +36,12 @@ import java.util.concurrent.ExecutionException;
  */
 public class OSQuery {
     private static final Logger LOG = LoggerFactory.getLogger(OSQuery.class);
-    private static final Set<String> resultCache = new HashSet<>();
     private static final String TERM_CODE_TERM = "termCode.term";
     private static final String MATCH_TERM = "matchTerm";
     private static final String SCHEME = "scheme";
     private static final String WEIGHTING = "weighting";
     private static final String STATUS = "status";
     private static final String COMMENT = "comment";
-
-    public Set<String> getResultCache() {
-        return resultCache;
-    }
-
-
-    public OSQuery addResult(String item) {
-        resultCache.add(item);
-        return this;
-    }
 
 
     private List<SearchResultSummary> codeIriQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
@@ -288,8 +277,8 @@ public class OSQuery {
 
         String termCode = "termCode";
 
-        List<String> defaultTypes = new ArrayList<>(Arrays.asList("iri", "name", "code", termCode, "entityType", STATUS, SCHEME, WEIGHTING,"preferredName"));
-        Set<String> fields = new HashSet<>(defaultTypes);
+        List<String> defaultFields = new ArrayList<>(Arrays.asList("iri", "name", "code", termCode, "entityType", STATUS, SCHEME, WEIGHTING,"preferredName"));
+        Set<String> fields = new HashSet<>(defaultFields);
         if (!request.getSelect().isEmpty()) {
             fields.addAll(request.getSelect());
         }
@@ -400,92 +389,89 @@ public class OSQuery {
      * @throws QueryException if content of query definition is invalid
      */
 
-    public ObjectNode openSearchQuery(QueryRequest queryRequest) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException, QueryException {
+    public List<SearchResultSummary> openSearchQuery(QueryRequest queryRequest) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException, QueryException {
         if (queryRequest.getTextSearch() == null)
             return null;
+
         Query query = queryRequest.getQuery();
 
         if (query != null) {
-            if (query.getReturn() != null && !validateQueryReturn(query)) {
+            if (query.getReturn() != null && !returnsCompatibleWithOpenSearch(query.getReturn())) {
                 return null;
             }
 
-            if (query.getMatch() != null && !validateFroms(query.getMatch())) {
+            if (query.getMatch() != null && !matchesCompatibleWithOpenSearch(query.getMatch())) {
                 return null;
             }
         }
 
-        SearchRequest searchRequest = convertIMToOS(queryRequest);
+        SearchRequest searchRequest = queryRequestToSearchRequest(queryRequest);
         if (searchRequest==null)
             return null;
         List<SearchResultSummary> results = multiPhaseQuery(searchRequest);
         if (results.isEmpty())
             return null;
         else
-            return convertOSResult(results, query);
+            return results;
 
     }
 
-
-    private static boolean validateQueryReturn(Query query) {
-        return validateReturnList(query.getReturn());
-    }
-
-    private static boolean validateReturnList(List<Return> returns) {
+    private static boolean returnsCompatibleWithOpenSearch(List<Return> returns) {
         if (returns != null) {
             for (Return r : returns) {
-                if (!validateReturn(r))
+                if (!returnCompatibleWithOpenSearch(r))
                     return false;
             }
         }
         return true;
     }
 
-    private static boolean validateReturn(Return r) {
+    private static boolean returnCompatibleWithOpenSearch(Return r) {
         for (ReturnProperty p : r.getProperty()) {
             if (p != null) {
-                if (p.getIri() != null && !propIsSupported(p.getIri()))
+                if (p.getIri() != null && !propertyAvailableInOpenSearch(p.getIri()))
                     return false;
 
-                if (p.getReturn() != null && !validateReturn(p.getReturn()))
+                if (p.getReturn() != null && !returnCompatibleWithOpenSearch(p.getReturn()))
                     return false;
             }
         }
         return true;
     }
 
-    private boolean validateFroms(List<Match> matches) {
+    private boolean matchesCompatibleWithOpenSearch(List<Match> matches) {
         for (Match match:matches) {
-            if (!validateMatch(match)){
+            if (!matchCompatibleWithOpenSearch(match)){
                 return false;
             }
         }
         return true;
     }
 
-    private boolean validateMatch(Match match){
+    private boolean matchCompatibleWithOpenSearch(Match match){
         if (match.getProperty() != null){
             for (Property property : match.getProperty()) {
-                if (!validateProperty(property))
+                if (!propertyCompatibleWithOpenSearch(property))
                     return false;
             }
         }
         if (match.getMatch() != null){
-            return validateFroms(match.getMatch());
+            return matchesCompatibleWithOpenSearch(match.getMatch());
         }
         return true;
     }
 
-    private boolean validateProperty(Property property){
-        if (!propIsSupported(property.getIri())){
+    private boolean propertyCompatibleWithOpenSearch(Property property){
+        if (!propertyAvailableInOpenSearch(property.getIri())){
             return false;
         }
         if (property.getMatch()!=null){
-           return validateMatch(property.getMatch());
+           return matchCompatibleWithOpenSearch(property.getMatch());
         }
         return true;
     }
-    private ObjectNode convertOSResult(List<SearchResultSummary> searchResults, Query query) {
+
+    public ObjectNode convertOSResult(List<SearchResultSummary> searchResults, Query query) {
         try (CachedObjectMapper om = new CachedObjectMapper()) {
             ObjectNode result = om.createObjectNode();
             ArrayNode resultNodes = om.createArrayNode();
@@ -551,7 +537,7 @@ public class OSQuery {
     }
 
 
-    private SearchRequest convertIMToOS(QueryRequest imRequest) throws QueryException {
+    private SearchRequest queryRequestToSearchRequest(QueryRequest imRequest) throws QueryException {
 
         SearchRequest request = new SearchRequest();
         if (imRequest.getPage() != null) {
@@ -562,7 +548,7 @@ public class OSQuery {
 
         Query query = imRequest.getQuery();
         if (query != null) {
-            if (!validateFromList(request, query, imRequest))
+            if (!processMatches(request, query, imRequest))
                 return null;
             if (query.isActiveOnly())
                 request.setStatusFilter(List.of(IM.ACTIVE.getIri()));
@@ -597,53 +583,47 @@ public class OSQuery {
         }
     }
 
-    private static boolean validateFromList(SearchRequest request, Query query,QueryRequest imRequest) throws QueryException {
+    private static boolean processMatches(SearchRequest request, Query query, QueryRequest imRequest) throws QueryException {
         if (query.getMatch() == null)
             return true;
 
         for (Match match: query.getMatch()) {
-            if (!addFromTypes(request, match, imRequest))
+            if (!processMatch(request, match, imRequest))
                 return false;
         }
         return true;
     }
 
-    private static boolean addFromTypes(SearchRequest request, Match match, QueryRequest imRequest) throws QueryException {
+    private static boolean processMatch(SearchRequest request, Match match, QueryRequest imRequest) throws QueryException {
         if (match.getTypeOf() != null) {
-            if (match.getTypeOf().isDescendantsOrSelfOf()) {
-                if (!processSubTypes(request, match.getTypeOf(), imRequest))
-                    return false;
-            }
-        }
-        if (match.getInstanceOf() != null) {
-            if (match.getInstanceOf().isDescendantsOrSelfOf()) {
-                if (!processSubTypes(request, match.getInstanceOf(), imRequest))
-                    return false;
-            }
-        }
-        if (match.getProperty() != null) {
-            return processProperties(request, match);
-        }
-
-        if (match.getMatch() != null) {
-            if (match.getBool()!=Bool.or){
+            List<String> iris = listFromAlias(match.getTypeOf(),imRequest);
+            if (iris == null || iris.isEmpty())
                 return false;
-            }
-            for (Match subMatch : match.getMatch()) {
-                if (!addFromTypes(request, subMatch, imRequest))
-                    return false;
-            }
+
+            request.getTypeFilter().addAll(iris);
         }
-        return true;
-    }
 
-    private static boolean processSubTypes(SearchRequest request, Node node, QueryRequest imRequest) throws QueryException {
-        List<String> isas= listFromAlias(node,imRequest);
+        if (match.getInstanceOf() != null) {
+            List<String> iris = listFromAlias(match.getInstanceOf(),imRequest);
+            if (iris == null || iris.isEmpty())
+                return false;
 
-        if (isas==null || isas.isEmpty())
+            request.getIsA().addAll(iris);
+        }
+
+        if (match.getProperty() != null && !processProperties(request, match))
             return false;
 
-        request.setIsA(isas);
+        if (match.getMatch() != null) {
+            if (match.getBool() != Bool.or)
+                return false;
+
+            for (Match subMatch : match.getMatch()) {
+                if (!processMatch(request, subMatch, imRequest))
+                    return false;
+            }
+        }
+
         return true;
     }
 
@@ -703,7 +683,7 @@ public class OSQuery {
     }
 
 
-    private static boolean propIsSupported(String iri) {
+    private static boolean propertyAvailableInOpenSearch(String iri) {
         if (iri == null)
             return false;
 

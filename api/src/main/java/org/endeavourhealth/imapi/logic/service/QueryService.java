@@ -1,25 +1,21 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class QueryService {
     private final QueryRepository queryRepository = new QueryRepository();
-    private final ObjectMapper mapper = new ObjectMapper();
 
     public Query labelQuery(Query query) {
         queryRepository.labelQuery(query);
@@ -34,25 +30,44 @@ public class QueryService {
         return queryRepository.getAllByType(typeIri);
     }
 
-    public JsonNode convertResultsToSimpleNames(JsonNode node) throws JsonProcessingException {
-        if (node == null || !node.has("entities") || !node.get("entities").isArray())
-            throw new InvalidFormatException("Invalid JSON structure.  Must contain entities[] at root", node, JsonNode.class);
+    public List<SearchResultSummary> convertQueryIMResultsToSearchResultSummary(JsonNode queryResults) {
+        List<SearchResultSummary> result = new ArrayList<>();
 
-        ObjectNode result = mapper.createObjectNode();
-        ArrayNode entityNode = mapper.createArrayNode();
-        result.set("entities",entityNode);
-        for (JsonNode searchResult : node.get("entities")) {
-            ObjectNode resultNode = mapper.createObjectNode();
-            entityNode.add(resultNode);
-            resultNode.set("iri", searchResult.get("@id"));
-            resultNode.set("name", searchResult.get(RDFS.LABEL.getIri()));
-            resultNode.set("comment", searchResult.get(RDFS.COMMENT.getIri()));
-            resultNode.set("code", searchResult.get(IM.CODE.getIri()));
-            resultNode.set("status", searchResult.get(IM.HAS_STATUS.getIri()));
-            resultNode.set("scheme", searchResult.get(IM.HAS_SCHEME.getIri()));
-            resultNode.set("entityType", searchResult.get(RDF.TYPE.getIri()));
-            resultNode.set("weighting", searchResult.get(IM.WEIGHTING.getIri()));
+        if (queryResults.has("entities")) {
+            JsonNode entities = queryResults.get("entities");
+            if (entities.isArray()) {
+                for (JsonNode entity : queryResults.get("entities")) {
+                    SearchResultSummary summary = new SearchResultSummary();
+                    summary.setIri(entity.get("@id").asText());
+                    summary.setName(entity.get(RDFS.LABEL.getIri()).asText());
+                    if (entity.has(RDFS.COMMENT.getIri())) summary.setDescription(entity.get(RDFS.COMMENT.getIri()).asText());
+                    if (entity.has(IM.CODE.getIri())) summary.setCode(entity.get(IM.CODE.getIri()).asText());
+                    summary.setStatus(jsonNodeToTTIriRef(entity, IM.HAS_STATUS.getIri()).get(0));
+                    summary.setScheme(jsonNodeToTTIriRef(entity, IM.HAS_SCHEME.getIri()).get(0));
+                    summary.getEntityType().addAll(jsonNodeToTTIriRef(entity, RDF.TYPE.getIri()));
+                    if (entity.has(IM.WEIGHTING.getIri())) summary.setWeighting(entity.get(IM.WEIGHTING.getIri()).asInt());
+
+                    result.add(summary);
+                }
+            }
         }
+
+        return result;
+    }
+
+    private List<TTIriRef> jsonNodeToTTIriRef(JsonNode entity, String iri) {
+        List<TTIriRef> result = new ArrayList<>();
+
+        if (entity.has(iri)) {
+            for (JsonNode node : entity.get(iri)) {
+                TTIriRef iriRef = new TTIriRef(node.get("@id").asText());
+                if (node.has(RDFS.LABEL.getIri()))
+                    iriRef.setName(node.get(RDFS.LABEL.getIri()).asText());
+
+                result.add(iriRef);
+            }
+        }
+
         return result;
     }
 }

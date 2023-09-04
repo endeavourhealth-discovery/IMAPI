@@ -135,7 +135,8 @@ public class EntityTripleRepository {
                     result.setHasChildren(((Literal) bs.getValue("hasChildren")).booleanValue())
                         .setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue())
                         .setName(bs.getValue("name").stringValue());
-                    types.add(new TTIriRef(bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
+
+                    if (bs.getValue("typeIri") != null && bs.getValue("typeName") != null) types.add(new TTIriRef(bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
 
                     while (rs.hasNext()) {
                         bs = rs.next();

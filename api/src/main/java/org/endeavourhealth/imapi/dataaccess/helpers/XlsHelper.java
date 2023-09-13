@@ -182,7 +182,7 @@ public class XlsHelper {
 		for (SearchTermCode term : terms) {
 			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
 			Cell cell = row.createCell(0);
-			cell.setCellValue(term.getName());
+			cell.setCellValue(term.getTerm());
 			cell = row.createCell(1);
 			cell.setCellValue(term.getCode());
 			cell = row.createCell(2);

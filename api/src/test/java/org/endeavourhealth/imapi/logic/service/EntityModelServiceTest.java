@@ -354,9 +354,9 @@ class EntityModelServiceTest {
     void getEntityTermCodes_NotNullIri() {
         SearchTermCode termCode = new SearchTermCode()
                 .setCode("24951000252112")
-                .setName("Adverse reaction to Testogel")
+                .setTerm("Adverse reaction to Testogel")
                 .setStatus(new TTIriRef().setIri(IM.ACTIVE.getIri()).setName(IM.ACTIVE.getName()));
-        when(entityRepository2.getBundle(any(),any())).thenReturn(new TTBundle().setEntity(new TTEntity().set(IM.HAS_TERM_CODE,new TTArray().add(new TTNode().set(IM.CODE,new TTLiteral(termCode.getCode())).set(RDFS.LABEL,new TTLiteral(termCode.getName())).set(IM.HAS_STATUS,new TTArray().add(termCode.getStatus()))))));
+        when(entityRepository2.getBundle(any(),any())).thenReturn(new TTBundle().setEntity(new TTEntity().set(IM.HAS_TERM_CODE,new TTArray().add(new TTNode().set(IM.CODE,new TTLiteral(termCode.getCode())).set(RDFS.LABEL,new TTLiteral(termCode.getTerm())).set(IM.HAS_STATUS,new TTArray().add(termCode.getStatus()))))));
         List<SearchTermCode> actual = entityService.getEntityTermCodes("http://endhealth.info/im#25451000252115",false);
         assertNotNull(actual);
     }

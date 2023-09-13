@@ -24,7 +24,7 @@ class TTLiteralTest {
         .setGraph(iri("http://endhealth.co.uk/im#Rich"))
         .set(RDFS.LABEL, "Test object")
         .set(RDFS.COMMENT, "This is an entity to test object serialization")
-        .set(IM.QUERY, literal(new SearchTermCode().setName("Mickey Mouse").setCode("EM-EYE-CEE")));
+        .set(IM.QUERY, literal(new SearchTermCode().setTerm("Mickey Mouse").setCode("EM-EYE-CEE")));
 
     private final String json = new StringJoiner(System.lineSeparator())
         .add("{")
@@ -59,7 +59,7 @@ class TTLiteralTest {
 
         SearchTermCode tc = val.asLiteral().objectValue(SearchTermCode.class);
 
-        assertEquals("Mickey Mouse", tc.getName());
+        assertEquals("Mickey Mouse", tc.getTerm());
         assertEquals("EM-EYE-CEE", tc.getCode());
     }
 
@@ -82,7 +82,7 @@ class TTLiteralTest {
 
         SearchTermCode tc = val.asLiteral().objectValue(SearchTermCode.class);
 
-        assertEquals("Mickey Mouse", tc.getName());
+        assertEquals("Mickey Mouse", tc.getTerm());
         assertEquals("EM-EYE-CEE", tc.getCode());
     }
     @Test

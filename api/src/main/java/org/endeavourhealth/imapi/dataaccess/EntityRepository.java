@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
@@ -479,8 +478,8 @@ public class EntityRepository {
 
     private SearchTermCode getTermCode(EntityDocument blob,String term){
         for (SearchTermCode tc:blob.getTermCode()){
-            if (tc.getName()!=null)
-                if (tc.getName().equals(term))
+            if (tc.getTerm()!=null)
+                if (tc.getTerm().equals(term))
                     return tc;
         }
         return null;

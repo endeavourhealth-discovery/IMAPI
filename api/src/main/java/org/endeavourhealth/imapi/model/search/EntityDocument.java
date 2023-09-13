@@ -178,7 +178,7 @@ public class EntityDocument {
 	public EntityDocument addTermCode(String term, String code, TTIriRef status){
 
 		SearchTermCode tc= new SearchTermCode();
-		tc.setName(term).setCode(code).setStatus(status);
+		tc.setTerm(term).setCode(code).setStatus(status);
 		this.termCode.add(tc);
 		return this;
 	}

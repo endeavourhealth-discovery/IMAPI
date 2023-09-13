@@ -479,8 +479,8 @@ public class EntityRepository {
 
     private SearchTermCode getTermCode(EntityDocument blob,String term){
         for (SearchTermCode tc:blob.getTermCode()){
-            if (tc.getTerm()!=null)
-                if (tc.getTerm().equals(term))
+            if (tc.getName()!=null)
+                if (tc.getName().equals(term))
                     return tc;
         }
         return null;

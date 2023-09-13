@@ -19,6 +19,7 @@ import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.set.ExportSet;
 import org.endeavourhealth.imapi.model.set.MemberType;
@@ -37,6 +38,7 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Comparator.comparingInt;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -53,7 +55,6 @@ public class EntityService {
     private EntityRepository entityRepository = new EntityRepository();
     private EntityTctRepository entityTctRepository = new EntityTctRepository();
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
-    private TermCodeRepository termCodeRepository = new TermCodeRepository();
     private EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
     private ConfigManager configManager = new ConfigManager();
     private EntityRepository2 entityRepository2 = new EntityRepository2();
@@ -508,10 +509,18 @@ public class EntityService {
         return memberHashMap;
     }
 
-    public List<TermCode> getEntityTermCodes(String iri) {
+    public List<SearchTermCode> getEntityTermCodes(String iri, boolean includeInactive) {
         if (iri == null || iri.isEmpty())
             return Collections.emptyList();
-        return termCodeRepository.findAllByIri(iri);
+TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.getIri()).collect(Collectors.toSet()));
+        if (!includeInactive) filterOutInactiveTermCodes(termsBundle);
+        TTArray terms = termsBundle.getEntity().get(IM.HAS_TERM_CODE);
+        if (null == terms) return Collections.emptyList();
+        List<SearchTermCode> termsSummary = new ArrayList<>();
+        for (TTValue term:terms.getElements()) {
+            termsSummary.add(new SearchTermCode().setCode(term.asNode().get(IM.CODE).get(0).asLiteral().getValue()).setName(term.asNode().get(RDFS.LABEL).get(0).asLiteral().getValue()).setStatus(term.asNode().get(IM.HAS_STATUS).get(0).asIriRef()));
+        }
+        return termsSummary;
     }
 
     public TTEntity getSummaryFromConfig(String iri, List<ComponentLayoutItem> configs) {
@@ -545,7 +554,7 @@ public class EntityService {
             // downloadDto.setMembers(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null, false));
         }
         if (params.includeTerms()) {
-            downloadDto.setTerms(getEntityTermCodes(iri));
+            downloadDto.setTerms(getEntityTermCodes(iri,false));
         }
         if (params.includeIsChildOf()) {
             downloadDto.setIsChildOf(getBundle(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri()))).getEntity().get(IM.IS_CHILD_OF));
@@ -582,7 +591,7 @@ public class EntityService {
             // xls.addMembersSheet(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null, false));
         }
         if (params.includeTerms()) {
-            xls.addTerms(getEntityTermCodes(iri));
+            xls.addTerms(getEntityTermCodes(iri,false));
         }
         TTEntity isChildOfEntity = getBundle(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri()))).getEntity();
         TTArray isChildOfData = isChildOfEntity.get(TTIriRef.iri(IM.IS_CHILD_OF.getIri(), IM.IS_CHILD_OF.getName()));

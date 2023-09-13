@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -33,7 +34,7 @@ import java.util.zip.DataFormatException;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @RunWith(JUnitPlatform.class)
@@ -52,9 +53,6 @@ class EntityModelServiceTest {
 
     @Mock
     EntityTctRepository entityTctRepository;
-
-    @Mock
-    TermCodeRepository termCodeRepository;
 
     @Mock
     EntityTypeRepository entityTypeRepository;
@@ -342,25 +340,24 @@ class EntityModelServiceTest {
 
     @Test
     void getEntityTermCodes_NullIri() {
-        List<TermCode> actual = entityService.getEntityTermCodes(null);
+        List<SearchTermCode> actual = entityService.getEntityTermCodes(null,false);
         assertNotNull(actual);
     }
 
     @Test
     void getEntityTermCodes_EmptyIri() {
-        List<TermCode> actual = entityService.getEntityTermCodes("");
+        List<SearchTermCode> actual = entityService.getEntityTermCodes("",false);
         assertNotNull(actual);
     }
 
     @Test
     void getEntityTermCodes_NotNullIri() {
-        TermCode termCode = new TermCode()
+        SearchTermCode termCode = new SearchTermCode()
                 .setCode("24951000252112")
                 .setName("Adverse reaction to Testogel")
-                .setScheme("http://endhealth.info/im#25451000252115")
-                .setEntityTermCode("32231000252116");
-        when(termCodeRepository.findAllByIri(any())).thenReturn(Collections.singletonList(termCode));
-        List<TermCode> actual = entityService.getEntityTermCodes("http://endhealth.info/im#25451000252115");
+                .setStatus(new TTIriRef().setIri(IM.ACTIVE.getIri()).setName(IM.ACTIVE.getName()));
+        when(entityRepository2.getBundle(any(),any())).thenReturn(new TTBundle().setEntity(new TTEntity().set(IM.HAS_TERM_CODE,new TTArray().add(new TTNode().set(IM.CODE,new TTLiteral(termCode.getCode())).set(RDFS.LABEL,new TTLiteral(termCode.getName())).set(IM.HAS_STATUS,new TTArray().add(termCode.getStatus()))))));
+        List<SearchTermCode> actual = entityService.getEntityTermCodes("http://endhealth.info/im#25451000252115",false);
         assertNotNull(actual);
     }
 

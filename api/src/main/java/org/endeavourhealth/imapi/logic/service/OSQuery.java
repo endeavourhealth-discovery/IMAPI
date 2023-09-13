@@ -364,8 +364,8 @@ public class OSQuery {
             for (SearchTermCode tc : searchResult.getTermCode()) {
                 TTIriRef termCodeStatus = tc.getStatus();
                 if ((termCodeStatus != null) && (!(termCodeStatus.equals(IM.INACTIVE))) &&
-                    (tc.getTerm() != null && tc.getTerm().toLowerCase().startsWith(searchTerm))) {
-                    searchResult.setMatch(tc.getTerm());
+                    (tc.getName() != null && tc.getName().toLowerCase().startsWith(searchTerm))) {
+                    searchResult.setMatch(tc.getName());
                     break;
                 }
             }

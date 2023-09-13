@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.model.TermCode;
 
+import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
@@ -24,7 +24,7 @@ class TTLiteralTest {
         .setGraph(iri("http://endhealth.co.uk/im#Rich"))
         .set(RDFS.LABEL, "Test object")
         .set(RDFS.COMMENT, "This is an entity to test object serialization")
-        .set(IM.QUERY, literal(new TermCode().setName("Mickey Mouse").setCode("EM-EYE-CEE")));
+        .set(IM.QUERY, literal(new SearchTermCode().setName("Mickey Mouse").setCode("EM-EYE-CEE")));
 
     private final String json = new StringJoiner(System.lineSeparator())
         .add("{")
@@ -57,7 +57,7 @@ class TTLiteralTest {
         TTValue val = preds.get(0);
         assertTrue(val.isLiteral());
 
-        TermCode tc = val.asLiteral().objectValue(TermCode.class);
+        SearchTermCode tc = val.asLiteral().objectValue(SearchTermCode.class);
 
         assertEquals("Mickey Mouse", tc.getName());
         assertEquals("EM-EYE-CEE", tc.getCode());
@@ -80,7 +80,7 @@ class TTLiteralTest {
         TTValue val = preds.get(0);
         assertTrue(val.isLiteral());
 
-        TermCode tc = val.asLiteral().objectValue(TermCode.class);
+        SearchTermCode tc = val.asLiteral().objectValue(SearchTermCode.class);
 
         assertEquals("Mickey Mouse", tc.getName());
         assertEquals("EM-EYE-CEE", tc.getCode());

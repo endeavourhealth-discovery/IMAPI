@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.model.dto;
 
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.TermCode;
+import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
@@ -19,7 +19,7 @@ public class DownloadDto implements Serializable {
 	private TTNode axioms;
 	private ExportSet members;
 	private List<DataModelProperty> dataModelProperties;
-	private List<TermCode> terms;
+	private List<SearchTermCode> terms;
 	private TTArray isChildOf;
 	private TTArray hasChildren;
 
@@ -73,11 +73,11 @@ public class DownloadDto implements Serializable {
 		this.summary = summary;
 	}
 
-	public List<TermCode> getTerms() {
+	public List<SearchTermCode> getTerms() {
 		return terms;
 	}
 
-	public void setTerms(List<TermCode> terms) {
+	public void setTerms(List<SearchTermCode> terms) {
 		this.terms = terms;
 	}
 

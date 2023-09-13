@@ -408,7 +408,7 @@ public class OpenSearchSender {
     }
 
     private SearchTermCode getTermCode(EntityDocument blob, String term) {
-        Optional<SearchTermCode> match = blob.getTermCode().stream().filter(tc -> tc.getTerm() != null && tc.getTerm().equals(term)).findFirst();
+        Optional<SearchTermCode> match = blob.getTermCode().stream().filter(tc -> tc.getName() != null && tc.getName().equals(term)).findFirst();
 
         return match.orElse(null);
     }

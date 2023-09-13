@@ -6,16 +6,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SearchTermCode {
-	String term;
+	String name;
 	String code;
 	TTIriRef status;
 
-	public String getTerm() {
-		return term;
+	public String getName() {
+		return name;
 	}
 
-	public SearchTermCode setTerm(String term) {
-		this.term = term;
+	public SearchTermCode setName(String term) {
+		this.name = term;
 		return this;
 	}
 

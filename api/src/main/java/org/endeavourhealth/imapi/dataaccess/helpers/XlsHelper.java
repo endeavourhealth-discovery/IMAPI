@@ -5,7 +5,7 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.TermCode;
+import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.set.ExportSet;
 import org.endeavourhealth.imapi.model.set.MemberType;
@@ -174,19 +174,19 @@ public class XlsHelper {
 		}
 	}
 
-	public void addTerms(List<TermCode> terms) {
+	public void addTerms(List<SearchTermCode> terms) {
 		Sheet sheet = workbook.createSheet("Terms");
-		List<String> headers = Arrays.asList("Name", "Code", "Scheme");
+		List<String> headers = Arrays.asList("Name", "Code", "Status");
 		addHeaders(sheet, 10000, headers);
 
-		for (TermCode term : terms) {
+		for (SearchTermCode term : terms) {
 			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
 			Cell cell = row.createCell(0);
 			cell.setCellValue(term.getName());
 			cell = row.createCell(1);
 			cell.setCellValue(term.getCode());
 			cell = row.createCell(2);
-			cell.setCellValue(term.getScheme());
+			cell.setCellValue(term.getStatus().getName());
 		}
 	}
 

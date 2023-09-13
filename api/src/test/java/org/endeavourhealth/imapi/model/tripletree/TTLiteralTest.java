@@ -24,7 +24,7 @@ class TTLiteralTest {
         .setGraph(iri("http://endhealth.co.uk/im#Rich"))
         .set(RDFS.LABEL, "Test object")
         .set(RDFS.COMMENT, "This is an entity to test object serialization")
-        .set(IM.QUERY, literal(new SearchTermCode().setTerm("Mickey Mouse").setCode("EM-EYE-CEE")));
+        .set(IM.QUERY, literal(new SearchTermCode().setTerm("Mickey Mouse").setCode("EM-EYE-CEE").setStatus(IM.ACTIVE)));
 
     private final String json = new StringJoiner(System.lineSeparator())
         .add("{")
@@ -32,7 +32,7 @@ class TTLiteralTest {
         .add("  \"@graph\" : \"http://endhealth.co.uk/im#Rich\",")
         .add("  \"http://www.w3.org/2000/01/rdf-schema#label\" : \"Test object\",")
         .add("  \"http://www.w3.org/2000/01/rdf-schema#comment\" : \"This is an entity to test object serialization\",")
-        .add("  \"http://endhealth.info/im#Query\" : \"{\\\"name\\\":\\\"Mickey Mouse\\\",\\\"code\\\":\\\"EM-EYE-CEE\\\",\\\"scheme\\\":null,\\\"entityTermCode\\\":null}\"")
+        .add("  \"http://endhealth.info/im#Query\" : \"{\\\"term\\\":\\\"Mickey Mouse\\\",\\\"code\\\":\\\"EM-EYE-CEE\\\",\\\"status\\\":{\\\"@id\\\":\\\"http://endhealth.info/im#Active\\\"}}\"")
         .add("}")
         .toString();
 

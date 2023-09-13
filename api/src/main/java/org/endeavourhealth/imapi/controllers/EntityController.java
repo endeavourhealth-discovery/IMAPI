@@ -32,6 +32,7 @@ import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.set.ExportSet;
 import org.endeavourhealth.imapi.model.set.SetAsObject;
@@ -403,9 +404,9 @@ public class EntityController {
 	}
 
 	@GetMapping("/public/termCode")
-	public List<TermCode> getTermCodes(@RequestParam(name = "iri") String iri) {
+	public List<SearchTermCode> getTermCodes(@RequestParam(name = "iri") String iri, @RequestParam(name = "includeInactive") Optional<Boolean> includeInactive) {
 	    LOG.debug("getTermCodes");
-		return entityService.getEntityTermCodes(iri);
+		return entityService.getEntityTermCodes(iri, includeInactive.orElseGet(() ->false));
 	}
 
 	@GetMapping("/public/dataModelProperties")

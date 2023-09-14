@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import lombok.Getter;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
@@ -44,6 +45,13 @@ public class PropertyShape {
 	private Boolean builderChild;
 	private NodeShape expression;
 	private Boolean forceIsValue;
+	@Getter
+	private ArrayButtons arrayButtons;
+
+	public PropertyShape setArrayButtons(ArrayButtons arrayButtons) {
+		this.arrayButtons = arrayButtons;
+		return this;
+	}
 
 	public Boolean getForceIsValue() {
 		return forceIsValue;

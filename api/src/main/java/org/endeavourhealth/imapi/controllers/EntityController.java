@@ -104,9 +104,9 @@ public class EntityController {
 	}
 
 	@GetMapping(value = "/fullEntity", produces = "application/json")
-	public TTEntity getFullEntity(@RequestParam(name = "iri") String iri) {
+	public TTEntity getFullEntity(@RequestParam(name = "iri") String iri,@RequestParam(name = "includeInactiveTermCodes",required = false) Boolean includeInactiveTermCodes) {
 		LOG.debug("getFullEntity");
-		return entityService.getBundleByPredicateExclusions(iri, null).getEntity();
+		return entityService.getBundleByPredicateExclusions(iri, null,includeInactiveTermCodes).getEntity();
 	}
 
 	@GetMapping(value = "/public/matchedFrom", produces = "application/json")
@@ -572,19 +572,22 @@ public class EntityController {
 	@GetMapping("/public/entityByPredicateExclusions")
 	public TTEntity getEntityByPredicateExclusions(
 		@RequestParam(name = "iri") String iri,
-		@RequestParam(name = "predicates") Set<String> predicates)
+		@RequestParam(name = "predicates") Set<String> predicates,
+		@RequestParam(name = "includeInactiveTermCodes", required = false) Boolean includeInactiveTermCodes
+	)
 	{
 		LOG.debug("getEntityByPredicateExclusions");
-		return entityService.getBundleByPredicateExclusions(iri,predicates).getEntity();
+		return entityService.getBundleByPredicateExclusions(iri,predicates,includeInactiveTermCodes).getEntity();
 	}
 
 	@GetMapping("/public/bundleByPredicateExclusions")
 	public TTBundle getBundleByPredicateExclusions(
 		@RequestParam(name = "iri") String iri,
-		@RequestParam(name = "predicates") Set<String> predicates
+		@RequestParam(name = "predicates") Set<String> predicates,
+		@RequestParam(name = "includeInactiveTermCodes",required = false) Boolean includeInactiveTermCodes
 	) {
 		LOG.debug("getBundleByPredicateExclusions");
-		return entityService.getBundleByPredicateExclusions(iri,predicates);
+		return entityService.getBundleByPredicateExclusions(iri,predicates,includeInactiveTermCodes);
 	}
 
 	@GetMapping("/public/shapeFromType")

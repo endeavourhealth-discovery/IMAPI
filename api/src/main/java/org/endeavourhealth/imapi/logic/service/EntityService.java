@@ -94,10 +94,10 @@ public class EntityService {
         }
     }
 
-    public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) {
+    public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates, Boolean includeInactiveTermCodes) {
         TTBundle bundle = entityRepository2.getBundle(iri, excludePredicates, true);
         filterOutSpecifiedPredicates(excludePredicates, bundle);
-        filterOutInactiveTermCodes(bundle);
+        if (null == includeInactiveTermCodes || !includeInactiveTermCodes) filterOutInactiveTermCodes(bundle);
         return bundle;
     }
 
@@ -843,7 +843,7 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.getIri()).colle
             predicates = new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri(), IM.HAS_MEMBER.getIri()));
         }
 
-        return getBundleByPredicateExclusions(iri, predicates);
+        return getBundleByPredicateExclusions(iri, predicates,null);
     }
 
     public TTDocument getConcept(String iri) {
@@ -1074,27 +1074,27 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.getIri()).colle
     }
 
     public TTEntity addConceptToTask(String entityIri, String taskIri, String agentName) throws Exception {
-        TTEntity entity = getBundleByPredicateExclusions(entityIri, null).getEntity();
+        TTEntity entity = getBundleByPredicateExclusions(entityIri, null,null).getEntity();
         if (entity.get(IM.IN_TASK) == null) {
             entity.set(IM.IN_TASK, new TTArray());
         }
         entity.get(IM.IN_TASK).add(iri(taskIri));
         filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
-        return getBundleByPredicateExclusions(entity.getIri(), null).getEntity();
+        return getBundleByPredicateExclusions(entity.getIri(), null,null).getEntity();
     }
 
 
     public TTEntity removeConceptFromTask(String taskIri, String removedActionIri, String agentName) throws Exception {
-        TTEntity entity = getBundleByPredicateExclusions(removedActionIri, null).getEntity();
+        TTEntity entity = getBundleByPredicateExclusions(removedActionIri, null,null).getEntity();
         entity.set(IM.IN_TASK, entityRepository2.findFilteredInTask(removedActionIri, taskIri));
         filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
-        return getBundleByPredicateExclusions(entity.getIri(), null).getEntity();
+        return getBundleByPredicateExclusions(entity.getIri(), null,null).getEntity();
     }
 
     public List<TTEntity> saveMapping(Map<String, List<String>> mappings, String agentName) throws Exception {
         List<TTEntity> result = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : mappings.entrySet()) {
-            TTEntity entity = getBundleByPredicateExclusions(entry.getKey(), null).getEntity();
+            TTEntity entity = getBundleByPredicateExclusions(entry.getKey(), null,null).getEntity();
             if (entity.has(IM.HAS_STATUS)) {
                 entity.get(IM.HAS_STATUS).remove(IM.UNASSIGNED);
             }
@@ -1103,7 +1103,7 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.getIri()).colle
                 entity.get(IM.MATCHED_TO).add(iri(iri));
             }
             filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
-            result.add(getBundleByPredicateExclusions(entity.getIri(), null).getEntity());
+            result.add(getBundleByPredicateExclusions(entity.getIri(), null,null).getEntity());
         }
 
         return result;

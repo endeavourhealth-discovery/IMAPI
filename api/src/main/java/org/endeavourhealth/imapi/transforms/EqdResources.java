@@ -134,7 +134,7 @@ public class EqdResources {
 		if (pathMap.equals(""))
 			return match;
 		String[] paths= pathMap.split(" ");
-		for (int i=0; i<paths.length-2; i=i+2) {
+		for (int i=0; i<paths.length-1; i=i+2) {
 				Property path = new Property();
 				match.addProperty(path);
 				path.setIri(paths[i]);

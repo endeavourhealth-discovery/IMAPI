@@ -7,9 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.dataaccess.PathRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.imq.PathDocument;
-import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -17,6 +15,7 @@ import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
@@ -61,17 +60,17 @@ public class SearchService {
         repo.unpackQueryRequest(queryRequest, result);
 
         // Set correct return properties for SearchResultSummary structure
-        queryRequest.getQuery().return_(s -> s.property(p -> p.setIri(RDFS.LABEL.getIri()))
-            .property(p -> p.setIri(RDFS.COMMENT.getIri()))
-            .property(p -> p.setIri(IM.CODE.getIri()))
-            .property(p -> p.setIri(IM.HAS_STATUS.getIri())
-                .return_(r -> r.property(rp -> rp.setIri(RDFS.LABEL.getIri()))))
-            .property(p -> p.setIri(IM.HAS_SCHEME.getIri())
-                .return_(r -> r.property(rp -> rp.setIri(RDFS.LABEL.getIri()))))
-            .property(p -> p.setIri(RDF.TYPE.getIri())
-                .return_(r -> r.property(rp -> rp.setIri(RDFS.LABEL.getIri()))))
-            .property(p -> p.setIri(IM.WEIGHTING.getIri()))
-        );
+		List<Return> summaryReturn = new ArrayList<Return>();
+		summaryReturn.add(new Return()
+			.addProperty(new ReturnProperty().setIri(RDFS.LABEL.getIri()))
+			.addProperty(new ReturnProperty().setIri(RDFS.COMMENT.getIri()))
+			.addProperty(new ReturnProperty().setIri(IM.CODE.getIri()))
+			.addProperty(new ReturnProperty().setIri(IM.HAS_STATUS.getIri()).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL.getIri()))))
+			.addProperty(new ReturnProperty().setIri(IM.HAS_SCHEME.getIri()).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL.getIri()))))
+			.addProperty(new ReturnProperty().setIri(RDF.TYPE.getIri()).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL.getIri()))))
+			.addProperty(new ReturnProperty().setIri(IM.WEIGHTING.getIri()))
+		);
+        queryRequest.getQuery().setReturn(summaryReturn);
 
         if (null != queryRequest.getTextSearch()) {
             List<SearchResultSummary> osResult = new OSQuery().openSearchQuery(queryRequest);

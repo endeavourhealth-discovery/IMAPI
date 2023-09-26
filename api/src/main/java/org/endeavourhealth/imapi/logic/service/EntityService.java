@@ -518,8 +518,15 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.getIri()).colle
         if (null == terms) return Collections.emptyList();
         List<SearchTermCode> termsSummary = new ArrayList<>();
         for (TTValue term:terms.getElements()) {
-            if (null == termsSummary.stream().filter(t -> term.asNode().get(IM.CODE).get(0).asLiteral().getValue().equals(t.getCode())).findAny().orElse(null))
-                termsSummary.add(new SearchTermCode().setCode(term.asNode().get(IM.CODE).get(0).asLiteral().getValue()).setTerm(term.asNode().get(RDFS.LABEL).get(0).asLiteral().getValue()).setStatus(term.asNode().get(IM.HAS_STATUS).get(0).asIriRef()));
+            if (null == termsSummary.stream().filter(t -> term.asNode().get(IM.CODE).get(0).asLiteral().getValue().equals(t.getCode())).findAny().orElse(null)) {
+                SearchTermCode newTerm = new SearchTermCode()
+                    .setCode(term.asNode().get(IM.CODE).get(0).asLiteral().getValue())
+                    .setTerm(term.asNode().get(RDFS.LABEL).get(0).asLiteral().getValue());
+                if (term.asNode().has(IM.HAS_STATUS)) newTerm.setStatus(term.asNode().get(IM.HAS_STATUS).get(0).asIriRef());
+                termsSummary.add(
+                    newTerm
+                );
+            }
         }
         return termsSummary;
     }

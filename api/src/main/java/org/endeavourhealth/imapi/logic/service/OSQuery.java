@@ -550,8 +550,9 @@ public class OSQuery {
         if (query != null) {
             if (!processMatches(request, query, imRequest))
                 return null;
-            if (query.isActiveOnly())
-                request.setStatusFilter(List.of(IM.ACTIVE.getIri()));
+            if (query.isActiveOnly()) {
+                if (request.getStatusFilter().isEmpty()) request.setStatusFilter(List.of(IM.ACTIVE.getIri()));
+            }
             processSelects(request, query);
         }
 
@@ -633,6 +634,8 @@ public class OSQuery {
                 processSchemeProperty(request, w);
             } else if (IM.HAS_MEMBER.getIri().equals(w.getIri()) && w.isInverse()) {
                 processMemberProperty(request, w);
+            } else if (IM.HAS_STATUS.getIri().equals(w.getIri())) {
+                processStatusProperty(request, w);
             } else {
                 return false;
             }
@@ -653,6 +656,13 @@ public class OSQuery {
             request.setMemberOf(w.getIs().stream().map(Node::getIri).toList());
         else
             throw new QueryException("Set membership filter must be a list (is)");
+    }
+
+    private static void processStatusProperty(SearchRequest request, Property w) throws QueryException {
+        if (w.getIs() != null && !w.getIs().isEmpty())
+            request.setStatusFilter(w.getIs().stream().map(Node::getIri).toList());
+        else
+            throw new QueryException("Status filter must be a list (is)");
     }
 
     private static List<String> listFromAlias(Node type, QueryRequest queryRequest) throws QueryException {

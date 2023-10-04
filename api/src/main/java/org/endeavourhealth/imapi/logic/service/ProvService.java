@@ -52,6 +52,7 @@ public class ProvService {
                 .setTargetEntity(TTIriRef.iri(targetEntity.getIri()));
 
         if (null != usedEntityIri) {
+            activity.setActivityType(IM.PROV_UPDATE);
             activity.set(IM.PROV_USED, TTIriRef.iri(usedEntityIri));
         }
 

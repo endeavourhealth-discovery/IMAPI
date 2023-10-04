@@ -189,7 +189,7 @@ public class IM {
     public static final TTIriRef UPDATE_PREDICATES = TTIriRef.iri(NAMESPACE + "UpdatePredicates");
     public static final TTIriRef DELETE_ALL = TTIriRef.iri(NAMESPACE + "DeleteAll");
     public static final TTIriRef PROV_CREATION = TTIriRef.iri(NAMESPACE + "2001000252109");
-
+    public static final TTIriRef PROV_UPDATE = TTIriRef.iri(NAMESPACE + "1661000252106");
 
     public static final TTIriRef USED_IN = iri(NAMESPACE + "usedIn");
 

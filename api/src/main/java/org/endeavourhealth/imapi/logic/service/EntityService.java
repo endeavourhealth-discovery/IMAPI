@@ -1218,5 +1218,9 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.getIri()).colle
     public Boolean hasPredicates(String subjectIri, Set<String> predicateIris) {
         return entityTripleRepository.hasPredicates(subjectIri, predicateIris);
     }
+
+    public List<String> getIM1SchemeOptions() {
+        return entityRepository.getIM1SchemeOptions();
+    }
 }
 

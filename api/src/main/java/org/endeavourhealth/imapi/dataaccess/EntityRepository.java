@@ -340,6 +340,27 @@ public class EntityRepository {
         return result;
     }
 
+    public List<String> getIM1SchemeOptions() {
+        List<String> results = new ArrayList<>();
+
+        String sql = new StringJoiner(System.lineSeparator())
+            .add("select DISTINCT ?o where {")
+            .add("?s <http://endhealth.info/im#im1Scheme> ?o .")
+            .add("}  ")
+            .toString();
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = prepareSparql(conn,sql);
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while(rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    results.add(bs.getValue("o").stringValue());
+                }
+            }
+        }
+        return results;
+    }
+
     public boolean predicatePathExists(String subject, TTIriRef predicate, String object) {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             BooleanQuery qry = conn.prepareBooleanQuery("ASK { ?s (<" + predicate.getIri() + ">)* ?o.}");

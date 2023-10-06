@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
@@ -19,20 +20,15 @@ public class FunctionService {
 	private EntityService entityService = new EntityService();
 
 	public JsonNode callFunction(String iri, List<Argument> arguments) throws Exception {
-		switch (iri){
-			case  (IM.NAMESPACE+"Function_SnomedConceptGenerator") :
-				return conceptRepository.createConcept(IM.NAMESPACE);
-			case (IM.NAMESPACE+"Function_LocalNameRetriever") :
-				return getLocalName(arguments);
-			case (IM.NAMESPACE+"Function_GetAdditionalAllowableTypes") :
-				return getAdditionalAllowableTypes(arguments);
-			case (IM.NAMESPACE+"Function_GetLogicOptions") :
-				return getLogicOptions();
-			case (IM.NAMESPACE + "Function_GetSetEditorIriSchemes"):
-				return getSetEditorIriSchemes();
-			default :
-				throw new IllegalArgumentException("No such function");
-		}
+        return switch (iri) {
+            case (IM.NAMESPACE + "Function_SnomedConceptGenerator") -> conceptRepository.createConcept(IM.NAMESPACE);
+            case (IM.NAMESPACE + "Function_LocalNameRetriever") -> getLocalName(arguments);
+            case (IM.NAMESPACE + "Function_GetAdditionalAllowableTypes") -> getAdditionalAllowableTypes(arguments);
+            case (IM.NAMESPACE + "Function_GetLogicOptions") -> getLogicOptions();
+            case (IM.NAMESPACE + "Function_GetSetEditorIriSchemes") -> getSetEditorIriSchemes();
+			case (IM.NAMESPACE + "Function_IM1SchemeOptions") -> getIM1SchemeOptions();
+            default -> throw new IllegalArgumentException("No such function");
+        };
 	}
 
 	private JsonNode getLocalName(List<Argument> arguments){
@@ -94,6 +90,13 @@ public class FunctionService {
 		List<TTIriRef> resultsAsIri = results.stream().map(r -> new TTIriRef(r.getIri(),r.getName())).collect(Collectors.toList());
 		try (CachedObjectMapper om = new CachedObjectMapper()) {
 			return om.valueToTree(resultsAsIri);
+		}
+	}
+
+	private JsonNode getIM1SchemeOptions() {
+		List<String> results = entityService.getIM1SchemeOptions();
+		try (CachedObjectMapper om = new CachedObjectMapper()) {
+			return om.stringArrayToTree(results);
 		}
 	}
 }

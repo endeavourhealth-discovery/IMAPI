@@ -79,6 +79,8 @@ public class CachedObjectMapper implements AutoCloseable {
         return objectMapper.valueToTree(fromValue);
     }
 
+    public JsonNode stringArrayToTree(List<String> fromValue) { return objectMapper.valueToTree(fromValue); }
+
     public <T> T treeToValue(JsonNode source, Class<T> valueType) throws JsonProcessingException {
         return objectMapper.treeToValue(source, valueType);
     }

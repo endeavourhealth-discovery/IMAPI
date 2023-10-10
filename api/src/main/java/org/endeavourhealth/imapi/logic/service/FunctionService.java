@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
@@ -27,6 +28,7 @@ public class FunctionService {
             case (IM.NAMESPACE + "Function_GetLogicOptions") -> getLogicOptions();
             case (IM.NAMESPACE + "Function_GetSetEditorIriSchemes") -> getSetEditorIriSchemes();
 			case (IM.NAMESPACE + "Function_IM1SchemeOptions") -> getIM1SchemeOptions();
+			case (IM.NAMESPACE + "Function_SchemeFromIri") -> getSchemeFromIri(arguments);
             default -> throw new IllegalArgumentException("No such function");
         };
 	}
@@ -49,6 +51,26 @@ public class FunctionService {
             return om.createObjectNode().put(fieldName, iri.substring(iri.lastIndexOf("#") + 1));
         }
 	}
+
+	private JsonNode getSchemeFromIri(List<Argument> arguments) {
+		if (null == arguments)
+			throw new IllegalArgumentException("No arguments, send json property/value pairs in request body");
+		String iri = null;
+		for (Argument arg : arguments) {
+			if (null == arg.getParameter()) throw new IllegalArgumentException("One or more arguments are missing parameter key");
+			if ("entityIri".equals(arg.getParameter())) iri = arg.getValueVariable();
+		}
+		if (null == iri)
+			throw new IllegalArgumentException("No entity iri property in request body");
+		try (CachedObjectMapper om = new CachedObjectMapper()) {
+			String schemeIri = iri.substring(0,iri.lastIndexOf("#")+1);
+			List<EntityReferenceNode> schemes = entityService.getImmediateChildren(IM.GRAPH.getIri(),new ArrayList<>(),1,1000,false);
+			List<EntityReferenceNode> schemesFiltered = schemes.stream().filter( s -> s.getIri().equals(schemeIri)).toList();
+			List<TTIriRef> schemesFilteredIriRef = schemesFiltered.stream().map(s -> new TTIriRef().setIri(s.getIri()).setName(s.getName())).collect(Collectors.toList());
+			if (schemesFiltered.isEmpty()) throw new IllegalArgumentException("Iri has invalid scheme");
+			return om.valueToTree(schemesFilteredIriRef);
+		}
+    }
 
 	private JsonNode getAdditionalAllowableTypes(List<Argument> arguments) {
 		if (null == arguments)

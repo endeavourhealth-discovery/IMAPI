@@ -1,9 +1,6 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -13,6 +10,7 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"description","nodeVariable","iri","name","bool","match","property","range"
 	,"operator","isNull","value","unit","in","isNot","notInSet","inSet","relativeTo","anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonIgnoreProperties({"key"})
 public class Property extends PropertyRef implements Assignable{
 	private String description;
 	private Range range;

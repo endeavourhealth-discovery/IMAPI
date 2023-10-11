@@ -42,6 +42,10 @@ public class FilerService {
     public void fileEntity(TTEntity entity, TTIriRef graph, String agentName, TTEntity usedEntity) throws TTFilerException {
         try {
             entityFiler.fileEntity(entity, graph);
+
+            if (entity.isType(IM.CONCEPT))
+                entityFiler.updateTct(entity.getIri());
+
             ProvActivity activity = fileProv(entity, agentName, usedEntity);
             writeDelta(entity, activity);
             fileOpenSearch(entity.getIri());

@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
@@ -19,8 +20,11 @@ import java.util.zip.DataFormatException;
 public class FunctionService {
 	private ConceptRepository conceptRepository = new ConceptRepository();
 	private EntityService entityService = new EntityService();
+	private UserService userService = new UserService();
 
-	public JsonNode callFunction(String iri, List<Argument> arguments) throws Exception {
+	private final RequestObjectService requestObjectService = new RequestObjectService();
+
+	public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws Exception {
         return switch (iri) {
             case (IM.NAMESPACE + "Function_SnomedConceptGenerator") -> conceptRepository.createConcept(IM.NAMESPACE);
             case (IM.NAMESPACE + "Function_LocalNameRetriever") -> getLocalName(arguments);
@@ -29,6 +33,7 @@ public class FunctionService {
             case (IM.NAMESPACE + "Function_GetSetEditorIriSchemes") -> getSetEditorIriSchemes();
 			case (IM.NAMESPACE + "Function_IM1SchemeOptions") -> getIM1SchemeOptions();
 			case (IM.NAMESPACE + "Function_SchemeFromIri") -> getSchemeFromIri(arguments);
+			case (IM.NAMESPACE + "Function_GetUserEditableSchemes") -> getUserEditableSchemes(request);
             default -> throw new IllegalArgumentException("No such function");
         };
 	}
@@ -110,6 +115,16 @@ public class FunctionService {
 	private JsonNode getSetEditorIriSchemes() {
 		List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.GRAPH.getIri(),null,1,200,false);
 		List<TTIriRef> resultsAsIri = results.stream().map(r -> new TTIriRef(r.getIri(),r.getName())).collect(Collectors.toList());
+		try (CachedObjectMapper om = new CachedObjectMapper()) {
+			return om.valueToTree(resultsAsIri);
+		}
+	}
+
+	private JsonNode getUserEditableSchemes(HttpServletRequest request) throws JsonProcessingException {
+		List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.GRAPH.getIri(),null,1,200,false);
+		String userId = requestObjectService.getRequestAgentId(request);
+		List<String> organisations = userService.getUserOrganisations(userId);
+		List<TTIriRef> resultsAsIri = results.stream().filter(r -> organisations.stream().anyMatch(o -> o.equals(r.getIri()))).map(r -> new TTIriRef(r.getIri(),r.getName())).collect(Collectors.toList());
 		try (CachedObjectMapper om = new CachedObjectMapper()) {
 			return om.valueToTree(resultsAsIri);
 		}

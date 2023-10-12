@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.filer.TTTransactionFiler;
 import org.endeavourhealth.imapi.filer.rdf4j.TTDocumentFilerRdf4j;
 
 import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
+import org.endeavourhealth.imapi.logic.reasoner.SetExpander;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
@@ -45,6 +46,9 @@ public class FilerService {
 
             if (entity.isType(IM.CONCEPT))
                 entityFiler.updateTct(entity.getIri());
+
+            if (entity.isType(IM.VALUESET))
+                new SetExpander().expandSet(entity.getIri());
 
             ProvActivity activity = fileProv(entity, agentName, usedEntity);
             writeDelta(entity, activity);

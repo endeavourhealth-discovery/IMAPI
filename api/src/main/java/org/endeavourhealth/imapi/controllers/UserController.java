@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
 import org.endeavourhealth.imapi.model.dto.ThemeDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
@@ -33,11 +34,11 @@ public class UserController {
     }
 
     @PostMapping(value = "/theme", produces = "application/json")
-    public ResponseEntity<String> updateUserTheme(HttpServletRequest request, @RequestBody ThemeDto themeDto) throws JsonProcessingException {
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateUserTheme(HttpServletRequest request, @RequestBody ThemeDto themeDto) throws JsonProcessingException {
         LOG.debug("updateUserTheme");
         String userId = requestObjectService.getRequestAgentId(request);
         userService.updateUserTheme(userId, themeDto.getThemeValue());
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/MRU", produces = "application/json")
@@ -48,11 +49,11 @@ public class UserController {
     }
 
     @PostMapping(value = "/MRU", produces = "application/json")
-    public ResponseEntity<String> updateUserMRU(HttpServletRequest request, @RequestBody List<RecentActivityItemDto> mru) throws JsonProcessingException {
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateUserMRU(HttpServletRequest request, @RequestBody List<RecentActivityItemDto> mru) throws JsonProcessingException {
         LOG.debug("updateUserMRU");
         String userId = requestObjectService.getRequestAgentId(request);
         userService.updateUserMRU(userId, mru);
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/favourites", produces = "application/json")
@@ -63,10 +64,24 @@ public class UserController {
     }
 
     @PostMapping(value = "/favourites", produces = "application/json")
-    public ResponseEntity<String> updateUserFavourites(HttpServletRequest request, @RequestBody List<String> favourites) throws JsonProcessingException {
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateUserFavourites(HttpServletRequest request, @RequestBody List<String> favourites) throws JsonProcessingException {
         LOG.debug("updateUserFavourites");
         String userId = requestObjectService.getRequestAgentId(request);
         userService.updateUserFavourites(userId, favourites);
-        return ResponseEntity.ok().build();
+    }
+    @GetMapping(value = "/organisations", produces = "application/json")
+    public List<String> getOrganisations(HttpServletRequest request) throws JsonProcessingException {
+        LOG.debug(("getOrganisations"));
+        String userId = requestObjectService.getRequestAgentId(request);
+        return userService.getUserOrganisations(userId);
+    }
+
+    @PostMapping(value = "/organisations", produces = "application/json")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateUserOrganisations(HttpServletRequest request, @RequestBody List<String> organisations) throws JsonProcessingException {
+        LOG.debug("updateOrganisations");
+        String userId = requestObjectService.getRequestAgentId(request);
+        userService.updateUserOrganisations(userId,organisations);
     }
 }

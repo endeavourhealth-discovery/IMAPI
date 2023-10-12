@@ -38,4 +38,12 @@ public class UserService {
     public void updateUserFavourites(String userId, List<String> favourites) throws JsonProcessingException {
         userRepository.updateUserFavourites(userId, favourites);
     }
+
+    public List<String> getUserOrganisations(String userId) throws JsonProcessingException {
+        return userRepository.getUserOrganisations(userId);
+    }
+
+    public void updateUserOrganisations(String userId, List<String> organisations) throws JsonProcessingException {
+        userRepository.updateUserOrganisations(userId,organisations);
+    }
 }

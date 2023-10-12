@@ -151,5 +151,29 @@ public class UserRepository {
         insert(user, USER.USER_THEME.getIri(), theme);
     }
 
+    public List<String> getUserOrganisations(String user) throws JsonProcessingException {
+        List<String> result = new ArrayList<String>();
+        String sparql = getSparqlSelect();
 
+        try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
+            TupleQuery qry = prepareSparql(conn, sparql);
+            qry.setBinding("s", iri(USER.NAMESPACE + user));
+            qry.setBinding("p", iri(USER.ORGANISATIONS.getIri()));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                if (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    try (CachedObjectMapper om = new CachedObjectMapper()) {
+                        return om.readValue(bs.getValue("o").stringValue(), new TypeReference<>() {
+                        });
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public void updateUserOrganisations(String user, List<String> organisations) throws JsonProcessingException {
+        delete(user, USER.ORGANISATIONS.getIri());
+        insert(user, USER.ORGANISATIONS.getIri(), organisations);
+    }
 }

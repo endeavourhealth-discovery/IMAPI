@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
@@ -12,6 +13,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,7 +36,8 @@ public class FunctionService {
 			case (IM.NAMESPACE + "Function_IM1SchemeOptions") -> getIM1SchemeOptions();
 			case (IM.NAMESPACE + "Function_SchemeFromIri") -> getSchemeFromIri(arguments);
 			case (IM.NAMESPACE + "Function_GetUserEditableSchemes") -> getUserEditableSchemes(request);
-            default -> throw new IllegalArgumentException("No such function");
+			case (IM.NAMESPACE + "Function_GenerateIriCode") -> generateIriCode(arguments);
+            default -> throw new IllegalArgumentException("No such function: " + iri);
         };
 	}
 
@@ -135,5 +138,32 @@ public class FunctionService {
 		try (CachedObjectMapper om = new CachedObjectMapper()) {
 			return om.stringArrayToTree(results);
 		}
+	}
+
+	private JsonNode generateIriCode(List<Argument> arguments) throws Exception {
+		if (null == arguments)
+			throw new IllegalArgumentException("No arguments, send array of json property/value pairs in request body");
+		String entityIri = null;
+		for (Argument arg : arguments) {
+			if (null == arg.getParameter()) throw new IllegalArgumentException("One or more arguments are missing parameter key");
+			if ("scheme".equals(arg.getParameter())) entityIri = arg.getValueIri().getIri();
+		}
+		if (null == entityIri)
+			throw new IllegalArgumentException("No scheme parameter in request body");
+		List<EntityReferenceNode> schemes = entityService.getImmediateChildren(IM.GRAPH.getIri(), null,1, 200, false);
+		String finalEntityIri2 = entityIri;
+		if (schemes.stream().noneMatch(s -> s.getIri().equals(finalEntityIri2))) throw new IllegalArgumentException("Iri is not a valid scheme");
+		CachedObjectMapper om = new CachedObjectMapper();
+		JsonNode generated;
+		switch (entityIri) {
+			case IM.NAMESPACE:
+			case SNOMED.NAMESPACE:
+				generated = conceptRepository.createConcept(IM.NAMESPACE);
+			default:
+				ObjectNode iri = om.createObjectNode();
+				iri.put("@id", "");
+				generated = om.createObjectNode().set("iri", iri);
+		}
+		return generated;
 	}
 }

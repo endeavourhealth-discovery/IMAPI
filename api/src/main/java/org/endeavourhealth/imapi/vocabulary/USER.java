@@ -12,4 +12,5 @@ public class USER {
     public static final TTIriRef USER_THEME = iri(USER.NAMESPACE + "UserTheme");
     public static final TTIriRef USER_MRU = iri(USER.NAMESPACE + "UserMRU");
     public static final TTIriRef USER_FAVOURITES = iri(USER.NAMESPACE + "UserFavourites");
+    public static final TTIriRef ORGANISATIONS = iri(USER.NAMESPACE + "Organisations");
 }

@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -130,6 +129,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(QueryException.class)
     protected ResponseEntity<Object> handleQueryException(QueryException ex) {
         ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, ErrorCodes.QUERY_EXCEPTION);
+        return buildResponseEntity(error);
+    }
+
+    @ExceptionHandler(GeneralCustomException.class)
+    protected ResponseEntity<Object> handleGeneralCustomException(GeneralCustomException ex) {
+        ApiError error = new ApiError(ex.getStatus(), ex.getMessage(), ex, ErrorCodes.GENERAL_CUSTOM_EXCEPTION);
         return buildResponseEntity(error);
     }
 

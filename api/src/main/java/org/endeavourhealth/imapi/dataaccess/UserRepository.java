@@ -2,20 +2,16 @@ package org.endeavourhealth.imapi.dataaccess;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-import org.eclipse.rdf4j.model.impl.ValidatingValueFactory;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
-import org.endeavourhealth.imapi.model.config.Config;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
-import org.endeavourhealth.imapi.model.imq.Value;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.USER;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,5 +147,40 @@ public class UserRepository {
         insert(user, USER.USER_THEME.getIri(), theme);
     }
 
+    public List<String> getUserOrganisations(String user) throws JsonProcessingException {
+        List<String> result = new ArrayList<String>();
+        String sparql = getSparqlSelect();
+        try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
+            TupleQuery qry = prepareSparql(conn, sparql);
+            qry.setBinding("s", iri(USER.NAMESPACE + user));
+            qry.setBinding("p", iri(USER.ORGANISATIONS.getIri()));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                if (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    try (CachedObjectMapper om = new CachedObjectMapper()) {
+                        result = om.readValue(bs.getValue("o").stringValue(), new TypeReference<>() {
+                        });
 
+                        if (result.isEmpty())
+                            result.add(IM.NAMESPACE);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public void updateUserOrganisations(String user, List<String> organisations) throws JsonProcessingException {
+        delete(user, USER.ORGANISATIONS.getIri());
+        insert(user, USER.ORGANISATIONS.getIri(), organisations);
+    }
+
+    public boolean getUserIdExists(String userId) {
+        try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
+            BooleanQuery qry = conn.prepareBooleanQuery("ASK { ?s ?p ?o.}");
+            qry.setBinding("s", iri(USER.NAMESPACE + userId));
+            return qry.evaluate();
+        }
+    }
 }

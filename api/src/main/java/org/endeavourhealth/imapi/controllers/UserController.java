@@ -84,9 +84,17 @@ public class UserController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     @PreAuthorize("hasAuthority('IMAdmin')")
     public void updateUserOrganisations(@RequestParam String userId, @RequestBody List<String> organisations) throws JsonProcessingException, Exception {
-        LOG.debug("updateOrganisations");
+        LOG.debug("updateUserOrganisations");
         if (!userService.userIdExists(userId))
             throw new GeneralCustomException("user not found", HttpStatus.BAD_REQUEST);
         userService.updateUserOrganisations(userId, organisations);
     }
+
+    @GetMapping(value = "/editAccess", produces = "application/json")
+    public boolean getEditAccess(HttpServletRequest request, @RequestParam String iri) throws JsonProcessingException {
+        LOG.debug(("getEditAccess"));
+        String userId = requestObjectService.getRequestAgentId(request);
+        return userService.getEditAccess(userId, iri);
+    }
+
 }

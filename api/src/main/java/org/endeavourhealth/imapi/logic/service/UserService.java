@@ -46,4 +46,8 @@ public class UserService {
     public void updateUserOrganisations(String userId, List<String> organisations) throws JsonProcessingException {
         userRepository.updateUserOrganisations(userId,organisations);
     }
+
+    public boolean userIdExists(String userId) {
+        return userRepository.getUserIdExists(userId);
+    }
 }

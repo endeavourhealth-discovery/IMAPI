@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.UserService;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -70,6 +72,7 @@ public class UserController {
         String userId = requestObjectService.getRequestAgentId(request);
         userService.updateUserFavourites(userId, favourites);
     }
+
     @GetMapping(value = "/organisations", produces = "application/json")
     public List<String> getOrganisations(HttpServletRequest request) throws JsonProcessingException {
         LOG.debug(("getOrganisations"));
@@ -79,9 +82,11 @@ public class UserController {
 
     @PostMapping(value = "/organisations", produces = "application/json")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void updateUserOrganisations(HttpServletRequest request, @RequestBody List<String> organisations) throws JsonProcessingException {
+    @PreAuthorize("hasAuthority('IMAdmin')")
+    public void updateUserOrganisations(@RequestParam String userId, @RequestBody List<String> organisations) throws JsonProcessingException, Exception {
         LOG.debug("updateOrganisations");
-        String userId = requestObjectService.getRequestAgentId(request);
-        userService.updateUserOrganisations(userId,organisations);
+        if (!userService.userIdExists(userId))
+            throw new GeneralCustomException("user not found", HttpStatus.BAD_REQUEST);
+        userService.updateUserOrganisations(userId, organisations);
     }
 }

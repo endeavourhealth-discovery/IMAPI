@@ -175,7 +175,7 @@ public class FilerController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, container does not exist");
         }
 
-        String iri = IM.NAMESPACE + "FLDR_" + URLEncoder.encode(name, StandardCharsets.UTF_8.toString());
+        String iri = IM.NAMESPACE + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8.toString());
         if (entityService.iriExists(iri)) {
             LOG.error("Entity with that name already exists");
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity with that name already exists");

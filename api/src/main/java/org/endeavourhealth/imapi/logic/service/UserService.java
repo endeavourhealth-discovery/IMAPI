@@ -61,6 +61,7 @@ public class UserService {
         List<String> organisations = this.getUserOrganisations(userId);
         Set<String> predicates = Collections.singleton(IM.HAS_SCHEME.getIri());
         TTEntity entity = entityService.getBundle(entityIri, predicates).getEntity();
+        if(null == entity.getScheme()) return false;
         return organisations.contains(entity.getScheme().getIri());
     }
 }

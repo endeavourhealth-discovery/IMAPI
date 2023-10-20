@@ -1,17 +1,22 @@
 package org.endeavourhealth.imapi.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.FilerService;
+import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.model.ProblemDetailResponse;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -47,6 +52,8 @@ public class FilerController {
     private final FilerService filerService = new FilerService();
     private final EntityService entityService = new EntityService();
     private final RequestObjectService reqObjService = new RequestObjectService();
+
+    private final SearchService searchService = new SearchService();
 
     @PostMapping("file/document")
     @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
@@ -174,7 +181,26 @@ public class FilerController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity with that name already exists");
         }
 
+        Query query = new Query()
+                .setName("Allowable child types for a folder")
+                .setIri(IM.NAMESPACE+"Query_AllowableChildTypes");
+        QueryRequest queryRequest = new QueryRequest()
+                .setQuery(query)
+                .argument(a->a
+                        .setParameter("this")
+                        .setValueIri(TTIriRef.iri(container)));
+        JsonNode results = searchService.queryIM(queryRequest);
+
         TTEntity entity = new TTEntity(iri).setName(name).addType(IM.FOLDER).set(IM.IS_CONTAINED_IN, iri(container)).setVersion(1).setCrud(IM.ADD_QUADS);
+
+        TTArray contentTypes = new TTArray();
+        for (JsonNode j : results.get("entities")) {
+            TTIriRef contentType = new TTIriRef();
+            contentType.setIri(j.get("@id").asText());
+            contentType.setName(j.get(RDFS.LABEL.getIri()).asText());
+            contentTypes.add(contentType);
+        }
+        entity.set(IM.CONTENT_TYPE, contentTypes);
 
         String agentName = reqObjService.getRequestAgentName(request);
         filerService.fileEntity(entity, IM.GRAPH_DISCOVERY, agentName, null);

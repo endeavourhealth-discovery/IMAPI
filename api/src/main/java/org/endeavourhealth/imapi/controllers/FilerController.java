@@ -191,7 +191,13 @@ public class FilerController {
                         .setValueIri(TTIriRef.iri(container)));
         JsonNode results = searchService.queryIM(queryRequest);
 
-        TTEntity entity = new TTEntity(iri).setName(name).addType(IM.FOLDER).set(IM.IS_CONTAINED_IN, iri(container)).setVersion(1).setCrud(IM.ADD_QUADS);
+        TTEntity entity = new TTEntity(iri)
+            .setName(name)
+            .setScheme(IM.GRAPH_DISCOVERY)
+            .addType(IM.FOLDER)
+            .set(IM.IS_CONTAINED_IN, iri(container))
+            .setVersion(1)
+            .setCrud(IM.ADD_QUADS);
 
         TTArray contentTypes = new TTArray();
         for (JsonNode j : results.get("entities")) {

@@ -155,15 +155,10 @@ public class FunctionService {
 		if (schemes.stream().noneMatch(s -> s.getIri().equals(finalEntityIri2))) throw new IllegalArgumentException("Iri is not a valid scheme");
 		CachedObjectMapper om = new CachedObjectMapper();
 		JsonNode generated;
-		switch (entityIri) {
-			case IM.NAMESPACE:
-			case SNOMED.NAMESPACE:
-				generated = conceptRepository.createConcept(IM.NAMESPACE);
-			default:
-				ObjectNode iri = om.createObjectNode();
-				iri.put("@id", "");
-				generated = om.createObjectNode().set("iri", iri);
-		}
-		return generated;
+        return switch (entityIri) {
+            case IM.NAMESPACE, SNOMED.NAMESPACE ->
+				om.createObjectNode().put("code", conceptRepository.createConcept(IM.NAMESPACE).get("iri").get("@id").asText().split("#")[1]);
+            default -> om.createObjectNode().put("iri", "");
+        };
 	}
 }

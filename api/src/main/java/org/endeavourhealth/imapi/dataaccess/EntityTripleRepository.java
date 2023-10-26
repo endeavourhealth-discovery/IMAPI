@@ -46,12 +46,12 @@ public class EntityTripleRepository {
         List<TTIriRef> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT DISTINCT ?s ?name WHERE {")
-            .add("    ?s ?p ?o .")
-            .add("    ?s rdfs:label ?name .")
-            .add("    ?s im:status ?status .")
-            .add("    FILTER (?p != ?e && ?status != im:Inactive)")
-            .add("}");
+                .add("SELECT DISTINCT ?s ?name WHERE {")
+                .add("    ?s ?p ?o .")
+                .add("    ?s rdfs:label ?name .")
+                .add("    ?s im:status ?status .")
+                .add("    FILTER (?p != ?e && ?status != im:Inactive)")
+                .add("}");
 
         if (rowNumber != null && pageSize != null) {
             sql.add("LIMIT " + pageSize + " OFFSET " + rowNumber);
@@ -65,8 +65,8 @@ public class EntityTripleRepository {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
                     result.add(new TTIriRef()
-                        .setIri(bs.getValue("s").stringValue())
-                        .setName(bs.getValue("name").stringValue())
+                            .setIri(bs.getValue("s").stringValue())
+                            .setName(bs.getValue("name").stringValue())
                     );
                 }
             }
@@ -76,11 +76,11 @@ public class EntityTripleRepository {
 
     public Integer getCountOfActiveSubjectByObjectExcludeByPredicate(String objectIri, String excludePredicateIri) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT (COUNT(DISTINCT ?s) AS ?cnt) WHERE {")
-            .add("    ?s ?p ?o .")
-            .add("    ?s im:status ?status .")
-            .add("    FILTER (?p != ?e && ?status != im:Inactive)")
-            .add("}");
+                .add("SELECT (COUNT(DISTINCT ?s) AS ?cnt) WHERE {")
+                .add("    ?s ?p ?o .")
+                .add("    ?s im:status ?status .")
+                .add("    FILTER (?p != ?e && ?status != im:Inactive)")
+                .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
@@ -102,13 +102,13 @@ public class EntityTripleRepository {
         EntityReferenceNode result = new EntityReferenceNode(iri).setType(types);
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren")
-            .add("WHERE {")
-            .add("  GRAPH ?g { ?s rdfs:label ?name } .")
-            .add("  OPTIONAL { ?s sh:order ?order . }")
-            .add("  OPTIONAL { ?s rdf:type ?typeIri . OPTIONAL { ?typeIri rdfs:label ?typeName . } }")
-            .add("    BIND(EXISTS{?child (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?s} AS ?hasChildren)")
-            .add("    BIND(EXISTS{?grandChild (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?child. ?child (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?s} AS ?hasGrandchildren)");
+                .add("SELECT ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren")
+                .add("WHERE {")
+                .add("  GRAPH ?g { ?s rdfs:label ?name } .")
+                .add("  OPTIONAL { ?s sh:order ?order . }")
+                .add("  OPTIONAL { ?s rdf:type ?typeIri . OPTIONAL { ?typeIri rdfs:label ?typeName . } }")
+                .add("    BIND(EXISTS{?child (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?s} AS ?hasChildren)")
+                .add("    BIND(EXISTS{?grandChild (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?child. ?child (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?s} AS ?hasGrandchildren)");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
             sql.add(valueList("g", schemeIris));
@@ -133,8 +133,8 @@ public class EntityTripleRepository {
                         result.setOrderNumber(Integer.MAX_VALUE);
 
                     result.setHasChildren(((Literal) bs.getValue("hasChildren")).booleanValue())
-                        .setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue())
-                        .setName(bs.getValue("name").stringValue());
+                            .setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue())
+                            .setName(bs.getValue("name").stringValue());
 
                     if (bs.getValue("typeIri") != null && bs.getValue("typeName") != null) types.add(new TTIriRef(bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
 
@@ -165,10 +165,11 @@ public class EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?c ?cname ")
                 .add("WHERE {")
-                .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p .")
-                .add("GRAPH ?g { ?c rdfs:label ?cname } .");
+                .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p .");
         if (schemeIris != null && !schemeIris.isEmpty()) {
-            sql.add(valueList("g", schemeIris));
+            sql.add("GRAPH ?g { ?c rdfs:label ?cname } .").add(valueList("g", schemeIris));
+        } else {
+            sql.add("?c rdfs:label ?cname .");
         }
         if (!inactive) {
             sql.add("  OPTIONAL { ?c im:status ?s}").add("  FILTER (?s != im:Inactive) .");
@@ -214,7 +215,7 @@ public class EntityTripleRepository {
         if (!inactive) {
             sqlCount.add("  OPTIONAL { ?p im:status ?s}").add("  FILTER (?s != im:Inactive) .");
         }
-            sqlCount.add("}");
+        sqlCount.add("}");
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?p ?pname ")
@@ -262,9 +263,9 @@ public class EntityTripleRepository {
         List<TTIriRef> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT DISTINCT ?c ?cname {")
-            .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p .")
-            .add("GRAPH ?g { ?c rdfs:label ?cname } .");
+                .add("SELECT DISTINCT ?c ?cname {")
+                .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p .")
+                .add("GRAPH ?g { ?c rdfs:label ?cname } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
             sql.add(valueList("g", schemeIris));
@@ -299,10 +300,10 @@ public class EntityTripleRepository {
         List<TTIriRef> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT DISTINCT ?p ?pname")
-            .add("WHERE {")
-            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?p .")
-            .add("GRAPH ?g { ?p rdfs:label ?pname } .");
+                .add("SELECT DISTINCT ?p ?pname")
+                .add("WHERE {")
+                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?p .")
+                .add("GRAPH ?g { ?p rdfs:label ?pname } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
             sql.add(valueList("g", schemeIris));
@@ -351,12 +352,12 @@ public class EntityTripleRepository {
 
                 // Get/add schemes
                 StringJoiner sql = new StringJoiner(System.lineSeparator())
-                    .add("SELECT *")
-                    .add("WHERE {")
-                    .add("    GRAPH ?g {")
-                    .add("        ?g rdfs:label ?name")
-                    .add("    }")
-                    .add("}");
+                        .add("SELECT *")
+                        .add("WHERE {")
+                        .add("    GRAPH ?g {")
+                        .add("        ?g rdfs:label ?name")
+                        .add("    }")
+                        .add("}");
 
                 int i = 1;
                 try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
@@ -367,8 +368,8 @@ public class EntityTripleRepository {
                             Namespace ns = result.get(bs.getValue("g").stringValue());
                             if (ns == null) {
                                 result.put(
-                                    bs.getValue("g").stringValue(),
-                                    new Namespace(bs.getValue("g").stringValue(), "PFX" + (i++), bs.getValue("name").stringValue())
+                                        bs.getValue("g").stringValue(),
+                                        new Namespace(bs.getValue("g").stringValue(), "PFX" + (i++), bs.getValue("name").stringValue())
                                 );
                             } else {
                                 ns.setName(bs.getValue("name").stringValue());
@@ -385,12 +386,12 @@ public class EntityTripleRepository {
 
     private void addTriples(List<Tpl> triples, Resource subject, Integer parent, Set<String> predicates) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?sname ?p ?pname ?o ?oname")
-            .add("WHERE {")
-            .add("    ?s ?p ?o ;")
-            .add("    OPTIONAL { ?s rdfs:label ?sname }")
-            .add("    OPTIONAL { ?p rdfs:label ?pname }")
-            .add("    OPTIONAL { ?o rdfs:label ?oname }");
+                .add("SELECT ?sname ?p ?pname ?o ?oname")
+                .add("WHERE {")
+                .add("    ?s ?p ?o ;")
+                .add("    OPTIONAL { ?s rdfs:label ?sname }")
+                .add("    OPTIONAL { ?p rdfs:label ?pname }")
+                .add("    OPTIONAL { ?o rdfs:label ?oname }");
 
         if (predicates != null && !predicates.isEmpty()) {
             sql.add("    FILTER ( ?p IN " + inList("p", predicates.size()) + " )");
@@ -416,9 +417,9 @@ public class EntityTripleRepository {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
                     Tpl tpl = new Tpl()
-                        .setDbid(row++)
-                        .setParent(parent)
-                        .setPredicate(TTIriRef.iri(getString(bs, "p"), getString(bs, "pname")));
+                            .setDbid(row++)
+                            .setParent(parent)
+                            .setPredicate(TTIriRef.iri(getString(bs, "p"), getString(bs, "pname")));
 
                     triples.add(tpl);
                     Value object = bs.getValue("o");
@@ -441,11 +442,11 @@ public class EntityTripleRepository {
     public List<SimpleMap> getMatchedFrom(String iri, List<String> schemeIris) {
         List<SimpleMap> simpleMaps = new ArrayList<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add(" SELECT ?s ?code ?scheme ?name  WHERE{")
-            .add(" ?s im:matchedTo ?o .")
-            .add(" ?s im:code ?code .")
-            .add(" ?s im:scheme ?scheme .  ")
-            .add("GRAPH ?g { ?s rdfs:label ?name } .");
+                .add(" SELECT ?s ?code ?scheme ?name  WHERE{")
+                .add(" ?s im:matchedTo ?o .")
+                .add(" ?s im:code ?code .")
+                .add(" ?s im:scheme ?scheme .  ")
+                .add("GRAPH ?g { ?s rdfs:label ?name } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
             sql.add(valueList("g", schemeIris));
@@ -467,11 +468,11 @@ public class EntityTripleRepository {
     public List<SimpleMap> getMatchedTo(String iri, List<String> schemeIris) {
         List<SimpleMap> simpleMaps = new ArrayList<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add(" SELECT ?o ?code ?scheme ?name  WHERE{")
-            .add(" ?s im:matchedTo ?o .")
-            .add(" ?o im:code ?code .")
-            .add(" ?o im:scheme ?scheme .  ")
-            .add("GRAPH ?g { ?o rdfs:label ?name } .");
+                .add(" SELECT ?o ?code ?scheme ?name  WHERE{")
+                .add(" ?s im:matchedTo ?o .")
+                .add(" ?o im:code ?code .")
+                .add(" ?o im:scheme ?scheme .  ")
+                .add("GRAPH ?g { ?o rdfs:label ?name } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
             sql.add(valueList("g", schemeIris));
@@ -493,10 +494,10 @@ public class EntityTripleRepository {
     public List<String> getConceptIrisByGraph(String iri) {
         List<String> iris = new ArrayList<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add(" SELECT DISTINCT ?s WHERE{")
-            .add(" GRAPH ?g { ?s ?p ?o } .")
-            .add("}")
-            .add(" LIMIT 20 ");
+                .add(" SELECT DISTINCT ?s WHERE{")
+                .add(" GRAPH ?g { ?s ?p ?o } .")
+                .add("}")
+                .add(" LIMIT 20 ");
         try( RepositoryConnection conn = ConnectionManager.getIMConnection()){
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
@@ -513,11 +514,11 @@ public class EntityTripleRepository {
 
     public TTIriRef findParentFolderRef(String iri) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?p ?pname")
-            .add("WHERE {")
-            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?p .")
-            .add("  ?p rdfs:label ?pname .")
-            .add("}");
+                .add("SELECT ?p ?pname")
+                .add("WHERE {")
+                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?p .")
+                .add("  ?p rdfs:label ?pname .")
+                .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
@@ -537,11 +538,11 @@ public class EntityTripleRepository {
 
     public TTIriRef getShapeFromType(String iri) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?shape")
-            .add("WHERE {")
-            .add("  ?shape im:targetShape ?iri .")
-            .add("}")
-            .add("LIMIT 1");
+                .add("SELECT ?shape")
+                .add("WHERE {")
+                .add("  ?shape im:targetShape ?iri .")
+                .add("}")
+                .add("LIMIT 1");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
@@ -560,32 +561,32 @@ public class EntityTripleRepository {
         Pageable<TTIriRef> result = new Pageable<>();
 
         StringJoiner sqlCount = new StringJoiner(System.lineSeparator())
-            .add("SELECT (COUNT(?a1) as ?count)")
-            .add("WHERE {")
-            .add("?concept im:isA ?p .")
-            .add("?a1 rdfs:domain ?p .")
-            .add("FILTER NOT EXISTS {")
-            .add("?a2 rdfs:domain ?p .")
-            .add("?a1 im:isA ?a2 .")
-            .add("FILTER(?a1 != ?a2)")
-            .add("}");
+                .add("SELECT (COUNT(?a1) as ?count)")
+                .add("WHERE {")
+                .add("?concept im:isA ?p .")
+                .add("?a1 rdfs:domain ?p .")
+                .add("FILTER NOT EXISTS {")
+                .add("?a2 rdfs:domain ?p .")
+                .add("?a1 im:isA ?a2 .")
+                .add("FILTER(?a1 != ?a2)")
+                .add("}");
         if (!inactive) {
             sqlCount.add("OPTIONAL {?a1 im:status ?a1s}").add("FILTER(?a1s != im:Inactive) .");
         }
         sqlCount.add("}");
 
         StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?a1 ?attributeName")
-            .add("WHERE {")
-            .add("?concept im:isA ?p .")
-            .add("?p rdfs:label ?parentName .")
-            .add("?a1 rdfs:domain ?p ;")
-            .add("rdfs:label ?attributeName .")
-            .add("FILTER NOT EXISTS {")
-            .add("?a2 rdfs:domain ?p .")
-            .add("?a1 im:isA ?a2 .")
-            .add("FILTER(?a1 != ?a2)")
-            .add("}");
+                .add("SELECT ?a1 ?attributeName")
+                .add("WHERE {")
+                .add("?concept im:isA ?p .")
+                .add("?p rdfs:label ?parentName .")
+                .add("?a1 rdfs:domain ?p ;")
+                .add("rdfs:label ?attributeName .")
+                .add("FILTER NOT EXISTS {")
+                .add("?a2 rdfs:domain ?p .")
+                .add("?a1 im:isA ?a2 .")
+                .add("FILTER(?a1 != ?a2)")
+                .add("}");
         if (!inactive) {
             stringQuery.add("OPTIONAL {?a1 im:status ?a1s}").add("FILTER(?a1s != im:Inactive) .");
         }
@@ -623,38 +624,38 @@ public class EntityTripleRepository {
         Pageable<TTIriRef> result = new Pageable<>();
 
         StringJoiner sqlCount = new StringJoiner(System.lineSeparator())
-            .add("SELECT (COUNT(DISTINCT ?a1) as ?count)")
-            .add("WHERE {");
+                .add("SELECT (COUNT(DISTINCT ?a1) as ?count)")
+                .add("WHERE {");
         if (conceptIris != null && !conceptIris.isEmpty()) {
             sqlCount.add(valueList("concept", conceptIris));
         }
         sqlCount.add("?concept im:isA ?p .")
-            .add("?a1 rdfs:domain ?p .")
-            .add("FILTER NOT EXISTS {")
-            .add("?a2 rdfs:domain ?p .")
-            .add("?a1 im:isA ?a2 .")
-            .add("FILTER(?a1 != ?a2)")
-            .add("}");
+                .add("?a1 rdfs:domain ?p .")
+                .add("FILTER NOT EXISTS {")
+                .add("?a2 rdfs:domain ?p .")
+                .add("?a1 im:isA ?a2 .")
+                .add("FILTER(?a1 != ?a2)")
+                .add("}");
         if (!inactive) {
             sqlCount.add("OPTIONAL {?a1 im:status ?a1s}").add("FILTER(?a1s != im:Inactive) .");
         }
         sqlCount.add("}");
 
         StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
-            .add("SELECT DISTINCT ?a1 ?attributeName")
-            .add("WHERE {");
+                .add("SELECT DISTINCT ?a1 ?attributeName")
+                .add("WHERE {");
         if (conceptIris != null && !conceptIris.isEmpty()) {
             stringQuery.add(valueList("concept", conceptIris));
         }
         stringQuery.add("?concept im:isA ?p .")
-            .add("?p rdfs:label ?parentName .")
-            .add("?a1 rdfs:domain ?p ;")
-            .add("rdfs:label ?attributeName .")
-            .add("FILTER NOT EXISTS {")
-            .add("?a2 rdfs:domain ?p .")
-            .add("?a1 im:isA ?a2 .")
-            .add("FILTER(?a1 != ?a2)")
-            .add("}");
+                .add("?p rdfs:label ?parentName .")
+                .add("?a1 rdfs:domain ?p ;")
+                .add("rdfs:label ?attributeName .")
+                .add("FILTER NOT EXISTS {")
+                .add("?a2 rdfs:domain ?p .")
+                .add("?a1 im:isA ?a2 .")
+                .add("FILTER(?a1 != ?a2)")
+                .add("}");
         if (!inactive) {
             stringQuery.add("OPTIONAL {?a1 im:status ?a1s}").add("FILTER(?a1s != im:Inactive) .");
         }
@@ -690,19 +691,19 @@ public class EntityTripleRepository {
         Pageable<TTIriRef> result = new Pageable<>();
 
         StringJoiner sqlCount = new StringJoiner(System.lineSeparator())
-            .add("SELECT (COUNT(?value) as ?count)")
-            .add("WHERE {")
-            .add("?property rdfs:range ?value .");
+                .add("SELECT (COUNT(?value) as ?count)")
+                .add("WHERE {")
+                .add("?property rdfs:range ?value .");
         if (!inactive) {
             sqlCount.add("OPTIONAL {?value im:status ?vs}").add("FILTER(?vs != im:Inactive) .");
         }
         sqlCount.add("}");
 
         StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?value ?valueName")
-            .add("WHERE {")
-            .add("?property rdfs:range ?value .")
-            .add("?value rdfs:label ?valueName .");
+                .add("SELECT ?value ?valueName")
+                .add("WHERE {")
+                .add("?property rdfs:range ?value .")
+                .add("?value rdfs:label ?valueName .");
         if (!inactive) {
             stringQuery.add("OPTIONAL {?value im:status ?vs}").add("FILTER(?vs != im:Inactive) .");
         }

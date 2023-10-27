@@ -16,7 +16,8 @@ public enum ErrorCodes {
     OPEN_SEARCH_EXCEPTION("OpenSearchException"),
     TT_FILER_EXCEPTION("TTFilerException"),
     QUERY_EXCEPTION("QueryException"),
-    GENERAL_CUSTOM_EXCEPTION("GeneralCustomException");
+    GENERAL_CUSTOM_EXCEPTION("GeneralCustomException"),
+    DOWNLOAD_EXCEPTION("DownloadException");
 
     private String code;
 

@@ -22,6 +22,7 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.*;
+import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
@@ -444,26 +445,34 @@ public class EntityController {
         @RequestParam(name = "im1id") boolean im1id,
         @RequestParam(name = "format") String format,
 		@RequestParam(name = "schemes") List<String> schemes
-	) throws IOException, QueryException {
+	) throws DownloadException {
 		LOG.debug("getSetExport");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
 		headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"");
-		if("xlsx".equals(format)) {
-			XSSFWorkbook workbook = entityService.getSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
-			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-				workbook.write(outputStream);
-				workbook.close();
-				return new HttpEntity<>(outputStream.toByteArray(), headers);
+		try {
+			if ("xlsx".equals(format)) {
+				XSSFWorkbook workbook = entityService.getSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
+				try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+					workbook.write(outputStream);
+					workbook.close();
+					return new HttpEntity<>(outputStream.toByteArray(), headers);
+				} catch (IOException e) {
+					throw new DownloadException("Failed to write to excel document");
+				}
+			} else if ("csv".equals(format)) {
+				String result = setService.getCSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
+				return new HttpEntity<>(result, headers);
+			} else if ("tsv".equals(format)) {
+				String result = setService.getTSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
+				return new HttpEntity<>(result, headers);
+			} else {
+				return null;
 			}
-		} else if ("csv".equals(format)) {
-			String result = setService.getCSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
-			return new HttpEntity<>(result, headers);
-		} else if("tsv".equals(format)) {
-			String result = setService.getTSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
-			return new HttpEntity<>(result, headers);
-		} else {
-			return null;
+		} catch (IOException e) {
+			throw new DownloadException("Failed to write to excel document.");
+		} catch (QueryException e) {
+			throw new DownloadException("Failed to get set details for download.");
 		}
 	}
 

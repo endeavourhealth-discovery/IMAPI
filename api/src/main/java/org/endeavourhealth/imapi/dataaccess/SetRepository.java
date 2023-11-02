@@ -10,6 +10,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.iml.Concept;
+import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
@@ -44,7 +45,7 @@ public class SetRepository {
      * @throws JsonProcessingException if json definitino invalid
      * @throws DataFormatException if query definition invalid
      */
-    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy,Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
+    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
         //add scheme filter
         Return aReturn= new Return();
         imQuery.addReturn(aReturn);
@@ -98,10 +99,23 @@ public class SetRepository {
                   .property(s->s
                     .setIri(IM.IM1ID.getIri()).as("legacyIm1Id"))));
         }
-        String sql= new SparqlConverter(new QueryRequest().setQuery(imQuery)).getSelectSparql(statusFilter);
+        QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
+        if (null != page && null!= page.getPageNumber() && null!= page.getPageSize()) newRequest.setPage(page);
+        String sql= new SparqlConverter(newRequest).getSelectSparql(statusFilter);
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql);
             return getCoreLegacyCodesForSparql(qry, includeLegacy, schemeFilter);
+
+        }
+    }
+
+    public int getSetExpansionTotalCount(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
+        //add scheme filter
+        QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
+        String sql= new SparqlConverter(newRequest).getCountSparql(statusFilter);
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql);
+            return getCountForSparql(qry, includeLegacy, schemeFilter);
 
         }
     }
@@ -198,6 +212,17 @@ public class SetRepository {
             }
         }
         return result;
+    }
+
+    private int getCountForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes) {
+        try (TupleQueryResult rs = qry.evaluate()) {
+            if (rs.hasNext()) {
+                BindingSet bs = rs.next();
+                return ((Literal) bs.getValue("cnt")).intValue();
+            } else {
+                return 0;
+            }
+        }
     }
 
     private void bindResults(BindingSet bs, Concept cl) {

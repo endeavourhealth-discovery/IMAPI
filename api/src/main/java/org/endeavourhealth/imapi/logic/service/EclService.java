@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.iml.Concept;
+import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
@@ -29,16 +30,19 @@ public class EclService {
         else return IMLToECL.getECLFromQuery(inferred,true);
     }
 
+    public int getEclSearchTotalCount(EclSearchRequest request) throws QueryException {
+        return setRepository.getSetExpansionTotalCount(request.getEclQuery(), request.isIncludeLegacy(),request.getStatusFilter(), List.of());
+    }
+
     public Set<Concept> evaluateECLQuery(EclSearchRequest request) throws JsonProcessingException, QueryException {
-        return setRepository.getSetExpansion(request.getEclQuery(), request.isIncludeLegacy(),request.getStatusFilter(), List.of());
+        return setRepository.getSetExpansion(request.getEclQuery(), request.isIncludeLegacy(),request.getStatusFilter(), List.of(),new Page().setPageNumber(request.getPage()).setPageSize(request.getSize()));
     }
 
     public SearchResponse eclSearch(EclSearchRequest request) throws JsonProcessingException, QueryException {
-        int limit = request.getLimit();
+        int totalCount = getEclSearchTotalCount(request);
         Set<Concept> evaluated = evaluateECLQuery(request);
         List<SearchResultSummary> evaluatedAsSummary = evaluated
             .stream()
-            .limit(limit != 0 ? limit : 1000)
             .map(concept ->
                 new SearchResultSummary()
                     .setIri(concept.getIri())
@@ -50,8 +54,8 @@ public class EclService {
             ).collect(Collectors.toList());
         SearchResponse result = new SearchResponse();
         result.setEntities(evaluatedAsSummary);
-        result.setCount(evaluated.size());
-        result.setPage(1);
+        result.setCount(totalCount);
+        result.setPage(request.getPage());
         return result;
     }
 

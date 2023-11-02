@@ -101,6 +101,61 @@ public class SparqlConverter {
 
 	}
 
+	public String getCountSparql(Set<TTIriRef> statusFilter) throws QueryException {
+
+		StringBuilder selectQl = new StringBuilder();
+		selectQl.append(getDefaultPrefixes());
+		if (null != queryRequest.getTextSearch()){
+
+			selectQl.append("PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>\n")
+				.append("PREFIX con: <http://www.ontotext.com/connectors/lucene#>\n");
+		}
+
+		selectQl.append("SELECT ");
+		selectQl.append("(COUNT(distinct ?entity");
+		mainEntity="entity";
+		if (query.getMatch().get(0).getVariable()!=null)
+			mainEntity= query.getMatch().get(0).getVariable();
+		selectQl.append(") as ?cnt) ");
+		StringBuilder whereQl = new StringBuilder();
+		whereQl.append("WHERE {");
+		if (query.getTypeOf()!=null){
+			whereQl.append("?").append(mainEntity).append(" rdf:type ").append(iriFromString(query.getTypeOf().getIri())+".\n");
+		}
+
+		if (null != queryRequest.getTextSearch()){
+			textSearch(whereQl);
+		}
+
+		for (Match match :query.getMatch()){
+			match(whereQl,mainEntity, match);
+		}
+
+		o++;
+		String statusVar= "status"+o;
+
+
+		if (null != statusFilter && 0 != statusFilter.size()) {
+			List<String> statusStrings = new ArrayList<>();
+			for (TTIriRef status : statusFilter) {
+				statusStrings.add("<" + status.getIri() + ">");
+			}
+			whereQl.append("?").append(mainEntity).append(" im:status ?").append(statusVar).append(".\n");
+			whereQl.append("Filter (?").append(statusVar).append(" in (").append(String.join(",", statusStrings)).append("))\n");
+		}
+		if (query.isActiveOnly()) {
+			whereQl.append("?").append(mainEntity).append(" im:status im:Active.\n");
+		}
+
+
+		selectQl.append("\n");
+
+		whereQl.append("}");
+
+		selectQl.append(whereQl).append("\n");
+		return selectQl.toString();
+
+	}
 
 
 	public static String getDefaultPrefixes(){

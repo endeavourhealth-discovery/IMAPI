@@ -48,15 +48,19 @@ public class CachedObjectMapper implements AutoCloseable {
 
 
 
-    private synchronized void push(ObjectMapper objectMapper) {
-        pool.push(objectMapper);
+    private void push(ObjectMapper objectMapper) {
+        synchronized (pool) {
+            pool.push(objectMapper);
+        }
     }
 
-    private synchronized ObjectMapper pop() {
-        if (pool.size() > 0)
-            return pool.pop();
-        else
-            return new ObjectMapper();
+    private ObjectMapper pop() {
+        synchronized (pool) {
+            if (pool.size() > 0)
+                return pool.pop();
+            else
+                return new ObjectMapper();
+        }
     }
 
     public void setSerializationInclusion(JsonInclude.Include incl) {

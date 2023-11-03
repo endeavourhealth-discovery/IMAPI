@@ -817,6 +817,8 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.getIri()).colle
     }
 
     public SearchResultSummary getSummary(String iri) {
+        if (iri == null || iri.isEmpty())
+            return null;
         return entityRepository.getEntitySummaryByIri(iri);
     }
 

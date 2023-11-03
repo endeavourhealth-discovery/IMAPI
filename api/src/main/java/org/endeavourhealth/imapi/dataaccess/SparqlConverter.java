@@ -617,7 +617,7 @@ public class SparqlConverter {
 				convertReturn(selectQl,whereQl,path.getReturn());
 		}
 		else {
-			selectQl.append(" ?").append(object);
+			if (!selectQl.toString().contains(object)) selectQl.append(" ?").append(object);
 			if (labelVariable == null)
 				if (path.getIri().equals(RDFS.LABEL.getIri()))
 					labelVariable = object;
@@ -628,7 +628,7 @@ public class SparqlConverter {
 
 
 
-	private void orderGroupLimit(StringBuilder selectQl,Query clause){
+	private void orderGroupLimit(StringBuilder selectQl,Query clause) throws QueryException {
 		if (null != queryRequest.getTextSearch()){
 			selectQl.append("ORDER BY DESC(").append("strstarts(lcase(?").append(labelVariable)
 					.append("),\"").append(escape(queryRequest.getTextSearch()).split(" ")[0])
@@ -645,18 +645,22 @@ public class SparqlConverter {
 		if (null != clause.getOrderBy()) {
 			selectQl.append("Order by ");
 			for (OrderLimit order : clause.getOrderBy()) {
-				if (order.getDirection().equals(Order.descending))
+				if (null!= order.getDirection() && order.getDirection().equals(Order.descending))
 					selectQl.append("DESC(");
 				else
 					selectQl.append("ASC(");
-				selectQl.append("?").append(order.getIri());
+				if (null != order.getIri()) selectQl.append("?").append(order.getIri());
+				else if (null != order.getValueVariable()) selectQl.append("?").append(order.getValueVariable());
+				else throw new QueryException("Order by missing identifier: iri / valueVariable");
 				selectQl.append(")");
-				if (order.getLimit() > 0) {
+				if (null == queryRequest.getPage() && order.getLimit() > 0) {
 					selectQl.append("LIMIT ").append(order.getLimit()).append("\n");
+				} else {
+					selectQl.append("\n");
 				}
 			}
 		}
-		else if (null != queryRequest.getPage()) {
+		if (null != queryRequest.getPage()) {
 			selectQl.append("LIMIT ").append(queryRequest.getPage().getPageSize()).append("\n");
 			if (queryRequest.getPage().getPageNumber() > 1)
 				selectQl.append("OFFSET ").append((queryRequest.getPage().getPageNumber() - 1) * (queryRequest.getPage().getPageSize())).append("\n");

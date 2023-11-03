@@ -65,6 +65,21 @@ public class EclController {
         }
     }
 
+    @PostMapping(value = "/public/eclSearchTotalCount",consumes = "application/json", produces = "application/json")
+    @Operation(
+        summary = "Count of ecl search",
+        description = "Shows total results for an ecl search as a number"
+    )
+    public Integer eclSearchTotalCount(
+        @RequestBody EclSearchRequest request
+    ) throws EclFormatException, QueryException {
+        try {
+            return eclService.getEclSearchTotalCount(request);
+        } catch (UnknownFormatConversionException ex) {
+            throw new EclFormatException("Invalid ECL format", ex);
+        }
+    }
+
     @PostMapping(value = "/public/eclFromQuery")
     @Operation(
         summary = "Get ecl from query",

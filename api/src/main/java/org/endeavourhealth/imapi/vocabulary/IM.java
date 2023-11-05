@@ -71,8 +71,10 @@ public class IM {
 
     //Transitive  isa predicates
     public static final TTIriRef IS_A = iri(NAMESPACE + "isA");
-    public static final TTIriRef IS_CHILD_OF = iri(NAMESPACE + "isChildOf");
-
+    public static final TTIriRef IS_CHILD_OF= iri(NAMESPACE + "isChildOf");
+   public static final TTIriRef SUBSUMED_BY = iri(NAMESPACE + "subsumedBy");
+   public static final TTIriRef USUALLY_SUBSUMED_BY = iri(NAMESPACE + "usuallySubsumedBy");
+    public static final TTIriRef APPROXIMATE_SUBSUMED_BY = iri(NAMESPACE + "approximateSubsumedBy");
 
     // Config predicate
     public static final TTIriRef HAS_CONFIG = iri(NAMESPACE + "hasConfig");
@@ -216,7 +218,6 @@ public class IM {
 
     //Miscalleneous
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE + "hasContext");
-    //public static final TTIriRef HAS_REPLACED = iri(NAMESPACE + "hasReplaced");
     public static final TTIriRef DISPLAY_ORDER = iri(NAMESPACE + "displayOrder");
     public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE + "usageTotal");
     public static final TTIriRef PLABEL = iri(NAMESPACE + "pLabel");

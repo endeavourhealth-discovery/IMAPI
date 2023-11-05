@@ -13,7 +13,6 @@ import java.util.*;
 public class ClosureGeneratorBulk implements TCGenerator {
 	private static final Logger LOG = LoggerFactory.getLogger(ClosureGeneratorBulk.class);
 	private HashMap<String, Set<String>> parentMap;
-	private Map<String,Set<String>> replacementMap;
 	private HashMap<String, Set<String>> closureMap;
 	private static final String[] topConcepts={"http://snomed.info/sct#138875005",IM.NAMESPACE+"Concept"};
 	private int counter;
@@ -26,14 +25,12 @@ public class ClosureGeneratorBulk implements TCGenerator {
 		FileRepository repo= new FileRepository(outpath);
 
 		parentMap = new HashMap<>(1000000);
-		replacementMap= new HashMap<>();
 		LOG.info("Getting all subtypes....");
-		repo.fetchRelationships(parentMap,replacementMap,blockingIris);
+		repo.fetchRelationships(parentMap,blockingIris);
 
 
 		try(FileWriter isas = new FileWriter(outpath+"/BulkImport.nq",true)) {
 			buildClosure();
-			buildReverseClosure();
 			writeClosureData(isas);
 
 		}
@@ -46,15 +43,6 @@ public class ClosureGeneratorBulk implements TCGenerator {
 		//For now, only exclude top snomed and im concept
 	}
 
-	private void buildReverseClosure() {
-		if (!replacementMap.isEmpty()) {
-			for (Map.Entry<String, Set<String>> entry : replacementMap.entrySet()) {
-				String replacement = entry.getKey();
-				Set<String> replacementAncestors= closureMap.get(replacement);
-				replacementAncestors.addAll(entry.getValue());
-			}
-		}
-	}
 
 
 
@@ -88,14 +76,14 @@ public class ClosureGeneratorBulk implements TCGenerator {
 		if (parents != null) {
 			for (String parent : parents) {
 				// Check do we have its closure?
-				Set<String> parentClosures = closureMap.get(parent);
-				if (parentClosures == null) {
-					parentClosures = generateClosure(parent);
+				Set<String> parentIsAs = closureMap.get(parent);
+				if (parentIsAs == null) {
+					parentIsAs = generateClosure(parent);
 				}
 				// Add parents closure to this closure
-				for (String parentClosure : parentClosures) {
-					if (!closures.contains(parentClosure)){
-						closures.add(parentClosure);
+				for (String parentIsA : parentIsAs) {
+					if (!closures.contains(parentIsA)){
+						closures.add(parentIsA);
 						counter++;
 					}
 				}
@@ -106,8 +94,14 @@ public class ClosureGeneratorBulk implements TCGenerator {
 
 	private void writeClosureData(FileWriter fw) throws IOException {
 		counter=0;
+		int max=0;
 		LOG.info("Writing closure data");
 		for (Map.Entry<String, Set<String>> entry : closureMap.entrySet()) {
+			int isas=entry.getValue().size();
+			if (isas>max) {
+				LOG.info(entry.getKey()+" has "+isas+" isas");
+				max=isas;
+			}
 			for (String closure : entry.getValue()) {
 				counter++;
 				TTBulkFiler.setStatementCount(TTBulkFiler.getStatementCount()+1);

@@ -588,16 +588,18 @@ public class SparqlConverter {
 			}
 		}
 		if (null != clause.getOrderBy()) {
-			selectQl.append("Order by ");
-			for (OrderLimit order : clause.getOrderBy()) {
-				if (order.getDirection().equals(Order.descending))
-					selectQl.append("DESC(");
-				else
-					selectQl.append("ASC(");
-				selectQl.append("?").append(order.getIri());
-				selectQl.append(")");
-				if (order.getLimit() > 0) {
-					selectQl.append("LIMIT ").append(order.getLimit()).append("\n");
+			if (clause.getOrderBy().getProperty()!=null){
+				selectQl.append("Order by ");
+				for (OrderDirection order : clause.getOrderBy().getProperty()) {
+					if (order.getDirection().equals(Order.descending))
+						selectQl.append("DESC(");
+					else
+						selectQl.append("ASC(");
+					selectQl.append("?").append(order.getIri());
+					selectQl.append(")");
+				}
+				if (clause.getOrderBy().getLimit() > 0) {
+					selectQl.append("LIMIT ").append(clause.getOrderBy().getLimit()).append("\n");
 				}
 			}
 		}

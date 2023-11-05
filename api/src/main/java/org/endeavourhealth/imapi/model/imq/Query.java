@@ -19,7 +19,7 @@ public class Query extends Match{
 	private boolean activeOnly;
 	private List<Query> query;
 	private List<Match> match;
-	private List<OrderLimit> orderBy;
+	private OrderLimit orderBy;
 	private List<PropertyRef> groupBy;
 	private List<Return> returx;
 	private String iri;
@@ -117,11 +117,11 @@ public class Query extends Match{
 		return this;
 	}
 
-	public List<OrderLimit> getOrderBy() {
+	public OrderLimit getOrderBy() {
 		return orderBy;
 	}
 
-	public Query setOrderBy(List<OrderLimit> orderBy) {
+	public Query setOrderBy(OrderLimit orderBy) {
 		this.orderBy = orderBy;
 		return this;
 	}

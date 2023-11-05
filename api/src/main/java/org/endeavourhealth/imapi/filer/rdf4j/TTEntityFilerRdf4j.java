@@ -103,13 +103,19 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             isaSame.add("INSERT DATA {<" + entity + "> <" + IM.IS_A.getIri() + "> <" + entity + ">.}");
             Update addIsas = conn.prepareUpdate(isaSame.toString());
             addIsas.execute();
-            StringJoiner isSuper= new StringJoiner("\n");
-            isSuper
+            StringJoiner addSuper= new StringJoiner("\n");
+            addSuper
               .add("INSERT {<" + entity + "> <" + IM.IS_A.getIri() + "> ?superType.}")
-              .add("where { <" + entity + "> (<" + RDFS.SUBCLASSOF.getIri() + ">|<"+SNOMED.REPLACED_BY.getIri()+">)+ ?superType.}");
-            addIsas= conn.prepareUpdate(isSuper.toString());
-
+              .add("where { <" + entity + "> <" + RDFS.SUBCLASSOF.getIri() + "> ?superType.}");
+            addIsas= conn.prepareUpdate(addSuper.toString());
             addIsas.execute();
+            StringJoiner addAncestors= new StringJoiner("\n");
+            addAncestors
+          .add("INSERT {<" + entity + "> <" + IM.IS_A.getIri() + "> ?ancestor.}")
+          .add("where { <" + entity + "> <" + RDFS.SUBCLASSOF.getIri() + "> ?superType." +
+            "          ?supertype <"+ IM.IS_A.getIri()+"> ?ancestor}");
+        addIsas= conn.prepareUpdate(addAncestors.toString());
+        addIsas.execute();
             StringJoiner isSubs= new StringJoiner("\n");
             isSubs
               .add(" INSERT { ?subentity <http://endhealth.info/im#isA> ?superentity.}")
@@ -118,7 +124,6 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
               .add("filter (?subentity not in (" + blockers + "))")
               .add("filter (?superentity not in (" + blockers + "))}");
             addIsas = conn.prepareUpdate(isSubs.toString());
-
             addIsas.execute();
 
     }

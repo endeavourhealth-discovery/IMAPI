@@ -172,9 +172,6 @@ public class TTBulkFiler  extends TTDocumentFiler {
         if (entity.get(RDFS.SUBPROPERTYOF)!=null)
             for (TTValue parent:entity.get(RDFS.SUBPROPERTYOF).getElements())
                 subtypes.write(entity.getIri()+"\t"+ RDFS.SUBCLASSOF.getIri()+"\t"+ parent.asIriRef().getIri()+"\n");
-        if (entity.get(SNOMED.REPLACED_BY)!=null)
-            for (TTValue parent:entity.get(SNOMED.REPLACED_BY).getElements())
-                subtypes.write(entity.getIri()+"\t"+ SNOMED.REPLACED_BY.getIri()+"\t"+ parent.asIriRef().getIri()+"\n");
     }
 
     private void addToMaps(TTEntity entity,String graph) throws IOException {

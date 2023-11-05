@@ -377,15 +377,14 @@ public class QueryRepository {
             }
         }
         if (match.getOrderBy() != null) {
-            for(OrderLimit orderBy : match.getOrderBy()) {
-                gatherOrderLimitLabels(orderBy, ttIris,iris);
-            }
+                gatherOrderLimitLabels(match.getOrderBy(), ttIris,iris);
         }
     }
 
     private void gatherOrderLimitLabels(OrderLimit orderBy, List<TTIriRef> ttIris, Map<String, String> iris) {
-        if(orderBy.getIri() != null) {
-            addToIriList(orderBy.getIri(), ttIris, iris);
+        if(orderBy.getProperty() != null) {
+            for (PropertyRef property:orderBy.getProperty())
+                addToIriList(property.getIri(), ttIris, iris);
         }
     }
 
@@ -423,15 +422,15 @@ public class QueryRepository {
         }
 
         if (match.getOrderBy() != null) {
-            for(OrderLimit orderBy : match.getOrderBy()) {
-                setOrderLimitLabels(orderBy, iriLabels);
-            }
+                setOrderLimitLabels(match.getOrderBy(), iriLabels);
         }
     }
 
     private void setOrderLimitLabels(OrderLimit orderBy, Map<String, String> iriLabels) {
-        if(orderBy.getIri() != null) {
-            orderBy.setName(iriLabels.get(orderBy.getIri()));
+        if (orderBy.getProperty()!=null) {
+            for (PropertyRef property : orderBy.getProperty()) {
+                property.setName(iriLabels.get(property.getIri()));
+            }
         }
     }
 

@@ -47,65 +47,7 @@ public class SetRepository {
      */
     public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
         //add scheme filter
-        Return aReturn= new Return();
-        imQuery.addReturn(aReturn);
-          aReturn
-            .property(s->s
-              .setIri(RDFS.LABEL.getIri()).as("term"))
-            .property(s->s
-              .setIri(IM.CODE.getIri()).as("code"))
-            .property(s->s
-              .setIri(IM.HAS_SCHEME.getIri())
-              .return_(n->n
-                .as("scheme")
-                .property(s2->s2
-                  .setIri(RDFS.LABEL.getIri()).as("schemeName"))))
-            .property(s->s
-              .setIri(IM.NAMESPACE+"usageTotal").as("usage"))
-            .property(s->s
-              .setIri(IM.IM1ID.getIri()).as("im1Id"))
-            .property(s->s
-              .setIri(IM.HAS_STATUS.getIri())
-              .return_(s2->s2
-                .as("status")
-                .property(p->p
-                  .setIri(RDFS.LABEL.getIri()).as("statusName"))))
-            .property(s->s
-              .setIri(RDF.TYPE.getIri())
-              .return_(s2->s2
-                .as("entityType")
-                .property(p->p
-                  .setIri(RDFS.LABEL.getIri()).as("typeName"))));
-
-        if (includeLegacy) {
-            aReturn
-              .property(p->p
-                .setIri(IM.MATCHED_TO.getIri())
-                .setInverse(true)
-                .return_(n->n
-                  .as("legacy")
-                  .property(s -> s
-                    .setIri(RDFS.LABEL.getIri()).as("legacyTerm"))
-                  .property(s -> s
-                    .setIri(IM.CODE.getIri()).as("legacyCode"))
-                  .property(s -> s
-                    .setIri(IM.HAS_SCHEME.getIri())
-                    .return_(n1->n1
-                      .as("legacyScheme")
-                      .property(p1->p1
-                        .setIri(RDFS.LABEL.getIri()).as("legacySchemeName"))))
-                  .property(s->s
-                    .setIri(IM.NAMESPACE+"usageTotal").as("legacyUse"))
-                  .property(s->s
-                    .setIri(IM.IM1ID.getIri()).as("legacyIm1Id"))));
-        }
-        QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
-        String sql= new SparqlConverter(newRequest).getSelectSparql(statusFilter);
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(sql);
-            return getCoreLegacyCodesForSparql(qry, includeLegacy, schemeFilter);
-
-        }
+        return getSetExpansion(imQuery,includeLegacy,statusFilter,schemeFilter,null);
     }
 
     public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {

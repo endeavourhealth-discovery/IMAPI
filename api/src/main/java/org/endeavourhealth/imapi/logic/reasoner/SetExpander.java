@@ -58,7 +58,7 @@ public class SetExpander {
 		//get the expansion.
 
 		Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral()
-			.objectValue(Query.class),false,null, List.of());
+			.objectValue(Query.class),false,null, List.of(),null);
 		updateMembers(iri,members);
 
 	}

@@ -101,6 +101,61 @@ public class SparqlConverter {
 
 	}
 
+	public String getCountSparql(Set<TTIriRef> statusFilter) throws QueryException {
+
+		StringBuilder selectQl = new StringBuilder();
+		selectQl.append(getDefaultPrefixes());
+		if (null != queryRequest.getTextSearch()){
+
+			selectQl.append("PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>\n")
+				.append("PREFIX con: <http://www.ontotext.com/connectors/lucene#>\n");
+		}
+
+		selectQl.append("SELECT ");
+		selectQl.append("(COUNT(distinct ?entity");
+		mainEntity="entity";
+		if (query.getMatch().get(0).getVariable()!=null)
+			mainEntity= query.getMatch().get(0).getVariable();
+		selectQl.append(") as ?cnt) ");
+		StringBuilder whereQl = new StringBuilder();
+		whereQl.append("WHERE {");
+		if (query.getTypeOf()!=null){
+			whereQl.append("?").append(mainEntity).append(" rdf:type ").append(iriFromString(query.getTypeOf().getIri())+".\n");
+		}
+
+		if (null != queryRequest.getTextSearch()){
+			textSearch(whereQl);
+		}
+
+		for (Match match :query.getMatch()){
+			match(whereQl,mainEntity, match);
+		}
+
+		o++;
+		String statusVar= "status"+o;
+
+
+		if (null != statusFilter && 0 != statusFilter.size()) {
+			List<String> statusStrings = new ArrayList<>();
+			for (TTIriRef status : statusFilter) {
+				statusStrings.add("<" + status.getIri() + ">");
+			}
+			whereQl.append("?").append(mainEntity).append(" im:status ?").append(statusVar).append(".\n");
+			whereQl.append("Filter (?").append(statusVar).append(" in (").append(String.join(",", statusStrings)).append("))\n");
+		}
+		if (query.isActiveOnly()) {
+			whereQl.append("?").append(mainEntity).append(" im:status im:Active.\n");
+		}
+
+
+		selectQl.append("\n");
+
+		whereQl.append("}");
+
+		selectQl.append(whereQl).append("\n");
+		return selectQl.toString();
+
+	}
 
 
 	public static String getDefaultPrefixes(){
@@ -562,7 +617,7 @@ public class SparqlConverter {
 				convertReturn(selectQl,whereQl,path.getReturn());
 		}
 		else {
-			selectQl.append(" ?").append(object);
+			if (!selectQl.toString().contains(object)) selectQl.append(" ?").append(object);
 			if (labelVariable == null)
 				if (path.getIri().equals(RDFS.LABEL.getIri()))
 					labelVariable = object;
@@ -573,7 +628,7 @@ public class SparqlConverter {
 
 
 
-	private void orderGroupLimit(StringBuilder selectQl,Query clause){
+	private void orderGroupLimit(StringBuilder selectQl,Query clause) throws QueryException {
 		if (null != queryRequest.getTextSearch()){
 			selectQl.append("ORDER BY DESC(").append("strstarts(lcase(?").append(labelVariable)
 					.append("),\"").append(escape(queryRequest.getTextSearch()).split(" ")[0])
@@ -588,25 +643,29 @@ public class SparqlConverter {
 			}
 		}
 		if (null != clause.getOrderBy()) {
-			if (clause.getOrderBy().getProperty()!=null){
+			if (null != clause.getOrderBy().getProperty()){
 				selectQl.append("Order by ");
 				for (OrderDirection order : clause.getOrderBy().getProperty()) {
-					if (order.getDirection().equals(Order.descending))
+					if (null != order.getDirection() && order.getDirection().equals(Order.descending))
 						selectQl.append("DESC(");
 					else
 						selectQl.append("ASC(");
-					selectQl.append("?").append(order.getIri());
+					if (null != order.getIri())	selectQl.append("?").append(order.getIri());
+					else if (null != order.getValueVariable()) selectQl.append("?").append(order.getValueVariable());
+					else throw new QueryException("Order by missing identifier: iri / valueVariable");
 					selectQl.append(")");
 				}
-				if (clause.getOrderBy().getLimit() > 0) {
+				if (null == queryRequest.getPage() && clause.getOrderBy().getLimit() > 0) {
 					selectQl.append("LIMIT ").append(clause.getOrderBy().getLimit()).append("\n");
+				} else {
+					selectQl.append("\n");
 				}
 			}
 		}
-		else if (null != queryRequest.getPage()) {
+		if (null != queryRequest.getPage()) {
 			selectQl.append("LIMIT ").append(queryRequest.getPage().getPageSize()).append("\n");
-			if (queryRequest.getPage().getPageNumber() > 1)
-				selectQl.append("OFFSET ").append((queryRequest.getPage().getPageNumber() - 1) * (queryRequest.getPage().getPageSize())).append("\n");
+			if (queryRequest.getPage().getPageNumber() > 0)
+				selectQl.append("OFFSET ").append((queryRequest.getPage().getPageNumber()) * (queryRequest.getPage().getPageSize())).append("\n");
 		}
 
 	}

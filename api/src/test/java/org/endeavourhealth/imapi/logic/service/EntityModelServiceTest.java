@@ -503,7 +503,7 @@ class EntityModelServiceTest {
     void getSummary_NotNullIri() {
         SearchResultSummary summary = new SearchResultSummary();
         when(entityRepository.getEntitySummaryByIri(any())).thenReturn(summary);
-        SearchResultSummary actual = entityService.getSummary(null);
+        SearchResultSummary actual = entityService.getSummary("anyIri");
         assertNotNull(actual);
     }
 

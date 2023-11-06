@@ -20,7 +20,7 @@ public class Match extends IriLD {
 	private Element graph;
 	private List<Property> property;
 	private String description;
-	private List<OrderLimit> orderBy;
+	private OrderLimit orderBy;
 	private String nodeRef;
 	private boolean optional;
 	private FunctionClause aggregate;
@@ -130,28 +130,21 @@ public class Match extends IriLD {
 	}
 
 
-	public List<OrderLimit> getOrderBy() {
+	public OrderLimit getOrderBy() {
 		return orderBy;
 	}
 
 	@JsonSetter
-	public Match setOrderBy(List<OrderLimit> orderBy) {
+	public Match setOrderBy(OrderLimit orderBy) {
 		this.orderBy = orderBy;
 		return this;
 	}
 
 
 
-	public Match addOrderBy(OrderLimit orderBy) {
-		if (this.orderBy == null)
-			this.orderBy = new ArrayList<>();
-		this.orderBy.add(orderBy);
-		return this;
-	}
-
 	public Match orderBy(Consumer<OrderLimit> builder) {
 		OrderLimit orderBy = new OrderLimit();
-		addOrderBy(orderBy);
+		setOrderBy(orderBy);
 		builder.accept(orderBy);
 		return this;
 	}

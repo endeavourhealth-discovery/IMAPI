@@ -328,7 +328,11 @@ public class EqdResources {
 		String orderBy= getPath(eqCriterion.getTable()+"/"+linkColumn);
 		counter++;
 		String linkElement= restricted.getProperty().get(0).getVariable();
-		restricted.orderBy(o->o.setIri(orderBy).setLimit(1).setDirection(direction));
+		restricted.orderBy(o->o
+			.addProperty(new OrderDirection()
+				.setIri(orderBy)
+				.setDirection(direction))
+			.setLimit(1));
 		return linkElement;
 	}
 
@@ -398,10 +402,6 @@ public class EqdResources {
 			boolean from) throws DataFormatException {
 				if (relation == VocRelation.RELATIVE) {
 					pv.setRelativeTo(new PropertyRef().setParameter("$referenceDate"));
-					if (from) {
-						comp = reverseComp(comp);
-						value = String.valueOf(-Integer.parseInt(value));
-					}
 				}
 
 				pv.setOperator(comp);

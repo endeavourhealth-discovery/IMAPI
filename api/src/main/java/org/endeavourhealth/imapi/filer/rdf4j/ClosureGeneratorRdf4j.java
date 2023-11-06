@@ -63,8 +63,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 
 		List<TTIriRef> relationships = Arrays.asList(
 			RDFS.SUBCLASSOF,
-			RDFS.SUBPROPERTYOF,
-			SNOMED.REPLACED_BY);
+			RDFS.SUBPROPERTYOF);
 
 		parentMap = new HashMap<>(1000000);
 		replacementMap= new HashMap<>();
@@ -142,11 +141,6 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 				if (!blockingIris.contains(parent)) {
 						Set<String> parents = parentMap.computeIfAbsent(child, k -> new HashSet<>());
 						parents.add(parent);
-						if (relationship.equals(SNOMED.REPLACED_BY)) {
-							Set<String> replacements = replacementMap.computeIfAbsent(parent, k -> new HashSet<>());
-							replacements.add(child);
-
-						}
 					}
 			}
 		}

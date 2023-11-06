@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -60,8 +61,8 @@ public class ExcelSetExporterTest {
     void getSetExport_NotNullIriWithDefinition() throws JsonProcessingException, QueryException {
         when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(mockDefinition()));
         when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity().setName("Test")));
-        when(setRepository.getSetExpansion(any(), anyBoolean(),any(), anyList())).thenReturn(new HashSet<>());
-        when(setRepository.getSetMembers(any(), anyBoolean(), anyList())).thenReturn(new HashSet<>());
+        when(setRepository.getSetExpansion(any(), anyBoolean(),any(), anyList())).thenReturn(new ArrayList<>());
+        when(setRepository.getSetMembers(any(), anyBoolean(), anyList())).thenReturn(new ArrayList<>());
         when(setRepository.getSubsets(anyString())).thenReturn(new HashSet<>());
         ReflectionTestUtils.setField(excelSetExporter, "setExporter", setExporter);
 

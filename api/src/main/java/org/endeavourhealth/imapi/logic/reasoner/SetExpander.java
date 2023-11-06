@@ -42,7 +42,7 @@ public class SetExpander {
 			//get the definition
 			TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.getIri()));
 			//get the expansion.
-			Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral().objectValue(Query.class),false,null, List.of());
+			List<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral().objectValue(Query.class),false,null, List.of());
 
 			updateMembers(iri,members);
 
@@ -57,13 +57,13 @@ public class SetExpander {
 			throw new DataFormatException(iri+ " : Unknown iri or this set has no definition");
 		//get the expansion.
 
-		Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral()
+		List<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral()
 			.objectValue(Query.class),false,null, List.of(),null);
 		updateMembers(iri,members);
 
 	}
 
-	private void updateMembers(String iri,Set<Concept> members) {
+	private void updateMembers(String iri,List<Concept> members) {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			String spq = "DELETE { <" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> ?x.}"+
 				"\nWHERE { <" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> ?x.}";

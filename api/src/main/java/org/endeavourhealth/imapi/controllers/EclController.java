@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UnknownFormatConversionException;
 import java.util.zip.DataFormatException;
@@ -40,11 +41,9 @@ public class EclController {
         summary = "Evaluate ECL",
         description = "Evaluates an query"
     )
-    public Set<Concept> evaluateEcl(@RequestBody EclSearchRequest request) throws DataFormatException, QueryException,EclFormatException {
+    public List<Concept> evaluateEcl(@RequestBody EclSearchRequest request) throws DataFormatException, QueryException,EclFormatException {
         try {
-            Set<Concept> result =eclService.evaluateECLQuery(request);
-            return result;
-            //return eclService.evaluateECLQuery(request);
+            return eclService.evaluateECLQuery(request);
         } catch (UnknownFormatConversionException | JsonProcessingException ex) {
             throw new EclFormatException("Invalid ECL format", ex);
         }

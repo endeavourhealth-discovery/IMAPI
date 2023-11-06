@@ -34,13 +34,13 @@ public class EclService {
         return setRepository.getSetExpansionTotalCount(request.getEclQuery(), request.isIncludeLegacy(),request.getStatusFilter(), List.of());
     }
 
-    public Set<Concept> evaluateECLQuery(EclSearchRequest request) throws JsonProcessingException, QueryException {
+    public List<Concept> evaluateECLQuery(EclSearchRequest request) throws JsonProcessingException, QueryException {
         return setRepository.getSetExpansion(request.getEclQuery(), request.isIncludeLegacy(),request.getStatusFilter(), List.of(),new Page().setPageNumber(request.getPage()).setPageSize(request.getSize()));
     }
 
     public SearchResponse eclSearch(EclSearchRequest request) throws JsonProcessingException, QueryException {
         int totalCount = getEclSearchTotalCount(request);
-        Set<Concept> evaluated = evaluateECLQuery(request);
+        List<Concept> evaluated = evaluateECLQuery(request);
         List<SearchResultSummary> evaluatedAsSummary = evaluated
             .stream()
             .map(concept ->

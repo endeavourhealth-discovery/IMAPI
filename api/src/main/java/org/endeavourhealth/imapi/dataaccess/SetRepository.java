@@ -45,12 +45,12 @@ public class SetRepository {
      * @throws JsonProcessingException if json definitino invalid
      * @throws DataFormatException if query definition invalid
      */
-    public List<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
+    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
         //add scheme filter
         return getSetExpansion(imQuery,includeLegacy,statusFilter,schemeFilter,null);
     }
 
-    public List<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
+    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
         //add scheme filter
         Return aReturn= new Return();
         imQuery.addReturn(aReturn);
@@ -157,7 +157,7 @@ public class SetRepository {
     }
 
 
-    private List<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes) {
+    private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes) {
         Set<Concept> result = new HashSet<>();
         Map<String,Concept> conceptMap= new HashMap<>();
         try (TupleQueryResult rs = qry.evaluate()) {
@@ -216,7 +216,7 @@ public class SetRepository {
                 }
             }
         }
-        return result.stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toList());
+        return result.stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private int getCountForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes) {
@@ -271,7 +271,7 @@ public class SetRepository {
     }
 
 
-    public List<Concept> getSetMembers(String setIri, boolean includeLegacy, List<String> schemes) {
+    public Set<Concept> getSetMembers(String setIri, boolean includeLegacy, List<String> schemes) {
         StringJoiner spql = new StringJoiner(System.lineSeparator())
           .add("PREFIX im: <" + IM.NAMESPACE + ">")
           .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")

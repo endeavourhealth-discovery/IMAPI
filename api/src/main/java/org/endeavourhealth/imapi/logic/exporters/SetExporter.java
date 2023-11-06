@@ -88,7 +88,7 @@ public class SetExporter {
             Set<Concept> subResults = new HashSet<>();
             LOG.trace("Processing set [{}]...", iri);
 
-            List<Concept> members = setRepository.getSetMembers(iri, includeLegacy, schemes);
+            Set<Concept> members = setRepository.getSetMembers(iri, includeLegacy, schemes);
 
             if (members != null && !members.isEmpty()) {
                 subResults.addAll(members);

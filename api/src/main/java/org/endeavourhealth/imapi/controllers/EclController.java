@@ -41,7 +41,7 @@ public class EclController {
         summary = "Evaluate ECL",
         description = "Evaluates an query"
     )
-    public List<Concept> evaluateEcl(@RequestBody EclSearchRequest request) throws DataFormatException, QueryException,EclFormatException {
+    public Set<Concept> evaluateEcl(@RequestBody EclSearchRequest request) throws DataFormatException, QueryException,EclFormatException {
         try {
             return eclService.evaluateECLQuery(request);
         } catch (UnknownFormatConversionException | JsonProcessingException ex) {

@@ -1224,5 +1224,9 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.getIri()).colle
     public List<String> getIM1SchemeOptions() {
         return entityRepository.getIM1SchemeOptions();
     }
+
+    public Boolean isInverseIsa(String objectIri, String subjectIri) {
+        return entityRepository.isInverseIsa(objectIri,subjectIri);
+    }
 }
 

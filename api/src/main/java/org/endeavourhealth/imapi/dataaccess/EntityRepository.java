@@ -728,4 +728,18 @@ public class EntityRepository {
             return sparql.evaluate();
         }
     }
+
+    public Boolean isInverseIsa(String subjectIri, String objectIri) {
+        try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
+                .add("ASK WHERE {")
+                .add("?s ?p ?o .")
+                .add("}");
+            BooleanQuery sparql = conn.prepareBooleanQuery(String.valueOf(stringQuery));
+            sparql.setBinding("s",iri(subjectIri));
+            sparql.setBinding("p",iri(IM.IS_A.getIri()));
+            sparql.setBinding("o",iri(objectIri));
+            return sparql.evaluate();
+        }
+    }
 }

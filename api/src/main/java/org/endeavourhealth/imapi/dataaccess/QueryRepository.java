@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -57,6 +58,16 @@ public class QueryRepository {
         }
     }
 
+    public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            checkReferenceDate();
+            new QueryValidator().validateQuery(queryRequest.getQuery());
+            SparqlConverter converter = new SparqlConverter(queryRequest);
+            String spq = converter.getAskSparql(null);
+            return graphAskSearch(spq, conn);
+        }
+    }
+
     /**
      * Generic query of IM with the select statements determining the response
      *
@@ -92,8 +103,12 @@ public class QueryRepository {
         this.queryRequest = queryRequest;
         this.query = unpackQuery(queryRequest.getQuery(), queryRequest);
         queryRequest.setQuery(query);
-        if (null != queryRequest.getContext())
+        if (null != queryRequest.getContext() && null != result)
             result.set("@context",mapper.convertValue(queryRequest.getContext(),JsonNode.class));
+    }
+
+    public void unpackQueryRequest(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
+        unpackQueryRequest(queryRequest,null);
     }
 
     private Query unpackQuery(Query query, QueryRequest queryRequest) throws JsonProcessingException, DataFormatException, QueryException {
@@ -148,8 +163,17 @@ public class QueryRepository {
         return result;
     }
 
+    private Boolean graphAskSearch(String spq, RepositoryConnection conn) {
+        return sparqlAskQuery(spq,conn);
+    }
+
     private TupleQueryResult sparqlQuery(String spq, RepositoryConnection conn) {
         TupleQuery qry = conn.prepareTupleQuery(spq);
+        return qry.evaluate();
+    }
+
+    private Boolean sparqlAskQuery(String spq, RepositoryConnection conn) {
+        BooleanQuery qry = conn.prepareBooleanQuery(spq);
         return qry.evaluate();
     }
 

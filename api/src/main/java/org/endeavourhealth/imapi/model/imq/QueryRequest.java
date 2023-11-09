@@ -28,6 +28,7 @@ public class QueryRequest implements ContextMap {
 	private PathQuery pathQuery;
 	private Update update;
 	private String referenceDate;
+	private String askIri;
 
 
 
@@ -213,5 +214,12 @@ public class QueryRequest implements ContextMap {
 		return this;
 	}
 
+	public String getAskIri() {
+		return askIri;
+	}
 
+	public QueryRequest setAskIri(String askIri) {
+		this.askIri = askIri;
+		return this;
+	}
 }

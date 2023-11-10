@@ -101,7 +101,7 @@ public class Property extends PropertyRef implements Assignable{
 		return isNull;
 	}
 
-	public Property setNull(boolean aNull) {
+	public Property setIsNull(boolean aNull) {
 		isNull = aNull;
 		return this;
 	}

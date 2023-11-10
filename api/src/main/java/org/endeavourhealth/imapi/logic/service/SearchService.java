@@ -48,6 +48,13 @@ public class SearchService {
 		return repo.queryIM(queryRequest);
 	}
 
+	public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
+		if (null == queryRequest.getAskIri()) throw new IllegalArgumentException("Query request missing askIri");
+		QueryRepository repo = new QueryRepository();
+		repo.unpackQueryRequest(queryRequest);
+		return repo.askQueryIM(queryRequest);
+	}
+
     /**
      * Queries any IM entity using the query model
      * @param queryRequest Query inside a request with parameters

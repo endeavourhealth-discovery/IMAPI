@@ -714,4 +714,11 @@ public class EntityController {
 		LOG.debug("hasPredicates");
 		return entityService.hasPredicates(subjectIri, predicateIris);
 	}
+
+	@GetMapping(value = "/public/isInverseIsa")
+	@Operation(summary = "check if subject isa object")
+	public Boolean isInverseIsa(@RequestParam(name="objectIri") String objectIri,@RequestParam(name="subjectIri") String subjectIri) {
+		LOG.debug("isInverseIsa");
+		return entityService.isInverseIsa(objectIri,subjectIri);
+	}
 }

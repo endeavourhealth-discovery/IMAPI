@@ -43,17 +43,41 @@ public class SparqlConverter {
 	public String getSelectSparql(Set<TTIriRef> statusFilter) throws QueryException {
 
 		StringBuilder selectQl = new StringBuilder();
-		selectQl.append(getDefaultPrefixes());
-		if (null != queryRequest.getTextSearch()){
-
-			selectQl.append("PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>\n")
-				.append("PREFIX con: <http://www.ontotext.com/connectors/lucene#>\n");
-		}
+		addPrefixes(selectQl);
 
 		selectQl.append("SELECT ");
 		selectQl.append("distinct ");
+		addWhereSparql(selectQl,statusFilter,true);
+
+		orderGroupLimit(selectQl,query);
+		return selectQl.toString();
+
+	}
+
+	public String getAskSparql(Set<TTIriRef> statusFilter) throws QueryException {
+
+		StringBuilder askQl = new StringBuilder();
+		addPrefixes(askQl);
+
+		askQl.append("ASK ");
+		addWhereSparql(askQl,statusFilter,false);
+
+		return askQl.toString();
+
+	}
+
+	private void addPrefixes(StringBuilder sparql) {
+		sparql.append(getDefaultPrefixes());
+		if (null != queryRequest.getTextSearch()){
+
+			sparql.append("PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>\n")
+				.append("PREFIX con: <http://www.ontotext.com/connectors/lucene#>\n");
+		}
+	}
+
+	private void addWhereSparql(StringBuilder sparql, Set<TTIriRef> statusFilter,Boolean includeReturns) throws QueryException {
 		mainEntity="entity";
-		if (query.getMatch().get(0).getVariable()!=null)
+		if (null != query.getMatch().get(0).getVariable())
 			mainEntity= query.getMatch().get(0).getVariable();
 		StringBuilder whereQl = new StringBuilder();
 		whereQl.append("WHERE {");
@@ -66,39 +90,36 @@ public class SparqlConverter {
 		}
 
 		for (Match match :query.getMatch()){
-				match(whereQl,mainEntity, match);
+			match(whereQl,mainEntity, match);
 		}
 
-		if (query.getReturn()!=null) {
+		if (null != includeReturns && null != query.getReturn()) {
 			for (Return aReturn : query.getReturn()) {
-				convertReturn(selectQl, whereQl, aReturn);
+				convertReturn(sparql, whereQl, aReturn);
 			}
 		}
 		o++;
 		String statusVar= "status"+o;
 
 
-		if (null != statusFilter && 0 != statusFilter.size()) {
-				List<String> statusStrings = new ArrayList<>();
-				for (TTIriRef status : statusFilter) {
-					statusStrings.add("<" + status.getIri() + ">");
-				}
-				whereQl.append("?").append(mainEntity).append(" im:status ?").append(statusVar).append(".\n");
-				whereQl.append("Filter (?").append(statusVar).append(" in (").append(String.join(",", statusStrings)).append("))\n");
+		if (null != statusFilter && !statusFilter.isEmpty()) {
+			List<String> statusStrings = new ArrayList<>();
+			for (TTIriRef status : statusFilter) {
+				statusStrings.add("<" + status.getIri() + ">");
 			}
+			whereQl.append("?").append(mainEntity).append(" im:status ?").append(statusVar).append(".\n");
+			whereQl.append("Filter (?").append(statusVar).append(" in (").append(String.join(",", statusStrings)).append("))\n");
+		}
 		if (query.isActiveOnly()) {
-					whereQl.append("?").append(mainEntity).append(" im:status im:Active.\n");
+			whereQl.append("?").append(mainEntity).append(" im:status im:Active.\n");
 		}
 
 
-		selectQl.append("\n");
+		sparql.append("\n");
 
 		whereQl.append("}");
 
-		selectQl.append(whereQl).append("\n");
-		orderGroupLimit(selectQl,query);
-		return selectQl.toString();
-
+		sparql.append(whereQl).append("\n");
 	}
 
 	public String getCountSparql(Set<TTIriRef> statusFilter) throws QueryException {

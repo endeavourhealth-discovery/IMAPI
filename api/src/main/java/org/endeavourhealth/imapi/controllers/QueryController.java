@@ -42,6 +42,13 @@ public class QueryController {
         return searchService.queryIM(queryRequest);
     }
 
+    @PostMapping("/public/askQueryIM")
+    @Operation(summary = "Check if an iri is within a query's results")
+    public Boolean askQueryIM(@RequestBody QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
+        LOG.debug("askQueryIM");
+        return searchService.askQueryIM(queryRequest);
+    }
+
     @PostMapping("/public/queryIMSearch")
     @Operation(
         summary = "Query IM returning conceptSummaries",

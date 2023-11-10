@@ -93,7 +93,7 @@ public class SparqlConverter {
 			match(whereQl,mainEntity, match);
 		}
 
-		if (null != includeReturns && null != query.getReturn()) {
+		if (includeReturns && null != query.getReturn()) {
 			for (Return aReturn : query.getReturn()) {
 				convertReturn(sparql, whereQl, aReturn);
 			}

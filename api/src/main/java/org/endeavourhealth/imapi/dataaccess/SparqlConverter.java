@@ -380,7 +380,7 @@ public class SparqlConverter {
 					object = where.getIs().get(0).getVariable();
 				}
 			}
-			if (where.isNull()) {
+			if (where.getIsNull()) {
 				whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
 			}
 			if (where.isDescendantsOrSelfOf()) {
@@ -395,7 +395,7 @@ public class SparqlConverter {
 				else
 					whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromString(where.getIri())).append(" ?").append(object).append(".\n");
 			}
-			if (where.isNull()) {
+			if (where.getIsNull()) {
 				whereQl.append(tabs).append(" }");
 			}
 			if (where.getIs() != null) {

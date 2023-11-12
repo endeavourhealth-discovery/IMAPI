@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.dataaccess;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,22 +67,30 @@ public class FileRepository {
 		return codeToIri;
 	}
 
-	public void fetchRelationships(
-		Map<String,
-		Set<String>> parentMap,
-		Set<String> blockingIris
-	) throws IOException{
+	public void fetchRelationships(Map<String,Map<String, Set<String>>> relationshipMap,
+		Set<String> blockingIris) throws IOException{
 		String fileName= getFile("SubTypes");
 		try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+			int count=0;
 			String line = reader.readLine();
 			while (line != null && !line.isEmpty()) {
+				count++;
 				String[] fields = line.split("\t");
 				String child = fields[0];
+				String relationship= fields[1];
 				String parent = fields[2];
+				if (relationship.equals(RDFS.SUBPROPERTYOF.getIri()))
+					relationship = RDFS.SUBCLASSOF.getIri();
+				if (relationship.equals(IM.LOCAL_SUBCLASS_OF.getIri()))
+					relationship = RDFS.SUBCLASSOF.getIri();
 				if (!blockingIris.contains(parent)) {
+					relationshipMap.computeIfAbsent(relationship,r -> new HashMap<>());
+					Map<String,Set<String>> parentMap= relationshipMap.get(relationship);
 					Set<String> parents = parentMap.computeIfAbsent(child, k -> new HashSet<>());
 					parents.add(parent);
 				}
+				if (count%100000==0)
+					LOG.info(count+" relationships collected");
 				line = reader.readLine();
 			}
 		}

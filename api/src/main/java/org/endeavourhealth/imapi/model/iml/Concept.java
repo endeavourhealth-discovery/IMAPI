@@ -14,6 +14,16 @@ public class Concept extends Entity {
 	private Set<Concept> matchedFrom;
 	private Integer usage;
 	private String codeId;
+	private String alternativeCode;
+
+	public String getAlternativeCode() {
+		return alternativeCode;
+	}
+
+	public Concept setAlternativeCode(String alternativeCode) {
+		this.alternativeCode = alternativeCode;
+		return this;
+	}
 
 	public String getCodeId() {
 		return codeId;

@@ -72,9 +72,10 @@ public class IM {
     //Transitive  isa predicates
     public static final TTIriRef IS_A = iri(NAMESPACE + "isA");
     public static final TTIriRef IS_CHILD_OF= iri(NAMESPACE + "isChildOf");
-   public static final TTIriRef SUBSUMED_BY = iri(NAMESPACE + "subsumedBy");
-   public static final TTIriRef USUALLY_SUBSUMED_BY = iri(NAMESPACE + "usuallySubsumedBy");
+    public static final TTIriRef SUBSUMED_BY = iri(NAMESPACE + "subsumedBy");
+    public static final TTIriRef USUALLY_SUBSUMED_BY = iri(NAMESPACE + "usuallySubsumedBy");
     public static final TTIriRef APPROXIMATE_SUBSUMED_BY = iri(NAMESPACE + "approximateSubsumedBy");
+    public static final TTIriRef LOCAL_SUBCLASS_OF = iri(NAMESPACE + "localSubClassOf");
 
     // Config predicate
     public static final TTIriRef HAS_CONFIG = iri(NAMESPACE + "hasConfig");

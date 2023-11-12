@@ -1,11 +1,10 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.filer.TTTransactionFiler;
-import org.endeavourhealth.imapi.filer.rdf4j.TTDocumentFilerRdf4j;
+import org.endeavourhealth.imapi.filer.TTDocumentFiler;
+import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
 
 import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.logic.reasoner.SetExpander;
@@ -21,17 +20,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class FilerService {
 
-    private final TTDocumentFiler documentFiler = new TTDocumentFilerRdf4j();
+    private final TTDocumentFiler documentFiler = new TTTransactionFiler();
     private final TTEntityFiler entityFiler = new TTEntityFilerRdf4j();
     private final TTEntityFiler entityProvFiler = entityFiler;
     private final ProvService provService = new ProvService();
-    private final TTTransactionFiler transactionFiler = new TTTransactionFiler();
     private final EntityService entityService = new EntityService();
     private final OpenSearchService openSearchService = new OpenSearchService();
     private TTEntity provUsedEntity = new TTEntity();
 
     public void fileTransactionDocument(TTDocument document, String agentName) throws Exception {
-        transactionFiler.fileTransaction(document);
+        documentFiler.fileDocument(document);
         fileProvDoc(document, agentName);
     }
 
@@ -45,7 +43,7 @@ public class FilerService {
             entityFiler.fileEntity(entity, graph);
 
             if (entity.isType(IM.CONCEPT))
-                entityFiler.updateTct(entity.getIri());
+                entityFiler.updateIsAs(entity.getIri());
 
             if (entity.isType(IM.VALUESET))
                 new SetExpander().expandSet(entity.getIri());
@@ -63,7 +61,7 @@ public class FilerService {
         document.addEntity(entity);
         document.addEntity(activity);
         document.addEntity(provUsedEntity);
-        transactionFiler.writeLog(document);
+        documentFiler.writeLog(document);
     }
 
     private void fileProvDoc(TTDocument document, String agentName) throws JsonProcessingException, TTFilerException {

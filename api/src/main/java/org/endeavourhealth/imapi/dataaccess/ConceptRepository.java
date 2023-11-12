@@ -5,7 +5,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.filer.TTTransactionFiler;
+import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -44,6 +44,6 @@ public class ConceptRepository {
 				.setIri(IM.NAMESPACE+"Function_SnomedConceptGenerator")
 				.set(TTIriRef.iri(IM.NAMESPACE+"hasIncrementalFrom"), TTLiteral.literal(from+1)));
 		TTTransactionFiler filer= new TTTransactionFiler();
-		filer.fileTransaction(document);
+		filer.fileDocument(document);
 	}
 }

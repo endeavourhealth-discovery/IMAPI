@@ -15,7 +15,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class TTBulkFiler  extends TTDocumentFiler {
+public class TTBulkFiler  implements TTDocumentFiler {
     private static final Logger LOG = LoggerFactory.getLogger(TTBulkFiler.class);
     private static String dataPath;
     private static String configTTl;
@@ -35,21 +35,6 @@ public class TTBulkFiler  extends TTDocumentFiler {
     private static int statementCount;
     private static final Set<String> specialChildren= new HashSet<>(List.of(SNOMED.NAMESPACE + "92381000000106"));
 
-    @Override
-    protected void startTransaction() {
-        // Do nothing
-    }
-
-    @Override
-    protected void commit() {
-        // Do nothing
-    }
-
-    @Override
-    protected void rollback() {
-        // Do nothing
-    }
-
     public void fileDocument(TTDocument document) throws TTFilerException {
         if (document.getEntities() == null)
             return;
@@ -59,7 +44,15 @@ public class TTBulkFiler  extends TTDocumentFiler {
 
     }
 
+    @Override
+    public void writeLog(TTDocument document) throws Exception {
 
+    }
+
+    @Override
+    public void fileDeltas(String dataPath) throws Exception {
+        throw new Exception("Deltas cannot be filed by a bulk filer. Set Filer Factory bulk to false");
+    }
 
 
     private void writeGraph(TTDocument document) throws TTFilerException {
@@ -163,15 +156,15 @@ public class TTBulkFiler  extends TTDocumentFiler {
     }
 
     private void addSubtypes(TTEntity entity) throws IOException {
-        if (entity.get(RDFS.SUBCLASSOF)!=null)
-            for (TTValue parent:entity.get(RDFS.SUBCLASSOF).getElements()) {
-                subtypes.write(entity.getIri() + "\t" + RDFS.SUBCLASSOF.getIri()+"\t"+ parent.asIriRef().getIri() + "\n");
-                if (specialChildren.contains(parent.asIriRef().getIri()))
-                    descendants.write(parent.asIriRef().getIri()+"\t"+ entity.getIri()+"\t"+ entity.getName()+"\n");
-            }
-        if (entity.get(RDFS.SUBPROPERTYOF)!=null)
-            for (TTValue parent:entity.get(RDFS.SUBPROPERTYOF).getElements())
-                subtypes.write(entity.getIri()+"\t"+ RDFS.SUBCLASSOF.getIri()+"\t"+ parent.asIriRef().getIri()+"\n");
+        for (TTIriRef relationship:List.of(RDFS.SUBCLASSOF,RDFS.SUBPROPERTYOF,IM.SUBSUMED_BY,IM.USUALLY_SUBSUMED_BY,IM.APPROXIMATE_SUBSUMED_BY,
+          IM.LOCAL_SUBCLASS_OF)) {
+            if (entity.get(relationship) != null)
+                for (TTValue parent : entity.get(relationship).getElements()) {
+                    subtypes.write(entity.getIri() + "\t" + relationship.getIri() + "\t" + parent.asIriRef().getIri() + "\n");
+                    if (specialChildren.contains(parent.asIriRef().getIri()))
+                        descendants.write(parent.asIriRef().getIri() + "\t" + entity.getIri() + "\t" + entity.getName() + "\n");
+                }
+        }
     }
 
     private void addToMaps(TTEntity entity,String graph) throws IOException {
@@ -317,11 +310,6 @@ public class TTBulkFiler  extends TTDocumentFiler {
  }
 
 
-    @Override
-    public void close() throws Exception {
-        // No autoclosable resources
-    }
-
     public static String getDataPath() {
         return dataPath;
     }
@@ -360,5 +348,10 @@ public class TTBulkFiler  extends TTDocumentFiler {
 
     public static void setStatementCount(int statementCount) {
         TTBulkFiler.statementCount = statementCount;
+    }
+
+    @Override
+    public void close() throws Exception {
+        //do nothing
     }
 }

@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.filer.rdf4j;
 import org.endeavourhealth.imapi.dataaccess.FileRepository;
 import org.endeavourhealth.imapi.filer.TCGenerator;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,9 +13,9 @@ import java.util.*;
 
 public class ClosureGeneratorBulk implements TCGenerator {
 	private static final Logger LOG = LoggerFactory.getLogger(ClosureGeneratorBulk.class);
-	private HashMap<String, Set<String>> parentMap;
+	private Map<String,Map<String, Set<String>>> relationshipMap;
 	private HashMap<String, Set<String>> closureMap;
-	private static final String[] topConcepts={"http://snomed.info/sct#138875005",IM.NAMESPACE+"Concept"};
+	private static final String[] topConcepts={"http://snomed.info/sct#138875005",IM.NAMESPACE+"Concept","http://snomed.info/sct#370115009"};
 	private int counter;
 	private final Set<String> blockingIris = new HashSet<>();
 
@@ -24,17 +25,29 @@ public class ClosureGeneratorBulk implements TCGenerator {
 		getTctBlockers();
 		FileRepository repo= new FileRepository(outpath);
 
-		parentMap = new HashMap<>(1000000);
+		relationshipMap = new HashMap<>(1000000);
 		LOG.info("Getting all subtypes....");
-		repo.fetchRelationships(parentMap,blockingIris);
+		repo.fetchRelationships(relationshipMap,blockingIris);
 
 
 		try(FileWriter isas = new FileWriter(outpath+"/BulkImport.nq",true)) {
 			buildClosure();
+			addInactiveSubsumptions();
 			writeClosureData(isas);
 
 		}
+	}
 
+	private void addInactiveSubsumptions() {
+		for (String relationship:List.of(IM.SUBSUMED_BY.getIri(),IM.USUALLY_SUBSUMED_BY.getIri(),IM.APPROXIMATE_SUBSUMED_BY.getIri())){
+			for (Map.Entry<String, Set<String>> row : relationshipMap.get(relationship).entrySet()) {
+				String child= row.getKey();
+				closureMap.computeIfAbsent(child,c-> new HashSet<>());
+				for (String parent:row.getValue()){
+					closureMap.get(child).add(parent);
+				}
+			}
+		}
 	}
 
 	private void getTctBlockers() {
@@ -49,10 +62,10 @@ public class ClosureGeneratorBulk implements TCGenerator {
 
 	private void buildClosure() {
 		closureMap = new HashMap<>(10000000);
-		LOG.debug("Generating closure map");
+		LOG.debug("Generating closure map for subclasses");
 		int c = 0;
 		counter=0;
-		for (Map.Entry<String, Set<String>> row : parentMap.entrySet()) {
+		for (Map.Entry<String, Set<String>> row : relationshipMap.get(RDFS.SUBCLASSOF.getIri()).entrySet()) {
 			c++;
 			String child = row.getKey();
 			if (closureMap.get(child)==null) {
@@ -67,12 +80,13 @@ public class ClosureGeneratorBulk implements TCGenerator {
 
 	private Set<String> generateClosure(String child) {
 		Set<String> closures = closureMap.computeIfAbsent(child, k -> new HashSet<>());
+		String relationship=RDFS.SUBCLASSOF.getIri();
 
 		// Add self
 		closures.add(child);
 		counter++;
 
-		Set<String> parents = parentMap.get(child);
+		Set<String> parents = relationshipMap.get(relationship).get(child);
 		if (parents != null) {
 			for (String parent : parents) {
 				// Check do we have its closure?

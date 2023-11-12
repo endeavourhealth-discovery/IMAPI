@@ -21,6 +21,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +81,13 @@ public class SetRepository {
                 .return_(s2->s2
                     .as("entityType")
                     .property(p->p
-                        .setIri(RDFS.LABEL.getIri()).as("typeName"))));
+                        .setIri(RDFS.LABEL.getIri()).as("typeName"))))
+          .property(s->s
+            .setIri(IM.CODE_ID.getIri())
+            .as("codeId"))
+          .property(s->s
+            .setIri(IM.ALTERNATIVE_CODE.getIri())
+            .as("alternativeCode"));
 
         if (includeLegacy) {
             aReturn
@@ -101,6 +108,9 @@ public class SetRepository {
                                     .setIri(RDFS.LABEL.getIri()).as("legacySchemeName"))))
                         .property(s->s
                             .setIri(IM.NAMESPACE+"usageTotal").as("legacyUse"))
+                      .property(s->s
+                        .setIri(IM.CODE_ID.getIri())
+                        .as("legacyCodeId"))
                         .property(s->s
                             .setIri(IM.IM1ID.getIri()).as("legacyIm1Id"))));
         }
@@ -159,30 +169,36 @@ public class SetRepository {
 
     private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes) {
         Set<Concept> result = new HashSet<>();
+        Set<String> coreSchemes= Set.of(SNOMED.NAMESPACE,IM.NAMESPACE);
         Map<String,Concept> conceptMap= new HashMap<>();
         try (TupleQueryResult rs = qry.evaluate()) {
             while (rs.hasNext()) {
                 BindingSet bs = rs.next();
                 String concept = bs.getValue("entity").stringValue();
                 Concept cl = conceptMap.get(concept);
+                Value scheme = bs.getValue("scheme");
                 if (cl == null) {
                     cl = new Concept();
                     conceptMap.put(concept, cl);
                     result.add(cl);
                     Value name = bs.getValue("term");
                     Value code = bs.getValue("code");
-                    Value scheme = bs.getValue("scheme");
+                    Value alternativeCode= bs.getValue("alternativeCode");
                     Value schemeName = bs.getValue("schemeName");
                     Value usage = bs.getValue("usage");
                     Value status = bs.getValue("status");
                     Value statusName = bs.getValue("statusName");
                     Value type = bs.getValue("entityType");
                     Value typeName = bs.getValue("typeName");
+                    Value codeId=bs.getValue("codeId");
                     cl.setIri(concept);
                     if (name != null)
                         cl.setName(name.stringValue());
                     if (code != null) {
                         cl.setCode(code.stringValue());
+                    }
+                    if (alternativeCode!=null){
+                        cl.setAlternativeCode(alternativeCode.stringValue());
                     }
                     if (null != scheme) {
                         cl.setScheme(iri(scheme.stringValue(), schemeName.stringValue()));
@@ -192,6 +208,9 @@ public class SetRepository {
                     }
                     if (null != type) {
                         cl.addType(iri(type.stringValue(), typeName.stringValue()));
+                    }
+                    if (null!=codeId){
+                        cl.setCodeId(codeId.stringValue());
                     }
                     cl.setUsage(usage == null ? null : ((Literal) usage).intValue());
                 } else {
@@ -206,12 +225,18 @@ public class SetRepository {
                     cl.addIm1Id(im1Id.stringValue());
                 if (includeLegacy) {
                     String legacyScheme = bs.getValue("legacyScheme") != null ? bs.getValue("legacyScheme").stringValue() : null;
-                    if (schemes.size() == 0 || legacyScheme == null) {
-                        bindResults(bs, cl);
-                    } else {
-                        if(schemes.stream().anyMatch(s -> s.equals(legacyScheme))) {
-                            bindResults(bs, cl);
+                    if (legacyScheme==null) {
+                        if (!coreSchemes.contains(scheme.stringValue())) {
+                            bindLegacyFromCore(bs, cl);
                         }
+                    }
+                    else if (schemes.size()==0){
+                        bindResults(bs,cl);
+                    }
+                    else {
+                            if(schemes.stream().anyMatch(s -> s.equals(legacyScheme))) {
+                            bindResults(bs, cl);
+                            }
                     }
                 }
             }
@@ -230,6 +255,29 @@ public class SetRepository {
         }
     }
 
+
+    private void bindLegacyFromCore(BindingSet bs, Concept cl) {
+        String legIri =cl.getIri();
+        if (legIri != null) {
+            Concept legacy = matchLegacy(cl, legIri);
+            if (legacy == null) {
+                legacy = new Concept();
+                cl.addMatchedFrom(legacy);
+                legacy.setIri(legIri);
+                legacy.setCode(cl.getCode());
+                legacy.setName(cl.getName());
+                legacy.setScheme(cl.getScheme());
+                legacy.setCodeId(cl.getCodeId());
+                legacy.setUsage(cl.getUsage());
+            }
+            Value lid = bs.getValue("im1Id");
+            if (lid != null)
+                legacy.addIm1Id(lid.stringValue());
+        }
+    }
+
+
+
     private void bindResults(BindingSet bs, Concept cl) {
         Value legIri = bs.getValue("legacy");
         if (legIri != null) {
@@ -243,7 +291,7 @@ public class SetRepository {
                 Value ls = bs.getValue("legacyScheme");
                 Value lsn = bs.getValue("legacySchemeName");
                 Value luse = bs.getValue("legacyUse");
-                Value codeId = bs.getValue("codeId");
+                Value codeId = bs.getValue("legacyCodeId");
                 if (lc != null)
                     legacy.setCode(lc.stringValue());
                 if (lt != null)
@@ -282,7 +330,9 @@ public class SetRepository {
           .add("       im:scheme ?scheme.")
           .add("    ?scheme rdfs:label ?schemeName .")
           .add("    OPTIONAL { ?entity im:im1Id ?im1Id . }")
-          .add("    OPTIONAL { ?entity im:usageTotal ?use . }");
+          .add("    OPTIONAL { ?entity im:usageTotal ?use . }")
+          .add("    OPTIONAL { ?entity im:codeId ?codeId . }")
+          .add("    OPTIONAL { ?entity im:alternativeCode ?alternativeCode.}");
 
         if (includeLegacy) {
             spql.add("    OPTIONAL {")
@@ -300,6 +350,7 @@ public class SetRepository {
               .add("        OPTIONAL { ?legacy im:im1Id ?legacyIm1Id }")
               .add("        OPTIONAL { ?legacy im:usageTotal ?legacyUse }")
               .add("        OPTIONAL { ?legacy im:codeId ?codeId}")
+              .add("        OPTIONAL { ?legacy im:codeId ?legacyCodeId}")
               .add("    }");
         }
 

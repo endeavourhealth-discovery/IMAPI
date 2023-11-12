@@ -157,7 +157,7 @@ public class TTBulkFiler  implements TTDocumentFiler {
 
     private void addSubtypes(TTEntity entity) throws IOException {
         for (TTIriRef relationship:List.of(RDFS.SUBCLASSOF,RDFS.SUBPROPERTYOF,IM.SUBSUMED_BY,IM.USUALLY_SUBSUMED_BY,IM.APPROXIMATE_SUBSUMED_BY,
-          IM.LOCAL_SUBCLASS_OF)) {
+          IM.LOCAL_SUBCLASS_OF,IM.MULTIPLE_SUBSUMED_BY)) {
             if (entity.get(relationship) != null)
                 for (TTValue parent : entity.get(relationship).getElements()) {
                     subtypes.write(entity.getIri() + "\t" + relationship.getIri() + "\t" + parent.asIriRef().getIri() + "\n");

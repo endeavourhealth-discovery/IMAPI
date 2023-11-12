@@ -75,6 +75,7 @@ public class IM {
     public static final TTIriRef SUBSUMED_BY = iri(NAMESPACE + "subsumedBy");
     public static final TTIriRef USUALLY_SUBSUMED_BY = iri(NAMESPACE + "usuallySubsumedBy");
     public static final TTIriRef APPROXIMATE_SUBSUMED_BY = iri(NAMESPACE + "approximateSubsumedBy");
+    public static final TTIriRef MULTIPLE_SUBSUMED_BY = iri(NAMESPACE + "multipleSubsumedBy");
     public static final TTIriRef LOCAL_SUBCLASS_OF = iri(NAMESPACE + "localSubClassOf");
 
     // Config predicate

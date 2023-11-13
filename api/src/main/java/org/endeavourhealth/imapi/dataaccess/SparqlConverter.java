@@ -401,7 +401,7 @@ public class SparqlConverter {
 					object = where.getIs().get(0).getVariable();
 				}
 			}
-			if (where.isNull()) {
+			if (where.getIsNull()) {
 				whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
 			}
 			if (where.isDescendantsOrSelfOf()) {
@@ -416,7 +416,7 @@ public class SparqlConverter {
 				else
 					whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromString(where.getIri())).append(" ?").append(object).append(".\n");
 			}
-			if (where.isNull()) {
+			if (where.getIsNull()) {
 				whereQl.append(tabs).append(" }");
 			}
 			if (where.getIs() != null) {
@@ -561,10 +561,12 @@ public class SparqlConverter {
 							else if (null != argument.getValueIri())
 								return argument.getValueIri().getIri();
 							else if (null!= argument.getValueIriList()){
+								if (argument.getValueIriList().isEmpty()) throw new QueryException("Argument parameter " + value + " valueIriList cannot be empty");
 								return argument.getValueIriList().stream().map(TTIriRef::getIri).collect(Collectors.joining(","));
 							} else if (null != argument.getValueVariable()) {
 								return argument.getValueVariable();
 							} else if (null!= argument.getValueDataList()) {
+								if (argument.getValueDataList().isEmpty()) throw new QueryException("Argument parameter " + value + " valueDataList cannot be empty");
 								return String.join(",", argument.getValueDataList());
 							} else if (null != argument.getValueObject()) {
 								return argument.getValueObject().toString();

@@ -27,17 +27,21 @@ public class IMLToECL {
 		return ecl.toString();
 	}
 
+	public static String getECLFromQuery(Query query) throws QueryException {
+		return getECLFromQuery(query,false);
+	}
+
 	private static boolean isList(Match match){
 		return null != match.getMatch();
 	}
 
 
-	private static void match(Match match, StringBuilder ecl, boolean includeName) throws QueryException {
+	private static void match(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
 		if (match.isExclude())
 			ecl.append(" MINUS ");
 
 		if (null != match.getInstanceOf()) {
-			addClass(match.getInstanceOf(), ecl, includeName);
+			addClass(match.getInstanceOf(), ecl, includeNames);
 		}
 		else if (null != match.getMatch()) {
 			boolean bracket= needsBracket(match);
@@ -45,18 +49,14 @@ public class IMLToECL {
 				ecl.append("(");
 			boolean first = true;
 			for (Match subMatch : match.getMatch()) {
-				if (!first){
+				if (!first && !subMatch.isExclude()){
 					if (match.getBool()==Bool.or){
 						ecl.append(" OR ");
 					}
 					else
 						ecl.append(" AND ");
 				}
-				if (subMatch.getProperty()!=null)
-					ecl.append("(");
-				match(subMatch, ecl, includeName);
-				if (subMatch.getProperty()!=null)
-					ecl.append(")");
+				match(subMatch, ecl, includeNames);
 				first = false;
 			}
 			if (bracket)
@@ -65,19 +65,18 @@ public class IMLToECL {
 		if (null != match.getProperty()) {
 			if (null == match.getInstanceOf() && null == match.getMatch())
 				ecl.append("*");
-			addRefinements(match, ecl, includeName);
+			addRefinements(match, ecl, includeNames);
 		}
 
 	}
 
 	private static boolean needsBracket(Match match){
 		if (match.getMatch()!=null){
+			if (match.getMatch().size() > 1) return true;
 			if (match.getProperty()!=null)
 				return true;
-			for (Match subMatch:match.getMatch()){
-				if (subMatch.isExclude())
-					return true;
-			}
+			if (match.isExclude())
+				return true;
 		}
 		return false;
 	}

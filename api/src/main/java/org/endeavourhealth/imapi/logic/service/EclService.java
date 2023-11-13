@@ -59,7 +59,7 @@ public class EclService {
         return result;
     }
 
-    public String getECLFromQuery(Query query) throws QueryException {
-        return IMLToECL.getECLFromQuery(query, true);
+    public String getECLFromQuery(Query query,Boolean includeNames) throws QueryException {
+        return IMLToECL.getECLFromQuery(query, includeNames);
     }
 }

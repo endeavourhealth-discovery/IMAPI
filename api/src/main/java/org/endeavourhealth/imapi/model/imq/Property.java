@@ -97,7 +97,7 @@ public class Property extends PropertyRef implements Assignable{
 		return this;
 	}
 
-	public boolean isNull() {
+	public boolean getIsNull() {
 		return isNull;
 	}
 

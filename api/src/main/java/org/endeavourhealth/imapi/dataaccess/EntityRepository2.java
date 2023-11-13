@@ -117,6 +117,39 @@ public class EntityRepository2 {
         }
     }
 
+    /**
+     * creates ranges for properties without ranges where the super properties have them
+     */
+    public void inheritRanges(RepositoryConnection conn) {
+        StringJoiner sql = new StringJoiner("\n")
+          .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" +
+            "insert {?property rdfs:range ?range}" +
+            "where {\n" +
+            "    {\n" +
+            "   Select ?property ?range\n" +
+            "   where {\n" +
+            "    ?property rdf:type rdf:Property.\n" +
+            "    #filter (?property= <http://snomed.info/sct#10362801000001104> )\n" +
+            "    ?property (rdfs:subClassOf)* ?superclass.\n" +
+            "    filter not exists { \n" +
+            "        ?property (rdfs:subClassOf) [\n" +
+            "            (rdfs:subClassOf)+ ?superclass]}\n" +
+            "            filter not exists {?property rdfs:range ?anyrange}\n" +
+            "    ?superclass rdfs:range ?range. \n" +
+            "    ?range rdfs:label ?rlabel.\n" +
+            "   }}}");
+        if (conn != null) {
+            Update upd = conn.prepareUpdate(sql.toString());
+            upd.execute();
+        }
+        else {
+            try (RepositoryConnection conn2= ConnectionManager.getIMConnection()) {
+                Update upd = conn2.prepareUpdate(sql.toString());
+                upd.execute();
+            }
+        }
+    }
+
 
     /**
      * Returns an entity iri and name from a code or a term code

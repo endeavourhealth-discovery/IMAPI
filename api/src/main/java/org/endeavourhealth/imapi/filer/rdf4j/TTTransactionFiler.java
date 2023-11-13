@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
+import org.endeavourhealth.imapi.logic.reasoner.RangeInheritor;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -199,7 +200,9 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
                 }
                 if (logPath != null)
                     writeLog(document);
-                   updateTct(document);
+                updateTct(document);
+                LOG.info("Updating range inheritances");
+                new RangeInheritor().inheritRanges(conn);
                 commit();
             } catch (Exception e){
                 rollback();

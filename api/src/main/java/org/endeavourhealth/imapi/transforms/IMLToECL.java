@@ -24,7 +24,7 @@ public class IMLToECL {
 		if (query.getMatch()!=null) {
 			match(query, ecl, includeName);
 		}
-		return ecl.toString();
+		return ecl.toString().trim();
 	}
 
 	public static String getECLFromQuery(Query query) throws QueryException {

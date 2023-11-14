@@ -32,4 +32,14 @@ public class FunctionController {
 		LOG.debug("callFunction");
 		return new FunctionService().callFunction(request, function.getFunctionIri(),function.getArguments());
 	}
+
+	@PostMapping("/public/callAskFunction")
+	@Operation(
+		summary = "askFunction",
+		description = "Runs a function passing in the iri of the function and a list of arguments including a parameter searchIri, and returns a boolean result."
+	)
+	public Boolean callAskFunction(HttpServletRequest request, @RequestBody FunctionRequest functionRequest) {
+		LOG.debug("callAskFunction");
+		return new FunctionService().callAskFunction(request, functionRequest.getFunctionIri(),functionRequest.getArguments());
+	}
 }

@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -739,6 +740,20 @@ public class EntityRepository {
             sparql.setBinding("s",iri(subjectIri));
             sparql.setBinding("p",iri(IM.IS_A.getIri()));
             sparql.setBinding("o",iri(objectIri));
+            return sparql.evaluate();
+        }
+    }
+
+    public Boolean isType(String typeIri, String searchIri) {
+        try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
+                .add("ASK WHERE {")
+                .add("?s ?p ?o")
+                .add("}");
+            BooleanQuery sparql = conn.prepareBooleanQuery(stringQuery.toString());
+            sparql.setBinding("s",iri(searchIri));
+            sparql.setBinding("p",iri(RDF.TYPE.getIri()));
+            sparql.setBinding("o",iri(typeIri));
             return sparql.evaluate();
         }
     }

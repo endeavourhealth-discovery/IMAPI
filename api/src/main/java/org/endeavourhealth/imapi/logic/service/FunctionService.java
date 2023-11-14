@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.imq.Argument;
@@ -24,6 +25,8 @@ public class FunctionService {
 	private EntityService entityService = new EntityService();
 	private UserService userService = new UserService();
 
+	private EntityRepository entityRepository = new EntityRepository();
+
 	private final RequestObjectService requestObjectService = new RequestObjectService();
 
 	public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws Exception {
@@ -39,6 +42,13 @@ public class FunctionService {
 			case (IM.NAMESPACE + "Function_GenerateIriCode") -> generateIriCode(arguments);
             default -> throw new IllegalArgumentException("No such function: " + iri);
         };
+	}
+
+	public Boolean callAskFunction(HttpServletRequest request, String iri, List<Argument> arguments) {
+		return switch(iri) {
+			case (IM.NAMESPACE + "Function_IsType") -> isType(arguments);
+			default -> throw new IllegalArgumentException("No such ask function: " + iri);
+		};
 	}
 
 	private JsonNode getLocalName(List<Argument> arguments){
@@ -160,5 +170,18 @@ public class FunctionService {
 				om.createObjectNode().put("code", conceptRepository.createConcept(IM.NAMESPACE).get("iri").get("@id").asText().split("#")[1]);
             default -> om.createObjectNode().put("iri", "");
         };
+	}
+
+	private Boolean isType(List<Argument> arguments) {
+		if (null == arguments) throw new IllegalArgumentException("Missing arguments");
+		Argument type = arguments.stream().filter(arg -> arg.getParameter().equals("type")).findFirst().orElse(null);
+		Argument searchIri = arguments.stream().filter(arg -> arg.getParameter().equals("searchIri")).findFirst().orElse(null);
+		if (null == type) throw new IllegalArgumentException("Missing argument with parameter 'type'");
+		if (null == searchIri) throw new IllegalArgumentException("Missing argument with parameter 'searchIri'");
+		if (null == type.getValueIri()) throw new IllegalArgumentException("Missing 'type' valueIri");
+		if (null == searchIri.getValueData()) throw new IllegalArgumentException("Missing 'searchIri' valueData");
+		List<EntityReferenceNode> validTypes = entityService.getImmediateChildren(IM.ENTITY_TYPES.getIri(),null,null,null,false);
+		if (null != validTypes.stream().filter(vt -> vt.getIri().equals(type.getValueIri().getIri())).findFirst().orElse(null)) return entityRepository.isType(type.getValueIri().getIri(),searchIri.getValueData());
+		else throw new IllegalArgumentException("Type: '" + type.getValueIri().getIri() + "' is not a valid entity type");
 	}
 }

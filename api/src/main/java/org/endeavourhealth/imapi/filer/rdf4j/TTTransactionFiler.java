@@ -40,7 +40,6 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
     private Set<String> done;
     protected TTEntityFiler conceptFiler;
     protected TTEntityFiler instanceFiler;
-    private TTIriRef graph;
     protected Map<String, String> prefixMap = new HashMap<>();
 
 
@@ -72,7 +71,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
         Map<Integer, String> transactionLogs = new HashMap<>();
         LOG.debug("Filing deltas from [{}]", logPath);
         File directory = new File(logPath);
-        for (File file : Objects.requireNonNull(directory.listFiles())){
+        for (File file : Objects.requireNonNull(directory.listFiles())) {
             if (!file.isDirectory()) {
                 String name = file.getName();
                 if (name.startsWith(TTLog)) {
@@ -80,14 +79,15 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
                     transactionLogs.put(counter, file.getAbsolutePath());
                 }
             }
-            SortedSet<Integer> keys = new TreeSet<>(transactionLogs.keySet());
-            try (TTManager manager = new TTManager()) {
-                for (Integer logNumber : keys) {
-                    manager.loadDocument(new File(transactionLogs.get(logNumber)));
-                    fileDocument(manager.getDocument());
-                }
+        }
+        try (TTManager manager = new TTManager()) {
+            for (Integer logNumber : transactionLogs.keySet().stream().sorted().toList()) {
+                LOG.info("Filing TTLog-{}.json", logNumber);
+                manager.loadDocument(new File(transactionLogs.get(logNumber)));
+                fileDocument(manager.getDocument());
             }
         }
+
     }
     protected void startTransaction() throws TTFilerException {
         try {
@@ -122,7 +122,8 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
 
     @Override
     public void fileDocument(TTDocument document) throws TTFilerException {
-        this.graph = document.getGraph();
+        document.getEntities().removeIf(e -> null == e.getIri());
+
         checkDeletes(document);
         fileAsDocument(document);
     }
@@ -137,6 +138,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
     private static Map<String, Set<String>> getEntitiesToCheckForUsage(TTDocument transaction) throws TTFilerException {
         Map<String, Set<String>> toCheck = new HashMap<>();
         for (TTEntity entity : transaction.getEntities()) {
+
             setEntityCrudOperation(transaction, entity);
 
             if (entity.getCrud() == IM.UPDATE_ALL) {
@@ -146,6 +148,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
                 if (entity.getPredicateMap().isEmpty())
                     toCheck.computeIfAbsent(graph, g -> new HashSet<>()).add("<" + entity.getIri() + ">");
             }
+
         }
         return toCheck;
     }
@@ -191,6 +194,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
 
                     if (entity.get(IM.PRIVACY_LEVEL) != null && (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
                         continue;
+
                     fileEntity(entity, entityGraph);
                     entitiesFiled.add(entity.getIri());
                     i++;
@@ -327,12 +331,14 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
     public void fileEntities(Map<String, String> prefixMap, TTDocument document) throws TTFilerException {
         LOG.info("Filing entities.... ");
 
+        TTIriRef defaultGraph = document.getGraph() != null ? document.getGraph() : IM.GRAPH_DISCOVERY;
+
         startTransaction();
         try {
             if (document.getEntities() != null) {
                 int i = 0;
                 for (TTEntity entity : document.getEntities()) {
-                    TTIriRef entityGraph = entity.getGraph() != null ? entity.getGraph() : graph;
+                    TTIriRef entityGraph = entity.getGraph() != null ? entity.getGraph() : defaultGraph;
                     if (entity.get(IM.PRIVACY_LEVEL) != null && (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
                         continue;
                     setEntityCrudOperation(document, entity);

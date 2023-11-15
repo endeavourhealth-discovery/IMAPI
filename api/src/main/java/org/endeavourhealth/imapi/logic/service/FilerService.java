@@ -26,7 +26,6 @@ public class FilerService {
     private final ProvService provService = new ProvService();
     private final EntityService entityService = new EntityService();
     private final OpenSearchService openSearchService = new OpenSearchService();
-    private TTEntity provUsedEntity = new TTEntity();
 
     public void fileTransactionDocument(TTDocument document, String agentName) throws Exception {
         documentFiler.fileDocument(document);
@@ -48,19 +47,25 @@ public class FilerService {
             if (entity.isType(IM.VALUESET))
                 new SetExpander().expandSet(entity.getIri());
 
-            ProvActivity activity = fileProv(entity, agentName, usedEntity);
-            writeDelta(entity, activity);
+
+            ProvAgent agent = fileProvAgent(entity, agentName);
+            TTEntity provUsedEntity = fileUsedEntity(usedEntity);
+            ProvActivity activity = fileProvActivity(entity, agent, provUsedEntity);
+
+            writeDelta(entity, activity, provUsedEntity);
             fileOpenSearch(entity.getIri());
         } catch (Exception e) {
             throw new TTFilerException("Error filing entity", e);
         }
     }
 
-    public void writeDelta(TTEntity entity, ProvActivity activity) throws Exception {
+    public void writeDelta(TTEntity entity, ProvActivity activity, TTEntity provUsedEntity) throws Exception {
         TTDocument document = new TTDocument();
         document.addEntity(entity);
         document.addEntity(activity);
-        document.addEntity(provUsedEntity);
+        if (null != provUsedEntity)
+            document.addEntity(provUsedEntity);
+
         documentFiler.writeLog(document);
     }
 
@@ -70,25 +75,35 @@ public class FilerService {
             if(entityService.iriExists(entity.getIri())) {
                 usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
             }
-            fileProv(entity, agentName, usedEntity);
+            ProvAgent agent = fileProvAgent(entity, agentName);
+            TTEntity provUsedEntity = fileUsedEntity(usedEntity);
+            fileProvActivity(entity, agent, provUsedEntity);
         }
     }
 
-    private ProvActivity fileProv(TTEntity entity, String agentName, TTEntity usedEntity) throws TTFilerException, JsonProcessingException {
-        TTIriRef graph = IM.GRAPH_PROV;
+    private ProvAgent fileProvAgent(TTEntity entity, String agentName) throws TTFilerException {
         ProvAgent agent = provService.buildProvenanceAgent(entity, agentName);
-        entityProvFiler.fileEntity(agent, graph);
+        entityProvFiler.fileEntity(agent, IM.GRAPH_PROV);
+        return agent;
+    }
 
-        String usedEntityIri = null;
-        if (null != usedEntity) {
-            provUsedEntity = provService.buildUsedEntity(usedEntity);
-            usedEntityIri = provUsedEntity.getIri();
-            entityProvFiler.fileEntity(provUsedEntity, graph);
-        }
+    private TTEntity fileUsedEntity(TTEntity usedEntity) throws TTFilerException, JsonProcessingException {
+        if (null == usedEntity)
+            return null;
 
-        ProvActivity activity = provService.buildProvenanceActivity(entity, agent, usedEntityIri);
-        entityProvFiler.fileEntity(activity, graph);
+        TTEntity provUsedEntity = provService.buildUsedEntity(usedEntity);
+        entityProvFiler.fileEntity(provUsedEntity, IM.GRAPH_PROV);
+
+        return provUsedEntity;
+    }
+
+    private ProvActivity fileProvActivity(TTEntity entity, ProvAgent agent, TTEntity provUsedEntity) throws TTFilerException {
+        String provUsedIri = provUsedEntity == null ? null : provUsedEntity.getIri();
+
+        ProvActivity activity = provService.buildProvenanceActivity(entity, agent, provUsedIri);
+        entityProvFiler.fileEntity(activity, IM.GRAPH_PROV);
         return activity;
+
     }
 
     private void fileOpenSearch(String iri) throws TTFilerException {

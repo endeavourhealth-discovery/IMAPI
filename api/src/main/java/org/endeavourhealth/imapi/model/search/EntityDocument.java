@@ -25,6 +25,16 @@ public class EntityDocument {
 	String match;
 	Set<TTIriRef> isA= new HashSet<>();
 	Set<TTIriRef> memberOf= new HashSet<>();
+	Integer subsumptionCount;
+
+	public Integer getSubsumptionCount() {
+		return subsumptionCount;
+	}
+
+	public EntityDocument setSubsumptionCount(Integer subsumptionCount) {
+		this.subsumptionCount = subsumptionCount;
+		return this;
+	}
 
 	public Set<String> getMatchTerm() {
 		return matchTerm;

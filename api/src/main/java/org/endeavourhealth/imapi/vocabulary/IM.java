@@ -78,6 +78,7 @@ public class IM {
     public static final TTIriRef MULTIPLE_SUBSUMED_BY = iri(NAMESPACE + "multipleSubsumedBy");
     public static final TTIriRef LOCAL_SUBCLASS_OF = iri(NAMESPACE + "localSubClassOf");
 
+
     // Config predicate
     public static final TTIriRef HAS_CONFIG = iri(NAMESPACE + "hasConfig");
 

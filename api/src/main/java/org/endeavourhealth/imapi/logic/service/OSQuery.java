@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
@@ -56,6 +58,7 @@ public class OSQuery {
         SearchSourceBuilder bld= new SearchSourceBuilder();
         QueryBuilder qry = buildAutoCompleteQuery(request);
         bld.query(qry);
+        bld.sort("subsumptionCount",SortOrder.DESC);
         bld.sort("length");
         return wrapandRun(bld, request);
     }
@@ -74,6 +77,7 @@ public class OSQuery {
 
         QueryBuilder qry = buildOneWordQuery(request);
         bld.query(qry);
+        bld.sort("subsumptionCount",SortOrder.DESC);
         bld.sort("length");
         result1.addAll(wrapandRun(bld, request));
         Set<String> set = new HashSet<>();
@@ -134,12 +138,14 @@ public class OSQuery {
         return multiWordQuery(request);
     }
 
+
+
     private String getMatchTerm(String term){
-        term=term.replace(" ","");
-        if (term.length()<25)
+        term=term.split(" \\(")[0];
+        if (term.length()<30)
             return term;
         else
-            return term.substring(0,24);
+            return term.substring(0,30);
     }
 
     private QueryBuilder buildCodeIriQuery(SearchRequest request) {
@@ -217,9 +223,9 @@ public class OSQuery {
         String requestTerm=getMatchTerm(request.getTermFilter());
 
         BoolQueryBuilder boolQuery = new BoolQueryBuilder();
-        MatchPhraseQueryBuilder mpq = new MatchPhraseQueryBuilder(MATCH_TERM, requestTerm).boost(1.5F);
+        MatchPhraseQueryBuilder mpq = new MatchPhraseQueryBuilder(MATCH_TERM, "z"+requestTerm).boost(1.5F);
         boolQuery.should(mpq);
-        MatchPhrasePrefixQueryBuilder mpp = new MatchPhrasePrefixQueryBuilder(MATCH_TERM, requestTerm).boost(1.5F);
+        MatchPhrasePrefixQueryBuilder mpp = new MatchPhrasePrefixQueryBuilder(MATCH_TERM, "z"+requestTerm).boost(1.5F);
         boolQuery.should(mpp).minimumShouldMatch(1);
         addFilters(boolQuery, request);
         return boolQuery;
@@ -235,7 +241,7 @@ public class OSQuery {
         boolQuery.should(mpq);
         MatchPhraseQueryBuilder mpc = new MatchPhraseQueryBuilder("termCode.code", request.getTermFilter()).boost(2.5F);
         boolQuery.should(mpc);
-        MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder(MATCH_TERM, request.getTermFilter()).boost(0.5F);
+        MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder(MATCH_TERM, "z"+ request.getTermFilter()).boost(0.5F);
         boolQuery.should(mfs).minimumShouldMatch(1);
         addFilters(boolQuery, request);
         return boolQuery;
@@ -308,6 +314,7 @@ public class OSQuery {
             throw new OpenSearchException("Environmental variable OPENSEARCH_AUTH token is not set");
         HttpRequest httpRequest = HttpRequest.newBuilder()
             .uri(new URI(url + index + "/_search"))
+
             .header("Authorization", "Basic " + System.getenv("OPENSEARCH_AUTH"))
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(queryJson))

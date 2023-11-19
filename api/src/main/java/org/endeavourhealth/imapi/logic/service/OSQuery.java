@@ -301,7 +301,6 @@ public class OSQuery {
 
     public List<SearchResultSummary> runQuery(SearchRequest request, SearchSourceBuilder bld) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         String queryJson = bld.toString();
-
         String url = System.getenv("OPENSEARCH_URL");
         if (url == null)
             throw new OpenSearchException("Environmental variable OPENSEARCH_URL is not set");
@@ -354,8 +353,9 @@ public class OSQuery {
             }
             source.setTermCode(null);
         }
-        if (!searchResults.isEmpty() && null != request.getTermFilter())
-            sort(searchResults, request.getTermFilter());
+        //Sort now donw in query
+       // if (!searchResults.isEmpty() && null != request.getTermFilter())
+         //   sort(searchResults, request.getTermFilter());
         return searchResults;
     }
 

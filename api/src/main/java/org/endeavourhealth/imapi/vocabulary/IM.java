@@ -210,6 +210,7 @@ public class IM {
     public static final TTIriRef PROV_AGENT = iri(NAMESPACE + "provenanceAgent");
     public static final TTIriRef START_TIME = iri(NAMESPACE + "startTime");
     public static final TTIriRef EFFECTIVE_DATE = iri(NAMESPACE + "effectiveDate");
+    public static final TTIriRef END_DATE = iri(NAMESPACE + "endDate");
     public static final TTIriRef PROV_USED = iri(NAMESPACE + "usedEntity");
 
 
@@ -240,20 +241,19 @@ public class IM {
     public static final TTIriRef PLACEHOLDER = iri(NAMESPACE + "placeHolder");
     public static final TTIriRef FUNCTION_DEFINITION = iri(NAMESPACE + "function");
 
-    // ODS
-    public static final String ORGANISATION_NAMESPACE = "http://org.endhealth.info/im#";
+    // Location
+    public static final TTIriRef ADDRESS_CLASS = iri(IM.NAMESPACE + "Address");
+    public static final TTIriRef ADDRESS = iri(IM.NAMESPACE + "address");
+    public static final TTIriRef ADDRESS_LINE_1 = iri(IM.NAMESPACE + "addressLine1");
+    public static final TTIriRef ADDRESS_LINE_2 = iri(IM.NAMESPACE + "addressLine2");
+    public static final TTIriRef ADDRESS_LINE_3 = iri(IM.NAMESPACE + "addressLine3");
+    public static final TTIriRef LOCALITY = iri(IM.NAMESPACE + "locality");
+    public static final TTIriRef REGION = iri(IM.NAMESPACE + "region");
+    public static final TTIriRef POST_CODE = iri(IM.NAMESPACE + "postCode");
+    public static final TTIriRef COUNTRY = iri(IM.NAMESPACE + "country");
+    public static final TTIriRef UPRN = iri(IM.NAMESPACE + "uprn");
+
     public static final String SYSTEM_NAMESPACE = "http://sys.endhealth.info/im#";
-    public static final String LOCATION_NAMESPACE = "http://loc.endhealth.info/im#";
-    public static final TTIriRef ADDRESS_CLASS = iri(NAMESPACE + "Address");
-    public static final TTIriRef ADDRESS = iri(NAMESPACE + "address");
-    public static final TTIriRef ADDRESS_LINE_1 = iri(NAMESPACE + "addressLine1");
-    public static final TTIriRef ADDRESS_LINE_2 = iri(NAMESPACE + "addressLine2");
-    public static final TTIriRef ADDRESS_LINE_3 = iri(NAMESPACE + "addressLine3");
-    public static final TTIriRef LOCALITY = iri(NAMESPACE + "locality");
-    public static final TTIriRef REGION = iri(NAMESPACE + "region");
-    public static final TTIriRef POST_CODE = iri(NAMESPACE + "postCode");
-    public static final TTIriRef COUNTRY = iri(NAMESPACE + "country");
-    public static final TTIriRef UPRN = iri(NAMESPACE + "uprn");
 
     //Editor
     public static final TTIriRef ENTITY_TYPES = iri(NAMESPACE + "EntityTypes");

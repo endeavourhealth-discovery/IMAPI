@@ -89,7 +89,7 @@ public class FileRepository {
 					Set<String> parents = parentMap.computeIfAbsent(child, k -> new HashSet<>());
 					parents.add(parent);
 				}
-				if (count%100000==0)
+				if (count%1000000==0)
 					LOG.info(count+" relationships collected");
 				line = reader.readLine();
 			}

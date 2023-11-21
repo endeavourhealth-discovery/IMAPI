@@ -13,6 +13,7 @@ import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,10 +115,11 @@ public class OpenSearchSender {
 
         while (mapIterator.hasNext()) {
             String iri = mapIterator.next();
-
+            mapNumber++;
             EntityDocument doc = new EntityDocument()
-                .setId(mapNumber++)
-                .setIri(iri);
+                .setId(mapNumber)
+                .setIri(iri)
+              .setSubsumptionCount(0);
             batch.put(iri, doc);
 
             // Send every 5000
@@ -162,6 +164,7 @@ public class OpenSearchSender {
         getCore(batch, inList);
         getTermCodes(batch, inList);
         getIsas(batch, inList);
+        getSubsumptions(batch,inList);
         getSetMembership(batch, inList);
     }
     private void getCore(Map<String, EntityDocument> batch, String inList) {
@@ -219,10 +222,10 @@ public class OpenSearchSender {
                     if (rs.getValue("weighting") != null) {
                         blob.setWeighting(Integer.parseInt(rs.getValue("weighting").stringValue()));
                     }
-                    int length = blob.getName().length();
-                    if (blob.getPreferredName() != null)
-                        length = blob.getPreferredName().length();
-                    blob.setLength(length);
+                    String lengthKey= blob.getPreferredName()!=null ? blob.getPreferredName(): name;
+                    lengthKey= getLengthKey(lengthKey);
+
+                    blob.setLength(lengthKey.length());
                     blob.addTermCode(name, null, null);
                     addMatchTerm(blob, name);
                     addKey(blob, name);
@@ -232,6 +235,17 @@ public class OpenSearchSender {
                 LOG.error("Bad Query \n{}", sql);
             }
         }
+    }
+
+    private String getLengthKey(String lengthKey) {
+        if (lengthKey.endsWith(")")){
+            String[] words= lengthKey.split(" \\(");
+            lengthKey= words[0];
+            for (int i=1;i<words.length-1;i++){
+                lengthKey=lengthKey+ " ("+words[i];
+            }
+        }
+        return lengthKey;
     }
 
     private String getBatchCoreSql(String inList) {
@@ -279,7 +293,10 @@ public class OpenSearchSender {
                     if (rs.getValue("termCodeStatus") != null)
                         status = TTIriRef.iri(rs.getValue("termCodeStatus").stringValue());
                     if (synonym != null) {
-                        addMatchTerm(blob, synonym);
+                        if (status==null)
+                            addMatchTerm(blob,synonym);
+                        else if (!status.equals(IM.INACTIVE))
+                            addMatchTerm(blob, synonym);
                         SearchTermCode tc = getTermCode(blob, synonym);
                         if (tc == null) {
                             blob.addTermCode(synonym, termCode, status);
@@ -327,7 +344,21 @@ public class OpenSearchSender {
                     EntityDocument blob = batch.get(iri);
                     blob.getIsA().add(TTIriRef.iri(rs.getValue("superType").stringValue()));
                 }
+            }
+        }
 
+    }
+    private void getSubsumptions(Map<String, EntityDocument> batch, String inList) {
+        String sql = getSubsumptionSql(inList);
+        try (RepositoryConnection conn = repo.getConnection()) {
+            TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
+            try (TupleQueryResult qr = tupleQuery.evaluate()) {
+                while (qr.hasNext()) {
+                    BindingSet rs = qr.next();
+                    String iri = rs.getValue("iri").stringValue();
+                    EntityDocument blob = batch.get(iri);
+                    blob.setSubsumptionCount(Integer.parseInt(rs.getValue("subsumptions").stringValue()));
+                }
             }
         }
 
@@ -344,6 +375,19 @@ public class OpenSearchSender {
             .add("      filter (?iri in (" + inList + ") )")
             .add(" ?superType im:status im:Active.")
             .add("}").toString();
+    }
+    private String getSubsumptionSql(String inList) {
+        return new StringJoiner(System.lineSeparator())
+          .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+          .add("PREFIX im: <http://endhealth.info/im#>")
+          .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+          .add("select distinct ?iri (count(?subType) as ?subsumptions)")
+          .add("where {")
+          .add(" ?iri ^im:isA ?subType.")
+          .add("      filter (?iri in (" + inList + ") )")
+          .add(" ?subType im:status im:Active.")
+          .add("}")
+          .add("group by ?iri").toString();
     }
     private void getSetMembership(Map<String, EntityDocument> batch, String inList) {
         String sql = getSetMembershipSql(inList);
@@ -378,9 +422,10 @@ public class OpenSearchSender {
 
 
     private void addMatchTerm(EntityDocument blob, String term) {
-        term = term.replace(" ", "");
-        if (term.length() > 25)
-            term = term.substring(0, 25);
+        term=term.split(" \\(")[0];
+        term = "z"+term;
+        if (term.length() > 30)
+            term = term.substring(0, 30);
         blob.addMatchTerm(term);
     }
 

@@ -28,8 +28,23 @@ public class Match extends IriLD {
 	private Node typeOf;
 	private String variable;
 	private String name;
-    private Match then;
+	private Match then;
 
+	public Match getThen() {
+		return then;
+	}
+
+	public Match setThen(Match then) {
+		this.then = then;
+		return this;
+	}
+
+	public Match then (Consumer<Match> builder){
+		Match match= new Match();
+		setThen(match);
+		builder.accept(match);
+		return this;
+	}
 
 	@Override
 	public Match setIri(String iri) {

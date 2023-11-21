@@ -270,8 +270,19 @@ public class Match extends IriLD {
 		return this;
 	}
 
+    public Match getThen() {
+        return then;
+    }
 
+    public Match setThen(Match then) {
+        this.then = then;
+        return this;
+    }
 
-
-
+    public Match then(Consumer<Match> builder) {
+        Match then = new Match();
+        setThen(then);
+        builder.accept(then);
+        return this;
+    }
 }

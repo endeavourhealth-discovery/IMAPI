@@ -16,10 +16,7 @@ import org.endeavourhealth.imapi.model.dto.*;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.iml.FormGenerator;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.search.EntityDocument;
-import org.endeavourhealth.imapi.model.search.SearchRequest;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.model.search.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.set.ExportSet;
 import org.endeavourhealth.imapi.model.set.MemberType;
@@ -284,8 +281,14 @@ public class EntityService {
         return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri, RDFS.SUBCLASSOF.getIri());
     }
 
-    public List<SearchResultSummary> advancedSearch(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
-        return searchService.getEntitiesByTerm(request);
+    public SearchResponse advancedSearch(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+        SearchResponse response = new SearchResponse();
+        int totalCount = searchService.getEntitiesTotalCount(request);
+        List<SearchResultSummary> searchResults = searchService.getEntitiesByTerm(request);
+        response.setEntities(searchResults);
+        response.setCount(totalCount);
+        response.setPage(request.getPage());
+        return response;
     }
 
     public ExportSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit, boolean withHyperlinks) {

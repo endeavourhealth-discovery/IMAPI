@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.dataaccess.PathRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
+import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -124,6 +126,9 @@ public class SearchService {
 		return new OSQuery().multiPhaseQuery(request);
 	}
 
+	public int getEntitiesTotalCount(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+		return new OSQuery().multiPhaseQueryTotalCount(request);
+	}
 
 }
 

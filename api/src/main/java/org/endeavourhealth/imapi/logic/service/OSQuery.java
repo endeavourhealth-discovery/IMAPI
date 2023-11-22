@@ -12,6 +12,7 @@ import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
+import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
@@ -53,6 +54,12 @@ public class OSQuery {
         return wrapandRun(bld, request);
     }
 
+    private int codeIriQueryTotalCount(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+        SearchSourceBuilder bld= new SearchSourceBuilder();
+        QueryBuilder qry = buildCodeIriQuery(request);
+        bld.query(qry);
+        return wrapandRunCount(bld, request);
+    }
 
     private List<SearchResultSummary> autoCompleteQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         SearchSourceBuilder bld= new SearchSourceBuilder();
@@ -63,11 +70,27 @@ public class OSQuery {
         return wrapandRun(bld, request);
     }
 
+    private int autoCompleteQueryTotalCount(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+        SearchSourceBuilder bld= new SearchSourceBuilder();
+        QueryBuilder qry = buildAutoCompleteQuery(request);
+        bld.query(qry);
+        bld.sort("subsumptionCount",SortOrder.DESC);
+        bld.sort("length");
+        return wrapandRunCount(bld, request);
+    }
+
     private List<SearchResultSummary> boolQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         SearchSourceBuilder bld= new SearchSourceBuilder();
         QueryBuilder qry = buildBoolQuery(request);
         bld.query(qry);
         return wrapandRun(bld, request);
+    }
+
+    private int boolQueryTotalCount(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+        SearchSourceBuilder bld= new SearchSourceBuilder();
+        QueryBuilder qry = buildBoolQuery(request);
+        bld.query(qry);
+        return wrapandRunCount(bld, request);
     }
 
     private List<SearchResultSummary> iriTermQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
@@ -85,11 +108,33 @@ public class OSQuery {
         return result1;
     }
 
+    private int iriTermQueryTotalCount(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+        List<SearchResultSummary> result1= codeIriQuery(request);
+
+        SearchSourceBuilder bld= new SearchSourceBuilder();
+
+        QueryBuilder qry = buildOneWordQuery(request);
+        bld.query(qry);
+        bld.sort("subsumptionCount",SortOrder.DESC);
+        bld.sort("length");
+        result1.addAll(wrapandRun(bld, request));
+        Set<String> set = new HashSet<>();
+        result1.removeIf(p -> !set.add(p.getIri()));
+        return result1.size();
+    }
+
     private List<SearchResultSummary> multiWordQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         SearchSourceBuilder bld= new SearchSourceBuilder();
         QueryBuilder qry = buildMultiWordQuery(request);
         bld.query(qry);
         return wrapandRun(bld, request);
+    }
+
+    private int multiWordQueryTotalCount(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+        SearchSourceBuilder bld= new SearchSourceBuilder();
+        QueryBuilder qry = buildMultiWordQuery(request);
+        bld.query(qry);
+        return wrapandRunCount(bld, request);
     }
 
     /**
@@ -112,7 +157,6 @@ public class OSQuery {
 
         List<SearchResultSummary> results;
 
-        request.setPage(1);
         if (term != null && term.length() < 3)
             return codeIriQuery(request);
 
@@ -138,7 +182,31 @@ public class OSQuery {
         return multiWordQuery(request);
     }
 
+    public int multiPhaseQueryTotalCount(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+        String term = request.getTermFilter();
 
+        if (term != null && term.length() < 3)
+            return codeIriQueryTotalCount(request);
+
+        if (term != null && (!term.contains(" "))) {
+            if (term.contains(":")) {
+                String namespace = EntityCache.getDefaultPrefixes().getNamespace(term.substring(0, term.indexOf(":")));
+                if (namespace != null)
+                    request.setTermFilter(namespace + term.split(":")[1]);
+            }
+            return iriTermQueryTotalCount(request);
+        }
+
+        if (null == term) {
+            return boolQueryTotalCount(request);
+        }
+
+        int result = autoCompleteQueryTotalCount(request);
+        if (0 != result) {
+            return result;
+        }
+        return multiWordQueryTotalCount(request);
+    }
 
     private String getMatchTerm(String term){
         term=term.split(" \\(")[0];
@@ -299,6 +367,28 @@ public class OSQuery {
         }
     }
 
+    private int wrapandRunCount(SearchSourceBuilder bld,SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+        if (request.getIndex() == null)
+            request.setIndex("concept");
+
+        String termCode = "termCode";
+
+        List<String> defaultFields = new ArrayList<>(Arrays.asList("iri", "name", "code", termCode, "entityType", STATUS, SCHEME, WEIGHTING,"preferredName"));
+        Set<String> fields = new HashSet<>(defaultFields);
+        if (!request.getSelect().isEmpty()) {
+            fields.addAll(request.getSelect());
+        }
+        String[] sources= fields.toArray(String[]::new);
+        bld.fetchSource(sources, null);
+
+        try {
+            return runQueryCount(request, bld);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            throw new InterruptedException("failure to run open search query due to :" + ie.getMessage());
+        }
+    }
+
     public List<SearchResultSummary> runQuery(SearchRequest request, SearchSourceBuilder bld) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         String queryJson = bld.toString();
         String url = System.getenv("OPENSEARCH_URL");
@@ -334,6 +424,43 @@ public class OSQuery {
             JsonNode root = om.readTree(response.body());
             List<SearchResultSummary> searchResults = new ArrayList<>();
             return standardResponse(request, root, om, searchResults);
+        }
+    }
+
+    public int runQueryCount(SearchRequest request, SearchSourceBuilder bld) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+        String queryJson = bld.toString();
+        String url = System.getenv("OPENSEARCH_URL");
+        if (url == null)
+            throw new OpenSearchException("Environmental variable OPENSEARCH_URL is not set");
+
+        String index = request.getIndex();
+        if (index == null)
+            index = System.getenv("OPENSEARCH_INDEX");
+
+        if (System.getenv("OPENSEARCH_AUTH") == null)
+            throw new OpenSearchException("Environmental variable OPENSEARCH_AUTH token is not set");
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+            .uri(new URI(url + index + "/_count"))
+
+            .header("Authorization", "Basic " + System.getenv("OPENSEARCH_AUTH"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(queryJson))
+            .build();
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = client
+            .sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
+            .thenApply(res -> res)
+            .get();
+
+        if (299 < response.statusCode()) {
+            LOG.debug("Open search request failed with code: {}", response.statusCode());
+            throw new OpenSearchException("Search request failed. Error connecting to opensearch. ");
+        }
+
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            JsonNode root = om.readTree(response.body());
+            return root.get("count").asInt();
         }
     }
 

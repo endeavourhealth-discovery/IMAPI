@@ -243,8 +243,8 @@ public class EntityRepository {
         String spql = new StringJoiner(System.lineSeparator())
             .add("select *")
             .add("where {")
-            .add("  ?descendant (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf)+ ?m .")
-            .add("  ?m (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf)+ ?ancestor ;")
+            .add("  ?descendant (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf)+ ?m .")
+            .add("  ?m (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf)+ ?ancestor ;")
             .add("     rdfs:label ?name .")
             .add("}")
             .toString();
@@ -307,7 +307,7 @@ public class EntityRepository {
 
         String spql = new StringJoiner(System.lineSeparator())
                 .add("SELECT * {")
-                .add("?s (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?o .")
+                .add("?s (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?o .")
                 .add("?o rdfs:label ?name .")
                 .add("}")
                 .toString();

@@ -28,6 +28,8 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.*;
 
+import static org.endeavourhealth.imapi.dataaccess.EntityRepository.PARENT_PREDICATES;
+
 public class EntityTripleRepository {
     private static final Logger LOG = LoggerFactory.getLogger(EntityTripleRepository.class);
     private static final List<Namespace> namespaceCache = new ArrayList<>();
@@ -107,8 +109,8 @@ public class EntityTripleRepository {
                 .add("  GRAPH ?g { ?s rdfs:label ?name } .")
                 .add("  OPTIONAL { ?s sh:order ?order . }")
                 .add("  OPTIONAL { ?s rdf:type ?typeIri . OPTIONAL { ?typeIri rdfs:label ?typeName . } }")
-                .add("    BIND(EXISTS{?child (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?s} AS ?hasChildren)")
-                .add("    BIND(EXISTS{?grandChild (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?child. ?child (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?s} AS ?hasGrandchildren)");
+                .add("    BIND(EXISTS{?child (" + PARENT_PREDICATES + ") ?s} AS ?hasChildren)")
+                .add("    BIND(EXISTS{?grandChild (" + PARENT_PREDICATES + ") ?child. ?child (" + PARENT_PREDICATES + ") ?s} AS ?hasGrandchildren)");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
             sql.add(valueList("g", schemeIris));
@@ -302,7 +304,7 @@ public class EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT DISTINCT ?p ?pname")
                 .add("WHERE {")
-                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?p .")
+                .add("  ?c (" + PARENT_PREDICATES + ") ?p .")
                 .add("GRAPH ?g { ?p rdfs:label ?pname } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
@@ -516,7 +518,7 @@ public class EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?p ?pname")
                 .add("WHERE {")
-                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?p .")
+                .add("  ?c (" + PARENT_PREDICATES + ") ?p .")
                 .add("  ?p rdfs:label ?pname .")
                 .add("}");
 

@@ -42,7 +42,7 @@ public class SearchService {
         repo.unpackQueryRequest(queryRequest, result);
         if (null != queryRequest.getTextSearch()) {
             OSQuery osq = new OSQuery();
-            List<SearchResultSummary> osResult = osq.openSearchQuery(queryRequest);
+            SearchResponse osResult = osq.openSearchQuery(queryRequest);
             if (osResult != null)
                 return osq.convertOSResult(osResult, queryRequest.getQuery());
         }
@@ -63,7 +63,7 @@ public class SearchService {
      * @return a list of SearchResultSummary
      * @throws DataFormatException if query format is invalid
      */
-    public List<SearchResultSummary> queryIMSearch(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
+    public SearchResponse queryIMSearch(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
         ObjectNode result = new ObjectMapper().createObjectNode();
         QueryRepository repo = new QueryRepository();
         repo.unpackQueryRequest(queryRequest, result);
@@ -82,7 +82,7 @@ public class SearchService {
         queryRequest.getQuery().setReturn(summaryReturn);
 
         if (null != queryRequest.getTextSearch()) {
-            List<SearchResultSummary> osResult = new OSQuery().openSearchQuery(queryRequest);
+            SearchResponse osResult = new OSQuery().openSearchQuery(queryRequest);
             if (osResult != null)
                 return osResult;
         }
@@ -122,7 +122,7 @@ public class SearchService {
      * @return A set of Summaries of entity documents from the store
      *
      */
-	public List<SearchResultSummary> getEntitiesByTerm(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+	public SearchResponse getEntitiesByTerm(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
 		return new OSQuery().multiPhaseQuery(request);
 	}
 

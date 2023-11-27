@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -30,8 +31,8 @@ public class QueryService {
         return queryRepository.getAllByType(typeIri);
     }
 
-    public List<SearchResultSummary> convertQueryIMResultsToSearchResultSummary(JsonNode queryResults) {
-        List<SearchResultSummary> result = new ArrayList<>();
+    public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults) {
+        SearchResponse result = new SearchResponse();
 
         if (queryResults.has("entities")) {
             JsonNode entities = queryResults.get("entities");
@@ -47,7 +48,7 @@ public class QueryService {
                     summary.getEntityType().addAll(jsonNodeToTTIriRef(entity, RDF.TYPE.getIri()));
                     if (entity.has(IM.WEIGHTING.getIri())) summary.setWeighting(entity.get(IM.WEIGHTING.getIri()).asInt());
 
-                    result.add(summary);
+                    result.addEntity(summary);
                 }
             }
         }

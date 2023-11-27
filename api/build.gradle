@@ -29,7 +29,7 @@ tasks {
     }
 }
 
-sonarqube {
+sonar {
     properties {
         property 'sonar.projectKey', 'endeavourhealth-discovery_IMAPI::api'
         property 'sonar.exclusions', '**/config/**, **/controllers/**, **/dataaccess/**, **/errorhandling/**, **/model/**, **/parser/**, **/vocabulary/**'

@@ -1,6 +1,6 @@
 ext {
     versions = [
-            antlr               : '4.12.0',
+            antlr               : '4.13.1',
             apacheCollections4  : '4.4',
             apacheText          : '1.10.0',
             apachePoi           : '5.2.3',

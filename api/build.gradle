@@ -68,7 +68,6 @@ dependencies {
     implementation libs.springDataJpa
     implementation libs.springOauthServer
     implementation libs.springSecurity
-    implementation libs.springStatemachine
     implementation libs.springWeb
     implementation libs.springdoc
     implementation libs.validation

@@ -7,18 +7,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.search.SearchRequest;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.model.search.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -66,8 +61,6 @@ public class OSQuery {
         SearchSourceBuilder bld= new SearchSourceBuilder();
         QueryBuilder qry = buildAutoCompleteQuery(request);
         bld.query(qry);
-        bld.sort("subsumptionCount",SortOrder.DESC);
-        bld.sort("length");
         return wrapandRun(bld, request);
     }
 
@@ -78,6 +71,21 @@ public class OSQuery {
         bld.sort("subsumptionCount",SortOrder.DESC);
         bld.sort("length");
         return wrapandRunCount(bld, request);
+    }
+
+
+    private void setSorts(SearchRequest request,SearchSourceBuilder bld) {
+        if (request.getOrderBy()==null) {
+            bld.sort("subsumptionCount", SortOrder.DESC);
+            bld.sort("length");
+        }
+        else {
+            for (OrderBy orderBy: request.getOrderBy()){
+                if (orderBy.getDirection()!=null){
+                    bld.sort(orderBy.getField(), orderBy.getDirection()==Order.descending ? SortOrder.DESC : SortOrder.ASC);
+                }
+            }
+        }
     }
 
     private SearchResponse boolQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
@@ -101,8 +109,7 @@ public class OSQuery {
 
         QueryBuilder qry = buildOneWordQuery(request);
         bld.query(qry);
-        bld.sort("subsumptionCount",SortOrder.DESC);
-        bld.sort("length");
+        setSorts(request,bld);
         SearchResponse result2 = wrapandRun(bld, request);
         result1.addEntities(result2.getEntities());
         result1.setCount(result1.getCount() + result2.getCount());
@@ -132,6 +139,19 @@ public class OSQuery {
         bld.query(qry);
         return wrapandRun(bld, request);
     }
+    private void inheritSearch(SearchRequest child,SearchRequest parent){
+        if (child.getTermFilter()==null)
+            child.setTermFilter(parent.getTermFilter());
+        if (child.getTypeFilter().isEmpty()&&parent.getTypeFilter()!=null)
+            child.setTypeFilter(parent.getTypeFilter());
+        if (child.getStatusFilter().isEmpty()&& parent.getStatusFilter()!=null)
+            child.setStatusFilter(parent.getStatusFilter());
+        if (child.getOrderBy()==null&&parent.getOrderBy()!=null)
+          child.setOrderBy(parent.getOrderBy());
+        if (child.getSchemeFilter().isEmpty()&&parent.getSchemeFilter()!=null)
+            child.setSchemeFilter(parent.getSchemeFilter());
+
+    }
 
     private int multiWordQueryTotalCount(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         SearchSourceBuilder bld= new SearchSourceBuilder();
@@ -151,15 +171,44 @@ public class OSQuery {
      * @throws QueryException if problem with data format of query
      */
     public SearchResponse  multiPhaseQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
-
-        String term = request.getTermFilter();
         int page = request.getPage();
         int size = request.getSize();
+        if (page > 0) request.setFrom(size * (page - 1));
+        else request.setFrom(0);
+        int max=page*size;
+        if (request.getSearch()==null)
+            return oneQuery(request);
+        else {
+            SearchResponse results= null;
+            for (SearchRequest subRequest:request.getSearch()){
+                inheritSearch(subRequest,request);
+                subRequest.setPage(1);
+                subRequest.setFrom(0);
+                subRequest.setSize(size);
+                SearchResponse oneResult = oneQuery(subRequest);
+                if (results==null)
+                    results= oneResult;
+                else {
+                    results.addEntities(oneResult.getEntities());
+                    results.setCount(results.getCount() + oneResult.getCount());
+                }
+                if (max>0 &&results.getCount() >= max)
+                    break;
+            }
+            if (request.getFrom()>0){
+                if (results!=null)
+                    if (!results.getEntities().isEmpty())
+                        results.getEntities().subList(0,request.getFrom()-1).clear();
 
-        request.setFrom(size * (page - 1));
+            }
+            return results;
+        }
+    }
 
+    public SearchResponse oneQuery(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+        int page = request.getPage();
+        String term = request.getTermFilter();
         SearchResponse results;
-
         if (term != null && term.length() < 3)
             return codeIriQuery(request);
 
@@ -186,8 +235,21 @@ public class OSQuery {
     }
 
     public int multiPhaseQueryTotalCount(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
-        String term = request.getTermFilter();
+        if (request.getSearch()==null)
+            return oneQueryCount(request);
+        else {
+            int total = 0;
+            for (SearchRequest subRequest:request.getSearch()){
+                inheritSearch(subRequest,request);
+                int result = oneQueryCount(subRequest);
+                total += result;
+            }
+            return total;
+        }
+    }
 
+    public int oneQueryCount(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+        String term = request.getTermFilter();
         if (term != null && term.length() < 3)
             return codeIriQueryTotalCount(request);
 
@@ -244,6 +306,11 @@ public class OSQuery {
 
 
     private void addFilters(BoolQueryBuilder qry, SearchRequest request) {
+        if (request.getFilter() != null) {
+            for (Filter filter: request.getFilter()) {
+                addOneFilter(qry,filter);
+            }
+        }
         if (!request.getSchemeFilter().isEmpty()) {
             List<String> schemes = new ArrayList<>(request.getSchemeFilter());
             TermsQueryBuilder tqr = new TermsQueryBuilder("scheme.@id", schemes);
@@ -268,6 +335,35 @@ public class OSQuery {
             List<String> memberOfs = new ArrayList<>(request.getMemberOf());
             TermsQueryBuilder tqr = new TermsQueryBuilder("memberOf.@id", memberOfs);
             qry.filter(tqr);
+        }
+    }
+    private void addOneFilter(BoolQueryBuilder qry, Filter filter) {
+        List<String> values = null;
+        boolean negation= filter.isNot();
+        if (filter.getAnd()!=null){
+            for (Filter and:filter.getAnd()){
+                addOneFilter(qry,and);
+            }
+        }
+        else {
+            if (filter.getIriValue() != null) {
+                values = filter.getIriValue()
+                  .stream()
+                  .map(TTIriRef::getIri).toList();
+                TermsQueryBuilder tqr = new TermsQueryBuilder(filter.getField() + ".@id", values);
+                if (!negation)
+                    qry.filter(tqr);
+                else
+                    qry.mustNot(tqr);
+            }
+            else {
+                TermsQueryBuilder tqr = new TermsQueryBuilder(filter.getField(), filter.getValue());
+                if (!negation)
+                    qry.filter(tqr);
+
+                else
+                    qry.mustNot(tqr);
+            }
         }
     }
 
@@ -339,6 +435,7 @@ public class OSQuery {
     }
 
     private SearchResponse wrapandRun(SearchSourceBuilder bld, SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+        setSorts(request,bld);
         if (request.getIndex() == null)
             request.setIndex("concept");
 

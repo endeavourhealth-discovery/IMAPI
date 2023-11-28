@@ -27,6 +27,8 @@ import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.pre
 public class EntityRepository {
     private static final Logger LOG = LoggerFactory.getLogger(EntityRepository.class);
 
+    static final String PARENT_PREDICATES = "rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf";
+
     public TTIriRef getEntityReferenceByIri(String iri) {
         TTIriRef result = new TTIriRef();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
@@ -243,8 +245,8 @@ public class EntityRepository {
         String spql = new StringJoiner(System.lineSeparator())
             .add("select *")
             .add("where {")
-            .add("  ?descendant (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf)+ ?m .")
-            .add("  ?m (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf)+ ?ancestor ;")
+            .add("  ?descendant (" + PARENT_PREDICATES + ")+ ?m .")
+            .add("  ?m (" + PARENT_PREDICATES + ")+ ?ancestor ;")
             .add("     rdfs:label ?name .")
             .add("}")
             .toString();
@@ -307,7 +309,7 @@ public class EntityRepository {
 
         String spql = new StringJoiner(System.lineSeparator())
                 .add("SELECT * {")
-                .add("?s (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?o .")
+                .add("?s (" + PARENT_PREDICATES + ") ?o .")
                 .add("?o rdfs:label ?name .")
                 .add("}")
                 .toString();

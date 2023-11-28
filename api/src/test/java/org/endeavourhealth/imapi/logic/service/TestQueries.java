@@ -3,17 +3,53 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class TestQueries {
 	public static String ex="http://example.org/qry#";
 
-
+ public static SearchRequest observationConcepts(){
+	 SearchRequest request= new SearchRequest();
+	 request.setIndex("david");
+	 request.setTermFilter("Systolic");
+	 List<String> schemes= Arrays.asList(IM.NAMESPACE,SNOMED.NAMESPACE);
+	 request.setSchemeFilter(schemes);
+	 request.setStatusFilter(Arrays.asList(IM.ACTIVE.getIri()));
+	 request.subSearch(s->s
+		 .filter((f->f.setField("entityType")
+			 .addIriValue(TTIriRef.iri(IM.NAMESPACE + "ConceptSet")))));
+	 request.subSearch(s->s
+		 .filter(f->f
+			 .and(a->a.setField("entityType")
+				 .addIriValue(TTIriRef.iri(IM.NAMESPACE + "Concept")))
+			 .and(a->a.setField("memberOf").addIriValue(TTIriRef.iri(IM.NAMESPACE + "VSET_Observation")))));
+	 request.subSearch(s->s
+		 .filter(f->f
+			 .and(a-> a
+				 .setField("entityType")
+				 .addIriValue(TTIriRef.iri(IM.NAMESPACE + "Concept")))
+			 .and(a->a
+				 .setNot(true)
+				 .setField("memberOf").addIriValue(TTIriRef.iri(IM.NAMESPACE + "VSET_Observation")))));
+	 request.orderBy(o-> o
+		 .setField("subsumptionCount")
+		 .setDirection(Order.descending));
+	 request.orderBy(o->o
+		 .setField("length")
+		 .setDirection(Order.ascending));
+	 request.orderBy(o->o
+		 .setField("weighting")
+		 .setDirection(Order.descending));
+	 return request;
+ }
 
 	public static QueryRequest dataModelPropertyRange() throws JsonProcessingException {
 		Query query= new Query()

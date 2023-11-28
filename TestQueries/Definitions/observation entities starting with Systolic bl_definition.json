@@ -1,0 +1,74 @@
+{
+  "termFilter" : "Systolic",
+  "statusFilter" : [ "http://endhealth.info/im#Active" ],
+  "schemeFilter" : [ "http://endhealth.info/im#", "http://snomed.info/sct#" ],
+  "search" : [ {
+    "filter" : [ {
+      "field" : "entityType",
+      "value" : null,
+      "iriValue" : [ {
+        "@id" : "http://endhealth.info/im#ConceptSet"
+      } ],
+      "and" : null,
+      "not" : false
+    } ]
+  }, {
+    "filter" : [ {
+      "field" : null,
+      "value" : null,
+      "iriValue" : null,
+      "and" : [ {
+        "field" : "entityType",
+        "value" : null,
+        "iriValue" : [ {
+          "@id" : "http://endhealth.info/im#Concept"
+        } ],
+        "and" : null,
+        "not" : false
+      }, {
+        "field" : "memberOf",
+        "value" : null,
+        "iriValue" : [ {
+          "@id" : "http://endhealth.info/im#VSET_Observation"
+        } ],
+        "and" : null,
+        "not" : false
+      } ],
+      "not" : false
+    } ]
+  }, {
+    "filter" : [ {
+      "field" : null,
+      "value" : null,
+      "iriValue" : null,
+      "and" : [ {
+        "field" : "entityType",
+        "value" : null,
+        "iriValue" : [ {
+          "@id" : "http://endhealth.info/im#Concept"
+        } ],
+        "and" : null,
+        "not" : false
+      }, {
+        "field" : "memberOf",
+        "value" : null,
+        "iriValue" : [ {
+          "@id" : "http://endhealth.info/im#VSET_Observation"
+        } ],
+        "and" : null,
+        "not" : true
+      } ],
+      "not" : false
+    } ]
+  } ],
+  "orderBy" : [ {
+    "field" : "subsumptionCount",
+    "direction" : "descending"
+  }, {
+    "field" : "length",
+    "direction" : "ascending"
+  }, {
+    "field" : "weighting",
+    "direction" : "descending"
+  } ]
+}

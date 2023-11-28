@@ -8,7 +8,7 @@
 
 package org.endeavourhealth.imapi.transforms.eqd;
 
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.util.ArrayList;

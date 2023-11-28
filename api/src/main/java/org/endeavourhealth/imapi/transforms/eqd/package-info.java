@@ -5,5 +5,8 @@
 // Generated on: 2021.12.23 at 09:36:56 AM GMT 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://www.e-mis.com/emisopen", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@XmlSchema(namespace = "http://www.e-mis.com/emisopen", elementFormDefault = XmlNsForm.QUALIFIED)
 package org.endeavourhealth.imapi.transforms.eqd;
+
+import jakarta.xml.bind.annotation.XmlNsForm;
+import jakarta.xml.bind.annotation.XmlSchema;

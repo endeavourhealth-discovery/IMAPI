@@ -1,19 +1,25 @@
 package org.endeavourhealth.imapi.model.ods;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({"Status", "Target", "id"})
 public class OrgRelationship {
-    public String rel;
+    public String id;
     public String status;
-    public String target;
+    public OrgRelTarget target;
 
-    public String getRel() {
-        return rel;
+    public String getId() {
+        return id;
     }
 
-    public OrgRelationship setRel(String rel) {
-        this.rel = rel;
+    public OrgRelationship setId(String id) {
+        this.id = id;
         return this;
     }
 
+    @JsonProperty("Status")
     public String getStatus() {
         return status;
     }
@@ -23,11 +29,12 @@ public class OrgRelationship {
         return this;
     }
 
-    public String getTarget() {
+    @JsonProperty("Target")
+    public OrgRelTarget getTarget() {
         return target;
     }
 
-    public OrgRelationship setTarget(String target) {
+    public OrgRelationship setTarget(OrgRelTarget target) {
         this.target = target;
         return this;
     }

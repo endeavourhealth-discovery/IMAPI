@@ -1,23 +1,21 @@
 package org.endeavourhealth.imapi.model.ods;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({"Name", "OrgId", "Status", "orgRecordClass", "GeoLoc", "Roles", "Rels"})
 public class Organisation {
-    private String code;
     private String name;
+    private OrgId orgId;
     private String status;
     private String orgRecordClass;
     private OrgGeoLocation geoLoc;
     private OrgRelationships rels;
     private OrgRoles roles;
 
-    public String getCode() {
-        return code;
-    }
-
-    public Organisation setCode(String code) {
-        this.code = code;
-        return this;
-    }
-
+    @JsonProperty("Name")
     public String getName() {
         return name;
     }
@@ -27,6 +25,17 @@ public class Organisation {
         return this;
     }
 
+    @JsonProperty("OrgId")
+    public OrgId getOrgId() {
+        return orgId;
+    }
+
+    public Organisation setOrgId(OrgId orgId) {
+        this.orgId = orgId;
+        return this;
+    }
+
+    @JsonProperty("Status")
     public String getStatus() {
         return status;
     }
@@ -45,6 +54,7 @@ public class Organisation {
         return this;
     }
 
+    @JsonProperty("GeoLoc")
     public OrgGeoLocation getGeoLoc() {
         return geoLoc;
     }
@@ -54,21 +64,23 @@ public class Organisation {
         return this;
     }
 
-    public OrgRelationships getRels() {
-        return rels;
-    }
-
-    public Organisation setRels(OrgRelationships rels) {
-        this.rels = rels;
-        return this;
-    }
-
+    @JsonProperty("Roles")
     public OrgRoles getRoles() {
         return roles;
     }
 
     public Organisation setRoles(OrgRoles roles) {
         this.roles = roles;
+        return this;
+    }
+
+    @JsonProperty("Rels")
+    public OrgRelationships getRels() {
+        return rels;
+    }
+
+    public Organisation setRels(OrgRelationships rels) {
+        this.rels = rels;
         return this;
     }
 }

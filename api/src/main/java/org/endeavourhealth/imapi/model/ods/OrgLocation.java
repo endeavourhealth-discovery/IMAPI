@@ -1,5 +1,10 @@
 package org.endeavourhealth.imapi.model.ods;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({"AddrLn1", "AddrLn2", "AddrLn3", "Town", "County", "PostCode", "Country", "UPRN"})
 public class OrgLocation {
     private String addrln1;
     private String addrln2;
@@ -10,6 +15,7 @@ public class OrgLocation {
     private String country;
     private String uprn;
 
+    @JsonProperty("AddrLn1")
     public String getAddrln1() {
         return addrln1;
     }
@@ -19,6 +25,7 @@ public class OrgLocation {
         return this;
     }
 
+    @JsonProperty("AddrLn2")
     public String getAddrln2() {
         return addrln2;
     }
@@ -28,6 +35,7 @@ public class OrgLocation {
         return this;
     }
 
+    @JsonProperty("AddrLn3")
     public String getAddrln3() {
         return addrln3;
     }
@@ -37,6 +45,7 @@ public class OrgLocation {
         return this;
     }
 
+    @JsonProperty("Town")
     public String getTown() {
         return town;
     }
@@ -46,6 +55,7 @@ public class OrgLocation {
         return this;
     }
 
+    @JsonProperty("County")
     public String getCounty() {
         return county;
     }
@@ -55,6 +65,7 @@ public class OrgLocation {
         return this;
     }
 
+    @JsonProperty("PostCode")
     public String getPostcode() {
         return postcode;
     }
@@ -64,6 +75,7 @@ public class OrgLocation {
         return this;
     }
 
+    @JsonProperty("Country")
     public String getCountry() {
         return country;
     }
@@ -73,6 +85,7 @@ public class OrgLocation {
         return this;
     }
 
+    @JsonProperty("UPRN")
     public String getUprn() {
         return uprn;
     }

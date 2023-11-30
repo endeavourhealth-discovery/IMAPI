@@ -63,7 +63,7 @@ public class OdsService {
             if (rs.hasNext()) {
                 BindingSet bs = rs.next();
 
-                org.setCode(odsCode)
+                org.setOrgId(new OrgId().setExtension(odsCode))
                     .setName(getString(bs, "name"))
                     .setStatus(getStatus(bs))
                     .setOrgRecordClass(getString(bs, "recClassCode"));
@@ -140,9 +140,9 @@ public class OdsService {
                 BindingSet bs = rs.next();
 
                 rel.add(new OrgRelationship()
-                    .setRel(getString(bs, "relCode"))
+                    .setId(getString(bs, "relCode"))
                     .setStatus(getStatus(bs))
-                    .setTarget(getString(bs, "target"))
+                    .setTarget(new OrgRelTarget().setOrgId(new OrgId().setExtension(getString(bs, "target"))))
                 );
             }
         }

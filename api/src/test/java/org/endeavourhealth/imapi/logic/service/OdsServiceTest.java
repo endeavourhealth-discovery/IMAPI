@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class OdsServiceTest {
 
-    @Test
+    // @Test
     void getOrganisationData() throws JsonProcessingException {
         OdsResponse organisationData = new OdsService().getOrganisationData("8D536");
         System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(organisationData));

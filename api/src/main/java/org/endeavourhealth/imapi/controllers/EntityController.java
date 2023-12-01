@@ -279,8 +279,8 @@ public class EntityController {
 
 	@GetMapping(value = "/public/download")
 	public HttpEntity<Object> download(
-	    @RequestParam String iri,
-        @RequestParam String format,
+	    @RequestParam("iri") String iri,
+        @RequestParam("format") String format,
         @RequestParam(name = "hasSubTypes", required = false, defaultValue = "false") boolean hasSubTypes,
         @RequestParam(name = "inferred", required = false, defaultValue = "false") boolean inferred,
         @RequestParam(name = "dataModelProperties", required = false, defaultValue = "false") boolean dataModelProperties,

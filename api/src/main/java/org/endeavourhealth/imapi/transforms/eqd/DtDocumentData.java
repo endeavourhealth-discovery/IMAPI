@@ -8,7 +8,7 @@
 
 package org.endeavourhealth.imapi.transforms.eqd;
 
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 
 
 /**

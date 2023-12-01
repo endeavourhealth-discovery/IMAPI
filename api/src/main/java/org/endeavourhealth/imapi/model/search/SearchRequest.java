@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 @Schema(
     name="Search request",
@@ -22,12 +23,94 @@ public class SearchRequest {
     private List<String> markIfDescendentOf = new ArrayList<>();
     private List<String> isA = new ArrayList<>();
     private List<String> memberOf = new ArrayList<>();
+    private List<Filter> filter;
+    private List<SearchRequest> search;
+    private SearchRequest outerSearch;
     private int page = 1;
     private int size = 20;
     private int from;
     private List<String> select = new ArrayList<>();
+    @Deprecated
     private String sortField;
+    @Deprecated
     private String sortDirection;
+    private List<OrderBy> orderBy;
+
+    public SearchRequest getOuterSearch() {
+        return outerSearch;
+    }
+
+    public SearchRequest setOuterSearch(SearchRequest outerSearch) {
+        this.outerSearch = outerSearch;
+        return this;
+    }
+
+    public List<Filter> getFilter() {
+        return filter;
+    }
+
+    public SearchRequest setFilter(List<Filter> filter) {
+        this.filter = filter;
+        return this;
+    }
+    public SearchRequest addFilter(Filter filter) {
+        if (this.filter==null)
+            this.filter= new ArrayList<>();
+        this.filter.add(filter);
+        return this;
+    }
+
+    public SearchRequest filter(Consumer<Filter> builder) {
+        Filter filter= new Filter();
+        addFilter(filter);
+        builder.accept(filter);
+        return this;
+    }
+
+    public List<SearchRequest> getSearch() {
+        return search;
+    }
+
+    public SearchRequest setSearch(List<SearchRequest> search) {
+        this.search = search;
+        return this;
+    }
+    public SearchRequest addSubSearch(SearchRequest subSearch) {
+        if (this.search ==null)
+            this.search = new ArrayList<>();
+        this.search.add(subSearch);
+        return this;
+    }
+
+    public SearchRequest subSearch(Consumer<SearchRequest> builder){
+        SearchRequest subSearch= new SearchRequest();
+        addSubSearch(subSearch);
+        builder.accept(subSearch);
+        return this;
+    }
+
+    public List<OrderBy> getOrderBy() {
+        return orderBy;
+    }
+
+    public SearchRequest setOrderBy(List<OrderBy> orderBy) {
+        this.orderBy = orderBy;
+        return this;
+    }
+
+    public SearchRequest addOrderBy(OrderBy orderBy){
+        if (this.orderBy==null)
+            this.orderBy= new ArrayList<>();
+        this.orderBy.add(orderBy);
+        return this;
+    }
+
+    public SearchRequest orderBy(Consumer<OrderBy> builder){
+        OrderBy order= new OrderBy();
+        addOrderBy(order);
+        builder.accept(order);
+        return this;
+    }
 
     public int getFrom() {
         return from;
@@ -187,6 +270,12 @@ public class SearchRequest {
         return sortField;
     }
 
+    /**
+     * set one sort field
+     * @deprecated
+     * Use order by .
+     */
+    @Deprecated
     public SearchRequest setSortField(String sortField) {
         this.sortField = sortField;
         return this;
@@ -196,6 +285,12 @@ public class SearchRequest {
         return sortDirection;
     }
 
+    /**
+     * set one direction field
+     * @deprecated
+     * Use order by .
+     */
+    @Deprecated
     public SearchRequest setSortDirection(String sortDirection) {
         this.sortDirection = sortDirection;
         return this;

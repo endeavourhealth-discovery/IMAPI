@@ -7,13 +7,13 @@ import org.endeavourhealth.imapi.json.JsonLDMapper;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Concept;
+import org.endeavourhealth.imapi.model.imq.Order;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
@@ -37,22 +37,13 @@ class SearchServiceTest {
 	private String succinctDefinitions;
 
 
-  //@Test
-	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+ // @Test
+	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, IOException {
+		testDefinitions = System.getenv("folder") + "\\Definitions";
+		testResults = System.getenv("folder") + "\\Results";
+		SearchRequest request= TestQueries.observationConcepts();
+		output(request,"observation entities starting with Systolic bl");
 
-		SearchRequest request= new SearchRequest();
-		request.setIndex("david");
-		request.setTermFilter("^ESCTVE439120");
-		List<String> schemes= Arrays.asList(IM.NAMESPACE,SNOMED.NAMESPACE);
-		List<String> types= Arrays.asList(IM.CONCEPT.getIri());
-		request.setSchemeFilter(schemes);
-		request.setStatusFilter(Arrays.asList(IM.ACTIVE.getIri()));
-		request.setTypeFilter(types);
-		SearchService ss= new SearchService();
-		List<SearchResultSummary> results= ss.getEntitiesByTerm(request);
-		for (SearchResultSummary result:results) {
-			System.out.println(result.getMatch()+" :"+ result.getCode());
-		}
 
 	}
  //@Test
@@ -99,6 +90,17 @@ class SearchServiceTest {
 
 
 
+	private void output(SearchRequest request,String name) throws IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
+		try (FileWriter wr = new FileWriter(testDefinitions + "\\" + name + "_definition.json")) {
+			wr.write(new ObjectMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(request));
+		}
+		SearchService ss= new SearchService();
+		List<SearchResultSummary> results= ss.getEntitiesByTerm(request);
+		for (SearchResultSummary result:results) {
+			System.out.println(result.getMatch()+" :"+ result.getCode());
+		}
+
+	}
 
 
 	private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {

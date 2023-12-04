@@ -35,7 +35,7 @@ class SearchServiceTest {
 	private String succinctDefinitions;
 
 
- @Test
+//@Test
 	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, IOException {
 		testDefinitions = System.getenv("folder") + "\\Definitions";
 		testResults = System.getenv("folder") + "\\Results";

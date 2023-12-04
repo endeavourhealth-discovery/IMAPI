@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -37,7 +38,7 @@ public class QueryController {
       summary = "Query IM",
       description = "Runs a generic query on IM"
     )
-    public JsonNode queryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
+    public JsonNode queryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, IOException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
         LOG.debug("queryIM");
         return searchService.queryIM(queryRequest);
     }
@@ -54,7 +55,7 @@ public class QueryController {
         summary = "Query IM returning conceptSummaries",
         description = "Runs a generic query on IM and returns results as ConceptSummary items."
     )
-    public List<SearchResultSummary> queryIMSearch(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
+    public List<SearchResultSummary> queryIMSearch(@RequestBody QueryRequest queryRequest) throws DataFormatException, IOException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
         LOG.debug("queryIMSearch");
         return searchService.queryIMSearch(queryRequest);
     }

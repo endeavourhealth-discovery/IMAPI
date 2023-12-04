@@ -16,29 +16,23 @@ import java.util.List;
 public class TestQueries {
 	public static String ex="http://example.org/qry#";
 
- public static SearchRequest observationConcepts(){
+ public static SearchRequest observationConcepts(String input){
 	 SearchRequest request= new SearchRequest();
 	 request.setIndex("david");
-	 request.setTermFilter("Systolic");
+	 request.setTermFilter(input);
 	 List<String> schemes= Arrays.asList(IM.NAMESPACE,SNOMED.NAMESPACE);
 	 request.setSchemeFilter(schemes);
+	 List<String> types= Arrays.asList(IM.CONCEPT_SET.getIri(),IM.CONCEPT.getIri());
+	 request.setTypeFilter(types);
 	 request.setStatusFilter(Arrays.asList(IM.ACTIVE.getIri()));
-	 request.subSearch(s->s
-		 .filter((f->f.setField("entityType")
-			 .addIriValue(TTIriRef.iri(IM.NAMESPACE + "ConceptSet")))));
-	 request.subSearch(s->s
-		 .filter(f->f
-			 .and(a->a.setField("entityType")
-				 .addIriValue(TTIriRef.iri(IM.NAMESPACE + "Concept")))
-			 .and(a->a.setField("memberOf").addIriValue(TTIriRef.iri(IM.NAMESPACE + "VSET_Observation")))));
-	 request.subSearch(s->s
-		 .filter(f->f
-			 .and(a-> a
-				 .setField("entityType")
-				 .addIriValue(TTIriRef.iri(IM.NAMESPACE + "Concept")))
-			 .and(a->a
-				 .setNot(true)
-				 .setField("memberOf").addIriValue(TTIriRef.iri(IM.NAMESPACE + "VSET_Observation")))));
+	 request
+		 .orderBy(f->f.setField("entityType")
+			 .addIriValue(IM.MATCH_CLAUSE)
+			 .addIriValue(IM.CONCEPT_SET));
+	 request
+		 .orderBy(a->a.setField("memberOf").addIriValue(TTIriRef.iri(IM.NAMESPACE + "VSET_Observation")));
+	 request.orderBy(o->o.setField("name").setStartsWithTerm(true));
+	 request.orderBy(o->o.setField("preferredName").setStartsWithTerm(true));
 	 request.orderBy(o-> o
 		 .setField("subsumptionCount")
 		 .setDirection(Order.descending));

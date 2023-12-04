@@ -1,74 +1,77 @@
 {
-  "termFilter" : "Systolic",
+  "termFilter" : "Systolic blo",
   "statusFilter" : [ "http://endhealth.info/im#Active" ],
+  "typeFilter" : [ "http://endhealth.info/im#ConceptSet", "http://endhealth.info/im#Concept" ],
   "schemeFilter" : [ "http://endhealth.info/im#", "http://snomed.info/sct#" ],
-  "search" : [ {
-    "filter" : [ {
-      "field" : "entityType",
-      "value" : null,
-      "iriValue" : [ {
-        "@id" : "http://endhealth.info/im#ConceptSet"
-      } ],
-      "and" : null,
-      "not" : false
-    } ]
-  }, {
-    "filter" : [ {
-      "field" : null,
-      "value" : null,
-      "iriValue" : null,
-      "and" : [ {
-        "field" : "entityType",
-        "value" : null,
-        "iriValue" : [ {
-          "@id" : "http://endhealth.info/im#Concept"
-        } ],
-        "and" : null,
-        "not" : false
-      }, {
-        "field" : "memberOf",
-        "value" : null,
-        "iriValue" : [ {
-          "@id" : "http://endhealth.info/im#VSET_Observation"
-        } ],
-        "and" : null,
-        "not" : false
-      } ],
-      "not" : false
-    } ]
-  }, {
-    "filter" : [ {
-      "field" : null,
-      "value" : null,
-      "iriValue" : null,
-      "and" : [ {
-        "field" : "entityType",
-        "value" : null,
-        "iriValue" : [ {
-          "@id" : "http://endhealth.info/im#Concept"
-        } ],
-        "and" : null,
-        "not" : false
-      }, {
-        "field" : "memberOf",
-        "value" : null,
-        "iriValue" : [ {
-          "@id" : "http://endhealth.info/im#VSET_Observation"
-        } ],
-        "and" : null,
-        "not" : true
-      } ],
-      "not" : false
-    } ]
-  } ],
   "orderBy" : [ {
+    "field" : "entityType",
+    "direction" : null,
+    "iriValue" : [ {
+      "@id" : "http://endhealth.info/im#MatchClause"
+    }, {
+      "@id" : "http://endhealth.info/im#ConceptSet"
+    } ],
+    "and" : null,
+    "not" : false,
+    "startsWithTerm" : false
+  }, {
+    "field" : "memberOf",
+    "direction" : null,
+    "iriValue" : [ {
+      "@id" : "http://endhealth.info/im#VSET_Observation"
+    } ],
+    "and" : null,
+    "not" : false,
+    "startsWithTerm" : false
+  }, {
+    "field" : "name",
+    "direction" : null,
+    "iriValue" : null,
+    "and" : null,
+    "not" : false,
+    "startsWithTerm" : true
+  }, {
+    "field" : "preferredName",
+    "direction" : null,
+    "iriValue" : null,
+    "and" : null,
+    "not" : false,
+    "startsWithTerm" : true
+  }, {
     "field" : "subsumptionCount",
-    "direction" : "descending"
+    "direction" : "descending",
+    "iriValue" : null,
+    "and" : null,
+    "not" : false,
+    "startsWithTerm" : false
   }, {
     "field" : "length",
-    "direction" : "ascending"
+    "direction" : "ascending",
+    "iriValue" : null,
+    "and" : null,
+    "not" : false,
+    "startsWithTerm" : false
   }, {
     "field" : "weighting",
-    "direction" : "descending"
+    "direction" : "descending",
+    "iriValue" : null,
+    "and" : null,
+    "not" : false,
+    "startsWithTerm" : false
+  } ],
+  "timings" : [ {
+    "1701701070223" : "Entry point for \"Systolic blo\""
+  }, {
+    "1701701070223" : "start building auto complete query"
+  }, {
+    "1701701070223" : "About to run query"
+  }, {
+    "1701701076718" : "Query sent..."
+  }, {
+    "1701701076848" : "Query run and response received. Ready to produce search results"
+  }, {
+    "1701701080095" : "Results List built"
+  }, {
+    "1701701080095" : "end auto complete query - returning results"
   } ]
 }

@@ -34,14 +34,13 @@ class SearchServiceTest {
 	private String testResults;
 	private String succinctDefinitions;
 
-
-//@Test
+	//@Test
 	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, IOException {
 		testDefinitions = System.getenv("folder") + "\\Definitions";
 		testResults = System.getenv("folder") + "\\Results";
 	 Date startTime = new Date();
 	 int count=0;
-		 for (String input : List.of("sysolic blood")) {
+		 for (String input : List.of("systolic blod")) {
 			 count++;
 			 SearchRequest request = TestQueries.observationConcepts(input);
 			 output(request, "observation entities starting with Systolic bl", true);

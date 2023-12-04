@@ -61,12 +61,14 @@ public class OSQuery {
 
         request.addTiming("Entry point for \""+request.getTermFilter()+"\"");
         List<SearchResultSummary> results = oneQuery(request);
-        if (results.isEmpty()){
-            String corrected= spellingCorrection(request);
-            if (corrected!=null) {
-                request.setTermFilter(corrected);
-                results= oneQuery(request);
-            }
+        if (!results.isEmpty()) {
+            return results;
+        }
+
+        String corrected= spellingCorrection(request);
+        if (corrected!=null) {
+                    request.setTermFilter(corrected);
+                    results = oneQuery(request);
         }
         return results;
     }
@@ -817,7 +819,7 @@ public class OSQuery {
               "      \"text\": \"" + word + "\",\n" +
               "      \"term\": {\n" +
               "        \"field\": \"termCode.term\",\n" +
-              "        \"sort\": \"frequency\"\n" +
+              "        \"sort\": \"score\"\n" +
               "      }\n" +
               "    }\n" +
               "  }\n" +

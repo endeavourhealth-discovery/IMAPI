@@ -15,7 +15,7 @@ ext {
             junitRunner         : '1.10.1',
             logback             : '1.4.11',
             lombok              : '1.18.30',
-            mockito             : '5.7.0',
+            mockito             : '5.8.0',
             openLlet            : '2.6.5',
             opensearchClient    : '2.9.0',
             opensearchJava      : '2.6.0',

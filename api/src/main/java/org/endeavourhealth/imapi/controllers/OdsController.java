@@ -40,9 +40,9 @@ public class OdsController {
 
         OdsResponse response = odsService.getRoleData();
 
-        if (response != null && response.getOrganisation() != null)
+        if (response != null && response.getRoles() != null)
             return response;
         else
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ODS code not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No roles");
     }
 }

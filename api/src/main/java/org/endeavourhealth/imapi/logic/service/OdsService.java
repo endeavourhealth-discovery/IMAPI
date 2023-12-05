@@ -42,6 +42,12 @@ public class OdsService {
         }
     }
 
+    public OdsResponse getRoleData() {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            return new OdsResponse().setRoles(getAllRoles(conn));
+        }
+    }
+
     private IRI getOrganisation(RepositoryConnection conn, String odsCode, Organisation org) {
 
         String sql = new StringJoiner("\n")
@@ -181,5 +187,34 @@ public class OdsService {
         return IM.ACTIVE.getIri().equals(bs.getValue("status").stringValue())
             ? "Active"
             : "Inactive";
+    }
+
+    private List<OrgRole> getAllRoles(RepositoryConnection conn) {
+        String sql = new StringJoiner("\n")
+            .add(getDefaultPrefixes())
+            .add("select *")
+            .add("where {     ")
+            .add("  ?role rdfs:subClassOf <https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#ODS_RoleType> ;")
+            .add("        rdfs:label ?displayName ;")
+            .add("        im:code ?id .")
+            .add("}")
+            .toString();
+
+        TupleQuery qry = conn.prepareTupleQuery(sql);
+        try (TupleQueryResult rs = qry.evaluate()) {
+            List<OrgRole> role = new ArrayList<>();
+
+            while (rs.hasNext()) {
+                BindingSet bs = rs.next();
+
+                role.add(new OrgRole()
+                    .setId(getString(bs, "id"))
+                    .setCode(getString(bs, "id").substring(2))
+                    .setDisplayName(getString(bs, "displayName").replace(" (Organisation role)", ""))
+                );
+            }
+
+            return role;
+        }
     }
 }

@@ -11,7 +11,12 @@ class OdsServiceTest {
 
     // @Test
     void getOrganisationData() throws JsonProcessingException {
-        OdsResponse organisationData = new OdsService().getOrganisationData("8D536");
-        System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(organisationData));
+        OdsResponse response = new OdsService().getOrganisationData("8D536");
+        System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
     }
-}
+
+    // @Test
+    void getRoles() throws JsonProcessingException {
+        OdsResponse response = new OdsService().getRoleData();
+        System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
+    }}

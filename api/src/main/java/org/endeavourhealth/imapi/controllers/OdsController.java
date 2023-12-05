@@ -22,8 +22,8 @@ public class OdsController {
     @Autowired
     OdsService odsService;
 
-    @GetMapping(value = "/public/organisation", produces = "application/json")
-    public OdsResponse getOrganisationData(@RequestParam(name = "odsCode") String odsCode) {
+    @GetMapping(value = "/public/organisation/{odsCode}", produces = "application/json")
+    public OdsResponse getOrganisationData(@PathVariable(name = "odsCode") String odsCode) {
         LOG.debug("getOrganisationData");
 
         OdsResponse response = odsService.getOrganisationData(odsCode);

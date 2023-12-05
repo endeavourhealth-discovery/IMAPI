@@ -12,7 +12,7 @@ import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("ods")
+@RequestMapping("api/ods")
 @CrossOrigin(origins = "*")
 @Tag(name = "OdsController")
 @RequestScope

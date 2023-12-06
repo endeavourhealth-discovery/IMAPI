@@ -28,6 +28,25 @@ public class Property extends PropertyRef implements Assignable{
 	private boolean anyRoleGroup;
 	private boolean isNull;
 	private PropertyRef relativeTo;
+	private boolean isNotNull;
+
+	public boolean isNull() {
+		return isNull;
+	}
+
+	public Property setNull(boolean aNull) {
+		isNull = aNull;
+		return this;
+	}
+
+	public boolean isNotNull() {
+		return isNotNull;
+	}
+
+	public Property setNotNull(boolean notNull) {
+		isNotNull = notNull;
+		return this;
+	}
 
 	public List<Node> getNotInSet() {
 		return notInSet;

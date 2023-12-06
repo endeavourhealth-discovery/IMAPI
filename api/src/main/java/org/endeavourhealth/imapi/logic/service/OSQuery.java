@@ -121,34 +121,50 @@ public class OSQuery {
             return null;
         boolean scriptScore=false;
         StringBuilder script= new StringBuilder();
-        script.append("int score=1; int dif=100000;");
-        for (OrderBy orderby: request.getOrderBy()) {
-            if (orderby.getAnd() != null || orderby.getIriValue() != null || orderby.isStartsWithTerm()) {
-                scriptScore = true;
-                if (orderby.getIriValue() != null) {
-                    String field = orderby.getField() + ".@id";
-                    script.append(" if (doc['").append(field).append("'].size()>0){ ");
-                        script.append("def ids=doc['").append(field).append("'];");
-                        for (int i = 0; i < orderby.getIriValue().size(); i++) {
-                            if (i > 0)
-                                script.append(" else {dif=dif-1; ");
-                            script.append("if (ids.contains('").append(orderby.getIriValue().get(i).getIri()).append("')){");
-                            script.append(" score=score+dif;}");
-                            if (i>0)
-                                script.append("}");
+        for (OrderBy orderBy:request.getOrderBy()) {
+            if (orderBy.getAnd() != null || orderBy.getIriValue() != null || orderBy.isStartsWithTerm()) {
+                if (script.isEmpty()) {
+                    script.append("int score=1000000;");
+                    script.append("int dif=100000;");
+                    scriptScore = true;
+                }
+                String field;
+                int arraySize;
+                if (orderBy.getIriValue() != null || orderBy.getTextValue() != null) {
+                    if (orderBy.getIriValue() != null) {
+                        field = orderBy.getField() + ".@id";
+                        arraySize = orderBy.getIriValue().size();
                     }
+                    else {
+                        field = orderBy.getField();
+                        arraySize = orderBy.getTextValue().size();
+                    }
+                    script.append(" if (doc['").append(field).append("'].size()>0){ ");
+                    script.append("def ids=doc['").append(field).append("'];");
+                    int index = 0;
+                    for (TTIriRef iriValue : orderBy.getIriValue()) {
+                        index++;
+                        if (index > 1)
+                            script.append(" else if ");
+                        else
+                            script.append(" if ");
+                        script.append(" (ids.contains('").append(iriValue.getIri()).append("'))");
+                        script.append("    score=score-(dif*").append(index).append(");");
+                    }
+                    script.append("else score=score-(dif*").append(arraySize + 1).append(");");
                     script.append(" }");
+                    script.append(" else score=score-(dif*9)").append(";");
                 }
-                else if (orderby.isStartsWithTerm()) {
-                    String field= orderby.getField()+".keyword";
+                else if (orderBy.isStartsWithTerm()) {
+                    field = orderBy.getField() + ".keyword";
                     script.append(" if (doc['").append(field).append("'].size()>0) { ");
-                        script.append(" if (doc['").append(field).append("'].value.toLowerCase().startsWith('").append(request.getTermFilter()+"')){");
-                            script.append("score =score+dif;");
-                        script.append(" }");
+                    script.append(" if (doc['").append(field).append("'].value.toLowerCase().startsWith('").append(request.getTermFilter()).append("'))");
+                    script.append(" score =score-dif;");
+                    script.append(" else score=score-(dif*2);");
                     script.append("}");
+                    script.append(" else score=score-(dif*2);");
                 }
-                script.append(" dif=dif-100;");
-
+                script.append(" dif= dif/10;");
             }
         }
         if (scriptScore) {
@@ -157,6 +173,7 @@ public class OSQuery {
         }
         else
             return null;
+
 
 
 

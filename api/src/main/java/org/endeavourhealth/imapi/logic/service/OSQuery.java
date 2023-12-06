@@ -857,7 +857,7 @@ public class OSQuery {
                                newTerm= swapNode.asText();
                            else {
                                int wordPos=getWordPos(words,original);
-                               if (wordPos>-0){
+                               if (wordPos>-1){
                                    words[wordPos]= swapNode.asText();
                                }
                            }

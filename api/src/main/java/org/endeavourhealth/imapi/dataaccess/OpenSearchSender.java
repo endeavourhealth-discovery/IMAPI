@@ -595,8 +595,32 @@ public class OpenSearchSender {
             if (response.getStatus() != 200) {
                 LOG.info("{} does not exist - creating index and default mappings", index);
                 target = client.target(osUrl).path(index);
-                String mappings= """
-                  {
+                String settings= "{\n" +
+                  "  \"settings\": {\n" +
+                  "    \"index\": {\n" +
+                  "      \"analysis\": {\n" +
+                  "        \"analyzer\": {\n" +
+                  "          \"trigram\": {\n" +
+                  "            \"type\": \"custom\",\n" +
+                  "            \"tokenizer\": \"standard\",\n" +
+                  "            \"filter\": [\n" +
+                  "              \"lowercase\",\n" +
+                  "              \"shingle\"\n" +
+                  "            ]\n" +
+                  "          }\n" +
+                  "        },\n" +
+                  "        \"filter\": {\n" +
+                  "          \"shingle\": {\n" +
+                  "            \"type\": \"shingle\",\n" +
+                  "            \"min_shingle_size\": 2,\n" +
+                  "            \"max_shingle_size\": 3\n" +
+                  "          }\n" +
+                  "        }\n" +
+                  "      }\n" +
+                  "    }\n" +
+                  "  },";
+                String mappings= settings+"""
+                  
                     "mappings": {
                       "properties": {
                         "scheme": {
@@ -673,7 +697,8 @@ public class OpenSearchSender {
                               "type" : "text"
                             },
                             "term" : {
-                              "type" : "text"
+                              "type" : "text",
+                              "analyzer" : "trigram"
                             },
                             "status" : {
                                 "properties" : {
@@ -690,6 +715,7 @@ public class OpenSearchSender {
                       }
                     }
                   }
+                  
                   """;
 
                 try (Response createResponse = target

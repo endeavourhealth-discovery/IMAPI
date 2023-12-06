@@ -40,7 +40,7 @@ class SearchServiceTest {
 		testResults = System.getenv("folder") + "\\Results";
 	 Date startTime = new Date();
 	 int count=0;
-		 for (String input : List.of("systolic blo")) {
+		 for (String input : List.of("sysolic blod")) {
 			 count++;
 			 SearchRequest request = TestQueries.observationConcepts(input);
 			 output(request, "observation entities starting with Systolic bl", true);

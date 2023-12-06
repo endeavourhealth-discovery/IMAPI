@@ -310,7 +310,9 @@ public class OSQuery {
         String prefix=requestTerm.replaceAll("[ '()\\-_./]","").toLowerCase();
         PrefixQueryBuilder pqb = new PrefixQueryBuilder(MATCH_TERM, prefix);
         boolQuery.should(pqb);
-        MatchPhrasePrefixQueryBuilder mpt = new MatchPhrasePrefixQueryBuilder(TERM_CODE_TERM, requestTerm).boost(1.5F);
+        MatchPhrasePrefixQueryBuilder mpt = new MatchPhrasePrefixQueryBuilder(TERM_CODE_TERM, requestTerm)
+          .boost(1.5F)
+          .slop(1);
         boolQuery.should(mpt);
         boolQuery.minimumShouldMatch(1);
         addFilters(boolQuery, request);
@@ -828,12 +830,11 @@ public class OSQuery {
 
     private String spellingCorrection(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         String oldTerm= request.getTermFilter();
-        String newTerm="";
-        for (String word:oldTerm.split(" ")) {
-            String suggestor = "{\n" +
+        String newTerm=null;
+        String suggestor = "{\n" +
               "  \"suggest\": {\n" +
               "    \"spell-check\": {\n" +
-              "      \"text\": \"" + word + "\",\n" +
+              "      \"text\": \"" + oldTerm+ "\",\n" +
               "      \"term\": {\n" +
               "        \"field\": \"termCode.term\",\n" +
               "        \"sort\": \"score\"\n" +
@@ -841,30 +842,45 @@ public class OSQuery {
               "    }\n" +
               "  }\n" +
               "}";
-            HttpResponse<String> response = getQueryResponse(request, suggestor);
-            try (CachedObjectMapper om = new CachedObjectMapper()) {
+        HttpResponse<String> response = getQueryResponse(request, suggestor);
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
                 JsonNode root = om.readTree(response.body());
                 JsonNode suggestions= root.get("suggest").get("spell-check");
+                String[] words= oldTerm.split(" ");
                for (JsonNode suggest: suggestions){
                    if (suggest.has("options")){
                        JsonNode options= suggest.get("options");
                        if (options.size()>0){
+                           String original= suggest.get("text").asText();
                            JsonNode swapNode= options.get(0).get("text");
-                           newTerm= newTerm.equals("") ? swapNode.asText() : newTerm+" "+swapNode.asText();
+                           if (original.equals(oldTerm))
+                               newTerm= swapNode.asText();
+                           else {
+                               int wordPos=getWordPos(words,original);
+                               if (wordPos>-0){
+                                   words[wordPos]= swapNode.asText();
+                               }
+                           }
                        }
-                       else
-                           newTerm= newTerm.equals("") ?word: newTerm+" "+word;
 
                    }
-                   else
-                       newTerm= newTerm.equals("") ? word: newTerm+" "+ word;
                }
-            }
+               if (newTerm==null) {
+                   newTerm = String.join(" ", words);
+               }
+               if (newTerm.equals(oldTerm))
+                    return null;
+                else
+                    return newTerm;
         }
-        if (newTerm.equals(oldTerm))
-            return null;
-        else
-            return newTerm;
+    }
+
+    private int getWordPos(String[] words,String wordToFind){
+        for (int i=0; i<words.length; i++){
+            if (words[i].equals(wordToFind))
+                return i;
+        }
+        return -1;
     }
 
 

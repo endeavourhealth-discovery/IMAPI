@@ -30,20 +30,11 @@ public class Property extends PropertyRef implements Assignable{
 	private PropertyRef relativeTo;
 	private boolean isNotNull;
 
-	public boolean isNull() {
-		return isNull;
-	}
-
-	public Property setNull(boolean aNull) {
-		isNull = aNull;
-		return this;
-	}
-
-	public boolean isNotNull() {
+	public boolean getIsNotNull() {
 		return isNotNull;
 	}
 
-	public Property setNotNull(boolean notNull) {
+	public Property setIsNotNull(boolean notNull) {
 		isNotNull = notNull;
 		return this;
 	}

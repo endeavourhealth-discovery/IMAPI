@@ -595,26 +595,23 @@ public class OpenSearchSender {
             if (response.getStatus() != 200) {
                 LOG.info("{} does not exist - creating index and default mappings", index);
                 target = client.target(osUrl).path(index);
-                String settings= "{\n" +
-                  "  \"settings\": {\n" +
-                  "    \"index\": {\n" +
-                  "      \"analysis\": {\n" +
-                  "        \"analyzer\": {\n" +
-                  "          \"trigram\": {\n" +
-                  "            \"type\": \"custom\",\n" +
-                  "            \"tokenizer\": \"standard\",\n" +
-                  "            \"filter\": [\n" +
-                  "              \"lowercase\",\n" +
-                  "              \"shingle\"\n" +
-                  "            ]\n" +
-                  "          }\n" +
-                  "        },\n" +
-                  "        \"filter\": {\n" +
-                  "          \"shingle\": {\n" +
-                  "            \"type\": \"shingle\",\n" +
-                  "            \"min_shingle_size\": 2,\n" +
-                  "            \"max_shingle_size\": 3\n" +
-                  "          }\n" +
+                String settings= "{\"settings\": {\n" +
+                  "    \"analysis\": {\n" +
+                  "      \"filter\": {\n" +
+                  "        \"edge_ngram_filter\": {\n" +
+                  "          \"type\": \"edge_ngram\",\n" +
+                  "          \"min_gram\": 1,\n" +
+                  "          \"max_gram\": 20\n" +
+                  "        }\n" +
+                  "      },\n" +
+                  "      \"analyzer\": {\n" +
+                  "        \"autocomplete\": {\n" +
+                  "          \"type\": \"custom\",\n" +
+                  "          \"tokenizer\": \"standard\",\n" +
+                  "          \"filter\": [\n" +
+                  "            \"lowercase\",\n" +
+                  "            \"edge_ngram_filter\"\n" +
+                  "          ]\n" +
                   "        }\n" +
                   "      }\n" +
                   "    }\n" +
@@ -698,7 +695,7 @@ public class OpenSearchSender {
                             },
                             "term" : {
                               "type" : "text",
-                              "analyzer" : "trigram"
+                              "analyzer": "autocomplete"
                             },
                             "status" : {
                                 "properties" : {

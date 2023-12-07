@@ -4,13 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.functionscore.ScriptScoreQueryBuilder;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import org.elasticsearch.search.suggest.SuggestBuilder;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
@@ -23,7 +24,6 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -60,19 +60,24 @@ public class OSQuery {
     public List<SearchResultSummary>  multiPhaseQuery(SearchRequest request) throws  InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
 
         request.addTiming("Entry point for \""+request.getTermFilter()+"\"");
-        List<SearchResultSummary> results = oneQuery(request);
+        List<SearchResultSummary> results = defaultQuery(request);
         if (!results.isEmpty()) {
             return results;
+        }
+        if (request.getTermFilter().contains(" ")){
+          results= wrapandRun(buildNGramQuery(request),request);
+          if (!results.isEmpty())
+              return results;
         }
 
         String corrected= spellingCorrection(request);
         if (corrected!=null) {
                     request.setTermFilter(corrected);
-                    results = oneQuery(request);
+                    results = defaultQuery(request);
         }
         return results;
     }
-    private List<SearchResultSummary> oneQuery(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+    private List<SearchResultSummary> defaultQuery(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         int page = request.getPage();
         int size = request.getSize();
         request.setFrom(size * (page - 1));
@@ -311,6 +316,7 @@ public class OSQuery {
         PrefixQueryBuilder pqb = new PrefixQueryBuilder(MATCH_TERM, prefix);
         boolQuery.should(pqb);
         MatchPhrasePrefixQueryBuilder mpt = new MatchPhrasePrefixQueryBuilder(TERM_CODE_TERM, requestTerm)
+          .analyzer("standard")
           .boost(1.5F)
           .slop(1);
         boolQuery.should(mpt);
@@ -334,19 +340,19 @@ public class OSQuery {
           .setField("weighting"));
     }
 
-    private QueryBuilder buildOneWordQuery(SearchRequest request) {
-        BoolQueryBuilder boolQuery = new BoolQueryBuilder();
-        PrefixQueryBuilder pqb = new PrefixQueryBuilder("key", request.getTermFilter());
-        pqb.boost(2F);
-        boolQuery.should(pqb);
-        MatchPhraseQueryBuilder mpq = new MatchPhraseQueryBuilder(TERM_CODE_TERM, request.getTermFilter()).boost(1.5F);
-        boolQuery.should(mpq);
-        MatchPhraseQueryBuilder mpc = new MatchPhraseQueryBuilder("termCode.code", request.getTermFilter()).boost(2.5F);
-        boolQuery.should(mpc);
-        String prefix=request.getTermFilter().replaceAll("[ '()\\-_./]","").toLowerCase();
-        pqb = new PrefixQueryBuilder(MATCH_TERM, prefix);
-        boolQuery.should(pqb);
-        boolQuery.minimumShouldMatch(1);
+
+
+    private QueryBuilder buildNGramQuery(SearchRequest request){
+        if (request.getOrderBy()==null){
+            addDefaultSorts(request);
+        }
+        String requestTerm=getMatchTerm(request.getTermFilter());
+        BoolQueryBuilder  boolQuery= new BoolQueryBuilder();
+        MatchQueryBuilder mat= new MatchQueryBuilder(TERM_CODE_TERM,requestTerm);
+        mat.analyzer("standard");
+        mat.operator(Operator.AND);
+        mat.fuzziness(Fuzziness.TWO);
+        boolQuery.must(mat);
         addFilters(boolQuery, request);
         return boolQuery;
 
@@ -355,6 +361,7 @@ public class OSQuery {
     private QueryBuilder buildMultiWordQuery(SearchRequest request) {
         BoolQueryBuilder qry = new BoolQueryBuilder();
         MatchPhrasePrefixQueryBuilder pqry = new MatchPhrasePrefixQueryBuilder(TERM_CODE_TERM, request.getTermFilter());
+        pqry.analyzer("standard");
         qry.should(pqry);
         BoolQueryBuilder wqry = new BoolQueryBuilder();
         qry.should(wqry);
@@ -363,6 +370,7 @@ public class OSQuery {
             wordPos++;
             MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder(TERM_CODE_TERM, term);
             mfs.boost(wordPos == 1 ? 4 : 1);
+            mfs.analyzer("standard");
             wqry.must(mfs);
         }
         qry.minimumShouldMatch(1);

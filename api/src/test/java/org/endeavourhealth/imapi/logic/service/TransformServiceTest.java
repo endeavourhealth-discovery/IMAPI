@@ -38,7 +38,7 @@ class TransformServiceTest {
 		TestMaps.patientDSTU2();
 		ObjectMapper om= new ObjectMapper();
 		//Adds map to the IM cache so it can be accessed by the service
-		TTEntity mapEntity= EntityCache.getEntity(MAP.NAMESPACE+"FHIR_2_PatientToIM").getEntity();
+		TTEntity mapEntity= EntityCache.getEntity(MAP.NAMESPACE.iri+"FHIR_2_PatientToIM").getEntity();
 		MapObject map= mapEntity.get(IM.DEFINITION).asLiteral().objectValue(MapObject.class);
 		writeObject(testMaps,"DSTUToIMPatient",map);
 		System.out.println("Map written to" + testMaps+ "\\"+mapEntity.getName());

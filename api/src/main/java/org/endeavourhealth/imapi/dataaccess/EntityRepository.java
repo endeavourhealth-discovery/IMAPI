@@ -378,6 +378,7 @@ public class EntityRepository {
         hydrateCoreProperties(result);
         hydrateTerms(result);
         hydrateIsAs(result);
+        hydrateSubsumptionCount(result);
         return result;
     }
 
@@ -499,6 +500,29 @@ public class EntityRepository {
                             entityDocument.addTermCode(null, termCode, status);
                     }
 
+                }
+            }
+        }
+    }
+
+    private void hydrateSubsumptionCount(EntityDocument entityDocument) {
+        String spql = new StringJoiner(System.lineSeparator())
+            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+            .add("PREFIX im: <http://endhealth.info/im#>")
+            .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+            .add("select distinct ?iri (count(?subType) as ?subsumptions)")
+            .add("where {")
+            .add(" ?iri ^im:isA ?subType.")
+            .add(" ?subType im:status im:Active.")
+            .add("}")
+            .add("group by ?iri").toString();
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery tupleQuery = conn.prepareTupleQuery(spql);
+            try (TupleQueryResult qr = tupleQuery.evaluate()) {
+                while (qr.hasNext()) {
+                    BindingSet rs = qr.next();
+                    entityDocument.setSubsumptionCount(Integer.parseInt(rs.getValue("subsumptions").stringValue()));
                 }
             }
         }

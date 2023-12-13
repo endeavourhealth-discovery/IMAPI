@@ -121,7 +121,7 @@ public class Concept extends Entity {
 	public Concept addMatchedFrom(Concept legacy){
 		if (this.matchedFrom ==null)
 			this.matchedFrom = new HashSet<>();
-			this.matchedFrom.add(legacy);
+		this.matchedFrom.add(legacy);
 		return this;
 	}
 }

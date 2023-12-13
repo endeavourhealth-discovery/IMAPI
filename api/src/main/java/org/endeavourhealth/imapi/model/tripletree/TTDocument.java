@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.json.TTDocumentDeserializer;
 import org.endeavourhealth.imapi.json.TTDocumentSerializer;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 
 import java.util.ArrayList;
@@ -101,6 +102,9 @@ public class TTDocument extends TTNode {
         return this;
     }
 
-
+    public TTDocument setCrud(Vocabulary crud) {
+        this.crud = crud.asTTIriRef();
+        return this;
+    }
 
 }

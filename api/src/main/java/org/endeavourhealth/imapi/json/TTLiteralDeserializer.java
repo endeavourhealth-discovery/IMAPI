@@ -34,24 +34,24 @@ public class TTLiteralDeserializer extends StdDeserializer<TTLiteral> {
     public TTLiteral deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
-        if (!node.has(IM.TYPE)) {
+        if (!node.has(IM.TYPE.iri)) {
             if (node.isValueNode())
                 return literal(node);
             else
-                return literal(node.get(IM.VALUE).textValue());
+                return literal(node.get(IM.VALUE.iri).textValue());
         }
 
-        TTIriRef type = iri(helper == null ? node.get(IM.TYPE).asText() : helper.expand(node.get(IM.TYPE).asText()));
-        if (XSD.STRING.equals(type))
-            return literal(node.get(IM.VALUE).textValue());
-        else if (XSD.BOOLEAN.equals(type)) {
-            return literal(Boolean.valueOf(node.get(IM.VALUE).asText()));
+        TTIriRef type = iri(helper == null ? node.get(IM.TYPE.iri).asText() : helper.expand(node.get(IM.TYPE.iri).asText()));
+        if (XSD.STRING.iri.equals(type.getIri()))
+            return literal(node.get(IM.VALUE.iri).textValue());
+        else if (XSD.BOOLEAN.iri.equals(type.getIri())) {
+            return literal(Boolean.valueOf(node.get(IM.VALUE.iri).asText()));
         }
-        else if (XSD.INTEGER.equals(type)) {
-            return literal(Integer.valueOf(node.get(IM.VALUE).asText()));
+        else if (XSD.INTEGER.iri.equals(type.getIri())) {
+            return literal(Integer.valueOf(node.get(IM.VALUE.iri).asText()));
         }
-        else if (XSD.PATTERN.equals(type))
-            return literal(Pattern.compile(node.get(IM.VALUE).textValue()));
+        else if (XSD.PATTERN.iri.equals(type.getIri()))
+            return literal(Pattern.compile(node.get(IM.VALUE.iri).textValue()));
         else
             throw new IOException("Unhandled literal type ["+type.getIri()+"]");
     }

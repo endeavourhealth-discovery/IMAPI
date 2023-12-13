@@ -297,7 +297,7 @@ public class CodeGenJava {
 
     private String getDataType(TTIriRef dataType, boolean dataModel, boolean isArray) {
         String dataTypeName = null;
-        if (dataType.getIri().startsWith(XSD.NAMESPACE)) {
+        if (dataType.getIri().startsWith(XSD.NAMESPACE.iri)) {
             dataTypeName = capitalise(getSuffix(dataType.getIri()));
         } else if (dataModel) {
             dataTypeName = "UUID";

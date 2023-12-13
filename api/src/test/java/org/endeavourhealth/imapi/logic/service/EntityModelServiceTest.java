@@ -355,7 +355,7 @@ class EntityModelServiceTest {
         SearchTermCode termCode = new SearchTermCode()
                 .setCode("24951000252112")
                 .setTerm("Adverse reaction to Testogel")
-                .setStatus(new TTIriRef().setIri(IM.ACTIVE.getIri()).setName(IM.ACTIVE.getName()));
+                .setStatus(new TTIriRef().setIri(IM.ACTIVE.iri).setName(IM.ACTIVE.asTTIriRef().getName()));
         when(entityRepository2.getBundle(any(),any())).thenReturn(new TTBundle().setEntity(new TTEntity().set(IM.HAS_TERM_CODE,new TTArray().add(new TTNode().set(IM.CODE,new TTLiteral(termCode.getCode())).set(RDFS.LABEL,new TTLiteral(termCode.getTerm())).set(IM.HAS_STATUS,new TTArray().add(termCode.getStatus()))))));
         List<SearchTermCode> actual = entityService.getEntityTermCodes("http://endhealth.info/im#25451000252115",false);
         assertNotNull(actual);
@@ -560,10 +560,10 @@ class EntityModelServiceTest {
     @Test
     void getSummaryFromConfig_NotNullIri() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
+        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.iri));
 
         TTEntity entity = new TTEntity()
-            .set(IM.IS_CHILD_OF, new TTArray()
+            .set(IM.IS_CHILD_OF.asTTIriRef(), new TTArray()
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
@@ -592,10 +592,10 @@ class EntityModelServiceTest {
     @Test
     void getJsonDownload_OnlySummary() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
+        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.iri));
 
         TTEntity entity = new TTEntity("http://endhealth.info/im#25451000252115")
-            .set(IM.IS_CHILD_OF, new TTArray()
+            .set(IM.IS_CHILD_OF.asTTIriRef(), new TTArray()
                     .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                     .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
@@ -610,12 +610,12 @@ class EntityModelServiceTest {
     @Test
     void getJsonDownload_All() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
+        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.iri));
 
         TTEntity entity = new TTEntity()
             .setIri("http://endhealth.info/im#myConcept")
             .setName("My concept")
-            .set(IM.IS_CHILD_OF, new TTArray()
+            .set(IM.IS_CHILD_OF.asTTIriRef(), new TTArray()
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
@@ -659,12 +659,12 @@ class EntityModelServiceTest {
     @Test
     void getExcelDownload_SummaryOnly() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
+        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.iri));
 
         DownloadParams params = new DownloadParams();
 
         TTEntity entity = new TTEntity()
-            .set(IM.IS_CHILD_OF, new TTArray()
+            .set(IM.IS_CHILD_OF.asTTIriRef(), new TTArray()
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
@@ -678,7 +678,7 @@ class EntityModelServiceTest {
     @Test
     void getExcelDownload_All() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
+        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.iri));
 
         DownloadParams params = new DownloadParams();
         params
@@ -694,7 +694,7 @@ class EntityModelServiceTest {
                 .setIncludeProperties(true);
 
         TTEntity entity = new TTEntity()
-            .set(IM.IS_CHILD_OF, new TTArray()
+            .set(IM.IS_CHILD_OF.asTTIriRef(), new TTArray()
                     .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                     .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
@@ -734,7 +734,7 @@ class EntityModelServiceTest {
         TTEntity entity = new TTEntity()
             .setIri("http://endhealth.info/im#myConcept")
             .setName("My concept")
-            .set(IM.IS_CHILD_OF, new TTArray()
+            .set(IM.IS_CHILD_OF.asTTIriRef(), new TTArray()
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
@@ -760,7 +760,7 @@ class EntityModelServiceTest {
         when(entityTripleRepository.findNamespaces()).thenReturn(namespaces);
 
         TTEntity entity = new TTEntity("http://endhealth.info/im#25451000252115")
-            .set(IM.IS_CHILD_OF, new TTArray()
+            .set(IM.IS_CHILD_OF.asTTIriRef(), new TTArray()
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );

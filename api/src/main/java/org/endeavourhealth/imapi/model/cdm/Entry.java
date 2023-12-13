@@ -20,11 +20,11 @@ public abstract class Entry extends TTEntity {
 
 	public String getDateOfEntry() {
 
-		return (String) TTUtil.get(this,TTIriRef.iri(IM.NAMESPACE+"dateOfEntry"),String.class);
+		return (String) TTUtil.get(this,TTIriRef.iri(IM.NAMESPACE.iri+"dateOfEntry"),String.class);
 	}
 
 	public Entry setDateOfEntry(String dateOfEntry) {
-		set(TTIriRef.iri(IM.NAMESPACE+"dateOfEntry"), TTLiteral.literal("dateOfEntry"));
+		set(TTIriRef.iri(IM.NAMESPACE.iri+"dateOfEntry"), TTLiteral.literal("dateOfEntry"));
 		return this;
 	}
 }

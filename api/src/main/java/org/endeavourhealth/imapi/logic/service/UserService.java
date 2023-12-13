@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.UserRepository;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -59,7 +58,7 @@ public class UserService {
 
     public boolean getEditAccess(String userId, String entityIri) throws JsonProcessingException {
         List<String> organisations = this.getUserOrganisations(userId);
-        Set<String> predicates = Collections.singleton(IM.HAS_SCHEME.getIri());
+        Set<String> predicates = Collections.singleton(IM.HAS_SCHEME.iri);
         TTEntity entity = entityService.getBundle(entityIri, predicates).getEntity();
         if(null == entity.getScheme()) return false;
         return organisations.contains(entity.getScheme().getIri());

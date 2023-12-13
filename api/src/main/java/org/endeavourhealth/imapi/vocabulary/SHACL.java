@@ -4,50 +4,70 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
-public class SHACL {
-   public static final String NAMESPACE = "http://www.w3.org/ns/shacl#";
-   public static final String PREFIX = "sh";
-   public static final TTIriRef PATH= iri(NAMESPACE +"path");
-   public static final TTIriRef MININCLUSIVE= iri(NAMESPACE +"minInclusive");
-   public static final TTIriRef MINEXCLUSIVE= iri(NAMESPACE +"minExclusive");
-   public static final TTIriRef MAXINCLUSIVE= iri(NAMESPACE +"maxInclusive");
-   public static final TTIriRef MAXEXCLUSIVE= iri(NAMESPACE +"maxExclusive");
-   public static final TTIriRef PROPERTY= iri(NAMESPACE +"property");
-   public static final TTIriRef PROPERTY_GROUP= iri(NAMESPACE +"PropertyGroup");
-   public static final TTIriRef MINCOUNT= iri(NAMESPACE +"minCount");
-   public static final TTIriRef MAXCOUNT= iri(NAMESPACE +"maxCount");
-   public static final TTIriRef VALUE= iri(NAMESPACE +"value");
-   public static final TTIriRef PATTERN= iri(NAMESPACE +"pattern");
-   public static final TTIriRef INVERSEPATH= iri(NAMESPACE +"inversePath");
-   public static final TTIriRef CLASS= iri(NAMESPACE +"class");
-   public static final TTIriRef DATATYPE= iri(NAMESPACE +"datatype");
-   public static final TTIriRef SPARQL= iri(NAMESPACE +"sparql");
-   public static final TTIriRef SELECT= iri(NAMESPACE +"select");
-   public static final TTIriRef PARAMETER= iri(NAMESPACE +"parameter");
-   public static final TTIriRef IRI= iri(NAMESPACE +"IRI");
-   public static final TTIriRef OPTIONAL= iri(NAMESPACE +"optional");
-   public static final TTIriRef NODESHAPE= iri(NAMESPACE +"NodeShape");
-   public static final TTIriRef TARGETCLASS= iri(NAMESPACE +"targetClass");
-   public static final TTIriRef NODE= iri(NAMESPACE +"node");
-   public static final TTIriRef ORDER= iri(NAMESPACE +"order");
-   public static final TTIriRef OR= iri(NAMESPACE +"or");
-   public static final TTIriRef NOT= iri(NAMESPACE +"not");
-   public static final TTIriRef NODE_KIND= iri(NAMESPACE +"nodeKind");
-   public static final TTIriRef PROPERTYSHAPE= iri(NAMESPACE +"PropertyShape");
-   public static final TTIriRef AND= iri(NAMESPACE +"and");
-   public static final TTIriRef NODES= iri(NAMESPACE +"nodes");
-   public static final TTIriRef TARGET_TYPE= iri(NAMESPACE +"targetType");
-   public static final TTIriRef TARGET= iri(NAMESPACE +"target");
-   public static final TTIriRef SPARQL_TARGET= iri(NAMESPACE +"SPARQLTarget");
-   public static final TTIriRef FUNCTION= iri(NAMESPACE +"FunctionClause");
-   public static final TTIriRef RETURN_TYPE= iri(NAMESPACE +"returnType");
-   public static final TTIriRef GROUP= iri(NAMESPACE +"group");
-   public static final TTIriRef NAME= iri(NAMESPACE +"name");
-   public static final TTIriRef EXPRESSION= iri(NAMESPACE +"expression");
-   public static final TTIriRef HAS_VALUE= iri(NAMESPACE +"hasValue");
+public enum SHACL implements Vocabulary {
+   NAMESPACE("http://www.w3.org/ns/shacl#"),
+   PREFIX("sh"),
+   PATH(NAMESPACE.iri +"path"),
+   MININCLUSIVE(NAMESPACE.iri +"minInclusive"),
+   MINEXCLUSIVE(NAMESPACE.iri +"minExclusive"),
+   MAXINCLUSIVE(NAMESPACE.iri +"maxInclusive"),
+   MAXEXCLUSIVE(NAMESPACE.iri +"maxExclusive"),
+   PROPERTY(NAMESPACE.iri +"property"),
+   PROPERTY_GROUP(NAMESPACE.iri +"PropertyGroup"),
+   MINCOUNT(NAMESPACE.iri +"minCount"),
+   MAXCOUNT(NAMESPACE.iri +"maxCount"),
+   VALUE(NAMESPACE.iri +"value"),
+   PATTERN(NAMESPACE.iri +"pattern"),
+   INVERSEPATH(NAMESPACE.iri +"inversePath"),
+   CLASS(NAMESPACE.iri +"class"),
+   DATATYPE(NAMESPACE.iri +"datatype"),
+   SPARQL(NAMESPACE.iri +"sparql"),
+   SELECT(NAMESPACE.iri +"select"),
+   PARAMETER(NAMESPACE.iri +"parameter"),
+   IRI(NAMESPACE.iri +"IRI"),
+   OPTIONAL(NAMESPACE.iri +"optional"),
+   NODESHAPE(NAMESPACE.iri +"NodeShape"),
+   TARGETCLASS(NAMESPACE.iri +"targetClass"),
+   NODE(NAMESPACE.iri +"node"),
+   ORDER(NAMESPACE.iri +"order"),
+   OR(NAMESPACE.iri +"or"),
+   NOT(NAMESPACE.iri +"not"),
+   NODE_KIND(NAMESPACE.iri +"nodeKind"),
+   PROPERTYSHAPE(NAMESPACE.iri +"PropertyShape"),
+   AND(NAMESPACE.iri +"and"),
+   NODES(NAMESPACE.iri +"nodes"),
+   TARGET_TYPE(NAMESPACE.iri +"targetType"),
+   TARGET(NAMESPACE.iri +"target"),
+   SPARQL_TARGET(NAMESPACE.iri +"SPARQLTarget"),
+   FUNCTION(NAMESPACE.iri +"FunctionClause"),
+   RETURN_TYPE(NAMESPACE.iri +"returnType"),
+   GROUP(NAMESPACE.iri +"group"),
+   NAME(NAMESPACE.iri +"name"),
+   EXPRESSION(NAMESPACE.iri +"expression"),
+   HAS_VALUE(NAMESPACE.iri +"hasValue");
 
+   public final String iri;
+   SHACL(String iri) {
+      this.iri = iri;
+   }
 
+   @Override
+   public TTIriRef asTTIriRef() {
+      return iri(this.iri);
+   }
 
-   private SHACL() {}
+   @Override
+   public String getIri() {
+      return iri;
+   }
+
+   public static boolean contains(String iri) {
+      try {
+         SHACL.valueOf(iri);
+         return true;
+      } catch (IllegalArgumentException e) {
+         return false;
+      }
+   }
 }
 

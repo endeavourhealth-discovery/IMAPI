@@ -35,7 +35,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     private RepositoryConnection conn;
     private final Map<String, String> prefixMap;
     private final Update deleteTriples;
-    String blockers="<http://snomed.info/sct#138875005>,<" + IM.NAMESPACE + "Concept>";
+    String blockers="<http://snomed.info/sct#138875005>,<" + IM.NAMESPACE.iri + "Concept>";
 
     private static final ValueFactory valueFactory = new ValidatingValueFactory(SimpleValueFactory.getInstance());
 
@@ -74,13 +74,13 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             if (entity.get(IM.HAS_SCHEME) == null)
                 entity.set(IM.HAS_SCHEME, graph);
         }
-        if (entity.getCrud().equals(IM.UPDATE_PREDICATES))
+        if (entity.getCrud().equals(IM.UPDATE_PREDICATES.asTTIriRef()))
             updatePredicates(entity, graph);
-        else if (entity.getCrud().equals(IM.ADD_QUADS))
+        else if (entity.getCrud().equals(IM.ADD_QUADS.asTTIriRef()))
             addQuads(entity, graph);
-        else if (entity.getCrud().equals(IM.UPDATE_ALL))
+        else if (entity.getCrud().equals(IM.UPDATE_ALL.asTTIriRef()))
             replacePredicates(entity, graph);
-        else if (entity.getCrud().equals(IM.DELETE_ALL))
+        else if (entity.getCrud().equals(IM.DELETE_ALL.asTTIriRef()))
             deleteTriples(entity, graph);
         else
             throw new TTFilerException("Entity " + entity.getIri() + " has no crud assigned");

@@ -78,9 +78,9 @@ public class SCGToTT {
 		String code=conceptId.getText();
 		if (code.matches("[0-9]+")) {
 			if (code.contains("1000252"))
-				return TTIriRef.iri(IM.NAMESPACE + code);
+				return TTIriRef.iri(IM.NAMESPACE.iri + code);
 			else
-				return TTIriRef.iri(SNOMED.NAMESPACE + code);
+				return TTIriRef.iri(SNOMED.NAMESPACE.iri + code);
 		} else
 			throw new DataFormatException("ECL converter can only be used for snomed codes at this stage");
 	}

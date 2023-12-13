@@ -12,7 +12,7 @@ public class TTDisplay {
 		throw new IllegalStateException("Utility class");
 	}
 
-	private static TTIriRef[] entity = {RDF.TYPE,RDFS.LABEL,IM.DEFINITION};
+	private static TTIriRef[] entity = {RDF.TYPE.asTTIriRef(),RDFS.LABEL.asTTIriRef(),IM.DEFINITION.asTTIriRef()};
 
 	public static TTIriRef[] getTemplate(TTNode node){
 		return entity;

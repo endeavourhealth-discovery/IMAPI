@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.json.TTArrayDeserializer;
 import org.endeavourhealth.imapi.json.TTArraySerializer;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.io.Serializable;
 import java.util.*;
@@ -23,6 +24,17 @@ public class TTArray implements Serializable {
             elements = new LinkedHashSet<>();
 
         elements.add(value);
+
+        return this;
+    }
+    public TTArray add(Vocabulary value) {
+        if (elements != null && elements.contains(value.asTTIriRef()))
+            return this;
+
+        if (elements == null)
+            elements = new LinkedHashSet<>();
+
+        elements.add(value.asTTIriRef());
 
         return this;
     }
@@ -88,9 +100,10 @@ public class TTArray implements Serializable {
     @Override
     public boolean equals(Object object){
         if (getElements().size()==1) {
-            if (!(object instanceof TTArray))
-            if (getElements().get(0).equals(object))
-                return true;
+            if (!(object instanceof TTArray)) {
+                if (getElements().get(0).equals(object))
+                    return true;
+            }
         }
         return super.equals(object);
     }

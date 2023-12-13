@@ -92,16 +92,16 @@ public class TTToOWLEL {
          addDeclaration(entity);
          Map<TTIriRef, TTArray> predicates = entity.getPredicateMap();
          for (Map.Entry<TTIriRef, TTArray> entry : predicates.entrySet()) {
-            if (entry.getKey().equals(RDFS.SUBCLASSOF)) {
+            if (entry.getKey().equals(RDFS.SUBCLASSOF.asTTIriRef())) {
                if (!entity.isType(RDF.PROPERTY))
                   addSubClassOf(iri, entry.getValue());
                else
-                  addSubPropertyOf(iri,OWL.OBJECTPROPERTY,entry.getValue());
+                  addSubPropertyOf(iri,OWL.OBJECTPROPERTY.asTTIriRef(),entry.getValue());
             }
-            else if (entry.getKey().equals(OWL.EQUIVALENTCLASS)) {
+            else if (entry.getKey().equals(OWL.EQUIVALENTCLASS.asTTIriRef())) {
                   addEquivalentClasses(iri, entry.getValue());
-            } else if (entry.getKey().equals(RDFS.SUBPROPERTYOF)) {
-               addSubPropertyOf(iri, OWL.OBJECTPROPERTY,entry.getValue());
+            } else if (entry.getKey().equals(RDFS.SUBPROPERTYOF.asTTIriRef())) {
+               addSubPropertyOf(iri, OWL.OBJECTPROPERTY.asTTIriRef(),entry.getValue());
             } else if (entry.getValue().isLiteral())
                addAnnotation(iri,entry.getKey(),entry.getValue().asLiteral());
          }
@@ -127,7 +127,7 @@ public class TTToOWLEL {
    }
    private void addSubPropertyOf(IRI iri, TTIriRef propertyType, TTArray superClasses) {
       for (TTValue exp:superClasses.iterator()) {
-         if (propertyType.equals(OWL.OBJECTPROPERTY)) {
+         if (propertyType.equals(OWL.OBJECTPROPERTY.asTTIriRef())) {
             OWLSubObjectPropertyOfAxiom subAx = dataFactory
                 .getOWLSubObjectPropertyOfAxiom(
                     dataFactory
@@ -225,7 +225,7 @@ public class TTToOWLEL {
              getOWLDataRange(exp));
       }else
          return
-             dataFactory.getOWLClass("OWL EL limit - cardinality and data restricions not supported", prefixManager);
+             dataFactory.getOWLClass("OWL EL limit - cardinality and data restrictions not supported", prefixManager);
    }
 
 

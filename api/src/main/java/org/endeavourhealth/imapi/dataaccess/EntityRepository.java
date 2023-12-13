@@ -206,7 +206,7 @@ public class EntityRepository {
         }
         TTValue ttValue= valueMap.get(subject);
         if (ttValue.isIriRef()) {
-            if (predicate.equals(RDFS.LABEL))
+            if (predicate.getIri().equals(RDFS.LABEL.iri))
                 ttValue.asIriRef().setName(value.stringValue());
         } else {
             processNode(value, valueMap, subject, st, predicate);
@@ -439,7 +439,7 @@ public class EntityRepository {
         if (rs.hasBinding("extraType")) {
             TTIriRef extraType = TTIriRef.iri(rs.getValue("extraType").stringValue(), rs.getValue("extraTypeName").stringValue());
             entityDocument.addType(extraType);
-            if (extraType.equals(TTIriRef.iri(IM.NAMESPACE + "DataModelEntity"))) {
+            if (extraType.equals(TTIriRef.iri(IM.NAMESPACE.iri + "DataModelEntity"))) {
                 int weighting = 2000000;
                 entityDocument.setWeighting(weighting);
             }
@@ -740,7 +740,7 @@ public class EntityRepository {
                 .add("}");
             BooleanQuery sparql = conn.prepareBooleanQuery(String.valueOf(stringQuery));
             sparql.setBinding("s",iri(subjectIri));
-            sparql.setBinding("p",iri(IM.IS_A.getIri()));
+            sparql.setBinding("p",iri(IM.IS_A.iri));
             sparql.setBinding("o",iri(objectIri));
             return sparql.evaluate();
         }
@@ -754,7 +754,7 @@ public class EntityRepository {
                 .add("}");
             BooleanQuery sparql = conn.prepareBooleanQuery(stringQuery.toString());
             sparql.setBinding("s",iri(searchIri));
-            sparql.setBinding("p",iri(RDF.TYPE.getIri()));
+            sparql.setBinding("p",iri(RDF.TYPE.iri));
             sparql.setBinding("o",iri(typeIri));
             return sparql.evaluate();
         }

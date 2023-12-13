@@ -19,11 +19,11 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class EntityRepository2 {
     private static final Logger LOG = LoggerFactory.getLogger(EntityRepository2.class);
 
-    private String IM_PREFIX = "PREFIX im: <" + IM.NAMESPACE + ">";
-    private String RDFS_PREFIX = "PREFIX rdfs: <" + RDFS.NAMESPACE + ">";
-    private String RDF_PREFIX = "PREFIX rdf: <" + RDF.NAMESPACE + ">";
-    private String SH_PREFIX = "PREFIX sh: <" + SHACL.NAMESPACE + ">";
-    private String SN_PREFIX = "PREFIX sn: <" + SNOMED.NAMESPACE + ">";
+    private String IM_PREFIX = "PREFIX im: <" + IM.NAMESPACE.iri + ">";
+    private String RDFS_PREFIX = "PREFIX rdfs: <" + RDFS.NAMESPACE.iri + ">";
+    private String RDF_PREFIX = "PREFIX rdf: <" + RDF.NAMESPACE.iri + ">";
+    private String SH_PREFIX = "PREFIX sh: <" + SHACL.NAMESPACE.iri + ">";
+    private String SN_PREFIX = "PREFIX sn: <" + SNOMED.NAMESPACE.iri + ">";
 
 
     /**
@@ -295,7 +295,7 @@ public class EntityRepository2 {
      * @return iri and name of entity
      */
     public TTIriRef getReferenceFromCoreTerm(String term) {
-        List<String> schemes = List.of(IM.NAMESPACE, SNOMED.NAMESPACE);
+        List<String> schemes = List.of(IM.NAMESPACE.iri, SNOMED.NAMESPACE.iri);
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add(IM_PREFIX)
                 .add(RDFS_PREFIX)
@@ -462,7 +462,7 @@ public class EntityRepository2 {
             predNames.put(predicate, predicate);
         }
         TTNode node;
-        if (predicate.equals(RDFS.LABEL.getIri())) {
+        if (predicate.equals(RDFS.LABEL.iri)) {
             if (s.isIRI()) {
                 if (subject.equals(entityIri)) {
                     entity.setName(value);
@@ -473,7 +473,7 @@ public class EntityRepository2 {
                 }
             } else {
                 tripleMap.putIfAbsent(subject, new TTNode());
-                tripleMap.get(subject).asNode().set(RDFS.LABEL, TTLiteral.literal(value, ((Literal) o).getDatatype().stringValue()));
+                tripleMap.get(subject).asNode().set(RDFS.LABEL.asTTIriRef(), TTLiteral.literal(value, ((Literal) o).getDatatype().stringValue()));
             }
         } else {
             if (s.isIRI()) {
@@ -601,7 +601,7 @@ public class EntityRepository2 {
     }
 
     private void addNames(boolean includeLegacy, StringJoiner spql, Map<String, String> prefixMap) {
-        spql.add("GRAPH ?scheme {?concept " + getShort(RDFS.LABEL.getIri(), "rdfs", prefixMap) + " ?name.")
+        spql.add("GRAPH ?scheme {?concept " + getShort(RDFS.LABEL.iri, "rdfs", prefixMap) + " ?name.")
                 .add("?concept im:code ?code")
                 .add(" OPTIONAL {?concept im:im1Id ?im1Id}");
         spql.add(" OPTIONAL {?scheme rdfs:label ?schemeName}}");
@@ -650,13 +650,13 @@ public class EntityRepository2 {
             if (group) {
                 spql.add("?roleGroup " + pred + " " + obj + ".");
                 spql.add(" FILTER (isBlank(?roleGroup))");
-                spql.add("?superMember " + getShort(IM.ROLE_GROUP.getIri(), "im", prefixMap) + " ?roleGroup.");
+                spql.add("?superMember " + getShort(IM.ROLE_GROUP.iri, "im", prefixMap) + " ?roleGroup.");
             } else {
                 spql.add("?superMember " + pred + " " + obj + ".");
                 spql.add("  FILTER (isIri(?superMember))");
             }
         }
-        spql.add("?concept " + getShort(IM.IS_A.getIri(), "im", prefixMap) + " ?superMember.");
+        spql.add("?concept " + getShort(IM.IS_A.iri, "im", prefixMap) + " ?superMember.");
     }
 
 
@@ -700,7 +700,7 @@ public class EntityRepository2 {
     }
 
     private String isa(Map<String, String> prefixMap) {
-        return getShort(IM.IS_A.getIri(), prefixMap);
+        return getShort(IM.IS_A.iri, prefixMap);
     }
 
     private void notClause(TTArray notClause, StringJoiner spql, Map<String, String> prefixMap) {
@@ -760,7 +760,7 @@ public class EntityRepository2 {
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
                     BindingSet bs = rs.next();
-                    return bs.getValue("o").stringValue().equals(IM.CONCEPT_SET.getIri()) || bs.getValue("o").stringValue().equals(IM.VALUESET.getIri());
+                    return bs.getValue("o").stringValue().equals(IM.CONCEPT_SET.iri) || bs.getValue("o").stringValue().equals(IM.VALUESET.iri);
                 }
             }
         }
@@ -813,8 +813,8 @@ public class EntityRepository2 {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding("subset", Values.iri(subsetIri));
-            qry.setBinding("issubset", Values.iri(IM.IS_SUBSET_OF.getIri()));
-            qry.setBinding("label", Values.iri(RDFS.LABEL.getIri()));
+            qry.setBinding("issubset", Values.iri(IM.IS_SUBSET_OF.iri));
+            qry.setBinding("label", Values.iri(RDFS.LABEL.iri));
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
@@ -1054,7 +1054,7 @@ public class EntityRepository2 {
                     result.add(new TTEntity()
                             .setIri(bs.getValue("s").stringValue())
                             .setName(bs.getValue("name").stringValue())
-                            .set(IM.USAGE_TOTAL, TTLiteral.literal(bs.getValue("usage").stringValue()))
+                            .set(IM.USAGE_TOTAL.asTTIriRef(), TTLiteral.literal(bs.getValue("usage").stringValue()))
                     );
                 }
             }
@@ -1120,7 +1120,7 @@ public class EntityRepository2 {
                     result.add(new TTEntity()
                             .setIri(bs.getValue("s").stringValue())
                             .setName(bs.getValue("name").stringValue())
-                            .set(IM.USAGE_TOTAL, TTLiteral.literal(bs.getValue("usage").stringValue()))
+                            .set(IM.USAGE_TOTAL.asTTIriRef(), TTLiteral.literal(bs.getValue("usage").stringValue()))
                     );
                 }
             }

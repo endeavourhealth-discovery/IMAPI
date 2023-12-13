@@ -25,11 +25,11 @@ public class SetTextFileExporter {
     public String getSetFile(String setIri, boolean definition, boolean core, boolean legacy, boolean includeSubsets,
                              boolean ownRow, boolean im1id, List<String> schemes, String del) throws QueryException, JsonProcessingException {
         LOG.debug("Exporting set to TSV");
-        String setName = entityRepository2.getBundle(setIri,Set.of(RDFS.LABEL.getIri())).getEntity().getName();
+        String setName = entityRepository2.getBundle(setIri,Set.of(RDFS.LABEL.iri)).getEntity().getName();
 
         String result = "";
 
-        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.getIri())).getEntity();
+        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.iri)).getEntity();
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return null;
 
@@ -52,9 +52,9 @@ public class SetTextFileExporter {
     }
 
     private String getEcl(TTEntity entity) throws QueryException, JsonProcessingException {
-        if (entity.get(IM.DEFINITION) == null)
+        if (entity.get(IM.DEFINITION.asTTIriRef()) == null)
             return null;
-        return IMLToECL.getECLFromQuery(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class), true);
+        return IMLToECL.getECLFromQuery(entity.get(IM.DEFINITION.asTTIriRef()).asLiteral().objectValue(Query.class), true);
     }
 
     private StringJoiner generateFile(String setName, Set<Concept> members, boolean includeLegacy, boolean ownRow, boolean im1id, String del, boolean includeSubset) {

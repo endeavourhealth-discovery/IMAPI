@@ -54,11 +54,11 @@ public class ExcelSetExporter {
      */
     public XSSFWorkbook getSetAsExcel(String setIri, boolean definition, boolean core, boolean legacy,boolean includeSubsets, boolean ownRow,
                                       boolean im1id, List<String> schemes) throws JsonProcessingException, QueryException {
-        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.getIri())).getEntity();
+        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.iri)).getEntity();
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return workbook;
 
-        String setName = entityRepository2.getBundle(setIri,Set.of(RDFS.LABEL.getIri())).getEntity().getName();
+        String setName = entityRepository2.getBundle(setIri,Set.of(RDFS.LABEL.iri)).getEntity().getName();
 
         String ecl = getEcl(entity);
         if(ecl != null && definition) {
@@ -87,9 +87,9 @@ public class ExcelSetExporter {
     }
 
     private String getEcl(TTEntity entity) throws QueryException, JsonProcessingException {
-        if (entity.get(IM.DEFINITION) == null)
+        if (entity.get(IM.DEFINITION.asTTIriRef()) == null)
             return null;
-        return IMLToECL.getECLFromQuery(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class), true);
+        return IMLToECL.getECLFromQuery(entity.get(IM.DEFINITION.asTTIriRef()).asLiteral().objectValue(Query.class), true);
     }
 
     private void addCoreExpansionToWorkBook(String setName, Set<Concept> members, boolean im1id, boolean includeSubsets) {

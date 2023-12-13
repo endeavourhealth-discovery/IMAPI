@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -47,6 +48,15 @@ public class Entity {
 		}
 		return this;
 	}
+	public Entity addType(Vocabulary newType) {
+		if (null != entityType) {
+			entityType.add(newType.asTTIriRef());
+		} else {
+			entityType = new HashSet<>();
+			entityType.add(newType.asTTIriRef());
+		}
+		return this;
+	}
 
 	public String getName() {
 		return name;
@@ -80,6 +90,12 @@ public class Entity {
 		this.isContainedIn.add(folder);
 		return this;
 	}
+	public Entity addIsContainedIn(Vocabulary folder){
+		if (this.isContainedIn ==null)
+			this.isContainedIn = new HashSet<>();
+		this.isContainedIn.add(folder.asTTIriRef());
+		return this;
+	}
 
 
 
@@ -91,6 +107,10 @@ public class Entity {
 		this.status = status;
 		return this;
 	}
+	public Entity setStatus(Vocabulary status) {
+		this.status = status.asTTIriRef();
+		return this;
+	}
 
 	public TTIriRef getScheme() {
 		return scheme;
@@ -98,6 +118,10 @@ public class Entity {
 
 	public Entity setScheme(TTIriRef scheme) {
 		this.scheme = scheme;
+		return this;
+	}
+	public Entity setScheme(Vocabulary scheme) {
+		this.scheme = scheme.asTTIriRef();
 		return this;
 	}
 }

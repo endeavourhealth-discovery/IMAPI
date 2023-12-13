@@ -30,19 +30,19 @@ public class SetReducer {
 	public TTEntity reduce(TTEntity set) throws InvalidAttributesException {
 		String sql=null;
 		Integer originalSize;
-		if (set.get(IM.DEFINITION)!=null) {
+		if (set.get(IM.DEFINITION.asTTIriRef())!=null) {
 				sql= getOrSql(set);
 				if (sql==null)
 					throw new InvalidAttributesException("Complex ecl. Cannot reduce");
 				else
-					originalSize= set.get(IM.DEFINITION).asNode().get(SHACL.OR).size();
+					originalSize= set.get(IM.DEFINITION.asTTIriRef()).asNode().get(SHACL.OR).size();
 		}
-		else if (set.get(IM.HAS_MEMBER)==null) {
+		else if (set.get(IM.HAS_MEMBER.asTTIriRef())==null) {
 			throw new InvalidAttributesException("No set members to reduce");
 		}
 		else {
 				sql = getMemberSql();
-				originalSize = set.get(IM.HAS_MEMBER).size();
+				originalSize = set.get(IM.HAS_MEMBER.asTTIriRef()).size();
 		}
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			TupleQuery qry = conn.prepareTupleQuery(sql);
@@ -52,13 +52,13 @@ public class SetReducer {
 					throw new InvalidAttributesException("Not converted to expression constraint. Does not have expanded members");
 
 				TTNode ors= new TTNode();
-				set.set(IM.DEFINITION,ors);
+				set.set(IM.DEFINITION.asTTIriRef(),ors);
 				while (rs.hasNext()) {
 					BindingSet bs = rs.next();
 					ors.addObject(SHACL.OR,TTIriRef.iri(bs.getValue("member").stringValue()));
 				}
-				set.getPredicateMap().remove(IM.HAS_MEMBER);
-				Integer newSize= set.get(IM.DEFINITION).asNode().get(SHACL.OR).size();
+				set.getPredicateMap().remove(IM.HAS_MEMBER.asTTIriRef());
+				Integer newSize= set.get(IM.DEFINITION.asTTIriRef()).asNode().get(SHACL.OR).size();
 				System.out.println("for set " + set.getIri() +
 					" original size = "+ originalSize+" new size "+ newSize+ " removed " + (originalSize- newSize) + " members");
 			}
@@ -84,7 +84,7 @@ public class SetReducer {
 
 	private String getOrSql(TTEntity set) {
 
-		TTArray definition= set.get(IM.DEFINITION);
+		TTArray definition= set.get(IM.DEFINITION.asTTIriRef());
 		if (definition.isIriRef()){
 			return null;
 		}

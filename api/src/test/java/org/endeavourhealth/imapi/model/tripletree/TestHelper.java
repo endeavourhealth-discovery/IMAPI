@@ -238,7 +238,7 @@ public class TestHelper {
         // Type(s)
         assertEquals(1, entity.get(RDF.TYPE).size());
         assertTrue(entity.get(RDF.TYPE).get(0).isIriRef());
-        assertEquals(IM.CONCEPT, entity.get(RDF.TYPE).get(0).asIriRef());
+        assertEquals(IM.CONCEPT.asTTIriRef(), entity.get(RDF.TYPE).get(0).asIriRef());
 
         // Is A(s)
         assertEquals(2, entity.get(IM.IS_A).size());

@@ -184,7 +184,7 @@ public class OdsService {
     }
 
     private String getStatus(BindingSet bs) {
-        return IM.ACTIVE.getIri().equals(bs.getValue("status").stringValue())
+        return IM.ACTIVE.iri.equals(bs.getValue("status").stringValue())
             ? "Active"
             : "Inactive";
     }

@@ -88,9 +88,9 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
     }
 
     private void setPredicateOrder() {
-        List<TTIriRef> predicateTemplate = List.of(RDF.TYPE, RDFS.LABEL,
-            RDFS.COMMENT, IM.CODE, IM.HAS_SCHEME, IM.HAS_STATUS,
-            RDFS.SUBCLASSOF);
+        List<TTIriRef> predicateTemplate = List.of(RDF.TYPE.asTTIriRef(), RDFS.LABEL.asTTIriRef(),
+            RDFS.COMMENT.asTTIriRef(), IM.CODE.asTTIriRef(), IM.HAS_SCHEME.asTTIriRef(), IM.HAS_STATUS.asTTIriRef(),
+            RDFS.SUBCLASSOF.asTTIriRef());
     }
 }
 

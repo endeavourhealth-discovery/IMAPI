@@ -141,7 +141,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
 
             setEntityCrudOperation(transaction, entity);
 
-            if (entity.getCrud() == IM.UPDATE_ALL) {
+            if (Objects.equals(entity.getCrud(), IM.UPDATE_ALL.asTTIriRef())) {
                 if (entity.getGraph() == null && transaction.getGraph() == null)
                     throw new TTFilerException("Entity " + entity.getIri() + " must have a graph assigned, or the transaction must have a default graph");
                 String graph = entity.getGraph() != null ? entity.getGraph().getIri() : transaction.getGraph().getIri();
@@ -213,7 +213,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
             }
     }
     private void fileEntity(TTEntity entity, TTIriRef graph) throws TTFilerException {
-        if (IM.GRAPH_ODS.equals(graph))
+        if (IM.GRAPH_ODS.iri.equals(graph.getIri()))
             instanceFiler.fileEntity(entity, graph);
         else
             conceptFiler.fileEntity(entity, graph);
@@ -331,7 +331,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
     public void fileEntities(Map<String, String> prefixMap, TTDocument document) throws TTFilerException {
         LOG.info("Filing entities.... ");
 
-        TTIriRef defaultGraph = document.getGraph() != null ? document.getGraph() : IM.GRAPH_DISCOVERY;
+        TTIriRef defaultGraph = document.getGraph() != null ? document.getGraph() : IM.GRAPH_DISCOVERY.asTTIriRef();
 
         startTransaction();
         try {

@@ -175,7 +175,7 @@ public class FilerController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, container does not exist");
         }
 
-        String iri = IM.NAMESPACE + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8.toString());
+        String iri = IM.NAMESPACE.iri + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8.toString());
         if (entityService.iriExists(iri)) {
             LOG.error("Entity with that name already exists");
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity with that name already exists");
@@ -183,7 +183,7 @@ public class FilerController {
 
         Query query = new Query()
                 .setName("Allowable child types for a folder")
-                .setIri(IM.NAMESPACE+"Query_AllowableChildTypes");
+                .setIri(IM.NAMESPACE.iri+"Query_AllowableChildTypes");
         QueryRequest queryRequest = new QueryRequest()
                 .setQuery(query)
                 .argument(a->a

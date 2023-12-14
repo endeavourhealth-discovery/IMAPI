@@ -146,6 +146,9 @@ public class TTLiteral implements TTValue, Serializable {
         this.type = type;
         return this;
     }
+    public TTLiteral setType(Vocabulary type) {
+        return setType(type.asTTIriRef());
+    }
 
     @Override
     public TTLiteral asLiteral() {

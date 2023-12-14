@@ -25,6 +25,9 @@ public class TTUtil {
 				else
 				  return clazz.cast(value.asNode());
 	}
+	public static Object get(TTNode node, Vocabulary predicate, Class clazz) {
+		return get(node,predicate.asTTIriRef(),clazz);
+	}
 
 	public static void add(TTNode node, TTIriRef predicate, TTValue value){
 		if (!value.isIriRef() && !value.isLiteral()) {
@@ -36,6 +39,9 @@ public class TTUtil {
 		}
 		node.addObject(predicate,value);
 
+	}
+	public static void add(TTNode node, Vocabulary predicate, TTValue value){
+		add(node,predicate.asTTIriRef(),value);
 	}
 
 	public static <T> List<T> getList(TTNode node, TTIriRef predicate,Class clazz){
@@ -53,6 +59,9 @@ public class TTUtil {
 		}
 		return result;
 	}
+	public static <T> List<T> getList(TTNode node, Vocabulary predicate,Class clazz){
+		return getList(node,predicate.asTTIriRef(),clazz);
+	}
 
 	public static <T> List<T> getOrderedList(TTNode node,TTIriRef predicate,Class clazz){
 		List<T> result = getList(node,predicate,clazz);
@@ -62,6 +71,9 @@ public class TTUtil {
 		} catch (Exception e) {
 			return result;
 		}
+	}
+	public static <T> List<T> getOrderedList(TTNode node,Vocabulary predicate,Class clazz){
+		return getOrderedList(node,predicate.asTTIriRef(),clazz);
 	}
 	public static TTContext getDefaultContext(){
 		TTContext ctx=new TTContext();

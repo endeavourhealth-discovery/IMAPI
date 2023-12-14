@@ -36,18 +36,10 @@ public class TTNode implements TTValue, Serializable {
         return this;
     }
     public TTNode set(Vocabulary predicate, TTValue value) {
-        if (value==null)
-            predicateValues.remove(predicate.asTTIriRef());
-        else
-            predicateValues.put(predicate.asTTIriRef(), new TTArray().add(value));
-        return this;
+        return set(predicate.asTTIriRef(),value);
     }
     public TTNode set(Vocabulary predicate, Vocabulary value) {
-        if (value==null)
-            predicateValues.remove(predicate.asTTIriRef());
-        else
-            predicateValues.put(predicate.asTTIriRef(), new TTArray().add(value.asTTIriRef()));
-        return this;
+        return set(predicate.asTTIriRef(),value.asTTIriRef());
     }
     @JsonIgnore
     public TTNode set(TTIriRef predicate,String value){
@@ -59,11 +51,7 @@ public class TTNode implements TTValue, Serializable {
     }
     @JsonIgnore
     public TTNode set(Vocabulary predicate, String value){
-        if (value.startsWith("http:"))
-            this.set(predicate.asTTIriRef(),TTIriRef.iri(value));
-        else
-            this.set(predicate.asTTIriRef(),TTLiteral.literal(value));
-        return this;
+        return set(predicate.asTTIriRef(),value);
     }
     @JsonIgnore
     public TTNode set(TTIriRef predicate,Integer value){
@@ -72,8 +60,7 @@ public class TTNode implements TTValue, Serializable {
     }
     @JsonIgnore
     public TTNode set(Vocabulary predicate,Integer value){
-        this.set(predicate.asTTIriRef(),TTLiteral.literal(value));
-        return this;
+        return set(predicate.asTTIriRef(),TTLiteral.literal(value));
     }
 
     @JsonIgnore
@@ -83,8 +70,7 @@ public class TTNode implements TTValue, Serializable {
     }
     @JsonIgnore
     public TTNode set(Vocabulary predicate,boolean value){
-        this.set(predicate.asTTIriRef(),TTLiteral.literal(value));
-        return this;
+        return set(predicate.asTTIriRef(),TTLiteral.literal(value));
     }
 
     @JsonIgnore
@@ -94,8 +80,7 @@ public class TTNode implements TTValue, Serializable {
     }
     @JsonIgnore
     public TTNode set(Vocabulary predicate,Long value){
-        this.set(predicate.asTTIriRef(),TTLiteral.literal(value));
-        return this;
+        return set(predicate.asTTIriRef(),TTLiteral.literal(value));
     }
 
 
@@ -104,22 +89,21 @@ public class TTNode implements TTValue, Serializable {
         return this;
     }
     public TTNode set(Vocabulary predicate, TTArray value) {
-        predicateValues.put(predicate.asTTIriRef(), value);
-        return this;
+        return set(predicate.asTTIriRef(), value);
     }
 
     public TTArray get(TTIriRef predicate) {
         return predicateValues.get(predicate);
     }
     public TTArray get(Vocabulary predicate) {
-        return predicateValues.get(predicate.asTTIriRef());
+        return get(predicate.asTTIriRef());
     }
 
     public boolean has(TTIriRef predicate) {
         return predicateValues.containsKey(predicate);
     }
     public boolean has(Vocabulary predicate) {
-        return predicateValues.containsKey(predicate.asTTIriRef());
+        return has(predicate.asTTIriRef());
     }
 
     public Map<TTIriRef, TTArray> getPredicateMap() {
@@ -147,8 +131,7 @@ public class TTNode implements TTValue, Serializable {
         return (vals == null) ? null : vals.asLiteral();
     }
     public TTLiteral getAsLiteral(Vocabulary predicate) {
-        TTArray vals = get(predicate);
-        return (vals == null) ? null : vals.asLiteral();
+        return getAsLiteral(predicate.asTTIriRef());
     }
 
     public TTIriRef getAsIriRef(TTIriRef predicate) {
@@ -156,8 +139,7 @@ public class TTNode implements TTValue, Serializable {
         return (vals == null) ? null : vals.asIriRef();
     }
     public TTIriRef getAsIriRef(Vocabulary predicate) {
-        TTArray vals = get(predicate);
-        return (vals == null) ? null : vals.asIriRef();
+        return getAsIriRef(predicate.asTTIriRef());
     }
 
     public TTNode getAsNode(TTIriRef predicate) {
@@ -165,8 +147,7 @@ public class TTNode implements TTValue, Serializable {
         return (vals == null) ? null : vals.asNode();
     }
     public TTNode getAsNode(Vocabulary predicate) {
-        TTArray vals = get(predicate);
-        return (vals == null) ? null : vals.asNode();
+        return getAsNode(predicate.asTTIriRef());
     }
 
 
@@ -184,11 +165,10 @@ public class TTNode implements TTValue, Serializable {
         return this;
     }
     public TTNode addObject(Vocabulary predicate, TTValue object){
-        if (this.get(predicate)==null)
-            this.set(predicate, new TTArray().add(object));
-        else
-            this.get(predicate).add(object);
-        return this;
+        return addObject(predicate.asTTIriRef(),object);
+    }
+    public TTNode addObject(Vocabulary predicate, Vocabulary object){
+        return addObject(predicate.asTTIriRef(),object.asTTIriRef());
     }
 
     /**
@@ -205,11 +185,7 @@ public class TTNode implements TTValue, Serializable {
         return this;
     }
     public TTNode addObject(Vocabulary predicate, String value){
-        if (value.startsWith("http:"))
-            this.addObject(predicate,TTIriRef.iri(value));
-        else
-            this.addObject(predicate,TTLiteral.literal(value));
-        return this;
+        return addObject(predicate.asTTIriRef(),value);
     }
 
     /**
@@ -223,8 +199,7 @@ public class TTNode implements TTValue, Serializable {
         return this;
     }
     public TTNode addObject(Vocabulary predicate, Integer value){
-        this.addObject(predicate,TTLiteral.literal(value));
-        return this;
+        return addObject(predicate.asTTIriRef(),value);
     }
     /**
      * Adds an integer value to a predicate if necessary converting to an array if not already an array
@@ -237,8 +212,7 @@ public class TTNode implements TTValue, Serializable {
         return this;
     }
     public TTNode addObject(Vocabulary predicate, boolean value){
-        this.addObject(predicate,TTLiteral.literal(value));
-        return this;
+        return addObject(predicate.asTTIriRef(),value);
     }
 
     /**
@@ -252,8 +226,7 @@ public class TTNode implements TTValue, Serializable {
         return this;
     }
     public TTNode addObject(Vocabulary predicate, Long value){
-        this.addObject(predicate,TTLiteral.literal(value));
-        return this;
+        return addObject(predicate.asTTIriRef(),value);
     }
 
 

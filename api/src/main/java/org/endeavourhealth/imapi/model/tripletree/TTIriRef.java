@@ -19,6 +19,9 @@ public class TTIriRef implements TTValue, Serializable {
     public static TTIriRef iri(String iri, String name) {
         return new TTIriRef(iri, name);
     }
+    public static TTIriRef iri(Vocabulary iri) {
+        return iri.asTTIriRef();
+    }
 
     private static Pattern iriPattern = Pattern.compile("([a-z]+)?[:].*");
 

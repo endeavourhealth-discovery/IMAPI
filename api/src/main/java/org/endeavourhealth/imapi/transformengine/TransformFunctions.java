@@ -12,11 +12,11 @@ public class TransformFunctions {
 
 
 	public static Object runFunction(String iri, Map<String, Object> args) throws DataFormatException {
-		if (iri.equals(IM.NAMESPACE+"Concatenate"))
+		if (iri.equals(IM.NAMESPACE.iri+"Concatenate"))
 			return concatenate(args);
-		else if (iri.equals(IM.NAMESPACE+"StringJoin"))
+		else if (iri.equals(IM.NAMESPACE.iri+"StringJoin"))
 			return stringJoin(args);
-		else if (iri.equals(IM.NAMESPACE+"SchemedCodeConceptMap"))
+		else if (iri.equals(IM.NAMESPACE.iri+"SchemedCodeConceptMap"))
 			return schemeCodeConcept(args);
 		else
 			throw new RuntimeException("FunctionClause not supported : "+ iri);

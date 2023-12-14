@@ -11,7 +11,7 @@ public enum ODS implements Vocabulary {
     ORGANISATION_RELATIONSHIP(BASE_NAMESPACE.iri + "OrganizationRelationship-1#ODS_Relationship"),
     ORGANISATION_RECORD_CLASS(BASE_NAMESPACE.iri + "OrganizationRecordClass-1#ODS_RecordClass");
 
-    private final String iri;
+    public final String iri;
     ODS(String iri) {
         this.iri = iri;
     }

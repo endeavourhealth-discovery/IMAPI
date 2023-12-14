@@ -37,6 +37,9 @@ public class TTDocument extends TTNode {
     public TTDocument(TTIriRef defaultGraph) {
         this.graph = defaultGraph;
     }
+    public TTDocument(Vocabulary defaultGraph) {
+        this.graph = defaultGraph.asTTIriRef();
+    }
 
     public TTDocument() {
     }
@@ -49,6 +52,9 @@ public class TTDocument extends TTNode {
     public TTDocument setGraph(TTIriRef graph) {
         this.graph = graph;
         return this;
+    }
+    public TTDocument setGraph(Vocabulary graph) {
+        return setGraph(graph.asTTIriRef());
     }
 
     public List<TTPrefix> getPrefixes() {
@@ -103,8 +109,7 @@ public class TTDocument extends TTNode {
     }
 
     public TTDocument setCrud(Vocabulary crud) {
-        this.crud = crud.asTTIriRef();
-        return this;
+        return setCrud(crud.asTTIriRef());
     }
 
 }

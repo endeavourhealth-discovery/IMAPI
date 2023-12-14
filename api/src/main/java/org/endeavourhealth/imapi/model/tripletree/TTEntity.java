@@ -81,8 +81,7 @@ public class TTEntity extends TTNode implements Serializable {
     }
 
     public TTEntity setScheme(Vocabulary scheme) {
-        set(IM.HAS_SCHEME.asTTIriRef(), scheme.asTTIriRef());
-        return this;
+        return setScheme(scheme.asTTIriRef());
     }
 
     public TTIriRef getScheme() {
@@ -107,15 +106,7 @@ public class TTEntity extends TTNode implements Serializable {
     }
 
     public TTEntity addType(Vocabulary type) {
-        TTArray types;
-        if (has(RDF.TYPE.asTTIriRef())) {
-            types = get(RDF.TYPE.asTTIriRef());
-        } else {
-            types = new TTArray();
-            setType(types);
-        }
-        types.add(type.asTTIriRef());
-        return this;
+        return addType(type.asTTIriRef());
     }
     public boolean isType(TTIriRef type){
         if (this.getType()!=null){
@@ -125,10 +116,7 @@ public class TTEntity extends TTNode implements Serializable {
     }
 
     public boolean isType(Vocabulary type) {
-        if (this.getType()!=null){
-            return this.getType().contains(type.asTTIriRef());
-        }
-        return false;
+        return isType(type.asTTIriRef());
     }
 
     public TTArray getType() {
@@ -148,8 +136,7 @@ public class TTEntity extends TTNode implements Serializable {
     }
 
     public TTEntity setStatus(Vocabulary status) {
-        set(IM.HAS_STATUS.asTTIriRef(), status.asTTIriRef());
-        return this;
+        return setStatus(status.asTTIriRef());
     }
 
     public TTEntity setContext(TTContext context) {
@@ -180,14 +167,12 @@ public class TTEntity extends TTNode implements Serializable {
 
     @Override
     public TTEntity set(Vocabulary predicate, TTValue value) {
-        super.set(predicate.asTTIriRef(), value);
-        return this;
+        return set(predicate.asTTIriRef(),value);
     }
 
     @Override
     public TTEntity set(Vocabulary predicate, TTArray value) {
-        super.set(predicate.asTTIriRef(), value);
-        return this;
+        return set(predicate.asTTIriRef(),value);
     }
 
     public TTContext getContext() {
@@ -203,8 +188,7 @@ public class TTEntity extends TTNode implements Serializable {
     }
 
     public TTEntity setCrud(Vocabulary crud) {
-        this.crud = crud.asTTIriRef();
-        return this;
+        return setCrud(crud.asTTIriRef());
     }
 
     public TTIriRef getGraph() {
@@ -217,7 +201,6 @@ public class TTEntity extends TTNode implements Serializable {
     }
 
     public TTEntity setGraph(Vocabulary graph) {
-        this.graph = graph.asTTIriRef();
-        return this;
+        return setGraph(graph.asTTIriRef());
     }
 }

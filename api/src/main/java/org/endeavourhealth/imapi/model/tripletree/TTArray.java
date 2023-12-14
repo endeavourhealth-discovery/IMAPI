@@ -28,15 +28,7 @@ public class TTArray implements Serializable {
         return this;
     }
     public TTArray add(Vocabulary value) {
-        if (elements != null && elements.contains(value.asTTIriRef()))
-            return this;
-
-        if (elements == null)
-            elements = new LinkedHashSet<>();
-
-        elements.add(value.asTTIriRef());
-
-        return this;
+        return add(value.asTTIriRef());
     }
 
     public boolean isEmpty() { return elements.isEmpty(); }

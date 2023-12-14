@@ -170,7 +170,7 @@ class SearchServiceTest {
 		TTEntity entity= es.getFullEntity(IM.NAMESPACE.iri+"VSET_VitalSigns").getEntity();
 		String json = entity.get(IM.DEFINITION).asLiteral().getValue();
 		SetExporter exporter = new SetExporter();
-		Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE + "VSET_VitalSigns", false, true, List.of());
+		Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE.iri + "VSET_VitalSigns", false, true, List.of());
 		System.out.println(concepts.size());
 	}
 }

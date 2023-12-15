@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.vocabulary;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -57,6 +58,7 @@ public enum SHACL implements Vocabulary {
    }
 
    @Override
+   @JsonValue
    public String getIri() {
       return iri;
    }

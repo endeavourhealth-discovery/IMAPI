@@ -144,6 +144,7 @@ public class IM {
     public static final TTIriRef GRAPH_DISCOVERY = iri(IM.DOMAIN + "im#");
     public static final TTIriRef GRAPH_ICD10 = iri(DOMAIN + "icd10#");
     public static final TTIriRef GRAPH_EMIS = TTIriRef.iri(DOMAIN + "emis#");
+    public static final TTIriRef GRAPH_EMIS_CORE = TTIriRef.iri(DOMAIN + "emisc#");
     public static final TTIriRef GRAPH_CPRD_MED = TTIriRef.iri(DOMAIN + "cprdm#");
     public static final TTIriRef GRAPH_CPRD_PROD = TTIriRef.iri(DOMAIN + "cprdp#");
     public static final TTIriRef GRAPH_OPCS4 = TTIriRef.iri(DOMAIN + "opcs4#");

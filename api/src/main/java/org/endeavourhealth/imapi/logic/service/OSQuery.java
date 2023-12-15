@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.elasticsearch.common.unit.Fuzziness;
@@ -12,6 +13,9 @@ import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.elasticsearch.xcontent.XContentBuilder;
+import org.elasticsearch.xcontent.XContentFactory;
+import org.elasticsearch.xcontent.json.JsonXContent;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
@@ -24,6 +28,8 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -74,7 +80,10 @@ public class OSQuery {
         if (corrected!=null) {
                     request.setTermFilter(corrected);
                     results = defaultQuery(request);
+                    if (!results.isEmpty())
+                    return results;
         }
+
         return results;
     }
     private List<SearchResultSummary> defaultQuery(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
@@ -121,66 +130,41 @@ public class OSQuery {
         return wrapandRun(qry, request);
     }
 
-    private String getScript(SearchRequest request) {
-        if (request.getOrderBy()==null)
+    private Map<String,Object> getScript(SearchRequest request) throws JsonProcessingException {
+        if (request.getOrderBy() == null)
             return null;
-        boolean scriptScore=false;
-        StringBuilder script= new StringBuilder();
-        for (OrderBy orderBy:request.getOrderBy()) {
+        Map<String, Object> params = null;
+        for (OrderBy orderBy : request.getOrderBy()) {
             if (orderBy.getAnd() != null || orderBy.getIriValue() != null || orderBy.isStartsWithTerm()) {
-                if (script.isEmpty()) {
-                    script.append("int score=1000000;");
-                    script.append("int dif=100000;");
-                    scriptScore = true;
+                if (params == null) {
+                    params = new HashMap<>();
+                    params.put("term", request.getTermFilter().toLowerCase());
+                    Map<String,Object> ordersMap= new HashMap<>();
+                    params.put("orders",ordersMap);
+                    ordersMap.put("orderBy",new ArrayList<>());
                 }
-                String field;
-                int arraySize;
-                if (orderBy.getIriValue() != null || orderBy.getTextValue() != null) {
-                    if (orderBy.getIriValue() != null) {
-                        field = orderBy.getField() + ".@id";
-                        arraySize = orderBy.getIriValue().size();
-                    }
-                    else {
-                        field = orderBy.getField();
-                        arraySize = orderBy.getTextValue().size();
-                    }
-                    script.append(" if (doc['").append(field).append("'].size()>0){ ");
-                    script.append("def ids=doc['").append(field).append("'];");
-                    int index = 0;
+                Map<String,Object> ordersMap= (Map) params.get("orders");
+                Map<String,Object> orderByMap= new HashMap<>();
+                ((List) ordersMap.get("orderBy")).add(orderByMap);
+                orderByMap.put("field", orderBy.getField());
+                if (orderBy.getIriValue() != null) {
+                    orderByMap.put("iriValue", new ArrayList<>());
                     for (TTIriRef iriValue : orderBy.getIriValue()) {
-                        index++;
-                        if (index > 1)
-                            script.append(" else if ");
-                        else
-                            script.append(" if ");
-                        script.append(" (ids.contains('").append(iriValue.getIri()).append("'))");
-                        script.append("    score=score-(dif*").append(index).append(");");
+                        ((List) orderByMap.get("iriValue")).add(iriValue.getIri());
                     }
-                    script.append("else score=score-(dif*").append(arraySize + 1).append(");");
-                    script.append(" }");
-                    script.append(" else score=score-(dif*9)").append(";");
                 }
-                else if (orderBy.isStartsWithTerm()) {
-                    field = orderBy.getField() + ".keyword";
-                    script.append(" if (doc['").append(field).append("'].size()>0) { ");
-                    script.append(" if (doc['").append(field).append("'].value.toLowerCase().startsWith('").append(request.getTermFilter()).append("'))");
-                    script.append(" score =score-dif;");
-                    script.append(" else score=score-(dif*2);");
-                    script.append("}");
-                    script.append(" else score=score-(dif*2);");
+                if (orderBy.getTextValue() != null) {
+                    orderByMap.put("textValue", new ArrayList<>());
+                    for (String textValue : orderBy.getTextValue()) {
+                        ((List) orderByMap.get("textValue")).add(textValue);
+                    }
                 }
-                script.append(" dif= dif/10;");
+                if (orderBy.isStartsWithTerm()) {
+                    orderByMap.put("startsWithTerm", true);
+                }
             }
         }
-        if (scriptScore) {
-            script.append(" return score;");
-            return script.toString();
-        }
-        else
-            return null;
-
-
-
+        return params;
 
 
     }
@@ -382,9 +366,9 @@ public class OSQuery {
     private List<SearchResultSummary> wrapandRun(QueryBuilder query,SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         SearchSourceBuilder bld= new SearchSourceBuilder();
         if (hasScriptScore) {
-            String scriptScore = getScript(request);
-            if (scriptScore != null) {
-                Script script = new Script(ScriptType.INLINE, "painless", scriptScore, new HashMap<>());
+            Map<String,Object> params= getScript(request);
+            if (params != null) {
+                Script script = new Script(ScriptType.STORED,null,"orderBy",params);
                 //Script script= new Script(ScriptType.STORED,null,scriptScore,new HashMap<>());
                 ScriptScoreQueryBuilder sqr = QueryBuilders.scriptScoreQuery(query, script);
                 bld.query(sqr);
@@ -432,6 +416,7 @@ public class OSQuery {
         request.addTiming("About to run query");
 
         String queryJson = bld.toString();
+
         HttpResponse<String> response= getQueryResponse(request,queryJson);
 
         try (CachedObjectMapper om = new CachedObjectMapper()) {

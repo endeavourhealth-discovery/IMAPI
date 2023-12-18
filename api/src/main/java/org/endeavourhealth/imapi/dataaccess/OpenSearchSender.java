@@ -217,7 +217,7 @@ public class OpenSearchSender {
                         extraType = TTIriRef.iri(rs.getValue("extraType").stringValue());
                         extraType.setName(rs.getValue("extraTypeName").stringValue());
                         blob.addType(extraType);
-                        if (extraType.equals(TTIriRef.iri(IM.NAMESPACE + "DataModelEntity"))) {
+                        if (extraType.equals(TTIriRef.iri(IM.NAMESPACE.iri + "DataModelEntity"))) {
                             int weighting = 2000000;
                             blob.setWeighting(weighting);
                         }
@@ -299,7 +299,7 @@ public class OpenSearchSender {
                     if (synonym != null) {
                         if (status==null)
                             addMatchTerm(blob,synonym);
-                        else if (!status.equals(IM.INACTIVE))
+                        else if (!status.getIri().equals(IM.INACTIVE.iri))
                             addMatchTerm(blob, synonym);
                         SearchTermCode tc = getTermCode(blob, synonym);
                         if (tc == null) {

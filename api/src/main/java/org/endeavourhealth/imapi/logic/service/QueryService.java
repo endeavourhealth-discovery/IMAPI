@@ -41,11 +41,11 @@ public class QueryService {
                     summary.setIri(entity.get("@id").asText());
                     summary.setName(entity.get(RDFS.LABEL.getIri()).asText());
                     if (entity.has(RDFS.COMMENT.getIri())) summary.setDescription(entity.get(RDFS.COMMENT.getIri()).asText());
-                    if (entity.has(IM.CODE.getIri())) summary.setCode(entity.get(IM.CODE.getIri()).asText());
-                    summary.setStatus(jsonNodeToTTIriRef(entity, IM.HAS_STATUS.getIri()).get(0));
-                    summary.setScheme(jsonNodeToTTIriRef(entity, IM.HAS_SCHEME.getIri()).get(0));
+                    if (entity.has(IM.CODE.iri)) summary.setCode(entity.get(IM.CODE.iri).asText());
+                    summary.setStatus(jsonNodeToTTIriRef(entity, IM.HAS_STATUS.iri).get(0));
+                    summary.setScheme(jsonNodeToTTIriRef(entity, IM.HAS_SCHEME.iri).get(0));
                     summary.getEntityType().addAll(jsonNodeToTTIriRef(entity, RDF.TYPE.getIri()));
-                    if (entity.has(IM.WEIGHTING.getIri())) summary.setWeighting(entity.get(IM.WEIGHTING.getIri()).asInt());
+                    if (entity.has(IM.WEIGHTING.iri)) summary.setWeighting(entity.get(IM.WEIGHTING.iri).asInt());
 
                     result.add(summary);
                 }

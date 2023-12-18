@@ -48,7 +48,7 @@ public class UserRepository {
         String sparql = getSparqlSelect();
         try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
             TupleQuery qry = prepareSparql(conn, sparql);
-            qry.setBinding("s", iri(USER.NAMESPACE + user));
+            qry.setBinding("s", iri(USER.NAMESPACE.iri + user));
             qry.setBinding("p", iri(USER.USER_THEME.getIri()));
 
             try (TupleQueryResult rs = qry.evaluate()) {
@@ -67,7 +67,7 @@ public class UserRepository {
 
         try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
             TupleQuery qry = prepareSparql(conn, sparql);
-            qry.setBinding("s", iri(USER.NAMESPACE + user));
+            qry.setBinding("s", iri(USER.NAMESPACE.iri + user));
             qry.setBinding("p", iri(USER.USER_MRU.getIri()));
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
@@ -88,7 +88,7 @@ public class UserRepository {
 
         try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
             TupleQuery qry = prepareSparql(conn, sparql);
-            qry.setBinding("s", iri(USER.NAMESPACE + user));
+            qry.setBinding("s", iri(USER.NAMESPACE.iri + user));
             qry.setBinding("p", iri(USER.USER_FAVOURITES.getIri()));
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
@@ -107,7 +107,7 @@ public class UserRepository {
         String sparql = getSparqlDelete();
         try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
             Update qry = conn.prepareUpdate(sparql);
-            qry.setBinding("s", iri(USER.NAMESPACE + user));
+            qry.setBinding("s", iri(USER.NAMESPACE.iri + user));
             qry.setBinding("p", iri(predicate));
             qry.execute();
         }
@@ -118,7 +118,7 @@ public class UserRepository {
             String sparql = getSparqlInsert();
             try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
                 Update qry = prepareUpdateSparql(conn, sparql);
-                qry.setBinding("s", iri(USER.NAMESPACE + user));
+                qry.setBinding("s", iri(USER.NAMESPACE.iri + user));
                 qry.setBinding("p", iri(predicate));
                 qry.setBinding("o", literal(om.writeValueAsString(object)));
                 qry.execute();
@@ -148,11 +148,11 @@ public class UserRepository {
     }
 
     public List<String> getUserOrganisations(String user) throws JsonProcessingException {
-        List<String> result = new ArrayList<>(List.of(IM.NAMESPACE));
+        List<String> result = new ArrayList<>(List.of(IM.NAMESPACE.iri));
         String sparql = getSparqlSelect();
         try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
             TupleQuery qry = prepareSparql(conn, sparql);
-            qry.setBinding("s", iri(USER.NAMESPACE + user));
+            qry.setBinding("s", iri(USER.NAMESPACE.iri + user));
             qry.setBinding("p", iri(USER.ORGANISATIONS.getIri()));
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
@@ -177,7 +177,7 @@ public class UserRepository {
     public boolean getUserIdExists(String userId) {
         try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
             BooleanQuery qry = conn.prepareBooleanQuery("ASK { ?s ?p ?o.}");
-            qry.setBinding("s", iri(USER.NAMESPACE + userId));
+            qry.setBinding("s", iri(USER.NAMESPACE.iri + userId));
             return qry.evaluate();
         }
     }

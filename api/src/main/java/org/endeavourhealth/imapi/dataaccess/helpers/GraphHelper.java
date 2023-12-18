@@ -53,10 +53,10 @@ public class GraphHelper {
 		String subject= s.stringValue();
 		String predicate= p.stringValue();
 		String value = o.stringValue();
-		if (predicate.equals(IM.PLABEL.getIri())){
+		if (predicate.equals(IM.PLABEL.iri)){
 			entityMap.addPredicate(subject,value);
 		}
-		else if (predicate.equals(IM.OLABEL.getIri())){
+		else if (predicate.equals(IM.OLABEL.iri)){
 			tripleMap.putIfAbsent(subject, TTIriRef.iri(subject));
 			tripleMap.get(subject).asIriRef().setName(value);
 		}

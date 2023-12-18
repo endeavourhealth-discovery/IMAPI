@@ -20,6 +20,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
 
 import java.io.IOException;
 import java.util.*;
@@ -36,7 +37,7 @@ public class ImportMaps implements AutoCloseable {
 	 */
 	public Map<String, Set<String>> importEmisToSnomed() throws TTFilerException, IOException {
 		if (TTFilerFactory.isBulk())
-			return fileRepo.getCodeCoreMap(IM.CODE_SCHEME_EMIS.getIri());
+			return fileRepo.getCodeCoreMap(GRAPH.EMIS.iri);
 		return importEmisToSnomedRdf4j();
 	}
 
@@ -171,7 +172,7 @@ public class ImportMaps implements AutoCloseable {
 	public Map<String,Set<String>> importReadToSnomed() throws TTFilerException, IOException {
 		Map<String,Set<String>> readToSnomed= new HashMap<>();
 		if (TTFilerFactory.isBulk()){
-			return fileRepo.getCodeCoreMap(IM.CODE_SCHEME_EMIS.getIri());
+			return fileRepo.getCodeCoreMap(GRAPH.EMIS.iri);
 		}
 		return importReadToSnomedRdf4j(readToSnomed);
 	}
@@ -192,8 +193,8 @@ public class ImportMaps implements AutoCloseable {
 		Map<String, Set<String>> codeToTerm = new HashMap<>();
 		RepositoryConnection conn = ConnectionManager.getIMConnection();
 		TupleQuery qry = conn.prepareTupleQuery("select ?child ?name\n" +
-			"where {GRAPH <"+SNOMED.GRAPH_SNOMED.getIri()+"> { ?child <" + RDFS.SUBCLASSOF.getIri() + ">+ ?concept.\n" +
-			"?child <" + RDFS.LABEL.getIri() + "> ?name.}}");
+			"where {GRAPH <"+SNOMED.GRAPH_SNOMED.getIri()+"> { ?child <" + RDFS.SUBCLASSOF.iri + ">+ ?concept.\n" +
+			"?child <" + RDFS.LABEL.iri + "> ?name.}}");
 		qry.setBinding("concept", valueFactory.createIRI(concept));
 		try {
 			TupleQueryResult rs = qry.evaluate();
@@ -240,8 +241,8 @@ public class ImportMaps implements AutoCloseable {
 
 		try (RepositoryConnection conn= ConnectionManager.getIMConnection()){
 			TupleQuery qry= conn.prepareTupleQuery("select ?snomed\n"+
-				"where {?concept <"+ IM.HAS_SCHEME.getIri()+"> <"+SNOMED.GRAPH_SNOMED.getIri()+">.\n"+
-				"?concept <"+IM.CODE.getIri()+"> ?snomed}");
+				"where {?concept <"+ IM.HAS_SCHEME.iri +"> <"+SNOMED.GRAPH_SNOMED.getIri()+">.\n"+
+				"?concept <"+IM.CODE.iri +"> ?snomed}");
 			TupleQueryResult rs= qry.evaluate();
 			while (rs.hasNext()){
 				BindingSet bs=rs.next();
@@ -261,11 +262,11 @@ public class ImportMaps implements AutoCloseable {
 			TupleQuery qry= conn.prepareTupleQuery(
 				"SELECT ?code ?snomed\n" +
 				"WHERE {" +
-					"GRAPH <"+IM.GRAPH_VISION.getIri()+"> {" +
-					"?concept <"+IM.CODE.getIri()+"> ?code . \n" +
-					"?concept <"+IM.MATCHED_TO.getIri()+"> ?snomedIri .}" +
+					"GRAPH <"+GRAPH.VISION.iri +"> {" +
+					"?concept <"+IM.CODE.iri +"> ?code . \n" +
+					"?concept <"+IM.MATCHED_TO.iri +"> ?snomedIri .}" +
 					"GRAPH <"+SNOMED.GRAPH_SNOMED.getIri()+"> {" +
-					"?snomedIri <"+IM.CODE.getIri()+"> ?snomed .}" +
+					"?snomedIri <"+IM.CODE.iri +"> ?snomed .}" +
 				"}"
 			);
 			TupleQueryResult rs= qry.evaluate();
@@ -284,7 +285,7 @@ public class ImportMaps implements AutoCloseable {
 
 	public Map<String, TTEntity> getEMISReadAsVision() throws IOException {
 		if (TTFilerFactory.isBulk()) {
-			Map<String,Set<String>> emisToCore= fileRepo.getCodeCoreMap(IM.CODE_SCHEME_EMIS.getIri());
+			Map<String,Set<String>> emisToCore= fileRepo.getCodeCoreMap(GRAPH.EMIS.iri);
 			Map<String,TTEntity> emisRead2= new HashMap<>();
 			for (Map.Entry<String,Set<String>> entry:emisToCore.entrySet()) {
 				String code = entry.getKey();
@@ -292,10 +293,10 @@ public class ImportMaps implements AutoCloseable {
 					code = (code + ".....").substring(0, 5);
 					TTEntity entity = emisRead2.computeIfAbsent(code, k -> new TTEntity());
 					entity.setCode(code);
-					entity.setScheme(IM.CODE_SCHEME_VISION);
-					entity.setIri(IM.GRAPH_VISION.getIri() + code.replace(".", ""));
+					entity.setScheme(GRAPH.VISION.asTTIriRef());
+					entity.setIri(GRAPH.VISION.iri + code.replace(".", ""));
 					for (String snomed : entry.getValue()) {
-						entity.addObject(IM.MATCHED_TO, TTIriRef.iri(snomed));
+						entity.addObject(IM.MATCHED_TO.asTTIriRef(), TTIriRef.iri(snomed));
 					}
 				}
 			}
@@ -311,11 +312,11 @@ public class ImportMaps implements AutoCloseable {
 			StringJoiner sql = new StringJoiner("\n");
 			sql.add("SELECT ?oldCode ?name ?snomedIri");
 			sql.add("WHERE {");
-			sql.add("Graph <" + IM.GRAPH_EMIS.getIri() + "> {");
-			sql.add("?concept <" + RDFS.LABEL.getIri() + "> ?name.");
-			sql.add("?concept <" + IM.MATCHED_TO.getIri() + "> ?snomedIri . ");
-			sql.add("OPTIONAL {?concept <"+ IM.HAS_TERM_CODE.getIri()+"> ?tc.");
-			sql.add(" ?tc <"+IM.CODE.getIri()+"> ?oldCode)}} }");
+			sql.add("Graph <" + GRAPH.EMIS.iri + "> {");
+			sql.add("?concept <" + RDFS.LABEL.iri + "> ?name.");
+			sql.add("?concept <" + IM.MATCHED_TO.iri + "> ?snomedIri . ");
+			sql.add("OPTIONAL {?concept <"+ IM.HAS_TERM_CODE.iri +"> ?tc.");
+			sql.add(" ?tc <"+IM.CODE.iri +"> ?oldCode)}} }");
 			TupleQuery qry = conn.prepareTupleQuery(sql.toString());
 			TupleQueryResult rs = qry.evaluate();
 			while (rs.hasNext()) {
@@ -328,8 +329,8 @@ public class ImportMaps implements AutoCloseable {
 					TTEntity entity = emisRead2.computeIfAbsent(code, k -> new TTEntity());
 					entity.setName(name);
 					entity.setCode(code);
-					entity.setIri(IM.GRAPH_VISION.getIri() + code.replace(".", ""));
-					entity.addObject(IM.MATCHED_TO, TTIriRef.iri(snomedIri));
+					entity.setIri(GRAPH.VISION.iri + code.replace(".", ""));
+					entity.addObject(IM.MATCHED_TO.asTTIriRef(), TTIriRef.iri(snomedIri));
 				}
 			}
 		}
@@ -347,12 +348,12 @@ public class ImportMaps implements AutoCloseable {
 		Map<String,Set<String>> emisToSnomed= new HashMap<>();
 		RepositoryConnection conn= ConnectionManager.getIMConnection();
 		TupleQuery qry= conn.prepareTupleQuery("select ?code ?snomedIri  ?name\n"+
-			"where {GRAPH <"+IM.GRAPH_EMIS.getIri()+"> \n"+
-			"{?concept <"+IM.CODE.getIri()+"> ?code. \n"+
-			"?concept <"+RDFS.LABEL.getIri()+"> ?name.\n"+
-			"?concept <"+IM.MATCHED_TO.getIri()+"> ?snomedIri.}\n" +
+			"where {GRAPH <"+GRAPH.EMIS.iri +"> \n"+
+			"{?concept <"+IM.CODE.iri +"> ?code. \n"+
+			"?concept <"+RDFS.LABEL.iri +"> ?name.\n"+
+			"?concept <"+IM.MATCHED_TO.iri +"> ?snomedIri.}\n" +
 			"GRAPH <"+SNOMED.GRAPH_SNOMED.getIri()+"> {"+
-			"?snomedIri <"+IM.CODE.getIri()+"> ?snomed.}}");
+			"?snomedIri <"+IM.CODE.iri +"> ?snomed.}}");
 		try {
 			TupleQueryResult rs= qry.evaluate();
 			while (rs.hasNext()){

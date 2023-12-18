@@ -70,7 +70,7 @@ public class EqdToIMQ {
 				String iri = "urn:uuid:" + eqFolder.getId();
 				Entity folder = new Entity()
 					.setIri(iri)
-					.addType(IM.FOLDER)
+					.addType(IM.FOLDER.asTTIriRef())
 					.setName(eqFolder.getName());
 				resources.getDocument().addFolder(folder);
 			}

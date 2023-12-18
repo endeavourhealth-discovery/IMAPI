@@ -244,11 +244,11 @@ public class EntityCache implements Runnable{
 	public static TTContext getDefaultPrefixes() {
 		if (defaultPrefixes==null) {
 			defaultPrefixes = new TTContext();
-			defaultPrefixes.add(RDFS.NAMESPACE, "rdfs");
-			defaultPrefixes.add(RDF.NAMESPACE, "rdf");
-			defaultPrefixes.add(IM.NAMESPACE, "im");
-			defaultPrefixes.add(XSD.NAMESPACE, "xsd");
-			defaultPrefixes.add(SNOMED.NAMESPACE, "sn");
+			defaultPrefixes.add(RDFS.NAMESPACE.iri, "rdfs");
+			defaultPrefixes.add(RDF.NAMESPACE.iri, "rdf");
+			defaultPrefixes.add(IM.NAMESPACE.iri, "im");
+			defaultPrefixes.add(XSD.NAMESPACE.iri, "xsd");
+			defaultPrefixes.add(SNOMED.NAMESPACE.iri, "sn");
 		}
 		return defaultPrefixes;
 	}

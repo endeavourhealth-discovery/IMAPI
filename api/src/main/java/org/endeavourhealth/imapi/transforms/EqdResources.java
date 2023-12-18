@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
 
 import java.io.IOException;
 import java.util.*;
@@ -85,11 +86,11 @@ public class EqdResources {
 
 	public TTIriRef getIri(String token) throws IOException {
 		if (token.equals("label"))
-			return RDFS.LABEL.setName("label");
+			return RDFS.LABEL.asTTIriRef().setName("label");
 		else {
 			if (!token.contains(":")) {
-				TTIriRef iri = TTIriRef.iri(IM.NAMESPACE + token);
-				iri.setName(importMaps.getCoreName(IM.NAMESPACE + token));
+				TTIriRef iri = TTIriRef.iri(IM.NAMESPACE.iri + token);
+				iri.setName(importMaps.getCoreName(IM.NAMESPACE.iri + token));
 				return iri;
 			} else {
 				TTIriRef iri = TTIriRef.iri(token);
@@ -168,7 +169,7 @@ public class EqdResources {
 		if (match.getProperty()==null)
 			return null;
 		for (Property prop:match.getProperty()) {
-			if (prop.getIri().equals(property)||prop.getIri().equals(IM.NAMESPACE+property))
+			if (prop.getIri().equals(property)||prop.getIri().equals(IM.NAMESPACE.iri+property))
 				return prop.getMatch();
 		}
 		return null;
@@ -498,7 +499,7 @@ public class EqdResources {
 				if (!valueSets.containsKey(iri)) {
 					ConceptSet conceptSet = new ConceptSet();
 					conceptSet.setIri(iri)
-						.addType(IM.CONCEPT_SET)
+						.addType(IM.CONCEPT_SET.asTTIriRef())
 						.setName(name);
 					conceptSet.addUsedIn(TTIriRef.iri("urn:uuid:" + activeReport));
 					valueSets.put(iri, conceptSet);
@@ -522,8 +523,8 @@ public class EqdResources {
 						throw new DataFormatException("unmapped emis internal code : " + key);
 				} else if (scheme == VocCodeSystemEx.SNOMED_CONCEPT || scheme.value().contains("SCT")) {
 					List<String> schemes = new ArrayList<>();
-					schemes.add(SNOMED.NAMESPACE);
-					schemes.add(IM.CODE_SCHEME_EMIS.getIri());
+					schemes.add(SNOMED.NAMESPACE.iri);
+					schemes.add(GRAPH.EMIS.getIri());
 					Set<TTIriRef> snomed = valueMap.get(originalCode);
 					if (snomed == null) {
 						snomed = setValueSnomedChecks(originalCode, originalTerm, legacyCode, schemes);
@@ -566,7 +567,7 @@ public class EqdResources {
 			private Set<TTIriRef> getCoreFromCodeId(String originalCode) {
 
 				try {
-					return importMaps.getCoreFromCodeId(originalCode, IM.CODE_SCHEME_EMIS.getIri());
+					return importMaps.getCoreFromCodeId(originalCode, GRAPH.EMIS.iri);
 				} catch (Exception e) {
 					System.err.println("unable to retrieve iri from term code " + e.getMessage());
 					e.printStackTrace();
@@ -577,7 +578,7 @@ public class EqdResources {
 
 			private Set<TTIriRef> getLegacyFromTermCode(String originalCode) {
 				try {
-					return importMaps.getLegacyFromTermCode(originalCode, IM.CODE_SCHEME_EMIS.getIri());
+					return importMaps.getLegacyFromTermCode(originalCode, GRAPH.EMIS.iri);
 				} catch (Exception e) {
 					System.err.println("unable to retrieve iri match term code " + e.getMessage());
 					return null;
@@ -591,7 +592,7 @@ public class EqdResources {
 					if (originalTerm.contains("s disease of lymph nodes of head, face AND/OR neck"))
 						System.out.println("!!");
 
-					return importMaps.getCoreFromLegacyTerm(originalTerm, IM.CODE_SCHEME_EMIS.getIri());
+					return importMaps.getCoreFromLegacyTerm(originalTerm, GRAPH.EMIS.iri);
 				} catch (Exception e) {
 					System.err.println("unable to retrieve iri match term " + e.getMessage());
 					return null;

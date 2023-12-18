@@ -1,27 +1,53 @@
 package org.endeavourhealth.imapi.vocabulary;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
-public class CONFIG {
-    public static final String NAMESPACE = "http://endhealth.info/config#";
-    public static final String DOMAIN= "http://endhealth.info/";
-    public static final String PREFIX = "cfg";
+public enum CONFIG implements Vocabulary {
+    NAMESPACE("http://endhealth.info/config#"),
+    DOMAIN("http://endhealth.info/"),
+    PREFIX("cfg"),
+    DEFINITION(NAMESPACE.iri + "definition"),
+    SUMMARY(NAMESPACE.iri + "summary"),
+    FILTER_DEFAULTS(NAMESPACE.iri + "filterDefaults"),
+    INFERRED_PREDICATES(NAMESPACE.iri + "inferredPredicates"),
+    INFERRED_EXCLUDE_PREDICATES(NAMESPACE.iri + "inferredExcludePredicates"),
+    CONCEPT_DASHBOARD(NAMESPACE.iri + "conceptDashboard"),
+    DEFAULT_PREDICATE_NAMES(NAMESPACE.iri + "defaultPredicateNames"),
+    XML_SCHEMA_DATA_TYPES(NAMESPACE.iri + "xmlSchemaDataTypes"),
+    DEFAULT_PREFIXES(NAMESPACE.iri + "defaultPrefixes"),
+    GRAPH_EXCLUDE_PREDICATES(NAMESPACE.iri + "graphExcludePredicates"),
+    IM1_PUBLISH(NAMESPACE.iri + "im1Publish"),
+    IMDIRECTORY_LATEST_RELEASE(NAMESPACE.iri + "IMDirectoryLatestRelease"),
+    IMDIRECTORY_ALL_RELEASES(NAMESPACE.iri + "IMDirectoryAllReleases"),
+    IMPORT_DATA_LATEST_RELEASE(NAMESPACE.iri + "ImportDataLatestRelease"),
+    IMPORT_DATA_ALL_RELEASES(NAMESPACE.iri + "ImportDataAllReleases");
 
-    // Config entries
-    public static final TTIriRef DEFINITION = iri(NAMESPACE + "definition");
-    public static final TTIriRef SUMMARY = iri(NAMESPACE + "summary");
-    public static final TTIriRef FILTER_DEFAULTS = iri(NAMESPACE + "filterDefaults");
-    public static final TTIriRef INFERRED_PREDICATES = iri(NAMESPACE + "inferredPredicates");
-    public static final TTIriRef INFERRED_EXCLUDE_PREDICATES = iri(NAMESPACE + "inferredExcludePredicates");
-    public static final TTIriRef CONCEPT_DASHBOARD = iri(NAMESPACE + "conceptDashboard");
-    public static final TTIriRef DEFAULT_PREDICATE_NAMES = iri(NAMESPACE + "defaultPredicateNames");
-    public static final TTIriRef XML_SCHEMA_DATATYPES = iri(NAMESPACE + "xmlSchemaDataTypes");
-    public static final TTIriRef DEFAULT_PREFIXES = iri(NAMESPACE + "defaultPrefixes");
-    public static final TTIriRef GRAPH_EXCLUDE_PREDICATES = iri(NAMESPACE + "graphExcludePredicates");
-    public static final TTIriRef IM1_PUBLISH = iri(NAMESPACE + "im1Publish");
+    public final String iri;
+    CONFIG(String url) {
+        this.iri = url;
+    }
 
-    private CONFIG() {}
+    @Override
+    public TTIriRef asTTIriRef() {
+        return iri(this.iri);
+    }
+
+    @Override
+    @JsonValue
+    public String getIri() {
+        return iri;
+    }
+
+    public static boolean contains(String iri) {
+        try {
+            CONFIG.valueOf(iri);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
 }
 

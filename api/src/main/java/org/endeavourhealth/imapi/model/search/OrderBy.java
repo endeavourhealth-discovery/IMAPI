@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.search;
 
 import org.endeavourhealth.imapi.model.imq.Order;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +104,13 @@ public class OrderBy {
 			this.iriValue= new ArrayList<>();
 		}
 		this.iriValue.add(iriValue);
+		return this;
+	}
+	public OrderBy addIriValue(Vocabulary iriValue) {
+		if (this.iriValue==null) {
+			this.iriValue= new ArrayList<>();
+		}
+		this.iriValue.add(iriValue.asTTIriRef());
 		return this;
 	}
 

@@ -7,7 +7,7 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 public class ProvSourceEntity extends Entry {
 
 	public ProvSourceEntity(){
-		this.addType(TTIriRef.iri(IM.NAMESPACE+"ProvenanceSourceEntity"));
+		this.addType(TTIriRef.iri(IM.NAMESPACE.iri+"ProvenanceSourceEntity"));
 	}
 
 	public TTIriRef getDerivationType() {
@@ -16,17 +16,17 @@ public class ProvSourceEntity extends Entry {
 	}
 
 	public ProvSourceEntity setDerivationType(TTIriRef derivationType) {
-		set(TTIriRef.iri(IM.NAMESPACE+"derivationType"),derivationType);
+		set(TTIriRef.iri(IM.NAMESPACE.iri+"derivationType"),derivationType);
 		return this;
 	}
 
 	public TTIriRef getEntityIdentifier() {
 		return (TTIriRef)
-			TTUtil.get(this,TTIriRef.iri(IM.NAMESPACE+"entityIdentifier"),TTIriRef.class);
+			TTUtil.get(this,TTIriRef.iri(IM.NAMESPACE.iri+"entityIdentifier"),TTIriRef.class);
 	}
 
 	public ProvSourceEntity setEntityIdentifier(TTIriRef entityIdentifier) {
-		set(TTIriRef.iri(IM.NAMESPACE+"entityIdentifier"),entityIdentifier);
+		set(TTIriRef.iri(IM.NAMESPACE.iri+"entityIdentifier"),entityIdentifier);
 		return this;
 	}
 }

@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
+
 public class TTTypedRef extends TTIriRef{
 	private TTIriRef type;
 
@@ -10,6 +12,9 @@ public class TTTypedRef extends TTIriRef{
 	public TTTypedRef setType(TTIriRef type) {
 		this.type = type;
 		return this;
+	}
+	public TTTypedRef setType(Vocabulary type) {
+		return setType(type.asTTIriRef());
 	}
 
 

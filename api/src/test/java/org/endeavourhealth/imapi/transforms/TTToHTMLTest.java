@@ -16,14 +16,14 @@ class TTToHTMLTest {
 		TTArray inters=new TTArray();
 		exp.set(OWL.INTERSECTIONOF,inters);
 		TTIriRef product= new TTIriRef()
-			.setIri(SNOMED.NAMESPACE+"763158003")
+			.setIri(SNOMED.NAMESPACE.iri+"763158003")
 			.setName("Medicinal product");
 		inters.add(product);
 		TTNode roleGroup= new TTNode();
-		roleGroup.set(TTIriRef.iri(SNOMED.NAMESPACE+"127489000").setName("Has active ingredient (attribute)"),
-			TTIriRef.iri(SNOMED.NAMESPACE+"372665008").setName("Non-steroidal anti-inflammatory agent (substance)"));
-		roleGroup.set(TTIriRef.iri(SNOMED.NAMESPACE+"411116001").setName("Has manufactured dose form (attribute)"),
-			TTIriRef.iri(SNOMED.NAMESPACE+"385268001").setName("Oral dose form (dose form)"));
+		roleGroup.set(TTIriRef.iri(SNOMED.NAMESPACE.iri+"127489000").setName("Has active ingredient (attribute)"),
+			TTIriRef.iri(SNOMED.NAMESPACE.iri+"372665008").setName("Non-steroidal anti-inflammatory agent (substance)"));
+		roleGroup.set(TTIriRef.iri(SNOMED.NAMESPACE.iri+"411116001").setName("Has manufactured dose form (attribute)"),
+			TTIriRef.iri(SNOMED.NAMESPACE.iri+"385268001").setName("Oral dose form (dose form)"));
 		inters.add(roleGroup);
 		String html= TTToHTML.getExpressionText(exp);
 		System.out.println(html);

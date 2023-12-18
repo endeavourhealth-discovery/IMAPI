@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.json.TTDocumentDeserializer;
 import org.endeavourhealth.imapi.json.TTDocumentSerializer;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 
 import java.util.ArrayList;
@@ -36,6 +37,9 @@ public class TTDocument extends TTNode {
     public TTDocument(TTIriRef defaultGraph) {
         this.graph = defaultGraph;
     }
+    public TTDocument(Vocabulary defaultGraph) {
+        this.graph = defaultGraph.asTTIriRef();
+    }
 
     public TTDocument() {
     }
@@ -48,6 +52,9 @@ public class TTDocument extends TTNode {
     public TTDocument setGraph(TTIriRef graph) {
         this.graph = graph;
         return this;
+    }
+    public TTDocument setGraph(Vocabulary graph) {
+        return setGraph(graph.asTTIriRef());
     }
 
     public List<TTPrefix> getPrefixes() {
@@ -101,6 +108,8 @@ public class TTDocument extends TTNode {
         return this;
     }
 
-
+    public TTDocument setCrud(Vocabulary crud) {
+        return setCrud(crud.asTTIriRef());
+    }
 
 }

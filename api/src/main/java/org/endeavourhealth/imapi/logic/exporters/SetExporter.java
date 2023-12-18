@@ -9,11 +9,12 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
+import org.endeavourhealth.imapi.model.AWSConfig;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
@@ -55,7 +56,7 @@ public class SetExporter {
         LOG.debug("Exporting set to IMv1");
 
         LOG.trace("Looking up set...");
-        String name = entityRepository2.getBundle(setIri, Set.of(RDFS.LABEL.getIri())).getEntity().getName();
+        String name = entityRepository2.getBundle(setIri, Set.of(RDFS.LABEL.iri)).getEntity().getName();
 
         Set<Concept> members = getExpandedSetMembers(setIri, true, true, List.of());
 
@@ -93,9 +94,9 @@ public class SetExporter {
             if (members != null && !members.isEmpty()) {
                 subResults.addAll(members);
             } else {
-                TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri())).getEntity();
-                if (entity.get(IM.DEFINITION)!=null)
-                    subResults.addAll(setRepository.getSetExpansion(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class),
+                TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.iri)).getEntity();
+                if (entity.get(IM.DEFINITION.asTTIriRef())!=null)
+                    subResults.addAll(setRepository.getSetExpansion(entity.get(IM.DEFINITION.asTTIriRef()).asLiteral().objectValue(Query.class),
                         includeLegacy,null, schemes));
                 else
                     subResults.addAll(setRepository.getSetExpansion(new Query()
@@ -105,7 +106,7 @@ public class SetExporter {
                     ,includeLegacy,null, schemes));
             }
             if(includeSubset) {
-                String name = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL.getIri())).getEntity().getName();
+                String name = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL.iri)).getEntity().getName();
                 subResults.forEach(m -> m.addIsContainedIn(new TTIriRef(iri,name)));
                 result.addAll(subResults);
             }
@@ -164,16 +165,16 @@ public class SetExporter {
         String secretKey = null;
 
         try {
-            JsonNode config = new ConfigManager().getConfig(CONFIG.IM1_PUBLISH.getIri());
+            AWSConfig config = new ConfigManager().getConfig(CONFIG.IM1_PUBLISH, new TypeReference<AWSConfig>(){});
             if (config == null) {
                 LOG.debug("No IM1_PUBLISH config found, reverting to defaults");
             } else {
-                bucket = config.get("bucket").asText();
-                region = config.get("region").asText();
-                if (config.has("accessKey"))
-                    accessKey = config.get("accessKey").asText();
-                if (config.has("secretKey"))
-                    secretKey = config.get("secretKey").asText();
+                bucket = config.getBucket();
+                region = config.getRegion();
+                if (null != config.getAccessKey())
+                    accessKey = config.getAccessKey();
+                if (null != config.getSecretKey())
+                    secretKey = config.getSecretKey();
             }
         } catch (JsonProcessingException e) {
             LOG.debug("No IM1_PUBLISH config found, reverting to defaults");

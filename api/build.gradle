@@ -6,6 +6,8 @@ plugins {
     id "cz.habarta.typescript-generator" version "3.2.1263"
 }
 
+
+import cz.habarta.typescript.generator.EnumMapping
 import cz.habarta.typescript.generator.JsonLibrary
 import cz.habarta.typescript.generator.OptionalProperties
 import cz.habarta.typescript.generator.TypeScriptFileType
@@ -15,17 +17,15 @@ tasks {
         jsonLibrary = JsonLibrary.jackson2
         outputFileType = TypeScriptFileType.implementationFile
         optionalProperties = OptionalProperties.useLibraryDefinition
-        classes = [
-                'org.endeavourhealth.imapi.model.search.SearchRequest',
-                'org.endeavourhealth.imapi.model.search.SearchResponse'
-        ]
         classPatterns = [
                 'org.endeavourhealth.imapi.model.iml.*',
                 'org.endeavourhealth.imapi.model.search.*',
-                'org.endeavourhealth.imapi.model.imq.*'
+                'org.endeavourhealth.imapi.model.imq.*',
+                'org.endeavourhealth.imapi.vocabulary.*',
         ]
         outputFile = '../../IMDirectory/im_library/src/interfaces/AutoGen.ts'
         outputKind = 'module'
+        mapEnum = EnumMapping.asEnum
     }
 }
 

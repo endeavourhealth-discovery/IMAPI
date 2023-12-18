@@ -182,18 +182,18 @@ public class SparqlConverter {
 	public static String getDefaultPrefixes(){
 		TTContext prefixes= new TTContext();
 		StringBuilder sparql= new StringBuilder();
-		prefixes.add(RDFS.NAMESPACE,"rdfs");
-		sparql.append("PREFIX rdfs: <"+ RDFS.NAMESPACE+">\n");
-		prefixes.add(RDF.NAMESPACE,"rdf");
-		sparql.append("PREFIX rdf: <"+ RDF.NAMESPACE+">\n");
-		prefixes.add(IM.NAMESPACE,"im");
-		sparql.append("PREFIX im: <"+ IM.NAMESPACE+">\n");
-		prefixes.add(XSD.NAMESPACE,"xsd");
-		sparql.append("PREFIX xsd: <"+ XSD.NAMESPACE+">\n");
-		prefixes.add(SNOMED.NAMESPACE,"sn");
-		sparql.append("PREFIX sn: <"+ SNOMED.NAMESPACE+">\n");
-		prefixes.add(SHACL.NAMESPACE,"sh");
-		sparql.append("PREFIX sh: <").append(SHACL.NAMESPACE).append(">\n\n");
+		prefixes.add(RDFS.NAMESPACE.iri,"rdfs");
+		sparql.append("PREFIX rdfs: <"+ RDFS.NAMESPACE.iri+">\n");
+		prefixes.add(RDF.NAMESPACE.iri,"rdf");
+		sparql.append("PREFIX rdf: <"+ RDF.NAMESPACE.iri+">\n");
+		prefixes.add(IM.NAMESPACE.iri,"im");
+		sparql.append("PREFIX im: <"+ IM.NAMESPACE.iri+">\n");
+		prefixes.add(XSD.NAMESPACE.iri,"xsd");
+		sparql.append("PREFIX xsd: <"+ XSD.NAMESPACE.iri+">\n");
+		prefixes.add(SNOMED.NAMESPACE.iri,"sn");
+		sparql.append("PREFIX sn: <"+ SNOMED.NAMESPACE.iri+">\n");
+		prefixes.add(SHACL.NAMESPACE.iri,"sh");
+		sparql.append("PREFIX sh: <").append(SHACL.NAMESPACE.iri).append(">\n\n");
 		return sparql.toString();
 	}
 

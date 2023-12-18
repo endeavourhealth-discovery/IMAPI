@@ -1,265 +1,299 @@
 package org.endeavourhealth.imapi.vocabulary;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
-public class IM {
-    public static final String NAMESPACE = "http://endhealth.info/im#";
-    public static final String DOMAIN = "http://endhealth.info/";
-    public static final String PREFIX = "im";
-    public static final String IRI = "@id";
-    public static final String VALUE = "@value";
-    public static final String TYPE = "@type";
+public enum IM implements Vocabulary {
+
+    DOMAIN("http://endhealth.info/"),
+    PREFIX ("im"),
+    NAMESPACE(DOMAIN.iri + PREFIX.iri + "#"),
+    IRI("@id"),
+    VALUE("@value"),
+    TYPE("@type"),
 
     //Entity top level predicates
-    public static final TTIriRef id = iri(NAMESPACE + "id");
-    public static final TTIriRef CODE = iri(NAMESPACE + "code");
-    public static final TTIriRef PREFERRED_NAME = iri(NAMESPACE + "preferredName");
-    public static final TTIriRef HAS_SCHEME = iri(NAMESPACE + "scheme");
-    public static final TTIriRef HAS_STATUS = iri(NAMESPACE + "status");
-    public static final TTIriRef CONTENT_TYPE = iri(NAMESPACE + "contentType");
-    //public static final TTIriRef STATUS = iri(NAMESPACE + "Status");
-   // public static final TTIriRef SHORT_NAME = iri(NAMESPACE + "shortName");
-    public static final TTIriRef USAGE_STATS = iri(NAMESPACE + "usageStats");
-    //public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE + "usageTotal");
-    public static final TTIriRef IN_TASK = iri(NAMESPACE + "inTask");
+    id(NAMESPACE.iri + "id"),
+    CODE(NAMESPACE.iri + "code"),
+    PREFERRED_NAME(NAMESPACE.iri + "preferredName"),
+    HAS_SCHEME(NAMESPACE.iri + "scheme"),
+    HAS_STATUS(NAMESPACE.iri + "status"),
+    CONTENT_TYPE(NAMESPACE.iri + "contentType"),
+    USAGE_STATS(NAMESPACE.iri + "usageStats"),
+    IN_TASK(NAMESPACE.iri + "inTask"),
 
     //Entity top level triples
-    public static final TTIriRef DEFINITION = iri(NAMESPACE + "definition");
-    public static final TTIriRef RETURN_TYPE = iri(NAMESPACE + "returnType");
-    public static final TTIriRef UPDATE_PROCEDURE = iri(NAMESPACE + "updateProcedure");
+    DEFINITION(NAMESPACE.iri + "definition"),
+    RETURN_TYPE(NAMESPACE.iri + "returnType"),
+    UPDATE_PROCEDURE(NAMESPACE.iri + "updateProcedure"),
 
     //Specialised data model predicates
-    public static final TTIriRef INVERSE_PATH = iri(NAMESPACE + "inversePath");
+    INVERSE_PATH(NAMESPACE.iri + "inversePath"),
     //Core model types
-    public static final TTIriRef CONCEPT = iri(NAMESPACE + "Concept");
-    public static final TTIriRef CONCEPT_SET = iri(NAMESPACE + "ConceptSet");
-    public static final TTIriRef FOLDER = iri(NAMESPACE + "Folder");
-    public static final TTIriRef VALUESET = iri(NAMESPACE + "ValueSet");
-    public static final TTIriRef TEXT_MAPS = iri(NAMESPACE + "TextMaps");
-    public static final TTIriRef CONFIG = iri(NAMESPACE + "Config");
-    public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
-    public static final TTIriRef FUNCTION = iri(NAMESPACE + "FunctionClause");
-    public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
-    public static final TTIriRef COHORT_QUERY = iri(NAMESPACE + "CohortQuery");
-    public static final TTIriRef DATASET_QUERY = iri(NAMESPACE + "DatasetQuery");
-    public static final TTIriRef DATA_UPDATE = iri(NAMESPACE + "DataUpdate");
-    public static final TTIriRef PATH_QUERY = iri(NAMESPACE + "PathQuery");
-    public static final TTIriRef PATH_TO = iri(NAMESPACE + "pathTo");
-    public static final TTIriRef OPENSEARCH_QUERY = iri(NAMESPACE + "OpenSearchQuery");
-    public static final TTIriRef DATAMODEL_PROPERTY = iri(NAMESPACE + "dataModelProperty");
-    public static final TTIriRef TASK = iri(IM.NAMESPACE + "Task");
-    public static final TTIriRef FIELD_GROUP = iri(NAMESPACE + "FieldGroup");
-    public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "MatchClause");
-    public static final TTIriRef FORM_GENERATOR = iri(NAMESPACE + "FormGenerator");
-    public static final TTIriRef FUNCTION_PROPERTY = iri(NAMESPACE + "functionProperty");
-    public static final TTIriRef MAP_GRAPH = iri(NAMESPACE + "GraphMap");
-    public static final TTIriRef MAP_ENTITY = iri(NAMESPACE + "EntityMap");
-    public static final TTIriRef SET = iri(NAMESPACE + "Set");
+    CONCEPT(NAMESPACE.iri + "Concept"),
+    CONCEPT_SET(NAMESPACE.iri + "ConceptSet"),
+    FOLDER(NAMESPACE.iri + "Folder"),
+    VALUESET(NAMESPACE.iri + "ValueSet"),
+    TEXT_MAPS(NAMESPACE.iri + "TextMaps"),
+    CONFIG(NAMESPACE.iri + "Config"),
+    GRAPH(NAMESPACE.iri + "Graph"),
+    FUNCTION(NAMESPACE.iri + "FunctionClause"),
+    QUERY(NAMESPACE.iri + "Query"),
+    COHORT_QUERY(NAMESPACE.iri + "CohortQuery"),
+    DATASET_QUERY(NAMESPACE.iri + "DatasetQuery"),
+    DATA_UPDATE(NAMESPACE.iri + "DataUpdate"),
+    PATH_QUERY(NAMESPACE.iri + "PathQuery"),
+    PATH_TO(NAMESPACE.iri + "pathTo"),
+    OPENSEARCH_QUERY(NAMESPACE.iri + "OpenSearchQuery"),
+    DATAMODEL_PROPERTY(NAMESPACE.iri + "dataModelProperty"),
+    TASK(IM.NAMESPACE.iri + "Task"),
+    FIELD_GROUP(NAMESPACE.iri + "FieldGroup"),
+    MATCH_CLAUSE(NAMESPACE.iri + "MatchClause"),
+    FORM_GENERATOR(NAMESPACE.iri + "FormGenerator"),
+    FUNCTION_PROPERTY(NAMESPACE.iri + "functionProperty"),
+    MAP_GRAPH(NAMESPACE.iri + "GraphMap"),
+    MAP_ENTITY(NAMESPACE.iri + "EntityMap"),
+    SET(NAMESPACE.iri + "Set"),
 
 
     //Collection predicates
 
-    public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE + "isContainedIn");
-    public static final TTIriRef ONE_OF = iri(NAMESPACE + "oneOf");
-    public static final TTIriRef COMBINATION_OF = iri(NAMESPACE + "combinationOf");
-    public static final TTIriRef USE_PREDICATES = iri(NAMESPACE + "usePredicates");
-    public static final TTIriRef SOME_OF = iri(NAMESPACE + "someOf");
-    public static final TTIriRef HAS_CHILDREN = iri(NAMESPACE + "hasChildren");
+    IS_CONTAINED_IN(NAMESPACE.iri + "isContainedIn"),
+    ONE_OF(NAMESPACE.iri + "oneOf"),
+    COMBINATION_OF(NAMESPACE.iri + "combinationOf"),
+    USE_PREDICATES(NAMESPACE.iri + "usePredicates"),
+    SOME_OF(NAMESPACE.iri + "someOf"),
+     HAS_CHILDREN(NAMESPACE.iri + "hasChildren"),
 
 
     //Transitive  isa predicates
-    public static final TTIriRef IS_A = iri(NAMESPACE + "isA");
-    public static final TTIriRef IS_CHILD_OF= iri(NAMESPACE + "isChildOf");
-    public static final TTIriRef SUBSUMED_BY = iri(NAMESPACE + "subsumedBy");
-    public static final TTIriRef USUALLY_SUBSUMED_BY = iri(NAMESPACE + "usuallySubsumedBy");
-    public static final TTIriRef APPROXIMATE_SUBSUMED_BY = iri(NAMESPACE + "approximateSubsumedBy");
-    public static final TTIriRef MULTIPLE_SUBSUMED_BY = iri(NAMESPACE + "multipleSubsumedBy");
-    public static final TTIriRef LOCAL_SUBCLASS_OF = iri(NAMESPACE + "localSubClassOf");
+    IS_A(NAMESPACE.iri + "isA"),
+    IS_CHILD_OF(NAMESPACE.iri + "isChildOf"),
+    SUBSUMED_BY(NAMESPACE.iri + "subsumedBy"),
+    USUALLY_SUBSUMED_BY(NAMESPACE.iri + "usuallySubsumedBy"),
+    APPROXIMATE_SUBSUMED_BY(NAMESPACE.iri + "approximateSubsumedBy"),
+    MULTIPLE_SUBSUMED_BY(NAMESPACE.iri + "multipleSubsumedBy"),
+    LOCAL_SUBCLASS_OF(NAMESPACE.iri + "localSubClassOf"),
 
 
     // Config predicate
-    public static final TTIriRef HAS_CONFIG = iri(NAMESPACE + "hasConfig");
+    HAS_CONFIG(NAMESPACE.iri + "hasConfig"),
 
     //Inferred grouping predicates
-    public static final TTIriRef PROPERTY_GROUP = iri(NAMESPACE + "propertyGroup");
-    public static final TTIriRef INHERITED_FROM = iri(NAMESPACE + "inheritedFrom");
-    public static final TTIriRef GROUP_NUMBER = iri(NAMESPACE + "groupNumber");
-    public static final TTIriRef ROLE_GROUP = iri(NAMESPACE + "roleGroup");
-    public static final TTIriRef ROLE = iri(NAMESPACE + "role");
-    public static final TTIriRef HAS_INHERITED_PROPERTIES = iri(NAMESPACE + "hasInheritedProperties");
+    PROPERTY_GROUP(NAMESPACE.iri + "propertyGroup"),
+    INHERITED_FROM(NAMESPACE.iri + "inheritedFrom"),
+    GROUP_NUMBER(NAMESPACE.iri + "groupNumber"),
+    ROLE_GROUP(NAMESPACE.iri + "roleGroup"),
+    ROLE(NAMESPACE.iri + "role"),
+    HAS_INHERITED_PROPERTIES(NAMESPACE.iri + "hasInheritedProperties"),
 
     //Entity status values
-    public static final TTIriRef DRAFT = iri(NAMESPACE + "Draft");
-    public static final TTIriRef ACTIVE = iri(NAMESPACE + "Active");
-    public static final TTIriRef INACTIVE = iri(NAMESPACE + "Inactive");
-    public static final TTIriRef DEFINITIONAL_STATUS = iri(NAMESPACE + "definitionalStatus");
-    public static final TTIriRef SUFFICIENTLY_DEFINED = iri(NAMESPACE + "1251000252106");
-    public static final TTIriRef NECESSARY_NOT_SUFFICIENT = iri(NAMESPACE + "2771000252102");
-    public static final TTIriRef UNASSIGNED = iri(NAMESPACE + "Unassigned");
+    DRAFT(NAMESPACE.iri + "Draft"),
+    ACTIVE(NAMESPACE.iri + "Active"),
+    INACTIVE(NAMESPACE.iri + "Inactive"),
+    DEFINITIONAL_STATUS(NAMESPACE.iri + "definitionalStatus"),
+    SUFFICIENTLY_DEFINED(NAMESPACE.iri + "1251000252106"),
+    NECESSARY_NOT_SUFFICIENT(NAMESPACE.iri + "2771000252102"),
+    UNASSIGNED(NAMESPACE.iri + "Unassigned"),
 
     //Legacy Mapping
-    public static final TTIriRef HAS_MAP = iri(NAMESPACE + "hasMap");
-    public static final TTIriRef ENTITY_MAP = iri(NAMESPACE + "entityMap");
-    public static final TTIriRef MAPPED_TO = iri(NAMESPACE + "mappedTo");
-    public static final TTIriRef HAS_NUMERIC = iri(NAMESPACE + "hasNumericValue");
-    public static final TTIriRef SOURCE_TEXT = iri(NAMESPACE + "sourceText");
-    public static final TTIriRef TARGET_TEXT = iri(NAMESPACE + "targetText");
-    public static final TTIriRef HAS_TERM_CODE = iri(NAMESPACE + "hasTermCode");
-    public static final TTIriRef ALTERNATIVE_CODE = iri(NAMESPACE + "alternativeCode");
-    public static final TTIriRef DESCRIPTION_ID = iri(NAMESPACE + "descriptionId");
-    public static final TTIriRef CODE_ID = iri(NAMESPACE + "codeId");
-    public static final TTIriRef MATCHED_TO = iri(NAMESPACE + "matchedTo");
-    public static final TTIriRef MAP_PRIORITY = iri(NAMESPACE + "mapPriority");
-    public static final TTIriRef ASSURANCE_LEVEL = iri(NAMESPACE + "assuranceLevel");
-    public static final TTIriRef MAP_ADVICE = iri(NAMESPACE + "mapAdvice");
-    public static final TTIriRef NATIONALLY_ASSURED = iri(NAMESPACE + "NationallyAssuredUK");
-    public static final TTIriRef SUPPLIER_ASSURED = iri(NAMESPACE + "SupplierAssured");
+    HAS_MAP(NAMESPACE.iri + "hasMap"),
+    ENTITY_MAP(NAMESPACE.iri + "entityMap"),
+    MAPPED_TO(NAMESPACE.iri + "mappedTo"),
+    HAS_NUMERIC(NAMESPACE.iri + "hasNumericValue"),
+    SOURCE_TEXT(NAMESPACE.iri + "sourceText"),
+    TARGET_TEXT(NAMESPACE.iri + "targetText"),
+    HAS_TERM_CODE(NAMESPACE.iri + "hasTermCode"),
+    ALTERNATIVE_CODE(NAMESPACE.iri + "alternativeCode"),
+    DESCRIPTION_ID(NAMESPACE.iri + "descriptionId"),
+    CODE_ID(NAMESPACE.iri + "codeId"),
+    MATCHED_TO(NAMESPACE.iri + "matchedTo"),
+    MAP_PRIORITY(NAMESPACE.iri + "mapPriority"),
+    ASSURANCE_LEVEL(NAMESPACE.iri + "assuranceLevel"),
+    MAP_ADVICE(NAMESPACE.iri + "mapAdvice"),
+    NATIONALLY_ASSURED(NAMESPACE.iri + "NationallyAssuredUK"),
+    SUPPLIER_ASSURED(NAMESPACE.iri + "SupplierAssured"),
 
     //Sets
-    public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMember");
-    public static final TTIriRef IS_MEMBER_OF = iri(NAMESPACE + "isMemberOf");
-    public static final TTIriRef IS_SUBSET_OF = iri(NAMESPACE + "isSubsetOf");
-    public static final TTIriRef HAS_SUBSET = iri(NAMESPACE + "hasSubset");
+    HAS_MEMBER(NAMESPACE.iri + "hasMember"),
+    IS_MEMBER_OF(NAMESPACE.iri + "isMemberOf"),
+    IS_SUBSET_OF(NAMESPACE.iri + "isSubsetOf"),
+    HAS_SUBSET(NAMESPACE.iri + "hasSubset"),
 
 
     //Context
-    public static final TTIriRef SOURCE_CONTEXT = iri(NAMESPACE + "sourceContext");
-    public static final TTIriRef SOURCE_CONTEXT_TYPE = iri(NAMESPACE + "SourceContext");
-    public static final TTIriRef SOURCE_PUBLISHER = iri(NAMESPACE + "sourcePublisher");
-    public static final TTIriRef SOURCE_SYSTEM = iri(NAMESPACE + "sourceSystem");
-    public static final TTIriRef SOURCE_SCHEMA = iri(NAMESPACE + "sourceSchema");
-    public static final TTIriRef SOURCE_TABLE = iri(NAMESPACE + "sourceTable");
-    public static final TTIriRef SOURCE_FIELD = iri(NAMESPACE + "sourceField");
-    public static final TTIriRef SOURCE_CODE_SCHEME = iri(NAMESPACE + "sourceCodeScheme");
-    public static final TTIriRef SOURCE_VALUE = iri(NAMESPACE + "sourceValue");
-    public static final TTIriRef SOURCE_REGEX = iri(NAMESPACE + "sourceRegex");
-    public static final TTIriRef SOURCE_HEADING = iri(NAMESPACE + "sourceHeading");
-    public static final TTIriRef TARGET_PROPERTY = iri(NAMESPACE + "targetProperty");
-    public static final TTIriRef CONTEXT_NODE = iri(NAMESPACE + "contextNode");
-
-
-    //Graphs
-    public static final TTIriRef GRAPH_DISCOVERY = iri(IM.DOMAIN + "im#");
-    public static final TTIriRef GRAPH_ICD10 = iri(DOMAIN + "icd10#");
-    public static final TTIriRef GRAPH_EMIS = TTIriRef.iri(DOMAIN + "emis#");
-    public static final TTIriRef GRAPH_EMIS_CORE = TTIriRef.iri(DOMAIN + "emisc#");
-    public static final TTIriRef GRAPH_CPRD_MED = TTIriRef.iri(DOMAIN + "cprdm#");
-    public static final TTIriRef GRAPH_CPRD_PROD = TTIriRef.iri(DOMAIN + "cprdp#");
-    public static final TTIriRef GRAPH_OPCS4 = TTIriRef.iri(DOMAIN + "opcs4#");
-    public static final TTIriRef GRAPH_TPP = TTIriRef.iri(DOMAIN + "tpp#");
-    public static final TTIriRef GRAPH_ODS = TTIriRef.iri(DOMAIN + "ods#");
-    public static final TTIriRef GRAPH_PRSB = TTIriRef.iri(DOMAIN + "prsb#");
-    public static final TTIriRef GRAPH_KINGS_APEX = TTIriRef.iri(DOMAIN + "kpax#");
-    public static final TTIriRef GRAPH_KINGS_WINPATH = TTIriRef.iri(DOMAIN + "kwp#");
-    public static final TTIriRef GRAPH_VISION = TTIriRef.iri(DOMAIN + "vis#");
-    public static final TTIriRef GRAPH_READ2 = TTIriRef.iri(DOMAIN + "read2#");
-    public static final TTIriRef GRAPH_BARTS_CERNER = TTIriRef.iri(DOMAIN + "bc#");
-    public static final TTIriRef GRAPH_NHSDD_ETHNIC_2001 = TTIriRef.iri(DOMAIN + "nhsethnic2001#");
-    public static final TTIriRef GRAPH_IM1 = TTIriRef.iri(DOMAIN + "im1#");
-    public static final TTIriRef GRAPH_ENCOUNTERS = TTIriRef.iri(DOMAIN + "enc#");
-    public static final TTIriRef GRAPH_CONFIG = TTIriRef.iri(DOMAIN + "config#");
-    public static final TTIriRef GRAPH_CEG_QUERY = TTIriRef.iri(DOMAIN + "ceg/qry#");
-    public static final TTIriRef GRAPH_NHS_TFC = TTIriRef.iri(DOMAIN + "nhstfc#");
-    public static final TTIriRef GRAPH_STATS = TTIriRef.iri(DOMAIN + "stats#");
-    public static final TTIriRef GRAPH_DELTAS = TTIriRef.iri(DOMAIN + "deltas#");
-    public static final TTIriRef GRAPH_PROV = TTIriRef.iri(DOMAIN + "prov#");
-    public static final TTIriRef GRAPH_QUERY = TTIriRef.iri(DOMAIN + "query#");
-
-
-
-    // redant code schemes are now the same as graphs
-
-    public static final TTIriRef CODE_SCHEME_DISCOVERY = IM.GRAPH_DISCOVERY;
-    public static final TTIriRef CODE_SCHEME_ICD10 = IM.GRAPH_ICD10;
-    public static final TTIriRef CODE_SCHEME_EMIS = IM.GRAPH_EMIS;
-    public static final TTIriRef CODE_SCHEME_CPRD_MED = IM.GRAPH_CPRD_MED;
-    public static final TTIriRef CODE_SCHEME_CPRD_PROD = IM.GRAPH_CPRD_PROD;
-    public static final TTIriRef CODE_SCHEME_OPCS4 = IM.GRAPH_OPCS4;
-    public static final TTIriRef CODE_SCHEME_TPP = IM.GRAPH_TPP;
-    public static final TTIriRef CODE_SCHEME_ODS = IM.GRAPH_ODS;
-    public static final TTIriRef CODE_SCHEME_VISION = IM.GRAPH_VISION;
-    public static final TTIriRef CODE_SCHEME_READ2 = IM.GRAPH_READ2;
-    public static final TTIriRef CODE_SCHEME_NHSDD_ETHNIC_2001 = IM.GRAPH_NHSDD_ETHNIC_2001;
-    public static final TTIriRef CODE_SCHEME_KINGS_APEX = IM.GRAPH_KINGS_APEX;
-    public static final TTIriRef CODE_SCHEME_KINGS_WINPATH = IM.GRAPH_KINGS_WINPATH;
-    public static final TTIriRef CODE_SCHEME_BARTS_CERNER = IM.GRAPH_BARTS_CERNER;
-    public static final TTIriRef CODE_SCHEME_ENCOUNTERS = IM.GRAPH_ENCOUNTERS;
-
-
+    SOURCE_CONTEXT(NAMESPACE.iri + "sourceContext"),
+    SOURCE_CONTEXT_TYPE(NAMESPACE.iri + "SourceContext"),
+    SOURCE_PUBLISHER(NAMESPACE.iri + "sourcePublisher"),
+    SOURCE_SYSTEM(NAMESPACE.iri + "sourceSystem"),
+    SOURCE_SCHEMA(NAMESPACE.iri + "sourceSchema"),
+    SOURCE_TABLE(NAMESPACE.iri + "sourceTable"),
+    SOURCE_FIELD(NAMESPACE.iri + "sourceField"),
+    SOURCE_CODE_SCHEME(NAMESPACE.iri + "sourceCodeScheme"),
+    SOURCE_VALUE(NAMESPACE.iri + "sourceValue"),
+    SOURCE_REGEX(NAMESPACE.iri + "sourceRegex"),
+    SOURCE_HEADING(NAMESPACE.iri + "sourceHeading"),
+    TARGET_PROPERTY(NAMESPACE.iri + "targetProperty"),
+    CONTEXT_NODE(NAMESPACE.iri + "contextNode"),
+    
     //Crud and provenance operations
+    UPDATE_ALL(NAMESPACE.iri + "UpdateAll"),
+    ADD_QUADS(NAMESPACE.iri + "AddQuads"),
+    UPDATE_PREDICATES(NAMESPACE.iri + "UpdatePredicates"),
+    DELETE_ALL(NAMESPACE.iri + "DeleteAll"),
+    PROV_CREATION(NAMESPACE.iri + "2001000252109"),
+    PROV_UPDATE(NAMESPACE.iri + "1661000252106"),
 
-    public static final TTIriRef UPDATE_ALL = TTIriRef.iri(NAMESPACE + "UpdateAll");
-    public static final TTIriRef ADD_QUADS = TTIriRef.iri(NAMESPACE + "AddQuads");
-    public static final TTIriRef UPDATE_PREDICATES = TTIriRef.iri(NAMESPACE + "UpdatePredicates");
-    public static final TTIriRef DELETE_ALL = TTIriRef.iri(NAMESPACE + "DeleteAll");
-    public static final TTIriRef PROV_CREATION = TTIriRef.iri(NAMESPACE + "2001000252109");
-    public static final TTIriRef PROV_UPDATE = TTIriRef.iri(NAMESPACE + "1661000252106");
-
-    public static final TTIriRef USED_IN = iri(NAMESPACE + "usedIn");
+    USED_IN(NAMESPACE.iri + "usedIn"),
 
 
-    public static final TTIriRef IN_RESULT_SET = iri(NAMESPACE + "inResultSet");
-    public static final TTIriRef HAS_PROFILE = iri(NAMESPACE + "inResultSet");
-    public static final TTIriRef GMS_PATIENT = iri(NAMESPACE + "2751000252106");
+    IN_RESULT_SET(NAMESPACE.iri + "inResultSet"),
+    HAS_PROFILE(NAMESPACE.iri + "inResultSet"),
+    GMS_PATIENT(NAMESPACE.iri + "2751000252106"),
 
     //Provenance
-    public static final TTIriRef PROV_ACIVITY = iri(NAMESPACE + "ProvenanceActivity");
-    public static final TTIriRef PROV_TARGET = iri(NAMESPACE + "provenanceTarget");
-    public static final TTIriRef PROV_ACIVITY_TYPE = iri(NAMESPACE + "provenanceActivityType");
-    public static final TTIriRef PROV_AGENT = iri(NAMESPACE + "provenanceAgent");
-    public static final TTIriRef START_TIME = iri(NAMESPACE + "startTime");
-    public static final TTIriRef EFFECTIVE_DATE = iri(NAMESPACE + "effectiveDate");
-    public static final TTIriRef END_DATE = iri(NAMESPACE + "endDate");
-    public static final TTIriRef PROV_USED = iri(NAMESPACE + "usedEntity");
+    PROV_ACIVITY(NAMESPACE.iri + "ProvenanceActivity"),
+    PROV_TARGET(NAMESPACE.iri + "provenanceTarget"),
+    PROV_ACIVITY_TYPE(NAMESPACE.iri + "provenanceActivityType"),
+    PROV_AGENT(NAMESPACE.iri + "provenanceAgent"),
+    START_TIME(NAMESPACE.iri + "startTime"),
+    EFFECTIVE_DATE(NAMESPACE.iri + "effectiveDate"),
+    END_DATE(NAMESPACE.iri + "endDate"),
+    PROV_USED(NAMESPACE.iri + "usedEntity"),
 
 
     //Authors and agents
-    public static final TTIriRef AUTHOR_ROLE = iri(NAMESPACE + "1001911000252102");
-    public static final TTIriRef VERSION = iri(NAMESPACE + "version");
-    public static final TTIriRef HAS_ROLE_IN = iri(NAMESPACE + "hasRoleInOrganisation");
-    public static final TTIriRef IS_PERSON = iri(NAMESPACE + "isPerson");
+    AUTHOR_ROLE(NAMESPACE.iri + "1001911000252102"),
+    VERSION(NAMESPACE.iri + "version"),
+    HAS_ROLE_IN(NAMESPACE.iri + "hasRoleInOrganisation"),
+    IS_PERSON(NAMESPACE.iri + "isPerson"),
 
     //Miscalleneous
-    public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE + "hasContext");
-    public static final TTIriRef DISPLAY_ORDER = iri(NAMESPACE + "displayOrder");
-    public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE + "usageTotal");
-    public static final TTIriRef PLABEL = iri(NAMESPACE + "pLabel");
-    public static final TTIriRef OLABEL = iri(NAMESPACE + "oLabel");
-    public static final TTIriRef EXAMPLE = iri(NAMESPACE + "example");
+    HAS_CONTEXT(NAMESPACE.iri + "hasContext"),
+    DISPLAY_ORDER(NAMESPACE.iri + "displayOrder"),
+    USAGE_TOTAL(NAMESPACE.iri + "usageTotal"),
+    PLABEL(NAMESPACE.iri + "pLabel"),
+    OLABEL(NAMESPACE.iri + "oLabel"),
+    EXAMPLE(NAMESPACE.iri + "example"),
 
 
     //im1
-    public static final TTIriRef IM1ID = iri(NAMESPACE + "im1Id");
-    public static final TTIriRef WEIGHTING = iri(NAMESPACE + "weighting");
-    public static final TTIriRef PRIVACY_LEVEL = iri(NAMESPACE + "privacyLevel");
-    public static final TTIriRef IM1SCHEME = iri(NAMESPACE + "im1Scheme");
+    IM1ID(NAMESPACE.iri + "im1Id"),
+    WEIGHTING(NAMESPACE.iri + "weighting"),
+    PRIVACY_LEVEL(NAMESPACE.iri + "privacyLevel"),
+    IM1SCHEME(NAMESPACE.iri + "im1Scheme"),
 
     //Query
-    public static final TTIriRef VALUE_SELECT = iri(NAMESPACE + "valueSelect");
-    public static final TTIriRef VALUE_VARIABLE = iri(NAMESPACE + "valueVariable");
-    public static final TTIriRef PLACEHOLDER = iri(NAMESPACE + "placeHolder");
-    public static final TTIriRef FUNCTION_DEFINITION = iri(NAMESPACE + "function");
+    VALUE_SELECT(NAMESPACE.iri + "valueSelect"),
+    VALUE_VARIABLE(NAMESPACE.iri + "valueVariable"),
+    PLACEHOLDER(NAMESPACE.iri + "placeHolder"),
+    FUNCTION_DEFINITION(NAMESPACE.iri + "function"),
 
     // Location
-    public static final TTIriRef ADDRESS_CLASS = iri(IM.NAMESPACE + "Address");
-    public static final TTIriRef ADDRESS = iri(IM.NAMESPACE + "address");
-    public static final TTIriRef ADDRESS_LINE_1 = iri(IM.NAMESPACE + "addressLine1");
-    public static final TTIriRef ADDRESS_LINE_2 = iri(IM.NAMESPACE + "addressLine2");
-    public static final TTIriRef ADDRESS_LINE_3 = iri(IM.NAMESPACE + "addressLine3");
-    public static final TTIriRef LOCALITY = iri(IM.NAMESPACE + "locality");
-    public static final TTIriRef REGION = iri(IM.NAMESPACE + "region");
-    public static final TTIriRef POST_CODE = iri(IM.NAMESPACE + "postCode");
-    public static final TTIriRef COUNTRY = iri(IM.NAMESPACE + "country");
-    public static final TTIriRef UPRN = iri(IM.NAMESPACE + "uprn");
+    ADDRESS_CLASS(NAMESPACE.iri + "Address"),
+    ADDRESS(NAMESPACE.iri + "address"),
+    ADDRESS_LINE_1(NAMESPACE.iri + "addressLine1"),
+    ADDRESS_LINE_2(NAMESPACE.iri + "addressLine2"),
+    ADDRESS_LINE_3(NAMESPACE.iri + "addressLine3"),
+    LOCALITY(NAMESPACE.iri + "locality"),
+    REGION(NAMESPACE.iri + "region"),
+    POST_CODE(NAMESPACE.iri + "postCode"),
+    COUNTRY(NAMESPACE.iri + "country"),
+    UPRN(NAMESPACE.iri + "uprn"),
 
-    public static final String SYSTEM_NAMESPACE = "http://sys.endhealth.info/im#";
+    SYSTEM_NAMESPACE("http://sys.endhealth.info/im#"),
 
     //Editor
-    public static final TTIriRef ENTITY_TYPES = iri(NAMESPACE + "EntityTypes");
+    ENTITY_TYPES(NAMESPACE.iri + "EntityTypes"),
+    //Vue import start
+    ID(NAMESPACE.iri + "id"),
+    CONCEPT_SET_GROUP(NAMESPACE.iri + "ConceptSetGroup"),
+    OLD_CODE(NAMESPACE.iri + "oldCode"),
+    ORDER(NAMESPACE.iri + "order"),
+    MAPPING_TASK(NAMESPACE.iri + "MappingTask"),
+    UPDATE_TASK(NAMESPACE.iri + "UpdateTask"),
+    MATCHED_FROM(NAMESPACE.iri + "matchedFrom"),
+    MAPPED_FROM(NAMESPACE.iri + "mappedFrom"),
+    SELECT(NAMESPACE.iri + "select"),
+    NATIONALLY_ASSURED_UK(NAMESPACE.iri + "NationallyAssuredUK"),
 
-    private IM() {
+    ENTITY(NAMESPACE.iri + "Entity"),
+    QUERY_SET(NAMESPACE.iri + "QuerySet"),
+    QUERY_TEMPLATE(NAMESPACE.iri + "QueryTemplate"),
+    RECORD_TYPE(NAMESPACE.iri + "RecordType"),
+    FEATURE(NAMESPACE.iri + "MatchClause"),
+    DATA_PROPERTY(NAMESPACE.iri + "DataProperty"),
+    ORGANISATION(NAMESPACE.iri + "Organisation"),
+    MODELLING_ENTITY_TYPE(NAMESPACE.iri + "ModellingEntityType"),
+    PROFILE(NAMESPACE.iri + "Profile"),
+    STATS_REPORT_ENTRY(NAMESPACE.iri + "hasStatsReportEntry"),
+    FAVOURITES(NAMESPACE.iri + "Favourites"),
+
+    MODULE_ONTOLOGY(NAMESPACE.iri + "DiscoveryOntology"),
+    MODULE_SETS(NAMESPACE.iri + "Sets"),
+    MODULE_DATA_MODEL(NAMESPACE.iri + "DiscoveryCommonDataModel"),
+    MODULE_CATALOGUE(NAMESPACE.iri + "Catalogue"),
+    MODULE_QUERIES(NAMESPACE.iri + "Q_Queries"),
+    MODULE_IM(NAMESPACE.iri + "InformationModel"),
+    MODULE_TASKS(NAMESPACE.iri + "Tasks"),
+    MODULE_FEATURES(NAMESPACE.iri + "M_MatchClauses"),
+
+    // Stats reports
+    CONCEPT_CATEGORY(NAMESPACE.iri + "ontologyOverview"),
+    CONCEPT_TYPES(NAMESPACE.iri + "ontologyConceptTypes"),
+    CONCEPT_SCHEMES(NAMESPACE.iri + "ontologyConceptSchemes"),
+    CONCEPT_STATUS(NAMESPACE.iri + "ontologyConceptStatus"),
+    HAS_VALUE(NAMESPACE.iri + "hasValue"),
+    VALUE_SET(NAMESPACE.iri + "ValueSet"),
+    DATAMODEL_ENTITY(NAMESPACE.iri + "DataModelEntity"),
+    DATAMODEL_OBJECTPROPERTY(NAMESPACE.iri + "dataModelObjectProperty"),
+    DATAMODEL_DATAPROPERTY(NAMESPACE.iri + "dataModelDataProperty"),
+    DATAMODEL_FUNCTIONPROPERTY(NAMESPACE.iri + "functionProperty"),
+    MATCH(NAMESPACE.iri + "match"),
+    ENTITY_TYPE(NAMESPACE.iri + "entityType"),
+    //argument options
+    VALUE_DATA(NAMESPACE.iri + "valueData"),
+    VALUE_OBJECT(NAMESPACE.iri + "valueObject"),
+    VALUE_IRI(NAMESPACE.iri + "valueIri"),
+    VALUE_IRI_LIST(NAMESPACE.iri + "valueIriList"),
+    VALUE_DATA_LIST(NAMESPACE.iri + "valueDataList"),
+
+    // IM1
+    IM_1_ID(NAMESPACE.iri + "im1Id"),
+    IM_1_SCHEME(NAMESPACE.iri + "im1Scheme"),
+    //Provenance
+    PROV_ACTIVITY_TYPE(NAMESPACE.iri + "provenanceActivityType"),
+    // Main folders
+    FOLDER_VALUESETS(NAMESPACE.iri + "ValueSets"),
+    FOLDER_SETS(NAMESPACE.iri + "Sets"),
+    FOLDER_QUERY_CONCEPT_SETS(NAMESPACE.iri + "QueryConceptSets");
+
+
+    public final String iri;
+    IM(String url) {
+        this.iri = url;
+    }
+
+    @Override
+    public TTIriRef asTTIriRef() {
+        return iri(this.iri);
+    }
+
+    @Override
+    @JsonValue
+    public String getIri() {
+        return iri;
+    }
+
+    public static boolean contains(String iri) {
+        try {
+            IM.valueOf(iri);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }
 

@@ -201,12 +201,12 @@ public class PathRepository {
 
 
 	private String getDefaultPrefixes() {
-		return "PREFIX xsd: <" + XSD.NAMESPACE + ">\n" +
-			"PREFIX rdfs: <" + RDFS.NAMESPACE + ">\n" +
-			"PREFIX rdf: <" + RDF.NAMESPACE + ">\n" +
-			"PREFIX im: <" + IM.NAMESPACE + ">\n" +
-			"PREFIX sn: <" + SNOMED.NAMESPACE + ">\n" +
-			"PREFIX sh: <" + SHACL.NAMESPACE + ">\n";
+		return "PREFIX xsd: <" + XSD.NAMESPACE.iri + ">\n" +
+			"PREFIX rdfs: <" + RDFS.NAMESPACE.iri + ">\n" +
+			"PREFIX rdf: <" + RDF.NAMESPACE.iri + ">\n" +
+			"PREFIX im: <" + IM.NAMESPACE.iri + ">\n" +
+			"PREFIX sn: <" + SNOMED.NAMESPACE.iri + ">\n" +
+			"PREFIX sh: <" + SHACL.NAMESPACE.iri + ">\n";
 	}
 
 

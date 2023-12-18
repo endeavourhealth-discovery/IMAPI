@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,5 +46,9 @@ public class TTEntityMap {
 	public TTEntityMap addPredicate(String predicateIri,String name) {
 		predicates.put(predicateIri, name);
 		return this;
+	}
+
+	public TTEntityMap addPredicate(Vocabulary predicate) {
+		return addPredicate(predicate.asTTIriRef());
 	}
 }

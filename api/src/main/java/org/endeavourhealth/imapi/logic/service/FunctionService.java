@@ -2,8 +2,6 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
@@ -11,14 +9,11 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.im.FUNCTION;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
 
 public class FunctionService {
 	private ConceptRepository conceptRepository = new ConceptRepository();
@@ -30,23 +25,24 @@ public class FunctionService {
 	private final RequestObjectService requestObjectService = new RequestObjectService();
 
 	public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws Exception {
-        return switch (iri) {
-            case (IM.NAMESPACE + "Function_SnomedConceptGenerator") -> conceptRepository.createConcept(IM.NAMESPACE);
-            case (IM.NAMESPACE + "Function_LocalNameRetriever") -> getLocalName(arguments);
-            case (IM.NAMESPACE + "Function_GetAdditionalAllowableTypes") -> getAdditionalAllowableTypes(arguments);
-            case (IM.NAMESPACE + "Function_GetLogicOptions") -> getLogicOptions();
-            case (IM.NAMESPACE + "Function_GetSetEditorIriSchemes") -> getSetEditorIriSchemes();
-			case (IM.NAMESPACE + "Function_IM1SchemeOptions") -> getIM1SchemeOptions();
-			case (IM.NAMESPACE + "Function_SchemeFromIri") -> getSchemeFromIri(arguments);
-			case (IM.NAMESPACE + "Function_GetUserEditableSchemes") -> getUserEditableSchemes(request);
-			case (IM.NAMESPACE + "Function_GenerateIriCode") -> generateIriCode(arguments);
+		FUNCTION functionIri = FUNCTION.valueOf(iri);
+        return switch (functionIri) {
+            case SNOMED_CONCEPT_GENERATOR -> conceptRepository.createConcept(IM.NAMESPACE.iri);
+            case LOCAL_NAME_RETRIEVER -> getLocalName(arguments);
+            case GET_ADDITIONAL_ALLOWABLE_TYPES -> getAdditionalAllowableTypes(arguments);
+            case GET_LOGIC_OPTIONS -> getLogicOptions();
+            case GET_SET_EDITOR_IRI_SCHEMES -> getSetEditorIriSchemes();
+            case IM1_SCHEME_OPTIONS -> getIM1SchemeOptions();
+            case SCHEME_FROM_IRI -> getSchemeFromIri(arguments);
+            case GET_USER_EDITABLE_SCHEMES -> getUserEditableSchemes(request);
+            case GENERATE_IRI_CODE -> generateIriCode(arguments);
             default -> throw new IllegalArgumentException("No such function: " + iri);
         };
 	}
 
 	public Boolean callAskFunction(HttpServletRequest request, String iri, List<Argument> arguments) {
-		return switch(iri) {
-			case (IM.NAMESPACE + "Function_IsType") -> isType(arguments);
+		return switch(FUNCTION.valueOf(iri)) {
+			case IS_TYPE -> isType(arguments);
 			default -> throw new IllegalArgumentException("No such ask function: " + iri);
 		};
 	}
@@ -82,7 +78,7 @@ public class FunctionService {
 			throw new IllegalArgumentException("No entity iri property in request body");
 		try (CachedObjectMapper om = new CachedObjectMapper()) {
 			String schemeIri = iri.substring(0,iri.lastIndexOf("#")+1);
-			List<EntityReferenceNode> schemes = entityService.getImmediateChildren(IM.GRAPH.getIri(),new ArrayList<>(),1,1000,false);
+			List<EntityReferenceNode> schemes = entityService.getImmediateChildren(IM.GRAPH.iri,new ArrayList<>(),1,1000,false);
 			List<EntityReferenceNode> schemesFiltered = schemes.stream().filter( s -> s.getIri().equals(schemeIri)).toList();
 			List<TTIriRef> schemesFilteredIriRef = schemesFiltered.stream().map(s -> new TTIriRef().setIri(s.getIri()).setName(s.getName())).collect(Collectors.toList());
 			if (schemesFiltered.isEmpty()) throw new IllegalArgumentException("Iri has invalid scheme");
@@ -100,9 +96,9 @@ public class FunctionService {
 		}
 		if (null == entityIri)
 			throw new IllegalArgumentException("No entity iri property in request body");
-		List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.ENTITY_TYPES.getIri(), null,1, 200, false);
+		List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.ENTITY_TYPES.iri, null,1, 200, false);
         try (CachedObjectMapper om = new CachedObjectMapper()) {
-            if (IM.CONCEPT.getIri().equals(entityIri)) {
+            if (IM.CONCEPT.iri.equals(entityIri)) {
 				String finalEntityIri = entityIri;
 				List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(finalEntityIri, RDF.PROPERTY.getIri(), SHACL.NODESHAPE.getIri()).contains(t.getIri())).collect(Collectors.toList());
                 List<TTIriRef> filteredResultsAsIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
@@ -126,7 +122,7 @@ public class FunctionService {
 	}
 
 	private JsonNode getSetEditorIriSchemes() {
-		List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.GRAPH.getIri(),null,1,200,false);
+		List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.GRAPH.iri,null,1,200,false);
 		List<TTIriRef> resultsAsIri = results.stream().map(r -> new TTIriRef(r.getIri(),r.getName())).collect(Collectors.toList());
 		try (CachedObjectMapper om = new CachedObjectMapper()) {
 			return om.valueToTree(resultsAsIri);
@@ -134,7 +130,7 @@ public class FunctionService {
 	}
 
 	private JsonNode getUserEditableSchemes(HttpServletRequest request) throws JsonProcessingException {
-		List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.GRAPH.getIri(),null,1,200,false);
+		List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.GRAPH.iri,null,1,200,false);
 		String userId = requestObjectService.getRequestAgentId(request);
 		List<String> organisations = userService.getUserOrganisations(userId);
 		List<TTIriRef> resultsAsIri = results.stream().filter(r -> organisations.stream().anyMatch(o -> o.equals(r.getIri()))).map(r -> new TTIriRef(r.getIri(),r.getName())).collect(Collectors.toList());
@@ -160,16 +156,14 @@ public class FunctionService {
 		}
 		if (null == entityIri)
 			throw new IllegalArgumentException("No scheme parameter in request body");
-		List<EntityReferenceNode> schemes = entityService.getImmediateChildren(IM.GRAPH.getIri(), null,1, 200, false);
+		List<EntityReferenceNode> schemes = entityService.getImmediateChildren(IM.GRAPH.iri, null,1, 200, false);
 		String finalEntityIri2 = entityIri;
 		if (schemes.stream().noneMatch(s -> s.getIri().equals(finalEntityIri2))) throw new IllegalArgumentException("Iri is not a valid scheme");
 		CachedObjectMapper om = new CachedObjectMapper();
 		JsonNode generated;
-        return switch (entityIri) {
-            case IM.NAMESPACE, SNOMED.NAMESPACE ->
-				om.createObjectNode().put("code", conceptRepository.createConcept(IM.NAMESPACE).get("iri").get("@id").asText().split("#")[1]);
-            default -> om.createObjectNode().put("iri", "");
-        };
+        if (entityIri.equals(IM.NAMESPACE.iri) || entityIri.equals(SNOMED.NAMESPACE.iri)) {
+			return om.createObjectNode().put("code", conceptRepository.createConcept(IM.NAMESPACE.iri).get("iri").get("@id").asText().split("#")[1]);
+		} else return om.createObjectNode().put("iri", "");
 	}
 
 	private Boolean isType(List<Argument> arguments) {
@@ -180,7 +174,7 @@ public class FunctionService {
 		if (null == searchIri) throw new IllegalArgumentException("Missing argument with parameter 'searchIri'");
 		if (null == type.getValueIri()) throw new IllegalArgumentException("Missing 'type' valueIri");
 		if (null == searchIri.getValueData()) throw new IllegalArgumentException("Missing 'searchIri' valueData");
-		List<EntityReferenceNode> validTypes = entityService.getImmediateChildren(IM.ENTITY_TYPES.getIri(),null,null,null,false);
+		List<EntityReferenceNode> validTypes = entityService.getImmediateChildren(IM.ENTITY_TYPES.iri,null,null,null,false);
 		if (null != validTypes.stream().filter(vt -> vt.getIri().equals(type.getValueIri().getIri())).findFirst().orElse(null)) return entityRepository.isType(type.getValueIri().getIri(),searchIri.getValueData());
 		else throw new IllegalArgumentException("Type: '" + type.getValueIri().getIri() + "' is not a valid entity type");
 	}

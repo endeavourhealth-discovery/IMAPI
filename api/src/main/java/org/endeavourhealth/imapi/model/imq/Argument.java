@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +70,10 @@ public class Argument {
 
 	public Argument setValueIri(TTIriRef valueIri) {
 		this.valueIri = valueIri;
+		return this;
+	}
+	public Argument setValueIri(Vocabulary valueIri) {
+		this.valueIri = valueIri.asTTIriRef();
 		return this;
 	}
 

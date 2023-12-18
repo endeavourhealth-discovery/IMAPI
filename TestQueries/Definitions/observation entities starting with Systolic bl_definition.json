@@ -1,5 +1,5 @@
 {
-  "termFilter" : "Systolic blo",
+  "termFilter" : "Adverse reaction to Teflox",
   "statusFilter" : [ "http://endhealth.info/im#Active" ],
   "typeFilter" : [ "http://endhealth.info/im#ConceptSet", "http://endhealth.info/im#Concept" ],
   "schemeFilter" : [ "http://endhealth.info/im#", "http://snomed.info/sct#" ],
@@ -12,6 +12,7 @@
       "@id" : "http://endhealth.info/im#ConceptSet"
     } ],
     "and" : null,
+    "textValue" : null,
     "not" : false,
     "startsWithTerm" : false
   }, {
@@ -21,6 +22,7 @@
       "@id" : "http://endhealth.info/im#VSET_Observation"
     } ],
     "and" : null,
+    "textValue" : null,
     "not" : false,
     "startsWithTerm" : false
   }, {
@@ -28,6 +30,7 @@
     "direction" : null,
     "iriValue" : null,
     "and" : null,
+    "textValue" : null,
     "not" : false,
     "startsWithTerm" : true
   }, {
@@ -35,6 +38,7 @@
     "direction" : null,
     "iriValue" : null,
     "and" : null,
+    "textValue" : null,
     "not" : false,
     "startsWithTerm" : true
   }, {
@@ -42,6 +46,7 @@
     "direction" : "descending",
     "iriValue" : null,
     "and" : null,
+    "textValue" : null,
     "not" : false,
     "startsWithTerm" : false
   }, {
@@ -49,6 +54,7 @@
     "direction" : "ascending",
     "iriValue" : null,
     "and" : null,
+    "textValue" : null,
     "not" : false,
     "startsWithTerm" : false
   }, {
@@ -56,22 +62,41 @@
     "direction" : "descending",
     "iriValue" : null,
     "and" : null,
+    "textValue" : null,
     "not" : false,
     "startsWithTerm" : false
   } ],
   "timings" : [ {
-    "1701701070223" : "Entry point for \"Systolic blo\""
+    "1702481824315" : "Entry point for \"Adverse reaction to Teflox\""
   }, {
-    "1701701070223" : "start building auto complete query"
+    "1702481824315" : "start building auto complete query"
   }, {
-    "1701701070223" : "About to run query"
+    "1702481825282" : "About to run query"
   }, {
-    "1701701076718" : "Query sent..."
+    "1702481825619" : "Query sent..."
   }, {
-    "1701701076848" : "Query run and response received. Ready to produce search results"
+    "1702481827170" : "Query run and response received. Ready to produce search results"
   }, {
-    "1701701080095" : "Results List built"
+    "1702481827170" : "Results List built"
   }, {
-    "1701701080095" : "end auto complete query - returning results"
+    "1702481827170" : "end auto complete query - returning results"
+  }, {
+    "1702481827177" : "About to run query"
+  }, {
+    "1702481827178" : "Query sent..."
+  }, {
+    "1702481827586" : "Query run and response received. Ready to produce search results"
+  }, {
+    "1702481827586" : "Results List built"
+  }, {
+    "1702481827598" : "About to run query"
+  }, {
+    "1702481827599" : "Query sent..."
+  }, {
+    "1702481828737" : "Query run and response received. Ready to produce search results"
+  }, {
+    "1702481828737" : "Results List built"
+  }, {
+    "1702481828738" : "Query sent..."
   } ]
 }

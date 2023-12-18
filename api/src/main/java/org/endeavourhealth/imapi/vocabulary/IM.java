@@ -143,6 +143,7 @@ public enum IM implements Vocabulary {
     GRAPH_DISCOVERY(IM.DOMAIN.iri + "im#"),
     GRAPH_ICD10(DOMAIN.iri + "icd10#"),
     GRAPH_EMIS(DOMAIN.iri + "emis#"),
+    GRAPH_EMIS_CORE(DOMAIN.iri + "emisc#),
     GRAPH_CPRD_MED(DOMAIN.iri + "cprdm#"),
     GRAPH_CPRD_PROD(DOMAIN.iri + "cprdp#"),
     GRAPH_OPCS4(DOMAIN.iri + "opcs4#"),

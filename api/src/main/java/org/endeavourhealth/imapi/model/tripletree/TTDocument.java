@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.json.TTDocumentDeserializer;
@@ -49,6 +50,7 @@ public class TTDocument extends TTNode {
         return this;
     }
 
+    @JsonSetter
     public TTDocument setGraph(TTIriRef graph) {
         this.graph = graph;
         return this;
@@ -103,6 +105,7 @@ public class TTDocument extends TTNode {
         return crud;
     }
 
+    @JsonSetter
     public TTDocument setCrud(TTIriRef crud) {
         this.crud = crud;
         return this;

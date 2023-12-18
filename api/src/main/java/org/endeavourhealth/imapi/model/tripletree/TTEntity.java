@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.json.TTEntityDeserializer;
@@ -75,6 +76,7 @@ public class TTEntity extends TTNode implements Serializable {
         return (literal == null) ? null : literal.getValue();
     }
 
+    @JsonSetter
     public TTEntity setScheme(TTIriRef scheme) {
         set(IM.HAS_SCHEME.asTTIriRef(), scheme);
         return this;
@@ -130,6 +132,7 @@ public class TTEntity extends TTNode implements Serializable {
         return this.getAsIriRef(IM.HAS_STATUS.asTTIriRef());
     }
 
+    @JsonSetter
     public TTEntity setStatus(TTIriRef status) {
         set(IM.HAS_STATUS.asTTIriRef(), status);
         return this;
@@ -182,6 +185,7 @@ public class TTEntity extends TTNode implements Serializable {
         return crud;
     }
 
+    @JsonSetter
     public TTEntity setCrud(TTIriRef crud) {
         this.crud = crud;
         return this;
@@ -195,6 +199,7 @@ public class TTEntity extends TTNode implements Serializable {
         return graph;
     }
 
+    @JsonSetter
     public TTEntity setGraph(TTIriRef graph) {
         this.graph = graph;
         return this;

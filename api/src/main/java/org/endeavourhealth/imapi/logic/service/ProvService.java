@@ -52,7 +52,7 @@ public class ProvService {
 
         if (null != usedEntityIri) {
             activity.setActivityType(IM.PROV_UPDATE.asTTIriRef());
-            activity.set(IM.PROV_USED.asTTIriRef(), TTIriRef.iri(usedEntityIri));
+            activity.set(IM.PROVENANCE_USED.asTTIriRef(), TTIriRef.iri(usedEntityIri));
         }
 
         activity.setCrud(IM.ADD_QUADS.asTTIriRef());

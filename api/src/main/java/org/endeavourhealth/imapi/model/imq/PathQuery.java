@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 public class PathQuery extends TTIriRef {
 	private TTIriRef source;
@@ -22,6 +23,9 @@ public class PathQuery extends TTIriRef {
 		this.source = new TTIriRef().setIri(source);
 		return this;
 	}
+	public PathQuery setSource(Vocabulary source) {
+		return setSource(source.asTTIriRef());
+	}
 
 	public TTIriRef getTarget() {
 		return target;
@@ -36,6 +40,9 @@ public class PathQuery extends TTIriRef {
 	public PathQuery setTarget(String target) {
 		this.target = new TTIriRef().setIri(target);
 		return this;
+	}
+	public PathQuery setTarget(Vocabulary target) {
+		return setTarget(target.asTTIriRef());
 	}
 
 	public Integer getDepth() {

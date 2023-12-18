@@ -1,7 +1,9 @@
 package org.endeavourhealth.imapi.model.cdm;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,15 +16,21 @@ import java.util.List;
 public class ProvActivity extends Entry {
     private static final Logger LOG = LoggerFactory.getLogger(ProvActivity.class);
 	public ProvActivity(){
-		this.addType(IM.PROV_ACIVITY.asTTIriRef());
+		this.addType(IM.PROVENANCE_ACTIVITY.asTTIriRef());
         super.setGraph(GRAPH.PROV.asTTIriRef());
 	}
 
     @Override
+	@JsonSetter
     public ProvActivity setGraph(TTIriRef graph) {
         LOG.error("Attempt to set graph on provenance");
         return this;
     }
+	@Override
+	public ProvActivity setGraph(Vocabulary graph) {
+		LOG.error("Attempt to set graph on provenance");
+		return this;
+	}
 
     @Override
 	public ProvActivity setIri(String iri){
@@ -30,23 +38,31 @@ public class ProvActivity extends Entry {
 		return this;
 	}
 	public TTIriRef getTargetEntity() {
-		return get(IM.PROV_TARGET.asTTIriRef())==null ?null :
-			get(IM.PROV_TARGET.asTTIriRef()).asIriRef();
+		return get(IM.PROVENANCE_TARGET.asTTIriRef())==null ?null :
+			get(IM.PROVENANCE_TARGET.asTTIriRef()).asIriRef();
 	}
 
+	@JsonSetter
 	public ProvActivity setTargetEntity(TTIriRef targetEntity) {
-		set(IM.PROV_TARGET.asTTIriRef(),targetEntity);
+		set(IM.PROVENANCE_TARGET.asTTIriRef(),targetEntity);
 		return this;
+	}
+	public ProvActivity setTargetEntity(Vocabulary targetEntity) {
+		return setTargetEntity(targetEntity.asTTIriRef());
 	}
 
 	public TTIriRef getActivityType() {
-		return get(IM.PROV_ACIVITY_TYPE.asTTIriRef())==null ? null :
-			get(IM.PROV_ACIVITY_TYPE.asTTIriRef()).asIriRef();
+		return get(IM.PROVENANCE_ACTIVITY_TYPE.asTTIriRef())==null ? null :
+			get(IM.PROVENANCE_ACTIVITY_TYPE.asTTIriRef()).asIriRef();
 	}
 
+	@JsonSetter
 	public ProvActivity setActivityType(TTIriRef activityType) {
-		set(IM.PROV_ACIVITY_TYPE.asTTIriRef(),activityType);
+		set(IM.PROVENANCE_ACTIVITY_TYPE.asTTIriRef(),activityType);
 		return this;
+	}
+	public ProvActivity setActivityType(Vocabulary activityType) {
+		return setActivityType(activityType.asTTIriRef());
 	}
 
 	public String getEffectiveDate() {
@@ -70,30 +86,33 @@ public class ProvActivity extends Entry {
 	}
 
 	public List<TTIriRef> getAgent() {
-		return TTUtil.getList(this,IM.PROV_AGENT.asTTIriRef(),TTIriRef.class);
+		return TTUtil.getList(this,IM.PROVENANCE_AGENT.asTTIriRef(),TTIriRef.class);
 	}
 
 	public ProvActivity setAgent(TTArray agent) {
-		set(IM.PROV_AGENT.asTTIriRef(),agent);
+		set(IM.PROVENANCE_AGENT.asTTIriRef(),agent);
 		return this;
 	}
 
 	public ProvActivity addAgent(TTValue agent){
-		TTUtil.add(this,IM.PROV_AGENT.asTTIriRef(),agent);
+		TTUtil.add(this,IM.PROVENANCE_AGENT.asTTIriRef(),agent);
 		return this;
 	}
 
 	public List<TTIriRef> getUsed() {
-		return TTUtil.getList(this,IM.PROV_USED.asTTIriRef(),TTIriRef.class);
+		return TTUtil.getList(this,IM.PROVENANCE_USED.asTTIriRef(),TTIriRef.class);
 	}
 
 	public ProvActivity setUsed(TTArray used) {
-		set(IM.PROV_USED.asTTIriRef(),used);
+		set(IM.PROVENANCE_USED.asTTIriRef(),used);
 		return this;
 	}
 
 	public ProvActivity addUsed(TTIriRef used){
-		TTUtil.add(this,IM.PROV_USED.asTTIriRef(),used);
+		TTUtil.add(this,IM.PROVENANCE_USED.asTTIriRef(),used);
 		return this;
+	}
+	public ProvActivity addUsed(Vocabulary used){
+		return addUsed(used.asTTIriRef());
 	}
 }

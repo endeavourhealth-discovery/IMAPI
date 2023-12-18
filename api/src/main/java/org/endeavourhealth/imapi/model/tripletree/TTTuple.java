@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 public class TTTuple {
@@ -22,6 +23,7 @@ public class TTTuple {
         return predicate;
     }
 
+    @JsonSetter
     public TTTuple setPredicate(TTIriRef predicate) {
         this.predicate = predicate;
         return this;

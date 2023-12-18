@@ -24,6 +24,7 @@ public class TTVariable extends TTIriRef {
 		return this;
 	}
 
+	@JsonSetter
 	public TTVariable setType(TTIriRef type){
 		setIri(type.getIri());
 		if (type.getName()!=null)

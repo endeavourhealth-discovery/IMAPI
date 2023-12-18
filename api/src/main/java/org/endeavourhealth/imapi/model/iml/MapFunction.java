@@ -2,8 +2,10 @@ package org.endeavourhealth.imapi.model.iml;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,8 +24,13 @@ public class MapFunction extends TTIriRef {
 		return defaultValue;
 	}
 
+	@JsonSetter
 	public MapFunction setDefaultValue(TTIriRef defaultValue) {
 		this.defaultValue = defaultValue;
+		return this;
+	}
+	public MapFunction setDefaultValue(Vocabulary defaultValue) {
+		this.defaultValue = defaultValue.asTTIriRef();
 		return this;
 	}
 
@@ -93,8 +100,12 @@ public class MapFunction extends TTIriRef {
 	}
 
 
+	@JsonSetter
 	public MapFunction setIri(TTIriRef iri) {
 		super.setIri(iri.getIri());
 		return this;
+	}
+	public MapFunction setIri(Vocabulary iri) {
+		return setIri(iri.asTTIriRef());
 	}
 }

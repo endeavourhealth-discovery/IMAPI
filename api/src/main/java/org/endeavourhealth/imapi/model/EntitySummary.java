@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.model;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.Objects;
 
@@ -41,9 +43,13 @@ public class EntitySummary {
         return scheme;
     }
 
+    @JsonSetter
     public EntitySummary setScheme(TTIriRef scheme) {
         this.scheme = scheme;
         return this;
+    }
+    public EntitySummary setScheme(Vocabulary scheme) {
+        return setScheme(scheme.asTTIriRef());
     }
 
     @Override

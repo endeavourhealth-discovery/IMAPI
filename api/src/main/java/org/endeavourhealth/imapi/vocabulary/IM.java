@@ -137,7 +137,7 @@ public enum IM implements Vocabulary {
     SOURCE_HEADING(NAMESPACE.iri + "sourceHeading"),
     TARGET_PROPERTY(NAMESPACE.iri + "targetProperty"),
     CONTEXT_NODE(NAMESPACE.iri + "contextNode"),
-
+    
     //Crud and provenance operations
     UPDATE_ALL(NAMESPACE.iri + "UpdateAll"),
     ADD_QUADS(NAMESPACE.iri + "AddQuads"),

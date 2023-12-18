@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.model.iml;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,8 +20,13 @@ public class TransformRequest {
 		return transformMap;
 	}
 
+	@JsonSetter
 	public TransformRequest setTransformMap(TTIriRef transformMap) {
 		this.transformMap = transformMap;
+		return this;
+	}
+	public TransformRequest setTransformMap(Vocabulary transformMap) {
+		this.transformMap = transformMap.asTTIriRef();
 		return this;
 	}
 

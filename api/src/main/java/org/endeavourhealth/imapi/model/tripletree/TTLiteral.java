@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -142,6 +143,7 @@ public class TTLiteral implements TTValue, Serializable {
         return type;
     }
 
+    @JsonSetter
     public TTLiteral setType(TTIriRef type) {
         this.type = type;
         return this;

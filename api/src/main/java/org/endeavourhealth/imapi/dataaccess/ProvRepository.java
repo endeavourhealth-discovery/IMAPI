@@ -39,14 +39,14 @@ public class ProvRepository {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
                     TTEntity entity = new TTEntity(bs.getValue("prov").stringValue());
-                    entity.set(IM.PROV_TARGET.asTTIriRef(),iri);
+                    entity.set(IM.PROVENANCE_TARGET.asTTIriRef(),iri);
                     entity.set(IM.EFFECTIVE_DATE.asTTIriRef(),bs.getValue("effectiveDate").stringValue());
-                    entity.set(IM.PROV_ACIVITY_TYPE.asTTIriRef(),new TTIriRef(bs.getValue("activityType").stringValue(), bs.getValue("activityTypeName").toString()));
+                    entity.set(IM.PROVENANCE_ACTIVITY_TYPE.asTTIriRef(),new TTIriRef(bs.getValue("activityType").stringValue(), bs.getValue("activityTypeName").toString()));
                     if(bs.getValue("agent") != null) {
-                        entity.set(IM.PROV_AGENT.asTTIriRef(),new TTIriRef(bs.getValue("agent").stringValue(),bs.getValue("agentName").stringValue()));
+                        entity.set(IM.PROVENANCE_AGENT.asTTIriRef(),new TTIriRef(bs.getValue("agent").stringValue(),bs.getValue("agentName").stringValue()));
                     }
                     if (bs.getValue("usedEntity") != null){
-                        entity.set(IM.PROV_USED.asTTIriRef(), new TTIriRef(bs.getValue("usedEntity").stringValue(),
+                        entity.set(IM.PROVENANCE_USED.asTTIriRef(), new TTIriRef(bs.getValue("usedEntity").stringValue(),
                                 bs.getValue("usedEntityName")!= null ? bs.getValue("usedEntityName").stringValue() : null));
                     }
                     results.add(entity);

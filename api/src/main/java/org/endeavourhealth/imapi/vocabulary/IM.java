@@ -137,7 +137,7 @@ public enum IM implements Vocabulary {
     SOURCE_HEADING(NAMESPACE.iri + "sourceHeading"),
     TARGET_PROPERTY(NAMESPACE.iri + "targetProperty"),
     CONTEXT_NODE(NAMESPACE.iri + "contextNode"),
-    
+
     //Crud and provenance operations
     UPDATE_ALL(NAMESPACE.iri + "UpdateAll"),
     ADD_QUADS(NAMESPACE.iri + "AddQuads"),
@@ -154,14 +154,14 @@ public enum IM implements Vocabulary {
     GMS_PATIENT(NAMESPACE.iri + "2751000252106"),
 
     //Provenance
-    PROV_ACIVITY(NAMESPACE.iri + "ProvenanceActivity"),
-    PROV_TARGET(NAMESPACE.iri + "provenanceTarget"),
-    PROV_ACIVITY_TYPE(NAMESPACE.iri + "provenanceActivityType"),
-    PROV_AGENT(NAMESPACE.iri + "provenanceAgent"),
+    PROVENANCE_ACTIVITY(NAMESPACE.iri + "ProvenanceActivity"),
+    PROVENANCE_TARGET(NAMESPACE.iri + "provenanceTarget"),
+    PROVENANCE_ACTIVITY_TYPE(NAMESPACE.iri + "provenanceActivityType"),
+    PROVENANCE_AGENT(NAMESPACE.iri + "provenanceAgent"),
     START_TIME(NAMESPACE.iri + "startTime"),
     EFFECTIVE_DATE(NAMESPACE.iri + "effectiveDate"),
     END_DATE(NAMESPACE.iri + "endDate"),
-    PROV_USED(NAMESPACE.iri + "usedEntity"),
+    PROVENANCE_USED(NAMESPACE.iri + "usedEntity"),
 
 
     //Authors and agents
@@ -268,7 +268,13 @@ public enum IM implements Vocabulary {
     // Main folders
     FOLDER_VALUESETS(NAMESPACE.iri + "ValueSets"),
     FOLDER_SETS(NAMESPACE.iri + "Sets"),
-    FOLDER_QUERY_CONCEPT_SETS(NAMESPACE.iri + "QueryConceptSets");
+    FOLDER_QUERY_CONCEPT_SETS(NAMESPACE.iri + "QueryConceptSets"),
+    DATE_OF_ENTRY(NAMESPACE.iri + "dateOfEntry"),
+    PARTICIPATION_TYPE(NAMESPACE.iri + "participationType"),
+    PERSON_IN_ROLE(NAMESPACE.iri + "personInRole"),
+    PROVENANCE_SOURCE_ENTITY(NAMESPACE.iri + "ProvenanceSourceEntity"),
+    DERIVATION_TYPE(NAMESPACE.iri + "derivationType"),
+    ENTITY_IDENTIFIER(NAMESPACE.iri + "entityIdentifier");
 
 
     public final String iri;

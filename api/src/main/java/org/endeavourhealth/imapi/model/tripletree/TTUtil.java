@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
@@ -13,6 +14,7 @@ public class TTUtil {
 		throw new IllegalStateException("Utility class");
 	}
 
+	@JsonGetter
 	public static Object get(TTNode node,TTIriRef predicate,Class clazz) {
 			if (node.get(predicate) == null)
 				return null;

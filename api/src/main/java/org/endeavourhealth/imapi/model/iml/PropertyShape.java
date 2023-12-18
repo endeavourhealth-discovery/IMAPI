@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -126,8 +127,13 @@ public class PropertyShape {
 
 	}
 
+	@JsonSetter
 	public PropertyShape setFunction(TTIriRef function) {
 		this.function = function;
+		return this;
+	}
+	public PropertyShape setFunction(Vocabulary function) {
+		this.function = function.asTTIriRef();
 		return this;
 	}
 
@@ -180,19 +186,31 @@ public class PropertyShape {
 		return path;
 	}
 
+	@JsonSetter
 	public PropertyShape setPath(TTIriRef path) {
 		this.path = path;
 		return this;
 	}
+	public PropertyShape setPath(Vocabulary path) {
+		return setPath(path.asTTIriRef());
+	}
 
+	@JsonSetter
 	public PropertyShape setDatatype(TTIriRef datatype) {
 		this.datatype = datatype;
 		return this;
 	}
+	public PropertyShape setDatatype(Vocabulary datatype) {
+		return setDatatype(datatype.asTTIriRef());
+	}
 
+	@JsonSetter
 	public PropertyShape setClazz(TTIriRef clazz) {
 		this.clazz = clazz;
 		return this;
+	}
+	public PropertyShape setClazz(Vocabulary clazz) {
+		return setClazz(clazz.asTTIriRef());
 	}
 
 	public PropertyShape setNode(Set<TTIriRef> node) {
@@ -206,9 +224,20 @@ public class PropertyShape {
 		this.node.add(node);
 		return this;
 	}
+	public PropertyShape addNode(Vocabulary node){
+		if (this.node==null)
+			this.node= new HashSet<>();
+		this.node.add(node.asTTIriRef());
+		return this;
+	}
 
+	@JsonSetter
 	public PropertyShape setIsIri(TTIriRef isIri) {
 		this.isIri = isIri;
+		return this;
+	}
+	public PropertyShape setIsIri(Vocabulary isIri) {
+		this.isIri = isIri.asTTIriRef();
 		return this;
 	}
 
@@ -221,18 +250,33 @@ public class PropertyShape {
 		return componentType;
 	}
 
+	@JsonSetter
 	public PropertyShape setComponentType(TTIriRef componentType) {
 		this.componentType = componentType;
 		return this;
 	}
+	public PropertyShape setComponentType(Vocabulary componentType) {
+		this.componentType = componentType.asTTIriRef();
+		return this;
+	}
 
+	@JsonSetter
 	public PropertyShape setValidation(TTIriRef validation) {
 		this.validation = validation;
 		return this;
 	}
+	public PropertyShape setValidation(Vocabulary validation) {
+		this.validation = validation.asTTIriRef();
+		return this;
+	}
 
+	@JsonSetter
 	public PropertyShape setSearch(TTIriRef search) {
 		this.search = search;
+		return this;
+	}
+	public PropertyShape setSearch(Vocabulary search) {
+		this.search = search.asTTIriRef();
 		return this;
 	}
 
@@ -247,8 +291,13 @@ public class PropertyShape {
 		return this;
 	}
 
+	@JsonSetter
 	public PropertyShape setValueIri(TTIriRef valueIri) {
 		this.valueIri = valueIri;
+		return this;
+	}
+	public PropertyShape setValueIri(Vocabulary valueIri) {
+		this.valueIri = valueIri.asTTIriRef();
 		return this;
 	}
 }

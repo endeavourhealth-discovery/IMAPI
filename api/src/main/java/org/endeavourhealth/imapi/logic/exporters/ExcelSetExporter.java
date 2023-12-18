@@ -89,7 +89,7 @@ public class ExcelSetExporter {
     private String getEcl(TTEntity entity) throws QueryException, JsonProcessingException {
         if (entity.get(IM.DEFINITION.asTTIriRef()) == null)
             return null;
-        return IMLToECL.getECLFromQuery(entity.get(IM.DEFINITION.asTTIriRef()).asLiteral().objectValue(Query.class), true);
+        return IMLToECL.getECLFromQuery(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class), true);
     }
 
     private void addCoreExpansionToWorkBook(String setName, Set<Concept> members, boolean im1id, boolean includeSubsets) {

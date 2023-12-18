@@ -1,7 +1,9 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.json.TTNodeDeserializerV2;
@@ -28,6 +30,7 @@ public class TTNode implements TTValue, Serializable {
         return this;
     }
 
+    @JsonSetter
     public TTNode set(TTIriRef predicate, TTValue value) {
         if (value==null)
             predicateValues.remove(predicate);
@@ -35,9 +38,11 @@ public class TTNode implements TTValue, Serializable {
             predicateValues.put(predicate, new TTArray().add(value));
         return this;
     }
+    @JsonIgnore
     public TTNode set(Vocabulary predicate, TTValue value) {
         return set(predicate.asTTIriRef(),value);
     }
+    @JsonIgnore
     public TTNode set(Vocabulary predicate, Vocabulary value) {
         return set(predicate.asTTIriRef(),value.asTTIriRef());
     }
@@ -84,6 +89,7 @@ public class TTNode implements TTValue, Serializable {
     }
 
 
+    @JsonSetter
     public TTNode set(TTIriRef predicate, TTArray value) {
         predicateValues.put(predicate, value);
         return this;
@@ -92,6 +98,7 @@ public class TTNode implements TTValue, Serializable {
         return set(predicate.asTTIriRef(), value);
     }
 
+    @JsonGetter
     public TTArray get(TTIriRef predicate) {
         return predicateValues.get(predicate);
     }
@@ -126,6 +133,7 @@ public class TTNode implements TTValue, Serializable {
         return true;
     }
 
+    @JsonGetter
     public TTLiteral getAsLiteral(TTIriRef predicate) {
         TTArray vals = get(predicate);
         return (vals == null) ? null : vals.asLiteral();
@@ -134,6 +142,7 @@ public class TTNode implements TTValue, Serializable {
         return getAsLiteral(predicate.asTTIriRef());
     }
 
+    @JsonGetter
     public TTIriRef getAsIriRef(TTIriRef predicate) {
         TTArray vals = get(predicate);
         return (vals == null) ? null : vals.asIriRef();
@@ -142,6 +151,7 @@ public class TTNode implements TTValue, Serializable {
         return getAsIriRef(predicate.asTTIriRef());
     }
 
+    @JsonGetter
     public TTNode getAsNode(TTIriRef predicate) {
         TTArray vals = get(predicate);
         return (vals == null) ? null : vals.asNode();

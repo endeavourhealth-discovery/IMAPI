@@ -39,9 +39,9 @@ public class ClosureGeneratorBulk implements TCGenerator {
 	}
 
 	private void addInactiveSubsumptions() {
-		for (String relationship:List.of(IM.SUBSUMED_BY.iri,IM.USUALLY_SUBSUMED_BY.iri,
-			IM.APPROXIMATE_SUBSUMED_BY.iri,IM.MULTIPLE_SUBSUMED_BY.iri)){
-			for (Map.Entry<String, Set<String>> row : relationshipMap.get(relationship).entrySet()) {
+		for (IM relationship:List.of(IM.SUBSUMED_BY,IM.USUALLY_SUBSUMED_BY,
+			IM.APPROXIMATE_SUBSUMED_BY,IM.MULTIPLE_SUBSUMED_BY)){
+			for (Map.Entry<String, Set<String>> row : relationshipMap.get(relationship.iri).entrySet()) {
 				String child= row.getKey();
 				closureMap.computeIfAbsent(child,c-> new HashSet<>());
 				for (String parent:row.getValue()){

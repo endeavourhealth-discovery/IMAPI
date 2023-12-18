@@ -34,7 +34,6 @@ public class ConfigManager {
             if (config == null)
                 return null;
             return om.readValue(config.getData(), resultType);
-//            return om.readValue(config.getData(), resultType);
         }
     }
 

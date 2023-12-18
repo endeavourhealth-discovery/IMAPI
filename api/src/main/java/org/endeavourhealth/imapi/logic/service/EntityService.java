@@ -29,6 +29,7 @@ import org.endeavourhealth.imapi.transforms.TTToClassObject;
 import org.endeavourhealth.imapi.transforms.TTToString;
 import org.endeavourhealth.imapi.validators.EntityValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -1064,7 +1065,7 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.iri).collect(Co
     public TTEntity createEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {
         EntityValidator validator = new EntityValidator();
         validator.isValid(entity, this, "Create");
-        TTIriRef graph = IM.GRAPH_DISCOVERY.asTTIriRef();
+        TTIriRef graph = GRAPH.DISCOVERY.asTTIriRef();
         entity.setCrud(IM.ADD_QUADS.asTTIriRef()).setVersion(1);
         filerService.fileEntity(entity, graph, agentName, null);
         return entity;
@@ -1073,7 +1074,7 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.iri).collect(Co
     public TTEntity updateEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {
         EntityValidator validator = new EntityValidator();
         validator.isValid(entity, this, "Update");
-        TTIriRef graph = IM.GRAPH_DISCOVERY.asTTIriRef();
+        TTIriRef graph = GRAPH.DISCOVERY.asTTIriRef();
         entity.setCrud(IM.UPDATE_ALL.asTTIriRef());
         TTEntity usedEntity = getFullEntity(entity.getIri()).getEntity();
         entity.setVersion(usedEntity.getVersion() + 1);

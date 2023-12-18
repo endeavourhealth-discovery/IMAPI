@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
 
 import java.io.File;
 import java.io.IOException;
@@ -520,7 +521,7 @@ public class TestQueries {
 				.property(p->p
 					.setIri(IM.HAS_SCHEME.getIri())
 					.is(i->i
-						.setIri(IM.CODE_SCHEME_BARTS_CERNER.getIri())))
+						.setIri(GRAPH.BARTS_CERNER.getIri())))
 			.property(p->p
 					.setIri(IM.CONCEPT.getIri())
 				.setInverse(true)

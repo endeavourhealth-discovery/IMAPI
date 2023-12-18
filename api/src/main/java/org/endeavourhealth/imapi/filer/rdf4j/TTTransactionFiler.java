@@ -17,6 +17,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -213,7 +214,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
             }
     }
     private void fileEntity(TTEntity entity, TTIriRef graph) throws TTFilerException {
-        if (IM.GRAPH_ODS.iri.equals(graph.getIri()))
+        if (GRAPH.ODS.iri.equals(graph.getIri()))
             instanceFiler.fileEntity(entity, graph);
         else
             conceptFiler.fileEntity(entity, graph);
@@ -331,7 +332,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
     public void fileEntities(Map<String, String> prefixMap, TTDocument document) throws TTFilerException {
         LOG.info("Filing entities.... ");
 
-        TTIriRef defaultGraph = document.getGraph() != null ? document.getGraph() : IM.GRAPH_DISCOVERY.asTTIriRef();
+        TTIriRef defaultGraph = document.getGraph() != null ? document.getGraph() : GRAPH.DISCOVERY.asTTIriRef();
 
         startTransaction();
         try {

@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -64,7 +65,7 @@ public class ProvService {
                 .setIri(usedEntity.getIri() + "/" + (usedEntity.getVersion()))
                 .setName(usedEntity.getName())
                 .set(IM.DEFINITION.asTTIriRef(), new TTLiteral(om.writeValueAsString(usedEntity)))
-                .setGraph(IM.GRAPH_PROV.asTTIriRef())
+                .setGraph(GRAPH.PROV.asTTIriRef())
                 .setCrud(IM.ADD_QUADS.asTTIriRef());
         }
     }

@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.cdm;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +15,7 @@ public class ProvActivity extends Entry {
     private static final Logger LOG = LoggerFactory.getLogger(ProvActivity.class);
 	public ProvActivity(){
 		this.addType(IM.PROV_ACIVITY.asTTIriRef());
-        super.setGraph(IM.GRAPH_PROV.asTTIriRef());
+        super.setGraph(GRAPH.PROV.asTTIriRef());
 	}
 
     @Override

@@ -17,10 +17,6 @@ tasks {
         jsonLibrary = JsonLibrary.jackson2
         outputFileType = TypeScriptFileType.implementationFile
         optionalProperties = OptionalProperties.useLibraryDefinition
-        classes = [
-                'org.endeavourhealth.imapi.model.search.SearchRequest',
-                'org.endeavourhealth.imapi.model.search.SearchResponse'
-        ]
         classPatterns = [
                 'org.endeavourhealth.imapi.model.iml.*',
                 'org.endeavourhealth.imapi.model.search.*',

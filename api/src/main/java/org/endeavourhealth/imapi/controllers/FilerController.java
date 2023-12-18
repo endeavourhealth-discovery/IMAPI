@@ -17,6 +17,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -124,7 +125,7 @@ public class FilerController {
         entity.setVersion(usedEntity.getVersion() + 1).setCrud(IM.UPDATE_PREDICATES);
 
         String agentName = reqObjService.getRequestAgentName(request);
-        filerService.fileEntity(entity, IM.GRAPH_DISCOVERY, agentName, usedEntity);
+        filerService.fileEntity(entity, GRAPH.DISCOVERY, agentName, usedEntity);
 
         return ResponseEntity.ok().build();
     }
@@ -153,7 +154,7 @@ public class FilerController {
         String agentName = reqObjService.getRequestAgentName(request);
         TTEntity usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
         entity.setVersion(usedEntity.getVersion() + 1).setCrud(IM.UPDATE_PREDICATES);
-        filerService.fileEntity(entity, IM.GRAPH_DISCOVERY, agentName, usedEntity);
+        filerService.fileEntity(entity, GRAPH.DISCOVERY, agentName, usedEntity);
 
         return ResponseEntity.ok().build();
     }
@@ -193,7 +194,7 @@ public class FilerController {
 
         TTEntity entity = new TTEntity(iri)
             .setName(name)
-            .setScheme(IM.GRAPH_DISCOVERY)
+            .setScheme(GRAPH.DISCOVERY)
             .addType(IM.FOLDER)
             .set(IM.IS_CONTAINED_IN, iri(container))
             .setVersion(1)
@@ -209,7 +210,7 @@ public class FilerController {
         entity.set(IM.CONTENT_TYPE, contentTypes);
 
         String agentName = reqObjService.getRequestAgentName(request);
-        filerService.fileEntity(entity, IM.GRAPH_DISCOVERY, agentName, null);
+        filerService.fileEntity(entity, GRAPH.DISCOVERY, agentName, null);
         return iri;
     }
 

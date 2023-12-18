@@ -138,56 +138,7 @@ public enum IM implements Vocabulary {
     TARGET_PROPERTY(NAMESPACE.iri + "targetProperty"),
     CONTEXT_NODE(NAMESPACE.iri + "contextNode"),
 
-
-    //Graphs
-    GRAPH_DISCOVERY(IM.DOMAIN.iri + "im#"),
-    GRAPH_ICD10(DOMAIN.iri + "icd10#"),
-    GRAPH_EMIS(DOMAIN.iri + "emis#"),
-    GRAPH_CPRD_MED(DOMAIN.iri + "cprdm#"),
-    GRAPH_CPRD_PROD(DOMAIN.iri + "cprdp#"),
-    GRAPH_OPCS4(DOMAIN.iri + "opcs4#"),
-    GRAPH_TPP(DOMAIN.iri + "tpp#"),
-    GRAPH_ODS(DOMAIN.iri + "ods#"),
-    GRAPH_PRSB(DOMAIN.iri + "prsb#"),
-    GRAPH_KINGS_APEX(DOMAIN.iri + "kpax#"),
-    GRAPH_KINGS_WINPATH(DOMAIN.iri + "kwp#"),
-    GRAPH_VISION(DOMAIN.iri + "vis#"),
-    GRAPH_READ2(DOMAIN.iri + "read2#"),
-    GRAPH_BARTS_CERNER(DOMAIN.iri + "bc#"),
-    GRAPH_NHSDD_ETHNIC_2001(DOMAIN.iri + "nhsethnic2001#"),
-    GRAPH_IM1(DOMAIN.iri + "im1#"),
-    GRAPH_ENCOUNTERS(DOMAIN.iri + "enc#"),
-    GRAPH_CONFIG(DOMAIN.iri + "config#"),
-    GRAPH_CEG_QUERY(DOMAIN.iri + "ceg/qry#"),
-    GRAPH_NHS_TFC(DOMAIN.iri + "nhstfc#"),
-    GRAPH_STATS(DOMAIN.iri + "stats#"),
-    GRAPH_DELTAS(DOMAIN.iri + "deltas#"),
-    GRAPH_PROV(DOMAIN.iri + "prov#"),
-    GRAPH_QUERY(DOMAIN.iri + "query#"),
-
-
-
-    // redant code schemes are now the same as graphs
-
-    CODE_SCHEME_DISCOVERY(GRAPH_DISCOVERY.iri),
-    CODE_SCHEME_ICD10(GRAPH_ICD10.iri),
-    CODE_SCHEME_EMIS(GRAPH_EMIS.iri),
-    CODE_SCHEME_CPRD_MED(GRAPH_CPRD_MED.iri),
-    CODE_SCHEME_CPRD_PROD(GRAPH_CPRD_PROD.iri),
-    CODE_SCHEME_OPCS4(GRAPH_OPCS4.iri),
-    CODE_SCHEME_TPP(GRAPH_TPP.iri),
-    CODE_SCHEME_ODS(GRAPH_ODS.iri),
-    CODE_SCHEME_VISION(GRAPH_VISION.iri),
-    CODE_SCHEME_READ2(GRAPH_READ2.iri),
-    CODE_SCHEME_NHSDD_ETHNIC_2001(GRAPH_NHSDD_ETHNIC_2001.iri),
-    CODE_SCHEME_KINGS_APEX(GRAPH_KINGS_APEX.iri),
-    CODE_SCHEME_KINGS_WINPATH(GRAPH_KINGS_WINPATH.iri),
-    CODE_SCHEME_BARTS_CERNER(GRAPH_BARTS_CERNER.iri),
-    CODE_SCHEME_ENCOUNTERS(GRAPH_ENCOUNTERS.iri),
-
-
     //Crud and provenance operations
-
     UPDATE_ALL(NAMESPACE.iri + "UpdateAll"),
     ADD_QUADS(NAMESPACE.iri + "AddQuads"),
     UPDATE_PREDICATES(NAMESPACE.iri + "UpdatePredicates"),
@@ -256,19 +207,69 @@ public enum IM implements Vocabulary {
 
     //Editor
     ENTITY_TYPES(NAMESPACE.iri + "EntityTypes"),
+    //Vue import start
+    ID(NAMESPACE.iri + "id"),
+    CONCEPT_SET_GROUP(NAMESPACE.iri + "ConceptSetGroup"),
+    OLD_CODE(NAMESPACE.iri + "oldCode"),
+    ORDER(NAMESPACE.iri + "order"),
+    MAPPING_TASK(NAMESPACE.iri + "MappingTask"),
+    UPDATE_TASK(NAMESPACE.iri + "UpdateTask"),
+    MATCHED_FROM(NAMESPACE.iri + "matchedFrom"),
+    MAPPED_FROM(NAMESPACE.iri + "mappedFrom"),
+    SELECT(NAMESPACE.iri + "select"),
+    NATIONALLY_ASSURED_UK(NAMESPACE.iri + "NationallyAssuredUK"),
 
-    //Functions
-    FUNCTION_NAMESPACE(NAMESPACE.iri + "Function_"),
-    FUNCTION_SNOMED_CONCEPT_GENERATOR(FUNCTION_NAMESPACE.iri + "SnomedConceptGenerator"),
-    FUNCTION_LOCAL_NAME_RETRIEVER(FUNCTION_NAMESPACE.iri + "LocalNameRetriever"),
-    FUNCTION_GET_ADDITIONAL_ALLOWABLE_TYPES(FUNCTION_NAMESPACE.iri + "GetAdditionalAllowableTypes"),
-    FUNCTION_GET_LOGIC_OPTIONS(FUNCTION_NAMESPACE.iri + "GetLogicOptions"),
-    FUNCTION_GET_SET_EDITOR_IRI_SCHEMES(FUNCTION_NAMESPACE.iri + "GetSetEditorIriSchemes"),
-    FUNCTION_IM1_SCHEME_OPTIONS(FUNCTION_NAMESPACE.iri + "IM1SchemeOptions"),
-    FUNCTION_SCHEME_FROM_IRI(FUNCTION_NAMESPACE.iri + "SchemeFromIri"),
-    FUNCTION_GET_USER_EDITABLE_SCHEMES(FUNCTION_NAMESPACE.iri + "GetUserEditableSchemes"),
-    FUNCTION_GENERATE_IRI_CODE(FUNCTION_NAMESPACE.iri + "GenerateIriCode"),
-    FUNCTION_IS_TYPE(FUNCTION_NAMESPACE.iri + "IsType");
+    ENTITY(NAMESPACE.iri + "Entity"),
+    QUERY_SET(NAMESPACE.iri + "QuerySet"),
+    QUERY_TEMPLATE(NAMESPACE.iri + "QueryTemplate"),
+    RECORD_TYPE(NAMESPACE.iri + "RecordType"),
+    FEATURE(NAMESPACE.iri + "MatchClause"),
+    DATA_PROPERTY(NAMESPACE.iri + "DataProperty"),
+    ORGANISATION(NAMESPACE.iri + "Organisation"),
+    MODELLING_ENTITY_TYPE(NAMESPACE.iri + "ModellingEntityType"),
+    PROFILE(NAMESPACE.iri + "Profile"),
+    STATS_REPORT_ENTRY(NAMESPACE.iri + "hasStatsReportEntry"),
+    FAVOURITES(NAMESPACE.iri + "Favourites"),
+
+    MODULE_ONTOLOGY(NAMESPACE.iri + "DiscoveryOntology"),
+    MODULE_SETS(NAMESPACE.iri + "Sets"),
+    MODULE_DATA_MODEL(NAMESPACE.iri + "DiscoveryCommonDataModel"),
+    MODULE_CATALOGUE(NAMESPACE.iri + "Catalogue"),
+    MODULE_QUERIES(NAMESPACE.iri + "Q_Queries"),
+    MODULE_IM(NAMESPACE.iri + "InformationModel"),
+    MODULE_TASKS(NAMESPACE.iri + "Tasks"),
+    MODULE_FEATURES(NAMESPACE.iri + "M_MatchClauses"),
+
+    // Stats reports
+    CONCEPT_CATEGORY(NAMESPACE.iri + "ontologyOverview"),
+    CONCEPT_TYPES(NAMESPACE.iri + "ontologyConceptTypes"),
+    CONCEPT_SCHEMES(NAMESPACE.iri + "ontologyConceptSchemes"),
+    CONCEPT_STATUS(NAMESPACE.iri + "ontologyConceptStatus"),
+    HAS_VALUE(NAMESPACE.iri + "hasValue"),
+    VALUE_SET(NAMESPACE.iri + "ValueSet"),
+    DATAMODEL_ENTITY(NAMESPACE.iri + "DataModelEntity"),
+    DATAMODEL_OBJECTPROPERTY(NAMESPACE.iri + "dataModelObjectProperty"),
+    DATAMODEL_DATAPROPERTY(NAMESPACE.iri + "dataModelDataProperty"),
+    DATAMODEL_FUNCTIONPROPERTY(NAMESPACE.iri + "functionProperty"),
+    MATCH(NAMESPACE.iri + "match"),
+    ENTITY_TYPE(NAMESPACE.iri + "entityType"),
+    //argument options
+    VALUE_DATA(NAMESPACE.iri + "valueData"),
+    VALUE_OBJECT(NAMESPACE.iri + "valueObject"),
+    VALUE_IRI(NAMESPACE.iri + "valueIri"),
+    VALUE_IRI_LIST(NAMESPACE.iri + "valueIriList"),
+    VALUE_DATA_LIST(NAMESPACE.iri + "valueDataList"),
+
+    // IM1
+    IM_1_ID(NAMESPACE.iri + "im1Id"),
+    IM_1_SCHEME(NAMESPACE.iri + "im1Scheme"),
+    //Provenance
+    PROV_ACTIVITY_TYPE(NAMESPACE.iri + "provenanceActivityType"),
+    // Main folders
+    FOLDER_VALUESETS(NAMESPACE.iri + "ValueSets"),
+    FOLDER_SETS(NAMESPACE.iri + "Sets"),
+    FOLDER_QUERY_CONCEPT_SETS(NAMESPACE.iri + "QueryConceptSets");
+
 
     public final String iri;
     IM(String url) {

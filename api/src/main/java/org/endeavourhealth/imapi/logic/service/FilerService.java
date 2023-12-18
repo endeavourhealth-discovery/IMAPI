@@ -16,6 +16,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Vocabulary;
+import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -87,7 +88,7 @@ public class FilerService {
 
     private ProvAgent fileProvAgent(TTEntity entity, String agentName) throws TTFilerException {
         ProvAgent agent = provService.buildProvenanceAgent(entity, agentName);
-        entityProvFiler.fileEntity(agent, IM.GRAPH_PROV.asTTIriRef());
+        entityProvFiler.fileEntity(agent, GRAPH.PROV.asTTIriRef());
         return agent;
     }
 
@@ -96,7 +97,7 @@ public class FilerService {
             return null;
 
         TTEntity provUsedEntity = provService.buildUsedEntity(usedEntity);
-        entityProvFiler.fileEntity(provUsedEntity, IM.GRAPH_PROV.asTTIriRef());
+        entityProvFiler.fileEntity(provUsedEntity, GRAPH.PROV.asTTIriRef());
 
         return provUsedEntity;
     }
@@ -105,7 +106,7 @@ public class FilerService {
         String provUsedIri = provUsedEntity == null ? null : provUsedEntity.getIri();
 
         ProvActivity activity = provService.buildProvenanceActivity(entity, agent, provUsedIri);
-        entityProvFiler.fileEntity(activity, IM.GRAPH_PROV.asTTIriRef());
+        entityProvFiler.fileEntity(activity, GRAPH.PROV.asTTIriRef());
         return activity;
 
     }

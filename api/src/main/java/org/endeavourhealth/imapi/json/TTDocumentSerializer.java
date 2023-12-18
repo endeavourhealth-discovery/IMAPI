@@ -34,7 +34,6 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
         Boolean usePrefixes = (Boolean) prov.getAttribute(TTContext.OUTPUT_CONTEXT);
         usePrefixes = (usePrefixes != null && usePrefixes);
 
-        setPredicateOrder();
         TTNodeSerializer helper = new TTNodeSerializer(document.getContext(), usePrefixes);
         gen.writeStartObject();
         helper.serializeContexts(document.getPrefixes(), gen);
@@ -87,10 +86,5 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
         }
     }
 
-    private void setPredicateOrder() {
-        List<TTIriRef> predicateTemplate = List.of(RDF.TYPE.asTTIriRef(), RDFS.LABEL.asTTIriRef(),
-            RDFS.COMMENT.asTTIriRef(), IM.CODE.asTTIriRef(), IM.HAS_SCHEME.asTTIriRef(), IM.HAS_STATUS.asTTIriRef(),
-            RDFS.SUBCLASSOF.asTTIriRef());
-    }
 }
 

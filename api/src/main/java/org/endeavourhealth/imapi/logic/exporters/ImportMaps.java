@@ -20,6 +20,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
 
 import java.io.IOException;
 import java.util.*;
@@ -36,7 +37,7 @@ public class ImportMaps implements AutoCloseable {
 	 */
 	public Map<String, Set<String>> importEmisToSnomed() throws TTFilerException, IOException {
 		if (TTFilerFactory.isBulk())
-			return fileRepo.getCodeCoreMap(IM.CODE_SCHEME_EMIS.iri);
+			return fileRepo.getCodeCoreMap(GRAPH.EMIS.iri);
 		return importEmisToSnomedRdf4j();
 	}
 
@@ -171,7 +172,7 @@ public class ImportMaps implements AutoCloseable {
 	public Map<String,Set<String>> importReadToSnomed() throws TTFilerException, IOException {
 		Map<String,Set<String>> readToSnomed= new HashMap<>();
 		if (TTFilerFactory.isBulk()){
-			return fileRepo.getCodeCoreMap(IM.CODE_SCHEME_EMIS.iri);
+			return fileRepo.getCodeCoreMap(GRAPH.EMIS.iri);
 		}
 		return importReadToSnomedRdf4j(readToSnomed);
 	}
@@ -261,7 +262,7 @@ public class ImportMaps implements AutoCloseable {
 			TupleQuery qry= conn.prepareTupleQuery(
 				"SELECT ?code ?snomed\n" +
 				"WHERE {" +
-					"GRAPH <"+IM.GRAPH_VISION.iri +"> {" +
+					"GRAPH <"+GRAPH.VISION.iri +"> {" +
 					"?concept <"+IM.CODE.iri +"> ?code . \n" +
 					"?concept <"+IM.MATCHED_TO.iri +"> ?snomedIri .}" +
 					"GRAPH <"+SNOMED.GRAPH_SNOMED.getIri()+"> {" +
@@ -284,7 +285,7 @@ public class ImportMaps implements AutoCloseable {
 
 	public Map<String, TTEntity> getEMISReadAsVision() throws IOException {
 		if (TTFilerFactory.isBulk()) {
-			Map<String,Set<String>> emisToCore= fileRepo.getCodeCoreMap(IM.CODE_SCHEME_EMIS.iri);
+			Map<String,Set<String>> emisToCore= fileRepo.getCodeCoreMap(GRAPH.EMIS.iri);
 			Map<String,TTEntity> emisRead2= new HashMap<>();
 			for (Map.Entry<String,Set<String>> entry:emisToCore.entrySet()) {
 				String code = entry.getKey();
@@ -292,8 +293,8 @@ public class ImportMaps implements AutoCloseable {
 					code = (code + ".....").substring(0, 5);
 					TTEntity entity = emisRead2.computeIfAbsent(code, k -> new TTEntity());
 					entity.setCode(code);
-					entity.setScheme(IM.CODE_SCHEME_VISION.asTTIriRef());
-					entity.setIri(IM.GRAPH_VISION.iri + code.replace(".", ""));
+					entity.setScheme(GRAPH.VISION.asTTIriRef());
+					entity.setIri(GRAPH.VISION.iri + code.replace(".", ""));
 					for (String snomed : entry.getValue()) {
 						entity.addObject(IM.MATCHED_TO.asTTIriRef(), TTIriRef.iri(snomed));
 					}
@@ -311,7 +312,7 @@ public class ImportMaps implements AutoCloseable {
 			StringJoiner sql = new StringJoiner("\n");
 			sql.add("SELECT ?oldCode ?name ?snomedIri");
 			sql.add("WHERE {");
-			sql.add("Graph <" + IM.GRAPH_EMIS.iri + "> {");
+			sql.add("Graph <" + GRAPH.EMIS.iri + "> {");
 			sql.add("?concept <" + RDFS.LABEL.iri + "> ?name.");
 			sql.add("?concept <" + IM.MATCHED_TO.iri + "> ?snomedIri . ");
 			sql.add("OPTIONAL {?concept <"+ IM.HAS_TERM_CODE.iri +"> ?tc.");
@@ -328,7 +329,7 @@ public class ImportMaps implements AutoCloseable {
 					TTEntity entity = emisRead2.computeIfAbsent(code, k -> new TTEntity());
 					entity.setName(name);
 					entity.setCode(code);
-					entity.setIri(IM.GRAPH_VISION.iri + code.replace(".", ""));
+					entity.setIri(GRAPH.VISION.iri + code.replace(".", ""));
 					entity.addObject(IM.MATCHED_TO.asTTIriRef(), TTIriRef.iri(snomedIri));
 				}
 			}
@@ -347,7 +348,7 @@ public class ImportMaps implements AutoCloseable {
 		Map<String,Set<String>> emisToSnomed= new HashMap<>();
 		RepositoryConnection conn= ConnectionManager.getIMConnection();
 		TupleQuery qry= conn.prepareTupleQuery("select ?code ?snomedIri  ?name\n"+
-			"where {GRAPH <"+IM.GRAPH_EMIS.iri +"> \n"+
+			"where {GRAPH <"+GRAPH.EMIS.iri +"> \n"+
 			"{?concept <"+IM.CODE.iri +"> ?code. \n"+
 			"?concept <"+RDFS.LABEL.iri +"> ?name.\n"+
 			"?concept <"+IM.MATCHED_TO.iri +"> ?snomedIri.}\n" +

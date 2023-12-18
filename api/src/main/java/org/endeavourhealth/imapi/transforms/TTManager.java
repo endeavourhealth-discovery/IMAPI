@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
@@ -70,7 +71,7 @@ public class TTManager implements AutoCloseable {
       context.add(RDFS.NAMESPACE.iri, "rdfs","RDFS namespace");
       document = new TTDocument();
       document.setContext(context);
-      document.setGraph(TTIriRef.iri(IM.GRAPH_DISCOVERY.iri));
+      document.setGraph(TTIriRef.iri(GRAPH.DISCOVERY.iri));
       return document;
    }
 
@@ -121,22 +122,22 @@ public class TTManager implements AutoCloseable {
       context.add(RDF.NAMESPACE.iri, "rdf","RDF namespace");
       context.add(RDFS.NAMESPACE.iri, "rdfs","RDFS namespace");
       context.add(XSD.NAMESPACE.iri, "xsd","xsd namespace");
-      context.add("http://endhealth.info/icd10#", "icd10","ICD10 namespace");
-      context.add("http://endhealth.info/opcs4#", "opcs4","OPCS4 namespace");
-      context.add("http://endhealth.info/emis#", "emis","EMIS (inc. Read2 like) namespace");
-      context.add("http://endhealth.info/tpp#", "tpp","TPP (inc.CTV3) namespace");
-      context.add("http://endhealth.info/bc#", "bc","Barts Cerner namespace");
+      context.add(GRAPH.ICD10.iri, "icd10","ICD10 namespace");
+      context.add(GRAPH.OPCS4.iri, "opcs4","OPCS4 namespace");
+      context.add(GRAPH.EMIS.iri, "emis","EMIS (inc. Read2 like) namespace");
+      context.add(GRAPH.TPP.iri, "tpp","TPP (inc.CTV3) namespace");
+      context.add(GRAPH.BARTS_CERNER.iri, "bc","Barts Cerner namespace");
       context.add(SHACL.NAMESPACE.iri, "sh","SHACL namespace");
-      context.add("http://www.w3.org/ns/prov#", "prov","PROV namespace");
-      context.add("http://endhealth.info/reports#","reports","IM internal reports");
-      context.add("https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#", "orole","OPS roles namespace");
-      context.add("http://endhealth.info/ods#","ods","ODS code scheme");
-      context.add("http://endhealth.info/prsb#","prsb","PRSB namespace");
-      context.add("http://endhealth.info/kchwinpath#","kchwinpath","KCH Winpath codes");
-      context.add("http://endhealth.info/kchapex#","kchapex","KCH Apex codes");
-      context.add("http://endhealth.info/ceg16#","ceg13","CEG ethnicity 16+ category");
-      context.add("http://endhealth.info/nhsethnic2001#","nhse2001","NHS Ethnicitity categories 2001 census");
-      context.add("http://endhealth.info/vision#", "vis","Vision (incl. Read2) namespace");
+      context.add(GRAPH.PROV.iri, "prov","PROV namespace");
+      context.add(GRAPH.REPORTS.iri, "reports","IM internal reports");
+      context.add(GRAPH.OPS_ROLES.iri, "orole","OPS roles namespace");
+      context.add(GRAPH.ODS.iri, "ods","ODS code scheme");
+      context.add(GRAPH.PRSB.iri,"prsb","PRSB namespace");
+      context.add(GRAPH.KINGS_WINPATH.iri, "kchwinpath","KCH Winpath codes");
+      context.add(GRAPH.KINGS_APEX.iri, "kchapex","KCH Apex codes");
+      context.add(GRAPH.CEG16.iri, "ceg13","CEG ethnicity 16+ category");
+      context.add(GRAPH.NHSDD_ETHNIC_2001.iri, "nhse2001","NHS Ethnicitity categories 2001 census");
+      context.add(GRAPH.VISION.iri, "vis","Vision (incl. Read2) namespace");
       return context;
    }
 

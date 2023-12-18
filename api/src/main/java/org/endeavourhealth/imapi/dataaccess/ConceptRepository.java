@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.SnomedConcept;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
 
 public class ConceptRepository {
 	public ObjectNode createConcept(String namespace) throws Exception {
@@ -38,7 +39,7 @@ public class ConceptRepository {
 	private void updateIncrement(Integer from) throws Exception {
 		TTDocument document = new TTDocument()
 			.setCrud(IM.UPDATE_PREDICATES.asTTIriRef())
-			.setGraph(IM.CODE_SCHEME_DISCOVERY.asTTIriRef())
+			.setGraph(GRAPH.DISCOVERY.asTTIriRef())
 			.addEntity(new TTEntity()
 				.setCrud(IM.UPDATE_PREDICATES.asTTIriRef())
 				.setIri(IM.NAMESPACE.iri+"Function_SnomedConceptGenerator")

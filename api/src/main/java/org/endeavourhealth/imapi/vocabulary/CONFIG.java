@@ -19,7 +19,11 @@ public enum CONFIG implements Vocabulary {
     XML_SCHEMA_DATA_TYPES(NAMESPACE.iri + "xmlSchemaDataTypes"),
     DEFAULT_PREFIXES(NAMESPACE.iri + "defaultPrefixes"),
     GRAPH_EXCLUDE_PREDICATES(NAMESPACE.iri + "graphExcludePredicates"),
-    IM1_PUBLISH(NAMESPACE.iri + "im1Publish");
+    IM1_PUBLISH(NAMESPACE.iri + "im1Publish"),
+    IMDIRECTORY_LATEST_RELEASE(NAMESPACE.iri + "IMDirectoryLatestRelease"),
+    IMDIRECTORY_ALL_RELEASES(NAMESPACE.iri + "IMDirectoryAllReleases"),
+    IMPORT_DATA_LATEST_RELEASE(NAMESPACE.iri + "ImportDataLatestRelease"),
+    IMPORT_DATA_ALL_RELEASES(NAMESPACE.iri + "ImportDataAllReleases");
 
     public final String iri;
     CONFIG(String url) {

@@ -286,7 +286,7 @@ public class TTManager implements AutoCloseable {
         .addType(RDFS.CLASS.asTTIriRef())
         .setName(name)
         .setDescription(description);
-      graph.addObject(RDFS.SUBCLASSOF.asTTIriRef(),IM.GRAPH.asTTIriRef());
+      graph.addObject(RDFS.SUBCLASS_OF.asTTIriRef(),IM.GRAPH.asTTIriRef());
       return graph;
    }
 
@@ -436,7 +436,7 @@ public class TTManager implements AutoCloseable {
    private boolean isA1(TTEntity descendant, TTIriRef ancestor, Set<TTIriRef> done) {
        if (TTIriRef.iri(descendant.getIri()).equals(ancestor))
            return true;
-       TTIriRef subType = descendant.isType(RDF.PROPERTY.asTTIriRef()) ? RDFS.SUBPROPERTYOF.asTTIriRef() : RDFS.SUBCLASSOF.asTTIriRef();
+       TTIriRef subType = descendant.isType(RDF.PROPERTY.asTTIriRef()) ? RDFS.SUB_PROPERTY_OF.asTTIriRef() : RDFS.SUBCLASS_OF.asTTIriRef();
        boolean isa = false;
        if (descendant.get(subType) != null)
            for (TTValue ref : descendant.get(subType).iterator())
@@ -471,14 +471,14 @@ public class TTManager implements AutoCloseable {
    }
 
    public static void addSuperClass(TTEntity entity, TTIriRef andOr,TTValue superClass) {
-      addESAxiom(entity,RDFS.SUBCLASSOF.asTTIriRef(),andOr,superClass);
+      addESAxiom(entity,RDFS.SUBCLASS_OF.asTTIriRef(),andOr,superClass);
 
    }
 
 
    private static void addESAxiom(TTEntity entity, TTIriRef axiom,
                                   TTIriRef andOr, TTValue newExpression) {
-      TTIriRef subType= entity.isType(RDF.PROPERTY.asTTIriRef()) ? RDFS.SUBPROPERTYOF.asTTIriRef() : RDFS.SUBCLASSOF.asTTIriRef();
+      TTIriRef subType= entity.isType(RDF.PROPERTY.asTTIriRef()) ? RDFS.SUB_PROPERTY_OF.asTTIriRef() : RDFS.SUBCLASS_OF.asTTIriRef();
       if (entity.get(axiom) == null)
          entity.set(axiom, new TTArray());
       TTValue oldExpression;

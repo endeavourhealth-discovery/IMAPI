@@ -193,7 +193,7 @@ public class ImportMaps implements AutoCloseable {
 		Map<String, Set<String>> codeToTerm = new HashMap<>();
 		RepositoryConnection conn = ConnectionManager.getIMConnection();
 		TupleQuery qry = conn.prepareTupleQuery("select ?child ?name\n" +
-			"where {GRAPH <"+SNOMED.GRAPH_SNOMED.getIri()+"> { ?child <" + RDFS.SUBCLASSOF.iri + ">+ ?concept.\n" +
+			"where {GRAPH <"+SNOMED.GRAPH_SNOMED.getIri()+"> { ?child <" + RDFS.SUBCLASS_OF.iri + ">+ ?concept.\n" +
 			"?child <" + RDFS.LABEL.iri + "> ?name.}}");
 		qry.setBinding("concept", valueFactory.createIRI(concept));
 		try {

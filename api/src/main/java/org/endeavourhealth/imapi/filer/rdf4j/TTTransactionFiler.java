@@ -243,8 +243,8 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
         //set external isas first i.e. top of the tree
         for (TTEntity entity : toClose) {
             String subclass = entity.getIri();
-            if (entity.get(RDFS.SUBCLASSOF) != null) {
-                for (TTValue superClass : entity.get(RDFS.SUBCLASSOF).getElements()) {
+            if (entity.get(RDFS.SUBCLASS_OF) != null) {
+                for (TTValue superClass : entity.get(RDFS.SUBCLASS_OF).getElements()) {
                     String iri = superClass.asIriRef().getIri();
                     if (!entitiesFiled.contains(iri)) {
                         Set<String> ancestors = conceptFiler.getIsAs(iri);
@@ -268,8 +268,8 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
         if (!done.contains(subclass)) {
             isAs.computeIfAbsent(subclass, s -> new HashSet<>());
             isAs.get(subclass).add(subclass);
-            if (entity.get(RDFS.SUBCLASSOF) != null) {
-                for (TTValue superClass : entity.get(RDFS.SUBCLASSOF).getElements()) {
+            if (entity.get(RDFS.SUBCLASS_OF) != null) {
+                for (TTValue superClass : entity.get(RDFS.SUBCLASS_OF).getElements()) {
                     String iri = superClass.asIriRef().getIri();
                     if (!done.contains(iri)) {
                         isAs.get(subclass).add(iri);

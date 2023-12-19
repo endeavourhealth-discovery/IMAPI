@@ -95,7 +95,7 @@ class TTNodeJsonTest {
         TTEntity entity = TestHelper.getTestEntity();
         TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(RDF.TYPE.asTTIriRef(), RDFS.LABEL.asTTIriRef(),
                 RDFS.COMMENT.asTTIriRef(), IM.CODE.asTTIriRef(),IM.HAS_SCHEME.asTTIriRef(),IM.HAS_STATUS.asTTIriRef(),
-                RDFS.SUBCLASSOF.asTTIriRef()));
+                RDFS.SUBCLASS_OF.asTTIriRef()));
 
         SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null));
         mod.addSerializer(TTEntity.class, ser);
@@ -120,7 +120,7 @@ class TTNodeJsonTest {
         TTEntity entity = TestHelper.getTestEntity();
         TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(RDF.TYPE.asTTIriRef(), RDFS.LABEL.asTTIriRef(),
                 RDFS.COMMENT.asTTIriRef(), IM.CODE.asTTIriRef(),IM.HAS_SCHEME.asTTIriRef(),IM.HAS_STATUS.asTTIriRef(),
-                RDFS.SUBCLASSOF.asTTIriRef()));
+                RDFS.SUBCLASS_OF.asTTIriRef()));
 
         SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null));
         mod.addSerializer(TTEntity.class, ser);

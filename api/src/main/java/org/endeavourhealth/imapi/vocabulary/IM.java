@@ -20,6 +20,7 @@ public enum IM implements Vocabulary {
     PREFERRED_NAME(NAMESPACE.iri + "preferredName"),
     HAS_SCHEME(NAMESPACE.iri + "scheme"),
     HAS_STATUS(NAMESPACE.iri + "status"),
+    STATUS(NAMESPACE.iri + "Status"),
     CONTENT_TYPE(NAMESPACE.iri + "contentType"),
     USAGE_STATS(NAMESPACE.iri + "usageStats"),
     IN_TASK(NAMESPACE.iri + "inTask"),

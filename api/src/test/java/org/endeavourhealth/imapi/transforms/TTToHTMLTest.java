@@ -14,7 +14,7 @@ class TTToHTMLTest {
 	void getExpressionText() {
 		TTNode exp= new TTNode();
 		TTArray inters=new TTArray();
-		exp.set(OWL.INTERSECTIONOF,inters);
+		exp.set(OWL.INTERSECTION_OF,inters);
 		TTIriRef product= new TTIriRef()
 			.setIri(SNOMED.NAMESPACE.iri+"763158003")
 			.setName("Medicinal product");

@@ -36,7 +36,8 @@ public enum GRAPH implements Vocabulary {
     QUERY(IM.DOMAIN.iri + "query#"),
     CEG16(IM.DOMAIN.iri + "ceg16#"),
     REPORTS(IM.DOMAIN.iri + "reports#"),
-    OPS_ROLES("https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#");
+    OPS_ROLES("https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#"),
+    XMLS("http://www.w3.org/2001/XMLSchema#");
 
     public final String iri;
 

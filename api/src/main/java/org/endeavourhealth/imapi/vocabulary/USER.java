@@ -39,4 +39,9 @@ public enum USER implements Vocabulary {
             return false;
         }
     }
+
+    @Override
+    public String toString() {
+        return iri;
+    }
 }

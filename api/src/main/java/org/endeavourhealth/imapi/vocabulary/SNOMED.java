@@ -8,7 +8,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum SNOMED implements Vocabulary {
     NAMESPACE("http://snomed.info/sct#"),
     PREFIX("sn"),
-    GRAPH_SNOMED(NAMESPACE.iri);
+    GRAPH_SNOMED(NAMESPACE.iri),
+    ATTRIBUTE(NAMESPACE.iri + "246061005");
 
     public final String iri;
     SNOMED(String iri) {

@@ -13,19 +13,15 @@ import org.eclipse.rdf4j.repository.RepositoryException;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.eclipse.rdf4j.model.util.Values.*;
 
@@ -113,7 +109,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             StringJoiner getDescendantSql= new StringJoiner("\n")
               .add("Select ?descendant ?superclass")
               .add("where {?descendant <"+IM.IS_A.getIri()+"> <"+ entity+">.")
-              .add("?descendant <"+RDFS.SUBCLASSOF.getIri()+"> ?superclass.}");
+              .add("?descendant <"+RDFS.SUBCLASS_OF.getIri()+"> ?superclass.}");
             TupleQuery qry=conn.prepareTupleQuery(getDescendantSql.toString());
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
@@ -125,7 +121,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
                         descendant.setIri(descendantIri);
                         entityMap.put(descendantIri, descendant);
                     }
-                    descendant.addObject(RDFS.SUBCLASSOF, TTIriRef.iri(bs.getValue("superclass").stringValue()));
+                    descendant.addObject(RDFS.SUBCLASS_OF, TTIriRef.iri(bs.getValue("superclass").stringValue()));
                 }
             }
         }

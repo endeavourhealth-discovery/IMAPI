@@ -78,10 +78,10 @@ public class FileRepository {
 				String child = fields[0];
 				String relationship= fields[1];
 				String parent = fields[2];
-				if (relationship.equals(RDFS.SUBPROPERTYOF.iri))
-					relationship = RDFS.SUBCLASSOF.iri;
+				if (relationship.equals(RDFS.SUB_PROPERTY_OF.iri))
+					relationship = RDFS.SUBCLASS_OF.iri;
 				if (relationship.equals(IM.LOCAL_SUBCLASS_OF.iri))
-					relationship = RDFS.SUBCLASSOF.iri;
+					relationship = RDFS.SUBCLASS_OF.iri;
 				if (!blockingIris.contains(parent)) {
 					relationshipMap.computeIfAbsent(relationship,r -> new HashMap<>());
 					Map<String,Set<String>> parentMap= relationshipMap.get(relationship);

@@ -21,7 +21,7 @@ class TTToTurtleTest {
 		entity.setIri(IM.NAMESPACE.iri+"VaccineSet");
 		entity.set(IM.DEFINITION, new TTArray().add(TTIriRef.iri(SNOMED.NAMESPACE.iri+"39330711000001103")));
 		TTNode inter=new TTNode();
-		inter.set(OWL.INTERSECTIONOF,new TTArray()
+		inter.set(OWL.INTERSECTION_OF,new TTArray()
 			.add(TTIriRef.iri(SNOMED.NAMESPACE.iri+"10363601000001109"))
 			.add(new TTNode().set(TTIriRef.iri(
 				SNOMED.NAMESPACE.iri+"10362601000001103"),

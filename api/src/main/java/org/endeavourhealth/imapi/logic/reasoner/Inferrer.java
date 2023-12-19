@@ -9,7 +9,7 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 public class Inferrer {
 
 	private void inheritDomains(TTEntity property, TTEntityMap propertyMap) {
-		for (TTValue superProp:property.get(RDFS.SUBCLASSOF.asTTIriRef()).getElements()){
+		for (TTValue superProp:property.get(RDFS.SUBCLASS_OF.asTTIriRef()).getElements()){
 			TTIriRef superIri= superProp.asIriRef();
 			TTEntity superEntity= propertyMap.getEntity(superIri.getIri());
 			inheritDomains(superEntity, propertyMap);
@@ -19,7 +19,7 @@ public class Inferrer {
 	}
 
 	private void inheritRanges(TTEntity property, TTEntityMap propertyMap) {
-		for (TTValue superProp:property.get(RDFS.SUBCLASSOF.asTTIriRef()).getElements()){
+		for (TTValue superProp:property.get(RDFS.SUBCLASS_OF.asTTIriRef()).getElements()){
 			TTIriRef superIri= superProp.asIriRef();
 			TTEntity superEntity= propertyMap.getEntity(superIri.getIri());
 			inheritDomains(superEntity, propertyMap);

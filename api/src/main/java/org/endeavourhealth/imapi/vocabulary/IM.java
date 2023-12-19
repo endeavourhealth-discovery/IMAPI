@@ -1,10 +1,12 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.SneakyThrows;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+// public enum IM implements Vocabulary {
 public enum IM implements Vocabulary {
 
     DOMAIN("http://endhealth.info/"),
@@ -301,6 +303,11 @@ public enum IM implements Vocabulary {
         } catch (IllegalArgumentException e) {
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return iri;
     }
 }
 

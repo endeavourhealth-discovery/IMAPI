@@ -42,7 +42,7 @@ class OSQueryTest_OS {
     void multiPhaseQuery_term_scheme() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         SearchRequest req = new SearchRequest()
             .setTermFilter("FOXG1")
-            .setSchemeFilter(List.of(SNOMED.NAMESPACE.iri));
+            .setSchemeFilter(List.of(SNOMED.NAMESPACE));
 
         List<SearchResultSummary> results = osq.multiPhaseQuery(req);
         assertEquals(1, results.size());

@@ -169,7 +169,7 @@ public class SetRepository {
 
     private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes) {
         Set<Concept> result = new HashSet<>();
-        Set<String> coreSchemes= Set.of(SNOMED.NAMESPACE.iri,IM.NAMESPACE.iri);
+        Set<String> coreSchemes= Set.of(SNOMED.NAMESPACE,IM.NAMESPACE.iri);
         Map<String,Concept> conceptMap= new HashMap<>();
         try (TupleQueryResult rs = qry.evaluate()) {
             while (rs.hasNext()) {

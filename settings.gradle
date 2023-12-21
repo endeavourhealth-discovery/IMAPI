@@ -6,6 +6,13 @@ pluginManagement {
     repositories {
         mavenCentral()
         gradlePluginPortal()
+        maven {
+            url = uri('https://maven.discoverydataservice.net/artifactory/libs-release')
+        }
+        maven {
+            url = uri('https://maven.discoverydataservice.net/artifactory/libs-snapshot')
+        }
+        mavenLocal()
     }
     resolutionStrategy {
         eachPlugin {

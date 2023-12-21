@@ -23,7 +23,7 @@ public class EntityRepository2 {
     private String RDFS_PREFIX = "PREFIX rdfs: <" + RDFS.NAMESPACE.iri + ">";
     private String RDF_PREFIX = "PREFIX rdf: <" + RDF.NAMESPACE.iri + ">";
     private String SH_PREFIX = "PREFIX sh: <" + SHACL.NAMESPACE.iri + ">";
-    private String SN_PREFIX = "PREFIX sn: <" + SNOMED.NAMESPACE.iri + ">";
+    private String SN_PREFIX = "PREFIX sn: <" + SNOMED.NAMESPACE + ">";
 
 
     /**
@@ -295,7 +295,7 @@ public class EntityRepository2 {
      * @return iri and name of entity
      */
     public TTIriRef getReferenceFromCoreTerm(String term) {
-        List<String> schemes = List.of(IM.NAMESPACE.iri, SNOMED.NAMESPACE.iri);
+        List<String> schemes = List.of(IM.NAMESPACE.iri, SNOMED.NAMESPACE);
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add(IM_PREFIX)
                 .add(RDFS_PREFIX)

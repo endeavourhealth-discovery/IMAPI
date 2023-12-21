@@ -193,7 +193,7 @@ public class ImportMaps implements AutoCloseable {
 		Map<String, Set<String>> codeToTerm = new HashMap<>();
 		RepositoryConnection conn = ConnectionManager.getIMConnection();
 		TupleQuery qry = conn.prepareTupleQuery("select ?child ?name\n" +
-			"where {GRAPH <"+SNOMED.GRAPH_SNOMED.getIri()+"> { ?child <" + RDFS.SUBCLASS_OF.iri + ">+ ?concept.\n" +
+			"where {GRAPH <"+SNOMED.NAMESPACE+"> { ?child <" + RDFS.SUBCLASS_OF.iri + ">+ ?concept.\n" +
 			"?child <" + RDFS.LABEL.iri + "> ?name.}}");
 		qry.setBinding("concept", valueFactory.createIRI(concept));
 		try {
@@ -241,7 +241,7 @@ public class ImportMaps implements AutoCloseable {
 
 		try (RepositoryConnection conn= ConnectionManager.getIMConnection()){
 			TupleQuery qry= conn.prepareTupleQuery("select ?snomed\n"+
-				"where {?concept <"+ IM.HAS_SCHEME.iri +"> <"+SNOMED.GRAPH_SNOMED.getIri()+">.\n"+
+				"where {?concept <"+ IM.HAS_SCHEME.iri +"> <"+SNOMED.NAMESPACE+">.\n"+
 				"?concept <"+IM.CODE.iri +"> ?snomed}");
 			TupleQueryResult rs= qry.evaluate();
 			while (rs.hasNext()){
@@ -265,7 +265,7 @@ public class ImportMaps implements AutoCloseable {
 					"GRAPH <"+GRAPH.VISION.iri +"> {" +
 					"?concept <"+IM.CODE.iri +"> ?code . \n" +
 					"?concept <"+IM.MATCHED_TO.iri +"> ?snomedIri .}" +
-					"GRAPH <"+SNOMED.GRAPH_SNOMED.getIri()+"> {" +
+					"GRAPH <"+SNOMED.NAMESPACE+"> {" +
 					"?snomedIri <"+IM.CODE.iri +"> ?snomed .}" +
 				"}"
 			);
@@ -352,7 +352,7 @@ public class ImportMaps implements AutoCloseable {
 			"{?concept <"+IM.CODE.iri +"> ?code. \n"+
 			"?concept <"+RDFS.LABEL.iri +"> ?name.\n"+
 			"?concept <"+IM.MATCHED_TO.iri +"> ?snomedIri.}\n" +
-			"GRAPH <"+SNOMED.GRAPH_SNOMED.getIri()+"> {"+
+			"GRAPH <"+SNOMED.NAMESPACE+"> {"+
 			"?snomedIri <"+IM.CODE.iri +"> ?snomed.}}");
 		try {
 			TupleQueryResult rs= qry.evaluate();

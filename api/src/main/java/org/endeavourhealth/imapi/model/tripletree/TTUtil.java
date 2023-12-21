@@ -82,7 +82,7 @@ public class TTUtil {
 		ctx.add(IM.NAMESPACE.iri,"");
 		ctx.add(RDFS.NAMESPACE.iri,"rdfs");
 		ctx.add(RDF.NAMESPACE.iri,"rdf");
-		ctx.add(SNOMED.NAMESPACE.iri,"sn");
+		ctx.add(SNOMED.NAMESPACE,"sn");
 		return ctx;
 	}
 

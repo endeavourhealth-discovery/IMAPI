@@ -21,7 +21,7 @@ public class TestQueries {
 	 SearchRequest request= new SearchRequest();
 	 request.setIndex("david");
 	 request.setTermFilter(input);
-	 List<String> schemes= Arrays.asList(IM.NAMESPACE.iri,SNOMED.NAMESPACE.iri);
+	 List<String> schemes= Arrays.asList(IM.NAMESPACE.iri,SNOMED.NAMESPACE);
 	 request.setSchemeFilter(schemes);
 	 List<String> types= Arrays.asList(IM.CONCEPT_SET.getIri(),IM.CONCEPT.getIri());
 	 request.setTypeFilter(types);
@@ -237,10 +237,10 @@ public class TestQueries {
 					.match(m2->m2
 						.setBool(Bool.or)
 						.match(m1->m1
-							.setInstanceOf( new Node().setIri(SNOMED.NAMESPACE.iri+"57148006")
+							.setInstanceOf( new Node().setIri(SNOMED.NAMESPACE+"57148006")
 							.setDescendantsOrSelfOf(true)))
 						.match(m1->m1
-						.setInstanceOf(new Node().setIri(SNOMED.NAMESPACE.iri+"11164009")
+						.setInstanceOf(new Node().setIri(SNOMED.NAMESPACE+"11164009")
 						.setDescendantsOrSelfOf(true))))
 					.property(w->w
 						.setIri(IM.HAS_MEMBER.getIri())
@@ -319,7 +319,7 @@ public class TestQueries {
 				.setName("paths match patient to Atenolol")
 				.setDepth(3)
 				.setSource(IM.NAMESPACE.iri+"Patient")
-				.setTarget(SNOMED.NAMESPACE.iri+"387506000"));
+				.setTarget(SNOMED.NAMESPACE+"387506000"));
 
 	}
 	public static QueryRequest pathToCSA(){
@@ -427,7 +427,7 @@ public class TestQueries {
 		query
 			.match(f ->f
 				.setInstanceOf(new Node()
-				.setIri(SNOMED.NAMESPACE.iri+"195967001").setDescendantsOrSelfOf(true)))
+				.setIri(SNOMED.NAMESPACE+"195967001").setDescendantsOrSelfOf(true)))
 			.return_(s->s
 				.property(p->p.setIri(RDFS.LABEL.getIri()))
 				.property(p->p.setIri(IM.CODE.getIri())));
@@ -475,7 +475,7 @@ public class TestQueries {
 				.setActiveOnly(true)
 				.match(f->f.setInstanceOf(new Node().setParameter("this").setDescendantsOrSelfOf(true)))
 				.return_(r->r.property(s->s.setIri(RDFS.LABEL.getIri()))));
-		qr.addArgument("this",SNOMED.NAMESPACE.iri+"417928002");
+		qr.addArgument("this",SNOMED.NAMESPACE+"417928002");
 		return qr;
 	}
 
@@ -492,7 +492,7 @@ public class TestQueries {
 					.setDescendantsOrSelfOf(true))
 					.property(w1-> w1
 						.setIri(RDFS.DOMAIN.getIri())
-						.addIs(new Node().setIri(SNOMED.NAMESPACE.iri+"674814021000119106").setAncestorsOf(true))
+						.addIs(new Node().setIri(SNOMED.NAMESPACE+"674814021000119106").setAncestorsOf(true))
 					))
 				.return_(r->r
 						.property(s->s.setIri(IM.CODE.getIri()))
@@ -539,16 +539,16 @@ public class TestQueries {
 			.match(rf->rf
 				.setBool(Bool.and)
 				.match(f->f
-						.setInstanceOf(new Node().setIri(SNOMED.NAMESPACE.iri+"763158003").setDescendantsOrSelfOf(true))
+						.setInstanceOf(new Node().setIri(SNOMED.NAMESPACE+"763158003").setDescendantsOrSelfOf(true))
 					.property(a1->a1
-						.setIri(SNOMED.NAMESPACE.iri+"127489000")
+						.setIri(SNOMED.NAMESPACE+"127489000")
 						.setDescendantsOrSelfOf(true)
 						.setAnyRoleGroup(true)
-						.addIs(new Node().setIri(SNOMED.NAMESPACE.iri+"372665008").setDescendantsOrSelfOf(true)))
+						.addIs(new Node().setIri(SNOMED.NAMESPACE+"372665008").setDescendantsOrSelfOf(true)))
 					.property(a2->a2
-						.setIri(SNOMED.NAMESPACE.iri+"411116001").setDescendantsOrSelfOf(true)
+						.setIri(SNOMED.NAMESPACE+"411116001").setDescendantsOrSelfOf(true)
 						.setAnyRoleGroup(true)
-						.addIs(Node.iri(SNOMED.NAMESPACE.iri+"385268001").setDescendantsOrSelfOf(true)))));
+						.addIs(Node.iri(SNOMED.NAMESPACE+"385268001").setDescendantsOrSelfOf(true)))));
 
 		return new QueryRequest().setQuery(query);
 

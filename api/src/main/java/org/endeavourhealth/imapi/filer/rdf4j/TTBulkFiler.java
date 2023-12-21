@@ -34,7 +34,7 @@ public class TTBulkFiler  implements TTDocumentFiler {
     private FileWriter coreIris;
     private static int privacyLevel=0;
     private static int statementCount;
-    private static final Set<String> specialChildren= new HashSet<>(List.of(SNOMED.NAMESPACE.iri + "92381000000106"));
+    private static final Set<String> specialChildren= new HashSet<>(List.of(SNOMED.NAMESPACE + "92381000000106"));
 
     public void fileDocument(TTDocument document) throws TTFilerException {
         if (document.getEntities() == null)
@@ -151,7 +151,7 @@ public class TTBulkFiler  implements TTDocumentFiler {
     }
 
     private void addTerms(TTEntity entity, String graph) throws IOException {
-        boolean isCoreGraph= graph.equals(IM.NAMESPACE.iri)||graph.equals(SNOMED.NAMESPACE.iri);
+        boolean isCoreGraph= graph.equals(IM.NAMESPACE.iri)||graph.equals(SNOMED.NAMESPACE);
         if (isCoreGraph && entity.getName()!=null)
             coreTerms.write(entity.getName()+"\t"+ entity.getIri()+"\n");
     }
@@ -178,7 +178,7 @@ public class TTBulkFiler  implements TTDocumentFiler {
     private void addCodeToMaps(TTEntity entity, String graph) throws IOException {
         if (entity.getCode()!=null){
             codeMap.write(graph+entity.getCode()+"\t"+ entity.getIri()+"\n");
-            if (graph.equals(IM.NAMESPACE.iri)|| (graph.equals(SNOMED.NAMESPACE.iri)))
+            if (graph.equals(IM.NAMESPACE.iri)|| (graph.equals(SNOMED.NAMESPACE)))
                 codeCoreMap.write(entity.getCode()+"\t"+ entity.getIri()+"\n");
         }
     }
@@ -196,7 +196,7 @@ public class TTBulkFiler  implements TTDocumentFiler {
                 for (TTValue tc: entity.get(IM.HAS_TERM_CODE.asTTIriRef()).getElements()) {
                     if (tc.asNode().get(IM.CODE.asTTIriRef()) != null) {
                         String code = tc.asNode().get(IM.CODE.asTTIriRef()).asLiteral().getValue();
-                        if (graph.equals(IM.NAMESPACE.iri)|| (graph.equals(SNOMED.NAMESPACE.iri)))
+                        if (graph.equals(IM.NAMESPACE.iri)|| (graph.equals(SNOMED.NAMESPACE)))
                             codeCoreMap.write(code + "\t" + entity.getIri() + "\n");
                     }
                 }
@@ -204,7 +204,7 @@ public class TTBulkFiler  implements TTDocumentFiler {
     }
 
     private void addMatchToToMaps(TTEntity entity, String graph) throws IOException {
-        boolean isCoreGraph= graph.equals(IM.NAMESPACE.iri)||graph.equals(SNOMED.NAMESPACE.iri);
+        boolean isCoreGraph= graph.equals(IM.NAMESPACE.iri)||graph.equals(SNOMED.NAMESPACE);
 
         if (entity.get(IM.MATCHED_TO.asTTIriRef())!=null) {
             for (TTValue core : entity.get(IM.MATCHED_TO.asTTIriRef()).getElements()) {

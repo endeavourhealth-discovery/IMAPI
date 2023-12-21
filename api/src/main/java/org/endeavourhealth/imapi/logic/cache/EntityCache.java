@@ -248,7 +248,7 @@ public class EntityCache implements Runnable{
 			defaultPrefixes.add(RDF.NAMESPACE.iri, "rdf");
 			defaultPrefixes.add(IM.NAMESPACE.iri, "im");
 			defaultPrefixes.add(XSD.NAMESPACE.iri, "xsd");
-			defaultPrefixes.add(SNOMED.NAMESPACE.iri, "sn");
+			defaultPrefixes.add(SNOMED.NAMESPACE, "sn");
 		}
 		return defaultPrefixes;
 	}

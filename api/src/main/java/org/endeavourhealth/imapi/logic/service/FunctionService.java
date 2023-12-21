@@ -161,7 +161,7 @@ public class FunctionService {
 		if (schemes.stream().noneMatch(s -> s.getIri().equals(finalEntityIri2))) throw new IllegalArgumentException("Iri is not a valid scheme");
 		CachedObjectMapper om = new CachedObjectMapper();
 		JsonNode generated;
-        if (entityIri.equals(IM.NAMESPACE.iri) || entityIri.equals(SNOMED.NAMESPACE.iri)) {
+        if (entityIri.equals(IM.NAMESPACE.iri) || entityIri.equals(SNOMED.NAMESPACE)) {
 			return om.createObjectNode().put("code", conceptRepository.createConcept(IM.NAMESPACE.iri).get("iri").get("@id").asText().split("#")[1]);
 		} else return om.createObjectNode().put("iri", "");
 	}

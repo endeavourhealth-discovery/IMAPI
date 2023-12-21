@@ -1,0 +1,25 @@
+[
+  {
+    "name": "USER",
+    "entries": [
+      { "name":  "DOMAIN", "value" :  "\"http://endhealth.info/\""},
+      { "name":  "NAMESPACE", "value" :  "USER.DOMAIN + \"user#\""},
+      { "name":  "PREFIX", "value" :  "\"usr\""},
+
+      { "name":  "USER_THEME", "value":  "USER.DOMAIN + \"UserTheme\""},
+      { "name":  "USER_MRU", "value":  "USER.DOMAIN + \"UserMRU\""},
+      { "name":  "USER_FAVOURITES", "value":  "USER.DOMAIN + \"UserFavourites\""},
+      { "name":  "ORGANISATIONS", "value":  "USER.DOMAIN + \"ORGANISATIONS\""}
+    ]
+  },
+  {
+    "name": "SNOMED",
+    "entries": [
+      { "name":  "DOMAIN", "value" :  "\"http://snomed.info/\""},
+      { "name":  "NAMESPACE", "value" :  "SNOMED.DOMAIN + \"sct#\""},
+      { "name":  "PREFIX", "value" :  "\"sn\""},
+
+      { "name":  "ATTRIBUTE", "value" :  "SNOMED.DOMAIN + \"246061005\""}
+    ]
+  }
+]

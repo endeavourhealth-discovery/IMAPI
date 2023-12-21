@@ -378,6 +378,7 @@ public class EntityRepository {
         hydrateCoreProperties(result);
         hydrateTerms(result);
         hydrateIsAs(result);
+        hydrateSubsumptionCount(result);
         return result;
     }
 
@@ -386,11 +387,12 @@ public class EntityRepository {
             .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
             .add("PREFIX im: <http://endhealth.info/im#>")
             .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-            .add("select ?iri ?name ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?weighting")
+            .add("select ?iri ?name ?preferredName ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?weighting")
             .add("?extraType ?extraTypeName")
             .add("where {")
             .add("  graph ?scheme { ?iri rdf:type ?type }")
             .add("    Optional { ?iri rdfs:label ?name.}")
+            .add("    Optional { ?iri im:preferredName ?preferredName.}")
             .add("    Optional {?iri im:isA ?extraType.")
             .add("      ?extraType rdfs:label ?extraTypeName.")
             .add("      filter (?extraType in (im:dataModelProperty, im:DataModelEntity))}")
@@ -417,6 +419,9 @@ public class EntityRepository {
         BindingSet rs = qr.next();
         entityDocument.setName(rs.getValue("name").stringValue());
         entityDocument.addTermCode(entityDocument.getName(), null, null);
+
+        if (rs.hasBinding("preferredName"))
+            entityDocument.setPreferredName(rs.getValue("preferredName").stringValue());
 
         if (rs.hasBinding("code"))
             entityDocument.setCode(rs.getValue("code").stringValue());
@@ -495,6 +500,29 @@ public class EntityRepository {
                             entityDocument.addTermCode(null, termCode, status);
                     }
 
+                }
+            }
+        }
+    }
+
+    private void hydrateSubsumptionCount(EntityDocument entityDocument) {
+        String spql = new StringJoiner(System.lineSeparator())
+            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+            .add("PREFIX im: <http://endhealth.info/im#>")
+            .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+            .add("select distinct ?iri (count(?subType) as ?subsumptions)")
+            .add("where {")
+            .add(" ?iri ^im:isA ?subType.")
+            .add(" ?subType im:status im:Active.")
+            .add("}")
+            .add("group by ?iri").toString();
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery tupleQuery = conn.prepareTupleQuery(spql);
+            try (TupleQueryResult qr = tupleQuery.evaluate()) {
+                while (qr.hasNext()) {
+                    BindingSet rs = qr.next();
+                    entityDocument.setSubsumptionCount(Integer.parseInt(rs.getValue("subsumptions").stringValue()));
                 }
             }
         }

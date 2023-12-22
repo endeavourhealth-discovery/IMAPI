@@ -10,7 +10,6 @@ import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.*;
-import org.endeavourhealth.imapi.vocabulary.im.FUNCTION;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,24 +24,23 @@ public class FunctionService {
 	private final RequestObjectService requestObjectService = new RequestObjectService();
 
 	public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws Exception {
-		FUNCTION functionIri = FUNCTION.valueOf(iri);
-        return switch (functionIri) {
-            case SNOMED_CONCEPT_GENERATOR -> conceptRepository.createConcept(IM.NAMESPACE.iri);
-            case LOCAL_NAME_RETRIEVER -> getLocalName(arguments);
-            case GET_ADDITIONAL_ALLOWABLE_TYPES -> getAdditionalAllowableTypes(arguments);
-            case GET_LOGIC_OPTIONS -> getLogicOptions();
-            case GET_SET_EDITOR_IRI_SCHEMES -> getSetEditorIriSchemes();
-            case IM1_SCHEME_OPTIONS -> getIM1SchemeOptions();
-            case SCHEME_FROM_IRI -> getSchemeFromIri(arguments);
-            case GET_USER_EDITABLE_SCHEMES -> getUserEditableSchemes(request);
-            case GENERATE_IRI_CODE -> generateIriCode(arguments);
+        return switch (iri) {
+            case IM_FUNCTION.SNOMED_CONCEPT_GENERATOR -> conceptRepository.createConcept(IM.NAMESPACE.iri);
+            case IM_FUNCTION.LOCAL_NAME_RETRIEVER -> getLocalName(arguments);
+            case IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES -> getAdditionalAllowableTypes(arguments);
+            case IM_FUNCTION.GET_LOGIC_OPTIONS -> getLogicOptions();
+            case IM_FUNCTION.GET_SET_EDITOR_IRI_SCHEMES -> getSetEditorIriSchemes();
+            case IM_FUNCTION.IM1_SCHEME_OPTIONS -> getIM1SchemeOptions();
+            case IM_FUNCTION.SCHEME_FROM_IRI -> getSchemeFromIri(arguments);
+            case IM_FUNCTION.GET_USER_EDITABLE_SCHEMES -> getUserEditableSchemes(request);
+            case IM_FUNCTION.GENERATE_IRI_CODE -> generateIriCode(arguments);
             default -> throw new IllegalArgumentException("No such function: " + iri);
         };
 	}
 
 	public Boolean callAskFunction(HttpServletRequest request, String iri, List<Argument> arguments) {
-		return switch(FUNCTION.valueOf(iri)) {
-			case IS_TYPE -> isType(arguments);
+		return switch(iri) {
+			case IM_FUNCTION.IS_TYPE -> isType(arguments);
 			default -> throw new IllegalArgumentException("No such ask function: " + iri);
 		};
 	}

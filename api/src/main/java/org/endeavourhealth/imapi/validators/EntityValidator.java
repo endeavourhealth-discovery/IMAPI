@@ -50,15 +50,18 @@ public class EntityValidator {
     }
 
     private Boolean hasParents(TTEntity entity) {
-        if (null == entity.get(IM.IS_A) && null == entity.get(IM.IS_CONTAINED_IN) && null == entity.get(RDFS.SUBCLASSOF)) return false;
+        if (null == entity.get(IM.IS_A) && null == entity.get(IM.IS_CONTAINED_IN) && null == entity.get(RDFS.SUBCLASS_OF) && null == entity.get(IM.IS_SUBSET_OF)) return false;
         if (null != entity.get(IM.IS_A) && !entity.get(IM.IS_A).isEmpty()) {
             if (!entity.get(IM.IS_A).getElements().stream().allMatch(TTValue::isIriRef)) return false;
         }
         if (null!= entity.get(IM.IS_CONTAINED_IN) && !entity.get(IM.IS_CONTAINED_IN).isEmpty()) {
             if (!entity.get(IM.IS_CONTAINED_IN).getElements().stream().allMatch(TTValue::isIriRef)) return false;
         }
-        if (null != entity.get(RDFS.SUBCLASSOF) && !entity.get(RDFS.SUBCLASSOF).isEmpty()) {
-            if (!entity.get(RDFS.SUBCLASSOF).getElements().stream().allMatch(TTValue::isIriRef)) return false;
+        if (null != entity.get(RDFS.SUBCLASS_OF) && !entity.get(RDFS.SUBCLASS_OF).isEmpty()) {
+            if (!entity.get(RDFS.SUBCLASS_OF).getElements().stream().allMatch(TTValue::isIriRef)) return false;
+        }
+        if (null != entity.get(IM.IS_SUBSET_OF) && !entity.get(IM.IS_SUBSET_OF).isEmpty()) {
+            if (!entity.get(IM.IS_SUBSET_OF).getElements().stream().allMatch(TTValue::isIriRef)) return false;
         }
         return true;
     }

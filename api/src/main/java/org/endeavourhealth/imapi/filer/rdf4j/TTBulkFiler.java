@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.transforms.TTToNQuad;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +16,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class TTBulkFiler  extends TTDocumentFiler {
+public class TTBulkFiler  implements TTDocumentFiler {
     private static final Logger LOG = LoggerFactory.getLogger(TTBulkFiler.class);
     private static String dataPath;
     private static String configTTl;
@@ -35,21 +36,6 @@ public class TTBulkFiler  extends TTDocumentFiler {
     private static int statementCount;
     private static final Set<String> specialChildren= new HashSet<>(List.of(SNOMED.NAMESPACE + "92381000000106"));
 
-    @Override
-    protected void startTransaction() {
-        // Do nothing
-    }
-
-    @Override
-    protected void commit() {
-        // Do nothing
-    }
-
-    @Override
-    protected void rollback() {
-        // Do nothing
-    }
-
     public void fileDocument(TTDocument document) throws TTFilerException {
         if (document.getEntities() == null)
             return;
@@ -59,7 +45,15 @@ public class TTBulkFiler  extends TTDocumentFiler {
 
     }
 
+    @Override
+    public void writeLog(TTDocument document) throws Exception {
 
+    }
+
+    @Override
+    public void fileDeltas(String dataPath) throws Exception {
+        throw new Exception("Deltas cannot be filed by a bulk filer. Set Filer Factory bulk to false");
+    }
 
 
     private void writeGraph(TTDocument document) throws TTFilerException {
@@ -79,11 +73,11 @@ public class TTBulkFiler  extends TTDocumentFiler {
             LOG.info("Writing out graph data for " + graph);
             for (TTEntity entity : document.getEntities()) {
                 String entityGraph = entity.getGraph() != null ? entity.getGraph().getIri() : graph;
-                if (entity.get(IM.PRIVACY_LEVEL) != null && (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue() > getPrivacyLevel()))
+                if (entity.get(IM.PRIVACY_LEVEL.asTTIriRef()) != null && (entity.get(IM.PRIVACY_LEVEL.asTTIriRef()).asLiteral().intValue() > getPrivacyLevel()))
                     continue;
 
                 allEntities.write(entity.getIri() + "\n");
-                if (graph.equals(IM.NAMESPACE))
+                if (graph.equals(IM.NAMESPACE.iri))
                     coreIris.write(entity.getIri() + "\t" + entity.getName() + "\n");
                 addToMaps(entity, entityGraph);
                 addSubtypes(entity);
@@ -108,10 +102,10 @@ public class TTBulkFiler  extends TTDocumentFiler {
 
     private static void setStatusAndScheme(String graph, TTEntity entity) {
         if (entity.get(RDFS.LABEL) != null) {
-            if (entity.get(IM.HAS_STATUS) == null)
-                entity.set(IM.HAS_STATUS, IM.ACTIVE);
-            if (entity.get(IM.HAS_SCHEME) == null)
-                entity.set(IM.HAS_SCHEME, TTIriRef.iri(graph));
+            if (entity.get(IM.HAS_STATUS.asTTIriRef()) == null)
+                entity.set(IM.HAS_STATUS.asTTIriRef(), IM.ACTIVE.asTTIriRef());
+            if (entity.get(IM.HAS_SCHEME.asTTIriRef()) == null)
+                entity.set(IM.HAS_SCHEME.asTTIriRef(), TTIriRef.iri(graph));
         }
     }
 
@@ -157,24 +151,21 @@ public class TTBulkFiler  extends TTDocumentFiler {
     }
 
     private void addTerms(TTEntity entity, String graph) throws IOException {
-        boolean isCoreGraph= graph.equals(IM.NAMESPACE)||graph.equals(SNOMED.NAMESPACE);
+        boolean isCoreGraph= graph.equals(IM.NAMESPACE.iri)||graph.equals(SNOMED.NAMESPACE);
         if (isCoreGraph && entity.getName()!=null)
             coreTerms.write(entity.getName()+"\t"+ entity.getIri()+"\n");
     }
 
     private void addSubtypes(TTEntity entity) throws IOException {
-        if (entity.get(RDFS.SUBCLASSOF)!=null)
-            for (TTValue parent:entity.get(RDFS.SUBCLASSOF).getElements()) {
-                subtypes.write(entity.getIri() + "\t" + RDFS.SUBCLASSOF.getIri()+"\t"+ parent.asIriRef().getIri() + "\n");
-                if (specialChildren.contains(parent.asIriRef().getIri()))
-                    descendants.write(parent.asIriRef().getIri()+"\t"+ entity.getIri()+"\t"+ entity.getName()+"\n");
-            }
-        if (entity.get(RDFS.SUBPROPERTYOF)!=null)
-            for (TTValue parent:entity.get(RDFS.SUBPROPERTYOF).getElements())
-                subtypes.write(entity.getIri()+"\t"+ RDFS.SUBCLASSOF.getIri()+"\t"+ parent.asIriRef().getIri()+"\n");
-        if (entity.get(SNOMED.REPLACED_BY)!=null)
-            for (TTValue parent:entity.get(SNOMED.REPLACED_BY).getElements())
-                subtypes.write(entity.getIri()+"\t"+ SNOMED.REPLACED_BY.getIri()+"\t"+ parent.asIriRef().getIri()+"\n");
+        for (Vocabulary relationship:List.of(RDFS.SUBCLASS_OF,RDFS.SUB_PROPERTY_OF,IM.SUBSUMED_BY,IM.USUALLY_SUBSUMED_BY,IM.APPROXIMATE_SUBSUMED_BY,
+          IM.LOCAL_SUBCLASS_OF,IM.MULTIPLE_SUBSUMED_BY)) {
+            if (entity.get(relationship) != null)
+                for (TTValue parent : entity.get(relationship).getElements()) {
+                    subtypes.write(entity.getIri() + "\t" + relationship.getIri() + "\t" + parent.asIriRef().getIri() + "\n");
+                    if (specialChildren.contains(parent.asIriRef().getIri()))
+                        descendants.write(parent.asIriRef().getIri() + "\t" + entity.getIri() + "\t" + entity.getName() + "\n");
+                }
+        }
     }
 
     private void addToMaps(TTEntity entity,String graph) throws IOException {
@@ -187,25 +178,25 @@ public class TTBulkFiler  extends TTDocumentFiler {
     private void addCodeToMaps(TTEntity entity, String graph) throws IOException {
         if (entity.getCode()!=null){
             codeMap.write(graph+entity.getCode()+"\t"+ entity.getIri()+"\n");
-            if (graph.equals(IM.NAMESPACE)|| (graph.equals(SNOMED.NAMESPACE)))
+            if (graph.equals(IM.NAMESPACE.iri)|| (graph.equals(SNOMED.NAMESPACE)))
                 codeCoreMap.write(entity.getCode()+"\t"+ entity.getIri()+"\n");
         }
     }
 
     private void addCodeIdToMaps(TTEntity entity) throws IOException {
-        if (entity.get(IM.CODE_ID)!=null) {
-            for (TTValue codeId : entity.get(IM.CODE_ID).getElements()) {
+        if (entity.get(IM.CODE_ID.asTTIriRef())!=null) {
+            for (TTValue codeId : entity.get(IM.CODE_ID.asTTIriRef()).getElements()) {
                 codeIds.write(codeId.asLiteral().getValue() + "\t" + entity.getIri() + "\n");
             }
         }
     }
 
     private void addTermCodeToMaps(TTEntity entity, String graph) throws IOException {
-        if (entity.get(IM.HAS_TERM_CODE)!=null){
-                for (TTValue tc: entity.get(IM.HAS_TERM_CODE).getElements()) {
-                    if (tc.asNode().get(IM.CODE) != null) {
-                        String code = tc.asNode().get(IM.CODE).asLiteral().getValue();
-                        if (graph.equals(IM.NAMESPACE)|| (graph.equals(SNOMED.NAMESPACE)))
+        if (entity.get(IM.HAS_TERM_CODE.asTTIriRef())!=null){
+                for (TTValue tc: entity.get(IM.HAS_TERM_CODE.asTTIriRef()).getElements()) {
+                    if (tc.asNode().get(IM.CODE.asTTIriRef()) != null) {
+                        String code = tc.asNode().get(IM.CODE.asTTIriRef()).asLiteral().getValue();
+                        if (graph.equals(IM.NAMESPACE.iri)|| (graph.equals(SNOMED.NAMESPACE)))
                             codeCoreMap.write(code + "\t" + entity.getIri() + "\n");
                     }
                 }
@@ -213,14 +204,14 @@ public class TTBulkFiler  extends TTDocumentFiler {
     }
 
     private void addMatchToToMaps(TTEntity entity, String graph) throws IOException {
-        boolean isCoreGraph= graph.equals(IM.NAMESPACE)||graph.equals(SNOMED.NAMESPACE);
+        boolean isCoreGraph= graph.equals(IM.NAMESPACE.iri)||graph.equals(SNOMED.NAMESPACE);
 
-        if (entity.get(IM.MATCHED_TO)!=null) {
-            for (TTValue core : entity.get(IM.MATCHED_TO).getElements()) {
+        if (entity.get(IM.MATCHED_TO.asTTIriRef())!=null) {
+            for (TTValue core : entity.get(IM.MATCHED_TO.asTTIriRef()).getElements()) {
                 if (!isCoreGraph) {
                     legacyCore.write(entity.getIri() + "\t" + core.asIriRef().getIri() + "\n");
-                    if (entity.get(IM.CODE_ID)!=null)
-                        codeIds.write(entity.get(IM.CODE_ID).asLiteral().getValue()+"\t"+
+                    if (entity.get(IM.CODE_ID.asTTIriRef())!=null)
+                        codeIds.write(entity.get(IM.CODE_ID.asTTIriRef()).asLiteral().getValue()+"\t"+
                                                        core.asIriRef().getIri()+"\n");
                 }
                 codeCoreMap.write(entity.getCode()+"\t"+ core.asIriRef().getIri()+"\n");
@@ -232,11 +223,11 @@ public class TTBulkFiler  extends TTDocumentFiler {
 
     private void addMatchToHasTermCode(TTEntity entity, TTValue core) throws IOException {
 
-        if (entity.get(IM.HAS_TERM_CODE) != null) {
-            for (TTValue tc : entity.get(IM.HAS_TERM_CODE).getElements()) {
+        if (entity.get(IM.HAS_TERM_CODE.asTTIriRef()) != null) {
+            for (TTValue tc : entity.get(IM.HAS_TERM_CODE.asTTIriRef()).getElements()) {
                 TTNode termCode = tc.asNode();
-                if (termCode.get(IM.CODE) != null) {
-                    String code = termCode.get(IM.CODE).asLiteral().getValue();
+                if (termCode.get(IM.CODE.asTTIriRef()) != null) {
+                    String code = termCode.get(IM.CODE.asTTIriRef()).asLiteral().getValue();
                     codeCoreMap.write(code+"\t"+core.asIriRef().getIri()+"\n");
                 }
                 if (termCode.get(RDFS.LABEL) != null) {
@@ -278,6 +269,9 @@ public class TTBulkFiler  extends TTDocumentFiler {
              command = "importrdf preload -c " + config + "\\config.ttl --force -q "
                 + data + " " + data + "\\BulkImport*.nq";
          String startCommand = SystemUtils.OS_NAME.contains("Windows") ? "cmd /c " : "bash ";
+
+         LOG.info("Executing command [{}]", startCommand + command);
+
          Process process = Runtime.getRuntime()
                  .exec(startCommand + command,
                          null, new File(preloadPath));
@@ -317,11 +311,6 @@ public class TTBulkFiler  extends TTDocumentFiler {
  }
 
 
-    @Override
-    public void close() throws Exception {
-        // No autoclosable resources
-    }
-
     public static String getDataPath() {
         return dataPath;
     }
@@ -360,5 +349,10 @@ public class TTBulkFiler  extends TTDocumentFiler {
 
     public static void setStatementCount(int statementCount) {
         TTBulkFiler.statementCount = statementCount;
+    }
+
+    @Override
+    public void close() throws Exception {
+        //do nothing
     }
 }

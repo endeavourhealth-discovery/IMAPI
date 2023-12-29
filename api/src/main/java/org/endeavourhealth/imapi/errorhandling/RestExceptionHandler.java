@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.errorhandling;
 
 import org.apache.catalina.connector.ClientAbortException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.customexceptions.ErrorCodes;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
@@ -9,7 +10,6 @@ import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -130,6 +130,18 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(QueryException.class)
     protected ResponseEntity<Object> handleQueryException(QueryException ex) {
         ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, ErrorCodes.QUERY_EXCEPTION);
+        return buildResponseEntity(error);
+    }
+
+    @ExceptionHandler(GeneralCustomException.class)
+    protected ResponseEntity<Object> handleGeneralCustomException(GeneralCustomException ex) {
+        ApiError error = new ApiError(ex.getStatus(), ex.getMessage(), ex, ErrorCodes.GENERAL_CUSTOM_EXCEPTION);
+        return buildResponseEntity(error);
+    }
+
+    @ExceptionHandler(DownloadException.class)
+    protected ResponseEntity<Object> handleDownloadException(DownloadException ex) {
+        ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), ex, ErrorCodes.DOWNLOAD_EXCEPTION);
         return buildResponseEntity(error);
     }
 

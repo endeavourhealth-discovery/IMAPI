@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.model.set;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.io.Serializable;
 
@@ -16,9 +18,13 @@ public class SetMember implements Serializable {
         return entity;
     }
 
+    @JsonSetter
     public SetMember setEntity(TTIriRef entity) {
         this.entity = entity;
         return this;
+    }
+    public SetMember setEntity(Vocabulary entity) {
+        return setEntity(entity.asTTIriRef());
     }
 
     public String getCode() {
@@ -34,9 +40,13 @@ public class SetMember implements Serializable {
         return scheme;
     }
 
+    @JsonSetter
     public SetMember setScheme(TTIriRef scheme) {
         this.scheme = scheme;
         return this;
+    }
+    public SetMember setScheme(Vocabulary scheme) {
+        return setScheme(scheme.asTTIriRef());
     }
 
     public String getLabel() {
@@ -60,7 +70,11 @@ public class SetMember implements Serializable {
         return directParent;
     }
 
+    @JsonSetter
     public void setDirectParent(TTIriRef directParent) {
         this.directParent = directParent;
+    }
+    public void setDirectParent(Vocabulary directParent) {
+        setDirectParent(directParent.asTTIriRef());
     }
 }

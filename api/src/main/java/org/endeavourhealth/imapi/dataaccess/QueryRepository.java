@@ -7,12 +7,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.logic.service.OSQuery;
-import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -23,10 +22,8 @@ import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
-import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
@@ -38,10 +35,9 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 public class QueryRepository {
     private Query query;
     private final ObjectMapper mapper= new ObjectMapper();
-    private ObjectNode result ;
     private final Set<String> predicates = new HashSet<>();
     private QueryRequest queryRequest;
-    private SparqlConverter converter;
+
 
     /**
      * Generic query of IM with the select statements determining the response
@@ -51,20 +47,24 @@ public class QueryRepository {
      * @throws DataFormatException     if query syntax is invalid
      * @throws JsonProcessingException if the json is invalid
      */
-    public JsonNode queryIM(QueryRequest queryRequest) throws QueryException, DataFormatException,JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
-        result = mapper.createObjectNode();
-        unpackQueryRequest(queryRequest);
-        if (null != queryRequest.getTextSearch()) {
-            ObjectNode osResult = new OSQuery().openSearchQuery(queryRequest);
-            if (osResult != null)
-                return osResult;
-        }
+    public JsonNode queryIM(QueryRequest queryRequest) throws QueryException, JsonProcessingException {
+        ObjectNode result = mapper.createObjectNode();
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             checkReferenceDate();
             new QueryValidator().validateQuery(queryRequest.getQuery());
-            converter = new SparqlConverter(queryRequest);
+            SparqlConverter converter = new SparqlConverter(queryRequest);
             String spq = converter.getSelectSparql(null);
-            return graphSelectSearch(spq, conn);
+            return graphSelectSearch(spq, conn, result);
+        }
+    }
+
+    public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            checkReferenceDate();
+            new QueryValidator().validateQuery(queryRequest.getQuery());
+            SparqlConverter converter = new SparqlConverter(queryRequest);
+            String spq = converter.getAskSparql(null);
+            return graphAskSearch(spq, conn);
         }
     }
 
@@ -83,7 +83,7 @@ public class QueryRepository {
             if (queryRequest.getUpdate().getIri() == null)
                 throw new DataFormatException("Update queries must reference a predefined definition. Dynamic update based queries not supported");
             TTEntity updateEntity = getEntity(queryRequest.getUpdate().getIri());
-            queryRequest.setUpdate(updateEntity.get(IM.UPDATE_PROCEDURE).asLiteral().objectValue(Update.class));
+            queryRequest.setUpdate(updateEntity.get(IM.UPDATE_PROCEDURE.asTTIriRef()).asLiteral().objectValue(Update.class));
 
             checkReferenceDate();
             SparqlConverter converter = new SparqlConverter(queryRequest);
@@ -99,12 +99,16 @@ public class QueryRepository {
 
     }
 
-    private void unpackQueryRequest(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, QueryException {
+    public void unpackQueryRequest(QueryRequest queryRequest, ObjectNode result) throws DataFormatException, JsonProcessingException, QueryException {
         this.queryRequest = queryRequest;
         this.query = unpackQuery(queryRequest.getQuery(), queryRequest);
         queryRequest.setQuery(query);
-        if (null != queryRequest.getContext())
+        if (null != queryRequest.getContext() && null != result)
             result.set("@context",mapper.convertValue(queryRequest.getContext(),JsonNode.class));
+    }
+
+    public void unpackQueryRequest(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
+        unpackQueryRequest(queryRequest,null);
     }
 
     private Query unpackQuery(Query query, QueryRequest queryRequest) throws JsonProcessingException, DataFormatException, QueryException {
@@ -113,7 +117,7 @@ public class QueryRepository {
             if (entity.get(SHACL.PARAMETER) != null) {
                 for (TTValue param : entity.get(SHACL.PARAMETER).getElements()) {
                     if (param.asNode().get(SHACL.MINCOUNT) != null) {
-                        String parameterName = param.asNode().get(RDFS.LABEL).asLiteral().getValue();
+                        String parameterName = param.asNode().get(RDFS.LABEL.asTTIriRef()).asLiteral().getValue();
                         TTIriRef parameterType;
                         if (param.asNode().get(SHACL.DATATYPE) != null)
                             parameterType = param.asNode().get(SHACL.DATATYPE).asIriRef();
@@ -124,7 +128,7 @@ public class QueryRepository {
                             if (arg.getParameter().equals(parameterName)) {
                                 found = true;
                                 String error = "Query request arguments require parameter name :'" + parameterName + "' ";
-                                if (parameterType.equals(TTIriRef.iri(IM.NAMESPACE + "IriRef"))) {
+                                if (parameterType.equals(TTIriRef.iri(IM.NAMESPACE.iri + "IriRef"))) {
                                     if (arg.getValueIri() == null)
                                         throw new DataFormatException(error + " to have a valueIri :{@id : htttp....}");
                                 } else if (arg.getValueData() == null) {
@@ -139,13 +143,13 @@ public class QueryRepository {
 
                 }
             }
-            if (null == entity.get(IM.DEFINITION)) throw new QueryException("Query: '" + query.getIri() + "' was not found");
-            return entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+            if (null == entity.get(IM.DEFINITION.asTTIriRef())) throw new QueryException("Query: '" + query.getIri() + "' was not found");
+            return entity.get(IM.DEFINITION.asTTIriRef()).asLiteral().objectValue(Query.class);
         }
         return query;
     }
 
-    private ObjectNode graphSelectSearch(String spq, RepositoryConnection conn) throws JsonProcessingException {
+    private ObjectNode graphSelectSearch(String spq, RepositoryConnection conn, ObjectNode result) {
         ArrayNode entities= result.putArray("entities");
         try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
             while (rs.hasNext()) {
@@ -159,8 +163,17 @@ public class QueryRepository {
         return result;
     }
 
+    private Boolean graphAskSearch(String spq, RepositoryConnection conn) {
+        return sparqlAskQuery(spq,conn);
+    }
+
     private TupleQueryResult sparqlQuery(String spq, RepositoryConnection conn) {
         TupleQuery qry = conn.prepareTupleQuery(spq);
+        return qry.evaluate();
+    }
+
+    private Boolean sparqlAskQuery(String spq, RepositoryConnection conn) {
+        BooleanQuery qry = conn.prepareBooleanQuery(spq);
         return qry.evaluate();
     }
 
@@ -289,7 +302,7 @@ public class QueryRepository {
 
     private TTEntity getEntity(String iri) {
         return new EntityRepository2().getBundle(iri,
-                Set.of(IM.DEFINITION.getIri(), RDF.TYPE.getIri(), IM.FUNCTION_DEFINITION.getIri(), IM.UPDATE_PROCEDURE.getIri(), SHACL.PARAMETER.getIri())).getEntity();
+                Set.of(IM.DEFINITION.iri, RDF.TYPE.iri, IM.FUNCTION_DEFINITION.iri, IM.UPDATE_PROCEDURE.iri, SHACL.PARAMETER.getIri())).getEntity();
 
     }
 
@@ -307,7 +320,7 @@ public class QueryRepository {
         String iris = String.join(",", iriList);
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            String sql = "Select ?entity ?label where { ?entity <" + RDFS.LABEL.getIri() + "> ?label.\n" +
+            String sql = "Select ?entity ?label where { ?entity <" + RDFS.LABEL.iri + "> ?label.\n" +
                     "filter (?entity in (" + iris + "))\n}";
             TupleQuery qry = conn.prepareTupleQuery(sql);
             try (TupleQueryResult rs = qry.evaluate()) {
@@ -361,8 +374,8 @@ public class QueryRepository {
         if (where.getId() != null)
             addToIriList(where.getId(), ttIris, iris);
 
-        if (where.getIn() != null)
-            for (Element in : where.getIn())
+        if (where.getIs() != null)
+            for (Element in : where.getIs())
                 addToIriList(in.getIri(), ttIris, iris);
         if (where.getMatch()!=null)
             gatherFromLabels(where.getMatch(),ttIris,iris);
@@ -371,8 +384,8 @@ public class QueryRepository {
     private void gatherFromLabels(Match match, List<TTIriRef> ttIris, Map<String, String> iris) {
         if (match.getIri() != null)
             addToIriList(match.getIri(), ttIris, iris);
-        else if (match.getType() != null)
-            addToIriList(match.getType(), ttIris, iris);
+        else if (match.getTypeOf() != null)
+            addToIriList(match.getTypeOf().getIri(), ttIris, iris);
         if (match.getProperty() != null) {
             for (Property where : match.getProperty()) {
                 gatherWhereLabels(where, ttIris, iris);
@@ -381,24 +394,21 @@ public class QueryRepository {
         if (match.getMatch() != null) {
             match.getMatch().forEach(f -> gatherFromLabels(f, ttIris, iris));
         }
-        if (match.getSet() != null) {
-            addToIriList(match.getSet(), ttIris, iris);
-        }
+
         if (match.getProperty() != null) {
             for (Property path:match.getProperty()) {
                 addToIriList(path.getIri(), ttIris, iris);
             }
         }
         if (match.getOrderBy() != null) {
-            for(OrderLimit orderBy : match.getOrderBy()) {
-                gatherOrderLimitLabels(orderBy, ttIris,iris);
-            }
+                gatherOrderLimitLabels(match.getOrderBy(), ttIris,iris);
         }
     }
 
     private void gatherOrderLimitLabels(OrderLimit orderBy, List<TTIriRef> ttIris, Map<String, String> iris) {
-        if(orderBy.getIri() != null) {
-            addToIriList(orderBy.getIri(), ttIris, iris);
+        if(orderBy.getProperty() != null) {
+            for (PropertyRef property:orderBy.getProperty())
+                addToIriList(property.getIri(), ttIris, iris);
         }
     }
 
@@ -420,11 +430,11 @@ public class QueryRepository {
         if (match.getIri() != null) {
             match.setName(iriLabels.get(match.getIri()));
         }
-        else if (match.getType() != null) {
-            if(!isIri(match.getType())) {
-                match.setType(IM.NAMESPACE + match.getType());
+        else if (match.getTypeOf() != null) {
+            if(!isIri(match.getTypeOf().getIri())) {
+                match.setTypeOf(IM.NAMESPACE.iri + match.getTypeOf().getIri());
             }
-            match.setName(iriLabels.get(match.getType()));
+            match.setName(iriLabels.get(match.getTypeOf()));
         }
         if (match.getProperty() != null) {
             for (Property where : match.getProperty()) {
@@ -434,27 +444,25 @@ public class QueryRepository {
         if (match.getMatch() != null) {
             match.getMatch().forEach(f -> setMatchLabels(f,iriLabels));
         }
-        if (match.getSet() != null) {
-            match.setName(iriLabels.get(match.getSet()));
-        }
+
         if (match.getOrderBy() != null) {
-            for(OrderLimit orderBy : match.getOrderBy()) {
-                setOrderLimitLabels(orderBy, iriLabels);
-            }
+                setOrderLimitLabels(match.getOrderBy(), iriLabels);
         }
     }
 
     private void setOrderLimitLabels(OrderLimit orderBy, Map<String, String> iriLabels) {
-        if(orderBy.getIri() != null) {
-            orderBy.setName(iriLabels.get(orderBy.getIri()));
+        if (orderBy.getProperty()!=null) {
+            for (PropertyRef property : orderBy.getProperty()) {
+                property.setName(iriLabels.get(property.getIri()));
+            }
         }
     }
 
     private void setWhereLabels(Property where, Map<String, String> iris) {
         if (where.getId() != null)
             where.setName(iris.get(where.getId()));
-        if (where.getIn() != null)
-            for (Element in : where.getIn())
+        if (where.getIs() != null)
+            for (Element in : where.getIs())
                 in.setName(iris.get(in.getIri()));
         if (where.getMatch()!=null){
             setMatchLabels(where.getMatch(),iris);
@@ -477,7 +485,7 @@ public class QueryRepository {
     private void addToIriList(String iri, List<TTIriRef> ttIris, Map<String, String> iris) {
         if (iri != null && !iri.isEmpty()){
             if(!isIri(iri)) {
-                iri = IM.NAMESPACE + iri;
+                iri = IM.NAMESPACE.iri + iri;
             }
             ttIris.add(TTIriRef.iri(iri));
             iris.put(iri, null);

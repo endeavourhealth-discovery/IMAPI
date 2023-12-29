@@ -5034,9 +5034,6 @@
     "@id" : "http://snomed.info/sct#31993111000001104",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Ibuprofen 200mg capsules (Ennogen Healthcare Ltd) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#32390811000001108",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Nurofen for Children 100mg chewable capsules (Reckitt Benckiser Healthcare (UK) Ltd) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#32394411000001100",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Aspirin 75mg tablets (Kent Pharmaceuticals Ltd) (product)"
   }, {

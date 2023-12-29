@@ -28,6 +28,7 @@ public class QueryRequest implements ContextMap {
 	private PathQuery pathQuery;
 	private Update update;
 	private String referenceDate;
+	private String askIri;
 
 
 
@@ -203,15 +204,22 @@ public class QueryRequest implements ContextMap {
 
 	public QueryRequest setDefaultPrefixMap() {
 		this.context = new HashMap<>();
-		context.put(IM.NAMESPACE, "im");
+		context.put(IM.NAMESPACE.iri, "im");
 		context.put(SNOMED.NAMESPACE, "sn");
-		context.put(OWL.NAMESPACE, "owl");
-		context.put(RDF.NAMESPACE, "rdf");
-		context.put(RDFS.NAMESPACE, "rdfs");
-		context.put(XSD.NAMESPACE, "xsd");
-		context.put(SHACL.NAMESPACE, "sh");
+		context.put(OWL.NAMESPACE.iri, "owl");
+		context.put(RDF.NAMESPACE.iri, "rdf");
+		context.put(RDFS.NAMESPACE.iri, "rdfs");
+		context.put(XSD.NAMESPACE.iri, "xsd");
+		context.put(SHACL.NAMESPACE.iri, "sh");
 		return this;
 	}
 
+	public String getAskIri() {
+		return askIri;
+	}
 
+	public QueryRequest setAskIri(String askIri) {
+		this.askIri = askIri;
+		return this;
+	}
 }

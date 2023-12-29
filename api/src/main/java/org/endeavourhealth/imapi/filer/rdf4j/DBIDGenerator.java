@@ -12,7 +12,7 @@ public class DBIDGenerator {
 		try (RepositoryConnection conn= ConnectionManager.getIMConnection()){
 			String sql= "Select distinct ?entity \nwhere {"+
 				"?entity <"+ RDF.TYPE.getIri()+"> ?type.\n"+
-				"filter (?entity not in (<"+ IM.NAMESPACE+"Organisation"+">)) }";
+				"filter (?entity not in (<"+ IM.NAMESPACE.iri+"Organisation"+">)) }";
 			TupleQuery qry= conn.prepareTupleQuery(sql);
 
 		}

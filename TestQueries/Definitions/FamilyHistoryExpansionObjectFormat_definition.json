@@ -13,10 +13,10 @@
     "match" : [ {
       "property" : [ {
         "@id" : "im:hasMember",
-        "in" : [ {
+        "inverse" : true,
+        "is" : [ {
           "@id" : "im:VSET_FamilyHistory"
-        } ],
-        "inverse" : true
+        } ]
       } ]
     } ],
     "return" : [ {

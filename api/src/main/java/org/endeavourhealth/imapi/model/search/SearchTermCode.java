@@ -1,9 +1,8 @@
 package org.endeavourhealth.imapi.model.search;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
-import java.util.HashSet;
-import java.util.Set;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 public class SearchTermCode {
 	String term;
@@ -32,8 +31,13 @@ public class SearchTermCode {
 		return status;
 	}
 
+	@JsonSetter
 	public SearchTermCode setStatus(TTIriRef status) {
 		this.status = status;
+		return this;
+	}
+	public SearchTermCode setStatus(Vocabulary status) {
+		this.status = status.asTTIriRef();
 		return this;
 	}
 }

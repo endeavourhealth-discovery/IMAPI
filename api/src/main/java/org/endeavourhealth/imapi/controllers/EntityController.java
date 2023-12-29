@@ -22,6 +22,7 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.*;
+import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
@@ -32,6 +33,7 @@ import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.set.ExportSet;
 import org.endeavourhealth.imapi.model.set.SetAsObject;
@@ -157,7 +159,7 @@ public class EntityController {
             size = EntityService.MAX_CHILDREN;
         }
 		TTEntity entity = entityService.getBundle(iri, Set.of(RDF.TYPE.getIri())).getEntity();
-		boolean inactive = entity.getType() != null && entity.getType().contains(IM.TASK);
+		boolean inactive = entity.getType() != null && entity.getType().contains(IM.TASK.asTTIriRef());
         return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive);
 	}
 
@@ -277,8 +279,8 @@ public class EntityController {
 
 	@GetMapping(value = "/public/download")
 	public HttpEntity<Object> download(
-	    @RequestParam String iri,
-        @RequestParam String format,
+	    @RequestParam("iri") String iri,
+        @RequestParam("format") String format,
         @RequestParam(name = "hasSubTypes", required = false, defaultValue = "false") boolean hasSubTypes,
         @RequestParam(name = "inferred", required = false, defaultValue = "false") boolean inferred,
         @RequestParam(name = "dataModelProperties", required = false, defaultValue = "false") boolean dataModelProperties,
@@ -403,9 +405,9 @@ public class EntityController {
 	}
 
 	@GetMapping("/public/termCode")
-	public List<TermCode> getTermCodes(@RequestParam(name = "iri") String iri) {
+	public List<SearchTermCode> getTermCodes(@RequestParam(name = "iri") String iri, @RequestParam(name = "includeInactive") Optional<Boolean> includeInactive) {
 	    LOG.debug("getTermCodes");
-		return entityService.getEntityTermCodes(iri);
+		return entityService.getEntityTermCodes(iri, includeInactive.orElseGet(() ->false));
 	}
 
 	@GetMapping("/public/dataModelProperties")
@@ -443,26 +445,34 @@ public class EntityController {
         @RequestParam(name = "im1id") boolean im1id,
         @RequestParam(name = "format") String format,
 		@RequestParam(name = "schemes") List<String> schemes
-	) throws IOException, QueryException {
+	) throws DownloadException {
 		LOG.debug("getSetExport");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
 		headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"");
-		if("xlsx".equals(format)) {
-			XSSFWorkbook workbook = entityService.getSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
-			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-				workbook.write(outputStream);
-				workbook.close();
-				return new HttpEntity<>(outputStream.toByteArray(), headers);
+		try {
+			if ("xlsx".equals(format)) {
+				XSSFWorkbook workbook = entityService.getSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
+				try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+					workbook.write(outputStream);
+					workbook.close();
+					return new HttpEntity<>(outputStream.toByteArray(), headers);
+				} catch (IOException e) {
+					throw new DownloadException("Failed to write to excel document");
+				}
+			} else if ("csv".equals(format)) {
+				String result = setService.getCSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
+				return new HttpEntity<>(result, headers);
+			} else if ("tsv".equals(format)) {
+				String result = setService.getTSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
+				return new HttpEntity<>(result, headers);
+			} else {
+				return null;
 			}
-		} else if ("csv".equals(format)) {
-			String result = setService.getCSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
-			return new HttpEntity<>(result, headers);
-		} else if("tsv".equals(format)) {
-			String result = setService.getTSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
-			return new HttpEntity<>(result, headers);
-		} else {
-			return null;
+		} catch (IOException e) {
+			throw new DownloadException("Failed to write to excel document.");
+		} catch (QueryException e) {
+			throw new DownloadException("Failed to get set details for download.");
 		}
 	}
 
@@ -657,7 +667,7 @@ public class EntityController {
 		LOG.debug("getSuperiorPropertiesPaged");
 		if (null == page) page = 1;
 		if (null == size) size = EntityService.MAX_CHILDREN;
-		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
+		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE.iri, SNOMED.NAMESPACE));
 		return entityService.getSuperiorPropertiesPaged(iri,schemeIris,page,size,inactive);
 	}
 
@@ -676,7 +686,7 @@ public class EntityController {
 		LOG.debug("getSuperiorPropertiesPaged");
 		if (null == page) page = 1;
 		if (null == size) size = EntityService.MAX_CHILDREN;
-		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
+		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE.iri, SNOMED.NAMESPACE));
 		return entityService.getSuperiorPropertiesBoolFocusPaged(conceptIris,schemeIris,page,size,inactive);
 	}
 
@@ -695,7 +705,7 @@ public class EntityController {
 		LOG.debug("getSuperiorPropertyValuesPaged");
 		if (null == page) page = 1;
 		if (null == size) size = EntityService.MAX_CHILDREN;
-		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
+		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE.iri, SNOMED.NAMESPACE));
 		return entityService.getSuperiorPropertyValuesPaged(iri,schemeIris,page,size,inactive);
 	}
 
@@ -703,5 +713,12 @@ public class EntityController {
 	public Boolean hasPredicates(@RequestParam(name = "subjectIri") String subjectIri, @RequestParam(name = "predicateIris") Set<String> predicateIris) {
 		LOG.debug("hasPredicates");
 		return entityService.hasPredicates(subjectIri, predicateIris);
+	}
+
+	@GetMapping(value = "/public/isInverseIsa")
+	@Operation(summary = "check if subject isa object")
+	public Boolean isInverseIsa(@RequestParam(name="objectIri") String objectIri,@RequestParam(name="subjectIri") String subjectIri) {
+		LOG.debug("isInverseIsa");
+		return entityService.isInverseIsa(objectIri,subjectIri);
 	}
 }

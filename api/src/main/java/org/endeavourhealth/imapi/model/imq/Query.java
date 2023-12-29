@@ -15,15 +15,15 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"@context","iri","name","description","activeOnly","bool","match","return","construct","query","groupBy","orderBy"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends Match{
-	private String type;
-	private String set;
 	private String description;
 	private boolean activeOnly;
 	private List<Query> query;
 	private List<Match> match;
-	private List<OrderLimit> orderBy;
+	private OrderLimit orderBy;
 	private List<PropertyRef> groupBy;
 	private List<Return> returx;
+	private String iri;
+	private String name;
 
 	@Override
 	public Query setBool(Bool bool) {
@@ -31,23 +31,13 @@ public class Query extends Match{
 		return this;
 	}
 
-	public String getType() {
-		return type;
-	}
 
-	public Query setType(String type) {
-		this.type = type;
+	public Query setTypeOf(String type) {
+		super.setTypeOf(type);
 		return this;
 	}
 
-	public String getSet() {
-		return set;
-	}
 
-	public Query setSet(String set) {
-		this.set = set;
-		return this;
-	}
 
 	@JsonProperty("return")
 	public List<Return> getReturn() {
@@ -109,32 +99,29 @@ public class Query extends Match{
 		return this;
 	}
 
+	public String getIri() {
+		return iri;
+	}
 
-
-	@Override
 	public Query setIri(String iri) {
-		super.setIri(iri);
+		this.iri = iri;
 		return this;
 	}
 
+	public String getName() {
+		return name;
+	}
 
-
-	@Override
 	public Query setName(String name) {
-		super.setName(name);
+		this.name = name;
 		return this;
 	}
 
-
-
-
-
-
-	public List<OrderLimit> getOrderBy() {
+	public OrderLimit getOrderBy() {
 		return orderBy;
 	}
 
-	public Query setOrderBy(List<OrderLimit> orderBy) {
+	public Query setOrderBy(OrderLimit orderBy) {
 		this.orderBy = orderBy;
 		return this;
 	}

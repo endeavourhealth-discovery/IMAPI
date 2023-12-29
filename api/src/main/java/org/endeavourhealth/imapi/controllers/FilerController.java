@@ -1,17 +1,23 @@
 package org.endeavourhealth.imapi.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.FilerService;
+import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.model.ProblemDetailResponse;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -47,6 +53,8 @@ public class FilerController {
     private final FilerService filerService = new FilerService();
     private final EntityService entityService = new EntityService();
     private final RequestObjectService reqObjService = new RequestObjectService();
+
+    private final SearchService searchService = new SearchService();
 
     @PostMapping("file/document")
     @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
@@ -117,7 +125,7 @@ public class FilerController {
         entity.setVersion(usedEntity.getVersion() + 1).setCrud(IM.UPDATE_PREDICATES);
 
         String agentName = reqObjService.getRequestAgentName(request);
-        filerService.fileEntity(entity, IM.GRAPH_DISCOVERY, agentName, usedEntity);
+        filerService.fileEntity(entity, GRAPH.DISCOVERY, agentName, usedEntity);
 
         return ResponseEntity.ok().build();
     }
@@ -146,7 +154,7 @@ public class FilerController {
         String agentName = reqObjService.getRequestAgentName(request);
         TTEntity usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
         entity.setVersion(usedEntity.getVersion() + 1).setCrud(IM.UPDATE_PREDICATES);
-        filerService.fileEntity(entity, IM.GRAPH_DISCOVERY, agentName, usedEntity);
+        filerService.fileEntity(entity, GRAPH.DISCOVERY, agentName, usedEntity);
 
         return ResponseEntity.ok().build();
     }
@@ -168,16 +176,41 @@ public class FilerController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, container does not exist");
         }
 
-        String iri = IM.NAMESPACE + "FLDR_" + URLEncoder.encode(name, StandardCharsets.UTF_8.toString());
+        String iri = IM.NAMESPACE.iri + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8.toString());
         if (entityService.iriExists(iri)) {
             LOG.error("Entity with that name already exists");
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity with that name already exists");
         }
 
-        TTEntity entity = new TTEntity(iri).setName(name).addType(IM.FOLDER).set(IM.IS_CONTAINED_IN, iri(container)).setVersion(1).setCrud(IM.ADD_QUADS);
+        Query query = new Query()
+                .setName("Allowable child types for a folder")
+                .setIri(IM.NAMESPACE.iri+"Query_AllowableChildTypes");
+        QueryRequest queryRequest = new QueryRequest()
+                .setQuery(query)
+                .argument(a->a
+                        .setParameter("this")
+                        .setValueIri(TTIriRef.iri(container)));
+        JsonNode results = searchService.queryIM(queryRequest);
+
+        TTEntity entity = new TTEntity(iri)
+            .setName(name)
+            .setScheme(GRAPH.DISCOVERY)
+            .addType(IM.FOLDER)
+            .set(IM.IS_CONTAINED_IN, iri(container))
+            .setVersion(1)
+            .setCrud(IM.ADD_QUADS);
+
+        TTArray contentTypes = new TTArray();
+        for (JsonNode j : results.get("entities")) {
+            TTIriRef contentType = new TTIriRef();
+            contentType.setIri(j.get("@id").asText());
+            contentType.setName(j.get(RDFS.LABEL.getIri()).asText());
+            contentTypes.add(contentType);
+        }
+        entity.set(IM.CONTENT_TYPE, contentTypes);
 
         String agentName = reqObjService.getRequestAgentName(request);
-        filerService.fileEntity(entity, IM.GRAPH_DISCOVERY, agentName, null);
+        filerService.fileEntity(entity, GRAPH.DISCOVERY, agentName, null);
         return iri;
     }
 

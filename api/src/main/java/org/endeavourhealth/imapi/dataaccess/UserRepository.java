@@ -2,20 +2,16 @@ package org.endeavourhealth.imapi.dataaccess;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-import org.eclipse.rdf4j.model.impl.ValidatingValueFactory;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
-import org.endeavourhealth.imapi.model.config.Config;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
-import org.endeavourhealth.imapi.model.imq.Value;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.USER;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +49,7 @@ public class UserRepository {
         try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
             TupleQuery qry = prepareSparql(conn, sparql);
             qry.setBinding("s", iri(USER.NAMESPACE + user));
-            qry.setBinding("p", iri(USER.USER_THEME.getIri()));
+            qry.setBinding("p", iri(USER.USER_THEME));
 
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
@@ -72,7 +68,7 @@ public class UserRepository {
         try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
             TupleQuery qry = prepareSparql(conn, sparql);
             qry.setBinding("s", iri(USER.NAMESPACE + user));
-            qry.setBinding("p", iri(USER.USER_MRU.getIri()));
+            qry.setBinding("p", iri(USER.USER_MRU));
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
                     BindingSet bs = rs.next();
@@ -93,7 +89,7 @@ public class UserRepository {
         try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
             TupleQuery qry = prepareSparql(conn, sparql);
             qry.setBinding("s", iri(USER.NAMESPACE + user));
-            qry.setBinding("p", iri(USER.USER_FAVOURITES.getIri()));
+            qry.setBinding("p", iri(USER.USER_FAVOURITES));
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
                     BindingSet bs = rs.next();
@@ -132,8 +128,8 @@ public class UserRepository {
 
     public void updateUserMRU(String user, List<RecentActivityItemDto> mru) throws JsonProcessingException {
         if (!mru.isEmpty() && mru.stream().allMatch(this::isValidRecentActivityItem)) {
-            delete(user, USER.USER_MRU.getIri());
-            insert(user, USER.USER_MRU.getIri(), mru);
+            delete(user, USER.USER_MRU);
+            insert(user, USER.USER_MRU, mru);
         } else throw new Error("One or more activity items are invalid");
     }
 
@@ -142,14 +138,47 @@ public class UserRepository {
     }
 
     public void updateUserFavourites(String user, List<String> favourites) throws JsonProcessingException {
-        delete(user, USER.USER_FAVOURITES.getIri());
-        insert(user, USER.USER_FAVOURITES.getIri(), favourites);
+        delete(user, USER.USER_FAVOURITES);
+        insert(user, USER.USER_FAVOURITES, favourites);
     }
 
     public void updateUserTheme(String user, String theme) throws JsonProcessingException {
-        delete(user, USER.USER_THEME.getIri());
-        insert(user, USER.USER_THEME.getIri(), theme);
+        delete(user, USER.USER_THEME);
+        insert(user, USER.USER_THEME, theme);
     }
 
+    public List<String> getUserOrganisations(String user) throws JsonProcessingException {
+        List<String> result = new ArrayList<>(List.of(IM.NAMESPACE.iri));
+        String sparql = getSparqlSelect();
+        try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
+            TupleQuery qry = prepareSparql(conn, sparql);
+            qry.setBinding("s", iri(USER.NAMESPACE + user));
+            qry.setBinding("p", iri(USER.ORGANISATIONS));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                if (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    try (CachedObjectMapper om = new CachedObjectMapper()) {
+                        List<String> organisations = om.readValue(bs.getValue("o").stringValue(), new TypeReference<>() {
+                        });
+                        if (!organisations.isEmpty()) return organisations;
+                    }
+                }
+            }
+        }
 
+        return result;
+    }
+
+    public void updateUserOrganisations(String user, List<String> organisations) throws JsonProcessingException {
+        delete(user, USER.ORGANISATIONS);
+        insert(user, USER.ORGANISATIONS, organisations);
+    }
+
+    public boolean getUserIdExists(String userId) {
+        try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
+            BooleanQuery qry = conn.prepareBooleanQuery("ASK { ?s ?p ?o.}");
+            qry.setBinding("s", iri(USER.NAMESPACE + userId));
+            return qry.evaluate();
+        }
+    }
 }

@@ -10,8 +10,8 @@ import java.util.zip.DataFormatException;
 
 public class TTToSCG {
 	boolean refinedSet;
-	private static final TTIriRef[] corePredicates= {RDF.TYPE,IM.IS_A,IM.HAS_SCHEME,IM.IS_CONTAINED_IN,
-	IM.HAS_STATUS,IM.DEFINITIONAL_STATUS};
+	private static final TTIriRef[] corePredicates= {RDF.TYPE.asTTIriRef(),IM.IS_A.asTTIriRef(),IM.HAS_SCHEME.asTTIriRef(),IM.IS_CONTAINED_IN.asTTIriRef(),
+	IM.HAS_STATUS.asTTIriRef(),IM.DEFINITIONAL_STATUS.asTTIriRef()};
 
 
 	public String getSCG(TTEntity entity, Boolean includeName) throws DataFormatException {

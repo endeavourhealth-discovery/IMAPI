@@ -1,5 +1,8 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
+
 public class TTTypedRef extends TTIriRef{
 	private TTIriRef type;
 
@@ -7,9 +10,13 @@ public class TTTypedRef extends TTIriRef{
 		return type;
 	}
 
+	@JsonSetter
 	public TTTypedRef setType(TTIriRef type) {
 		this.type = type;
 		return this;
+	}
+	public TTTypedRef setType(Vocabulary type) {
+		return setType(type.asTTIriRef());
 	}
 
 

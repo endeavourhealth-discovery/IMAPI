@@ -42,7 +42,7 @@ public class TTTranslator implements SyntaxTranslator {
 				for (Map.Entry<String,Object> entry: ((Map<String,Object>) from).entrySet()){
 					String key= entry.getKey();
 					if (!key.contains(":"))
-						key= IM.NAMESPACE+key;
+						key= IM.NAMESPACE.iri+key;
 					Object value = convertToTargetSingle(entry.getValue());
 					if (value instanceof TTArray)
 						result.set(TTIriRef.iri(key),(TTArray) value);
@@ -94,7 +94,7 @@ public class TTTranslator implements SyntaxTranslator {
 			else {
 				String predicate = property;
 				if (!property.contains(":"))
-					predicate = IM.NAMESPACE + property;
+					predicate = IM.NAMESPACE.iri + property;
 				if (targetValue instanceof List) {
 					TTArray array = new TTArray();
 					for (Object item : (List) targetValue) {

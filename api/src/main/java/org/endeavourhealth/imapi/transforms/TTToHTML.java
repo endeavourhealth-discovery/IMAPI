@@ -13,9 +13,9 @@ public class TTToHTML {
 	public static String getExpressionText(TTNode expression) {
 		StringBuilder html = new StringBuilder();
 		boolean first = true;
-		if (expression.get(OWL.INTERSECTIONOF) != null) {
+		if (expression.get(OWL.INTERSECTION_OF) != null) {
 			html.append("<p class=\"intersection\">Intersection of</p>");
-			for (TTValue inter : expression.get(OWL.INTERSECTIONOF).iterator()) {
+			for (TTValue inter : expression.get(OWL.INTERSECTION_OF).iterator()) {
 				if (inter.isIriRef()) {
 					if (!first)
 						html.append("<p class=\"and\" style=\"margin-left: 40px;\">and</p> ");

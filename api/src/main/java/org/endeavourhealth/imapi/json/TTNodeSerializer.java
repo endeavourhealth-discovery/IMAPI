@@ -48,7 +48,7 @@ public class TTNodeSerializer {
   }
 
   private void serializePredicates(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
-    List<TTIriRef> orderedPredicates = Stream.of(RDF.TYPE,RDFS.LABEL,RDFS.COMMENT,IM.HAS_STATUS).collect(Collectors.toList());
+    List<TTIriRef> orderedPredicates = Stream.of(RDF.TYPE.asTTIriRef(),RDFS.LABEL.asTTIriRef(),RDFS.COMMENT.asTTIriRef(),IM.HAS_STATUS.asTTIriRef()).collect(Collectors.toList());
     if (node.get(RDF.TYPE) != null) {
       for (TTValue type : node.get(RDF.TYPE).getElements()) {
         List<TTIriRef> orderForType= EntityCache.getPredicateOrder(type.asIriRef().getIri());
@@ -125,15 +125,15 @@ public class TTNodeSerializer {
 
    public void serializeLiteral(TTLiteral literal, JsonGenerator gen) throws IOException {
       if (literal.getType()!=null){
-         if (XSD.STRING.equals(literal.getType()))
+         if (XSD.STRING.iri.equals(literal.getType().getIri()))
             gen.writeString(literal.getValue());
-         else if (XSD.BOOLEAN.equals(literal.getType()))
+         else if (XSD.BOOLEAN.iri.equals(literal.getType().getIri()))
             gen.writeBoolean(literal.booleanValue());
-         else if (XSD.INTEGER.equals(literal.getType()))
+         else if (XSD.INTEGER.iri.equals(literal.getType().getIri()))
             gen.writeNumber(literal.intValue());
-         else if (XSD.LONG.equals(literal.getType()))
+         else if (XSD.LONG.iri.equals(literal.getType().getIri()))
              gen.writeNumber(literal.longValue());
-         else if (XSD.PATTERN.equals(literal.getType())) {
+         else if (XSD.PATTERN.iri.equals(literal.getType().getIri())) {
              gen.writeStartObject();
              gen.writeStringField("@value", literal.getValue());
              gen.writeStringField("@type",prefix(literal.getType().getIri()));

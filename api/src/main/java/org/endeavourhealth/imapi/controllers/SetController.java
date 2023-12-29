@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
+import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
@@ -49,13 +50,17 @@ public class SetController {
             summary = "Export set",
             description = "Exporting an expanded set to IM1"
     )
-    public HttpEntity<Object> exportSet(@RequestParam(name = "iri") String iri) throws DataFormatException, JsonProcessingException, QueryException {
+    public HttpEntity<Object> exportSet(@RequestParam(name = "iri") String iri) throws DownloadException {
         TTIriRef entity = entityService.getEntityReference(iri);
         String filename = entity.getName() + " " + LocalDate.now();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "force-download"));
         headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".txt\"");
-        String result = setExporter.generateForIm1(iri).toString();
-        return new HttpEntity<>(result, headers);
+        try {
+            String result = setExporter.generateForIm1(iri).toString();
+            return new HttpEntity<>(result, headers);
+        } catch (JsonProcessingException | QueryException e) {
+            throw new DownloadException(("Failed to generate export."));
+        }
     }
 }

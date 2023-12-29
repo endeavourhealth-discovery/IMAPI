@@ -1,30 +1,21 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class QueryService {
     private final QueryRepository queryRepository = new QueryRepository();
-    private final ObjectMapper mapper = new ObjectMapper();
 
     public Query labelQuery(Query query) {
         queryRepository.labelQuery(query);
@@ -39,41 +30,44 @@ public class QueryService {
         return queryRepository.getAllByType(typeIri);
     }
 
-    public JsonNode convertResultsToConceptSummary(JsonNode node, QueryRequest queryRequest) throws JsonProcessingException {
-        EntityRepository entityRepository = new EntityRepository();
-        OSQuery osQuery = new OSQuery();
-        TTArray entities = mapper.treeToValue(node.get("entities"),TTArray.class);
-        List<SearchResultSummary> searchResultSummaries = entities.stream().map(entity -> entityRepository.getEntitySummaryByIri(entity.asIriRef().getIri())).collect(Collectors.toList());
-        ObjectNode result = mapper.createObjectNode();
-        ArrayNode entityNode = mapper.createArrayNode();
-        result.set("entities",entityNode);
-        for (SearchResultSummary searchResult : searchResultSummaries) {
-            ObjectNode resultNode = mapper.createObjectNode();
-            entityNode.add(resultNode);
-            resultNode.put("iri", searchResult.getIri());
-            resultNode.put("name", searchResult.getName());
-            resultNode.put("comment", searchResult.getDescription());
-            resultNode.put("code", searchResult.getCode());
-            resultNode.set("status", convertIri(searchResult.getStatus()));
-            resultNode.set("scheme", convertIri(searchResult.getScheme()));
-            resultNode.set("entityType", convertArray(searchResult.getEntityType()));
-            resultNode.put("weighting", searchResult.getWeighting());
+    public List<SearchResultSummary> convertQueryIMResultsToSearchResultSummary(JsonNode queryResults) {
+        List<SearchResultSummary> result = new ArrayList<>();
+
+        if (queryResults.has("entities")) {
+            JsonNode entities = queryResults.get("entities");
+            if (entities.isArray()) {
+                for (JsonNode entity : queryResults.get("entities")) {
+                    SearchResultSummary summary = new SearchResultSummary();
+                    summary.setIri(entity.get("@id").asText());
+                    summary.setName(entity.get(RDFS.LABEL.getIri()).asText());
+                    if (entity.has(RDFS.COMMENT.getIri())) summary.setDescription(entity.get(RDFS.COMMENT.getIri()).asText());
+                    if (entity.has(IM.CODE.iri)) summary.setCode(entity.get(IM.CODE.iri).asText());
+                    summary.setStatus(jsonNodeToTTIriRef(entity, IM.HAS_STATUS.iri).get(0));
+                    summary.setScheme(jsonNodeToTTIriRef(entity, IM.HAS_SCHEME.iri).get(0));
+                    summary.getEntityType().addAll(jsonNodeToTTIriRef(entity, RDF.TYPE.getIri()));
+                    if (entity.has(IM.WEIGHTING.iri)) summary.setWeighting(entity.get(IM.WEIGHTING.iri).asInt());
+
+                    result.add(summary);
+                }
+            }
         }
+
         return result;
     }
 
-    private ObjectNode convertIri(TTIriRef iri) {
-        ObjectNode node = mapper.createObjectNode();
-        node.put("@id",iri.getIri());
-        if (null != iri.getName()) node.put("name",iri.getName());
-        return node;
-    }
+    private List<TTIriRef> jsonNodeToTTIriRef(JsonNode entity, String iri) {
+        List<TTIriRef> result = new ArrayList<>();
 
-    private ArrayNode convertArray(Set<TTIriRef> iris) {
-        ArrayNode arrayNode = mapper.createArrayNode();
-        for (TTIriRef iri : iris) {
-            arrayNode.add(convertIri(iri));
+        if (entity.has(iri)) {
+            for (JsonNode node : entity.get(iri)) {
+                TTIriRef iriRef = new TTIriRef(node.get("@id").asText());
+                if (node.has(RDFS.LABEL.getIri()))
+                    iriRef.setName(node.get(RDFS.LABEL.getIri()).asText());
+
+                result.add(iriRef);
+            }
         }
-        return arrayNode;
+
+        return result;
     }
 }

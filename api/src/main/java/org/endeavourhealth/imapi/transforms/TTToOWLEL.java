@@ -92,16 +92,16 @@ public class TTToOWLEL {
          addDeclaration(entity);
          Map<TTIriRef, TTArray> predicates = entity.getPredicateMap();
          for (Map.Entry<TTIriRef, TTArray> entry : predicates.entrySet()) {
-            if (entry.getKey().equals(RDFS.SUBCLASSOF)) {
+            if (entry.getKey().equals(RDFS.SUBCLASS_OF.asTTIriRef())) {
                if (!entity.isType(RDF.PROPERTY))
                   addSubClassOf(iri, entry.getValue());
                else
-                  addSubPropertyOf(iri,OWL.OBJECTPROPERTY,entry.getValue());
+                  addSubPropertyOf(iri,OWL.OBJECT_PROPERTY.asTTIriRef(),entry.getValue());
             }
-            else if (entry.getKey().equals(OWL.EQUIVALENTCLASS)) {
+            else if (entry.getKey().equals(OWL.EQUIVALENT_CLASS.asTTIriRef())) {
                   addEquivalentClasses(iri, entry.getValue());
-            } else if (entry.getKey().equals(RDFS.SUBPROPERTYOF)) {
-               addSubPropertyOf(iri, OWL.OBJECTPROPERTY,entry.getValue());
+            } else if (entry.getKey().equals(RDFS.SUB_PROPERTY_OF.asTTIriRef())) {
+               addSubPropertyOf(iri, OWL.OBJECT_PROPERTY.asTTIriRef(),entry.getValue());
             } else if (entry.getValue().isLiteral())
                addAnnotation(iri,entry.getKey(),entry.getValue().asLiteral());
          }
@@ -116,7 +116,7 @@ public class TTToOWLEL {
    private void addEquivalentClasses(IRI iri,TTArray eqClasses) {
 
       for (TTValue exp:eqClasses.iterator()) {
-           if (exp.isIriRef()||exp.asNode().get(OWL.WITHRESTRICTIONS) == null) {
+           if (exp.isIriRef()||exp.asNode().get(OWL.WITH_RESTRICTIONS) == null) {
             OWLEquivalentClassesAxiom equAx;
             equAx = dataFactory.getOWLEquivalentClassesAxiom(
                 dataFactory.getOWLClass(iri),
@@ -127,7 +127,7 @@ public class TTToOWLEL {
    }
    private void addSubPropertyOf(IRI iri, TTIriRef propertyType, TTArray superClasses) {
       for (TTValue exp:superClasses.iterator()) {
-         if (propertyType.equals(OWL.OBJECTPROPERTY)) {
+         if (propertyType.equals(OWL.OBJECT_PROPERTY.asTTIriRef())) {
             OWLSubObjectPropertyOfAxiom subAx = dataFactory
                 .getOWLSubObjectPropertyOfAxiom(
                     dataFactory
@@ -160,39 +160,39 @@ public class TTToOWLEL {
    private OWLClassExpression getOPERestrictionAsOWlClassExpression(TTValue cex) {
       OWLObjectPropertyExpression owlOpe;
       TTNode exp= cex.asNode();
-      if (exp.get(OWL.ONPROPERTY)!=null){
-         IRI prop = getIri(exp.get(OWL.ONPROPERTY).asIriRef());
+      if (exp.get(OWL.ON_PROPERTY)!=null){
+         IRI prop = getIri(exp.get(OWL.ON_PROPERTY).asIriRef());
          owlOpe = dataFactory.getOWLObjectProperty(prop);
       } else {
-         IRI prop = getIri(exp.get(OWL.INVERSEOF).asIriRef());
+         IRI prop = getIri(exp.get(OWL.INVERSE_OF).asIriRef());
          owlOpe = dataFactory
              .getOWLObjectInverseOf(
                  dataFactory.getOWLObjectProperty(prop));
       }
-      if (exp.get(OWL.ALLVALUESFROM)!=null){
+      if (exp.get(OWL.ALL_VALUES_FROM)!=null){
          return dataFactory.getOWLObjectAllValuesFrom(
              owlOpe,
-             getOWLClassExpression(exp.get(OWL.ALLVALUESFROM).asValue())
+             getOWLClassExpression(exp.get(OWL.ALL_VALUES_FROM).asValue())
          );
-      } else if (exp.get(OWL.SOMEVALUESFROM)!=null){
+      } else if (exp.get(OWL.SOME_VALUES_FROM)!=null){
          return dataFactory.getOWLObjectAllValuesFrom(
              owlOpe,
-             getOWLClassExpression(exp.get(OWL.SOMEVALUESFROM).asValue())
+             getOWLClassExpression(exp.get(OWL.SOME_VALUES_FROM).asValue())
          );
-      } else  if (exp.get(OWL.MINCARDINALITY)!=null){
+      } else  if (exp.get(OWL.MIN_CARDINALITY)!=null){
          return dataFactory.getOWLObjectSomeValuesFrom(
              owlOpe,
-             getOWLClassExpression(exp.get(OWL.ONCLASS).asValue())
+             getOWLClassExpression(exp.get(OWL.ON_CLASS).asValue())
          );
-      }else  if (exp.get(OWL.MAXCARDINALITY)!=null){
+      }else  if (exp.get(OWL.MAX_CARDINALITY)!=null){
          return dataFactory.getOWLObjectSomeValuesFrom(
              owlOpe,
-             getOWLClassExpression(exp.get(OWL.ONCLASS).asValue())
+             getOWLClassExpression(exp.get(OWL.ON_CLASS).asValue())
          );
-      } else if (exp.get(OWL.ONCLASS)!=null){
+      } else if (exp.get(OWL.ON_CLASS)!=null){
          return dataFactory.getOWLObjectSomeValuesFrom(
              owlOpe,
-             getOWLClassExpression(exp.get(OWL.ONCLASS).asValue())
+             getOWLClassExpression(exp.get(OWL.ON_CLASS).asValue())
          );
       }
       else {
@@ -210,22 +210,22 @@ public class TTToOWLEL {
    private OWLClassExpression getDPERestrictionAsOWLClassExpression(TTValue cex) {
       TTNode exp = cex.asNode();
 
-      IRI prop = getIri(exp.get(OWL.ONPROPERTY).asIriRef());
-      if (exp.get(OWL.SOMEVALUESFROM) != null) {
+      IRI prop = getIri(exp.get(OWL.ON_PROPERTY).asIriRef());
+      if (exp.get(OWL.SOME_VALUES_FROM) != null) {
          return dataFactory.getOWLDataSomeValuesFrom(
              dataFactory.getOWLDataProperty(prop),
              getOWLDataRange(exp));
-      }else if (exp.get(OWL.ALLVALUESFROM) != null) {
+      }else if (exp.get(OWL.ALL_VALUES_FROM) != null) {
          return dataFactory.getOWLDataAllValuesFrom(
              dataFactory.getOWLDataProperty(prop),
              getOWLDataRange(exp));
-      } else if (exp.get(OWL.ONDATARANGE)!=null) {
+      } else if (exp.get(OWL.ON_DATA_RANGE)!=null) {
          return dataFactory.getOWLDataSomeValuesFrom(
              dataFactory.getOWLDataProperty(prop),
              getOWLDataRange(exp));
       }else
          return
-             dataFactory.getOWLClass("OWL EL limit - cardinality and data restricions not supported", prefixManager);
+             dataFactory.getOWLClass("OWL EL limit - cardinality and data restrictions not supported", prefixManager);
    }
 
 
@@ -236,24 +236,24 @@ public class TTToOWLEL {
          checkUndeclared(iri,dataFactory.getOWLEntity(EntityType.CLASS,iri));
          return dataFactory.getOWLClass(getIri(cex.asIriRef()));
       } else if (cex.isNode()) {
-         if (cex.asNode().get(OWL.INTERSECTIONOF) != null) {
+         if (cex.asNode().get(OWL.INTERSECTION_OF) != null) {
             return dataFactory.getOWLObjectIntersectionOf(
-                cex.asNode().get(OWL.INTERSECTIONOF)
+                cex.asNode().get(OWL.INTERSECTION_OF)
                     .stream()
                     .map(this::getOWLClassExpression)
                     .collect(Collectors.toSet()));
             //
-         } else if (cex.asNode().get(OWL.UNIONOF) != null) {
+         } else if (cex.asNode().get(OWL.UNION_OF) != null) {
             return dataFactory.getOWLObjectUnionOf(
-                cex.asNode().get(OWL.UNIONOF)
+                cex.asNode().get(OWL.UNION_OF)
                     .stream()
                     .map(this::getOWLClassExpression)
                     .collect(Collectors.toSet()));
-         } else if (cex.asNode().get(OWL.ONPROPERTY) != null) {
+         } else if (cex.asNode().get(OWL.ON_PROPERTY) != null) {
                return getOPERestrictionAsOWlClassExpression(cex);
-         } else if (cex.asNode().get(OWL.ONEOF) != null) {
-            return getOneOfAsOWLClassExpression(cex.asNode().get(OWL.ONEOF));
-         } else if (cex.asNode().get(OWL.COMPLEMENTOF) != null) {
+         } else if (cex.asNode().get(OWL.ONE_OF) != null) {
+            return getOneOfAsOWLClassExpression(cex.asNode().get(OWL.ONE_OF));
+         } else if (cex.asNode().get(OWL.COMPLEMENT_OF) != null) {
             return (getComplementOfAsAOWLClassExpression(cex));
          }
       }
@@ -269,24 +269,24 @@ public class TTToOWLEL {
          checkUndeclared(iri,dataFactory.getOWLEntity(EntityType.CLASS,iri));
          return dataFactory.getOWLClass(getIri(cex.asIriRef()));
       } else if (cex.isNode()) {
-         if (cex.asNode().get(OWL.INTERSECTIONOF) != null) {
+         if (cex.asNode().get(OWL.INTERSECTION_OF) != null) {
             return dataFactory.getOWLObjectIntersectionOf(
-              cex.asNode().get(OWL.INTERSECTIONOF)
+              cex.asNode().get(OWL.INTERSECTION_OF)
                 .stream()
                 .map(this::getOWLEquivalentClassExpression)
                 .collect(Collectors.toSet()));
             //
-         } else if (cex.asNode().get(OWL.UNIONOF) != null) {
+         } else if (cex.asNode().get(OWL.UNION_OF) != null) {
             return dataFactory.getOWLObjectUnionOf(
-              cex.asNode().get(OWL.UNIONOF)
+              cex.asNode().get(OWL.UNION_OF)
                 .stream()
                 .map(this::getOWLClassExpression)
                 .collect(Collectors.toSet()));
-         } else if (cex.asNode().get(OWL.ONPROPERTY) != null) {
+         } else if (cex.asNode().get(OWL.ON_PROPERTY) != null) {
                return getOPERestrictionAsOWlClassExpression(cex);
-         } else if (cex.asNode().get(OWL.ONEOF) != null) {
-            return getOneOfAsOWLClassExpression(cex.asNode().get(OWL.ONEOF));
-         } else if (cex.asNode().get(OWL.COMPLEMENTOF) != null) {
+         } else if (cex.asNode().get(OWL.ONE_OF) != null) {
+            return getOneOfAsOWLClassExpression(cex.asNode().get(OWL.ONE_OF));
+         } else if (cex.asNode().get(OWL.COMPLEMENT_OF) != null) {
             return (getComplementOfAsAOWLClassExpression(cex));
          }
       }
@@ -301,7 +301,7 @@ public class TTToOWLEL {
       return dataFactory
           .getOWLObjectComplementOf(
               getOWLClassExpression(
-                  cex.asNode().get(OWL.COMPLEMENTOF).asValue()));
+                  cex.asNode().get(OWL.COMPLEMENT_OF).asValue()));
    }
 
    private OWLClassExpression getOneOfAsOWLClassExpression(TTArray cex) {
@@ -313,8 +313,8 @@ public class TTToOWLEL {
    }
 
    private OWLDataRange getOWLDataRange(TTValue exp) {
-      if (exp.asNode().get(OWL.ONDATARANGE)!=null)
-         return dataFactory.getOWLDatatype(getIri(exp.asNode().get(OWL.ONDATARANGE).asIriRef()));
+      if (exp.asNode().get(OWL.ON_DATA_RANGE)!=null)
+         return dataFactory.getOWLDatatype(getIri(exp.asNode().get(OWL.ON_DATA_RANGE).asIriRef()));
       else
          return dataFactory.getOWLDatatype(getIri("xsd:string"));
 
@@ -328,15 +328,15 @@ public class TTToOWLEL {
             entity = dataFactory.getOWLEntity(EntityType.CLASS, iri);
       else  if (ttEntity.isType(IM.CONCEPT))
          entity = dataFactory.getOWLEntity(EntityType.CLASS, iri);
-         else if (ttEntity.isType(OWL.OBJECTPROPERTY))
+         else if (ttEntity.isType(OWL.OBJECT_PROPERTY))
             entity = dataFactory.getOWLEntity(EntityType.OBJECT_PROPERTY, iri);
-         else if (ttEntity.isType(OWL.DATATYPEPROPERTY))
+         else if (ttEntity.isType(OWL.DATATYPE_PROPERTY))
             entity = dataFactory.getOWLEntity(EntityType.OBJECT_PROPERTY, iri);
       else if (ttEntity.isType(RDF.PROPERTY))
          entity = dataFactory.getOWLEntity(EntityType.OBJECT_PROPERTY, iri);
-         else if (ttEntity.isType(OWL.ANNOTATIONPROPERTY))
+         else if (ttEntity.isType(OWL.ANNOTATION_PROPERTY))
             entity = dataFactory.getOWLEntity(EntityType.ANNOTATION_PROPERTY, iri);
-         else if (ttEntity.isType(OWL.NAMEDINDIVIDUAL))
+         else if (ttEntity.isType(OWL.NAMED_INDIVIDUAL))
             entity = dataFactory.getOWLEntity(EntityType.NAMED_INDIVIDUAL, iri);
          else
             entity= dataFactory.getOWLEntity(EntityType.CLASS,iri);

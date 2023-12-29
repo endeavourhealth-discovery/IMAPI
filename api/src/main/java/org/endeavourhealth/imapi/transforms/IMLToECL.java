@@ -5,7 +5,6 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
-import java.util.List;
 import java.util.zip.DataFormatException;
 
 public class IMLToECL {
@@ -14,9 +13,9 @@ public class IMLToECL {
 	}
 
 	/**
-	 * Takes a IM ECL compliant definition of a set and returns in ECL language
+	 * Takes a IM ECL compliant definition of a set and returns is ECL language
 	 * @param query         a node representing a class expression e.g. value of im:Definition
-	 * @param includeName flag to include the concept term in the output
+	 * @param includeName flag to include the concept term is the output
 	 * @return String of ECL
 	 * @throws DataFormatException invalid or unsupported ECL syntax
 	 */
@@ -25,7 +24,11 @@ public class IMLToECL {
 		if (query.getMatch()!=null) {
 			match(query, ecl, includeName);
 		}
-		return ecl.toString();
+		return ecl.toString().trim();
+	}
+
+	public static String getECLFromQuery(Query query) throws QueryException {
+		return getECLFromQuery(query,false);
 	}
 
 	private static boolean isList(Match match){
@@ -33,12 +36,12 @@ public class IMLToECL {
 	}
 
 
-	private static void match(Match match, StringBuilder ecl, boolean includeName) throws QueryException {
+	private static void match(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
 		if (match.isExclude())
 			ecl.append(" MINUS ");
 
-		if (null != match.getIri()) {
-			addClass(match, ecl, includeName);
+		if (null != match.getInstanceOf()) {
+			addClass(match.getInstanceOf(), ecl, includeNames);
 		}
 		else if (null != match.getMatch()) {
 			boolean bracket= needsBracket(match);
@@ -46,39 +49,34 @@ public class IMLToECL {
 				ecl.append("(");
 			boolean first = true;
 			for (Match subMatch : match.getMatch()) {
-				if (!first){
+				if (!first && !subMatch.isExclude()){
 					if (match.getBool()==Bool.or){
 						ecl.append(" OR ");
 					}
 					else
 						ecl.append(" AND ");
 				}
-				if (subMatch.getProperty()!=null)
-					ecl.append("(");
-				match(subMatch, ecl, includeName);
-				if (subMatch.getProperty()!=null)
-					ecl.append(")");
+				match(subMatch, ecl, includeNames);
 				first = false;
 			}
 			if (bracket)
 				ecl.append(")");
 		}
 		if (null != match.getProperty()) {
-			if (null == match.getIri() && null == match.getMatch())
+			if (null == match.getInstanceOf() && null == match.getMatch())
 				ecl.append("*");
-			addRefinements(match, ecl, includeName);
+			addRefinements(match, ecl, includeNames);
 		}
 
 	}
 
 	private static boolean needsBracket(Match match){
 		if (match.getMatch()!=null){
+			if (match.getMatch().size() > 1) return true;
 			if (match.getProperty()!=null)
 				return true;
-			for (Match subMatch:match.getMatch()){
-				if (subMatch.isExclude())
-					return true;
-			}
+			if (match.isExclude())
+				return true;
 		}
 		return false;
 	}
@@ -137,8 +135,8 @@ public class IMLToECL {
 			if (null == where.getBool()) {
 				addProperty(where, ecl, includeName);
 				ecl.append(" = ");
-				if (null == where.getIn()) throw new QueryException("Property clause must contain 'in' value");
-				Node value = where.getIn().get(0);
+				if (null == where.getIs()) throw new QueryException("Property clause must contain 'is' value");
+				Node value = where.getIs().get(0);
 				addClass(value, ecl, includeName);
 			} else {
 				addRefinements(where,ecl,includeName);
@@ -170,14 +168,9 @@ public class IMLToECL {
 	}
 
 	private static void addClass(Node exp, StringBuilder ecl, boolean includeName) {
-		if (exp.getType()!=null) {
-			if (exp.getType().equals(IM.CONCEPT.getIri()))
-				ecl.append("* ");
-		}
-		else {
 			addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName());
-		}
 	}
+
 
 	private static String getSubsumption(Entailment exp) {
 		String subsumption="";

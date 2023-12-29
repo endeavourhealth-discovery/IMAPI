@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
 
 import java.io.IOException;
 import java.util.*;
@@ -85,11 +86,11 @@ public class EqdResources {
 
 	public TTIriRef getIri(String token) throws IOException {
 		if (token.equals("label"))
-			return RDFS.LABEL.setName("label");
+			return RDFS.LABEL.asTTIriRef().setName("label");
 		else {
 			if (!token.contains(":")) {
-				TTIriRef iri = TTIriRef.iri(IM.NAMESPACE + token);
-				iri.setName(importMaps.getCoreName(IM.NAMESPACE + token));
+				TTIriRef iri = TTIriRef.iri(IM.NAMESPACE.iri + token);
+				iri.setName(importMaps.getCoreName(IM.NAMESPACE.iri + token));
 				return iri;
 			} else {
 				TTIriRef iri = TTIriRef.iri(token);
@@ -106,7 +107,7 @@ public class EqdResources {
 		if ((eqCriteria.getPopulationCriterion() != null)) {
 			EQDOCSearchIdentifier srch = eqCriteria.getPopulationCriterion();
 			match
-				.setSet("urn:uuid:" + srch.getReportGuid())
+				.addInSet(new Node().setIri("urn:uuid:" + srch.getReportGuid()))
 				.setName(reportNames.get(srch.getReportGuid()));
 		} else {
 			convertCriterion(eqCriteria.getCriterion(),match);
@@ -129,38 +130,46 @@ public class EqdResources {
 
 	}
 
-	private void setTablePath(String eqKey,Match match) throws DataFormatException, QueryException {
+	private Match getTablePath(String eqKey,Match match) throws DataFormatException, QueryException {
 		String pathMap = getPath(eqKey);
-		if (!pathMap.equals("")) {
-			String[] elements =pathMap.split(" ");
-			Property path = new Property();
-			match.addProperty(path);
-			path.setIri(elements[0]);
-			path.setMatch(new Match().setType(elements[1]));
+		if (pathMap.equals(""))
+			return match;
+		String[] paths= pathMap.split(" ");
+		for (int i=0; i<paths.length-1; i=i+2) {
+				Property path = new Property();
+				match.addProperty(path);
+				path.setIri(paths[i]);
+				Match subMatch = new Match();
+				path.setMatch(subMatch);
+				subMatch.setTypeOf(paths[i + 1]);
+				match = subMatch;
 		}
+		return match;
 	}
 
-	private Match getPaths(Match node, String pathMap) throws QueryException {
+	private Match getPaths(Match match, String pathMap) throws QueryException {
 		String[] paths= pathMap.split(" ");
 			for (int i=0; i<paths.length-2; i=i+2) {
-				Match subMatch = getPathMatch(node, paths[i]);
+				Match subMatch = getPathMatch(match, paths[i]);
 				if (subMatch == null) {
 					Property path = new Property();
-					node.addProperty(path);
+					match.addProperty(path);
 					path.setIri(paths[i]);
 					subMatch = new Match();
 					path.setMatch(subMatch);
-					subMatch.setType(paths[i + 1]);
-					node = subMatch;
+					subMatch.setTypeOf(paths[i + 1]);
+					match = subMatch;
 				}
+				else
+					return subMatch;
 			}
-			return node;
+			return match;
 	}
 	private Match getPathMatch(Match match, String property){
 		if (match.getProperty()==null)
 			return null;
 		for (Property prop:match.getProperty()) {
-			if (prop.getIri().equals(property))
+			if (prop.getIri().equals(property)||prop.getIri().equals(IM.NAMESPACE.iri+property))
 				return prop.getMatch();
 		}
 		return null;
@@ -172,7 +181,7 @@ public class EqdResources {
 
 		}
 		else {
-			setTablePath(eqCriterion.getTable(),match);
+			match= getTablePath(eqCriterion.getTable(),match);
 			convertColumns(eqCriterion, match);
 		}
 	}
@@ -221,17 +230,17 @@ public class EqdResources {
 				else
 					vsetName="unknown concept set";
 				valueLabel= valueLabel+ (valueLabel.equals("") ?"": ", ")+ vsetName;
-				Node iri = new Match().setSet("urn:uuid:" + vset);
+				Node iri = new Node().setIri("urn:uuid:" + vset);
 				if (vsetName!=null)
 					iri.setName(vsetName);
 				else
 					iri.setName("Unknown value set");
 				if (!notIn)
-					pv.addIn(iri);
+					pv.addInSet(iri);
 				else {
-					pv.addNotIn(iri);
+					pv.addNotInSet(iri);
 				}
-				storeLibraryItem(iri.getSet(),vsetName);
+				storeLibraryItem(iri.getIri(),vsetName);
 				if (valueLabel.equals(""))
 					valueLabel="Unknown value set";
 				pv.setValueLabel(valueLabel);
@@ -248,13 +257,13 @@ public class EqdResources {
 					pv.setValueLabel(labels.get(vs.getId()).toString());
 				}
 			if (vs.getAllValues() != null) {
-				pv.setNotIn(getExceptionSet(vs.getAllValues()));
+				pv.setIsNot(getExceptionSet(vs.getAllValues()));
 			} else {
 				if (!notIn) {
-					pv.setIn(getInlineValues(vs,pv));
+					pv.setIs(getInlineValues(vs,pv));
 				}
 				else {
-					pv.setNotIn(getInlineValues(vs,pv));
+					pv.setIsNot(getInlineValues(vs,pv));
 				}
 			}
 		}
@@ -277,7 +286,7 @@ public class EqdResources {
 			match.addMatch(restricted);
 		}
 
-		setTablePath(eqCriterion.getTable(),restricted);
+		restricted = getTablePath(eqCriterion.getTable(),restricted);
 		convertColumns(eqCriterion, restricted);
 		setRestriction(eqCriterion, restricted);
 
@@ -293,16 +302,6 @@ public class EqdResources {
 	}
 
 
-	private Match getLastNode(Property path) throws DataFormatException {
-		if (path.getMatch()!=null) {
-			if (path.getMatch().getProperty() == null) {
-				return path.getMatch();
-			}
-			else
-				return getLastNode(path.getMatch().getProperty().get(0));
-		}
-		throw new DataFormatException("Match path appears ccorrupted");
-	}
 
 
 	private void restrictionTest(EQDOCCriterion eqCriterion, Match testMatch,String nodeVariable) throws IOException, DataFormatException, QueryException {
@@ -329,8 +328,12 @@ public class EqdResources {
 			.getColumnOrder().getColumns().get(0).getColumn().get(0);
 		String orderBy= getPath(eqCriterion.getTable()+"/"+linkColumn);
 		counter++;
-		String linkElement= getLastNode(restricted.getProperty().get(0)).getVariable();
-		restricted.orderBy(o->o.setIri(orderBy).setLimit(1).setDirection(direction));
+		String linkElement= restricted.getProperty().get(0).getVariable();
+		restricted.orderBy(o->o
+			.addProperty(new OrderDirection()
+				.setIri(orderBy)
+				.setDirection(direction))
+			.setLimit(1));
 		return linkElement;
 	}
 
@@ -400,10 +403,6 @@ public class EqdResources {
 			boolean from) throws DataFormatException {
 				if (relation == VocRelation.RELATIVE) {
 					pv.setRelativeTo(new PropertyRef().setParameter("$referenceDate"));
-					if (from) {
-						comp = reverseComp(comp);
-						value = String.valueOf(-Integer.parseInt(value));
-					}
 				}
 
 				pv.setOperator(comp);
@@ -500,7 +499,7 @@ public class EqdResources {
 				if (!valueSets.containsKey(iri)) {
 					ConceptSet conceptSet = new ConceptSet();
 					conceptSet.setIri(iri)
-						.addType(IM.CONCEPT_SET)
+						.addType(IM.CONCEPT_SET.asTTIriRef())
 						.setName(name);
 					conceptSet.addUsedIn(TTIriRef.iri("urn:uuid:" + activeReport));
 					valueSets.put(iri, conceptSet);
@@ -525,7 +524,7 @@ public class EqdResources {
 				} else if (scheme == VocCodeSystemEx.SNOMED_CONCEPT || scheme.value().contains("SCT")) {
 					List<String> schemes = new ArrayList<>();
 					schemes.add(SNOMED.NAMESPACE);
-					schemes.add(IM.CODE_SCHEME_EMIS.getIri());
+					schemes.add(GRAPH.EMIS.getIri());
 					Set<TTIriRef> snomed = valueMap.get(originalCode);
 					if (snomed == null) {
 						snomed = setValueSnomedChecks(originalCode, originalTerm, legacyCode, schemes);
@@ -568,7 +567,7 @@ public class EqdResources {
 			private Set<TTIriRef> getCoreFromCodeId(String originalCode) {
 
 				try {
-					return importMaps.getCoreFromCodeId(originalCode, IM.CODE_SCHEME_EMIS.getIri());
+					return importMaps.getCoreFromCodeId(originalCode, GRAPH.EMIS.iri);
 				} catch (Exception e) {
 					System.err.println("unable to retrieve iri from term code " + e.getMessage());
 					e.printStackTrace();
@@ -579,7 +578,7 @@ public class EqdResources {
 
 			private Set<TTIriRef> getLegacyFromTermCode(String originalCode) {
 				try {
-					return importMaps.getLegacyFromTermCode(originalCode, IM.CODE_SCHEME_EMIS.getIri());
+					return importMaps.getLegacyFromTermCode(originalCode, GRAPH.EMIS.iri);
 				} catch (Exception e) {
 					System.err.println("unable to retrieve iri match term code " + e.getMessage());
 					return null;
@@ -593,7 +592,7 @@ public class EqdResources {
 					if (originalTerm.contains("s disease of lymph nodes of head, face AND/OR neck"))
 						System.out.println("!!");
 
-					return importMaps.getCoreFromLegacyTerm(originalTerm, IM.CODE_SCHEME_EMIS.getIri());
+					return importMaps.getCoreFromLegacyTerm(originalTerm, GRAPH.EMIS.iri);
 				} catch (Exception e) {
 					System.err.println("unable to retrieve iri match term " + e.getMessage());
 					return null;

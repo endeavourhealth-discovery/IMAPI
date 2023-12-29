@@ -2,16 +2,20 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.dataaccess.PathRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.imq.PathDocument;
-import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
@@ -27,20 +31,70 @@ public class SearchService {
 	/**
 	 * Queries any IM entity using the query model
 	 * @param queryRequest Query inside a request with parameters
-	 * @return a generic JSONDocument containing the results in a format defined by the selecr staement and including predicate map
+	 * @return a generic JSONDocument containing the results in a format defined by the select statement and including predicate map
 	 * @throws DataFormatException if query format is invalid
 	 */
 	public JsonNode queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
-		return new QueryRepository().queryIM(queryRequest);
+        ObjectNode result = new ObjectMapper().createObjectNode();
+        QueryRepository repo = new QueryRepository();
+        repo.unpackQueryRequest(queryRequest, result);
+        if (null != queryRequest.getTextSearch()) {
+            OSQuery osq = new OSQuery();
+            List<SearchResultSummary> osResult = osq.openSearchQuery(queryRequest);
+            if (osResult != null)
+                return osq.convertOSResult(osResult, queryRequest.getQuery());
+        }
+
+		return repo.queryIM(queryRequest);
 	}
 
+	public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
+		if (null == queryRequest.getAskIri()) throw new IllegalArgumentException("Query request missing askIri");
+		QueryRepository repo = new QueryRepository();
+		repo.unpackQueryRequest(queryRequest);
+		return repo.askQueryIM(queryRequest);
+	}
+
+    /**
+     * Queries any IM entity using the query model
+     * @param queryRequest Query inside a request with parameters
+     * @return a list of SearchResultSummary
+     * @throws DataFormatException if query format is invalid
+     */
+    public List<SearchResultSummary> queryIMSearch(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
+        ObjectNode result = new ObjectMapper().createObjectNode();
+        QueryRepository repo = new QueryRepository();
+        repo.unpackQueryRequest(queryRequest, result);
+
+        // Set correct return properties for SearchResultSummary structure
+		List<Return> summaryReturn = new ArrayList<Return>();
+		summaryReturn.add(new Return()
+			.addProperty(new ReturnProperty().setIri(RDFS.LABEL.iri))
+			.addProperty(new ReturnProperty().setIri(RDFS.COMMENT.iri))
+			.addProperty(new ReturnProperty().setIri(IM.CODE.iri))
+			.addProperty(new ReturnProperty().setIri(IM.HAS_STATUS.iri).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL.iri))))
+			.addProperty(new ReturnProperty().setIri(IM.HAS_SCHEME.iri).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL.iri))))
+			.addProperty(new ReturnProperty().setIri(RDF.TYPE.iri).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL.iri))))
+			.addProperty(new ReturnProperty().setIri(IM.WEIGHTING.iri))
+		);
+        queryRequest.getQuery().setReturn(summaryReturn);
+
+        if (null != queryRequest.getTextSearch()) {
+            List<SearchResultSummary> osResult = new OSQuery().openSearchQuery(queryRequest);
+            if (osResult != null)
+                return osResult;
+        }
+
+        JsonNode queryResults = repo.queryIM(queryRequest);
+        return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults);
+    }
 
 	/**
 	 * Queries and updates IM entity using the query model
 	 * @param queryRequest Query inside a request with parameters
 	 * @throws DataFormatException if query format is invalid
 	 */
-	public void updateIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
+	public void updateIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, QueryException {
 		new QueryRepository().updateIM(queryRequest);
 	}
 
@@ -50,7 +104,7 @@ public class SearchService {
 	 * @return a generic JSONDocument containing the results in a format defined by the selecr staement and including predicate map
 	 * @throws DataFormatException if query format is invalid
 	 */
-	public PathDocument pathQuery(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, ExecutionException, QueryException {
+	public PathDocument pathQuery(QueryRequest queryRequest) throws DataFormatException {
 		validateQueryRequest(queryRequest);
 		return new PathRepository().pathQuery(queryRequest);
 	}

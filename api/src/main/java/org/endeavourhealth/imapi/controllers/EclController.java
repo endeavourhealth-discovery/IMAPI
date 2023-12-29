@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UnknownFormatConversionException;
 import java.util.zip.DataFormatException;
@@ -63,12 +64,36 @@ public class EclController {
         }
     }
 
+    @PostMapping(value = "/public/eclSearchTotalCount",consumes = "application/json", produces = "application/json")
+    @Operation(
+        summary = "Count of ecl search",
+        description = "Shows total results for an ecl search as a number"
+    )
+    public Integer eclSearchTotalCount(
+        @RequestBody EclSearchRequest request
+    ) throws EclFormatException, QueryException {
+        try {
+            return eclService.getEclSearchTotalCount(request);
+        } catch (UnknownFormatConversionException ex) {
+            throw new EclFormatException("Invalid ECL format", ex);
+        }
+    }
+
     @PostMapping(value = "/public/eclFromQuery")
     @Operation(
         summary = "Get ecl from query",
         description = "MapObject an IM query to ecl"
     )
     public String getECLFromQuery(@RequestBody Query query) throws QueryException {
-        return eclService.getECLFromQuery(query);
+        return eclService.getECLFromQuery(query, false);
+    }
+
+    @PostMapping(value = "/public/eclFromQueryWithNames")
+    @Operation(
+        summary = "Get ecl from query",
+        description = "MapObject an IM query to ecl"
+    )
+    public String getECLFromQueryWithNames(@RequestBody Query query) throws QueryException {
+        return eclService.getECLFromQuery(query, true);
     }
 }

@@ -3,24 +3,56 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class TestQueries {
 	public static String ex="http://example.org/qry#";
 
-
+ public static SearchRequest observationConcepts(String input){
+	 SearchRequest request= new SearchRequest();
+	 request.setIndex("david");
+	 request.setTermFilter(input);
+	 List<String> schemes= Arrays.asList(IM.NAMESPACE.iri,SNOMED.NAMESPACE);
+	 request.setSchemeFilter(schemes);
+	 List<String> types= Arrays.asList(IM.CONCEPT_SET.getIri(),IM.CONCEPT.getIri());
+	 request.setTypeFilter(types);
+	 request.setStatusFilter(Arrays.asList(IM.ACTIVE.getIri()));
+	 request
+		 .orderBy(f->f.setField("entityType")
+			 .addIriValue(IM.MATCH_CLAUSE)
+			 .addIriValue(IM.CONCEPT_SET));
+	 request
+		 .orderBy(a->a.setField("memberOf").addIriValue(TTIriRef.iri(IM.NAMESPACE.iri + "VSET_Observation")));
+	 request.orderBy(o->o.setField("name").setStartsWithTerm(true));
+	 request.orderBy(o->o.setField("preferredName").setStartsWithTerm(true));
+	 request.orderBy(o-> o
+		 .setField("subsumptionCount")
+		 .setDirection(Order.descending));
+	 request.orderBy(o->o
+		 .setField("length")
+		 .setDirection(Order.ascending));
+	 request.orderBy(o->o
+		 .setField("weighting")
+		 .setDirection(Order.descending));
+	 return request;
+ }
 
 	public static QueryRequest dataModelPropertyRange() throws JsonProcessingException {
 		Query query= new Query()
 			.setName("Data model property range")
 			.setDescription("get node, class or datatype value (range)  of property objects for specific data model and property")
 			.match(m->m
-				.setParameter("myDataModel")
+				.setInstanceOf(new Node()
+				.setParameter("myDataModel"))
 				.property(p->p
 					.setIri("http://www.w3.org/ns/shacl#property")
 						.match(m1->m1
@@ -28,7 +60,7 @@ public class TestQueries {
 							.setBool(Bool.and)
 								.property(p2->p2
 										.setIri(SHACL.PATH.getIri())
-										.in(in->in
+										.is(in->in
 											.setParameter("myProperty")))
 							  .property(p2->p2
 									.setBool(Bool.or)
@@ -52,10 +84,10 @@ public class TestQueries {
 			.setQuery(query)
 			.argument(a->a
 				.setParameter("myDataModel")
-				.setValueIri(TTIriRef.iri(IM.NAMESPACE+"Observation")))
+				.setValueIri(TTIriRef.iri(IM.NAMESPACE.iri+"Observation")))
 			.argument(a->a
 				.setParameter("myProperty")
-				.setValueIri(TTIriRef.iri(IM.NAMESPACE+"concept")));
+				.setValueIri(TTIriRef.iri(IM.NAMESPACE.iri+"concept")));
 
 	}
 
@@ -64,14 +96,14 @@ public class TestQueries {
 			.setContext(TTManager.createBasicContext())
 			.addArgument(new Argument()
 				.setParameter("this")
-				.setValueIri(TTIriRef.iri(IM.NAMESPACE+"recordOwner")))
+				.setValueIri(TTIriRef.iri(IM.NAMESPACE.iri+"recordOwner")))
 			.query(q->q
 				.setName("Suggested range for a property")
 				.setDescription("get node, class or datatype values (ranges)  of property objects that have 4this as their path")
 				.match(m->m
 					.property(w->w
 						.setIri(SHACL.PATH.getIri())
-						.addIn(new Node().setParameter("this")))
+						.addIs(new Node().setParameter("this")))
 					.property(w->w
 					.setBool(Bool.or)
 						.property(p->p
@@ -92,20 +124,21 @@ public class TestQueries {
 
 	public static QueryRequest getShaclProperty(){
 		return new QueryRequest()
-			.argument(a->a.setParameter("dataModel").setValueIri(TTIriRef.iri(IM.NAMESPACE+"Patient")))
-			.argument(a->a.setParameter("property").setValueIri(TTIriRef.iri(IM.NAMESPACE+"age")))
+			.argument(a->a.setParameter("dataModel").setValueIri(TTIriRef.iri(IM.NAMESPACE.iri+"Patient")))
+			.argument(a->a.setParameter("property").setValueIri(TTIriRef.iri(IM.NAMESPACE.iri+"age")))
 			.query(q->q
-				.setName("Query - shacl property predicates for a property in a data model")
+				.setName("Query - shacl property predicates for a property is a data model")
 				.setDescription("Select the predicates and values and labels of the values for a given data mode and property")
 				.match(m->m
-					.setParameter("$dataModel")
+					.setInstanceOf(new Node()
+					.setParameter("$dataModel"))
 					.property(p->p
 						.setIri(SHACL.PROPERTY.getIri())
 						.match(n->n
 							.setVariable("shaclProperty")
 							.property(w->w
 								.setIri(SHACL.PATH.getIri())
-								.in(in->in.setParameter("$property"))))))
+								.is(in->in.setParameter("$property"))))))
 				.return_(s->s
 					.setNodeRef("shaclProperty")
 					.property(p->p
@@ -130,17 +163,17 @@ public class TestQueries {
 
 	public static QueryRequest getAllowableQueries(){
 		return new QueryRequest()
-			.setTextSearch("Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not ")
+			.setTextSearch("Test for patients either aged between 18 and 65 or with diabetes with the most recent ")
 			.argument(a->a
 				.setParameter("dataModelIri")
-				.setValueIri(TTIriRef.iri(IM.NAMESPACE+"Patient")))
+				.setValueIri(TTIriRef.iri(IM.NAMESPACE.iri+"Patient")))
 			.query(q->q
 				.setName("Allowable queries for patient cohort")
 				.match(m->m
-					.setType(IM.NAMESPACE+"CohortQuery")
+					.setTypeOf(IM.NAMESPACE.iri+"CohortQuery")
 					.property(p->p
 						.setIri(IM.RETURN_TYPE.getIri())
-						.in(in->in
+						.is(in->in
 							.setParameter("dataModelIri"))))
 				.return_(r->r
 					.property(p->p
@@ -155,10 +188,10 @@ public class TestQueries {
 		qr.setContext(TTManager.createBasicContext());
 		qr.addArgument(new Argument()
 			.setParameter("this")
-			.setValueIri(TTIriRef.iri(IM.NAMESPACE+"EncounterSets")));
+			.setValueIri(TTIriRef.iri(IM.NAMESPACE.iri+"Concept")));
 		Query query= new Query()
 			.setName("Allowable child types for a folder")
-			.setIri(IM.NAMESPACE+"Query_AllowableChildTypes");
+			.setIri(IM.NAMESPACE.iri+"Query_AllowableChildTypes");
 		qr.setQuery(query);
 		return qr;
 	}
@@ -169,9 +202,9 @@ public class TestQueries {
 		QueryRequest qr= new QueryRequest()
 		.addArgument(new Argument()
 			.setParameter("this")
-			.setValueIri(TTIriRef.iri(QR.NAMESPACE)))
+			.setValueIri(QR.NAMESPACE))
 			.setUpdate(new Update()
-				.setIri(IM.NAMESPACE+"DeleteSets")
+				.setIri(IM.NAMESPACE.iri+"DeleteSets")
 				.setName("delete sets"));
 		return qr;
 
@@ -189,8 +222,9 @@ public class TestQueries {
 				.return_(s->s.setNodeRef("c").property(p->p.setIri(RDFS.LABEL.getIri())))
 				.match(f->f
 					.setVariable("c")
-					.setParameter("this")
-					.setDescendantsOrSelfOf(true)));
+					.setInstanceOf(new Node()
+						.setParameter("this")
+						.setDescendantsOrSelfOf(true))));
 	}
 
 
@@ -203,18 +237,18 @@ public class TestQueries {
 					.match(m2->m2
 						.setBool(Bool.or)
 						.match(m1->m1
-							.setIri(SNOMED.NAMESPACE+"57148006")
-							.setDescendantsOrSelfOf(true))
+							.setInstanceOf( new Node().setIri(SNOMED.NAMESPACE+"57148006")
+							.setDescendantsOrSelfOf(true)))
 						.match(m1->m1
-						.setIri(SNOMED.NAMESPACE+"11164009")
-						.setDescendantsOrSelfOf(true)))
+						.setInstanceOf(new Node().setIri(SNOMED.NAMESPACE+"11164009")
+						.setDescendantsOrSelfOf(true))))
 					.property(w->w
 						.setIri(IM.HAS_MEMBER.getIri())
 						.setInverse(true)
-						.in(n->n
-							.setIri(IM.NAMESPACE+"VSET_Conditions"))
-						.in(n->n
-							.setIri(IM.NAMESPACE+"VSET_ASD")))));
+						.is(n->n
+							.setIri(IM.NAMESPACE.iri+"VSET_Conditions"))
+						.is(n->n
+							.setIri(IM.NAMESPACE.iri+"VSET_ASD")))));
 		return qr;
 	}
 
@@ -230,8 +264,9 @@ public class TestQueries {
 				.setName("Get allowable property values with text filter")
 				.return_(s->s.property(p->p.setIri(RDFS.LABEL.getIri())))
 				.match(f->f
+					.setInstanceOf(new Node()
 					.setParameter("this")
-					.setDescendantsOrSelfOf(true)));
+					.setDescendantsOrSelfOf(true))));
 	}
 
 	public static QueryRequest substanceTextSearch(){
@@ -239,8 +274,8 @@ public class TestQueries {
 			.setTextSearch("thia")
 			.addArgument(new Argument()
 				.setParameter("this")
-				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#421149006")))
-			.setQuery(new Query().setIri(IM.NAMESPACE+"Query_GetIsas")
+				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#105590001")))
+			.setQuery(new Query().setIri(IM.NAMESPACE.iri+"Query_GetIsas")
 				.setName("substances starting with 'thia'"));
 	}
 
@@ -249,8 +284,8 @@ public class TestQueries {
 			.setPathQuery(new PathQuery()
 				.setName("paths match patient to date of birth")
 				.setDepth(3)
-				.setSource(IM.NAMESPACE+"Patient")
-				.setTarget(IM.NAMESPACE+"dateOfBirth"));
+				.setSource(IM.NAMESPACE.iri+"Patient")
+				.setTarget(IM.NAMESPACE.iri+"dateOfBirth"));
 
 	}
 	public static QueryRequest pathQueryAtenolol3() throws JsonProcessingException {
@@ -283,7 +318,7 @@ public class TestQueries {
 			.setPathQuery(new PathQuery()
 				.setName("paths match patient to Atenolol")
 				.setDepth(3)
-				.setSource(IM.NAMESPACE+"Patient")
+				.setSource(IM.NAMESPACE.iri+"Patient")
 				.setTarget(SNOMED.NAMESPACE+"387506000"));
 
 	}
@@ -292,7 +327,7 @@ public class TestQueries {
 			.setPathQuery(new PathQuery()
 				.setName("paths match patient to common service agency")
 				.setDepth(3)
-				.setSource(IM.NAMESPACE+"Patient")
+				.setSource(IM.NAMESPACE.iri+"Patient")
 				.setTarget("http://endhealth.info/im#1000161000252107"));
 
 	}
@@ -302,7 +337,7 @@ public class TestQueries {
 			.setPathQuery(new PathQuery()
 				.setName("paths match patient to post code")
 				.setDepth(3)
-				.setSource(IM.NAMESPACE+"Patient")
+				.setSource(IM.NAMESPACE.iri+"Patient")
 				.setTarget("http://endhealth.info/im#postCode"));
 
 	}
@@ -317,7 +352,7 @@ public class TestQueries {
 			.property(w->w
 				.setIri(IM.HAS_MEMBER.getIri())
 				.setInverse(true)
-				.addIn(new Match().setIri(IM.NAMESPACE+"VSET_FamilyHistory"))))
+				.addIs(new Node().setIri(IM.NAMESPACE.iri+"VSET_FamilyHistory"))))
 			.return_(s->s
 				.property(p->p
 				.setIri(RDFS.LABEL.getIri()))
@@ -341,13 +376,13 @@ public class TestQueries {
 			.setDescription("all of the data model properties for entities that have a property df a data of birth");
 		query
 			.match(f->f
-				.setType(SHACL.NODESHAPE.getIri())
+				.setTypeOf(SHACL.NODESHAPE.getIri())
 			.property(p->p
-				.setIri(SHACL.PROPERTY.getIri()))
+				.setIri(SHACL.PROPERTY.getIri())
 				.match(w1->w1
-					.property(p->p
+					.property(p1->p1
 					.setIri(SHACL.PATH.getIri())
-					.addIn(IM.NAMESPACE+"dateOfBirth"))))
+					.addIs(IM.NAMESPACE.iri+"dateOfBirth")))))
 			.match(m->m
 				.property(p->p
 					.setIri(SHACL.PROPERTY.getIri())))
@@ -368,18 +403,18 @@ public class TestQueries {
 		Query query= new Query()
 			.setName("Status subset")
 			.match(s->s
-				.setIri(IM.NAMESPACE+"Status")
+				.setInstanceOf(new Node().setIri(IM.NAMESPACE.iri+"Status")
 				.setDescendantsOrSelfOf(true)
-				.setDescendantsOf(true));
+				.setDescendantsOf(true)));
 		return new QueryRequest().setQuery(query);
 	}
 
 	public static  QueryRequest statuses2(){
 		Query query= new Query();
-		query.setIri(IM.NAMESPACE+"Query_GetIsas");
+		query.setIri(IM.NAMESPACE.iri+"Query_GetIsas");
 		QueryRequest qr= new QueryRequest();
 		qr.setQuery(query);
-		qr.addArgument("this", TTIriRef.iri(IM.NAMESPACE+"Status"));
+		qr.addArgument("this", TTIriRef.iri(IM.NAMESPACE.iri+"Status"));
 		return qr;
 	}
 
@@ -391,7 +426,8 @@ public class TestQueries {
 			.setName("AsthmaSubTypesCore");
 		query
 			.match(f ->f
-				.setIri(SNOMED.NAMESPACE+"195967001").setDescendantsOrSelfOf(true))
+				.setInstanceOf(new Node()
+				.setIri(SNOMED.NAMESPACE+"195967001").setDescendantsOrSelfOf(true)))
 			.return_(s->s
 				.property(p->p.setIri(RDFS.LABEL.getIri()))
 				.property(p->p.setIri(IM.CODE.getIri())));
@@ -399,7 +435,7 @@ public class TestQueries {
 	}
 
 	public static QueryRequest getAllowableRanges() throws JsonProcessingException {
-		QueryRequest qr= new QueryRequest().setQuery(new Query().setIri(IM.NAMESPACE+"Query_AllowableRanges")
+		QueryRequest qr= new QueryRequest().setQuery(new Query().setIri(IM.NAMESPACE.iri+"Query_AllowableRanges")
 			.setName("Allowable ranges"));
 		qr.addArgument(new Argument().setParameter("this")
 			.setValueIri(TTIriRef.iri("http://snomed.info/sct#127489000")));
@@ -413,7 +449,7 @@ public class TestQueries {
 				.setValueIri(TTIriRef.iri("http://snomed.info/sct#763158003")))
 			.setQuery(new Query()
 				.setName("Allowable Properties for medications")
-				.setIri(IM.NAMESPACE+"Query_AllowableProperties")
+				.setIri(IM.NAMESPACE.iri+"Query_AllowableProperties")
 				);
 		return qr;
 	}
@@ -424,7 +460,7 @@ public class TestQueries {
 				.setActiveOnly(true)
 				.setName("Search for concepts")
 				.match(f->f
-					.setType(IM.CONCEPT.getIri()))
+					.setTypeOf(IM.CONCEPT.getIri()))
 				.return_(s->s
 					.property(p->p
 						.setIri(RDFS.LABEL.getIri()))))
@@ -437,7 +473,7 @@ public class TestQueries {
 			.query(q-> q
 				.setName("All subtypes of an entity, active only")
 				.setActiveOnly(true)
-				.match(f->f.setParameter("this").setDescendantsOrSelfOf(true))
+				.match(f->f.setInstanceOf(new Node().setParameter("this").setDescendantsOrSelfOf(true)))
 				.return_(r->r.property(s->s.setIri(RDFS.LABEL.getIri()))));
 		qr.addArgument("this",SNOMED.NAMESPACE+"417928002");
 		return qr;
@@ -452,11 +488,11 @@ public class TestQueries {
 				.setActiveOnly(true);
 			query
 				.match(f ->f
-					.setType(IM.CONCEPT.getIri())
-					.setDescendantsOrSelfOf(true)
+					.setTypeOf(new Node().setIri(IM.CONCEPT.getIri())
+					.setDescendantsOrSelfOf(true))
 					.property(w1-> w1
 						.setIri(RDFS.DOMAIN.getIri())
-						.addIn(new Match().setIri(SNOMED.NAMESPACE+"674814021000119106").setAncestorsOf(true))
+						.addIs(new Node().setIri(SNOMED.NAMESPACE+"674814021000119106").setAncestorsOf(true))
 					))
 				.return_(r->r
 						.property(s->s.setIri(IM.CODE.getIri()))
@@ -484,8 +520,8 @@ public class TestQueries {
 			.match(f->f
 				.property(p->p
 					.setIri(IM.HAS_SCHEME.getIri())
-					.in(i->i
-						.setIri(IM.CODE_SCHEME_BARTS_CERNER.getIri())))
+					.is(i->i
+						.setIri(GRAPH.BARTS_CERNER.getIri())))
 			.property(p->p
 					.setIri(IM.CONCEPT.getIri())
 				.setInverse(true)
@@ -503,16 +539,16 @@ public class TestQueries {
 			.match(rf->rf
 				.setBool(Bool.and)
 				.match(f->f
-						.setIri(SNOMED.NAMESPACE+"763158003").setDescendantsOrSelfOf(true)
+						.setInstanceOf(new Node().setIri(SNOMED.NAMESPACE+"763158003").setDescendantsOrSelfOf(true))
 					.property(a1->a1
 						.setIri(SNOMED.NAMESPACE+"127489000")
 						.setDescendantsOrSelfOf(true)
 						.setAnyRoleGroup(true)
-						.addIn(Match.iri(SNOMED.NAMESPACE+"372665008").setDescendantsOrSelfOf(true)))
+						.addIs(new Node().setIri(SNOMED.NAMESPACE+"372665008").setDescendantsOrSelfOf(true)))
 					.property(a2->a2
 						.setIri(SNOMED.NAMESPACE+"411116001").setDescendantsOrSelfOf(true)
 						.setAnyRoleGroup(true)
-						.addIn(Match.iri(SNOMED.NAMESPACE+"385268001").setDescendantsOrSelfOf(true)))));
+						.addIs(Node.iri(SNOMED.NAMESPACE+"385268001").setDescendantsOrSelfOf(true)))));
 
 		return new QueryRequest().setQuery(query);
 

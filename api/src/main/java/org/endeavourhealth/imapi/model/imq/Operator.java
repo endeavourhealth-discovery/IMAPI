@@ -12,7 +12,7 @@ public enum Operator {
 	gte(">="),
 	gt(">"),
 	lte("<="),
-	lt(">"),
+	lt("<"),
 	start("startsWith"),
 	contains("contains");
 

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.model.TermCode;
 
+import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
@@ -24,7 +24,7 @@ class TTLiteralTest {
         .setGraph(iri("http://endhealth.co.uk/im#Rich"))
         .set(RDFS.LABEL, "Test object")
         .set(RDFS.COMMENT, "This is an entity to test object serialization")
-        .set(IM.QUERY, literal(new TermCode().setName("Mickey Mouse").setCode("EM-EYE-CEE")));
+        .set(IM.QUERY, literal(new SearchTermCode().setTerm("Mickey Mouse").setCode("EM-EYE-CEE").setStatus(IM.ACTIVE)));
 
     private final String json = new StringJoiner(System.lineSeparator())
         .add("{")
@@ -32,7 +32,7 @@ class TTLiteralTest {
         .add("  \"@graph\" : \"http://endhealth.co.uk/im#Rich\",")
         .add("  \"http://www.w3.org/2000/01/rdf-schema#label\" : \"Test object\",")
         .add("  \"http://www.w3.org/2000/01/rdf-schema#comment\" : \"This is an entity to test object serialization\",")
-        .add("  \"http://endhealth.info/im#Query\" : \"{\\\"name\\\":\\\"Mickey Mouse\\\",\\\"code\\\":\\\"EM-EYE-CEE\\\",\\\"scheme\\\":null,\\\"entityTermCode\\\":null}\"")
+        .add("  \"http://endhealth.info/im#Query\" : \"{\\\"term\\\":\\\"Mickey Mouse\\\",\\\"code\\\":\\\"EM-EYE-CEE\\\",\\\"status\\\":{\\\"@id\\\":\\\"http://endhealth.info/im#Active\\\"}}\"")
         .add("}")
         .toString();
 
@@ -57,9 +57,9 @@ class TTLiteralTest {
         TTValue val = preds.get(0);
         assertTrue(val.isLiteral());
 
-        TermCode tc = val.asLiteral().objectValue(TermCode.class);
+        SearchTermCode tc = val.asLiteral().objectValue(SearchTermCode.class);
 
-        assertEquals("Mickey Mouse", tc.getName());
+        assertEquals("Mickey Mouse", tc.getTerm());
         assertEquals("EM-EYE-CEE", tc.getCode());
     }
 
@@ -80,9 +80,9 @@ class TTLiteralTest {
         TTValue val = preds.get(0);
         assertTrue(val.isLiteral());
 
-        TermCode tc = val.asLiteral().objectValue(TermCode.class);
+        SearchTermCode tc = val.asLiteral().objectValue(SearchTermCode.class);
 
-        assertEquals("Mickey Mouse", tc.getName());
+        assertEquals("Mickey Mouse", tc.getTerm());
         assertEquals("EM-EYE-CEE", tc.getCode());
     }
     @Test

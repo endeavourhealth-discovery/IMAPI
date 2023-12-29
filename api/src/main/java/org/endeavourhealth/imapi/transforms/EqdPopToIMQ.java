@@ -17,7 +17,7 @@ public class EqdPopToIMQ {
 	public void convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException, IOException, QueryException {
 		this.activeReport = eqReport.getId();
 		this.resources = resources;
-		query.setType(IM.NAMESPACE+"Patient");
+		query.setTypeOf(IM.NAMESPACE.iri+"Patient");
 
 
 
@@ -25,7 +25,7 @@ public class EqdPopToIMQ {
 			Match rootMatch = new Match();
 			query.addMatch(rootMatch);
 				rootMatch
-				.setSet(IM.NAMESPACE+"Q_RegisteredGMS")
+				.addInSet(new Node().setIri(IM.NAMESPACE.iri+"Q_RegisteredGMS"))
 				.setName("Registered with GP for GMS services on the reference date");
 		}
 		else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
@@ -34,7 +34,7 @@ public class EqdPopToIMQ {
 			query.addMatch(rootMatch);
 				query.addMatch(rootMatch);
 				rootMatch
-					.setSet("urn:uuid:" + id)
+					.addInSet(new Node().setIri("urn:uuid:" + id))
 					.setName(resources.reportNames.get(id));
 			}
 

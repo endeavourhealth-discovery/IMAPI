@@ -25,11 +25,11 @@ public class SetTextFileExporter {
     public String getSetFile(String setIri, boolean definition, boolean core, boolean legacy, boolean includeSubsets,
                              boolean ownRow, boolean im1id, List<String> schemes, String del) throws QueryException, JsonProcessingException {
         LOG.debug("Exporting set to TSV");
-        String setName = entityRepository2.getBundle(setIri,Set.of(RDFS.LABEL.getIri())).getEntity().getName();
+        String setName = entityRepository2.getBundle(setIri,Set.of(RDFS.LABEL.iri)).getEntity().getName();
 
         String result = "";
 
-        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.getIri())).getEntity();
+        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.iri)).getEntity();
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return null;
 
@@ -52,9 +52,9 @@ public class SetTextFileExporter {
     }
 
     private String getEcl(TTEntity entity) throws QueryException, JsonProcessingException {
-        if (entity.get(IM.DEFINITION) == null)
+        if (entity.get(IM.DEFINITION.asTTIriRef()) == null)
             return null;
-        return IMLToECL.getECLFromQuery(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class), true);
+        return IMLToECL.getECLFromQuery(entity.get(IM.DEFINITION.asTTIriRef()).asLiteral().objectValue(Query.class), true);
     }
 
     private StringJoiner generateFile(String setName, Set<Concept> members, boolean includeLegacy, boolean ownRow, boolean im1id, String del, boolean includeSubset) {
@@ -124,11 +124,12 @@ public class SetTextFileExporter {
         String subSet = member.getIsContainedIn() != null ? member.getIsContainedIn().iterator().next().getName() : null;
         String subsetIri = member.getIsContainedIn() != null ? member.getIsContainedIn().iterator().next().getIri() : null;
         String usage = member.getUsage() != null ? member.getUsage().toString() : null;
+        String code= member.getAlternativeCode()==null ?member.getCode(): member.getAlternativeCode();
         if(ownRow) {
             if(includeSubset && subSet != null) {
-                addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, subSet, subsetIri, isExtension);
+                addLineData(del, results, code, member.getName(), scheme, usage, setName, subSet, subsetIri, isExtension);
             } else {
-                addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, isExtension);
+                addLineData(del, results, code, member.getName(), scheme, usage, setName, isExtension);
             }
         }
         for (Concept legacy: member.getMatchedFrom()) {
@@ -136,29 +137,29 @@ public class SetTextFileExporter {
             if(ownRow) {
                 if(im1id && legacy.getIm1Id() != null) {
                     legacy.getIm1Id().forEach(im1 -> {
-                        addLineData(del, results, legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage, im1);
+                        addLineData(del, results, legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage, legacy.getCodeId(),im1);
                     });
                 } else {
-                    addLineData(del, results, legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage);
+                    addLineData(del, results, legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage,legacy.getCodeId());
                 }
             } else {
                 if(im1id && legacy.getIm1Id() != null) {
                     legacy.getIm1Id().forEach(im1 -> {
                         if(includeSubset && subSet != null) {
-                            addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, subSet, subsetIri, isExtension,
-                                    legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage, im1);
+                            addLineData(del, results, code, member.getName(), scheme, usage, setName, subSet, subsetIri, isExtension,
+                                    legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage, legacy.getCodeId(),im1);
                         } else {
-                            addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, isExtension,
-                                    legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage, im1);
+                            addLineData(del, results, code, member.getName(), scheme, usage, setName, isExtension,
+                                    legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage, legacy.getCodeId(),im1);
                         }
                     });
                 } else {
                     if(includeSubset && subSet != null) {
-                        addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, subSet, subsetIri, isExtension,
-                                legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage);
+                        addLineData(del, results, code, member.getName(), scheme, usage, setName, subSet, subsetIri, isExtension,
+                                legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage,legacy.getCodeId());
                     } else {
-                        addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, isExtension,
-                                legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage);
+                        addLineData(del, results, code, member.getName(), scheme, usage, setName, isExtension,
+                                legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage,legacy.getCodeId());
                     }
                 }
             }
@@ -202,7 +203,7 @@ public class SetTextFileExporter {
     }
 
     private static String getLegacyHeader(String del) {
-        return "legacy code"+ del +"legacy term"+ del +"legacy scheme"+ del +"legacy usage";
+        return "legacy code"+ del +"legacy term"+ del +"legacy scheme"+ del +"legacy usage"+ del+ "code id";
     }
 
     private static String getCoreHeader(String del) {

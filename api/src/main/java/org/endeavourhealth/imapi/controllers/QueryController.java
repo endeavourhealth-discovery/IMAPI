@@ -2,25 +2,21 @@ package org.endeavourhealth.imapi.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.imq.PathDocument;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -37,29 +33,21 @@ public class QueryController {
     private final SearchService searchService = new SearchService();
     private final QueryService queryService = new QueryService();
 
-    @GetMapping(value = "/public/generateSQL", produces = "text/plain")
-    @Operation(
-        summary = "Generate SQL",
-        description = "Generates SQL statement for given query"
-    )
-    public String generateSQL(@RequestParam(name = "iri") String iri) throws JsonProcessingException {
-        /*
-        QueryGenerator result = new QueryGenerator().getSelect(iri);
-        return result.build();
-
-         */
-        return null;
-    }
-
-
     @PostMapping( "/public/queryIM")
     @Operation(
       summary = "Query IM",
       description = "Runs a generic query on IM"
     )
-    public JsonNode queryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
+    public JsonNode queryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, IOException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
         LOG.debug("queryIM");
         return searchService.queryIM(queryRequest);
+    }
+
+    @PostMapping("/public/askQueryIM")
+    @Operation(summary = "Check if an iri is within a query's results")
+    public Boolean askQueryIM(@RequestBody QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
+        LOG.debug("askQueryIM");
+        return searchService.askQueryIM(queryRequest);
     }
 
     @PostMapping("/public/queryIMSearch")
@@ -67,10 +55,9 @@ public class QueryController {
         summary = "Query IM returning conceptSummaries",
         description = "Runs a generic query on IM and returns results as ConceptSummary items."
     )
-    public JsonNode queryIMSearch(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
+    public List<SearchResultSummary> queryIMSearch(@RequestBody QueryRequest queryRequest) throws DataFormatException, IOException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
         LOG.debug("queryIMSearch");
-        JsonNode queryResults = searchService.queryIM(queryRequest);
-        return new QueryService().convertResultsToConceptSummary(queryResults,queryRequest);
+        return searchService.queryIMSearch(queryRequest);
     }
 
 
@@ -79,7 +66,7 @@ public class QueryController {
       summary = "Path Query ",
       description = "Query IM for a path between source and target"
     )
-    public PathDocument pathQuery(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, ExecutionException, QueryException {
+    public PathDocument pathQuery(@RequestBody QueryRequest queryRequest) throws DataFormatException {
         LOG.debug("pathQuery");
         return searchService.pathQuery(queryRequest);
     }
@@ -89,7 +76,7 @@ public class QueryController {
         summary = "Add labels to query",
         description = "Add names to iri's within a query"
     )
-    public Query labelQuery(@RequestBody Query query) throws DataFormatException {
+    public Query labelQuery(@RequestBody Query query) {
         return queryService.labelQuery(query);
     }
 
@@ -99,7 +86,7 @@ public class QueryController {
       summary = "update  IM",
       description = "Runs a query based update on IM"
     )
-    public void updateIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
+    public void updateIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, QueryException {
         LOG.debug("updateIM");
         searchService.updateIM(queryRequest);
     }

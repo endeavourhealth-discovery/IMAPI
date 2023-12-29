@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 @JsonPropertyOrder ({"inverse","iri","name","variable"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -23,12 +24,16 @@ public class TTVariable extends TTIriRef {
 		return this;
 	}
 
+	@JsonSetter
 	public TTVariable setType(TTIriRef type){
 		setIri(type.getIri());
 		if (type.getName()!=null)
 			setName(type.getName());
 		isType= true;
 		return this;
+	}
+	public TTVariable setType(Vocabulary type){
+		return setType(type.asTTIriRef());
 	}
 
 	public TTVariable setIsType(boolean asType) {
@@ -43,6 +48,9 @@ public class TTVariable extends TTIriRef {
 	}
 
 	public TTVariable(TTIriRef iri){
+		super.setIri(iri.getIri());
+	}
+	public TTVariable(Vocabulary iri) {
 		super.setIri(iri.getIri());
 	}
 

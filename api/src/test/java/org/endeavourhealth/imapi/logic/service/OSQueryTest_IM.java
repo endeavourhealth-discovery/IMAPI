@@ -1,10 +1,9 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
@@ -16,7 +15,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.zip.DataFormatException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,23 +29,20 @@ class OSQueryTest_IM {
 
     @Test
     @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-    void imQuery_term() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
+    void imQuery_term() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1");
 
-        ObjectNode results = osq.openSearchQuery(req);
-        assertTrue(results.has("entities"));
-        assertTrue(results.get("entities").isArray());
-        ArrayNode entities = (ArrayNode) results.get("entities");
-        assertEquals(2, entities.size());
+        List<SearchResultSummary> results = osq.openSearchQuery(req);
+        assertEquals(2, results.size());
         List<String> iris = new ArrayList<>();
-        entities.forEach(e -> iris.add(e.get("@id").textValue()));
+        results.forEach(e -> iris.add(e.getIri()));
         assertTrue(List.of("http://snomed.info/sct#702450004", "http://endhealth.info/emis#7561151000006117").containsAll(iris));
     }
 
     @Test
     @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-    void imQuery_term_multiScheme() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
+    void imQuery_term_multiScheme() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
             .setQuery(new Query()
@@ -56,43 +51,37 @@ class OSQueryTest_IM {
                         .setProperty(List.of(
                             new Property()
                                 .setIri(IM.HAS_SCHEME.getIri())
-                                .setIn(List.of(new Node().setIri(SNOMED.NAMESPACE)))
+                                .setIs(List.of(new Node().setIri(SNOMED.NAMESPACE)))
                         ))
                 ))
             );
 
-        ObjectNode results = osq.openSearchQuery(req);
-        assertTrue(results.has("entities"));
-        assertTrue(results.get("entities").isArray());
-        ArrayNode entities = (ArrayNode) results.get("entities");
-        assertEquals(1, entities.size());
-        assertEquals("http://snomed.info/sct#702450004", entities.get(0).get("@id").textValue());
+        List<SearchResultSummary> results = osq.openSearchQuery(req);
+        assertEquals(1, results.size());
+        assertEquals("http://snomed.info/sct#702450004", results.get(0).getIri());
     }
 
     @Test
     @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-    void imQuery_term_isA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
+    void imQuery_term_isA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
             .setQuery(new Query()
                 .setMatch(List.of(
                     new Match()
-                        .setIri("http://snomed.info/sct#57148006")
+                        .setInstanceOf(new Node().setIri("http://snomed.info/sct#57148006")
                         .setDescendantsOrSelfOf(true)
-                ))
+                )))
             );
 
-        ObjectNode results = osq.openSearchQuery(req);
-        assertTrue(results.has("entities"));
-        assertTrue(results.get("entities").isArray());
-        ArrayNode entities = (ArrayNode) results.get("entities");
-        assertEquals(1, entities.size());
-        assertEquals("http://snomed.info/sct#702450004", entities.get(0).get("@id").textValue());
+        List<SearchResultSummary> results = osq.openSearchQuery(req);
+        assertEquals(1, results.size());
+        assertEquals("http://snomed.info/sct#702450004", results.get(0).getIri());
     }
 
     @Test
     @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-    void imQuery_term_multiIsA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
+    void imQuery_term_multiIsA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
             .addArgument(new Argument().setParameter("isas").setValueIriList(
@@ -101,22 +90,19 @@ class OSQueryTest_IM {
             .setQuery(new Query()
                 .setMatch(List.of(
                     new Match()
-                        .setParameter("$isas")
+                        .setInstanceOf(new Node().setParameter("$isas")
                         .setDescendantsOrSelfOf(true)
-                ))
+                )))
             );
 
-        ObjectNode results = osq.openSearchQuery(req);
-        assertTrue(results.has("entities"));
-        assertTrue(results.get("entities").isArray());
-        ArrayNode entities = (ArrayNode) results.get("entities");
-        assertEquals(1, entities.size());
-        assertEquals("http://snomed.info/sct#702450004", entities.get(0).get("@id").textValue());
+        List<SearchResultSummary> results = osq.openSearchQuery(req);
+        assertEquals(1, results.size());
+        assertEquals("http://snomed.info/sct#702450004", results.get(0).getIri());
     }
 
     @Test
     @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-    void imQuery_term_multiMember() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
+    void imQuery_term_multiMember() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
             .setQuery(new Query()
@@ -125,16 +111,13 @@ class OSQueryTest_IM {
                         .addProperty(new Property()
                             .setIri(IM.HAS_MEMBER.getIri())
                             .setInverse(true)
-                            .setIn(List.of(new Node().setIri("http://endhealth.info/im#VSET_ASD")))
+                            .setIs(List.of(new Node().setIri("http://endhealth.info/im#VSET_ASD")))
                         )
                 ))
             );
 
-        ObjectNode results = osq.openSearchQuery(req);
-        assertTrue(results.has("entities"));
-        assertTrue(results.get("entities").isArray());
-        ArrayNode entities = (ArrayNode) results.get("entities");
-        assertEquals(1, entities.size());
-        assertEquals("http://snomed.info/sct#702450004", entities.get(0).get("@id").textValue());
+        List<SearchResultSummary> results = osq.openSearchQuery(req);
+        assertEquals(1, results.size());
+        assertEquals("http://snomed.info/sct#702450004", results.get(0).getIri());
     }
 }

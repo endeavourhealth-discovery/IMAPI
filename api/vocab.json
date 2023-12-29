@@ -1,0 +1,117 @@
+[
+  {
+    "name": "USER",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://endhealth.info/\""
+      },
+      {
+        "name": "NAMESPACE",
+        "value": "USER.DOMAIN + \"user#\""
+      },
+      {
+        "name": "PREFIX",
+        "value": "\"usr\""
+      },
+      {
+        "name": "USER_THEME",
+        "value": "USER.DOMAIN + \"UserTheme\""
+      },
+      {
+        "name": "USER_MRU",
+        "value": "USER.DOMAIN + \"UserMRU\""
+      },
+      {
+        "name": "USER_FAVOURITES",
+        "value": "USER.DOMAIN + \"UserFavourites\""
+      },
+      {
+        "name": "ORGANISATIONS",
+        "value": "USER.DOMAIN + \"ORGANISATIONS\""
+      }
+    ]
+  },
+  {
+    "name": "SNOMED",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://snomed.info/\""
+      },
+      {
+        "name": "NAMESPACE",
+        "value": "SNOMED.DOMAIN + \"sct#\""
+      },
+      {
+        "name": "PREFIX",
+        "value": "\"sn\""
+      },
+      {
+        "name": "ATTRIBUTE",
+        "value": "SNOMED.DOMAIN + \"246061005\""
+      }
+    ]
+  },
+  {
+    "name": "IM_FUNCTION",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://endhealth.info/\""
+      },
+      {
+        "name": "NAMESPACE",
+        "value": "IM_FUNCTION.DOMAIN + \"im#Function_\""
+      },
+      {
+        "name": "SNOMED_CONCEPT_GENERATOR",
+        "value": "IM_FUNCTION.NAMESPACE + \"SnomedConceptGenerator\""
+      },
+      {
+        "name": "LOCAL_NAME_RETRIEVER",
+        "value": "IM_FUNCTION.NAMESPACE + \"LocalNameRetriever\""
+      },
+      {
+        "name": "GET_ADDITIONAL_ALLOWABLE_TYPES",
+        "value": "IM_FUNCTION.NAMESPACE + \"GetAdditionalAllowableTypes\""
+      },
+      {
+        "name": "GET_LOGIC_OPTIONS",
+        "value": "IM_FUNCTION.NAMESPACE + \"GetLogicOptions\""
+      },
+      {
+        "name": "GET_SET_EDITOR_IRI_SCHEMES",
+        "value": "IM_FUNCTION.NAMESPACE + \"GetSetEditorIriSchemes\""
+      },
+      {
+        "name": "IM1_SCHEME_OPTIONS",
+        "value": "IM_FUNCTION.NAMESPACE + \"IM1SchemeOptions\""
+      },
+      {
+        "name": "SCHEME_FROM_IRI",
+        "value": "IM_FUNCTION.NAMESPACE + \"SchemeFromIri\""
+      },
+      {
+        "name": "GET_USER_EDITABLE_SCHEMES",
+        "value": "IM_FUNCTION.NAMESPACE + \"GetUserEditableSchemes\""
+      },
+      {
+        "name": "GENERATE_IRI_CODE",
+        "value": "IM_FUNCTION.NAMESPACE + \"GenerateIriCode\""
+      },
+      {
+        "name": "IS_TYPE",
+        "value": "IM_FUNCTION.NAMESPACE + \"IsType\""
+      },
+      {
+        "name": "ALLOWABLE_PROPERTIES",
+        "value": "IM_FUNCTION.NAMESPACE + \"AllowableProperties\""
+      },
+      {
+        "name": "ALLOWABLE_RANGES",
+        "value": "IM_FUNCTION.NAMESPACE + \"AllowableRanges\""
+      }
+    ]
+  }
+]

@@ -4,14 +4,33 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @JsonPropertyOrder({"nodeVariable","id","count","direction"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class OrderLimit extends PropertyRef {
-	private Order direction;
+public class OrderLimit {
+	private List<OrderDirection> property;
 	private int limit;
 	private String description;
 	private PropertyRef partitionBy;
+
+	public List<OrderDirection> getProperty() {
+		return property;
+	}
+
+	public OrderLimit setProperty(List<OrderDirection> property) {
+		this.property = property;
+		return this;
+	}
+	public OrderLimit addProperty(OrderDirection property){
+		if (this.property==null) {
+			this.property= new ArrayList<>();
+		}
+		this.property.add(property);
+		return this;
+	}
 
 	public PropertyRef getPartitionBy() {
 		return partitionBy;
@@ -31,24 +50,7 @@ public class OrderLimit extends PropertyRef {
 		return this;
 	}
 
-	public OrderLimit setId(String id){
-		super.setIri(id);
-		return this;
-	}
 
-
-	@JsonSetter
-	public OrderLimit setIri(String iri){
-		super.setIri(iri);
-		return this;
-	}
-
-
-
-	public OrderLimit setVariable(String variable){
-		super.setVariable(variable);
-		return this;
-	}
 
 
 
@@ -63,18 +65,4 @@ public class OrderLimit extends PropertyRef {
 
 
 
-
-	public OrderLimit setName(String name){
-		super.setName(name);
-		return this;
-	}
-
-	public Order getDirection() {
-		return direction;
-	}
-
-	public OrderLimit setDirection(Order direction) {
-		this.direction = direction;
-		return this;
-	}
 }

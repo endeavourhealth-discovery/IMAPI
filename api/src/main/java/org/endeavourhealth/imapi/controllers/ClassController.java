@@ -29,7 +29,7 @@ public class ClassController {
     private static final Logger LOG = LoggerFactory.getLogger(ClassController.class);
 
     @GetMapping(value = "/public/classProperties")
-    public ResponseEntity<List<Field>> getIMClass(@RequestParam String className) {
+    public ResponseEntity<List<Field>> getIMClass(@RequestParam("className") String className) {
         LOG.debug("getClass");
         Class<?> clazz;
         try {
@@ -49,7 +49,7 @@ public class ClassController {
     }
 
     @GetMapping(value = "/public/classFields")
-    public ResponseEntity<List<FieldDto>> getClassFields(@RequestParam String className) {
+    public ResponseEntity<List<FieldDto>> getClassFields(@RequestParam("className") String className) {
         LOG.debug("getClass");
         Class<?> clazz;
         try {

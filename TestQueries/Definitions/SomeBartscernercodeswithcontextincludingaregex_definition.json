@@ -13,7 +13,7 @@
     "match" : [ {
       "property" : [ {
         "@id" : "im:scheme",
-        "in" : [ {
+        "is" : [ {
           "@id" : "http://endhealth.info/bc#"
         } ]
       }, {

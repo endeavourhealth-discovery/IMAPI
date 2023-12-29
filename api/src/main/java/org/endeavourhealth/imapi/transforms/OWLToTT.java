@@ -62,9 +62,9 @@ public class OWLToTT extends OWLFSBaseVisitor {
       else if (ctx.subObjectPropertyOf()!=null)
          return visitSubObjectPropertyOf(ctx.subObjectPropertyOf());
       else if (ctx.reflexiveObjectProperty()!=null){
-         addType(entity, OWL.REFLEXIVE);
+         addType(entity, OWL.REFLEXIVE.asTTIriRef());
       } else if (ctx.transitiveObjectProperty()!=null){
-         addType(entity,OWL.TRANSITIVE);
+         addType(entity,OWL.TRANSITIVE.asTTIriRef());
       }
 
       return null;
@@ -73,7 +73,7 @@ public class OWLToTT extends OWLFSBaseVisitor {
    @Override
    public Object visitSubClassOf(OWLFSParser.SubClassOfContext ctx){
       if (!isGCI(ctx)){
-         TTArray subClassOf= addArrayAxiom(RDFS.SUBCLASSOF);
+         TTArray subClassOf= addArrayAxiom(RDFS.SUBCLASS_OF.asTTIriRef());
          subClassOf.add(convertClassExpression(ctx.superClass().classExpression()));
       }
       return this.defaultResult();
@@ -87,7 +87,7 @@ public class OWLToTT extends OWLFSBaseVisitor {
       return entity.get(predicate);
    }
    @Override public Object visitEquivalentClasses(OWLFSParser.EquivalentClassesContext ctx) {
-      TTArray equivalent= addArrayAxiom(OWL.EQUIVALENTCLASS);
+      TTArray equivalent= addArrayAxiom(OWL.EQUIVALENT_CLASS.asTTIriRef());
       equivalent.add(convertClassExpression(ctx.classExpression().get(1)));
       return null;
    }
@@ -95,11 +95,11 @@ public class OWLToTT extends OWLFSBaseVisitor {
    @Override public Object visitSubObjectPropertyOf(OWLFSParser.SubObjectPropertyOfContext ctx) {
 
          if (ctx.subObjectPropertyExpression().propertyExpressionChain() != null) {
-            entity.set(OWL.PROPERTYCHAIN,
+            entity.set(OWL.PROPERTY_CHAIN,
                 convertPropertyChain(ctx.subObjectPropertyExpression().propertyExpressionChain()));
          }
       else {
-         TTArray superProp= addArrayAxiom(RDFS.SUBPROPERTYOF);
+         TTArray superProp= addArrayAxiom(RDFS.SUB_PROPERTY_OF.asTTIriRef());
          superProp.add( new TTIriRef(expand(ctx.superObjectPropertyExpression()
              .objectPropertyExpression()
              .objectProperty()
@@ -123,20 +123,20 @@ public class OWLToTT extends OWLFSBaseVisitor {
       else if (ctx.objectIntersectionOf()!=null){
          TTNode exp= new TTNode();
          TTArray inters= new TTArray();
-         exp.set(OWL.INTERSECTIONOF,inters);
+         exp.set(OWL.INTERSECTION_OF,inters);
          for (OWLFSParser.ClassExpressionContext ctxInter:ctx.objectIntersectionOf().classExpression()){
             inters.add(convertClassExpression(ctxInter));
          }
          return exp;
       } else if (ctx.objectSomeValuesFrom()!=null) {
          TTNode exp = new TTNode();
-         exp.set(RDF.TYPE, OWL.RESTRICTION);
-         exp.set(OWL.ONPROPERTY, new TTIriRef(expand(ctx.objectSomeValuesFrom()
+         exp.set(RDF.TYPE, OWL.RESTRICTION.asTTIriRef());
+         exp.set(OWL.ON_PROPERTY, new TTIriRef(expand(ctx.objectSomeValuesFrom()
              .objectPropertyExpression()
              .objectProperty()
              .iri()
              .getText())));
-         exp.set(OWL.SOMEVALUESFROM,
+         exp.set(OWL.SOME_VALUES_FROM,
              convertClassExpression(ctx.objectSomeValuesFrom().classExpression()));
          return exp;
       } else

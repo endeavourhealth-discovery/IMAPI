@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
 
 @Schema(
     name="Search request",
@@ -26,8 +26,70 @@ public class SearchRequest {
     private int size = 20;
     private int from;
     private List<String> select = new ArrayList<>();
+    @Deprecated
     private String sortField;
+    @Deprecated
     private String sortDirection;
+    private List<OrderBy> orderBy;
+    private List<Filter> filter;
+    private List<Map<Long,String>>timings = new ArrayList<>();
+
+    public List<Map<Long,String>> getTimings() {
+        return timings;
+    }
+
+    public SearchRequest setTimings(List<Map<Long,String>> timings) {
+        this.timings = timings;
+        return this;
+    }
+
+    public SearchRequest addTiming(String positiion){
+        long now = new Date().getTime();
+        Map<Long,String> timingMap= new HashMap<>();
+        timingMap.put(now,positiion);
+        timings.add(timingMap);
+        return this;
+    }
+
+    public List<Filter> getFilter() {
+        return filter;
+    }
+
+    public SearchRequest setFilter(List<Filter> filter) {
+        this.filter = filter;
+        return this;
+    }
+    public SearchRequest addFilter(Filter orderBy){
+        if (this.filter==null)
+            this.filter= new ArrayList<>();
+        this.filter.add(orderBy);
+        return this;
+    }
+
+
+
+    public List<OrderBy> getOrderBy() {
+        return orderBy;
+    }
+
+    public SearchRequest setOrderBy(List<OrderBy> orderBy) {
+        this.orderBy = orderBy;
+        return this;
+    }
+
+    public SearchRequest addOrderBy(OrderBy orderBy){
+        if (this.orderBy==null)
+            this.orderBy= new ArrayList<>();
+        this.orderBy.add(orderBy);
+        return this;
+    }
+
+    public SearchRequest orderBy(Consumer<OrderBy> builder){
+        OrderBy order= new OrderBy();
+        addOrderBy(order);
+        builder.accept(order);
+        return this;
+    }
 
     public int getFrom() {
         return from;
@@ -187,6 +249,12 @@ public class SearchRequest {
         return sortField;
     }
 
+    /**
+     * set one sort field
+     * @deprecated
+     * Use order by .
+     */
+    @Deprecated
     public SearchRequest setSortField(String sortField) {
         this.sortField = sortField;
         return this;
@@ -196,6 +264,12 @@ public class SearchRequest {
         return sortDirection;
     }
 
+    /**
+     * set one direction field
+     * @deprecated
+     * Use order by .
+     */
+    @Deprecated
     public SearchRequest setSortDirection(String sortDirection) {
         this.sortDirection = sortDirection;
         return this;

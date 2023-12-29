@@ -99,7 +99,7 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 			for (TurtliteParser.PredicateObjectListContext po:poList){
 				TurtliteParser.VerbContext verb= po.verb();
 				if (verb.getText().equals("a"))
-					predicate= RDF.TYPE;
+					predicate= RDF.TYPE.asTTIriRef();
 				else
 					predicate= TTIriRef.iri(getIri(verb.predicate().iri().getText()));
 				convertObjects(node,predicate,po.objectList());

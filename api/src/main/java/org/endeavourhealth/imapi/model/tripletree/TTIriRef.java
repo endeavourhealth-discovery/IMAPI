@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.tripletree;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +18,9 @@ public class TTIriRef implements TTValue, Serializable {
     }
     public static TTIriRef iri(String iri, String name) {
         return new TTIriRef(iri, name);
+    }
+    public static TTIriRef iri(Vocabulary iri) {
+        return iri.asTTIriRef();
     }
 
     private static Pattern iriPattern = Pattern.compile("([a-z]+)?[:].*");
@@ -46,6 +50,10 @@ public class TTIriRef implements TTValue, Serializable {
         setName(name);
     }
 
+    public TTIriRef(Vocabulary iri) {
+        setIri(iri.getIri());
+    }
+
     @JsonProperty(value = "@id", required = true)
     public String getIri() {
         return this.iri;
@@ -54,7 +62,9 @@ public class TTIriRef implements TTValue, Serializable {
     public TTIriRef setIri(String iri) {
         this.iri = iri;
         if (iri != null && !iri.isEmpty() && !iriPattern.matcher(iri).matches()){
-            Thread.dumpStack();
+            iri= IM.NAMESPACE.iri+iri;
+            if (!iriPattern.matcher(iri).matches())
+                Thread.dumpStack();
         }
         return this;
     }

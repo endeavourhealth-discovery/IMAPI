@@ -14,6 +14,16 @@ public class Concept extends Entity {
 	private Set<Concept> matchedFrom;
 	private Integer usage;
 	private String codeId;
+	private String alternativeCode;
+
+	public String getAlternativeCode() {
+		return alternativeCode;
+	}
+
+	public Concept setAlternativeCode(String alternativeCode) {
+		this.alternativeCode = alternativeCode;
+		return this;
+	}
 
 	public String getCodeId() {
 		return codeId;
@@ -111,7 +121,7 @@ public class Concept extends Entity {
 	public Concept addMatchedFrom(Concept legacy){
 		if (this.matchedFrom ==null)
 			this.matchedFrom = new HashSet<>();
-			this.matchedFrom.add(legacy);
+		this.matchedFrom.add(legacy);
 		return this;
 	}
 }

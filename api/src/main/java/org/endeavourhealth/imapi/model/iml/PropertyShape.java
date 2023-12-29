@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import lombok.Getter;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,36 +19,63 @@ import java.util.function.Consumer;
 "functionClause","validation","search","select","argument","valueVariable","isIri","isTextValue","isNumericValue","forceIsValue", "builderChild", "showTitle"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class PropertyShape {
+	@Getter
 	private String label;
+	@Getter
 	private String comment;
+	@Getter
 	private String name;
+	@Getter
 	private Boolean showTitle;
 	private int order;
+	@Getter
 	private Integer minCount;
+	@Getter
 	private Integer maxCount;
+	@Getter
 	private List<PropertyShape> property;
 	private TTIriRef path;
+	@Getter
 	private TTIriRef datatype;
+	@Getter
 	private TTIriRef clazz;
+	@Getter
 	private Set<TTIriRef> node;
+	@Getter
 	private TTIriRef isIri;
+	@Getter
 	private String isNumericValue;
+	@Getter
 	private String isTextValue;
 	private TTIriRef componentType;
+	@Getter
 	private TTIriRef validation;
+	@Getter
 	private String validationErrorMessage;
+	@Getter
 	private TTIriRef search;
+	@Getter
 	private TTIriRef function;
+	@Getter
 	private List<Argument> argument;
+	@Getter
 	private String valueVariable;
+	@Getter
 	private TTIriRef valueIri;
+	@Getter
 	private List<TTIriRef> select;
+	@Getter
 	private Boolean builderChild;
+	@Getter
 	private NodeShape expression;
+	@Getter
 	private Boolean forceIsValue;
+	@Getter
+	private ArrayButtons arrayButtons;
 
-	public Boolean getForceIsValue() {
-		return forceIsValue;
+	public PropertyShape setArrayButtons(ArrayButtons arrayButtons) {
+		this.arrayButtons = arrayButtons;
+		return this;
 	}
 
 	public PropertyShape setForceIsValue(Boolean forceIsValue) {
@@ -54,24 +83,12 @@ public class PropertyShape {
 		return this;
 	}
 
-	public String getValidationErrorMessage() {
-		return validationErrorMessage;
-	}
-
 	public void setValidationErrorMessage(String validationErrorMessage) {
 		this.validationErrorMessage = validationErrorMessage;
 	}
 
-	public Boolean getBuilderChild() {
-		return builderChild;
-	}
-
 	public void setBuilderChild(Boolean builderChild) {
 		this.builderChild = builderChild;
-	}
-
-	public NodeShape getExpression() {
-		return expression;
 	}
 
 	public PropertyShape setExpression(NodeShape expression) {
@@ -79,26 +96,14 @@ public class PropertyShape {
 		return this;
 	}
 
-	public List<TTIriRef> getSelect() {
-		return select;
-	}
-
 	public PropertyShape setSelect(List<TTIriRef> select) {
 		this.select = select;
 		return this;
 	}
 
-	public String getValueVariable() {
-		return valueVariable;
-	}
-
 	public PropertyShape setValueVariable(String valueVariable) {
 		this.valueVariable = valueVariable;
 		return this;
-	}
-
-	public List<Argument> getArgument() {
-		return argument;
 	}
 
 	@JsonSetter
@@ -122,17 +127,14 @@ public class PropertyShape {
 
 	}
 
-	public TTIriRef getFunction() {
-		return function;
-	}
-
+	@JsonSetter
 	public PropertyShape setFunction(TTIriRef function) {
 		this.function = function;
 		return this;
 	}
-
-	public String getIsTextValue() {
-		return isTextValue;
+	public PropertyShape setFunction(Vocabulary function) {
+		this.function = function.asTTIriRef();
+		return this;
 	}
 
 	public PropertyShape setIsTextValue(String isTextValue) {
@@ -140,17 +142,9 @@ public class PropertyShape {
 		return this;
 	}
 
-	public String getLabel() {
-		return label;
-	}
-
 	public PropertyShape setLabel(String label) {
 		this.label = label;
 		return this;
-	}
-
-	public String getComment() {
-		return comment;
 	}
 
 	public PropertyShape setComment(String comment) {
@@ -158,17 +152,9 @@ public class PropertyShape {
 		return this;
 	}
 
-	public String getName() {
-		return name;
-	}
-
 	public PropertyShape setName(String name) {
 		this.name = name;
 		return this;
-	}
-
-	public Boolean getShowTitle() {
-		return showTitle;
 	}
 
 	public PropertyShape setShowTitle(Boolean showTitle) {
@@ -186,17 +172,9 @@ public class PropertyShape {
 		return this;
 	}
 
-	public Integer getMinCount() {
-		return minCount;
-	}
-
 	public PropertyShape setMinCount(Integer minCount) {
 		this.minCount = minCount;
 		return this;
-	}
-
-	public Integer getMaxCount() {
-		return maxCount;
 	}
 
 	public PropertyShape setMaxCount(Integer maxCount) {
@@ -208,31 +186,31 @@ public class PropertyShape {
 		return path;
 	}
 
+	@JsonSetter
 	public PropertyShape setPath(TTIriRef path) {
 		this.path = path;
 		return this;
 	}
-
-	public TTIriRef getDatatype() {
-		return datatype;
+	public PropertyShape setPath(Vocabulary path) {
+		return setPath(path.asTTIriRef());
 	}
 
+	@JsonSetter
 	public PropertyShape setDatatype(TTIriRef datatype) {
 		this.datatype = datatype;
 		return this;
 	}
-
-	public TTIriRef getClazz() {
-		return clazz;
+	public PropertyShape setDatatype(Vocabulary datatype) {
+		return setDatatype(datatype.asTTIriRef());
 	}
 
+	@JsonSetter
 	public PropertyShape setClazz(TTIriRef clazz) {
 		this.clazz = clazz;
 		return this;
 	}
-
-	public Set<TTIriRef> getNode() {
-		return node;
+	public PropertyShape setClazz(Vocabulary clazz) {
+		return setClazz(clazz.asTTIriRef());
 	}
 
 	public PropertyShape setNode(Set<TTIriRef> node) {
@@ -246,18 +224,21 @@ public class PropertyShape {
 		this.node.add(node);
 		return this;
 	}
-
-	public TTIriRef getIsIri() {
-		return isIri;
+	public PropertyShape addNode(Vocabulary node){
+		if (this.node==null)
+			this.node= new HashSet<>();
+		this.node.add(node.asTTIriRef());
+		return this;
 	}
 
+	@JsonSetter
 	public PropertyShape setIsIri(TTIriRef isIri) {
 		this.isIri = isIri;
 		return this;
 	}
-
-	public String getIsNumericValue() {
-		return isNumericValue;
+	public PropertyShape setIsIri(Vocabulary isIri) {
+		this.isIri = isIri.asTTIriRef();
+		return this;
 	}
 
 	public PropertyShape setIsNumericValue(String isNumericValue) {
@@ -269,31 +250,34 @@ public class PropertyShape {
 		return componentType;
 	}
 
+	@JsonSetter
 	public PropertyShape setComponentType(TTIriRef componentType) {
 		this.componentType = componentType;
 		return this;
 	}
-
-	public TTIriRef getValidation() {
-		return validation;
+	public PropertyShape setComponentType(Vocabulary componentType) {
+		this.componentType = componentType.asTTIriRef();
+		return this;
 	}
 
+	@JsonSetter
 	public PropertyShape setValidation(TTIriRef validation) {
 		this.validation = validation;
 		return this;
 	}
-
-	public TTIriRef getSearch() {
-		return search;
+	public PropertyShape setValidation(Vocabulary validation) {
+		this.validation = validation.asTTIriRef();
+		return this;
 	}
 
+	@JsonSetter
 	public PropertyShape setSearch(TTIriRef search) {
 		this.search = search;
 		return this;
 	}
-
-	public List<PropertyShape> getProperty() {
-		return property;
+	public PropertyShape setSearch(Vocabulary search) {
+		this.search = search.asTTIriRef();
+		return this;
 	}
 
 	public PropertyShape setProperty(List<PropertyShape> property) {
@@ -307,12 +291,13 @@ public class PropertyShape {
 		return this;
 	}
 
-	public TTIriRef getValueIri() {
-		return valueIri;
-	}
-
+	@JsonSetter
 	public PropertyShape setValueIri(TTIriRef valueIri) {
 		this.valueIri = valueIri;
+		return this;
+	}
+	public PropertyShape setValueIri(Vocabulary valueIri) {
+		this.valueIri = valueIri.asTTIriRef();
 		return this;
 	}
 }

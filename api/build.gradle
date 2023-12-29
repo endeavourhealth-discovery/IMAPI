@@ -4,32 +4,45 @@
 plugins {
     id 'war'
     id "cz.habarta.typescript-generator" version "3.2.1263"
+    id "org.endeavourhealth.plugins.StaticConstGenerator" version "1.0-SNAPSHOT"
 }
 
+group = 'org.endeavourhealth.imapi'
+version = '1.0-SNAPSHOT'
+
+import cz.habarta.typescript.generator.EnumMapping
 import cz.habarta.typescript.generator.JsonLibrary
 import cz.habarta.typescript.generator.OptionalProperties
 import cz.habarta.typescript.generator.TypeScriptFileType
+
+if (env != 'prod') {
+    compileJava.dependsOn 'staticConstGenerator'
+}
 
 tasks {
     generateTypeScript {
         jsonLibrary = JsonLibrary.jackson2
         outputFileType = TypeScriptFileType.implementationFile
         optionalProperties = OptionalProperties.useLibraryDefinition
-        classes = [
-                'org.endeavourhealth.imapi.model.search.SearchRequest',
-                'org.endeavourhealth.imapi.model.search.SearchResponse'
-        ]
         classPatterns = [
                 'org.endeavourhealth.imapi.model.iml.*',
                 'org.endeavourhealth.imapi.model.search.*',
-                'org.endeavourhealth.imapi.model.imq.*'
+                'org.endeavourhealth.imapi.model.imq.*',
+                'org.endeavourhealth.imapi.vocabulary.*',
+                'org.endeavourhealth.imapi.vocabulary.**.*'
         ]
         outputFile = '../../IMDirectory/im_library/src/interfaces/AutoGen.ts'
         outputKind = 'module'
+        mapEnum = EnumMapping.asEnum
+    }
+    staticConstGenerator {
+        inputJson = "vocab.json"
+        javaOutputFolder = "src/main/java/org/endeavourhealth/imapi/vocabulary/"
+        typeScriptOutputFolder = "../../IMDirectory/im_library/src/vocabulary/"
     }
 }
 
-sonarqube {
+sonar {
     properties {
         property 'sonar.projectKey', 'endeavourhealth-discovery_IMAPI::api'
         property 'sonar.exclusions', '**/config/**, **/controllers/**, **/dataaccess/**, **/errorhandling/**, **/model/**, **/parser/**, **/vocabulary/**'
@@ -68,7 +81,6 @@ dependencies {
     implementation libs.springDataJpa
     implementation libs.springOauthServer
     implementation libs.springSecurity
-    implementation libs.springStatemachine
     implementation libs.springWeb
     implementation libs.springdoc
     implementation libs.validation

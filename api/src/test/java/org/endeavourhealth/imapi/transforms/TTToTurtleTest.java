@@ -15,13 +15,13 @@ class TTToTurtleTest {
 		TTEntity entity= new TTEntity();
 		TTContext context= new TTContext();
 		entity.setContext(context);
-		context.add(IM.NAMESPACE,"im");
+		context.add(IM.NAMESPACE.iri,"im");
 		context.add(SNOMED.NAMESPACE,"sn");
-		context.add(OWL.NAMESPACE,"owl");
-		entity.setIri(IM.NAMESPACE+"VaccineSet");
+		context.add(OWL.NAMESPACE.iri,"owl");
+		entity.setIri(IM.NAMESPACE.iri+"VaccineSet");
 		entity.set(IM.DEFINITION, new TTArray().add(TTIriRef.iri(SNOMED.NAMESPACE+"39330711000001103")));
 		TTNode inter=new TTNode();
-		inter.set(OWL.INTERSECTIONOF,new TTArray()
+		inter.set(OWL.INTERSECTION_OF,new TTArray()
 			.add(TTIriRef.iri(SNOMED.NAMESPACE+"10363601000001109"))
 			.add(new TTNode().set(TTIriRef.iri(
 				SNOMED.NAMESPACE+"10362601000001103"),

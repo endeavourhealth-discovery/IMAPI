@@ -12,8 +12,7 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"parameter","iri","type","set","variable","name"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Node extends Element{
-	private String type;
-	private String set;
+
 
 	@Override
 	public Node setRef(String ref) {
@@ -35,22 +34,8 @@ public class Node extends Element{
 	public Node(String iri){
 		super.setIri(iri);
 	}
-	@JsonProperty("@type")
-	public String getType() {
-		return type;
-	}
 
 
-
-	@JsonProperty("@set")
-	public String getSet() {
-		return set;
-	}
-
-	public Node setSet(String set) {
-		this.set = set;
-		return this;
-	}
 
 
 
@@ -70,13 +55,6 @@ public class Node extends Element{
 		super.setDescendantsOf(descendantsOf);
 		return this;
 	}
-
-
-	public Node setType(String type) {
-		this.type= type;
-		return this;
-	}
-
 
 
 	@JsonSetter

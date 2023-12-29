@@ -28,9 +28,18 @@ public class FunctionController {
 		summary = "function",
 		description = "Runs a function IM passing in the iri of the function and a list (map) parameter name/ value arguments"
 	)
-	public JsonNode callFunction(
-		@RequestBody FunctionRequest function) throws Exception {
+	public JsonNode callFunction(HttpServletRequest request, @RequestBody FunctionRequest function) throws Exception {
 		LOG.debug("callFunction");
-		return new FunctionService().callFunction(function.getFunctionIri(),function.getArguments());
+		return new FunctionService().callFunction(request, function.getFunctionIri(),function.getArguments());
+	}
+
+	@PostMapping("/public/callAskFunction")
+	@Operation(
+		summary = "askFunction",
+		description = "Runs a function passing in the iri of the function and a list of arguments including a parameter searchIri, and returns a boolean result."
+	)
+	public Boolean callAskFunction(HttpServletRequest request, @RequestBody FunctionRequest functionRequest) {
+		LOG.debug("callAskFunction");
+		return new FunctionService().callAskFunction(request, functionRequest.getFunctionIri(),functionRequest.getArguments());
 	}
 }

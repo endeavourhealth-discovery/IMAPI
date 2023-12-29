@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +38,13 @@ public class FormGenerator {
 		return status;
 	}
 
+	@JsonSetter
 	public FormGenerator setStatus(TTIriRef status) {
 		this.status = status;
+		return this;
+	}
+	public FormGenerator setStatus(Vocabulary status) {
+		this.status = status.asTTIriRef();
 		return this;
 	}
 
@@ -46,8 +52,13 @@ public class FormGenerator {
 		return scheme;
 	}
 
+	@JsonSetter
 	public FormGenerator setScheme(TTIriRef scheme) {
 		this.scheme = scheme;
+		return this;
+	}
+	public FormGenerator setScheme(Vocabulary scheme) {
+		this.scheme = scheme.asTTIriRef();
 		return this;
 	}
 
@@ -111,8 +122,13 @@ public class FormGenerator {
 		return targetShape;
 	}
 
+	@JsonSetter
 	public FormGenerator setTargetShape(TTIriRef targetShape) {
 		this.targetShape = targetShape;
+		return this;
+	}
+	public FormGenerator setTargetShape(Vocabulary targetShape) {
+		this.targetShape = targetShape.asTTIriRef();
 		return this;
 	}
 

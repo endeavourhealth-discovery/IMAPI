@@ -7,13 +7,13 @@ import org.endeavourhealth.imapi.json.JsonLDMapper;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Concept;
+import org.endeavourhealth.imapi.model.imq.Order;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
@@ -24,9 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
@@ -36,23 +34,32 @@ class SearchServiceTest {
 	private String testResults;
 	private String succinctDefinitions;
 
+	//@Test
+	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, IOException {
+		testDefinitions = System.getenv("folder") + "\\Definitions";
+		testResults = System.getenv("folder") + "\\Results";
+	 Date startTime = new Date();
+	 int count=0;
+		 for (String input : List.of("Systolic bloo")) {
+			 count++;
+			 SearchRequest request = TestQueries.observationConcepts(input);
+			 output(request, "observation entities starting with Systolic bl", true);
+			 Long start=null;
+			 for (Map<Long,String> entries: request.getTimings()){
+				 for (Map.Entry<Long,String> entry:entries.entrySet()){
+					 if (start==null){
+						 System.out.println("0 "+ entry.getValue());
+						 start= entry.getKey();
+					 }
+					 else {
+						 System.out.println(entry.getKey() - start + " " + entry.getValue());
+					 }
+				 }
+			 }
+		 }
+	 Date endTime = new Date();
+	 System.out.println("average = "+ ((endTime.getTime()-startTime.getTime())/count)+" milliseconds");
 
-  //@Test
-	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
-
-		SearchRequest request= new SearchRequest();
-		request.setIndex("david");
-		request.setTermFilter("^ESCTVE439120");
-		List<String> schemes= Arrays.asList(IM.NAMESPACE,SNOMED.NAMESPACE);
-		List<String> types= Arrays.asList(IM.CONCEPT.getIri());
-		request.setSchemeFilter(schemes);
-		request.setStatusFilter(Arrays.asList(IM.ACTIVE.getIri()));
-		request.setTypeFilter(types);
-		SearchService ss= new SearchService();
-		List<SearchResultSummary> results= ss.getEntitiesByTerm(request);
-		for (SearchResultSummary result:results) {
-			System.out.println(result.getMatch()+" :"+ result.getCode());
-		}
 
 	}
  //@Test
@@ -61,13 +68,16 @@ class SearchServiceTest {
 		testResults = System.getenv("folder") + "\\Results";
 		String testSparql = System.getenv("folder") + "\\Sparql";
 		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
-	 output(TestQueries.getAllowableQueries());
 	 output(TestQueries.getAllowableSubtypes());
+		output(TestQueries.query2());
+		output(TestQueries.pathQueryAtenolol3());
+
+	 output(TestQueries.getAllowableQueries());
+
 		output(TestQueries.query6());
 		output(TestQueries.dataModelPropertyRange());
 	 output(TestQueries.rangeSuggestion());
 		output(TestQueries.getMembers());
-		output(TestQueries.pathQueryAtenolol3());
 
 			output(TestQueries.AllowablePropertiesForCovid());
 			output(TestQueries.query1());
@@ -80,21 +90,35 @@ class SearchServiceTest {
 			output(TestQueries.deleteSets());
 
 
-		for (QueryRequest qr1 : List.of(
-			TestQueries.getAllowableProperties(),
-			TestQueries.subtypesParameterised(), TestQueries.substanceTextSearch(),
-			TestQueries.rangeTextSearch(), TestQueries.getAllowableRanges(), TestQueries.oralNsaids(),
-			TestQueries.getAllowableProperties(), TestQueries.getIsas(),
-			TestQueries.getConcepts(),
-			TestQueries.query4())) {
-			output(qr1);
-		}
+			output(TestQueries.getAllowableProperties());
+			output(TestQueries.subtypesParameterised());
+			output(TestQueries.substanceTextSearch());
+			output(TestQueries.rangeTextSearch());
+			output(TestQueries.getAllowableRanges());
+			output(TestQueries.oralNsaids());
+			output(TestQueries.getAllowableProperties());
+			output(TestQueries.getIsas());
+			output(TestQueries.getConcepts());
+			output(TestQueries.query4());
 
 
 	}
 
 
 
+	private void output(SearchRequest request,String name,boolean write) throws IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
+
+		SearchService ss = new SearchService();
+		List<SearchResultSummary> results = ss.getEntitiesByTerm(request);
+		if (write) {
+			try (FileWriter wr = new FileWriter(testDefinitions + "\\" + name + "_definition.json")) {
+				wr.write(new ObjectMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(request));
+			}
+			System.out.println("Found "+ results.size()+" entities" );
+
+		}
+
+	}
 
 
 	private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
@@ -143,10 +167,10 @@ class SearchServiceTest {
 	//@Test
 	public void setTest() throws DataFormatException, JsonProcessingException, QueryException {
 		EntityService es= new EntityService();
-		TTEntity entity= es.getFullEntity(IM.NAMESPACE+"VSET_VitalSigns").getEntity();
+		TTEntity entity= es.getFullEntity(IM.NAMESPACE.iri+"VSET_VitalSigns").getEntity();
 		String json = entity.get(IM.DEFINITION).asLiteral().getValue();
 		SetExporter exporter = new SetExporter();
-		Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE + "VSET_VitalSigns", false, true, List.of());
+		Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE.iri + "VSET_VitalSigns", false, true, List.of());
 		System.out.println(concepts.size());
 	}
 }

@@ -48,7 +48,7 @@ public class IMLToECL {
 		else if (null != match.getMatch()) {
 			boolean first = true;
 			for (Match subMatch : match.getMatch()) {
-				boolean bracket= needsBracket(subMatch);
+				boolean bracket= needsBracket(match,subMatch);
 				if (!first && !subMatch.isExclude()){
 					if (match.getBool()==Bool.or){
 						ecl.append(" OR ");
@@ -69,12 +69,11 @@ public class IMLToECL {
 			ecl.append(")");
 	}
 
-	private static boolean needsBracket(Match match){
-		if (match.getMatch()!=null) {
-			if (match.getMatch().size() > 1) return true;
-		}
-		if (match.getProperty()!=null)
+	private static boolean needsBracket(Match parent,Match match){
+		if (parent.getMatch().size()>1) {
+			if (match.getProperty() != null)
 				return true;
+		}
 		if (match.isExclude())
 				return true;
 		return false;

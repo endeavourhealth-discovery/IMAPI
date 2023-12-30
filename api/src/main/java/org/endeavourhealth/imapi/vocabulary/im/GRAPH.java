@@ -12,7 +12,6 @@ public enum GRAPH implements Vocabulary {
     DISCOVERY(IM.NAMESPACE.iri),
     ICD10(IM.DOMAIN.iri + "icd10#"),
     EMIS(IM.DOMAIN.iri + "emis#"),
-    EMIS_CORE(IM.DOMAIN.iri + "emisc"),
     CPRD_MED(IM.DOMAIN.iri + "cprdm#"),
     CPRD_PROD(IM.DOMAIN.iri + "cprdp#"),
     OPCS4(IM.DOMAIN.iri + "opcs4#"),

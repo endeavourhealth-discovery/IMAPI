@@ -22,7 +22,7 @@ public class IMLToECL {
 	public static String getECLFromQuery(Query query, Boolean includeName) throws QueryException {
 		StringBuilder ecl = new StringBuilder();
 		if (query.getMatch()!=null) {
-			match(query, ecl, includeName);
+			match(query, ecl, includeName,false);
 		}
 		return ecl.toString().trim();
 	}
@@ -36,19 +36,19 @@ public class IMLToECL {
 	}
 
 
-	private static void match(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
+	private static void match(Match match, StringBuilder ecl, boolean includeNames,boolean needsBracket) throws QueryException {
 		if (match.isExclude())
 			ecl.append(" MINUS ");
+		if (needsBracket)
+			ecl.append("(");
 
 		if (null != match.getInstanceOf()) {
 			addClass(match.getInstanceOf(), ecl, includeNames);
 		}
 		else if (null != match.getMatch()) {
-			boolean bracket= needsBracket(match);
-			if (bracket)
-				ecl.append("(");
 			boolean first = true;
 			for (Match subMatch : match.getMatch()) {
+				boolean bracket= needsBracket(subMatch);
 				if (!first && !subMatch.isExclude()){
 					if (match.getBool()==Bool.or){
 						ecl.append(" OR ");
@@ -56,28 +56,27 @@ public class IMLToECL {
 					else
 						ecl.append(" AND ");
 				}
-				match(subMatch, ecl, includeNames);
+				match(subMatch, ecl, includeNames,bracket);
 				first = false;
 			}
-			if (bracket)
-				ecl.append(")");
 		}
 		if (null != match.getProperty()) {
 			if (null == match.getInstanceOf() && null == match.getMatch())
 				ecl.append("*");
 			addRefinements(match, ecl, includeNames);
 		}
-
+		if (needsBracket)
+			ecl.append(")");
 	}
 
 	private static boolean needsBracket(Match match){
-		if (match.getMatch()!=null){
+		if (match.getMatch()!=null) {
 			if (match.getMatch().size() > 1) return true;
-			if (match.getProperty()!=null)
-				return true;
-			if (match.isExclude())
-				return true;
 		}
+		if (match.getProperty()!=null)
+				return true;
+		if (match.isExclude())
+				return true;
 		return false;
 	}
 
@@ -124,7 +123,7 @@ public class IMLToECL {
 		else {
 			addProperty(property, ecl, includeName);
 			ecl.append(" = (");
-			match(property.getMatch(), ecl, includeName);
+			match(property.getMatch(), ecl, includeName,false);
 			ecl.append(")");
 		}
 	}

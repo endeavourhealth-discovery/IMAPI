@@ -12,6 +12,12 @@ public class IMLToECL {
 		throw new IllegalStateException("Utility class");
 	}
 
+	private enum eclType {
+		exclusion,
+		refined,
+		compound,
+		simple
+	}
 	/**
 	 * Takes a IM ECL compliant definition of a set and returns is ECL language
 	 * @param query         a node representing a class expression e.g. value of im:Definition
@@ -22,9 +28,22 @@ public class IMLToECL {
 	public static String getECLFromQuery(Query query, Boolean includeName) throws QueryException {
 		StringBuilder ecl = new StringBuilder();
 		if (query.getMatch()!=null) {
-			match(query, ecl, includeName,false);
+			match(query, ecl, includeName);
 		}
 		return ecl.toString().trim();
+	}
+
+	private static eclType getEclType(Match match){
+		if (match.getProperty()!=null)
+			return eclType.refined;
+		if (match.getMatch()!=null) {
+			for (Match subMatch : match.getMatch()) {
+				if (subMatch.isExclude())
+					return eclType.exclusion;
+			}
+			return eclType.compound;
+		}
+		return eclType.simple;
 	}
 
 	public static String getECLFromQuery(Query query) throws QueryException {
@@ -36,37 +55,49 @@ public class IMLToECL {
 	}
 
 
-	private static void match(Match match, StringBuilder ecl, boolean includeNames,boolean needsBracket) throws QueryException {
-		if (match.isExclude())
-			ecl.append(" MINUS ");
-		if (needsBracket)
-			ecl.append("(");
-
-		if (null != match.getInstanceOf()) {
+	private static void match(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
+		eclType matchType= getEclType(match);
+		if (matchType==eclType.simple){
 			addClass(match.getInstanceOf(), ecl, includeNames);
 		}
-		else if (null != match.getMatch()) {
+		else if (matchType== eclType.refined){
+			if (match.getInstanceOf()!=null)
+				addClass(match.getInstanceOf(), ecl, includeNames);
+			else
+				ecl.append("*");
+			addRefinements(match, ecl, includeNames);
+		}
+		else if (matchType==eclType.compound){
 			boolean first = true;
 			for (Match subMatch : match.getMatch()) {
-				boolean bracket= needsBracket(match,subMatch);
-				if (!first && !subMatch.isExclude()){
+				eclType subMatchType=getEclType(subMatch);
+				boolean bracket= (match.getMatch().size()>1&&subMatchType== eclType.refined) ?true: false;
+				if (!first){
 					if (match.getBool()==Bool.or){
 						ecl.append(" OR ");
 					}
 					else
 						ecl.append(" AND ");
 				}
-				match(subMatch, ecl, includeNames,bracket);
+				if (bracket)
+					ecl.append("(");
+				match(subMatch, ecl, includeNames);
+				if (bracket)
+					ecl.append(")");
 				first = false;
 			}
 		}
-		if (null != match.getProperty()) {
-			if (null == match.getInstanceOf() && null == match.getMatch())
-				ecl.append("*");
-			addRefinements(match, ecl, includeNames);
+		else {
+			boolean first = true;
+			ecl.append("(");
+			for (Match subMatch : match.getMatch()) {
+				if (subMatch.isExclude()){
+					ecl.append(")");
+					ecl.append(" MINUS ");
+				}
+				match(subMatch,ecl,includeNames);
+			}
 		}
-		if (needsBracket)
-			ecl.append(")");
 	}
 
 	private static boolean needsBracket(Match parent,Match match){
@@ -122,7 +153,7 @@ public class IMLToECL {
 		else {
 			addProperty(property, ecl, includeName);
 			ecl.append(" = (");
-			match(property.getMatch(), ecl, includeName,false);
+			match(property.getMatch(), ecl, includeName);
 			ecl.append(")");
 		}
 	}

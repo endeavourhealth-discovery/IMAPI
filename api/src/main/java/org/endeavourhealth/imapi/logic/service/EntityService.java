@@ -241,7 +241,7 @@ public class EntityService {
         if (iri == null || iri.isEmpty() || candidates == null || candidates.isEmpty())
             return Collections.emptyList();
         return entityTctRepository
-                .findAncestorsByType(iri, RDFS.SUBCLASSOF.iri, candidates).stream()
+                .findAncestorsByType(iri, RDFS.SUBCLASS_OF.iri, candidates).stream()
                 .sorted(Comparator.comparing(TTIriRef::getName)).collect(Collectors.toList());
     }
 
@@ -259,7 +259,7 @@ public class EntityService {
         if (pageIndex != null && pageSize != null)
             rowNumber = pageIndex * pageSize;
 
-        List<TTIriRef> usageRefs = entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri, rowNumber, pageSize, RDFS.SUBCLASSOF.iri).stream()
+        List<TTIriRef> usageRefs = entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri, rowNumber, pageSize, RDFS.SUBCLASS_OF.iri).stream()
                 .sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder())))
                 .distinct().collect(Collectors.toList());
 
@@ -281,7 +281,7 @@ public class EntityService {
         if (xmlDataTypes != null && xmlDataTypes.contains(iri))
             return 0;
 
-        return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri, RDFS.SUBCLASSOF.iri);
+        return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri, RDFS.SUBCLASS_OF.iri);
     }
 
     public List<SearchResultSummary> advancedSearch(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
@@ -535,7 +535,7 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.iri).collect(Co
         if (iri == null || iri.isEmpty() || configs == null || configs.isEmpty()) {
             return new TTEntity();
         }
-        List<String> excludedForSummary = Arrays.asList("None", RDFS.SUBCLASSOF.iri, "subtypes", IM.IS_CHILD_OF.iri, IM.HAS_CHILDREN.iri, "termCodes", "semanticProperties", "dataModelProperties");
+        List<String> excludedForSummary = Arrays.asList("None", RDFS.SUBCLASS_OF.iri, "subtypes", IM.IS_CHILD_OF.iri, IM.HAS_CHILDREN.iri, "termCodes", "semanticProperties", "dataModelProperties");
         List<ComponentLayoutItem> filteredConfigs = configs.stream().filter(config -> !excludedForSummary.contains(config.getPredicate())).toList();
         List<String> predicates = filteredConfigs.stream().map(ComponentLayoutItem::getPredicate).toList();
         return getBundle(iri, new HashSet<>(predicates)).getEntity();
@@ -553,7 +553,7 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.iri).collect(Co
             downloadDto.setHasSubTypes(getImmediateChildren(iri, null, null, null, params.includeInactive()));
         }
         if (params.includeInferred()) {
-            downloadDto.setInferred(getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.iri, IM.ROLE_GROUP.iri))).getEntity());
+            downloadDto.setInferred(getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASS_OF.iri, IM.ROLE_GROUP.iri))).getEntity());
         }
         if (params.includeProperties()) {
             downloadDto.setDataModelProperties(getDataModelProperties(iri));
@@ -590,7 +590,7 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.iri).collect(Co
             xls.addHasSubTypes(getImmediateChildren(iri, null, null, null, params.includeInactive()));
         }
         if (params.includeInferred()) {
-            xls.addInferred(getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.iri, IM.ROLE_GROUP.iri))));
+            xls.addInferred(getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASS_OF.iri, IM.ROLE_GROUP.iri))));
         }
         if (params.includeProperties()) {
             xls.addDataModelProperties(getDataModelProperties(iri));
@@ -685,13 +685,13 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.iri).collect(Co
     }
 
     public GraphDto getGraphData(String iri) {
-        TTEntity entity = getBundle(iri, Set.of(RDFS.SUBCLASSOF.iri, RDFS.LABEL.iri)).getEntity();
+        TTEntity entity = getBundle(iri, Set.of(RDFS.SUBCLASS_OF.iri, RDFS.LABEL.iri)).getEntity();
 
         GraphDto graphData = new GraphDto().setKey("0").setIri(entity.getIri()).setName(entity.getName());
         GraphDto graphParents = new GraphDto().setKey("0_0").setName("Is a");
         GraphDto graphChildren = new GraphDto().setKey("0_1").setName("Subtypes");
 
-        TTBundle axioms = getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.iri, IM.ROLE_GROUP.iri)));
+        TTBundle axioms = getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASS_OF.iri, IM.ROLE_GROUP.iri)));
         List<GraphDto> axiomGraph = bundleToGraphDtos(axioms);
 
         List<GraphDto> dataModelProps = getDataModelProperties(iri).stream()
@@ -779,14 +779,14 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.iri).collect(Co
     }
 
     private List<GraphDto> getEntityDefinedParents(TTEntity entity) {
-        TTArray parent = entity.get(RDFS.SUBCLASSOF.asTTIriRef());
+        TTArray parent = entity.get(RDFS.SUBCLASS_OF.asTTIriRef());
         if (parent == null)
             return Collections.emptyList();
         List<GraphDto> result = new ArrayList<>();
         parent.getElements().forEach(item -> {
             if (!OWL.THING.iri.equals(item.asIriRef().getIri()))
                 result.add(new GraphDto().setIri(item.asIriRef().getIri()).setName(item.asIriRef().getName())
-                        .setPropertyType(RDFS.SUBCLASSOF.asTTIriRef().getName()));
+                        .setPropertyType(RDFS.SUBCLASS_OF.asTTIriRef().getName()));
         });
 
         return result;
@@ -799,14 +799,14 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.iri).collect(Co
     }
 
     public EntityDefinitionDto getEntityDefinitionDto(String iri) {
-        TTEntity entity = getBundle(iri, Set.of(RDFS.SUBCLASSOF.iri, RDF.TYPE.iri, RDFS.LABEL.iri, RDFS.COMMENT.iri, IM.HAS_STATUS.iri)).getEntity();
+        TTEntity entity = getBundle(iri, Set.of(RDFS.SUBCLASS_OF.iri, RDF.TYPE.iri, RDFS.LABEL.iri, RDFS.COMMENT.iri, IM.HAS_STATUS.iri)).getEntity();
         List<TTIriRef> types = entity.getType() == null ? new ArrayList<>()
                 : entity.getType().getElements().stream()
                 .map(t -> new TTIriRef(t.asIriRef().getIri(), t.asIriRef().getName()))
                 .collect(Collectors.toList());
 
-        List<TTIriRef> isa = !entity.has(RDFS.SUBCLASSOF.asTTIriRef()) ? new ArrayList<>()
-                : entity.get(RDFS.SUBCLASSOF.asTTIriRef()).getElements().stream()
+        List<TTIriRef> isa = !entity.has(RDFS.SUBCLASS_OF.asTTIriRef()) ? new ArrayList<>()
+                : entity.get(RDFS.SUBCLASS_OF.asTTIriRef()).getElements().stream()
                 .map(t -> new TTIriRef(t.asIriRef().getIri(), t.asIriRef().getName()))
                 .collect(Collectors.toList());
 
@@ -849,7 +849,7 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE.iri).collect(Co
 
         if (predicates == null) {
             LOG.warn("Config for inferredPredicates not set, reverting to default");
-            predicates = new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.iri, IM.ROLE_GROUP.iri, IM.HAS_MEMBER.iri));
+            predicates = new HashSet<>(Arrays.asList(RDFS.SUBCLASS_OF.iri, IM.ROLE_GROUP.iri, IM.HAS_MEMBER.iri));
         }
 
         return getBundleByPredicateExclusions(iri, predicates);

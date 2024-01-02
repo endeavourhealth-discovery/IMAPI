@@ -1,42 +1,11 @@
 package org.endeavourhealth.imapi.vocabulary;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
-public enum USER implements Vocabulary {
-    DOMAIN("http://endhealth.info/"),
-    NAMESPACE(DOMAIN.iri + "user#"),
-    PREFIX("usr"),
-    // USER entries
-    USER_THEME(NAMESPACE.iri + "UserTheme"),
-    USER_MRU(NAMESPACE.iri + "UserMRU"),
-    USER_FAVOURITES(NAMESPACE.iri + "UserFavourites"),
-    ORGANISATIONS(NAMESPACE.iri + "Organisations");
-
-    public final String iri;
-    USER(String iri) {
-        this.iri = iri;
-    }
-
-    @Override
-    public TTIriRef asTTIriRef() {
-        return iri(this.iri);
-    }
-
-    @Override
-    @JsonValue
-    public String getIri() {
-        return iri;
-    }
-
-    public static boolean contains(String iri) {
-        try {
-            USER.valueOf(iri);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
+public class USER {
+	public static final String DOMAIN = "http://endhealth.info/";
+	public static final String NAMESPACE = USER.DOMAIN + "user#";
+	public static final String PREFIX = "usr";
+	public static final String USER_THEME = USER.DOMAIN + "UserTheme";
+	public static final String USER_MRU = USER.DOMAIN + "UserMRU";
+	public static final String USER_FAVOURITES = USER.DOMAIN + "UserFavourites";
+	public static final String ORGANISATIONS = USER.DOMAIN + "ORGANISATIONS";
 }

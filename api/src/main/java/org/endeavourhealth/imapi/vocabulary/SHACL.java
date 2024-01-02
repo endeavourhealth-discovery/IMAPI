@@ -71,5 +71,10 @@ public enum SHACL implements Vocabulary {
          return false;
       }
    }
+
+    @Override
+    public String toString() {
+        return iri;
+    }
 }
 

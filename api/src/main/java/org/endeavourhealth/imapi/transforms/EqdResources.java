@@ -510,7 +510,7 @@ public class EqdResources {
                 throw new DataFormatException("unmapped emis internal code : " + key);
         } else if (scheme == VocCodeSystemEx.SNOMED_CONCEPT || scheme.value().contains("SCT")) {
             List<String> schemes = new ArrayList<>();
-            schemes.add(SNOMED.NAMESPACE.iri);
+					schemes.add(SNOMED.NAMESPACE);
             schemes.add(GRAPH.EMIS.getIri());
             Set<TTIriRef> snomed = valueMap.get(originalCode);
             if (snomed == null) {

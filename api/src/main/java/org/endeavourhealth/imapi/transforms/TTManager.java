@@ -103,7 +103,7 @@ public class TTManager implements AutoCloseable {
    public static TTContext createBasicContext(){
      TTContext context= new TTContext();
      context.add(IM.NAMESPACE.iri, "im","Discovery namespace");
-     context.add(SNOMED.NAMESPACE.iri, "sn","Snomed-CT namespace");
+     context.add(SNOMED.NAMESPACE, "sn","Snomed-CT namespace");
      context.add(OWL.NAMESPACE.iri, "owl","OWL2 namespace");
      context.add(RDF.NAMESPACE.iri, "rdf","RDF namespace");
      context.add(RDFS.NAMESPACE.iri, "rdfs","RDFS namespace");
@@ -117,7 +117,7 @@ public class TTManager implements AutoCloseable {
    public TTContext createDefaultContext() {
       context = new TTContext();
       context.add(IM.NAMESPACE.iri, "im","Discovery namespace");
-      context.add(SNOMED.NAMESPACE.iri, "sn","Snomed-CT namespace");
+      context.add(SNOMED.NAMESPACE, "sn","Snomed-CT namespace");
       context.add(OWL.NAMESPACE.iri, "owl","OWL2 namespace");
       context.add(RDF.NAMESPACE.iri, "rdf","RDF namespace");
       context.add(RDFS.NAMESPACE.iri, "rdfs","RDFS namespace");
@@ -286,7 +286,7 @@ public class TTManager implements AutoCloseable {
         .addType(RDFS.CLASS.asTTIriRef())
         .setName(name)
         .setDescription(description);
-      graph.addObject(RDFS.SUBCLASSOF.asTTIriRef(),IM.GRAPH.asTTIriRef());
+      graph.addObject(RDFS.SUBCLASS_OF.asTTIriRef(),IM.GRAPH.asTTIriRef());
       return graph;
    }
 
@@ -436,7 +436,7 @@ public class TTManager implements AutoCloseable {
    private boolean isA1(TTEntity descendant, TTIriRef ancestor, Set<TTIriRef> done) {
        if (TTIriRef.iri(descendant.getIri()).equals(ancestor))
            return true;
-       TTIriRef subType = descendant.isType(RDF.PROPERTY.asTTIriRef()) ? RDFS.SUBPROPERTYOF.asTTIriRef() : RDFS.SUBCLASSOF.asTTIriRef();
+       TTIriRef subType = descendant.isType(RDF.PROPERTY.asTTIriRef()) ? RDFS.SUB_PROPERTY_OF.asTTIriRef() : RDFS.SUBCLASS_OF.asTTIriRef();
        boolean isa = false;
        if (descendant.get(subType) != null)
            for (TTValue ref : descendant.get(subType).iterator())
@@ -471,14 +471,14 @@ public class TTManager implements AutoCloseable {
    }
 
    public static void addSuperClass(TTEntity entity, TTIriRef andOr,TTValue superClass) {
-      addESAxiom(entity,RDFS.SUBCLASSOF.asTTIriRef(),andOr,superClass);
+      addESAxiom(entity,RDFS.SUBCLASS_OF.asTTIriRef(),andOr,superClass);
 
    }
 
 
    private static void addESAxiom(TTEntity entity, TTIriRef axiom,
                                   TTIriRef andOr, TTValue newExpression) {
-      TTIriRef subType= entity.isType(RDF.PROPERTY.asTTIriRef()) ? RDFS.SUBPROPERTYOF.asTTIriRef() : RDFS.SUBCLASSOF.asTTIriRef();
+      TTIriRef subType= entity.isType(RDF.PROPERTY.asTTIriRef()) ? RDFS.SUB_PROPERTY_OF.asTTIriRef() : RDFS.SUBCLASS_OF.asTTIriRef();
       if (entity.get(axiom) == null)
          entity.set(axiom, new TTArray());
       TTValue oldExpression;
@@ -657,7 +657,7 @@ public class TTManager implements AutoCloseable {
       ctx.add(IM.NAMESPACE.iri,"im");
       ctx.add(RDFS.NAMESPACE.iri,"rdfs");
       ctx.add(RDF.NAMESPACE.iri,"rdf");
-      ctx.add(SNOMED.NAMESPACE.iri,"sn");
+      ctx.add(SNOMED.NAMESPACE,"sn");
       ctx.add(SHACL.NAMESPACE.iri,"sh");
       ctx.add(XSD.NAMESPACE.iri,"xsd");
       return ctx;

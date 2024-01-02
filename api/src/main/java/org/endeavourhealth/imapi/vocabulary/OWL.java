@@ -10,33 +10,33 @@ public enum OWL implements Vocabulary {
     PREFIX("owl"),
     THING(NAMESPACE.iri +"Thing"),
     CLASS(NAMESPACE.iri +"Class"),
-    EQUIVALENTCLASS(NAMESPACE.iri + "equivalentClass"),
-    INTERSECTIONOF(NAMESPACE.iri + "intersectionOf"),
-    UNIONOF(NAMESPACE.iri + "unionOf"),
+    EQUIVALENT_CLASS(NAMESPACE.iri + "equivalentClass"),
+    INTERSECTION_OF(NAMESPACE.iri + "intersectionOf"),
+    UNION_OF(NAMESPACE.iri + "unionOf"),
     RESTRICTION(NAMESPACE.iri + "Restriction"),
-    ONPROPERTY(NAMESPACE.iri + "onProperty"),
-    ONCLASS(NAMESPACE.iri + "onClass"),
-    SOMEVALUESFROM(NAMESPACE.iri + "someValuesFrom"),
-    ALLVALUESFROM(NAMESPACE.iri + "allValuesFrom"),
-    OBJECTPROPERTY(NAMESPACE.iri + "ObjectProperty"),
-    DATATYPEPROPERTY(NAMESPACE.iri + "DatatypeProperty"),
-    ANNOTATIONPROPERTY(NAMESPACE.iri + "AnnotationProperty"),
-    INVERSEOF(NAMESPACE.iri + "inverseOf"),
-    INVERSEOBJECTPROPERTY(NAMESPACE.iri + "inverseOf"),
-    PROPERTYCHAIN(NAMESPACE.iri + "propertyChainAxiom"),
+    ON_PROPERTY(NAMESPACE.iri + "onProperty"),
+    ON_CLASS(NAMESPACE.iri + "onClass"),
+    SOME_VALUES_FROM(NAMESPACE.iri + "someValuesFrom"),
+    ALL_VALUES_FROM(NAMESPACE.iri + "allValuesFrom"),
+    OBJECT_PROPERTY(NAMESPACE.iri + "ObjectProperty"),
+    DATATYPE_PROPERTY(NAMESPACE.iri + "DatatypeProperty"),
+    ANNOTATION_PROPERTY(NAMESPACE.iri + "AnnotationProperty"),
+    INVERSE_OF(NAMESPACE.iri + "inverseOf"),
+    INVERSE_OBJECT_PROPERTY(NAMESPACE.iri + "inverseOf"),
+    PROPERTY_CHAIN(NAMESPACE.iri + "propertyChainAxiom"),
     TRANSITIVE(NAMESPACE.iri + "TransitiveProperty"),
     FUNCTIONAL(NAMESPACE.iri + "FunctionalProperty"),
     SYMMETRIC(NAMESPACE.iri + "SymmetricProperty"),
     REFLEXIVE(NAMESPACE.iri + "ReflexiveProperty"),
-    ONDATATYPE(NAMESPACE.iri + "onDatatype"),
-    WITHRESTRICTIONS(NAMESPACE.iri + "withRestrictions"),
-    MAXCARDINALITY(NAMESPACE.iri + "maxCardinality"),
-    MINCARDINALITY(NAMESPACE.iri + "minCardinality"),
-    ONDATARANGE(NAMESPACE.iri + "onDataRange"),
-    HASVALUE(NAMESPACE.iri + "hasValue"),
-    COMPLEMENTOF(NAMESPACE.iri + "complementOf"),
-    ONEOF(NAMESPACE.iri + "oneOf"),
-    NAMEDINDIVIDUAL(NAMESPACE.iri + "NamedIndividual");
+    ON_DATATYPE(NAMESPACE.iri + "onDatatype"),
+    WITH_RESTRICTIONS(NAMESPACE.iri + "withRestrictions"),
+    MAX_CARDINALITY(NAMESPACE.iri + "maxCardinality"),
+    MIN_CARDINALITY(NAMESPACE.iri + "minCardinality"),
+    ON_DATA_RANGE(NAMESPACE.iri + "onDataRange"),
+    HAS_VALUE(NAMESPACE.iri + "hasValue"),
+    COMPLEMENT_OF(NAMESPACE.iri + "complementOf"),
+    ONE_OF(NAMESPACE.iri + "oneOf"),
+    NAMED_INDIVIDUAL(NAMESPACE.iri + "NamedIndividual");
 
     public final String iri;
     OWL(String iri) {
@@ -61,5 +61,10 @@ public enum OWL implements Vocabulary {
         } catch (IllegalArgumentException e) {
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return iri;
     }
 }

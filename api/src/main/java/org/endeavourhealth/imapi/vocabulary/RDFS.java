@@ -10,8 +10,8 @@ public enum RDFS implements Vocabulary {
     PREFIX("rdfs"),
     LABEL(NAMESPACE.iri +"label"),
     COMMENT(NAMESPACE.iri +"comment"),
-    SUBCLASSOF(NAMESPACE.iri +"subClassOf"),
-    SUBPROPERTYOF(NAMESPACE.iri +"subPropertyOf"),
+    SUBCLASS_OF(NAMESPACE.iri +"subClassOf"),
+    SUB_PROPERTY_OF(NAMESPACE.iri +"subPropertyOf"),
     DOMAIN(NAMESPACE.iri +"domain"),
     RANGE(NAMESPACE.iri +"range"),
     RESOURCE(NAMESPACE.iri +"Resource"),
@@ -42,5 +42,10 @@ public enum RDFS implements Vocabulary {
         } catch (IllegalArgumentException e) {
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return iri;
     }
 }

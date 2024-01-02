@@ -205,7 +205,7 @@ public class QueryRequest implements ContextMap {
 	public QueryRequest setDefaultPrefixMap() {
 		this.context = new HashMap<>();
 		context.put(IM.NAMESPACE.iri, "im");
-		context.put(SNOMED.NAMESPACE.iri, "sn");
+		context.put(SNOMED.NAMESPACE, "sn");
 		context.put(OWL.NAMESPACE.iri, "owl");
 		context.put(RDF.NAMESPACE.iri, "rdf");
 		context.put(RDFS.NAMESPACE.iri, "rdfs");

@@ -66,7 +66,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
 		LOG.debug("Generating closure map for subclasses");
 		int c = 0;
 		counter=0;
-		for (Map.Entry<String, Set<String>> row : relationshipMap.get(RDFS.SUBCLASSOF.getIri()).entrySet()) {
+		for (Map.Entry<String, Set<String>> row : relationshipMap.get(RDFS.SUBCLASS_OF.getIri()).entrySet()) {
 			c++;
 			String child = row.getKey();
 			if (closureMap.get(child)==null) {
@@ -81,7 +81,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
 
 	private Set<String> generateClosure(String child) {
 		Set<String> closures = closureMap.computeIfAbsent(child, k -> new HashSet<>());
-		String relationship=RDFS.SUBCLASSOF.getIri();
+		String relationship=RDFS.SUBCLASS_OF.getIri();
 
 		// Add self
 		closures.add(child);

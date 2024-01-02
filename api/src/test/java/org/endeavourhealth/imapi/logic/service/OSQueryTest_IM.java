@@ -51,7 +51,7 @@ class OSQueryTest_IM {
                         .setProperty(List.of(
                             new Property()
                                 .setIri(IM.HAS_SCHEME.getIri())
-                                .setIs(List.of(new Node().setIri(SNOMED.NAMESPACE.iri)))
+                                .setIs(List.of(new Node().setIri(SNOMED.NAMESPACE)))
                         ))
                 ))
             );

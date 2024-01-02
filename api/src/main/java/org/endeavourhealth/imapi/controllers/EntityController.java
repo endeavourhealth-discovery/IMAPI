@@ -667,7 +667,7 @@ public class EntityController {
 		LOG.debug("getSuperiorPropertiesPaged");
 		if (null == page) page = 1;
 		if (null == size) size = EntityService.MAX_CHILDREN;
-		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE.iri, SNOMED.NAMESPACE.iri));
+		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE.iri, SNOMED.NAMESPACE));
 		return entityService.getSuperiorPropertiesPaged(iri,schemeIris,page,size,inactive);
 	}
 
@@ -686,7 +686,7 @@ public class EntityController {
 		LOG.debug("getSuperiorPropertiesPaged");
 		if (null == page) page = 1;
 		if (null == size) size = EntityService.MAX_CHILDREN;
-		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE.iri, SNOMED.NAMESPACE.iri));
+		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE.iri, SNOMED.NAMESPACE));
 		return entityService.getSuperiorPropertiesBoolFocusPaged(conceptIris,schemeIris,page,size,inactive);
 	}
 
@@ -705,7 +705,7 @@ public class EntityController {
 		LOG.debug("getSuperiorPropertyValuesPaged");
 		if (null == page) page = 1;
 		if (null == size) size = EntityService.MAX_CHILDREN;
-		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE.iri, SNOMED.NAMESPACE.iri));
+		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE.iri, SNOMED.NAMESPACE));
 		return entityService.getSuperiorPropertyValuesPaged(iri,schemeIris,page,size,inactive);
 	}
 

@@ -16,7 +16,8 @@ public enum VALIDATION implements Vocabulary {
     IS_TERMCODE(NAMESPACE.iri + "isTermcode"),
     IS_PROPERTY(NAMESPACE.iri + "isProperty"),
     IS_SCHEME(NAMESPACE.iri + "isScheme"),
-    IS_STATUS(NAMESPACE.iri + "isStatus");
+    IS_STATUS(NAMESPACE.iri + "isStatus"),
+    IS_ROLE_GROUP(NAMESPACE.iri + "isRoleGroup");
 
     public final String iri;
 
@@ -42,5 +43,10 @@ public enum VALIDATION implements Vocabulary {
         } catch (IllegalArgumentException e) {
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return iri;
     }
 }

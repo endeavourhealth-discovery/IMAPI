@@ -427,7 +427,7 @@ class EntityModelServiceTest {
     @Test
     void getGraphData_ParentIsList() {
         TTEntity entity = new TTEntity()
-            .set(RDFS.SUBCLASSOF, new TTArray()
+            .set(RDFS.SUBCLASS_OF, new TTArray()
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
@@ -482,7 +482,7 @@ class EntityModelServiceTest {
         TTEntity entity = new TTEntity()
             .setIri("http://endhealth.info/im#myConcept")
             .setName("My concept")
-            .set(RDFS.SUBCLASSOF, new TTArray()
+            .set(RDFS.SUBCLASS_OF, new TTArray()
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );

@@ -12,7 +12,6 @@ public enum GRAPH implements Vocabulary {
     DISCOVERY(IM.NAMESPACE.iri),
     ICD10(IM.DOMAIN.iri + "icd10#"),
     EMIS(IM.DOMAIN.iri + "emis#"),
-    EMIS_CORE(IM.DOMAIN.iri + "emisc"),
     CPRD_MED(IM.DOMAIN.iri + "cprdm#"),
     CPRD_PROD(IM.DOMAIN.iri + "cprdp#"),
     OPCS4(IM.DOMAIN.iri + "opcs4#"),
@@ -36,7 +35,8 @@ public enum GRAPH implements Vocabulary {
     QUERY(IM.DOMAIN.iri + "query#"),
     CEG16(IM.DOMAIN.iri + "ceg16#"),
     REPORTS(IM.DOMAIN.iri + "reports#"),
-    OPS_ROLES("https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#");
+    OPS_ROLES("https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#"),
+    XMLS("http://www.w3.org/2001/XMLSchema#");
 
     public final String iri;
 
@@ -62,5 +62,10 @@ public enum GRAPH implements Vocabulary {
         } catch (IllegalArgumentException e) {
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return iri;
     }
 }

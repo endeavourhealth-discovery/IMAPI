@@ -80,7 +80,7 @@ public class SCGToTT {
 			if (code.contains("1000252"))
 				return TTIriRef.iri(IM.NAMESPACE.iri + code);
 			else
-				return TTIriRef.iri(SNOMED.NAMESPACE.iri + code);
+				return TTIriRef.iri(SNOMED.NAMESPACE + code);
 		} else
 			throw new DataFormatException("ECL converter can only be used for snomed codes at this stage");
 	}

@@ -106,7 +106,7 @@ public class EqdResources {
         if ((eqCriteria.getPopulationCriterion() != null)) {
             EQDOCSearchIdentifier srch = eqCriteria.getPopulationCriterion();
             match
-                    .addInSet(new Node().setIri("urn:uuid:" + srch.getReportGuid()))
+                    .addIs(new Node().setIri("urn:uuid:" + srch.getReportGuid()))
                     .setName(reportNames.get(srch.getReportGuid()));
         } else {
             convertCriterion(eqCriteria.getCriterion(), match);

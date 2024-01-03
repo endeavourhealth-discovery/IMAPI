@@ -321,8 +321,8 @@ public class SparqlConverter {
                 }
             }
         }
-        if (match.getInSet() != null) {
-            inSet(whereQl, subject, match.getInSet(), false);
+        if (match.getIs() != null) {
+            is(whereQl, subject, match.getIs(), false);
         }
         if (match.getGraph() != null) {
             whereQl.append("}");
@@ -434,7 +434,7 @@ public class SparqlConverter {
     }
 
 
-    private void inSet(StringBuilder whereQl, String object, List<Node> in, boolean isNot) throws QueryException {
+    private void is(StringBuilder whereQl, String object, List<Node> in, boolean isNot) throws QueryException {
         if (isNot)
             whereQl.append("Filter not exists {\n");
         o++;

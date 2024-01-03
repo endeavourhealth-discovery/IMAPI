@@ -1,7 +1,8 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class VALIDATION {
-	public static final String NAMESPACE = IM.NAMESPACE + "Validation_";
+	public static final String DOMAIN = "http://endhealth.info/im#";
+	public static final String NAMESPACE = VALIDATION.DOMAIN + "Validation_";
 	public static final String IS_DEFINITION = VALIDATION.NAMESPACE + "isDefinition";
 	public static final String HAS_PARENT = VALIDATION.NAMESPACE + "hasParent";
 	public static final String IS_IRI = VALIDATION.NAMESPACE + "isIri";

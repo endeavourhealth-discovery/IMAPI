@@ -1012,7 +1012,7 @@
       },
       {
         "name": "NAMESPACE",
-        "value": "USER.DOMAIN + \"map#\""
+        "value": "MAP.DOMAIN + \"map#\""
       },
       {
         "name": "PREFIX",
@@ -1054,23 +1054,23 @@
       },
       {
         "name": "ORGANISATION_RECORD_CLASS",
-        "value": "IM.NAMESPACE + \"organisationRecordClass\""
+        "value": "\"http://endhealth.info/im#organisationRecordClass\""
       },
       {
         "name": "RELATED_ORGANISATION",
-        "value": "IM.NAMESPACE + \"organisationRelationship\""
+        "value": "\"http://endhealth.info/im#organisationRelationship\""
       },
       {
         "name": "TARGET",
-        "value": "IM.NAMESPACE + \"targetOrganisation\""
+        "value": "\"http://endhealth.info/im#targetOrganisation\""
       },
       {
         "name": "ROLE",
-        "value": "IM.NAMESPACE + \"organisationRole\""
+        "value": "\"http://endhealth.info/im#organisationRole\""
       },
       {
         "name": "ODS_CODE",
-        "value": "IM.NAMESPACE + \"odsCode\""
+        "value": "\"http://endhealth.info/im#odsCode\""
       }
     ]
   },
@@ -1672,8 +1672,12 @@
     "name": "COMPONENT",
     "entries": [
       {
+        "name": "DOMAIN",
+        "value": "\"http://endhealth.info/im#\""
+      },
+      {
         "name": "NAMESPACE",
-        "value": "IM.NAMESPACE + \"Component_\""
+        "value": "COMPONENT.DOMAIN + \"Component_\""
       },
       {
         "name": "TEXT_DISPLAY",
@@ -1773,8 +1777,12 @@
     "name": "EDITOR",
     "entries": [
       {
+        "name": "DOMAIN",
+        "value": "\"http://endhealth.info/im#\""
+      },
+      {
         "name": "NAMESPACE",
-        "value": "IM.NAMESPACE + \"Editor_\""
+        "value": "EDITOR.DOMAIN + \"Editor_\""
       },
       {
         "name": "CONCEPT_SHAPE",
@@ -1810,8 +1818,12 @@
     "name": "QUERY",
     "entries": [
       {
+        "name": "DOMAIN",
+        "value": "\"http://endhealth.info/im#\""
+      },
+      {
         "name": "NAMESPACE",
-        "value": "IM.NAMESPACE + \"Query_\""
+        "value": "QUERY.DOMAIN + \"Query_\""
       },
       {
         "name": "ALLOWABLE_RANGES",
@@ -1883,8 +1895,12 @@
     "name": "VALIDATION",
     "entries": [
       {
+        "name": "DOMAIN",
+        "value": "\"http://endhealth.info/im#\""
+      },
+      {
         "name": "NAMESPACE",
-        "value": "IM.NAMESPACE + \"Validation_\""
+        "value": "VALIDATION.DOMAIN + \"Validation_\""
       },
       {
         "name": "IS_DEFINITION",
@@ -1925,107 +1941,107 @@
     "entries": [
       {
         "name": "DISCOVERY",
-        "value": "IM.NAMESPACE"
+        "value": "\"http://endhealth.info/im#\""
       },
       {
         "name": "ICD10",
-        "value": "IM.DOMAIN + \"icd10#\""
+        "value": "\"http://endhealth.info/icd10#\""
       },
       {
         "name": "EMIS",
-        "value": "IM.DOMAIN + \"emis#\""
+        "value": "\"http://endhealth.info/emis#\""
       },
       {
         "name": "CPRD_MED",
-        "value": "IM.DOMAIN + \"cprdm#\""
+        "value": "\"http://endhealth.info/cprdm#\""
       },
       {
         "name": "CPRD_PROD",
-        "value": "IM.DOMAIN + \"cprdp#\""
+        "value": "\"http://endhealth.info/cprdp#\""
       },
       {
         "name": "OPCS4",
-        "value": "IM.DOMAIN + \"opcs4#\""
+        "value": "\"http://endhealth.info/opcs4#\""
       },
       {
         "name": "TPP",
-        "value": "IM.DOMAIN + \"tpp#\""
+        "value": "\"http://endhealth.info/tpp#\""
       },
       {
         "name": "ODS",
-        "value": "IM.DOMAIN + \"ods#\""
+        "value": "\"http://endhealth.info/ods#\""
       },
       {
         "name": "PRSB",
-        "value": "IM.DOMAIN + \"prsb#\""
+        "value": "\"http://endhealth.info/prsb#\""
       },
       {
         "name": "KINGS_APEX",
-        "value": "IM.DOMAIN + \"kpax#\""
+        "value": "\"http://endhealth.info/kpax#\""
       },
       {
         "name": "KINGS_WINPATH",
-        "value": "IM.DOMAIN + \"kwp#\""
+        "value": "\"http://endhealth.info/kwp#\""
       },
       {
         "name": "VISION",
-        "value": "IM.DOMAIN + \"vis#\""
+        "value": "\"http://endhealth.info/vis#\""
       },
       {
         "name": "READ2",
-        "value": "IM.DOMAIN + \"read2#\""
+        "value": "\"http://endhealth.info/read2#\""
       },
       {
         "name": "BARTS_CERNER",
-        "value": "IM.DOMAIN + \"bc#\""
+        "value": "\"http://endhealth.info/bc#\""
       },
       {
         "name": "NHSDD_ETHNIC_2001",
-        "value": "IM.DOMAIN + \"nhsethnic2001#\""
+        "value": "\"http://endhealth.info/nhsethnic2001#\""
       },
       {
         "name": "IM1",
-        "value": "IM.DOMAIN + \"im1#\""
+        "value": "\"http://endhealth.info/im1#\""
       },
       {
         "name": "ENCOUNTERS",
-        "value": "IM.DOMAIN + \"enc#\""
+        "value": "\"http://endhealth.info/enc#\""
       },
       {
         "name": "CONFIG",
-        "value": "IM.DOMAIN + \"config#\""
+        "value": "\"http://endhealth.info/config#\""
       },
       {
         "name": "CEG_QUERY",
-        "value": "IM.DOMAIN + \"ceg/qry#\""
+        "value": "\"http://endhealth.info/ceg/qry#\""
       },
       {
         "name": "NHS_TFC",
-        "value": "IM.DOMAIN + \"nhstfc#\""
+        "value": "\"http://endhealth.info/nhstfc#\""
       },
       {
         "name": "STATS",
-        "value": "IM.DOMAIN + \"stats#\""
+        "value": "\"http://endhealth.info/stats#\""
       },
       {
         "name": "DELTAS",
-        "value": "IM.DOMAIN + \"deltas#\""
+        "value": "\"http://endhealth.info/deltas#\""
       },
       {
         "name": "PROV",
-        "value": "IM.DOMAIN + \"prov#\""
+        "value": "\"http://endhealth.info/prov#\""
       },
       {
         "name": "QUERY",
-        "value": "IM.DOMAIN + \"query#\""
+        "value": "\"http://endhealth.info/query#\""
       },
       {
         "name": "CEG16",
-        "value": "IM.DOMAIN + \"ceg16#\""
+        "value": "\"http://endhealth.info/ceg16#\""
       },
       {
         "name": "REPORTS",
-        "value": "IM.DOMAIN + \"reports#\""
+        "value": "\"http://endhealth.info/reports#\""
       },
       {
         "name": "OPS_ROLES",

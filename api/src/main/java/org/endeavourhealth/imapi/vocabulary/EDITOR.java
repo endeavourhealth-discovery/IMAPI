@@ -1,7 +1,8 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class EDITOR {
-	public static final String NAMESPACE = IM.NAMESPACE + "Editor_";
+	public static final String DOMAIN = "http://endhealth.info/im#";
+	public static final String NAMESPACE = EDITOR.DOMAIN + "Editor_";
 	public static final String CONCEPT_SHAPE = EDITOR.NAMESPACE + "ConceptShape";
 	public static final String CONCEPT_SET_SHAPE = EDITOR.NAMESPACE + "ConceptSetShape";
 	public static final String VALUE_SET_SHAPE = EDITOR.NAMESPACE + "ValueSetShape";

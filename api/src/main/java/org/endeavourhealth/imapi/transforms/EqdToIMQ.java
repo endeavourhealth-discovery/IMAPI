@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.zip.DataFormatException;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class EqdToIMQ {
 	private final EqdResources resources = new EqdResources();
 	private static final Set<String> roles = new HashSet<>();
@@ -70,7 +72,7 @@ public class EqdToIMQ {
 				String iri = "urn:uuid:" + eqFolder.getId();
 				Entity folder = new Entity()
 					.setIri(iri)
-					.addType(IM.FOLDER.asTTIriRef())
+					.addType(iri(IM.FOLDER))
 					.setName(eqFolder.getName());
 				resources.getDocument().addFolder(folder);
 			}
@@ -92,15 +94,15 @@ public class EqdToIMQ {
 		Query qry = new Query();
 
 		if (eqReport.getPopulation() != null) {
-			queryEntity.addType(IM.COHORT_QUERY);
+			queryEntity.addType(iri(IM.COHORT_QUERY));
 			new EqdPopToIMQ().convertPopulation(eqReport, qry, resources);
 		}
 		else if (eqReport.getListReport() != null) {
-			queryEntity.addType(IM.DATASET_QUERY);
+			queryEntity.addType(iri(IM.DATASET_QUERY));
 			new EqdListToIMQ().convertReport(eqReport, qry, resources);
 		}
 		else {
-			queryEntity.addType(IM.DATASET_QUERY);
+			queryEntity.addType(iri(IM.DATASET_QUERY));
 			new EqdAuditToIMQ().convertReport(eqReport, qry, resources);
 		}
 		flattenQuery(qry);

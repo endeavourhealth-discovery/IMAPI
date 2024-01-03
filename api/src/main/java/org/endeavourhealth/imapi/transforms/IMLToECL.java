@@ -114,7 +114,7 @@ public class IMLToECL {
 	private static void addRefinements(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
 		ecl.append(": ");
 		boolean first = true;
-		if (null != match.getProperty().get(0).getIri() && match.getProperty().get(0).getIri().equals(IM.ROLE_GROUP.getIri())){
+		if (null != match.getProperty().get(0).getIri() && match.getProperty().get(0).getIri().equals(IM.ROLE_GROUP)){
 			ecl.append(" { ");
 			addRefinements(match.getProperty().get(0).getMatch(),ecl,includeNames);
 			ecl.append("}");
@@ -131,7 +131,7 @@ public class IMLToECL {
 
 	private static void addRefinements(Property property, StringBuilder ecl, boolean includeNames) throws QueryException {
 		boolean first = true;
-		if (null != property.getProperty().get(0).getIri() && property.getProperty().get(0).getIri().equals(IM.ROLE_GROUP.getIri())){
+		if (null != property.getProperty().get(0).getIri() && property.getProperty().get(0).getIri().equals(IM.ROLE_GROUP)){
 			ecl.append(" { ");
 			addRefinements(property.getProperty().get(0).getMatch(),ecl,includeNames);
 			ecl.append("}");

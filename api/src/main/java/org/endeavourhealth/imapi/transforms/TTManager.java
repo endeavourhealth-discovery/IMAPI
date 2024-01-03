@@ -6,7 +6,7 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
-import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
@@ -31,7 +31,7 @@ public class TTManager implements AutoCloseable {
    private TTDocument document;
   private ModelDocument modelDocument;
    private TTContext context;
-   private static final TTIriRef[] jsonPredicates= {IM.HAS_MAP.asTTIriRef()};
+   private static final TTIriRef[] jsonPredicates= {iri(IM.HAS_MAP)};
 
     private static final Logger LOG = LoggerFactory.getLogger(TTManager.class);
 
@@ -64,14 +64,14 @@ public class TTManager implements AutoCloseable {
    }
    public TTDocument createDocument() {
       TTContext context= new TTContext();
-      context.add(XSD.NAMESPACE.iri,"xsd");
-      context.add(SHACL.NAMESPACE.iri,"sh");
-      context.add(IM.NAMESPACE.iri,"im");
-      context.add(RDF.NAMESPACE.iri, "rdf","RDF namespace");
-      context.add(RDFS.NAMESPACE.iri, "rdfs","RDFS namespace");
+      context.add(XSD.NAMESPACE,"xsd");
+      context.add(SHACL.NAMESPACE,"sh");
+      context.add(IM.NAMESPACE,"im");
+      context.add(RDF.NAMESPACE, "rdf","RDF namespace");
+      context.add(RDFS.NAMESPACE, "rdfs","RDFS namespace");
       document = new TTDocument();
       document.setContext(context);
-      document.setGraph(TTIriRef.iri(GRAPH.DISCOVERY.iri));
+      document.setGraph(TTIriRef.iri(GRAPH.DISCOVERY));
       return document;
    }
 
@@ -102,13 +102,13 @@ public class TTManager implements AutoCloseable {
 
    public static TTContext createBasicContext(){
      TTContext context= new TTContext();
-     context.add(IM.NAMESPACE.iri, "im","Discovery namespace");
+     context.add(IM.NAMESPACE, "im","Discovery namespace");
      context.add(SNOMED.NAMESPACE, "sn","Snomed-CT namespace");
-     context.add(OWL.NAMESPACE.iri, "owl","OWL2 namespace");
-     context.add(RDF.NAMESPACE.iri, "rdf","RDF namespace");
-     context.add(RDFS.NAMESPACE.iri, "rdfs","RDFS namespace");
-     context.add(XSD.NAMESPACE.iri, "xsd","xsd namespace");
-     context.add(SHACL.NAMESPACE.iri, "sh","SHACL namespace");
+     context.add(OWL.NAMESPACE, "owl","OWL2 namespace");
+     context.add(RDF.NAMESPACE, "rdf","RDF namespace");
+     context.add(RDFS.NAMESPACE, "rdfs","RDFS namespace");
+     context.add(XSD.NAMESPACE, "xsd","xsd namespace");
+     context.add(SHACL.NAMESPACE, "sh","SHACL namespace");
      return context;
    }
 
@@ -116,28 +116,28 @@ public class TTManager implements AutoCloseable {
 
    public TTContext createDefaultContext() {
       context = new TTContext();
-      context.add(IM.NAMESPACE.iri, "im","Discovery namespace");
+      context.add(IM.NAMESPACE, "im","Discovery namespace");
       context.add(SNOMED.NAMESPACE, "sn","Snomed-CT namespace");
-      context.add(OWL.NAMESPACE.iri, "owl","OWL2 namespace");
-      context.add(RDF.NAMESPACE.iri, "rdf","RDF namespace");
-      context.add(RDFS.NAMESPACE.iri, "rdfs","RDFS namespace");
-      context.add(XSD.NAMESPACE.iri, "xsd","xsd namespace");
-      context.add(GRAPH.ICD10.iri, "icd10","ICD10 namespace");
-      context.add(GRAPH.OPCS4.iri, "opcs4","OPCS4 namespace");
-      context.add(GRAPH.EMIS.iri, "emis","EMIS (inc. Read2 like) namespace");
-      context.add(GRAPH.TPP.iri, "tpp","TPP (inc.CTV3) namespace");
-      context.add(GRAPH.BARTS_CERNER.iri, "bc","Barts Cerner namespace");
-      context.add(SHACL.NAMESPACE.iri, "sh","SHACL namespace");
-      context.add(GRAPH.PROV.iri, "prov","PROV namespace");
-      context.add(GRAPH.REPORTS.iri, "reports","IM internal reports");
-      context.add(GRAPH.OPS_ROLES.iri, "orole","OPS roles namespace");
-      context.add(GRAPH.ODS.iri, "ods","ODS code scheme");
-      context.add(GRAPH.PRSB.iri,"prsb","PRSB namespace");
-      context.add(GRAPH.KINGS_WINPATH.iri, "kchwinpath","KCH Winpath codes");
-      context.add(GRAPH.KINGS_APEX.iri, "kchapex","KCH Apex codes");
-      context.add(GRAPH.CEG16.iri, "ceg13","CEG ethnicity 16+ category");
-      context.add(GRAPH.NHSDD_ETHNIC_2001.iri, "nhse2001","NHS Ethnicitity categories 2001 census");
-      context.add(GRAPH.VISION.iri, "vis","Vision (incl. Read2) namespace");
+      context.add(OWL.NAMESPACE, "owl","OWL2 namespace");
+      context.add(RDF.NAMESPACE, "rdf","RDF namespace");
+      context.add(RDFS.NAMESPACE, "rdfs","RDFS namespace");
+      context.add(XSD.NAMESPACE, "xsd","xsd namespace");
+      context.add(GRAPH.ICD10, "icd10","ICD10 namespace");
+      context.add(GRAPH.OPCS4, "opcs4","OPCS4 namespace");
+      context.add(GRAPH.EMIS, "emis","EMIS (inc. Read2 like) namespace");
+      context.add(GRAPH.TPP, "tpp","TPP (inc.CTV3) namespace");
+      context.add(GRAPH.BARTS_CERNER, "bc","Barts Cerner namespace");
+      context.add(SHACL.NAMESPACE, "sh","SHACL namespace");
+      context.add(GRAPH.PROV, "prov","PROV namespace");
+      context.add(GRAPH.REPORTS, "reports","IM internal reports");
+      context.add(GRAPH.OPS_ROLES, "orole","OPS roles namespace");
+      context.add(GRAPH.ODS, "ods","ODS code scheme");
+      context.add(GRAPH.PRSB,"prsb","PRSB namespace");
+      context.add(GRAPH.KINGS_WINPATH, "kchwinpath","KCH Winpath codes");
+      context.add(GRAPH.KINGS_APEX, "kchapex","KCH Apex codes");
+      context.add(GRAPH.CEG16, "ceg13","CEG ethnicity 16+ category");
+      context.add(GRAPH.NHSDD_ETHNIC_2001, "nhse2001","NHS Ethnicitity categories 2001 census");
+      context.add(GRAPH.VISION, "vis","Vision (incl. Read2) namespace");
       return context;
    }
 
@@ -283,10 +283,10 @@ public class TTManager implements AutoCloseable {
    public TTEntity createGraph(String iri,String name, String description){
       TTEntity graph= new TTEntity()
         .setIri(iri)
-        .addType(RDFS.CLASS.asTTIriRef())
+        .addType(iri(RDFS.CLASS))
         .setName(name)
         .setDescription(description);
-      graph.addObject(RDFS.SUBCLASS_OF.asTTIriRef(),IM.GRAPH.asTTIriRef());
+      graph.addObject(iri(RDFS.SUBCLASS_OF),iri(IM.GRAPH));
       return graph;
    }
 
@@ -436,7 +436,7 @@ public class TTManager implements AutoCloseable {
    private boolean isA1(TTEntity descendant, TTIriRef ancestor, Set<TTIriRef> done) {
        if (TTIriRef.iri(descendant.getIri()).equals(ancestor))
            return true;
-       TTIriRef subType = descendant.isType(RDF.PROPERTY.asTTIriRef()) ? RDFS.SUB_PROPERTY_OF.asTTIriRef() : RDFS.SUBCLASS_OF.asTTIriRef();
+       TTIriRef subType = descendant.isType(iri(RDF.PROPERTY)) ? iri(RDFS.SUB_PROPERTY_OF) : iri(RDFS.SUBCLASS_OF);
        boolean isa = false;
        if (descendant.get(subType) != null)
            for (TTValue ref : descendant.get(subType).iterator())
@@ -465,20 +465,20 @@ public class TTManager implements AutoCloseable {
    }
 
    public static void addChildOf(TTEntity c, TTIriRef parent) {
-      if (c.get(IM.IS_CHILD_OF.asTTIriRef()) == null)
-         c.set(IM.IS_CHILD_OF.asTTIriRef(), new TTArray());
-      c.get(IM.IS_CHILD_OF.asTTIriRef()).add(parent);
+      if (c.get(iri(IM.IS_CHILD_OF)) == null)
+         c.set(iri(IM.IS_CHILD_OF), new TTArray());
+      c.get(iri(IM.IS_CHILD_OF)).add(parent);
    }
 
    public static void addSuperClass(TTEntity entity, TTIriRef andOr,TTValue superClass) {
-      addESAxiom(entity,RDFS.SUBCLASS_OF.asTTIriRef(),andOr,superClass);
+      addESAxiom(entity,iri(RDFS.SUBCLASS_OF),andOr,superClass);
 
    }
 
 
    private static void addESAxiom(TTEntity entity, TTIriRef axiom,
                                   TTIriRef andOr, TTValue newExpression) {
-      TTIriRef subType= entity.isType(RDF.PROPERTY.asTTIriRef()) ? RDFS.SUB_PROPERTY_OF.asTTIriRef() : RDFS.SUBCLASS_OF.asTTIriRef();
+      TTIriRef subType= entity.isType(iri(RDF.PROPERTY)) ? iri(RDFS.SUB_PROPERTY_OF) : iri(RDFS.SUBCLASS_OF);
       if (entity.get(axiom) == null)
          entity.set(axiom, new TTArray());
       TTValue oldExpression;
@@ -505,11 +505,11 @@ public class TTManager implements AutoCloseable {
 
 
    public static void addSimpleMap(TTEntity c,String target) {
-      c.addObject(IM.MATCHED_TO.asTTIriRef(),iri(target));
+      c.addObject(iri(IM.MATCHED_TO),iri(target));
    }
    public static TTNode addComplexMap(TTEntity c){
       TTNode map= new TTNode();
-      c.addObject(IM.HAS_MAP.asTTIriRef(),map);
+      c.addObject(iri(IM.HAS_MAP),map);
       return map;
    }
 
@@ -526,9 +526,9 @@ public class TTManager implements AutoCloseable {
    }
 
    public static boolean termUsed(TTEntity entity, String term){
-     if (entity.get(IM.HAS_TERM_CODE)!=null){
-       for (TTValue val:entity.get(IM.HAS_TERM_CODE).getElements()){
-         if (val.asNode().get(RDFS.LABEL).equals(term))
+     if (entity.get(iri(IM.HAS_TERM_CODE))!=null){
+       for (TTValue val:entity.get(iri(IM.HAS_TERM_CODE)).getElements()){
+         if (val.asNode().get(iri(RDFS.LABEL)).equals(term))
            return true;
        }
      }
@@ -547,13 +547,13 @@ public class TTManager implements AutoCloseable {
                                        String term,String code,TTIriRef status){
       TTNode termCode= new TTNode();
       if (status!=null)
-         termCode.set(IM.HAS_STATUS.asTTIriRef(),status);
+         termCode.set(iri(IM.HAS_STATUS),status);
       if (term!=null) {
-         termCode.set(RDFS.LABEL.asTTIriRef(), TTLiteral.literal(term));
+         termCode.set(iri(RDFS.LABEL), TTLiteral.literal(term));
       }
       if (code!=null)
-         termCode.set(IM.CODE.asTTIriRef(),TTLiteral.literal(code));
-      entity.addObject(IM.HAS_TERM_CODE.asTTIriRef(),termCode);
+         termCode.set(iri(IM.CODE),TTLiteral.literal(code));
+      entity.addObject(iri(IM.HAS_TERM_CODE),termCode);
       return entity;
    }
 
@@ -653,13 +653,13 @@ public class TTManager implements AutoCloseable {
    }
    public static TTContext getDefaultContext(){
       TTContext ctx=new TTContext();
-      ctx.add(IM.NAMESPACE.iri,"");
-      ctx.add(IM.NAMESPACE.iri,"im");
-      ctx.add(RDFS.NAMESPACE.iri,"rdfs");
-      ctx.add(RDF.NAMESPACE.iri,"rdf");
+      ctx.add(IM.NAMESPACE,"");
+      ctx.add(IM.NAMESPACE,"im");
+      ctx.add(RDFS.NAMESPACE,"rdfs");
+      ctx.add(RDF.NAMESPACE,"rdf");
       ctx.add(SNOMED.NAMESPACE,"sn");
-      ctx.add(SHACL.NAMESPACE.iri,"sh");
-      ctx.add(XSD.NAMESPACE.iri,"xsd");
+      ctx.add(SHACL.NAMESPACE,"sh");
+      ctx.add(XSD.NAMESPACE,"xsd");
       return ctx;
    }
 

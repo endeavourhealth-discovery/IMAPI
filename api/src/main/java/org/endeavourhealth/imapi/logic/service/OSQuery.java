@@ -498,7 +498,7 @@ public class OSQuery {
         if (searchResult.getTermCode() != null) {
             for (SearchTermCode tc : searchResult.getTermCode()) {
                 TTIriRef termCodeStatus = tc.getStatus();
-                if ((termCodeStatus != null) && (!(termCodeStatus.getIri().equals(IM.INACTIVE.iri))) &&
+                if ((termCodeStatus != null) && (!(termCodeStatus.getIri().equals(IM.INACTIVE))) &&
                     (tc.getTerm() != null && tc.getTerm().toLowerCase().startsWith(searchTerm))) {
                     searchResult.setMatch(tc.getTerm());
                     break;
@@ -612,7 +612,7 @@ public class OSQuery {
 
                 if (query != null) {
                     if (query.getReturn() == null)
-                        query.return_(s -> s.property(p -> p.setIri(RDFS.LABEL.iri)));
+                        query.return_(s -> s.property(p -> p.setIri(RDFS.LABEL)));
                     for (Return select : query.getReturn()) {
                         convertOSResultAddNode(om, searchResult, resultNode, select);
                     }
@@ -627,27 +627,17 @@ public class OSQuery {
             for (ReturnProperty prop : select.getProperty()) {
                 if (prop.getIri() != null) {
                     String field = prop.getIri();
-                    if (IM.contains(field)) {
-                        switch (IM.valueOf(field)) {
-                            case CODE -> resultNode.put(field, searchResult.getCode());
-                            case HAS_STATUS -> resultNode.set(field, fromIri(searchResult.getStatus(), om));
-                            case HAS_SCHEME -> resultNode.set(field, fromIri(searchResult.getScheme(), om));
-                            case WEIGHTING -> resultNode.put(field, searchResult.getWeighting());
+                    switch (field) {
+                        case IM.CODE -> resultNode.put(field, searchResult.getCode());
+                        case IM.HAS_STATUS -> resultNode.set(field, fromIri(searchResult.getStatus(), om));
+                        case IM.HAS_SCHEME -> resultNode.set(field, fromIri(searchResult.getScheme(), om));
+                        case IM.WEIGHTING -> resultNode.put(field, searchResult.getWeighting());
+                        case RDFS.LABEL -> resultNode.put(field, searchResult.getName());
+                        case RDFS.COMMENT -> {
+                            if (searchResult.getDescription() != null)
+                                resultNode.put(field, searchResult.getDescription());
                         }
-                    }
-                    if (RDFS.contains(field)) {
-                        switch (RDFS.valueOf(field)) {
-                            case LABEL -> resultNode.put(field, searchResult.getName());
-                            case COMMENT -> {
-                                if (searchResult.getDescription() != null)
-                                    resultNode.put(field, searchResult.getDescription());
-                            }
-                        }
-                    }
-                    if (RDF.contains(field)) {
-                        if (RDF.TYPE.equals(RDF.valueOf(field))) {
-                            resultNode.set(field, arrayFromIri(searchResult.getEntityType(), om));
-                        }
+                        case RDF.TYPE -> resultNode.set(field, arrayFromIri(searchResult.getEntityType(), om));
                     }
                 }
             }
@@ -690,7 +680,7 @@ public class OSQuery {
             if (!processMatches(request, query, imRequest))
                 return null;
             if (query.isActiveOnly()) {
-                if (request.getStatusFilter().isEmpty()) request.setStatusFilter(List.of(IM.ACTIVE.iri));
+                if (request.getStatusFilter().isEmpty()) request.setStatusFilter(List.of(IM.ACTIVE));
             }
             processSelects(request, query);
         }
@@ -708,12 +698,12 @@ public class OSQuery {
                 .flatMap(Collection::stream)
                 .forEach(prop -> {
                     if (prop.getIri() != null) {
-                        if (prop.getIri().equals(RDFS.COMMENT.iri)) request.addSelect("description");
-                        else if (prop.getIri().equals(IM.CODE.iri)) request.addSelect("code");
-                        else if (prop.getIri().equals(IM.HAS_STATUS.iri)) request.addSelect(STATUS);
-                        else if (prop.getIri().equals(IM.HAS_SCHEME.iri)) request.addSelect(SCHEME);
-                        else if (prop.getIri().equals(RDF.TYPE.iri)) request.addSelect("entityType");
-                        else if (prop.getIri().equals(IM.WEIGHTING.iri)) request.addSelect(WEIGHTING);
+                        if (prop.getIri().equals(RDFS.COMMENT)) request.addSelect("description");
+                        else if (prop.getIri().equals(IM.CODE)) request.addSelect("code");
+                        else if (prop.getIri().equals(IM.HAS_STATUS)) request.addSelect(STATUS);
+                        else if (prop.getIri().equals(IM.HAS_SCHEME)) request.addSelect(SCHEME);
+                        else if (prop.getIri().equals(RDF.TYPE)) request.addSelect("entityType");
+                        else if (prop.getIri().equals(IM.WEIGHTING)) request.addSelect(WEIGHTING);
                     }
                 });
         }
@@ -765,11 +755,11 @@ public class OSQuery {
 
     private static boolean processProperties(SearchRequest request, Match match) throws QueryException {
         for(Property w : match.getProperty()) {
-            if (IM.HAS_SCHEME.iri.equals(w.getIri())) {
+            if (IM.HAS_SCHEME.equals(w.getIri())) {
                 processSchemeProperty(request, w);
-            } else if (IM.HAS_MEMBER.iri.equals(w.getIri()) && w.isInverse()) {
+            } else if (IM.HAS_MEMBER.equals(w.getIri()) && w.isInverse()) {
                 processMemberProperty(request, w);
-            } else if (IM.HAS_STATUS.iri.equals(w.getIri())) {
+            } else if (IM.HAS_STATUS.equals(w.getIri())) {
                 processStatusProperty(request, w);
             } else {
                 return false;
@@ -888,14 +878,14 @@ public class OSQuery {
             return false;
 
         return List.of(
-            RDFS.LABEL.iri,
-            RDFS.COMMENT.iri,
-            IM.CODE.iri,
-            IM.HAS_STATUS.iri,
-            IM.HAS_SCHEME.iri,
-            RDF.TYPE.iri,
-            IM.WEIGHTING.iri,
-            IM.HAS_MEMBER.iri
+            RDFS.LABEL,
+            RDFS.COMMENT,
+            IM.CODE,
+            IM.HAS_STATUS,
+            IM.HAS_SCHEME,
+            RDF.TYPE,
+            IM.WEIGHTING,
+            IM.HAS_MEMBER
         ).contains(iri);
     }
 

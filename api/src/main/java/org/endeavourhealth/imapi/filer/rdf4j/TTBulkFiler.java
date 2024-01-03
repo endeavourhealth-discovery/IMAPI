@@ -8,13 +8,14 @@ import org.endeavourhealth.imapi.transforms.TTToNQuad;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
-import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TTBulkFiler  implements TTDocumentFiler {
     private static final Logger LOG = LoggerFactory.getLogger(TTBulkFiler.class);
@@ -73,11 +74,11 @@ public class TTBulkFiler  implements TTDocumentFiler {
             LOG.info("Writing out graph data for " + graph);
             for (TTEntity entity : document.getEntities()) {
                 String entityGraph = entity.getGraph() != null ? entity.getGraph().getIri() : graph;
-                if (entity.get(IM.PRIVACY_LEVEL.asTTIriRef()) != null && (entity.get(IM.PRIVACY_LEVEL.asTTIriRef()).asLiteral().intValue() > getPrivacyLevel()))
+                if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > getPrivacyLevel()))
                     continue;
 
                 allEntities.write(entity.getIri() + "\n");
-                if (graph.equals(IM.NAMESPACE.iri))
+                if (graph.equals(IM.NAMESPACE))
                     coreIris.write(entity.getIri() + "\t" + entity.getName() + "\n");
                 addToMaps(entity, entityGraph);
                 addSubtypes(entity);
@@ -101,11 +102,11 @@ public class TTBulkFiler  implements TTDocumentFiler {
     }
 
     private static void setStatusAndScheme(String graph, TTEntity entity) {
-        if (entity.get(RDFS.LABEL) != null) {
-            if (entity.get(IM.HAS_STATUS.asTTIriRef()) == null)
-                entity.set(IM.HAS_STATUS.asTTIriRef(), IM.ACTIVE.asTTIriRef());
-            if (entity.get(IM.HAS_SCHEME.asTTIriRef()) == null)
-                entity.set(IM.HAS_SCHEME.asTTIriRef(), TTIriRef.iri(graph));
+        if (entity.get(iri(RDFS.LABEL)) != null) {
+            if (entity.get(iri(IM.HAS_STATUS)) == null)
+                entity.set(iri(IM.HAS_STATUS), iri(IM.ACTIVE));
+            if (entity.get(iri(IM.HAS_SCHEME)) == null)
+                entity.set(iri(IM.HAS_SCHEME), TTIriRef.iri(graph));
         }
     }
 
@@ -151,14 +152,14 @@ public class TTBulkFiler  implements TTDocumentFiler {
     }
 
     private void addTerms(TTEntity entity, String graph) throws IOException {
-        boolean isCoreGraph= graph.equals(IM.NAMESPACE.iri)||graph.equals(SNOMED.NAMESPACE);
+        boolean isCoreGraph= graph.equals(IM.NAMESPACE)||graph.equals(SNOMED.NAMESPACE);
         if (isCoreGraph && entity.getName()!=null)
             coreTerms.write(entity.getName()+"\t"+ entity.getIri()+"\n");
     }
 
     private void addSubtypes(TTEntity entity) throws IOException {
-        for (Vocabulary relationship:List.of(RDFS.SUBCLASS_OF,RDFS.SUB_PROPERTY_OF,IM.SUBSUMED_BY,IM.USUALLY_SUBSUMED_BY,IM.APPROXIMATE_SUBSUMED_BY,
-          IM.LOCAL_SUBCLASS_OF,IM.MULTIPLE_SUBSUMED_BY)) {
+        for (TTIriRef relationship:List.of(iri(RDFS.SUBCLASS_OF),iri(RDFS.SUB_PROPERTY_OF),iri(IM.SUBSUMED_BY),iri(IM.USUALLY_SUBSUMED_BY),iri(IM.APPROXIMATE_SUBSUMED_BY),
+          iri(IM.LOCAL_SUBCLASS_OF),iri(IM.MULTIPLE_SUBSUMED_BY))) {
             if (entity.get(relationship) != null)
                 for (TTValue parent : entity.get(relationship).getElements()) {
                     subtypes.write(entity.getIri() + "\t" + relationship.getIri() + "\t" + parent.asIriRef().getIri() + "\n");
@@ -178,25 +179,25 @@ public class TTBulkFiler  implements TTDocumentFiler {
     private void addCodeToMaps(TTEntity entity, String graph) throws IOException {
         if (entity.getCode()!=null){
             codeMap.write(graph+entity.getCode()+"\t"+ entity.getIri()+"\n");
-            if (graph.equals(IM.NAMESPACE.iri)|| (graph.equals(SNOMED.NAMESPACE)))
+            if (graph.equals(IM.NAMESPACE)|| (graph.equals(SNOMED.NAMESPACE)))
                 codeCoreMap.write(entity.getCode()+"\t"+ entity.getIri()+"\n");
         }
     }
 
     private void addCodeIdToMaps(TTEntity entity) throws IOException {
-        if (entity.get(IM.CODE_ID.asTTIriRef())!=null) {
-            for (TTValue codeId : entity.get(IM.CODE_ID.asTTIriRef()).getElements()) {
+        if (entity.get(iri(IM.CODE_ID))!=null) {
+            for (TTValue codeId : entity.get(iri(IM.CODE_ID)).getElements()) {
                 codeIds.write(codeId.asLiteral().getValue() + "\t" + entity.getIri() + "\n");
             }
         }
     }
 
     private void addTermCodeToMaps(TTEntity entity, String graph) throws IOException {
-        if (entity.get(IM.HAS_TERM_CODE.asTTIriRef())!=null){
-                for (TTValue tc: entity.get(IM.HAS_TERM_CODE.asTTIriRef()).getElements()) {
-                    if (tc.asNode().get(IM.CODE.asTTIriRef()) != null) {
-                        String code = tc.asNode().get(IM.CODE.asTTIriRef()).asLiteral().getValue();
-                        if (graph.equals(IM.NAMESPACE.iri)|| (graph.equals(SNOMED.NAMESPACE)))
+        if (entity.get(iri(IM.HAS_TERM_CODE))!=null){
+                for (TTValue tc: entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
+                    if (tc.asNode().get(iri(IM.CODE)) != null) {
+                        String code = tc.asNode().get(iri(IM.CODE)).asLiteral().getValue();
+                        if (graph.equals(IM.NAMESPACE)|| (graph.equals(SNOMED.NAMESPACE)))
                             codeCoreMap.write(code + "\t" + entity.getIri() + "\n");
                     }
                 }
@@ -204,14 +205,14 @@ public class TTBulkFiler  implements TTDocumentFiler {
     }
 
     private void addMatchToToMaps(TTEntity entity, String graph) throws IOException {
-        boolean isCoreGraph= graph.equals(IM.NAMESPACE.iri)||graph.equals(SNOMED.NAMESPACE);
+        boolean isCoreGraph= graph.equals(IM.NAMESPACE)||graph.equals(SNOMED.NAMESPACE);
 
-        if (entity.get(IM.MATCHED_TO.asTTIriRef())!=null) {
-            for (TTValue core : entity.get(IM.MATCHED_TO.asTTIriRef()).getElements()) {
+        if (entity.get(iri(IM.MATCHED_TO))!=null) {
+            for (TTValue core : entity.get(iri(IM.MATCHED_TO)).getElements()) {
                 if (!isCoreGraph) {
                     legacyCore.write(entity.getIri() + "\t" + core.asIriRef().getIri() + "\n");
-                    if (entity.get(IM.CODE_ID.asTTIriRef())!=null)
-                        codeIds.write(entity.get(IM.CODE_ID.asTTIriRef()).asLiteral().getValue()+"\t"+
+                    if (entity.get(iri(IM.CODE_ID))!=null)
+                        codeIds.write(entity.get(iri(IM.CODE_ID)).asLiteral().getValue()+"\t"+
                                                        core.asIriRef().getIri()+"\n");
                 }
                 codeCoreMap.write(entity.getCode()+"\t"+ core.asIriRef().getIri()+"\n");
@@ -223,15 +224,15 @@ public class TTBulkFiler  implements TTDocumentFiler {
 
     private void addMatchToHasTermCode(TTEntity entity, TTValue core) throws IOException {
 
-        if (entity.get(IM.HAS_TERM_CODE.asTTIriRef()) != null) {
-            for (TTValue tc : entity.get(IM.HAS_TERM_CODE.asTTIriRef()).getElements()) {
+        if (entity.get(iri(IM.HAS_TERM_CODE)) != null) {
+            for (TTValue tc : entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
                 TTNode termCode = tc.asNode();
-                if (termCode.get(IM.CODE.asTTIriRef()) != null) {
-                    String code = termCode.get(IM.CODE.asTTIriRef()).asLiteral().getValue();
+                if (termCode.get(iri(IM.CODE)) != null) {
+                    String code = termCode.get(iri(IM.CODE)).asLiteral().getValue();
                     codeCoreMap.write(code+"\t"+core.asIriRef().getIri()+"\n");
                 }
-                if (termCode.get(RDFS.LABEL) != null) {
-                    String term = termCode.get(RDFS.LABEL).asLiteral().getValue();
+                if (termCode.get(iri(RDFS.LABEL)) != null) {
+                    String term = termCode.get(iri(RDFS.LABEL)).asLiteral().getValue();
                     writeTermCoreMap(term, core.asIriRef().getIri()+"\n");
                 }
             }

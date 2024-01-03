@@ -1,61 +1,21 @@
 package org.endeavourhealth.imapi.vocabulary;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
-public enum WORKFLOW implements Vocabulary {
-    DOMAIN("http://endhealth.info/"),
-    NAMESPACE(DOMAIN.iri + "workflow#"),
-
-    BUG_REPORT(NAMESPACE.iri + "bugReport"),
-    DATE_CREATED(NAMESPACE.iri + "dateCreated"),
-    CREATED_BY(NAMESPACE.iri + "createdBy"),
-    ASSIGNED_TO(NAMESPACE.iri + "assignedTo"),
-    STATE(NAMESPACE.iri + "state"),
-
-    // bug report
-    RELATED_PRODUCT(NAMESPACE.iri + "relatedProduct"),
-    RELATED_MODULE(NAMESPACE.iri + "relatedModule"),
-    OPERATING_SYSTEM(NAMESPACE.iri + "operatingSystem"),
-    BROWSER(NAMESPACE.iri + "browser"),
-    SEVERITY(NAMESPACE.iri + "severity"),
-    ERROR(NAMESPACE.iri + "errorDetails"),
-    REPRODUCE_STEPS(NAMESPACE.iri + "reproduceSteps"),
-    EXPECTED_RESULT(NAMESPACE.iri + "expectedResult"),
-    ACTUAL_RESULT(NAMESPACE.iri + "actualResult"),
-    RELATED_VERSION(NAMESPACE.iri + "relatedVersion");
-
-    public final String iri;
-
-    WORKFLOW(String url) {
-        this.iri = url;
-    }
-
-    @Override
-    public TTIriRef asTTIriRef() {
-        return iri(this.iri);
-    }
-
-    @Override
-    @JsonValue
-    public String getIri() {
-        return iri;
-    }
-
-    public static boolean contains(String iri) {
-        try {
-            WORKFLOW.valueOf(iri);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
-
-    @Override
-    public String toString() {
-        return iri;
-    }
+public class WORKFLOW {
+	public static final String DOMAIN = "http://endhealth.info/";
+	public static final String NAMESPACE = WORKFLOW.DOMAIN + "workflow#";
+	public static final String BUG_REPORT = WORKFLOW.NAMESPACE + "bugReport";
+	public static final String DATE_CREATED = WORKFLOW.NAMESPACE + "dateCreated";
+	public static final String CREATED_BY = WORKFLOW.NAMESPACE + "createdBy";
+	public static final String ASSIGNED_TO = WORKFLOW.NAMESPACE + "assignedTo";
+	public static final String STATE = WORKFLOW.NAMESPACE + "state";
+	public static final String RELATED_PRODUCT = WORKFLOW.NAMESPACE + "relatedProduct";
+	public static final String RELATED_MODULE = WORKFLOW.NAMESPACE + "relatedModule";
+	public static final String OPERATING_SYSTEM = WORKFLOW.NAMESPACE + "operatingSystem";
+	public static final String BROWSER = WORKFLOW.NAMESPACE + "browser";
+	public static final String SEVERITY = WORKFLOW.NAMESPACE + "severity";
+	public static final String ERROR = WORKFLOW.NAMESPACE + "errorDetails";
+	public static final String REPRODUCE_STEPS = WORKFLOW.NAMESPACE + "reproduceSteps";
+	public static final String EXPECTED_RESULT = WORKFLOW.NAMESPACE + "expectedResult";
+	public static final String ACTUAL_RESULT = WORKFLOW.NAMESPACE + "actualResult";
+	public static final String RELATED_VERSION = WORKFLOW.NAMESPACE + "relatedVersion";
 }

@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 /**
  * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument serializer
  */
@@ -48,9 +50,9 @@ public class TTNodeSerializer {
   }
 
   private void serializePredicates(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
-    List<TTIriRef> orderedPredicates = Stream.of(RDF.TYPE.asTTIriRef(),RDFS.LABEL.asTTIriRef(),RDFS.COMMENT.asTTIriRef(),IM.HAS_STATUS.asTTIriRef()).collect(Collectors.toList());
-    if (node.get(RDF.TYPE) != null) {
-      for (TTValue type : node.get(RDF.TYPE).getElements()) {
+    List<TTIriRef> orderedPredicates = Stream.of(iri(RDF.TYPE),iri(RDFS.LABEL),iri(RDFS.COMMENT),iri(IM.HAS_STATUS)).collect(Collectors.toList());
+    if (node.get(iri(RDF.TYPE)) != null) {
+      for (TTValue type : node.get(iri(RDF.TYPE)).getElements()) {
         List<TTIriRef> orderForType= EntityCache.getPredicateOrder(type.asIriRef().getIri());
         if (orderForType!=null)
           orderedPredicates= orderForType;
@@ -125,15 +127,15 @@ public class TTNodeSerializer {
 
    public void serializeLiteral(TTLiteral literal, JsonGenerator gen) throws IOException {
       if (literal.getType()!=null){
-         if (XSD.STRING.iri.equals(literal.getType().getIri()))
+         if (XSD.STRING.equals(literal.getType().getIri()))
             gen.writeString(literal.getValue());
-         else if (XSD.BOOLEAN.iri.equals(literal.getType().getIri()))
+         else if (XSD.BOOLEAN.equals(literal.getType().getIri()))
             gen.writeBoolean(literal.booleanValue());
-         else if (XSD.INTEGER.iri.equals(literal.getType().getIri()))
+         else if (XSD.INTEGER.equals(literal.getType().getIri()))
             gen.writeNumber(literal.intValue());
-         else if (XSD.LONG.iri.equals(literal.getType().getIri()))
+         else if (XSD.LONG.equals(literal.getType().getIri()))
              gen.writeNumber(literal.longValue());
-         else if (XSD.PATTERN.iri.equals(literal.getType().getIri())) {
+         else if (XSD.PATTERN.equals(literal.getType().getIri())) {
              gen.writeStartObject();
              gen.writeStringField("@value", literal.getValue());
              gen.writeStringField("@type",prefix(literal.getType().getIri()));

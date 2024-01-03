@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -111,11 +110,6 @@ public class SearchResultSummary {
         this.status = status;
         return this;
     }
-    public SearchResultSummary setStatus(Vocabulary status) {
-        return setStatus(status.asTTIriRef());
-    }
-
-
 
     public TTIriRef getScheme() {
         return scheme;
@@ -124,10 +118,6 @@ public class SearchResultSummary {
     @JsonSetter
     public SearchResultSummary setScheme(TTIriRef scheme) {
         this.scheme = scheme;
-        return this;
-    }
-    public SearchResultSummary setScheme(Vocabulary scheme) {
-        this.scheme = scheme.asTTIriRef();
         return this;
     }
 
@@ -146,14 +136,6 @@ public class SearchResultSummary {
         this.entityType.add(entityType);
         return this;
     }
-    public SearchResultSummary addEntityType(Vocabulary entityType) {
-        if (this.entityType==null)
-            this.entityType= new HashSet<>();
-        this.entityType.add(entityType.asTTIriRef());
-        return this;
-    }
-
-
 
     public Integer getWeighting() {
         return weighting;

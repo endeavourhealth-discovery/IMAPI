@@ -5,11 +5,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @JsonPropertyOrder({"@id","status","label","comment","targetShape","type","isContainedIn","subClassOf","group","scheme"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -43,10 +44,6 @@ public class FormGenerator {
 		this.status = status;
 		return this;
 	}
-	public FormGenerator setStatus(Vocabulary status) {
-		this.status = status.asTTIriRef();
-		return this;
-	}
 
 	public TTIriRef getScheme() {
 		return scheme;
@@ -55,10 +52,6 @@ public class FormGenerator {
 	@JsonSetter
 	public FormGenerator setScheme(TTIriRef scheme) {
 		this.scheme = scheme;
-		return this;
-	}
-	public FormGenerator setScheme(Vocabulary scheme) {
-		this.scheme = scheme.asTTIriRef();
 		return this;
 	}
 
@@ -127,12 +120,6 @@ public class FormGenerator {
 		this.targetShape = targetShape;
 		return this;
 	}
-	public FormGenerator setTargetShape(Vocabulary targetShape) {
-		this.targetShape = targetShape.asTTIriRef();
-		return this;
-	}
-
-
 
 	public List<PropertyShape> getProperty() {
 		return property;

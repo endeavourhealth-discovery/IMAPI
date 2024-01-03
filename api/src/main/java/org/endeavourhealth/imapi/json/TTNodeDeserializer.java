@@ -88,13 +88,13 @@ public class TTNodeDeserializer {
        if (node.isValueNode())
            return TTLiteral.literal(node);
        else if (node.isObject()) {
-           if (node.has(IM.IRI.iri)) {
+           if (node.has(IM.IRI)) {
                if (node.has("name"))
-                   return iri(expand(node.get(IM.IRI.iri).asText()), node.get("name").asText());
+                   return iri(expand(node.get(IM.IRI).asText()), node.get("name").asText());
                else
-                   return iri(expand(node.get(IM.IRI.iri).asText()));
+                   return iri(expand(node.get(IM.IRI).asText()));
            } else {
-               if (node.has(IM.VALUE.iri)) {
+               if (node.has(IM.VALUE)) {
                    return getJsonNodeAsLiteral(node);
                } else {
                    TTNode result = new TTNode();
@@ -111,20 +111,20 @@ public class TTNodeDeserializer {
    }
 
    public TTLiteral getJsonNodeAsLiteral(JsonNode node) throws IOException {
-      if (!node.has(IM.TYPE.iri))
-         return TTLiteral.literal(node.get(IM.VALUE.iri).textValue());
+      if (!node.has(IM.TYPE))
+         return TTLiteral.literal(node.get(IM.VALUE).textValue());
 
-      TTIriRef type = iri(expand(node.get(IM.TYPE.iri).asText()));
-      if (XSD.STRING.iri.equals(type.getIri()))
-         return TTLiteral.literal(node.get(IM.VALUE.iri).textValue());
-      else if (XSD.BOOLEAN.iri.equals(type.getIri())) {
-         return TTLiteral.literal(Boolean.valueOf(node.get(IM.VALUE.iri).asText()));
+      TTIriRef type = iri(expand(node.get(IM.TYPE).asText()));
+      if (XSD.STRING.equals(type.getIri()))
+         return TTLiteral.literal(node.get(IM.VALUE).textValue());
+      else if (XSD.BOOLEAN.equals(type.getIri())) {
+         return TTLiteral.literal(Boolean.valueOf(node.get(IM.VALUE).asText()));
       }
-      else if (XSD.INTEGER.iri.equals(type.getIri())) {
-         return TTLiteral.literal(Integer.valueOf(node.get(IM.VALUE.iri).asText()));
+      else if (XSD.INTEGER.equals(type.getIri())) {
+         return TTLiteral.literal(Integer.valueOf(node.get(IM.VALUE).asText()));
       }
-      else if (XSD.PATTERN.iri.equals(type.getIri()))
-         return TTLiteral.literal(Pattern.compile(node.get(IM.VALUE.iri).textValue()));
+      else if (XSD.PATTERN.equals(type.getIri()))
+         return TTLiteral.literal(Pattern.compile(node.get(IM.VALUE).textValue()));
       else
          throw new IOException("Unhandled literal type ["+type.getIri()+"]");
    }

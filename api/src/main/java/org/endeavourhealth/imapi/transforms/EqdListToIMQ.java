@@ -44,7 +44,7 @@ public class EqdListToIMQ {
 			String eqColumn= String.join("/",eqCol.getColumn());
 			String property = resources.getPath(eqTable + "/" + eqColumn);
 			select.property(p->p
-				.setIri(IM.NAMESPACE.iri+property));
+				.setIri(IM.NAMESPACE+property));
 		}
 	}
 
@@ -77,7 +77,7 @@ public class EqdListToIMQ {
 				for (int i=0; i<elements.length; i=i+2){
 					ReturnProperty property= new ReturnProperty();
 					aReturn.addProperty(property);
-					property.setIri(IM.NAMESPACE.iri+ elements[i]);
+					property.setIri(IM.NAMESPACE+ elements[i]);
 					if (i<(elements.length-2)) {
 						property.setReturn(new Return());
 						aReturn = property.getReturn();
@@ -85,7 +85,7 @@ public class EqdListToIMQ {
 				}
 			}
 			else {
-				aReturn.property(p->p.setIri(IM.NAMESPACE.iri+subPath));
+				aReturn.property(p->p.setIri(IM.NAMESPACE+subPath));
 			}
 		}
 	}

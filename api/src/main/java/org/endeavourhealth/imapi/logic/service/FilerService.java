@@ -15,9 +15,10 @@ import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Vocabulary;
-import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.springframework.stereotype.Component;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class FilerService {
@@ -43,10 +44,10 @@ public class FilerService {
         try {
             entityFiler.fileEntity(entity, graph);
 
-            if (entity.isType(IM.CONCEPT.asTTIriRef()))
+            if (entity.isType(iri(IM.CONCEPT)))
                 entityFiler.updateIsAs(entity.getIri());
 
-            if (entity.isType(IM.VALUESET.asTTIriRef()))
+            if (entity.isType(iri(IM.VALUESET)))
                 new SetExpander().expandSet(entity.getIri());
 
 
@@ -59,9 +60,6 @@ public class FilerService {
         } catch (Exception e) {
             throw new TTFilerException("Error filing entity", e);
         }
-    }
-    public void fileEntity(TTEntity entity, Vocabulary graph, String agentName, TTEntity usedEntity) throws TTFilerException {
-        fileEntity(entity,graph.asTTIriRef(),agentName,usedEntity);
     }
 
     public void writeDelta(TTEntity entity, ProvActivity activity, TTEntity provUsedEntity) throws Exception {
@@ -88,7 +86,7 @@ public class FilerService {
 
     private ProvAgent fileProvAgent(TTEntity entity, String agentName) throws TTFilerException {
         ProvAgent agent = provService.buildProvenanceAgent(entity, agentName);
-        entityProvFiler.fileEntity(agent, GRAPH.PROV.asTTIriRef());
+        entityProvFiler.fileEntity(agent, iri(GRAPH.PROV));
         return agent;
     }
 
@@ -97,7 +95,7 @@ public class FilerService {
             return null;
 
         TTEntity provUsedEntity = provService.buildUsedEntity(usedEntity);
-        entityProvFiler.fileEntity(provUsedEntity, GRAPH.PROV.asTTIriRef());
+        entityProvFiler.fileEntity(provUsedEntity, iri(GRAPH.PROV));
 
         return provUsedEntity;
     }
@@ -106,7 +104,7 @@ public class FilerService {
         String provUsedIri = provUsedEntity == null ? null : provUsedEntity.getIri();
 
         ProvActivity activity = provService.buildProvenanceActivity(entity, agent, provUsedIri);
-        entityProvFiler.fileEntity(activity, GRAPH.PROV.asTTIriRef());
+        entityProvFiler.fileEntity(activity, iri(GRAPH.PROV));
         return activity;
 
     }

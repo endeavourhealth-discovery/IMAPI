@@ -83,7 +83,7 @@ public class QueryRepository {
             if (queryRequest.getUpdate().getIri() == null)
                 throw new DataFormatException("Update queries must reference a predefined definition. Dynamic update based queries not supported");
             TTEntity updateEntity = getEntity(queryRequest.getUpdate().getIri());
-            queryRequest.setUpdate(updateEntity.get(IM.UPDATE_PROCEDURE.asTTIriRef()).asLiteral().objectValue(Update.class));
+            queryRequest.setUpdate(updateEntity.get(TTIriRef.iri(IM.UPDATE_PROCEDURE)).asLiteral().objectValue(Update.class));
 
             checkReferenceDate();
             SparqlConverter converter = new SparqlConverter(queryRequest);
@@ -114,21 +114,21 @@ public class QueryRepository {
     private Query unpackQuery(Query query, QueryRequest queryRequest) throws JsonProcessingException, DataFormatException, QueryException {
         if (query.getIri() != null && query.getReturn() == null && query.getMatch() == null) {
             TTEntity entity = getEntity(query.getIri());
-            if (entity.get(SHACL.PARAMETER) != null) {
-                for (TTValue param : entity.get(SHACL.PARAMETER).getElements()) {
-                    if (param.asNode().get(SHACL.MINCOUNT) != null) {
-                        String parameterName = param.asNode().get(RDFS.LABEL.asTTIriRef()).asLiteral().getValue();
+            if (entity.get(TTIriRef.iri(SHACL.PARAMETER)) != null) {
+                for (TTValue param : entity.get(TTIriRef.iri(SHACL.PARAMETER)).getElements()) {
+                    if (param.asNode().get(TTIriRef.iri(SHACL.MINCOUNT)) != null) {
+                        String parameterName = param.asNode().get(TTIriRef.iri(RDFS.LABEL)).asLiteral().getValue();
                         TTIriRef parameterType;
-                        if (param.asNode().get(SHACL.DATATYPE) != null)
-                            parameterType = param.asNode().get(SHACL.DATATYPE).asIriRef();
+                        if (param.asNode().get(TTIriRef.iri(SHACL.DATATYPE)) != null)
+                            parameterType = param.asNode().get(TTIriRef.iri(SHACL.DATATYPE)).asIriRef();
                         else
-                            parameterType = param.asNode().get(SHACL.CLASS).asIriRef();
+                            parameterType = param.asNode().get(TTIriRef.iri(SHACL.CLASS)).asIriRef();
                         boolean found = false;
                         for (Argument arg : queryRequest.getArgument())
                             if (arg.getParameter().equals(parameterName)) {
                                 found = true;
                                 String error = "Query request arguments require parameter name :'" + parameterName + "' ";
-                                if (parameterType.equals(TTIriRef.iri(IM.NAMESPACE.iri + "IriRef"))) {
+                                if (parameterType.equals(TTIriRef.iri(IM.NAMESPACE + "IriRef"))) {
                                     if (arg.getValueIri() == null)
                                         throw new DataFormatException(error + " to have a valueIri :{@id : htttp....}");
                                 } else if (arg.getValueData() == null) {
@@ -143,8 +143,8 @@ public class QueryRepository {
 
                 }
             }
-            if (null == entity.get(IM.DEFINITION.asTTIriRef())) throw new QueryException("Query: '" + query.getIri() + "' was not found");
-            return entity.get(IM.DEFINITION.asTTIriRef()).asLiteral().objectValue(Query.class);
+            if (null == entity.get(TTIriRef.iri(IM.DEFINITION))) throw new QueryException("Query: '" + query.getIri() + "' was not found");
+            return entity.get(TTIriRef.iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
         }
         return query;
     }
@@ -302,7 +302,7 @@ public class QueryRepository {
 
     private TTEntity getEntity(String iri) {
         return new EntityRepository2().getBundle(iri,
-                Set.of(IM.DEFINITION.iri, RDF.TYPE.iri, IM.FUNCTION_DEFINITION.iri, IM.UPDATE_PROCEDURE.iri, SHACL.PARAMETER.getIri())).getEntity();
+                Set.of(IM.DEFINITION, RDF.TYPE, IM.FUNCTION_DEFINITION, IM.UPDATE_PROCEDURE, SHACL.PARAMETER)).getEntity();
 
     }
 
@@ -320,7 +320,7 @@ public class QueryRepository {
         String iris = String.join(",", iriList);
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            String sql = "Select ?entity ?label where { ?entity <" + RDFS.LABEL.iri + "> ?label.\n" +
+            String sql = "Select ?entity ?label where { ?entity <" + RDFS.LABEL + "> ?label.\n" +
                     "filter (?entity in (" + iris + "))\n}";
             TupleQuery qry = conn.prepareTupleQuery(sql);
             try (TupleQueryResult rs = qry.evaluate()) {
@@ -432,7 +432,7 @@ public class QueryRepository {
         }
         else if (match.getTypeOf() != null) {
             if(!isIri(match.getTypeOf().getIri())) {
-                match.setTypeOf(IM.NAMESPACE.iri + match.getTypeOf().getIri());
+                match.setTypeOf(IM.NAMESPACE + match.getTypeOf().getIri());
             }
             match.setName(iriLabels.get(match.getTypeOf()));
         }
@@ -485,7 +485,7 @@ public class QueryRepository {
     private void addToIriList(String iri, List<TTIriRef> ttIris, Map<String, String> iris) {
         if (iri != null && !iri.isEmpty()){
             if(!isIri(iri)) {
-                iri = IM.NAMESPACE.iri + iri;
+                iri = IM.NAMESPACE + iri;
             }
             ttIris.add(TTIriRef.iri(iri));
             iris.put(iri, null);

@@ -10,6 +10,8 @@ import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 /**
  * Converts Functional syntax to Endeavour/ Discovery syntax using an ANTLR parser
  */
@@ -44,11 +46,11 @@ public class OWLToTT extends OWLFSBaseVisitor {
    }
 
    private void addType(TTEntity entity, TTIriRef type){
-      if (entity.get(RDF.TYPE)==null){
+      if (entity.get(iri(RDF.TYPE))==null){
          TTArray types= new TTArray();
-         entity.set(RDF.TYPE,types);
+         entity.set(iri(RDF.TYPE),types);
       } else {
-         TTArray types = entity.get(RDF.TYPE);
+         TTArray types = entity.get(iri(RDF.TYPE));
          types.add(type);
       }
    }
@@ -62,9 +64,9 @@ public class OWLToTT extends OWLFSBaseVisitor {
       else if (ctx.subObjectPropertyOf()!=null)
          return visitSubObjectPropertyOf(ctx.subObjectPropertyOf());
       else if (ctx.reflexiveObjectProperty()!=null){
-         addType(entity, OWL.REFLEXIVE.asTTIriRef());
+         addType(entity, iri(OWL.REFLEXIVE));
       } else if (ctx.transitiveObjectProperty()!=null){
-         addType(entity,OWL.TRANSITIVE.asTTIriRef());
+         addType(entity,iri(OWL.TRANSITIVE));
       }
 
       return null;
@@ -73,7 +75,7 @@ public class OWLToTT extends OWLFSBaseVisitor {
    @Override
    public Object visitSubClassOf(OWLFSParser.SubClassOfContext ctx){
       if (!isGCI(ctx)){
-         TTArray subClassOf= addArrayAxiom(RDFS.SUBCLASS_OF.asTTIriRef());
+         TTArray subClassOf= addArrayAxiom(iri(RDFS.SUBCLASS_OF));
          subClassOf.add(convertClassExpression(ctx.superClass().classExpression()));
       }
       return this.defaultResult();
@@ -87,7 +89,7 @@ public class OWLToTT extends OWLFSBaseVisitor {
       return entity.get(predicate);
    }
    @Override public Object visitEquivalentClasses(OWLFSParser.EquivalentClassesContext ctx) {
-      TTArray equivalent= addArrayAxiom(OWL.EQUIVALENT_CLASS.asTTIriRef());
+      TTArray equivalent= addArrayAxiom(iri(OWL.EQUIVALENT_CLASS));
       equivalent.add(convertClassExpression(ctx.classExpression().get(1)));
       return null;
    }
@@ -95,11 +97,11 @@ public class OWLToTT extends OWLFSBaseVisitor {
    @Override public Object visitSubObjectPropertyOf(OWLFSParser.SubObjectPropertyOfContext ctx) {
 
          if (ctx.subObjectPropertyExpression().propertyExpressionChain() != null) {
-            entity.set(OWL.PROPERTY_CHAIN,
+            entity.set(iri(OWL.PROPERTY_CHAIN),
                 convertPropertyChain(ctx.subObjectPropertyExpression().propertyExpressionChain()));
          }
       else {
-         TTArray superProp= addArrayAxiom(RDFS.SUB_PROPERTY_OF.asTTIriRef());
+         TTArray superProp= addArrayAxiom(iri(RDFS.SUB_PROPERTY_OF));
          superProp.add( new TTIriRef(expand(ctx.superObjectPropertyExpression()
              .objectPropertyExpression()
              .objectProperty()
@@ -123,20 +125,20 @@ public class OWLToTT extends OWLFSBaseVisitor {
       else if (ctx.objectIntersectionOf()!=null){
          TTNode exp= new TTNode();
          TTArray inters= new TTArray();
-         exp.set(OWL.INTERSECTION_OF,inters);
+         exp.set(iri(OWL.INTERSECTION_OF),inters);
          for (OWLFSParser.ClassExpressionContext ctxInter:ctx.objectIntersectionOf().classExpression()){
             inters.add(convertClassExpression(ctxInter));
          }
          return exp;
       } else if (ctx.objectSomeValuesFrom()!=null) {
          TTNode exp = new TTNode();
-         exp.set(RDF.TYPE, OWL.RESTRICTION.asTTIriRef());
-         exp.set(OWL.ON_PROPERTY, new TTIriRef(expand(ctx.objectSomeValuesFrom()
+         exp.set(iri(RDF.TYPE), iri(OWL.RESTRICTION));
+         exp.set(iri(OWL.ON_PROPERTY), new TTIriRef(expand(ctx.objectSomeValuesFrom()
              .objectPropertyExpression()
              .objectProperty()
              .iri()
              .getText())));
-         exp.set(OWL.SOME_VALUES_FROM,
+         exp.set(iri(OWL.SOME_VALUES_FROM),
              convertClassExpression(ctx.objectSomeValuesFrom().classExpression()));
          return exp;
       } else

@@ -177,22 +177,21 @@ public class SparqlConverter {
 
     }
 
-
     public static String getDefaultPrefixes() {
         TTContext prefixes = new TTContext();
         StringBuilder sparql = new StringBuilder();
-        prefixes.add(RDFS.NAMESPACE.iri, "rdfs");
-        sparql.append("PREFIX rdfs: <" + RDFS.NAMESPACE.iri + ">\n");
-        prefixes.add(RDF.NAMESPACE.iri, "rdf");
-        sparql.append("PREFIX rdf: <" + RDF.NAMESPACE.iri + ">\n");
-        prefixes.add(IM.NAMESPACE.iri, "im");
-        sparql.append("PREFIX im: <" + IM.NAMESPACE.iri + ">\n");
-        prefixes.add(XSD.NAMESPACE.iri, "xsd");
-        sparql.append("PREFIX xsd: <" + XSD.NAMESPACE.iri + ">\n");
+        prefixes.add(RDFS.NAMESPACE, "rdfs");
+        sparql.append("PREFIX rdfs: <" + RDFS.NAMESPACE + ">\n");
+        prefixes.add(RDF.NAMESPACE, "rdf");
+        sparql.append("PREFIX rdf: <" + RDF.NAMESPACE + ">\n");
+        prefixes.add(IM.NAMESPACE, "im");
+        sparql.append("PREFIX im: <" + IM.NAMESPACE + ">\n");
+        prefixes.add(XSD.NAMESPACE, "xsd");
+        sparql.append("PREFIX xsd: <" + XSD.NAMESPACE + ">\n");
 		prefixes.add(SNOMED.NAMESPACE,"sn");
 		sparql.append("PREFIX sn: <"+ SNOMED.NAMESPACE+">\n");
-        prefixes.add(SHACL.NAMESPACE.iri, "sh");
-        sparql.append("PREFIX sh: <").append(SHACL.NAMESPACE.iri).append(">\n\n");
+        prefixes.add(SHACL.NAMESPACE, "sh");
+        sparql.append("PREFIX sh: <").append(SHACL.NAMESPACE).append(">\n\n");
         return sparql.toString();
     }
 
@@ -204,7 +203,7 @@ public class SparqlConverter {
     private void textSearch(StringBuilder whereQl) {
         String text = queryRequest.getTextSearch();
         if (query.getReturn() == null) {
-            query.return_(s -> s.property(p -> p.setIri(RDFS.LABEL.getIri())));
+            query.return_(s -> s.property(p -> p.setIri(RDFS.LABEL)));
         }
         if (text.split(" ").length > 3) {
             whereQl.append("?").append(mainEntity).append(" rdfs:label ?labelText.\n");
@@ -223,7 +222,6 @@ public class SparqlConverter {
             whereQl.append("       con:entities ?").append(mainEntity).append(".\n");
         }
     }
-
 
     private void match(StringBuilder whereQl, String parent, Match match) throws QueryException {
         if (match.isExclude()) {
@@ -620,7 +618,7 @@ public class SparqlConverter {
         } else {
             if (!selectQl.toString().contains(object)) selectQl.append(" ?").append(object);
             if (labelVariable == null)
-                if (path.getIri().equals(RDFS.LABEL.getIri()))
+                if (path.getIri().equals(RDFS.LABEL))
                     labelVariable = object;
         }
         whereQl.append("}\n");

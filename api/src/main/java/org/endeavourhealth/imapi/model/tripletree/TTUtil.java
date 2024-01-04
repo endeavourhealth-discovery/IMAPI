@@ -5,6 +5,8 @@ import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 /**
  * Static methods for casting TT classes to business objects for use in builders
  */
@@ -27,23 +29,17 @@ public class TTUtil {
 				else
 				  return clazz.cast(value.asNode());
 	}
-	public static Object get(TTNode node, Vocabulary predicate, Class clazz) {
-		return get(node,predicate.asTTIriRef(),clazz);
-	}
 
 	public static void add(TTNode node, TTIriRef predicate, TTValue value){
 		if (!value.isIriRef() && !value.isLiteral()) {
 			int order=0;
 			if (node.get(predicate)!=null)
 				order= node.get(predicate).size();
-			value.asNode().set(SHACL.ORDER,TTLiteral.literal(order));
+			value.asNode().set(iri(SHACL.ORDER),TTLiteral.literal(order));
 
 		}
 		node.addObject(predicate,value);
 
-	}
-	public static void add(TTNode node, Vocabulary predicate, TTValue value){
-		add(node,predicate.asTTIriRef(),value);
 	}
 
 	public static <T> List<T> getList(TTNode node, TTIriRef predicate,Class clazz){
@@ -61,27 +57,22 @@ public class TTUtil {
 		}
 		return result;
 	}
-	public static <T> List<T> getList(TTNode node, Vocabulary predicate,Class clazz){
-		return getList(node,predicate.asTTIriRef(),clazz);
-	}
 
 	public static <T> List<T> getOrderedList(TTNode node,TTIriRef predicate,Class clazz){
 		List<T> result = getList(node,predicate,clazz);
 		try {
-			Collections.sort(result, Comparator.comparing(o -> ((TTNode) o).get(SHACL.ORDER).asLiteral().intValue()));
+			Collections.sort(result, Comparator.comparing(o -> ((TTNode) o).get(iri(SHACL.ORDER)).asLiteral().intValue()));
 			return result;
 		} catch (Exception e) {
 			return result;
 		}
 	}
-	public static <T> List<T> getOrderedList(TTNode node,Vocabulary predicate,Class clazz){
-		return getOrderedList(node,predicate.asTTIriRef(),clazz);
-	}
+
 	public static TTContext getDefaultContext(){
 		TTContext ctx=new TTContext();
-		ctx.add(IM.NAMESPACE.iri,"");
-		ctx.add(RDFS.NAMESPACE.iri,"rdfs");
-		ctx.add(RDF.NAMESPACE.iri,"rdf");
+		ctx.add(IM.NAMESPACE,"");
+		ctx.add(RDFS.NAMESPACE,"rdfs");
+		ctx.add(RDF.NAMESPACE,"rdf");
 		ctx.add(SNOMED.NAMESPACE,"sn");
 		return ctx;
 	}

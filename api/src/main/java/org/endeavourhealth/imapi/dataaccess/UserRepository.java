@@ -148,7 +148,7 @@ public class UserRepository {
     }
 
     public List<String> getUserOrganisations(String user) throws JsonProcessingException {
-        List<String> result = new ArrayList<>(List.of(IM.NAMESPACE.iri));
+        List<String> result = new ArrayList<>(List.of(IM.NAMESPACE));
         String sparql = getSparqlSelect();
         try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
             TupleQuery qry = prepareSparql(conn, sparql);

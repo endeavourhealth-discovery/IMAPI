@@ -58,7 +58,7 @@ public class UserService {
 
     public boolean getEditAccess(String userId, String entityIri) throws JsonProcessingException {
         List<String> organisations = this.getUserOrganisations(userId);
-        Set<String> predicates = Collections.singleton(IM.HAS_SCHEME.iri);
+        Set<String> predicates = Collections.singleton(IM.HAS_SCHEME);
         TTEntity entity = entityService.getBundle(entityIri, predicates).getEntity();
         if(null == entity.getScheme()) return false;
         return organisations.contains(entity.getScheme().getIri());

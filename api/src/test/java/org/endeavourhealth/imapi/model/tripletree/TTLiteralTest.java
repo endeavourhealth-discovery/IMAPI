@@ -22,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TTLiteralTest {
     private final TTEntity testObject = (TTEntity) new TTEntity("http://endhealth.co.uk/im#objectTest")
         .setGraph(iri("http://endhealth.co.uk/im#Rich"))
-        .set(RDFS.LABEL, "Test object")
-        .set(RDFS.COMMENT, "This is an entity to test object serialization")
-        .set(IM.QUERY, literal(new SearchTermCode().setTerm("Mickey Mouse").setCode("EM-EYE-CEE").setStatus(IM.ACTIVE)));
+        .set(TTIriRef.iri(RDFS.LABEL), "Test object")
+        .set(TTIriRef.iri(RDFS.COMMENT), "This is an entity to test object serialization")
+        .set(TTIriRef.iri(IM.QUERY), literal(new SearchTermCode().setTerm("Mickey Mouse").setCode("EM-EYE-CEE").setStatus(TTIriRef.iri(IM.ACTIVE))));
 
     private final String json = new StringJoiner(System.lineSeparator())
         .add("{")
@@ -43,7 +43,7 @@ class TTLiteralTest {
     void saveTest() throws Exception {
         TTDocument doc = new TTDocument();
         doc.addEntity(testObject);
-        doc.setCrud(IM.UPDATE_ALL);
+        doc.setCrud(TTIriRef.iri(IM.UPDATE_ALL));
 
         TTFilerFactory.getDocumentFiler().fileDocument(doc);
     }
@@ -51,7 +51,7 @@ class TTLiteralTest {
     // @Test
     void loadTest() throws JsonProcessingException {
         TTBundle bundle = new EntityService().getFullEntity("http://endhealth.co.uk/im#objectTest");
-        TTArray preds = bundle.getEntity().get(IM.QUERY);
+        TTArray preds = bundle.getEntity().get(TTIriRef.iri(IM.QUERY));
         assertEquals(1, preds.size());
 
         TTValue val = preds.get(0);
@@ -74,7 +74,7 @@ class TTLiteralTest {
         TTEntity entity = new ObjectMapper().readValue(json, TTEntity.class);
         assertEquals(entity.getIri(), testObject.getIri());
 
-        TTArray preds = entity.get(IM.QUERY);
+        TTArray preds = entity.get(TTIriRef.iri(IM.QUERY));
         assertEquals(1, preds.size());
 
         TTValue val = preds.get(0);

@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.model.iml;
 
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,9 +25,6 @@ public class ConceptSet extends Entity{
 			this.usedIn= new HashSet<>();
 		this.usedIn.add(query);
 		return this;
-	}
-	public ConceptSet addUsedIn(Vocabulary query){
-		return addUsedIn(query.asTTIriRef());
 	}
 
 	public Query getDefinition() {

@@ -158,8 +158,8 @@ public class EntityController {
             page = 1;
             size = EntityService.MAX_CHILDREN;
         }
-		TTEntity entity = entityService.getBundle(iri, Set.of(RDF.TYPE.getIri())).getEntity();
-		boolean inactive = entity.getType() != null && entity.getType().contains(IM.TASK.asTTIriRef());
+		TTEntity entity = entityService.getBundle(iri, Set.of(RDF.TYPE)).getEntity();
+		boolean inactive = entity.getType() != null && entity.getType().contains(TTIriRef.iri(IM.TASK));
         return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive);
 	}
 
@@ -667,7 +667,7 @@ public class EntityController {
 		LOG.debug("getSuperiorPropertiesPaged");
 		if (null == page) page = 1;
 		if (null == size) size = EntityService.MAX_CHILDREN;
-		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE.iri, SNOMED.NAMESPACE));
+		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
 		return entityService.getSuperiorPropertiesPaged(iri,schemeIris,page,size,inactive);
 	}
 
@@ -686,7 +686,7 @@ public class EntityController {
 		LOG.debug("getSuperiorPropertiesPaged");
 		if (null == page) page = 1;
 		if (null == size) size = EntityService.MAX_CHILDREN;
-		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE.iri, SNOMED.NAMESPACE));
+		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
 		return entityService.getSuperiorPropertiesBoolFocusPaged(conceptIris,schemeIris,page,size,inactive);
 	}
 
@@ -705,7 +705,7 @@ public class EntityController {
 		LOG.debug("getSuperiorPropertyValuesPaged");
 		if (null == page) page = 1;
 		if (null == size) size = EntityService.MAX_CHILDREN;
-		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE.iri, SNOMED.NAMESPACE));
+		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
 		return entityService.getSuperiorPropertyValuesPaged(iri,schemeIris,page,size,inactive);
 	}
 

@@ -17,12 +17,14 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.*;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 /**
  * Methods to create update and delete entities and generate a transaction log with the ability to refile
@@ -142,7 +144,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
 
             setEntityCrudOperation(transaction, entity);
 
-            if (Objects.equals(entity.getCrud(), IM.UPDATE_ALL.asTTIriRef())) {
+            if (Objects.equals(entity.getCrud(), iri(IM.UPDATE_ALL))) {
                 if (entity.getGraph() == null && transaction.getGraph() == null)
                     throw new TTFilerException("Entity " + entity.getIri() + " must have a graph assigned, or the transaction must have a default graph");
                 String graph = entity.getGraph() != null ? entity.getGraph().getIri() : transaction.getGraph().getIri();
@@ -160,7 +162,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
                 entity.setCrud(transaction.getCrud());
             }
             else
-                entity.setCrud(IM.UPDATE_ALL);
+                entity.setCrud(iri(IM.UPDATE_ALL));
         }
     }
 
@@ -172,7 +174,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
                 String sql = "select * where \n{ graph <" + graph + "> {" +
                   "?s ?p ?o.\n" +
                   "filter (?o in(" + String.join(",", entities) + "))" +
-                  "filter (?p!= <" + IM.IS_A.getIri() + ">) } }";
+                  "filter (?p!= <" + IM.IS_A + ">) } }";
                 TupleQuery qry = conn.prepareTupleQuery(sql);
                 try (TupleQueryResult rs = qry.evaluate()) {
                     if (rs.hasNext())
@@ -193,7 +195,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
 
                     TTIriRef entityGraph = processGraphs(document, entity);
 
-                    if (entity.get(IM.PRIVACY_LEVEL) != null && (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
+                    if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
                         continue;
 
                     fileEntity(entity, entityGraph);
@@ -214,7 +216,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
             }
     }
     private void fileEntity(TTEntity entity, TTIriRef graph) throws TTFilerException {
-        if (GRAPH.ODS.iri.equals(graph.getIri()))
+        if (GRAPH.ODS.equals(graph.getIri()))
             instanceFiler.fileEntity(entity, graph);
         else
             conceptFiler.fileEntity(entity, graph);
@@ -243,8 +245,8 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
         //set external isas first i.e. top of the tree
         for (TTEntity entity : toClose) {
             String subclass = entity.getIri();
-            if (entity.get(RDFS.SUBCLASS_OF) != null) {
-                for (TTValue superClass : entity.get(RDFS.SUBCLASS_OF).getElements()) {
+            if (entity.get(iri(RDFS.SUBCLASS_OF)) != null) {
+                for (TTValue superClass : entity.get(iri(RDFS.SUBCLASS_OF)).getElements()) {
                     String iri = superClass.asIriRef().getIri();
                     if (!entitiesFiled.contains(iri)) {
                         Set<String> ancestors = conceptFiler.getIsAs(iri);
@@ -268,8 +270,8 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
         if (!done.contains(subclass)) {
             isAs.computeIfAbsent(subclass, s -> new HashSet<>());
             isAs.get(subclass).add(subclass);
-            if (entity.get(RDFS.SUBCLASS_OF) != null) {
-                for (TTValue superClass : entity.get(RDFS.SUBCLASS_OF).getElements()) {
+            if (entity.get(iri(RDFS.SUBCLASS_OF)) != null) {
+                for (TTValue superClass : entity.get(iri(RDFS.SUBCLASS_OF)).getElements()) {
                     String iri = superClass.asIriRef().getIri();
                     if (!done.contains(iri)) {
                         isAs.get(subclass).add(iri);
@@ -332,7 +334,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
     public void fileEntities(Map<String, String> prefixMap, TTDocument document) throws TTFilerException {
         LOG.info("Filing entities.... ");
 
-        TTIriRef defaultGraph = document.getGraph() != null ? document.getGraph() : GRAPH.DISCOVERY.asTTIriRef();
+        TTIriRef defaultGraph = document.getGraph() != null ? document.getGraph() : iri(GRAPH.DISCOVERY);
 
         startTransaction();
         try {
@@ -340,7 +342,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
                 int i = 0;
                 for (TTEntity entity : document.getEntities()) {
                     TTIriRef entityGraph = entity.getGraph() != null ? entity.getGraph() : defaultGraph;
-                    if (entity.get(IM.PRIVACY_LEVEL) != null && (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
+                    if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
                         continue;
                     setEntityCrudOperation(document, entity);
                     fileEntity(entity, entityGraph);

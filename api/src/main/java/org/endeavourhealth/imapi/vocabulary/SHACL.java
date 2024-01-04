@@ -1,80 +1,44 @@
 package org.endeavourhealth.imapi.vocabulary;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
-public enum SHACL implements Vocabulary {
-   NAMESPACE("http://www.w3.org/ns/shacl#"),
-   PREFIX("sh"),
-   PATH(NAMESPACE.iri +"path"),
-   MININCLUSIVE(NAMESPACE.iri +"minInclusive"),
-   MINEXCLUSIVE(NAMESPACE.iri +"minExclusive"),
-   MAXINCLUSIVE(NAMESPACE.iri +"maxInclusive"),
-   MAXEXCLUSIVE(NAMESPACE.iri +"maxExclusive"),
-   PROPERTY(NAMESPACE.iri +"property"),
-   PROPERTY_GROUP(NAMESPACE.iri +"PropertyGroup"),
-   MINCOUNT(NAMESPACE.iri +"minCount"),
-   MAXCOUNT(NAMESPACE.iri +"maxCount"),
-   VALUE(NAMESPACE.iri +"value"),
-   PATTERN(NAMESPACE.iri +"pattern"),
-   INVERSEPATH(NAMESPACE.iri +"inversePath"),
-   CLASS(NAMESPACE.iri +"class"),
-   DATATYPE(NAMESPACE.iri +"datatype"),
-   SPARQL(NAMESPACE.iri +"sparql"),
-   SELECT(NAMESPACE.iri +"select"),
-   PARAMETER(NAMESPACE.iri +"parameter"),
-   IRI(NAMESPACE.iri +"IRI"),
-   OPTIONAL(NAMESPACE.iri +"optional"),
-   NODESHAPE(NAMESPACE.iri +"NodeShape"),
-   TARGETCLASS(NAMESPACE.iri +"targetClass"),
-   NODE(NAMESPACE.iri +"node"),
-   ORDER(NAMESPACE.iri +"order"),
-   OR(NAMESPACE.iri +"or"),
-   NOT(NAMESPACE.iri +"not"),
-   NODE_KIND(NAMESPACE.iri +"nodeKind"),
-   PROPERTYSHAPE(NAMESPACE.iri +"PropertyShape"),
-   AND(NAMESPACE.iri +"and"),
-   NODES(NAMESPACE.iri +"nodes"),
-   TARGET_TYPE(NAMESPACE.iri +"targetType"),
-   TARGET(NAMESPACE.iri +"target"),
-   SPARQL_TARGET(NAMESPACE.iri +"SPARQLTarget"),
-   FUNCTION(NAMESPACE.iri +"FunctionClause"),
-   RETURN_TYPE(NAMESPACE.iri +"returnType"),
-   GROUP(NAMESPACE.iri +"group"),
-   NAME(NAMESPACE.iri +"name"),
-   EXPRESSION(NAMESPACE.iri +"expression"),
-   HAS_VALUE(NAMESPACE.iri +"hasValue");
-
-   public final String iri;
-   SHACL(String iri) {
-      this.iri = iri;
-   }
-
-   @Override
-   public TTIriRef asTTIriRef() {
-      return iri(this.iri);
-   }
-
-   @Override
-   @JsonValue
-   public String getIri() {
-      return iri;
-   }
-
-   public static boolean contains(String iri) {
-      try {
-         SHACL.valueOf(iri);
-         return true;
-      } catch (IllegalArgumentException e) {
-         return false;
-      }
-   }
-
-    @Override
-    public String toString() {
-        return iri;
-    }
+public class SHACL {
+	public static final String NAMESPACE = "http://www.w3.org/ns/shacl#";
+	public static final String PREFIX = "sh";
+	public static final String PATH = SHACL.NAMESPACE + "path";
+	public static final String MININCLUSIVE = SHACL.NAMESPACE + "minInclusive";
+	public static final String MINEXCLUSIVE = SHACL.NAMESPACE + "minExclusive";
+	public static final String MAXINCLUSIVE = SHACL.NAMESPACE + "maxInclusive";
+	public static final String MAXEXCLUSIVE = SHACL.NAMESPACE + "maxExclusive";
+	public static final String PROPERTY = SHACL.NAMESPACE + "property";
+	public static final String PROPERTY_GROUP = SHACL.NAMESPACE + "PropertyGroup";
+	public static final String MINCOUNT = SHACL.NAMESPACE + "minCount";
+	public static final String MAXCOUNT = SHACL.NAMESPACE + "maxCount";
+	public static final String VALUE = SHACL.NAMESPACE + "value";
+	public static final String PATTERN = SHACL.NAMESPACE + "pattern";
+	public static final String INVERSEPATH = SHACL.NAMESPACE + "inversePath";
+	public static final String CLASS = SHACL.NAMESPACE + "class";
+	public static final String DATATYPE = SHACL.NAMESPACE + "datatype";
+	public static final String SPARQL = SHACL.NAMESPACE + "sparql";
+	public static final String SELECT = SHACL.NAMESPACE + "select";
+	public static final String PARAMETER = SHACL.NAMESPACE + "parameter";
+	public static final String IRI = SHACL.NAMESPACE + "IRI";
+	public static final String OPTIONAL = SHACL.NAMESPACE + "optional";
+	public static final String NODESHAPE = SHACL.NAMESPACE + "NodeShape";
+	public static final String TARGETCLASS = SHACL.NAMESPACE + "targetClass";
+	public static final String NODE = SHACL.NAMESPACE + "node";
+	public static final String ORDER = SHACL.NAMESPACE + "order";
+	public static final String OR = SHACL.NAMESPACE + "or";
+	public static final String NOT = SHACL.NAMESPACE + "not";
+	public static final String NODE_KIND = SHACL.NAMESPACE + "nodeKind";
+	public static final String PROPERTYSHAPE = SHACL.NAMESPACE + "PropertyShape";
+	public static final String AND = SHACL.NAMESPACE + "and";
+	public static final String NODES = SHACL.NAMESPACE + "nodes";
+	public static final String TARGET_TYPE = SHACL.NAMESPACE + "targetType";
+	public static final String TARGET = SHACL.NAMESPACE + "target";
+	public static final String SPARQL_TARGET = SHACL.NAMESPACE + "SPARQLTarget";
+	public static final String FUNCTION = SHACL.NAMESPACE + "FunctionClause";
+	public static final String RETURN_TYPE = SHACL.NAMESPACE + "returnType";
+	public static final String GROUP = SHACL.NAMESPACE + "group";
+	public static final String NAME = SHACL.NAMESPACE + "name";
+	public static final String EXPRESSION = SHACL.NAMESPACE + "expression";
+	public static final String HAS_VALUE = SHACL.NAMESPACE + "hasValue";
 }
-

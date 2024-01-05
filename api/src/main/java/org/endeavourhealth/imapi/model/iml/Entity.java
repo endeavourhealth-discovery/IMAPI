@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.iml;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.HashSet;
@@ -81,12 +82,11 @@ public class Entity {
 		return this;
 	}
 
-
-
 	public TTIriRef getStatus() {
 		return status;
 	}
 
+	@JsonSetter
 	public Entity setStatus(TTIriRef status) {
 		this.status = status;
 		return this;
@@ -96,6 +96,7 @@ public class Entity {
 		return scheme;
 	}
 
+	@JsonSetter
 	public Entity setScheme(TTIriRef scheme) {
 		this.scheme = scheme;
 		return this;

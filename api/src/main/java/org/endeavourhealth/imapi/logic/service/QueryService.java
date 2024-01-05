@@ -40,13 +40,13 @@ public class QueryService {
                 for (JsonNode entity : queryResults.get("entities")) {
                     SearchResultSummary summary = new SearchResultSummary();
                     summary.setIri(entity.get("@id").asText());
-                    summary.setName(entity.get(RDFS.LABEL.getIri()).asText());
-                    if (entity.has(RDFS.COMMENT.getIri())) summary.setDescription(entity.get(RDFS.COMMENT.getIri()).asText());
-                    if (entity.has(IM.CODE.getIri())) summary.setCode(entity.get(IM.CODE.getIri()).asText());
-                    summary.setStatus(jsonNodeToTTIriRef(entity, IM.HAS_STATUS.getIri()).get(0));
-                    summary.setScheme(jsonNodeToTTIriRef(entity, IM.HAS_SCHEME.getIri()).get(0));
-                    summary.getEntityType().addAll(jsonNodeToTTIriRef(entity, RDF.TYPE.getIri()));
-                    if (entity.has(IM.WEIGHTING.getIri())) summary.setWeighting(entity.get(IM.WEIGHTING.getIri()).asInt());
+                    summary.setName(entity.get(RDFS.LABEL).asText());
+                    if (entity.has(RDFS.COMMENT)) summary.setDescription(entity.get(RDFS.COMMENT).asText());
+                    if (entity.has(IM.CODE)) summary.setCode(entity.get(IM.CODE).asText());
+                    summary.setStatus(jsonNodeToTTIriRef(entity, IM.HAS_STATUS).get(0));
+                    summary.setScheme(jsonNodeToTTIriRef(entity, IM.HAS_SCHEME).get(0));
+                    summary.getEntityType().addAll(jsonNodeToTTIriRef(entity, RDF.TYPE));
+                    if (entity.has(IM.WEIGHTING)) summary.setWeighting(entity.get(IM.WEIGHTING).asInt());
 
                     result.addEntity(summary);
                 }
@@ -62,8 +62,8 @@ public class QueryService {
         if (entity.has(iri)) {
             for (JsonNode node : entity.get(iri)) {
                 TTIriRef iriRef = new TTIriRef(node.get("@id").asText());
-                if (node.has(RDFS.LABEL.getIri()))
-                    iriRef.setName(node.get(RDFS.LABEL.getIri()).asText());
+                if (node.has(RDFS.LABEL))
+                    iriRef.setName(node.get(RDFS.LABEL).asText());
 
                 result.add(iriRef);
             }

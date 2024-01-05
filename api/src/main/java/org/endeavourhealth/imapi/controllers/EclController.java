@@ -84,7 +84,16 @@ public class EclController {
         summary = "Get ecl from query",
         description = "MapObject an IM query to ecl"
     )
-    public String getECLFromQuery(@RequestBody Query query,@RequestParam(defaultValue = "false") Boolean includeNames) throws QueryException {
-        return eclService.getECLFromQuery(query, includeNames);
+    public String getECLFromQuery(@RequestBody Query query) throws QueryException {
+        return eclService.getECLFromQuery(query, false);
+    }
+
+    @PostMapping(value = "/public/eclFromQueryWithNames")
+    @Operation(
+        summary = "Get ecl from query",
+        description = "MapObject an IM query to ecl"
+    )
+    public String getECLFromQueryWithNames(@RequestBody Query query) throws QueryException {
+        return eclService.getECLFromQuery(query, true);
     }
 }

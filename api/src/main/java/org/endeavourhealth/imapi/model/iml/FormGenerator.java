@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 @JsonPropertyOrder({"@id","status","label","comment","targetShape","type","isContainedIn","subClassOf","group","scheme"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class FormGenerator {
@@ -37,6 +39,7 @@ public class FormGenerator {
 		return status;
 	}
 
+	@JsonSetter
 	public FormGenerator setStatus(TTIriRef status) {
 		this.status = status;
 		return this;
@@ -46,6 +49,7 @@ public class FormGenerator {
 		return scheme;
 	}
 
+	@JsonSetter
 	public FormGenerator setScheme(TTIriRef scheme) {
 		this.scheme = scheme;
 		return this;
@@ -111,12 +115,11 @@ public class FormGenerator {
 		return targetShape;
 	}
 
+	@JsonSetter
 	public FormGenerator setTargetShape(TTIriRef targetShape) {
 		this.targetShape = targetShape;
 		return this;
 	}
-
-
 
 	public List<PropertyShape> getProperty() {
 		return property;

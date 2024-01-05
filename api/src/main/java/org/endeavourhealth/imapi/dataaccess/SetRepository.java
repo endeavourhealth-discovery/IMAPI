@@ -57,62 +57,62 @@ public class SetRepository {
         imQuery.addReturn(aReturn);
         aReturn
             .property(s->s
-                .setIri(RDFS.LABEL.getIri()).as("term"))
+                .setIri(RDFS.LABEL).as("term"))
             .property(s->s
-                .setIri(IM.CODE.getIri()).as("code"))
+                .setIri(IM.CODE).as("code"))
             .property(s->s
-                .setIri(IM.HAS_SCHEME.getIri())
+                .setIri(IM.HAS_SCHEME)
                 .return_(n->n
                     .as("scheme")
                     .property(s2->s2
-                        .setIri(RDFS.LABEL.getIri()).as("schemeName"))))
+                        .setIri(RDFS.LABEL).as("schemeName"))))
             .property(s->s
                 .setIri(IM.NAMESPACE+"usageTotal").as("usage"))
             .property(s->s
-                .setIri(IM.IM1ID.getIri()).as("im1Id"))
+                .setIri(IM.IM1ID).as("im1Id"))
             .property(s->s
-                .setIri(IM.HAS_STATUS.getIri())
+                .setIri(IM.HAS_STATUS)
                 .return_(s2->s2
                     .as("status")
                     .property(p->p
-                        .setIri(RDFS.LABEL.getIri()).as("statusName"))))
+                        .setIri(RDFS.LABEL).as("statusName"))))
             .property(s->s
-                .setIri(RDF.TYPE.getIri())
+                .setIri(RDF.TYPE)
                 .return_(s2->s2
                     .as("entityType")
                     .property(p->p
-                        .setIri(RDFS.LABEL.getIri()).as("typeName"))))
+                        .setIri(RDFS.LABEL).as("typeName"))))
           .property(s->s
-            .setIri(IM.CODE_ID.getIri())
+            .setIri(IM.CODE_ID)
             .as("codeId"))
           .property(s->s
-            .setIri(IM.ALTERNATIVE_CODE.getIri())
+            .setIri(IM.ALTERNATIVE_CODE)
             .as("alternativeCode"));
 
         if (includeLegacy) {
             aReturn
                 .property(p->p
-                    .setIri(IM.MATCHED_TO.getIri())
+                    .setIri(IM.MATCHED_TO)
                     .setInverse(true)
                     .return_(n->n
                         .as("legacy")
                         .property(s -> s
-                            .setIri(RDFS.LABEL.getIri()).as("legacyTerm"))
+                            .setIri(RDFS.LABEL).as("legacyTerm"))
                         .property(s -> s
-                            .setIri(IM.CODE.getIri()).as("legacyCode"))
+                            .setIri(IM.CODE).as("legacyCode"))
                         .property(s -> s
-                            .setIri(IM.HAS_SCHEME.getIri())
+                            .setIri(IM.HAS_SCHEME)
                             .return_(n1->n1
                                 .as("legacyScheme")
                                 .property(p1->p1
-                                    .setIri(RDFS.LABEL.getIri()).as("legacySchemeName"))))
+                                    .setIri(RDFS.LABEL).as("legacySchemeName"))))
                         .property(s->s
                             .setIri(IM.NAMESPACE+"usageTotal").as("legacyUse"))
                       .property(s->s
-                        .setIri(IM.CODE_ID.getIri())
+                        .setIri(IM.CODE_ID)
                         .as("legacyCodeId"))
                         .property(s->s
-                            .setIri(IM.IM1ID.getIri()).as("legacyIm1Id"))));
+                            .setIri(IM.IM1ID).as("legacyIm1Id"))));
         }
         QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
         if (null != page && null!= page.getPageNumber() && null!= page.getPageSize()) newRequest.setPage(page);
@@ -148,7 +148,7 @@ public class SetRepository {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding("set", Values.iri(setIri));
-            qry.setBinding("issubset", Values.iri(IM.IS_SUBSET_OF.getIri()));
+            qry.setBinding("issubset", Values.iri(IM.IS_SUBSET_OF));
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
@@ -384,7 +384,7 @@ public class SetRepository {
                     BindingSet bs = rs.next();
                     String iri = bs.getValue("s").stringValue();
                     TTEntity set = getSetDefinition(iri);
-                    if (set.get(IM.DEFINITION) != null)
+                    if (set.get(iri(IM.DEFINITION)) != null)
                         result.add(set);
                 }
             }
@@ -394,9 +394,9 @@ public class SetRepository {
 
     public TTEntity getSetDefinition(String setIri) {
         Set<String> predicates= new HashSet<>();
-        predicates.add(IM.DEFINITION.getIri());
-        predicates.add(IM.IS_CONTAINED_IN.getIri());
-        predicates.add(RDFS.LABEL.getIri());
+        predicates.add(IM.DEFINITION);
+        predicates.add(IM.IS_CONTAINED_IN);
+        predicates.add(RDFS.LABEL);
 
         TTBundle entityPredicates = entityTripleRepository.getEntityPredicates(setIri, predicates);
         return entityPredicates.getEntity();

@@ -50,6 +50,11 @@ public class PathRepository {
 
 
 	private List<Match> getAllPaths(String source, String target,Integer depth) {
+        switch(source) {
+            case USER.USER_THEME: break;
+            case SNOMED.ATTRIBUTE: break;
+        }
+
 		queryToShape = conn.prepareTupleQuery(getPathSql());
 		List<Match> partial;
 		List<Match> full = new ArrayList<>();
@@ -205,7 +210,7 @@ public class PathRepository {
 			"PREFIX rdfs: <" + RDFS.NAMESPACE + ">\n" +
 			"PREFIX rdf: <" + RDF.NAMESPACE + ">\n" +
 			"PREFIX im: <" + IM.NAMESPACE + ">\n" +
-			"PREFIX sn: <" + SNOMED.NAMESPACE + ">\n" +
+			"PREFIX " + SNOMED.PREFIX + ": <" + SNOMED.NAMESPACE + ">\n" +
 			"PREFIX sh: <" + SHACL.NAMESPACE + ">\n";
 	}
 

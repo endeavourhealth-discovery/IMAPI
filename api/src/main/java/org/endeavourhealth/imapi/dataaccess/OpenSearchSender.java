@@ -13,13 +13,14 @@ import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.springframework.security.core.parameters.P;
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -55,7 +56,9 @@ public class OpenSearchSender {
         om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
         checkEnvs();
+        putOrderByScript();
         checkIndexExists();
+
 
         int maxId = 0;
         if (!update)
@@ -237,6 +240,7 @@ public class OpenSearchSender {
         }
     }
 
+
     private String getLengthKey(String lengthKey) {
         if (lengthKey.endsWith(")")){
             String[] words= lengthKey.split(" \\(");
@@ -295,7 +299,7 @@ public class OpenSearchSender {
                     if (synonym != null) {
                         if (status==null)
                             addMatchTerm(blob,synonym);
-                        else if (!status.equals(IM.INACTIVE))
+                        else if (!status.getIri().equals(IM.INACTIVE))
                             addMatchTerm(blob, synonym);
                         SearchTermCode tc = getTermCode(blob, synonym);
                         if (tc == null) {
@@ -422,10 +426,9 @@ public class OpenSearchSender {
 
 
     private void addMatchTerm(EntityDocument blob, String term) {
-        term=term.split(" \\(")[0];
-        term = "z"+term;
-        if (term.length() > 30)
-            term = term.substring(0, 30);
+        term=term.replaceAll("[ '()\\-_./]","").toLowerCase();
+        if (term.length()>30)
+            term=term.substring(0,30);
         blob.addMatchTerm(term);
     }
 
@@ -565,7 +568,7 @@ public class OpenSearchSender {
             if (response.getStatus() != 200) {
                 String responseData = response.readEntity(String.class);
                 if (responseData.contains("index_not_found_exception")) {
-                    LOG.info("Index not found, starting from zero");
+                    LOG.info("No documents, starting from zero");
                     return 0;
                 } else {
                     LOG.error(responseData);
@@ -594,38 +597,126 @@ public class OpenSearchSender {
             if (response.getStatus() != 200) {
                 LOG.info("{} does not exist - creating index and default mappings", index);
                 target = client.target(osUrl).path(index);
-                String mappings = """
-                    {
-                      "mappings": {
-                        "properties": {
-                          "scheme.@id": {
+                String settings= "{\"settings\": {\n" +
+                  "    \"analysis\": {\n" +
+                  "      \"filter\": {\n" +
+                  "        \"edge_ngram_filter\": {\n" +
+                  "          \"type\": \"edge_ngram\",\n" +
+                  "          \"min_gram\": 1,\n" +
+                  "          \"max_gram\": 20\n" +
+                  "        }\n" +
+                  "      },\n" +
+                  "      \"analyzer\": {\n" +
+                  "        \"autocomplete\": {\n" +
+                  "          \"type\": \"custom\",\n" +
+                  "          \"tokenizer\": \"standard\",\n" +
+                  "          \"filter\": [\n" +
+                  "            \"lowercase\",\n" +
+                  "            \"edge_ngram_filter\"\n" +
+                  "          ]\n" +
+                  "        }\n" +
+                  "      }\n" +
+                  "    }\n" +
+                  "  },";
+                String mappings= settings+"""
+                  
+                    "mappings": {
+                      "properties": {
+                        "scheme": {
+                          "properties": {
+                            "@id": {
+                            "type": "keyword"
+                              },
+                            "name" : {
+                              "type": "text"
+                            }
+                            }
+                          },
+                        "matchTerm": {
+                            "type" : "text"
+                        },
+                        "entityType" : {
+                          "properties" : {
+                            "@id": {
+                              "type": "keyword"
+                            },
+                            "name" : {
+                              "type" : "text"
+                            }
+                          }
+                        },
+                        "status": {
+                          "properties" : {
+                            "@id": {
+                              "type": "keyword"
+                            },
+                            "name" : {
+                              "type" : "text"
+                            }
+                          }
+                        },
+                        "isA": {
+                          "properties" : {
+                            "@id": {
+                              "type": "keyword"
+                            },
+                            "name" : {
+                              "type" : "text"
+                            }
+                          }
+                        },
+                        "memberOf": {
+                          "properties" : {
+                          "@id": {
                             "type": "keyword"
                           },
-                          "entityType.@id": {
-                            "type": "keyword"
-                          },
-                          "status.@id": {
-                            "type": "keyword"
-                          },
-                          "isA.@id": {
-                            "type": "keyword"
-                          },
-                          "memberOf.@id": {
-                            "type": "keyword"
-                          },
-                          "code": {
-                            "type": "keyword"
-                          },
-                          "iri": {
-                            "type": "keyword"
-                          },
-                          "key": {
-                            "type": "keyword"
+                          "name" : {
+                            "type" : "text"
+                          }
+                          }
+                        },
+                        "code": {
+                          "type": "keyword"
+                        },
+                        "iri": {
+                          "type": "keyword"
+                        },
+                        "key": {
+                          "type": "keyword"
+                        },
+                        "subsumptionCount" : {
+                          "type" : "integer"
+                        },
+                        "length" : {
+                          "type" : "integer"
+                        },
+                        "termCode" : {
+                          "properties" : {
+                            "code" : {
+                              "type" : "text"
+                            },
+                            "term" : {
+                              "type" : "text",
+                              "analyzer": "autocomplete"
+                            },
+                            "status" : {
+                                "properties" : {
+                                  "@id" : {
+                                    "type" : "keyword"
+                                  },
+                                  "name" : {
+                                    "type" : "text"
+                                  }
+                                }
+                              }
                           }
                         }
                       }
                     }
-                    """;
+                  }
+                  
+                  """;
+
                 try (Response createResponse = target
                     .request()
                     .header("Authorization", "Basic " + osAuth)
@@ -634,5 +725,58 @@ public class OpenSearchSender {
                 }
             }
         }
+    }
+    private void putOrderByScript(){
+        String script="{" +
+          "  \"script\": {" +
+          "      \"lang\": \"painless\"," +
+          "      \"source\": \"" +
+          "        def orders = params['orders'];" +
+          "        int score=1000000;" +
+          "    int dif= 100000;" +
+          "    for (int i= 0; i<orders.orderBy.size(); i++){" +
+          "    def orderBy= orders.orderBy.get(i);" +
+          "    def field = orderBy.field;" +
+          "    if (orderBy.iriValue!=null){" +
+          "      field = field + '.@id';" +
+          "      if (doc.containsKey(field)){" +
+          "        for (int q=0; q<orderBy.iriValue.size(); q++){" +
+          "                def iri= orderBy.iriValue[q];" +
+          "                if (!doc[field].contains(iri)){" +
+          "                  score=score-(dif);" +
+          "                }" +
+          "              }" +
+          "            }" +
+          "            else" +
+          "                score=score-(dif*9);" +
+          "          }" +
+          "          if (orderBy.startsWithTerm!=null){" +
+          "            if (orderBy.startsWithTerm==true) {" +
+          "              field=field+'.keyword';" +
+          "              if (doc.containsKey(field)){" +
+          "                if (doc[field].size()>0){" +
+          "                  if (!doc[field].value.toLowerCase().startsWith(params['term'])){" +
+          "                    score=score-dif;" +
+          "                  }" +
+          "                }" +
+          "              }" +
+          "            }" +
+          "          }" +
+          "          dif=dif/10;" +
+          "        }" +
+          "      return score;" +
+          "        \"" +
+          "  }" +
+          "}";
+
+
+
+        target = client.target(osUrl).path("_scripts/orderBy");
+        Response response = target
+          .request()
+          .header("Authorization", "Basic " + osAuth)
+          .put(Entity.entity(script, MediaType.APPLICATION_JSON));
+        LOG.info("stored script  filing {}", response.getStatus());
+
     }
 }

@@ -113,17 +113,17 @@ public class SearchResultSummary {
         return status;
     }
 
+    @JsonSetter
     public SearchResultSummary setStatus(TTIriRef status) {
         this.status = status;
         return this;
     }
 
-
-
     public TTIriRef getScheme() {
         return scheme;
     }
 
+    @JsonSetter
     public SearchResultSummary setScheme(TTIriRef scheme) {
         this.scheme = scheme;
         return this;
@@ -144,8 +144,6 @@ public class SearchResultSummary {
         this.entityType.add(entityType);
         return this;
     }
-
-
 
     public Integer getWeighting() {
         return weighting;

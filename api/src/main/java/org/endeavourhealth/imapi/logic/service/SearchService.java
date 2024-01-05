@@ -71,13 +71,13 @@ public class SearchService {
         // Set correct return properties for SearchResultSummary structure
 		List<Return> summaryReturn = new ArrayList<Return>();
 		summaryReturn.add(new Return()
-			.addProperty(new ReturnProperty().setIri(RDFS.LABEL.getIri()))
-			.addProperty(new ReturnProperty().setIri(RDFS.COMMENT.getIri()))
-			.addProperty(new ReturnProperty().setIri(IM.CODE.getIri()))
-			.addProperty(new ReturnProperty().setIri(IM.HAS_STATUS.getIri()).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL.getIri()))))
-			.addProperty(new ReturnProperty().setIri(IM.HAS_SCHEME.getIri()).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL.getIri()))))
-			.addProperty(new ReturnProperty().setIri(RDF.TYPE.getIri()).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL.getIri()))))
-			.addProperty(new ReturnProperty().setIri(IM.WEIGHTING.getIri()))
+			.addProperty(new ReturnProperty().setIri(RDFS.LABEL))
+			.addProperty(new ReturnProperty().setIri(RDFS.COMMENT))
+			.addProperty(new ReturnProperty().setIri(IM.CODE))
+			.addProperty(new ReturnProperty().setIri(IM.HAS_STATUS).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL))))
+			.addProperty(new ReturnProperty().setIri(IM.HAS_SCHEME).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL))))
+			.addProperty(new ReturnProperty().setIri(RDF.TYPE).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL))))
+			.addProperty(new ReturnProperty().setIri(IM.WEIGHTING))
 		);
         queryRequest.getQuery().setReturn(summaryReturn);
 

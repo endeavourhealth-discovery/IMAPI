@@ -1,53 +1,44 @@
 package org.endeavourhealth.imapi.vocabulary;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 public class SHACL {
-   public static final String NAMESPACE = "http://www.w3.org/ns/shacl#";
-   public static final String PREFIX = "sh";
-   public static final TTIriRef PATH= iri(NAMESPACE +"path");
-   public static final TTIriRef MININCLUSIVE= iri(NAMESPACE +"minInclusive");
-   public static final TTIriRef MINEXCLUSIVE= iri(NAMESPACE +"minExclusive");
-   public static final TTIriRef MAXINCLUSIVE= iri(NAMESPACE +"maxInclusive");
-   public static final TTIriRef MAXEXCLUSIVE= iri(NAMESPACE +"maxExclusive");
-   public static final TTIriRef PROPERTY= iri(NAMESPACE +"property");
-   public static final TTIriRef PROPERTY_GROUP= iri(NAMESPACE +"PropertyGroup");
-   public static final TTIriRef MINCOUNT= iri(NAMESPACE +"minCount");
-   public static final TTIriRef MAXCOUNT= iri(NAMESPACE +"maxCount");
-   public static final TTIriRef VALUE= iri(NAMESPACE +"value");
-   public static final TTIriRef PATTERN= iri(NAMESPACE +"pattern");
-   public static final TTIriRef INVERSEPATH= iri(NAMESPACE +"inversePath");
-   public static final TTIriRef CLASS= iri(NAMESPACE +"class");
-   public static final TTIriRef DATATYPE= iri(NAMESPACE +"datatype");
-   public static final TTIriRef SPARQL= iri(NAMESPACE +"sparql");
-   public static final TTIriRef SELECT= iri(NAMESPACE +"select");
-   public static final TTIriRef PARAMETER= iri(NAMESPACE +"parameter");
-   public static final TTIriRef IRI= iri(NAMESPACE +"IRI");
-   public static final TTIriRef OPTIONAL= iri(NAMESPACE +"optional");
-   public static final TTIriRef NODESHAPE= iri(NAMESPACE +"NodeShape");
-   public static final TTIriRef TARGETCLASS= iri(NAMESPACE +"targetClass");
-   public static final TTIriRef NODE= iri(NAMESPACE +"node");
-   public static final TTIriRef ORDER= iri(NAMESPACE +"order");
-   public static final TTIriRef OR= iri(NAMESPACE +"or");
-   public static final TTIriRef NOT= iri(NAMESPACE +"not");
-   public static final TTIriRef NODE_KIND= iri(NAMESPACE +"nodeKind");
-   public static final TTIriRef PROPERTYSHAPE= iri(NAMESPACE +"PropertyShape");
-   public static final TTIriRef AND= iri(NAMESPACE +"and");
-   public static final TTIriRef NODES= iri(NAMESPACE +"nodes");
-   public static final TTIriRef TARGET_TYPE= iri(NAMESPACE +"targetType");
-   public static final TTIriRef TARGET= iri(NAMESPACE +"target");
-   public static final TTIriRef SPARQL_TARGET= iri(NAMESPACE +"SPARQLTarget");
-   public static final TTIriRef FUNCTION= iri(NAMESPACE +"FunctionClause");
-   public static final TTIriRef RETURN_TYPE= iri(NAMESPACE +"returnType");
-   public static final TTIriRef GROUP= iri(NAMESPACE +"group");
-   public static final TTIriRef NAME= iri(NAMESPACE +"name");
-   public static final TTIriRef EXPRESSION= iri(NAMESPACE +"expression");
-   public static final TTIriRef HAS_VALUE= iri(NAMESPACE +"hasValue");
-
-
-
-   private SHACL() {}
+	public static final String NAMESPACE = "http://www.w3.org/ns/shacl#";
+	public static final String PREFIX = "sh";
+	public static final String PATH = SHACL.NAMESPACE + "path";
+	public static final String MININCLUSIVE = SHACL.NAMESPACE + "minInclusive";
+	public static final String MINEXCLUSIVE = SHACL.NAMESPACE + "minExclusive";
+	public static final String MAXINCLUSIVE = SHACL.NAMESPACE + "maxInclusive";
+	public static final String MAXEXCLUSIVE = SHACL.NAMESPACE + "maxExclusive";
+	public static final String PROPERTY = SHACL.NAMESPACE + "property";
+	public static final String PROPERTY_GROUP = SHACL.NAMESPACE + "PropertyGroup";
+	public static final String MINCOUNT = SHACL.NAMESPACE + "minCount";
+	public static final String MAXCOUNT = SHACL.NAMESPACE + "maxCount";
+	public static final String VALUE = SHACL.NAMESPACE + "value";
+	public static final String PATTERN = SHACL.NAMESPACE + "pattern";
+	public static final String INVERSEPATH = SHACL.NAMESPACE + "inversePath";
+	public static final String CLASS = SHACL.NAMESPACE + "class";
+	public static final String DATATYPE = SHACL.NAMESPACE + "datatype";
+	public static final String SPARQL = SHACL.NAMESPACE + "sparql";
+	public static final String SELECT = SHACL.NAMESPACE + "select";
+	public static final String PARAMETER = SHACL.NAMESPACE + "parameter";
+	public static final String IRI = SHACL.NAMESPACE + "IRI";
+	public static final String OPTIONAL = SHACL.NAMESPACE + "optional";
+	public static final String NODESHAPE = SHACL.NAMESPACE + "NodeShape";
+	public static final String TARGETCLASS = SHACL.NAMESPACE + "targetClass";
+	public static final String NODE = SHACL.NAMESPACE + "node";
+	public static final String ORDER = SHACL.NAMESPACE + "order";
+	public static final String OR = SHACL.NAMESPACE + "or";
+	public static final String NOT = SHACL.NAMESPACE + "not";
+	public static final String NODE_KIND = SHACL.NAMESPACE + "nodeKind";
+	public static final String PROPERTYSHAPE = SHACL.NAMESPACE + "PropertyShape";
+	public static final String AND = SHACL.NAMESPACE + "and";
+	public static final String NODES = SHACL.NAMESPACE + "nodes";
+	public static final String TARGET_TYPE = SHACL.NAMESPACE + "targetType";
+	public static final String TARGET = SHACL.NAMESPACE + "target";
+	public static final String SPARQL_TARGET = SHACL.NAMESPACE + "SPARQLTarget";
+	public static final String FUNCTION = SHACL.NAMESPACE + "FunctionClause";
+	public static final String RETURN_TYPE = SHACL.NAMESPACE + "returnType";
+	public static final String GROUP = SHACL.NAMESPACE + "group";
+	public static final String NAME = SHACL.NAMESPACE + "name";
+	public static final String EXPRESSION = SHACL.NAMESPACE + "expression";
+	public static final String HAS_VALUE = SHACL.NAMESPACE + "hasValue";
 }
-

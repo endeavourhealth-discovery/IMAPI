@@ -12,6 +12,8 @@ import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.util.zip.DataFormatException;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class SCGToTT {
 	private TTEntity entity;
 	private final SCGLexer lexer;
@@ -36,7 +38,7 @@ public class SCGToTT {
 
 	private TTEntity convertECContext(SCGParser.ExpressionContext ctx) throws DataFormatException {
 		if (ctx.definitionstatus()!=null && ctx.definitionstatus().equivalentto() != null) {
-			entity.set(IM.DEFINITIONAL_STATUS, IM.SUFFICIENTLY_DEFINED);
+			entity.set(iri(IM.DEFINITIONAL_STATUS), IM.SUFFICIENTLY_DEFINED);
 		}
 		if (ctx.subexpression()!=null)
 			convertSubexpression(ctx.subexpression());
@@ -46,7 +48,7 @@ public class SCGToTT {
 	private void convertSubexpression(SCGParser.SubexpressionContext subexpression) throws DataFormatException {
 		if (subexpression.focusconcept()!=null) {
 			for (SCGParser.ConceptreferenceContext concept : subexpression.focusconcept().conceptreference()) {
-				entity.addObject(IM.IS_A, getConRef(concept.conceptid()));
+				entity.addObject(iri(IM.IS_A), getConRef(concept.conceptid()));
 			}
 		}
 		if (subexpression.refinement()!=null && subexpression.refinement().attributeset()!=null){

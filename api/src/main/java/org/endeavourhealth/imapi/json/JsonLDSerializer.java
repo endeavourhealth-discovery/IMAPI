@@ -131,7 +131,7 @@ public class JsonLDSerializer extends StdSerializer<Object> {
 					return namespace + prefixed.substring(colonPos + 1);
 				}
 				for (Map.Entry<String,String> iriPrefix:iriPrefixMap.entrySet()){
-					if (iriPrefix.getValue()== prefix){
+					if (iriPrefix.getValue().equals(prefix)){
 						prefixIriMap.put(namespace,prefix);
 						return namespace+ prefixed.substring(colonPos+1);
 					}

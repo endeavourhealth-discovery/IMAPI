@@ -24,9 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
@@ -36,13 +34,31 @@ class SearchServiceTest {
 	private String testResults;
 	private String succinctDefinitions;
 
-
- // @Test
+	//@Test
 	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, IOException {
 		testDefinitions = System.getenv("folder") + "\\Definitions";
 		testResults = System.getenv("folder") + "\\Results";
-		SearchRequest request= TestQueries.observationConcepts();
-		output(request,"observation entities starting with Systolic bl");
+	 Date startTime = new Date();
+	 int count=0;
+		 for (String input : List.of("Systolic bloo")) {
+			 count++;
+			 SearchRequest request = TestQueries.observationConcepts(input);
+			 output(request, "observation entities starting with Systolic bl", true);
+			 Long start=null;
+			 for (Map<Long,String> entries: request.getTimings()){
+				 for (Map.Entry<Long,String> entry:entries.entrySet()){
+					 if (start==null){
+						 System.out.println("0 "+ entry.getValue());
+						 start= entry.getKey();
+					 }
+					 else {
+						 System.out.println(entry.getKey() - start + " " + entry.getValue());
+					 }
+				 }
+			 }
+		 }
+	 Date endTime = new Date();
+	 System.out.println("average = "+ ((endTime.getTime()-startTime.getTime())/count)+" milliseconds");
 
 
 	}
@@ -90,14 +106,16 @@ class SearchServiceTest {
 
 
 
-	private void output(SearchRequest request,String name) throws IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
-		try (FileWriter wr = new FileWriter(testDefinitions + "\\" + name + "_definition.json")) {
-			wr.write(new ObjectMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(request));
-		}
-		SearchService ss= new SearchService();
-		List<SearchResultSummary> results= ss.getEntitiesByTerm(request);
-		for (SearchResultSummary result:results) {
-			System.out.println(result.getMatch()+" :"+ result.getCode());
+	private void output(SearchRequest request,String name,boolean write) throws IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
+
+		SearchService ss = new SearchService();
+		List<SearchResultSummary> results = ss.getEntitiesByTerm(request);
+		if (write) {
+			try (FileWriter wr = new FileWriter(testDefinitions + "\\" + name + "_definition.json")) {
+				wr.write(new ObjectMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(request));
+			}
+			System.out.println("Found "+ results.size()+" entities" );
+
 		}
 
 	}
@@ -150,7 +168,7 @@ class SearchServiceTest {
 	public void setTest() throws DataFormatException, JsonProcessingException, QueryException {
 		EntityService es= new EntityService();
 		TTEntity entity= es.getFullEntity(IM.NAMESPACE+"VSET_VitalSigns").getEntity();
-		String json = entity.get(IM.DEFINITION).asLiteral().getValue();
+		String json = entity.get(TTIriRef.iri(IM.DEFINITION)).asLiteral().getValue();
 		SetExporter exporter = new SetExporter();
 		Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE + "VSET_VitalSigns", false, true, List.of());
 		System.out.println(concepts.size());

@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.imq;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -59,11 +60,11 @@ public class FunctionClause extends Value{
 		return this;
 	}
 
+	@JsonSetter
 	public Value setDataType(TTIriRef dataType) {
 		super.setDataType(dataType);
 		return this;
 	}
-
 
 	public Value setOperator(Operator operator) {
 		super.setOperator(operator);

@@ -12,6 +12,12 @@ public class IMLToECL {
 		throw new IllegalStateException("Utility class");
 	}
 
+	private enum eclType {
+		exclusion,
+		refined,
+		compound,
+		simple
+	}
 	/**
 	 * Takes a IM ECL compliant definition of a set and returns is ECL language
 	 * @param query         a node representing a class expression e.g. value of im:Definition
@@ -27,6 +33,19 @@ public class IMLToECL {
 		return ecl.toString().trim();
 	}
 
+	private static eclType getEclType(Match match){
+		if (match.getProperty()!=null)
+			return eclType.refined;
+		if (match.getMatch()!=null) {
+			for (Match subMatch : match.getMatch()) {
+				if (subMatch.isExclude())
+					return eclType.exclusion;
+			}
+			return eclType.compound;
+		}
+		return eclType.simple;
+	}
+
 	public static String getECLFromQuery(Query query) throws QueryException {
 		return getECLFromQuery(query,false);
 	}
@@ -37,47 +56,57 @@ public class IMLToECL {
 
 
 	private static void match(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
-		if (match.isExclude())
-			ecl.append(" MINUS ");
-
-		if (null != match.getInstanceOf()) {
+		eclType matchType= getEclType(match);
+		if (matchType==eclType.simple){
 			addClass(match.getInstanceOf(), ecl, includeNames);
 		}
-		else if (null != match.getMatch()) {
-			boolean bracket= needsBracket(match);
-			if (bracket)
-				ecl.append("(");
+		else if (matchType== eclType.refined){
+			if (match.getInstanceOf()!=null)
+				addClass(match.getInstanceOf(), ecl, includeNames);
+			else
+				ecl.append("*");
+			addRefinements(match, ecl, includeNames);
+		}
+		else if (matchType==eclType.compound){
 			boolean first = true;
 			for (Match subMatch : match.getMatch()) {
-				if (!first && !subMatch.isExclude()){
+				eclType subMatchType=getEclType(subMatch);
+				boolean bracket= (match.getMatch().size()>1&&subMatchType== eclType.refined) ?true: false;
+				if (!first){
 					if (match.getBool()==Bool.or){
 						ecl.append(" OR ");
 					}
 					else
 						ecl.append(" AND ");
 				}
+				if (bracket)
+					ecl.append("(");
 				match(subMatch, ecl, includeNames);
+				if (bracket)
+					ecl.append(")");
 				first = false;
 			}
-			if (bracket)
-				ecl.append(")");
 		}
-		if (null != match.getProperty()) {
-			if (null == match.getInstanceOf() && null == match.getMatch())
-				ecl.append("*");
-			addRefinements(match, ecl, includeNames);
+		else {
+			boolean first = true;
+			ecl.append("(");
+			for (Match subMatch : match.getMatch()) {
+				if (subMatch.isExclude()){
+					ecl.append(")");
+					ecl.append(" MINUS ");
+				}
+				match(subMatch,ecl,includeNames);
+			}
 		}
-
 	}
 
-	private static boolean needsBracket(Match match){
-		if (match.getMatch()!=null){
-			if (match.getMatch().size() > 1) return true;
-			if (match.getProperty()!=null)
-				return true;
-			if (match.isExclude())
+	private static boolean needsBracket(Match parent,Match match){
+		if (parent.getMatch().size()>1) {
+			if (match.getProperty() != null)
 				return true;
 		}
+		if (match.isExclude())
+				return true;
 		return false;
 	}
 
@@ -85,7 +114,7 @@ public class IMLToECL {
 	private static void addRefinements(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
 		ecl.append(": ");
 		boolean first = true;
-		if (null != match.getProperty().get(0).getIri() && match.getProperty().get(0).getIri().equals(IM.ROLE_GROUP.getIri())){
+		if (null != match.getProperty().get(0).getIri() && match.getProperty().get(0).getIri().equals(IM.ROLE_GROUP)){
 			ecl.append(" { ");
 			addRefinements(match.getProperty().get(0).getMatch(),ecl,includeNames);
 			ecl.append("}");
@@ -102,7 +131,7 @@ public class IMLToECL {
 
 	private static void addRefinements(Property property, StringBuilder ecl, boolean includeNames) throws QueryException {
 		boolean first = true;
-		if (null != property.getProperty().get(0).getIri() && property.getProperty().get(0).getIri().equals(IM.ROLE_GROUP.getIri())){
+		if (null != property.getProperty().get(0).getIri() && property.getProperty().get(0).getIri().equals(IM.ROLE_GROUP)){
 			ecl.append(" { ");
 			addRefinements(property.getProperty().get(0).getMatch(),ecl,includeNames);
 			ecl.append("}");

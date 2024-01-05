@@ -1,18 +1,9 @@
 {
-  "@context" : {
-    "im" : "http://endhealth.info/im#",
-    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "owl" : "http://www.w3.org/2002/07/owl#",
-    "sh" : "http://www.w3.org/ns/shacl#",
-    "xsd" : "http://www.w3.org/2001/XMLSchema#",
-    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
-    "sn" : "http://snomed.info/sct#"
-  },
   "entities" : [ {
     "@id" : "http://www.w3.org/ns/shacl#NodeShape",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Data model/Node shape ",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "genid-954d39b39b5145f09b6f31a0058e5ccc26-b2038",
+      "@bn" : "genid-59f259d9726e44a19801a4b5c922b94b26-b780",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://www.w3.org/2000/01/rdf-schema#subClassOf"
       }

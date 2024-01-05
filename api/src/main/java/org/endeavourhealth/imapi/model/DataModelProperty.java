@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.io.Serializable;
@@ -48,6 +49,7 @@ public class DataModelProperty implements Serializable {
 		return type;
 	}
 
+	@JsonSetter
 	public DataModelProperty setType(TTIriRef objectType) {
 		this.type = objectType;
 		return this;
@@ -94,6 +96,7 @@ public class DataModelProperty implements Serializable {
 		return inheritedFrom;
 	}
 
+	@JsonSetter
 	public DataModelProperty setInheritedFrom(TTIriRef inheritedFrom) {
 		this.inheritedFrom = inheritedFrom;
 		return this;

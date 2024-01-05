@@ -6,25 +6,27 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class Inferrer {
 
 	private void inheritDomains(TTEntity property, TTEntityMap propertyMap) {
-		for (TTValue superProp:property.get(RDFS.SUBCLASSOF).getElements()){
+		for (TTValue superProp:property.get(iri(RDFS.SUBCLASS_OF)).getElements()){
 			TTIriRef superIri= superProp.asIriRef();
 			TTEntity superEntity= propertyMap.getEntity(superIri.getIri());
 			inheritDomains(superEntity, propertyMap);
-			if (superEntity.get(RDFS.DOMAIN)!=null)
-				superEntity.get(RDFS.DOMAIN).getElements().forEach(dom-> property.addObject(RDFS.DOMAIN,dom));
+			if (superEntity.get(iri(RDFS.DOMAIN))!=null)
+				superEntity.get(iri(RDFS.DOMAIN)).getElements().forEach(dom-> property.addObject(iri(RDFS.DOMAIN),dom));
 		}
 	}
 
 	private void inheritRanges(TTEntity property, TTEntityMap propertyMap) {
-		for (TTValue superProp:property.get(RDFS.SUBCLASSOF).getElements()){
+		for (TTValue superProp:property.get(iri(RDFS.SUBCLASS_OF)).getElements()){
 			TTIriRef superIri= superProp.asIriRef();
 			TTEntity superEntity= propertyMap.getEntity(superIri.getIri());
 			inheritDomains(superEntity, propertyMap);
-			if (superEntity.get(RDFS.RANGE)!=null)
-				superEntity.get(RDFS.RANGE).getElements().forEach(dom-> property.addObject(RDFS.RANGE,dom));
+			if (superEntity.get(iri(RDFS.RANGE))!=null)
+				superEntity.get(iri(RDFS.RANGE)).getElements().forEach(dom-> property.addObject(iri(RDFS.RANGE),dom));
 		}
 	}
 

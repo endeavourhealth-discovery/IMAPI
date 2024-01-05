@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -80,25 +81,25 @@ public class TTLiteral implements TTValue, Serializable {
     }
     public TTLiteral(Boolean value) {
         this.value = value.toString();
-        this.type = XSD.BOOLEAN;
+        this.type = iri(XSD.BOOLEAN);
     }
     public TTLiteral(Integer value) {
         this.value = value.toString();
-        this.type = XSD.INTEGER;
+        this.type = iri(XSD.INTEGER);
     }
     public TTLiteral(Long value) {
         this.value = value.toString();
-        this.type = XSD.LONG;
+        this.type = iri(XSD.LONG);
     }
     public TTLiteral(Pattern value) {
         this.value = value.toString();
-        this.type = XSD.PATTERN;
+        this.type = iri(XSD.PATTERN);
     }
 
     public TTLiteral(Object value) throws JsonProcessingException {
         try (CachedObjectMapper om = new CachedObjectMapper()) {
             this.value = om.writeValueAsString(value);
-            this.type = XSD.STRING;
+            this.type = iri(XSD.STRING);
         }
     }
 
@@ -138,6 +139,7 @@ public class TTLiteral implements TTValue, Serializable {
         return type;
     }
 
+    @JsonSetter
     public TTLiteral setType(TTIriRef type) {
         this.type = type;
         return this;

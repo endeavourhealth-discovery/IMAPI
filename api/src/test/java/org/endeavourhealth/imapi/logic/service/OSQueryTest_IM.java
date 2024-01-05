@@ -51,7 +51,7 @@ class OSQueryTest_IM {
                     new Match()
                         .setProperty(List.of(
                             new Property()
-                                .setIri(IM.HAS_SCHEME.getIri())
+                                .setIri(IM.HAS_SCHEME)
                                 .setIs(List.of(new Node().setIri(SNOMED.NAMESPACE)))
                         ))
                 ))
@@ -110,7 +110,7 @@ class OSQueryTest_IM {
                 .setMatch(List.of(
                     new Match()
                         .addProperty(new Property()
-                            .setIri(IM.HAS_MEMBER.getIri())
+                            .setIri(IM.HAS_MEMBER)
                             .setInverse(true)
                             .setIs(List.of(new Node().setIri("http://endhealth.info/im#VSET_ASD")))
                         )

@@ -12,6 +12,8 @@ import org.endeavourhealth.imapi.vocabulary.FHIR;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.MAP;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class TestMaps {
 
 
@@ -132,7 +134,7 @@ public class TestMaps {
 					.propertyMap(m2->m2
 						.setTarget("originalScheme")
 						.setValueData("http://hl7.org/fhir/administrative-gender"))));
-		patientMapEntity.set(IM.DEFINITION, TTLiteral.literal(patientMap));
+		patientMapEntity.set(iri(IM.DEFINITION), TTLiteral.literal(patientMap));
 		EntityCache.addEntity(patientMapEntity);
 			return patientMap;
 	}

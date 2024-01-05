@@ -126,6 +126,7 @@ public class PropertyShape {
 
 	}
 
+	@JsonSetter
 	public PropertyShape setFunction(TTIriRef function) {
 		this.function = function;
 		return this;
@@ -180,16 +181,19 @@ public class PropertyShape {
 		return path;
 	}
 
+	@JsonSetter
 	public PropertyShape setPath(TTIriRef path) {
 		this.path = path;
 		return this;
 	}
 
+	@JsonSetter
 	public PropertyShape setDatatype(TTIriRef datatype) {
 		this.datatype = datatype;
 		return this;
 	}
 
+	@JsonSetter
 	public PropertyShape setClazz(TTIriRef clazz) {
 		this.clazz = clazz;
 		return this;
@@ -207,6 +211,7 @@ public class PropertyShape {
 		return this;
 	}
 
+	@JsonSetter
 	public PropertyShape setIsIri(TTIriRef isIri) {
 		this.isIri = isIri;
 		return this;
@@ -221,16 +226,19 @@ public class PropertyShape {
 		return componentType;
 	}
 
+	@JsonSetter
 	public PropertyShape setComponentType(TTIriRef componentType) {
 		this.componentType = componentType;
 		return this;
 	}
 
+	@JsonSetter
 	public PropertyShape setValidation(TTIriRef validation) {
 		this.validation = validation;
 		return this;
 	}
 
+	@JsonSetter
 	public PropertyShape setSearch(TTIriRef search) {
 		this.search = search;
 		return this;
@@ -247,6 +255,7 @@ public class PropertyShape {
 		return this;
 	}
 
+	@JsonSetter
 	public PropertyShape setValueIri(TTIriRef valueIri) {
 		this.valueIri = valueIri;
 		return this;

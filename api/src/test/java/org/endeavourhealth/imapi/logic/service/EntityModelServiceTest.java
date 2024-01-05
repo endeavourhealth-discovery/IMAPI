@@ -355,8 +355,8 @@ class EntityModelServiceTest {
         SearchTermCode termCode = new SearchTermCode()
                 .setCode("24951000252112")
                 .setTerm("Adverse reaction to Testogel")
-                .setStatus(new TTIriRef().setIri(IM.ACTIVE.getIri()).setName(IM.ACTIVE.getName()));
-        when(entityRepository2.getBundle(any(),any())).thenReturn(new TTBundle().setEntity(new TTEntity().set(IM.HAS_TERM_CODE,new TTArray().add(new TTNode().set(IM.CODE,new TTLiteral(termCode.getCode())).set(RDFS.LABEL,new TTLiteral(termCode.getTerm())).set(IM.HAS_STATUS,new TTArray().add(termCode.getStatus()))))));
+                .setStatus(new TTIriRef().setIri(IM.ACTIVE).setName(TTIriRef.iri(IM.ACTIVE).getName()));
+        when(entityRepository2.getBundle(any(),any())).thenReturn(new TTBundle().setEntity(new TTEntity().set(TTIriRef.iri(IM.HAS_TERM_CODE),new TTArray().add(new TTNode().set(TTIriRef.iri(IM.CODE),new TTLiteral(termCode.getCode())).set(TTIriRef.iri(RDFS.LABEL),new TTLiteral(termCode.getTerm())).set(TTIriRef.iri(IM.HAS_STATUS),new TTArray().add(termCode.getStatus()))))));
         List<SearchTermCode> actual = entityService.getEntityTermCodes("http://endhealth.info/im#25451000252115",false);
         assertNotNull(actual);
     }
@@ -371,13 +371,13 @@ class EntityModelServiceTest {
     void getDataModelProperties_NotNullEntity(){
         List<DataModelProperty> actual = entityService.getDataModelProperties(new TTEntity()
                 .setIri("http://endhealth.info/im#25451000252115")
-                .set(SHACL.PROPERTY, new TTArray().add(new TTNode()
-                        .set(IM.INHERITED_FROM, new TTIriRef())
-                        .set(SHACL.PATH, new TTIriRef())
-                        .set(SHACL.CLASS,new TTIriRef())
-                        .set(SHACL.DATATYPE, new TTIriRef())
-                        .set(SHACL.MAXCOUNT,new TTLiteral())
-                        .set(SHACL.MINCOUNT,new TTLiteral())
+                .set(TTIriRef.iri(SHACL.PROPERTY), new TTArray().add(new TTNode()
+                        .set(TTIriRef.iri(IM.INHERITED_FROM), new TTIriRef())
+                        .set(TTIriRef.iri(SHACL.PATH), new TTIriRef())
+                        .set(TTIriRef.iri(SHACL.CLASS),new TTIriRef())
+                        .set(TTIriRef.iri(SHACL.DATATYPE), new TTIriRef())
+                        .set(TTIriRef.iri(SHACL.MAXCOUNT),new TTLiteral())
+                        .set(TTIriRef.iri(SHACL.MINCOUNT),new TTLiteral())
                 )));
         assertNotNull(actual);
     }
@@ -386,7 +386,7 @@ class EntityModelServiceTest {
     void getDataModelProperties_NotInheritedFrom(){
         List<DataModelProperty> actual = entityService.getDataModelProperties(new TTEntity()
                 .setIri("http://endhealth.info/im#25451000252115")
-                .set(SHACL.PROPERTY, new TTArray().add(new TTNode()))
+                .set(TTIriRef.iri(SHACL.PROPERTY), new TTArray().add(new TTNode()))
         );
         assertNotNull(actual);
     }
@@ -427,7 +427,7 @@ class EntityModelServiceTest {
     @Test
     void getGraphData_ParentIsList() {
         TTEntity entity = new TTEntity()
-            .set(RDFS.SUBCLASSOF, new TTArray()
+            .set(TTIriRef.iri(RDFS.SUBCLASS_OF), new TTArray()
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
@@ -442,8 +442,8 @@ class EntityModelServiceTest {
         TTEntity entity = new TTEntity()
             .setIri("http://endhealth.info/im#myConcept")
             .setName("My concept")
-            .set(RDF.TYPE, new TTArray()
-                .add(IM.CONCEPT)
+            .set(TTIriRef.iri(RDF.TYPE), new TTArray()
+                .add(TTIriRef.iri(IM.CONCEPT))
             );
         when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
@@ -457,8 +457,8 @@ class EntityModelServiceTest {
         TTEntity entity = new TTEntity()
             .setIri("http://endhealth.info/im#myConcept")
             .setName("My concept")
-            .set(RDF.TYPE, new TTArray()
-                .add(IM.CONCEPT)
+            .set(TTIriRef.iri(RDF.TYPE), new TTArray()
+                .add(TTIriRef.iri(IM.CONCEPT))
             );
         when(entityRepository2.getBundle(isNull(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
@@ -482,7 +482,7 @@ class EntityModelServiceTest {
         TTEntity entity = new TTEntity()
             .setIri("http://endhealth.info/im#myConcept")
             .setName("My concept")
-            .set(RDFS.SUBCLASSOF, new TTArray()
+            .set(TTIriRef.iri(RDFS.SUBCLASS_OF), new TTArray()
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
@@ -516,8 +516,8 @@ class EntityModelServiceTest {
     @Test
     void getConceptShape_NotContainNodeShape() {
         TTEntity entity = new TTEntity("http://endhealth.info/im#25451000252115")
-            .set(RDF.TYPE, new TTArray()
-                .add(IM.CONCEPT)
+            .set(TTIriRef.iri(RDF.TYPE), new TTArray()
+                .add(TTIriRef.iri(IM.CONCEPT))
             );
         when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
@@ -528,8 +528,8 @@ class EntityModelServiceTest {
     @Test
     void getConceptShape_ContainsNodeShape() {
         TTEntity entity = new TTEntity("http://endhealth.info/im#25451000252115")
-            .set(RDF.TYPE, new TTArray()
-                .add(SHACL.NODESHAPE)
+            .set(TTIriRef.iri(RDF.TYPE), new TTArray()
+                .add(TTIriRef.iri(SHACL.NODESHAPE))
             );
         when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
@@ -560,10 +560,10 @@ class EntityModelServiceTest {
     @Test
     void getSummaryFromConfig_NotNullIri() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
+        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF));
 
         TTEntity entity = new TTEntity()
-            .set(IM.IS_CHILD_OF, new TTArray()
+            .set(TTIriRef.iri(IM.IS_CHILD_OF), new TTArray()
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
@@ -592,10 +592,10 @@ class EntityModelServiceTest {
     @Test
     void getJsonDownload_OnlySummary() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
+        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF));
 
         TTEntity entity = new TTEntity("http://endhealth.info/im#25451000252115")
-            .set(IM.IS_CHILD_OF, new TTArray()
+            .set(TTIriRef.iri(IM.IS_CHILD_OF), new TTArray()
                     .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                     .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
@@ -610,12 +610,12 @@ class EntityModelServiceTest {
     @Test
     void getJsonDownload_All() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
+        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF));
 
         TTEntity entity = new TTEntity()
             .setIri("http://endhealth.info/im#myConcept")
             .setName("My concept")
-            .set(IM.IS_CHILD_OF, new TTArray()
+            .set(TTIriRef.iri(IM.IS_CHILD_OF), new TTArray()
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
@@ -659,12 +659,12 @@ class EntityModelServiceTest {
     @Test
     void getExcelDownload_SummaryOnly() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
+        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF));
 
         DownloadParams params = new DownloadParams();
 
         TTEntity entity = new TTEntity()
-            .set(IM.IS_CHILD_OF, new TTArray()
+            .set(TTIriRef.iri(IM.IS_CHILD_OF), new TTArray()
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
@@ -678,7 +678,7 @@ class EntityModelServiceTest {
     @Test
     void getExcelDownload_All() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
+        configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF));
 
         DownloadParams params = new DownloadParams();
         params
@@ -694,7 +694,7 @@ class EntityModelServiceTest {
                 .setIncludeProperties(true);
 
         TTEntity entity = new TTEntity()
-            .set(IM.IS_CHILD_OF, new TTArray()
+            .set(TTIriRef.iri(IM.IS_CHILD_OF), new TTArray()
                     .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                     .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
@@ -734,7 +734,7 @@ class EntityModelServiceTest {
         TTEntity entity = new TTEntity()
             .setIri("http://endhealth.info/im#myConcept")
             .setName("My concept")
-            .set(IM.IS_CHILD_OF, new TTArray()
+            .set(TTIriRef.iri(IM.IS_CHILD_OF), new TTArray()
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
@@ -760,7 +760,7 @@ class EntityModelServiceTest {
         when(entityTripleRepository.findNamespaces()).thenReturn(namespaces);
 
         TTEntity entity = new TTEntity("http://endhealth.info/im#25451000252115")
-            .set(IM.IS_CHILD_OF, new TTArray()
+            .set(TTIriRef.iri(IM.IS_CHILD_OF), new TTArray()
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );

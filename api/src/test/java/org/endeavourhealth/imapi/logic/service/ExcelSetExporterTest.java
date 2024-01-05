@@ -78,10 +78,10 @@ public class ExcelSetExporterTest {
             .setIri("http://endhealth.info/im#CSET_BartsCVSSMeds")
             .setName("Concept SetModel- Barts Covid vaccine study medication concepts");
 
-        definition.set(IM.IS_CONTAINED_IN, new TTArray().add(iri("http://endhealth.info/im#CSET_BartsVaccineSafety",
+        definition.set(TTIriRef.iri(IM.IS_CONTAINED_IN), new TTArray().add(iri("http://endhealth.info/im#CSET_BartsVaccineSafety",
                 "Value sets for the Barts Vaccine safety study")));
 
-        definition.set(IM.DEFINITION, TTLiteral.literal(new Query()
+        definition.set(TTIriRef.iri(IM.DEFINITION), TTLiteral.literal(new Query()
             .match(w->w
               .setBool(Bool.or)
                 .match(f->f
@@ -89,7 +89,7 @@ public class ExcelSetExporterTest {
                 .match(f->f
                     .setInstanceOf( new Node().setIri("http://snomed.info/sct#10363601000001109").setName("UK product (product)").setDescendantsOrSelfOf(true))
                   .property(p->p
-                    .setIri(IM.ROLE_GROUP.getIri())
+                    .setIri(IM.ROLE_GROUP)
                     .match(m1->m1
                     .property(p1->p1
                       .setIri("http://snomed.info/sct#10362601000001103")

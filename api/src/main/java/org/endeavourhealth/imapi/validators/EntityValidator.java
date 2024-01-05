@@ -10,6 +10,8 @@ import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.ArrayList;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class EntityValidator {
     public void isValid(TTEntity entity, EntityService service, String mode) throws TTFilerException, JsonProcessingException {
         ArrayList<String> errorMessages = new ArrayList();
@@ -50,18 +52,18 @@ public class EntityValidator {
     }
 
     private Boolean hasParents(TTEntity entity) {
-        if (null == entity.get(IM.IS_A) && null == entity.get(IM.IS_CONTAINED_IN) && null == entity.get(RDFS.SUBCLASSOF) && null == entity.get(IM.IS_SUBSET_OF)) return false;
-        if (null != entity.get(IM.IS_A) && !entity.get(IM.IS_A).isEmpty()) {
-            if (!entity.get(IM.IS_A).getElements().stream().allMatch(TTValue::isIriRef)) return false;
+        if (null == entity.get(iri(IM.IS_A)) && null == entity.get(iri(IM.IS_CONTAINED_IN)) && null == entity.get(iri(RDFS.SUBCLASS_OF)) && null == entity.get(iri(IM.IS_SUBSET_OF))) return false;
+        if (null != entity.get(iri(IM.IS_A)) && !entity.get(iri(IM.IS_A)).isEmpty()) {
+            if (!entity.get(iri(IM.IS_A)).getElements().stream().allMatch(TTValue::isIriRef)) return false;
         }
-        if (null!= entity.get(IM.IS_CONTAINED_IN) && !entity.get(IM.IS_CONTAINED_IN).isEmpty()) {
-            if (!entity.get(IM.IS_CONTAINED_IN).getElements().stream().allMatch(TTValue::isIriRef)) return false;
+        if (null!= entity.get(iri(IM.IS_CONTAINED_IN)) && !entity.get(iri(IM.IS_CONTAINED_IN)).isEmpty()) {
+            if (!entity.get(iri(IM.IS_CONTAINED_IN)).getElements().stream().allMatch(TTValue::isIriRef)) return false;
         }
-        if (null != entity.get(RDFS.SUBCLASSOF) && !entity.get(RDFS.SUBCLASSOF).isEmpty()) {
-            if (!entity.get(RDFS.SUBCLASSOF).getElements().stream().allMatch(TTValue::isIriRef)) return false;
+        if (null != entity.get(iri(RDFS.SUBCLASS_OF)) && !entity.get(iri(RDFS.SUBCLASS_OF)).isEmpty()) {
+            if (!entity.get(iri(RDFS.SUBCLASS_OF)).getElements().stream().allMatch(TTValue::isIriRef)) return false;
         }
-        if (null != entity.get(IM.IS_SUBSET_OF) && !entity.get(IM.IS_SUBSET_OF).isEmpty()) {
-            if (!entity.get(IM.IS_SUBSET_OF).getElements().stream().allMatch(TTValue::isIriRef)) return false;
+        if (null != entity.get(iri(IM.IS_SUBSET_OF)) && !entity.get(iri(IM.IS_SUBSET_OF)).isEmpty()) {
+            if (!entity.get(iri(IM.IS_SUBSET_OF)).getElements().stream().allMatch(TTValue::isIriRef)) return false;
         }
         return true;
     }

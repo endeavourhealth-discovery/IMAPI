@@ -5,8 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 @Schema(
@@ -23,9 +22,6 @@ public class SearchRequest {
     private List<String> markIfDescendentOf = new ArrayList<>();
     private List<String> isA = new ArrayList<>();
     private List<String> memberOf = new ArrayList<>();
-    private List<Filter> filter;
-    private List<SearchRequest> search;
-    private SearchRequest outerSearch;
     private int page = 1;
     private int size = 20;
     private int from;
@@ -35,13 +31,23 @@ public class SearchRequest {
     @Deprecated
     private String sortDirection;
     private List<OrderBy> orderBy;
+    private List<Filter> filter;
+    private List<Map<Long,String>>timings = new ArrayList<>();
 
-    public SearchRequest getOuterSearch() {
-        return outerSearch;
+    public List<Map<Long,String>> getTimings() {
+        return timings;
     }
 
-    public SearchRequest setOuterSearch(SearchRequest outerSearch) {
-        this.outerSearch = outerSearch;
+    public SearchRequest setTimings(List<Map<Long,String>> timings) {
+        this.timings = timings;
+        return this;
+    }
+
+    public SearchRequest addTiming(String positiion){
+        long now = new Date().getTime();
+        Map<Long,String> timingMap= new HashMap<>();
+        timingMap.put(now,positiion);
+        timings.add(timingMap);
         return this;
     }
 
@@ -53,41 +59,14 @@ public class SearchRequest {
         this.filter = filter;
         return this;
     }
-    public SearchRequest addFilter(Filter filter) {
+    public SearchRequest addFilter(Filter orderBy){
         if (this.filter==null)
             this.filter= new ArrayList<>();
-        this.filter.add(filter);
+        this.filter.add(orderBy);
         return this;
     }
 
-    public SearchRequest filter(Consumer<Filter> builder) {
-        Filter filter= new Filter();
-        addFilter(filter);
-        builder.accept(filter);
-        return this;
-    }
 
-    public List<SearchRequest> getSearch() {
-        return search;
-    }
-
-    public SearchRequest setSearch(List<SearchRequest> search) {
-        this.search = search;
-        return this;
-    }
-    public SearchRequest addSubSearch(SearchRequest subSearch) {
-        if (this.search ==null)
-            this.search = new ArrayList<>();
-        this.search.add(subSearch);
-        return this;
-    }
-
-    public SearchRequest subSearch(Consumer<SearchRequest> builder){
-        SearchRequest subSearch= new SearchRequest();
-        addSubSearch(subSearch);
-        builder.accept(subSearch);
-        return this;
-    }
 
     public List<OrderBy> getOrderBy() {
         return orderBy;

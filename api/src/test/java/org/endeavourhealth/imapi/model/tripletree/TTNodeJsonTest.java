@@ -93,9 +93,9 @@ class TTNodeJsonTest {
         TTNode node = TestHelper.getTestEntity();
         TestHelper.checkEntity(node);
         TTEntity entity = TestHelper.getTestEntity();
-        TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(RDF.TYPE, RDFS.LABEL,
-                RDFS.COMMENT, IM.CODE,IM.HAS_SCHEME,IM.HAS_STATUS,
-                RDFS.SUBCLASSOF));
+        TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(TTIriRef.iri(RDF.TYPE), TTIriRef.iri(RDFS.LABEL),
+                TTIriRef.iri(RDFS.COMMENT), TTIriRef.iri(IM.CODE),TTIriRef.iri(IM.HAS_SCHEME),TTIriRef.iri(IM.HAS_STATUS),
+                TTIriRef.iri(RDFS.SUBCLASS_OF)));
 
         SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null));
         mod.addSerializer(TTEntity.class, ser);
@@ -118,9 +118,9 @@ class TTNodeJsonTest {
         TestHelper.checkEntity(node);
 
         TTEntity entity = TestHelper.getTestEntity();
-        TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(RDF.TYPE, RDFS.LABEL,
-                RDFS.COMMENT, IM.CODE,IM.HAS_SCHEME,IM.HAS_STATUS,
-                RDFS.SUBCLASSOF));
+        TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(TTIriRef.iri(RDF.TYPE), TTIriRef.iri(RDFS.LABEL),
+            TTIriRef.iri(RDFS.COMMENT), TTIriRef.iri(IM.CODE),TTIriRef.iri(IM.HAS_SCHEME),TTIriRef.iri(IM.HAS_STATUS),
+            TTIriRef.iri(RDFS.SUBCLASS_OF)));
 
         SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null));
         mod.addSerializer(TTEntity.class, ser);

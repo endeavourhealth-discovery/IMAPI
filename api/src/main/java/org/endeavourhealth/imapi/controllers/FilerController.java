@@ -17,6 +17,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -104,27 +105,27 @@ public class FilerController {
             return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Source and target are the same");
         }
 
-        TTEntity entity = entityService.getBundle(entityIri, Set.of(IM.IS_CONTAINED_IN.getIri(), IM.HAS_SCHEME.getIri())).getEntity();
-        if (!entity.has(IM.IS_CONTAINED_IN)) {
+        TTEntity entity = entityService.getBundle(entityIri, Set.of(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
+        if (!entity.has(iri(IM.IS_CONTAINED_IN))) {
             return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in a folder");
         }
 
-        TTArray folders = entity.get(IM.IS_CONTAINED_IN);
+        TTArray folders = entity.get(iri(IM.IS_CONTAINED_IN));
         if (!folders.contains(iri(oldFolderIri))) {
             return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in the specified folder");
         }
 
-        if (entityService.isLinked(newFolderIri, IM.IS_CONTAINED_IN, oldFolderIri)) {
+        if (entityService.isLinked(newFolderIri, iri(IM.IS_CONTAINED_IN), oldFolderIri)) {
             return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Target folder is a descendant of the Entity");
         }
         TTEntity usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
         
         folders.remove(iri(oldFolderIri));
         folders.add(iri(newFolderIri));
-        entity.setVersion(usedEntity.getVersion() + 1).setCrud(IM.UPDATE_PREDICATES);
+        entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
 
         String agentName = reqObjService.getRequestAgentName(request);
-        filerService.fileEntity(entity, IM.GRAPH_DISCOVERY, agentName, usedEntity);
+        filerService.fileEntity(entity, iri(GRAPH.DISCOVERY), agentName, usedEntity);
 
         return ResponseEntity.ok().build();
     }
@@ -145,15 +146,15 @@ public class FilerController {
             return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Cannot move entity into itself");
         }
 
-        TTEntity entity = entityService.getBundle(entityIri, Set.of(IM.IS_CONTAINED_IN.getIri(), IM.HAS_SCHEME.getIri())).getEntity();
-        TTArray folders = entity.get(IM.IS_CONTAINED_IN);
+        TTEntity entity = entityService.getBundle(entityIri, Set.of(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
+        TTArray folders = entity.get(iri(IM.IS_CONTAINED_IN));
         if(folders == null) folders = new TTArray();
         folders.add(iri(folderIri));
 
         String agentName = reqObjService.getRequestAgentName(request);
         TTEntity usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
-        entity.setVersion(usedEntity.getVersion() + 1).setCrud(IM.UPDATE_PREDICATES);
-        filerService.fileEntity(entity, IM.GRAPH_DISCOVERY, agentName, usedEntity);
+        entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
+        filerService.fileEntity(entity, iri(GRAPH.DISCOVERY), agentName, usedEntity);
 
         return ResponseEntity.ok().build();
     }
@@ -193,23 +194,23 @@ public class FilerController {
 
         TTEntity entity = new TTEntity(iri)
             .setName(name)
-            .setScheme(IM.GRAPH_DISCOVERY)
-            .addType(IM.FOLDER)
-            .set(IM.IS_CONTAINED_IN, iri(container))
+            .setScheme(iri(GRAPH.DISCOVERY))
+            .addType(iri(IM.FOLDER))
+            .set(iri(IM.IS_CONTAINED_IN), iri(container))
             .setVersion(1)
-            .setCrud(IM.ADD_QUADS);
+            .setCrud(iri(IM.ADD_QUADS));
 
         TTArray contentTypes = new TTArray();
         for (JsonNode j : results.get("entities")) {
             TTIriRef contentType = new TTIriRef();
             contentType.setIri(j.get("@id").asText());
-            contentType.setName(j.get(RDFS.LABEL.getIri()).asText());
+            contentType.setName(j.get(RDFS.LABEL).asText());
             contentTypes.add(contentType);
         }
-        entity.set(IM.CONTENT_TYPE, contentTypes);
+        entity.set(iri(IM.CONTENT_TYPE), contentTypes);
 
         String agentName = reqObjService.getRequestAgentName(request);
-        filerService.fileEntity(entity, IM.GRAPH_DISCOVERY, agentName, null);
+        filerService.fileEntity(entity, iri(GRAPH.DISCOVERY), agentName, null);
         return iri;
     }
 

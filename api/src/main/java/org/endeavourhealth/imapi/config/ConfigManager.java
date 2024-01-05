@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
@@ -11,7 +10,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.config.Config;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
@@ -27,7 +26,7 @@ public class ConfigManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigManager.class);
 
-    public <T> T getConfig(TTIriRef iri, TypeReference<T> resultType) throws JsonProcessingException {
+    public <T> T getConfig(String iri, TypeReference<T> resultType) throws JsonProcessingException {
         LOG.debug("getConfig<TypeReference>");
 
         try (CachedObjectMapper om = new CachedObjectMapper()) {
@@ -38,19 +37,8 @@ public class ConfigManager {
         }
     }
 
-    public JsonNode getConfig(String iri) throws JsonProcessingException {
-        LOG.debug("getConfig");
-
-        try (CachedObjectMapper om = new CachedObjectMapper()) {
-            Config config = getConfig(iri(iri));
-            if (config == null)
-                return null;
-            return om.readTree(config.getData());
-        }
-    }
-
-    public Config getConfig(TTIriRef iri) {
-        // NOTE - DONT USE PREFIXES OR 'prepareSparql' HERE
+    public Config getConfig(String config) {
+        // NOTE - DON'T USE PREFIXES OR 'prepareSparql' HERE
         //        OR CYCLIC LOOP FETCHING DEFAULT PREFIXES
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?name ?data WHERE {")
@@ -62,9 +50,9 @@ public class ConfigManager {
 
         try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
-            qry.setBinding("s", Values.iri(iri.getIri()));
-            qry.setBinding("label", Values.iri(RDFS.LABEL.getIri()));
-            qry.setBinding("config", Values.iri(IM.HAS_CONFIG.getIri()));
+            qry.setBinding("s", Values.iri(config));
+            qry.setBinding("label", Values.iri(RDFS.LABEL));
+            qry.setBinding("config", Values.iri(IM.HAS_CONFIG));
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
                     BindingSet bs = rs.next();

@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.imq;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -67,12 +68,11 @@ public class Argument {
 		return valueIri;
 	}
 
+	@JsonSetter
 	public Argument setValueIri(TTIriRef valueIri) {
 		this.valueIri = valueIri;
 		return this;
 	}
-
-
 
 	public String getValueVariable() {
 		return valueVariable;

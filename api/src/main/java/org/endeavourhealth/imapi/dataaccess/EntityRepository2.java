@@ -462,7 +462,7 @@ public class EntityRepository2 {
             predNames.put(predicate, predicate);
         }
         TTNode node;
-        if (predicate.equals(RDFS.LABEL.getIri())) {
+        if (predicate.equals(RDFS.LABEL)) {
             if (s.isIRI()) {
                 if (subject.equals(entityIri)) {
                     entity.setName(value);
@@ -473,7 +473,7 @@ public class EntityRepository2 {
                 }
             } else {
                 tripleMap.putIfAbsent(subject, new TTNode());
-                tripleMap.get(subject).asNode().set(RDFS.LABEL, TTLiteral.literal(value, ((Literal) o).getDatatype().stringValue()));
+                tripleMap.get(subject).asNode().set(iri(RDFS.LABEL), TTLiteral.literal(value, ((Literal) o).getDatatype().stringValue()));
             }
         } else {
             if (s.isIRI()) {
@@ -562,18 +562,18 @@ public class EntityRepository2 {
             if (clause.isIriRef()) {
                 simpleSuperClass(clause.asIriRef(), spql, prefixMap);
             } else {
-                if (clause.asNode().get(SHACL.OR) != null) {
-                    orClause(clause.asNode().get(SHACL.OR), spql, prefixMap);
+                if (clause.asNode().get(iri(SHACL.OR)) != null) {
+                    orClause(clause.asNode().get(iri(SHACL.OR)), spql, prefixMap);
 
                 }
-                if (clause.asNode().get(SHACL.AND) != null) {
-                    Boolean hasRoles = andClause(clause.asNode().get(SHACL.AND), true, spql, prefixMap);
+                if (clause.asNode().get(iri(SHACL.AND)) != null) {
+                    Boolean hasRoles = andClause(clause.asNode().get(iri(SHACL.AND)), true, spql, prefixMap);
                     if (Boolean.TRUE.equals(hasRoles)) {
-                        andClause(clause.asNode().get(SHACL.AND), false, spql, prefixMap);
+                        andClause(clause.asNode().get(iri(SHACL.AND)), false, spql, prefixMap);
                     }
                 }
-                if (clause.asNode().get(SHACL.NOT) != null) {
-                    notClause(clause.asNode().get(SHACL.NOT), spql, prefixMap);
+                if (clause.asNode().get(iri(SHACL.NOT)) != null) {
+                    notClause(clause.asNode().get(iri(SHACL.NOT)), spql, prefixMap);
                 }
             }
         }
@@ -601,7 +601,7 @@ public class EntityRepository2 {
     }
 
     private void addNames(boolean includeLegacy, StringJoiner spql, Map<String, String> prefixMap) {
-        spql.add("GRAPH ?scheme {?concept " + getShort(RDFS.LABEL.getIri(), "rdfs", prefixMap) + " ?name.")
+        spql.add("GRAPH ?scheme {?concept " + getShort(RDFS.LABEL, "rdfs", prefixMap) + " ?name.")
                 .add("?concept im:code ?code")
                 .add(" OPTIONAL {?concept im:im1Id ?im1Id}");
         spql.add(" OPTIONAL {?scheme rdfs:label ?schemeName}}");
@@ -620,13 +620,13 @@ public class EntityRepository2 {
     }
 
     private void addUnion(TTNode union, StringJoiner spql, Map<String, String> prefixMap) {
-        if (union.get(SHACL.AND) != null) {
+        if (union.get(iri(SHACL.AND)) != null) {
             spql.add("UNION {");
-            Boolean hasRoles = andClause(union.get(SHACL.AND), true, spql, prefixMap);
+            Boolean hasRoles = andClause(union.get(iri(SHACL.AND)), true, spql, prefixMap);
             spql.add("}");
             if (Boolean.TRUE.equals(hasRoles)) {
                 spql.add("UNION {");
-                andClause(union.get(SHACL.AND), false, spql, prefixMap);
+                andClause(union.get(iri(SHACL.AND)), false, spql, prefixMap);
                 spql.add("}");
             }
         } else {
@@ -650,13 +650,13 @@ public class EntityRepository2 {
             if (group) {
                 spql.add("?roleGroup " + pred + " " + obj + ".");
                 spql.add(" FILTER (isBlank(?roleGroup))");
-                spql.add("?superMember " + getShort(IM.ROLE_GROUP.getIri(), "im", prefixMap) + " ?roleGroup.");
+                spql.add("?superMember " + getShort(IM.ROLE_GROUP, "im", prefixMap) + " ?roleGroup.");
             } else {
                 spql.add("?superMember " + pred + " " + obj + ".");
                 spql.add("  FILTER (isIri(?superMember))");
             }
         }
-        spql.add("?concept " + getShort(IM.IS_A.getIri(), "im", prefixMap) + " ?superMember.");
+        spql.add("?concept " + getShort(IM.IS_A, "im", prefixMap) + " ?superMember.");
     }
 
 
@@ -682,7 +682,7 @@ public class EntityRepository2 {
     private Boolean andClause(TTArray and, boolean group, StringJoiner spql, Map<String, String> prefixMap) {
         boolean hasRoles = false;
         for (TTValue inter : and.getElements()) {
-            if (inter.isNode() && inter.asNode().get(SHACL.NOT) == null) {
+            if (inter.isNode() && inter.asNode().get(iri(SHACL.NOT)) == null) {
                 roles(inter.asNode(), group, spql, prefixMap);
                 hasRoles = true;
             }
@@ -693,14 +693,14 @@ public class EntityRepository2 {
             }
         }
         for (TTValue inter : and.getElements()) {
-            if (inter.isNode() && inter.asNode().get(SHACL.NOT) != null)
-                notClause(inter.asNode().get(SHACL.NOT), spql, prefixMap);
+            if (inter.isNode() && inter.asNode().get(iri(SHACL.NOT)) != null)
+                notClause(inter.asNode().get(iri(SHACL.NOT)), spql, prefixMap);
         }
         return hasRoles;
     }
 
     private String isa(Map<String, String> prefixMap) {
-        return getShort(IM.IS_A.getIri(), prefixMap);
+        return getShort(IM.IS_A, prefixMap);
     }
 
     private void notClause(TTArray notClause, StringJoiner spql, Map<String, String> prefixMap) {
@@ -719,12 +719,12 @@ public class EntityRepository2 {
                 if (not.isIriRef())
                     simpleSuperClass(not.asIriRef(), spql, prefixMap);
                 else if (not.isNode()) {
-                    if (not.asNode().get(SHACL.OR) != null) {
-                        orClause(not.asNode().get(SHACL.OR), spql, prefixMap);
-                    } else if (not.asNode().get(SHACL.AND) != null) {
-                        Boolean hasRoles = andClause(not.asNode().get(SHACL.AND), true, spql, prefixMap);
+                    if (not.asNode().get(iri(SHACL.OR)) != null) {
+                        orClause(not.asNode().get(iri(SHACL.OR)), spql, prefixMap);
+                    } else if (not.asNode().get(iri(SHACL.AND)) != null) {
+                        Boolean hasRoles = andClause(not.asNode().get(iri(SHACL.AND)), true, spql, prefixMap);
                         if (Boolean.TRUE.equals(hasRoles)) {
-                            andClause(not.asNode().get(SHACL.AND), false, spql, prefixMap);
+                            andClause(not.asNode().get(iri(SHACL.AND)), false, spql, prefixMap);
                         }
                     }
                 }
@@ -760,7 +760,7 @@ public class EntityRepository2 {
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
                     BindingSet bs = rs.next();
-                    return bs.getValue("o").stringValue().equals(IM.CONCEPT_SET.getIri()) || bs.getValue("o").stringValue().equals(IM.VALUESET.getIri());
+                    return bs.getValue("o").stringValue().equals(IM.CONCEPT_SET) || bs.getValue("o").stringValue().equals(IM.VALUESET);
                 }
             }
         }
@@ -813,8 +813,8 @@ public class EntityRepository2 {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding("subset", Values.iri(subsetIri));
-            qry.setBinding("issubset", Values.iri(IM.IS_SUBSET_OF.getIri()));
-            qry.setBinding("label", Values.iri(RDFS.LABEL.getIri()));
+            qry.setBinding("issubset", Values.iri(IM.IS_SUBSET_OF));
+            qry.setBinding("label", Values.iri(RDFS.LABEL));
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
@@ -1054,7 +1054,7 @@ public class EntityRepository2 {
                     result.add(new TTEntity()
                             .setIri(bs.getValue("s").stringValue())
                             .setName(bs.getValue("name").stringValue())
-                            .set(IM.USAGE_TOTAL, TTLiteral.literal(bs.getValue("usage").stringValue()))
+                            .set(iri(IM.USAGE_TOTAL), TTLiteral.literal(bs.getValue("usage").stringValue()))
                     );
                 }
             }
@@ -1120,7 +1120,7 @@ public class EntityRepository2 {
                     result.add(new TTEntity()
                             .setIri(bs.getValue("s").stringValue())
                             .setName(bs.getValue("name").stringValue())
-                            .set(IM.USAGE_TOTAL, TTLiteral.literal(bs.getValue("usage").stringValue()))
+                            .set(iri(IM.USAGE_TOTAL), TTLiteral.literal(bs.getValue("usage").stringValue()))
                     );
                 }
             }

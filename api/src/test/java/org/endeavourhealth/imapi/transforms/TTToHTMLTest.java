@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 class TTToHTMLTest {
 
@@ -14,7 +15,7 @@ class TTToHTMLTest {
 	void getExpressionText() {
 		TTNode exp= new TTNode();
 		TTArray inters=new TTArray();
-		exp.set(OWL.INTERSECTIONOF,inters);
+		exp.set(iri(OWL.INTERSECTION_OF),inters);
 		TTIriRef product= new TTIriRef()
 			.setIri(SNOMED.NAMESPACE+"763158003")
 			.setName("Medicinal product");

@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class SetTextFileExporter {
     private static final Logger LOG = LoggerFactory.getLogger(SetTextFileExporter.class);
     private final EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
@@ -25,11 +27,11 @@ public class SetTextFileExporter {
     public String getSetFile(String setIri, boolean definition, boolean core, boolean legacy, boolean includeSubsets,
                              boolean ownRow, boolean im1id, List<String> schemes, String del) throws QueryException, JsonProcessingException {
         LOG.debug("Exporting set to TSV");
-        String setName = entityRepository2.getBundle(setIri,Set.of(RDFS.LABEL.getIri())).getEntity().getName();
+        String setName = entityRepository2.getBundle(setIri,Set.of(RDFS.LABEL)).getEntity().getName();
 
         String result = "";
 
-        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.getIri())).getEntity();
+        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION)).getEntity();
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return null;
 
@@ -52,9 +54,9 @@ public class SetTextFileExporter {
     }
 
     private String getEcl(TTEntity entity) throws QueryException, JsonProcessingException {
-        if (entity.get(IM.DEFINITION) == null)
+        if (entity.get(iri(IM.DEFINITION)) == null)
             return null;
-        return IMLToECL.getECLFromQuery(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class), true);
+        return IMLToECL.getECLFromQuery(entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class), true);
     }
 
     private StringJoiner generateFile(String setName, Set<Concept> members, boolean includeLegacy, boolean ownRow, boolean im1id, String del, boolean includeSubset) {

@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.zip.DataFormatException;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class SetExpander {
 	private static final Logger LOG = LoggerFactory.getLogger(SetExpander.class);
@@ -40,9 +41,9 @@ public class SetExpander {
 		for (String iri:sets){
 			LOG.info("Updating members of "+ iri);
 			//get the definition
-			TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.getIri()));
+			TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION));
 			//get the expansion.
-			Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral().objectValue(Query.class),false,null, List.of());
+			Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class),false,null, List.of());
 
 			updateMembers(iri,members);
 
@@ -52,12 +53,12 @@ public class SetExpander {
 
 	public void expandSet(String iri) throws DataFormatException, JsonProcessingException, QueryException {
 		LOG.info("Updating members of "+ iri);
-		TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.getIri()));
-		if (setDefinition.getEntity().get(IM.DEFINITION)==null)
+		TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION));
+		if (setDefinition.getEntity().get(iri(IM.DEFINITION))==null)
 			throw new DataFormatException(iri+ " : Unknown iri or this set has no definition");
 		//get the expansion.
 
-		Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral()
+		Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral()
 			.objectValue(Query.class),false,null, List.of(),null);
 		updateMembers(iri,members);
 
@@ -65,11 +66,11 @@ public class SetExpander {
 
 	private void updateMembers(String iri,Set<Concept> members) {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-			String spq = "DELETE { <" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> ?x.}"+
-				"\nWHERE { <" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> ?x.}";
+			String spq = "DELETE { <" + iri + "> <" + IM.HAS_MEMBER + "> ?x.}"+
+				"\nWHERE { <" + iri + "> <" + IM.HAS_MEMBER + "> ?x.}";
 			Update upd = conn.prepareUpdate(spq);
 			upd.execute();
-			spq="SELECT ?g where { graph ?g {<"+iri+"> <"+RDF.TYPE.getIri()+"> ?type }}";
+			spq="SELECT ?g where { graph ?g {<"+iri+"> <"+RDF.TYPE +"> ?type }}";
 			TupleQuery qry= conn.prepareTupleQuery(spq);
 			try (TupleQueryResult rs= qry.evaluate()) {
 				BindingSet bs = rs.next();
@@ -85,7 +86,7 @@ public class SetExpander {
 						sj.add("INSERT DATA { graph <" + graph + "> {");
 						batch = 0;
 					}
-					sj.add("<" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> <" + member.getIri() + ">.");
+					sj.add("<" + iri + "> <" + IM.HAS_MEMBER + "> <" + member.getIri() + ">.");
 				}
 				sendUp(sj, conn);
 			}
@@ -105,9 +106,9 @@ public class SetExpander {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			StringJoiner spq = new StringJoiner("\n");
 			spq.add("SELECT distinct ?iri ")
-				.add("WHERE { ?iri <" + RDF.TYPE.getIri() + "> <"+IM.VALUESET.getIri()+">.")
-				.add("?iri <"+ IM.DEFINITION.getIri()+"> ?d.")
-				.add("FILTER not exists {?iri <" + IM.HAS_MEMBER.getIri() + "> ?x}}");
+				.add("WHERE { ?iri <" + RDF.TYPE + "> <"+IM.VALUESET +">.")
+				.add("?iri <"+ IM.DEFINITION +"> ?d.")
+				.add("FILTER not exists {?iri <" + IM.HAS_MEMBER + "> ?x}}");
 			TupleQuery qry = conn.prepareTupleQuery(spq.toString());
 			try (TupleQueryResult rs = qry.evaluate()) {
 				while (rs.hasNext()) {

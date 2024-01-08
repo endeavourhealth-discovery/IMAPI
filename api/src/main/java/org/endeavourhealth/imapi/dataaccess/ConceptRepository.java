@@ -13,13 +13,15 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.SnomedConcept;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class ConceptRepository {
 	public ObjectNode createConcept(String namespace) throws Exception {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-			String sql="select ?increment where {<"+ IM.NAMESPACE.iri+"Function_SnomedConceptGenerator>"+" <"+
-				IM.NAMESPACE.iri+"hasIncrementalFrom> ?increment}";
+			String sql="select ?increment where {<"+ IM.NAMESPACE+"Function_SnomedConceptGenerator>"+" <"+
+				IM.NAMESPACE+"hasIncrementalFrom> ?increment}";
 			TupleQuery qry = conn.prepareTupleQuery(sql);
 			TupleQueryResult rs= qry.evaluate();
 			if (rs.hasNext()){
@@ -38,12 +40,12 @@ public class ConceptRepository {
 
 	private void updateIncrement(Integer from) throws Exception {
 		TTDocument document = new TTDocument()
-			.setCrud(IM.UPDATE_PREDICATES.asTTIriRef())
-			.setGraph(GRAPH.DISCOVERY.asTTIriRef())
+			.setCrud(iri(IM.UPDATE_PREDICATES))
+			.setGraph(iri(GRAPH.DISCOVERY))
 			.addEntity(new TTEntity()
-				.setCrud(IM.UPDATE_PREDICATES.asTTIriRef())
-				.setIri(IM.NAMESPACE.iri+"Function_SnomedConceptGenerator")
-				.set(TTIriRef.iri(IM.NAMESPACE.iri+"hasIncrementalFrom"), TTLiteral.literal(from+1)));
+				.setCrud(iri(IM.UPDATE_PREDICATES))
+				.setIri(IM.NAMESPACE+"Function_SnomedConceptGenerator")
+				.set(TTIriRef.iri(IM.NAMESPACE+"hasIncrementalFrom"), TTLiteral.literal(from+1)));
 		TTTransactionFiler filer= new TTTransactionFiler();
 		filer.fileDocument(document);
 	}

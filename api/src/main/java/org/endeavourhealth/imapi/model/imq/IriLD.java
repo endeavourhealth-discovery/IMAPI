@@ -50,7 +50,7 @@ public class IriLD{
 	public String assignIri(String iri){
 		if (iri != null && !iri.isEmpty()) {
 			if (!iri.matches("([a-z]+)?[:].*")) {
-				return IM.NAMESPACE.iri + iri;
+				return IM.NAMESPACE + iri;
 			}
 		}
 		return iri;

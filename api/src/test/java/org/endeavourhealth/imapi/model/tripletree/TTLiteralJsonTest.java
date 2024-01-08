@@ -12,6 +12,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 class TTLiteralJsonTest {
     private static final String LIT_STR_JSON = "\"Test name\"";
     private static final String LIT_INT_JSON = "10";
@@ -57,7 +59,7 @@ class TTLiteralJsonTest {
         TTLiteral lit = om.readValue(LIT_INT_JSON, TTLiteral.class);
 
         assertEquals("10", lit.getValue());
-        assertEquals(XSD.INTEGER.asTTIriRef(), lit.getType());
+        assertEquals(iri(XSD.INTEGER), lit.getType());
     }
 
     @Test
@@ -73,7 +75,7 @@ class TTLiteralJsonTest {
         TTLiteral lit = om.readValue(LIT_BOOL_JSON, TTLiteral.class);
 
         assertEquals("true", lit.getValue());
-        assertEquals(XSD.BOOLEAN.asTTIriRef(), lit.getType());
+        assertEquals(iri(XSD.BOOLEAN), lit.getType());
     }
 
     @Test
@@ -89,7 +91,7 @@ class TTLiteralJsonTest {
         TTLiteral lit = om.readValue(LIT_PAT_JSON, TTLiteral.class);
 
         assertEquals(".*", lit.getValue());
-        assertEquals(XSD.PATTERN.asTTIriRef(), lit.getType());
+        assertEquals(iri(XSD.PATTERN), lit.getType());
     }
 
 }

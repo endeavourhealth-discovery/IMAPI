@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.model.search;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -129,10 +128,6 @@ public class EntityDocument {
 		this.scheme = scheme;
 		return this;
 	}
-	public EntityDocument setScheme(Vocabulary scheme) {
-		return setScheme(scheme.asTTIriRef());
-	}
-
 
 	public TTIriRef getStatus() {
 		return status;
@@ -143,19 +138,11 @@ public class EntityDocument {
 		this.status = status;
 		return this;
 	}
-	public EntityDocument setStatus(Vocabulary status) {
-		return setStatus(status.asTTIriRef());
-	}
 
 	public EntityDocument addType(TTIriRef type) {
 		this.entityType.add(type);
 		return this;
 	}
-	public EntityDocument addType(Vocabulary type) {
-		return addType(type.asTTIriRef());
-	}
-
-
 
 	public Integer getWeighting() {
 		return weighting;

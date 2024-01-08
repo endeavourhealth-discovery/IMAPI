@@ -1,55 +1,944 @@
 [
   {
-    "name": "USER",
+    "name": "CONFIG",
+    "entries": [
+      {
+        "name": "NAMESPACE",
+        "value":"\"http://endhealth.info/config#\""
+      },
+      {
+        "name": "DOMAIN",
+        "value":"\"http://endhealth.info/\""
+      },
+      {
+        "name": "PREFIX",
+        "value":"\"cfg\""
+      },
+      {
+        "name": "DEFINITION",
+        "value":"CONFIG.NAMESPACE + \"definition\""
+      },
+      {
+        "name": "SUMMARY",
+        "value":"CONFIG.NAMESPACE + \"summary\""
+      },
+      {
+        "name": "FILTER_DEFAULTS",
+        "value":"CONFIG.NAMESPACE + \"filterDefaults\""
+      },
+      {
+        "name": "INFERRED_PREDICATES",
+        "value":"CONFIG.NAMESPACE + \"inferredPredicates\""
+      },
+      {
+        "name": "INFERRED_EXCLUDE_PREDICATES",
+        "value":"CONFIG.NAMESPACE + \"inferredExcludePredicates\""
+      },
+      {
+        "name": "CONCEPT_DASHBOARD",
+        "value":"CONFIG.NAMESPACE + \"CONCEPT_DASHBOARD\""
+      },
+      {
+        "name": "DEFAULT_PREDICATE_NAMES",
+        "value":"CONFIG.NAMESPACE + \"defaultPredicateNames\""
+      },
+      {
+        "name": "XML_SCHEMA_DATA_TYPES",
+        "value":"CONFIG.NAMESPACE + \"xmlSchemaDataTypes\""
+      },
+      {
+        "name": "DEFAULT_PREFIXES",
+        "value":"CONFIG.NAMESPACE + \"defaultPrefixes\""
+      },
+      {
+        "name": "GRAPH_EXCLUDE_PREDICATES",
+        "value":"CONFIG.NAMESPACE + \"graphExcludePredicates\""
+      },
+      {
+        "name": "IM1_PUBLISH",
+        "value":"CONFIG.NAMESPACE + \"im1Publish\""
+      },
+      {
+        "name": "IMDIRECTORY_LATEST_RELEASE",
+        "value":"CONFIG.NAMESPACE + \"IMDirectoryLatestRelease\""
+      },
+      {
+        "name": "IMDIRECTORY_ALL_RELEASES",
+        "value":"CONFIG.NAMESPACE + \"IMDirectoryAllReleases\""
+      },
+      {
+        "name": "IMPORT_DATA_LATEST_RELEASE",
+        "value":"CONFIG.NAMESPACE + \"ImportDataLatestRelease\""
+      },
+      {
+        "name": "IMPORT_DATA_ALL_RELEASES",
+        "value":"CONFIG.NAMESPACE + \"ImportDataAllReleases\""
+      }
+    ]
+  },
+  {
+    "name": "FHIR",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://hl7.org/fhir/\""
+      },
+      {
+        "name": "PREFIX",
+        "value": "\"fhir\""
+      },
+      {
+        "name": "DSTU2",
+        "value": "\"http://hl7.org/2-0/fhir/StructureDefinition#\""
+      },
+      {
+        "name": "GRAPH_FHIR",
+        "value": "FHIR.DOMAIN"
+      },
+      {
+        "name": "VALUESET_FOLDER",
+        "value": "\"http://endhealth.info/im#VSET_FHIR\""
+      }
+    ]
+  },
+  {
+    "name": "IM",
     "entries": [
       {
         "name": "DOMAIN",
         "value": "\"http://endhealth.info/\""
       },
       {
-        "name": "NAMESPACE",
-        "value": "USER.DOMAIN + \"user#\""
-      },
-      {
         "name": "PREFIX",
-        "value": "\"usr\""
-      },
-      {
-        "name": "USER_THEME",
-        "value": "USER.DOMAIN + \"UserTheme\""
-      },
-      {
-        "name": "USER_MRU",
-        "value": "USER.DOMAIN + \"UserMRU\""
-      },
-      {
-        "name": "USER_FAVOURITES",
-        "value": "USER.DOMAIN + \"UserFavourites\""
-      },
-      {
-        "name": "ORGANISATIONS",
-        "value": "USER.DOMAIN + \"ORGANISATIONS\""
-      }
-    ]
-  },
-  {
-    "name": "SNOMED",
-    "entries": [
-      {
-        "name": "DOMAIN",
-        "value": "\"http://snomed.info/\""
+        "value": "\"im\""
       },
       {
         "name": "NAMESPACE",
-        "value": "SNOMED.DOMAIN + \"sct#\""
+        "value": "IM.DOMAIN + IM.PREFIX + \"#\""
       },
       {
-        "name": "PREFIX",
-        "value": "\"sn\""
+        "name": "IRI",
+        "value": "\"@id\""
       },
       {
-        "name": "ATTRIBUTE",
-        "value": "SNOMED.DOMAIN + \"246061005\""
+        "name": "VALUE",
+        "value": "\"@value\""
+      },
+      {
+        "name": "TYPE",
+        "value": "\"@type\""
+      },
+      {
+        "name": "id",
+        "value": "IM.NAMESPACE + \"id\""
+      },
+      {
+        "name": "CODE",
+        "value": "IM.NAMESPACE + \"code\""
+      },
+      {
+        "name": "PREFERRED_NAME",
+        "value": "IM.NAMESPACE + \"preferredName\""
+      },
+      {
+        "name": "HAS_SCHEME",
+        "value": "IM.NAMESPACE + \"scheme\""
+      },
+      {
+        "name": "HAS_STATUS",
+        "value": "IM.NAMESPACE + \"status\""
+      },
+      {
+        "name": "STATUS",
+        "value": "IM.NAMESPACE + \"Status\""
+      },
+      {
+        "name": "CONTENT_TYPE",
+        "value": "IM.NAMESPACE + \"contentType\""
+      },
+      {
+        "name": "USAGE_STATS",
+        "value": "IM.NAMESPACE + \"usageStats\""
+      },
+      {
+        "name": "IN_TASK",
+        "value": "IM.NAMESPACE + \"inTask\""
+      },
+      {
+        "name": "DEFINITION",
+        "value": "IM.NAMESPACE + \"definition\""
+      },
+      {
+        "name": "RETURN_TYPE",
+        "value": "IM.NAMESPACE + \"returnType\""
+      },
+      {
+        "name": "UPDATE_PROCEDURE",
+        "value": "IM.NAMESPACE + \"updateProcedure\""
+      },
+      {
+        "name": "INVERSE_PATH",
+        "value": "IM.NAMESPACE + \"inversePath\""
+      },
+      {
+        "name": "CONCEPT",
+        "value": "IM.NAMESPACE + \"Concept\""
+      },
+      {
+        "name": "CONCEPT_SET",
+        "value": "IM.NAMESPACE + \"ConceptSet\""
+      },
+      {
+        "name": "FOLDER",
+        "value": "IM.NAMESPACE + \"Folder\""
+      },
+      {
+        "name": "VALUESET",
+        "value": "IM.NAMESPACE + \"ValueSet\""
+      },
+      {
+        "name": "TEXT_MAPS",
+        "value": "IM.NAMESPACE + \"TextMaps\""
+      },
+      {
+        "name": "CONFIG",
+        "value": "IM.NAMESPACE + \"Config\""
+      },
+      {
+        "name": "GRAPH",
+        "value": "IM.NAMESPACE + \"Graph\""
+      },
+      {
+        "name": "FUNCTION",
+        "value": "IM.NAMESPACE + \"FunctionClause\""
+      },
+      {
+        "name": "QUERY",
+        "value": "IM.NAMESPACE + \"Query\""
+      },
+      {
+        "name": "COHORT_QUERY",
+        "value": "IM.NAMESPACE + \"CohortQuery\""
+      },
+      {
+        "name": "DATASET_QUERY",
+        "value": "IM.NAMESPACE + \"DatasetQuery\""
+      },
+      {
+        "name": "DATA_UPDATE",
+        "value": "IM.NAMESPACE + \"DataUpdate\""
+      },
+      {
+        "name": "PATH_QUERY",
+        "value": "IM.NAMESPACE + \"PathQuery\""
+      },
+      {
+        "name": "PATH_TO",
+        "value": "IM.NAMESPACE + \"pathTo\""
+      },
+      {
+        "name": "OPENSEARCH_QUERY",
+        "value": "IM.NAMESPACE + \"OpenSearchQuery\""
+      },
+      {
+        "name": "DATAMODEL_PROPERTY",
+        "value": "IM.NAMESPACE + \"dataModelProperty\""
+      },
+      {
+        "name": "TASK",
+        "value": "IM.NAMESPACE + \"Task\""
+      },
+      {
+        "name": "FIELD_GROUP",
+        "value": "IM.NAMESPACE + \"FieldGroup\""
+      },
+      {
+        "name": "MATCH_CLAUSE",
+        "value": "IM.NAMESPACE + \"MatchClause\""
+      },
+      {
+        "name": "FORM_GENERATOR",
+        "value": "IM.NAMESPACE + \"FormGenerator\""
+      },
+      {
+        "name": "FUNCTION_PROPERTY",
+        "value": "IM.NAMESPACE + \"functionProperty\""
+      },
+      {
+        "name": "MAP_GRAPH",
+        "value": "IM.NAMESPACE + \"GraphMap\""
+      },
+      {
+        "name": "MAP_ENTITY",
+        "value": "IM.NAMESPACE + \"EntityMap\""
+      },
+      {
+        "name": "SET",
+        "value": "IM.NAMESPACE + \"Set\""
+      },
+      {
+        "name": "IS_CONTAINED_IN",
+        "value": "IM.NAMESPACE + \"isContainedIn\""
+      },
+      {
+        "name": "ONE_OF",
+        "value": "IM.NAMESPACE + \"oneOf\""
+      },
+      {
+        "name": "COMBINATION_OF",
+        "value": "IM.NAMESPACE + \"combinationOf\""
+      },
+      {
+        "name": "USE_PREDICATES",
+        "value": "IM.NAMESPACE + \"usePredicates\""
+      },
+      {
+        "name": "SOME_OF",
+        "value": "IM.NAMESPACE + \"someOf\""
+      },
+      {
+        "name": "HAS_CHILDREN",
+        "value": "IM.NAMESPACE + \"hasChildren\""
+      },
+      {
+        "name": "IS_A",
+        "value": "IM.NAMESPACE + \"isA\""
+      },
+      {
+        "name": "IS_CHILD_OF",
+        "value": "IM.NAMESPACE + \"isChildOf\""
+      },
+      {
+        "name": "SUBSUMED_BY",
+        "value": "IM.NAMESPACE + \"subsumedBy\""
+      },
+      {
+        "name": "USUALLY_SUBSUMED_BY",
+        "value": "IM.NAMESPACE + \"usuallySubsumedBy\""
+      },
+      {
+        "name": "APPROXIMATE_SUBSUMED_BY",
+        "value": "IM.NAMESPACE + \"approximateSubsumedBy\""
+      },
+      {
+        "name": "MULTIPLE_SUBSUMED_BY",
+        "value": "IM.NAMESPACE + \"multipleSubsumedBy\""
+      },
+      {
+        "name": "LOCAL_SUBCLASS_OF",
+        "value": "IM.NAMESPACE + \"localSubClassOf\""
+      },
+      {
+        "name": "HAS_CONFIG",
+        "value": "IM.NAMESPACE + \"hasConfig\""
+      },
+      {
+        "name": "PROPERTY_GROUP",
+        "value": "IM.NAMESPACE + \"propertyGroup\""
+      },
+      {
+        "name": "INHERITED_FROM",
+        "value": "IM.NAMESPACE + \"inheritedFrom\""
+      },
+      {
+        "name": "GROUP_NUMBER",
+        "value": "IM.NAMESPACE + \"groupNumber\""
+      },
+      {
+        "name": "ROLE_GROUP",
+        "value": "IM.NAMESPACE + \"roleGroup\""
+      },
+      {
+        "name": "ROLE",
+        "value": "IM.NAMESPACE + \"role\""
+      },
+      {
+        "name": "HAS_INHERITED_PROPERTIES",
+        "value": "IM.NAMESPACE + \"hasInheritedProperties\""
+      },
+      {
+        "name": "DRAFT",
+        "value": "IM.NAMESPACE + \"Draft\""
+      },
+      {
+        "name": "ACTIVE",
+        "value": "IM.NAMESPACE + \"Active\""
+      },
+      {
+        "name": "INACTIVE",
+        "value": "IM.NAMESPACE + \"Inactive\""
+      },
+      {
+        "name": "DEFINITIONAL_STATUS",
+        "value": "IM.NAMESPACE + \"definitionalStatus\""
+      },
+      {
+        "name": "SUFFICIENTLY_DEFINED",
+        "value": "IM.NAMESPACE + \"1251000252106\""
+      },
+      {
+        "name": "NECESSARY_NOT_SUFFICIENT",
+        "value": "IM.NAMESPACE + \"2771000252102\""
+      },
+      {
+        "name": "UNASSIGNED",
+        "value": "IM.NAMESPACE + \"Unassigned\""
+      },
+      {
+        "name": "HAS_MAP",
+        "value": "IM.NAMESPACE + \"hasMap\""
+      },
+      {
+        "name": "ENTITY_MAP",
+        "value": "IM.NAMESPACE + \"entityMap\""
+      },
+      {
+        "name": "MAPPED_TO",
+        "value": "IM.NAMESPACE + \"mappedTo\""
+      },
+      {
+        "name": "HAS_NUMERIC",
+        "value": "IM.NAMESPACE + \"hasNumericValue\""
+      },
+      {
+        "name": "SOURCE_TEXT",
+        "value": "IM.NAMESPACE + \"sourceText\""
+      },
+      {
+        "name": "TARGET_TEXT",
+        "value": "IM.NAMESPACE + \"targetText\""
+      },
+      {
+        "name": "HAS_TERM_CODE",
+        "value": "IM.NAMESPACE + \"hasTermCode\""
+      },
+      {
+        "name": "ALTERNATIVE_CODE",
+        "value": "IM.NAMESPACE + \"alternativeCode\""
+      },
+      {
+        "name": "DESCRIPTION_ID",
+        "value": "IM.NAMESPACE + \"descriptionId\""
+      },
+      {
+        "name": "CODE_ID",
+        "value": "IM.NAMESPACE + \"codeId\""
+      },
+      {
+        "name": "MATCHED_TO",
+        "value": "IM.NAMESPACE + \"matchedTo\""
+      },
+      {
+        "name": "MAP_PRIORITY",
+        "value": "IM.NAMESPACE + \"mapPriority\""
+      },
+      {
+        "name": "ASSURANCE_LEVEL",
+        "value": "IM.NAMESPACE + \"assuranceLevel\""
+      },
+      {
+        "name": "MAP_ADVICE",
+        "value": "IM.NAMESPACE + \"mapAdvice\""
+      },
+      {
+        "name": "NATIONALLY_ASSURED",
+        "value": "IM.NAMESPACE + \"NationallyAssuredUK\""
+      },
+      {
+        "name": "SUPPLIER_ASSURED",
+        "value": "IM.NAMESPACE + \"SupplierAssured\""
+      },
+      {
+        "name": "HAS_MEMBER",
+        "value": "IM.NAMESPACE + \"hasMember\""
+      },
+      {
+        "name": "IS_MEMBER_OF",
+        "value": "IM.NAMESPACE + \"isMemberOf\""
+      },
+      {
+        "name": "IS_SUBSET_OF",
+        "value": "IM.NAMESPACE + \"isSubsetOf\""
+      },
+      {
+        "name": "HAS_SUBSET",
+        "value": "IM.NAMESPACE + \"hasSubset\""
+      },
+      {
+        "name": "SOURCE_CONTEXT",
+        "value": "IM.NAMESPACE + \"sourceContext\""
+      },
+      {
+        "name": "SOURCE_CONTEXT_TYPE",
+        "value": "IM.NAMESPACE + \"SourceContext\""
+      },
+      {
+        "name": "SOURCE_PUBLISHER",
+        "value": "IM.NAMESPACE + \"sourcePublisher\""
+      },
+      {
+        "name": "SOURCE_SYSTEM",
+        "value": "IM.NAMESPACE + \"sourceSystem\""
+      },
+      {
+        "name": "SOURCE_SCHEMA",
+        "value": "IM.NAMESPACE + \"sourceSchema\""
+      },
+      {
+        "name": "SOURCE_TABLE",
+        "value": "IM.NAMESPACE + \"sourceTable\""
+      },
+      {
+        "name": "SOURCE_FIELD",
+        "value": "IM.NAMESPACE + \"sourceField\""
+      },
+      {
+        "name": "SOURCE_CODE_SCHEME",
+        "value": "IM.NAMESPACE + \"sourceCodeScheme\""
+      },
+      {
+        "name": "SOURCE_VALUE",
+        "value": "IM.NAMESPACE + \"sourceValue\""
+      },
+      {
+        "name": "SOURCE_REGEX",
+        "value": "IM.NAMESPACE + \"sourceRegex\""
+      },
+      {
+        "name": "SOURCE_HEADING",
+        "value": "IM.NAMESPACE + \"sourceHeading\""
+      },
+      {
+        "name": "TARGET_PROPERTY",
+        "value": "IM.NAMESPACE + \"targetProperty\""
+      },
+      {
+        "name": "CONTEXT_NODE",
+        "value": "IM.NAMESPACE + \"contextNode\""
+      },
+      {
+        "name": "UPDATE_ALL",
+        "value": "IM.NAMESPACE + \"UpdateAll\""
+      },
+      {
+        "name": "ADD_QUADS",
+        "value": "IM.NAMESPACE + \"AddQuads\""
+      },
+      {
+        "name": "UPDATE_PREDICATES",
+        "value": "IM.NAMESPACE + \"UpdatePredicates\""
+      },
+      {
+        "name": "DELETE_ALL",
+        "value": "IM.NAMESPACE + \"DeleteAll\""
+      },
+      {
+        "name": "PROV_CREATION",
+        "value": "IM.NAMESPACE + \"2001000252109\""
+      },
+      {
+        "name": "PROV_UPDATE",
+        "value": "IM.NAMESPACE + \"1661000252106\""
+      },
+      {
+        "name": "USED_IN",
+        "value": "IM.NAMESPACE + \"usedIn\""
+      },
+      {
+        "name": "IN_RESULT_SET",
+        "value": "IM.NAMESPACE + \"inResultSet\""
+      },
+      {
+        "name": "HAS_PROFILE",
+        "value": "IM.NAMESPACE + \"inResultSet\""
+      },
+      {
+        "name": "GMS_PATIENT",
+        "value": "IM.NAMESPACE + \"2751000252106\""
+      },
+      {
+        "name": "PROVENANCE_ACTIVITY",
+        "value": "IM.NAMESPACE + \"ProvenanceActivity\""
+      },
+      {
+        "name": "PROVENANCE_TARGET",
+        "value": "IM.NAMESPACE + \"provenanceTarget\""
+      },
+      {
+        "name": "PROVENANCE_ACTIVITY_TYPE",
+        "value": "IM.NAMESPACE + \"provenanceActivityType\""
+      },
+      {
+        "name": "PROVENANCE_AGENT",
+        "value": "IM.NAMESPACE + \"provenanceAgent\""
+      },
+      {
+        "name": "START_TIME",
+        "value": "IM.NAMESPACE + \"startTime\""
+      },
+      {
+        "name": "EFFECTIVE_DATE",
+        "value": "IM.NAMESPACE + \"effectiveDate\""
+      },
+      {
+        "name": "END_DATE",
+        "value": "IM.NAMESPACE + \"endDate\""
+      },
+      {
+        "name": "PROVENANCE_USED",
+        "value": "IM.NAMESPACE + \"usedEntity\""
+      },
+      {
+        "name": "AUTHOR_ROLE",
+        "value": "IM.NAMESPACE + \"1001911000252102\""
+      },
+      {
+        "name": "VERSION",
+        "value": "IM.NAMESPACE + \"version\""
+      },
+      {
+        "name": "HAS_ROLE_IN",
+        "value": "IM.NAMESPACE + \"hasRoleInOrganisation\""
+      },
+      {
+        "name": "IS_PERSON",
+        "value": "IM.NAMESPACE + \"isPerson\""
+      },
+      {
+        "name": "HAS_CONTEXT",
+        "value": "IM.NAMESPACE + \"hasContext\""
+      },
+      {
+        "name": "DISPLAY_ORDER",
+        "value": "IM.NAMESPACE + \"displayOrder\""
+      },
+      {
+        "name": "USAGE_TOTAL",
+        "value": "IM.NAMESPACE + \"usageTotal\""
+      },
+      {
+        "name": "PLABEL",
+        "value": "IM.NAMESPACE + \"pLabel\""
+      },
+      {
+        "name": "OLABEL",
+        "value": "IM.NAMESPACE + \"oLabel\""
+      },
+      {
+        "name": "EXAMPLE",
+        "value": "IM.NAMESPACE + \"example\""
+      },
+      {
+        "name": "IM1ID",
+        "value": "IM.NAMESPACE + \"im1Id\""
+      },
+      {
+        "name": "WEIGHTING",
+        "value": "IM.NAMESPACE + \"weighting\""
+      },
+      {
+        "name": "PRIVACY_LEVEL",
+        "value": "IM.NAMESPACE + \"privacyLevel\""
+      },
+      {
+        "name": "IM1SCHEME",
+        "value": "IM.NAMESPACE + \"im1Scheme\""
+      },
+      {
+        "name": "VALUE_SELECT",
+        "value": "IM.NAMESPACE + \"valueSelect\""
+      },
+      {
+        "name": "VALUE_VARIABLE",
+        "value": "IM.NAMESPACE + \"valueVariable\""
+      },
+      {
+        "name": "PLACEHOLDER",
+        "value": "IM.NAMESPACE + \"placeHolder\""
+      },
+      {
+        "name": "FUNCTION_DEFINITION",
+        "value": "IM.NAMESPACE + \"function\""
+      },
+      {
+        "name": "ADDRESS_CLASS",
+        "value": "IM.NAMESPACE + \"Address\""
+      },
+      {
+        "name": "ADDRESS",
+        "value": "IM.NAMESPACE + \"address\""
+      },
+      {
+        "name": "ADDRESS_LINE_1",
+        "value": "IM.NAMESPACE + \"addressLine1\""
+      },
+      {
+        "name": "ADDRESS_LINE_2",
+        "value": "IM.NAMESPACE + \"addressLine2\""
+      },
+      {
+        "name": "ADDRESS_LINE_3",
+        "value": "IM.NAMESPACE + \"addressLine3\""
+      },
+      {
+        "name": "LOCALITY",
+        "value": "IM.NAMESPACE + \"locality\""
+      },
+      {
+        "name": "REGION",
+        "value": "IM.NAMESPACE + \"region\""
+      },
+      {
+        "name": "POST_CODE",
+        "value": "IM.NAMESPACE + \"postCode\""
+      },
+      {
+        "name": "COUNTRY",
+        "value": "IM.NAMESPACE + \"country\""
+      },
+      {
+        "name": "UPRN",
+        "value": "IM.NAMESPACE + \"uprn\""
+      },
+      {
+        "name": "SYSTEM_NAMESPACE",
+        "value": "\"http://sys.endhealth.info/im#\""
+      },
+      {
+        "name": "ENTITY_TYPES",
+        "value": "IM.NAMESPACE + \"EntityTypes\""
+      },
+      {
+        "name": "ID",
+        "value": "IM.NAMESPACE + \"id\""
+      },
+      {
+        "name": "CONCEPT_SET_GROUP",
+        "value": "IM.NAMESPACE + \"ConceptSetGroup\""
+      },
+      {
+        "name": "OLD_CODE",
+        "value": "IM.NAMESPACE + \"oldCode\""
+      },
+      {
+        "name": "ORDER",
+        "value": "IM.NAMESPACE + \"order\""
+      },
+      {
+        "name": "MAPPING_TASK",
+        "value": "IM.NAMESPACE + \"MappingTask\""
+      },
+      {
+        "name": "UPDATE_TASK",
+        "value": "IM.NAMESPACE + \"UpdateTask\""
+      },
+      {
+        "name": "MATCHED_FROM",
+        "value": "IM.NAMESPACE + \"matchedFrom\""
+      },
+      {
+        "name": "MAPPED_FROM",
+        "value": "IM.NAMESPACE + \"mappedFrom\""
+      },
+      {
+        "name": "SELECT",
+        "value": "IM.NAMESPACE + \"select\""
+      },
+      {
+        "name": "NATIONALLY_ASSURED_UK",
+        "value": "IM.NAMESPACE + \"NationallyAssuredUK\""
+      },
+      {
+        "name": "ENTITY",
+        "value": "IM.NAMESPACE + \"Entity\""
+      },
+      {
+        "name": "QUERY_SET",
+        "value": "IM.NAMESPACE + \"QuerySet\""
+      },
+      {
+        "name": "QUERY_TEMPLATE",
+        "value": "IM.NAMESPACE + \"QueryTemplate\""
+      },
+      {
+        "name": "RECORD_TYPE",
+        "value": "IM.NAMESPACE + \"RecordType\""
+      },
+      {
+        "name": "FEATURE",
+        "value": "IM.NAMESPACE + \"MatchClause\""
+      },
+      {
+        "name": "DATA_PROPERTY",
+        "value": "IM.NAMESPACE + \"DataProperty\""
+      },
+      {
+        "name": "ORGANISATION",
+        "value": "IM.NAMESPACE + \"Organisation\""
+      },
+      {
+        "name": "MODELLING_ENTITY_TYPE",
+        "value": "IM.NAMESPACE + \"ModellingEntityType\""
+      },
+      {
+        "name": "PROFILE",
+        "value": "IM.NAMESPACE + \"Profile\""
+      },
+      {
+        "name": "STATS_REPORT_ENTRY",
+        "value": "IM.NAMESPACE + \"hasStatsReportEntry\""
+      },
+      {
+        "name": "FAVOURITES",
+        "value": "IM.NAMESPACE + \"Favourites\""
+      },
+      {
+        "name": "MODULE_ONTOLOGY",
+        "value": "IM.NAMESPACE + \"DiscoveryOntology\""
+      },
+      {
+        "name": "MODULE_SETS",
+        "value": "IM.NAMESPACE + \"Sets\""
+      },
+      {
+        "name": "MODULE_DATA_MODEL",
+        "value": "IM.NAMESPACE + \"DiscoveryCommonDataModel\""
+      },
+      {
+        "name": "MODULE_CATALOGUE",
+        "value": "IM.NAMESPACE + \"Catalogue\""
+      },
+      {
+        "name": "MODULE_QUERIES",
+        "value": "IM.NAMESPACE + \"Q_Queries\""
+      },
+      {
+        "name": "MODULE_IM",
+        "value": "IM.NAMESPACE + \"InformationModel\""
+      },
+      {
+        "name": "MODULE_TASKS",
+        "value": "IM.NAMESPACE + \"Tasks\""
+      },
+      {
+        "name": "MODULE_FEATURES",
+        "value": "IM.NAMESPACE + \"M_MatchClauses\""
+      },
+      {
+        "name": "CONCEPT_CATEGORY",
+        "value": "IM.NAMESPACE + \"ontologyOverview\""
+      },
+      {
+        "name": "CONCEPT_TYPES",
+        "value": "IM.NAMESPACE + \"ontologyConceptTypes\""
+      },
+      {
+        "name": "CONCEPT_SCHEMES",
+        "value": "IM.NAMESPACE + \"ontologyConceptSchemes\""
+      },
+      {
+        "name": "CONCEPT_STATUS",
+        "value": "IM.NAMESPACE + \"ontologyConceptStatus\""
+      },
+      {
+        "name": "HAS_VALUE",
+        "value": "IM.NAMESPACE + \"hasValue\""
+      },
+      {
+        "name": "VALUE_SET",
+        "value": "IM.NAMESPACE + \"ValueSet\""
+      },
+      {
+        "name": "DATAMODEL_ENTITY",
+        "value": "IM.NAMESPACE + \"DataModelEntity\""
+      },
+      {
+        "name": "DATAMODEL_OBJECTPROPERTY",
+        "value": "IM.NAMESPACE + \"dataModelObjectProperty\""
+      },
+      {
+        "name": "DATAMODEL_DATAPROPERTY",
+        "value": "IM.NAMESPACE + \"dataModelDataProperty\""
+      },
+      {
+        "name": "DATAMODEL_FUNCTIONPROPERTY",
+        "value": "IM.NAMESPACE + \"functionProperty\""
+      },
+      {
+        "name": "MATCH",
+        "value": "IM.NAMESPACE + \"match\""
+      },
+      {
+        "name": "ENTITY_TYPE",
+        "value": "IM.NAMESPACE + \"entityType\""
+      },
+      {
+        "name": "VALUE_DATA",
+        "value": "IM.NAMESPACE + \"valueData\""
+      },
+      {
+        "name": "VALUE_OBJECT",
+        "value": "IM.NAMESPACE + \"valueObject\""
+      },
+      {
+        "name": "VALUE_IRI",
+        "value": "IM.NAMESPACE + \"valueIri\""
+      },
+      {
+        "name": "VALUE_IRI_LIST",
+        "value": "IM.NAMESPACE + \"valueIriList\""
+      },
+      {
+        "name": "VALUE_DATA_LIST",
+        "value": "IM.NAMESPACE + \"valueDataList\""
+      },
+      {
+        "name": "IM_1_ID",
+        "value": "IM.NAMESPACE + \"im1Id\""
+      },
+      {
+        "name": "IM_1_SCHEME",
+        "value": "IM.NAMESPACE + \"im1Scheme\""
+      },
+      {
+        "name": "PROV_ACTIVITY_TYPE",
+        "value": "IM.NAMESPACE + \"provenanceActivityType\""
+      },
+      {
+        "name": "FOLDER_VALUESETS",
+        "value": "IM.NAMESPACE + \"ValueSets\""
+      },
+      {
+        "name": "FOLDER_SETS",
+        "value": "IM.NAMESPACE + \"Sets\""
+      },
+      {
+        "name": "FOLDER_QUERY_CONCEPT_SETS",
+        "value": "IM.NAMESPACE + \"QueryConceptSets\""
+      },
+      {
+        "name": "DATE_OF_ENTRY",
+        "value": "IM.NAMESPACE + \"dateOfEntry\""
+      },
+      {
+        "name": "PARTICIPATION_TYPE",
+        "value": "IM.NAMESPACE + \"participationType\""
+      },
+      {
+        "name": "PERSON_IN_ROLE",
+        "value": "IM.NAMESPACE + \"personInRole\""
+      },
+      {
+        "name": "PROVENANCE_SOURCE_ENTITY",
+        "value": "IM.NAMESPACE + \"ProvenanceSourceEntity\""
+      },
+      {
+        "name": "DERIVATION_TYPE",
+        "value": "IM.NAMESPACE + \"derivationType\""
+      },
+      {
+        "name": "ENTITY_IDENTIFIER",
+        "value": "IM.NAMESPACE + \"entityIdentifier\""
       }
     ]
   },
@@ -111,6 +1000,1056 @@
       {
         "name": "ALLOWABLE_RANGES",
         "value": "IM_FUNCTION.NAMESPACE + \"AllowableRanges\""
+      }
+    ]
+  },
+  {
+    "name": "MAP",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://endhealth.info/\""
+      },
+      {
+        "name": "NAMESPACE",
+        "value": "MAP.DOMAIN + \"map#\""
+      },
+      {
+        "name": "PREFIX",
+        "value": "\"map\""
+      }
+    ]
+  },
+  {
+    "name": "ODS",
+    "entries": [
+      {
+        "name": "BASE_NAMESPACE",
+        "value": "\"https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-\""
+      },
+      {
+        "name": "ORGANISATION_ROLE_TYPE",
+        "value": "ODS.BASE_NAMESPACE + \"OrganizationRole-1#ODS_RoleType\""
+      },
+      {
+        "name": "ORGANISATION_RELATIONSHIP",
+        "value": "ODS.BASE_NAMESPACE + \"OrganizationRelationship-1#ODS_Relationship\""
+      },
+      {
+        "name": "ORGANISATION_RECORD_CLASS",
+        "value": "ODS.BASE_NAMESPACE + \"OrganizationRecordClass-1#ODS_RecordClass\""
+      }
+    ]
+  },
+  {
+    "name": "ORG",
+    "entries": [
+      {
+        "name": "ORGANISATION_NAMESPACE",
+        "value": "\"http://org.endhealth.info/im#\""
+      },
+      {
+        "name": "LOCATION_NAMESPACE",
+        "value": "\"http://loc.endhealth.info/im#\""
+      },
+      {
+        "name": "ORGANISATION_RECORD_CLASS",
+        "value": "\"http://endhealth.info/im#organisationRecordClass\""
+      },
+      {
+        "name": "RELATED_ORGANISATION",
+        "value": "\"http://endhealth.info/im#organisationRelationship\""
+      },
+      {
+        "name": "TARGET",
+        "value": "\"http://endhealth.info/im#targetOrganisation\""
+      },
+      {
+        "name": "ROLE",
+        "value": "\"http://endhealth.info/im#organisationRole\""
+      },
+      {
+        "name": "ODS_CODE",
+        "value": "\"http://endhealth.info/im#odsCode\""
+      }
+    ]
+  },
+  {
+    "name": "OWL",
+    "entries": [
+      {
+        "name": "NAMESPACE",
+        "value": "\"http://www.w3.org/2002/07/owl#\""
+      },
+      {
+        "name": "PREFIX",
+        "value": "\"owl\""
+      },
+      {
+        "name": "THING",
+        "value": "OWL.NAMESPACE + \"Thing\""
+      },
+      {
+        "name": "CLASS",
+        "value": "OWL.NAMESPACE + \"Class\""
+      },
+      {
+        "name": "EQUIVALENT_CLASS",
+        "value": "OWL.NAMESPACE + \"equivalentClass\""
+      },
+      {
+        "name": "INTERSECTION_OF",
+        "value": "OWL.NAMESPACE + \"intersectionOf\""
+      },
+      {
+        "name": "UNION_OF",
+        "value": "OWL.NAMESPACE + \"unionOf\""
+      },
+      {
+        "name": "RESTRICTION",
+        "value": "OWL.NAMESPACE + \"Restriction\""
+      },
+      {
+        "name": "ON_PROPERTY",
+        "value": "OWL.NAMESPACE + \"onProperty\""
+      },
+      {
+        "name": "ON_CLASS",
+        "value": "OWL.NAMESPACE + \"onClass\""
+      },
+      {
+        "name": "SOME_VALUES_FROM",
+        "value": "OWL.NAMESPACE + \"someValuesFrom\""
+      },
+      {
+        "name": "ALL_VALUES_FROM",
+        "value": "OWL.NAMESPACE + \"allValuesFrom\""
+      },
+      {
+        "name": "OBJECT_PROPERTY",
+        "value": "OWL.NAMESPACE + \"ObjectProperty\""
+      },
+      {
+        "name": "DATATYPE_PROPERTY",
+        "value": "OWL.NAMESPACE + \"DatatypeProperty\""
+      },
+      {
+        "name": "ANNOTATION_PROPERTY",
+        "value": "OWL.NAMESPACE + \"AnnotationProperty\""
+      },
+      {
+        "name": "INVERSE_OF",
+        "value": "OWL.NAMESPACE + \"inverseOf\""
+      },
+      {
+        "name": "INVERSE_OBJECT_PROPERTY",
+        "value": "OWL.NAMESPACE + \"inverseOf\""
+      },
+      {
+        "name": "PROPERTY_CHAIN",
+        "value": "OWL.NAMESPACE + \"propertyChainAxiom\""
+      },
+      {
+        "name": "TRANSITIVE",
+        "value": "OWL.NAMESPACE + \"TransitiveProperty\""
+      },
+      {
+        "name": "FUNCTIONAL",
+        "value": "OWL.NAMESPACE + \"FunctionalProperty\""
+      },
+      {
+        "name": "SYMMETRIC",
+        "value": "OWL.NAMESPACE + \"SymmetricProperty\""
+      },
+      {
+        "name": "REFLEXIVE",
+        "value": "OWL.NAMESPACE + \"ReflexiveProperty\""
+      },
+      {
+        "name": "ON_DATATYPE",
+        "value": "OWL.NAMESPACE + \"onDatatype\""
+      },
+      {
+        "name": "WITH_RESTRICTIONS",
+        "value": "OWL.NAMESPACE + \"withRestrictions\""
+      },
+      {
+        "name": "MAX_CARDINALITY",
+        "value": "OWL.NAMESPACE + \"maxCardinality\""
+      },
+      {
+        "name": "MIN_CARDINALITY",
+        "value": "OWL.NAMESPACE + \"minCardinality\""
+      },
+      {
+        "name": "ON_DATA_RANGE",
+        "value": "OWL.NAMESPACE + \"onDataRange\""
+      },
+      {
+        "name": "HAS_VALUE",
+        "value": "OWL.NAMESPACE + \"hasValue\""
+      },
+      {
+        "name": "COMPLEMENT_OF",
+        "value": "OWL.NAMESPACE + \"complementOf\""
+      },
+      {
+        "name": "ONE_OF",
+        "value": "OWL.NAMESPACE + \"oneOf\""
+      },
+      {
+        "name": "NAMED_INDIVIDUAL",
+        "value": "OWL.NAMESPACE + \"NamedIndividual\""
+      }
+    ]
+  },
+  {
+    "name": "PRSB",
+    "entries": [
+      {
+        "name": "NAMESPACE",
+        "value": "\"http://prsb.info/rs#\""
+      },
+      {
+        "name": "PREFIX",
+        "value": "\"rs\""
+      }
+    ]
+  },
+  {
+    "name": "QR",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://apiqcodes.org/\""
+      },
+      {
+        "name": "NAMESPACE",
+        "value": "QR.DOMAIN + \"qcodes#\""
+      },
+      {
+        "name": "PREFIX",
+        "value": "\"qc\""
+      }
+    ]
+  },
+  {
+    "name": "RDF",
+    "entries": [
+      {
+        "name": "NAMESPACE",
+        "value": "\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\""
+      },
+      {
+        "name": "PREFIX",
+        "value": "\"rdf\""
+      },
+      {
+        "name": "TYPE",
+        "value": "RDF.NAMESPACE + \"type\""
+      },
+      {
+        "name": "PROPERTY",
+        "value": "RDF.NAMESPACE + \"Property\""
+      },
+      {
+        "name": "LIST",
+        "value": "RDF.NAMESPACE + \"List\""
+      },
+      {
+        "name": "PREDICATE",
+        "value": "RDF.NAMESPACE + \"predicate\""
+      },
+      {
+        "name": "SUBJECT",
+        "value": "RDF.NAMESPACE + \"subject\""
+      },
+      {
+        "name": "OBJECT",
+        "value": "RDF.NAMESPACE + \"object\""
+      }
+    ]
+  },
+  {
+    "name": "RDFS",
+    "entries": [
+      {
+        "name": "NAMESPACE",
+        "value": "\"http://www.w3.org/2000/01/rdf-schema#\""
+      },
+      {
+        "name": "PREFIX",
+        "value": "\"rdfs\""
+      },
+      {
+        "name": "LABEL",
+        "value": "RDFS.NAMESPACE + \"label\""
+      },
+      {
+        "name": "COMMENT",
+        "value": "RDFS.NAMESPACE + \"comment\""
+      },
+      {
+        "name": "SUBCLASS_OF",
+        "value": "RDFS.NAMESPACE + \"subClassOf\""
+      },
+      {
+        "name": "SUB_PROPERTY_OF",
+        "value": "RDFS.NAMESPACE + \"subPropertyOf\""
+      },
+      {
+        "name": "DOMAIN",
+        "value": "RDFS.NAMESPACE + \"domain\""
+      },
+      {
+        "name": "RANGE",
+        "value": "RDFS.NAMESPACE + \"range\""
+      },
+      {
+        "name": "RESOURCE",
+        "value": "RDFS.NAMESPACE + \"Resource\""
+      },
+      {
+        "name": "CLASS",
+        "value": "RDFS.NAMESPACE + \"Class\""
+      },
+      {
+        "name": "DATATYPE",
+        "value": "RDFS.NAMESPACE + \"Datatype\""
+      },
+      {
+        "name": "IS_DEFINED_BY",
+        "value": "RDFS.NAMESPACE + \"isDefinedBy\""
+      }
+    ]
+  },
+  {
+    "name": "SHACL",
+    "entries": [
+      {
+        "name": "NAMESPACE",
+        "value": "\"http://www.w3.org/ns/shacl#\""
+      },
+      {
+        "name": "PREFIX",
+        "value": "\"sh\""
+      },
+      {
+        "name": "PATH",
+        "value": "SHACL.NAMESPACE + \"path\""
+      },
+      {
+        "name": "MININCLUSIVE",
+        "value": "SHACL.NAMESPACE + \"minInclusive\""
+      },
+      {
+        "name": "MINEXCLUSIVE",
+        "value": "SHACL.NAMESPACE + \"minExclusive\""
+      },
+      {
+        "name": "MAXINCLUSIVE",
+        "value": "SHACL.NAMESPACE + \"maxInclusive\""
+      },
+      {
+        "name": "MAXEXCLUSIVE",
+        "value": "SHACL.NAMESPACE + \"maxExclusive\""
+      },
+      {
+        "name": "PROPERTY",
+        "value": "SHACL.NAMESPACE + \"property\""
+      },
+      {
+        "name": "PROPERTY_GROUP",
+        "value": "SHACL.NAMESPACE + \"PropertyGroup\""
+      },
+      {
+        "name": "MINCOUNT",
+        "value": "SHACL.NAMESPACE + \"minCount\""
+      },
+      {
+        "name": "MAXCOUNT",
+        "value": "SHACL.NAMESPACE + \"maxCount\""
+      },
+      {
+        "name": "VALUE",
+        "value": "SHACL.NAMESPACE + \"value\""
+      },
+      {
+        "name": "PATTERN",
+        "value": "SHACL.NAMESPACE + \"pattern\""
+      },
+      {
+        "name": "INVERSEPATH",
+        "value": "SHACL.NAMESPACE + \"inversePath\""
+      },
+      {
+        "name": "CLASS",
+        "value": "SHACL.NAMESPACE + \"class\""
+      },
+      {
+        "name": "DATATYPE",
+        "value": "SHACL.NAMESPACE + \"datatype\""
+      },
+      {
+        "name": "SPARQL",
+        "value": "SHACL.NAMESPACE + \"sparql\""
+      },
+      {
+        "name": "SELECT",
+        "value": "SHACL.NAMESPACE + \"select\""
+      },
+      {
+        "name": "PARAMETER",
+        "value": "SHACL.NAMESPACE + \"parameter\""
+      },
+      {
+        "name": "IRI",
+        "value": "SHACL.NAMESPACE + \"IRI\""
+      },
+      {
+        "name": "OPTIONAL",
+        "value": "SHACL.NAMESPACE + \"optional\""
+      },
+      {
+        "name": "NODESHAPE",
+        "value": "SHACL.NAMESPACE + \"NodeShape\""
+      },
+      {
+        "name": "TARGETCLASS",
+        "value": "SHACL.NAMESPACE + \"targetClass\""
+      },
+      {
+        "name": "NODE",
+        "value": "SHACL.NAMESPACE + \"node\""
+      },
+      {
+        "name": "ORDER",
+        "value": "SHACL.NAMESPACE + \"order\""
+      },
+      {
+        "name": "OR",
+        "value": "SHACL.NAMESPACE + \"or\""
+      },
+      {
+        "name": "NOT",
+        "value": "SHACL.NAMESPACE + \"not\""
+      },
+      {
+        "name": "NODE_KIND",
+        "value": "SHACL.NAMESPACE + \"nodeKind\""
+      },
+      {
+        "name": "PROPERTYSHAPE",
+        "value": "SHACL.NAMESPACE + \"PropertyShape\""
+      },
+      {
+        "name": "AND",
+        "value": "SHACL.NAMESPACE + \"and\""
+      },
+      {
+        "name": "NODES",
+        "value": "SHACL.NAMESPACE + \"nodes\""
+      },
+      {
+        "name": "TARGET_TYPE",
+        "value": "SHACL.NAMESPACE + \"targetType\""
+      },
+      {
+        "name": "TARGET",
+        "value": "SHACL.NAMESPACE + \"target\""
+      },
+      {
+        "name": "SPARQL_TARGET",
+        "value": "SHACL.NAMESPACE + \"SPARQLTarget\""
+      },
+      {
+        "name": "FUNCTION",
+        "value": "SHACL.NAMESPACE + \"FunctionClause\""
+      },
+      {
+        "name": "RETURN_TYPE",
+        "value": "SHACL.NAMESPACE + \"returnType\""
+      },
+      {
+        "name": "GROUP",
+        "value": "SHACL.NAMESPACE + \"group\""
+      },
+      {
+        "name": "NAME",
+        "value": "SHACL.NAMESPACE + \"name\""
+      },
+      {
+        "name": "EXPRESSION",
+        "value": "SHACL.NAMESPACE + \"expression\""
+      },
+      {
+        "name": "HAS_VALUE",
+        "value": "SHACL.NAMESPACE + \"hasValue\""
+      }
+    ]
+  },
+  {
+    "name": "SNOMED",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://snomed.info/\""
+      },
+      {
+        "name": "NAMESPACE",
+        "value": "SNOMED.DOMAIN + \"sct#\""
+      },
+      {
+        "name": "PREFIX",
+        "value": "\"sn\""
+      },
+      {
+        "name": "ATTRIBUTE",
+        "value": "SNOMED.DOMAIN + \"246061005\""
+      }
+    ]
+  },
+  {
+    "name": "USER",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://endhealth.info/\""
+      },
+      {
+        "name": "NAMESPACE",
+        "value": "USER.DOMAIN + \"user#\""
+      },
+      {
+        "name": "PREFIX",
+        "value": "\"usr\""
+      },
+      {
+        "name": "USER_THEME",
+        "value": "USER.DOMAIN + \"UserTheme\""
+      },
+      {
+        "name": "USER_MRU",
+        "value": "USER.DOMAIN + \"UserMRU\""
+      },
+      {
+        "name": "USER_FAVOURITES",
+        "value": "USER.DOMAIN + \"UserFavourites\""
+      },
+      {
+        "name": "ORGANISATIONS",
+        "value": "USER.DOMAIN + \"ORGANISATIONS\""
+      }
+    ]
+  },
+  {
+    "name": "WORKFLOW",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://endhealth.info/\""
+      },
+      {
+        "name": "NAMESPACE",
+        "value": "WORKFLOW.DOMAIN + \"workflow#\""
+      },
+      {
+        "name": "BUG_REPORT",
+        "value": "WORKFLOW.NAMESPACE + \"bugReport\""
+      },
+      {
+        "name": "DATE_CREATED",
+        "value": "WORKFLOW.NAMESPACE + \"dateCreated\""
+      },
+      {
+        "name": "CREATED_BY",
+        "value": "WORKFLOW.NAMESPACE + \"createdBy\""
+      },
+      {
+        "name": "ASSIGNED_TO",
+        "value": "WORKFLOW.NAMESPACE + \"assignedTo\""
+      },
+      {
+        "name": "STATE",
+        "value": "WORKFLOW.NAMESPACE + \"state\""
+      },
+      {
+        "name": "RELATED_PRODUCT",
+        "value": "WORKFLOW.NAMESPACE + \"relatedProduct\""
+      },
+      {
+        "name": "RELATED_MODULE",
+        "value": "WORKFLOW.NAMESPACE + \"relatedModule\""
+      },
+      {
+        "name": "OPERATING_SYSTEM",
+        "value": "WORKFLOW.NAMESPACE + \"operatingSystem\""
+      },
+      {
+        "name": "BROWSER",
+        "value": "WORKFLOW.NAMESPACE + \"browser\""
+      },
+      {
+        "name": "SEVERITY",
+        "value": "WORKFLOW.NAMESPACE + \"severity\""
+      },
+      {
+        "name": "ERROR",
+        "value": "WORKFLOW.NAMESPACE + \"errorDetails\""
+      },
+      {
+        "name": "REPRODUCE_STEPS",
+        "value": "WORKFLOW.NAMESPACE + \"reproduceSteps\""
+      },
+      {
+        "name": "EXPECTED_RESULT",
+        "value": "WORKFLOW.NAMESPACE + \"expectedResult\""
+      },
+      {
+        "name": "ACTUAL_RESULT",
+        "value": "WORKFLOW.NAMESPACE + \"actualResult\""
+      },
+      {
+        "name": "RELATED_VERSION",
+        "value": "WORKFLOW.NAMESPACE + \"relatedVersion\""
+      }
+    ]
+  },
+  {
+    "name": "XSD",
+    "entries": [
+      {
+        "name": "NAMESPACE",
+        "value": "\"http://www.w3.org/2001/XMLSchema#\""
+      },
+      {
+        "name": "PREFIX",
+        "value": "\"xsd\""
+      },
+      {
+        "name": "PATTERN",
+        "value": "XSD.NAMESPACE + \"pattern\""
+      },
+      {
+        "name": "MININCLUSIVE",
+        "value": "XSD.NAMESPACE + \"minInclusive\""
+      },
+      {
+        "name": "MINEXCLUSIVE",
+        "value": "XSD.NAMESPACE + \"minExclusive\""
+      },
+      {
+        "name": "MAXINCLUSIVE",
+        "value": "XSD.NAMESPACE + \"maxInclusive\""
+      },
+      {
+        "name": "MAXEXCLUSIVE",
+        "value": "XSD.NAMESPACE + \"maxExclusive\""
+      },
+      {
+        "name": "INTEGER",
+        "value": "XSD.NAMESPACE + \"integer\""
+      },
+      {
+        "name": "STRING",
+        "value": "XSD.NAMESPACE + \"string\""
+      },
+      {
+        "name": "BOOLEAN",
+        "value": "XSD.NAMESPACE + \"boolean\""
+      },
+      {
+        "name": "LONG",
+        "value": "XSD.NAMESPACE + \"long\""
+      },
+      {
+        "name": "DOUBLE",
+        "value": "XSD.NAMESPACE + \"double\""
+      }
+    ]
+  },
+  {
+    "name": "COMPONENT",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://endhealth.info/im#\""
+      },
+      {
+        "name": "NAMESPACE",
+        "value": "COMPONENT.DOMAIN + \"Component_\""
+      },
+      {
+        "name": "TEXT_DISPLAY",
+        "value": "COMPONENT.NAMESPACE + \"textDisplay\""
+      },
+      {
+        "name": "TEXT_INPUT",
+        "value": "COMPONENT.NAMESPACE + \"textInput\""
+      },
+      {
+        "name": "HTML_INPUT",
+        "value": "COMPONENT.NAMESPACE + \"htmlInput\""
+      },
+      {
+        "name": "ENTITY_MULTI_SEARCH",
+        "value": "COMPONENT.NAMESPACE + \"entityMultiSearch\""
+      },
+      {
+        "name": "ENTITY_SEARCH",
+        "value": "COMPONENT.NAMESPACE + \"entitySearch\""
+      },
+      {
+        "name": "ENTITY_COMBOBOX",
+        "value": "COMPONENT.NAMESPACE + \"entityComboBox\""
+      },
+      {
+        "name": "ENTITY_DROPDOWN",
+        "value": "COMPONENT.NAMESPACE + \"entityDropdown\""
+      },
+      {
+        "name": "ARRAY_BUILDER",
+        "value": "COMPONENT.NAMESPACE + \"arrayBuilder\""
+      },
+      {
+        "name": "ENTITY_AUTO_COMPLETE",
+        "value": "COMPONENT.NAMESPACE + \"entityAutoComplete\""
+      },
+      {
+        "name": "MEMBERS_BUILDER",
+        "value": "COMPONENT.NAMESPACE + \"membersBuilder\""
+      },
+      {
+        "name": "COMPONENT_GROUP",
+        "value": "COMPONENT.NAMESPACE + \"componentGroup\""
+      },
+      {
+        "name": "PROPERTY_BUILDER",
+        "value": "COMPONENT.NAMESPACE + \"propertyBuilder\""
+      },
+      {
+        "name": "SET_DEFINITION_BUILDER",
+        "value": "COMPONENT.NAMESPACE + \"SetDefinitionBuilder\""
+      },
+      {
+        "name": "QUERY_DEFINITION_BUILDER",
+        "value": "COMPONENT.NAMESPACE + \"QueryDefinitionBuilder\""
+      },
+      {
+        "name": "TOGGLEABLE",
+        "value": "COMPONENT.NAMESPACE + \"ToggleableComponent\""
+      },
+      {
+        "name": "HORIZONTAL_LAYOUT",
+        "value": "COMPONENT.NAMESPACE + \"HorizontalLayout\""
+      },
+      {
+        "name": "VERTICAL_LAYOUT",
+        "value": "COMPONENT.NAMESPACE + \"VerticalLayout\""
+      },
+      {
+        "name": "DROPDOWN_TEXT_INPUT_CONCATENATOR",
+        "value": "COMPONENT.NAMESPACE + \"dropdownTextInputConcatenator\""
+      },
+      {
+        "name": "ROLE_GROUP_BUILDER",
+        "value": "COMPONENT.NAMESPACE + \"roleGroupBuilder\""
+      },
+      {
+        "name": "TERM_CODE_EDITOR",
+        "value": "COMPONENT.NAMESPACE + \"termCodeEditor\""
+      },
+      {
+        "name": "TEXT_DROPDOWN",
+        "value": "COMPONENT.NAMESPACE + \"textDropdown\""
+      },
+      {
+        "name": "ENTITY_DISPLAY",
+        "value": "COMPONENT.NAMESPACE + \"entityDisplay\""
+      },
+      {
+        "name": "IRI_BUILDER",
+        "value": "COMPONENT.NAMESPACE + \"iriBuilder\""
+      }
+    ]
+  },
+  {
+    "name": "EDITOR",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://endhealth.info/im#\""
+      },
+      {
+        "name": "NAMESPACE",
+        "value": "EDITOR.DOMAIN + \"Editor_\""
+      },
+      {
+        "name": "CONCEPT_SHAPE",
+        "value": "EDITOR.NAMESPACE + \"ConceptShape\""
+      },
+      {
+        "name": "CONCEPT_SET_SHAPE",
+        "value": "EDITOR.NAMESPACE + \"ConceptSetShape\""
+      },
+      {
+        "name": "VALUE_SET_SHAPE",
+        "value": "EDITOR.NAMESPACE + \"ValueSetShape\""
+      },
+      {
+        "name": "FOLDER_SHAPE",
+        "value": "EDITOR.NAMESPACE + \"FolderShape\""
+      },
+      {
+        "name": "DATA_MODEL_SHAPE",
+        "value": "EDITOR.NAMESPACE + \"DataModelShape\""
+      },
+      {
+        "name": "COHORT_QUERY_SHAPE",
+        "value": "EDITOR.NAMESPACE + \"CohortQueryShape\""
+      },
+      {
+        "name": "PROPERTY_SHAPE",
+        "value": "EDITOR.NAMESPACE + \"PropertyShape\""
+      }
+    ]
+  },
+  {
+    "name": "QUERY",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://endhealth.info/im#\""
+      },
+      {
+        "name": "NAMESPACE",
+        "value": "QUERY.DOMAIN + \"Query_\""
+      },
+      {
+        "name": "ALLOWABLE_RANGES",
+        "value": "QUERY.NAMESPACE + \"AllowableRanges\""
+      },
+      {
+        "name": "GET_ISAS",
+        "value": "QUERY.NAMESPACE + \"GetIsas\""
+      },
+      {
+        "name": "GET_DESCENDANTS",
+        "value": "QUERY.NAMESPACE + \"GetDescendants\""
+      },
+      {
+        "name": "SEARCH_CONTAINED_IN",
+        "value": "QUERY.NAMESPACE + \"SearchContainedIn\""
+      },
+      {
+        "name": "ALLOWABLE_CHILD_TYPES",
+        "value": "QUERY.NAMESPACE + \"AllowableChildTypes\""
+      },
+      {
+        "name": "PROPERTY_RANGE",
+        "value": "QUERY.NAMESPACE + \"PropertyRange\""
+      },
+      {
+        "name": "OBJECT_PROPERTY_RANGE_SUGGESTIONS",
+        "value": "QUERY.NAMESPACE + \"ObjectPropertyRangeSuggestions\""
+      },
+      {
+        "name": "DATA_PROPERTY_RANGE_SUGGESTIONS",
+        "value": "QUERY.NAMESPACE + \"DataPropertyRangeSuggestions\""
+      },
+      {
+        "name": "ALLOWABLE_PROPERTIES",
+        "value": "QUERY.NAMESPACE + \"AllowableProperties\""
+      },
+      {
+        "name": "SEARCH_PROPERTIES",
+        "value": "QUERY.NAMESPACE + \"SearchProperties\""
+      },
+      {
+        "name": "SEARCH_ENTITIES",
+        "value": "QUERY.NAMESPACE + \"SearchEntities\""
+      },
+      {
+        "name": "SEARCH_FOLDERS",
+        "value": "QUERY.NAMESPACE + \"SearchFolders\""
+      },
+      {
+        "name": "SEARCH_ALLOWABLE_CONTAINED_IN",
+        "value": "QUERY.NAMESPACE + \"SearchAllowableContainedIn\""
+      },
+      {
+        "name": "SEARCH_MAIN_TYPES",
+        "value": "QUERY.NAMESPACE + \"SearchmainTypes\""
+      },
+      {
+        "name": "DM_PROPERTY",
+        "value": "QUERY.NAMESPACE + \"DataModelPropertyByShape\""
+      },
+      {
+        "name": "SEARCH_SUBCLASS",
+        "value": "QUERY.NAMESPACE + \"SearchAllowableSubclass\""
+      }
+    ]
+  },
+  {
+    "name": "VALIDATION",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://endhealth.info/im#\""
+      },
+      {
+        "name": "NAMESPACE",
+        "value": "VALIDATION.DOMAIN + \"Validation_\""
+      },
+      {
+        "name": "IS_DEFINITION",
+        "value": "VALIDATION.NAMESPACE + \"isDefinition\""
+      },
+      {
+        "name": "HAS_PARENT",
+        "value": "VALIDATION.NAMESPACE + \"hasParent\""
+      },
+      {
+        "name": "IS_IRI",
+        "value": "VALIDATION.NAMESPACE + \"isIri\""
+      },
+      {
+        "name": "IS_TERMCODE",
+        "value": "VALIDATION.NAMESPACE + \"isTermcode\""
+      },
+      {
+        "name": "IS_PROPERTY",
+        "value": "VALIDATION.NAMESPACE + \"isProperty\""
+      },
+      {
+        "name": "IS_SCHEME",
+        "value": "VALIDATION.NAMESPACE + \"isScheme\""
+      },
+      {
+        "name": "IS_STATUS",
+        "value": "VALIDATION.NAMESPACE + \"isStatus\""
+      },
+      {
+        "name": "IS_ROLE_GROUP",
+        "value": "VALIDATION.NAMESPACE + \"isRoleGroup\""
+      }
+    ]
+  },
+  {
+    "name": "GRAPH",
+    "entries": [
+      {
+        "name": "DISCOVERY",
+        "value": "\"http://endhealth.info/im#\""
+      },
+      {
+        "name": "ICD10",
+        "value": "\"http://endhealth.info/icd10#\""
+      },
+      {
+        "name": "EMIS",
+        "value": "\"http://endhealth.info/emis#\""
+      },
+      {
+        "name": "CPRD_MED",
+        "value": "\"http://endhealth.info/cprdm#\""
+      },
+      {
+        "name": "CPRD_PROD",
+        "value": "\"http://endhealth.info/cprdp#\""
+      },
+      {
+        "name": "OPCS4",
+        "value": "\"http://endhealth.info/opcs4#\""
+      },
+      {
+        "name": "TPP",
+        "value": "\"http://endhealth.info/tpp#\""
+      },
+      {
+        "name": "ODS",
+        "value": "\"http://endhealth.info/ods#\""
+      },
+      {
+        "name": "PRSB",
+        "value": "\"http://endhealth.info/prsb#\""
+      },
+      {
+        "name": "KINGS_APEX",
+        "value": "\"http://endhealth.info/kpax#\""
+      },
+      {
+        "name": "KINGS_WINPATH",
+        "value": "\"http://endhealth.info/kwp#\""
+      },
+      {
+        "name": "VISION",
+        "value": "\"http://endhealth.info/vis#\""
+      },
+      {
+        "name": "READ2",
+        "value": "\"http://endhealth.info/read2#\""
+      },
+      {
+        "name": "BARTS_CERNER",
+        "value": "\"http://endhealth.info/bc#\""
+      },
+      {
+        "name": "NHSDD_ETHNIC_2001",
+        "value": "\"http://endhealth.info/nhsethnic2001#\""
+      },
+      {
+        "name": "IM1",
+        "value": "\"http://endhealth.info/im1#\""
+      },
+      {
+        "name": "ENCOUNTERS",
+        "value": "\"http://endhealth.info/enc#\""
+      },
+      {
+        "name": "CONFIG",
+        "value": "\"http://endhealth.info/config#\""
+      },
+      {
+        "name": "CEG_QUERY",
+        "value": "\"http://endhealth.info/ceg/qry#\""
+      },
+      {
+        "name": "NHS_TFC",
+        "value": "\"http://endhealth.info/nhstfc#\""
+      },
+      {
+        "name": "STATS",
+        "value": "\"http://endhealth.info/stats#\""
+      },
+      {
+        "name": "DELTAS",
+        "value": "\"http://endhealth.info/deltas#\""
+      },
+      {
+        "name": "PROV",
+        "value": "\"http://endhealth.info/prov#\""
+      },
+      {
+        "name": "QUERY",
+        "value": "\"http://endhealth.info/query#\""
+      },
+      {
+        "name": "CEG16",
+        "value": "\"http://endhealth.info/ceg16#\""
+      },
+      {
+        "name": "REPORTS",
+        "value": "\"http://endhealth.info/reports#\""
+      },
+      {
+        "name": "OPS_ROLES",
+        "value": "\"https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#\""
+      },
+      {
+        "name": "XMLS",
+        "value": "\"http://www.w3.org/2001/XMLSchema#\""
       }
     ]
   }

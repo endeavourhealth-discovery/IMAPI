@@ -12,6 +12,8 @@ import org.endeavourhealth.imapi.vocabulary.FHIR;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.MAP;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class TestMaps {
 
 
@@ -19,20 +21,20 @@ public class TestMaps {
 	public static MapObject patientDSTU2() throws JsonProcessingException {
 	TTEntity patientMapEntity= new TTEntity();
 		patientMapEntity
-			.setIri(MAP.NAMESPACE.iri+"FHIR_2_PatientToIM")
+			.setIri(MAP.NAMESPACE+"FHIR_2_PatientToIM")
 			.setName("FHIR DSTU2 Patient to IM Patient transformMap")
 			.setDescription("Maps a FHIR DSTU2 Patient resource to IM Patient entity");
 		MapObject patientMap = new MapObject();
 		patientMap
 			.setIri(patientMapEntity.getIri())
-			.setSourceType(FHIR.DSTU2.iri+"Patient")
-			.setTargetType(IM.NAMESPACE.iri+"Patient")
+			.setSourceType(FHIR.DSTU2+"Patient")
+			.setTargetType(IM.NAMESPACE+"Patient")
 			.propertyMap(r->r
 				.setSource("id")
 				.setSourceVariable("fhirId")
 				.setTarget("iri")
 				.function(f->f
-    				.setIri(IM.NAMESPACE.iri+ "Concatenate")
+    				.setIri(IM.NAMESPACE+ "Concatenate")
 		    		.argument(a->a
 							.setValueData("urn:uuid:"))
 				    .argument(a->a
@@ -43,7 +45,7 @@ public class TestMaps {
 							.setSource("value")
 							.where(w->w
 								.property(p->p
-								.setIri(IM.NAMESPACE.iri+"system")
+								.setIri(IM.NAMESPACE+"system")
 									.setValue("http://fhir.nhs.net/Id/nhs-number"))))
 							.setTarget("nhsNumber"))
 			.propertyMap(m->m
@@ -61,7 +63,7 @@ public class TestMaps {
 					.setListMode(ListMode.ALL)
 					.setTarget("forenames")
 					.function(f->f
-							.setIri(IM.NAMESPACE.iri+"StringJoin")
+							.setIri(IM.NAMESPACE+"StringJoin")
 							.argument(a->a
 								.setParameter("delimiter")
 								.setValueData(" "))
@@ -74,9 +76,9 @@ public class TestMaps {
 				.objectMap(m1->m1
 						.where(w->w
 							.property(p->p
-							.setIri(IM.NAMESPACE.iri+"use")
+							.setIri(IM.NAMESPACE+"use")
 								.setValue("home")))))
-					.setTargetType(IM.NAMESPACE.iri+"Address")
+					.setTargetType(IM.NAMESPACE+"Address")
 					.propertyMap(m2->m2
 						.setSource("line")
 						.setTarget("addressLine"))
@@ -94,10 +96,10 @@ public class TestMaps {
 						.where(w->w
 							.setBool(Bool.and)
 							.property(w1->w1
-								.setIri(IM.NAMESPACE.iri+"system")
+								.setIri(IM.NAMESPACE+"system")
 										.setValue("phone"))
 							.property(w1->w1
-								.setIri(IM.NAMESPACE.iri+"use")
+								.setIri(IM.NAMESPACE+"use")
 									.setValue("mobile")))
 						.setTarget("mobileTelephoneNumber")))
 			.propertyMap(m->m
@@ -107,11 +109,11 @@ public class TestMaps {
 					.where(w->w
 						.setBool(Bool.and)
 						.property(w1->w1
-							.setIri(IM.NAMESPACE.iri+"system")
+							.setIri(IM.NAMESPACE+"system")
 								.setValue("phone")
 							)
 						.property(w1->w1
-							.setIri(IM.NAMESPACE.iri+"use")
+							.setIri(IM.NAMESPACE+"use")
 								.setValue("home")))
 					.setTarget("homeTelephoneNumber"))
 			.propertyMap(m->m
@@ -125,14 +127,14 @@ public class TestMaps {
 			.propertyMap(m->m
 				.setTarget("administrativeGender")
 				.objectMap(m1->m1
-					.setTargetType(IM.NAMESPACE.iri+"CodeableConcept")
+					.setTargetType(IM.NAMESPACE+"CodeableConcept")
 					.propertyMap(m2->m2
 						.setSource("gender")
 						.setTarget("originalCode"))
 					.propertyMap(m2->m2
 						.setTarget("originalScheme")
 						.setValueData("http://hl7.org/fhir/administrative-gender"))));
-		patientMapEntity.set(IM.DEFINITION, TTLiteral.literal(patientMap));
+		patientMapEntity.set(iri(IM.DEFINITION), TTLiteral.literal(patientMap));
 		EntityCache.addEntity(patientMapEntity);
 			return patientMap;
 	}

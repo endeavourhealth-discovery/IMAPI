@@ -24,12 +24,12 @@ public class TestHelper {
             .setDescription("Partial amputation of toe of left foot (procedure)")
             .setCode("787213005")
             .setScheme(iri("http://snomed.info/sct#"))
-            .setType(new TTArray().add(IM.CONCEPT))
-            .set(IM.IS_A, new TTArray()
+            .setType(new TTArray().add(TTIriRef.iri(IM.CONCEPT)))
+            .set(TTIriRef.iri(IM.IS_A), new TTArray()
                 .add(iri("http://snomed.info/sct#371186005", "Amputation of toe (procedure)"))
                 .add(iri("http://snomed.info/sct#732214009", "Amputation of left lower limb"))
             )
-            .set(IM.ROLE_GROUP, new TTArray()
+            .set(TTIriRef.iri(IM.ROLE_GROUP), new TTArray()
                 .add(new TTNode()
                     .set(iri("http://snomed.info/sct#260686004", "Method"), iri("http://snomed.info/sct#129309007", "Amputation - action"))
                     .set(iri("http://snomed.info/sct#405813007", "Procedure site - Direct"), iri("http://snomed.info/sct#732939008", "Part of toe of left foot"))
@@ -228,28 +228,28 @@ public class TestHelper {
     }
 
     public static void checkEntity(TTNode entity) {
-        assertTrue(entity.has(RDFS.LABEL));
-        assertTrue(entity.get(RDFS.LABEL).isLiteral());
+        assertTrue(entity.has(TTIriRef.iri(RDFS.LABEL)));
+        assertTrue(entity.get(TTIriRef.iri(RDFS.LABEL)).isLiteral());
         assertEquals("Partial amputation of toe of left foot", entity
-            .getAsLiteral(RDFS.LABEL)
+            .getAsLiteral(TTIriRef.iri(RDFS.LABEL))
             .getValue()
         );
 
         // Type(s)
-        assertEquals(1, entity.get(RDF.TYPE).size());
-        assertTrue(entity.get(RDF.TYPE).get(0).isIriRef());
-        assertEquals(IM.CONCEPT.asTTIriRef(), entity.get(RDF.TYPE).get(0).asIriRef());
+        assertEquals(1, entity.get(TTIriRef.iri(RDF.TYPE)).size());
+        assertTrue(entity.get(TTIriRef.iri(RDF.TYPE)).get(0).isIriRef());
+        assertEquals(TTIriRef.iri(IM.CONCEPT), entity.get(TTIriRef.iri(RDF.TYPE)).get(0).asIriRef());
 
         // Is A(s)
-        assertEquals(2, entity.get(IM.IS_A).size());
-        assertEquals(iri("http://snomed.info/sct#371186005","Amputation of toe (procedure)"), entity.get(IM.IS_A).get(0).asIriRef());
-        assertEquals(iri("http://snomed.info/sct#732214009","Amputation of left lower limb"), entity.get(IM.IS_A).get(1).asIriRef());
+        assertEquals(2, entity.get(TTIriRef.iri(IM.IS_A)).size());
+        assertEquals(iri("http://snomed.info/sct#371186005","Amputation of toe (procedure)"), entity.get(TTIriRef.iri(IM.IS_A)).get(0).asIriRef());
+        assertEquals(iri("http://snomed.info/sct#732214009","Amputation of left lower limb"), entity.get(TTIriRef.iri(IM.IS_A)).get(1).asIriRef());
 
         // Role Group(s)
-        assertEquals(1, entity.get(IM.ROLE_GROUP).size());
-        assertTrue(entity.get(IM.ROLE_GROUP).get(0).isNode());
+        assertEquals(1, entity.get(TTIriRef.iri(IM.ROLE_GROUP)).size());
+        assertTrue(entity.get(TTIriRef.iri(IM.ROLE_GROUP)).get(0).isNode());
 
-        TTNode roleGroup = entity.get(IM.ROLE_GROUP).get(0).asNode();
+        TTNode roleGroup = entity.get(TTIriRef.iri(IM.ROLE_GROUP)).get(0).asNode();
 
         assertTrue(roleGroup.has(iri("http://snomed.info/sct#260686004","Method")));
         assertTrue(roleGroup.get(iri("http://snomed.info/sct#260686004","Method")).isIriRef());

@@ -8,7 +8,7 @@ import org.endeavourhealth.imapi.json.TTEntitySerializer;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.Vocabulary;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 import java.io.Serializable;
 import java.util.List;
@@ -34,71 +34,67 @@ public class TTEntity extends TTNode implements Serializable {
 
     // Utility methods for common predicates
     public TTEntity setName (String name) {
-        set(RDFS.LABEL.asTTIriRef(), TTLiteral.literal(name));
+        set(iri(RDFS.LABEL), TTLiteral.literal(name));
         return this;
     }
 
     public String getName() {
-        TTLiteral literal = getAsLiteral(RDFS.LABEL.asTTIriRef());
+        TTLiteral literal = getAsLiteral(iri(RDFS.LABEL));
         return (literal == null) ? null : literal.getValue();
     }
 
     public TTEntity setVersion (int version) {
-        set(IM.VERSION.asTTIriRef(), TTLiteral.literal(version));
+        set(iri(IM.VERSION), TTLiteral.literal(version));
         return this;
     }
 
     public int getVersion() {
-        TTLiteral literal = getAsLiteral(IM.VERSION.asTTIriRef());
+        TTLiteral literal = getAsLiteral(iri(IM.VERSION));
         return (literal == null) ? 1 : literal.intValue();
     }
 
     public TTEntity setDescription (String description) {
         if (description==null)
-            getPredicateMap().remove(RDFS.COMMENT.asTTIriRef());
+            getPredicateMap().remove(iri(RDFS.COMMENT));
         else
-            set(RDFS.COMMENT.asTTIriRef(), TTLiteral.literal(description));
+            set(iri(RDFS.COMMENT), TTLiteral.literal(description));
         return this;
     }
 
     public String getDescription() {
-        TTLiteral literal = getAsLiteral(RDFS.COMMENT.asTTIriRef());
+        TTLiteral literal = getAsLiteral(iri(RDFS.COMMENT));
         return (literal == null) ? null : literal.getValue();
     }
 
     public TTEntity setCode(String code) {
-        set(IM.CODE.asTTIriRef(), TTLiteral.literal(code));
+        set(iri(IM.CODE), TTLiteral.literal(code));
         return this;
     }
 
     public String getCode() {
-        TTLiteral literal = getAsLiteral(IM.CODE.asTTIriRef());
+        TTLiteral literal = getAsLiteral(iri(IM.CODE));
         return (literal == null) ? null : literal.getValue();
     }
 
     @JsonSetter
     public TTEntity setScheme(TTIriRef scheme) {
-        set(IM.HAS_SCHEME.asTTIriRef(), scheme);
+        set(iri(IM.HAS_SCHEME), scheme);
         return this;
     }
 
-    public TTEntity setScheme(Vocabulary scheme) {
-        return setScheme(scheme.asTTIriRef());
-    }
-
     public TTIriRef getScheme() {
-        return this.getAsIriRef(IM.HAS_SCHEME.asTTIriRef());
+        return this.getAsIriRef(iri(IM.HAS_SCHEME));
     }
 
     public TTEntity setType(TTArray type) {
-        set(RDF.TYPE.asTTIriRef(), type);
+        set(iri(RDF.TYPE), type);
         return this;
     }
 
     public TTEntity addType(TTIriRef type) {
         TTArray types;
-        if (has(RDF.TYPE.asTTIriRef())) {
-            types = get(RDF.TYPE.asTTIriRef());
+        if (has(iri(RDF.TYPE))) {
+            types = get(iri(RDF.TYPE));
         } else {
             types = new TTArray();
             setType(types);
@@ -107,9 +103,6 @@ public class TTEntity extends TTNode implements Serializable {
         return this;
     }
 
-    public TTEntity addType(Vocabulary type) {
-        return addType(type.asTTIriRef());
-    }
     public boolean isType(TTIriRef type){
         if (this.getType()!=null){
             return this.getType().contains(type);
@@ -117,29 +110,21 @@ public class TTEntity extends TTNode implements Serializable {
         return false;
     }
 
-    public boolean isType(Vocabulary type) {
-        return isType(type.asTTIriRef());
-    }
-
     public TTArray getType() {
-        if (get(RDF.TYPE.asTTIriRef())==null)
+        if (get(iri(RDF.TYPE))==null)
             return null;
         else
-         return get(RDF.TYPE.asTTIriRef());
+         return get(iri(RDF.TYPE));
     }
 
     public TTIriRef getStatus(){
-        return this.getAsIriRef(IM.HAS_STATUS.asTTIriRef());
+        return this.getAsIriRef(iri(IM.HAS_STATUS));
     }
 
     @JsonSetter
     public TTEntity setStatus(TTIriRef status) {
-        set(IM.HAS_STATUS.asTTIriRef(), status);
+        set(iri(IM.HAS_STATUS), status);
         return this;
-    }
-
-    public TTEntity setStatus(Vocabulary status) {
-        return setStatus(status.asTTIriRef());
     }
 
     public TTEntity setContext(TTContext context) {
@@ -168,16 +153,6 @@ public class TTEntity extends TTNode implements Serializable {
         return this;
     }
 
-    @Override
-    public TTEntity set(Vocabulary predicate, TTValue value) {
-        return set(predicate.asTTIriRef(),value);
-    }
-
-    @Override
-    public TTEntity set(Vocabulary predicate, TTArray value) {
-        return set(predicate.asTTIriRef(),value);
-    }
-
     public TTContext getContext() {
         return context;
     }
@@ -191,10 +166,6 @@ public class TTEntity extends TTNode implements Serializable {
         return this;
     }
 
-    public TTEntity setCrud(Vocabulary crud) {
-        return setCrud(crud.asTTIriRef());
-    }
-
     public TTIriRef getGraph() {
         return graph;
     }
@@ -203,9 +174,5 @@ public class TTEntity extends TTNode implements Serializable {
     public TTEntity setGraph(TTIriRef graph) {
         this.graph = graph;
         return this;
-    }
-
-    public TTEntity setGraph(Vocabulary graph) {
-        return setGraph(graph.asTTIriRef());
     }
 }

@@ -6,7 +6,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.model.tripletree.TTUtil;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Vocabulary;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public abstract class Entry extends TTEntity {
 
@@ -20,17 +21,14 @@ public abstract class Entry extends TTEntity {
 		set(TTIriRef.iri("dataController"),dataController);
 		return this;
 	}
-	public Entry setDataController(Vocabulary dataController) {
-		return setDataController(dataController.asTTIriRef());
-	}
 
 	public String getDateOfEntry() {
 
-		return (String) TTUtil.get(this,IM.DATE_OF_ENTRY,String.class);
+		return (String) TTUtil.get(this,iri(IM.DATE_OF_ENTRY),String.class);
 	}
 
 	public Entry setDateOfEntry(String dateOfEntry) {
-		set(IM.DATE_OF_ENTRY, TTLiteral.literal("dateOfEntry"));
+		set(iri(IM.DATE_OF_ENTRY), TTLiteral.literal("dateOfEntry"));
 		return this;
 	}
 }

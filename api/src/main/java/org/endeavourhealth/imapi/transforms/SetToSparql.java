@@ -17,14 +17,14 @@ public class SetToSparql {
 
 	public String getExpansionSparql(String entityVar, String iri) throws DataFormatException {
 
-		Set<String> predicates = Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri());
+		Set<String> predicates = Set.of(RDFS.LABEL, IM.DEFINITION);
 		TTEntity entity = entityRepo.getEntityPredicates(iri, predicates).getEntity();
 		StringBuilder subQuery = new StringBuilder();
-		if (entity.get(IM.HAS_MEMBER)!=null){
+		if (entity.get(TTIriRef.iri(IM.HAS_MEMBER))!=null){
 			subQuery.append("?").append(entityVar).append(" ")
-				.append("<").append(IM.IS_A.getIri())
+				.append("<").append(IM.IS_A)
 				.append("> ?member.\n").append("?member ^<")
-				.append(IM.HAS_MEMBER.getIri()).append("> <").append(iri).append(">.\n");
+				.append(IM.HAS_MEMBER).append("> <").append(iri).append(">.\n");
 			return subQuery.toString();
 		}
 		throw new DataFormatException("Set queries in IM must be pre-expanded ("+iri+")");
@@ -35,13 +35,13 @@ public class SetToSparql {
 	private void getExpansionWhere(TTArray definition, StringBuilder subQuery) {
 		if (definition.isIriRef()) {
 			simpleSuperClass(definition.asIriRef(),subQuery);
-		} else if (definition.asNode().get(SHACL.OR) != null) {
-			orClause(definition.asNode().get(SHACL.OR),subQuery);
+		} else if (definition.asNode().get(TTIriRef.iri(SHACL.OR)) != null) {
+			orClause(definition.asNode().get(TTIriRef.iri(SHACL.OR)),subQuery);
 
-		} else if (definition.asNode().get(SHACL.AND) != null) {
-			boolean hasRoles = andClause(definition.asNode().get(SHACL.AND), true,subQuery);
+		} else if (definition.asNode().get(TTIriRef.iri(SHACL.AND)) != null) {
+			boolean hasRoles = andClause(definition.asNode().get(TTIriRef.iri(SHACL.AND)), true,subQuery);
 			if (hasRoles) {
-				andClause(definition.asNode().get(SHACL.AND), false,subQuery);
+				andClause(definition.asNode().get(TTIriRef.iri(SHACL.AND)), false,subQuery);
 			}
 		}
 	}
@@ -78,13 +78,13 @@ public class SetToSparql {
 
 	private void addUnion(TTNode union, StringBuilder subQuery) {
 
-		if (union.get(SHACL.AND) != null) {
+		if (union.get(TTIriRef.iri(SHACL.AND)) != null) {
 			subQuery.append(tabs).append("UNION {\n");
-			boolean hasRoles = andClause(union.get(SHACL.AND), true,subQuery);
+			boolean hasRoles = andClause(union.get(TTIriRef.iri(SHACL.AND)), true,subQuery);
 			subQuery.append(tabs).append("}\n");
 			if (hasRoles) {
 				subQuery.append(tabs).append("UNION {\n");
-				andClause(union.get(SHACL.AND), false,subQuery);
+				andClause(union.get(TTIriRef.iri(SHACL.AND)), false,subQuery);
 				subQuery.append(tabs).append("}\n");
 			}
 		} else {
@@ -100,7 +100,7 @@ public class SetToSparql {
 	private Boolean andClause(TTArray and, boolean group,StringBuilder subqQuery) {
 		boolean hasRoles = false;
 		for (TTValue inter : and.getElements()) {
-			if (inter.isNode() && inter.asNode().get(SHACL.NOT) == null) {
+			if (inter.isNode() && inter.asNode().get(TTIriRef.iri(SHACL.NOT)) == null) {
 				roles(inter.asNode(), group,subqQuery);
 				hasRoles = true;
 			}
@@ -111,8 +111,8 @@ public class SetToSparql {
 			}
 		}
 		for (TTValue inter : and.getElements()) {
-			if (inter.isNode() && inter.asNode().get(SHACL.NOT) != null)
-				notClause(inter.asNode().get(SHACL.NOT).asValue(),subqQuery);
+			if (inter.isNode() && inter.asNode().get(TTIriRef.iri(SHACL.NOT)) != null)
+				notClause(inter.asNode().get(TTIriRef.iri(SHACL.NOT)).asValue(),subqQuery);
 		}
 		return hasRoles;
 	}
@@ -123,12 +123,12 @@ public class SetToSparql {
 		if (not.isIriRef())
 			simpleSuperClass(not.asIriRef(),subQuery);
 		else if (not.isNode()) {
-			if (not.asNode().get(SHACL.OR) != null) {
-				orClause(not.asNode().get(SHACL.OR),subQuery);
-			} else if (not.asNode().get(SHACL.AND) != null) {
-				boolean hasRoles = andClause(not.asNode().get(SHACL.AND), true,subQuery);
+			if (not.asNode().get(TTIriRef.iri(SHACL.OR)) != null) {
+				orClause(not.asNode().get(TTIriRef.iri(SHACL.OR)),subQuery);
+			} else if (not.asNode().get(TTIriRef.iri(SHACL.AND)) != null) {
+				boolean hasRoles = andClause(not.asNode().get(TTIriRef.iri(SHACL.AND)), true,subQuery);
 				if (hasRoles) {
-					andClause(not.asNode().get(SHACL.AND), false,subQuery);
+					andClause(not.asNode().get(TTIriRef.iri(SHACL.AND)), false,subQuery);
 				}
 			}
 		}
@@ -148,13 +148,13 @@ public class SetToSparql {
 			if (group) {
 				subQuery.append(tabs).append("?roleGroup ").append(pred).append(" ").append(obj).append(".\n");
 				subQuery.append(tabs+" FILTER (isBlank(?roleGroup))");
-				subQuery.append(tabs).append("?superMember ").append(iri(IM.ROLE_GROUP.getIri())).append(" ?roleGroup.\n");
+				subQuery.append(tabs).append("?superMember ").append(iri(IM.ROLE_GROUP)).append(" ?roleGroup.\n");
 			} else {
 				subQuery.append(tabs).append("?superMember ").append(pred).append(" ").append(obj).append(".\n");
 				subQuery.append(tabs).append("  FILTER (isIri(?superMember))");
 			}
 		}
-		subQuery.append(tabs).append("?entity ").append(iri(IM.IS_A.getIri())).append(" ?superMember.\n");
+		subQuery.append(tabs).append("?entity ").append(iri(IM.IS_A)).append(" ?superMember.\n");
 
 	}
 

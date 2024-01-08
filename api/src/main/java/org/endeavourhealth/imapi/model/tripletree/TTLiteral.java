@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.json.TTLiteralDeserializer;
 import org.endeavourhealth.imapi.json.TTLiteralSerializer;
-import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.Serializable;
@@ -25,9 +24,6 @@ public class TTLiteral implements TTValue, Serializable {
     // Static helpers
     public static TTLiteral literal(String value, TTIriRef type) {
         return new TTLiteral(value, type);
-    }
-    public static TTLiteral literal(String value, Vocabulary type) {
-        return new TTLiteral(value, type.asTTIriRef());
     }
     public static TTLiteral literal(String value, String type) {
         return new TTLiteral(value, type);
@@ -85,25 +81,25 @@ public class TTLiteral implements TTValue, Serializable {
     }
     public TTLiteral(Boolean value) {
         this.value = value.toString();
-        this.type = XSD.BOOLEAN.asTTIriRef();
+        this.type = iri(XSD.BOOLEAN);
     }
     public TTLiteral(Integer value) {
         this.value = value.toString();
-        this.type = XSD.INTEGER.asTTIriRef();
+        this.type = iri(XSD.INTEGER);
     }
     public TTLiteral(Long value) {
         this.value = value.toString();
-        this.type = XSD.LONG.asTTIriRef();
+        this.type = iri(XSD.LONG);
     }
     public TTLiteral(Pattern value) {
         this.value = value.toString();
-        this.type = XSD.PATTERN.asTTIriRef();
+        this.type = iri(XSD.PATTERN);
     }
 
     public TTLiteral(Object value) throws JsonProcessingException {
         try (CachedObjectMapper om = new CachedObjectMapper()) {
             this.value = om.writeValueAsString(value);
-            this.type = XSD.STRING.asTTIriRef();
+            this.type = iri(XSD.STRING);
         }
     }
 
@@ -147,9 +143,6 @@ public class TTLiteral implements TTValue, Serializable {
     public TTLiteral setType(TTIriRef type) {
         this.type = type;
         return this;
-    }
-    public TTLiteral setType(Vocabulary type) {
-        return setType(type.asTTIriRef());
     }
 
     @Override

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 /**
  * Manages the Exports concept set data in excel workboook format
@@ -54,11 +55,11 @@ public class ExcelSetExporter {
      */
     public XSSFWorkbook getSetAsExcel(String setIri, boolean definition, boolean core, boolean legacy,boolean includeSubsets, boolean ownRow,
                                       boolean im1id, List<String> schemes) throws JsonProcessingException, QueryException {
-        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.iri)).getEntity();
+        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION)).getEntity();
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return workbook;
 
-        String setName = entityRepository2.getBundle(setIri,Set.of(RDFS.LABEL.iri)).getEntity().getName();
+        String setName = entityRepository2.getBundle(setIri,Set.of(RDFS.LABEL)).getEntity().getName();
 
         String ecl = getEcl(entity);
         if(ecl != null && definition) {
@@ -87,9 +88,9 @@ public class ExcelSetExporter {
     }
 
     private String getEcl(TTEntity entity) throws QueryException, JsonProcessingException {
-        if (entity.get(IM.DEFINITION.asTTIriRef()) == null)
+        if (entity.get(iri(IM.DEFINITION)) == null)
             return null;
-        return IMLToECL.getECLFromQuery(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class), true);
+        return IMLToECL.getECLFromQuery(entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class), true);
     }
 
     private void addCoreExpansionToWorkBook(String setName, Set<Concept> members, boolean im1id, boolean includeSubsets) {

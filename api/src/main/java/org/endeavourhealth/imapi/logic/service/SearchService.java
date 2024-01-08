@@ -126,10 +126,6 @@ public class SearchService {
 		return new OSQuery().multiPhaseQuery(request);
 	}
 
-	public int getEntitiesTotalCount(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
-		return new OSQuery().multiPhaseQueryTotalCount(request);
-	}
-
 }
 
 

@@ -282,9 +282,6 @@ public class EntityService {
 
     public SearchResponse advancedSearch(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         SearchResponse searchResults = searchService.getEntitiesByTerm(request);
-        if(null == searchResults.getCount()) {
-            searchResults.setCount(searchService.getEntitiesTotalCount(request));
-        }
         searchResults.setPage(request.getPage());
         return searchResults;
     }

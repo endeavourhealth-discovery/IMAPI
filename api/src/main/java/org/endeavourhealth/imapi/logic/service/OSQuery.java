@@ -525,6 +525,7 @@ public class OSQuery {
        // if (!searchResults.isEmpty() && null != request.getTermFilter())
          //   sort(searchResults, request.getTermFilter());
         request.addTiming("Results List built");
+        if (null != request.getTermFilter()) searchResults.setTerm(request.getTermFilter());
         return searchResults;
     }
 

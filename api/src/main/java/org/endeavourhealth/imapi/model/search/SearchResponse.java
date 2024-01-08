@@ -8,6 +8,16 @@ public class SearchResponse {
     private Integer page;
     private Integer count;
     private List<SearchResultSummary> entities = new ArrayList<>();
+    private String term;
+
+    public String getTerm() {
+        return term;
+    }
+
+    public SearchResponse setTerm(String term) {
+        this.term = term;
+        return this;
+    }
 
     public Integer getPage() {
         return page;

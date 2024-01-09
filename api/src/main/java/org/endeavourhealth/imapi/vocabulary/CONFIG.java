@@ -11,7 +11,7 @@ public class CONFIG {
     public static final String FILTER_DEFAULTS = CONFIG.NAMESPACE + "filterDefaults";
     public static final String INFERRED_PREDICATES = CONFIG.NAMESPACE + "inferredPredicates";
     public static final String INFERRED_EXCLUDE_PREDICATES = CONFIG.NAMESPACE + "inferredExcludePredicates";
-    public static final String CONCEPT_DASHBOARD = CONFIG.NAMESPACE + "CONCEPT_DASHBOARD";
+    public static final String CONCEPT_DASHBOARD = CONFIG.NAMESPACE + "conceptDashboard";
     public static final String DEFAULT_PREDICATE_NAMES = CONFIG.NAMESPACE + "defaultPredicateNames";
     public static final String XML_SCHEMA_DATA_TYPES = CONFIG.NAMESPACE + "xmlSchemaDataTypes";
     public static final String DEFAULT_PREFIXES = CONFIG.NAMESPACE + "defaultPrefixes";

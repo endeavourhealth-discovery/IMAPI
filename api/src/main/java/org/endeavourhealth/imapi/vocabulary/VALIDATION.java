@@ -3,7 +3,6 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class VALIDATION {
-
 	public static final String DOMAIN = "http://endhealth.info/im#";
 	public static final String NAMESPACE = VALIDATION.DOMAIN + "Validation_";
 	public static final String IS_DEFINITION = VALIDATION.NAMESPACE + "isDefinition";

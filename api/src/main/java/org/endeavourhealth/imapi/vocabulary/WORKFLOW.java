@@ -3,7 +3,6 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class WORKFLOW {
-
 	public static final String DOMAIN = "http://endhealth.info/";
 	public static final String NAMESPACE = WORKFLOW.DOMAIN + "workflow#";
 	public static final String BUG_REPORT = WORKFLOW.NAMESPACE + "bugReport";

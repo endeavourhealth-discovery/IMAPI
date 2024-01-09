@@ -3,7 +3,6 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class RDFS {
-
 	public static final String NAMESPACE = "http://www.w3.org/2000/01/rdf-schema#";
 	public static final String PREFIX = "rdfs";
 	public static final String LABEL = RDFS.NAMESPACE + "label";

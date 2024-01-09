@@ -3,7 +3,6 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class OWL {
-
 	public static final String NAMESPACE = "http://www.w3.org/2002/07/owl#";
 	public static final String PREFIX = "owl";
 	public static final String THING = OWL.NAMESPACE + "Thing";

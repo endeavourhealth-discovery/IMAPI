@@ -3,7 +3,6 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class CONFIG {
-
 	public static final String NAMESPACE = "http://endhealth.info/config#";
 	public static final String DOMAIN = "http://endhealth.info/";
 	public static final String PREFIX = "cfg";

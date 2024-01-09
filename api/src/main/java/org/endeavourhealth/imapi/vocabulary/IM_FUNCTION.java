@@ -3,7 +3,6 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class IM_FUNCTION {
-
 	public static final String DOMAIN = "http://endhealth.info/";
 	public static final String NAMESPACE = IM_FUNCTION.DOMAIN + "im#Function_";
 	public static final String SNOMED_CONCEPT_GENERATOR = IM_FUNCTION.NAMESPACE + "SnomedConceptGenerator";

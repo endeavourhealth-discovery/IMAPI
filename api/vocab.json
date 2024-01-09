@@ -36,7 +36,7 @@
       },
       {
         "name": "CONCEPT_DASHBOARD",
-        "value":"CONFIG.NAMESPACE + \"CONCEPT_DASHBOARD\""
+        "value":"CONFIG.NAMESPACE + \"conceptDashboard\""
       },
       {
         "name": "DEFAULT_PREDICATE_NAMES",

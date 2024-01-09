@@ -28,6 +28,7 @@ import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
@@ -76,7 +77,7 @@ public class EntityController {
         summary = "Advanced entity search",
         description = "Performs an advanced entity search with multiple filter options"
 	)
-	public List<SearchResultSummary> advancedSearch(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException {
+	public SearchResponse advancedSearch(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException {
 		LOG.debug("advancedSearch");
 		return entityService.advancedSearch(request);
 	}
@@ -512,7 +513,7 @@ public class EntityController {
 	@GetMapping("/public/mappingSuggestions")
 	public List<SearchResultSummary> getMappingSuggestions(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException, DataFormatException {
 		LOG.debug("getMappingSuggestions");
-		return entityService.advancedSearch(request);
+		return entityService.advancedSearch(request).getEntities();
 	}
 
     @PostMapping("/public/getNames")

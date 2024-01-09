@@ -3,7 +3,6 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class COMPONENT {
-
 	public static final String DOMAIN = "http://endhealth.info/im#";
 	public static final String NAMESPACE = COMPONENT.DOMAIN + "Component_";
 	public static final String TEXT_DISPLAY = COMPONENT.NAMESPACE + "textDisplay";

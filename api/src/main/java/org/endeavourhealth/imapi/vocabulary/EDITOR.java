@@ -3,7 +3,6 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class EDITOR {
-
 	public static final String DOMAIN = "http://endhealth.info/im#";
 	public static final String NAMESPACE = EDITOR.DOMAIN + "Editor_";
 	public static final String CONCEPT_SHAPE = EDITOR.NAMESPACE + "ConceptShape";

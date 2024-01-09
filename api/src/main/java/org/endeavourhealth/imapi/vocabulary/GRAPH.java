@@ -3,7 +3,6 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class GRAPH {
-
 	public static final String DISCOVERY = "http://endhealth.info/im#";
 	public static final String ICD10 = "http://endhealth.info/icd10#";
 	public static final String EMIS = "http://endhealth.info/emis#";

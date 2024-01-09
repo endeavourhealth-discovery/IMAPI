@@ -3,7 +3,6 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class XSD {
-
 	public static final String NAMESPACE = "http://www.w3.org/2001/XMLSchema#";
 	public static final String PREFIX = "xsd";
 	public static final String PATTERN = XSD.NAMESPACE + "pattern";

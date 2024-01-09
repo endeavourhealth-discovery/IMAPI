@@ -3,7 +3,6 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class SHACL {
-
 	public static final String NAMESPACE = "http://www.w3.org/ns/shacl#";
 	public static final String PREFIX = "sh";
 	public static final String PATH = SHACL.NAMESPACE + "path";

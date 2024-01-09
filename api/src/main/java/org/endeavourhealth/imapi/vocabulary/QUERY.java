@@ -3,7 +3,6 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class QUERY {
-
 	public static final String DOMAIN = "http://endhealth.info/im#";
 	public static final String NAMESPACE = QUERY.DOMAIN + "Query_";
 	public static final String ALLOWABLE_RANGES = QUERY.NAMESPACE + "AllowableRanges";

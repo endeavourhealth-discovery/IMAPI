@@ -507,18 +507,18 @@ public class EntityRepository {
 
     private void hydrateSubsumptionCount(EntityDocument entityDocument) {
         String spql = new StringJoiner(System.lineSeparator())
-            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-            .add("PREFIX im: <http://endhealth.info/im#>")
-            .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-            .add("select distinct ?iri (count(?subType) as ?subsumptions)")
-            .add("where {")
-            .add(" ?iri ^im:isA ?subType.")
-            .add(" ?subType im:status im:Active.")
-            .add("}")
-            .add("group by ?iri").toString();
-
+                .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+                .add("PREFIX im: <http://endhealth.info/im#>")
+                .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+                .add("select (count(?subType) as ?subsumptions)")
+                .add("where {")
+                .add(" ?iri ^im:isA ?subType.")
+                .add(" ?subType im:status im:Active.")
+                .add("}").toString();
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery tupleQuery = conn.prepareTupleQuery(spql);
+            tupleQuery.setBinding("iri", literal(entityDocument.getIri()));
+
             try (TupleQueryResult qr = tupleQuery.evaluate()) {
                 while (qr.hasNext()) {
                     BindingSet rs = qr.next();

@@ -6,7 +6,7 @@ ext {
             apacheText          : '1.11.0',
             aws                 : '1.12.605',
             cucumber            : '7.14.1',
-            elasticSearch       : '8.11.1',
+            elasticSearch       : '8.11.4',
             factPlusPlus        : '1.6.5',
             h2                  : '2.2.224',
             jackson             : '2.16.0',

@@ -39,6 +39,8 @@ public class IriLD{
 		if (this == o) return true;
 		if (!(o instanceof IriLD)) return false;
 		IriLD ttIriRef = (IriLD) o;
+		if (ttIriRef.iri==null||iri==null)
+			return false;
 		return iri.equals(ttIriRef.iri);
 	}
 

@@ -274,24 +274,16 @@ public class EqdResources {
 
 
     private void convertRestrictionCriterion(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException, QueryException {
-        Match restricted = match;
-        if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
-            match.setBool(Bool.and);
-            restricted = new Match();
-            match.addMatch(restricted);
-        }
-
-        restricted = getTablePath(eqCriterion.getTable(), restricted);
+        Match restricted = getTablePath(eqCriterion.getTable(), match);
         convertColumns(eqCriterion, restricted);
         setRestriction(eqCriterion, restricted);
-
         if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
             counter++;
             String variable = "match_" + counter;
             restricted.setVariable(variable);
             Match testMatch = new Match();
             testMatch.setNodeRef(variable);
-            match.addMatch(testMatch);
+            restricted.setThen(testMatch);
             restrictionTest(eqCriterion, testMatch, variable);
         }
     }
@@ -466,7 +458,7 @@ public class EqdResources {
 
 
     private List<Node> getInlineValues(EQDOCValueSet vs, Property pv) throws DataFormatException, IOException {
-        List<Node> setContent = new ArrayList<>();
+        Set<Node> setContent = new HashSet<>();
         VocCodeSystemEx scheme = vs.getCodeSystem();
         for (EQDOCValueSetValue ev : vs.getValues()) {
             Set<Node> concepts = getValue(scheme, ev);
@@ -480,7 +472,7 @@ public class EqdResources {
                 System.err.println("Missing \t" + ev.getValue() + "\t " + ev.getDisplayName());
 
         }
-        return setContent;
+        return new ArrayList<>(setContent);
     }
 
 

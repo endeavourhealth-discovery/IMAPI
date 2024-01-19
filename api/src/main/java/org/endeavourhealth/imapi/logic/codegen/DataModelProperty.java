@@ -8,8 +8,8 @@ public class DataModelProperty {
     private TTIriRef dataType;
     private boolean isModel;
     private String comment;
-    private Integer maxCount;
-    private Integer minCount;
+    private Integer maxCount = 1;
+    private Integer minCount = 0;
 
     public String getName() {
         return name;

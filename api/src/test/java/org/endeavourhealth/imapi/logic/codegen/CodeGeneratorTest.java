@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.*;
 import java.util.Arrays;
 import java.util.List;
@@ -15,13 +16,13 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CodeGenTest {
+class CodeGeneratorTest {
 
-    CodeGenJava codeGen;
+    GenerationEngine generationEngine;
 
     @BeforeEach
     void init() {
-        codeGen = new CodeGenJava();
+        generationEngine = new GenerationEngineTypeScript();
     }
 
 
@@ -30,7 +31,7 @@ class CodeGenTest {
     void testGetFieldName() {
 
 
-        String fieldName = codeGen.capitalise("gp registration ADMINISTRATION status history");
+        String fieldName = generationEngine.capitalise("gp registration ADMINISTRATION status history");
         String expectedOutput = "GpRegistrationAdministrationStatusHistory";
 
         assertEquals(expectedOutput, fieldName, "camelCase conversion correct");
@@ -39,7 +40,7 @@ class CodeGenTest {
     @Test
     void testGetFieldNameQuoteWrap() {
 
-        String fieldName = codeGen.capitalise("\"stated gender\"");
+        String fieldName = generationEngine.capitalise("\"stated gender\"");
         String expectedOutput = "StatedGender";
 
         assertEquals(expectedOutput, fieldName, "Wrapper quotes filtered out correctly");
@@ -47,7 +48,7 @@ class CodeGenTest {
     @Test
     void testGetFieldNameCharacterFilter() {
 
-        String fieldName = codeGen.capitalise("\"medication (request) / prescription\"");
+        String fieldName = generationEngine.capitalise("\"medication (request) / prescription\"");
         String expectedOutput = "MedicationRequestPrescription";
 
         assertEquals(expectedOutput, fieldName, "Non-alphanumeric characters removed correctly");
@@ -56,7 +57,7 @@ class CodeGenTest {
     @Test
     void testGetSuffix() {
 
-        String fieldName = codeGen.getSuffix("http://www.w3.org/2001/XMLSchema#long");
+        String fieldName = generationEngine.getSuffix("http://www.w3.org/2001/XMLSchema#long");
         String expectedOutput = "long";
 
         assertEquals(expectedOutput, fieldName, "Non-alphanumeric characters removed correctly");
@@ -65,7 +66,7 @@ class CodeGenTest {
     @Test
     void testGetSuffixIndexing() {
 
-        String fieldName = codeGen.getSuffix("http://www.w3.org/2001/XML#Schema#long");
+        String fieldName = generationEngine.getSuffix("http://www.w3.org/2001/XML#Schema#long");
         String expectedOutput = "long";
 
         assertEquals(expectedOutput, fieldName, "Non-alphanumeric characters removed correctly");
@@ -149,5 +150,14 @@ class CodeGenTest {
         PartialDateTime pdt2 = new PartialDateTime(LocalDateTime.of(2000, 1, 1, 10, 0), PartialDateTime.Precision.YYYY_MM_DD);
 
         assertTrue(pdt1.equals(pdt2));
+    }
+
+    @Test
+    void testBaseClasses() throws IOException {
+        CodeGenerator codeGenerator = new CodeGenerator();
+        codeGenerator.createBaseModels();
+
+        String TTIriRef = generationEngine.generateCodeForModel("org.endeavourhealth.imapi.logic.codegen", codeGenerator.models.get("TTIriRef"));
+        System.out.println(TTIriRef);
     }
 }

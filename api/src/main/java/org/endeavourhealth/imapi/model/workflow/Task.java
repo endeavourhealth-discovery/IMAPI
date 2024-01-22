@@ -1,45 +1,41 @@
 package org.endeavourhealth.imapi.model.workflow;
 
+import lombok.Getter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.time.LocalDate;
+
+@Getter
 public class Task {
 
-    private String name;
-    private String state;
-    private String id;
-    private String workflow;
+    private TTIriRef id;
+    private String createdBy;
+    private TaskType type;
+    private TaskState state;
+    private String assignedTo;
+    private LocalDate dateCreated;
 
-    public String getWorkflow() {
-        return workflow;
-    }
-
-    public Task setWorkflow(String workflow) {
-        this.workflow = workflow;
-        return this;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Task setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public Task setState(String state) {
-        this.state = state;
-        return this;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public Task setId(String id) {
+    public void setId(TTIriRef id) {
         this.id = id;
-        return this;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public void setType(TaskType type) {
+        this.type = type;
+    }
+
+    public void setState(TaskState state) {
+        this.state = state;
+    }
+
+    public void setAssignedTo(String assignedTo) {
+        this.assignedTo = assignedTo;
+    }
+
+    public void setDateCreated(LocalDate dateCreated) {
+        this.dateCreated = dateCreated;
     }
 }

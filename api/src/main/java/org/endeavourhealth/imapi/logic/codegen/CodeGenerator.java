@@ -7,16 +7,14 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.http.HTTPRepository;
+import org.endeavourhealth.imapi.model.codegen.DataModel;
+import org.endeavourhealth.imapi.model.codegen.DataModelProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -26,12 +24,11 @@ public class CodeGenerator {
     private final Queue<String> iris = new PriorityQueue<>();
     final HashMap<String, DataModel> models = new HashMap<>();
 
-    public void generate(String namespace, GenerationEngine generator, ZipOutputStream os) throws IOException {
+    public void generate() {
         connectToDatabase();
         createBaseModels();
         getModelList();
         getDataModelRecursively();
-        generateCode(namespace, generator, os);
     }
 
     void connectToDatabase() {
@@ -186,19 +183,4 @@ public class CodeGenerator {
             }
         }
     }
-
-    private void generateCode(String namespace, GenerationEngine generator, ZipOutputStream zs) throws IOException {
-        LOG.debug("generating code");
-
-        for (DataModel model : models.values()) {
-            zs.putNextEntry(new ZipEntry(generator.getFilename(model)));
-            String code = generator.generateCodeForModel(namespace, model);
-            zs.write(code.getBytes());
-            zs.closeEntry();
-        }
-        zs.finish();
-        zs.flush();
-    }
-
-
 }

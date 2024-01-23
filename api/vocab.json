@@ -1586,8 +1586,16 @@
         "value": "WORKFLOW.NAMESPACE + \"operatingSystem\""
       },
       {
+        "name": "OPERATING_SYSTEM_OTHER",
+        "value": "WORKFLOW.NAMESPACE + \"operatingSystemOther\""
+      },
+      {
         "name": "BROWSER",
         "value": "WORKFLOW.NAMESPACE + \"browser\""
+      },
+      {
+        "name": "BROWSER_OTHER",
+        "value": "WORKFLOW.NAMESPACE + \"browserOther\""
       },
       {
         "name": "SEVERITY",

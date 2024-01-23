@@ -53,7 +53,7 @@ public class WorkflowController {
     }
 
     @GetMapping(value = "/getWorkflowsByAssignedTo", produces = "application/json")
-    public WorkflowResponse getWorkflowsByAssignedTo(HttpServletRequest request, @RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false) int size) throws JsonProcessingException {
+    public WorkflowResponse getWorkflowsByAssignedTo(HttpServletRequest request, @RequestParam(required = false) int page, @RequestParam(required = false) int size) throws JsonProcessingException {
         LOG.debug("getWorkflowsByAssignedTo");
         WorkflowRequest wfRequest = new WorkflowRequest(request);
         if (page != 0) wfRequest.setPage(page);

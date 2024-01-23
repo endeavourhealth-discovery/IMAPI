@@ -3,7 +3,8 @@ package org.endeavourhealth.imapi.model.workflow.bugReport;
 public enum OperatingSystem {
     WINDOWS("windows"),
     MACOS("macos"),
-    LINUX("linux");
+    LINUX("linux"),
+    OTHER("other");
     private String text;
     OperatingSystem(String text) {
         this.text = text;

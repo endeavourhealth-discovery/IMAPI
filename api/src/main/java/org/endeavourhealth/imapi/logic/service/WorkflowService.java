@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.BugReport;
 import org.endeavourhealth.imapi.model.workflow.Task;
 import org.endeavourhealth.imapi.model.workflow.WorkflowRequest;
@@ -16,6 +17,7 @@ public class WorkflowService {
     private final WorkflowRepository workflowRepository = new WorkflowRepository();
 
     public BugReport createBugReport(BugReport bugReport) {
+        bugReport.setId(generateId());
         return workflowRepository.createBugReport(bugReport);
     }
 
@@ -29,5 +31,8 @@ public class WorkflowService {
 
     public WorkflowResponse getWorkflowsByAssignedTo(WorkflowRequest request) {
         return workflowRepository.getWorkflowsByAssignedTo(request);
+    }
+    public TTIriRef generateId() {
+        return TTIriRef.iri(workflowRepository.generateId());
     }
 }

@@ -13,7 +13,9 @@ public class WORKFLOW {
     public static final String RELATED_PRODUCT = WORKFLOW.NAMESPACE + "relatedProduct";
     public static final String RELATED_MODULE = WORKFLOW.NAMESPACE + "relatedModule";
     public static final String OPERATING_SYSTEM = WORKFLOW.NAMESPACE + "operatingSystem";
+    public static final String OPERATING_SYSTEM_OTHER = WORKFLOW.NAMESPACE + "operatingSystemOther";
     public static final String BROWSER = WORKFLOW.NAMESPACE + "browser";
+    public static final String BROWSER_OTHER = WORKFLOW.NAMESPACE + "browserOther";
     public static final String SEVERITY = WORKFLOW.NAMESPACE + "severity";
     public static final String ERROR = WORKFLOW.NAMESPACE + "errorDetails";
     public static final String REPRODUCE_STEPS = WORKFLOW.NAMESPACE + "reproduceSteps";

@@ -9,7 +9,9 @@ public class BugReport extends Task {
     private String version;
     private TaskModule module;
     private OperatingSystem os;
+    private String osOther;
     private Browser browser;
+    private String browserOther;
     private Severity severity;
     private Status status;
     private String error;
@@ -93,5 +95,13 @@ public class BugReport extends Task {
     public BugReport setActualResult(String actualResult) {
         this.actualResult = actualResult;
         return this;
+    }
+
+    public void setOsOther(String osOther) {
+        this.osOther = osOther;
+    }
+
+    public void setBrowserOther(String browserOther) {
+        this.browserOther = browserOther;
     }
 }

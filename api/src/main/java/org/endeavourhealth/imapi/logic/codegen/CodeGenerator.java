@@ -6,11 +6,10 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.http.HTTPRepository;
+import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.codegen.DataModel;
 import org.endeavourhealth.imapi.model.codegen.DataModelProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.XSD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,52 +19,11 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class CodeGenerator {
     private static final Logger LOG = LoggerFactory.getLogger(CodeGenerator.class);
-    private HTTPRepository repo;
-    private final Queue<String> iris = new PriorityQueue<>();
-    final HashMap<String, DataModel> models = new HashMap<>();
+    final HashMap<String, DataModel> xxxxx = new HashMap<>();
 
-    public void generate() {
-        connectToDatabase();
-        createBaseModels();
-        getModelList();
-        getDataModelRecursively();
-    }
-
-    void connectToDatabase() {
-        LOG.debug("connecting to database");
-
-        String server = System.getenv("GRAPH_SERVER") != null
-            ? System.getenv("GRAPH_SERVER")
-            : "HTTP://localhost:7200";
-        String repoID = System.getenv("GRAPH_REPO") != null
-            ? System.getenv("GRAPH_REPO")
-            : "im";
-
-        repo = new HTTPRepository(server, repoID);
-
-    }
-
-    void createBaseModels() {
-        models.put("TTIriRef", new DataModel()
-            .setIri("TTIriRef")
-            .setName("TTIriRef")
-            .setComment("Container class for an Iri with name")
-            .addProperty(new DataModelProperty()
-                .setName("Iri")
-                .setComment("The IRI itself")
-                .setDataType(iri(XSD.STRING)))
-            .addProperty(new DataModelProperty()
-                .setName("Name")
-                .setComment("Human readable name for the Iri")
-                .setDataType(iri(XSD.STRING))
-                .setMinCount(0)
-                .setMaxCount(0)
-            )
-        );
-    }
-
-    void getModelList() {
+    public Queue<String> getAllModelIrisList() {
         LOG.debug("getting model list");
+        Queue<String> iris = new PriorityQueue<>();
 
         String sql = new StringJoiner(System.lineSeparator())
             .add("PREFIX im: <http://endhealth.info/im#>")
@@ -78,8 +36,8 @@ public class CodeGenerator {
             .add("}")
             .toString();
 
-        try (RepositoryConnection con = repo.getConnection()) {
-            TupleQuery query = con.prepareTupleQuery(sql);
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery query = conn.prepareTupleQuery(sql);
             try (TupleQueryResult result = query.evaluate()) {
                 while (result.hasNext()) {
                     BindingSet bindSet = result.next();
@@ -89,20 +47,27 @@ public class CodeGenerator {
                 }
             }
         }
+
+        return iris;
     }
 
-    void getDataModelRecursively() {
+    public Collection<DataModel> getDataModelRecursively(Queue<String> iris) {
         LOG.debug("getting models");
+        HashMap<String, DataModel> models = new HashMap<>();
 
-        while (!iris.isEmpty()) {
-            String iri = iris.remove();
-            DataModel model = getDataModel(iri);
-            addMissingModelToQueue(model);
-            models.put(iri, model);
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            while (!iris.isEmpty()) {
+                String iri = iris.remove();
+                DataModel model = getDataModel(conn, iri);
+                addMissingModelToQueue(iris, models, model);
+                models.put(iri, model);
+            }
         }
+
+        return models.values();
     }
 
-    DataModel getDataModel(String iri) {
+    private DataModel getDataModel(RepositoryConnection conn, String iri) {
         LOG.debug("get data model [{}]", iri);
 
         DataModel model = new DataModel().setIri(iri);
@@ -132,8 +97,7 @@ public class CodeGenerator {
             .add("} order by ?order ")
             .toString();
 
-        try (RepositoryConnection con = repo.getConnection()) {
-            TupleQuery query = con.prepareTupleQuery(sql);
+            TupleQuery query = conn.prepareTupleQuery(sql);
             query.setBinding("iri", Values.iri(iri));
             try (TupleQueryResult result = query.evaluate()) {
                 while (result.hasNext()) {
@@ -167,12 +131,11 @@ public class CodeGenerator {
                     model.addProperty(property);
                     LOG.trace("iri [{}]", iri);
                 }
-            }
         }
         return model;
     }
 
-    private void addMissingModelToQueue(DataModel model) {
+    private void addMissingModelToQueue(Queue<String> iris, HashMap<String, DataModel> models, DataModel model) {
         LOG.debug("add missing model to queue");
 
         for (DataModelProperty prop : model.getProperties()) {

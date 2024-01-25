@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import org.endeavourhealth.imapi.model.iml.Entity;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 
 import java.util.Set;
 
@@ -12,7 +12,7 @@ public class QueryEntity extends Entity {
 
 
 
-	public QueryEntity setIsContainedIn(Set<TTIriRef> isContainedIn) {
+	public QueryEntity setIsContainedIn(Set<TTEntity> isContainedIn) {
 		super.setIsContainedIn(isContainedIn);
 		return this;
 	}

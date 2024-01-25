@@ -133,7 +133,7 @@ public class ExcelSetExporter {
         String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
         String subSet= cl.getIsContainedIn() != null ? cl.getIsContainedIn().iterator().next().getName() : "";
         String subsetIri = cl.getIsContainedIn() != null ? cl.getIsContainedIn().iterator().next().getIri() : "";
-        String subsetVersion = cl.getIsContainedIn() != null ? String.valueOf(entityService.getFullEntity(cl.getIsContainedIn().iterator().next().getIri()).getEntity().getVersion()) : "";
+        String subsetVersion = cl.getIsContainedIn() != null ? String.valueOf(cl.getIsContainedIn().iterator().next().getVersion()) : "";
 
         String code= cl.getCode();
         if (cl.getAlternativeCode()!=null)
@@ -205,7 +205,7 @@ public class ExcelSetExporter {
             String scheme= cl.getScheme().getName();
             String subset = cl.getIsContainedIn() != null ? cl.getIsContainedIn().iterator().next().getName() : "";
             String subsetIri = cl.getIsContainedIn() != null ? cl.getIsContainedIn().iterator().next().getIri() : "";
-            String subsetVersion = cl.getIsContainedIn() != null ? String.valueOf(entityService.getFullEntity(cl.getIsContainedIn().iterator().next().getIri()).getEntity().getVersion()) : "";
+            String subsetVersion = cl.getIsContainedIn() != null ? String.valueOf(cl.getIsContainedIn().iterator().next().getVersion()) : "";
             String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
             String usage = cl.getUsage() == null ? "" : cl.getUsage().toString();
             String code= cl.getCode();
@@ -240,7 +240,7 @@ public class ExcelSetExporter {
         String scheme= cl.getScheme().getName();
         String subset = cl.getIsContainedIn() != null ? cl.getIsContainedIn().iterator().next().getName() : "";
         String subsetIri = cl.getIsContainedIn() != null ? cl.getIsContainedIn().iterator().next().getIri() : "";
-        String subsetVersion = cl.getIsContainedIn() != null ? String.valueOf(entityService.getFullEntity(cl.getIsContainedIn().iterator().next().getIri()).getEntity().getVersion()) : "";
+        String subsetVersion = cl.getIsContainedIn() != null ? String.valueOf(cl.getIsContainedIn().iterator().next().getVersion()) : "";
         String usage = cl.getUsage() == null ? "" : cl.getUsage().toString();
         String code= cl.getCode();
         if (cl.getAlternativeCode()!=null)

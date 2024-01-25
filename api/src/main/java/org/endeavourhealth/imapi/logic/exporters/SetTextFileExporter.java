@@ -22,7 +22,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class SetTextFileExporter {
     private static final Logger LOG = LoggerFactory.getLogger(SetTextFileExporter.class);
     private final EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
-    private final EntityService entityService = new EntityService();
     private final SetExporter setExporter = new SetExporter();
     private final EntityRepository2 entityRepository2 = new EntityRepository2();
 
@@ -127,7 +126,7 @@ public class SetTextFileExporter {
         String scheme = member.getScheme().getName();
         String subSet = member.getIsContainedIn() != null ? member.getIsContainedIn().iterator().next().getName() : null;
         String subsetIri = member.getIsContainedIn() != null ? member.getIsContainedIn().iterator().next().getIri() : null;
-        String subsetVersion = member.getIsContainedIn() != null ? String.valueOf(entityService.getFullEntity(member.getIsContainedIn().iterator().next().getIri()).getEntity().getVersion()) : null;
+        String subsetVersion = member.getIsContainedIn() != null ? String.valueOf(member.getIsContainedIn().iterator().next().getVersion()) : "";
 
         String usage = member.getUsage() != null ? member.getUsage().toString() : null;
         String code= member.getAlternativeCode()==null ?member.getCode(): member.getAlternativeCode();
@@ -177,7 +176,7 @@ public class SetTextFileExporter {
         String usage = member.getUsage() != null ? member.getUsage().toString() : null;
         String subSet = member.getIsContainedIn() != null ? member.getIsContainedIn().iterator().next().getName() : null;
         String subsetIri = member.getIsContainedIn() != null ? member.getIsContainedIn().iterator().next().getIri() : null;
-        String subsetVersion = member.getIsContainedIn() != null ? String.valueOf(entityService.getFullEntity(member.getIsContainedIn().iterator().next().getIri()).getEntity().getVersion()) : null;
+        String subsetVersion = member.getIsContainedIn() != null ? String.valueOf(member.getIsContainedIn().iterator().next().getVersion()) : "";
         if(im1id && member.getIm1Id() != null) {
             member.getIm1Id().forEach(im1 -> {
                 if(includeSubset && subSet != null) {

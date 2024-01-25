@@ -11,24 +11,17 @@ import java.util.List;
 @JsonPropertyOrder({"nodeVariable","id","count","direction"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class OrderLimit {
-	private List<OrderDirection> property;
+	private OrderDirection property;
 	private int limit;
 	private String description;
 	private PropertyRef partitionBy;
 
-	public List<OrderDirection> getProperty() {
+	public OrderDirection getProperty() {
 		return property;
 	}
 
-	public OrderLimit setProperty(List<OrderDirection> property) {
+	public OrderLimit setProperty(OrderDirection property) {
 		this.property = property;
-		return this;
-	}
-	public OrderLimit addProperty(OrderDirection property){
-		if (this.property==null) {
-			this.property= new ArrayList<>();
-		}
-		this.property.add(property);
 		return this;
 	}
 

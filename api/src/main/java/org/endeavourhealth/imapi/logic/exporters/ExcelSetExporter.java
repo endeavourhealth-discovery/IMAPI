@@ -7,7 +7,6 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
-import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
@@ -29,9 +28,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class ExcelSetExporter {
 
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
-    private final EntityService entityService = new EntityService();
     private SetExporter setExporter = new SetExporter();
-
     private XSSFWorkbook workbook;
     private CellStyle headerStyle;
     private EntityRepository2 entityRepository2 = new EntityRepository2();

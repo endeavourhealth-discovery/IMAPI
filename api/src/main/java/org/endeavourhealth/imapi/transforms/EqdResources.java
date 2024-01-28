@@ -1,11 +1,14 @@
 package org.endeavourhealth.imapi.transforms;
 
+import openllet.shared.tools.Log;
 import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.logic.exporters.ImportMaps;
 import org.endeavourhealth.imapi.model.iml.ConceptSet;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -30,17 +33,9 @@ public class EqdResources {
     private ModelDocument document;
     private final Map<String, Set<TTIriRef>> valueMap = new HashMap<>();
     private int counter = 0;
-    public Map<String, ConceptSet> valueSets = new HashMap<>();
 
 
-    public Map<String, ConceptSet> getValueSets() {
-        return valueSets;
-    }
 
-    public EqdResources setValueSets(Map<String, ConceptSet> valueSets) {
-        this.valueSets = valueSets;
-        return this;
-    }
 
     public String getActiveReportName() {
         return activeReportName;
@@ -236,7 +231,6 @@ public class EqdResources {
                 else {
                     pv.addIsNot(iri);
                 }
-                storeLibraryItem(iri.getIri(), vsetName);
                 if (valueLabel.equals(""))
                     valueLabel = "Unknown value set";
                 pv.setValueLabel(valueLabel);
@@ -256,9 +250,9 @@ public class EqdResources {
                 pv.setIsNot(getExceptionSet(vs.getAllValues()));
             } else {
                 if (!notIn) {
-                    pv.setIs(getInlineValues(vs, pv));
+                    pv.addIsNot(getInlineValues(vs, pv));
                 } else {
-                    pv.setIsNot(getInlineValues(vs, pv));
+                    pv.addIsNot(getInlineValues(vs, pv));
                 }
             }
         }
@@ -457,8 +451,9 @@ public class EqdResources {
     }
 
 
-    private List<Node> getInlineValues(EQDOCValueSet vs, Property pv) throws DataFormatException, IOException {
+    private Node getInlineValues(EQDOCValueSet vs, Property pv) throws DataFormatException, IOException {
         Set<Node> setContent = new HashSet<>();
+        Set<Node> excContent = new HashSet<>();
         VocCodeSystemEx scheme = vs.getCodeSystem();
         for (EQDOCValueSetValue ev : vs.getValues()) {
             Set<Node> concepts = getValue(scheme, ev);
@@ -470,24 +465,62 @@ public class EqdResources {
                 }
             } else
                 System.err.println("Missing \t" + ev.getValue() + "\t " + ev.getDisplayName());
+            if (ev.getException().size()>0){
+                for (EQDOCException exc:ev.getException()){
+                    for (EQDOCExceptionValue val:exc.getValues()){
+                        Set<Node> exceptionValue= getValue(scheme,val);
+                        if (exceptionValue!=null){
+                            for (Node iri:exceptionValue){
+                                Node conRef = new Node().setIri(iri.getIri()).setName(iri.getName())
+                                  .setDescendantsOrSelfOf(true);
+                                excContent.add(conRef);
+                            }
+                        }
+                    }
+                }
+            }
 
         }
-        return new ArrayList<>(setContent);
+        Query query= new Query();
+        Match match = new Match();
+        match.setBool(Bool.or);
+        query.addMatch(match);
+        for (Node node:setContent){
+            Match member= new Match();
+            match.addMatch(member);
+            member.setInstanceOf(node);
+        }
+        if (!excContent.isEmpty()){
+            Match outerMatch= new Match();
+            outerMatch.addMatch(match);
+            outerMatch.setBool(Bool.and);
+            query.setMatch(new ArrayList<>());
+            query.addMatch(outerMatch);
+            for (Node node:excContent){
+                Match member= new Match();
+                outerMatch.addMatch(member);
+                member.setExclude(true);
+                member.setInstanceOf(node);
+            }
+        }
+        if (setContent.size()==1&&excContent.isEmpty()){
+            return setContent.stream().findFirst().get();
+        }
+        else {
+            ConceptSet set = new ConceptSet();
+            set.setIri("urn:uuid:" + vs.getId());
+            set.setDefinition(query);
+            set.addUsedIn(TTIriRef.iri("urn:uuid:" + activeReport));
+            document.addConceptSet(set);
+            return new Node().setIri(set.getIri());
+        }
     }
 
 
-    private void storeLibraryItem(String iri, String name) {
-        if (!valueSets.containsKey(iri)) {
-            ConceptSet conceptSet = new ConceptSet();
-            conceptSet.setIri(iri)
-                    .addType(iri(IM.CONCEPT_SET))
-                    .setName(name);
-            conceptSet.addUsedIn(TTIriRef.iri("urn:uuid:" + activeReport));
-            valueSets.put(iri, conceptSet);
-            valueSets.get(iri).addUsedIn(TTIriRef.iri("urn:uuid:" + activeReport).setName(activeReportName));
-
-        }
+    private Set<Node> getValue(VocCodeSystemEx scheme, EQDOCExceptionValue ev) throws DataFormatException, IOException {
+        return getValue(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
     }
+
 
     private Set<Node> getValue(VocCodeSystemEx scheme, EQDOCValueSetValue ev) throws DataFormatException, IOException {
         return getValue(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());

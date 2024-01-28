@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.model.iml.ConceptSet;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
@@ -23,10 +24,8 @@ public class EqdToIMQ {
 	private final EqdResources resources = new EqdResources();
 	private static final Set<String> roles = new HashSet<>();
 	public Map<String, ConceptSet> valueSets;
+	private Map<String,String> setIris= new HashMap<>();
 
-	public Map<String, ConceptSet> getValueSets() {
-		return valueSets;
-	}
 
 
 	public ModelDocument convertEQD(EnquiryDocument eqd, Properties dataMap,
@@ -39,7 +38,6 @@ public class EqdToIMQ {
 		addReportNames(eqd);
 		convertFolders(eqd);
 		convertReports(eqd);
-		this.valueSets = resources.getValueSets();
 		return resources.getDocument();
 	}
 
@@ -112,6 +110,8 @@ public class EqdToIMQ {
 		queryEntity.setDefinition(qry);
 		return queryEntity;
 	}
+
+
 	private void mergeThens(Query qry) throws JsonProcessingException {
 		for (Match match : qry.getMatch()) {
 			if (match.getBool() == Bool.or) {

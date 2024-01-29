@@ -308,7 +308,7 @@ public class EqdResources {
         counter++;
         String linkElement = restricted.getProperty().get(0).getVariable();
         restricted.orderBy(o -> o
-                .addProperty(new OrderDirection()
+                .setProperty(new OrderDirection()
                         .setIri(orderBy)
                         .setDirection(direction))
                 .setLimit(1));

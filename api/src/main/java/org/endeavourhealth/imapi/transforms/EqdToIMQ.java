@@ -7,7 +7,6 @@ import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
@@ -89,7 +88,7 @@ public class EqdToIMQ {
 		queryEntity.setName(eqReport.getName());
 		queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
 		if (eqReport.getFolder() != null)
-			queryEntity.addIsContainedIn(TTIriRef.iri("urn:uuid:" + eqReport.getFolder()));
+			queryEntity.addIsContainedIn(new TTEntity(("urn:uuid:" + eqReport.getFolder())));
 
 		Query qry = new Query();
 

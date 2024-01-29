@@ -108,8 +108,8 @@ public class SetExporter {
                     ,includeLegacy,null, schemes));
             }
             if(includeSubset) {
-                String name = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL)).getEntity().getName();
-                subResults.forEach(m -> m.addIsContainedIn(new TTIriRef(iri,name)));
+                TTEntity entity = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL, IM.VERSION)).getEntity();
+                subResults.forEach(m -> m.addIsContainedIn(entity));
                 result.addAll(subResults);
             }
             else {

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.HashSet;
@@ -16,7 +17,7 @@ public class Entity {
 	private Set<TTIriRef> entityType;
 	private String name;
 	private String description;
-	private Set<TTIriRef> isContainedIn;
+	private Set<TTEntity> isContainedIn;
 	private TTIriRef status;
 	private TTIriRef scheme;
 
@@ -67,15 +68,15 @@ public class Entity {
 		return this;
 	}
 
-	public Set<TTIriRef> getIsContainedIn() {
+	public Set<TTEntity> getIsContainedIn() {
 		return isContainedIn;
 	}
 
-	public Entity setIsContainedIn(Set<TTIriRef> isContainedIn) {
+	public Entity setIsContainedIn(Set<TTEntity> isContainedIn) {
 		this.isContainedIn = isContainedIn;
 		return this;
 	}
-	public Entity addIsContainedIn(TTIriRef folder){
+	public Entity addIsContainedIn(TTEntity folder){
 		if (this.isContainedIn ==null)
 			this.isContainedIn = new HashSet<>();
 		this.isContainedIn.add(folder);

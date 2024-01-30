@@ -9,11 +9,13 @@ import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
+import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.dto.*;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
+import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.FormGenerator;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.*;
@@ -80,8 +82,7 @@ public class EntityService {
         String entityType = bundle.getEntity().getType().get(0).asIriRef().getIri();
         if (entityType.equals(IM.FORM_GENERATOR)) {
             cls = FormGenerator.class;
-        }
-        else {
+        } else {
             throw new NoSuchMethodException(" entity type " + entityType + " is not supported as a POJO class");
         }
 
@@ -100,8 +101,8 @@ public class EntityService {
     private static void filterOutSpecifiedPredicates(Set<String> excludePredicates, TTBundle bundle) {
         if (excludePredicates != null) {
             Map<String, String> filtered = bundle.getPredicates().entrySet().stream()
-                .filter(entry -> !entry.getKey().equals(RDFS.LABEL) && entry.getValue() != null)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    .filter(entry -> !entry.getKey().equals(RDFS.LABEL) && entry.getValue() != null)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             bundle.setPredicates(filtered);
             if (excludePredicates.contains(RDFS.LABEL)) {
                 bundle.getEntity().set(iri(RDFS.LABEL), (TTValue) null);
@@ -153,7 +154,8 @@ public class EntityService {
     public EntityReferenceNode getEntityAsEntityReferenceNode(String iri) {
         return getEntityAsEntityReferenceNode(iri, null, false);
     }
-        public EntityReferenceNode getEntityAsEntityReferenceNode(String iri, List<String> schemeIris, boolean inactive) {
+
+    public EntityReferenceNode getEntityAsEntityReferenceNode(String iri, List<String> schemeIris, boolean inactive) {
         if (null == iri) return new EntityReferenceNode();
 
         return entityTripleRepository.getEntityReferenceNode(iri, schemeIris, inactive);
@@ -168,7 +170,7 @@ public class EntityService {
             rowNumber = (page - 1) * size;
 
         Pageable<TTIriRef> childrenAndTotalCount = entityTripleRepository.findImmediateChildrenPagedByIriWithTotalCount(iri, schemeIris, rowNumber, size, inactive);
-        return iriRefPageableToEntityReferenceNodePageable(childrenAndTotalCount,schemeIris,inactive);
+        return iriRefPageableToEntityReferenceNodePageable(childrenAndTotalCount, schemeIris, inactive);
     }
 
     public Pageable<TTIriRef> getPartialWithTotalCount(String iri, String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
@@ -510,19 +512,20 @@ public class EntityService {
     public List<SearchTermCode> getEntityTermCodes(String iri, boolean includeInactive) {
         if (iri == null || iri.isEmpty())
             return Collections.emptyList();
-TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE).collect(Collectors.toSet()));
+        TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE).collect(Collectors.toSet()));
         if (!includeInactive) filterOutInactiveTermCodes(termsBundle);
         TTArray terms = termsBundle.getEntity().get(iri(IM.HAS_TERM_CODE));
         if (null == terms) return Collections.emptyList();
         List<SearchTermCode> termsSummary = new ArrayList<>();
-        for (TTValue term:terms.getElements()) {
+        for (TTValue term : terms.getElements()) {
             if (null != term.asNode().get(iri(IM.CODE)) && null == termsSummary.stream().filter(t -> term.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue().equals(t.getCode())).findAny().orElse(null)) {
                 SearchTermCode newTerm = new SearchTermCode()
-                    .setCode(term.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue())
-                    .setTerm(term.asNode().get(iri(RDFS.LABEL)).get(0).asLiteral().getValue());
-                if (term.asNode().has(iri(IM.HAS_STATUS))) newTerm.setStatus(term.asNode().get(iri(IM.HAS_STATUS)).get(0).asIriRef());
+                        .setCode(term.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue())
+                        .setTerm(term.asNode().get(iri(RDFS.LABEL)).get(0).asLiteral().getValue());
+                if (term.asNode().has(iri(IM.HAS_STATUS)))
+                    newTerm.setStatus(term.asNode().get(iri(IM.HAS_STATUS)).get(0).asIriRef());
                 termsSummary.add(
-                    newTerm
+                        newTerm
                 );
             }
         }
@@ -560,7 +563,7 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE).collect(Collec
             // downloadDto.setMembers(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null, false));
         }
         if (params.includeTerms()) {
-            downloadDto.setTerms(getEntityTermCodes(iri,false));
+            downloadDto.setTerms(getEntityTermCodes(iri, false));
         }
         if (params.includeIsChildOf()) {
             downloadDto.setIsChildOf(getBundle(iri, new HashSet<>(List.of(IM.IS_CHILD_OF))).getEntity().get(iri(IM.IS_CHILD_OF)));
@@ -597,7 +600,7 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE).collect(Collec
             // xls.addMembersSheet(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null, false));
         }
         if (params.includeTerms()) {
-            xls.addTerms(getEntityTermCodes(iri,false));
+            xls.addTerms(getEntityTermCodes(iri, false));
         }
         TTEntity isChildOfEntity = getBundle(iri, new HashSet<>(List.of(IM.IS_CHILD_OF))).getEntity();
         TTArray isChildOfData = isChildOfEntity.get(iri(IM.IS_CHILD_OF));
@@ -1176,8 +1179,8 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE).collect(Collec
         int rowNumber = 0;
         if (null != page && null != size) rowNumber = (page - 1) * size;
 
-        Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getSuperiorPropertiesByConceptPagedWithTotalCount(iri,rowNumber,size,inactive);
-        return iriRefPageableToEntityReferenceNodePageable(propertiesAndCount,schemeIris,inactive);
+        Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getSuperiorPropertiesByConceptPagedWithTotalCount(iri, rowNumber, size, inactive);
+        return iriRefPageableToEntityReferenceNodePageable(propertiesAndCount, schemeIris, inactive);
     }
 
     public Pageable<EntityReferenceNode> getSuperiorPropertiesBoolFocusPaged(List<String> conceptIris, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
@@ -1186,8 +1189,8 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE).collect(Collec
         int rowNumber = 0;
         if (null != page && null != size) rowNumber = (page - 1) * size;
 
-        Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getSuperiorPropertiesByConceptBoolFocusPagedWithTotalCount(conceptIris,rowNumber,size,inactive);
-        return iriRefPageableToEntityReferenceNodePageable(propertiesAndCount,schemeIris,inactive);
+        Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getSuperiorPropertiesByConceptBoolFocusPagedWithTotalCount(conceptIris, rowNumber, size, inactive);
+        return iriRefPageableToEntityReferenceNodePageable(propertiesAndCount, schemeIris, inactive);
     }
 
     public Pageable<EntityReferenceNode> getSuperiorPropertyValuesPaged(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
@@ -1197,11 +1200,11 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE).collect(Collec
         if (null != page && null != size) rowNumber = (page - 1) * size;
 
 
-        Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getSuperiorPropertyValuesByPropertyPagedWithTotalCount(iri,rowNumber,size,inactive);
-        return iriRefPageableToEntityReferenceNodePageable(propertiesAndCount,schemeIris,inactive);
+        Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getSuperiorPropertyValuesByPropertyPagedWithTotalCount(iri, rowNumber, size, inactive);
+        return iriRefPageableToEntityReferenceNodePageable(propertiesAndCount, schemeIris, inactive);
     }
 
-    private Pageable<EntityReferenceNode> iriRefPageableToEntityReferenceNodePageable(Pageable<TTIriRef> iriRefPageable,List<String> schemeIris,boolean inactive) {
+    private Pageable<EntityReferenceNode> iriRefPageableToEntityReferenceNodePageable(Pageable<TTIriRef> iriRefPageable, List<String> schemeIris, boolean inactive) {
         Pageable<EntityReferenceNode> result = new Pageable<>();
         result.setTotalCount(iriRefPageable.getTotalCount());
         List<EntityReferenceNode> nodes = new ArrayList<>();
@@ -1224,7 +1227,14 @@ TTBundle termsBundle = getBundle(iri, Stream.of(IM.HAS_TERM_CODE).collect(Collec
     }
 
     public Boolean isInverseIsa(String objectIri, String subjectIri) {
-        return entityRepository.isInverseIsa(objectIri,subjectIri);
+        return entityRepository.isInverseIsa(objectIri, subjectIri);
+    }
+
+    public Set<Concept> getFullyExpandedMembers(String iri, boolean includeSubset, boolean includeLegacy, List<String> schemes) throws QueryException, JsonProcessingException {
+        SetExporter setExporter = new SetExporter();
+        Set<Concept> members = setExporter.getExpandedSetMembers(iri, false, false, schemes);
+        System.out.println(members.size());
+        return members;
     }
 }
 

@@ -1232,7 +1232,7 @@ public class EntityService {
 
     public Set<Concept> getFullyExpandedMembers(String iri, boolean includeSubset, boolean includeLegacy, List<String> schemes) throws QueryException, JsonProcessingException {
         SetExporter setExporter = new SetExporter();
-        Set<Concept> members = setExporter.getExpandedSetMembers(iri, false, false, schemes);
+        Set<Concept> members = setExporter.getExpandedSetMembers(iri, includeLegacy, includeSubset, schemes);
         return members;
     }
 }

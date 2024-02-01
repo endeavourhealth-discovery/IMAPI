@@ -1,5 +1,6 @@
 ext {
     versions = [
+            angusMail           : '2.0.2',
             antlr               : '4.13.1',
             apacheCollections4  : '4.4',
             apachePoi           : '5.2.5',
@@ -36,6 +37,7 @@ ext {
     libs = [
             imGrammar           : "org.endeavourhealth.informationManager:Grammar:1.0-SNAPSHOT",
 
+            angusMail           : "org.eclipse.angus:angus-mail:$versions.angusMail",
             antlr               : "org.antlr:antlr4-runtime:$versions.antlr",
             apacheCollections4  : "org.apache.commons:commons-collections4:$versions.apacheCollections4",
             apachePoi           : "org.apache.poi:poi-ooxml:$versions.apachePoi",

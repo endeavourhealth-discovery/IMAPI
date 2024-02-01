@@ -1,11 +1,13 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
+import jakarta.mail.MessagingException;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.query.UpdateExecutionException;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.logic.service.EmailService;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.model.workflow.BugReport;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Browser;
@@ -24,6 +26,12 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 
 public class TaskFilerRdf4j {
     private RepositoryConnection conn;
+    private EmailService emailService = new EmailService(
+        System.getenv("emailerHost"),
+        Integer.parseInt(System.getenv("emailerPort")),
+        System.getenv("emailerUsername"),
+        System.getenv("emailerPassword")
+    );
     public TaskFilerRdf4j(RepositoryConnection conn) {
         this.conn = conn;
     }
@@ -54,8 +62,13 @@ public class TaskFilerRdf4j {
             builder.add(iri(bugReport.getId().getIri()), iri(WORKFLOW.EXPECTED_RESULT),literal(bugReport.getExpectedResult()));
             builder.add(iri(bugReport.getId().getIri()), iri(WORKFLOW.ACTUAL_RESULT),literal(bugReport.getActualResult()));
             conn.add(builder.build());
+            String emailSubject = "New bug report added: [" + bugReport.getId().getIri() + "]";
+            String emailContent = "Click <a href=\"https://im.endhealth.net/#/workflow/bugReport/" + bugReport.getId().getIri() + "\">here</a>";
+            emailService.sendMail(emailSubject, emailContent);
         } catch (RepositoryException e) {
             throw new TaskFilerException("Failed to file task", e);
+        } catch (MessagingException e) {
+            throw new TaskFilerException("Failed to send email",e);
         }
     }
 

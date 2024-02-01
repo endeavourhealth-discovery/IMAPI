@@ -1,11 +1,15 @@
 package org.endeavourhealth.imapi.dataaccess;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.filer.TaskFilerException;
+import org.endeavourhealth.imapi.filer.rdf4j.TaskFilerRdf4j;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.model.workflow.bugReport.*;
@@ -13,7 +17,11 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.WORKFLOW;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.StringJoiner;
 
@@ -22,35 +30,11 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.*;
 
 public class WorkflowRepository {
-    public BugReport createBugReport(BugReport bugReport) {
-        StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator()).add("INSERT DATA {");
-        sparqlJoiner.add("?s ?createdBy ?createdByData ");
-        sparqlJoiner.add("; ?type ?typeData ");
-        sparqlJoiner.add("; ?state ?stateData ");
-        sparqlJoiner.add("; ?assignedTo ?assignedToData ");
-        sparqlJoiner.add("; ?dateCreated ?dateCreatedData ");
-        if (null != bugReport.getProduct()) sparqlJoiner.add("; ?product ?productData ");
-        if (null != bugReport.getVersion()) sparqlJoiner.add("; ?version ?versionData ");
-        if (null != bugReport.getModule()) sparqlJoiner.add("; ?module ?moduleData ");
-        if (null != bugReport.getOs()) sparqlJoiner.add("; ?os ?osData ");
-        if (null != bugReport.getOsOther()) sparqlJoiner.add("; ?osOther ?osOtherData ");
-        if (null != bugReport.getBrowser()) sparqlJoiner.add("; ?browser ?browserData ");
-        if (null != bugReport.getBrowserOther()) sparqlJoiner.add("; ?browserOther ?browserOtherData ");
-        if (null != bugReport.getSeverity()) sparqlJoiner.add("; ?severity ?severityData ");
-        if (null != bugReport.getStatus()) sparqlJoiner.add("; ?status ?statusData ");
-        if (null != bugReport.getError()) sparqlJoiner.add("; ?error ?errorData ");
-        if (null != bugReport.getDescription()) sparqlJoiner.add("; ?description ?descriptionData ");
-        if (null != bugReport.getReproduceSteps()) sparqlJoiner.add("; ?reproduceSteps ?reproduceStepsData ");
-        if (null != bugReport.getExpectedResult()) sparqlJoiner.add("; ?expectedResult ?expectedResultData ");
-        if (null != bugReport.getActualResult()) sparqlJoiner.add("; ?actualResult ?actualResultData ");
-        String sparql = sparqlJoiner.add(". }").toString();
-
-        try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {
-            Update qry = prepareUpdateSparql(conn, sparql);
-            setBugReportBindings(qry,bugReport);
-            qry.execute();
-            return bugReport;
-        }
+    private static final Logger LOG = LoggerFactory.getLogger(WorkflowRepository.class);
+    private final TaskFilerRdf4j taskFilerRdf4j = new TaskFilerRdf4j();
+    public void createBugReport(BugReport bugReport) throws TaskFilerException {
+        if (null == bugReport.getId() || bugReport.getId().getIri().isEmpty()) bugReport.setId(TTIriRef.iri(generateId()));
+        taskFilerRdf4j.fileBugReport(bugReport);
     }
 
     public BugReport getBugReport(String id) {
@@ -75,7 +59,7 @@ public class WorkflowRepository {
         sparqlJoiner.add("OPTIONAL {?s ?description ?descriptionData ;}");
         sparqlJoiner.add("OPTIONAL {?s ?reproduceSteps ?reproduceStepsData ;}");
         sparqlJoiner.add("OPTIONAL {?s ?expectedResult ?expectedResultData ;}");
-        sparqlJoiner.add("OPTIONAL {?actualResult ?actualResultData ;}");
+        sparqlJoiner.add("OPTIONAL {?s ?actualResult ?actualResultData ;}");
         sparqlJoiner.add("}");
         String sparql = sparqlJoiner.toString();
 
@@ -96,15 +80,25 @@ public class WorkflowRepository {
         return null;
     }
 
-    public WorkflowResponse getWorkflowsByCreatedBy(WorkflowRequest request) {
+    public void deleteTask(String taskId) throws TaskFilerException {
+        taskFilerRdf4j.deleteTask(taskId);
+    }
+
+    public void replaceBugReport(BugReport bugReport) throws TaskFilerException {
+        taskFilerRdf4j.replaceBugReport(bugReport);
+    }
+
+    public WorkflowResponse getTasksByCreatedBy(WorkflowRequest request) {
         StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator());
-        sparqlJoiner.add("SELECT ?s ?typeData ?assignedToData ?stateData ?dateCreatedData WHERE {");
+        sparqlJoiner.add("SELECT ?s ?createdByData ?typeData ?assignedToData ?stateData ?dateCreatedData WHERE {");
         sparqlJoiner.add("?s ?createdBy ?createdByData ;");
         sparqlJoiner.add("?dateCreated ?dateCreatedData ;");
         sparqlJoiner.add("?assignedTo ?assignedToData ;");
         sparqlJoiner.add("?state ?stateData ;");
         sparqlJoiner.add("?type ?typeData .");
         sparqlJoiner.add("}");
+        if(null != request.getSize()) sparqlJoiner.add("LIMIT " + request.getSize());
+        if(null != request.getPage() && null != request.getSize()) sparqlJoiner.add("OFFSET " + request.getSize() * (request.getPage() == 0 ? 0 : request.getPage()-1));
         String sparql = sparqlJoiner.toString();
         WorkflowResponse response = new WorkflowResponse();
 
@@ -121,10 +115,30 @@ public class WorkflowRepository {
                 }
             }
         }
+        response.setPage(null == request.getPage() ? 1 : request.getPage());
+        response.setCount(countTaskByCreatedBy(request));
         return response;
     }
 
-    public WorkflowResponse getWorkflowsByAssignedTo(WorkflowRequest request) {
+    public Integer countTaskByCreatedBy(WorkflowRequest request) {
+        StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
+        stringJoiner.add("SELECT (COUNT(DISTINCT ?s) AS ?count) WHERE { ?s ?createdBy ?createdByData }");
+        String sparql = stringJoiner.toString();
+        try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {
+            TupleQuery qry = prepareSparql(conn, sparql);
+            qry.setBinding("createdBy", iri(WORKFLOW.CREATED_BY));
+            qry.setBinding("createdByData",literal(request.getUserId()));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                if (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    return Integer.parseInt(bs.getValue("count").stringValue());
+                }
+            }
+        }
+        return null;
+    }
+
+    public WorkflowResponse getTasksByAssignedTo(WorkflowRequest request) {
         StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator());
         sparqlJoiner.add("SELECT ?s ?typeData ?assignedToData ?stateData ?dateCreatedData WHERE {");
         sparqlJoiner.add("?s ?createdBy ?createdByData ;");
@@ -133,6 +147,8 @@ public class WorkflowRepository {
         sparqlJoiner.add("?state ?stateData ;");
         sparqlJoiner.add("?type ?typeData .");
         sparqlJoiner.add("}");
+        if(null != request.getSize()) sparqlJoiner.add("LIMIT " + request.getSize());
+        if(null != request.getPage() && null != request.getSize()) sparqlJoiner.add("OFFSET " + request.getSize() * (request.getPage() == 0 ? 0 : request.getPage()-1));
         String sparql = sparqlJoiner.toString();
         WorkflowResponse response = new WorkflowResponse();
 
@@ -149,7 +165,27 @@ public class WorkflowRepository {
                 }
             }
         }
+        response.setPage(null == request.getPage() ? 1 : request.getPage());
+        response.setCount(countTaskByAssignedTo(request));
         return response;
+    }
+
+    public Integer countTaskByAssignedTo(WorkflowRequest request) {
+        StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
+        stringJoiner.add("SELECT (COUNT(DISTINCT ?s) AS ?count) WHERE { ?s ?assignedTo ?assignedToData }");
+        String sparql = stringJoiner.toString();
+        try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {
+            TupleQuery qry = prepareSparql(conn, sparql);
+            qry.setBinding("assignedTo", iri(WORKFLOW.ASSIGNED_TO));
+            qry.setBinding("assignedToData",literal(request.getUserId()));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                if (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    return Integer.parseInt(bs.getValue("count").stringValue());
+                }
+            }
+        }
+        return null;
     }
 
     public String generateId() {
@@ -166,89 +202,7 @@ public class WorkflowRepository {
                 }
             }
         }
-        return null;
-    }
-
-    private void setBugReportBindings(Update qry, BugReport bugReport) {
-        if (null != bugReport.getId()) {
-            qry.setBinding("s",iri(bugReport.getId().getIri()));
-        }
-        if (null != bugReport.getCreatedBy()) {
-            qry.setBinding("createdBy", iri(WORKFLOW.CREATED_BY));
-            qry.setBinding("createdByData",literal(bugReport.getCreatedBy()));
-        }
-        if (null != bugReport.getType()) {
-            qry.setBinding("type",iri(RDF.TYPE));
-            qry.setBinding("typeData",literal(bugReport.getType()));
-        }
-        if (null != bugReport.getState()) {
-            qry.setBinding("state",iri(WORKFLOW.STATE));
-            qry.setBinding("stateData",literal(bugReport.getState()));
-        }
-        if (null != bugReport.getAssignedTo()) {
-            qry.setBinding("assignedTo",iri(WORKFLOW.ASSIGNED_TO));
-            qry.setBinding("assignedToData",literal(bugReport.getAssignedTo()));
-        }
-        if (null != bugReport.getDateCreated()) {
-            qry.setBinding("dateCreated",iri(WORKFLOW.DATE_CREATED));
-            qry.setBinding("dateCreatedData",literal(WORKFLOW.DATE_CREATED));
-        }
-        if (null != bugReport.getProduct()) {
-            qry.setBinding("product",iri(WORKFLOW.RELATED_PRODUCT));
-            qry.setBinding("productData",literal(bugReport.getProduct()));
-        }
-        if (null != bugReport.getVersion()) {
-            qry.setBinding("version",iri(WORKFLOW.RELATED_VERSION));
-            qry.setBinding("versionData",literal(bugReport.getVersion()));
-        }
-        if (null != bugReport.getModule()) {
-            qry.setBinding("module",iri(WORKFLOW.RELATED_MODULE));
-            qry.setBinding("moduleData",literal(bugReport.getModule()));
-        }
-        if (null != bugReport.getOs()) {
-            qry.setBinding("os",iri(WORKFLOW.OPERATING_SYSTEM));
-            qry.setBinding("osData",literal(bugReport.getOs()));
-        }
-        if (null != bugReport.getOsOther()) {
-            qry.setBinding("osOther",iri(WORKFLOW.OPERATING_SYSTEM_OTHER));
-            qry.setBinding("osOtherData",literal(bugReport.getOsOther()));
-        }
-        if (null != bugReport.getBrowser()) {
-            qry.setBinding("browser",iri(WORKFLOW.BROWSER));
-            qry.setBinding("browserData",literal(bugReport.getBrowser()));
-        }
-        if (null != bugReport.getBrowserOther()) {
-            qry.setBinding("browserOther",iri(WORKFLOW.BROWSER_OTHER));
-            qry.setBinding("browserOtherData",literal(bugReport.getBrowserOther()));
-        }
-        if (null != bugReport.getSeverity()) {
-            qry.setBinding("severity",iri(WORKFLOW.SEVERITY));
-            qry.setBinding("severityData",literal(bugReport.getSeverity()));
-        }
-        if (null != bugReport.getStatus()) {
-            qry.setBinding("status",iri(IM.HAS_STATUS));
-            qry.setBinding("statusData",literal(bugReport.getStatus()));
-        }
-        if (null != bugReport.getError()) {
-            qry.setBinding("error",iri(WORKFLOW.ERROR));
-            qry.setBinding("errorData",literal(bugReport.getError()));
-        }
-        if (null != bugReport.getDescription()) {
-            qry.setBinding("description",iri(RDFS.COMMENT));
-            qry.setBinding("descriptionData",literal(bugReport.getDescription()));
-        }
-        if (null != bugReport.getReproduceSteps()) {
-            qry.setBinding("reproduceSteps",iri(WORKFLOW.REPRODUCE_STEPS));
-            qry.setBinding("reproduceStepsData",literal(bugReport.getReproduceSteps()));
-        }
-        if (null != bugReport.getExpectedResult()) {
-            qry.setBinding("expectedResult",iri(WORKFLOW.EXPECTED_RESULT));
-            qry.setBinding("expectedResultData",literal(bugReport.getExpectedResult()));
-        }
-        if (null != bugReport.getActualResult()) {
-            qry.setBinding("actualResult",iri(WORKFLOW.ACTUAL_RESULT));
-            qry.setBinding("actualResultData",literal(bugReport.getActualResult()));
-        }
+        return WORKFLOW.NAMESPACE + "10000000";
     }
 
     private void setTaskBindings(TupleQuery qry) {
@@ -284,26 +238,26 @@ public class WorkflowRepository {
         bugReport.setAssignedTo(bs.getValue("assignedToData").stringValue());
         bugReport.setState(TaskState.valueOf(bs.getValue("stateData").stringValue()));
         bugReport.setDateCreated(LocalDate.parse(bs.getValue("dateCreatedData").stringValue()));
-        bugReport.setProduct(bs.getValue("productData").stringValue());
-        bugReport.setModule(TaskModule.valueOf(bs.getValue("moduleData").stringValue()));
-        bugReport.setVersion(bs.getValue("versionData").stringValue());
-        bugReport.setOs(OperatingSystem.valueOf(bs.getValue("osData").stringValue()));
-        bugReport.setOsOther(bs.getValue("osOtherData").stringValue());
-        bugReport.setBrowser(Browser.valueOf(bs.getValue("browserData").stringValue()));
-        bugReport.setBrowserOther(bs.getValue("browserOtherData").stringValue());
-        bugReport.setSeverity(Severity.valueOf(bs.getValue("severityData").stringValue()));
-        bugReport.setStatus(Status.valueOf(bs.getValue("statusData").stringValue()));
-        bugReport.setError(bs.getValue("errorData").stringValue());
-        bugReport.setDescription(bs.getValue("descriptionData").stringValue());
-        bugReport.setReproduceSteps(bs.getValue("reproduceStepsData").stringValue());
-        bugReport.setExpectedResult(bs.getValue("expectedResultData").stringValue());
-        bugReport.setActualResult(bs.getValue("actualResultData").stringValue());
+        if (null != bs.getValue("productData")) bugReport.setProduct(bs.getValue("productData").stringValue());
+        if (null != bs.getValue("moduleData")) bugReport.setModule(TaskModule.valueOf(bs.getValue("moduleData").stringValue()));
+        if (null != bs.getValue("versionData")) bugReport.setVersion(bs.getValue("versionData").stringValue());
+        if (null != bs.getValue("osData")) bugReport.setOs(OperatingSystem.valueOf(bs.getValue("osData").stringValue()));
+        if (null != bs.getValue("osOtherData")) bugReport.setOsOther(bs.getValue("osOtherData").stringValue());
+        if (null != bs.getValue("browserData")) bugReport.setBrowser(Browser.valueOf(bs.getValue("browserData").stringValue()));
+        if (null != bs.getValue("browserOtherData"))bugReport.setBrowserOther(bs.getValue("browserOtherData").stringValue());
+        if (null != bs.getValue("severityData")) bugReport.setSeverity(Severity.valueOf(bs.getValue("severityData").stringValue()));
+        if (null != bs.getValue("statusData")) bugReport.setStatus(Status.valueOf(bs.getValue("statusData").stringValue()));
+        if (null != bs.getValue("errorData"))bugReport.setError(bs.getValue("errorData").stringValue());
+        if (null != bs.getValue("descriptionData")) bugReport.setDescription(bs.getValue("descriptionData").stringValue());
+        if (null != bs.getValue("reproduceStepsData")) bugReport.setReproduceSteps(bs.getValue("reproduceStepsData").stringValue());
+        if (null != bs.getValue("expectedResultData")) bugReport.setExpectedResult(bs.getValue("expectedResultData").stringValue());
+        if (null != bs.getValue("actualResultData")) bugReport.setActualResult(bs.getValue("actualResultData").stringValue());
     }
 
     private void mapTaskFromBindingSet(Task task, BindingSet bs) {
         task.setId(TTIriRef.iri(bs.getValue("s").stringValue()));
         task.setType(TaskType.valueOf(bs.getValue("typeData").stringValue()));
-        task.setCreatedBy(bs.getValue("createdByData").toString());
+        task.setCreatedBy(bs.getValue("createdByData").stringValue());
         task.setAssignedTo(bs.getValue("assignedToData").stringValue());
         task.setState(TaskState.valueOf(bs.getValue("stateData").stringValue()));
         task.setDateCreated(LocalDate.parse(bs.getValue("dateCreatedData").stringValue()));

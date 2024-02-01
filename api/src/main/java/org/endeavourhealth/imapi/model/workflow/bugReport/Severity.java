@@ -5,7 +5,8 @@ public enum Severity {
     MAJOR("major"),
     MINOR("minor"),
     TRIVIAL("trivial"),
-    ENHANCEMENT("enhancement");
+    ENHANCEMENT("enhancement"),
+    UNASSIGNED("unassigned");
     private String text;
     Severity(String text) {
         this.text = text;

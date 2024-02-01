@@ -15,27 +15,33 @@ public class Task {
     private String assignedTo;
     private LocalDate dateCreated;
 
-    public void setId(TTIriRef id) {
+    public Task setId(TTIriRef id) {
         this.id = id;
+        return this;
     }
 
-    public void setCreatedBy(String createdBy) {
+    public Task setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
+        return this;
     }
 
-    public void setType(TaskType type) {
+    public Task setType(TaskType type) {
         this.type = type;
+        return this;
     }
 
-    public void setState(TaskState state) {
+    public Task setState(TaskState state) {
         this.state = state;
+        return this;
     }
 
-    public void setAssignedTo(String assignedTo) {
+    public Task setAssignedTo(String assignedTo) {
         this.assignedTo = assignedTo;
+        return this;
     }
 
-    public void setDateCreated(LocalDate dateCreated) {
+    public Task setDateCreated(LocalDate dateCreated) {
         this.dateCreated = dateCreated;
+        return this;
     }
 }

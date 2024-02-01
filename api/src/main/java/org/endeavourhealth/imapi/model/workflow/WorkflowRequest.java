@@ -14,8 +14,8 @@ import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 )
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class WorkflowRequest {
-    private int page = 1;
-    private int size = 25;
+    private Integer page = 1;
+    private Integer size = 25;
     private String userId;
 
     public WorkflowRequest(HttpServletRequest request) throws JsonProcessingException {
@@ -23,16 +23,22 @@ public class WorkflowRequest {
         this.userId = requestObjectService.getRequestAgentId(request);
     }
 
+    public WorkflowRequest(Integer page, Integer size, String userId) {
+        this.page = page;
+        this.size = size;
+        this.userId = userId;
+    }
+
     public void setUserId(String userId) {
         this.userId = userId;
     }
 
-    public WorkflowRequest setPage(int page) {
+    public WorkflowRequest setPage(Integer page) {
         this.page = page;
         return this;
     }
 
-    public WorkflowRequest setSize(int size) {
+    public WorkflowRequest setSize(Integer size) {
         this.size = size;
         return this;
     }

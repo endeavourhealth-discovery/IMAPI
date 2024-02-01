@@ -140,7 +140,7 @@ public class WorkflowRepository {
 
     public WorkflowResponse getTasksByAssignedTo(WorkflowRequest request) {
         StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator());
-        sparqlJoiner.add("SELECT ?s ?typeData ?assignedToData ?stateData ?dateCreatedData WHERE {");
+        sparqlJoiner.add("SELECT ?s ?createdByData ?typeData ?assignedToData ?stateData ?dateCreatedData WHERE {");
         sparqlJoiner.add("?s ?createdBy ?createdByData ;");
         sparqlJoiner.add("?dateCreated ?dateCreatedData ;");
         sparqlJoiner.add("?assignedTo ?assignedToData ;");
@@ -186,6 +186,38 @@ public class WorkflowRepository {
             }
         }
         return null;
+    }
+
+    public WorkflowResponse getUnassignedTasks(WorkflowRequest request) {
+        StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator());
+        sparqlJoiner.add("SELECT ?s ?createdByData ?typeData ?assignedToData ?stateData ?dateCreatedData WHERE {");
+        sparqlJoiner.add("?s ?createdBy ?createdByData ;");
+        sparqlJoiner.add("?dateCreated ?dateCreatedData ;");
+        sparqlJoiner.add("?assignedTo ?assignedToData ;");
+        sparqlJoiner.add("?state ?stateData ;");
+        sparqlJoiner.add("?type ?typeData .");
+        sparqlJoiner.add("}");
+        if(null != request.getSize()) sparqlJoiner.add("LIMIT " + request.getSize());
+        if(null != request.getPage() && null != request.getSize()) sparqlJoiner.add("OFFSET " + request.getSize() * (request.getPage() == 0 ? 0 : request.getPage()-1));
+        String sparql = sparqlJoiner.toString();
+        WorkflowResponse response = new WorkflowResponse();
+
+        try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {
+            TupleQuery qry = prepareSparql(conn, sparql);
+            setTaskBindings(qry);
+            qry.setBinding("assignedToData",literal("UNASSIGNED"));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    Task task = new Task();
+                    mapTaskFromBindingSet(task,bs);
+                    response.addTask(task);
+                }
+            }
+        }
+        response.setPage(null == request.getPage() ? 1 : request.getPage());
+        response.setCount(countTaskByAssignedTo(request));
+        return response;
     }
 
     public String generateId() {

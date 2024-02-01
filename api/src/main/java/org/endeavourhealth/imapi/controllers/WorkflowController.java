@@ -65,7 +65,7 @@ public class WorkflowController {
     }
 
     @GetMapping(value = "/getUnassignedTasks", produces = "application/json")
-    @PreAuthorize("hasAuthority('taskManager')")
+    @PreAuthorize("hasAuthority('IMAdmin')")
     public WorkflowResponse getUnassignedTasks(HttpServletRequest request, @RequestParam(name = "page", required = false, defaultValue = "1") Integer page, @RequestParam(name = "size", required = false, defaultValue = "25") Integer size) throws JsonProcessingException {
         LOG.debug("getUnassignedTasks");
         WorkflowRequest wfRequest = new WorkflowRequest(request);

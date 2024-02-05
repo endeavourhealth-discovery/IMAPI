@@ -1,18 +1,18 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.endeavourhealth.imapi.aws.AWSCognitoClient;
+import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.filer.rdf4j.TaskFilerRdf4j;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.model.workflow.bugReport.*;
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -20,8 +20,6 @@ import org.endeavourhealth.imapi.vocabulary.WORKFLOW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.*;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.StringJoiner;
 
@@ -32,12 +30,13 @@ import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.*;
 public class WorkflowRepository {
     private static final Logger LOG = LoggerFactory.getLogger(WorkflowRepository.class);
     private final TaskFilerRdf4j taskFilerRdf4j = new TaskFilerRdf4j();
-    public void createBugReport(BugReport bugReport) throws TaskFilerException {
+    private final AWSCognitoClient awsCognitoClient = new AWSCognitoClient();
+    public void createBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
         if (null == bugReport.getId() || bugReport.getId().getIri().isEmpty()) bugReport.setId(TTIriRef.iri(generateId()));
         taskFilerRdf4j.fileBugReport(bugReport);
     }
 
-    public BugReport getBugReport(String id) {
+    public BugReport getBugReport(String id) throws UserNotFoundException {
         StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator());
         sparqlJoiner.add("SELECT ?s ?typeData ?createdByData ?assignedToData ?productData ?moduleData ?versionData ?osData ?browserData ?severityData ?statusData ?errorData ?descriptionData ?reproduceStepsData ?expectedResultData ?dateCreatedData ?stateData ");
         sparqlJoiner.add("WHERE { ");
@@ -75,6 +74,8 @@ public class WorkflowRepository {
                     mapBugReportFromBindingSet(bugReport,bs);
                     return bugReport;
                 }
+            } catch (UserNotFoundException e) {
+                throw e;
             }
         }
         return null;
@@ -84,11 +85,11 @@ public class WorkflowRepository {
         taskFilerRdf4j.deleteTask(taskId);
     }
 
-    public void replaceBugReport(BugReport bugReport) throws TaskFilerException {
+    public void replaceBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
         taskFilerRdf4j.replaceBugReport(bugReport);
     }
 
-    public WorkflowResponse getTasksByCreatedBy(WorkflowRequest request) {
+    public WorkflowResponse getTasksByCreatedBy(WorkflowRequest request) throws UserNotFoundException {
         StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator());
         sparqlJoiner.add("SELECT ?s ?createdByData ?typeData ?assignedToData ?stateData ?dateCreatedData WHERE {");
         sparqlJoiner.add("?s ?createdBy ?createdByData ;");
@@ -138,7 +139,7 @@ public class WorkflowRepository {
         return null;
     }
 
-    public WorkflowResponse getTasksByAssignedTo(WorkflowRequest request) {
+    public WorkflowResponse getTasksByAssignedTo(WorkflowRequest request) throws UserNotFoundException {
         StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator());
         sparqlJoiner.add("SELECT ?s ?createdByData ?typeData ?assignedToData ?stateData ?dateCreatedData WHERE {");
         sparqlJoiner.add("?s ?createdBy ?createdByData ;");
@@ -188,7 +189,7 @@ public class WorkflowRepository {
         return null;
     }
 
-    public WorkflowResponse getUnassignedTasks(WorkflowRequest request) {
+    public WorkflowResponse getUnassignedTasks(WorkflowRequest request) throws UserNotFoundException {
         StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator());
         sparqlJoiner.add("SELECT ?s ?createdByData ?typeData ?assignedToData ?stateData ?dateCreatedData WHERE {");
         sparqlJoiner.add("?s ?createdBy ?createdByData ;");
@@ -213,6 +214,8 @@ public class WorkflowRepository {
                     mapTaskFromBindingSet(task,bs);
                     response.addTask(task);
                 }
+            } catch (UserNotFoundException e) {
+                throw e;
             }
         }
         response.setPage(null == request.getPage() ? 1 : request.getPage());
@@ -220,9 +223,39 @@ public class WorkflowRepository {
         return response;
     }
 
-    public void createRoleRequest(RoleRequest roleRequest) throws TaskFilerException {
+    public void createRoleRequest(RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException {
         if (null == roleRequest.getId() || roleRequest.getId().getIri().isEmpty()) roleRequest.setId(TTIriRef.iri(generateId()));
         taskFilerRdf4j.fileRoleRequest(roleRequest);
+    }
+
+    public RoleRequest getRoleRequest(String id) throws UserNotFoundException {
+        StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator());
+        sparqlJoiner.add("SELECT ?s ?typeData ?createdByData ?assignedToData ?productData ?moduleData ?versionData ?osData ?browserData ?severityData ?statusData ?errorData ?descriptionData ?reproduceStepsData ?expectedResultData ?dateCreatedData ?stateData ");
+        sparqlJoiner.add("WHERE { ");
+        sparqlJoiner.add("?s ?type ?typeData ;");
+        sparqlJoiner.add("?createdBy ?createdByData ;");
+        sparqlJoiner.add("?assignedTo ?assignedToData ;");
+        sparqlJoiner.add("?state ?stateData ;");
+        sparqlJoiner.add("?dateCreated ?dateCreatedData ;");
+        sparqlJoiner.add("?role ?roleData .");
+        sparqlJoiner.add("}");
+        String sparql = sparqlJoiner.toString();
+
+        try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {
+            TupleQuery qry = prepareSparql(conn, sparql);
+            setBugReportBindings(qry);
+            qry.setBinding("s",iri(id));
+
+            try (TupleQueryResult rs = qry.evaluate()) {
+                if (rs.hasNext()) {
+                    RoleRequest roleRequest = new RoleRequest();
+                    BindingSet bs = rs.next();
+                    mapRoleRequestFromBindingSet(roleRequest,bs);
+                    return roleRequest;
+                }
+            }
+        }
+        return null;
     }
 
     public String generateId() {
@@ -268,13 +301,8 @@ public class WorkflowRepository {
         qry.setBinding("actualResult",iri(WORKFLOW.ACTUAL_RESULT));
     }
 
-    private void mapBugReportFromBindingSet(BugReport bugReport, BindingSet bs) {
-        bugReport.setId(TTIriRef.iri(bs.getValue("s").stringValue()));
-        bugReport.setType(TaskType.valueOf(bs.getValue("typeData").stringValue()));
-        bugReport.setCreatedBy(bs.getValue("createdByData").toString());
-        bugReport.setAssignedTo(bs.getValue("assignedToData").stringValue());
-        bugReport.setState(TaskState.valueOf(bs.getValue("stateData").stringValue()));
-        bugReport.setDateCreated(LocalDate.parse(bs.getValue("dateCreatedData").stringValue()));
+    private void mapBugReportFromBindingSet(BugReport bugReport, BindingSet bs) throws UserNotFoundException {
+        mapTaskFromBindingSet(bugReport, bs);
         if (null != bs.getValue("productData")) bugReport.setProduct(bs.getValue("productData").stringValue());
         if (null != bs.getValue("moduleData")) bugReport.setModule(TaskModule.valueOf(bs.getValue("moduleData").stringValue()));
         if (null != bs.getValue("versionData")) bugReport.setVersion(bs.getValue("versionData").stringValue());
@@ -291,12 +319,18 @@ public class WorkflowRepository {
         if (null != bs.getValue("actualResultData")) bugReport.setActualResult(bs.getValue("actualResultData").stringValue());
     }
 
-    private void mapTaskFromBindingSet(Task task, BindingSet bs) {
+    private void mapTaskFromBindingSet(Task task, BindingSet bs) throws UserNotFoundException {
         task.setId(TTIriRef.iri(bs.getValue("s").stringValue()));
         task.setType(TaskType.valueOf(bs.getValue("typeData").stringValue()));
-        task.setCreatedBy(bs.getValue("createdByData").stringValue());
-        task.setAssignedTo(bs.getValue("assignedToData").stringValue());
+        task.setCreatedBy(awsCognitoClient.adminGetUser(bs.getValue("createdByData").stringValue()));
+        if (!bs.getValue("assignedToData").stringValue().equals("UNASSIGNED")) task.setAssignedTo(awsCognitoClient.adminGetUser(bs.getValue("assignedToData").stringValue()));
+        else task.setAssignedTo(bs.getValue("assignedToData").stringValue());
         task.setState(TaskState.valueOf(bs.getValue("stateData").stringValue()));
         task.setDateCreated(LocalDate.parse(bs.getValue("dateCreatedData").stringValue()));
+    }
+
+    private void mapRoleRequestFromBindingSet(RoleRequest roleRequest, BindingSet bs) throws UserNotFoundException {
+        mapTaskFromBindingSet(roleRequest, bs);
+        if (null != bs.getValue("roleData")) roleRequest.setRole(UserRole.valueOf(bs.getValue("roleData").stringValue()));
     }
 }

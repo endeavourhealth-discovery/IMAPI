@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.WorkflowService;
@@ -29,7 +30,7 @@ public class WorkflowController {
     private final RequestObjectService requestObjectService = new RequestObjectService();
 
     @PostMapping(value = "/createBugReport")
-    public void createBugReport(HttpServletRequest request, @RequestBody BugReport bugReport) throws JsonProcessingException, TaskFilerException {
+    public void createBugReport(HttpServletRequest request, @RequestBody BugReport bugReport) throws JsonProcessingException, TaskFilerException, UserNotFoundException {
         LOG.debug("createBugReport");
         String id = requestObjectService.getRequestAgentId(request);
         if (null == bugReport.getCreatedBy()) bugReport.setCreatedBy(id);
@@ -38,13 +39,13 @@ public class WorkflowController {
 
     @GetMapping(value = "/getBugReport", produces = "application/json")
     @PreAuthorize("hasAuthority('IMAdmin')")
-    public BugReport getBugReport(@RequestParam(name = "id") String id) {
+    public BugReport getBugReport(@RequestParam(name = "id") String id) throws UserNotFoundException {
         LOG.debug("getBugReport");
         return workflowService.getBugReport(id);
     }
 
     @GetMapping(value = "/getTasksByCreatedBy",produces = "application/json")
-    public WorkflowResponse getTasksByCreatedBy(HttpServletRequest request, @RequestParam(name = "page",required = false, defaultValue = "1") Integer page, @RequestParam(name = "size", required = false, defaultValue = "25") int size) throws JsonProcessingException {
+    public WorkflowResponse getTasksByCreatedBy(HttpServletRequest request, @RequestParam(name = "page",required = false, defaultValue = "1") Integer page, @RequestParam(name = "size", required = false, defaultValue = "25") int size) throws JsonProcessingException, UserNotFoundException {
         LOG.debug("getWorkflowsByCreatedBy");
         WorkflowRequest wfRequest = new WorkflowRequest(request);
         if (page != 0) wfRequest.setPage(page);
@@ -53,7 +54,7 @@ public class WorkflowController {
     }
 
     @GetMapping(value = "/getTasksByAssignedTo", produces = "application/json")
-    public WorkflowResponse getTasksByAssignedTo(HttpServletRequest request, @RequestParam(name = "page", required = false, defaultValue = "1") Integer page, @RequestParam(name = "size", required = false, defaultValue = "25") Integer size) throws JsonProcessingException {
+    public WorkflowResponse getTasksByAssignedTo(HttpServletRequest request, @RequestParam(name = "page", required = false, defaultValue = "1") Integer page, @RequestParam(name = "size", required = false, defaultValue = "25") Integer size) throws JsonProcessingException, UserNotFoundException {
         LOG.debug("getWorkflowsByAssignedTo");
         WorkflowRequest wfRequest = new WorkflowRequest(request);
         if (page != 0) wfRequest.setPage(page);
@@ -63,7 +64,7 @@ public class WorkflowController {
 
     @GetMapping(value = "/getUnassignedTasks", produces = "application/json")
     @PreAuthorize("hasAuthority('IMAdmin')")
-    public WorkflowResponse getUnassignedTasks(HttpServletRequest request, @RequestParam(name = "page", required = false, defaultValue = "1") Integer page, @RequestParam(name = "size", required = false, defaultValue = "25") Integer size) throws JsonProcessingException {
+    public WorkflowResponse getUnassignedTasks(HttpServletRequest request, @RequestParam(name = "page", required = false, defaultValue = "1") Integer page, @RequestParam(name = "size", required = false, defaultValue = "25") Integer size) throws JsonProcessingException, UserNotFoundException {
         LOG.debug("getUnassignedTasks");
         WorkflowRequest wfRequest = new WorkflowRequest(request);
         if (page != 0) wfRequest.setPage(page);
@@ -77,7 +78,7 @@ public class WorkflowController {
     }
 
     @PostMapping(value = "/createRoleRequest")
-    public void createRoleRequest(HttpServletRequest request, @RequestBody RoleRequest roleRequest) throws JsonProcessingException, TaskFilerException {
+    public void createRoleRequest(HttpServletRequest request, @RequestBody RoleRequest roleRequest) throws JsonProcessingException, TaskFilerException, UserNotFoundException {
         String id = requestObjectService.getRequestAgentId(request);
         if (null == roleRequest.getCreatedBy()) roleRequest.setCreatedBy(id);
         workflowService.createRoleRequest(roleRequest);

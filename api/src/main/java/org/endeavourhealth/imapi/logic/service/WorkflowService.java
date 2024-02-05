@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -16,24 +17,26 @@ public class WorkflowService {
     private final WorkflowRepository workflowRepository = new WorkflowRepository();
     private final FilerService filerService = new FilerService();
 
-    public void createBugReport(BugReport bugReport) throws TaskFilerException {
+    public WorkflowService() {}
+
+    public void createBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
         bugReport.setId(generateId());
         workflowRepository.createBugReport(bugReport);
     }
 
-    public BugReport getBugReport(String id) {
+    public BugReport getBugReport(String id) throws UserNotFoundException {
         return workflowRepository.getBugReport(id);
     }
 
-    public WorkflowResponse getTasksByCreatedBy(WorkflowRequest request) {
+    public WorkflowResponse getTasksByCreatedBy(WorkflowRequest request) throws UserNotFoundException {
         return workflowRepository.getTasksByCreatedBy(request);
     }
 
-    public WorkflowResponse getTasksByAssignedTo(WorkflowRequest request) {
+    public WorkflowResponse getTasksByAssignedTo(WorkflowRequest request) throws UserNotFoundException {
         return workflowRepository.getTasksByAssignedTo(request);
     }
 
-    public WorkflowResponse getUnassignedTasks(WorkflowRequest request) {
+    public WorkflowResponse getUnassignedTasks(WorkflowRequest request) throws UserNotFoundException {
         return workflowRepository.getUnassignedTasks(request);
     }
 
@@ -44,7 +47,7 @@ public class WorkflowService {
         return TTIriRef.iri(workflowRepository.generateId());
     }
 
-    public void createRoleRequest(RoleRequest roleRequest) throws TaskFilerException {
+    public void createRoleRequest(RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException {
         roleRequest.setId(generateId());
         workflowRepository.createRoleRequest(roleRequest);
     }

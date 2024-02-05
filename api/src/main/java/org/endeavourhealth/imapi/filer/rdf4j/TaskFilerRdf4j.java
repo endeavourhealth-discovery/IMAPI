@@ -6,11 +6,14 @@ import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.query.UpdateExecutionException;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
+import org.endeavourhealth.imapi.aws.AWSCognitoClient;
+import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.service.EmailService;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.model.workflow.BugReport;
 import org.endeavourhealth.imapi.model.workflow.RoleRequest;
+import org.endeavourhealth.imapi.model.workflow.Task;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Browser;
 import org.endeavourhealth.imapi.model.workflow.bugReport.OperatingSystem;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Severity;
@@ -19,6 +22,7 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.WORKFLOW;
+import org.joni.Regex;
 
 import java.util.StringJoiner;
 
@@ -27,20 +31,22 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 
 public class TaskFilerRdf4j {
     private RepositoryConnection conn;
-    private EmailService emailService = new EmailService(
-        System.getenv("EMAILER_HOST"),
-        Integer.parseInt(System.getenv("EMAILER_PORT")),
-        System.getenv("EMAILER_USERNAME"),
-        System.getenv("EMAILER_PASSWORD")
-    );
-    public TaskFilerRdf4j(RepositoryConnection conn) {
+//    private EmailService emailService = new EmailService(
+//        System.getenv("EMAILER_HOST"),
+//        Integer.parseInt(System.getenv("EMAILER_PORT")),
+//        System.getenv("EMAILER_USERNAME"),
+//        System.getenv("EMAILER_PASSWORD")
+//    );
+    private AWSCognitoClient awsCognitoClient;
+    public TaskFilerRdf4j(RepositoryConnection conn, AWSCognitoClient awsCognitoClient) {
         this.conn = conn;
     }
     public TaskFilerRdf4j() {
-        this(ConnectionManager.getWorkflowConnection());
+        this(ConnectionManager.getWorkflowConnection(),new AWSCognitoClient());
     }
 
-    public void fileBugReport(BugReport bugReport) throws TaskFilerException {
+    public void fileBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
+        replaceUsernameWithId(bugReport);
         try {
             ModelBuilder builder = new ModelBuilder();
             builder.add(iri(bugReport.getId().getIri()), iri(WORKFLOW.CREATED_BY),literal(bugReport.getCreatedBy()));
@@ -65,15 +71,16 @@ public class TaskFilerRdf4j {
             conn.add(builder.build());
             String emailSubject = "New bug report added: [" + bugReport.getId().getIri() + "]";
             String emailContent = "Click <a href=\"https://im.endhealth.net/#/workflow/bugReport/" + bugReport.getId().getIri() + "\">here</a>";
-            emailService.sendMail(emailSubject, emailContent);
+//            emailService.sendMail(emailSubject, emailContent);
         } catch (RepositoryException e) {
             throw new TaskFilerException("Failed to file task", e);
-        } catch (MessagingException e) {
-            throw new TaskFilerException("Failed to send email",e);
+//        } catch (MessagingException e) {
+//            throw new TaskFilerException("Failed to send email",e);
         }
     }
 
-    public void fileRoleRequest(RoleRequest roleRequest) throws TaskFilerException {
+    public void fileRoleRequest(RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException {
+        replaceUsernameWithId(roleRequest);
         try {
             ModelBuilder builder = new ModelBuilder();
             builder.add(iri(roleRequest.getId().getIri()), iri(WORKFLOW.CREATED_BY),literal(roleRequest.getCreatedBy()));
@@ -85,11 +92,11 @@ public class TaskFilerRdf4j {
             conn.add(builder.build());
             String emailSubject = "New role request added: [" + roleRequest.getId().getIri() + "]";
             String emailContent = "Click <a href=\"https://im.endhealth.net/#/workflow/roleRequest/" + roleRequest.getId().getIri() + "\">here</a>";
-            emailService.sendMail(emailSubject, emailContent);
+//            emailService.sendMail(emailSubject, emailContent);
         } catch (RepositoryException e) {
             throw new TaskFilerException("Failed to file task", e);
-        } catch (MessagingException e) {
-            throw new TaskFilerException("Failed to send email",e);
+//        } catch (MessagingException e) {
+//            throw new TaskFilerException("Failed to send email",e);
         }
     }
 
@@ -106,8 +113,14 @@ public class TaskFilerRdf4j {
         }
     }
 
-    public void replaceBugReport(BugReport bugReport) throws TaskFilerException {
+    public void replaceBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
         deleteTask(bugReport.getId().getIri());
         fileBugReport(bugReport);
+    }
+
+    private void replaceUsernameWithId(Task task) throws UserNotFoundException {
+        String cognitoIdRegex = "\\w{4,}-\\w{4,}-\\w{4,}-\\w{4,}";
+        if (!task.getCreatedBy().matches(cognitoIdRegex)) task.setCreatedBy(awsCognitoClient.adminGetId(task.getCreatedBy()));
+        if (!(task.getAssignedTo().matches(cognitoIdRegex) || task.getAssignedTo().equals("UNASSIGNED"))) task.setAssignedTo(awsCognitoClient.adminGetId(task.getAssignedTo()));
     }
 }

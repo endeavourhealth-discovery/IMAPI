@@ -7,6 +7,6 @@ public enum UserRole {
     CREATOR,
     EDITOR,
     TASK_MANAGER,
-    AUTHORISOR,
+    AUTHORISER,
     APPROVER;
 }

@@ -61,6 +61,9 @@ dependencies {
     implementation libs.apacheCollections4
     implementation libs.apachePoi
     implementation libs.apacheText
+    implementation libs.awsCognitoIDP
+    implementation libs.awsSDK
+    implementation libs.awsSDKCore
     implementation libs.awsS3
     implementation libs.factPlusPlus
     implementation libs.jacksonDatabind

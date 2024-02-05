@@ -39,7 +39,8 @@ public class EmailService {
         Multipart multipart = new MimeMultipart();
         multipart.addBodyPart(mimeBodyPart);
         message.setContent(multipart);
-        Transport.send(message);
+        if ("production".equals(System.getProperty("MODE"))) Transport.send(message);
+        else System.out.println("Email sent");
     }
 
     public void sendMailWithAttachment(String subject, String content, File attachment) throws MessagingException, IOException {
@@ -53,7 +54,8 @@ public class EmailService {
         multipart.addBodyPart(mimeBodyPart);
         multipart.addBodyPart(attachmentBodyPart);
         message.setContent(multipart);
-        Transport.send(message);
+        if ("production".equals(System.getProperty("MODE"))) Transport.send(message);
+        else System.out.println("Email with attachment sent");
     }
 
     private Session setupSession() {

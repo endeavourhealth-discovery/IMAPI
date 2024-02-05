@@ -3,10 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.workflow.BugReport;
-import org.endeavourhealth.imapi.model.workflow.Task;
-import org.endeavourhealth.imapi.model.workflow.WorkflowRequest;
-import org.endeavourhealth.imapi.model.workflow.WorkflowResponse;
+import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.statemachine.StateMachineConfig;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.stereotype.Component;
@@ -45,5 +42,10 @@ public class WorkflowService {
     }
     public TTIriRef generateId() {
         return TTIriRef.iri(workflowRepository.generateId());
+    }
+
+    public void createRoleRequest(RoleRequest roleRequest) throws TaskFilerException {
+        roleRequest.setId(generateId());
+        workflowRepository.createRoleRequest(roleRequest);
     }
 }

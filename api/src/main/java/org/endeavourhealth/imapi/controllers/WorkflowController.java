@@ -6,10 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.WorkflowService;
-import org.endeavourhealth.imapi.model.workflow.BugReport;
-import org.endeavourhealth.imapi.model.workflow.Task;
-import org.endeavourhealth.imapi.model.workflow.WorkflowRequest;
-import org.endeavourhealth.imapi.model.workflow.WorkflowResponse;
+import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.statemachine.StateMachineConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,5 +74,12 @@ public class WorkflowController {
     @DeleteMapping(value = "/deleteTask")
     public void deleteTask(@RequestParam(name = "id") String id) throws TaskFilerException {
         workflowService.deleteTask(id);
+    }
+
+    @PostMapping(value = "/createRoleRequest")
+    public void createRoleRequest(HttpServletRequest request, @RequestBody RoleRequest roleRequest) throws JsonProcessingException, TaskFilerException {
+        String id = requestObjectService.getRequestAgentId(request);
+        if (null == roleRequest.getCreatedBy()) roleRequest.setCreatedBy(id);
+        workflowService.createRoleRequest(roleRequest);
     }
 }

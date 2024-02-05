@@ -220,6 +220,11 @@ public class WorkflowRepository {
         return response;
     }
 
+    public void createRoleRequest(RoleRequest roleRequest) throws TaskFilerException {
+        if (null == roleRequest.getId() || roleRequest.getId().getIri().isEmpty()) roleRequest.setId(TTIriRef.iri(generateId()));
+        taskFilerRdf4j.fileRoleRequest(roleRequest);
+    }
+
     public String generateId() {
         String sparql = "SELECT DISTINCT ?s WHERE {?s ?p ?o .} ORDER BY DESC (?s) LIMIT 1";
         try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {

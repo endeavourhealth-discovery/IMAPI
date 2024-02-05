@@ -1620,6 +1620,10 @@
       {
         "name": "RELATED_VERSION",
         "value": "WORKFLOW.NAMESPACE + \"relatedVersion\""
+      },
+      {
+        "name": "REQUESTED_ROLE",
+        "value": "WORKFLOW.NAMESPACE + \"requestedRole\""
       }
     ]
   },

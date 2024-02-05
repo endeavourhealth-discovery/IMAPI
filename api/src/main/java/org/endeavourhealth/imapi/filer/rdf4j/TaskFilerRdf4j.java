@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.service.EmailService;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.model.workflow.BugReport;
+import org.endeavourhealth.imapi.model.workflow.RoleRequest;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Browser;
 import org.endeavourhealth.imapi.model.workflow.bugReport.OperatingSystem;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Severity;
@@ -27,10 +28,10 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 public class TaskFilerRdf4j {
     private RepositoryConnection conn;
     private EmailService emailService = new EmailService(
-        System.getenv("emailerHost"),
-        Integer.parseInt(System.getenv("emailerPort")),
-        System.getenv("emailerUsername"),
-        System.getenv("emailerPassword")
+        System.getenv("EMAILER_HOST"),
+        Integer.parseInt(System.getenv("EMAILER_PORT")),
+        System.getenv("EMAILER_USERNAME"),
+        System.getenv("EMAILER_PASSWORD")
     );
     public TaskFilerRdf4j(RepositoryConnection conn) {
         this.conn = conn;
@@ -64,6 +65,26 @@ public class TaskFilerRdf4j {
             conn.add(builder.build());
             String emailSubject = "New bug report added: [" + bugReport.getId().getIri() + "]";
             String emailContent = "Click <a href=\"https://im.endhealth.net/#/workflow/bugReport/" + bugReport.getId().getIri() + "\">here</a>";
+            emailService.sendMail(emailSubject, emailContent);
+        } catch (RepositoryException e) {
+            throw new TaskFilerException("Failed to file task", e);
+        } catch (MessagingException e) {
+            throw new TaskFilerException("Failed to send email",e);
+        }
+    }
+
+    public void fileRoleRequest(RoleRequest roleRequest) throws TaskFilerException {
+        try {
+            ModelBuilder builder = new ModelBuilder();
+            builder.add(iri(roleRequest.getId().getIri()), iri(WORKFLOW.CREATED_BY),literal(roleRequest.getCreatedBy()));
+            builder.add(iri(roleRequest.getId().getIri()), iri(RDF.TYPE),literal(roleRequest.getType()));
+            builder.add(iri(roleRequest.getId().getIri()), iri(WORKFLOW.STATE),literal(roleRequest.getState()));
+            builder.add(iri(roleRequest.getId().getIri()), iri(WORKFLOW.ASSIGNED_TO),literal(null == roleRequest.getAssignedTo() ? "UNASSIGNED" : roleRequest.getAssignedTo() ));
+            builder.add(iri(roleRequest.getId().getIri()), iri(WORKFLOW.DATE_CREATED),literal(roleRequest.getDateCreated()));
+            builder.add(iri(roleRequest.getId().getIri()), iri(WORKFLOW.REQUESTED_ROLE),literal(roleRequest.getRole()));
+            conn.add(builder.build());
+            String emailSubject = "New role request added: [" + roleRequest.getId().getIri() + "]";
+            String emailContent = "Click <a href=\"https://im.endhealth.net/#/workflow/roleRequest/" + roleRequest.getId().getIri() + "\">here</a>";
             emailService.sendMail(emailSubject, emailContent);
         } catch (RepositoryException e) {
             throw new TaskFilerException("Failed to file task", e);

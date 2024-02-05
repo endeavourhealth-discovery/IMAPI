@@ -15,6 +15,17 @@ public class Task {
     private String assignedTo;
     private LocalDate dateCreated;
 
+    public Task(TTIriRef id, String createdBy, TaskType type, TaskState state, String assignedTo, LocalDate dateCreated) {
+        this.id = id;
+        this.createdBy = createdBy;
+        this.type = type;
+        this.state = state;
+        this.assignedTo = assignedTo;
+        this.dateCreated = dateCreated;
+    }
+
+    public Task() {}
+
     public Task setId(TTIriRef id) {
         this.id = id;
         return this;

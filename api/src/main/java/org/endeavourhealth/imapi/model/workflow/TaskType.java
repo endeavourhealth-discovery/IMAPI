@@ -1,7 +1,8 @@
 package org.endeavourhealth.imapi.model.workflow;
 
 public enum TaskType {
-    BUG_REPORT("bug report");
+    BUG_REPORT("bug report"),
+    ROLE_REQUEST("role request");
 
     private String text;
 

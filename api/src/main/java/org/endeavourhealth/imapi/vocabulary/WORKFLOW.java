@@ -22,4 +22,5 @@ public class WORKFLOW {
     public static final String EXPECTED_RESULT = WORKFLOW.NAMESPACE + "expectedResult";
     public static final String ACTUAL_RESULT = WORKFLOW.NAMESPACE + "actualResult";
     public static final String RELATED_VERSION = WORKFLOW.NAMESPACE + "relatedVersion";
+    public static final String REQUESTED_ROLE = WORKFLOW.NAMESPACE + "requestedRole";
 }

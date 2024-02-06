@@ -2,8 +2,13 @@ package org.endeavourhealth.imapi.model.workflow;
 
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.workflow.task.TaskHistory;
+import org.endeavourhealth.imapi.model.workflow.task.TaskState;
+import org.endeavourhealth.imapi.model.workflow.task.TaskType;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 public class Task {
@@ -14,14 +19,16 @@ public class Task {
     private TaskState state;
     private String assignedTo;
     private LocalDate dateCreated;
+    private List<TaskHistory> history;
 
-    public Task(TTIriRef id, String createdBy, TaskType type, TaskState state, String assignedTo, LocalDate dateCreated) {
+    public Task(TTIriRef id, String createdBy, TaskType type, TaskState state, String assignedTo, LocalDate dateCreated, List<TaskHistory> history) {
         this.id = id;
         this.createdBy = createdBy;
         this.type = type;
         this.state = state;
         this.assignedTo = assignedTo;
         this.dateCreated = dateCreated;
+        this.history = history;
     }
 
     public Task() {}
@@ -53,6 +60,17 @@ public class Task {
 
     public Task setDateCreated(LocalDate dateCreated) {
         this.dateCreated = dateCreated;
+        return this;
+    }
+
+    public Task setHistory(List<TaskHistory> history) {
+        this.history = history;
+        return this;
+    }
+
+    public Task addTaskHistory(TaskHistory taskHistory) {
+        if (null == this.history) this.history = new ArrayList<>();
+        this.history.add(taskHistory);
         return this;
     }
 }

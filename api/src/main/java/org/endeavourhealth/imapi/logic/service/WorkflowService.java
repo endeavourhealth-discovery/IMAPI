@@ -51,4 +51,13 @@ public class WorkflowService {
         roleRequest.setId(generateId());
         workflowRepository.createRoleRequest(roleRequest);
     }
+
+    public RoleRequest getRoleRequest(String id) throws UserNotFoundException {
+        return workflowRepository.getRoleRequest(id);
+    }
+
+    public void createEntityApproval(EntityApproval entityApproval) throws UserNotFoundException, TaskFilerException {
+        entityApproval.setId(generateId());
+        workflowRepository.createEntityApproval(entityApproval);
+    }
 }

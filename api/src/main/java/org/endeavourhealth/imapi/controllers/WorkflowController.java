@@ -83,4 +83,19 @@ public class WorkflowController {
         if (null == roleRequest.getCreatedBy()) roleRequest.setCreatedBy(id);
         workflowService.createRoleRequest(roleRequest);
     }
+
+    @GetMapping(value = "/getRoleRequest", produces = "application/json")
+    @PreAuthorize("hasAuthority('IMAdmin')")
+    public RoleRequest getRoleRequest(@RequestParam(name = "id") String id) throws UserNotFoundException {
+        LOG.debug("getRoleRequest");
+        return workflowService.getRoleRequest(id);
+    }
+
+    @PostMapping(value = "/createEntityApproval")
+    public void createEntityApproval(HttpServletRequest request, @RequestBody EntityApproval entityApproval) throws JsonProcessingException, UserNotFoundException, TaskFilerException {
+        LOG.debug("createEntityApproval");
+        String id = requestObjectService.getRequestAgentId(request);
+        if (null == entityApproval.getCreatedBy()) entityApproval.setCreatedBy(id);
+        workflowService.createEntityApproval(entityApproval);
+    }
 }

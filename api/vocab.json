@@ -1624,6 +1624,14 @@
       {
         "name": "REQUESTED_ROLE",
         "value": "WORKFLOW.NAMESPACE + \"requestedRole\""
+      },
+      {
+        "name": "APPROVAL_TYPE",
+        "value": "WORKFLOW.NAMESPACE + \"approvalType\""
+      },
+      {
+        "name": "TASK_HISTORY",
+        "value": "WORKFLOW.NAMESPACE + \"taskHistory\""
       }
     ]
   },

@@ -3,6 +3,8 @@ package org.endeavourhealth.imapi.model.workflow;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
+import org.endeavourhealth.imapi.model.workflow.task.TaskState;
+import org.endeavourhealth.imapi.model.workflow.task.TaskType;
 
 import java.time.LocalDate;
 

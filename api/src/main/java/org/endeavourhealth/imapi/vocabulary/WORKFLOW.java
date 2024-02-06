@@ -23,4 +23,6 @@ public class WORKFLOW {
     public static final String ACTUAL_RESULT = WORKFLOW.NAMESPACE + "actualResult";
     public static final String RELATED_VERSION = WORKFLOW.NAMESPACE + "relatedVersion";
     public static final String REQUESTED_ROLE = WORKFLOW.NAMESPACE + "requestedRole";
+    public static final String APPROVAL_TYPE = WORKFLOW.NAMESPACE + "approvalType";
+    public static final String TASK_HISTORY = WORKFLOW.NAMESPACE + "taskHistory";
 }

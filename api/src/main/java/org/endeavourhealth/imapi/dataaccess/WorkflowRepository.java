@@ -13,6 +13,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.model.workflow.bugReport.*;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
+import org.endeavourhealth.imapi.model.workflow.task.TaskState;
+import org.endeavourhealth.imapi.model.workflow.task.TaskType;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -256,6 +258,11 @@ public class WorkflowRepository {
             }
         }
         return null;
+    }
+
+    public void createEntityApproval(EntityApproval entityApproval) throws UserNotFoundException, TaskFilerException {
+        if (null == entityApproval.getId() || entityApproval.getId().getIri().isEmpty()) entityApproval.setId(TTIriRef.iri(generateId()));
+        taskFilerRdf4j.fileEntityApproval(entityApproval);
     }
 
     public String generateId() {

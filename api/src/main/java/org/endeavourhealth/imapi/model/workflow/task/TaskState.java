@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.workflow;
+package org.endeavourhealth.imapi.model.workflow.task;
 
 public enum TaskState {
     TODO("to do"),

@@ -72,6 +72,12 @@ public class WorkflowController {
         return workflowService.getUnassignedTasks(wfRequest);
     }
 
+    @GetMapping(value = "/getTask", produces = "application/json")
+    public Task getTask(@RequestParam(name = "id") String id) throws UserNotFoundException {
+        LOG.debug("getTask");
+        return workflowService.getTask(id);
+    }
+
     @DeleteMapping(value = "/deleteTask")
     public void deleteTask(@RequestParam(name = "id") String id) throws TaskFilerException {
         workflowService.deleteTask(id);
@@ -97,5 +103,12 @@ public class WorkflowController {
         String id = requestObjectService.getRequestAgentId(request);
         if (null == entityApproval.getCreatedBy()) entityApproval.setCreatedBy(id);
         workflowService.createEntityApproval(entityApproval);
+    }
+
+    @PostMapping(value = "/updateTask")
+    public void updateTask(HttpServletRequest request, @RequestBody Task task) throws JsonProcessingException, UserNotFoundException, TaskFilerException {
+        LOG.debug("updateTask");
+        String id = requestObjectService.getRequestAgentId(request);
+        workflowService.updateTask(task, id);
     }
 }

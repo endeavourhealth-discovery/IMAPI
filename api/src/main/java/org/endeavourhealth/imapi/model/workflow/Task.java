@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.model.workflow.task.TaskState;
 import org.endeavourhealth.imapi.model.workflow.task.TaskType;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,10 +19,10 @@ public class Task {
     private TaskType type;
     private TaskState state;
     private String assignedTo;
-    private LocalDate dateCreated;
+    private LocalDateTime dateCreated;
     private List<TaskHistory> history;
 
-    public Task(TTIriRef id, String createdBy, TaskType type, TaskState state, String assignedTo, LocalDate dateCreated, List<TaskHistory> history) {
+    public Task(TTIriRef id, String createdBy, TaskType type, TaskState state, String assignedTo, LocalDateTime dateCreated, List<TaskHistory> history) {
         this.id = id;
         this.createdBy = createdBy;
         this.type = type;
@@ -58,7 +59,7 @@ public class Task {
         return this;
     }
 
-    public Task setDateCreated(LocalDate dateCreated) {
+    public Task setDateCreated(LocalDateTime dateCreated) {
         this.dateCreated = dateCreated;
         return this;
     }

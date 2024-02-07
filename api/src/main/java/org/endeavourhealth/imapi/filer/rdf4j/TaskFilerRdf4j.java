@@ -19,10 +19,12 @@ import org.endeavourhealth.imapi.model.workflow.bugReport.OperatingSystem;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Severity;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Status;
 import org.endeavourhealth.imapi.model.workflow.task.TaskHistory;
+import org.endeavourhealth.imapi.model.workflow.task.TaskState;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.WORKFLOW;
+import java.time.LocalDateTime;
 import org.joni.Regex;
 
 import java.util.StringJoiner;
@@ -39,7 +41,7 @@ public class TaskFilerRdf4j {
 //        System.getenv("EMAILER_USERNAME"),
 //        System.getenv("EMAILER_PASSWORD")
 //    );
-    private AWSCognitoClient awsCognitoClient;
+    private final AWSCognitoClient awsCognitoClient = new AWSCognitoClient();
     public TaskFilerRdf4j(RepositoryConnection conn, AWSCognitoClient awsCognitoClient) {
         this.conn = conn;
     }
@@ -129,27 +131,28 @@ public class TaskFilerRdf4j {
         fileBugReport(bugReport);
     }
 
-    public void updateTask(String subject, String predicate, String object, Task task) throws TaskFilerException {
+    public void updateTask(String subject, String predicate, String originalObject, String newObject, String userId) throws TaskFilerException, UserNotFoundException {
+        if (predicate.equals(WORKFLOW.ASSIGNED_TO) || predicate.equals(WORKFLOW.CREATED_BY)) newObject = usernameToId(newObject);
         try {
-            String originalObject = getCurrentObject(subject, predicate);
             StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
-            stringJoiner.add("DELETE { ?subject ?predicate ?oldObject }");
-            stringJoiner.add("INSERT { ?subject ?predicate ?object }");
-            stringJoiner.add("WHERE { ?subject ?predicate ?object }");
+            stringJoiner.add("DELETE { ?subject ?predicate ?originalObject }");
+            stringJoiner.add("INSERT { ?subject ?predicate ?newObject }");
+            stringJoiner.add("WHERE { ?subject ?predicate ?originalObject }");
             Update update = conn.prepareUpdate(stringJoiner.toString());
             update.setBinding("subject", iri(subject));
             update.setBinding("predicate", iri(predicate));
-            update.setBinding("object", literal(object));
+            update.setBinding("newObject", literal(newObject));
+            update.setBinding("originalObject",literal(originalObject));
             update.execute();
-            updateHistory(subject, predicate, originalObject, object, task);
+//            updateHistory(subject, predicate, originalObject, newObject, userId);
         } catch (UpdateExecutionException e) {
             throw new TaskFilerException("Failed to update task", e);
         }
     }
 
-    private void updateHistory(String subject, String predicate, String originalObject, String newObject, Task task) throws TaskFilerException {
+    private void updateHistory(String subject, String predicate, String originalObject, String newObject, Task task, String userId) throws TaskFilerException {
         try {
-            task.addTaskHistory(new TaskHistory(subject, predicate, originalObject, newObject));
+            task.addTaskHistory(new TaskHistory(subject, predicate, originalObject, newObject, LocalDateTime.now()));
         } catch (Exception e) {
             throw new TaskFilerException("Update task history failed.", e);
         }
@@ -175,16 +178,22 @@ public class TaskFilerRdf4j {
     }
 
     private void replaceUsernameWithId(Task task) throws UserNotFoundException {
-        String cognitoIdRegex = "\\w{4,}-\\w{4,}-\\w{4,}-\\w{4,}";
-        if (!task.getCreatedBy().matches(cognitoIdRegex)) task.setCreatedBy(awsCognitoClient.adminGetId(task.getCreatedBy()));
-        if (!(task.getAssignedTo().matches(cognitoIdRegex) || task.getAssignedTo().equals("UNASSIGNED"))) task.setAssignedTo(awsCognitoClient.adminGetId(task.getAssignedTo()));
+        String cognitoIdRegex = "[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}";
+        if (null != task.getCreatedBy() && !task.getCreatedBy().matches(cognitoIdRegex)) task.setCreatedBy(awsCognitoClient.adminGetId(task.getCreatedBy()));
+        if (null != task.getAssignedTo() && !(task.getAssignedTo().matches(cognitoIdRegex) || task.getAssignedTo().equals("UNASSIGNED"))) task.setAssignedTo(awsCognitoClient.adminGetId(task.getAssignedTo()));
+    }
+
+    private String usernameToId(String username) throws UserNotFoundException {
+        String cognitoIdRegex = "[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}";
+        if (!username.matches(cognitoIdRegex)) return awsCognitoClient.adminGetId(username);
+        return username;
     }
 
     private void buildTask(ModelBuilder builder, Task task) {
         builder.add(iri(task.getId().getIri()), iri(WORKFLOW.CREATED_BY),literal(task.getCreatedBy()));
         builder.add(iri(task.getId().getIri()), iri(RDF.TYPE),literal(task.getType()));
-        builder.add(iri(task.getId().getIri()), iri(WORKFLOW.STATE),literal(task.getState()));
+        builder.add(iri(task.getId().getIri()), iri(WORKFLOW.STATE),literal(null == task.getState() ? TaskState.TODO : task.getState()));
         builder.add(iri(task.getId().getIri()), iri(WORKFLOW.ASSIGNED_TO),literal(null == task.getAssignedTo() ? "UNASSIGNED" : task.getAssignedTo() ));
-        builder.add(iri(task.getId().getIri()), iri(WORKFLOW.DATE_CREATED),literal(task.getDateCreated()));
+        builder.add(iri(task.getId().getIri()), iri(WORKFLOW.DATE_CREATED),literal(null == task.getDateCreated() ? LocalDateTime.now() : task.getDateCreated()));
     }
 }

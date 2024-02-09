@@ -1,29 +1,25 @@
 package org.endeavourhealth.imapi.model.workflow.task;
 
 import lombok.Getter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.time.LocalDateTime;
 
 @Getter
 public class TaskHistory {
-    private String subject;
     private String predicate;
     private String originalObject;
     private String newObject;
     private LocalDateTime changeDate;
+    private String modifiedBy;
 
     public TaskHistory() {}
-    public TaskHistory(String subject, String predicate, String originalObject, String newObject, LocalDateTime changeDate) {
-        this.subject = subject;
+    public TaskHistory(String predicate, String originalObject, String newObject, LocalDateTime changeDate, String modifiedBy) {
         this.predicate = predicate;
         this.originalObject = originalObject;
         this.newObject = newObject;
         this.changeDate = changeDate;
-    }
-
-    public TaskHistory setSubject(String subject) {
-        this.subject = subject;
-        return this;
+        this.modifiedBy = modifiedBy;
     }
 
     public TaskHistory setPredicate(String predicate) {
@@ -43,6 +39,16 @@ public class TaskHistory {
 
     public TaskHistory setDateTime(LocalDateTime changeDate) {
         this.changeDate = changeDate;
+        return this;
+    }
+
+    public TaskHistory setChangeDate(LocalDateTime changeDate) {
+        this.changeDate = changeDate;
+        return this;
+    }
+
+    public TaskHistory setModifiedBy(String modifiedBy) {
+        this.modifiedBy = modifiedBy;
         return this;
     }
 }

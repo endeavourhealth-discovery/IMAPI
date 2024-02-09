@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.model.workflow.bugReport.*;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
+import org.endeavourhealth.imapi.model.workflow.task.TaskHistory;
 import org.endeavourhealth.imapi.model.workflow.task.TaskState;
 import org.endeavourhealth.imapi.model.workflow.task.TaskType;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -24,6 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringJoiner;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
@@ -82,6 +85,46 @@ public class WorkflowRepository {
             }
         }
         return null;
+    }
+
+    public List<TaskHistory> getHistory(String id) throws UserNotFoundException {
+        StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
+        stringJoiner.add("SELECT ?predicateData ?originalObjectData ?newObjectData ?changeDateData ?modifiedByData WHERE {");
+        stringJoiner.add("?s ?history ?historyId .");
+        stringJoiner.add("?historyId ?predicate ?predicateData ;");
+        stringJoiner.add("?originalObject ?originalObjectData ;");
+        stringJoiner.add("?newObject ?newObjectData ;");
+        stringJoiner.add("?changeDate ?changeDateData ;");
+        stringJoiner.add("?modifiedBy ?modifiedByData .");
+        stringJoiner.add("}");
+        String sparql = stringJoiner.toString();
+        List<TaskHistory> results = new ArrayList<>();
+        try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {
+            TupleQuery qry = prepareSparql(conn, sparql);
+            setBugReportBindings(qry);
+            qry.setBinding("s",iri(id));
+            qry.setBinding("history", iri(WORKFLOW.HISTORY));
+            qry.setBinding("predicate", iri(WORKFLOW.HISTORY_PREDICATE));
+            qry.setBinding("originalObject", iri(WORKFLOW.HISTORY_ORIGINAL_OBJECT));
+            qry.setBinding("newObject", iri(WORKFLOW.HISTORY_NEW_OBJECT));
+            qry.setBinding("changeDate", iri(WORKFLOW.HISTORY_CHANGE_DATE));
+            qry.setBinding("modifiedBy", iri(WORKFLOW.MODIFIED_BY));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    TaskHistory taskHistory = new TaskHistory();
+                    BindingSet bs = rs.next();
+                    taskHistory.setPredicate(bs.getValue("predicateData").stringValue());
+                    if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO) && !bs.getValue("originalObjectData").stringValue().equals("UNASSIGNED")) taskHistory.setOriginalObject(awsCognitoClient.adminGetUser(bs.getValue("originalObjectData").stringValue()));
+                    else taskHistory.setOriginalObject(bs.getValue("originalObjectData").stringValue());
+                    if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO) && !bs.getValue("newObjectData").stringValue().equals("UNASSIGNED")) taskHistory.setNewObject(awsCognitoClient.adminGetUser(bs.getValue("newObjectData").stringValue()));
+                    else taskHistory.setNewObject(bs.getValue("newObjectData").stringValue());
+                    taskHistory.setChangeDate(LocalDateTime.parse(bs.getValue("changeDateData").stringValue()));
+                    taskHistory.setModifiedBy(awsCognitoClient.adminGetUser(bs.getValue("modifiedByData").stringValue()));
+                    results.add(taskHistory);
+                }
+            }
+        }
+        return results;
     }
 
     public void deleteTask(String taskId) throws TaskFilerException {
@@ -360,6 +403,7 @@ public class WorkflowRepository {
         else task.setAssignedTo(bs.getValue("assignedToData").stringValue());
         task.setState(TaskState.valueOf(bs.getValue("stateData").stringValue()));
         task.setDateCreated(LocalDateTime.parse(bs.getValue("dateCreatedData").stringValue()));
+        task.setHistory(getHistory(task.getId().getIri()));
     }
 
     private void mapRoleRequestFromBindingSet(RoleRequest roleRequest, BindingSet bs) throws UserNotFoundException {

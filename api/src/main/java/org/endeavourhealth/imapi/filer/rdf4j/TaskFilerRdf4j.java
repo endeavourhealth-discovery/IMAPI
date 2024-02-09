@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
 import jakarta.mail.MessagingException;
+import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -18,19 +19,19 @@ import org.endeavourhealth.imapi.model.workflow.bugReport.Browser;
 import org.endeavourhealth.imapi.model.workflow.bugReport.OperatingSystem;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Severity;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Status;
-import org.endeavourhealth.imapi.model.workflow.task.TaskHistory;
 import org.endeavourhealth.imapi.model.workflow.task.TaskState;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.WORKFLOW;
+
 import java.time.LocalDateTime;
-import org.joni.Regex;
 
 import java.util.StringJoiner;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.eclipse.rdf4j.model.util.Values.bnode;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.*;
 
 public class TaskFilerRdf4j {
@@ -132,7 +133,10 @@ public class TaskFilerRdf4j {
     }
 
     public void updateTask(String subject, String predicate, String originalObject, String newObject, String userId) throws TaskFilerException, UserNotFoundException {
-        if (predicate.equals(WORKFLOW.ASSIGNED_TO) || predicate.equals(WORKFLOW.CREATED_BY)) newObject = usernameToId(newObject);
+        if (predicate.equals(WORKFLOW.ASSIGNED_TO) || predicate.equals(WORKFLOW.CREATED_BY)) {
+            newObject = usernameToId(newObject);
+            originalObject = usernameToId(originalObject);
+        }
         try {
             StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
             stringJoiner.add("DELETE { ?subject ?predicate ?originalObject }");
@@ -144,19 +148,29 @@ public class TaskFilerRdf4j {
             update.setBinding("newObject", literal(newObject));
             update.setBinding("originalObject",literal(originalObject));
             update.execute();
-//            updateHistory(subject, predicate, originalObject, newObject, userId);
+            updateHistory(subject, predicate, originalObject, newObject, userId);
         } catch (UpdateExecutionException e) {
             throw new TaskFilerException("Failed to update task", e);
         }
     }
 
-    private void updateHistory(String subject, String predicate, String originalObject, String newObject, Task task, String userId) throws TaskFilerException {
+    private void updateHistory(String subject, String predicate, String originalObject, String newObject, String userId) throws TaskFilerException {
         try {
-            task.addTaskHistory(new TaskHistory(subject, predicate, originalObject, newObject, LocalDateTime.now()));
+            ModelBuilder builder = new ModelBuilder();
+            BNode bn = bnode();
+            builder.add(iri(subject), iri(WORKFLOW.HISTORY), bn);
+            builder.add(bn,iri(WORKFLOW.HISTORY_PREDICATE), literal(predicate));
+            builder.add(bn, iri(WORKFLOW.HISTORY_ORIGINAL_OBJECT), literal(originalObject));
+            builder.add(bn, iri(WORKFLOW.HISTORY_NEW_OBJECT),literal(newObject));
+            builder.add(bn,iri(WORKFLOW.HISTORY_CHANGE_DATE),literal(LocalDateTime.now()));
+            builder.add(bn, iri(WORKFLOW.MODIFIED_BY), literal(userId));
+            conn.add(builder.build());
         } catch (Exception e) {
             throw new TaskFilerException("Update task history failed.", e);
         }
     }
+
+
 
     private String getCurrentObject(String subject, String predicate) {
         StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
@@ -184,6 +198,7 @@ public class TaskFilerRdf4j {
     }
 
     private String usernameToId(String username) throws UserNotFoundException {
+        if (username.equals("UNASSIGNED")) return username;
         String cognitoIdRegex = "[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}";
         if (!username.matches(cognitoIdRegex)) return awsCognitoClient.adminGetId(username);
         return username;

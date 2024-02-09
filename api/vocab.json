@@ -1630,8 +1630,28 @@
         "value": "WORKFLOW.NAMESPACE + \"approvalType\""
       },
       {
-        "name": "TASK_HISTORY",
-        "value": "WORKFLOW.NAMESPACE + \"taskHistory\""
+        "name": "HISTORY",
+        "value": "WORKFLOW.NAMESPACE + \"history\""
+      },
+      {
+        "name": "HISTORY_PREDICATE",
+        "value": "WORKFLOW.NAMESPACE + \"historyPredicate\""
+      },
+      {
+        "name": "HISTORY_ORIGINAL_OBJECT",
+        "value": "WORKFLOW.NAMESPACE + \"historyOriginalObject\""
+      },
+      {
+        "name": "HISTORY_NEW_OBJECT",
+        "value": "WORKFLOW.NAMESPACE + \"historyNewObject\""
+      },
+      {
+        "name": "HISTORY_CHANGE_DATE",
+        "value": "WORKFLOW.NAMESPACE + \"historyChangeDate\""
+      },
+      {
+        "name": "MODIFIED_BY",
+        "value": "WORKFLOW.NAMESPACE + \"modifiedBy\""
       }
     ]
   },

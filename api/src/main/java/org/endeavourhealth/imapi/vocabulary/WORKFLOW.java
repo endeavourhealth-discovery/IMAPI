@@ -24,5 +24,10 @@ public class WORKFLOW {
     public static final String RELATED_VERSION = WORKFLOW.NAMESPACE + "relatedVersion";
     public static final String REQUESTED_ROLE = WORKFLOW.NAMESPACE + "requestedRole";
     public static final String APPROVAL_TYPE = WORKFLOW.NAMESPACE + "approvalType";
-    public static final String TASK_HISTORY = WORKFLOW.NAMESPACE + "taskHistory";
+    public static final String HISTORY = WORKFLOW.NAMESPACE + "history";
+    public static final String HISTORY_PREDICATE = WORKFLOW.NAMESPACE + "historyPredicate";
+    public static final String HISTORY_ORIGINAL_OBJECT = WORKFLOW.NAMESPACE + "historyOriginalObject";
+    public static final String HISTORY_NEW_OBJECT = WORKFLOW.NAMESPACE + "historyNewObject";
+    public static final String HISTORY_CHANGE_DATE = WORKFLOW.NAMESPACE + "historyChangeDate";
+    public static final String MODIFIED_BY = WORKFLOW.NAMESPACE + "modifiedBy";
 }

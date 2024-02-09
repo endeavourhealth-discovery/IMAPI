@@ -617,6 +617,18 @@
         "value": "IM.NAMESPACE + \"usageTotal\""
       },
       {
+        "name": "USAGE",
+        "value": "IM.NAMESPACE + \"Usage\""
+      },
+      {
+        "name": "DESCENDING",
+        "value": "IM.NAMESPACE + \"Descending\""
+      },
+      {
+        "name": "ASCENDING",
+        "value": "IM.NAMESPACE + \"Ascending\""
+      },
+      {
         "name": "PLABEL",
         "value": "IM.NAMESPACE + \"pLabel\""
       },

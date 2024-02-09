@@ -32,10 +32,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -85,7 +82,7 @@ public class SetExporter {
         Set<String> setIris = getSetsRecursive(setIri);
 
         LOG.trace("Expanding members for sets...");
-        Set<Concept> result = new HashSet<>();
+        Map<String, Concept> result = new HashMap<>();
 
         for(String iri : setIris) {
             Set<Concept> subResults = new HashSet<>();
@@ -108,20 +105,19 @@ public class SetExporter {
                     ,includeLegacy,null, schemes));
             }
             if(includeSubset) {
-                String name = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL)).getEntity().getName();
-                subResults.forEach(m -> m.addIsContainedIn(new TTIriRef(iri,name)));
-                result.addAll(subResults);
-            }
-            else {
-                subResults.forEach(s -> {
-                    if(result.stream().noneMatch(r -> r.getIri().equals(s.getIri()))) {
-                        result.add(s);
-                    }
+                TTEntity entity = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL, IM.VERSION)).getEntity();
+                subResults.forEach(m -> {
+                    m.addIsContainedIn(entity);
+                    result.put(m.getIri(), m);
                 });
             }
+            else {
+                for(Concept subResult: subResults) {
+                    if(!result.containsKey(subResult.getIri())) result.put(subResult.getIri(), subResult);
+                }
+            }
         }
-
-        return result;
+        return new HashSet<Concept>(result.values());
     }
 
     private StringJoiner generateIMV1TSV(String setIri, String name, Set<Concept> members) {

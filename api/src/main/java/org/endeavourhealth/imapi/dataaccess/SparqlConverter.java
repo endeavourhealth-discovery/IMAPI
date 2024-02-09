@@ -642,16 +642,15 @@ public class SparqlConverter {
         if (null != clause.getOrderBy()) {
             if (null != clause.getOrderBy().getProperty()) {
                 selectQl.append("Order by ");
-                for (OrderDirection order : clause.getOrderBy().getProperty()) {
-                    if (null != order.getDirection() && order.getDirection().equals(Order.descending))
-                        selectQl.append("DESC(");
-                    else
-                        selectQl.append("ASC(");
-                    if (null != order.getIri()) selectQl.append("?").append(order.getIri());
-                    else if (null != order.getValueVariable()) selectQl.append("?").append(order.getValueVariable());
-                    else throw new QueryException("Order by missing identifier: iri / valueVariable");
-                    selectQl.append(")");
-                }
+                OrderDirection order = clause.getOrderBy().getProperty();
+                if (null != order.getDirection() && order.getDirection().equals(Order.descending))
+                    selectQl.append("DESC(");
+                else
+                    selectQl.append("ASC(");
+                if (null != order.getIri()) selectQl.append("?").append(order.getIri());
+                else if (null != order.getValueVariable()) selectQl.append("?").append(order.getValueVariable());
+                else throw new QueryException("Order by missing identifier: iri / valueVariable");
+                selectQl.append(")");
                 if (null == queryRequest.getPage() && clause.getOrderBy().getLimit() > 0) {
                     selectQl.append("LIMIT ").append(clause.getOrderBy().getLimit()).append("\n");
                 } else {

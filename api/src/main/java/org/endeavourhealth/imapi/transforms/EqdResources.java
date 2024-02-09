@@ -33,6 +33,7 @@ public class EqdResources {
     private ModelDocument document;
     private final Map<String, Set<TTIriRef>> valueMap = new HashMap<>();
     private int counter = 0;
+    private boolean isLinked;
 
 
 
@@ -117,8 +118,10 @@ public class EqdResources {
         }
 
         if (eqCriterion.getLinkedCriterion() != null) {
+            isLinked= true;
             convertLinkedCriterion(eqCriterion, match);
         } else {
+            isLinked=false;
             convertStandardCriterion(eqCriterion, match);
         }
 
@@ -250,7 +253,7 @@ public class EqdResources {
                 pv.setIsNot(getExceptionSet(vs.getAllValues()));
             } else {
                 if (!notIn) {
-                    pv.addIsNot(getInlineValues(vs, pv));
+                    pv.addIs(getInlineValues(vs, pv));
                 } else {
                     pv.addIsNot(getInlineValues(vs, pv));
                 }
@@ -274,9 +277,10 @@ public class EqdResources {
         if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
             counter++;
             String variable = "match_" + counter;
-            restricted.setVariable(variable);
+            if (isLinked)
+                restricted.setVariable(variable);
             Match testMatch = new Match();
-            testMatch.setNodeRef(variable);
+            //testMatch.setNodeRef(variable);
             restricted.setThen(testMatch);
             restrictionTest(eqCriterion, testMatch, variable);
         }
@@ -308,7 +312,7 @@ public class EqdResources {
         counter++;
         String linkElement = restricted.getProperty().get(0).getVariable();
         restricted.orderBy(o -> o
-                .addProperty(new OrderDirection()
+                .setProperty(new OrderDirection()
                         .setIri(orderBy)
                         .setDirection(direction))
                 .setLimit(1));
@@ -485,12 +489,25 @@ public class EqdResources {
         Match match = new Match();
         match.setBool(Bool.or);
         query.addMatch(match);
+        String name="";
+        int i=0;
         for (Node node:setContent){
+            i++;
             Match member= new Match();
             match.addMatch(member);
             member.setInstanceOf(node);
+            if (node.getName()!=null){
+                if (i==3)
+                    name=name+" + more...";
+                else if (i==1)
+                    name=getShortName(node.getName(),null);
+                else if (i==2) {
+                    name=getShortName(node.getName(),name);
+                }
+            }
         }
         if (!excContent.isEmpty()){
+            name=name+" with exclusions";
             Match outerMatch= new Match();
             outerMatch.addMatch(match);
             outerMatch.setBool(Bool.and);
@@ -509,10 +526,24 @@ public class EqdResources {
         else {
             ConceptSet set = new ConceptSet();
             set.setIri("urn:uuid:" + vs.getId());
+            set.setName(name);
             set.setDefinition(query);
             set.addUsedIn(TTIriRef.iri("urn:uuid:" + activeReport));
             document.addConceptSet(set);
             return new Node().setIri(set.getIri());
+        }
+    }
+
+    private String getShortName(String name, String previous){
+        name=name.split(" \\(")[0];
+        if (previous==null){
+            return name;
+        }
+        else {
+            if (name.contains("resolved"))
+                return previous+" or resolved";
+            else
+                return previous+" or "+ name;
         }
     }
 

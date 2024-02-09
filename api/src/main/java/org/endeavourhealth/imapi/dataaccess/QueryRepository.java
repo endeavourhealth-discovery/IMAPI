@@ -407,8 +407,7 @@ public class QueryRepository {
 
     private void gatherOrderLimitLabels(OrderLimit orderBy, List<TTIriRef> ttIris, Map<String, String> iris) {
         if(orderBy.getProperty() != null) {
-            for (PropertyRef property:orderBy.getProperty())
-                addToIriList(property.getIri(), ttIris, iris);
+            addToIriList(orderBy.getProperty().getIri(), ttIris, iris);
         }
     }
 
@@ -452,9 +451,7 @@ public class QueryRepository {
 
     private void setOrderLimitLabels(OrderLimit orderBy, Map<String, String> iriLabels) {
         if (orderBy.getProperty()!=null) {
-            for (PropertyRef property : orderBy.getProperty()) {
-                property.setName(iriLabels.get(property.getIri()));
-            }
+            orderBy.getProperty().setName(iriLabels.get(orderBy.getProperty().getIri()));
         }
     }
 

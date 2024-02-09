@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class FormGenerator {
 	private String comment;
 	private List<TTIriRef> type;
 	private TTIriRef targetShape;
-	private List<TTIriRef> isContainedIn;
+	private List<TTEntity> isContainedIn;
 	private List<TTIriRef> subClassOf;
 	private List<PropertyShape> property;
 
@@ -69,11 +70,11 @@ public class FormGenerator {
 		return this;
 	}
 
-	public List<TTIriRef> getIsContainedIn() {
+	public List<TTEntity> getIsContainedIn() {
 		return isContainedIn;
 	}
 
-	public FormGenerator setIsContainedIn(List<TTIriRef> isContainedIn) {
+	public FormGenerator setIsContainedIn(List<TTEntity> isContainedIn) {
 		this.isContainedIn = isContainedIn;
 		return this;
 	}

@@ -50,6 +50,12 @@ public class SearchService {
 		return repo.queryIM(queryRequest);
 	}
 
+	public Query getQuery(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
+		QueryRepository repo = new QueryRepository();
+		repo.unpackQueryRequest(queryRequest);
+		return queryRequest.getQuery();
+	}
+
 	public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
 		if (null == queryRequest.getAskIri()) throw new IllegalArgumentException("Query request missing askIri");
 		QueryRepository repo = new QueryRepository();

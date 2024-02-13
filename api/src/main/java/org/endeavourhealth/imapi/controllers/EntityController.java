@@ -728,10 +728,10 @@ public class EntityController {
         return entityService.hasPredicates(subjectIri, predicateIris);
     }
 
-    @GetMapping(value = "/public/isInverseIsa")
+    @GetMapping(value = "/public/isAncestor")
     @Operation(summary = "check if subject isa object")
     public Boolean isInverseIsa(@RequestParam(name = "objectIri") String objectIri, @RequestParam(name = "subjectIri") String subjectIri) {
-        LOG.debug("isInverseIsa");
-        return entityService.isInverseIsa(objectIri, subjectIri);
+        LOG.debug("isAncestor");
+        return entityService.isAncestor(objectIri, subjectIri);
     }
 }

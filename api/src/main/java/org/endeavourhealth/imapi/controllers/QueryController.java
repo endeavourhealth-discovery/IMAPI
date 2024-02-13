@@ -61,6 +61,13 @@ public class QueryController {
         return searchService.queryIMSearch(queryRequest);
     }
 
+    @PostMapping("/public/getQuery")
+    @Operation(summary = "get query as query object")
+    public Query getQuery(@RequestBody QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
+        LOG.debug("getQuery");
+        return searchService.getQuery(queryRequest);
+    }
+
 
     @PostMapping( "/public/pathQuery")
     @Operation(

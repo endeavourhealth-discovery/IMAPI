@@ -202,6 +202,9 @@ public class IMLToECL {
 
 
 	private static String getSubsumption(Entailment exp) {
+        if (exp == null)
+            return "";
+
 		String subsumption="";
 		if (exp.isDescendantsOrSelfOf())
 			subsumption="<< ";

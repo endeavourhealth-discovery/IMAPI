@@ -28,6 +28,7 @@ public class Match extends IriLD {
     private String variable;
     private String name;
     private Match then;
+    private List<Property> path;
 
     public Match getThen() {
         return then;
@@ -35,6 +36,29 @@ public class Match extends IriLD {
 
     public Match setThen(Match then) {
         this.then = then;
+        return this;
+    }
+
+    public List<Property> getPath() {
+        return path;
+    }
+
+    public Match setPath(List<Property> path) {
+        this.path = path;
+        return this;
+    }
+
+    private Match addPath(Property path){
+      if (this.path==null)
+         this.path= new ArrayList();
+      this.path.add(path);
+      return this;
+    }
+
+    public Match path(Consumer<Property> builder) {
+        Property path = new Property();
+        addPath(path);
+        builder.accept(path);
         return this;
     }
 

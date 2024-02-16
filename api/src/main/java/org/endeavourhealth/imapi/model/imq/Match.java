@@ -48,7 +48,7 @@ public class Match extends IriLD {
         return this;
     }
 
-    private Match addPath(Property path){
+    public Match addPath(Property path){
       if (this.path==null)
          this.path= new ArrayList();
       this.path.add(path);

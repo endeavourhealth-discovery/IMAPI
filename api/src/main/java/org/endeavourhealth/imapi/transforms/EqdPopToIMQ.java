@@ -5,6 +5,10 @@ import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.DataFormatException;
 
 public class EqdPopToIMQ {
@@ -104,7 +108,6 @@ public class EqdPopToIMQ {
 
 			}
 	}
-
 
 
 }

@@ -133,31 +133,43 @@ public class EqdResources {
             return match;
         String[] paths = pathMap.split(" ");
         for (int i = 0; i < paths.length - 1; i = i + 2) {
-            Property path = new Property();
-            match.addProperty(path);
-            path.setIri(paths[i]);
-            Match subMatch = new Match();
-            path.setMatch(subMatch);
-            subMatch.setTypeOf(paths[i + 1]);
-            match = subMatch;
+            if (paths[i].startsWith("^")){
+                match.addPath(new Property().setIri(IM.NAMESPACE+paths[i].substring(1)));
+            }
+            else {
+                Property path = new Property();
+                match.addProperty(path);
+                path.setIri(paths[i]);
+                Match subMatch = new Match();
+                path.setMatch(subMatch);
+                subMatch.setTypeOf(paths[i + 1]);
+                match = subMatch;
+            }
         }
         return match;
     }
 
-    private Match getPaths(Match match, String pathMap) throws QueryException {
+    private Match getPropertyPaths(Match match, String pathMap) throws QueryException {
         String[] paths = pathMap.split(" ");
         for (int i = 0; i < paths.length - 2; i = i + 2) {
-            Match subMatch = getPathMatch(match, paths[i]);
-            if (subMatch == null) {
-                Property path = new Property();
-                match.addProperty(path);
-                path.setIri(paths[i]);
-                subMatch = new Match();
-                path.setMatch(subMatch);
-                subMatch.setTypeOf(paths[i + 1]);
-                match = subMatch;
-            } else
-                return subMatch;
+            if (paths[i].startsWith("^")) {
+                match.addPath(new Property().setIri(IM.NAMESPACE + paths[1].substring(1)));
+                match.setTypeOf(IM.NAMESPACE+paths[i]+1);
+            }
+            else {
+                Match subMatch = getPathMatch(match, paths[i]);
+                if (subMatch == null) {
+                    Property path = new Property();
+                    match.addProperty(path);
+                    path.setIri(paths[i]);
+                    subMatch = new Match();
+                    path.setMatch(subMatch);
+                    subMatch.setTypeOf(paths[i + 1]);
+                    match = subMatch;
+                }
+                else
+                    return subMatch;
+            }
         }
         return match;
     }
@@ -200,7 +212,7 @@ public class EqdResources {
     private void setColumnWhere(EQDOCColumnValue cv, String eqTable, Match match) throws DataFormatException, IOException, QueryException {
         String eqColumn = String.join("/", cv.getColumn());
         String pathMap = getPath(eqTable + "/" + eqColumn);
-        match = getPaths(match, pathMap);
+        match = getPropertyPaths(match, pathMap);
         Property property = new Property();
         match.addProperty(property);
         property.setIri(pathMap.substring(pathMap.lastIndexOf(" ") + 1));

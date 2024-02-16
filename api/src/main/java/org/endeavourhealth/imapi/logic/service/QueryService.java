@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
@@ -17,6 +18,7 @@ import java.util.List;
 @Component
 public class QueryService {
     private final QueryRepository queryRepository = new QueryRepository();
+    private final EntityRepository entityRepository = new EntityRepository();
 
     public Query labelQuery(Query query) {
         queryRepository.labelQuery(query);
@@ -38,16 +40,7 @@ public class QueryService {
             JsonNode entities = queryResults.get("entities");
             if (entities.isArray()) {
                 for (JsonNode entity : queryResults.get("entities")) {
-                    SearchResultSummary summary = new SearchResultSummary();
-                    summary.setIri(entity.get("@id").asText());
-                    summary.setName(entity.get(RDFS.LABEL).asText());
-                    if (entity.has(RDFS.COMMENT)) summary.setDescription(entity.get(RDFS.COMMENT).asText());
-                    if (entity.has(IM.CODE)) summary.setCode(entity.get(IM.CODE).asText());
-                    summary.setStatus(jsonNodeToTTIriRef(entity, IM.HAS_STATUS).get(0));
-                    summary.setScheme(jsonNodeToTTIriRef(entity, IM.HAS_SCHEME).get(0));
-                    summary.getEntityType().addAll(jsonNodeToTTIriRef(entity, RDF.TYPE));
-                    if (entity.has(IM.WEIGHTING)) summary.setWeighting(entity.get(IM.WEIGHTING).asInt());
-
+                    SearchResultSummary summary = entityRepository.getEntitySummaryByIri(entity.get("@id").asText());
                     result.addEntity(summary);
                 }
             }

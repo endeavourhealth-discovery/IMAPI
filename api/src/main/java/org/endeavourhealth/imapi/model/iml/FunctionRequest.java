@@ -14,7 +14,7 @@ import java.util.Map;
 public class FunctionRequest {
 	private String functionIri;
 	private List<Argument> arguments;
-	private Page paging;
+	private Page page;
 
 	public FunctionRequest setFunctionIri(String functionIri) {
 		this.functionIri = functionIri;
@@ -32,8 +32,8 @@ public class FunctionRequest {
 		return this;
 	}
 
-	public FunctionRequest setPaging(Page paging) {
-		this.paging = paging;
+	public FunctionRequest setPage(Page page) {
+		this.page = page;
 		return this;
 	}
 }

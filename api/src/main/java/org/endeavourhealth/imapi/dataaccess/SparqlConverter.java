@@ -661,7 +661,7 @@ public class SparqlConverter {
         if (null != queryRequest.getPage()) {
             selectQl.append("LIMIT ").append(queryRequest.getPage().getPageSize()).append("\n");
             if (queryRequest.getPage().getPageNumber() > 0)
-                selectQl.append("OFFSET ").append((queryRequest.getPage().getPageNumber()) * (queryRequest.getPage().getPageSize())).append("\n");
+                selectQl.append("OFFSET ").append((queryRequest.getPage().getPageNumber() - 1) * (queryRequest.getPage().getPageSize())).append("\n");
         }
 
     }

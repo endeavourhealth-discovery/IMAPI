@@ -521,6 +521,7 @@ public class OSQuery {
         }
         Integer totalCount = resultMapper.treeToValue(root.get("hits").get("total").get("value"),Integer.class);
         if (null != totalCount) searchResults.setCount(totalCount);
+        if (request.getPage() != 0) searchResults.setPage(request.getPage());
         //Sort now donw in query
        // if (!searchResults.isEmpty() && null != request.getTermFilter())
          //   sort(searchResults, request.getTermFilter());

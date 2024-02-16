@@ -1,13 +1,7 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IM;
-
-import java.util.Objects;
 
 
 @JsonPropertyOrder({"parameter","iri","type","set","variable","name"})
@@ -18,14 +12,14 @@ public class Element extends IriLD implements Entailment{
 	private boolean ancestorsOf;
 	private boolean descendantsOrSelfOf;
 	private boolean descendantsOf;
-	private String ref;
+	private String nodeRef;
 
-	public String getRef() {
-		return ref;
+	public String getNodeRef() {
+		return nodeRef;
 	}
 
-	public Element setRef(String ref) {
-		this.ref = ref;
+	public Element setNodeRef(String nodeRef) {
+		this.nodeRef = nodeRef;
 		return this;
 	}
 

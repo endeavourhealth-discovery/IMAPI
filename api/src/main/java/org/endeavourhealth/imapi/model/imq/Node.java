@@ -1,12 +1,8 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
-import java.util.function.Consumer;
 
 
 @JsonPropertyOrder({"parameter","iri","type","set","variable","name"})
@@ -14,9 +10,8 @@ import java.util.function.Consumer;
 public class Node extends Element{
 
 
-	@Override
-	public Node setRef(String ref) {
-		super.setRef(ref);
+	public Node setNodeRef(String nodeRef) {
+		super.setNodeRef(nodeRef);
 		return this;
 	}
 

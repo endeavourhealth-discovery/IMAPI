@@ -42,9 +42,19 @@ public class EqdListToIMQ {
 			Return select= new Return();
 			subQuery.addReturn(select);
 			String eqColumn= String.join("/",eqCol.getColumn());
-			String property = resources.getPath(eqTable + "/" + eqColumn);
-			select.property(p->p
-				.setIri(IM.NAMESPACE+property));
+			String[] propertyPath = resources.getPath(eqTable + "/" + eqColumn).split(" ");
+			if (propertyPath.length==1){
+				select.property(p->p.setIri(IM.NAMESPACE+propertyPath[0]));
+			}
+			else {
+				for (int i=0; i<propertyPath.length; i++){
+					ReturnProperty property= new ReturnProperty();
+					property.setIri(IM.NAMESPACE+propertyPath[i]);
+					select.addProperty(property);
+					select= new Return();
+					property.setReturn(select);
+				}
+			}
 		}
 	}
 

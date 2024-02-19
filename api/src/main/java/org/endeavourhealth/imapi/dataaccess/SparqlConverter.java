@@ -441,8 +441,8 @@ public class SparqlConverter {
 
         List<String> inList = new ArrayList<>();
         for (Node iri : in) {
-            if (iri.getRef() != null)
-                inList.add("?" + iri.getRef());
+            if (iri.getNodeRef() != null)
+                inList.add("?" + iri.getNodeRef());
             else
                 inList.add(iriFromAlias(iri));
         }
@@ -482,8 +482,8 @@ public class SparqlConverter {
         }
         List<String> inList = new ArrayList<>();
         for (Element iri : in) {
-            if (iri.getRef() != null)
-                inList.add("?" + iri.getRef());
+            if (iri.getNodeRef() != null)
+                inList.add("?" + iri.getNodeRef());
             else
                 inList.add(iriFromAlias(iri));
         }
@@ -668,7 +668,7 @@ public class SparqlConverter {
 
 
     public String iriFromAlias(Element alias) throws QueryException {
-        return getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getVariable(), alias.getRef());
+        return getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getVariable(), alias.getNodeRef());
     }
 
     private String getIriFromAlias(String id, String parameter, String variable, String valueRef) throws QueryException {
@@ -686,7 +686,7 @@ public class SparqlConverter {
 
 
     public String iriFromAlias(Node alias) throws QueryException {
-        return getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getVariable(), alias.getRef());
+        return getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getVariable(), alias.getNodeRef());
     }
 
 

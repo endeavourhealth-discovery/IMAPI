@@ -1908,6 +1908,10 @@
       {
         "name": "SEARCH_SUBCLASS",
         "value": "QUERY.NAMESPACE + \"SearchAllowableSubclass\""
+      },
+      {
+        "name": "GET_VALUES_FROM_PROPERTY_RANGE",
+        "value": "QUERY.NAMESPACE + \"GetValuesFromPropertyRange\""
       }
     ]
   },

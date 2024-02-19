@@ -23,4 +23,5 @@ public class QUERY {
     public static final String SEARCH_MAIN_TYPES = QUERY.NAMESPACE + "SearchmainTypes";
     public static final String DM_PROPERTY = QUERY.NAMESPACE + "DataModelPropertyByShape";
     public static final String SEARCH_SUBCLASS = QUERY.NAMESPACE + "SearchAllowableSubclass";
+    public static final String GET_VALUES_FROM_PROPERTY_RANGE = QUERY.NAMESPACE + "GetValuesFromPropertyRange";
 }

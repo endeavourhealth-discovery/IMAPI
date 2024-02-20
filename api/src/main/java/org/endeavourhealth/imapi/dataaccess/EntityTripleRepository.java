@@ -91,7 +91,7 @@ public class EntityTripleRepository {
                 .add("        ?prop shacl:path ?propIri .")
                 .add("        FILTER(?propIri = ?o) }")
                 .add("    ?s im:status ?status .")
-                .add("    FILTER (?p != ?e && ?status != im:Inactive && ?s != !o)")
+                .add("    FILTER (?p != ?e && ?status != im:Inactive && ?s != ?o)")
                 .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {

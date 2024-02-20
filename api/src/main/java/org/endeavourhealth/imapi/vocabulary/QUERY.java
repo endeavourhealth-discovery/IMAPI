@@ -6,8 +6,10 @@ public class QUERY {
     public static final String DOMAIN = "http://endhealth.info/im#";
     public static final String NAMESPACE = QUERY.DOMAIN + "Query_";
     public static final String ALLOWABLE_RANGES = QUERY.NAMESPACE + "AllowableRanges";
+    public static final String ALLOWABLE_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "AllowableRangeSuggestions";
     public static final String GET_ISAS = QUERY.NAMESPACE + "GetIsas";
     public static final String GET_DESCENDANTS = QUERY.NAMESPACE + "GetDescendants";
+    public static final String GET_ANCESTORS = QUERY.NAMESPACE + "GetAncestors";
     public static final String SEARCH_CONTAINED_IN = QUERY.NAMESPACE + "SearchContainedIn";
     public static final String ALLOWABLE_CHILD_TYPES = QUERY.NAMESPACE + "AllowableChildTypes";
     public static final String PROPERTY_RANGE = QUERY.NAMESPACE + "PropertyRange";
@@ -21,4 +23,5 @@ public class QUERY {
     public static final String SEARCH_MAIN_TYPES = QUERY.NAMESPACE + "SearchmainTypes";
     public static final String DM_PROPERTY = QUERY.NAMESPACE + "DataModelPropertyByShape";
     public static final String SEARCH_SUBCLASS = QUERY.NAMESPACE + "SearchAllowableSubclass";
+    public static final String GET_VALUES_FROM_PROPERTY_RANGE = QUERY.NAMESPACE + "GetValuesFromPropertyRange";
 }

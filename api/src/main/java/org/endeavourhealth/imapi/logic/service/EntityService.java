@@ -1226,8 +1226,8 @@ public class EntityService {
         return entityRepository.getIM1SchemeOptions();
     }
 
-    public Boolean isInverseIsa(String objectIri, String subjectIri) {
-        return entityRepository.isInverseIsa(objectIri, subjectIri);
+    public Boolean isAncestor(String objectIri, String subjectIri) {
+        return entityRepository.isAncestor(objectIri, subjectIri);
     }
 
     public Set<Concept> getFullyExpandedMembers(String iri, boolean includeSubset, boolean includeLegacy, List<String> schemes) throws QueryException, JsonProcessingException {

@@ -1842,12 +1842,20 @@
         "value": "QUERY.NAMESPACE + \"AllowableRanges\""
       },
       {
+        "name": "ALLOWABLE_RANGE_SUGGESTIONS",
+        "value": "QUERY.NAMESPACE + \"AllowableRangeSuggestions\""
+      },
+      {
         "name": "GET_ISAS",
         "value": "QUERY.NAMESPACE + \"GetIsas\""
       },
       {
         "name": "GET_DESCENDANTS",
         "value": "QUERY.NAMESPACE + \"GetDescendants\""
+      },
+      {
+        "name": "GET_ANCESTORS",
+        "value": "QUERY.NAMESPACE + \"GetAncestors\""
       },
       {
         "name": "SEARCH_CONTAINED_IN",
@@ -1900,6 +1908,10 @@
       {
         "name": "SEARCH_SUBCLASS",
         "value": "QUERY.NAMESPACE + \"SearchAllowableSubclass\""
+      },
+      {
+        "name": "GET_VALUES_FROM_PROPERTY_RANGE",
+        "value": "QUERY.NAMESPACE + \"GetValuesFromPropertyRange\""
       }
     ]
   },

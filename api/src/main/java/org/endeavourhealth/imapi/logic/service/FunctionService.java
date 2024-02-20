@@ -38,13 +38,6 @@ public class FunctionService {
         };
 	}
 
-	public Boolean callAskFunction(HttpServletRequest request, String iri, List<Argument> arguments) {
-		return switch(iri) {
-			case IM_FUNCTION.IS_TYPE -> isType(arguments);
-			default -> throw new IllegalArgumentException("No such ask function: " + iri);
-		};
-	}
-
 	private JsonNode getLocalName(List<Argument> arguments){
 		if (null == arguments)
 			throw new IllegalArgumentException("No arguments, send json property/value pairs in request body");
@@ -162,18 +155,5 @@ public class FunctionService {
         if (entityIri.equals(IM.NAMESPACE) || entityIri.equals(SNOMED.NAMESPACE)) {
 			return om.createObjectNode().put("code", conceptRepository.createConcept(IM.NAMESPACE).get("iri").get("@id").asText().split("#")[1]);
 		} else return om.createObjectNode().put("iri", "");
-	}
-
-	private Boolean isType(List<Argument> arguments) {
-		if (null == arguments) throw new IllegalArgumentException("Missing arguments");
-		Argument type = arguments.stream().filter(arg -> arg.getParameter().equals("type")).findFirst().orElse(null);
-		Argument searchIri = arguments.stream().filter(arg -> arg.getParameter().equals("searchIri")).findFirst().orElse(null);
-		if (null == type) throw new IllegalArgumentException("Missing argument with parameter 'type'");
-		if (null == searchIri) throw new IllegalArgumentException("Missing argument with parameter 'searchIri'");
-		if (null == type.getValueIri()) throw new IllegalArgumentException("Missing 'type' valueIri");
-		if (null == searchIri.getValueData()) throw new IllegalArgumentException("Missing 'searchIri' valueData");
-		List<EntityReferenceNode> validTypes = entityService.getImmediateChildren(IM.ENTITY_TYPES,null,null,null,false);
-		if (null != validTypes.stream().filter(vt -> vt.getIri().equals(type.getValueIri().getIri())).findFirst().orElse(null)) return entityRepository.isType(type.getValueIri().getIri(),searchIri.getValueData());
-		else throw new IllegalArgumentException("Type: '" + type.getValueIri().getIri() + "' is not a valid entity type");
 	}
 }

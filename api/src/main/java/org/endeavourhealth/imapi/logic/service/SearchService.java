@@ -50,6 +50,12 @@ public class SearchService {
 		return repo.queryIM(queryRequest);
 	}
 
+	public Query getQuery(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
+		QueryRepository repo = new QueryRepository();
+		repo.unpackQueryRequest(queryRequest);
+		return queryRequest.getQuery();
+	}
+
 	public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
 		if (null == queryRequest.getAskIri()) throw new IllegalArgumentException("Query request missing askIri");
 		QueryRepository repo = new QueryRepository();
@@ -67,19 +73,6 @@ public class SearchService {
         ObjectNode result = new ObjectMapper().createObjectNode();
         QueryRepository repo = new QueryRepository();
         repo.unpackQueryRequest(queryRequest, result);
-
-        // Set correct return properties for SearchResultSummary structure
-		List<Return> summaryReturn = new ArrayList<Return>();
-		summaryReturn.add(new Return()
-			.addProperty(new ReturnProperty().setIri(RDFS.LABEL))
-			.addProperty(new ReturnProperty().setIri(RDFS.COMMENT))
-			.addProperty(new ReturnProperty().setIri(IM.CODE))
-			.addProperty(new ReturnProperty().setIri(IM.HAS_STATUS).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL))))
-			.addProperty(new ReturnProperty().setIri(IM.HAS_SCHEME).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL))))
-			.addProperty(new ReturnProperty().setIri(RDF.TYPE).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL))))
-			.addProperty(new ReturnProperty().setIri(IM.WEIGHTING))
-		);
-        queryRequest.getQuery().setReturn(summaryReturn);
 
         if (null != queryRequest.getTextSearch()) {
             SearchResponse osResult = new OSQuery().openSearchQuery(queryRequest);

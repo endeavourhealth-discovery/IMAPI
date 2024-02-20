@@ -9,6 +9,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -760,7 +761,7 @@ public class EntityRepository {
         }
     }
 
-    public Boolean isInverseIsa(String subjectIri, String objectIri) {
+    public Boolean isAncestor(String subjectIri, String objectIri) {
         try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
                 .add("ASK WHERE {")
@@ -770,20 +771,6 @@ public class EntityRepository {
             sparql.setBinding("s",iri(subjectIri));
             sparql.setBinding("p",iri(IM.IS_A));
             sparql.setBinding("o",iri(objectIri));
-            return sparql.evaluate();
-        }
-    }
-
-    public Boolean isType(String typeIri, String searchIri) {
-        try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
-                .add("ASK WHERE {")
-                .add("?s ?p ?o")
-                .add("}");
-            BooleanQuery sparql = conn.prepareBooleanQuery(stringQuery.toString());
-            sparql.setBinding("s",iri(searchIri));
-            sparql.setBinding("p",iri(RDF.TYPE));
-            sparql.setBinding("o",iri(typeIri));
             return sparql.evaluate();
         }
     }

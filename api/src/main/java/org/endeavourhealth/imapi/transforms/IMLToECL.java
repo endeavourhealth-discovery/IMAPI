@@ -120,9 +120,17 @@ public class IMLToECL {
 			ecl.append("}");
 		}
 		else {
+			if (match.getBool()==null){
+				match.setBool(Bool.and);
+			}
 			for (Property property : match.getProperty()) {
-				if (!first)
-					ecl.append(" , ");
+				if (!first) {
+					if (match.getBool()==Bool.and) {
+						ecl.append(" , ");
+					}
+					else
+						ecl.append(" OR ");
+				}
 				first = false;
 				addRefinedGroup(property, ecl, includeNames);
 			}
@@ -138,11 +146,23 @@ public class IMLToECL {
 		}
 		else {
 			for (Property subProperty : property.getProperty()) {
-				if (!first)
-					ecl.append(" , ");
+				if (!first) {
+					if (property.getBool()==Bool.or){
+						ecl.append(" OR ");
+					}
+					else
+						ecl.append(" , ");
+				}
 				first = false;
+				if (subProperty.getProperty()!=null) {
+					ecl.append(" (");
+				}
 				addRefinedGroup(subProperty, ecl, includeNames);
+				if (subProperty.getProperty()!=null){
+					ecl.append(")");
+				}
 			}
+
 		}
 	}
 

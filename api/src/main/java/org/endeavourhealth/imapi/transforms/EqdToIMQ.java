@@ -1,10 +1,12 @@
 package org.endeavourhealth.imapi.transforms;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.iml.ConceptSet;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
@@ -15,14 +17,14 @@ import java.io.IOException;
 import java.util.*;
 import java.util.zip.DataFormatException;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class EqdToIMQ {
 	private final EqdResources resources = new EqdResources();
 	private static final Set<String> roles = new HashSet<>();
 	public Map<String, ConceptSet> valueSets;
+	private Map<String,String> setIris= new HashMap<>();
 
-	public Map<String, ConceptSet> getValueSets() {
-		return valueSets;
-	}
 
 
 	public ModelDocument convertEQD(EnquiryDocument eqd, Properties dataMap,
@@ -35,7 +37,6 @@ public class EqdToIMQ {
 		addReportNames(eqd);
 		convertFolders(eqd);
 		convertReports(eqd);
-		this.valueSets = resources.getValueSets();
 		return resources.getDocument();
 	}
 
@@ -70,7 +71,7 @@ public class EqdToIMQ {
 				String iri = "urn:uuid:" + eqFolder.getId();
 				Entity folder = new Entity()
 					.setIri(iri)
-					.addType(IM.FOLDER.asTTIriRef())
+					.addType(iri(IM.FOLDER))
 					.setName(eqFolder.getName());
 				resources.getDocument().addFolder(folder);
 			}
@@ -87,26 +88,105 @@ public class EqdToIMQ {
 		queryEntity.setName(eqReport.getName());
 		queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
 		if (eqReport.getFolder() != null)
-			queryEntity.addIsContainedIn(TTIriRef.iri("urn:uuid:" + eqReport.getFolder()));
+			queryEntity.addIsContainedIn(new TTEntity(("urn:uuid:" + eqReport.getFolder())));
 
 		Query qry = new Query();
 
 		if (eqReport.getPopulation() != null) {
-			queryEntity.addType(IM.COHORT_QUERY);
+			queryEntity.addType(iri(IM.COHORT_QUERY));
 			new EqdPopToIMQ().convertPopulation(eqReport, qry, resources);
 		}
 		else if (eqReport.getListReport() != null) {
-			queryEntity.addType(IM.DATASET_QUERY);
+			queryEntity.addType(iri(IM.DATASET_QUERY));
 			new EqdListToIMQ().convertReport(eqReport, qry, resources);
 		}
 		else {
-			queryEntity.addType(IM.DATASET_QUERY);
+			queryEntity.addType(iri(IM.DATASET_QUERY));
 			new EqdAuditToIMQ().convertReport(eqReport, qry, resources);
 		}
 		flattenQuery(qry);
-
+		mergeThens(qry);
 		queryEntity.setDefinition(qry);
 		return queryEntity;
+	}
+
+
+	private void mergeThens(Query qry) throws JsonProcessingException {
+		for (Match match : qry.getMatch()) {
+			if (match.getBool() == Bool.or) {
+				Map<String, Match> orPaths = new HashMap<>();
+				for (Match orMatch : match.getMatch()) {
+					StringBuilder fullPath = new StringBuilder();
+					Match then = getFullPath(fullPath, orMatch);
+					orPaths.putIfAbsent(fullPath.toString(), then);
+				}
+				List<Match> deletes = new ArrayList<>();
+				for (Match orMatch : match.getMatch()) {
+					StringBuilder fullPath = new StringBuilder();
+					Match thisMatchWithThen = getFullPath(fullPath, orMatch);
+					Match oldMatchWithThen = orPaths.get(fullPath.toString());
+					String oldJson = new ObjectMapper().writeValueAsString(oldMatchWithThen);
+					String thisJson = new ObjectMapper().writeValueAsString(thisMatchWithThen);
+					if (!oldJson.equals(thisJson)) {
+						deletes.add(orMatch);
+						if (oldMatchWithThen.getThen().getMatch() == null) {
+							Match newThen = new Match();
+							newThen.setBool(Bool.or);
+							newThen.addMatch(oldMatchWithThen.getThen());
+							newThen.addMatch(thisMatchWithThen.getThen());
+							oldMatchWithThen.setThen(newThen);
+						}
+						else {
+							oldMatchWithThen.getThen().addMatch(thisMatchWithThen.getThen());
+						}
+
+					}
+				}
+
+				if (!deletes.isEmpty()) {
+					for (Match delete : deletes) {
+						match.getMatch().remove(delete);
+					}
+				}
+			}
+		}
+	}
+
+	private Match getFullPath(StringBuilder path, Match orMatch) {
+		Match matchWithThen=null;
+		if (orMatch.getMatch() != null) {
+			for (Match andMatch : orMatch.getMatch()) {
+				if (andMatch.getProperty() != null) {
+					for (Property rootProperty : andMatch.getProperty()) {
+						path.append(rootProperty.getIri());
+						if (rootProperty.getMatch() != null) {
+							Match leafMatch = rootProperty.getMatch();
+							if (leafMatch.getThen() != null) {
+								matchWithThen= leafMatch;
+								if (leafMatch.getProperty() != null) {
+									for (Property leafProperty : leafMatch.getProperty()) {
+										path.append(leafProperty.getIri());
+										if (leafProperty.getIs() != null) {
+											for (Node set : leafProperty.getIs()) {
+												path.append(set.getIri());
+											}
+										}
+										if (leafProperty.getValue() != null) {
+											path.append(leafProperty.getOperator()).append(leafProperty.getValue()).append(leafProperty.getUnit());
+										}
+									}
+								}
+								Match then = leafMatch.getThen();
+								for (Property thenProperty : then.getProperty()) {
+									path.append(thenProperty.getIri());
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return matchWithThen;
 	}
 
 	private void flattenQuery(Query qry) throws QueryException {

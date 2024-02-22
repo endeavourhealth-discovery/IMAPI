@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.model;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.io.Serializable;
 
@@ -55,9 +54,6 @@ public class DataModelProperty implements Serializable {
 		this.type = objectType;
 		return this;
 	}
-	public DataModelProperty setType(Vocabulary objectType) {
-		return setType(objectType.asTTIriRef());
-	}
 
 	public String getMinInclusive() {
 		return minInclusive;
@@ -104,8 +100,5 @@ public class DataModelProperty implements Serializable {
 	public DataModelProperty setInheritedFrom(TTIriRef inheritedFrom) {
 		this.inheritedFrom = inheritedFrom;
 		return this;
-	}
-	public DataModelProperty setInheritedFrom(Vocabulary inheritedFrom) {
-		return setInheritedFrom(inheritedFrom.asTTIriRef());
 	}
 }

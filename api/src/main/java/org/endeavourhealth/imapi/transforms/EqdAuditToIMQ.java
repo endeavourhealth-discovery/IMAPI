@@ -21,7 +21,7 @@ public class EqdAuditToIMQ {
 		for (String popId : eqReport.getAuditReport().getPopulation()) {
 			match
 				.match(f -> f
-					.addInSet(new Node().setIri("urn:uuid:" + popId))
+					.addIs(new Node().setIri("urn:uuid:" + popId))
 					.setName(resources.reportNames.get(popId)));
 		}
 		Return aReturn = new Return();

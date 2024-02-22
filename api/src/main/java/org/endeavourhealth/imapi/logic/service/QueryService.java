@@ -1,8 +1,10 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -16,6 +18,7 @@ import java.util.List;
 @Component
 public class QueryService {
     private final QueryRepository queryRepository = new QueryRepository();
+    private final EntityRepository entityRepository = new EntityRepository();
 
     public Query labelQuery(Query query) {
         queryRepository.labelQuery(query);
@@ -30,24 +33,15 @@ public class QueryService {
         return queryRepository.getAllByType(typeIri);
     }
 
-    public List<SearchResultSummary> convertQueryIMResultsToSearchResultSummary(JsonNode queryResults) {
-        List<SearchResultSummary> result = new ArrayList<>();
+    public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults) {
+        SearchResponse result = new SearchResponse();
 
         if (queryResults.has("entities")) {
             JsonNode entities = queryResults.get("entities");
             if (entities.isArray()) {
                 for (JsonNode entity : queryResults.get("entities")) {
-                    SearchResultSummary summary = new SearchResultSummary();
-                    summary.setIri(entity.get("@id").asText());
-                    summary.setName(entity.get(RDFS.LABEL.getIri()).asText());
-                    if (entity.has(RDFS.COMMENT.getIri())) summary.setDescription(entity.get(RDFS.COMMENT.getIri()).asText());
-                    if (entity.has(IM.CODE.iri)) summary.setCode(entity.get(IM.CODE.iri).asText());
-                    summary.setStatus(jsonNodeToTTIriRef(entity, IM.HAS_STATUS.iri).get(0));
-                    summary.setScheme(jsonNodeToTTIriRef(entity, IM.HAS_SCHEME.iri).get(0));
-                    summary.getEntityType().addAll(jsonNodeToTTIriRef(entity, RDF.TYPE.getIri()));
-                    if (entity.has(IM.WEIGHTING.iri)) summary.setWeighting(entity.get(IM.WEIGHTING.iri).asInt());
-
-                    result.add(summary);
+                    SearchResultSummary summary = entityRepository.getEntitySummaryByIri(entity.get("@id").asText());
+                    result.addEntity(summary);
                 }
             }
         }
@@ -61,8 +55,8 @@ public class QueryService {
         if (entity.has(iri)) {
             for (JsonNode node : entity.get(iri)) {
                 TTIriRef iriRef = new TTIriRef(node.get("@id").asText());
-                if (node.has(RDFS.LABEL.getIri()))
-                    iriRef.setName(node.get(RDFS.LABEL.getIri()).asText());
+                if (node.has(RDFS.LABEL))
+                    iriRef.setName(node.get(RDFS.LABEL).asText());
 
                 result.add(iriRef);
             }

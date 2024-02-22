@@ -15,7 +15,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
 	private static final Logger LOG = LoggerFactory.getLogger(ClosureGeneratorBulk.class);
 	private Map<String,Map<String, Set<String>>> relationshipMap;
 	private HashMap<String, Set<String>> closureMap;
-	private static final String[] topConcepts={"http://snomed.info/sct#138875005",IM.CONCEPT.iri,"http://snomed.info/sct#370115009"};
+	private static final String[] topConcepts={"http://snomed.info/sct#138875005",IM.CONCEPT,"http://snomed.info/sct#370115009"};
 	private int counter;
 	private final Set<String> blockingIris = new HashSet<>();
 
@@ -39,9 +39,9 @@ public class ClosureGeneratorBulk implements TCGenerator {
 	}
 
 	private void addInactiveSubsumptions() {
-		for (IM relationship:List.of(IM.SUBSUMED_BY,IM.USUALLY_SUBSUMED_BY,
+		for (String relationship:List.of(IM.SUBSUMED_BY,IM.USUALLY_SUBSUMED_BY,
 			IM.APPROXIMATE_SUBSUMED_BY,IM.MULTIPLE_SUBSUMED_BY)){
-			for (Map.Entry<String, Set<String>> row : relationshipMap.get(relationship.iri).entrySet()) {
+			for (Map.Entry<String, Set<String>> row : relationshipMap.get(relationship).entrySet()) {
 				String child= row.getKey();
 				closureMap.computeIfAbsent(child,c-> new HashSet<>());
 				for (String parent:row.getValue()){
@@ -66,7 +66,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
 		LOG.debug("Generating closure map for subclasses");
 		int c = 0;
 		counter=0;
-		for (Map.Entry<String, Set<String>> row : relationshipMap.get(RDFS.SUBCLASS_OF.getIri()).entrySet()) {
+		for (Map.Entry<String, Set<String>> row : relationshipMap.get(RDFS.SUBCLASS_OF).entrySet()) {
 			c++;
 			String child = row.getKey();
 			if (closureMap.get(child)==null) {
@@ -81,7 +81,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
 
 	private Set<String> generateClosure(String child) {
 		Set<String> closures = closureMap.computeIfAbsent(child, k -> new HashSet<>());
-		String relationship=RDFS.SUBCLASS_OF.getIri();
+		String relationship=RDFS.SUBCLASS_OF;
 
 		// Add self
 		closures.add(child);
@@ -122,7 +122,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
 				TTBulkFiler.setStatementCount(TTBulkFiler.getStatementCount()+1);
 				if (counter % 1000000 == 0)
 					LOG.info("Written {} isas ", counter);
-				fw.write("<" + entry.getKey() + "> <" + IM.IS_A.iri + "> <" + closure + "> <"+IM.NAMESPACE.iri+">.\n");
+				fw.write("<" + entry.getKey() + "> <" + IM.IS_A + "> <" + closure + "> <"+IM.NAMESPACE+">.\n");
 			}
 		}
 		fw.close();

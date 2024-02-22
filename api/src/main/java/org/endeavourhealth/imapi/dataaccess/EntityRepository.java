@@ -9,6 +9,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -206,7 +207,7 @@ public class EntityRepository {
         }
         TTValue ttValue= valueMap.get(subject);
         if (ttValue.isIriRef()) {
-            if (predicate.getIri().equals(RDFS.LABEL.iri))
+            if (predicate.getIri().equals(RDFS.LABEL))
                 ttValue.asIriRef().setName(value.stringValue());
         } else {
             processNode(value, valueMap, subject, st, predicate);
@@ -444,7 +445,7 @@ public class EntityRepository {
         if (rs.hasBinding("extraType")) {
             TTIriRef extraType = TTIriRef.iri(rs.getValue("extraType").stringValue(), rs.getValue("extraTypeName").stringValue());
             entityDocument.addType(extraType);
-            if (extraType.equals(TTIriRef.iri(IM.NAMESPACE.iri + "DataModelEntity"))) {
+            if (extraType.equals(TTIriRef.iri(IM.NAMESPACE + "DataModelEntity"))) {
                 int weighting = 2000000;
                 entityDocument.setWeighting(weighting);
             }
@@ -507,18 +508,18 @@ public class EntityRepository {
 
     private void hydrateSubsumptionCount(EntityDocument entityDocument) {
         String spql = new StringJoiner(System.lineSeparator())
-            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-            .add("PREFIX im: <http://endhealth.info/im#>")
-            .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-            .add("select distinct ?iri (count(?subType) as ?subsumptions)")
-            .add("where {")
-            .add(" ?iri ^im:isA ?subType.")
-            .add(" ?subType im:status im:Active.")
-            .add("}")
-            .add("group by ?iri").toString();
-
+                .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+                .add("PREFIX im: <http://endhealth.info/im#>")
+                .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+                .add("select (count(?subType) as ?subsumptions)")
+                .add("where {")
+                .add(" ?iri ^im:isA ?subType.")
+                .add(" ?subType im:status im:Active.")
+                .add("}").toString();
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery tupleQuery = conn.prepareTupleQuery(spql);
+            tupleQuery.setBinding("iri", literal(entityDocument.getIri()));
+
             try (TupleQueryResult qr = tupleQuery.evaluate()) {
                 while (qr.hasNext()) {
                     BindingSet rs = qr.next();
@@ -760,7 +761,7 @@ public class EntityRepository {
         }
     }
 
-    public Boolean isInverseIsa(String subjectIri, String objectIri) {
+    public Boolean isAncestor(String subjectIri, String objectIri) {
         try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
                 .add("ASK WHERE {")
@@ -768,22 +769,8 @@ public class EntityRepository {
                 .add("}");
             BooleanQuery sparql = conn.prepareBooleanQuery(String.valueOf(stringQuery));
             sparql.setBinding("s",iri(subjectIri));
-            sparql.setBinding("p",iri(IM.IS_A.iri));
+            sparql.setBinding("p",iri(IM.IS_A));
             sparql.setBinding("o",iri(objectIri));
-            return sparql.evaluate();
-        }
-    }
-
-    public Boolean isType(String typeIri, String searchIri) {
-        try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
-                .add("ASK WHERE {")
-                .add("?s ?p ?o")
-                .add("}");
-            BooleanQuery sparql = conn.prepareBooleanQuery(stringQuery.toString());
-            sparql.setBinding("s",iri(searchIri));
-            sparql.setBinding("p",iri(RDF.TYPE.iri));
-            sparql.setBinding("o",iri(typeIri));
             return sparql.evaluate();
         }
     }

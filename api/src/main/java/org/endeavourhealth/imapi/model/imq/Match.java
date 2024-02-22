@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.function.Consumer;
 public class Match extends IriLD {
     private Bool bool;
     private List<Match> match;
-    private List<Node> inSet;
+    private List<Node> is;
     private boolean exclude;
     private Element graph;
     private List<Property> property;
@@ -29,6 +28,7 @@ public class Match extends IriLD {
     private String variable;
     private String name;
     private Match then;
+    private List<Property> path;
 
     public Match getThen() {
         return then;
@@ -36,6 +36,29 @@ public class Match extends IriLD {
 
     public Match setThen(Match then) {
         this.then = then;
+        return this;
+    }
+
+    public List<Property> getPath() {
+        return path;
+    }
+
+    public Match setPath(List<Property> path) {
+        this.path = path;
+        return this;
+    }
+
+    public Match addPath(Property path){
+      if (this.path==null)
+         this.path= new ArrayList();
+      this.path.add(path);
+      return this;
+    }
+
+    public Match path(Consumer<Property> builder) {
+        Property path = new Property();
+        addPath(path);
+        builder.accept(path);
         return this;
     }
 
@@ -109,27 +132,27 @@ public class Match extends IriLD {
         return this;
     }
 
-    public List<Node> getInSet() {
-        return inSet;
+    public List<Node> getIs() {
+        return is;
     }
 
     @JsonSetter
-    public Match setInSet(List<Node> inSet) {
-        this.inSet = inSet;
+    public Match setIs(List<Node> is) {
+        this.is = is;
         return this;
     }
 
 
-    public Match addInSet(Node in) {
-        if (this.inSet == null)
-            this.inSet = new ArrayList<>();
-        this.inSet.add(in);
+    public Match addIs(Node in) {
+        if (this.is == null)
+            this.is = new ArrayList<>();
+        this.is.add(in);
         return this;
     }
 
-    public Match inSet(Consumer<Node> builder) {
+    public Match is(Consumer<Node> builder) {
         Node in = new Node();
-        addInSet(in);
+        addIs(in);
         builder.accept(in);
         return this;
     }

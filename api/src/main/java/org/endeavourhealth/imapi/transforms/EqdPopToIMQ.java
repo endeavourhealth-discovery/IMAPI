@@ -5,6 +5,10 @@ import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.DataFormatException;
 
 public class EqdPopToIMQ {
@@ -17,7 +21,7 @@ public class EqdPopToIMQ {
 	public void convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException, IOException, QueryException {
 		this.activeReport = eqReport.getId();
 		this.resources = resources;
-		query.setTypeOf(IM.NAMESPACE.iri+"Patient");
+		query.setTypeOf(IM.NAMESPACE+"Patient");
 
 
 
@@ -25,7 +29,7 @@ public class EqdPopToIMQ {
 			Match rootMatch = new Match();
 			query.addMatch(rootMatch);
 				rootMatch
-				.addInSet(new Node().setIri(IM.NAMESPACE.iri+"Q_RegisteredGMS"))
+				.addIs(new Node().setIri(IM.NAMESPACE+"Q_RegisteredGMS"))
 				.setName("Registered with GP for GMS services on the reference date");
 		}
 		else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
@@ -34,7 +38,7 @@ public class EqdPopToIMQ {
 			query.addMatch(rootMatch);
 				query.addMatch(rootMatch);
 				rootMatch
-					.addInSet(new Node().setIri("urn:uuid:" + id))
+					.addIs(new Node().setIri("urn:uuid:" + id))
 					.setName(resources.reportNames.get(id));
 			}
 
@@ -104,7 +108,6 @@ public class EqdPopToIMQ {
 
 			}
 	}
-
 
 
 }

@@ -39,6 +39,8 @@ public class IriLD{
 		if (this == o) return true;
 		if (!(o instanceof IriLD)) return false;
 		IriLD ttIriRef = (IriLD) o;
+		if (ttIriRef.iri==null||iri==null)
+			return false;
 		return iri.equals(ttIriRef.iri);
 	}
 
@@ -50,7 +52,7 @@ public class IriLD{
 	public String assignIri(String iri){
 		if (iri != null && !iri.isEmpty()) {
 			if (!iri.matches("([a-z]+)?[:].*")) {
-				return IM.NAMESPACE.iri + iri;
+				return IM.NAMESPACE + iri;
 			}
 		}
 		return iri;

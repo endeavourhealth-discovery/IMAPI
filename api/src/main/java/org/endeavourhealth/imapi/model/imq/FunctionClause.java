@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,10 +65,6 @@ public class FunctionClause extends Value{
 		super.setDataType(dataType);
 		return this;
 	}
-	public Value setDataType(Vocabulary dataType) {
-		return setDataType(dataType.asTTIriRef());
-	}
-
 
 	public Value setOperator(Operator operator) {
 		super.setOperator(operator);

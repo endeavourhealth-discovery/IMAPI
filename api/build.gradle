@@ -4,7 +4,7 @@
 plugins {
     id 'war'
     id "cz.habarta.typescript-generator" version "3.2.1263"
-    id "org.endeavourhealth.plugins.StaticConstGenerator" version "1.0-SNAPSHOT"
+    id "org.endeavourhealth.plugins.StaticConstGenerator" version "1.2-SNAPSHOT"
 }
 
 group = 'org.endeavourhealth.imapi'

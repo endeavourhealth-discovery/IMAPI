@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,11 +28,6 @@ public class MapFunction extends TTIriRef {
 		this.defaultValue = defaultValue;
 		return this;
 	}
-	public MapFunction setDefaultValue(Vocabulary defaultValue) {
-		this.defaultValue = defaultValue.asTTIriRef();
-		return this;
-	}
-
 
 	public MapFunction setIri(String iri){
 		super.setIri(iri);
@@ -104,8 +98,5 @@ public class MapFunction extends TTIriRef {
 	public MapFunction setIri(TTIriRef iri) {
 		super.setIri(iri.getIri());
 		return this;
-	}
-	public MapFunction setIri(Vocabulary iri) {
-		return setIri(iri.asTTIriRef());
 	}
 }

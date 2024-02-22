@@ -26,7 +26,7 @@ public class ConfigManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigManager.class);
 
-    public <T> T getConfig(CONFIG iri, TypeReference<T> resultType) throws JsonProcessingException {
+    public <T> T getConfig(String iri, TypeReference<T> resultType) throws JsonProcessingException {
         LOG.debug("getConfig<TypeReference>");
 
         try (CachedObjectMapper om = new CachedObjectMapper()) {
@@ -37,7 +37,7 @@ public class ConfigManager {
         }
     }
 
-    public Config getConfig(CONFIG config) {
+    public Config getConfig(String config) {
         // NOTE - DON'T USE PREFIXES OR 'prepareSparql' HERE
         //        OR CYCLIC LOOP FETCHING DEFAULT PREFIXES
         StringJoiner sql = new StringJoiner(System.lineSeparator())
@@ -50,9 +50,9 @@ public class ConfigManager {
 
         try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
-            qry.setBinding("s", Values.iri(config.iri));
-            qry.setBinding("label", Values.iri(RDFS.LABEL.iri));
-            qry.setBinding("config", Values.iri(IM.HAS_CONFIG.iri));
+            qry.setBinding("s", Values.iri(config));
+            qry.setBinding("label", Values.iri(RDFS.LABEL));
+            qry.setBinding("config", Values.iri(IM.HAS_CONFIG));
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
                     BindingSet bs = rs.next();

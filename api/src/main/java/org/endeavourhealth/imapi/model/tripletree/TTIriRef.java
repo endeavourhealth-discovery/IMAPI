@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -19,14 +20,12 @@ public class TTIriRef implements TTValue, Serializable {
     public static TTIriRef iri(String iri, String name) {
         return new TTIriRef(iri, name);
     }
-    public static TTIriRef iri(Vocabulary iri) {
-        return iri.asTTIriRef();
-    }
 
     private static Pattern iriPattern = Pattern.compile("([a-z]+)?[:].*");
-
     private String iri;
+    @JsonProperty(defaultValue = "")
     private String name;
+    @JsonProperty(defaultValue = "")
     private String description;
 
 
@@ -50,11 +49,8 @@ public class TTIriRef implements TTValue, Serializable {
         setName(name);
     }
 
-    public TTIriRef(Vocabulary iri) {
-        setIri(iri.getIri());
-    }
-
-    @JsonProperty(value = "@id", required = true)
+    @JsonProperty(value="@id",required = true)
+    @JsonAlias({"@id"})
     public String getIri() {
         return this.iri;
     }
@@ -62,7 +58,7 @@ public class TTIriRef implements TTValue, Serializable {
     public TTIriRef setIri(String iri) {
         this.iri = iri;
         if (iri != null && !iri.isEmpty() && !iriPattern.matcher(iri).matches()){
-            iri= IM.NAMESPACE.iri+iri;
+            iri= IM.NAMESPACE+iri;
             if (!iriPattern.matcher(iri).matches())
                 Thread.dumpStack();
         }

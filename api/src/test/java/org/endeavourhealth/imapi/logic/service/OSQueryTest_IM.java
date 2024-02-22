@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -33,10 +34,10 @@ class OSQueryTest_IM {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1");
 
-        List<SearchResultSummary> results = osq.openSearchQuery(req);
-        assertEquals(2, results.size());
+        SearchResponse results = osq.openSearchQuery(req);
+        assertEquals(2, results.getEntities().size());
         List<String> iris = new ArrayList<>();
-        results.forEach(e -> iris.add(e.getIri()));
+        results.getEntities().forEach(e -> iris.add(e.getIri()));
         assertTrue(List.of("http://snomed.info/sct#702450004", "http://endhealth.info/emis#7561151000006117").containsAll(iris));
     }
 
@@ -50,15 +51,15 @@ class OSQueryTest_IM {
                     new Match()
                         .setProperty(List.of(
                             new Property()
-                                .setIri(IM.HAS_SCHEME.getIri())
+                                .setIri(IM.HAS_SCHEME)
                                 .setIs(List.of(new Node().setIri(SNOMED.NAMESPACE)))
                         ))
                 ))
             );
 
-        List<SearchResultSummary> results = osq.openSearchQuery(req);
-        assertEquals(1, results.size());
-        assertEquals("http://snomed.info/sct#702450004", results.get(0).getIri());
+        SearchResponse results = osq.openSearchQuery(req);
+        assertEquals(1, results.getEntities().size());
+        assertEquals("http://snomed.info/sct#702450004", results.getEntities().get(0).getIri());
     }
 
     @Test
@@ -74,9 +75,9 @@ class OSQueryTest_IM {
                 )))
             );
 
-        List<SearchResultSummary> results = osq.openSearchQuery(req);
-        assertEquals(1, results.size());
-        assertEquals("http://snomed.info/sct#702450004", results.get(0).getIri());
+        SearchResponse results = osq.openSearchQuery(req);
+        assertEquals(1, results.getEntities().size());
+        assertEquals("http://snomed.info/sct#702450004", results.getEntities().get(0).getIri());
     }
 
     @Test
@@ -95,9 +96,9 @@ class OSQueryTest_IM {
                 )))
             );
 
-        List<SearchResultSummary> results = osq.openSearchQuery(req);
-        assertEquals(1, results.size());
-        assertEquals("http://snomed.info/sct#702450004", results.get(0).getIri());
+        SearchResponse results = osq.openSearchQuery(req);
+        assertEquals(1, results.getEntities().size());
+        assertEquals("http://snomed.info/sct#702450004", results.getEntities().get(0).getIri());
     }
 
     @Test
@@ -109,15 +110,15 @@ class OSQueryTest_IM {
                 .setMatch(List.of(
                     new Match()
                         .addProperty(new Property()
-                            .setIri(IM.HAS_MEMBER.getIri())
+                            .setIri(IM.HAS_MEMBER)
                             .setInverse(true)
                             .setIs(List.of(new Node().setIri("http://endhealth.info/im#VSET_ASD")))
                         )
                 ))
             );
 
-        List<SearchResultSummary> results = osq.openSearchQuery(req);
-        assertEquals(1, results.size());
-        assertEquals("http://snomed.info/sct#702450004", results.get(0).getIri());
+        SearchResponse results = osq.openSearchQuery(req);
+        assertEquals(1, results.getEntities().size());
+        assertEquals("http://snomed.info/sct#702450004", results.getEntities().get(0).getIri());
     }
 }

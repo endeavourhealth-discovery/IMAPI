@@ -18,6 +18,7 @@ import org.elasticsearch.xcontent.XContentFactory;
 import org.elasticsearch.xcontent.json.JsonXContent;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
+import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.*;
@@ -53,6 +54,7 @@ public class OSQuery {
     private static final String COMMENT = "comment";
     private boolean hasScriptScore;
 
+
     /**
      * A rapid response page oriented query that bundles together code/iri key prefix term and the multi-word sequentially
      * <p> Each time a result is found, if more than one page it may be returned leaving the calling method to determine whether to add more results.
@@ -63,16 +65,18 @@ public class OSQuery {
      * @return search request object
      * @throws QueryException if problem with data format of query
      */
-    public List<SearchResultSummary>  multiPhaseQuery(SearchRequest request) throws  InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+
+    public SearchResponse  multiPhaseQuery(SearchRequest request) throws  InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
 
         request.addTiming("Entry point for \""+request.getTermFilter()+"\"");
-        List<SearchResultSummary> results = defaultQuery(request);
-        if (!results.isEmpty()) {
+        SearchResponse results;
+            results = defaultQuery(request);
+        if (null != results) {
             return results;
         }
         if (request.getTermFilter().contains(" ")){
           results= wrapandRun(buildNGramQuery(request),request);
-          if (!results.isEmpty())
+          if (null != results)
               return results;
         }
 
@@ -80,13 +84,14 @@ public class OSQuery {
         if (corrected!=null) {
                     request.setTermFilter(corrected);
                     results = defaultQuery(request);
-                    if (!results.isEmpty())
+                    if (null != results)
                     return results;
         }
 
         return results;
     }
-    private List<SearchResultSummary> defaultQuery(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+
+    private SearchResponse defaultQuery(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         int page = request.getPage();
         int size = request.getSize();
         request.setFrom(size * (page - 1));
@@ -94,7 +99,7 @@ public class OSQuery {
         if (null == term) {
             return boolQuery(request);
         }
-        List<SearchResultSummary> results;
+        SearchResponse results;
         if (page == 1 && term != null && (!term.contains(" "))) {
             if (term.contains(":")) {
                 String namespace = EntityCache.getDefaultPrefixes().getNamespace(term.substring(0, term.indexOf(":")));
@@ -108,23 +113,20 @@ public class OSQuery {
 
         results = autoCompleteQuery(request);
         request.addTiming("end auto complete query - returning results");
-        if (!results.isEmpty()) {
+        if (null != results) {
             return results;
         }
         return multiWordQuery(request);
     }
 
-
-
-
-    private List<SearchResultSummary> codeIriQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    private SearchResponse codeIriQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
 
         QueryBuilder qry = buildCodeIriQuery(request);
         return wrapandRun(qry, request);
     }
 
 
-    private List<SearchResultSummary> autoCompleteQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    private SearchResponse autoCompleteQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         QueryBuilder qry = buildAutoCompleteQuery(request);
         hasScriptScore= true;
         return wrapandRun(qry, request);
@@ -180,13 +182,13 @@ public class OSQuery {
         }
     }
 
-    private List<SearchResultSummary> boolQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    private SearchResponse boolQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         QueryBuilder qry = buildBoolQuery(request);
         return wrapandRun(qry, request);
     }
 
 
-    private List<SearchResultSummary> multiWordQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    private SearchResponse multiWordQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         QueryBuilder qry = buildMultiWordQuery(request);
         return wrapandRun(qry, request);
     }
@@ -363,7 +365,7 @@ public class OSQuery {
 
     }
 
-    private List<SearchResultSummary> wrapandRun(QueryBuilder query,SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    private SearchResponse wrapandRun(QueryBuilder query,SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         SearchSourceBuilder bld= new SearchSourceBuilder();
         if (hasScriptScore) {
             Map<String,Object> params= getScript(request);
@@ -412,7 +414,7 @@ public class OSQuery {
     }
 
 
-    public List<SearchResultSummary> runQuery(SearchRequest request, SearchSourceBuilder bld) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+    public SearchResponse runQuery(SearchRequest request, SearchSourceBuilder bld) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         request.addTiming("About to run query");
 
         String queryJson = bld.toString();
@@ -422,7 +424,7 @@ public class OSQuery {
         try (CachedObjectMapper om = new CachedObjectMapper()) {
             JsonNode root = om.readTree(response.body());
             request.addTiming("Query run and response received. Ready to produce search results");
-            List<SearchResultSummary> searchResults = new ArrayList<>();
+            SearchResponse searchResults = new SearchResponse();
             return standardResponse(request, root, om, searchResults);
         }
 
@@ -464,12 +466,49 @@ public class OSQuery {
 
     }
 
-    private List<SearchResultSummary> standardResponse(SearchRequest request, JsonNode root, CachedObjectMapper resultMapper, List<SearchResultSummary> searchResults) throws JsonProcessingException {
+    public int runQueryCount(SearchRequest request, SearchSourceBuilder bld) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+        String queryJson = bld.toString();
+        String url = System.getenv("OPENSEARCH_URL");
+        if (url == null)
+            throw new OpenSearchException("Environmental variable OPENSEARCH_URL is not set");
+
+        String index = request.getIndex();
+        if (index == null)
+            index = System.getenv("OPENSEARCH_INDEX");
+
+        if (System.getenv("OPENSEARCH_AUTH") == null)
+            throw new OpenSearchException("Environmental variable OPENSEARCH_AUTH token is not set");
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+            .uri(new URI(url + index + "/_count"))
+
+            .header("Authorization", "Basic " + System.getenv("OPENSEARCH_AUTH"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(queryJson))
+            .build();
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = client
+            .sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
+            .thenApply(res -> res)
+            .get();
+
+        if (299 < response.statusCode()) {
+            LOG.debug("Open search request failed with code: {}", response.statusCode());
+            throw new OpenSearchException("Search request failed. Error connecting to opensearch. ");
+        }
+
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            JsonNode root = om.readTree(response.body());
+            return root.get("count").asInt();
+        }
+    }
+
+    private SearchResponse standardResponse(SearchRequest request, JsonNode root, CachedObjectMapper resultMapper, SearchResponse searchResults) throws JsonProcessingException {
         int resultNumber = 0;
         for (JsonNode hit : root.get("hits").get("hits")) {
             resultNumber++;
             SearchResultSummary source = resultMapper.treeToValue(hit.get("_source"), SearchResultSummary.class);
-            searchResults.add(source);
+            searchResults.addEntity(source);
             source.setMatch(source.getName());
             if (source.getPreferredName()!=null) {
                 source.setName(source.getPreferredName());
@@ -480,10 +519,14 @@ public class OSQuery {
             }
             source.setTermCode(null);
         }
+        Integer totalCount = resultMapper.treeToValue(root.get("hits").get("total").get("value"),Integer.class);
+        if (null != totalCount) searchResults.setCount(totalCount);
+        if (request.getPage() != 0) searchResults.setPage(request.getPage());
         //Sort now donw in query
        // if (!searchResults.isEmpty() && null != request.getTermFilter())
          //   sort(searchResults, request.getTermFilter());
         request.addTiming("Results List built");
+        if (null != request.getTermFilter()) searchResults.setTerm(request.getTermFilter());
         return searchResults;
     }
 
@@ -498,7 +541,7 @@ public class OSQuery {
         if (searchResult.getTermCode() != null) {
             for (SearchTermCode tc : searchResult.getTermCode()) {
                 TTIriRef termCodeStatus = tc.getStatus();
-                if ((termCodeStatus != null) && (!(termCodeStatus.getIri().equals(IM.INACTIVE.iri))) &&
+                if ((termCodeStatus != null) && (!(termCodeStatus.getIri().equals(IM.INACTIVE))) &&
                     (tc.getTerm() != null && tc.getTerm().toLowerCase().startsWith(searchTerm))) {
                     searchResult.setMatch(tc.getTerm());
                     break;
@@ -518,7 +561,7 @@ public class OSQuery {
      * @throws QueryException if content of query definition is invalid
      */
 
-    public List<SearchResultSummary> openSearchQuery(QueryRequest queryRequest) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException, QueryException {
+    public SearchResponse openSearchQuery(QueryRequest queryRequest) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException, QueryException {
         if (queryRequest.getTextSearch() == null)
             return null;
 
@@ -537,8 +580,8 @@ public class OSQuery {
         SearchRequest searchRequest = queryRequestToSearchRequest(queryRequest);
         if (searchRequest==null)
             return null;
-        List<SearchResultSummary> results = multiPhaseQuery(searchRequest);
-        if (results.isEmpty())
+        SearchResponse results = multiPhaseQuery(searchRequest);
+        if (results.getEntities().isEmpty())
             return null;
         else
             return results;
@@ -600,19 +643,19 @@ public class OSQuery {
         return true;
     }
 
-    public ObjectNode convertOSResult(List<SearchResultSummary> searchResults, Query query) {
+    public ObjectNode convertOSResult(SearchResponse searchResults, Query query) {
         try (CachedObjectMapper om = new CachedObjectMapper()) {
             ObjectNode result = om.createObjectNode();
             ArrayNode resultNodes = om.createArrayNode();
             result.set("entities", resultNodes);
-            for (SearchResultSummary searchResult : searchResults) {
+            for (SearchResultSummary searchResult : searchResults.getEntities()) {
                 ObjectNode resultNode = om.createObjectNode();
                 resultNodes.add(resultNode);
                 resultNode.put("@id", searchResult.getIri());
 
                 if (query != null) {
                     if (query.getReturn() == null)
-                        query.return_(s -> s.property(p -> p.setIri(RDFS.LABEL.iri)));
+                        query.return_(s -> s.property(p -> p.setIri(RDFS.LABEL)));
                     for (Return select : query.getReturn()) {
                         convertOSResultAddNode(om, searchResult, resultNode, select);
                     }
@@ -627,27 +670,17 @@ public class OSQuery {
             for (ReturnProperty prop : select.getProperty()) {
                 if (prop.getIri() != null) {
                     String field = prop.getIri();
-                    if (IM.contains(field)) {
-                        switch (IM.valueOf(field)) {
-                            case CODE -> resultNode.put(field, searchResult.getCode());
-                            case HAS_STATUS -> resultNode.set(field, fromIri(searchResult.getStatus(), om));
-                            case HAS_SCHEME -> resultNode.set(field, fromIri(searchResult.getScheme(), om));
-                            case WEIGHTING -> resultNode.put(field, searchResult.getWeighting());
+                    switch (field) {
+                        case IM.CODE -> resultNode.put(field, searchResult.getCode());
+                        case IM.HAS_STATUS -> resultNode.set(field, fromIri(searchResult.getStatus(), om));
+                        case IM.HAS_SCHEME -> resultNode.set(field, fromIri(searchResult.getScheme(), om));
+                        case IM.WEIGHTING -> resultNode.put(field, searchResult.getWeighting());
+                        case RDFS.LABEL -> resultNode.put(field, searchResult.getName());
+                        case RDFS.COMMENT -> {
+                            if (searchResult.getDescription() != null)
+                                resultNode.put(field, searchResult.getDescription());
                         }
-                    }
-                    if (RDFS.contains(field)) {
-                        switch (RDFS.valueOf(field)) {
-                            case LABEL -> resultNode.put(field, searchResult.getName());
-                            case COMMENT -> {
-                                if (searchResult.getDescription() != null)
-                                    resultNode.put(field, searchResult.getDescription());
-                            }
-                        }
-                    }
-                    if (RDF.contains(field)) {
-                        if (RDF.TYPE.equals(RDF.valueOf(field))) {
-                            resultNode.set(field, arrayFromIri(searchResult.getEntityType(), om));
-                        }
+                        case RDF.TYPE -> resultNode.set(field, arrayFromIri(searchResult.getEntityType(), om));
                     }
                 }
             }
@@ -690,7 +723,7 @@ public class OSQuery {
             if (!processMatches(request, query, imRequest))
                 return null;
             if (query.isActiveOnly()) {
-                if (request.getStatusFilter().isEmpty()) request.setStatusFilter(List.of(IM.ACTIVE.iri));
+                if (request.getStatusFilter().isEmpty()) request.setStatusFilter(List.of(IM.ACTIVE));
             }
             processSelects(request, query);
         }
@@ -708,12 +741,12 @@ public class OSQuery {
                 .flatMap(Collection::stream)
                 .forEach(prop -> {
                     if (prop.getIri() != null) {
-                        if (prop.getIri().equals(RDFS.COMMENT.iri)) request.addSelect("description");
-                        else if (prop.getIri().equals(IM.CODE.iri)) request.addSelect("code");
-                        else if (prop.getIri().equals(IM.HAS_STATUS.iri)) request.addSelect(STATUS);
-                        else if (prop.getIri().equals(IM.HAS_SCHEME.iri)) request.addSelect(SCHEME);
-                        else if (prop.getIri().equals(RDF.TYPE.iri)) request.addSelect("entityType");
-                        else if (prop.getIri().equals(IM.WEIGHTING.iri)) request.addSelect(WEIGHTING);
+                        if (prop.getIri().equals(RDFS.COMMENT)) request.addSelect("description");
+                        else if (prop.getIri().equals(IM.CODE)) request.addSelect("code");
+                        else if (prop.getIri().equals(IM.HAS_STATUS)) request.addSelect(STATUS);
+                        else if (prop.getIri().equals(IM.HAS_SCHEME)) request.addSelect(SCHEME);
+                        else if (prop.getIri().equals(RDF.TYPE)) request.addSelect("entityType");
+                        else if (prop.getIri().equals(IM.WEIGHTING)) request.addSelect(WEIGHTING);
                     }
                 });
         }
@@ -765,11 +798,11 @@ public class OSQuery {
 
     private static boolean processProperties(SearchRequest request, Match match) throws QueryException {
         for(Property w : match.getProperty()) {
-            if (IM.HAS_SCHEME.iri.equals(w.getIri())) {
+            if (IM.HAS_SCHEME.equals(w.getIri())) {
                 processSchemeProperty(request, w);
-            } else if (IM.HAS_MEMBER.iri.equals(w.getIri()) && w.isInverse()) {
+            } else if (IM.HAS_MEMBER.equals(w.getIri()) && w.isInverse()) {
                 processMemberProperty(request, w);
-            } else if (IM.HAS_STATUS.iri.equals(w.getIri())) {
+            } else if (IM.HAS_STATUS.equals(w.getIri())) {
                 processStatusProperty(request, w);
             } else {
                 return false;
@@ -888,14 +921,14 @@ public class OSQuery {
             return false;
 
         return List.of(
-            RDFS.LABEL.iri,
-            RDFS.COMMENT.iri,
-            IM.CODE.iri,
-            IM.HAS_STATUS.iri,
-            IM.HAS_SCHEME.iri,
-            RDF.TYPE.iri,
-            IM.WEIGHTING.iri,
-            IM.HAS_MEMBER.iri
+            RDFS.LABEL,
+            RDFS.COMMENT,
+            IM.CODE,
+            IM.HAS_STATUS,
+            IM.HAS_SCHEME,
+            RDF.TYPE,
+            IM.WEIGHTING,
+            IM.HAS_MEMBER
         ).contains(iri);
     }
 

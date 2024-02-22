@@ -10,12 +10,14 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.im.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class ProvService {
@@ -32,30 +34,30 @@ public class ProvService {
         else if (null != targetEntity.getScheme() && null != targetEntity.getScheme().getIri())
             root = targetEntity.getScheme().getIri();
         else
-            root = IM.NAMESPACE.iri;
+            root = IM.NAMESPACE;
 
         String uir = getPerson(agentName, root);
         ProvAgent agent = new ProvAgent()
                 .setPersonInRole(TTIriRef.iri(uir))
-                .setParticipationType(IM.AUTHOR_ROLE.asTTIriRef());
-        agent.setName(agentName).setIri(uir.replace("uir.", "agent.")).setCrud(IM.ADD_QUADS.asTTIriRef());
+                .setParticipationType(iri(IM.AUTHOR_ROLE));
+        agent.setName(agentName).setIri(uir.replace("uir.", "agent.")).setCrud(iri(IM.ADD_QUADS));
         return agent;
     }
 
     public ProvActivity buildProvenanceActivity(TTEntity targetEntity, ProvAgent agent, String usedEntityIri) {
         ProvActivity activity = new ProvActivity()
                 .setIri("urn:uuid:" + UUID.randomUUID())
-                .setActivityType(IM.PROV_CREATION.asTTIriRef())
+                .setActivityType(iri(IM.PROV_CREATION))
                 .setEffectiveDate(LocalDateTime.now().toString())
                 .addAgent(TTIriRef.iri(agent.getIri()))
                 .setTargetEntity(TTIriRef.iri(targetEntity.getIri()));
 
         if (null != usedEntityIri) {
-            activity.setActivityType(IM.PROV_UPDATE.asTTIriRef());
-            activity.set(IM.PROVENANCE_USED.asTTIriRef(), TTIriRef.iri(usedEntityIri));
+            activity.setActivityType(iri(IM.PROV_UPDATE));
+            activity.set(iri(IM.PROVENANCE_USED), TTIriRef.iri(usedEntityIri));
         }
 
-        activity.setCrud(IM.ADD_QUADS.asTTIriRef());
+        activity.setCrud(iri(IM.ADD_QUADS));
         return activity;
     }
 
@@ -64,9 +66,9 @@ public class ProvService {
             return new TTEntity()
                 .setIri(usedEntity.getIri() + "/" + (usedEntity.getVersion()))
                 .setName(usedEntity.getName())
-                .set(IM.DEFINITION.asTTIriRef(), new TTLiteral(om.writeValueAsString(usedEntity)))
-                .setGraph(GRAPH.PROV.asTTIriRef())
-                .setCrud(IM.ADD_QUADS.asTTIriRef());
+                .set(iri(IM.DEFINITION), new TTLiteral(om.writeValueAsString(usedEntity)))
+                .setGraph(iri(GRAPH.PROV))
+                .setCrud(iri(IM.ADD_QUADS));
         }
     }
 

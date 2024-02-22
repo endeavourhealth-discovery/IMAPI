@@ -15,7 +15,7 @@ public class EqdListToIMQ {
 		this.resources= resources;
 		String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
 		query.match(f->f
-			.addInSet(new Node().setIri("urn:uuid:" + id))
+			.addIs(new Node().setIri("urn:uuid:" + id))
 			.setName(resources.reportNames.get(id)));
 		for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
 			EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();
@@ -42,9 +42,19 @@ public class EqdListToIMQ {
 			Return select= new Return();
 			subQuery.addReturn(select);
 			String eqColumn= String.join("/",eqCol.getColumn());
-			String property = resources.getPath(eqTable + "/" + eqColumn);
-			select.property(p->p
-				.setIri(IM.NAMESPACE.iri+property));
+			String[] propertyPath = resources.getPath(eqTable + "/" + eqColumn).split(" ");
+			if (propertyPath.length==1){
+				select.property(p->p.setIri(IM.NAMESPACE+propertyPath[0]));
+			}
+			else {
+				for (int i=0; i<propertyPath.length; i++){
+					ReturnProperty property= new ReturnProperty();
+					property.setIri(IM.NAMESPACE+propertyPath[i]);
+					select.addProperty(property);
+					select= new Return();
+					property.setReturn(select);
+				}
+			}
 		}
 	}
 
@@ -77,7 +87,7 @@ public class EqdListToIMQ {
 				for (int i=0; i<elements.length; i=i+2){
 					ReturnProperty property= new ReturnProperty();
 					aReturn.addProperty(property);
-					property.setIri(IM.NAMESPACE.iri+ elements[i]);
+					property.setIri(IM.NAMESPACE+ elements[i]);
 					if (i<(elements.length-2)) {
 						property.setReturn(new Return());
 						aReturn = property.getReturn();
@@ -85,7 +95,7 @@ public class EqdListToIMQ {
 				}
 			}
 			else {
-				aReturn.property(p->p.setIri(IM.NAMESPACE.iri+subPath));
+				aReturn.property(p->p.setIri(IM.NAMESPACE+subPath));
 			}
 		}
 	}

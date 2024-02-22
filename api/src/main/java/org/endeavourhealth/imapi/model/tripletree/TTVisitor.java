@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
-import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.Map;
 
@@ -73,33 +72,6 @@ public class TTVisitor {
         }
         nodeExitVisitor.visit(predicate, node);
     }
-    public void visit(Vocabulary predicate, TTNode node) {
-        if (predicate != null) {
-            predicateVisitor.visit(predicate.asTTIriRef());
-
-            nodeVisitor.visit(predicate.asTTIriRef(), node);
-            Map<TTIriRef, TTArray> predicateMap = node.getPredicateMap();
-            for (Map.Entry<TTIriRef, TTArray> entry : predicateMap.entrySet()) {
-                TTIriRef p = entry.getKey();
-                TTArray v = entry.getValue();
-
-                visit(p, v);
-            }
-            nodeExitVisitor.visit(predicate.asTTIriRef(), node);
-        }
-        else {
-            nodeVisitor.visit(null, node);
-            Map<TTIriRef, TTArray> predicateMap = node.getPredicateMap();
-            for (Map.Entry<TTIriRef, TTArray> entry : predicateMap.entrySet()) {
-                TTIriRef p = entry.getKey();
-                TTArray v = entry.getValue();
-
-                visit(p, v);
-            }
-            nodeExitVisitor.visit(null, node);
-        }
-    }
-
 
     public void visit(TTIriRef predicate, TTValue value) {
         if (value.isLiteral()) {

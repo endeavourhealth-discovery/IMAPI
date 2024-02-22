@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.dataaccess.PathRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
+import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -40,12 +42,18 @@ public class SearchService {
         repo.unpackQueryRequest(queryRequest, result);
         if (null != queryRequest.getTextSearch()) {
             OSQuery osq = new OSQuery();
-            List<SearchResultSummary> osResult = osq.openSearchQuery(queryRequest);
+            SearchResponse osResult = osq.openSearchQuery(queryRequest);
             if (osResult != null)
                 return osq.convertOSResult(osResult, queryRequest.getQuery());
         }
 
 		return repo.queryIM(queryRequest);
+	}
+
+	public Query getQuery(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
+		QueryRepository repo = new QueryRepository();
+		repo.unpackQueryRequest(queryRequest);
+		return queryRequest.getQuery();
 	}
 
 	public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
@@ -61,26 +69,13 @@ public class SearchService {
      * @return a list of SearchResultSummary
      * @throws DataFormatException if query format is invalid
      */
-    public List<SearchResultSummary> queryIMSearch(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
+    public SearchResponse queryIMSearch(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
         ObjectNode result = new ObjectMapper().createObjectNode();
         QueryRepository repo = new QueryRepository();
         repo.unpackQueryRequest(queryRequest, result);
 
-        // Set correct return properties for SearchResultSummary structure
-		List<Return> summaryReturn = new ArrayList<Return>();
-		summaryReturn.add(new Return()
-			.addProperty(new ReturnProperty().setIri(RDFS.LABEL.iri))
-			.addProperty(new ReturnProperty().setIri(RDFS.COMMENT.iri))
-			.addProperty(new ReturnProperty().setIri(IM.CODE.iri))
-			.addProperty(new ReturnProperty().setIri(IM.HAS_STATUS.iri).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL.iri))))
-			.addProperty(new ReturnProperty().setIri(IM.HAS_SCHEME.iri).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL.iri))))
-			.addProperty(new ReturnProperty().setIri(RDF.TYPE.iri).setReturn(new Return().addProperty(new ReturnProperty().setIri(RDFS.LABEL.iri))))
-			.addProperty(new ReturnProperty().setIri(IM.WEIGHTING.iri))
-		);
-        queryRequest.getQuery().setReturn(summaryReturn);
-
         if (null != queryRequest.getTextSearch()) {
-            List<SearchResultSummary> osResult = new OSQuery().openSearchQuery(queryRequest);
+            SearchResponse osResult = new OSQuery().openSearchQuery(queryRequest);
             if (osResult != null)
                 return osResult;
         }
@@ -120,10 +115,9 @@ public class SearchService {
      * @return A set of Summaries of entity documents from the store
      *
      */
-	public List<SearchResultSummary> getEntitiesByTerm(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+	public SearchResponse getEntitiesByTerm(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
 		return new OSQuery().multiPhaseQuery(request);
 	}
-
 
 }
 

@@ -23,6 +23,7 @@ public class ReturnProperty {
 	private Return returx;
 	private TTIriRef dataType;
 	private Case casex;
+	private String description;
 
 
 	@JsonProperty("case")
@@ -161,4 +162,11 @@ public class ReturnProperty {
 	}
 
 
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 }

@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.model.imq.PathDocument;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -109,12 +110,12 @@ class SearchServiceTest {
 	private void output(SearchRequest request,String name,boolean write) throws IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
 
 		SearchService ss = new SearchService();
-		List<SearchResultSummary> results = ss.getEntitiesByTerm(request);
+		SearchResponse results = ss.getEntitiesByTerm(request);
 		if (write) {
 			try (FileWriter wr = new FileWriter(testDefinitions + "\\" + name + "_definition.json")) {
 				wr.write(new ObjectMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(request));
 			}
-			System.out.println("Found "+ results.size()+" entities" );
+			System.out.println("Found "+ results.getEntities().size()+" entities" );
 
 		}
 
@@ -167,10 +168,10 @@ class SearchServiceTest {
 	//@Test
 	public void setTest() throws DataFormatException, JsonProcessingException, QueryException {
 		EntityService es= new EntityService();
-		TTEntity entity= es.getFullEntity(IM.NAMESPACE.iri+"VSET_VitalSigns").getEntity();
-		String json = entity.get(IM.DEFINITION).asLiteral().getValue();
+		TTEntity entity= es.getFullEntity(IM.NAMESPACE+"VSET_VitalSigns").getEntity();
+		String json = entity.get(TTIriRef.iri(IM.DEFINITION)).asLiteral().getValue();
 		SetExporter exporter = new SetExporter();
-		Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE.iri + "VSET_VitalSigns", false, true, List.of());
+		Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE + "VSET_VitalSigns", false, true, List.of());
 		System.out.println(concepts.size());
 	}
 }

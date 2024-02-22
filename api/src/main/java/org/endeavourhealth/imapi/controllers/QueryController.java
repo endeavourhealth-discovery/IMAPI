@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.slf4j.Logger;
@@ -55,9 +56,16 @@ public class QueryController {
         summary = "Query IM returning conceptSummaries",
         description = "Runs a generic query on IM and returns results as ConceptSummary items."
     )
-    public List<SearchResultSummary> queryIMSearch(@RequestBody QueryRequest queryRequest) throws DataFormatException, IOException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
+    public SearchResponse queryIMSearch(@RequestBody QueryRequest queryRequest) throws DataFormatException, IOException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
         LOG.debug("queryIMSearch");
         return searchService.queryIMSearch(queryRequest);
+    }
+
+    @PostMapping("/public/getQuery")
+    @Operation(summary = "get query as query object")
+    public Query getQuery(@RequestBody QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
+        LOG.debug("getQuery");
+        return searchService.getQuery(queryRequest);
     }
 
 

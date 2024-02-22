@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,9 +32,9 @@ class OSQueryTest_OS {
         SearchRequest req = new SearchRequest()
             .setTermFilter("FOXG1");
 
-        List<SearchResultSummary> results = osq.multiPhaseQuery(req);
-        assertEquals(2, results.size());
-        List<String> iris = results.stream().map(SearchResultSummary::getIri).toList();
+        SearchResponse results = osq.multiPhaseQuery(req);
+        assertEquals(2, results.getEntities().size());
+        List<String> iris = results.getEntities().stream().map(SearchResultSummary::getIri).toList();
         assertTrue(List.of("http://snomed.info/sct#702450004", "http://endhealth.info/emis#7561151000006117").containsAll(iris));
     }
 
@@ -44,9 +45,9 @@ class OSQueryTest_OS {
             .setTermFilter("FOXG1")
             .setSchemeFilter(List.of(SNOMED.NAMESPACE));
 
-        List<SearchResultSummary> results = osq.multiPhaseQuery(req);
-        assertEquals(1, results.size());
-        SearchResultSummary result = results.get(0);
+        SearchResponse results = osq.multiPhaseQuery(req);
+        assertEquals(1, results.getEntities().size());
+        SearchResultSummary result = results.getEntities().get(0);
         assertEquals("http://snomed.info/sct#702450004", result.getIri());
     }
 
@@ -57,9 +58,9 @@ class OSQueryTest_OS {
             .setTermFilter("FOXG1")
             .setIsA(List.of("http://snomed.info/sct#57148006"));
 
-        List<SearchResultSummary> results = osq.multiPhaseQuery(req);
-        assertEquals(1, results.size());
-        SearchResultSummary result = results.get(0);
+        SearchResponse results = osq.multiPhaseQuery(req);
+        assertEquals(1, results.getEntities().size());
+        SearchResultSummary result = results.getEntities().get(0);
         assertEquals("http://snomed.info/sct#702450004", result.getIri());
     }
 
@@ -70,9 +71,9 @@ class OSQueryTest_OS {
             .setTermFilter("FOXG1")
             .setMemberOf(List.of("http://endhealth.info/im#VSET_ASD"));
 
-        List<SearchResultSummary> results = osq.multiPhaseQuery(req);
-        assertEquals(1, results.size());
-        SearchResultSummary result = results.get(0);
+        SearchResponse results = osq.multiPhaseQuery(req);
+        assertEquals(1, results.getEntities().size());
+        SearchResultSummary result = results.getEntities().get(0);
         assertEquals("http://snomed.info/sct#702450004", result.getIri());
     }
 
@@ -84,9 +85,9 @@ class OSQueryTest_OS {
             .setIsA(List.of("http://snomed.info/sct#57148006"))
             .setMemberOf(List.of("http://endhealth.info/im#VSET_ASD"));
 
-        List<SearchResultSummary> results = osq.multiPhaseQuery(req);
-        assertEquals(1, results.size());
-        SearchResultSummary result = results.get(0);
+        SearchResponse results = osq.multiPhaseQuery(req);
+        assertEquals(1, results.getEntities().size());
+        SearchResultSummary result = results.getEntities().get(0);
         assertEquals("http://snomed.info/sct#702450004", result.getIri());
     }
 
@@ -97,8 +98,8 @@ class OSQueryTest_OS {
             .setTermFilter("FOXG1")
             .setMemberOf(List.of("http://endhealth.info/im#VSET_LongTermConditions"));
 
-        List<SearchResultSummary> results = osq.multiPhaseQuery(req);
-        assertEquals(0, results.size());
+        SearchResponse results = osq.multiPhaseQuery(req);
+        assertEquals(0, results.getEntities().size());
     }
 
     @Test
@@ -109,7 +110,7 @@ class OSQueryTest_OS {
             .setIsA(List.of("http://snomed.info/sct#57148006"))
             .setMemberOf(List.of("http://endhealth.info/im#VSET_LongTermConditions"));
 
-        List<SearchResultSummary> results = osq.multiPhaseQuery(req);
-        assertEquals(0, results.size());
+        SearchResponse results = osq.multiPhaseQuery(req);
+        assertEquals(0, results.getEntities().size());
     }
 }

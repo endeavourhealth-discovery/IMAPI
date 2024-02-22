@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class SetTextFileExporter {
     private static final Logger LOG = LoggerFactory.getLogger(SetTextFileExporter.class);
     private final EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
@@ -25,11 +27,11 @@ public class SetTextFileExporter {
     public String getSetFile(String setIri, boolean definition, boolean core, boolean legacy, boolean includeSubsets,
                              boolean ownRow, boolean im1id, List<String> schemes, String del) throws QueryException, JsonProcessingException {
         LOG.debug("Exporting set to TSV");
-        String setName = entityRepository2.getBundle(setIri,Set.of(RDFS.LABEL.iri)).getEntity().getName();
+        String setName = entityRepository2.getBundle(setIri,Set.of(RDFS.LABEL)).getEntity().getName();
 
         String result = "";
 
-        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.iri)).getEntity();
+        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION)).getEntity();
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return null;
 
@@ -52,9 +54,9 @@ public class SetTextFileExporter {
     }
 
     private String getEcl(TTEntity entity) throws QueryException, JsonProcessingException {
-        if (entity.get(IM.DEFINITION.asTTIriRef()) == null)
+        if (entity.get(iri(IM.DEFINITION)) == null)
             return null;
-        return IMLToECL.getECLFromQuery(entity.get(IM.DEFINITION.asTTIriRef()).asLiteral().objectValue(Query.class), true);
+        return IMLToECL.getECLFromQuery(entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class), true);
     }
 
     private StringJoiner generateFile(String setName, Set<Concept> members, boolean includeLegacy, boolean ownRow, boolean im1id, String del, boolean includeSubset) {
@@ -123,11 +125,13 @@ public class SetTextFileExporter {
         String scheme = member.getScheme().getName();
         String subSet = member.getIsContainedIn() != null ? member.getIsContainedIn().iterator().next().getName() : null;
         String subsetIri = member.getIsContainedIn() != null ? member.getIsContainedIn().iterator().next().getIri() : null;
+        String subsetVersion = member.getIsContainedIn() != null ? String.valueOf(member.getIsContainedIn().iterator().next().getVersion()) : "";
+
         String usage = member.getUsage() != null ? member.getUsage().toString() : null;
         String code= member.getAlternativeCode()==null ?member.getCode(): member.getAlternativeCode();
         if(ownRow) {
             if(includeSubset && subSet != null) {
-                addLineData(del, results, code, member.getName(), scheme, usage, setName, subSet, subsetIri, isExtension);
+                addLineData(del, results, code, member.getName(), scheme, usage, setName, subSet, subsetIri, subsetVersion, isExtension);
             } else {
                 addLineData(del, results, code, member.getName(), scheme, usage, setName, isExtension);
             }
@@ -146,7 +150,7 @@ public class SetTextFileExporter {
                 if(im1id && legacy.getIm1Id() != null) {
                     legacy.getIm1Id().forEach(im1 -> {
                         if(includeSubset && subSet != null) {
-                            addLineData(del, results, code, member.getName(), scheme, usage, setName, subSet, subsetIri, isExtension,
+                            addLineData(del, results, code, member.getName(), scheme, usage, setName, subSet, subsetIri, subsetVersion, isExtension,
                                     legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage, legacy.getCodeId(),im1);
                         } else {
                             addLineData(del, results, code, member.getName(), scheme, usage, setName, isExtension,
@@ -155,7 +159,7 @@ public class SetTextFileExporter {
                     });
                 } else {
                     if(includeSubset && subSet != null) {
-                        addLineData(del, results, code, member.getName(), scheme, usage, setName, subSet, subsetIri, isExtension,
+                        addLineData(del, results, code, member.getName(), scheme, usage, setName, subSet, subsetIri, subsetVersion, isExtension,
                                 legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage,legacy.getCodeId());
                     } else {
                         addLineData(del, results, code, member.getName(), scheme, usage, setName, isExtension,
@@ -171,18 +175,18 @@ public class SetTextFileExporter {
         String usage = member.getUsage() != null ? member.getUsage().toString() : null;
         String subSet = member.getIsContainedIn() != null ? member.getIsContainedIn().iterator().next().getName() : null;
         String subsetIri = member.getIsContainedIn() != null ? member.getIsContainedIn().iterator().next().getIri() : null;
-
+        String subsetVersion = member.getIsContainedIn() != null ? String.valueOf(member.getIsContainedIn().iterator().next().getVersion()) : "";
         if(im1id && member.getIm1Id() != null) {
             member.getIm1Id().forEach(im1 -> {
                 if(includeSubset && subSet != null) {
-                    addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, subSet, subsetIri, isExtension, im1);
+                    addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, subSet, subsetIri, subsetVersion, isExtension, im1);
                 } else {
                     addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, isExtension, im1);
                 }
             });
         } else {
             if(includeSubset && subSet != null) {
-                addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, subSet, subsetIri, isExtension);
+                addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, subSet, subsetIri, subsetVersion, isExtension);
             } else {
                 addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, isExtension);
             }
@@ -210,7 +214,7 @@ public class SetTextFileExporter {
         return "code"+ del +"term"+ del + "scheme"+ del + "usage" + del +"set"+ del +"extension";
     }
     private static String getCoreHeaderWithSubset(String del) {
-        return "code"+ del +"term"+ del + "scheme"+ del + "usage" + del +"set"+ del +"subset"+ del +"subsetIri"+ del +"extension";
+        return "code"+ del +"term"+ del + "scheme"+ del + "usage" + del +"set"+ del +"subset"+ del +"subsetIri" + del + "subsetVersion"+ del +"extension";
     }
 
 

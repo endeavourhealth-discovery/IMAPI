@@ -4,7 +4,6 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Vocabulary;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,12 +63,6 @@ public class Argument {
 		this.valueIriList.add(value);
 		return this;
 	}
-	public Argument addToValueIriList(Vocabulary value){
-		if (this.valueIriList ==null)
-			this.valueIriList = new ArrayList<>();
-		this.valueIriList.add(value.asTTIriRef());
-		return this;
-	}
 
 	public TTIriRef getValueIri() {
 		return valueIri;
@@ -80,12 +73,6 @@ public class Argument {
 		this.valueIri = valueIri;
 		return this;
 	}
-	public Argument setValueIri(Vocabulary valueIri) {
-		this.valueIri = valueIri.asTTIriRef();
-		return this;
-	}
-
-
 
 	public String getValueVariable() {
 		return valueVariable;

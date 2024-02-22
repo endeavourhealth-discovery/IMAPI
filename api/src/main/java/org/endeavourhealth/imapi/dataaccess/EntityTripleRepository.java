@@ -44,7 +44,7 @@ public class EntityTripleRepository {
         return entityRepository2.getBundle(iri, predicates);
     }
 
-    public List<TTIriRef> getActiveSubjectByObjectExcludeByPredicate(String objectIri, Integer rowNumber, Integer pageSize, String excludePredicateIri) {
+    public List<TTIriRef> getConceptUsages(String objectIri, Integer rowNumber, Integer pageSize) {
         List<TTIriRef> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
@@ -57,7 +57,7 @@ public class EntityTripleRepository {
                 .add("        FILTER(?propIri = ?o) }")
                 .add("    ?s rdfs:label ?name .")
                 .add("    ?s im:status ?status .")
-                .add("    FILTER (?p != ?e && ?status != im:Inactive)")
+                .add("    FILTER (?p != rdfs:subclassOf && ?status != im:Inactive)")
                 .add("}");
 
         if (rowNumber != null && pageSize != null) {
@@ -67,7 +67,6 @@ public class EntityTripleRepository {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("o", iri(objectIri));
-            qry.setBinding("e", iri(excludePredicateIri));
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
@@ -81,7 +80,7 @@ public class EntityTripleRepository {
         return result;
     }
 
-    public Integer getCountOfActiveSubjectByObjectExcludeByPredicate(String objectIri, String excludePredicateIri) {
+    public Integer getConceptUsagesCount(String objectIri) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("PREFIX shacl: <http://www.w3.org/ns/shacl#>")
                 .add("SELECT (COUNT(DISTINCT ?s) AS ?cnt) WHERE {")
@@ -91,13 +90,12 @@ public class EntityTripleRepository {
                 .add("        ?prop shacl:path ?propIri .")
                 .add("        FILTER(?propIri = ?o) }")
                 .add("    ?s im:status ?status .")
-                .add("    FILTER (?p != ?e && ?status != im:Inactive && ?s != ?o)")
+                .add("    FILTER (?p != rdfs:subclassOf && ?status != im:Inactive && ?s != ?o)")
                 .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("o", iri(objectIri));
-            qry.setBinding("e", iri(excludePredicateIri));
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
                     BindingSet bs = rs.next();

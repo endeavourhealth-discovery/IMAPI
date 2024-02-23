@@ -16,6 +16,7 @@ public class IMLToECL {
 		exclusion,
 		refined,
 		compound,
+		compoundRefined,
 		simple
 	}
 	/**
@@ -34,6 +35,12 @@ public class IMLToECL {
 	}
 
 	private static eclType getEclType(Match match){
+		if (match.getMatch()!=null){
+			if (match.getMatch().size()>0) {
+				if (match.getProperty()!=null)
+					return eclType.compoundRefined;
+			}
+		}
 		if (match.getProperty()!=null)
 			return eclType.refined;
 		if (match.getMatch()!=null) {
@@ -66,13 +73,17 @@ public class IMLToECL {
 			else
 				ecl.append("*");
 			addRefinements(match, ecl, includeNames);
+			ecl.append("\n");
 		}
-		else if (matchType==eclType.compound){
+		else if (matchType==eclType.compound||matchType==eclType.compoundRefined){
+			if (matchType== eclType.compoundRefined)
+				ecl.append("(");
 			boolean first = true;
 			for (Match subMatch : match.getMatch()) {
 				eclType subMatchType=getEclType(subMatch);
 				boolean bracket= (match.getMatch().size()>1&&subMatchType== eclType.refined) ?true: false;
 				if (!first){
+					ecl.append("\n");
 					if (match.getBool()==Bool.or){
 						ecl.append(" OR ");
 					}
@@ -86,6 +97,11 @@ public class IMLToECL {
 					ecl.append(")");
 				first = false;
 			}
+			if (matchType== eclType.compoundRefined) {
+				ecl.append(")");
+				addRefinements(match, ecl, includeNames);
+			}
+			ecl.append("\n");
 		}
 		else {
 			boolean first = true;
@@ -96,6 +112,7 @@ public class IMLToECL {
 					ecl.append(" MINUS ");
 				}
 				match(subMatch,ecl,includeNames);
+				ecl.append("\n");
 			}
 		}
 	}
@@ -125,6 +142,7 @@ public class IMLToECL {
 			}
 			for (Property property : match.getProperty()) {
 				if (!first) {
+					ecl.append("\n");
 					if (match.getBool()==Bool.and) {
 						ecl.append(" , ");
 					}
@@ -147,6 +165,7 @@ public class IMLToECL {
 		else {
 			for (Property subProperty : property.getProperty()) {
 				if (!first) {
+					ecl.append("\n");
 					if (property.getBool()==Bool.or){
 						ecl.append(" OR ");
 					}

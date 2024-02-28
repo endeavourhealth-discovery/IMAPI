@@ -257,7 +257,7 @@ public class EntityService {
         if (pageIndex != null && pageSize != null)
             rowNumber = pageIndex * pageSize;
 
-        List<TTIriRef> usageRefs = entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri, rowNumber, pageSize, RDFS.SUBCLASS_OF).stream()
+        List<TTIriRef> usageRefs = entityTripleRepository.getConceptUsages(iri, rowNumber, pageSize).stream()
                 .sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder())))
                 .distinct().collect(Collectors.toList());
 
@@ -279,7 +279,7 @@ public class EntityService {
         if (xmlDataTypes != null && xmlDataTypes.contains(iri))
             return 0;
 
-        return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri, RDFS.SUBCLASS_OF);
+        return entityTripleRepository.getConceptUsagesCount(iri);
     }
 
     public SearchResponse advancedSearch(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {

@@ -1017,6 +1017,10 @@
       {
         "name": "ALLOWABLE_RANGES",
         "value": "IM_FUNCTION.NAMESPACE + \"AllowableRanges\""
+      },
+      {
+        "name": "ALLOWABLE_PROPERTY_VALUES",
+        "value": "IM_FUNCTION.NAMESPACE + \"AllowablePropertyValues\""
       }
     ]
   },

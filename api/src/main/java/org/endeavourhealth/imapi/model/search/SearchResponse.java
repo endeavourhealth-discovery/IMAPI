@@ -7,8 +7,9 @@ import java.util.List;
 public class SearchResponse {
     private Integer page;
     private Integer count;
-    private List<SearchResultSummary> entities = new ArrayList<>();
+    private Integer totalCount;
     private String term;
+    private List<SearchResultSummary> entities = new ArrayList<>();
 
     public String getTerm() {
         return term;
@@ -54,5 +55,13 @@ public class SearchResponse {
     public SearchResponse addEntities(List<SearchResultSummary> entities) {
          this.entities.addAll(entities);
          return this;
+    }
+
+    public Integer getTotalCount() {
+        return totalCount;
+    }
+
+    public void setTotalCount(Integer totalCount) {
+        this.totalCount = totalCount;
     }
 }

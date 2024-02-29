@@ -54,6 +54,7 @@ public class IM {
     public static final String HAS_CHILDREN = IM.NAMESPACE + "hasChildren";
     public static final String IS_A = IM.NAMESPACE + "isA";
     public static final String IS_CHILD_OF = IM.NAMESPACE + "isChildOf";
+    public static final String PREVIOUS_ENTITY_OF = IM.NAMESPACE + "previousEntityOf";
     public static final String SUBSUMED_BY = IM.NAMESPACE + "subsumedBy";
     public static final String USUALLY_SUBSUMED_BY = IM.NAMESPACE + "usuallySubsumedBy";
     public static final String APPROXIMATE_SUBSUMED_BY = IM.NAMESPACE + "approximateSubsumedBy";

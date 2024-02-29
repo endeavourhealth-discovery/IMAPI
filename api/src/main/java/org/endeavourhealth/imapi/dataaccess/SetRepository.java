@@ -11,10 +11,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
-import org.endeavourhealth.imapi.model.imq.Return;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -52,8 +49,32 @@ public class SetRepository {
     }
 
     public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
-        //add scheme filter
-        Return aReturn= new Return();
+        Set<Concept> result = getExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
+        imQuery.getMatch().get(0).setVariable("outerEntity");
+        imQuery.match(m->m
+          .setBool(Bool.or)
+          .match(m1->m1
+            .setVariable("entity")
+            .property(p->p
+              .setIri(IM.PREVIOUS_ENTITY_OF)
+              .addIs(new Node().setNodeRef("outerEntity"))))
+          .match(m1->m1
+            .setVariable("entity")
+            .property(p->p
+              .setIri(IM.SUBSUMED_BY)
+              .addIs(new Node().setNodeRef("outerEntity"))))
+          .match(m1->m1
+          .setVariable("entity")
+          .property(p->p
+            .setIri(IM.USUALLY_SUBSUMED_BY)
+            .addIs(new Node().setNodeRef("outerEntity")))));
+        Set<Concept> result2 = getExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
+        result.addAll(result2);
+        return result;
+    }
+
+    private Set<Concept> getExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
+    Return aReturn= new Return();
         imQuery.addReturn(aReturn);
         aReturn
             .property(s->s

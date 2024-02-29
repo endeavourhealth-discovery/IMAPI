@@ -192,6 +192,10 @@ public class OpenSearchSender {
                         String preferred = rs.getValue("preferredName").stringValue();
                         blob.setPreferredName(preferred);
                     }
+                    if (rs.getValue("alternativeCode")!=null){
+                        String alternativeCode= rs.getValue("alternativeCode").stringValue();
+                        blob.setAlternativeCode(alternativeCode);
+                    }
 
                     TTIriRef scheme = TTIriRef.iri(rs.getValue("scheme").stringValue());
 
@@ -258,7 +262,7 @@ public class OpenSearchSender {
             .add("PREFIX im: <http://endhealth.info/im#>")
             .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
             .add("select ?iri ?name ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?weighting")
-            .add("?extraType ?extraTypeName ?preferredName")
+            .add("?extraType ?extraTypeName ?preferredName ?alternativeCode")
             .add("where {")
             .add("  graph ?scheme {")
             .add("    ?iri rdfs:label ?name.")
@@ -274,6 +278,7 @@ public class OpenSearchSender {
             .add("  Optional {?scheme rdfs:label ?schemeName }")
             .add("  Optional {?iri im:code ?code.}")
             .add("  Optional {?iri im:weighting ?weighting.}")
+          .add("  Optional {?iri im:alternativeCode ?alternativeCode.}")
             .add("}").toString();
     }
 

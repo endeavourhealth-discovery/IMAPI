@@ -26,6 +26,7 @@
         "name": "FILTER_DEFAULTS",
         "value":"CONFIG.NAMESPACE + \"filterDefaults\""
       },
+
       {
         "name": "INFERRED_PREDICATES",
         "value":"CONFIG.NAMESPACE + \"inferredPredicates\""
@@ -307,6 +308,10 @@
       {
         "name": "IS_CHILD_OF",
         "value": "IM.NAMESPACE + \"isChildOf\""
+      },
+      {
+        "name": "PREVIOUS_ENTITY_OF",
+        "value":"IM.NAMESPACE + \"previousEntityOf\""
       },
       {
         "name": "SUBSUMED_BY",

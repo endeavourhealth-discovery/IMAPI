@@ -213,6 +213,8 @@ public class OSQuery {
 
         TermQueryBuilder tqb = new TermQueryBuilder("code", request.getTermFilter());
         boolBuilder.should(tqb);
+        TermQueryBuilder tqac = new TermQueryBuilder("alternativeCode", request.getTermFilter());
+        boolBuilder.should(tqac);
         TermQueryBuilder tqiri = new TermQueryBuilder("iri", request.getTermFilter());
         boolBuilder.should(tqiri);
         TermQueryBuilder tciri = new TermQueryBuilder("termCode.code", request.getTermFilter());
@@ -397,7 +399,7 @@ public class OSQuery {
 
         String termCode = "termCode";
 
-        List<String> defaultFields = new ArrayList<>(Arrays.asList("iri", "name", "code", termCode, "entityType", STATUS, SCHEME, WEIGHTING,"preferredName"));
+        List<String> defaultFields = new ArrayList<>(Arrays.asList("iri", "name", "code", "alternativeCode", termCode, "entityType", STATUS, SCHEME, WEIGHTING,"preferredName"));
         Set<String> fields = new HashSet<>(defaultFields);
         if (!request.getSelect().isEmpty()) {
             fields.addAll(request.getSelect());
@@ -744,6 +746,7 @@ public class OSQuery {
                         if (prop.getIri().equals(RDFS.COMMENT)) request.addSelect("description");
                         else if (prop.getIri().equals(IM.CODE)) request.addSelect("code");
                         else if (prop.getIri().equals(IM.HAS_STATUS)) request.addSelect(STATUS);
+                        else if (prop.getIri().equals(IM.ALTERNATIVE_CODE)) request.addSelect("alternativeCode");
                         else if (prop.getIri().equals(IM.HAS_SCHEME)) request.addSelect(SCHEME);
                         else if (prop.getIri().equals(RDF.TYPE)) request.addSelect("entityType");
                         else if (prop.getIri().equals(IM.WEIGHTING)) request.addSelect(WEIGHTING);

@@ -17,4 +17,5 @@ public class IM_FUNCTION {
     public static final String IS_TYPE = IM_FUNCTION.NAMESPACE + "IsType";
     public static final String ALLOWABLE_PROPERTIES = IM_FUNCTION.NAMESPACE + "AllowableProperties";
     public static final String ALLOWABLE_RANGES = IM_FUNCTION.NAMESPACE + "AllowableRanges";
+    public static final String ALLOWABLE_PROPERTY_VALUES = IM_FUNCTION.NAMESPACE + "AllowablePropertyValues";
 }

@@ -22,6 +22,8 @@ import jakarta.ws.rs.core.Response;
 import org.springframework.security.core.parameters.P;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -89,10 +91,20 @@ public class OpenSearchSender {
                 LOG.info("Fetching entity iris  ...");
                 TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
 
+                int count = 0;
                 try (TupleQueryResult qr = tupleQuery.evaluate()) {
                     while (qr.hasNext()) {
                         BindingSet rs = qr.next();
                         String iri = rs.getValue("iri").stringValue();
+                        // validate iri
+                        try {
+                            new URI(iri);
+                        } catch (URISyntaxException e) {
+                            LOG.error("Invalid IRI [{}]", iri);
+                            System.exit(-1);
+                        }
+                        if (++count % 50000 == 0)
+                            LOG.info("Loaded {}...", count);
                         entityIris.add(iri);
                     }
                 }

@@ -28,6 +28,14 @@ public class UserService {
         userRepository.updateUserTheme(userId, theme);
     }
 
+    public String getUserScale(String userId) {
+        return userRepository.getUserScale(userId);
+    }
+
+    public void updateUserScale(String userId, String scale) throws JsonProcessingException {
+        userRepository.updateUserScale(userId, scale);
+    }
+
     public List<RecentActivityItemDto> getUserMRU(String userId) throws JsonProcessingException {
         return userRepository.getUserMRU(userId);
     }

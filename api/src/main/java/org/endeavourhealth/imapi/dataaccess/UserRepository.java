@@ -61,6 +61,24 @@ public class UserRepository {
         return result;
     }
 
+    public String getUserScale(String user) {
+        String result = "";
+        String sparql = getSparqlSelect();
+        try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
+            TupleQuery qry = prepareSparql(conn, sparql);
+            qry.setBinding("s", iri(USER.NAMESPACE + user));
+            qry.setBinding("p", iri(USER.USER_SCALE));
+
+            try (TupleQueryResult rs = qry.evaluate()) {
+                if (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    result = bs.getValue("o").stringValue();
+                }
+            }
+        }
+        return result;
+    }
+
     public List<RecentActivityItemDto> getUserMRU(String user) throws JsonProcessingException {
         List<RecentActivityItemDto> result = new ArrayList<>();
         String sparql = getSparqlSelect();
@@ -145,6 +163,11 @@ public class UserRepository {
     public void updateUserTheme(String user, String theme) throws JsonProcessingException {
         delete(user, USER.USER_THEME);
         insert(user, USER.USER_THEME, theme);
+    }
+
+    public void updateUserScale(String user, String scale) throws JsonProcessingException {
+        delete(user, USER.USER_SCALE);
+        insert(user, USER.USER_SCALE, scale);
     }
 
     public List<String> getUserOrganisations(String user) throws JsonProcessingException {

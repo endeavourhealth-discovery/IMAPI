@@ -1550,6 +1550,10 @@
         "value": "USER.DOMAIN + \"UserTheme\""
       },
       {
+        "name": "USER_SCALE",
+        "value": "USER.DOMAIN + \"UserScale\""
+      },
+      {
         "name": "USER_MRU",
         "value": "USER.DOMAIN + \"UserMRU\""
       },

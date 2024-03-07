@@ -19,7 +19,7 @@ public class PathQuery extends TTIriRef {
 	}
 
 	public PathQuery setSource(String source) {
-		this.source = TTIriRef.iri(source);
+		this.source = new TTIriRef().setIri(source);
 		return this;
 	}
 
@@ -34,7 +34,7 @@ public class PathQuery extends TTIriRef {
 	}
 
 	public PathQuery setTarget(String target) {
-		this.target = TTIriRef.iri(target);
+		this.target = new TTIriRef().setIri(target);
 		return this;
 	}
 

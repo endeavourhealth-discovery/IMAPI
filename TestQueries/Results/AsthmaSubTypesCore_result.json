@@ -1,4 +1,13 @@
 {
+  "@context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
+  },
   "entities" : [ {
     "@id" : "http://snomed.info/sct#1945002",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Allergic asthma with stated cause (disorder)",
@@ -668,6 +677,10 @@
     "http://www.w3.org/2000/01/rdf-schema#label" : "Acute severe exacerbation of asthma co-occurrent with allergic rhinitis (disorder)",
     "http://endhealth.info/im#code" : "10674711000119105"
   }, {
+    "@id" : "http://snomed.info/sct#10674791000119101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Acute exacerbation of intermittent allergic asthma (disorder)",
+    "http://endhealth.info/im#code" : "10674791000119101"
+  }, {
     "@id" : "http://snomed.info/sct#10675391000119101",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Severe controlled persistent asthma (disorder)",
     "http://endhealth.info/im#code" : "10675391000119101"
@@ -691,6 +704,10 @@
     "@id" : "http://snomed.info/sct#10675991000119100",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Acute severe exacerbation of mild persistent allergic asthma co-occurrent with allergic rhinitis (disorder)",
     "http://endhealth.info/im#code" : "10675991000119100"
+  }, {
+    "@id" : "http://snomed.info/sct#10676271000119104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Acute exacerbation of moderate persistent allergic asthma (disorder)",
+    "http://endhealth.info/im#code" : "10676271000119104"
   }, {
     "@id" : "http://snomed.info/sct#10676431000119103",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Acute severe exacerbation of moderate persistent allergic asthma (disorder)",

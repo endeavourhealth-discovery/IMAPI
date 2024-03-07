@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.model.TermCode;
 
+import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
@@ -22,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TTLiteralTest {
     private final TTEntity testObject = (TTEntity) new TTEntity("http://endhealth.co.uk/im#objectTest")
         .setGraph(iri("http://endhealth.co.uk/im#Rich"))
-        .set(RDFS.LABEL, "Test object")
-        .set(RDFS.COMMENT, "This is an entity to test object serialization")
-        .set(IM.QUERY, literal(new TermCode().setName("Mickey Mouse").setCode("EM-EYE-CEE")));
+        .set(TTIriRef.iri(RDFS.LABEL), "Test object")
+        .set(TTIriRef.iri(RDFS.COMMENT), "This is an entity to test object serialization")
+        .set(TTIriRef.iri(IM.QUERY), literal(new SearchTermCode().setTerm("Mickey Mouse").setCode("EM-EYE-CEE").setStatus(TTIriRef.iri(IM.ACTIVE))));
 
     private final String json = new StringJoiner(System.lineSeparator())
         .add("{")
@@ -32,7 +32,7 @@ class TTLiteralTest {
         .add("  \"@graph\" : \"http://endhealth.co.uk/im#Rich\",")
         .add("  \"http://www.w3.org/2000/01/rdf-schema#label\" : \"Test object\",")
         .add("  \"http://www.w3.org/2000/01/rdf-schema#comment\" : \"This is an entity to test object serialization\",")
-        .add("  \"http://endhealth.info/im#Query\" : \"{\\\"name\\\":\\\"Mickey Mouse\\\",\\\"code\\\":\\\"EM-EYE-CEE\\\",\\\"scheme\\\":null,\\\"entityTermCode\\\":null}\"")
+        .add("  \"http://endhealth.info/im#Query\" : \"{\\\"term\\\":\\\"Mickey Mouse\\\",\\\"code\\\":\\\"EM-EYE-CEE\\\",\\\"status\\\":{\\\"@id\\\":\\\"http://endhealth.info/im#Active\\\"}}\"")
         .add("}")
         .toString();
 
@@ -43,7 +43,7 @@ class TTLiteralTest {
     void saveTest() throws Exception {
         TTDocument doc = new TTDocument();
         doc.addEntity(testObject);
-        doc.setCrud(IM.UPDATE_ALL);
+        doc.setCrud(TTIriRef.iri(IM.UPDATE_ALL));
 
         TTFilerFactory.getDocumentFiler().fileDocument(doc);
     }
@@ -51,15 +51,15 @@ class TTLiteralTest {
     // @Test
     void loadTest() throws JsonProcessingException {
         TTBundle bundle = new EntityService().getFullEntity("http://endhealth.co.uk/im#objectTest");
-        TTArray preds = bundle.getEntity().get(IM.QUERY);
+        TTArray preds = bundle.getEntity().get(TTIriRef.iri(IM.QUERY));
         assertEquals(1, preds.size());
 
         TTValue val = preds.get(0);
         assertTrue(val.isLiteral());
 
-        TermCode tc = val.asLiteral().objectValue(TermCode.class);
+        SearchTermCode tc = val.asLiteral().objectValue(SearchTermCode.class);
 
-        assertEquals("Mickey Mouse", tc.getName());
+        assertEquals("Mickey Mouse", tc.getTerm());
         assertEquals("EM-EYE-CEE", tc.getCode());
     }
 
@@ -74,15 +74,15 @@ class TTLiteralTest {
         TTEntity entity = new ObjectMapper().readValue(json, TTEntity.class);
         assertEquals(entity.getIri(), testObject.getIri());
 
-        TTArray preds = entity.get(IM.QUERY);
+        TTArray preds = entity.get(TTIriRef.iri(IM.QUERY));
         assertEquals(1, preds.size());
 
         TTValue val = preds.get(0);
         assertTrue(val.isLiteral());
 
-        TermCode tc = val.asLiteral().objectValue(TermCode.class);
+        SearchTermCode tc = val.asLiteral().objectValue(SearchTermCode.class);
 
-        assertEquals("Mickey Mouse", tc.getName());
+        assertEquals("Mickey Mouse", tc.getTerm());
         assertEquals("EM-EYE-CEE", tc.getCode());
     }
     @Test

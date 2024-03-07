@@ -1,8 +1,6 @@
 package org.endeavourhealth.imapi.model.search;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.HashSet;
@@ -11,14 +9,24 @@ import java.util.Set;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class SearchResultSummary {
+    @JsonProperty(defaultValue = "")
     private String name;
+    @JsonProperty(value="iri",required = true)
+    @JsonAlias({"@id"})
     private String iri;
+    @JsonProperty(defaultValue = "")
     private String code;
+    @JsonProperty(defaultValue = "")
     private String description;
+    @JsonProperty(required = true )
     private TTIriRef status;
+    @JsonProperty(required = true)
     private TTIriRef scheme;
+    @JsonProperty(required = true)
     private Set<TTIriRef> entityType= new HashSet<>();
+    @JsonProperty(defaultValue = "0")
     private Integer weighting;
+    @JsonProperty(defaultValue = "")
     private String match;
     private String preferredName;
     private Set<String> key;
@@ -105,17 +113,17 @@ public class SearchResultSummary {
         return status;
     }
 
+    @JsonSetter
     public SearchResultSummary setStatus(TTIriRef status) {
         this.status = status;
         return this;
     }
 
-
-
     public TTIriRef getScheme() {
         return scheme;
     }
 
+    @JsonSetter
     public SearchResultSummary setScheme(TTIriRef scheme) {
         this.scheme = scheme;
         return this;
@@ -136,8 +144,6 @@ public class SearchResultSummary {
         this.entityType.add(entityType);
         return this;
     }
-
-
 
     public Integer getWeighting() {
         return weighting;

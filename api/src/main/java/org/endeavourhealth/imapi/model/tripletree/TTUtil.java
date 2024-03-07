@@ -1,8 +1,11 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 /**
  * Static methods for casting TT classes to business objects for use in builders
@@ -13,6 +16,7 @@ public class TTUtil {
 		throw new IllegalStateException("Utility class");
 	}
 
+	@JsonGetter
 	public static Object get(TTNode node,TTIriRef predicate,Class clazz) {
 			if (node.get(predicate) == null)
 				return null;
@@ -31,7 +35,7 @@ public class TTUtil {
 			int order=0;
 			if (node.get(predicate)!=null)
 				order= node.get(predicate).size();
-			value.asNode().set(SHACL.ORDER,TTLiteral.literal(order));
+			value.asNode().set(iri(SHACL.ORDER),TTLiteral.literal(order));
 
 		}
 		node.addObject(predicate,value);
@@ -57,12 +61,13 @@ public class TTUtil {
 	public static <T> List<T> getOrderedList(TTNode node,TTIriRef predicate,Class clazz){
 		List<T> result = getList(node,predicate,clazz);
 		try {
-			Collections.sort(result, Comparator.comparing(o -> ((TTNode) o).get(SHACL.ORDER).asLiteral().intValue()));
+			Collections.sort(result, Comparator.comparing(o -> ((TTNode) o).get(iri(SHACL.ORDER)).asLiteral().intValue()));
 			return result;
 		} catch (Exception e) {
 			return result;
 		}
 	}
+
 	public static TTContext getDefaultContext(){
 		TTContext ctx=new TTContext();
 		ctx.add(IM.NAMESPACE,"");

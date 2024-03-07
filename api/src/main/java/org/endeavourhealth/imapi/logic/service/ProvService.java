@@ -10,13 +10,14 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class ProvService {
@@ -38,24 +39,25 @@ public class ProvService {
         String uir = getPerson(agentName, root);
         ProvAgent agent = new ProvAgent()
                 .setPersonInRole(TTIriRef.iri(uir))
-                .setParticipationType(IM.AUTHOR_ROLE);
-        agent.setName(agentName).setIri(uir.replace("uir.", "agent.")).setCrud(IM.ADD_QUADS);
+                .setParticipationType(iri(IM.AUTHOR_ROLE));
+        agent.setName(agentName).setIri(uir.replace("uir.", "agent.")).setCrud(iri(IM.ADD_QUADS));
         return agent;
     }
 
     public ProvActivity buildProvenanceActivity(TTEntity targetEntity, ProvAgent agent, String usedEntityIri) {
         ProvActivity activity = new ProvActivity()
                 .setIri("urn:uuid:" + UUID.randomUUID())
-                .setActivityType(IM.PROV_CREATION)
+                .setActivityType(iri(IM.PROV_CREATION))
                 .setEffectiveDate(LocalDateTime.now().toString())
                 .addAgent(TTIriRef.iri(agent.getIri()))
                 .setTargetEntity(TTIriRef.iri(targetEntity.getIri()));
 
         if (null != usedEntityIri) {
-            activity.set(IM.PROV_USED, TTIriRef.iri(usedEntityIri));
+            activity.setActivityType(iri(IM.PROV_UPDATE));
+            activity.set(iri(IM.PROVENANCE_USED), TTIriRef.iri(usedEntityIri));
         }
 
-        activity.setCrud(IM.ADD_QUADS);
+        activity.setCrud(iri(IM.ADD_QUADS));
         return activity;
     }
 
@@ -64,9 +66,9 @@ public class ProvService {
             return new TTEntity()
                 .setIri(usedEntity.getIri() + "/" + (usedEntity.getVersion()))
                 .setName(usedEntity.getName())
-                .set(IM.DEFINITION, new TTLiteral(om.writeValueAsString(usedEntity)))
-                .setGraph(IM.GRAPH_PROV)
-                .setCrud(IM.ADD_QUADS);
+                .set(iri(IM.DEFINITION), new TTLiteral(om.writeValueAsString(usedEntity)))
+                .setGraph(iri(GRAPH.PROV))
+                .setCrud(iri(IM.ADD_QUADS));
         }
     }
 

@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
@@ -30,7 +31,7 @@ public class TTManager implements AutoCloseable {
    private TTDocument document;
   private ModelDocument modelDocument;
    private TTContext context;
-   private static final TTIriRef[] jsonPredicates= {IM.HAS_MAP};
+   private static final TTIriRef[] jsonPredicates= {iri(IM.HAS_MAP)};
 
     private static final Logger LOG = LoggerFactory.getLogger(TTManager.class);
 
@@ -70,7 +71,7 @@ public class TTManager implements AutoCloseable {
       context.add(RDFS.NAMESPACE, "rdfs","RDFS namespace");
       document = new TTDocument();
       document.setContext(context);
-      document.setGraph(TTIriRef.iri(IM.GRAPH_DISCOVERY.getIri()));
+      document.setGraph(TTIriRef.iri(GRAPH.DISCOVERY));
       return document;
    }
 
@@ -99,6 +100,18 @@ public class TTManager implements AutoCloseable {
       }
    }
 
+   public static TTContext createBasicContext(){
+     TTContext context= new TTContext();
+     context.add(IM.NAMESPACE, "im","Discovery namespace");
+     context.add(SNOMED.NAMESPACE, "sn","Snomed-CT namespace");
+     context.add(OWL.NAMESPACE, "owl","OWL2 namespace");
+     context.add(RDF.NAMESPACE, "rdf","RDF namespace");
+     context.add(RDFS.NAMESPACE, "rdfs","RDFS namespace");
+     context.add(XSD.NAMESPACE, "xsd","xsd namespace");
+     context.add(SHACL.NAMESPACE, "sh","SHACL namespace");
+     return context;
+   }
+
 
 
    public TTContext createDefaultContext() {
@@ -109,22 +122,22 @@ public class TTManager implements AutoCloseable {
       context.add(RDF.NAMESPACE, "rdf","RDF namespace");
       context.add(RDFS.NAMESPACE, "rdfs","RDFS namespace");
       context.add(XSD.NAMESPACE, "xsd","xsd namespace");
-      context.add("http://endhealth.info/icd10#", "icd10","ICD10 namespace");
-      context.add("http://endhealth.info/opcs4#", "opcs4","OPCS4 namespace");
-      context.add("http://endhealth.info/emis#", "emis","EMIS (inc. Read2 like) namespace");
-      context.add("http://endhealth.info/tpp#", "tpp","TPP (inc.CTV3) namespace");
-      context.add("http://endhealth.info/bc#", "bc","Barts Cerner namespace");
+      context.add(GRAPH.ICD10, "icd10","ICD10 namespace");
+      context.add(GRAPH.OPCS4, "opcs4","OPCS4 namespace");
+      context.add(GRAPH.EMIS, "emis","EMIS (inc. Read2 like) namespace");
+      context.add(GRAPH.TPP, "tpp","TPP (inc.CTV3) namespace");
+      context.add(GRAPH.BARTS_CERNER, "bc","Barts Cerner namespace");
       context.add(SHACL.NAMESPACE, "sh","SHACL namespace");
-      context.add("http://www.w3.org/ns/prov#", "prov","PROV namespace");
-      context.add("http://endhealth.info/reports#","reports","IM internal reports");
-      context.add("https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#", "orole","OPS roles namespace");
-      context.add("http://endhealth.info/ods#","ods","ODS code scheme");
-      context.add("http://endhealth.info/prsb#","prsb","PRSB namespace");
-      context.add("http://endhealth.info/kchwinpath#","kchwinpath","KCH Winpath codes");
-      context.add("http://endhealth.info/kchapex#","kchapex","KCH Apex codes");
-      context.add("http://endhealth.info/ceg16#","ceg13","CEG ethnicity 16+ category");
-      context.add("http://endhealth.info/nhsethnic2001#","nhse2001","NHS Ethnicitity categories 2001 census");
-      context.add("http://endhealth.info/vision#", "vis","Vision (incl. Read2) namespace");
+      context.add(GRAPH.PROV, "prov","PROV namespace");
+      context.add(GRAPH.REPORTS, "reports","IM internal reports");
+      context.add(GRAPH.OPS_ROLES, "orole","OPS roles namespace");
+      context.add(GRAPH.ODS, "ods","ODS code scheme");
+      context.add(GRAPH.PRSB,"prsb","PRSB namespace");
+      context.add(GRAPH.KINGS_WINPATH, "kchwinpath","KCH Winpath codes");
+      context.add(GRAPH.KINGS_APEX, "kchapex","KCH Apex codes");
+      context.add(GRAPH.CEG16, "ceg13","CEG ethnicity 16+ category");
+      context.add(GRAPH.NHSDD_ETHNIC_2001, "nhse2001","NHS Ethnicitity categories 2001 census");
+      context.add(GRAPH.VISION, "vis","Vision (incl. Read2) namespace");
       return context;
    }
 
@@ -270,10 +283,10 @@ public class TTManager implements AutoCloseable {
    public TTEntity createGraph(String iri,String name, String description){
       TTEntity graph= new TTEntity()
         .setIri(iri)
-        .addType(RDFS.CLASS)
+        .addType(iri(RDFS.CLASS))
         .setName(name)
         .setDescription(description);
-      graph.addObject(RDFS.SUBCLASSOF,IM.GRAPH);
+      graph.addObject(iri(RDFS.SUBCLASS_OF),iri(IM.GRAPH));
       return graph;
    }
 
@@ -423,7 +436,7 @@ public class TTManager implements AutoCloseable {
    private boolean isA1(TTEntity descendant, TTIriRef ancestor, Set<TTIriRef> done) {
        if (TTIriRef.iri(descendant.getIri()).equals(ancestor))
            return true;
-       TTIriRef subType = descendant.isType(RDF.PROPERTY) ? RDFS.SUBPROPERTYOF : RDFS.SUBCLASSOF;
+       TTIriRef subType = descendant.isType(iri(RDF.PROPERTY)) ? iri(RDFS.SUB_PROPERTY_OF) : iri(RDFS.SUBCLASS_OF);
        boolean isa = false;
        if (descendant.get(subType) != null)
            for (TTValue ref : descendant.get(subType).iterator())
@@ -452,20 +465,20 @@ public class TTManager implements AutoCloseable {
    }
 
    public static void addChildOf(TTEntity c, TTIriRef parent) {
-      if (c.get(IM.IS_CHILD_OF) == null)
-         c.set(IM.IS_CHILD_OF, new TTArray());
-      c.get(IM.IS_CHILD_OF).add(parent);
+      if (c.get(iri(IM.IS_CHILD_OF)) == null)
+         c.set(iri(IM.IS_CHILD_OF), new TTArray());
+      c.get(iri(IM.IS_CHILD_OF)).add(parent);
    }
 
    public static void addSuperClass(TTEntity entity, TTIriRef andOr,TTValue superClass) {
-      addESAxiom(entity,RDFS.SUBCLASSOF,andOr,superClass);
+      addESAxiom(entity,iri(RDFS.SUBCLASS_OF),andOr,superClass);
 
    }
 
 
    private static void addESAxiom(TTEntity entity, TTIriRef axiom,
                                   TTIriRef andOr, TTValue newExpression) {
-      TTIriRef subType= entity.isType(RDF.PROPERTY) ? RDFS.SUBPROPERTYOF : RDFS.SUBCLASSOF;
+      TTIriRef subType= entity.isType(iri(RDF.PROPERTY)) ? iri(RDFS.SUB_PROPERTY_OF) : iri(RDFS.SUBCLASS_OF);
       if (entity.get(axiom) == null)
          entity.set(axiom, new TTArray());
       TTValue oldExpression;
@@ -492,11 +505,11 @@ public class TTManager implements AutoCloseable {
 
 
    public static void addSimpleMap(TTEntity c,String target) {
-      c.addObject(IM.MATCHED_TO,iri(target));
+      c.addObject(iri(IM.MATCHED_TO),iri(target));
    }
    public static TTNode addComplexMap(TTEntity c){
       TTNode map= new TTNode();
-      c.addObject(IM.HAS_MAP,map);
+      c.addObject(iri(IM.HAS_MAP),map);
       return map;
    }
 
@@ -513,9 +526,9 @@ public class TTManager implements AutoCloseable {
    }
 
    public static boolean termUsed(TTEntity entity, String term){
-     if (entity.get(IM.HAS_TERM_CODE)!=null){
-       for (TTValue val:entity.get(IM.HAS_TERM_CODE).getElements()){
-         if (val.asNode().get(RDFS.LABEL).equals(term))
+     if (entity.get(iri(IM.HAS_TERM_CODE))!=null){
+       for (TTValue val:entity.get(iri(IM.HAS_TERM_CODE)).getElements()){
+         if (val.asNode().get(iri(RDFS.LABEL)).equals(term))
            return true;
        }
      }
@@ -534,13 +547,13 @@ public class TTManager implements AutoCloseable {
                                        String term,String code,TTIriRef status){
       TTNode termCode= new TTNode();
       if (status!=null)
-         termCode.set(IM.HAS_STATUS,status);
+         termCode.set(iri(IM.HAS_STATUS),status);
       if (term!=null) {
-         termCode.set(RDFS.LABEL, TTLiteral.literal(term));
+         termCode.set(iri(RDFS.LABEL), TTLiteral.literal(term));
       }
       if (code!=null)
-         termCode.set(IM.CODE,TTLiteral.literal(code));
-      entity.addObject(IM.HAS_TERM_CODE,termCode);
+         termCode.set(iri(IM.CODE),TTLiteral.literal(code));
+      entity.addObject(iri(IM.HAS_TERM_CODE),termCode);
       return entity;
    }
 

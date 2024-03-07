@@ -19,7 +19,7 @@ public class TTFilerFactory {
 
     public static TTDocumentFiler getDocumentFiler() {
         if (!bulk)
-            return new TTDocumentFilerRdf4j();
+            return new TTTransactionFiler();
         else
             return new TTBulkFiler();
     }
@@ -29,9 +29,6 @@ public class TTFilerFactory {
     }
 
     public static TCGenerator getClosureGenerator() throws TTFilerException {
-        if (!bulk)
-         return new ClosureGeneratorRdf4j();
-        else
             return new ClosureGeneratorBulk();
     }
 

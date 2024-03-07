@@ -13,6 +13,26 @@ public class Concept extends Entity {
 	private Set<TTIriRef> subClassOf;
 	private Set<Concept> matchedFrom;
 	private Integer usage;
+	private String codeId;
+	private String alternativeCode;
+
+	public String getAlternativeCode() {
+		return alternativeCode;
+	}
+
+	public Concept setAlternativeCode(String alternativeCode) {
+		this.alternativeCode = alternativeCode;
+		return this;
+	}
+
+	public String getCodeId() {
+		return codeId;
+	}
+
+	public Concept setCodeId(String codeId) {
+		this.codeId = codeId;
+		return this;
+	}
 
 	public Set<TTIriRef> getSubClassOf() {
 		return subClassOf;
@@ -101,7 +121,7 @@ public class Concept extends Entity {
 	public Concept addMatchedFrom(Concept legacy){
 		if (this.matchedFrom ==null)
 			this.matchedFrom = new HashSet<>();
-			this.matchedFrom.add(legacy);
+		this.matchedFrom.add(legacy);
 		return this;
 	}
 }

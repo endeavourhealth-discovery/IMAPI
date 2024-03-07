@@ -115,15 +115,15 @@ public class TTNodeDeserializer {
          return TTLiteral.literal(node.get(IM.VALUE).textValue());
 
       TTIriRef type = iri(expand(node.get(IM.TYPE).asText()));
-      if (XSD.STRING.equals(type))
+      if (XSD.STRING.equals(type.getIri()))
          return TTLiteral.literal(node.get(IM.VALUE).textValue());
-      else if (XSD.BOOLEAN.equals(type)) {
+      else if (XSD.BOOLEAN.equals(type.getIri())) {
          return TTLiteral.literal(Boolean.valueOf(node.get(IM.VALUE).asText()));
       }
-      else if (XSD.INTEGER.equals(type)) {
+      else if (XSD.INTEGER.equals(type.getIri())) {
          return TTLiteral.literal(Integer.valueOf(node.get(IM.VALUE).asText()));
       }
-      else if (XSD.PATTERN.equals(type))
+      else if (XSD.PATTERN.equals(type.getIri()))
          return TTLiteral.literal(Pattern.compile(node.get(IM.VALUE).textValue()));
       else
          throw new IOException("Unhandled literal type ["+type.getIri()+"]");

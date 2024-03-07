@@ -13,10 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.DataFormatException;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("api/function")
@@ -30,9 +28,8 @@ public class FunctionController {
 		summary = "function",
 		description = "Runs a function IM passing in the iri of the function and a list (map) parameter name/ value arguments"
 	)
-	public JsonNode callFunction(
-		@RequestBody FunctionRequest function) throws Exception {
+	public JsonNode callFunction(HttpServletRequest request, @RequestBody FunctionRequest function) throws Exception {
 		LOG.debug("callFunction");
-		return new FunctionService().callFunction(function.getFunctionIri(),function.getArguments());
+		return new FunctionService().callFunction(request, function.getFunctionIri(),function.getArguments());
 	}
 }

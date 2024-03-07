@@ -4,11 +4,14 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @JsonPropertyOrder({"@id","status","label","comment","targetShape","type","isContainedIn","subClassOf","group","scheme"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -20,9 +23,9 @@ public class FormGenerator {
 	private String comment;
 	private List<TTIriRef> type;
 	private TTIriRef targetShape;
-	private List<TTIriRef> isContainedIn;
+	private List<TTEntity> isContainedIn;
 	private List<TTIriRef> subClassOf;
-	private List<PropertyGroup> group;
+	private List<PropertyShape> property;
 
 	public String getIri() {
 		return iri;
@@ -37,6 +40,7 @@ public class FormGenerator {
 		return status;
 	}
 
+	@JsonSetter
 	public FormGenerator setStatus(TTIriRef status) {
 		this.status = status;
 		return this;
@@ -46,6 +50,7 @@ public class FormGenerator {
 		return scheme;
 	}
 
+	@JsonSetter
 	public FormGenerator setScheme(TTIriRef scheme) {
 		this.scheme = scheme;
 		return this;
@@ -65,11 +70,11 @@ public class FormGenerator {
 		return this;
 	}
 
-	public List<TTIriRef> getIsContainedIn() {
+	public List<TTEntity> getIsContainedIn() {
 		return isContainedIn;
 	}
 
-	public FormGenerator setIsContainedIn(List<TTIriRef> isContainedIn) {
+	public FormGenerator setIsContainedIn(List<TTEntity> isContainedIn) {
 		this.isContainedIn = isContainedIn;
 		return this;
 	}
@@ -111,35 +116,34 @@ public class FormGenerator {
 		return targetShape;
 	}
 
+	@JsonSetter
 	public FormGenerator setTargetShape(TTIriRef targetShape) {
 		this.targetShape = targetShape;
 		return this;
 	}
 
-
-
-	public List<PropertyGroup> getGroup() {
-		return group;
+	public List<PropertyShape> getProperty() {
+		return property;
 	}
 
 	@JsonSetter
-	public FormGenerator setGroup(List<PropertyGroup> group) {
-		this.group = group;
+	public FormGenerator setProperty(List<PropertyShape> property) {
+		this.property = property;
 		return this;
 	}
 
-	public FormGenerator addGroup(PropertyGroup group){
-		if (this.group==null)
-			this.group= new ArrayList<>();
-		this.group.add(group);
+	public FormGenerator addProperty(PropertyShape property){
+		if (null == this.property)
+			this.property = new ArrayList<>();
+		this.property.add(property);
 		return this;
 	}
 
 	@JsonIgnore
-	public FormGenerator group(Consumer<PropertyGroup> builder){
-		PropertyGroup group= new PropertyGroup();
-		this.addGroup(group);
-		builder.accept(group);
+	public FormGenerator property(Consumer<PropertyShape> builder){
+		PropertyShape property= new PropertyShape();
+		this.addProperty(property);
+		builder.accept(property);
 		return this;
 	}
 	@JsonIgnore

@@ -9,14 +9,18 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
+import org.endeavourhealth.imapi.model.AWSConfig;
 import org.endeavourhealth.imapi.model.iml.Concept;
+import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -28,10 +32,9 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.zip.DataFormatException;
+import java.util.*;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class SetExporter {
@@ -41,22 +44,22 @@ public class SetExporter {
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
     private SetRepository setRepository= new SetRepository();
 
-    public void publishSetToIM1(String setIri) throws DataFormatException, JsonProcessingException {
+    public void publishSetToIM1(String setIri) throws JsonProcessingException, QueryException {
         StringJoiner results = generateForIm1(setIri);
 
         pushToS3(results);
         LOG.trace("Done");
     }
 
-    public StringJoiner generateForIm1(String setIri) throws DataFormatException, JsonProcessingException {
+    public StringJoiner generateForIm1(String setIri) throws JsonProcessingException, QueryException {
         LOG.debug("Exporting set to IMv1");
 
         LOG.trace("Looking up set...");
-        String name = entityRepository2.getBundle(setIri, Set.of(RDFS.LABEL.getIri())).getEntity().getName();
+        String name = entityRepository2.getBundle(setIri, Set.of(RDFS.LABEL)).getEntity().getName();
 
-        Set<Concept> members = getExpandedSetMembers(setIri, true);
+        Set<Concept> members = getExpandedSetMembers(setIri, true, true, List.of());
 
-        return generateTSV(setIri, name, members);
+        return generateIMV1TSV(setIri, name, members);
     }
 
     private Set<String> getSetsRecursive(String setIri) {
@@ -75,37 +78,49 @@ public class SetExporter {
         return setIris;
     }
 
-    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy) throws DataFormatException, JsonProcessingException {
+    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy, boolean includeSubset, List<String> schemes) throws JsonProcessingException, QueryException {
         Set<String> setIris = getSetsRecursive(setIri);
 
         LOG.trace("Expanding members for sets...");
-        Set<Concept> result = new HashSet<>();
+        Map<String, Concept> result = new HashMap<>();
 
         for(String iri : setIris) {
+            Set<Concept> subResults = new HashSet<>();
             LOG.trace("Processing set [{}]...", iri);
 
-            Set<Concept> members = setRepository.getSetMembers(iri, includeLegacy);
+            Set<Concept> members = setRepository.getSetMembers(iri, includeLegacy, schemes);
 
             if (members != null && !members.isEmpty()) {
-                result.addAll(members);
+                subResults.addAll(members);
             } else {
-                TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri())).getEntity();
-                if (entity.get(IM.DEFINITION)!=null)
-                    result.addAll(setRepository.getSetExpansion(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class),
-                        includeLegacy,null));
+                TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION)).getEntity();
+                if (entity.get(iri(IM.DEFINITION))!=null)
+                    subResults.addAll(setRepository.getSetExpansion(entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class),
+                        includeLegacy,null, schemes));
                 else
-                  result.addAll(setRepository.getSetExpansion(new Query()
-                      .from(f->f
-                        .setIri(entity.getIri())
-                        .setDescendantsOrSelfOf(true))
-                    ,includeLegacy,null));
+                    subResults.addAll(setRepository.getSetExpansion(new Query()
+                      .match(f->f
+                        .setInstanceOf(new Node().setIri(entity.getIri())
+                        .setDescendantsOrSelfOf(true)))
+                    ,includeLegacy,null, schemes));
+            }
+            if(includeSubset) {
+                TTEntity entity = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL, IM.VERSION)).getEntity();
+                subResults.forEach(m -> {
+                    m.addIsContainedIn(entity);
+                    result.put(m.getIri(), m);
+                });
+            }
+            else {
+                for(Concept subResult: subResults) {
+                    if(!result.containsKey(subResult.getIri())) result.put(subResult.getIri(), subResult);
+                }
             }
         }
-
-        return result;
+        return new HashSet<Concept>(result.values());
     }
 
-    private StringJoiner generateTSV(String setIri, String name, Set<Concept> members) {
+    private StringJoiner generateIMV1TSV(String setIri, String name, Set<Concept> members) {
         LOG.trace("Generating output...");
 
         Set<String> im1Ids = new HashSet<>();
@@ -148,16 +163,16 @@ public class SetExporter {
         String secretKey = null;
 
         try {
-            JsonNode config = new ConfigManager().getConfig(CONFIG.IM1_PUBLISH.getIri());
+            AWSConfig config = new ConfigManager().getConfig(CONFIG.IM1_PUBLISH, new TypeReference<AWSConfig>(){});
             if (config == null) {
                 LOG.debug("No IM1_PUBLISH config found, reverting to defaults");
             } else {
-                bucket = config.get("bucket").asText();
-                region = config.get("region").asText();
-                if (config.has("accessKey"))
-                    accessKey = config.get("accessKey").asText();
-                if (config.has("secretKey"))
-                    secretKey = config.get("secretKey").asText();
+                bucket = config.getBucket();
+                region = config.getRegion();
+                if (null != config.getAccessKey())
+                    accessKey = config.getAccessKey();
+                if (null != config.getSecretKey())
+                    secretKey = config.getSecretKey();
             }
         } catch (JsonProcessingException e) {
             LOG.debug("No IM1_PUBLISH config found, reverting to defaults");

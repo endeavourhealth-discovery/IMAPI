@@ -1,32 +1,37 @@
 package org.endeavourhealth.imapi.model.cdm;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTUtil;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class ProvSourceEntity extends Entry {
 
 	public ProvSourceEntity(){
-		this.addType(TTIriRef.iri(IM.NAMESPACE+"ProvenanceSourceEntity"));
+		this.addType(iri(IM.PROVENANCE_SOURCE_ENTITY));
 	}
 
 	public TTIriRef getDerivationType() {
 		return
-			(TTIriRef) TTUtil.get(this,TTIriRef.iri("derivationType"),TTIriRef.class);
+			(TTIriRef) TTUtil.get(this,iri(IM.DERIVATION_TYPE),TTIriRef.class);
 	}
 
+	@JsonSetter
 	public ProvSourceEntity setDerivationType(TTIriRef derivationType) {
-		set(TTIriRef.iri(IM.NAMESPACE+"derivationType"),derivationType);
+		set(iri(IM.DERIVATION_TYPE),derivationType);
 		return this;
 	}
 
 	public TTIriRef getEntityIdentifier() {
 		return (TTIriRef)
-			TTUtil.get(this,TTIriRef.iri(IM.NAMESPACE+"entityIdentifier"),TTIriRef.class);
+			TTUtil.get(this,iri(IM.ENTITY_IDENTIFIER),TTIriRef.class);
 	}
 
+	@JsonSetter
 	public ProvSourceEntity setEntityIdentifier(TTIriRef entityIdentifier) {
-		set(TTIriRef.iri(IM.NAMESPACE+"entityIdentifier"),entityIdentifier);
+		set(iri(IM.ENTITY_IDENTIFIER),entityIdentifier);
 		return this;
 	}
 }

@@ -11,33 +11,34 @@ import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
-import org.endeavourhealth.imapi.model.EntitySummary;
+import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.module.FindException;
 import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.*;
 
+import static org.endeavourhealth.imapi.dataaccess.EntityRepository.PARENT_PREDICATES;
+
 public class EntityTripleRepository {
     private static final Logger LOG = LoggerFactory.getLogger(EntityTripleRepository.class);
     private static final List<Namespace> namespaceCache = new ArrayList<>();
+    private static final String EXECUTING = "Executing...";
+    private static final String RETRIEVING = "Retrieving...";
 
     private final EntityRepository2 entityRepository2 = new EntityRepository2();
     private final Map<String, Integer> bnodes = new HashMap<>();
     private int row = 0;
-
-    private String EXECUTING = "Executing...";
-    private String RETRIEVING = "Retrieving...";
 
     public TTBundle getEntityPredicates(String iri, Set<String> predicates) {
         return entityRepository2.getBundle(iri, predicates);
@@ -47,12 +48,12 @@ public class EntityTripleRepository {
         List<TTIriRef> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT DISTINCT ?s ?name WHERE {")
-            .add("    ?s ?p ?o .")
-            .add("    ?s rdfs:label ?name .")
-            .add("    ?s im:status ?status .")
-            .add("    FILTER (?p != ?e && ?status != im:Inactive)")
-            .add("}");
+                .add("SELECT DISTINCT ?s ?name WHERE {")
+                .add("    ?s ?p ?o .")
+                .add("    ?s rdfs:label ?name .")
+                .add("    ?s im:status ?status .")
+                .add("    FILTER (?p != ?e && ?status != im:Inactive)")
+                .add("}");
 
         if (rowNumber != null && pageSize != null) {
             sql.add("LIMIT " + pageSize + " OFFSET " + rowNumber);
@@ -66,8 +67,8 @@ public class EntityTripleRepository {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
                     result.add(new TTIriRef()
-                        .setIri(bs.getValue("s").stringValue())
-                        .setName(bs.getValue("name").stringValue())
+                            .setIri(bs.getValue("s").stringValue())
+                            .setName(bs.getValue("name").stringValue())
                     );
                 }
             }
@@ -77,11 +78,11 @@ public class EntityTripleRepository {
 
     public Integer getCountOfActiveSubjectByObjectExcludeByPredicate(String objectIri, String excludePredicateIri) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT (COUNT(DISTINCT ?s) AS ?cnt) WHERE {")
-            .add("    ?s ?p ?o .")
-            .add("    ?s im:status ?status .")
-            .add("    FILTER (?p != ?e && ?status != im:Inactive)")
-            .add("}");
+                .add("SELECT (COUNT(DISTINCT ?s) AS ?cnt) WHERE {")
+                .add("    ?s ?p ?o .")
+                .add("    ?s im:status ?status .")
+                .add("    FILTER (?p != ?e && ?status != im:Inactive)")
+                .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
@@ -98,104 +99,56 @@ public class EntityTripleRepository {
         }
     }
 
-    public Set<EntitySummary> getSubclassesAndReplacements(String iri) {
-        Set<EntitySummary> result = new HashSet<>();
-        String isa = "(<" + RDFS.SUBCLASSOF.getIri() +
-            ">|<" + RDFS.SUBPROPERTYOF.getIri() +
-            ">|<" + SNOMED.REPLACED_BY.getIri() + ">)*";
+    public EntityReferenceNode getEntityReferenceNode(String iri, List<String> schemeIris, boolean inactive) {
+        TTArray types = new TTArray();
+        EntityReferenceNode result = new EntityReferenceNode(iri).setType(types);
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT DISTINCT ?s ?sname ?scode ?g ?gname WHERE {")
-            .add("  ?s " + isa + " ?o .")
-            .add("  ?s rdfs:label ?sname .")
-            .add("  GRAPH ?g { ?s im:code ?scode } .")
-            .add("  OPTIONAL { ?g rdfs:label ?gname } .")
-            .add("}");
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("o", iri(iri));
-            execute(result, qry);
-        }
-
-        return result;
-    }
-
-    public Collection<EntitySummary> getSubjectAndDescendantSummariesByPredicateObjectRelType(String predicate, String object) {
-        Set<EntitySummary> result = new HashSet<>();
-
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT DISTINCT ?s ?sname ?scode ?g ?gname")
-            .add("WHERE {")
-            .add("  ?p (rdfs:subClassOf)* ?bp .")
-            .add("  ?o (rdfs:subClassOf)* ?bo .")
-            .add("  ?bs ?p ?o .")
-            .add("  ?s (rdfs:subClassOf|sn:370124000)* ?bs .")
-            .add("  FILTER isUri(?s)")
-            .add("  GRAPH ?g {")
-            .add("    ?s im:code ?scode ;")
-            .add("       rdfs:label ?sname .")
-            .add("  }")
-            .add("  OPTIONAL { ?g rdfs:label ?gname } .")
-            .add("}");
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("bp", iri(predicate));
-            qry.setBinding("bo", iri(object));
-            execute(result, qry);
-        }
-
-        return result;
-    }
-
-    private void execute(Set<EntitySummary> result, TupleQuery qry) {
-        LOG.debug(EXECUTING);
-        try (TupleQueryResult rs = qry.evaluate()) {
-            LOG.debug(RETRIEVING);
-            while (rs.hasNext()) {
-                BindingSet bs = rs.next();
-
-                result.add(new EntitySummary()
-                    .setIri(bs.getValue("s").stringValue())
-                    .setName(bs.getValue("sname").stringValue())
-                    .setCode(bs.getValue("scode").stringValue())
-                    .setScheme(
-                        new TTIriRef(
-                            bs.getValue("g").stringValue(),
-                            (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())
-                        )
-                    )
-                );
-            }
-            LOG.debug("Finished ({} rows) ", result.size());
-        }
-    }
-
-    public boolean hasChildren(String parentIri, List<String> schemeIris, boolean inactive) throws DALException {
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?c")
-            .add("WHERE {")
-            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?p .")
-            .add("GRAPH ?g { ?c rdfs:label ?name } .");
+                .add("SELECT ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren")
+                .add("WHERE {")
+                .add("  GRAPH ?g { ?s rdfs:label ?name } .")
+                .add("  OPTIONAL { ?s sh:order ?order . }")
+                .add("  OPTIONAL { ?s rdf:type ?typeIri . OPTIONAL { ?typeIri rdfs:label ?typeName . } }")
+                .add("    BIND(EXISTS{?child (" + PARENT_PREDICATES + ") ?s} AS ?hasChildren)")
+                .add("    BIND(EXISTS{?grandChild (" + PARENT_PREDICATES + ") ?child. ?child (" + PARENT_PREDICATES + ") ?s} AS ?hasGrandchildren)");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
             sql.add(valueList("g", schemeIris));
         }
 
         if (!inactive) {
-            sql.add("  OPTIONAL { ?c im:status ?s}").add("  FILTER (?s != im:Inactive) .");
+            sql.add("  OPTIONAL { ?s im:status ?status FILTER (?status != im:Inactive) }");
         }
 
-        sql.add("}").add("LIMIT 1");
+        sql.add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("p", iri(parentIri));
+            qry.setBinding("s", iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
-                return rs.hasNext();
+                if (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+
+                    if (bs.hasBinding("order"))
+                        result.setOrderNumber(((Literal) bs.getValue("order")).intValue());
+                    else
+                        result.setOrderNumber(Integer.MAX_VALUE);
+
+                    result.setHasChildren(((Literal) bs.getValue("hasChildren")).booleanValue())
+                            .setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue())
+                            .setName(bs.getValue("name").stringValue());
+
+                    if (bs.getValue("typeIri") != null && bs.getValue("typeName") != null) types.add(new TTIriRef(bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
+
+                    while (rs.hasNext()) {
+                        bs = rs.next();
+                        types.add(new TTIriRef(bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
+                    }
+                }
             }
         }
+
+        return result;
     }
 
     public Pageable<TTIriRef> findImmediateChildrenPagedByIriWithTotalCount(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
@@ -214,10 +167,11 @@ public class EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?c ?cname ")
                 .add("WHERE {")
-                .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p .")
-                .add("GRAPH ?g { ?c rdfs:label ?cname } .");
+                .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p .");
         if (schemeIris != null && !schemeIris.isEmpty()) {
-            sql.add(valueList("g", schemeIris));
+            sql.add("GRAPH ?g { ?c rdfs:label ?cname } .").add(valueList("g", schemeIris));
+        } else {
+            sql.add("?c rdfs:label ?cname .");
         }
         if (!inactive) {
             sql.add("  OPTIONAL { ?c im:status ?s}").add("  FILTER (?s != im:Inactive) .");
@@ -245,7 +199,7 @@ public class EntityTripleRepository {
                     BindingSet bs = rs.next();
                     children.add(new TTIriRef(bs.getValue("c").stringValue(), bs.getValue("cname").stringValue()));
                 }
-                result.setResult(children);;
+                result.setResult(children);
             }
         }
 
@@ -263,7 +217,7 @@ public class EntityTripleRepository {
         if (!inactive) {
             sqlCount.add("  OPTIONAL { ?p im:status ?s}").add("  FILTER (?s != im:Inactive) .");
         }
-            sqlCount.add("}");
+        sqlCount.add("}");
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?p ?pname ")
@@ -301,7 +255,7 @@ public class EntityTripleRepository {
                     BindingSet bs = rs.next();
                     children.add(new TTIriRef(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue()));
                 }
-                result.setResult(children);;
+                result.setResult(children);
             }
         }
         return result;
@@ -311,9 +265,9 @@ public class EntityTripleRepository {
         List<TTIriRef> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT DISTINCT ?c ?cname {")
-            .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p .")
-            .add("GRAPH ?g { ?c rdfs:label ?cname } .");
+                .add("SELECT DISTINCT ?c ?cname {")
+                .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p .")
+                .add("GRAPH ?g { ?c rdfs:label ?cname } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
             sql.add(valueList("g", schemeIris));
@@ -348,10 +302,10 @@ public class EntityTripleRepository {
         List<TTIriRef> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT DISTINCT ?p ?pname")
-            .add("WHERE {")
-            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?p .")
-            .add("GRAPH ?g { ?p rdfs:label ?pname } .");
+                .add("SELECT DISTINCT ?p ?pname")
+                .add("WHERE {")
+                .add("  ?c (" + PARENT_PREDICATES + ") ?p .")
+                .add("GRAPH ?g { ?p rdfs:label ?pname } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
             sql.add(valueList("g", schemeIris));
@@ -386,33 +340,6 @@ public class EntityTripleRepository {
         return result;
     }
 
-    public Set<TTIriRef> getObjectIriRefsBySubjectAndPredicate(String subjectIri, String predicateIri) {
-        Set<TTIriRef> result = new HashSet<>();
-
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?o ?oname")
-            .add("WHERE {")
-            .add("  ?s ?p ?o .")
-            .add("  ?o im:label ?oname .")
-            .add("}");
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("s", iri(subjectIri));
-            qry.setBinding("p", iri(predicateIri));
-            LOG.debug(EXECUTING);
-            try (TupleQueryResult rs = qry.evaluate()) {
-                LOG.debug(RETRIEVING);
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    result.add(new TTIriRef(bs.getValue("o").stringValue(), bs.getValue("oname").stringValue()));
-                }
-                LOG.debug("Finished ({} rows)", result.size());
-            }
-        }
-        return result;
-    }
-
     public List<Namespace> findNamespaces() {
         synchronized (namespaceCache) {
             if (namespaceCache.isEmpty()) {
@@ -427,12 +354,12 @@ public class EntityTripleRepository {
 
                 // Get/add schemes
                 StringJoiner sql = new StringJoiner(System.lineSeparator())
-                    .add("SELECT *")
-                    .add("WHERE {")
-                    .add("    GRAPH ?g {")
-                    .add("        ?g rdfs:label ?name")
-                    .add("    }")
-                    .add("}");
+                        .add("SELECT *")
+                        .add("WHERE {")
+                        .add("    GRAPH ?g {")
+                        .add("        ?g rdfs:label ?name")
+                        .add("    }")
+                        .add("}");
 
                 int i = 1;
                 try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
@@ -443,8 +370,8 @@ public class EntityTripleRepository {
                             Namespace ns = result.get(bs.getValue("g").stringValue());
                             if (ns == null) {
                                 result.put(
-                                    bs.getValue("g").stringValue(),
-                                    new Namespace(bs.getValue("g").stringValue(), "PFX" + (i++), bs.getValue("name").stringValue())
+                                        bs.getValue("g").stringValue(),
+                                        new Namespace(bs.getValue("g").stringValue(), "PFX" + (i++), bs.getValue("name").stringValue())
                                 );
                             } else {
                                 ns.setName(bs.getValue("name").stringValue());
@@ -454,40 +381,19 @@ public class EntityTripleRepository {
                 }
                 namespaceCache.addAll(result.values());
             }
-            Collections.sort(namespaceCache, Comparator.comparing(Namespace::getName));
+            namespaceCache.sort(Comparator.comparing(Namespace::getName));
             return namespaceCache;
         }
     }
 
-    public Set<EntitySummary> getLegacyConceptSummaries(Set<EntitySummary> coreEntities) {
-        Set<EntitySummary> result = new HashSet<>();
-
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?s ?sname ?scode ?g ?gname WHERE {")
-            .add("    ?s im:matchedTo ?o .")
-            .add("    ?s rdfs:label ?sname .")
-            .add("    GRAPH ?g { ?s im:code ?scode } .")
-            .add("    OPTIONAL { ?g rdfs:label ?gname } .")
-            .add("}");
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = prepareSparql(conn, sql.toString());
-            for (EntitySummary core : coreEntities) {
-                qry.setBinding("o", iri(core.getIri()));
-                execute(result, qry);
-            }
-        }
-        return result;
-    }
-
     private void addTriples(List<Tpl> triples, Resource subject, Integer parent, Set<String> predicates) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?sname ?p ?pname ?o ?oname")
-            .add("WHERE {")
-            .add("    ?s ?p ?o ;")
-            .add("    OPTIONAL { ?s rdfs:label ?sname }")
-            .add("    OPTIONAL { ?p rdfs:label ?pname }")
-            .add("    OPTIONAL { ?o rdfs:label ?oname }");
+                .add("SELECT ?sname ?p ?pname ?o ?oname")
+                .add("WHERE {")
+                .add("    ?s ?p ?o ;")
+                .add("    OPTIONAL { ?s rdfs:label ?sname }")
+                .add("    OPTIONAL { ?p rdfs:label ?pname }")
+                .add("    OPTIONAL { ?o rdfs:label ?oname }");
 
         if (predicates != null && !predicates.isEmpty()) {
             sql.add("    FILTER ( ?p IN " + inList("p", predicates.size()) + " )");
@@ -513,9 +419,9 @@ public class EntityTripleRepository {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
                     Tpl tpl = new Tpl()
-                        .setDbid(row++)
-                        .setParent(parent)
-                        .setPredicate(TTIriRef.iri(getString(bs, "p"), getString(bs, "pname")));
+                            .setDbid(row++)
+                            .setParent(parent)
+                            .setPredicate(TTIriRef.iri(getString(bs, "p"), getString(bs, "pname")));
 
                     triples.add(tpl);
                     Value object = bs.getValue("o");
@@ -538,11 +444,11 @@ public class EntityTripleRepository {
     public List<SimpleMap> getMatchedFrom(String iri, List<String> schemeIris) {
         List<SimpleMap> simpleMaps = new ArrayList<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add(" SELECT ?s ?code ?scheme ?name  WHERE{")
-            .add(" ?s im:matchedTo ?o .")
-            .add(" ?s im:code ?code .")
-            .add(" ?s im:scheme ?scheme .  ")
-            .add("GRAPH ?g { ?s rdfs:label ?name } .");
+                .add(" SELECT ?s ?code ?scheme ?name  WHERE{")
+                .add(" ?s im:matchedTo ?o .")
+                .add(" ?s im:code ?code .")
+                .add(" ?s im:scheme ?scheme .  ")
+                .add("GRAPH ?g { ?s rdfs:label ?name } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
             sql.add(valueList("g", schemeIris));
@@ -564,11 +470,11 @@ public class EntityTripleRepository {
     public List<SimpleMap> getMatchedTo(String iri, List<String> schemeIris) {
         List<SimpleMap> simpleMaps = new ArrayList<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add(" SELECT ?o ?code ?scheme ?name  WHERE{")
-            .add(" ?s im:matchedTo ?o .")
-            .add(" ?o im:code ?code .")
-            .add(" ?o im:scheme ?scheme .  ")
-            .add("GRAPH ?g { ?o rdfs:label ?name } .");
+                .add(" SELECT ?o ?code ?scheme ?name  WHERE{")
+                .add(" ?s im:matchedTo ?o .")
+                .add(" ?o im:code ?code .")
+                .add(" ?o im:scheme ?scheme .  ")
+                .add("GRAPH ?g { ?o rdfs:label ?name } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
             sql.add(valueList("g", schemeIris));
@@ -590,10 +496,10 @@ public class EntityTripleRepository {
     public List<String> getConceptIrisByGraph(String iri) {
         List<String> iris = new ArrayList<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add(" SELECT DISTINCT ?s WHERE{")
-            .add(" GRAPH ?g { ?s ?p ?o } .")
-            .add("}")
-            .add(" LIMIT 20 ");
+                .add(" SELECT DISTINCT ?s WHERE{")
+                .add(" GRAPH ?g { ?s ?p ?o } .")
+                .add("}")
+                .add(" LIMIT 20 ");
         try( RepositoryConnection conn = ConnectionManager.getIMConnection()){
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
@@ -610,11 +516,11 @@ public class EntityTripleRepository {
 
     public TTIriRef findParentFolderRef(String iri) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?p ?pname")
-            .add("WHERE {")
-            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?p .")
-            .add("  ?p rdfs:label ?pname .")
-            .add("}");
+                .add("SELECT ?p ?pname")
+                .add("WHERE {")
+                .add("  ?c (" + PARENT_PREDICATES + ") ?p .")
+                .add("  ?p rdfs:label ?pname .")
+                .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
@@ -632,104 +538,57 @@ public class EntityTripleRepository {
         return null;
     }
 
-    public boolean hasGrandChildren(String iri, List<String> schemeIris, boolean inactive) {
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?gc")
-            .add("WHERE {")
-            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?p .")
-            .add(" ?gc (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?c .")
-            .add("GRAPH ?g { ?c rdfs:label ?name } .");
-
-        if (schemeIris != null && !schemeIris.isEmpty()) {
-            sql.add(valueList("g", schemeIris));
-        }
-
-        if (!inactive) {
-            sql.add("  OPTIONAL { ?c im:status ?s}").add("  FILTER (?s != im:Inactive) .");
-        }
-
-        sql.add("}").add("LIMIT 1");
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("p", iri(iri));
-            try (TupleQueryResult rs = qry.evaluate()) {
-                return rs.hasNext();
-            }
-        }
-    }
-
-    public int getOrderNumber(String iri) {
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add("SELECT ?order {")
-                .add("?s im:order ?order")
-                .add("}");
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("s", iri(iri));
-            try (TupleQueryResult rs = qry.evaluate()) {
-                if (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    return Integer.parseInt(bs.getValue("order").stringValue());
-                }
-            }
-        }
-
-        return 0;
-    }
-
     public TTIriRef getShapeFromType(String iri) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?shape")
-            .add("WHERE {")
-            .add("  ?shape im:targetShape ?iri .")
-            .add("}")
-            .add("LIMIT 1");
+                .add("SELECT ?shape")
+                .add("WHERE {")
+                .add("  ?shape im:targetShape ?iri .")
+                .add("}")
+                .add("LIMIT 1");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("iri", iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
-                if (rs.hasNext()) {
+                if (rs.hasNext()){
                     BindingSet bs = rs.next();
                     return new TTIriRef(bs.getValue("shape").stringValue());
-                }
+                } else throw new FindException("No shape found for type: " + iri);
             }
         }
-        return null;
     }
 
-    public Pageable<TTIriRef> getSuperiorPropertiesByConceptPagedWithTotalCount(String conceptIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+    public Pageable<TTIriRef> getSuperiorPropertiesByConceptPagedWithTotalCount(String conceptIri, Integer rowNumber, Integer pageSize, boolean inactive) {
         List<TTIriRef> properties = new ArrayList<>();
         Pageable<TTIriRef> result = new Pageable<>();
 
         StringJoiner sqlCount = new StringJoiner(System.lineSeparator())
-            .add("SELECT (COUNT(?a1) as ?count)")
-            .add("WHERE {")
-            .add("?concept im:isA ?p .")
-            .add("?a1 rdfs:domain ?p .")
-            .add("FILTER NOT EXISTS {")
-            .add("?a2 rdfs:domain ?p .")
-            .add("?a1 im:isA ?a2 .")
-            .add("FILTER(?a1 != ?a2)")
-            .add("}");
+                .add("SELECT (COUNT(?a1) as ?count)")
+                .add("WHERE {")
+                .add("?concept im:isA ?p .")
+                .add("?a1 rdfs:domain ?p .")
+                .add("FILTER NOT EXISTS {")
+                .add("?a2 rdfs:domain ?p .")
+                .add("?a1 im:isA ?a2 .")
+                .add("FILTER(?a1 != ?a2)")
+                .add("}");
         if (!inactive) {
             sqlCount.add("OPTIONAL {?a1 im:status ?a1s}").add("FILTER(?a1s != im:Inactive) .");
         }
         sqlCount.add("}");
 
         StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?a1 ?attributeName")
-            .add("WHERE {")
-            .add("?concept im:isA ?p .")
-            .add("?p rdfs:label ?parentName .")
-            .add("?a1 rdfs:domain ?p ;")
-            .add("rdfs:label ?attributeName .")
-            .add("FILTER NOT EXISTS {")
-            .add("?a2 rdfs:domain ?p .")
-            .add("?a1 im:isA ?a2 .")
-            .add("FILTER(?a1 != ?a2)")
-            .add("}");
+                .add("SELECT ?a1 ?attributeName")
+                .add("WHERE {")
+                .add("?concept im:isA ?p .")
+                .add("?p rdfs:label ?parentName .")
+                .add("?a1 rdfs:domain ?p ;")
+                .add("rdfs:label ?attributeName .")
+                .add("FILTER NOT EXISTS {")
+                .add("?a2 rdfs:domain ?p .")
+                .add("?a1 im:isA ?a2 .")
+                .add("FILTER(?a1 != ?a2)")
+                .add("}");
         if (!inactive) {
             stringQuery.add("OPTIONAL {?a1 im:status ?a1s}").add("FILTER(?a1s != im:Inactive) .");
         }
@@ -762,43 +621,43 @@ public class EntityTripleRepository {
         return result;
     }
 
-    public Pageable<TTIriRef> getSuperiorPropertiesByConceptBoolFocusPagedWithTotalCount(List<String> conceptIris, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+    public Pageable<TTIriRef> getSuperiorPropertiesByConceptBoolFocusPagedWithTotalCount(List<String> conceptIris, Integer rowNumber, Integer pageSize, boolean inactive) {
         List<TTIriRef> properties = new ArrayList<>();
         Pageable<TTIriRef> result = new Pageable<>();
 
         StringJoiner sqlCount = new StringJoiner(System.lineSeparator())
-            .add("SELECT (COUNT(DISTINCT ?a1) as ?count)")
-            .add("WHERE {");
+                .add("SELECT (COUNT(DISTINCT ?a1) as ?count)")
+                .add("WHERE {");
         if (conceptIris != null && !conceptIris.isEmpty()) {
             sqlCount.add(valueList("concept", conceptIris));
         }
         sqlCount.add("?concept im:isA ?p .")
-            .add("?a1 rdfs:domain ?p .")
-            .add("FILTER NOT EXISTS {")
-            .add("?a2 rdfs:domain ?p .")
-            .add("?a1 im:isA ?a2 .")
-            .add("FILTER(?a1 != ?a2)")
-            .add("}");
+                .add("?a1 rdfs:domain ?p .")
+                .add("FILTER NOT EXISTS {")
+                .add("?a2 rdfs:domain ?p .")
+                .add("?a1 im:isA ?a2 .")
+                .add("FILTER(?a1 != ?a2)")
+                .add("}");
         if (!inactive) {
             sqlCount.add("OPTIONAL {?a1 im:status ?a1s}").add("FILTER(?a1s != im:Inactive) .");
         }
         sqlCount.add("}");
 
         StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
-            .add("SELECT DISTINCT ?a1 ?attributeName")
-            .add("WHERE {");
+                .add("SELECT DISTINCT ?a1 ?attributeName")
+                .add("WHERE {");
         if (conceptIris != null && !conceptIris.isEmpty()) {
             stringQuery.add(valueList("concept", conceptIris));
         }
         stringQuery.add("?concept im:isA ?p .")
-            .add("?p rdfs:label ?parentName .")
-            .add("?a1 rdfs:domain ?p ;")
-            .add("rdfs:label ?attributeName .")
-            .add("FILTER NOT EXISTS {")
-            .add("?a2 rdfs:domain ?p .")
-            .add("?a1 im:isA ?a2 .")
-            .add("FILTER(?a1 != ?a2)")
-            .add("}");
+                .add("?p rdfs:label ?parentName .")
+                .add("?a1 rdfs:domain ?p ;")
+                .add("rdfs:label ?attributeName .")
+                .add("FILTER NOT EXISTS {")
+                .add("?a2 rdfs:domain ?p .")
+                .add("?a1 im:isA ?a2 .")
+                .add("FILTER(?a1 != ?a2)")
+                .add("}");
         if (!inactive) {
             stringQuery.add("OPTIONAL {?a1 im:status ?a1s}").add("FILTER(?a1s != im:Inactive) .");
         }
@@ -829,24 +688,24 @@ public class EntityTripleRepository {
         return result;
     }
 
-    public Pageable<TTIriRef> getSuperiorPropertyValuesByPropertyPagedWithTotalCount(String propertyIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+    public Pageable<TTIriRef> getSuperiorPropertyValuesByPropertyPagedWithTotalCount(String propertyIri, Integer rowNumber, Integer pageSize, boolean inactive) {
         List<TTIriRef> values = new ArrayList<>();
         Pageable<TTIriRef> result = new Pageable<>();
 
         StringJoiner sqlCount = new StringJoiner(System.lineSeparator())
-            .add("SELECT (COUNT(?value) as ?count)")
-            .add("WHERE {")
-            .add("?property rdfs:range ?value .");
+                .add("SELECT (COUNT(?value) as ?count)")
+                .add("WHERE {")
+                .add("?property rdfs:range ?value .");
         if (!inactive) {
             sqlCount.add("OPTIONAL {?value im:status ?vs}").add("FILTER(?vs != im:Inactive) .");
         }
         sqlCount.add("}");
 
         StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?value ?valueName")
-            .add("WHERE {")
-            .add("?property rdfs:range ?value .")
-            .add("?value rdfs:label ?valueName .");
+                .add("SELECT ?value ?valueName")
+                .add("WHERE {")
+                .add("?property rdfs:range ?value .")
+                .add("?value rdfs:label ?valueName .");
         if (!inactive) {
             stringQuery.add("OPTIONAL {?value im:status ?vs}").add("FILTER(?vs != im:Inactive) .");
         }

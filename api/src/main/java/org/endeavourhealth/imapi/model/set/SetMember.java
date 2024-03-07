@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.set;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.io.Serializable;
@@ -16,6 +17,7 @@ public class SetMember implements Serializable {
         return entity;
     }
 
+    @JsonSetter
     public SetMember setEntity(TTIriRef entity) {
         this.entity = entity;
         return this;
@@ -34,6 +36,7 @@ public class SetMember implements Serializable {
         return scheme;
     }
 
+    @JsonSetter
     public SetMember setScheme(TTIriRef scheme) {
         this.scheme = scheme;
         return this;
@@ -60,6 +63,7 @@ public class SetMember implements Serializable {
         return directParent;
     }
 
+    @JsonSetter
     public void setDirectParent(TTIriRef directParent) {
         this.directParent = directParent;
     }

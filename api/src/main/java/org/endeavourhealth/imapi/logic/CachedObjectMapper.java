@@ -48,15 +48,19 @@ public class CachedObjectMapper implements AutoCloseable {
 
 
 
-    private synchronized void push(ObjectMapper objectMapper) {
-        pool.push(objectMapper);
+    private void push(ObjectMapper objectMapper) {
+        synchronized (pool) {
+            pool.push(objectMapper);
+        }
     }
 
-    private synchronized ObjectMapper pop() {
-        if (pool.size() > 0)
-            return pool.pop();
-        else
-            return new ObjectMapper();
+    private ObjectMapper pop() {
+        synchronized (pool) {
+            if (pool.size() > 0)
+                return pool.pop();
+            else
+                return new ObjectMapper();
+        }
     }
 
     public void setSerializationInclusion(JsonInclude.Include incl) {
@@ -78,6 +82,8 @@ public class CachedObjectMapper implements AutoCloseable {
     public JsonNode valueToTree(List<TTIriRef> fromValue) {
         return objectMapper.valueToTree(fromValue);
     }
+
+    public JsonNode stringArrayToTree(List<String> fromValue) { return objectMapper.valueToTree(fromValue); }
 
     public <T> T treeToValue(JsonNode source, Class<T> valueType) throws JsonProcessingException {
         return objectMapper.treeToValue(source, valueType);

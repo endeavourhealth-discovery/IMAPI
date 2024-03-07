@@ -7,17 +7,15 @@ import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.impl.ValidatingValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
-import org.eclipse.rdf4j.query.Update;
+import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +31,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     private RepositoryConnection conn;
     private final Map<String, String> prefixMap;
     private final Update deleteTriples;
+    String blockers="<http://snomed.info/sct#138875005>,<" + IM.NAMESPACE + "Concept>";
 
     private static final ValueFactory valueFactory = new ValidatingValueFactory(SimpleValueFactory.getInstance());
 
@@ -65,19 +64,19 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     @Override
     public void fileEntity(TTEntity entity, TTIriRef graph) throws TTFilerException {
 
-        if (entity.get(RDFS.LABEL) != null) {
-            if (entity.get(IM.HAS_STATUS) == null)
-                entity.set(IM.HAS_STATUS, IM.ACTIVE);
-            if (entity.get(IM.HAS_SCHEME) == null)
-                entity.set(IM.HAS_SCHEME, graph);
+        if (entity.get(TTIriRef.iri(RDFS.LABEL)) != null) {
+            if (entity.get(TTIriRef.iri(IM.HAS_STATUS)) == null)
+                entity.set(TTIriRef.iri(IM.HAS_STATUS), IM.ACTIVE);
+            if (entity.get(TTIriRef.iri(IM.HAS_SCHEME)) == null)
+                entity.set(TTIriRef.iri(IM.HAS_SCHEME), graph);
         }
-        if (entity.getCrud().equals(IM.UPDATE_PREDICATES))
+        if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_PREDICATES)))
             updatePredicates(entity, graph);
-        else if (entity.getCrud().equals(IM.ADD_QUADS))
+        else if (entity.getCrud().equals(TTIriRef.iri(IM.ADD_QUADS)))
             addQuads(entity, graph);
-        else if (entity.getCrud().equals(IM.UPDATE_ALL))
+        else if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_ALL)))
             replacePredicates(entity, graph);
-        else if (entity.getCrud().equals(IM.DELETE_ALL))
+        else if (entity.getCrud().equals(TTIriRef.iri(IM.DELETE_ALL)))
             deleteTriples(entity, graph);
         else
             throw new TTFilerException("Entity " + entity.getIri() + " has no crud assigned");
@@ -85,43 +84,88 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     }
 
     @Override
-    public void updateTct(String entity)  {
-            StringJoiner delSupers = new StringJoiner("\n");
-            delSupers.add("DELETE {<" + entity + "> <" + IM.IS_A.getIri() + "> ?super.}")
-              .add("where { <" + entity + "> <" + IM.IS_A.getIri() + "> ?super.}");
-            Update deleteIsas = conn.prepareUpdate(delSupers.toString());
-            deleteIsas.execute();
-            StringJoiner delSubs= new StringJoiner("\n");
-            delSubs
-              .add("DELETE {?subentity <" + IM.IS_A.getIri() + "> <" + entity + ">.}")
-              .add("where { ?subentity <" + IM.IS_A.getIri() + "> <" + entity + ">.}");
-            deleteIsas = conn.prepareUpdate(delSubs.toString());
-            deleteIsas.execute();
-            String[] topConcepts = {"<http://snomed.info/sct#138875005>", "<" + IM.NAMESPACE + "Concept>"};
-            String blockers = String.join(",", topConcepts);
-            StringJoiner isaSame = new StringJoiner("\n");
-            isaSame.add("INSERT DATA {<" + entity + "> <" + IM.IS_A.getIri() + "> <" + entity + ">.}");
-            Update addIsas = conn.prepareUpdate(isaSame.toString());
-            addIsas.execute();
-            StringJoiner isSuper= new StringJoiner("\n");
-            isSuper
-              .add("INSERT {<" + entity + "> <" + IM.IS_A.getIri() + "> ?superType.}")
-              .add("where { <" + entity + "> (<" + RDFS.SUBCLASSOF.getIri() + ">|<"+SNOMED.REPLACED_BY.getIri()+">)+ ?superType.}");
-            addIsas= conn.prepareUpdate(isSuper.toString());
-
-            addIsas.execute();
-            StringJoiner isSubs= new StringJoiner("\n");
-            isSubs
-              .add(" INSERT { ?subentity <http://endhealth.info/im#isA> ?superentity.}")
-              .add("where {?subentity rdfs:subClassOf+ <"+ entity+">.\n")
-              .add("<"+entity+"> <http://endhealth.info/im#isA> ?superentity.")
-              .add("filter (?subentity not in (" + blockers + "))")
-              .add("filter (?superentity not in (" + blockers + "))}");
-            addIsas = conn.prepareUpdate(isSubs.toString());
-
-            addIsas.execute();
+    public void updateIsAs(String entity) throws TTFilerException {
 
     }
+
+    public void deleteIsas(Set<String> entities){
+        LOG.info("Deleting descendant and ascendant isas");
+        for (String entity:entities){
+            StringJoiner deleteSql = new StringJoiner("\n");
+            deleteSql.add("DELETE { ?descendant <" + IM.IS_A + "> ?allAncestors." +
+                "  ?entity <"+IM.IS_A+"> ?ancestors.}")
+              .add("WHERE {?descendant <" + IM.IS_A + "> ?entity.")
+              .add("filter (?entity = <" + entity+">)}");
+            Update deleteIsas = conn.prepareUpdate(deleteSql.toString());
+            deleteIsas.execute();
+        }
+
+    }
+
+    public Set<TTEntity> getDescendants(Set<String> entities){
+        Set<TTEntity> descendants= new HashSet<>();
+        Map<String,TTEntity> entityMap= new HashMap<>();
+        for (String entity:entities){
+            StringJoiner getDescendantSql= new StringJoiner("\n")
+              .add("Select ?descendant ?superclass")
+              .add("where {?descendant <"+IM.IS_A+"> <"+ entity+">.")
+              .add("?descendant <"+RDFS.SUBCLASS_OF+"> ?superclass.}");
+            TupleQuery qry=conn.prepareTupleQuery(getDescendantSql.toString());
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    String descendantIri = bs.getValue("descendant").stringValue();
+                    TTEntity descendant = entityMap.get(descendantIri);
+                    if (descendant == null) {
+                        descendant = new TTEntity();
+                        descendant.setIri(descendantIri);
+                        entityMap.put(descendantIri, descendant);
+                    }
+                    descendant.addObject(TTIriRef.iri(RDFS.SUBCLASS_OF), TTIriRef.iri(bs.getValue("superclass").stringValue()));
+                }
+            }
+        }
+        return descendants;
+
+    }
+
+    public Set<String> getIsAs(String superClass){
+        Set<String> isAs= new HashSet<>();
+        StringJoiner getIsas= new StringJoiner("\n");
+        getIsas
+          .add("Select distinct ?ancestor")
+          .add("Where {")
+          .add("<"+ superClass+"> <"+IM.IS_A+"> ?ancestor")
+          .add("filter (?ancestor not in (" + blockers + "))}");
+        TupleQuery qry=conn.prepareTupleQuery(getIsas.toString());
+        try (TupleQueryResult rs = qry.evaluate()) {
+            while (rs.hasNext()) {
+                BindingSet bs = rs.next();
+                isAs.add(bs.getValue("ancestor").stringValue());
+            }
+        }
+        return isAs;
+    }
+
+    @Override
+    public void fileIsAs(Map<String, Set<String>> isAs) {
+        int count=0;
+        for (String child:isAs.keySet()){
+            count++;
+            StringJoiner addSql= new StringJoiner("\n")
+              .add("INSERT DATA {");
+            for (String ancestor: isAs.get(child)){
+                addSql.add("<"+ child+"> <"+IM.IS_A+"> <"+ ancestor+">.");
+            }
+            addSql.add("}");
+            Update addIsAs= conn.prepareUpdate(addSql.toString());
+            addIsAs.execute();
+            if (count%100==0){
+                LOG.info("isas added for "+ count+" entities");
+            }
+        }
+    }
+
 
 
     private void replacePredicates(TTEntity entity, TTIriRef graph) throws TTFilerException {

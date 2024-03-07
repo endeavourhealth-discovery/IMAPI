@@ -1,7 +1,9 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.json.TTNodeDeserializerV2;
@@ -27,6 +29,7 @@ public class TTNode implements TTValue, Serializable {
         return this;
     }
 
+    @JsonSetter
     public TTNode set(TTIriRef predicate, TTValue value) {
         if (value==null)
             predicateValues.remove(predicate);
@@ -60,12 +63,13 @@ public class TTNode implements TTValue, Serializable {
         return this;
     }
 
-
+    @JsonSetter
     public TTNode set(TTIriRef predicate, TTArray value) {
         predicateValues.put(predicate, value);
         return this;
     }
 
+    @JsonGetter
     public TTArray get(TTIriRef predicate) {
         return predicateValues.get(predicate);
     }
@@ -94,21 +98,23 @@ public class TTNode implements TTValue, Serializable {
         return true;
     }
 
+    @JsonGetter
     public TTLiteral getAsLiteral(TTIriRef predicate) {
         TTArray vals = get(predicate);
         return (vals == null) ? null : vals.asLiteral();
     }
 
+    @JsonGetter
     public TTIriRef getAsIriRef(TTIriRef predicate) {
         TTArray vals = get(predicate);
         return (vals == null) ? null : vals.asIriRef();
     }
 
+    @JsonGetter
     public TTNode getAsNode(TTIriRef predicate) {
         TTArray vals = get(predicate);
         return (vals == null) ? null : vals.asNode();
     }
-
 
     /**
      * Adds an object to a predicate if necessary converting to an array if not already an array
@@ -169,6 +175,5 @@ public class TTNode implements TTValue, Serializable {
         this.addObject(predicate,TTLiteral.literal(value));
         return this;
     }
-
 
 }

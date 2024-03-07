@@ -1,0 +1,17 @@
+{
+  "name" : "All subtypes of an entity, active only",
+  "match" : [ {
+    "descendantsOrSelfOf" : true,
+    "variable" : "isa",
+    "parameter" : "this"
+  } ],
+  "activeOnly" : true,
+  "return" : [ {
+    "nodeRef" : "isa",
+    "property" : [ {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+    }, {
+      "@id" : "http://endhealth.info/im#code"
+    } ]
+  } ]
+}

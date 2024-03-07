@@ -2,37 +2,61 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.endeavourhealth.imapi.model.tripletree.TTAlias;
+import com.fasterxml.jackson.annotation.JsonSetter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
-@JsonPropertyOrder({"iri","count","direction"})
+@JsonPropertyOrder({"nodeVariable","id","count","direction"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class OrderLimit extends TTAlias{
-	private String direction;
-	private int count=1;
+public class OrderLimit {
+	private OrderDirection property;
+	private int limit;
+	private String description;
+	private PropertyRef partitionBy;
 
+	public OrderDirection getProperty() {
+		return property;
+	}
 
-	public OrderLimit setIri(String iri){
-		super.setIri(iri);
+	public OrderLimit setProperty(OrderDirection property) {
+		this.property = property;
 		return this;
 	}
 
-	public OrderLimit setAlias(String alias){
-		super.setAlias(alias);
+
+	public PropertyRef getPartitionBy() {
+		return partitionBy;
+	}
+
+	public OrderLimit setPartitionBy(PropertyRef partitionBy) {
+		this.partitionBy = partitionBy;
 		return this;
 	}
 
-	public OrderLimit setName(String name){
-		super.setName(name);
+	public String getDescription() {
+		return description;
+	}
+
+	public OrderLimit setDescription(String description) {
+		this.description = description;
 		return this;
 	}
 
-	public String getDirection() {
-		return direction;
+
+
+
+
+	public int getLimit() {
+		return limit;
 	}
 
-	public OrderLimit setDirection(String direction) {
-		this.direction = direction;
+	public OrderLimit setLimit(int limit) {
+		this.limit = limit;
 		return this;
 	}
+
+
+
 }

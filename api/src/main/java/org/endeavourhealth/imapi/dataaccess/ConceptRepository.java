@@ -5,7 +5,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.filer.TTTransactionFiler;
+import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -13,6 +13,9 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.SnomedConcept;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class ConceptRepository {
 	public ObjectNode createConcept(String namespace) throws Exception {
@@ -37,13 +40,13 @@ public class ConceptRepository {
 
 	private void updateIncrement(Integer from) throws Exception {
 		TTDocument document = new TTDocument()
-			.setCrud(IM.UPDATE_PREDICATES)
-			.setGraph(IM.CODE_SCHEME_DISCOVERY)
+			.setCrud(iri(IM.UPDATE_PREDICATES))
+			.setGraph(iri(GRAPH.DISCOVERY))
 			.addEntity(new TTEntity()
-				.setCrud(IM.UPDATE_PREDICATES)
+				.setCrud(iri(IM.UPDATE_PREDICATES))
 				.setIri(IM.NAMESPACE+"Function_SnomedConceptGenerator")
 				.set(TTIriRef.iri(IM.NAMESPACE+"hasIncrementalFrom"), TTLiteral.literal(from+1)));
 		TTTransactionFiler filer= new TTTransactionFiler();
-		filer.fileTransaction(document);
+		filer.fileDocument(document);
 	}
 }

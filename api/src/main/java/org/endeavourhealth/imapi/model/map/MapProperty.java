@@ -3,10 +3,11 @@ package org.endeavourhealth.imapi.model.map;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.iml.FunctionClause;
+import org.endeavourhealth.imapi.model.iml.MapFunction;
 import org.endeavourhealth.imapi.model.iml.ListMode;
 import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
-import org.endeavourhealth.imapi.model.imq.Where;
+import org.endeavourhealth.imapi.model.imq.Match;
+import org.endeavourhealth.imapi.model.imq.Property;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -20,8 +21,8 @@ public class MapProperty extends TTIriRef {
 	private String source;
 	private String sourceVariable;
 	private ListMode listMode;
-	private Where where;
-	private FunctionClause functionClause;
+	private Match where;
+	private MapFunction functionClause;
 	private String target;
 	private String valueData;
 	private String valueVariable;
@@ -140,37 +141,37 @@ public class MapProperty extends TTIriRef {
 		return this;
 	}
 
-	public Where getWhere() {
+	public Match getWhere() {
 		return where;
 	}
 
 	@JsonSetter
-	public MapProperty setWhere(Where where) {
+	public MapProperty setWhere(Match where) {
 		this.where = where;
 		return this;
 	}
 
-	public MapProperty where (Consumer<Where> builder){
-		this.where= new Where();
+	public MapProperty where (Consumer<Match> builder){
+		this.where= new Match();
 		builder.accept(this.where);
 		return this;
 	}
 
 
 
-	public FunctionClause getFunction() {
+	public MapFunction getFunction() {
 		return functionClause;
 	}
 
-	public MapProperty setFunction(FunctionClause functionClause) {
+	public MapProperty setFunction(MapFunction functionClause) {
 		this.functionClause = functionClause;
 		return this;
 	}
 
 
 
-	public MapProperty function(Consumer<FunctionClause> builder){
-		this.functionClause = new FunctionClause();
+	public MapProperty function(Consumer<MapFunction> builder){
+		this.functionClause = new MapFunction();
 		builder.accept(this.functionClause);
 		return this;
 	}

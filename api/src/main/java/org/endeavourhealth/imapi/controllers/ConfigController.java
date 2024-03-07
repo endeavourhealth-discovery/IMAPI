@@ -67,7 +67,7 @@ public class ConfigController {
     @GetMapping(value="/public/xmlSchemaDataTypes")
     public List<String> getXMLSchemaDataTypes() throws JsonProcessingException {
         LOG.debug("getXMLSchemaDataTypes");
-        return configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>() {});
+        return configManager.getConfig(CONFIG.XML_SCHEMA_DATA_TYPES, new TypeReference<>() {});
     }
 
     @GetMapping(value="/public/graphExcludePredicates")

@@ -1,80 +1,94 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.model.iml.Path;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTTypedRef;
+import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 
 public class PathRepository {
 	private RepositoryConnection conn;
-	private PathDocument document= new PathDocument();
-	private TupleQuery queryToEntity;
+	private final PathDocument document= new PathDocument();
+	private TupleQuery queryToShape;
 
 	public PathDocument pathQuery(QueryRequest request) {
+		TTContext context = request.getAsContext();
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()){
 			this.conn= conn;
 			PathQuery pathQuery = request.getPathQuery();
-			String targetIri = pathQuery.getTarget().getIri();
+			String targetIri = context.expand(pathQuery.getTarget().getIri());
 			Integer depth = pathQuery.getDepth();
-			String source = pathQuery.getSource().getIri();
-			List<Path> pathsToShape= getAllPaths(source,targetIri,depth);
-			if (pathsToShape!=null) {
-				pathsToShape.sort(Comparator.comparing((Path p) -> p.getItems().size()));
-				for (Path path : pathsToShape) {
-					Where where = new Where();
-					document.addWhere(where);
-					whereFromPath(path, where);
+			String source = context.expand(pathQuery.getSource().getIri());
+			List<Match> paths= getAllPaths(source,targetIri,depth);
+			if (paths!=null) {
+				paths.sort(Comparator.comparing(this::getLength));
+				document.setMatch(paths);
 				}
-			}
 		}
 		return document;
 	}
 
+	private int getLength(Match match){
+		int count=0;
+		if (match==null)
+			return 0;
+		if (match.getProperty()==null)
+			return 0;
+		else {
+			count++;
+			for (Property path:match.getProperty())
+				count=count+getLength(path.getMatch());
+		}
+		return count;
+	}
 
-	private List<Path> getAllPaths(String source, String target,Integer depth) {
-		queryToEntity= conn.prepareTupleQuery(getPathSql());
-		List<Path> partial= new ArrayList<>();
-		List<Path> full = new ArrayList<>();
+
+	private List<Match> getAllPaths(String source, String target,Integer depth) {
+        switch(source) {
+            case USER.USER_THEME: break;
+            case SNOMED.ATTRIBUTE: break;
+        }
+
+		queryToShape = conn.prepareTupleQuery(getPathSql());
+		List<Match> partial;
+		List<Match> full = new ArrayList<>();
 		partial = getPathsFromShape(source, target,full);
 		if (partial.isEmpty())
 			return null;
 		for (int tries = 1; tries < depth; tries++) {
-			partial = nextPaths(source, target, partial, full);
+			partial = nextPaths(source, partial, full);
 		}
 		return full;
 	}
 
-	private List<Path> nextPaths(String source, String target, List<Path> paths, List<Path> full) {
-		List<Path> next= new ArrayList<>();
-		for (Path path:paths){
-					queryToEntity.setBinding("target", Values.iri(path.getSource().getIri()));
-					try (TupleQueryResult rs = queryToEntity.evaluate()) {
+	private List<Match> nextPaths(String source, List<Match> partials, List<Match> full) {
+		List<Match> next= new ArrayList<>();
+		for (Match partial:partials){
+					queryToShape.setBinding("target", Values.iri(partial.getTypeOf().getIri()));
+					try (TupleQueryResult rs = queryToShape.evaluate()) {
 						while (rs.hasNext()) {
 							BindingSet bs = rs.next();
-							Path nextPath= new Path();
-							nextPath.setSource(new TTTypedRef()
-								.setIri(bs.getValue("entity").stringValue())
-								.setName(bs.getValue("entityName").stringValue())
-									.setType(SHACL.NODESHAPE));
-							nextPath.addItem(new TTTypedRef()
+							Match nextPath= new Match();
+							next.add(nextPath);
+							nextPath
+								.setTypeOf(bs.getValue("entity").stringValue())
+								.setName(bs.getValue("entityName").stringValue());
+							Property path= new Property();
+							nextPath.addProperty(path);
+							path
 								.setIri(bs.getValue("path").stringValue())
-								.setName(bs.getValue("pathName").stringValue())
-								.setType(RDF.PROPERTY));
-							nextPath.addItem(path.getSource());
-							if (path.getItems()!=null)
-								nextPath.getItems().addAll(path.getItems());
-							nextPath.setTarget(path.getTarget());
-							if (nextPath.getSource().getIri().equals(source))
+								.setName(bs.getValue("pathName").stringValue());
+							Match node= new Match();
+							path.setMatch(node);
+							node.setTypeOf(partial.getTypeOf());
+							node.setProperty(partial.getProperty());
+							if (nextPath.getTypeOf().getIri().equals(source))
 								full.add(nextPath);
 							else
 								next.add(nextPath);
@@ -84,52 +98,13 @@ public class PathRepository {
 		return next;
 	}
 
-	private String getLocalName(String iri){
-		if (iri==null)
-			return null;
-		if (iri.contains("#"))
-			return iri.substring(iri.lastIndexOf("#")+1);
-		else
-			return iri.substring(iri.lastIndexOf(":")+1);
-	}
-
-	private void whereFromPath(Path path, Where where) {
-		for (TTTypedRef link:path.getItems()){
-			if (link.getType().equals(RDF.PROPERTY)){
-				where.setIri(link.getIri());
-				where.setName(link.getName());
-			}
-			else if (link.getType().equals(SHACL.NODESHAPE)){
-				Where subWhere= new Where();
-				subWhere.setType(link.getIri()).setName(link.getName());
-				where.addWhere(subWhere);
-				where= subWhere;
-			}
-			else {
-				where.addIn(new From()
-					.setType(IM.CONCEPT.getIri())
-					.where(w->w
-						.setIri(link.getIri())
-						.setName(link.getName())
-						.setAnyRoleGroup(true)
-						.addIn(new From()
-							.setIri(path.getTarget().getIri())
-							.setName(path.getTarget().getName()))));
-			}
-		}
-		if (path.getTarget().getType().equals(RDF.PROPERTY)) {
-				where.setIri(path.getTarget().getIri());
-				where.setName(path.getTarget().getName());
-		}
-	}
-
 
   private String getPathSql() {
 
 		StringJoiner sql = new StringJoiner("\n");
 		sql.add(getDefaultPrefixes());
 		sql.add("Select ?entity ?entityName ?path ?pathName ?target")
-			.add("Where {")
+			.add("Where{")
 			.add("?target ^sh:node ?prop.")
 			.add("?prop sh:path ?path.")
 			.add("?path rdfs:label ?pathName.")
@@ -139,9 +114,9 @@ public class PathRepository {
 	}
 
 
-	private List<Path> getPathsFromShape(String source, String target,List<Path> full) {
+	private List<Match> getPathsFromShape(String source, String target,List<Match> full) {
 		String targetIri = "<" + target + ">";
-		List<Path> pathsFromShape = new ArrayList<>();
+		List<Match> pathsFromShape = new ArrayList<>();
 		//First get the shapes
 		StringJoiner sql = new StringJoiner("\n");
 		sql.add(getDefaultPrefixes())
@@ -186,32 +161,44 @@ public class PathRepository {
 		try (TupleQueryResult rs = qry.evaluate()) {
 			while (rs.hasNext()) {
 				BindingSet bs = rs.next();
-				Path path = new Path();
-				path.setTarget(new TTTypedRef()
-					.setIri(target)
-					.setName(bs.getValue("targetName").stringValue())
-					.setType(TTIriRef.iri(bs.getValue("targetType").stringValue())));
-				path.setSource(new TTTypedRef()
-					.setIri(bs.getValue("entity").stringValue())
-				  .setName(bs.getValue("entityName").stringValue())
-					.setType(SHACL.NODESHAPE));
+				Match match= new Match();
+				match
+					.setTypeOf(bs.getValue("entity").stringValue())
+				  .setName(bs.getValue("entityName").stringValue());
+				Property where= new Property();
 				if (bs.getValue("property")!=null) {
 					String propertyIri = bs.getValue("property").stringValue();
-					path.addItem(new TTTypedRef()
-						.setIri(propertyIri)
-						.setName(bs.getValue("propertyName").stringValue())
-						.setType(RDF.PROPERTY));
-				}
-				if (bs.getValue("conceptProperty") != null) {
-					path.addItem(new TTTypedRef().setIri(bs.getValue("conceptProperty").stringValue())
+					if (bs.getValue("conceptProperty")==null) {
+						match.addProperty(where);
+						where
+							.setIri(propertyIri)
+							.setName(bs.getValue("propertyName").stringValue())
+							.addIs(new Node()
+								.setIri(targetIri)
+								.setName(bs.getValue("targetName").stringValue()));
+					}
+					else {
+						Property path= new Property();
+						match.addProperty(path);
+						path
+							.setIri(propertyIri)
+							.setName(bs.getValue("propertyName").stringValue())
+							.match(mConcept->mConcept
+								.addProperty(where));
+						where
+						.setIri(bs.getValue("conceptProperty").stringValue())
 						.setName(bs.getValue("conceptPropertyName").stringValue())
-						.setType(IM.ROLE_GROUP));
+						.setAnyRoleGroup(true)
+						.addIs(new Node()
+						.setIri(targetIri)
+						.setName(bs.getValue("targetName").stringValue()));
+					}
 				}
-				if (path.getSource().getIri().equals(source)){
-					full.add(path);
+				if (match.getTypeOf().getIri().equals(source)){
+					full.add(match);
 				}
 				else
-					pathsFromShape.add(path);
+					pathsFromShape.add(match);
 			}
 		}
 		return pathsFromShape;
@@ -223,7 +210,7 @@ public class PathRepository {
 			"PREFIX rdfs: <" + RDFS.NAMESPACE + ">\n" +
 			"PREFIX rdf: <" + RDF.NAMESPACE + ">\n" +
 			"PREFIX im: <" + IM.NAMESPACE + ">\n" +
-			"PREFIX sn: <" + SNOMED.NAMESPACE + ">\n" +
+			"PREFIX " + SNOMED.PREFIX + ": <" + SNOMED.NAMESPACE + ">\n" +
 			"PREFIX sh: <" + SHACL.NAMESPACE + ">\n";
 	}
 

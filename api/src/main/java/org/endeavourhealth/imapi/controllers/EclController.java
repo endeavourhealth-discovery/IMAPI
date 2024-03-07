@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UnknownFormatConversionException;
 import java.util.zip.DataFormatException;
@@ -29,7 +31,7 @@ public class EclController {
     private final EclService eclService = new EclService();
 
     @PostMapping("/public/ecl")
-    public String getEcl(@RequestBody Query inferred) throws DataFormatException, JsonProcessingException {
+    public String getEcl(@RequestBody Query inferred) throws QueryException, JsonProcessingException {
         LOG.debug("getEcl");
         return eclService.getEcl(inferred);
     }
@@ -39,7 +41,7 @@ public class EclController {
         summary = "Evaluate ECL",
         description = "Evaluates an query"
     )
-    public Set<Concept> evaluateEcl(@RequestBody EclSearchRequest request) throws DataFormatException, EclFormatException {
+    public Set<Concept> evaluateEcl(@RequestBody EclSearchRequest request) throws DataFormatException, QueryException,EclFormatException {
         try {
             return eclService.evaluateECLQuery(request);
         } catch (UnknownFormatConversionException | JsonProcessingException ex) {
@@ -54,9 +56,24 @@ public class EclController {
     )
     public SearchResponse eclSearch(
         @RequestBody EclSearchRequest request
-    ) throws DataFormatException, EclFormatException, JsonProcessingException {
+    ) throws DataFormatException, EclFormatException, JsonProcessingException,QueryException {
         try {
             return eclService.eclSearch(request);
+        } catch (UnknownFormatConversionException ex) {
+            throw new EclFormatException("Invalid ECL format", ex);
+        }
+    }
+
+    @PostMapping(value = "/public/eclSearchTotalCount",consumes = "application/json", produces = "application/json")
+    @Operation(
+        summary = "Count of ecl search",
+        description = "Shows total results for an ecl search as a number"
+    )
+    public Integer eclSearchTotalCount(
+        @RequestBody EclSearchRequest request
+    ) throws EclFormatException, QueryException {
+        try {
+            return eclService.getEclSearchTotalCount(request);
         } catch (UnknownFormatConversionException ex) {
             throw new EclFormatException("Invalid ECL format", ex);
         }
@@ -67,7 +84,16 @@ public class EclController {
         summary = "Get ecl from query",
         description = "MapObject an IM query to ecl"
     )
-    public String getECLFromQuery(@RequestBody Query query) throws DataFormatException {
-        return eclService.getECLFromQuery(query);
+    public String getECLFromQuery(@RequestBody Query query) throws QueryException {
+        return eclService.getECLFromQuery(query, false);
+    }
+
+    @PostMapping(value = "/public/eclFromQueryWithNames")
+    @Operation(
+        summary = "Get ecl from query",
+        description = "MapObject an IM query to ecl"
+    )
+    public String getECLFromQueryWithNames(@RequestBody Query query) throws QueryException {
+        return eclService.getECLFromQuery(query, true);
     }
 }

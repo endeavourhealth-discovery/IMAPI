@@ -34,7 +34,6 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
         Boolean usePrefixes = (Boolean) prov.getAttribute(TTContext.OUTPUT_CONTEXT);
         usePrefixes = (usePrefixes != null && usePrefixes);
 
-        setPredicateOrder();
         TTNodeSerializer helper = new TTNodeSerializer(document.getContext(), usePrefixes);
         gen.writeStartObject();
         helper.serializeContexts(document.getPrefixes(), gen);
@@ -72,7 +71,8 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
             gen.writeArrayFieldStart("entities");
             for (TTEntity entity : document.getEntities()) {
                 gen.writeStartObject();
-                gen.writeStringField("@id", helper.prefix(entity.getIri()));
+                if (entity.getIri()!=null)
+                    gen.writeStringField("@id", helper.prefix(entity.getIri()));
                 if (entity.getGraph() != null) {
                     gen.writeStringField("@graph", helper.prefix(entity.getGraph().getIri()));
                 }
@@ -86,10 +86,5 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
         }
     }
 
-    private void setPredicateOrder() {
-        List<TTIriRef> predicateTemplate = List.of(RDF.TYPE, RDFS.LABEL,
-            RDFS.COMMENT, IM.CODE, IM.HAS_SCHEME, IM.HAS_STATUS,
-            RDFS.SUBCLASSOF);
-    }
 }
 

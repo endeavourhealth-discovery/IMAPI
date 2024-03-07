@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.dataaccess.helpers;
 
 import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.http.HTTPRepository;
@@ -34,6 +35,10 @@ public class ConnectionManager {
         return getRepository("config").getConnection();
     }
 
+    public static RepositoryConnection getUserConnection() {
+        return getRepository("user").getConnection();
+    }
+
 
     public static TupleQuery prepareSparql(RepositoryConnection conn, String sparql) {
         try {
@@ -43,12 +48,26 @@ public class ConnectionManager {
             StringJoiner sj = new StringJoiner(System.lineSeparator());
             sj.add(prefixes);
             sj.add(sparql);
-
             return conn.prepareTupleQuery(sj.toString());
         } catch (Exception e) {
             throw new DALException("Failed to prepare SPARQL query", e);
         }
     }
+
+    public static Update prepareUpdateSparql(RepositoryConnection conn, String sparql) {
+        try {
+            if (prefixes == null)
+                prefixes = new ConfigManager().getConfig(CONFIG.DEFAULT_PREFIXES).getData();
+
+            StringJoiner sj = new StringJoiner(System.lineSeparator());
+            sj.add(prefixes);
+            sj.add(sparql);
+            return conn.prepareUpdate(sj.toString());
+        } catch (Exception e) {
+            throw new DALException("Failed to prepare SPARQL query", e);
+        }
+    }
+
 
     private static synchronized Repository getRepository(String repoId) {
         Repository repo = repos.get(repoId);

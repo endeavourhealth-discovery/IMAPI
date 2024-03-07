@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.iml;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class TransformRequest {
 		return transformMap;
 	}
 
+	@JsonSetter
 	public TransformRequest setTransformMap(TTIriRef transformMap) {
 		this.transformMap = transformMap;
 		return this;

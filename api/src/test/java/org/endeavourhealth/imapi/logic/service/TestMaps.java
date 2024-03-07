@@ -12,6 +12,8 @@ import org.endeavourhealth.imapi.vocabulary.FHIR;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.MAP;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class TestMaps {
 
 
@@ -42,8 +44,9 @@ public class TestMaps {
 						.propertyMap(m1->m1
 							.setSource("value")
 							.where(w->w
+								.property(p->p
 								.setIri(IM.NAMESPACE+"system")
-									.setValue("http://fhir.nhs.net/Id/nhs-number")))
+									.setValue("http://fhir.nhs.net/Id/nhs-number"))))
 							.setTarget("nhsNumber"))
 			.propertyMap(m->m
 				.setSource("name")
@@ -72,8 +75,9 @@ public class TestMaps {
 				.setTarget("homeAddress")
 				.objectMap(m1->m1
 						.where(w->w
+							.property(p->p
 							.setIri(IM.NAMESPACE+"use")
-								.setValue("home"))))
+								.setValue("home")))))
 					.setTargetType(IM.NAMESPACE+"Address")
 					.propertyMap(m2->m2
 						.setSource("line")
@@ -91,10 +95,10 @@ public class TestMaps {
 						.setSource("value")
 						.where(w->w
 							.setBool(Bool.and)
-							.where(w1->w1
+							.property(w1->w1
 								.setIri(IM.NAMESPACE+"system")
 										.setValue("phone"))
-							.where(w1->w1
+							.property(w1->w1
 								.setIri(IM.NAMESPACE+"use")
 									.setValue("mobile")))
 						.setTarget("mobileTelephoneNumber")))
@@ -104,11 +108,11 @@ public class TestMaps {
 					.setSource("value"))
 					.where(w->w
 						.setBool(Bool.and)
-						.where(w1->w1
+						.property(w1->w1
 							.setIri(IM.NAMESPACE+"system")
 								.setValue("phone")
 							)
-						.where(w1->w1
+						.property(w1->w1
 							.setIri(IM.NAMESPACE+"use")
 								.setValue("home")))
 					.setTarget("homeTelephoneNumber"))
@@ -130,7 +134,7 @@ public class TestMaps {
 					.propertyMap(m2->m2
 						.setTarget("originalScheme")
 						.setValueData("http://hl7.org/fhir/administrative-gender"))));
-		patientMapEntity.set(IM.DEFINITION, TTLiteral.literal(patientMap));
+		patientMapEntity.set(iri(IM.DEFINITION), TTLiteral.literal(patientMap));
 		EntityCache.addEntity(patientMapEntity);
 			return patientMap;
 	}

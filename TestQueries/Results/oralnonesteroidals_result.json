@@ -1,4 +1,13 @@
 {
+  "@context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
+  },
   "entities" : [ {
     "@id" : "http://snomed.info/sct#317404005",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mesalazine 250 milligram/1 each gastro-resistant oral tablet (clinical drug)"
@@ -20,6 +29,9 @@
   }, {
     "@id" : "http://snomed.info/sct#317448000",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely balsalazide disodium 750 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#319773006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 75 milligram/1 each conventional release orodispersible tablet (clinical drug)"
   }, {
     "@id" : "http://snomed.info/sct#319775004",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 75 milligram/1 each conventional release oral tablet (clinical drug)"
@@ -63,6 +75,9 @@
     "@id" : "http://snomed.info/sct#329587009",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diclofenac sodium 50 milligram/1 each gastro-resistant oral tablet (clinical drug)"
   }, {
+    "@id" : "http://snomed.info/sct#329598005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diclofenac sodium 50 milligram and misoprostol 200 microgram/1 each conventional release oral tablet (clinical drug)"
+  }, {
     "@id" : "http://snomed.info/sct#329602007",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diclofenac sodium 75 milligram and misoprostol 200 microgram/1 each conventional release oral tablet (clinical drug)"
   }, {
@@ -105,8 +120,14 @@
     "@id" : "http://snomed.info/sct#329654002",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 600 milligram/1 each conventional release oral tablet (clinical drug)"
   }, {
+    "@id" : "http://snomed.info/sct#329675005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely codeine phosphate 12.5 milligram and ibuprofen 200 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
     "@id" : "http://snomed.info/sct#329677002",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 600 milligram/1 sachet granules for conventional release oral suspension (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#329683004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely codeine phosphate 12.8 milligram and ibuprofen 200 milligram/1 each conventional release oral tablet (clinical drug)"
   }, {
     "@id" : "http://snomed.info/sct#329708004",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 800 milligram/1 each conventional release oral tablet (clinical drug)"
@@ -162,11 +183,17 @@
     "@id" : "http://snomed.info/sct#329896000",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely tiaprofenic acid 300 milligram/1 each conventional release oral tablet (clinical drug)"
   }, {
+    "@id" : "http://snomed.info/sct#329904006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely piroxicam 20 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
     "@id" : "http://snomed.info/sct#329907004",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely acemetacin 60 milligram/1 each conventional release oral capsule (clinical drug)"
   }, {
     "@id" : "http://snomed.info/sct#329910006",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely nabumetone 500 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#329912003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely nabumetone 100 milligram/1 milliliter conventional release oral suspension (clinical drug)"
   }, {
     "@id" : "http://snomed.info/sct#329914002",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely tenoxicam 20 milligram/1 each conventional release oral tablet (clinical drug)"
@@ -207,14 +234,209 @@
     "@id" : "http://snomed.info/sct#330170001",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely celecoxib 100 milligram/1 each conventional release oral capsule (clinical drug)"
   }, {
+    "@id" : "http://snomed.info/sct#347070003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 500 milligram and glycine 133 milligram/1 each conventional release orodispersible tablet (clinical drug)"
+  }, {
     "@id" : "http://snomed.info/sct#347249002",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely phenylbutazone 100 milligram/1 each gastro-resistant oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#349820009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing mesalazine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#349822001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing sulfasalazine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#350317005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing diclofenac in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#350321003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing ibuprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#356262000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing ketorolac in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#358427004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#363611002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely meclofenamate sodium 50 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#363612009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely meclofenamate sodium 100 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#370164001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 81 milligram/1 each conventional release chewable tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#370166004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 325 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#370168003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 165 milligram/1 each gastro-resistant oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#370169006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 325 milligram/1 each gastro-resistant oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#370183008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely magnesium salicylate 545 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#370190003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely fenbufen 200 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#370191004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely fenbufen 600 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#370192006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 100 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#370193001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 50 milligram/1 each conventional release chewable tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#370194007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 100 milligram/1 each conventional release chewable tablet (clinical drug)"
   }, {
     "@id" : "http://snomed.info/sct#370195008",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 200 milligram/1 each conventional release oral capsule (clinical drug)"
   }, {
+    "@id" : "http://snomed.info/sct#370196009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 40 milligram/1 milliliter conventional release oral suspension (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#370199002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ketoprofen 12.5 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#370228005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely tolmetin sodium 200 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#371226001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 325 milligram and butalbital 50 milligram and caffeine 40 milligram and codeine phosphate 30 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#373974003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ketoprofen 25 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#373975002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ketoprofen 75 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#374240001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely tolmetin sodium 600 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#374348005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely phenylbutazone 100 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#374578000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely fenoprofen calcium 200 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#374627000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diclofenac sodium 50 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#374639008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely nabumetone 750 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#374675005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely choline magnesium trisalicylate 500 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#374676006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely choline magnesium trisalicylate 750 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#374677002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely choline magnesium trisalicylate 1 gram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#374744009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 800 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#374937008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely etodolac 400 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#374938003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely etodolac 500 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#375121005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely tolmetin sodium 400 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#375433008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely indometacin 75 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#375512001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely sulindac 150 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#376010007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely naproxen sodium 550 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#376250003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 975 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#376277007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely oxaprozin 600 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#376655004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely salsalate 500 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#376731002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely salsalate 500 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#376732009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely salsalate 750 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
     "@id" : "http://snomed.info/sct#376878007",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely indometacin 5 milligram/1 milliliter conventional release oral suspension (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377062003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely magnesium salicylate 600 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377193004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 325 milligram and butalbital 50 milligram and caffeine 40 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377194005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 325 milligram and butalbital 50 milligram and caffeine 40 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377195006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 356.4 milligram and caffeine 30 milligram and dihydrocodeine tartrate 16 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377196007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 385 milligram and caffeine 30 milligram and orphenadrine citrate 25 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377197003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 428 milligram and caffeine 30 milligram and orphenadrine citrate 25 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377199000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 770 milligram and caffeine 60 milligram and orphenadrine citrate 50 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377200002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 856 milligram and caffeine 60 milligram and orphenadrine citrate 50 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377201003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 389 milligram and caffeine 32.4 milligram and dextropropoxyphene hydrochloride 65 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377202005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 325 milligram and carisoprodol 200 milligram and codeine phosphate 16 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377203000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 325 milligram and carisoprodol 200 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377204006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 500 milligram and hydrocodone bitartrate 5 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377205007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 325 milligram and meprobamate 200 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377206008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 325 milligram and methocarbamol 400 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377207004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 325 milligram and oxycodone hydrochloride 2.25 milligram and oxycodone terephthalate 190 microgram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377209001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 325 milligram and oxycodone hydrochloride 4.5 milligram and oxycodone terephthalate 380 microgram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377381003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely paracetamol 300 milligram and phenyltoloxamine citrate 20 milligram and salicylamide 200 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377391009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely paracetamol 300 milligram and phenyltoloxamine citrate 20 milligram and salicylamide 200 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377440005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely paracetamol 250 milligram and salicylamide 600 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#377489000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely hydrocodone bitartrate 7.5 milligram and ibuprofen 200 milligram/1 each conventional release oral tablet (clinical drug)"
   }, {
     "@id" : "http://snomed.info/sct#385585000",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely valdecoxib 10 milligram/1 each conventional release oral tablet (clinical drug)"
@@ -222,8 +444,17 @@
     "@id" : "http://snomed.info/sct#385586004",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely valdecoxib 20 milligram/1 each conventional release oral tablet (clinical drug)"
   }, {
+    "@id" : "http://snomed.info/sct#386038008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 500 milligram/1 each gastro-resistant oral tablet (clinical drug)"
+  }, {
     "@id" : "http://snomed.info/sct#388930005",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely rofecoxib 50 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#388959005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely fenoprofen calcium 300 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#404785009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 300 milligram and codeine 8 milligram/1 each conventional release oral tablet (clinical drug)"
   }, {
     "@id" : "http://snomed.info/sct#407907003",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely etoricoxib 60 milligram/1 each conventional release oral tablet (clinical drug)"
@@ -234,6 +465,9 @@
     "@id" : "http://snomed.info/sct#407909000",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely etoricoxib 120 milligram/1 each conventional release oral tablet (clinical drug)"
   }, {
+    "@id" : "http://snomed.info/sct#408075007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 300 milligram and pseudoephedrine 45 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
     "@id" : "http://snomed.info/sct#408146004",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely valdecoxib 40 milligram/1 each conventional release oral tablet (clinical drug)"
   }, {
@@ -243,8 +477,110 @@
     "@id" : "http://snomed.info/sct#408602008",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely lornoxicam 8 milligram/1 each conventional release oral tablet (clinical drug)"
   }, {
+    "@id" : "http://snomed.info/sct#409229002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely oxaprozin potassium 600 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#409312003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 81 milligram and pravastatin 20 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#409313008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 81 milligram and pravastatin 40 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#409314002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 81 milligram and pravastatin 80 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#409315001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 325 milligram and pravastatin 80 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#409316000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 325 milligram and pravastatin 40 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#409317009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 325 milligram and pravastatin 20 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#411987001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing almotriptan in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#411995002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aceclofenac in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#411996001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing acemetacin in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#411997005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing azapropazone in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#411998000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing benorilate in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#411999008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing celecoxib in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#412000002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing etoricoxib in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#412001003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing meloxicam in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#412002005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing nabumetone in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#412003000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing rofecoxib in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#412004006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing valdecoxib in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#412005007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing dexketoprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#412006008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing etodolac in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#412007004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing fenbufen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#412008009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing fenoprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#412009001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing flurbiprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#412011005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing indometacin in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#412012003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing ketoprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#412014002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing lornoxicam in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#412018004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing mefenamic acid in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#412019007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing oxaprozin in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#412575004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 325 milligram and codeine 30 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#412576003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 325 milligram and codeine 60 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#412647005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 389 milligram and caffeine 32.4 milligram and dextropropoxyphene hydrochloride 32 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
     "@id" : "http://snomed.info/sct#412651007",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Meloxicam 7.5mg/5ml oral suspension (product)"
+  }, {
+    "@id" : "http://snomed.info/sct#413586006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 250 milligram and caffeine 65 milligram and paracetamol 250 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#414444009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 400 milligram and oxycodone 5 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#416821000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely naproxen 200 milligram/1 each conventional release oral capsule (clinical drug)"
   }, {
     "@id" : "http://snomed.info/sct#418352003",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely dexibuprofen 300 milligram/1 each conventional release oral tablet (clinical drug)"
@@ -252,8 +588,776 @@
     "@id" : "http://snomed.info/sct#418855005",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely dexibuprofen 400 milligram/1 each conventional release oral tablet (clinical drug)"
   }, {
+    "@id" : "http://snomed.info/sct#420276008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely naproxen sodium 220 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#420858007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 200 milligram and pseudoephedrine 30 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#425451006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely celecoxib 50 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
     "@id" : "http://snomed.info/sct#425685004",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely celecoxib 400 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#426061004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mesalazine 1.2 gram/1 each gastro-resistant oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#428210006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely hydrocodone bitartrate 5 milligram and ibuprofen 200 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#429392006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely hydrocodone bitartrate 10 milligram and ibuprofen 200 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#429393001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely hydrocodone bitartrate 2.5 milligram and ibuprofen 200 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#433315007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely naproxen sodium 500 milligram and sumatriptan succinate 85 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#437759001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mesalazine 800 milligram/1 each gastro-resistant oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#439298001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing naproxen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#440256005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing piroxicam in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#441834006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diphenhydramine 38 milligram and ibuprofen 200 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#442832008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diclofenac potassium 50 milligram/1 sachet powder for conventional release oral solution (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#764369003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and omeprazole in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#765538009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely etodolac 600 milligram/1 each prolonged-release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765559002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 975 milligram/1 each gastro-resistant oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765570009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 81 milligram/1 each gastro-resistant oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765579005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely codeine phosphate 20 milligram and ibuprofen 300 milligram/1 each prolonged-release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765648000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mesalazine 500 milligram/1 each prolonged-release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765653005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diclofenac sodium 100 milligram/1 each prolonged-release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765657006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diclofenac sodium 75 milligram/1 each prolonged-release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765676008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 650 milligram/1 each gastro-resistant oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765699007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 800 milligram/1 each prolonged-release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765713002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely naproxen 375 milligram/1 each gastro-resistant oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765728002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diclofenac sodium 25 milligram/1 each gastro-resistant oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765888007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diclofenac sodium 100 milligram/1 each prolonged-release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765908006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 300 milligram/1 each prolonged-release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765919009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely flurbiprofen 200 milligram/1 each prolonged-release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765923001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diclofenac sodium 75 milligram/1 each prolonged-release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765934003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ketoprofen 200 milligram/1 each prolonged-release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765954002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ketoprofen 150 milligram/1 each prolonged-release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#765956000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely tiaprofenic acid 300 milligram/1 each prolonged-release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#766001006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 25 milligram and dipyridamole 200 milligram/1 each prolonged-release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#766002004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ketoprofen 100 milligram/1 each prolonged-release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#766026002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 200 milligram/1 each prolonged-release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#766064000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely indometacin 75 milligram/1 each prolonged-release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#766065004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely indometacin 25 milligram/1 each prolonged-release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#766291009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely magnesium salicylate 580 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#766542002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely benorilate 400 milligram/1 milliliter conventional release oral suspension (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#766687009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mesalazine 1 gram/1 sachet gastro-resistant and prolonged-release oral granules (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#767742009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and dipyridamole in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767769005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing phenylbutazone in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767781009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing tiaprofenic acid in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767793000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing codeine and ibuprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767897005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and caffeine and paracetamol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767898000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and hydrocodone in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767899008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and pravastatin in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767900003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and carisoprodol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767901004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and meprobamate in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767902006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and methocarbamol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767919008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and butalbital and caffeine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767922005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and butalbital and caffeine and codeine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767924006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and oxycodone in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767926008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and carisoprodol and codeine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767927004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and caffeine and orphenadrine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767930006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and caffeine and dihydrocodeine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767938004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing balsalazide in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#767967003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing diflunisal in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#768074008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing choline magnesium trisalicylate in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#768107003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing olsalazine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#768110005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing diphenhydramine and ibuprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#768117008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing diclofenac and misoprostol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#768118003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing dexibuprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#768202002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing tenoxicam in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#768375001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing naproxen and sumatriptan in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#768383007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing nefopam in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#768402000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing hydrocodone and ibuprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#768439004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing magnesium salicylate in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#768487009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing paracetamol and phenyltoloxamine and salicylamide in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#768562000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing esomeprazole and naproxen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#768707007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing ibuprofen and pseudoephedrine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#768708002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing ibuprofen and oxycodone in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#768781006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing tolmetin in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#768783009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing tolfenamic acid in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#769133000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mefenamic acid 10 milligram/1 milliliter conventional release oral suspension (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#770316009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing meclofenamic acid in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#772317006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and codeine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#772318001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and caffeine and dextropropoxyphene in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#772319009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and metoclopramide in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#772670008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing paracetamol and salicylamide in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#772720001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing salsalate in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#772747006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing sulindac in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778205004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aceclofenac in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778206003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only acemetacin in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778254006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only almotriptan in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778360008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and butalbital and caffeine and codeine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778361007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and butalbital and caffeine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778362000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and caffeine and dextropropoxyphene in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778363005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and caffeine and dihydrocodeine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778364004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and caffeine and orphenadrine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778365003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and caffeine and paracetamol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778366002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and carisoprodol and codeine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778367006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and carisoprodol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778368001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and codeine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778369009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and dipyridamole in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778370005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and hydrocodone in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778371009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and meprobamate in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778372002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and methocarbamol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778373007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and metoclopramide in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778374001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and omeprazole in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778375000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and oxycodone in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778376004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and pravastatin in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778377008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778406001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only azapropazone in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778427006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only balsalazide in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778453003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only benorilate in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778693008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only celecoxib in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778753004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only choline magnesium trisalicylate in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778847007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only codeine and ibuprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778964006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only dexibuprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778965007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only dexketoprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778985006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only diclofenac and misoprostol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#778988008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only diclofenac in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779002004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only diflunisal in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779027006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only diphenhydramine and ibuprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779172000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only esomeprazole and naproxen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779217007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only etodolac in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779221000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only etoricoxib in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779240006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only fenbufen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779243008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only fenoprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779305008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only flurbiprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779482007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only hydrocodone and ibuprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779524007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only ibuprofen and oxycodone in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779525008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only ibuprofen and pseudoephedrine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779527000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only ibuprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779548003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only indometacin in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779630000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only ketoprofen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779636006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only ketorolac in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779746001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only lornoxicam in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779766005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only magnesium salicylate in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779779001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only meclofenamic acid in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779784007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only mefenamic acid in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779790006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only meloxicam in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779815007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only mesalazine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779949003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only nabumetone in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779972001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only naproxen and sumatriptan in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779973006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only naproxen in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#779983005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only nefopam in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#780061009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only olsalazine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#780084002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only oxaprozin in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#780122003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only paracetamol and phenyltoloxamine and salicylamide in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#780125001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only paracetamol and salicylamide in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#780198007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only phenylbutazone in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#780224009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only piroxicam in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#780393006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only rofecoxib in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#780415002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only salsalate in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#780541005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only sulfasalazine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#780544002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only sulindac in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#780584006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only tenoxicam in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#780630001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only tiaprofenic acid in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#780662003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only tolfenamic acid in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#780663008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only tolmetin in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#780745003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only valdecoxib in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#783031000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely almotriptan (as almotriptan malate) 12.5 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#783103006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 200 milligram and pseudoephedrine hydrochloride 30 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#783105004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ketorolac trometamol 10 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#783334002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely dexketoprofen (as dexketoprofen trometamol) 25 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#783653004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely fenoprofen (as fenoprofen calcium) 300 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#784658001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 20 milligram/1 milliliter and pseudoephedrine hydrochloride 3 milligram/1 milliliter conventional release oral suspension (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#784659009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely chlorphenamine maleate 2 milligram and ibuprofen 200 milligram and pseudoephedrine hydrochloride 30 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#784770007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely esomeprazole (as esomeprazole magnesium) 20 milligram and naproxen (as naproxen sodium) 375 milligram/1 each gastro-resistant oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#784771006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely esomeprazole (as esomeprazole magnesium) 20 milligram and naproxen 500 milligram/1 each gastro-resistant oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#784852002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely nabumetone 2.5 milligram/1 milliliter conventional release oral solution (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#784904008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely piroxicam 10 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#785016007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 1.5 milligram/1 milliliter conventional release oral solution (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#785018008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 2.5 milligram/1 milliliter conventional release oral solution (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#785188003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diclofenac sodium 250 microgram/1 milliliter conventional release oral solution (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#785451006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing chlorphenamine and ibuprofen and pseudoephedrine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#786149005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only chlorphenamine and ibuprofen and pseudoephedrine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#789138003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing apremilast in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#789139006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only apremilast in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#789140008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely apremilast 20 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#789141007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely apremilast 10 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#789142000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely apremilast 30 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#840652007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely pirfenidone 267 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#840654008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely pirfenidone 801 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#840655009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely pirfenidone 267 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#840658006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing pirfenidone in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#840659003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only pirfenidone in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1137587000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diclofenac sodium 50 milligram/1 each gastro-resistant oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1137595001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diclofenac sodium 25 milligram/1 each gastro-resistant oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1149298008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely nabumetone 1 gram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1149409005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely almotriptan (as almotriptan malate) 6.25 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1155959009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diphenhydramine hydrochloride 25 milligram and ibuprofen 200 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1162379004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely etoricoxib 30 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1162422005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen (as ibuprofen sodium) 200 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1162424006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen (as ibuprofen sodium) 400 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1163344006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mesalazine 1 gram/1 each prolonged-release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1163374003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mesalazine 2 gram/1 sachet prolonged-release oral granules (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1163417002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mesalazine 4 gram/1 sachet prolonged-release oral granules (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1172853002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 20 milligram/1 milliliter and paracetamol 25 milligram/1 milliliter conventional release oral suspension (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1172856005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only ibuprofen and paracetamol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1172857001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing ibuprofen and paracetamol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1172860008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only lornoxicam and paracetamol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1172861007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing lornoxicam and paracetamol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1172862000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely lornoxicam 4 milligram and paracetamol 500 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1172865003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 50 milligram/1 each gastro-resistant oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1172866002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 150 milligram/1 each gastro-resistant oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1172908003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely sulfasalazine 1 gram/1 each gastro-resistant oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1179016008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing bromelains and diclofenac and rutin and trypsin in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1179017004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only bromelains and diclofenac and rutin and trypsin in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1179019001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely bromelains 90 milligram and diclofenac sodium 50 milligram and rutin trihydrate 100 milligram and trypsin 48 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1179686004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only diacerein and glucosamine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1179688003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing diacerein and glucosamine in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1179691003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diacerein 50 milligram and glucosamine sulfate potassium chloride 1.5 gram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1193592002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 75 milligram and atorvastatin (as atorvastatin calcium) 20 milligram and clopidogrel (as clopidogrel bisulfate) 75 milligram/1 each conventional release oral capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1193596004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and atorvastatin and clopidogrel in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1193597008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aspirin and atorvastatin and clopidogrel in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1197380000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 100 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1197445003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aspirin 500 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1197759009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely drotaverine hydrochloride 80 milligram and mefenamic acid 250 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1197763002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing drotaverine and mefenamic acid in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1197764008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only drotaverine and mefenamic acid in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1201793003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ketorolac trometamol 10 milligram/1 each tablet for conventional release oral suspension (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1201794009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aceclofenac 100 milligram and chlorzoxazone 250 milligram and paracetamol 325 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1201796006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aceclofenac and chlorzoxazone and paracetamol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1201798007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aceclofenac and chlorzoxazone and paracetamol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1201957006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aceclofenac 200 milligram/1 each prolonged-release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1201960004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing mefenamic acid and paracetamol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1201962007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only mefenamic acid and paracetamol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1201963002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mefenamic acid 10 milligram/1 milliliter and paracetamol 25 milligram/1 milliliter conventional release oral suspension (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1204038001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely etoricoxib 60 milligram and thiocolchicoside 4 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1204041005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing etoricoxib and thiocolchicoside in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1204042003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only etoricoxib and thiocolchicoside in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1204382004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely etoricoxib 90 milligram and thiocolchicoside 8 milligram/1 each conventional release and prolonged-release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1209194001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing dicycloverine and mefenamic acid in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1209195000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only dicycloverine and mefenamic acid in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1209196004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely dicycloverine hydrochloride 10 milligram and mefenamic acid 250 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1217124009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mefenamic acid 500 milligram and paracetamol 325 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1217252006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely piroxicam 20 milligram/1 each tablet for conventional release oral suspension (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1217385000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely naproxen (as naproxen sodium) 200 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1217386004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely naproxen (as naproxen sodium) 500 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1217387008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely naproxen (as naproxen sodium) 250 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1217388003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely naproxen (as naproxen sodium) 375 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1231740000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only chlorzoxazone and diclofenac and paracetamol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1231741001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing chlorzoxazone and diclofenac and paracetamol in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1231742008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely chlorzoxazone 500 milligram and diclofenac sodium 50 milligram and paracetamol 325 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1231750004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely chlorzoxazone 250 milligram and diclofenac sodium 50 milligram and paracetamol 325 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1231753002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely chlorzoxazone 500 milligram and diclofenac potassium 50 milligram and paracetamol 325 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1231756005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing diclofenac and paracetamol and serrapeptase in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1231758006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only diclofenac and paracetamol and serrapeptase in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1231759003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diclofenac potassium 50 milligram and paracetamol 325 milligram and serrapeptase 10 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1231761007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely diclofenac potassium 50 milligram and paracetamol 325 milligram and serrapeptase 15 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1237353005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely lornoxicam 16 milligram/1 each prolonged-release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1237622004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aceclofenac 100 milligram/1 each tablet for conventional release oral suspension (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1240347009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aceclofenac and thiocolchicoside in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1240348004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing only aceclofenac and thiocolchicoside in oral dose form (medicinal product form)"
+  }, {
+    "@id" : "http://snomed.info/sct#1240349007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely aceclofenac 100 milligram and thiocolchicoside 4 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1255339000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 100 milligram/1 each conventional release chewable soft capsule (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1255396005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mefenamic acid 500 milligram and paracetamol 500 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1258939007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mesalazine 1.2 gram/1 each prolonged-release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1260289005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mesalazine 1.5 gram/1 sachet prolonged-release oral granules (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1260290001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mesalazine 3 gram/1 sachet prolonged-release oral granules (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1260300008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mesalazine 500 milligram/1 sachet prolonged-release oral granules (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1263404001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely dexketoprofen (as dexketoprofen trometamol) 25 milligram/1 sachet granules for conventional release oral solution (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1263417003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mefenamic acid 250 milligram/1 each conventional release oral tablet (clinical drug)"
   }, {
     "@id" : "http://snomed.info/sct#1511000001104",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Ibuprofen 400mg tablets (Approved Prescription Services) (product)"
@@ -333,9 +1437,6 @@
     "@id" : "http://snomed.info/sct#56411000001103",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Synflex 275mg tablets (Roche Products Ltd) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#60511000001108",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Unichem Plc) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#61111000001105",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Naprosyn S/R 500mg tablets (Roche Products Ltd) (product)"
   }, {
@@ -357,17 +1458,11 @@
     "@id" : "http://snomed.info/sct#78311000001106",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Diclovol 25mg gastro-resistant tablets (Arun Pharmaceuticals UK Ltd) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#80711000001101",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Sterwin Medicines) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#81511000001104",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Mobic 15mg tablets (Boehringer Ingelheim Ltd) (product)"
   }, {
     "@id" : "http://snomed.info/sct#84411000001101",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Indomax 75 SR capsules (Ashbourne Pharmaceuticals Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#86111000001104",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Alpharma Limited) (product)"
   }, {
     "@id" : "http://snomed.info/sct#90611000001109",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Feldene 20 capsules (Pfizer Ltd) (product)"
@@ -444,26 +1539,14 @@
     "@id" : "http://snomed.info/sct#149811000001102",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Fenbufen 300mg tablets (Unichem Plc) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#150011000001103",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (IVAX Pharmaceuticals UK Ltd) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#155411000001100",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Oruvail 100 modified-release capsules (Hawgreen Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#161211000001108",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Alpharma Limited) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#162011000001106",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naprosyn 500mg tablets (Roche Products Ltd) (product)"
   }, {
     "@id" : "http://snomed.info/sct#163411000001106",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Aspirin 75mg dispersible tablets (IVAX Pharmaceuticals UK Ltd) (product)"
   }, {
     "@id" : "http://snomed.info/sct#164411000001109",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Mefenamic acid 250mg capsules (Sterwin Medicines) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#166111000001106",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Arthrosin 500 tablets (Ashbourne Pharmaceuticals Ltd) (product)"
   }, {
     "@id" : "http://snomed.info/sct#172111000001101",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Indocid R 75mg capsules (Merck Sharp & Dohme Ltd) (product)"
@@ -560,9 +1643,6 @@
   }, {
     "@id" : "http://snomed.info/sct#215611000001109",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Sulfasalazine 500mg gastro-resistant tablets (Alpharma Limited) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#220511000001107",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Approved Prescription Services) (product)"
   }, {
     "@id" : "http://snomed.info/sct#221211000001103",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Dysman 250 capsules (Ashbourne Pharmaceuticals Ltd) (product)"
@@ -762,9 +1842,6 @@
     "@id" : "http://snomed.info/sct#359411000001107",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Fenactol 50mg gastro-resistant tablets (Discovery Pharmaceuticals) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#360911000001103",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Approved Prescription Services) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#361811000001100",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Piroxicam 10mg dispersible tablets (Unichem Plc) (product)"
   }, {
@@ -795,9 +1872,6 @@
     "@id" : "http://snomed.info/sct#374311000001103",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Defanac 50mg gastro-resistant tablets (Ranbaxy (UK) Ltd) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#377711000001106",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Kent Pharmaceuticals Ltd) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#383111000001106",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Asacol MR 400mg gastro-resistant tablets (Procter & Gamble Pharmaceuticals UK Ltd) (product)"
   }, {
@@ -819,9 +1893,6 @@
     "@id" : "http://snomed.info/sct#393211000001104",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Mefenamic acid 500mg tablets (Unichem Plc) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#396811000001107",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (A A H Pharmaceuticals Ltd) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#398311000001104",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Fenbufen 450mg tablets (Kent Pharmaceuticals Ltd) (product)"
   }, {
@@ -833,9 +1904,6 @@
   }, {
     "@id" : "http://snomed.info/sct#407711000001107",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Diclovol 50mg gastro-resistant tablets (Arun Pharmaceuticals UK Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#408811000001100",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (IVAX Pharmaceuticals UK Ltd) (product)"
   }, {
     "@id" : "http://snomed.info/sct#410711000001109",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Flurbiprofen 100mg tablets (Unichem Plc) (product)"
@@ -897,9 +1965,6 @@
     "@id" : "http://snomed.info/sct#445711000001109",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Brufen 100mg/5ml syrup (Abbott Laboratories Ltd) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#447511000001108",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Generics (UK) Ltd) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#447611000001107",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Fenbufen 450mg tablets (IVAX Pharmaceuticals UK Ltd) (product)"
   }, {
@@ -939,9 +2004,6 @@
     "@id" : "http://snomed.info/sct#477611000001108",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Flurbiprofen 50mg tablets (A A H Pharmaceuticals Ltd) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#481611000001108",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (C P Pharmaceuticals Ltd) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#482011000001109",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Larafen CR 200mg capsules (Sandoz Ltd) (product)"
   }, {
@@ -980,12 +2042,6 @@
   }, {
     "@id" : "http://snomed.info/sct#513511000001103",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Ketoprofen 50mg capsules (A A H Pharmaceuticals Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#521011000001101",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Unichem Plc) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#521711000001104",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (C P Pharmaceuticals Ltd) (product)"
   }, {
     "@id" : "http://snomed.info/sct#522911000001108",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Ibuprofen 400mg tablets (Aspar Pharmaceuticals Ltd) (product)"
@@ -1104,9 +2160,6 @@
     "@id" : "http://snomed.info/sct#621911000001109",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Nurofen 200mg caplets (Crookes Healthcare Ltd) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#624911000001107",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Arthrosin 250 tablets (Ashbourne Pharmaceuticals Ltd) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#625011000001107",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Diclofenac sodium 50mg gastro-resistant tablets (Sandoz Ltd) (product)"
   }, {
@@ -1115,9 +2168,6 @@
   }, {
     "@id" : "http://snomed.info/sct#627611000001107",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Benorilate 2g/5ml oral suspension sugar free (A A H Pharmaceuticals Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#630611000001105",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Generics (UK) Ltd) (product)"
   }, {
     "@id" : "http://snomed.info/sct#632211000001109",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Volsaid Retard 100 tablets (Trinity Pharmaceuticals Ltd) (product)"
@@ -1317,9 +2367,6 @@
     "@id" : "http://snomed.info/sct#774611000001107",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Mefenamic acid 500mg tablets (Alpharma Limited) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#774811000001106",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Kent Pharmaceuticals Ltd) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#777811000001102",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Indomod 25mg modified-release capsules (Pfizer Ltd) (product)"
   }, {
@@ -1449,14 +2496,8 @@
     "@id" : "http://snomed.info/sct#886811000001105",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Ketoprofen 50mg capsules (Unichem Plc) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#889911000001109",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (A A H Pharmaceuticals Ltd) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#892211000001107",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Ibuprofen 200mg tablets (Aspar Pharmaceuticals Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#894311000001106",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naprosyn 250mg tablets (Roche Products Ltd) (product)"
   }, {
     "@id" : "http://snomed.info/sct#894511000001100",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Aspirin 300mg dispersible tablets (Unichem Plc) (product)"
@@ -1578,9 +2619,6 @@
     "@id" : "http://snomed.info/sct#3196111000001102",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Colazide 750mg capsules (Shire Pharmaceuticals Ltd) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#3224611000001107",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Pfizer Ltd) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#3239211000001107",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Brufen 600mg effervescent granules sachets (Abbott Laboratories Ltd) (product)"
   }, {
@@ -1668,6 +2706,9 @@
     "@id" : "http://snomed.info/sct#3690911000001103",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Aspav dispersible tablets (Alpharma Limited) (product)"
   }, {
+    "@id" : "http://snomed.info/sct#3869111000001103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Nurofen Meltlets 200mg tablets (Crookes Healthcare Ltd) (product)"
+  }, {
     "@id" : "http://snomed.info/sct#3912911000001104",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Benoral 2g granules sachets (Sanofi-Synthelabo Ltd) (product)"
   }, {
@@ -1740,6 +2781,9 @@
     "@id" : "http://snomed.info/sct#4603011000001107",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Ibuprofen 200mg tablets (Sussex Pharmaceuticals) (product)"
   }, {
+    "@id" : "http://snomed.info/sct#4603411000001103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Nurofen Recovery 200mg orodispersible tablets (Crookes Healthcare Ltd) (product)"
+  }, {
     "@id" : "http://snomed.info/sct#4604211000001104",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Ibuprofen 400mg tablets (Sussex Pharmaceuticals) (product)"
   }, {
@@ -1766,6 +2810,9 @@
   }, {
     "@id" : "http://snomed.info/sct#4870111000001103",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Nabumetone 500mg tablets (Sandoz Ltd) (product)"
+  }, {
+    "@id" : "http://snomed.info/sct#4906811000001106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Disprin Direct 300mg orodispersible tablets (Reckitt Benckiser Plc) (product)"
   }, {
     "@id" : "http://snomed.info/sct#4951811000001105",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Codis 500 dispersible tablets (Reckitt Benckiser Plc) (product)"
@@ -1823,9 +2870,6 @@
   }, {
     "@id" : "http://snomed.info/sct#5392711000001102",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Motifene 75mg modified-release capsules (PI) (Waymade Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#5392911000001100",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naprosyn 500mg tablets (PI) (Waymade Ltd) (product)"
   }, {
     "@id" : "http://snomed.info/sct#5396711000001103",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Oruvail 200 modified-release capsules (PI) (Waymade Ltd) (product)"
@@ -2246,12 +3290,6 @@
   }, {
     "@id" : "http://snomed.info/sct#10389911000001104",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Mefenamic acid 250mg capsules (Arrow Generics Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#10396611000001103",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Arrow Generics Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#10396811000001104",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Arrow Generics Ltd) (product)"
   }, {
     "@id" : "http://snomed.info/sct#10401011000001106",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Diclofenac sodium 25mg gastro-resistant tablets (Arrow Generics Ltd) (product)"
@@ -2685,9 +3723,6 @@
     "@id" : "http://snomed.info/sct#13581311000001100",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Mefenamic acid 500mg tablets (Doncaster Pharmaceuticals Ltd) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#13581711000001101",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Doncaster Pharmaceuticals Ltd) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#13583611000001109",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Sulindac 100mg tablets (Doncaster Pharmaceuticals Ltd) (product)"
   }, {
@@ -2741,12 +3776,6 @@
   }, {
     "@id" : "http://snomed.info/sct#13830711000001101",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Arthrotec 75 gastro-resistant tablets (Doncaster Pharmaceuticals Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#13845911000001109",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Almus Pharmaceuticals Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#13846111000001100",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Almus Pharmaceuticals Ltd) (product)"
   }, {
     "@id" : "http://snomed.info/sct#13847111000001102",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Celebrex 100mg capsules (Doncaster Pharmaceuticals Ltd) (product)"
@@ -3333,12 +4362,6 @@
     "@id" : "http://snomed.info/sct#18341211000001104",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Diclofenac potassium 50mg tablets (Alliance Healthcare (Distribution) Ltd) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#18464611000001101",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Accord Healthcare Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#18464911000001107",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Accord Healthcare Ltd) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#18482611000001107",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Octasa 800mg MR gastro-resistant tablets (Tillotts Pharma Ltd) (product)"
   }, {
@@ -3372,12 +4395,6 @@
     "@id" : "http://snomed.info/sct#18618611000001109",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Diclofenac potassium 50mg tablets (Phoenix Healthcare Distribution Ltd) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#18627211000001104",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Phoenix Healthcare Distribution Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#18627511000001101",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Phoenix Healthcare Distribution Ltd) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#18631711000001100",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Mezavant XL 1200mg tablets (Mawdsley-Brooks & Company Ltd) (product)"
   }, {
@@ -3410,12 +4427,6 @@
   }, {
     "@id" : "http://snomed.info/sct#18893911000001104",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Oruvail 100 modified-release capsules (Mawdsley-Brooks & Company Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#19195411000001104",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Aurobindo Pharma Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#19195611000001101",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Aurobindo Pharma Ltd) (product)"
   }, {
     "@id" : "http://snomed.info/sct#19310911000001108",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Mefenamic acid 250mg capsules (Goldshield Pharmaceuticals Ltd) (product)"
@@ -3561,12 +4572,6 @@
     "@id" : "http://snomed.info/sct#21817911000001103",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg gastro-resistant tablets (Waymade Healthcare Plc) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#21818111000001100",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Waymade Healthcare Plc) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#21818311000001103",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Waymade Healthcare Plc) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#21848811000001100",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Piroxicam 10mg capsules (Waymade Healthcare Plc) (product)"
   }, {
@@ -3630,6 +4635,12 @@
     "@id" : "http://snomed.info/sct#22611811000001106",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Aspirin 75mg tablets (Doncaster Pharmaceuticals Ltd) (product)"
   }, {
+    "@id" : "http://snomed.info/sct#22640411000001107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Meloxicam 15mg orodispersible tablets sugar free (Fontus Health Ltd) (product)"
+  }, {
+    "@id" : "http://snomed.info/sct#22640911000001104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Meloxicam 7.5mg orodispersible tablets sugar free (Fontus Health Ltd) (product)"
+  }, {
     "@id" : "http://snomed.info/sct#23241511000001106",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Molita capsules (Dr Reddy's Laboratories (UK) Ltd) (product)"
   }, {
@@ -3644,6 +4655,12 @@
   }, {
     "@id" : "http://snomed.info/sct#23649811000001108",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Nurofen for Children Cold, Pain and Fever Orange Flavour 100mg/5ml oral suspension (Reckitt Benckiser Healthcare (UK) Ltd) (product)"
+  }, {
+    "@id" : "http://snomed.info/sct#23679411000001105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Meloxicam 7.5mg orodispersible tablets sugar free (A A H Pharmaceuticals Ltd) (product)"
+  }, {
+    "@id" : "http://snomed.info/sct#23679611000001108",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Meloxicam 15mg orodispersible tablets sugar free (A A H Pharmaceuticals Ltd) (product)"
   }, {
     "@id" : "http://snomed.info/sct#23862211000001104",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Diclofenac sodium 25mg gastro-resistant tablets (Doncaster Pharmaceuticals Ltd) (product)"
@@ -3807,12 +4824,6 @@
     "@id" : "http://snomed.info/sct#28984811000001102",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Ibuprofen 400mg tablets (Crescent Pharma Ltd) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#28985211000001102",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Crescent Pharma Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#28985411000001103",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Crescent Pharma Ltd) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#28986111000001102",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Piroxicam 10mg capsules (Crescent Pharma Ltd) (product)"
   }, {
@@ -3867,14 +4878,8 @@
     "@id" : "http://snomed.info/sct#29928311000001106",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg gastro-resistant tablets (Sigma Pharmaceuticals Plc) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#29928511000001100",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Sigma Pharmaceuticals Plc) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#29928711000001105",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg gastro-resistant tablets (Sigma Pharmaceuticals Plc) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#29928911000001107",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Sigma Pharmaceuticals Plc) (product)"
   }, {
     "@id" : "http://snomed.info/sct#29978411000001100",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Arthrotec 75 gastro-resistant tablets (Lexon (UK) Ltd) (product)"
@@ -3929,9 +4934,6 @@
   }, {
     "@id" : "http://snomed.info/sct#30062811000001104",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg gastro-resistant tablets (DE Pharmaceuticals) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#30063011000001101",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (DE Pharmaceuticals) (product)"
   }, {
     "@id" : "http://snomed.info/sct#30112511000001107",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Piroxicam 10mg capsules (DE Pharmaceuticals) (product)"
@@ -3993,12 +4995,6 @@
     "@id" : "http://snomed.info/sct#30827211000001109",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Meloxicam 15mg tablets (Mawdsley-Brooks & Company Ltd) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#30849711000001108",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Mawdsley-Brooks & Company Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#30849911000001105",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Mawdsley-Brooks & Company Ltd) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#30850111000001100",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg gastro-resistant tablets (Mawdsley-Brooks & Company Ltd) (product)"
   }, {
@@ -4037,9 +5033,6 @@
   }, {
     "@id" : "http://snomed.info/sct#31993111000001104",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Ibuprofen 200mg capsules (Ennogen Healthcare Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#32390811000001108",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Nurofen for Children 100mg chewable capsules (Reckitt Benckiser Healthcare (UK) Ltd) (product)"
   }, {
     "@id" : "http://snomed.info/sct#32394411000001100",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Aspirin 75mg tablets (Kent Pharmaceuticals Ltd) (product)"
@@ -4221,12 +5214,6 @@
     "@id" : "http://snomed.info/sct#35906911000001109",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Celecoxib 200mg capsules (Consilient Health Ltd) (product)"
   }, {
-    "@id" : "http://snomed.info/sct#36011911000001106",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Genesis Pharmaceuticals Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#36026111000001106",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Medreich Plc) (product)"
-  }, {
     "@id" : "http://snomed.info/sct#36042811000001102",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Ibuprofen 400mg tablets (Medreich Plc) (product)"
   }, {
@@ -4247,12 +5234,6 @@
   }, {
     "@id" : "http://snomed.info/sct#36513111000001106",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Ibuprofen 600mg tablets (Dalkeith Laboratories Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#36597211000001105",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 250mg tablets (Bristol Laboratories Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#36597611000001107",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Bristol Laboratories Ltd) (product)"
   }, {
     "@id" : "http://snomed.info/sct#36611211000001105",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Aspirin 75mg tablets (Chanelle Medical UK Ltd) (product)"
@@ -4298,8 +5279,5 @@
   }, {
     "@id" : "http://snomed.info/sct#36859611000001106",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Celecoxib 200mg capsules (Torrent Pharma (UK) Ltd) (product)"
-  }, {
-    "@id" : "http://snomed.info/sct#36926211000001106",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Naproxen 500mg tablets (Noumed Life Sciences Ltd) (product)"
   } ]
 }

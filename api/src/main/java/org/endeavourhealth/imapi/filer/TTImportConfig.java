@@ -8,6 +8,16 @@ public class TTImportConfig {
     private boolean skipsearch = false;
     private boolean skipdelete= false;
     private boolean skiplucene= false;
+    private boolean skipBulk=false;
+
+    public boolean isSkipBulk() {
+        return skipBulk;
+    }
+
+    public TTImportConfig setSkipBulk(boolean skipBulk) {
+        this.skipBulk = skipBulk;
+        return this;
+    }
 
     public boolean isSkiplucene() {
         return skiplucene;

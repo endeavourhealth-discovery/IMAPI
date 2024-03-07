@@ -1,19 +1,22 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.json.JsonLDMapper;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
-import org.endeavourhealth.imapi.logic.query.QuerySummariser;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Order;
+import org.endeavourhealth.imapi.model.imq.PathDocument;
+import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.transforms.IMQGToJ;
-import org.endeavourhealth.imapi.transforms.IMQJToG;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
@@ -22,124 +25,106 @@ import org.junit.jupiter.api.Test;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SearchServiceTest {
 
 	private String testDefinitions;
 	private String testResults;
-	private String testSparql;
 	private String succinctDefinitions;
 
-
-//@Test
-	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
-
-		SearchRequest request= new SearchRequest();
-		request.setIndex("david");
-		request.setTermFilter("^ESCTVE439120");
-		List<String> schemes= Arrays.asList(IM.NAMESPACE,SNOMED.NAMESPACE);
-		List<String> types= Arrays.asList(IM.CONCEPT.getIri());
-		request.setSchemeFilter(schemes);
-		request.setStatusFilter(Arrays.asList(IM.ACTIVE.getIri()));
-		request.setTypeFilter(types);
-		SearchService ss= new SearchService();
-		List<SearchResultSummary> results= ss.getEntitiesByTerm(request);
-		for (SearchResultSummary result:results) {
-			System.out.println(result.getMatch()+" :"+ result.getCode());
-		}
-
-	}
-
 	//@Test
-	void imqTextJson() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
+	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, IOException {
 		testDefinitions = System.getenv("folder") + "\\Definitions";
 		testResults = System.getenv("folder") + "\\Results";
-		testSparql = System.getenv("folder") + "\\Sparql";
+	 Date startTime = new Date();
+	 int count=0;
+		 for (String input : List.of("Systolic bloo")) {
+			 count++;
+			 SearchRequest request = TestQueries.observationConcepts(input);
+			 output(request, "observation entities starting with Systolic bl", true);
+			 Long start=null;
+			 for (Map<Long,String> entries: request.getTimings()){
+				 for (Map.Entry<Long,String> entry:entries.entrySet()){
+					 if (start==null){
+						 System.out.println("0 "+ entry.getValue());
+						 start= entry.getKey();
+					 }
+					 else {
+						 System.out.println(entry.getKey() - start + " " + entry.getValue());
+					 }
+				 }
+			 }
+		 }
+	 Date endTime = new Date();
+	 System.out.println("average = "+ ((endTime.getTime()-startTime.getTime())/count)+" milliseconds");
+
+
+	}
+ //@Test
+	void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
+		testDefinitions = System.getenv("folder") + "\\Definitions";
+		testResults = System.getenv("folder") + "\\Results";
+		String testSparql = System.getenv("folder") + "\\Sparql";
 		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
-		for (QueryRequest qr : List.of(
-			TestQueries.testQuery())) {
-			compareGrammars(qr);
-		}
-		TTManager manager = TestQueries.loadForms();
-		for (TTEntity entity : manager.getDocument().getEntities()) {
-			if (entity.isType(IM.QUERY)) {
-				Query query = entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
-				QueryRequest qr = new QueryRequest();
-				qr.addArgument(new Argument().setParameter("this").setValueIri(IM.CONCEPT));
-				qr.setQuery(query);
-				compareGrammars(qr);
+	 output(TestQueries.getAllowableSubtypes());
+		output(TestQueries.query2());
+		output(TestQueries.pathQueryAtenolol3());
+
+	 output(TestQueries.getAllowableQueries());
+
+		output(TestQueries.query6());
+		output(TestQueries.dataModelPropertyRange());
+	 output(TestQueries.rangeSuggestion());
+		output(TestQueries.getMembers());
+
+			output(TestQueries.AllowablePropertiesForCovid());
+			output(TestQueries.query1());
+			output(TestQueries.query2());
+			output(TestQueries.getShaclProperty());
+
+			output(TestQueries.pathToAtenolol());
+			output(TestQueries.pathDobQuery());
+			output(TestQueries.pathToPostCode());
+			output(TestQueries.deleteSets());
+
+
+			output(TestQueries.getAllowableProperties());
+			output(TestQueries.subtypesParameterised());
+			output(TestQueries.substanceTextSearch());
+			output(TestQueries.rangeTextSearch());
+			output(TestQueries.getAllowableRanges());
+			output(TestQueries.oralNsaids());
+			output(TestQueries.getAllowableProperties());
+			output(TestQueries.getIsas());
+			output(TestQueries.getConcepts());
+			output(TestQueries.query4());
+
+
+	}
+
+
+
+	private void output(SearchRequest request,String name,boolean write) throws IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
+
+		SearchService ss = new SearchService();
+		SearchResponse results = ss.getEntitiesByTerm(request);
+		if (write) {
+			try (FileWriter wr = new FileWriter(testDefinitions + "\\" + name + "_definition.json")) {
+				wr.write(new ObjectMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(request));
 			}
+			System.out.println("Found "+ results.getEntities().size()+" entities" );
+
 		}
 
 	}
 
-	private void compareGrammars(QueryRequest qr) throws DataFormatException, IOException {
-		String name = qr.getQuery().getName();
-		ObjectMapper om = new ObjectMapper();
-		if (qr.getContext() == null)
-			qr.setContext(IMQJToG.getDefaultContext());
-		String imj = om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(qr);
-		IMQJToG fromJToG = new IMQJToG();
-		String imq = fromJToG.convert(qr);
-		IMQGToJ converter = new IMQGToJ();
-		System.out.println(name);
-		QueryRequest qrn = converter.convert(imq);
-		String imj2 = om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(qrn);
-		assertEquals(imj, imj2);
 
-		outputSuccinct(imq, qrn.getQuery().getName());
-	}
-
-
-	//output(qrn);
-/*
-
-
-		for (QueryRequest qr1: List.of(
-			TestQueries.pathDobQuery(),
-			TestQueries.pathToPostCode(),
-			TestQueries.deleteSets(),
-			TestQueries.getAllowableSubtypes(),
-			TestQueries.pathToCSA(),
-			TestQueries.pathToAtenolol()
-		)){
-			output(qr1);
-		}
-
-		for (QueryRequest qr1:List.of(
-			TestQueries.getAllowableProperties(),
-			TestQueries.subtypesParameterised(),TestQueries.substanceTextSearch(),
-			TestQueries.rangeTextSearch(),TestQueries.getAllowableRanges(),TestQueries.oralNsaids(),
-			TestQueries.getAllowableProperties(),TestQueries.getIsas(),
-			TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
-			TestQueries.query4(),TestQueries.query5(),TestQueries.query6())){
-			output(qr1);
-		}
-
-*/
-
-
-	private void outputSuccinct(String imq, String name) throws IOException {
-		try (FileWriter wr = new FileWriter(succinctDefinitions + "\\" + name + ".txt")) {
-			wr.write(imq);
-		}
-	}
-
-
-	private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
+	private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
 		String name = null;
-		if (dataSet.getQuery() != null) {
-			if (dataSet.getQuery().getFrom() != null) {
-				new QuerySummariser(dataSet.getQuery()).summarise(true);
-			}
-		}
+
 		if (dataSet.getPathQuery() != null)
 			name = dataSet.getPathQuery().getName();
 		else if (dataSet.getQuery() != null)
@@ -152,16 +137,20 @@ class SearchServiceTest {
 			name = "unnamed query";
 		SearchService searchService = new SearchService();
 		System.out.println("Testing " + name);
+		dataSet.setContext(TTManager.createBasicContext());
+
 		try (FileWriter wr = new FileWriter(testDefinitions + "\\" + name + "_definition.json")) {
-			wr.write(new ObjectMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(dataSet));
+			wr.write(new JsonLDMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(dataSet));
 		}
-		ObjectMapper om = new ObjectMapper();
+		ObjectMapper om= new ObjectMapper();
+
 		if (dataSet.getQuery() != null) {
-			TTDocument result = searchService.queryIM(dataSet);
+			JsonNode result = searchService.queryIM(dataSet);
 			try (FileWriter wr = new FileWriter(testResults + "\\" + name + "_result.json")) {
-				wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
+ 				wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
 			}
-			System.out.println("Found " + result.getEntities().size() + " entities");
+
+			System.out.println("Found " + result.get("entities").size() + " entities");
 		}
 		else if (dataSet.getUpdate() != null) {
 			searchService.updateIM(dataSet);
@@ -171,17 +160,18 @@ class SearchServiceTest {
 			try (FileWriter wr = new FileWriter(testResults + "\\" + name + "_result.json")) {
 				wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
 			}
+			System.out.println("found "+ result.getMatch().size()+" paths");
 		}
 
 	}
 
 	//@Test
-	public void setTest() throws DataFormatException, JsonProcessingException {
+	public void setTest() throws DataFormatException, JsonProcessingException, QueryException {
 		EntityService es= new EntityService();
 		TTEntity entity= es.getFullEntity(IM.NAMESPACE+"VSET_VitalSigns").getEntity();
-		String json = entity.get(IM.DEFINITION).asLiteral().getValue();
+		String json = entity.get(TTIriRef.iri(IM.DEFINITION)).asLiteral().getValue();
 		SetExporter exporter = new SetExporter();
-		Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE + "VSET_VitalSigns", false);
+		Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE + "VSET_VitalSigns", false, true, List.of());
 		System.out.println(concepts.size());
 	}
 }

@@ -1,4 +1,13 @@
 {
+  "@context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
+  },
   "entities" : [ {
     "@id" : "http://snomed.info/sct#23776007",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Incestuous child concubinage (event)"
@@ -30,20 +39,8 @@
     "@id" : "http://snomed.info/sct#213017001",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Sexual abuse (event)"
   }, {
-    "@id" : "http://snomed.info/sct#138386004",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Incest (finding)"
-  }, {
-    "@id" : "http://snomed.info/sct#154906006",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Sexual abuse of child (disorder)"
-  }, {
-    "@id" : "http://snomed.info/sct#161073004",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Incest (event)"
-  }, {
     "@id" : "http://snomed.info/sct#361217003",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Intrafamilial sexual abuse (event)"
-  }, {
-    "@id" : "http://snomed.info/sct#213003005",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "(Emotional maltreatment of child) or (emotional deprivation of child) (disorder)"
   }, {
     "@id" : "http://snomed.info/sct#278707004",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Emotional deprivation of child (event)"
@@ -57,53 +54,17 @@
     "@id" : "http://snomed.info/sct#213007006",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Multiple deprivation of child (event)"
   }, {
-    "@id" : "http://snomed.info/sct#213008001",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Child: [deprivation syndrome] or [maltreatment syndrome NOS] or [abuse NEC] or [neglect affecting child NEC] (disorder)"
-  }, {
-    "@id" : "http://snomed.info/sct#213016005",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Neglect or abandonment (disorder)"
-  }, {
     "@id" : "http://snomed.info/sct#371776003",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Neglect or abandonment (event)"
   }, {
     "@id" : "http://snomed.info/sct#418506006",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Physical abuse (event)"
   }, {
-    "@id" : "http://snomed.info/sct#222570007",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes - cause (event)"
-  }, {
     "@id" : "http://snomed.info/sct#417928002",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Abuse (event)"
   }, {
-    "@id" : "http://snomed.info/sct#222571006",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by spouse or partner (event)"
-  }, {
-    "@id" : "http://snomed.info/sct#222572004",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by parent (event)"
-  }, {
-    "@id" : "http://snomed.info/sct#222573009",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by acquaintance or friend (event)"
-  }, {
-    "@id" : "http://snomed.info/sct#222574003",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by official authorities (event)"
-  }, {
-    "@id" : "http://snomed.info/sct#222575002",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by other specified persons (event)"
-  }, {
-    "@id" : "http://snomed.info/sct#222576001",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by unspecified person (event)"
-  }, {
-    "@id" : "http://snomed.info/sct#242031004",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Domestic abuse (disorder)"
-  }, {
     "@id" : "http://snomed.info/sct#371772001",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Domestic abuse (event)"
-  }, {
-    "@id" : "http://snomed.info/sct#242032006",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Child abuse NEC (event)"
-  }, {
-    "@id" : "http://snomed.info/sct#242036009",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Neglect affecting child NEC (event)"
   }, {
     "@id" : "http://snomed.info/sct#242037000",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Child abandonment (event)"
@@ -150,38 +111,14 @@
     "@id" : "http://snomed.info/sct#242048007",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Neglect of disabled person (event)"
   }, {
-    "@id" : "http://snomed.info/sct#269285002",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Emotional abuse of child (disorder)"
-  }, {
     "@id" : "http://snomed.info/sct#371775004",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Emotional abuse of child (event)"
-  }, {
-    "@id" : "http://snomed.info/sct#276847009",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Physical abuse of adult (disorder)"
-  }, {
-    "@id" : "http://snomed.info/sct#276848004",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Emotional abuse of adult (disorder)"
   }, {
     "@id" : "http://snomed.info/sct#276849007",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Psychological abuse of adult (event)"
   }, {
-    "@id" : "http://snomed.info/sct#278709001",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Physical child abuse (disorder)"
-  }, {
     "@id" : "http://snomed.info/sct#371779005",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Physical child abuse (event)"
-  }, {
-    "@id" : "http://snomed.info/sct#313218002",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Physical abuse (disorder)"
-  }, {
-    "@id" : "http://snomed.info/sct#313219005",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Emotional abuse (disorder)"
-  }, {
-    "@id" : "http://snomed.info/sct#364583007",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Incest (event)"
-  }, {
-    "@id" : "http://snomed.info/sct#371777007",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Physical abuse (finding)"
   }, {
     "@id" : "http://snomed.info/sct#404189009",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Domestic violence (event)"
@@ -233,41 +170,5 @@
   }, {
     "@id" : "http://snomed.info/sct#12399051000119103",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Elder sexual abuse (event)"
-  }, {
-    "@id" : "http://snomed.info/sct#104341000000101",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Physical child abuse"
-  }, {
-    "@id" : "http://snomed.info/sct#122911000000103",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Emotional abuse of elderly person"
-  }, {
-    "@id" : "http://snomed.info/sct#392341000000100",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by other specified persons (finding)"
-  }, {
-    "@id" : "http://snomed.info/sct#392651000000107",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by spouse or partner (finding)"
-  }, {
-    "@id" : "http://snomed.info/sct#392771000000107",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes - cause (finding)"
-  }, {
-    "@id" : "http://snomed.info/sct#404391000000107",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by unspecified person (finding)"
-  }, {
-    "@id" : "http://snomed.info/sct#430531000000101",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[V]Child abuse (context-dependent category)"
-  }, {
-    "@id" : "http://snomed.info/sct#434811000000100",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by acquaintance or friend (finding)"
-  }, {
-    "@id" : "http://snomed.info/sct#459061000000105",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by official authorities (finding)"
-  }, {
-    "@id" : "http://snomed.info/sct#474391000000104",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by parent (finding)"
-  }, {
-    "@id" : "http://snomed.info/sct#545051000000101",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Neglect affecting child NEC (event)"
-  }, {
-    "@id" : "http://snomed.info/sct#695571000000102",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Child abuse NEC (event)"
   } ]
 }

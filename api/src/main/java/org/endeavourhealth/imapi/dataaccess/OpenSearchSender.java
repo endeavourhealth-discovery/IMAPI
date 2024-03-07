@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.ws.rs.client.*;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
@@ -16,19 +17,17 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import org.springframework.security.core.parameters.P;
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class OpenSearchSender {
     private static final Logger LOG = LoggerFactory.getLogger(OpenSearchSender.class);
-    private static final int BULKSIZE = 500000;
     private final Client client = ClientBuilder.newClient();
     private WebTarget target;
     private final ObjectMapper om = new ObjectMapper();
@@ -39,19 +38,29 @@ public class OpenSearchSender {
     private final String repoId = System.getenv("GRAPH_REPO");
     private final String index = System.getenv("OPENSEARCH_INDEX");
     private final HTTPRepository repo = new HTTPRepository(server, repoId);
-    private Map<String,EntityDocument> docs;
+
     private String cache;
+    private static final int BATCH_SIZE = 5000;
 
+    public String getCache() {
+        return cache;
+    }
 
+    public OpenSearchSender setCache(String cache) {
+        this.cache = cache;
+        return this;
+    }
 
     public void execute(boolean update) throws IOException, InterruptedException {
         om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
         checkEnvs();
+        putOrderByScript();
         checkIndexExists();
 
-        int maxId=0;
+
+        int maxId = 0;
         if (!update)
             maxId = getMaxDocument();
 
@@ -61,267 +70,131 @@ public class OpenSearchSender {
 
     private void continueUpload(int maxId) throws IOException, InterruptedException {
         target = client.target(osUrl).path("_bulk");
-        docs= new HashMap<>();
-        if (maxId>0&&(cache!=null)){
-            getIriCache(docs);
-        }
-        else {
+        Set<String> entityIris = new HashSet<>(2000000);
+        if (maxId > 0 && (cache != null)) {
+            getIriCache(entityIris);
+        } else {
 
             String sql = new StringJoiner(System.lineSeparator())
-              .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-              .add("PREFIX im: <http://endhealth.info/im#>")
-              .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-              .add("select ?iri")
-              .add("where {")
-              .add("  ?iri rdfs:label ?name.")
-              .add("  filter(isIri(?iri))")
-              .add("}")
-              .add("order by ?iri").toString();
+                .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+                .add("PREFIX im: <http://endhealth.info/im#>")
+                .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+                .add("select ?iri")
+                .add("where {")
+                .add("  ?iri rdfs:label ?name.")
+                .add("  filter(isIri(?iri))")
+                .add("}")
+                .add("order by ?iri").toString();
             try (RepositoryConnection conn = repo.getConnection()) {
                 LOG.info("Fetching entity iris  ...");
                 TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
-                EntityDocument blob = null;
-                String lastIri = null;
+
                 try (TupleQueryResult qr = tupleQuery.evaluate()) {
                     while (qr.hasNext()) {
                         BindingSet rs = qr.next();
                         String iri = rs.getValue("iri").stringValue();
-                        if (!iri.equals(lastIri)) {
-                            blob = new EntityDocument();
-                            blob.setIri(iri);
-                            docs.put(iri, blob);
-                            lastIri = iri;
-                        }
+                        entityIris.add(iri);
                     }
                 }
             }
         }
-        if (cache!=null){
-            saveIriCache(docs);
+        if (cache != null) {
+            saveIriCache(entityIris);
         }
-        //assign docids in order of keys
-        int docid=0;
-        for (Map.Entry<String,EntityDocument> entry:docs.entrySet()) {
-            docid++;
-            entry.getValue().setId(docid);
-        }
+
+        LOG.info(" Found {} documents...", entityIris.size());
+
         int mapNumber = 0;
-        int member = 0;
-        int batchSize = 5000;
-        Iterator<Map.Entry<String, EntityDocument>> mapIterator = docs.entrySet().iterator();
-        while (mapIterator.hasNext()) {
-            Map.Entry<String, EntityDocument> entry = mapIterator.next();
+        Iterator<String> mapIterator = entityIris.iterator();
+
+        // Skip to start point
+        while (mapNumber < maxId && mapIterator.hasNext()) {
             mapNumber++;
-            if (mapNumber > maxId) {
-                List<String> iriBatch = new ArrayList<>();
-                iriBatch.add("<"+ entry.getKey()+">");
-                while (member < batchSize) {
-                    member++;
-                    mapNumber++;
-                    if (mapIterator.hasNext()) {
-                        entry = mapIterator.next();
-                        iriBatch.add("<" + entry.getKey() + ">");
-                    }
-                }
-                if (!iriBatch.isEmpty()) {
-                    String inList = String.join(",", iriBatch);
-                    Set<EntityDocument> batch= getEntityBatch(inList,mapNumber);
-                    index(batch);
-                    member=0;
-                }
+            mapIterator.next();
+        }
+
+        // Start processing
+        Map<String, EntityDocument> batch = new HashMap<>();
+
+        while (mapIterator.hasNext()) {
+            String iri = mapIterator.next();
+            mapNumber++;
+            EntityDocument doc = new EntityDocument()
+                .setId(mapNumber)
+                .setIri(iri)
+              .setSubsumptionCount(0);
+            batch.put(iri, doc);
+
+            // Send every 5000
+            if (batch.size() == BATCH_SIZE) {
+                LOG.info(" Processing batch up to entity number {}... ", mapNumber);
+                getEntityBatch(batch);
+                index(batch);
+                batch.clear();
+            }
+        }
+
+        // Handle remaining / last partial batch
+        if (!batch.isEmpty()) {
+            LOG.info(" Processing final batch up to entity number {}...", mapNumber);
+            getEntityBatch(batch);
+            index(batch);
+        }
+    }
+
+    private void saveIriCache(Set<String> entityIris) throws IOException {
+        try (FileWriter wr = new FileWriter(cache)) {
+            for (String iri : entityIris) {
+                wr.write(iri + "\n");
             }
         }
     }
 
-    private void saveIriCache(Map<String, EntityDocument> docs) throws IOException {
-        try (FileWriter wr= new FileWriter(cache)){
-            for (String iri:docs.keySet()){
-                wr.write(iri+"\n");
-            }
-        }
-    }
-
-    private void getIriCache(Map<String, EntityDocument> docs) {
+    private void getIriCache(Set<String> entityIris) {
         try (BufferedReader reader = new BufferedReader(new FileReader(cache))) {
             String line = reader.readLine();
             while (line != null && !line.isEmpty()) {
-                EntityDocument blob = new EntityDocument();
-                blob.setIri(line);
-                docs.put(line, blob);
-                line= reader.readLine();
+                entityIris.add(line);
+                line = reader.readLine();
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private Set<EntityDocument> getEntityBatch(String inList, int mapNumber) {
-        Set<EntityDocument> batch = new HashSet<>();
-        getCore(batch,inList,mapNumber);
-        getTermCodes(batch,inList,mapNumber);
-        getIsas(batch,inList,mapNumber);
-        return batch;
+    private void getEntityBatch(Map<String, EntityDocument> batch) {
+        String inList = batch.keySet().stream().map(iri -> ("<" + iri + ">")).collect(Collectors.joining(","));
+        getCore(batch, inList);
+        getTermCodes(batch, inList);
+        getIsas(batch, inList);
+        getSubsumptions(batch,inList);
+        getSetMembership(batch, inList);
     }
+    private void getCore(Map<String, EntityDocument> batch, String inList) {
+        String sql = getBatchCoreSql(inList);
 
-    private String getBatchCoreSql(String inList){
-        return new StringJoiner(System.lineSeparator())
-          .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-          .add("PREFIX im: <http://endhealth.info/im#>")
-          .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-          .add("select ?iri ?name ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?weighting")
-          .add("?extraType ?extraTypeName ?preferredName")
-          .add("where {")
-          .add("  graph ?scheme {")
-          .add("    ?iri rdf:type ?type.")
-          .add("      filter (?iri in ("+ inList+") )")
-          .add("    ?iri rdfs:label ?name.}")
-         .add("    Optional {?iri im:isA ?extraType.")
-          .add("                         ?extraType rdfs:label ?extraTypeName.")
-          .add("            filter (?extraType in (im:dataModelProperty, im:DataModelEntity))}")
-          .add("    Optional {?type rdfs:label ?typeName}")
-          .add("    Optional {?iri im:preferredName ?preferredName.}")
-          .add("    Optional {?iri im:status ?status.")
-          .add("    Optional {?status rdfs:label ?statusName} }")
-          .add("    Optional {?scheme rdfs:label ?schemeName }")
-          .add("    Optional {?iri im:code ?code.}")
-          .add("    Optional {?iri im:weighting ?weighting.}")
-          .add("}").toString();
-    }
-    private String getBatchTermsSql(String inList){
-        return new StringJoiner(System.lineSeparator())
-          .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-          .add("PREFIX im: <http://endhealth.info/im#>")
-          .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-          .add("select ?iri ?termCode ?oldCode ?synonym ?termCodeStatus")
-          .add("where {")
-          .add("?iri im:hasTermCode ?tc.")
-          .add("      filter (?iri in ("+ inList+") )")
-          .add("       Optional {?tc im:code ?termCode}")
-          .add("       Optional {?tc im:oldCode ?oldCode}")
-          .add("       Optional  {?tc rdfs:label ?synonym}")
-          .add("       Optional  {?tc im:status ?termCodeStatus}")
-          .add("}").toString();
-    }
-
-    private String getBatchIsaSql(String inList){
-        return new StringJoiner(System.lineSeparator())
-          .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-          .add("PREFIX im: <http://endhealth.info/im#>")
-          .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-          .add("select ?iri ?superType")
-          .add("where {")
-          .add(" ?iri im:isA ?superType.")
-          .add("      filter (?iri in ("+ inList+") )")
-          .add(" ?superType im:status im:Active.")
-          .add("}").toString();
-    }
-
-
-
-    private void getIsas(Set<EntityDocument> batch, String inList, int mapNumber) {
-        String sql= getBatchIsaSql(inList);
         try (RepositoryConnection conn = repo.getConnection()) {
-            LOG.info(" Fetching  supertypes (isas) up to  entity number " + mapNumber + " ...");
             TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
             try (TupleQueryResult qr = tupleQuery.evaluate()) {
                 while (qr.hasNext()) {
                     BindingSet rs = qr.next();
                     String iri = rs.getValue("iri").stringValue();
-                    EntityDocument blob = docs.get(iri);
-                    blob.getIsA().add(TTIriRef.iri(rs.getValue("superType").stringValue()));
-                    }
-
-                }
-        }
-
-    }
-
-    private void getTermCodes(Set<EntityDocument> batch, String inList, int mapNumber) {
-        String sql= getBatchTermsSql(inList);
-        try (RepositoryConnection conn = repo.getConnection()) {
-            LOG.info(" Fetching  iri term codes up to  entity number " + mapNumber + " ...");
-            TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
-            try (TupleQueryResult qr = tupleQuery.evaluate()) {
-                while (qr.hasNext()) {
-                    BindingSet rs = qr.next();
-                    String iri = rs.getValue("iri").stringValue();
-                    EntityDocument blob = docs.get(iri);
-                    String termCode = null;
-                    String synonym = null;
-                    TTIriRef status = null;
-                    String oldCode=null;
-                    if (rs.getValue("synonym") != null)
-                        synonym = rs.getValue("synonym").stringValue().toLowerCase();
-                    if (rs.getValue("termCode") != null)
-                        termCode = rs.getValue("termCode").stringValue();
-                    if (rs.getValue("oldCode") != null)
-                        oldCode = rs.getValue("oldCode").stringValue();
-                    if (rs.getValue("termCodeStatus") != null)
-                        status = TTIriRef.iri(rs.getValue("termCodeStatus").stringValue());
-                    if (synonym != null) {
-                       addMatchTerm(blob,synonym);
-                        SearchTermCode tc = getTermCode(blob, synonym);
-                        if (tc == null) {
-                            blob.addTermCode(synonym, termCode, status);
-                            addKey(blob,synonym);
-                        }
-                        else {
-                            if (termCode != null) {
-                                tc.setCode(termCode);
-                            }
-                        }
-                    }
-                    else if (termCode != null) {
-                            SearchTermCode tc = getTermCodeFromCode(blob, termCode);
-                            if (tc == null) {
-                                blob.addTermCode(null, termCode, status);
-                            }
-                        }
-                    if (oldCode!=null){
-                        SearchTermCode tc = getTermCodeFromCode(blob, oldCode);
-                        if (tc == null) {
-                            blob.addTermCode(null, oldCode, status);
-                        }
-                    }
-
-                }
-            }
-        }
-    }
-
-    private void getCore(Set<EntityDocument> batch,String inList,int mapNumber) {
-
-    String sql= getBatchCoreSql(inList);
-
-        try (RepositoryConnection conn = repo.getConnection()) {
-            LOG.info(" Fetching  iris up to  entity number " + mapNumber + " ...");
-            TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
-            try (TupleQueryResult qr = tupleQuery.evaluate()) {
-                while (qr.hasNext()) {
-                    BindingSet rs = qr.next();
-                    String iri = rs.getValue("iri").stringValue();
-                    EntityDocument blob = docs.get(iri);
-                    batch.add(blob);
+                    EntityDocument blob = batch.get(iri);
                     String name = rs.getValue("name").stringValue();
                     blob.setName(name);
 
-                   // if (name.contains(" "))
-                       // if (name.split(" ")[0].length() < 3)
-                         //   blob.addKey(name.substring(0, name.indexOf(" ")).toLowerCase());
-                    String code = null;
+                    String code;
                     if (rs.getValue("code") != null) {
                         code = rs.getValue("code").stringValue();
                         blob.setCode(code);
                     }
-                    if (rs.getValue("preferredName")!=null){
-                        String preferred= rs.getValue("preferredName").stringValue();
+                    if (rs.getValue("preferredName") != null) {
+                        String preferred = rs.getValue("preferredName").stringValue();
                         blob.setPreferredName(preferred);
                     }
 
                     TTIriRef scheme = TTIriRef.iri(rs.getValue("scheme").stringValue());
-                    ;
+
                     if (rs.getValue("schemeName") != null)
                         scheme.setName(rs.getValue("schemeName").stringValue());
                     blob.setScheme(scheme);
@@ -332,11 +205,14 @@ public class OpenSearchSender {
                             status.setName(rs.getValue("statusName").stringValue());
                         blob.setStatus(status);
                     }
-                    TTIriRef type = TTIriRef.iri(rs.getValue("type").stringValue());
-                    if (rs.getValue("typeName") != null)
-                        type.setName(rs.getValue("typeName").stringValue());
-                    blob.addType(type);
-                    TTIriRef extraType = null;
+
+                    if (rs.getValue("type") != null) {
+                        TTIriRef type = TTIriRef.iri(rs.getValue("type").stringValue());
+                        if (rs.getValue("typeName") != null)
+                            type.setName(rs.getValue("typeName").stringValue());
+                        blob.addType(type);
+                    }
+                    TTIriRef extraType;
                     if (rs.getValue("extraType") != null) {
                         extraType = TTIriRef.iri(rs.getValue("extraType").stringValue());
                         extraType.setName(rs.getValue("extraTypeName").stringValue());
@@ -349,31 +225,216 @@ public class OpenSearchSender {
                     if (rs.getValue("weighting") != null) {
                         blob.setWeighting(Integer.parseInt(rs.getValue("weighting").stringValue()));
                     }
-                    Integer length= blob.getName().length();
-                    if (blob.getPreferredName()!=null)
-                        length= blob.getPreferredName().length();
-                    blob.setLength(length);
+                    String lengthKey= blob.getPreferredName()!=null ? blob.getPreferredName(): name;
+                    lengthKey= getLengthKey(lengthKey);
+
+                    blob.setLength(lengthKey.length());
                     blob.addTermCode(name, null, null);
-                    addMatchTerm(blob,name);
-                    addKey(blob,name);
+                    addMatchTerm(blob, name);
+                    addKey(blob, name);
                 }
 
-            }catch (Exception e){
-                System.err.println("Bad Query \n"+sql);
+            } catch (Exception e) {
+                LOG.error("Bad Query \n{}", sql);
             }
         }
     }
 
-    private void addMatchTerm(EntityDocument blob, String term){
-        term= term.replace(" ","");
-        if (term.length()>25)
-            term=term.substring(0,25);
+
+    private String getLengthKey(String lengthKey) {
+        if (lengthKey.endsWith(")")){
+            String[] words= lengthKey.split(" \\(");
+            lengthKey= words[0];
+            for (int i=1;i<words.length-1;i++){
+                lengthKey=lengthKey+ " ("+words[i];
+            }
+        }
+        return lengthKey;
+    }
+
+    private String getBatchCoreSql(String inList) {
+        return new StringJoiner(System.lineSeparator())
+            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+            .add("PREFIX im: <http://endhealth.info/im#>")
+            .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+            .add("select ?iri ?name ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?weighting")
+            .add("?extraType ?extraTypeName ?preferredName")
+            .add("where {")
+            .add("  graph ?scheme {")
+            .add("    ?iri rdfs:label ?name.")
+            .add("    filter (?iri in (" + inList + ") )")
+            .add("  }")
+            .add("  Optional { ?iri rdf:type ?type. Optional {?type rdfs:label ?typeName} }")
+            .add("  Optional {?iri im:isA ?extraType.")
+            .add("            ?extraType rdfs:label ?extraTypeName.")
+            .add("            filter (?extraType in (im:dataModelProperty, im:DataModelEntity))}")
+            .add("  Optional {?iri im:preferredName ?preferredName.}")
+            .add("  Optional {?iri im:status ?status.")
+            .add("  Optional {?status rdfs:label ?statusName} }")
+            .add("  Optional {?scheme rdfs:label ?schemeName }")
+            .add("  Optional {?iri im:code ?code.}")
+            .add("  Optional {?iri im:weighting ?weighting.}")
+            .add("}").toString();
+    }
+
+    private void getTermCodes(Map<String, EntityDocument> batch, String inList) {
+        String sql = getBatchTermsSql(inList);
+        try (RepositoryConnection conn = repo.getConnection()) {
+            TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
+            try (TupleQueryResult qr = tupleQuery.evaluate()) {
+                while (qr.hasNext()) {
+                    BindingSet rs = qr.next();
+                    String iri = rs.getValue("iri").stringValue();
+                    EntityDocument blob = batch.get(iri);
+                    String termCode = null;
+                    String synonym = null;
+                    TTIriRef status = null;
+                    if (rs.getValue("synonym") != null)
+                        synonym = rs.getValue("synonym").stringValue().toLowerCase();
+                    if (rs.getValue("termCode") != null)
+                        termCode = rs.getValue("termCode").stringValue();
+
+                    if (rs.getValue("termCodeStatus") != null)
+                        status = TTIriRef.iri(rs.getValue("termCodeStatus").stringValue());
+                    if (synonym != null) {
+                        if (status==null)
+                            addMatchTerm(blob,synonym);
+                        else if (!status.getIri().equals(IM.INACTIVE))
+                            addMatchTerm(blob, synonym);
+                        SearchTermCode tc = getTermCode(blob, synonym);
+                        if (tc == null) {
+                            blob.addTermCode(synonym, termCode, status);
+                            addKey(blob, synonym);
+                        } else {
+                            if (termCode != null) {
+                                tc.setCode(termCode);
+                            }
+                        }
+                    } else if (termCode != null) {
+                        SearchTermCode tc = getTermCodeFromCode(blob, termCode);
+                        if (tc == null) {
+                            blob.addTermCode(null, termCode, status);
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+    private String getBatchTermsSql(String inList) {
+        return new StringJoiner(System.lineSeparator())
+            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+            .add("PREFIX im: <http://endhealth.info/im#>")
+            .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+            .add("select ?iri ?termCode ?synonym ?termCodeStatus")
+            .add("where {")
+            .add("?iri im:hasTermCode ?tc.")
+            .add("      filter (?iri in (" + inList + ") )")
+            .add("       Optional {?tc im:code ?termCode}")
+            .add("       Optional  {?tc rdfs:label ?synonym}")
+            .add("       Optional  {?tc im:status ?termCodeStatus}")
+            .add("}").toString();
+    }
+
+    private void getIsas(Map<String, EntityDocument> batch, String inList) {
+        String sql = getBatchIsaSql(inList);
+        try (RepositoryConnection conn = repo.getConnection()) {
+            TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
+            try (TupleQueryResult qr = tupleQuery.evaluate()) {
+                while (qr.hasNext()) {
+                    BindingSet rs = qr.next();
+                    String iri = rs.getValue("iri").stringValue();
+                    EntityDocument blob = batch.get(iri);
+                    blob.getIsA().add(TTIriRef.iri(rs.getValue("superType").stringValue()));
+                }
+            }
+        }
+
+    }
+    private void getSubsumptions(Map<String, EntityDocument> batch, String inList) {
+        String sql = getSubsumptionSql(inList);
+        try (RepositoryConnection conn = repo.getConnection()) {
+            TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
+            try (TupleQueryResult qr = tupleQuery.evaluate()) {
+                while (qr.hasNext()) {
+                    BindingSet rs = qr.next();
+                    String iri = rs.getValue("iri").stringValue();
+                    EntityDocument blob = batch.get(iri);
+                    blob.setSubsumptionCount(Integer.parseInt(rs.getValue("subsumptions").stringValue()));
+                }
+            }
+        }
+
+    }
+
+    private String getBatchIsaSql(String inList) {
+        return new StringJoiner(System.lineSeparator())
+            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+            .add("PREFIX im: <http://endhealth.info/im#>")
+            .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+            .add("select ?iri ?superType")
+            .add("where {")
+            .add(" ?iri im:isA ?superType.")
+            .add("      filter (?iri in (" + inList + ") )")
+            .add(" ?superType im:status im:Active.")
+            .add("}").toString();
+    }
+    private String getSubsumptionSql(String inList) {
+        return new StringJoiner(System.lineSeparator())
+          .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+          .add("PREFIX im: <http://endhealth.info/im#>")
+          .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+          .add("select distinct ?iri (count(?subType) as ?subsumptions)")
+          .add("where {")
+          .add(" ?iri ^im:isA ?subType.")
+          .add("      filter (?iri in (" + inList + ") )")
+          .add(" ?subType im:status im:Active.")
+          .add("}")
+          .add("group by ?iri").toString();
+    }
+    private void getSetMembership(Map<String, EntityDocument> batch, String inList) {
+        String sql = getSetMembershipSql(inList);
+        try (RepositoryConnection conn = repo.getConnection()) {
+            TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
+            try (TupleQueryResult qr = tupleQuery.evaluate()) {
+                while (qr.hasNext()) {
+                    BindingSet rs = qr.next();
+                    String iri = rs.getValue("iri").stringValue();
+                    EntityDocument blob = batch.get(iri);
+                    blob.getMemberOf().add(TTIriRef.iri(rs.getValue("set").stringValue()));
+                }
+
+            }
+        }
+
+    }
+
+    private String getSetMembershipSql(String inList) {
+        return new StringJoiner(System.lineSeparator())
+            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+            .add("PREFIX im: <http://endhealth.info/im#>")
+            .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+            .add("select ?iri ?set")
+            .add("where {")
+            .add(" ?set im:hasMember ?iri.")
+            .add("      filter (?iri in (" + inList + ") )")
+            .add("}").toString();
+    }
+
+
+
+
+    private void addMatchTerm(EntityDocument blob, String term) {
+        term=term.replaceAll("[ '()\\-_./]","").toLowerCase();
+        if (term.length()>30)
+            term=term.substring(0,30);
         blob.addMatchTerm(term);
     }
 
-    private void  addKey(EntityDocument blob, String key) {
-        key= key.split(" ")[0];
-        if (key.length()>1) {
+    private void addKey(EntityDocument blob, String key) {
+        key = key.split(" ")[0];
+        if (key.length() > 1) {
             if (key.length() > 20)
                 key = key.substring(0, 20);
             key = key.toLowerCase();
@@ -394,38 +455,23 @@ public class OpenSearchSender {
         }
     }
 
-    private boolean hasTerm(EntityDocument blob,String term){
-        for (SearchTermCode tc:blob.getTermCode()){
-            if (tc.getTerm()!=null)
-             if (tc.getTerm().equals(term))
-                return true;
-        }
-        return false;
+    private SearchTermCode getTermCode(EntityDocument blob, String term) {
+        Optional<SearchTermCode> match = blob.getTermCode().stream().filter(tc -> tc.getTerm() != null && tc.getTerm().equals(term)).findFirst();
+
+        return match.orElse(null);
     }
 
-    private SearchTermCode getTermCode(EntityDocument blob,String term){
-        for (SearchTermCode tc:blob.getTermCode()){
-            if (tc.getTerm()!=null)
-                if (tc.getTerm().equals(term))
-                    return tc;
-        }
-        return null;
-    }
+    private SearchTermCode getTermCodeFromCode(EntityDocument blob, String code) {
+        Optional<SearchTermCode> match = blob.getTermCode().stream().filter(tc -> tc.getCode() != null && tc.getCode().contains(code)).findFirst();
 
-    private SearchTermCode getTermCodeFromCode(EntityDocument blob,String code){
-        for (SearchTermCode tc:blob.getTermCode()){
-            if (tc.getCode()!=null)
-                if (tc.getCode().contains(code))
-                    return tc;
-        }
-        return null;
+        return match.orElse(null);
     }
 
 
     private void checkEnvs() {
         boolean missingEnvs = false;
 
-        for(String env : Arrays.asList("OPENSEARCH_AUTH", "OPENSEARCH_URL","OPENSEARCH_INDEX","GRAPH_SERVER", "GRAPH_REPO")) {
+        for (String env : Arrays.asList("OPENSEARCH_AUTH", "OPENSEARCH_URL", "OPENSEARCH_INDEX", "GRAPH_SERVER", "GRAPH_REPO")) {
             String envData = System.getenv(env);
             if (envData == null || envData.isEmpty()) {
                 LOG.error("Environment variable {} not set", env);
@@ -437,149 +483,300 @@ public class OpenSearchSender {
             System.exit(-1);
     }
 
-    private void index(Set<EntityDocument> docs) throws JsonProcessingException, InterruptedException {
+    private void index(Map<String, EntityDocument> docs) throws JsonProcessingException, InterruptedException {
         StringJoiner batch = new StringJoiner("\n");
-        for (EntityDocument doc : docs) {
-            batch.add("{ \"index\" : { \"_index\": \"" + index + "\", \"_id\" : \"" + doc.getId() + "\" } }");
+        for (EntityDocument doc : docs.values()) {
+            batch.add("{ \"create\" : { \"_index\": \"" + index + "\", \"_id\" : \"" + doc.getId() + "\" } }");
             batch.add(om.writeValueAsString(doc));
         }
         batch.add("\n");
-       upload(batch);
+        upload(batch.toString());
     }
 
-    private void upload(StringJoiner batch) throws InterruptedException {
-         boolean retry;
+    private void upload(String batch) throws InterruptedException {
+        boolean retry;
         int retrySleep = 5;
-        boolean done= false;
-        int tries=0;
-        while (!done &&tries<5) {
+        boolean done = false;
+        int tries = 0;
+        Entity<String> entity = Entity.entity(batch, MediaType.APPLICATION_JSON);
+        Invocation.Builder req = target.request().header("Authorization", "Basic " + osAuth);
+        while (!done && tries < 5) {
             try {
                 tries++;
                 do {
                     LOG.info("Sending batch to Open search ...");
                     retry = false;
-                    Response response = target
-                      .request()
-                      .header("Authorization", "Basic " + osAuth)
-                      .post(Entity.entity(batch.toString(), MediaType.APPLICATION_JSON));
+                    try (Response response = req.post(entity)) {
 
-                    if (response.getStatus() == 429) {
-                        retry = true;
-                        LOG.error("Queue full, retrying in {}s", retrySleep);
-                        TimeUnit.SECONDS.sleep(retrySleep);
+                        if (response.getStatus() == 429) {
+                            retry = true;
+                            LOG.error("Queue full, retrying in {}s", retrySleep);
+                            TimeUnit.SECONDS.sleep(retrySleep);
 
-                        if (retrySleep < 60)
-                            retrySleep = retrySleep * 2;
-
-
-                    } else if (response.getStatus() != 200 && response.getStatus() != 201) {
-                        String responseData = response.readEntity(String.class);
-                        LOG.error(responseData);
-                        throw new IllegalStateException("Error posting to OpenSearch");
-                    } else {
-                        retrySleep = 5;
+                            if (retrySleep < 60)
+                                retrySleep = retrySleep * 2;
+                        } else if (response.getStatus() == 403) {
+                            String responseData = response.readEntity(String.class);
+                            LOG.error(responseData);
+                            LOG.error("Potentially out of disk space");
+                            throw new IllegalStateException("Potential disk full");
+                        } else if (response.getStatus() != 200 /*&& response.getStatus() != 201*/) {
+                            String responseData = response.readEntity(String.class);
+                            LOG.error(responseData);
+                            throw new IllegalStateException("Error posting to OpenSearch");
+                        } else {
+                            retrySleep = 5;
+                            // Check for errors
+                            String responseData = response.readEntity(String.class);
+                            JsonNode responseJson = om.readTree(responseData);
+                            if (responseJson.has("errors") && responseJson.get("errors").asBoolean()) {
+                                LOG.error(responseData);
+                                throw new IllegalStateException("Error in batch");
+                            }
+                        }
                     }
-
                 } while (retry);
                 LOG.info("Done.");
                 done = true;
-            } catch (Exception e){
-                System.err.println(e.getMessage());
+            } catch (Exception e) {
+                LOG.error(e.getMessage());
+                e.printStackTrace();
             }
         }
-        if (tries==5)
-            throw new InterruptedException("Connecitivity problem to open search");
+        if (tries == 5)
+            throw new InterruptedException("Connectivity problem to open search");
     }
 
     private int getMaxDocument() throws IOException {
         target = client.target(osUrl).path(index + "/_search");
 
-        Response response = target
+        try (Response response = target
             .request()
             .header("Authorization", "Basic " + osAuth)
-            .post(Entity.entity("{\n" +
-                "    \"aggs\" : {\n" +
-                "      \"max_id\" : {\n" +
-                "        \"max\" : { \n" +
-                "          \"field\" : \"id\"\n" +
-                "        }\n" +
-                "      }\n" +
-                "    },\n" +
-                "    \"size\":0\n" +
-                "  }", MediaType.APPLICATION_JSON));
+            .post(Entity.entity("""
+                {
+                    "aggs" : {
+                      "max_id" : {
+                        "max" : {
+                          "field" : "id"
+                        }
+                      }
+                    },
+                    "size":0
+                  }""", MediaType.APPLICATION_JSON))) {
 
-        if (response.getStatus() != 200) {
-            String responseData = response.readEntity(String.class);
-            if (responseData.contains("index_not_found_exception")) {
-                LOG.info("Index not found, starting from zero");
-                return 0;
+            if (response.getStatus() != 200) {
+                String responseData = response.readEntity(String.class);
+                if (responseData.contains("index_not_found_exception")) {
+                    LOG.info("No documents, starting from zero");
+                    return 0;
+                } else {
+                    LOG.error(responseData);
+                    throw new IllegalStateException("Error getting max document id from OpenSearch");
+                }
             } else {
-                LOG.error(responseData);
-                throw new IllegalStateException("Error getting max document id from OpenSearch");
+                String responseData = response.readEntity(String.class);
+                JsonNode root = om.readTree(responseData);
+                int maxId = root.get("aggregations").get("max_id").get("value").asInt();
+                if (maxId > 0)
+                    LOG.info("Continuing from {}", maxId);
+                return maxId;
             }
-        } else {
-            String responseData = response.readEntity(String.class);
-            JsonNode root = om.readTree(responseData);
-            int maxId = root.get("aggregations").get("max_id").get("value").asInt();
-            if (maxId > 0)
-                LOG.info("Continuing from {}", maxId);
-            return maxId;
         }
     }
 
-    private void checkIndexExists() throws IOException {
+    private void checkIndexExists() {
 
         target = client.target(osUrl).path(index);
 
+        try (Response response = target
+            .request()
+            .header("Authorization", "Basic " + osAuth)
+            .head()) {
+
+            if (response.getStatus() != 200) {
+                LOG.info("{} does not exist - creating index and default mappings", index);
+                target = client.target(osUrl).path(index);
+                String settings= "{\"settings\": {\n" +
+                  "    \"analysis\": {\n" +
+                  "      \"filter\": {\n" +
+                  "        \"edge_ngram_filter\": {\n" +
+                  "          \"type\": \"edge_ngram\",\n" +
+                  "          \"min_gram\": 1,\n" +
+                  "          \"max_gram\": 20\n" +
+                  "        }\n" +
+                  "      },\n" +
+                  "      \"analyzer\": {\n" +
+                  "        \"autocomplete\": {\n" +
+                  "          \"type\": \"custom\",\n" +
+                  "          \"tokenizer\": \"standard\",\n" +
+                  "          \"filter\": [\n" +
+                  "            \"lowercase\",\n" +
+                  "            \"edge_ngram_filter\"\n" +
+                  "          ]\n" +
+                  "        }\n" +
+                  "      }\n" +
+                  "    }\n" +
+                  "  },";
+                String mappings= settings+"""
+                  
+                    "mappings": {
+                      "properties": {
+                        "scheme": {
+                          "properties": {
+                            "@id": {
+                            "type": "keyword"
+                              },
+                            "name" : {
+                              "type": "text"
+                            }
+                            }
+                          },
+                        "matchTerm": {
+                            "type" : "text"
+                        },
+                        "entityType" : {
+                          "properties" : {
+                            "@id": {
+                              "type": "keyword"
+                            },
+                            "name" : {
+                              "type" : "text"
+                            }
+                          }
+                        },
+                        "status": {
+                          "properties" : {
+                            "@id": {
+                              "type": "keyword"
+                            },
+                            "name" : {
+                              "type" : "text"
+                            }
+                          }
+                        },
+                        "isA": {
+                          "properties" : {
+                            "@id": {
+                              "type": "keyword"
+                            },
+                            "name" : {
+                              "type" : "text"
+                            }
+                          }
+                        },
+                        "memberOf": {
+                          "properties" : {
+                          "@id": {
+                            "type": "keyword"
+                          },
+                          "name" : {
+                            "type" : "text"
+                          }
+                          }
+                        },
+                        "code": {
+                          "type": "keyword"
+                        },
+                        "iri": {
+                          "type": "keyword"
+                        },
+                        "key": {
+                          "type": "keyword"
+                        },
+                        "subsumptionCount" : {
+                          "type" : "integer"
+                        },
+                        "length" : {
+                          "type" : "integer"
+                        },
+                        "termCode" : {
+                          "properties" : {
+                            "code" : {
+                              "type" : "text"
+                            },
+                            "term" : {
+                              "type" : "text",
+                              "analyzer": "autocomplete"
+                            },
+                            "status" : {
+                                "properties" : {
+                                  "@id" : {
+                                    "type" : "keyword"
+                                  },
+                                  "name" : {
+                                    "type" : "text"
+                                  }
+                                }
+                              }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  
+                  """;
+
+                try (Response createResponse = target
+                    .request()
+                    .header("Authorization", "Basic " + osAuth)
+                    .put(Entity.entity(mappings, MediaType.APPLICATION_JSON))) {
+                    LOG.info("Index check {}", createResponse.getStatus());
+                }
+            }
+        }
+    }
+    private void putOrderByScript(){
+        String script="{" +
+          "  \"script\": {" +
+          "      \"lang\": \"painless\"," +
+          "      \"source\": \"" +
+          "        def orders = params['orders'];" +
+          "        int score=1000000;" +
+          "    int dif= 100000;" +
+          "    for (int i= 0; i<orders.orderBy.size(); i++){" +
+          "    def orderBy= orders.orderBy.get(i);" +
+          "    def field = orderBy.field;" +
+          "    if (orderBy.iriValue!=null){" +
+          "      field = field + '.@id';" +
+          "      if (doc.containsKey(field)){" +
+          "        for (int q=0; q<orderBy.iriValue.size(); q++){" +
+          "                def iri= orderBy.iriValue[q];" +
+          "                if (!doc[field].contains(iri)){" +
+          "                  score=score-(dif);" +
+          "                }" +
+          "              }" +
+          "            }" +
+          "            else" +
+          "                score=score-(dif*9);" +
+          "          }" +
+          "          if (orderBy.startsWithTerm!=null){" +
+          "            if (orderBy.startsWithTerm==true) {" +
+          "              field=field+'.keyword';" +
+          "              if (doc.containsKey(field)){" +
+          "                if (doc[field].size()>0){" +
+          "                  if (!doc[field].value.toLowerCase().startsWith(params['term'])){" +
+          "                    score=score-dif;" +
+          "                  }" +
+          "                }" +
+          "              }" +
+          "            }" +
+          "          }" +
+          "          dif=dif/10;" +
+          "        }" +
+          "      return score;" +
+          "        \"" +
+          "  }" +
+          "}";
+
+
+
+        target = client.target(osUrl).path("_scripts/orderBy");
         Response response = target
           .request()
           .header("Authorization", "Basic " + osAuth)
-          .head();
+          .put(Entity.entity(script, MediaType.APPLICATION_JSON));
+        LOG.info("stored script  filing {}", response.getStatus());
 
-        if (response.getStatus() != 200) {
-            LOG.info(index + " does not exist - creating index and default mappings");
-            target = client.target(osUrl).path(index);
-            String mappings = "{\n" +
-              "  \"mappings\": {\n" +
-              "    \"properties\": {\n" +
-              "      \"scheme.@id\": {\n" +
-              "        \"type\": \"keyword\"\n" +
-              "      },\n" +
-              "      \"entityType.@id\": {\n" +
-              "        \"type\": \"keyword\"\n" +
-              "      },\n" +
-              "      \"status.@id\": {\n" +
-              "        \"type\": \"keyword\"\n" +
-              "      },\n" +
-              "      \"isA.@id\": {\n" +
-              "        \"type\": \"keyword\"\n" +
-              "      },\n" +
-              "      \"code\": {\n" +
-              "        \"type\": \"keyword\"\n" +
-              "      },\n" +
-              "      \"iri\": {\n" +
-              "        \"type\": \"keyword\"\n" +
-              "      },\n" +
-              "      \"key\": {\n" +
-              "        \"type\": \"keyword\"\n" +
-              "      }\n" +
-              "    }\n" +
-              "  }\n" +
-              "}";
-            response = target
-              .request()
-              .header("Authorization", "Basic " + osAuth)
-              .put(Entity.entity(mappings , MediaType.APPLICATION_JSON));
-            System.out.println(response.getStatus());
-        }
-    }
-
-    public String getCache() {
-        return cache;
-    }
-
-    public OpenSearchSender setCache(String cache) {
-        this.cache = cache;
-        return this;
     }
 }

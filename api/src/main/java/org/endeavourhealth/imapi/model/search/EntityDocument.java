@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.search;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -24,6 +25,17 @@ public class EntityDocument {
 	Integer weighting;
 	String match;
 	Set<TTIriRef> isA= new HashSet<>();
+	Set<TTIriRef> memberOf= new HashSet<>();
+	Integer subsumptionCount;
+
+	public Integer getSubsumptionCount() {
+		return subsumptionCount;
+	}
+
+	public EntityDocument setSubsumptionCount(Integer subsumptionCount) {
+		this.subsumptionCount = subsumptionCount;
+		return this;
+	}
 
 	public Set<String> getMatchTerm() {
 		return matchTerm;
@@ -111,17 +123,17 @@ public class EntityDocument {
 		return scheme;
 	}
 
+	@JsonSetter
 	public EntityDocument setScheme(TTIriRef scheme) {
 		this.scheme = scheme;
 		return this;
 	}
 
-
-
 	public TTIriRef getStatus() {
 		return status;
 	}
 
+	@JsonSetter
 	public EntityDocument setStatus(TTIriRef status) {
 		this.status = status;
 		return this;
@@ -131,8 +143,6 @@ public class EntityDocument {
 		this.entityType.add(type);
 		return this;
 	}
-
-
 
 	public Integer getWeighting() {
 		return weighting;
@@ -183,7 +193,14 @@ public class EntityDocument {
 	}
 
 
+    public Set<TTIriRef> getMemberOf() {
+        return memberOf;
+    }
 
+    public EntityDocument setMemberOf(Set<TTIriRef> memberOf) {
+        this.memberOf = memberOf;
+        return this;
+    }
 
 
 	public String getMatch() {

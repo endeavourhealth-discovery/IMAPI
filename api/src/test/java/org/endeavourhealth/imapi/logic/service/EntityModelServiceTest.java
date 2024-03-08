@@ -323,7 +323,7 @@ class EntityModelServiceTest {
 
     @Test
     void totalRecords_NotNullIri() throws JsonProcessingException {
-        when(entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate( any(),any())).thenReturn(1000);
+        when(entityTripleRepository.getConceptUsagesCount( any())).thenReturn(1000);
         when(configManager.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://www.w3.org/2001/XMLSchema#string"));
 
         Integer actual = entityService.totalRecords("http://endhealth.info/im#25451000252115");

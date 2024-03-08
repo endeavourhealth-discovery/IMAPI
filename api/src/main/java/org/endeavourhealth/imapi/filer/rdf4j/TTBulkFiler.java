@@ -158,8 +158,8 @@ public class TTBulkFiler  implements TTDocumentFiler {
     }
 
     private void addSubtypes(TTEntity entity) throws IOException {
-        for (TTIriRef relationship:List.of(iri(RDFS.SUBCLASS_OF),iri(RDFS.SUB_PROPERTY_OF),iri(IM.SUBSUMED_BY),iri(IM.USUALLY_SUBSUMED_BY),iri(IM.APPROXIMATE_SUBSUMED_BY),
-          iri(IM.LOCAL_SUBCLASS_OF),iri(IM.MULTIPLE_SUBSUMED_BY))) {
+        for (TTIriRef relationship:List.of(iri(RDFS.SUBCLASS_OF),iri(RDFS.SUB_PROPERTY_OF),
+          iri(IM.LOCAL_SUBCLASS_OF))) {
             if (entity.get(relationship) != null)
                 for (TTValue parent : entity.get(relationship).getElements()) {
                     subtypes.write(entity.getIri() + "\t" + relationship.getIri() + "\t" + parent.asIriRef().getIri() + "\n");
@@ -177,10 +177,17 @@ public class TTBulkFiler  implements TTDocumentFiler {
     }
 
     private void addCodeToMaps(TTEntity entity, String graph) throws IOException {
-        if (entity.getCode()!=null){
-            codeMap.write(graph+entity.getCode()+"\t"+ entity.getIri()+"\n");
+        if (entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE))!=null){
+            codeMap.write(graph+entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue()+"\t"+ entity.getIri()+"\n");
             if (graph.equals(IM.NAMESPACE)|| (graph.equals(SNOMED.NAMESPACE)))
-                codeCoreMap.write(entity.getCode()+"\t"+ entity.getIri()+"\n");
+                codeCoreMap.write(entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue()+"\t"+ entity.getIri()+"\n");
+        }
+        else {
+            if (entity.getCode() != null) {
+                codeMap.write(graph + entity.getCode() + "\t" + entity.getIri() + "\n");
+                if (graph.equals(IM.NAMESPACE) || (graph.equals(SNOMED.NAMESPACE)))
+                    codeCoreMap.write(entity.getCode() + "\t" + entity.getIri() + "\n");
+            }
         }
     }
 

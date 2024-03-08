@@ -22,6 +22,8 @@ import jakarta.ws.rs.core.Response;
 import org.springframework.security.core.parameters.P;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -89,10 +91,20 @@ public class OpenSearchSender {
                 LOG.info("Fetching entity iris  ...");
                 TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
 
+                int count = 0;
                 try (TupleQueryResult qr = tupleQuery.evaluate()) {
                     while (qr.hasNext()) {
                         BindingSet rs = qr.next();
                         String iri = rs.getValue("iri").stringValue();
+                        // validate iri
+                        try {
+                            new URI(iri);
+                        } catch (URISyntaxException e) {
+                            LOG.error("Invalid IRI [{}]", iri);
+                            System.exit(-1);
+                        }
+                        if (++count % 50000 == 0)
+                            LOG.info("Loaded {}...", count);
                         entityIris.add(iri);
                     }
                 }
@@ -192,6 +204,10 @@ public class OpenSearchSender {
                         String preferred = rs.getValue("preferredName").stringValue();
                         blob.setPreferredName(preferred);
                     }
+                    if (rs.getValue("alternativeCode")!=null){
+                        String alternativeCode= rs.getValue("alternativeCode").stringValue();
+                        blob.setAlternativeCode(alternativeCode);
+                    }
 
                     TTIriRef scheme = TTIriRef.iri(rs.getValue("scheme").stringValue());
 
@@ -258,7 +274,7 @@ public class OpenSearchSender {
             .add("PREFIX im: <http://endhealth.info/im#>")
             .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
             .add("select ?iri ?name ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?weighting")
-            .add("?extraType ?extraTypeName ?preferredName")
+            .add("?extraType ?extraTypeName ?preferredName ?alternativeCode")
             .add("where {")
             .add("  graph ?scheme {")
             .add("    ?iri rdfs:label ?name.")
@@ -274,6 +290,7 @@ public class OpenSearchSender {
             .add("  Optional {?scheme rdfs:label ?schemeName }")
             .add("  Optional {?iri im:code ?code.}")
             .add("  Optional {?iri im:weighting ?weighting.}")
+          .add("  Optional {?iri im:alternativeCode ?alternativeCode.}")
             .add("}").toString();
     }
 

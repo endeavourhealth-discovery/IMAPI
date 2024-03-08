@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.UserService;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
+import org.endeavourhealth.imapi.model.dto.ScaleDto;
 import org.endeavourhealth.imapi.model.dto.ThemeDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,21 @@ public class UserController {
         LOG.debug("updateUserTheme");
         String userId = requestObjectService.getRequestAgentId(request);
         userService.updateUserTheme(userId, themeDto.getThemeValue());
+    }
+
+    @GetMapping(value = "/scale", produces = "application/json")
+    public String getUserScale(HttpServletRequest request) throws JsonProcessingException {
+        LOG.debug("getUserScale");
+        String userId = requestObjectService.getRequestAgentId(request);
+        return userService.getUserScale(userId);
+    }
+
+    @PostMapping(value = "/scale", produces = "application/json")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateUserScale(HttpServletRequest request, @RequestBody ScaleDto scaleDto) throws JsonProcessingException {
+        LOG.debug("updateUserScale");
+        String userId = requestObjectService.getRequestAgentId(request);
+        userService.updateUserScale(userId, scaleDto.getScaleValue());
     }
 
     @GetMapping(value = "/MRU", produces = "application/json")

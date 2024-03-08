@@ -16,6 +16,7 @@ public class EntityDocument {
 	Integer length;
 	String preferredName;
 	String code;
+	String alternativeCode;
 	Set<String> matchTerm;
 	Set<String> key= new HashSet<>();
 	TTIriRef scheme;
@@ -27,6 +28,15 @@ public class EntityDocument {
 	Set<TTIriRef> isA= new HashSet<>();
 	Set<TTIriRef> memberOf= new HashSet<>();
 	Integer subsumptionCount;
+
+	public String getAlternativeCode() {
+		return alternativeCode;
+	}
+
+	public EntityDocument setAlternativeCode(String alternativeCode) {
+		this.alternativeCode = alternativeCode;
+		return this;
+	}
 
 	public Integer getSubsumptionCount() {
 		return subsumptionCount;

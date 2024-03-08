@@ -244,15 +244,17 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
         toClose.addAll(descendants);
         //set external isas first i.e. top of the tree
         for (TTEntity entity : toClose) {
-            String subclass = entity.getIri();
-            if (entity.get(iri(RDFS.SUBCLASS_OF)) != null) {
-                for (TTValue superClass : entity.get(iri(RDFS.SUBCLASS_OF)).getElements()) {
-                    String iri = superClass.asIriRef().getIri();
-                    if (!entitiesFiled.contains(iri)) {
-                        Set<String> ancestors = conceptFiler.getIsAs(iri);
-                        ancestors.add(subclass);
-                        isAs.put(subclass, ancestors);
-                        done.add(iri);
+            for (String iriRef:List.of(RDFS.SUBCLASS_OF,IM.LOCAL_SUBCLASS_OF)) {
+                String subclass = entity.getIri();
+                if (entity.get(iri(iriRef)) != null) {
+                    for (TTValue superClass : entity.get(iri(iriRef)).getElements()) {
+                        String iri = superClass.asIriRef().getIri();
+                        if (!entitiesFiled.contains(iri)) {
+                            Set<String> ancestors = conceptFiler.getIsAs(iri);
+                            ancestors.add(subclass);
+                            isAs.put(subclass, ancestors);
+                            done.add(iri);
+                        }
                     }
                 }
             }
@@ -270,19 +272,21 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
         if (!done.contains(subclass)) {
             isAs.computeIfAbsent(subclass, s -> new HashSet<>());
             isAs.get(subclass).add(subclass);
-            if (entity.get(iri(RDFS.SUBCLASS_OF)) != null) {
-                for (TTValue superClass : entity.get(iri(RDFS.SUBCLASS_OF)).getElements()) {
-                    String iri = superClass.asIriRef().getIri();
-                    if (!done.contains(iri)) {
-                        isAs.get(subclass).add(iri);
-                        Set<String> superIsas= getInternalIsAs(manager.getEntity(iri));
-                        if (superIsas!=null)
-                            isAs.get(subclass).addAll(superIsas);
-                        done.add(iri);
-                    }
-                    else {
-                        if (isAs.get(iri)!=null)
-                            isAs.get(subclass).addAll(isAs.get(iri));
+            for (String iriRef:List.of(RDFS.SUBCLASS_OF,IM.LOCAL_SUBCLASS_OF)) {
+                if (entity.get(iri(iriRef)) != null) {
+                    for (TTValue superClass : entity.get(iri(iriRef)).getElements()) {
+                        String iri = superClass.asIriRef().getIri();
+                        if (!done.contains(iri)) {
+                            isAs.get(subclass).add(iri);
+                            Set<String> superIsas = getInternalIsAs(manager.getEntity(iri));
+                            if (superIsas != null)
+                                isAs.get(subclass).addAll(superIsas);
+                            done.add(iri);
+                        }
+                        else {
+                            if (isAs.get(iri) != null)
+                                isAs.get(subclass).addAll(isAs.get(iri));
+                        }
                     }
                 }
             }

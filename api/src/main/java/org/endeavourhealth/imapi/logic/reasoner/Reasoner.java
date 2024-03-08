@@ -427,23 +427,28 @@ public class Reasoner {
    private void inheritProperties(TTEntity shape) {
       if (done.contains(shape.getIri()))
          return;
-      List<TTValue> properties = getOrderedProperties(shape);
-      int order = 0;
+      TTArray properties = null;
+      if (shape.get(iri(SHACL.PROPERTY))!=null)
+         properties= shape.get(iri(SHACL.PROPERTY));
       List<TTValue> mergedProperties = new ArrayList<>();
       if (shape.get(iri(RDFS.SUBCLASS_OF)) != null) {
          for (TTValue superClass : shape.get(iri(RDFS.SUBCLASS_OF)).getElements()) {
             TTEntity superEntity = manager.getEntity(superClass.asIriRef().getIri());
             if (superEntity != null) {
-               mergeInheritedProperties(properties, order, mergedProperties, superClass, superEntity);
+               mergeInheritedProperties(properties, mergedProperties, superClass, superEntity);
             }
          }
          if (properties != null) {
-            for (TTValue prop : properties) {
-               order++;
-               prop.asNode().set(iri(SHACL.ORDER), TTLiteral.literal(order));
-               mergedProperties.add(prop);
+            mergedProperties.addAll(properties.getElements());
+         }
+         int newOrder=1000;
+         for (TTValue property:mergedProperties){
+            newOrder++;
+            if (property.asNode().get(iri(SHACL.ORDER))==null){
+               property.asNode().set(iri(SHACL.ORDER),TTLiteral.literal(newOrder));
             }
          }
+         mergedProperties.sort(Comparator.comparingInt(p -> ((TTNode) p).get(iri(SHACL.ORDER)).asLiteral().intValue()));
          TTArray newValue = new TTArray();
          mergedProperties.forEach(newValue::add);
          shape.set(iri(SHACL.PROPERTY), newValue);
@@ -451,22 +456,18 @@ public class Reasoner {
       }
    }
 
-   public void mergeInheritedProperties(List<TTValue> properties, int order, List<TTValue> mergedProperties,TTValue superClass, TTEntity superEntity) {
+   public void mergeInheritedProperties(TTArray properties, List<TTValue> mergedProperties,TTValue superClass, TTEntity superEntity) {
       inheritProperties(superEntity);
       if (superEntity.get(iri(SHACL.PROPERTY)) != null) {
          for (TTValue superP : superEntity.get(iri(SHACL.PROPERTY)).getElements()) {
             if (superP.asNode().get(iri(SHACL.PATH))==null){
-               order++;
                TTNode inherited= copyNode(superP.asNode());
-               inherited.set(iri(SHACL.ORDER), TTLiteral.literal(order));
                inherited.set(iri(IM.INHERITED_FROM), superClass);
                mergedProperties.add(inherited);
             }
             else {
                if (!hasProperty(properties, superP.asNode().get(iri(SHACL.PATH)).asIriRef())) {
-                  order++;
                   TTNode inherited= copyNode(superP.asNode());
-                  inherited.set(iri(SHACL.ORDER), TTLiteral.literal(order));
                   inherited.set(iri(IM.INHERITED_FROM), superClass);
                   mergedProperties.add(inherited);
                }
@@ -486,31 +487,10 @@ public class Reasoner {
    }
 
 
-   private static List<TTValue> getOrderedProperties(TTEntity shape) {
-      if (shape.get(iri(SHACL.PROPERTY)) != null) {
-         List<TTValue> properties = new ArrayList<>(shape.get(iri(SHACL.PROPERTY)).getElements());
-         assignMissingOrder(properties);
-         return properties.stream()
-           .sorted(Comparator.comparingInt((TTValue p) -> p.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue()))
-           .collect(Collectors.toList());
-      }
-      return Collections.emptyList();
-   }
 
-
-   private static void assignMissingOrder(List<TTValue> properties){
-      int order=0;
-      for (TTValue node:properties){
-         if (node.asNode().get(iri(SHACL.ORDER))==null){
-            order++;
-            node.asNode().set(iri(SHACL.ORDER),TTLiteral.literal(order));
-         }
-      }
-   }
-
-   private static boolean hasProperty(List<TTValue> subProperties, TTIriRef path) {
+   private static boolean hasProperty(TTArray subProperties, TTIriRef path) {
       if (subProperties!=null){
-         for (TTValue prop: subProperties) {
+         for (TTValue prop: subProperties.getElements()) {
             if (prop.asNode().get(iri(SHACL.PATH))!=null) {
                if (prop.asNode().get(iri(SHACL.PATH)).asIriRef().equals(path))
                   return true;

@@ -267,9 +267,10 @@ public class EntityRepository2 {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
           .add(IM_PREFIX)
           .add(RDFS_PREFIX)
-          .add("select ?code ?scheme ?iri")
+          .add("select ?code ?scheme ?iri ?altCode")
           .add("where {")
           .add("?iri im:code ?code.")
+          .add("OPTIONAL {?iri im:alternativeCode ?altCode}")
           .add("?iri im:scheme ?scheme }");
         Map<String,String> codeToIri= new HashMap<>();
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
@@ -281,6 +282,9 @@ public class EntityRepository2 {
                     String scheme= bs.getValue("scheme").stringValue();
                     String iri= bs.getValue("iri").stringValue();
                     codeToIri.put(scheme+code,iri);
+                    if (bs.getValue("altCode")!=null) {
+                        codeToIri.put(scheme+bs.getValue("altCode").stringValue(),iri);
+                    }
                 }
             }
 

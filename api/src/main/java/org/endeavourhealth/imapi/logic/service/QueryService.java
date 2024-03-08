@@ -13,7 +13,9 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class QueryService {
@@ -34,19 +36,24 @@ public class QueryService {
     }
 
     public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults) {
-        SearchResponse result = new SearchResponse();
+        SearchResponse searchResponse = new SearchResponse();
 
         if (queryResults.has("entities")) {
             JsonNode entities = queryResults.get("entities");
             if (entities.isArray()) {
+                Set<String> iris = new HashSet<>();
                 for (JsonNode entity : queryResults.get("entities")) {
-                    SearchResultSummary summary = entityRepository.getEntitySummaryByIri(entity.get("@id").asText());
-                    result.addEntity(summary);
+                    iris.add(entity.get("@id").asText());
                 }
+                List<SearchResultSummary> summaries = entityRepository.getEntitySummariesByIris(iris);
+                searchResponse.setEntities(summaries);
             }
         }
-
-        return result;
+        if (queryResults.has("totalCount")) searchResponse.setTotalCount(queryResults.get("totalCount").asInt());
+        if (queryResults.has("count")) searchResponse.setCount(queryResults.get("count").asInt());
+        if (queryResults.has("page")) searchResponse.setPage(queryResults.get("page").asInt());
+        if (queryResults.has("term")) searchResponse.setTerm(queryResults.get("term").asText());
+        return searchResponse;
     }
 
     private List<TTIriRef> jsonNodeToTTIriRef(JsonNode entity, String iri) {

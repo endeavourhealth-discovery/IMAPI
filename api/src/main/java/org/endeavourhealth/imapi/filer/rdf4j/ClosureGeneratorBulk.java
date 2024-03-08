@@ -32,24 +32,11 @@ public class ClosureGeneratorBulk implements TCGenerator {
 
 		try(FileWriter isas = new FileWriter(outpath+"/BulkImport.nq",true)) {
 			buildClosure();
-			addInactiveSubsumptions();
 			writeClosureData(isas);
 
 		}
 	}
 
-	private void addInactiveSubsumptions() {
-		for (String relationship:List.of(IM.SUBSUMED_BY,IM.USUALLY_SUBSUMED_BY,
-			IM.APPROXIMATE_SUBSUMED_BY,IM.MULTIPLE_SUBSUMED_BY)){
-			for (Map.Entry<String, Set<String>> row : relationshipMap.get(relationship).entrySet()) {
-				String child= row.getKey();
-				closureMap.computeIfAbsent(child,c-> new HashSet<>());
-				for (String parent:row.getValue()){
-					closureMap.get(child).add(parent);
-				}
-			}
-		}
-	}
 
 	private void getTctBlockers() {
 		LOG.debug(String.format("Getting %s ", "top level stoppers"));

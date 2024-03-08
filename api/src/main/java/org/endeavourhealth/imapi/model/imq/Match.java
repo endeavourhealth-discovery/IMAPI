@@ -29,6 +29,22 @@ public class Match extends IriLD {
     private String name;
     private Match then;
     private List<Property> path;
+    private Where where;
+
+    public Where getWhere() {
+        return where;
+    }
+
+    public Match setWhere(Where where) {
+        this.where = where;
+        return this;
+    }
+    public Match where(Consumer < Where > builder) {
+            Where where = new Where();
+            this.where = where;
+            builder.accept(where);
+            return this;
+    }
 
     public Match getThen() {
         return then;

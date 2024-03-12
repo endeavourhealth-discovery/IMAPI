@@ -17,7 +17,7 @@ public class Match extends IriLD {
     private List<Node> is;
     private boolean exclude;
     private Element graph;
-    private List<Property> property;
+    private List<Where> where;
     private String description;
     private OrderLimit orderBy;
     private String nodeRef;
@@ -28,23 +28,7 @@ public class Match extends IriLD {
     private String variable;
     private String name;
     private Match then;
-    private List<Property> path;
-    private Where where;
-
-    public Where getWhere() {
-        return where;
-    }
-
-    public Match setWhere(Where where) {
-        this.where = where;
-        return this;
-    }
-    public Match where(Consumer < Where > builder) {
-            Where where = new Where();
-            this.where = where;
-            builder.accept(where);
-            return this;
-    }
+    private List<IriLD> path;
 
     public Match getThen() {
         return then;
@@ -55,24 +39,24 @@ public class Match extends IriLD {
         return this;
     }
 
-    public List<Property> getPath() {
+    public List<IriLD> getPath() {
         return path;
     }
 
-    public Match setPath(List<Property> path) {
+    public Match setPath(List<IriLD> path) {
         this.path = path;
         return this;
     }
 
-    public Match addPath(Property path){
+    public Match addPath(IriLD path){
       if (this.path==null)
          this.path= new ArrayList();
       this.path.add(path);
       return this;
     }
 
-    public Match path(Consumer<Property> builder) {
-        Property path = new Property();
+    public Match path(Consumer<IriLD> builder) {
+        IriLD path = new IriLD();
         addPath(path);
         builder.accept(path);
         return this;
@@ -276,26 +260,26 @@ public class Match extends IriLD {
         return description;
     }
 
-    public List<Property> getProperty() {
-        return property;
+    public List<Where> getWhere() {
+        return where;
     }
 
     @JsonSetter
-    public Match setProperty(List<Property> property) {
-        this.property = property;
+    public Match setWhere(List<Where> where) {
+        this.where = where;
         return this;
     }
 
-    public Match addProperty(Property prop) {
-        if (this.property == null)
-            this.property = new ArrayList<>();
-        this.property.add(prop);
+    public Match addWhere(Where prop) {
+        if (this.where == null)
+            this.where = new ArrayList<>();
+        this.where.add(prop);
         return this;
     }
 
-    public Match property(Consumer<Property> builder) {
-        Property prop = new Property();
-        addProperty(prop);
+    public Match where(Consumer<Where> builder) {
+        Where prop = new Where();
+        addWhere(prop);
         builder.accept(prop);
         return this;
     }

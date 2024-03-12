@@ -12,10 +12,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
@@ -166,7 +163,7 @@ public class QueryRepository {
                                     if (arg.getValueIri() == null)
                                         throw new DataFormatException(error + " to have a valueIri :{@id : htttp....}");
                                 } else if (arg.getValueData() == null) {
-                                    throw new DataFormatException(error + " to have valueData property with string value");
+                                    throw new DataFormatException(error + " to have valueData where with string value");
                                 }
                             }
                         if (!found) {
@@ -401,7 +398,7 @@ public class QueryRepository {
         }
     }
 
-    private void gatherWhereLabels(Property where, List<TTIriRef> ttIris, Map<String, String> iris) {
+    private void gatherWhereLabels(Where where, List<TTIriRef> ttIris, Map<String, String> iris) {
         if (where.getId() != null)
             addToIriList(where.getId(), ttIris, iris);
 
@@ -417,8 +414,8 @@ public class QueryRepository {
             addToIriList(match.getIri(), ttIris, iris);
         else if (match.getTypeOf() != null)
             addToIriList(match.getTypeOf().getIri(), ttIris, iris);
-        if (match.getProperty() != null) {
-            for (Property where : match.getProperty()) {
+        if (match.getWhere() != null) {
+            for (Where where : match.getWhere()) {
                 gatherWhereLabels(where, ttIris, iris);
             }
         }
@@ -426,8 +423,8 @@ public class QueryRepository {
             match.getMatch().forEach(f -> gatherFromLabels(f, ttIris, iris));
         }
 
-        if (match.getProperty() != null) {
-            for (Property path : match.getProperty()) {
+        if (match.getWhere() != null) {
+            for (Where path : match.getWhere()) {
                 addToIriList(path.getIri(), ttIris, iris);
             }
         }
@@ -465,8 +462,8 @@ public class QueryRepository {
             }
             match.setName(iriLabels.get(match.getTypeOf()));
         }
-        if (match.getProperty() != null) {
-            for (Property where : match.getProperty()) {
+        if (match.getWhere() != null) {
+            for (Where where : match.getWhere()) {
                 setWhereLabels(where, iriLabels);
             }
         }
@@ -485,7 +482,7 @@ public class QueryRepository {
         }
     }
 
-    private void setWhereLabels(Property where, Map<String, String> iris) {
+    private void setWhereLabels(Where where, Map<String, String> iris) {
         if (where.getId() != null)
             where.setName(iris.get(where.getId()));
         if (where.getIs() != null)

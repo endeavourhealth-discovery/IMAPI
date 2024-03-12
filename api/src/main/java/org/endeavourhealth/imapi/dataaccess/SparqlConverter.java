@@ -303,18 +303,18 @@ public class SparqlConverter {
             }
         }
 
-        if (match.getProperty() != null) {
+        if (match.getWhere() != null) {
             if (match.getBool() == Bool.or) {
-                for (int i = 0; i < match.getProperty().size(); i++) {
+                for (int i = 0; i < match.getWhere().size(); i++) {
                     if (i == 0)
                         whereQl.append("{ \n");
                     else
                         whereQl.append("UNION {\n");
-                    property(whereQl, subject, match.getProperty().get(i), null);
+                    property(whereQl, subject, match.getWhere().get(i), null);
                     whereQl.append("}\n");
                 }
             } else {
-                for (Property where : match.getProperty()) {
+                for (Where where : match.getWhere()) {
                     property(whereQl, subject, where, null);
                 }
             }
@@ -347,13 +347,13 @@ public class SparqlConverter {
 
 
     /**
-     * Proecesses the where property clause, the remaining match clause including subqueries
+     * Proecesses the where where clause, the remaining match clause including subqueries
      *
      * @param whereQl the string builder sparql
      * @param subject the parent subject passed to this where clause
      * @param where   the where clause
      */
-    private void property(StringBuilder whereQl, String subject, Property where, String parentVariable) throws QueryException, QueryException {
+    private void property(StringBuilder whereQl, String subject, Where where, String parentVariable) throws QueryException, QueryException {
         String propertyVariable = where.getVariable() != null ? where.getVariable() : parentVariable;
         if (where.isAnyRoleGroup()) {
             whereQl.append("?").append(subject).append(" im:roleGroup ").append("?roleGroup").append(o).append(".\n");
@@ -413,18 +413,18 @@ public class SparqlConverter {
                 match(whereQl, object, where.getMatch());
             }
         }
-        if (where.getProperty() != null) {
+        if (where.getWhere() != null) {
             if (where.getBool() == Bool.or) {
-                for (int i = 0; i < where.getProperty().size(); i++) {
+                for (int i = 0; i < where.getWhere().size(); i++) {
                     if (i == 0)
                         whereQl.append("{ \n");
                     else
                         whereQl.append("UNION {\n");
-                    property(whereQl, subject, where.getProperty().get(i), null);
+                    property(whereQl, subject, where.getWhere().get(i), null);
                     whereQl.append("}\n");
                 }
             } else {
-                for (Property subWhere : where.getProperty()) {
+                for (Where subWhere : where.getWhere()) {
                     property(whereQl, subject, subWhere, null);
                 }
             }
@@ -493,7 +493,7 @@ public class SparqlConverter {
 
     }
 
-    private void whereValue(StringBuilder whereQl, String object, Property where) throws QueryException {
+    private void whereValue(StringBuilder whereQl, String object, Where where) throws QueryException {
         String comp = where.getOperator() != null ? where.getOperator().getValue() : Operator.eq.getValue();
         String value = where.getValue();
         whereQl.append("Filter (?").append(object).append(comp).append(" ");

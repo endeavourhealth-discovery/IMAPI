@@ -5,7 +5,7 @@ import org.endeavourhealth.imapi.model.iml.MapFunction;
 import org.endeavourhealth.imapi.model.iml.ListMode;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.imq.Match;
-import org.endeavourhealth.imapi.model.imq.Property;
+import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.map.MapProperty;
 
@@ -238,7 +238,7 @@ public class Transformer {
 	}*/
 
 	private boolean where (Match where, Object sourceNode) throws DataFormatException, JsonProcessingException {
-		for (Property property:where.getProperty()){
+		for (Where property:where.getWhere()){
 			Object sourceValue = sourceTranslator.getPropertyValue(sourceNode, property.getId());
 		  if (property.getValue() != null && property.getValue().equals(sourceValue))
 				return true;

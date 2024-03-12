@@ -55,17 +55,17 @@ public class SetRepository {
           .setBool(Bool.or)
           .match(m1->m1
             .setVariable("entity")
-            .property(p->p
+            .where(p->p
               .setIri(IM.PREVIOUS_ENTITY_OF)
               .addIs(new Node().setNodeRef("outerEntity"))))
           .match(m1->m1
             .setVariable("entity")
-            .property(p->p
+            .where(p->p
               .setIri(IM.SUBSUMED_BY)
               .addIs(new Node().setNodeRef("outerEntity"))))
           .match(m1->m1
           .setVariable("entity")
-          .property(p->p
+          .where(p->p
             .setIri(IM.USUALLY_SUBSUMED_BY)
             .addIs(new Node().setNodeRef("outerEntity")))));
         Set<Concept> result2 = getExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);

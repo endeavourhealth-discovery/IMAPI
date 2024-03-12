@@ -28,20 +28,18 @@ public class IMLToECL {
 	 */
 	public static String getECLFromQuery(Query query, Boolean includeName) throws QueryException {
 		StringBuilder ecl = new StringBuilder();
-		if (query.getMatch()!=null) {
-			match(query, ecl, includeName);
-		}
+		match(query, ecl, includeName);
 		return ecl.toString().trim();
 	}
 
 	private static eclType getEclType(Match match){
 		if (match.getMatch()!=null){
 			if (match.getMatch().size()>0) {
-				if (match.getProperty()!=null)
+				if (match.getWhere()!=null)
 					return eclType.compoundRefined;
 			}
 		}
-		if (match.getProperty()!=null)
+		if (match.getWhere()!=null)
 			return eclType.refined;
 		if (match.getMatch()!=null) {
 			for (Match subMatch : match.getMatch()) {
@@ -50,7 +48,9 @@ public class IMLToECL {
 			}
 			return eclType.compound;
 		}
-		return eclType.simple;
+		if (match.getInstanceOf()!=null)
+			return eclType.simple;
+		else return null;
 	}
 
 	public static String getECLFromQuery(Query query) throws QueryException {
@@ -64,6 +64,8 @@ public class IMLToECL {
 
 	private static void match(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
 		eclType matchType= getEclType(match);
+		if (matchType==null)
+			return;
 		if (matchType==eclType.simple){
 			addClass(match.getInstanceOf(), ecl, includeNames);
 		}
@@ -117,53 +119,51 @@ public class IMLToECL {
 		}
 	}
 
-	private static boolean needsBracket(Match parent,Match match){
-		if (parent.getMatch().size()>1) {
-			if (match.getProperty() != null)
-				return true;
-		}
-		if (match.isExclude())
-				return true;
-		return false;
-	}
 
 
 	private static void addRefinements(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
 		ecl.append(": ");
+		for (Where where:match.getWhere()){
 		boolean first = true;
-		if (null != match.getProperty().get(0).getIri() && match.getProperty().get(0).getIri().equals(IM.ROLE_GROUP)){
+		if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)){
 			ecl.append(" { ");
-			addRefinements(match.getProperty().get(0).getMatch(),ecl,includeNames);
+			addRefinements(where.getMatch(),ecl,includeNames);
 			ecl.append("}");
 		}
 		else {
-			if (match.getBool()==null){
-				match.setBool(Bool.and);
+			if (where.getBool() == null) {
+				where.setBool(Bool.and);
 			}
-			for (Property property : match.getProperty()) {
-				if (!first) {
-					ecl.append("\n");
-					if (match.getBool()==Bool.and) {
-						ecl.append(" , ");
+			if (where.getIri() != null) {
+				addRefinedGroup(where, ecl, includeNames);
+			}
+			else {
+				for (Where property : where.getWhere()) {
+					if (!first) {
+						ecl.append("\n");
+						if (where.getBool() == Bool.and) {
+							ecl.append(" , ");
+						}
+						else
+							ecl.append(" OR ");
 					}
-					else
-						ecl.append(" OR ");
+					first = false;
+					addRefinedGroup(property, ecl, includeNames);
 				}
-				first = false;
-				addRefinedGroup(property, ecl, includeNames);
 			}
+		}
 		}
 	}
 
-	private static void addRefinements(Property property, StringBuilder ecl, boolean includeNames) throws QueryException {
+	private static void addRefinements(Where property, StringBuilder ecl, boolean includeNames) throws QueryException {
 		boolean first = true;
-		if (null != property.getProperty().get(0).getIri() && property.getProperty().get(0).getIri().equals(IM.ROLE_GROUP)){
+		if (null != property.getWhere().get(0).getIri() && property.getWhere().get(0).getIri().equals(IM.ROLE_GROUP)){
 			ecl.append(" { ");
-			addRefinements(property.getProperty().get(0).getMatch(),ecl,includeNames);
+			addRefinements(property.getWhere().get(0).getMatch(),ecl,includeNames);
 			ecl.append("}");
 		}
 		else {
-			for (Property subProperty : property.getProperty()) {
+			for (Where subProperty : property.getWhere()) {
 				if (!first) {
 					ecl.append("\n");
 					if (property.getBool()==Bool.or){
@@ -173,11 +173,11 @@ public class IMLToECL {
 						ecl.append(" , ");
 				}
 				first = false;
-				if (subProperty.getProperty()!=null) {
+				if (subProperty.getWhere()!=null) {
 					ecl.append(" (");
 				}
 				addRefinedGroup(subProperty, ecl, includeNames);
-				if (subProperty.getProperty()!=null){
+				if (subProperty.getWhere()!=null){
 					ecl.append(")");
 				}
 			}
@@ -185,7 +185,7 @@ public class IMLToECL {
 		}
 	}
 
-	private static void addRefinedGroup(Property property, StringBuilder ecl, Boolean includeName) throws QueryException {
+	private static void addRefinedGroup(Where property, StringBuilder ecl, Boolean includeName) throws QueryException {
 		if (null == property.getMatch()) {
 			addRefined(property, ecl, includeName);
 		}
@@ -198,19 +198,20 @@ public class IMLToECL {
 	}
 
 
-	private static void addRefined(Property where, StringBuilder ecl, Boolean includeName) throws QueryException {
+	private static void addRefined(Where where, StringBuilder ecl, Boolean includeName) throws QueryException {
 		try {
-			if (null == where.getBool()) {
+			if (null == where.getWhere()) {
 				addProperty(where, ecl, includeName);
 				ecl.append(" = ");
-				if (null == where.getIs()) throw new QueryException("Property clause must contain 'is' value");
+				if (null == where.getIs()) throw new QueryException("Where clause must contain 'is' value");
 				Node value = where.getIs().get(0);
 				addClass(value, ecl, includeName);
-			} else {
+			}
+			else {
 				addRefinements(where,ecl,includeName);
 			}
 		} catch (Exception e) {
-			throw new QueryException("Property clause inside a role group clause must contain a property");
+			throw new QueryException("Where clause inside a role group clause must contain a where");
 		}
 	}
 

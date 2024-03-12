@@ -92,21 +92,12 @@ public class EqdPopToIMQ {
 		VocMemberOperator memberOp = eqGroup.getDefinition().getMemberOperator();
 		if (memberOp == VocMemberOperator.AND) {
 			groupMatch.setBool(Bool.and);
-				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
-					Match match = new Match();
-					groupMatch.addMatch(match);
-					resources.convertCriteria(eqCriteria, match);
+		}
+		else
+			groupMatch.setBool(Bool.or);
+		for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
+					groupMatch.addMatch(resources.convertCriteria(eqCriteria));
 				}
-			}
-			else {
-				groupMatch.setBool(Bool.or);
-				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
-					Match match = new Match();
-					groupMatch.addMatch(match);
-					resources.convertCriteria(eqCriteria, match);
-				}
-
-			}
 	}
 
 

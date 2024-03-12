@@ -7,7 +7,6 @@ import org.endeavourhealth.imapi.model.iml.MapFunction;
 import org.endeavourhealth.imapi.model.iml.ListMode;
 import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
 import org.endeavourhealth.imapi.model.imq.Match;
-import org.endeavourhealth.imapi.model.imq.Property;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;

@@ -44,7 +44,7 @@ public class TestMaps {
 						.propertyMap(m1->m1
 							.setSource("value")
 							.where(w->w
-								.property(p->p
+								.where(p->p
 								.setIri(IM.NAMESPACE+"system")
 									.setValue("http://fhir.nhs.net/Id/nhs-number"))))
 							.setTarget("nhsNumber"))
@@ -75,7 +75,7 @@ public class TestMaps {
 				.setTarget("homeAddress")
 				.objectMap(m1->m1
 						.where(w->w
-							.property(p->p
+							.where(p->p
 							.setIri(IM.NAMESPACE+"use")
 								.setValue("home")))))
 					.setTargetType(IM.NAMESPACE+"Address")
@@ -95,10 +95,10 @@ public class TestMaps {
 						.setSource("value")
 						.where(w->w
 							.setBool(Bool.and)
-							.property(w1->w1
+							.where(w1->w1
 								.setIri(IM.NAMESPACE+"system")
 										.setValue("phone"))
-							.property(w1->w1
+							.where(w1->w1
 								.setIri(IM.NAMESPACE+"use")
 									.setValue("mobile")))
 						.setTarget("mobileTelephoneNumber")))
@@ -108,11 +108,11 @@ public class TestMaps {
 					.setSource("value"))
 					.where(w->w
 						.setBool(Bool.and)
-						.property(w1->w1
+						.where(w1->w1
 							.setIri(IM.NAMESPACE+"system")
 								.setValue("phone")
 							)
-						.property(w1->w1
+						.where(w1->w1
 							.setIri(IM.NAMESPACE+"use")
 								.setValue("home")))
 					.setTarget("homeTelephoneNumber"))

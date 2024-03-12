@@ -40,7 +40,7 @@ public class FunctionService {
 
 	private JsonNode getLocalName(List<Argument> arguments){
 		if (null == arguments)
-			throw new IllegalArgumentException("No arguments, send json property/value pairs in request body");
+			throw new IllegalArgumentException("No arguments, send json where/value pairs in request body");
 		String iri = null;
 		String fieldName = null;
 		for (Argument arg : arguments) {
@@ -49,7 +49,7 @@ public class FunctionService {
 			if ("fieldName".equals(arg.getParameter())) fieldName = arg.getValueData();
 		}
 		if (null == iri)
-			throw new IllegalArgumentException("No entity iri property in request body");
+			throw new IllegalArgumentException("No entity iri where in request body");
 		if (null == fieldName)
 			throw new IllegalArgumentException("No 'fieldName' to return the local name in. e.g. \"fieldName\" : \"code\"");
         try (CachedObjectMapper om = new CachedObjectMapper()) {
@@ -59,14 +59,14 @@ public class FunctionService {
 
 	private JsonNode getSchemeFromIri(List<Argument> arguments) {
 		if (null == arguments)
-			throw new IllegalArgumentException("No arguments, send json property/value pairs in request body");
+			throw new IllegalArgumentException("No arguments, send json where/value pairs in request body");
 		String iri = null;
 		for (Argument arg : arguments) {
 			if (null == arg.getParameter()) throw new IllegalArgumentException("One or more arguments are missing parameter key");
 			if ("entityIri".equals(arg.getParameter())) iri = arg.getValueVariable();
 		}
 		if (null == iri)
-			throw new IllegalArgumentException("No entity iri property in request body");
+			throw new IllegalArgumentException("No entity iri where in request body");
 		try (CachedObjectMapper om = new CachedObjectMapper()) {
 			String schemeIri = iri.substring(0,iri.lastIndexOf("#")+1);
 			List<EntityReferenceNode> schemes = entityService.getImmediateChildren(IM.GRAPH,new ArrayList<>(),1,1000,false);
@@ -79,14 +79,14 @@ public class FunctionService {
 
 	private JsonNode getAdditionalAllowableTypes(List<Argument> arguments) {
 		if (null == arguments)
-			throw new IllegalArgumentException("No arguments, send array of json property/value pairs in request body");
+			throw new IllegalArgumentException("No arguments, send array of json where/value pairs in request body");
 		String entityIri = null;
 		for (Argument arg : arguments) {
 			if (null == arg.getParameter()) throw new IllegalArgumentException("One or more arguments are missing parameter key");
 			if ("entityIri".equals(arg.getParameter())) entityIri = arg.getValueIri().getIri();
 		}
 		if (null == entityIri)
-			throw new IllegalArgumentException("No entity iri property in request body");
+			throw new IllegalArgumentException("No entity iri where in request body");
 		List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.ENTITY_TYPES, null,1, 200, false);
         try (CachedObjectMapper om = new CachedObjectMapper()) {
             if (IM.CONCEPT.equals(entityIri)) {
@@ -139,7 +139,7 @@ public class FunctionService {
 
 	private JsonNode generateIriCode(List<Argument> arguments) throws Exception {
 		if (null == arguments)
-			throw new IllegalArgumentException("No arguments, send array of json property/value pairs in request body");
+			throw new IllegalArgumentException("No arguments, send array of json where/value pairs in request body");
 		String entityIri = null;
 		for (Argument arg : arguments) {
 			if (null == arg.getParameter()) throw new IllegalArgumentException("One or more arguments are missing parameter key");

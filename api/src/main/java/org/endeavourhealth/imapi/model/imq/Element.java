@@ -2,9 +2,11 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.microsoft.schemas.office.visio.x2012.main.impl.TextTypeImpl;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 
-@JsonPropertyOrder({"parameter","iri","type","set","variable","name"})
+@JsonPropertyOrder({"parameter","iri","variable","parameter","name"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Element extends IriLD implements Entailment{
 	private String variable;

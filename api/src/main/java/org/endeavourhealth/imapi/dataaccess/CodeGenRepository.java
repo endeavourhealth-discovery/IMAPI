@@ -63,8 +63,6 @@ public class CodeGenRepository {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
                     try (CachedObjectMapper om = new CachedObjectMapper()) {
-                        LOG.debug(bs.getValue("o").stringValue());
-                        LOG.debug(bs.getValue("p").stringValue());
                         switch (bs.getValue("p").stringValue()) {
                             case (CODE_TEMPLATE.DATATYPE_MAP) -> result.setDatatypeMap(bs.getValue("o").stringValue());
                             case (CODE_TEMPLATE.WRAPPER) -> result.setCollectionWrapper(bs.getValue("o").stringValue());

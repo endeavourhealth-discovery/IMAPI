@@ -40,13 +40,24 @@ public class SparqlConverter {
      * @return String of SPARQL
      **/
     public String getSelectSparql(Set<TTIriRef> statusFilter) throws QueryException {
+        return getSelectSparql(statusFilter,false);
+    }
+
+    public String getSelectSparql(Set<TTIriRef> statusFilter, boolean countOnly) throws QueryException {
 
         StringBuilder selectQl = new StringBuilder();
         addPrefixes(selectQl);
-
-        selectQl.append("SELECT ");
-        selectQl.append("distinct ");
-        addWhereSparql(selectQl, statusFilter, true);
+        if (countOnly){
+            mainEntity = "entity";
+            if (null != query.getMatch().get(0).getVariable())
+                mainEntity = query.getMatch().get(0).getVariable();
+            selectQl.append("SELECT (count (distinct ?"+ mainEntity+") as ?count)");
+        }
+        else {
+            selectQl.append("SELECT ");
+            selectQl.append("distinct ");
+        }
+        addWhereSparql(selectQl, statusFilter, true,countOnly);
 
         orderGroupLimit(selectQl, query);
         return selectQl.toString();
@@ -59,7 +70,7 @@ public class SparqlConverter {
         addPrefixes(askQl);
 
         askQl.append("ASK ");
-        addWhereSparql(askQl, statusFilter, false);
+        addWhereSparql(askQl, statusFilter, false,false);
 
         return askQl.toString();
 
@@ -74,7 +85,7 @@ public class SparqlConverter {
         }
     }
 
-    private void addWhereSparql(StringBuilder sparql, Set<TTIriRef> statusFilter, Boolean includeReturns) throws QueryException {
+    private void addWhereSparql(StringBuilder sparql, Set<TTIriRef> statusFilter, Boolean includeReturns, Boolean countOnly) throws QueryException {
         mainEntity = "entity";
         if (null != query.getMatch().get(0).getVariable())
             mainEntity = query.getMatch().get(0).getVariable();
@@ -91,10 +102,11 @@ public class SparqlConverter {
         for (Match match : query.getMatch()) {
             match(whereQl, mainEntity, match);
         }
-
-        if (includeReturns && null != query.getReturn()) {
-            for (Return aReturn : query.getReturn()) {
-                convertReturn(sparql, whereQl, aReturn);
+        if (!countOnly){
+            if (includeReturns && null != query.getReturn()) {
+                for (Return aReturn : query.getReturn()) {
+                    convertReturn(sparql, whereQl, aReturn);
+                }
             }
         }
         o++;
@@ -259,7 +271,8 @@ public class SparqlConverter {
         String object = "object" + o;
         if (match.getTypeOf() != null) {
             type(whereQl, match.getTypeOf(), subject);
-        } else {
+        }
+        else {
             if (match.getInstanceOf() != null) {
                 Node instance = match.getInstanceOf();
                 String inList = iriFromAlias(instance);
@@ -390,13 +403,26 @@ public class SparqlConverter {
                 whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
             }
             if (where.isDescendantsOrSelfOf()) {
-                whereQl.append("?").append(property).append(" im:isA ").append(iriFromString(where.getIri())).append(".\n");
-                whereQl.append("?").append(subject).append(" ").append(inverse).append("?").append(property).append(" ?").append(object).append(".\n");
+                if (inverse.equals("^")) {
+                    whereQl.append("?").append(property).append(" im:isA ").append(iriFromString(where.getIri())).append(".\n");
+                    whereQl.append("?").append(object).append(" ").append("?").append(property).append(" ?").append(subject).append(".\n");
+                }
+                else {
+                    whereQl.append("?").append(property).append(" im:isA ").append(iriFromString(where.getIri())).append(".\n");
+                    whereQl.append("?").append(subject).append(" ").append("?").append(property).append(" ?").append(object).append(".\n");
+                }
             } else {
                 if (propertyVariable != null) {
-                    whereQl.append("?").append(subject).append(" ").append(inverse).append("?").append(property).append(" ?").append(object).append(".\n");
-                    whereQl.append("filter (?").append(property).append(" = ").append(iriFromString(where.getIri())).append(")\n");
-                } else
+                    if (inverse.equals("^")) {
+                        whereQl.append("?").append(object).append(" ").append("?").append(property).append(" ?").append(subject).append(".\n");
+                        whereQl.append("filter (?").append(property).append(" = ").append(iriFromString(where.getIri())).append(")\n");
+                    }
+                    else {
+                        whereQl.append("?").append(subject).append(" ").append("?").append(property).append(" ?").append(object).append(".\n");
+                        whereQl.append("filter (?").append(property).append(" = ").append(iriFromString(where.getIri())).append(")\n");
+                    }
+                }
+                else
                     whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromString(where.getIri())).append(" ?").append(object).append(".\n");
             }
             if (where.getIsNull()) {

@@ -74,7 +74,7 @@ public class IMLToECL {
 				addClass(match.getInstanceOf(), ecl, includeNames);
 			else
 				ecl.append("*");
-			addRefinements(match, ecl, includeNames);
+			addRefinementsToMatch(match, ecl, includeNames);
 			ecl.append("\n");
 		}
 		else if (matchType==eclType.compound||matchType==eclType.compoundRefined){
@@ -101,7 +101,7 @@ public class IMLToECL {
 			}
 			if (matchType== eclType.compoundRefined) {
 				ecl.append(")");
-				addRefinements(match, ecl, includeNames);
+				addRefinementsToMatch(match, ecl, includeNames);
 			}
 			ecl.append("\n");
 		}
@@ -121,48 +121,34 @@ public class IMLToECL {
 
 
 
-	private static void addRefinements(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
+	private static void addRefinementsToMatch(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
 		ecl.append(": ");
-		for (Where where:match.getWhere()){
 		boolean first = true;
-		if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)){
-			ecl.append(" { ");
-			addRefinements(where.getMatch(),ecl,includeNames);
-			ecl.append("}");
-		}
-		else {
-			if (where.getBool() == null) {
-				where.setBool(Bool.and);
+		for (Where where:match.getWhere()){
+			if (!first){
+				ecl.append("\n AND ");
 			}
-			if (where.getIri() != null) {
-				addRefinedGroup(where, ecl, includeNames);
+			first= false;
+			if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)){
+				ecl.append(" { ");
+				addRefinementsToMatch(where.getMatch(),ecl,includeNames);
+				ecl.append("}");
 			}
 			else {
-				for (Where property : where.getWhere()) {
-					if (!first) {
-						ecl.append("\n");
-						if (where.getBool() == Bool.and) {
-							ecl.append(" , ");
-						}
-						else
-							ecl.append(" OR ");
-					}
-					first = false;
-					addRefinedGroup(property, ecl, includeNames);
-				}
+				addRefined(where,ecl,includeNames);
 			}
-		}
 		}
 	}
 
-	private static void addRefinements(Where property, StringBuilder ecl, boolean includeNames) throws QueryException {
-		boolean first = true;
+	private static void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames) throws QueryException {
 		if (null != property.getWhere().get(0).getIri() && property.getWhere().get(0).getIri().equals(IM.ROLE_GROUP)){
 			ecl.append(" { ");
-			addRefinements(property.getWhere().get(0).getMatch(),ecl,includeNames);
+				addRefinementsToMatch(property.getWhere().get(0).getMatch(),ecl,includeNames);
 			ecl.append("}");
 		}
 		else {
+			ecl.append("(");
+			boolean first = true;
 			for (Where subProperty : property.getWhere()) {
 				if (!first) {
 					ecl.append("\n");
@@ -173,42 +159,32 @@ public class IMLToECL {
 						ecl.append(" , ");
 				}
 				first = false;
-				if (subProperty.getWhere()!=null) {
-					ecl.append(" (");
+				addRefined(subProperty, ecl, includeNames);
 				}
-				addRefinedGroup(subProperty, ecl, includeNames);
-				if (subProperty.getWhere()!=null){
-					ecl.append(")");
-				}
-			}
-
-		}
-	}
-
-	private static void addRefinedGroup(Where property, StringBuilder ecl, Boolean includeName) throws QueryException {
-		if (null == property.getMatch()) {
-			addRefined(property, ecl, includeName);
-		}
-		else {
-			addProperty(property, ecl, includeName);
-			ecl.append(" = (");
-			match(property.getMatch(), ecl, includeName);
 			ecl.append(")");
-		}
+			}
 	}
+
 
 
 	private static void addRefined(Where where, StringBuilder ecl, Boolean includeName) throws QueryException {
 		try {
 			if (null == where.getWhere()) {
 				addProperty(where, ecl, includeName);
-				ecl.append(" = ");
-				if (null == where.getIs()) throw new QueryException("Where clause must contain 'is' value");
-				Node value = where.getIs().get(0);
-				addClass(value, ecl, includeName);
+				if (where.getMatch()!=null){
+					ecl.append(" = (");
+					match(where.getMatch(), ecl, includeName);
+					ecl.append(")");
+				}
+				else {
+					ecl.append(" = ");
+					if (null == where.getIs()) throw new QueryException("Where clause must contain 'is' value");
+					Node value = where.getIs().get(0);
+					addClass(value, ecl, includeName);
+				}
 			}
 			else {
-				addRefinements(where,ecl,includeName);
+				addRefinementsToWhere(where,ecl,includeName);
 			}
 		} catch (Exception e) {
 			throw new QueryException("Where clause inside a role group clause must contain a where");

@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 
 public class CodeGenService {
     private static final Logger LOG = LoggerFactory.getLogger(CodeGenService.class);
@@ -20,7 +19,7 @@ public class CodeGenService {
     public CodeGenDto getCodeTemplate(String name) throws JsonProcessingException {
         return codeGenRepository.getCodeTemplate(name);
     }
-    public void saveCodeTemplate(String name, String extension, String wrapper, String dataTypeMap, String template) throws JsonProcessingException {
-        codeGenRepository.saveCodeTemplate(name, extension, wrapper, dataTypeMap, template);
+    public void updateCodeTemplate(String name, String extension, String wrapper, String dataTypeMap, String template) {
+        codeGenRepository.updateCodeTemplate(name, extension, wrapper, dataTypeMap, template);
     }
 }

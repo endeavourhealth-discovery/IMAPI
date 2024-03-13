@@ -36,8 +36,8 @@ public class CodeGenController {
 
     @PostMapping(value = "/codeTemplate", produces = "application/json")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void saveCodeTemplate(HttpServletRequest request, @RequestBody CodeGenDto codeGenDto) throws JsonProcessingException {
-        LOG.debug("saveCodeTemplate");
-        codeGenService.saveCodeTemplate(codeGenDto.getName(), codeGenDto.getExtension(), codeGenDto.getCollectionWrapper(), codeGenDto.getDatatypeMap(), codeGenDto.getTemplate());
+    public void updateCodeTemplate(HttpServletRequest request, @RequestBody CodeGenDto codeGenDto) throws JsonProcessingException {
+        LOG.debug("updateCodeTemplate");
+        codeGenService.updateCodeTemplate(codeGenDto.getName(), codeGenDto.getExtension(), codeGenDto.getCollectionWrapper(), codeGenDto.getDatatypeMap(), codeGenDto.getTemplate());
     }
 }

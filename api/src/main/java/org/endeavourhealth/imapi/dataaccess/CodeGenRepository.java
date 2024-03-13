@@ -80,14 +80,13 @@ public class CodeGenRepository {
         return result;
     }
 
-    public void saveCodeTemplate(String name, String extension, String wrapper, String dataTypeMap, String template) {
+    public void updateCodeTemplate(String name, String extension, String wrapper, String dataTypeMap, String template) {
         StringJoiner deleteSparql = new StringJoiner(System.lineSeparator()).add("DELETE WHERE {").add("  ?s ?p ?o").add("}");
         try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
             Update qry = conn.prepareUpdate(deleteSparql.toString());
             qry.setBinding("s", iri(CODE_TEMPLATE.NAMESPACE + name));
             qry.execute();
         }
-        try (CachedObjectMapper om = new CachedObjectMapper()) {
             StringJoiner insertSparql = new StringJoiner(System.lineSeparator())
                     .add("INSERT {")
                     .add("  ?iri ?label ?name .")
@@ -115,6 +114,5 @@ public class CodeGenRepository {
                 qry2.setBinding("wrapper", literal(wrapper));
                 qry2.execute();
             }
-        }
     }
 }

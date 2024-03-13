@@ -623,7 +623,7 @@
       },
       {
         "name": "USAGE",
-        "value": "IM.NAMESPACE + \"Usage\""
+        "value": "IM.NAMESPACE + \"SortFieldUsage\""
       },
       {
         "name": "DESCENDING",

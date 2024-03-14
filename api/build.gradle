@@ -25,6 +25,7 @@ tasks {
         outputFileType = TypeScriptFileType.implementationFile
         optionalProperties = OptionalProperties.useLibraryDefinition
         classPatterns = [
+                'org.endeavourhealth.imapi.model.DataModelProperty',
                 'org.endeavourhealth.imapi.model.iml.*',
                 'org.endeavourhealth.imapi.model.search.*',
                 'org.endeavourhealth.imapi.model.imq.*',

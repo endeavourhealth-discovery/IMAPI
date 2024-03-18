@@ -956,6 +956,10 @@
       {
         "name": "ENTITY_IDENTIFIER",
         "value": "IM.NAMESPACE + \"entityIdentifier\""
+      },
+      {
+        "name": "CODE_TEMPLATE",
+        "value": "IM.NAMESPACE + \"codeTemplate\""
       }
     ]
   },
@@ -2091,6 +2095,35 @@
       {
         "name": "XMLS",
         "value": "\"http://www.w3.org/2001/XMLSchema#\""
+      }
+    ]
+  },
+  {
+    "name": "CODE_TEMPLATE",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://endhealth.info/\""
+      },
+      {
+        "name": "NAMESPACE",
+        "value": "CODE_TEMPLATE.DOMAIN + \"codeTemplate#\""
+      },
+      {
+        "name": "PREFIX",
+        "value": "\"cTemp\""
+      },
+      {
+        "name": "WRAPPER",
+        "value": "CODE_TEMPLATE.NAMESPACE + \"wrapper\""
+      },
+      {
+        "name": "DATATYPE_MAP",
+        "value": "CODE_TEMPLATE.NAMESPACE + \"datatypeMap\""
+      },
+      {
+        "name": "EXTENSION",
+        "value": "CODE_TEMPLATE.NAMESPACE + \"extension\""
       }
     ]
   }

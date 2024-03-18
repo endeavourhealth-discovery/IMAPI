@@ -216,4 +216,5 @@ public class IM {
     public static final String PROVENANCE_SOURCE_ENTITY = IM.NAMESPACE + "ProvenanceSourceEntity";
     public static final String DERIVATION_TYPE = IM.NAMESPACE + "derivationType";
     public static final String ENTITY_IDENTIFIER = IM.NAMESPACE + "entityIdentifier";
+    public static final String CODE_TEMPLATE = IM.NAMESPACE + "codeTemplate";
 }

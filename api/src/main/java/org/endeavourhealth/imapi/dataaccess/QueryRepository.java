@@ -63,13 +63,19 @@ public class QueryRepository {
 
     public JsonNode prepareQueryResponse(ObjectNode queryResults, QueryRequest queryRequest, Integer page, Integer count) throws QueryException, DataFormatException, JsonProcessingException {
         ObjectNode queryIMResponse = mapper.createObjectNode();
-        if (queryRequest.getPage()!=null) {
+        if (queryRequest.getPage() != null) {
             queryIMResponse.put("page", page);
             queryIMResponse.put("count", count);
             queryIMResponse.put("totalCount", queryIMCount(queryRequest));
             if (count == 0 || count > queryIMResponse.get("totalCount").asInt())
                 queryIMResponse.put("count", queryIMResponse.get("totalCount").asInt());
+        } else {
+            int entityCount =  queryResults.get("entities").size();
+            queryIMResponse.put("page", 1);
+            queryIMResponse.put("count", entityCount);
+            queryIMResponse.put("totalCount", entityCount);
         }
+
         if (queryRequest.getTextSearch() != null) queryIMResponse.put("term", queryRequest.getTextSearch());
         if (queryResults.has("entities")) queryIMResponse.set("entities", queryResults.get("entities"));
         return queryIMResponse;
@@ -82,7 +88,7 @@ public class QueryRepository {
             checkReferenceDate();
             new QueryValidator().validateQuery(queryRequest.getQuery());
             SparqlConverter converter = new SparqlConverter(queryRequest);
-            String spq = converter.getSelectSparql(null,true);
+            String spq = converter.getSelectSparql(null, true);
             return graphTotalSearch(spq, conn);
         }
 
@@ -198,8 +204,8 @@ public class QueryRepository {
     private Integer graphTotalSearch(String spq, RepositoryConnection conn) {
         try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
             while (rs.hasNext()) {
-              BindingSet bs=rs.next();
-              return Integer.parseInt(bs.getValue("count").stringValue());
+                BindingSet bs = rs.next();
+                return Integer.parseInt(bs.getValue("count").stringValue());
             }
         }
         return 0;

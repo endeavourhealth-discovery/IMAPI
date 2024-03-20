@@ -63,11 +63,19 @@ public class QueryRepository {
 
     public JsonNode prepareQueryResponse(ObjectNode queryResults, QueryRequest queryRequest, Integer page, Integer count) throws QueryException, DataFormatException, JsonProcessingException {
         ObjectNode queryIMResponse = mapper.createObjectNode();
-        queryIMResponse.put("page", page);
-        queryIMResponse.put("count", count);
-        queryIMResponse.put("totalCount", queryIMCount(queryRequest));
-        if (count == 0 || count > queryIMResponse.get("totalCount").asInt())
-            queryIMResponse.put("count", queryIMResponse.get("totalCount").asInt());
+        if (queryRequest.getPage() != null) {
+            queryIMResponse.put("page", page);
+            queryIMResponse.put("count", count);
+            queryIMResponse.put("totalCount", queryIMCount(queryRequest));
+            if (count == 0 || count > queryIMResponse.get("totalCount").asInt())
+                queryIMResponse.put("count", queryIMResponse.get("totalCount").asInt());
+        } else {
+            int entityCount =  queryResults.get("entities").size();
+            queryIMResponse.put("page", 1);
+            queryIMResponse.put("count", entityCount);
+            queryIMResponse.put("totalCount", entityCount);
+        }
+
         if (queryRequest.getTextSearch() != null) queryIMResponse.put("term", queryRequest.getTextSearch());
         if (queryResults.has("entities")) queryIMResponse.set("entities", queryResults.get("entities"));
         return queryIMResponse;

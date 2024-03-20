@@ -59,7 +59,7 @@ public class SparqlConverter {
         }
         addWhereSparql(selectQl, statusFilter, true,countOnly);
 
-        orderGroupLimit(selectQl, query);
+        orderGroupLimit(selectQl, query, countOnly);
         return selectQl.toString();
 
     }
@@ -651,8 +651,8 @@ public class SparqlConverter {
     }
 
 
-    private void orderGroupLimit(StringBuilder selectQl, Query clause) throws QueryException {
-        if (null != queryRequest.getTextSearch()) {
+    private void orderGroupLimit(StringBuilder selectQl, Query clause, boolean countOnly) throws QueryException {
+        if (null != queryRequest.getTextSearch() && !countOnly) {
             selectQl.append("ORDER BY DESC(").append("strstarts(lcase(?").append(labelVariable)
                     .append("),\"").append(escape(queryRequest.getTextSearch()).split(" ")[0])
                     .append("\")) ASC(strlen(?").append(labelVariable).append("))\n");
@@ -665,7 +665,7 @@ public class SparqlConverter {
                 }
             }
         }
-        if (null != clause.getOrderBy()) {
+        if (null != clause.getOrderBy() && !countOnly) {
             if (null != clause.getOrderBy().getProperty()) {
                 selectQl.append("Order by ");
                 OrderDirection order = clause.getOrderBy().getProperty();

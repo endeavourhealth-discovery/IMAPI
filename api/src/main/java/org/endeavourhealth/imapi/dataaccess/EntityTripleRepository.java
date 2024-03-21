@@ -15,6 +15,7 @@ import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -37,6 +38,8 @@ public class EntityTripleRepository {
     private static final String RETRIEVING = "Retrieving...";
 
     private final EntityRepository2 entityRepository2 = new EntityRepository2();
+    private final EntityRepository entityRepository = new EntityRepository();
+
     private final Map<String, Integer> bnodes = new HashMap<>();
     private int row = 0;
 
@@ -105,6 +108,61 @@ public class EntityTripleRepository {
                 }
             }
         }
+    }
+
+    public List<EntityReferenceNode> getEntityReferenceNodes(Set<String> stringIris, List<String> schemeIris, boolean inactive) {
+        List<EntityReferenceNode> nodes = new ArrayList<>();
+        StringJoiner iriLine = new StringJoiner(" ");
+        for (String stringIri : stringIris) {
+            iri(stringIri);
+            iriLine.add("<" + stringIri + ">");
+        }
+        Map<String, Set<TTIriRef>> iriToTypesMap = entityRepository.getTypesByIris(stringIris);
+
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add("SELECT ?s ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren")
+                .add("WHERE {")
+                .add("  GRAPH ?g { ?s rdfs:label ?name } .")
+                .add("  VALUES ?s { " + iriLine + " }")
+                .add("  OPTIONAL { ?s sh:order ?order . }")
+                .add("    BIND(EXISTS{?child (" + PARENT_PREDICATES + ") ?s} AS ?hasChildren)")
+                .add("    BIND(EXISTS{?grandChild (" + PARENT_PREDICATES + ") ?child. ?child (" + PARENT_PREDICATES + ") ?s} AS ?hasGrandchildren)");
+
+        if (schemeIris != null && !schemeIris.isEmpty()) {
+            sql.add(valueList("g", schemeIris));
+        }
+
+        if (!inactive) {
+            sql.add("  OPTIONAL { ?s im:status ?status FILTER (?status != im:Inactive) }");
+        }
+
+        sql.add("}");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = prepareSparql(conn, sql.toString());
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    String iri = bs.getValue("s").stringValue();
+                    EntityReferenceNode result = new EntityReferenceNode(iri).setType(new TTArray());
+                    Set<TTIriRef> types = iriToTypesMap.get(iri);
+                    for(TTIriRef type: types) {
+                        result.getType().add(type);
+                    }
+                    if (bs.hasBinding("order"))
+                        result.setOrderNumber(((Literal) bs.getValue("order")).intValue());
+                    else
+                        result.setOrderNumber(Integer.MAX_VALUE);
+
+                    result.setHasChildren(((Literal) bs.getValue("hasChildren")).booleanValue())
+                            .setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue())
+                            .setName(bs.getValue("name").stringValue());
+                    nodes.add(result);
+                }
+            }
+        }
+
+        return nodes;
     }
 
     public EntityReferenceNode getEntityReferenceNode(String iri, List<String> schemeIris, boolean inactive) {

@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.*;
@@ -1207,11 +1208,11 @@ public class EntityService {
     private Pageable<EntityReferenceNode> iriRefPageableToEntityReferenceNodePageable(Pageable<TTIriRef> iriRefPageable, List<String> schemeIris, boolean inactive) {
         Pageable<EntityReferenceNode> result = new Pageable<>();
         result.setTotalCount(iriRefPageable.getTotalCount());
-        List<EntityReferenceNode> nodes = new ArrayList<>();
-        for (TTIriRef p : iriRefPageable.getResult()) {
-            nodes.add(getEntityAsEntityReferenceNode(p.getIri(), schemeIris, inactive));
+        Set<String> iris = new HashSet<>();
+        for (TTIriRef entity : iriRefPageable.getResult()) {
+            iris.add(entity.getIri());
         }
-
+        List<EntityReferenceNode> nodes = entityTripleRepository.getEntityReferenceNodes(iris, schemeIris, inactive);
         nodes.sort(comparingInt(EntityReferenceNode::getOrderNumber).thenComparing(EntityReferenceNode::getName));
 
         result.setResult(nodes);

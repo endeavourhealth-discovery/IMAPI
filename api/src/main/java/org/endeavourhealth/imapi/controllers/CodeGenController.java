@@ -22,19 +22,19 @@ public class CodeGenController {
     private static final Logger LOG = LoggerFactory.getLogger(CodeGenController.class);
     private final CodeGenService codeGenService = new CodeGenService();
 
-    @GetMapping(value = "/codeTemplates", produces = "application/json")
+    @GetMapping(value = "/public/codeTemplates", produces = "application/json")
     public List<String> getCodeTemplateList(HttpServletRequest request) throws JsonProcessingException {
         LOG.debug("getCodeTemplateList");
         return codeGenService.getCodeTemplateList();
     }
 
-    @GetMapping(value = "/codeTemplate", produces = "application/json")
+    @GetMapping(value = "/public/codeTemplate", produces = "application/json")
     public CodeGenDto getCodeTemplate(HttpServletRequest request, @RequestParam("templateName") String templateName) throws JsonProcessingException {
         LOG.debug("getCodeTemplate");
         return codeGenService.getCodeTemplate(templateName);
     }
 
-    @PostMapping(value = "/codeTemplate", produces = "application/json")
+    @PostMapping(value = "/public/codeTemplate", produces = "application/json")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void updateCodeTemplate(HttpServletRequest request, @RequestBody CodeGenDto codeGenDto) throws JsonProcessingException {
         LOG.debug("updateCodeTemplate");

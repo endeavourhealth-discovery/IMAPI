@@ -520,9 +520,9 @@ public class EntityService {
         List<SearchTermCode> termsSummary = new ArrayList<>();
         for (TTValue term : terms.getElements()) {
             if (null != term.asNode().get(iri(IM.CODE)) && null == termsSummary.stream().filter(t -> term.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue().equals(t.getCode())).findAny().orElse(null)) {
-                SearchTermCode newTerm = new SearchTermCode()
-                        .setCode(term.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue())
-                        .setTerm(term.asNode().get(iri(RDFS.LABEL)).get(0).asLiteral().getValue());
+                SearchTermCode newTerm = new SearchTermCode();
+                if (term.asNode().has(iri(IM.CODE))) newTerm.setCode(term.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue());
+                if (term.asNode().has(iri(RDFS.LABEL))) newTerm.setTerm(term.asNode().get(iri(RDFS.LABEL)).get(0).asLiteral().getValue());
                 if (term.asNode().has(iri(IM.HAS_STATUS)))
                     newTerm.setStatus(term.asNode().get(iri(IM.HAS_STATUS)).get(0).asIriRef());
                 termsSummary.add(

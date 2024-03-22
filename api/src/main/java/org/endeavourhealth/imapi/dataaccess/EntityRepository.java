@@ -148,7 +148,7 @@ public class EntityRepository {
         SearchResultSummary result = new SearchResultSummary();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add("SELECT ?sname ?scode ?sstatus ?sstatusname ?sdescription ?g ?gname WHERE {")
+                .add("SELECT ?sname ?scode ?sstatus ?sstatusname ?sdescription ?g ?gname ?sscheme ?sschemename WHERE {")
                 .add("  GRAPH ?g {")
                 .add("    ?s rdfs:label ?sname .")
                 .add("  }")

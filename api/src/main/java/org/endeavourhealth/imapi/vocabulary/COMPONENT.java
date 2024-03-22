@@ -28,4 +28,6 @@ public class COMPONENT {
     public static final String TEXT_DROPDOWN = COMPONENT.NAMESPACE + "textDropdown";
     public static final String ENTITY_DISPLAY = COMPONENT.NAMESPACE + "entityDisplay";
     public static final String IRI_BUILDER = COMPONENT.NAMESPACE + "iriBuilder";
+    public static final String AUTOCOMPLETE_SEARCH_BAR_WRAPPER = COMPONENT.NAMESPACE + "autocompleteSearchBarWrapper";
+    public static final String SUBSET_BUILDER = COMPONENT.NAMESPACE + "subsetBuilder";
 }

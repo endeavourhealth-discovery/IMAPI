@@ -1803,6 +1803,14 @@
       {
         "name": "IRI_BUILDER",
         "value": "COMPONENT.NAMESPACE + \"iriBuilder\""
+      },
+      {
+        "name": "AUTOCOMPLETE_SEARCH_BAR_WRAPPER",
+        "value": "COMPONENT.NAMESPACE + \"autocompleteSearchBarWrapper\""
+      },
+      {
+        "name": "SUBSET_BUILDER",
+        "value": "COMPONENT.NAMESPACE + \"subsetBuilder\""
       }
     ]
   },

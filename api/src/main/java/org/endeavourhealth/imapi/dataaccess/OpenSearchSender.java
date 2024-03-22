@@ -209,11 +209,20 @@ public class OpenSearchSender {
                         blob.setAlternativeCode(alternativeCode);
                     }
 
-                    TTIriRef scheme = TTIriRef.iri(rs.getValue("scheme").stringValue());
 
-                    if (rs.getValue("schemeName") != null)
-                        scheme.setName(rs.getValue("schemeName").stringValue());
-                    blob.setScheme(scheme);
+                    if (rs.hasBinding("scheme")) {
+                        TTIriRef scheme = TTIriRef.iri(rs.getValue("scheme").stringValue());
+
+                        if (rs.getValue("schemeName") != null)
+                            scheme.setName(rs.getValue("schemeName").stringValue());
+                        blob.setScheme(scheme);
+                    } else {
+                        TTIriRef scheme = TTIriRef.iri(rs.getValue("graph").stringValue());
+
+                        if (rs.getValue("graphName") != null)
+                            scheme.setName(rs.getValue("graphName").stringValue());
+                        blob.setScheme(scheme);
+                    }
 
                     if (rs.getValue("status") != null) {
                         TTIriRef status = TTIriRef.iri(rs.getValue("status").stringValue());
@@ -274,12 +283,13 @@ public class OpenSearchSender {
             .add("PREFIX im: <http://endhealth.info/im#>")
             .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
             .add("select ?iri ?name ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?weighting")
-            .add("?extraType ?extraTypeName ?preferredName ?alternativeCode")
+            .add("?extraType ?extraTypeName ?preferredName ?alternativeCode ?graph ?graphName")
             .add("where {")
-            .add("  graph ?scheme {")
+            .add("  graph ?graph {")
             .add("    ?iri rdfs:label ?name.")
             .add("    filter (?iri in (" + inList + ") )")
             .add("  }")
+            .add("  Optional { ?graph rdfs:label ?graphName }")
             .add("  Optional { ?iri rdf:type ?type. Optional {?type rdfs:label ?typeName} }")
             .add("  Optional {?iri im:isA ?extraType.")
             .add("            ?extraType rdfs:label ?extraTypeName.")
@@ -287,7 +297,8 @@ public class OpenSearchSender {
             .add("  Optional {?iri im:preferredName ?preferredName.}")
             .add("  Optional {?iri im:status ?status.")
             .add("  Optional {?status rdfs:label ?statusName} }")
-            .add("  Optional {?scheme rdfs:label ?schemeName }")
+            .add("  Optional {?iri im:scheme ?scheme.")
+            .add("  Optional {?scheme rdfs:label ?schemeName } }")
             .add("  Optional {?iri im:code ?code.}")
             .add("  Optional {?iri im:weighting ?weighting.}")
           .add("  Optional {?iri im:alternativeCode ?alternativeCode.}")

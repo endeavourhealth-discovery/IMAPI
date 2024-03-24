@@ -78,8 +78,10 @@ public class TTEntity extends TTNode implements Serializable {
 
     @JsonSetter
     public TTEntity setScheme(TTIriRef scheme) {
-        set(iri(IM.HAS_SCHEME), scheme);
-        return this;
+        if (this.getIri().contains(scheme.getIri())) {
+            set(iri(IM.HAS_SCHEME), scheme);
+            return this;
+        } else throw new IllegalArgumentException("Iri # prefix and scheme must match. Iri: " + this.getIri() + ", Scheme: " + scheme.getIri());
     }
 
     public TTIriRef getScheme() {

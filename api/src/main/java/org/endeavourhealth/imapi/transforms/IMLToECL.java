@@ -141,9 +141,9 @@ public class IMLToECL {
 	}
 
 	private static void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames) throws QueryException {
-		if (null != property.getWhere().get(0).getIri() && property.getWhere().get(0).getIri().equals(IM.ROLE_GROUP)){
+		if (null!=property.getIri() &&property.getIri().equals(IM.ROLE_GROUP)){
 			ecl.append(" { ");
-				addRefinementsToMatch(property.getWhere().get(0).getMatch(),ecl,includeNames);
+			addRefinementsToMatch(property.getMatch(),ecl,includeNames);
 			ecl.append("}");
 		}
 		else {

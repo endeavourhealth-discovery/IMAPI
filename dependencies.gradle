@@ -35,7 +35,6 @@ ext {
     ]
     libs = [
             imGrammar           : "org.endeavourhealth.informationManager:Grammar:1.0-SNAPSHOT",
-
             antlr               : "org.antlr:antlr4-runtime:$versions.antlr",
             apacheCollections4  : "org.apache.commons:commons-collections4:$versions.apacheCollections4",
             apachePoi           : "org.apache.poi:poi-ooxml:$versions.apachePoi",

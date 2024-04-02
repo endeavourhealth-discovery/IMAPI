@@ -117,6 +117,17 @@ public class EntityRepository2 {
         }
     }
 
+    public Map<String,String> getNameMap(Set<TTIriRef> iris) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            Map<String,String> nameMap= new HashMap<>();
+            getNames(iris);
+            for (TTIriRef iri:iris){
+                nameMap.put(iri.getIri(),iri.getName());
+            }
+            return nameMap;
+        }
+    }
+
     /**
      * creates ranges for properties without ranges where the super properties have them
      */

@@ -11,7 +11,7 @@ import java.util.function.Consumer;
         , "operator", "isNull", "value", "unit", "in", "isNot", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends PropertyRef implements Assignable {
+public class Where extends PropertyRef implements Assignable{
     private String description;
     private Range range;
     private List<Node> is;
@@ -27,6 +27,7 @@ public class Where extends PropertyRef implements Assignable {
     private boolean isNull;
     private PropertyRef relativeTo;
     private boolean isNotNull;
+
 
     public boolean getIsNotNull() {
         return isNotNull;

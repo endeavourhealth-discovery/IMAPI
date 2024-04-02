@@ -4,13 +4,13 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
-
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.DataFormatException;
 
-public class IMLToECL {
-	private IMLToECL() {
-		throw new IllegalStateException("Utility class");
-	}
+public class IMQToECL {
+
+	private Map<String,String> names= new HashMap<>();
 
 	private enum eclType {
 		exclusion,
@@ -26,13 +26,13 @@ public class IMLToECL {
 	 * @return String of ECL
 	 * @throws DataFormatException invalid or unsupported ECL syntax
 	 */
-	public static String getECLFromQuery(Query query, Boolean includeName) throws QueryException {
+	public String getECLFromQuery(Query query, Boolean includeName) throws QueryException {
 		StringBuilder ecl = new StringBuilder();
 		match(query, ecl, includeName);
 		return ecl.toString().trim();
 	}
 
-	private static eclType getEclType(Match match){
+	private eclType getEclType(Match match){
 		if (match.getMatch()!=null){
 			if (match.getMatch().size()>0) {
 				if (match.getWhere()!=null)
@@ -53,16 +53,16 @@ public class IMLToECL {
 		else return null;
 	}
 
-	public static String getECLFromQuery(Query query) throws QueryException {
+	public String getECLFromQuery(Query query) throws QueryException {
 		return getECLFromQuery(query,false);
 	}
 
-	private static boolean isList(Match match){
+	private boolean isList(Match match){
 		return null != match.getMatch();
 	}
 
 
-	private static void match(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
+	private void match(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
 		eclType matchType= getEclType(match);
 		if (matchType==null)
 			return;
@@ -121,7 +121,7 @@ public class IMLToECL {
 
 
 
-	private static void addRefinementsToMatch(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
+	private void addRefinementsToMatch(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
 		ecl.append(": ");
 		boolean first = true;
 		for (Where where:match.getWhere()){
@@ -140,14 +140,13 @@ public class IMLToECL {
 		}
 	}
 
-	private static void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames) throws QueryException {
+	private void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames) throws QueryException {
 		if (null!=property.getIri() &&property.getIri().equals(IM.ROLE_GROUP)){
 			ecl.append(" { ");
 			addRefinementsToMatch(property.getMatch(),ecl,includeNames);
 			ecl.append("}");
 		}
 		else {
-			ecl.append("(");
 			boolean first = true;
 			for (Where subProperty : property.getWhere()) {
 				if (!first) {
@@ -161,30 +160,38 @@ public class IMLToECL {
 				first = false;
 				addRefined(subProperty, ecl, includeNames);
 				}
-			ecl.append(")");
 			}
 	}
 
 
 
-	private static void addRefined(Where where, StringBuilder ecl, Boolean includeName) throws QueryException {
+	private void addRefined(Where where, StringBuilder ecl, Boolean includeNames) throws QueryException {
 		try {
-			if (null == where.getWhere()) {
-				addProperty(where, ecl, includeName);
-				if (where.getMatch()!=null){
-					ecl.append(" = (");
-					match(where.getMatch(), ecl, includeName);
-					ecl.append(")");
-				}
-				else {
-					ecl.append(" = ");
-					if (null == where.getIs()) throw new QueryException("Where clause must contain 'is' value");
-					Node value = where.getIs().get(0);
-					addClass(value, ecl, includeName);
-				}
+			if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)){
+				ecl.append(" { ");
+				addRefinementsToMatch(where.getMatch(),ecl,includeNames);
+				ecl.append("}");
 			}
 			else {
-				addRefinementsToWhere(where,ecl,includeName);
+				if (null == where.getWhere()) {
+					addProperty(where, ecl, includeNames);
+					if (where.getMatch() != null) {
+						ecl.append(" = (");
+						match(where.getMatch(), ecl, includeNames);
+						ecl.append(")");
+					}
+					else {
+						ecl.append(" = ");
+						if (null == where.getIs()) throw new QueryException("Where clause must contain 'is' value");
+						Node value = where.getIs().get(0);
+						addClass(value, ecl, includeNames);
+					}
+				}
+				else {
+					ecl.append("(");
+					addRefinementsToWhere(where, ecl, includeNames);
+					ecl.append(")");
+				}
 			}
 		} catch (Exception e) {
 			throw new QueryException("Where clause inside a role group clause must contain a where");
@@ -192,32 +199,38 @@ public class IMLToECL {
 	}
 
 
-	private static void addProperty(PropertyRef exp, StringBuilder ecl, boolean includeName) {
+	private void addProperty(PropertyRef exp, StringBuilder ecl, boolean includeName) {
 		addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName());
 	}
 
-	private static void addConcept(StringBuilder ecl, boolean includeName, String subsumption2, String id, String name2) {
+	private void addConcept(StringBuilder ecl, boolean includeName, String subsumption2, String id, String name2) {
 		String subsumption = subsumption2;
 		String iri = checkMember(id);
+		if (name2!=null){
+			names.put(id,name2);
+		}
 		String pipe = " | ";
 		if (includeName && null!= name2) {
 			ecl.append(subsumption).append(iri).append(pipe).append(name2).append(pipe);
 		}
 		else if (includeName){
-			EntityRepository entityRepository = new EntityRepository();
-			String name = entityRepository.getEntityReferenceByIri(id).getName();
-			ecl.append(subsumption).append(iri).append(pipe).append(name).append(pipe);
+			if (names.get(id)==null) {
+				EntityRepository entityRepository = new EntityRepository();
+				String name = entityRepository.getEntityReferenceByIri(id).getName();
+				names.put(id,name);
+			}
+			ecl.append(subsumption).append(iri).append(pipe).append(names.get(id)).append(pipe);
 		}
 		else
 			ecl.append(subsumption).append(iri).append(" ");
 	}
 
-	private static void addClass(Node exp, StringBuilder ecl, boolean includeName) {
+	private void addClass(Node exp, StringBuilder ecl, boolean includeName) {
 			addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName());
 	}
 
 
-	private static String getSubsumption(Entailment exp) {
+	private String getSubsumption(Entailment exp) {
         if (exp == null)
             return "";
 
@@ -230,7 +243,7 @@ public class IMLToECL {
 	}
 
 
-	private static String checkMember(String iri) {
+	private String checkMember(String iri) {
 		if (iri.contains("/sct#") || (iri.contains("/im#")))
 			return iri.split("#")[1];
 		else
@@ -245,7 +258,7 @@ public class IMLToECL {
 	 * @return ECL String
 	 */
 
-	public static String getMembersAsECL(TTArray members) {
+	public String getMembersAsECL(TTArray members) {
 		StringBuilder ecl = new StringBuilder();
 		boolean first = true;
 		String or = " OR ";

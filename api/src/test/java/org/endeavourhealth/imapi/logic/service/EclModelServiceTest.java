@@ -29,40 +29,5 @@ public class EclModelServiceTest {
         assertNotNull(actual);
     }
 
-    private Query getQuery() throws JsonProcessingException {
-        String query=
-          "\n" +
-            "\t{\n" +
-            "\t\t \"match\": [\n" +
-            "\t\t\t{\n" +
-            "\t\t\t\t \"instanceOf\": {\n" +
-            "\t\t\t\t\t \"descendantsOrSelfOf\": true,\n" +
-            "\t\t\t\t\t \"@id\": \"http://snomed.info/sct#763158003\"\n" +
-            "\t\t\t\t},\n" +
-            "\t\t\t\t \"property\": [\n" +
-            "\t\t\t\t\t{\n" +
-            "\t\t\t\t\t\t \"@id\": \"http://snomed.info/sct#127489000\",\n" +
-            "\t\t\t\t\t\t \"descendantsOrSelfOf\": true,\n" +
-            "\t\t\t\t\t\t \"is\": [\n" +
-            "\t\t\t\t\t\t\t{\n" +
-            "\t\t\t\t\t\t\t\t \"descendantsOrSelfOf\": true,\n" +
-            "\t\t\t\t\t\t\t\t \"@id\": \"http://snomed.info/sct#1119343008\"\n" +
-            "\t\t\t\t\t\t\t}\n" +
-            "\t\t\t\t\t\t],\n" +
-            "\t\t\t\t\t\t \"anyRoleGroup\": true\n" +
-            "\t\t\t\t\t}\n" +
-            "\t\t\t\t]\n" +
-            "\t\t\t},\n" +
-            "\t\t\t{\n" +
-            "\t\t\t\t \"instanceOf\": {\n" +
-            "\t\t\t\t\t \"descendantsOrSelfOf\": true,\n" +
-            "\t\t\t\t\t \"@id\": \"http://snomed.info/sct#39330711000001103\"\n" +
-            "\t\t\t\t}\n" +
-            "\t\t\t}\n" +
-            "\t\t],\n" +
-            "\t\t \"bool\": \"or\"\n" +
-            "\t}\n" +
-            "]";
-        return new ObjectMapper().readValue(query,Query.class);
-    }
+
 }

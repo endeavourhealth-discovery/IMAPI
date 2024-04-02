@@ -1,0 +1,120 @@
+{
+  "@context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
+  },
+  "entities" : [ {
+    "@id" : "http://snomed.info/sct#127489000",
+    "http://endhealth.info/im#code" : "127489000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has active ingredient (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#766939001",
+    "http://endhealth.info/im#code" : "766939001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Plays role (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#411116001",
+    "http://endhealth.info/im#code" : "411116001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has manufactured dose form (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#733722007",
+    "http://endhealth.info/im#code" : "733722007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has concentration strength denominator unit (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#732943007",
+    "http://endhealth.info/im#code" : "732943007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has basis of strength substance (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#733725009",
+    "http://endhealth.info/im#code" : "733725009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has concentration strength numerator unit (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#762949000",
+    "http://endhealth.info/im#code" : "762949000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has precise active ingredient (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#763032000",
+    "http://endhealth.info/im#code" : "763032000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has unit of presentation (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#732947008",
+    "http://endhealth.info/im#code" : "732947008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has presentation strength denominator unit (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#732945000",
+    "http://endhealth.info/im#code" : "732945000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has presentation strength numerator unit (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#1142135004",
+    "http://endhealth.info/im#code" : "1142135004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has presentation strength numerator value (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#1142136003",
+    "http://endhealth.info/im#code" : "1142136003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has presentation strength denominator value (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#1142137007",
+    "http://endhealth.info/im#code" : "1142137007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has concentration strength denominator value (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#1142138002",
+    "http://endhealth.info/im#code" : "1142138002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has concentration strength numerator value (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#1142139005",
+    "http://endhealth.info/im#code" : "1142139005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Count of base of active ingredient (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#1142140007",
+    "http://endhealth.info/im#code" : "1142140007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Count of active ingredient (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#1142141006",
+    "http://endhealth.info/im#code" : "1142141006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Count of base and modification pair (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#774158006",
+    "http://endhealth.info/im#code" : "774158006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has product name (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#774159003",
+    "http://endhealth.info/im#code" : "774159003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has supplier (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#774160008",
+    "http://endhealth.info/im#code" : "774160008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Contains clinical drug (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#774163005",
+    "http://endhealth.info/im#code" : "774163005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has pack size unit (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#860779006",
+    "http://endhealth.info/im#code" : "860779006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has ingredient characteristic (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#860781008",
+    "http://endhealth.info/im#code" : "860781008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has product characteristic (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#1149367008",
+    "http://endhealth.info/im#code" : "1149367008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has target population (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#1149366004",
+    "http://endhealth.info/im#code" : "1149366004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has ingredient qualitative strength (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#1148793005",
+    "http://endhealth.info/im#code" : "1148793005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Unit of presentation size quantity (attribute)"
+  }, {
+    "@id" : "http://snomed.info/sct#320091000221107",
+    "http://endhealth.info/im#code" : "320091000221107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Unit of presentation size unit (attribute)"
+  } ]
+}

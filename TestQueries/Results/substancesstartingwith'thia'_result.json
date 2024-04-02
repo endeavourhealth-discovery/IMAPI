@@ -1,0 +1,148 @@
+{
+  "@context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
+  },
+  "entities" : [ {
+    "@id" : "http://snomed.info/sct#259659006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamine (substance)",
+    "http://endhealth.info/im#code" : "259659006"
+  }, {
+    "@id" : "http://snomed.info/sct#860766002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiazide (substance)",
+    "http://endhealth.info/im#code" : "860766002"
+  }, {
+    "@id" : "http://snomed.info/sct#421149006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiazine (substance)",
+    "http://endhealth.info/im#code" : "421149006"
+  }, {
+    "@id" : "http://snomed.info/sct#428162000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiazole (substance)",
+    "http://endhealth.info/im#code" : "428162000"
+  }, {
+    "@id" : "http://snomed.info/sct#764663005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamylal (substance)",
+    "http://endhealth.info/im#code" : "764663005"
+  }, {
+    "@id" : "http://snomed.info/sct#37656002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamazole (substance)",
+    "http://endhealth.info/im#code" : "37656002"
+  }, {
+    "@id" : "http://snomed.info/sct#53609006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiaminase (substance)",
+    "http://endhealth.info/im#code" : "53609006"
+  }, {
+    "@id" : "http://snomed.info/sct#116362000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiazin dye (substance)",
+    "http://endhealth.info/im#code" : "116362000"
+  }, {
+    "@id" : "http://snomed.info/sct#725643005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiacetazone (substance)",
+    "http://endhealth.info/im#code" : "725643005"
+  }, {
+    "@id" : "http://snomed.info/sct#428467004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamethoxam (substance)",
+    "http://endhealth.info/im#code" : "428467004"
+  }, {
+    "@id" : "http://snomed.info/sct#96197004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thialbarbital (substance)",
+    "http://endhealth.info/im#code" : "96197004"
+  }, {
+    "@id" : "http://snomed.info/sct#363552000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamphenicol (substance)",
+    "http://endhealth.info/im#code" : "363552000"
+  }, {
+    "@id" : "http://snomed.info/sct#29157006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiazolsulfone (substance)",
+    "http://endhealth.info/im#code" : "29157006"
+  }, {
+    "@id" : "http://snomed.info/sct#15254004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamine kinase (substance)",
+    "http://endhealth.info/im#code" : "15254004"
+  }, {
+    "@id" : "http://snomed.info/sct#62301006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamine oxidase (substance)",
+    "http://endhealth.info/im#code" : "62301006"
+  }, {
+    "@id" : "http://snomed.info/sct#40342009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamylal sodium (substance)",
+    "http://endhealth.info/im#code" : "40342009"
+  }, {
+    "@id" : "http://snomed.info/sct#372747003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiazide diuretic (substance)",
+    "http://endhealth.info/im#code" : "372747003"
+  }, {
+    "@id" : "http://snomed.info/sct#372568004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiazolidinedione (substance)",
+    "http://endhealth.info/im#code" : "372568004"
+  }, {
+    "@id" : "http://snomed.info/sct#438491000124106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamin supplement (substance)",
+    "http://endhealth.info/im#code" : "438491000124106"
+  }, {
+    "@id" : "http://snomed.info/sct#259660001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamine phosphate (substance)",
+    "http://endhealth.info/im#code" : "259660001"
+  }, {
+    "@id" : "http://snomed.info/sct#126229007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamine mononitrate (substance)",
+    "http://endhealth.info/im#code" : "126229007"
+  }, {
+    "@id" : "http://snomed.info/sct#67803007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamine pyridinylase (substance)",
+    "http://endhealth.info/im#code" : "67803007"
+  }, {
+    "@id" : "http://snomed.info/sct#43909000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamine triphosphate (substance)",
+    "http://endhealth.info/im#code" : "43909000"
+  }, {
+    "@id" : "http://snomed.info/sct#126228004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamine hydrochloride (substance)",
+    "http://endhealth.info/im#code" : "126228004"
+  }, {
+    "@id" : "http://snomed.info/sct#259661002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamine pyrophosphate (substance)",
+    "http://endhealth.info/im#code" : "259661002"
+  }, {
+    "@id" : "http://snomed.info/sct#36636007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamine-triphosphatase (substance)",
+    "http://endhealth.info/im#code" : "36636007"
+  }, {
+    "@id" : "http://snomed.info/sct#64026007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamin-phosphate kinase (substance)",
+    "http://endhealth.info/im#code" : "64026007"
+  }, {
+    "@id" : "http://snomed.info/sct#58847001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamin-diphosphate kinase (substance)",
+    "http://endhealth.info/im#code" : "58847001"
+  }, {
+    "@id" : "http://snomed.info/sct#58138007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamine pyrophosphokinase (substance)",
+    "http://endhealth.info/im#code" : "58138007"
+  }, {
+    "@id" : "http://snomed.info/sct#69459001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamin-phosphate pyrophosphorylase (substance)",
+    "http://endhealth.info/im#code" : "69459001"
+  }, {
+    "@id" : "http://snomed.info/sct#734975009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamphenicol aminoacetate hydrochloride (substance)",
+    "http://endhealth.info/im#code" : "734975009"
+  }, {
+    "@id" : "http://snomed.info/sct#4196411000001105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiamine phosphoric acid ester chloride dihydrate (substance)",
+    "http://endhealth.info/im#code" : "4196411000001105"
+  }, {
+    "@id" : "http://snomed.info/sct#706929003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Free thiamine (substance)",
+    "http://endhealth.info/im#code" : "706929003"
+  }, {
+    "@id" : "http://snomed.info/sct#781636002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "2-sulfanylidene-1,3-thiazolidine-4-carboxylic acid (substance)",
+    "http://endhealth.info/im#code" : "781636002"
+  } ]
+}

@@ -1,0 +1,48 @@
+{
+  "@context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
+  },
+  "entities" : [ {
+    "@id" : "http://endhealth.info/bc#PF4",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Original term : null(Barts Cerner)",
+    "http://endhealth.info/im#code" : "PF4",
+    "http://endhealth.info/im#Concept" : [ {
+      "@bn" : "genid-954d39b39b5145f09b6f31a0058e5ccc26-b5529601",
+      "http://endhealth.info/im#sourceValue" : "316081942",
+      "http://endhealth.info/im#sourceRegex" : "^Negative$"
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/bc#PF4",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Original term : null(Barts Cerner)",
+    "http://endhealth.info/im#code" : "PF4",
+    "http://endhealth.info/im#Concept" : [ {
+      "@bn" : "genid-954d39b39b5145f09b6f31a0058e5ccc26-b5529602",
+      "http://endhealth.info/im#sourceValue" : "316081942",
+      "http://endhealth.info/im#sourceRegex" : "^Positive$"
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/bc#PF4",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Original term : null(Barts Cerner)",
+    "http://endhealth.info/im#code" : "PF4",
+    "http://endhealth.info/im#Concept" : [ {
+      "@bn" : "genid-954d39b39b5145f09b6f31a0058e5ccc26-b5529603",
+      "http://endhealth.info/im#sourceValue" : "316081992",
+      "http://endhealth.info/im#sourceRegex" : "^Positive(.*)"
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/bc#PF4",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Original term : null(Barts Cerner)",
+    "http://endhealth.info/im#code" : "PF4",
+    "http://endhealth.info/im#Concept" : [ {
+      "@bn" : "genid-954d39b39b5145f09b6f31a0058e5ccc26-b5529604",
+      "http://endhealth.info/im#sourceValue" : "316081992",
+      "http://endhealth.info/im#sourceRegex" : "^Negative(.*)"
+    } ]
+  } ]
+}

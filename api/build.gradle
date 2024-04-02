@@ -3,11 +3,50 @@
  */
 plugins {
     id 'war'
+    id "cz.habarta.typescript-generator" version "3.2.1263"
+    id "org.endeavourhealth.plugins.StaticConstGenerator" version "1.2-SNAPSHOT"
 }
 
-sonarqube {
+group = 'org.endeavourhealth.imapi'
+version = '1.0-SNAPSHOT'
+
+import cz.habarta.typescript.generator.EnumMapping
+import cz.habarta.typescript.generator.JsonLibrary
+import cz.habarta.typescript.generator.OptionalProperties
+import cz.habarta.typescript.generator.TypeScriptFileType
+
+if (env != 'prod') {
+    compileJava.dependsOn 'staticConstGenerator'
+}
+
+tasks {
+    generateTypeScript {
+        jsonLibrary = JsonLibrary.jackson2
+        outputFileType = TypeScriptFileType.implementationFile
+        optionalProperties = OptionalProperties.useLibraryDefinition
+        classPatterns = [
+                'org.endeavourhealth.imapi.model.DataModelProperty',
+                'org.endeavourhealth.imapi.model.iml.*',
+                'org.endeavourhealth.imapi.model.search.*',
+                'org.endeavourhealth.imapi.model.imq.*',
+                'org.endeavourhealth.imapi.vocabulary.*',
+                'org.endeavourhealth.imapi.vocabulary.**.*'
+        ]
+        outputFile = '../../IMDirectory/im_library/src/interfaces/AutoGen.ts'
+        outputKind = 'module'
+        mapEnum = EnumMapping.asEnum
+    }
+    staticConstGenerator {
+        inputJson = "vocab.json"
+        javaOutputFolder = "src/main/java/org/endeavourhealth/imapi/vocabulary/"
+        typeScriptOutputFolder = "../../IMDirectory/im_library/src/vocabulary/"
+    }
+}
+
+sonar {
     properties {
         property 'sonar.projectKey', 'endeavourhealth-discovery_IMAPI::api'
+        property 'sonar.exclusions', '**/config/**, **/controllers/**, **/dataaccess/**, **/errorhandling/**, **/model/**, **/parser/**, **/vocabulary/**'
     }
 }
 
@@ -16,29 +55,90 @@ war {
 }
 
 dependencies {
-    api project(':logic')
-
-    implementation libs.springWeb
-    implementation libs.springfoxSwagger
-    implementation libs.springfoxSwaggerUi
-    implementation libs.validation
+    implementation libs.antlr
+    implementation libs.apacheCollections4
+    implementation libs.apachePoi
+    implementation libs.apacheText
+    implementation libs.awsS3
+    implementation libs.factPlusPlus
+    implementation libs.jacksonDatabind
+    implementation libs.logbackCore
+    implementation libs.logbackClassic
+    implementation libs.elasticsearch
+    implementation libs.jerseyClient
+    implementation libs.jerseyInject
+    implementation libs.owlApi
+    implementation libs.openLlet
+    implementation libs.reactorCore
+    implementation libs.rdf4jCommon
+    implementation libs.rdf4jQuery
+    implementation libs.rdf4jIterator
+    implementation libs.rdf4jRepoApi
+    implementation libs.rdf4jRepoHttp
+    implementation libs.rdf4jRepoSail
+    implementation libs.rdf4jSailNative
+    implementation libs.slf4j
+    implementation libs.springContext
     implementation libs.springDataJpa
     implementation libs.springOauthServer
     implementation libs.springSecurity
-    implementation libs.testContainers
-    implementation libs.testContainersMySql
-    implementation libs.imGrammar
-    implementation libs.apachePoi
+    implementation libs.springWeb
+    implementation libs.springdoc
+    implementation libs.validation
+    implementation libs.woodstox
+    implementation libs.wsrs
 
-    testImplementation libs.springTest
+    runtimeOnly libs.h2database
+    runtimeOnly libs.springDevTools
+
+    testImplementation libs.cucumber
+    testImplementation libs.cucumberJunit
+    testImplementation libs.junitRunner
+    testImplementation libs.junitVintage
     testImplementation libs.mockito
+    testImplementation libs.springTest
     testImplementation libs.springTestSecurity
 
     providedCompile libs.springTomcat
-    providedCompile libs.mysql
 
+    compileOnly libs.jacksonAnnotations
     compileOnly libs.lombok
-    annotationProcessor  libs.lombok
+
+    annotationProcessor libs.jacksonAnnotations
+    annotationProcessor libs.lombok
+}
+
+publishing {
+    repositories {
+        maven {
+            url = uri('https://maven.discoverydataservice.net/artifactory/libs-snapshot')
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+task cucumberCli() {
+    dependsOn assemble, testClasses
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = [
+                    '--plugin', 'pretty',
+                    '--plugin', 'html:build/reports/cucumber/cucumber-report.html',
+                    '--glue', 'org.endeavourhealth.imapi',
+                    'src/test/resources']
+        }
+    }
 }
 
 description = 'Information Model API'

@@ -4,7 +4,7 @@ run-as: root
 phases:
   install:
     runtime-versions:
-      java: corretto11
+      java: corretto17
   pre_build:
     commands:
       - IP=$(curl http://checkip.amazonaws.com)/32
@@ -13,7 +13,7 @@ phases:
     commands:
       - echo Build started on `date`
       - chmod +x aws_scripts/build.sh
-      - aws_scripts/build.sh war
+      - aws_scripts/build.sh
   post_build:
     commands:
       - IP=$(curl http://checkip.amazonaws.com)/32
@@ -24,3 +24,5 @@ artifacts:
     - appspec.yml
     - aws_scripts/cleanup
     - api/build/libs/imapi.war
+
+

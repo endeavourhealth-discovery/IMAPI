@@ -1,0 +1,42 @@
+{
+  "@context" : {
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "im" : "http://endhealth.info/im#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "entities" : {
+      "@id" : "http://envhealth.info/im#entities",
+      "@container" : "@set"
+    }
+  },
+  "@graph" : {
+    "@id" : "im:"
+  },
+  "entities" : [ {
+    "@id" : "urn:uuid:1",
+    "rdf:type" : [ {
+      "@id" : "im:Patient"
+    } ],
+    "im:forenames" : "Lindsey",
+    "im:familyName" : "Albergaria",
+    "im:administrativeGender" : [ {
+      "rdf:type" : [ {
+        "@id" : "im:CodeableConcept"
+      } ],
+      "im:originalCode" : "F",
+      "im:originalScheme" : "\"http://hl7.org/fhir/administrative-gender\""
+    } ],
+    "im:nhsNumber" : "3127565459",
+    "im:callingName" : "Lindsey",
+    "im:homeAddress" : [ {
+      "rdf:type" : [ {
+        "@id" : "im:Address"
+      } ],
+      "im:addressLine" : [ "29", "", "GREENWAY", "STOCKPORT" ],
+      "im:postCode" : "SK6 4HH"
+    } ],
+    "im:dateOfBirth" : "2011-09-07",
+    "im:provider" : "Organization/328"
+  } ]
+}

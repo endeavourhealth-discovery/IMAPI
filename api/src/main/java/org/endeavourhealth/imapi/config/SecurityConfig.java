@@ -2,15 +2,16 @@ package org.endeavourhealth.imapi.config;
 
 import org.endeavourhealth.imapi.errorhandling.RestAccessDeniedHandler;
 import org.endeavourhealth.imapi.errorhandling.RestAuthenticationEntryPoint;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 
@@ -20,32 +21,40 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Configuration  
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Override
-    protected void configure(final HttpSecurity http) throws Exception {
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
+public class SecurityConfig {
+    @Bean
+    protected SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
         http
-            .csrf().disable()
-            .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
-                .anyRequest().authenticated();
-        http.exceptionHandling().accessDeniedHandler(accessDeniedHandler());
-        http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint());
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(grantedAuthoritiesExtractor());
+            .csrf(c -> c.disable())
+            .authorizeHttpRequests(req -> req
+                .requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/v3/**").permitAll()
+                .anyRequest().authenticated()
+            )
+            .exceptionHandling(ex -> ex
+                .accessDeniedHandler(accessDeniedHandler())
+                .authenticationEntryPoint(authenticationEntryPoint())
+            )
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .oauth2ResourceServer(oa2 -> oa2.jwt(jwt -> jwt.jwtAuthenticationConverter(grantedAuthoritiesExtractor())));
+        return http.build();
     }
 
-    @Override
-    public void configure(final WebSecurity web) {
-        web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
     }
 
     private HttpFirewall allowUrlEncodedSlashHttpFirewall() {
         StrictHttpFirewall firewall = new StrictHttpFirewall();
         firewall.setAllowUrlEncodedSlash(true);
         firewall.setAllowUrlEncodedDoubleSlash(true);
-        firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST"));
+        firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST", "DELETE"));
         return firewall;
     }
 

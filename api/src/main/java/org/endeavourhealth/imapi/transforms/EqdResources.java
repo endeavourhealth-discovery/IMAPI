@@ -121,16 +121,34 @@ public class EqdResources {
         if (eqCriterion.getLinkedCriterion() != null) {
             isLinked= true;
             Match match= convertLinkedCriterion(eqCriterion);
+            nestWheres(match);
             return match;
         } else {
             isLinked=false;
             Match match= convertStandardCriterion(eqCriterion);
+            nestWheres(match);
             return match;
         }
 
     }
-
-
+    private void nestWheres(Match match){
+        if (match.getWhere()!=null){
+            if (match.getWhere().size()>1){
+                List<Where> wheres= match.getWhere();
+                Where newWhere= new Where();
+                newWhere.setBool(Bool.and);
+                newWhere.setWhere(wheres);
+                match.setWhere(List.of(newWhere));
+            }
+        }
+        if (match.getMatch()!=null){
+            for (Match subMatch:match.getMatch())
+                nestWheres(subMatch);
+        }
+        if (match.getThen()!=null){
+            nestWheres(match.getThen());
+        }
+    }
 
     private Match convertStandardCriterion(EQDOCCriterion eqCriterion) throws DataFormatException, IOException, QueryException {
         if (eqCriterion.getFilterAttribute().getRestriction() != null) {
@@ -206,6 +224,7 @@ public class EqdResources {
         for (EQDOCColumnValue cv : cvs) {
             convertPaths(matches,pathMatchMap,eqTable,cv);
         }
+
         if (matches.size()==1){
             return matches.get(0);
         }

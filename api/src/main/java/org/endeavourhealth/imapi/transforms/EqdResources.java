@@ -328,17 +328,15 @@ public class EqdResources {
 
 
     private Match convertLinkedCriterion(EQDOCCriterion eqCriterion) throws DataFormatException, IOException, QueryException {
-        Match topMatch= new Match();
-        Match targetMatch = new Match();convertStandardCriterion(eqCriterion);
-        topMatch.addMatch(targetMatch);
+        Match topMatch= convertStandardCriterion(eqCriterion);
         counter++;
         String variable = "match_" + counter;
-        targetMatch.setVariable(variable);
+        topMatch.setVariable(variable);
 
         EQDOCLinkedCriterion eqLinked = eqCriterion.getLinkedCriterion();
         EQDOCCriterion eqLinkedCriterion = eqLinked.getCriterion();
         Match linkMatch= convertCriterion(eqLinkedCriterion);
-        topMatch.addMatch(linkMatch);
+        topMatch.setThen(linkMatch);
         Where relationProperty = new Where();
         linkMatch.addWhere(relationProperty);
         EQDOCRelationship eqRel = eqLinked.getRelationship();

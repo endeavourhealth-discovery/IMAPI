@@ -187,6 +187,38 @@ public class SetRepository {
         return result;
     }
 
+    public Set<TTIriRef> getSubsetIrisWithNames(String iri) {
+        Set<TTIriRef> result = new HashSet<>();
+
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add(IM_PREFIX)
+                .add("SELECT ?subset ?name WHERE {")
+                .add("?subset ?issubset ?set .")
+                .add("?subset ?label ?name .")
+                .add("}");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+            qry.setBinding("set", Values.iri(iri));
+            qry.setBinding("issubset", Values.iri(IM.IS_SUBSET_OF));
+            qry.setBinding("label", Values.iri(RDFS.LABEL));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    String subsetIri = bs.getValue("subset").stringValue();
+                    String subsetName = bs.getValue("name").stringValue();
+                    try {
+                        TTIriRef subset = new TTIriRef(subsetIri,subsetName);
+                        result.add(subset);
+                    } catch (IllegalArgumentException ignored) {
+                        LOG.warn("Invalid subset iri [{}] for set [{}]", subsetIri, iri);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
 
     private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes) {
         Set<Concept> result = new HashSet<>();

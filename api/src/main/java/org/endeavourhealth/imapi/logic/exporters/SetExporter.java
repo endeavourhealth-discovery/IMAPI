@@ -78,6 +78,11 @@ public class SetExporter {
         return setIris;
     }
 
+    public Set<TTIriRef> getSubsetIrisWithNames(String iri) {
+        Set<TTIriRef> subsets = setRepository.getSubsetIrisWithNames(iri);
+        return new HashSet<TTIriRef>(subsets);
+    }
+
     public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy, boolean includeSubset, List<String> schemes) throws JsonProcessingException, QueryException {
         Set<String> setIris = getSetsRecursive(setIri);
 

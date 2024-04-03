@@ -1236,5 +1236,10 @@ public class EntityService {
         Set<Concept> members = setExporter.getExpandedSetMembers(iri, includeLegacy, includeSubset, schemes);
         return members;
     }
+
+    public Set<TTIriRef> getSubsets(String iri) {
+        SetExporter setExporter = new SetExporter();
+        return setExporter.getSubsetIrisWithNames(iri);
+    }
 }
 

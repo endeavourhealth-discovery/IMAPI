@@ -489,6 +489,13 @@ public class EntityController {
         return entityService.getFullyExpandedMembers(iri, legacy, includeSubsets, schemes);
     }
 
+    @GetMapping("/public/subsets")
+    public Set<TTIriRef> getSubsets(
+            @RequestParam(name = "iri") String iri) {
+        LOG.debug("getSubsets");
+        return entityService.getSubsets(iri);
+    }
+
     @GetMapping("/public/folderPath")
     public List<TTIriRef> getFolderPath(@RequestParam(name = "iri") String iri) {
         LOG.debug("getFolderPath");

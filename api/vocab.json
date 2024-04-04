@@ -1993,12 +1993,12 @@
     "name": "GRAPH",
     "entries": [
       {
-        "name" : "BNF",
-        "value" : "\"http://endhealth.info/bnf#\""
-      },
-      {
         "name": "DISCOVERY",
         "value": "\"http://endhealth.info/im#\""
+      },
+      {
+        "name": "BNF",
+        "value": "\"http://endhealth.info/bnf#\""
       },
       {
         "name": "ICD10",

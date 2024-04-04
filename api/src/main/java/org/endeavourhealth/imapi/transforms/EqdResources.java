@@ -121,12 +121,12 @@ public class EqdResources {
         if (eqCriterion.getLinkedCriterion() != null) {
             isLinked= true;
             Match match= convertLinkedCriterion(eqCriterion);
-            nestWheres(match);
+            //nestWheres(match);
             return match;
         } else {
             isLinked=false;
             Match match= convertStandardCriterion(eqCriterion);
-            nestWheres(match);
+            //nestWheres(match);
             return match;
         }
 

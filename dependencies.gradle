@@ -4,7 +4,7 @@ ext {
             apacheCollections4  : '4.4',
             apachePoi           : '5.2.5',
             apacheText          : '1.11.0',
-            aws                 : '1.12.605',
+            aws                 : '1.12.694',
             cucumber            : '7.14.1',
             elasticSearch       : '8.11.1',
             factPlusPlus        : '1.6.5',

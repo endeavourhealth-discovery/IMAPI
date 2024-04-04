@@ -1084,6 +1084,26 @@ public class EntityService {
         return entity;
     }
 
+    public void updateSubsetsFromSuper(String agentName, TTEntity entity) throws TTFilerException, JsonProcessingException {
+        TTArray subsets = entity.get(iri(IM.NAMESPACE + "subsetsEdit"));
+        String entityIri = entity.getIri();
+        List<TTIriRef> subsetsArray = subsets.stream().map(TTValue::asIriRef).toList();
+        for (TTIriRef subset : subsetsArray) {
+            TTEntity subsetEntity = getFullEntity(subset.getIri()).getEntity();
+            if (null != subsetEntity) {
+                if (!(subsetEntity.isType(iri(IM.VALUESET)) || subsetEntity.isType(iri(IM.CONCEPT_SET)))) throw new TTFilerException("Subsets must be of type valueSet or conceptSet. Type: " + subsetEntity.getType());
+                TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
+                if (null == isSubsetOf) {
+                    subsetEntity.set(iri(IM.IS_SUBSET_OF),new TTArray().add(iri(entityIri)));
+                    updateEntity(subsetEntity,agentName);
+                } else if (isSubsetOf.getElements().stream().noneMatch(i -> Objects.equals(i.asIriRef().getIri(), entityIri))) {
+                    isSubsetOf.add(iri(entityIri));
+                    updateEntity(subsetEntity,agentName);
+                }
+            }
+        }
+    }
+
     public TTEntity addConceptToTask(String entityIri, String taskIri, String agentName) throws Exception {
         TTEntity entity = getBundleByPredicateExclusions(entityIri, null).getEntity();
         if (entity.get(iri(IM.IN_TASK)) == null) {

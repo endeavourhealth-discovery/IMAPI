@@ -1935,12 +1935,16 @@
         "value": "QUERY.NAMESPACE + \"DataModelPropertyByShape\""
       },
       {
-        "name": "SEARCH_SUBCLASS",
+        "name": "SEARCH_ALLOWABLE_SUBCLASS",
         "value": "QUERY.NAMESPACE + \"SearchAllowableSubclass\""
       },
       {
         "name": "GET_VALUES_FROM_PROPERTY_RANGE",
         "value": "QUERY.NAMESPACE + \"GetValuesFromPropertyRange\""
+      },
+      {
+        "name": "GET_SUBSETS",
+        "value": "QUERY.NAMESPACE + \"GetSubsets\""
       }
     ]
   },

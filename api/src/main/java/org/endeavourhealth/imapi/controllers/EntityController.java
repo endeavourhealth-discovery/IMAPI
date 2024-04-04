@@ -734,4 +734,12 @@ public class EntityController {
         LOG.debug("isAncestor");
         return entityService.isAncestor(objectIri, subjectIri);
     }
+
+    @PostMapping(value="/updateSubsetsFromSuper")
+    @PreAuthorize("hasAuthority('edit') or hasAuthority('create')")
+    public void updateSubsetsFromSuper(@RequestBody TTEntity entity,HttpServletRequest request) throws JsonProcessingException, TTFilerException {
+        LOG.debug("updateSubsetsFromSuper");
+        String agentName = reqObjService.getRequestAgentName(request);
+        entityService.updateSubsetsFromSuper(agentName,entity);
+    }
 }

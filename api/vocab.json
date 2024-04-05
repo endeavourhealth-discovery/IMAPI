@@ -960,6 +960,10 @@
       {
         "name": "CODE_TEMPLATE",
         "value": "IM.NAMESPACE + \"codeTemplate\""
+      },
+      {
+        "name": "DATAMODEL_CLASSES",
+        "value": "IM.NAMESPACE + \"DataModelClasses\""
       }
     ]
   },

@@ -217,4 +217,5 @@ public class IM {
     public static final String DERIVATION_TYPE = IM.NAMESPACE + "derivationType";
     public static final String ENTITY_IDENTIFIER = IM.NAMESPACE + "entityIdentifier";
     public static final String CODE_TEMPLATE = IM.NAMESPACE + "codeTemplate";
+    public static final String DATAMODEL_CLASSES = IM.NAMESPACE + "DataModelClasses";
 }

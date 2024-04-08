@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 
@@ -12,9 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"@context","iri","name","description","activeOnly","bool","match","return","construct","query","groupBy","orderBy"})
+@JsonPropertyOrder({"prefix","iri","name","description","activeOnly","bool","match","return","construct","query","groupBy","orderBy"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends Match{
+	private Prefixes prefixes;
 	private String description;
 	private boolean activeOnly;
 	private List<Query> query;
@@ -25,9 +27,38 @@ public class Query extends Match{
 	private String iri;
 	private String name;
 
+	public Prefixes getPrefixes() {
+		return prefixes;
+	}
+
+	public Query setPrefixes(Prefixes prefixes) {
+		this.prefixes = prefixes;
+		return this;
+	}
+
+	public Query addPrefix(String prefix, String namespace){
+		Prefix newPrefix= new Prefix().setPrefix(prefix).setNamespace(namespace);
+		if (this.prefixes==null){
+			this.prefixes= new Prefixes();
+		}
+		prefixes.add(newPrefix);
+		return this;
+	}
+
 	@Override
 	public Query setBool(Bool bool) {
 		super.setBool(bool);
+		return this;
+	}
+
+
+	public Query setBoolMatch(Bool boolMatch) {
+		super.setBoolMatch(boolMatch);
+		return this;
+	}
+
+	public Query setBoolWhere(Bool boolWhere) {
+		super.setBoolWhere(boolWhere);
 		return this;
 	}
 

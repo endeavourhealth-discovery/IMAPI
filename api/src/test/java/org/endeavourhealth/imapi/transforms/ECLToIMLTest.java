@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.transforms;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.junit.jupiter.api.Test;
 
 
@@ -13,8 +14,8 @@ import static org.junit.Assert.assertEquals;
 class ECLToIMLTest {
 
 
- //@Test
-	public void ECLToIMLTest() throws DataFormatException, JsonProcessingException {
+// @Test
+	public void ECLToIMLTest() throws DataFormatException, JsonProcessingException, QueryException {
 		String ecl1="(<< 10363801000001108 \n" +
 			" OR << 10363901000001102 ): (<< 127489000  = << 116601002 | Prednisolone (substance) | \n" +
 			" OR << 127489000 | Has active ingredient (attribute) |  = << 396458002 | Hydrocortisone (substance) | \n" +
@@ -53,6 +54,17 @@ class ECLToIMLTest {
 		Query imq3= new ECLToIMQ().getQueryFromECL(ecl3);
 		String query3= new ObjectMapper().writeValueAsString(imq3);
 		assertEquals("{\"instanceOf\":{\"@id\":\"http://snomed.info/sct#736479009\",\"name\":\"Dose form intended site (intended site)\",\"descendantsOf\":true}}",query3);
+		String ecl4="prefix im: http://endhealth.info/im#\n" +
+			"^im:BNF_020201 | Thiazides and related diuretics (BNF based value sets) | OR\n" +
+			"^im:BNF_0204\n" +
+			"OR\n" +
+			"^im:BNF_0205051\n" +
+			"OR\n" +
+			"^im:BNF_0205052";
+		Query imq4= new ECLToIMQ().getQueryFromECL(ecl4);
+		String query4= new ObjectMapper().writeValueAsString(imq3);
+		String ecl4Test= new IMQToECL().getECLFromQuery(imq4,true);
+		System.out.println(ecl4Test);
 
 	}
 }

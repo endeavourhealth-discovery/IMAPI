@@ -52,6 +52,11 @@ public class Node extends Element{
 		return this;
 	}
 
+	public Node setMemberOf(boolean memberOf){
+		super.setMemberOf(memberOf);
+		return this;
+	}
+
 
 	@JsonSetter
 	public Node setIri(String iri) {

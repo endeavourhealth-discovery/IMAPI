@@ -2,23 +2,21 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.parser.ecl.ECLBaseVisitor;
-import org.endeavourhealth.imapi.parser.ecl.ECLLexer;
-import org.endeavourhealth.imapi.parser.ecl.ECLParser;
+import org.endeavourhealth.imapi.parser.imecl.IMECLBaseVisitor;
+import org.endeavourhealth.imapi.parser.imecl.IMECLLexer;
+import org.endeavourhealth.imapi.parser.imecl.IMECLParser;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
-import java.util.UnknownFormatConversionException;
 import java.util.zip.DataFormatException;
 
 /**
  * Converts ECL to Discovery syntax, supporting commonly used constructs
  */
-public class ECLToIMQ extends ECLBaseVisitor<TTValue> {
-	private final ECLLexer lexer;
-	private final ECLParser parser;
+public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
+	private final IMECLLexer lexer;
+	private final IMECLParser parser;
 	private String ecl;
 	private Query query;
 	public static final String ROLE_GROUP = IM.ROLE_GROUP;
@@ -26,8 +24,8 @@ public class ECLToIMQ extends ECLBaseVisitor<TTValue> {
 
 
 	public ECLToIMQ() {
-		this.lexer = new ECLLexer(null);
-		this.parser = new ECLParser(null);
+		this.lexer = new IMECLLexer(null);
+		this.parser = new IMECLParser(null);
 		this.parser.removeErrorListeners();
 		this.parser.addErrorListener(new ParserErrorListener());
 		this.query= new Query();
@@ -56,7 +54,7 @@ public class ECLToIMQ extends ECLBaseVisitor<TTValue> {
 		lexer.setInputStream(CharStreams.fromString(ecl));
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		parser.setTokenStream(tokens);
-		ECLParser.EclContext eclCtx = parser.ecl();
+		IMECLParser.ImeclContext eclCtx = parser.imecl();
 
 		Query query= new ECLToIMQVisitor().getIMQ(eclCtx,true);
 		return query;

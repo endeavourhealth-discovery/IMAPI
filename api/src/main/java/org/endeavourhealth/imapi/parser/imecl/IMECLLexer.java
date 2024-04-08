@@ -1,5 +1,5 @@
-// Generated from C:/Users/david/CloudStation/EhealthTrust/DiscoveryDataService/IMAPI/api/src/main/grammars/ECL.g4 by ANTLR 4.13.1
-package org.endeavourhealth.imapi.parser.ecl;
+// Generated from C:/Users/david/CloudStation/EhealthTrust/DiscoveryDataService/IMAPI/api/src/main/grammars/IMECL.g4 by ANTLR 4.13.1
+package org.endeavourhealth.imapi.parser.imecl;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
@@ -10,7 +10,7 @@ import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue", "this-escape"})
-public class ECLLexer extends Lexer {
+public class IMECLLexer extends Lexer {
 	static { RuntimeMetaData.checkVersion("4.13.1", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
@@ -125,13 +125,13 @@ public class ECLLexer extends Lexer {
 	}
 
 
-	public ECLLexer(CharStream input) {
+	public IMECLLexer(CharStream input) {
 		super(input);
 		_interp = new LexerATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
 
 	@Override
-	public String getGrammarFileName() { return "ECL.g4"; }
+	public String getGrammarFileName() { return "IMECL.g4"; }
 
 	@Override
 	public String[] getRuleNames() { return ruleNames; }

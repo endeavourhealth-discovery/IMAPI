@@ -1,9 +1,9 @@
-// Generated from C:/Users/david/CloudStation/EhealthTrust/DiscoveryDataService/IMAPI/api/src/main/grammars/ECL.g4 by ANTLR 4.13.1
-package org.endeavourhealth.imapi.parser.ecl;
+// Generated from C:/Users/david/CloudStation/EhealthTrust/DiscoveryDataService/IMAPI/api/src/main/grammars/IMECL.g4 by ANTLR 4.13.1
+package org.endeavourhealth.imapi.parser.imecl;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
- * This class provides an empty implementation of {@link ECLVisitor},
+ * This class provides an empty implementation of {@link IMECLVisitor},
  * which can be extended to create a visitor which only needs to handle a subset
  * of the available methods.
  *
@@ -11,1146 +11,1237 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
  * operations with no return type.
  */
 @SuppressWarnings("CheckReturnValue")
-public class ECLBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements ECLVisitor<T> {
+public class IMECLBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements IMECLVisitor<T> {
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEcl(ECLParser.EclContext ctx) { return visitChildren(ctx); }
+	@Override public T visitImecl(IMECLParser.ImeclContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitExpressionconstraint(ECLParser.ExpressionconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitPrefixes(IMECLParser.PrefixesContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitRefinedexpressionconstraint(ECLParser.RefinedexpressionconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitPrefixDecl(IMECLParser.PrefixDeclContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitCompoundexpressionconstraint(ECLParser.CompoundexpressionconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitPname(IMECLParser.PnameContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitConjunctionexpressionconstraint(ECLParser.ConjunctionexpressionconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitIri(IMECLParser.IriContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDisjunctionexpressionconstraint(ECLParser.DisjunctionexpressionconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitConceptid(IMECLParser.ConceptidContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitExclusionexpressionconstraint(ECLParser.ExclusionexpressionconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitEclrefinement(IMECLParser.EclrefinementContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDottedexpressionconstraint(ECLParser.DottedexpressionconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitConjunctionrefinementset(IMECLParser.ConjunctionrefinementsetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDottedexpressionattribute(ECLParser.DottedexpressionattributeContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDisjunctionrefinementset(IMECLParser.DisjunctionrefinementsetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSubexpressionconstraint(ECLParser.SubexpressionconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitEclattributeset(IMECLParser.EclattributesetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEclfocusconcept(ECLParser.EclfocusconceptContext ctx) { return visitChildren(ctx); }
+	@Override public T visitConjunctionattributeset(IMECLParser.ConjunctionattributesetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDot(ECLParser.DotContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDisjunctionattributeset(IMECLParser.DisjunctionattributesetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMemberof(ECLParser.MemberofContext ctx) { return visitChildren(ctx); }
+	@Override public T visitExpressionconstraint(IMECLParser.ExpressionconstraintContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitRefsetfieldset(ECLParser.RefsetfieldsetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitRefinedexpressionconstraint(IMECLParser.RefinedexpressionconstraintContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitRefsetfield(ECLParser.RefsetfieldContext ctx) { return visitChildren(ctx); }
+	@Override public T visitCompoundexpressionconstraint(IMECLParser.CompoundexpressionconstraintContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitRefsetfieldname(ECLParser.RefsetfieldnameContext ctx) { return visitChildren(ctx); }
+	@Override public T visitConjunctionexpressionconstraint(IMECLParser.ConjunctionexpressionconstraintContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitRefsetfieldref(ECLParser.RefsetfieldrefContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDisjunctionexpressionconstraint(IMECLParser.DisjunctionexpressionconstraintContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEclconceptreference(ECLParser.EclconceptreferenceContext ctx) { return visitChildren(ctx); }
+	@Override public T visitExclusionexpressionconstraint(IMECLParser.ExclusionexpressionconstraintContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEclconceptreferenceset(ECLParser.EclconceptreferencesetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDottedexpressionconstraint(IMECLParser.DottedexpressionconstraintContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitConceptid(ECLParser.ConceptidContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDottedexpressionattribute(IMECLParser.DottedexpressionattributeContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTerm(ECLParser.TermContext ctx) { return visitChildren(ctx); }
+	@Override public T visitSubexpressionconstraint(IMECLParser.SubexpressionconstraintContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitWildcard(ECLParser.WildcardContext ctx) { return visitChildren(ctx); }
+	@Override public T visitEclfocusconcept(IMECLParser.EclfocusconceptContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitConstraintoperator(ECLParser.ConstraintoperatorContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDot(IMECLParser.DotContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDescendantof(ECLParser.DescendantofContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMemberof(IMECLParser.MemberofContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDescendantorselfof(ECLParser.DescendantorselfofContext ctx) { return visitChildren(ctx); }
+	@Override public T visitRefsetfieldnameset(IMECLParser.RefsetfieldnamesetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitChildof(ECLParser.ChildofContext ctx) { return visitChildren(ctx); }
+	@Override public T visitRefsetfieldname(IMECLParser.RefsetfieldnameContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitChildorselfof(ECLParser.ChildorselfofContext ctx) { return visitChildren(ctx); }
+	@Override public T visitEclconceptreference(IMECLParser.EclconceptreferenceContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAncestorof(ECLParser.AncestorofContext ctx) { return visitChildren(ctx); }
+	@Override public T visitEclconceptreferenceset(IMECLParser.EclconceptreferencesetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAncestororselfof(ECLParser.AncestororselfofContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTerm(IMECLParser.TermContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitParentof(ECLParser.ParentofContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAltidentifier(IMECLParser.AltidentifierContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitParentorselfof(ECLParser.ParentorselfofContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAltidentifierschemealias(IMECLParser.AltidentifierschemealiasContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitConjunction(ECLParser.ConjunctionContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAltidentifiercodewithinquotes(IMECLParser.AltidentifiercodewithinquotesContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDisjunction(ECLParser.DisjunctionContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAltidentifiercodewithoutquotes(IMECLParser.AltidentifiercodewithoutquotesContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitExclusion(ECLParser.ExclusionContext ctx) { return visitChildren(ctx); }
+	@Override public T visitWildcard(IMECLParser.WildcardContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEclrefinement(ECLParser.EclrefinementContext ctx) { return visitChildren(ctx); }
+	@Override public T visitConstraintoperator(IMECLParser.ConstraintoperatorContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitConjunctionrefinementset(ECLParser.ConjunctionrefinementsetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDescendantof(IMECLParser.DescendantofContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDisjunctionrefinementset(ECLParser.DisjunctionrefinementsetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDescendantorselfof(IMECLParser.DescendantorselfofContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSubrefinement(ECLParser.SubrefinementContext ctx) { return visitChildren(ctx); }
+	@Override public T visitChildof(IMECLParser.ChildofContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEclattributeset(ECLParser.EclattributesetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitChildorselfof(IMECLParser.ChildorselfofContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitConjunctionattributeset(ECLParser.ConjunctionattributesetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAncestorof(IMECLParser.AncestorofContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDisjunctionattributeset(ECLParser.DisjunctionattributesetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAncestororselfof(IMECLParser.AncestororselfofContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSubattributeset(ECLParser.SubattributesetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitParentof(IMECLParser.ParentofContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEclattributegroup(ECLParser.EclattributegroupContext ctx) { return visitChildren(ctx); }
+	@Override public T visitParentorselfof(IMECLParser.ParentorselfofContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEclattribute(ECLParser.EclattributeContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTop(IMECLParser.TopContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitCardinality(ECLParser.CardinalityContext ctx) { return visitChildren(ctx); }
+	@Override public T visitBottom(IMECLParser.BottomContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMinvalue(ECLParser.MinvalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitConjunction(IMECLParser.ConjunctionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTo(ECLParser.ToContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDisjunction(IMECLParser.DisjunctionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMaxvalue(ECLParser.MaxvalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitExclusion(IMECLParser.ExclusionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMany(ECLParser.ManyContext ctx) { return visitChildren(ctx); }
+	@Override public T visitSubrefinement(IMECLParser.SubrefinementContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitReverseflag(ECLParser.ReverseflagContext ctx) { return visitChildren(ctx); }
+	@Override public T visitSubattributeset(IMECLParser.SubattributesetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEclattributename(ECLParser.EclattributenameContext ctx) { return visitChildren(ctx); }
+	@Override public T visitEclattributegroup(IMECLParser.EclattributegroupContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitExpressioncomparisonoperator(ECLParser.ExpressioncomparisonoperatorContext ctx) { return visitChildren(ctx); }
+	@Override public T visitEclattribute(IMECLParser.EclattributeContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNumericcomparisonoperator(ECLParser.NumericcomparisonoperatorContext ctx) { return visitChildren(ctx); }
+	@Override public T visitCardinality(IMECLParser.CardinalityContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTimecomparisonoperator(ECLParser.TimecomparisonoperatorContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMinvalue(IMECLParser.MinvalueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitStringcomparisonoperator(ECLParser.StringcomparisonoperatorContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTo(IMECLParser.ToContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitBooleancomparisonoperator(ECLParser.BooleancomparisonoperatorContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMaxvalue(IMECLParser.MaxvalueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDescriptionfilterconstraint(ECLParser.DescriptionfilterconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMany(IMECLParser.ManyContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDescriptionfilter(ECLParser.DescriptionfilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitReverseflag(IMECLParser.ReverseflagContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTermfilter(ECLParser.TermfilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitEclattributename(IMECLParser.EclattributenameContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTermkeyword(ECLParser.TermkeywordContext ctx) { return visitChildren(ctx); }
+	@Override public T visitExpressioncomparisonoperator(IMECLParser.ExpressioncomparisonoperatorContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTypedsearchterm(ECLParser.TypedsearchtermContext ctx) { return visitChildren(ctx); }
+	@Override public T visitNumericcomparisonoperator(IMECLParser.NumericcomparisonoperatorContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTypedsearchtermset(ECLParser.TypedsearchtermsetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTimecomparisonoperator(IMECLParser.TimecomparisonoperatorContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitWild(ECLParser.WildContext ctx) { return visitChildren(ctx); }
+	@Override public T visitStringcomparisonoperator(IMECLParser.StringcomparisonoperatorContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMatch(ECLParser.MatchContext ctx) { return visitChildren(ctx); }
+	@Override public T visitBooleancomparisonoperator(IMECLParser.BooleancomparisonoperatorContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMatchsearchterm(ECLParser.MatchsearchtermContext ctx) { return visitChildren(ctx); }
+	@Override public T visitIdcomparisonoperator(IMECLParser.IdcomparisonoperatorContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMatchsearchtermset(ECLParser.MatchsearchtermsetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDescriptionfilterconstraint(IMECLParser.DescriptionfilterconstraintContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitWildsearchterm(ECLParser.WildsearchtermContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDescriptionfilter(IMECLParser.DescriptionfilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitWildsearchtermset(ECLParser.WildsearchtermsetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDescriptionidfilter(IMECLParser.DescriptionidfilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitLanguagefilter(ECLParser.LanguagefilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDescriptionidkeyword(IMECLParser.DescriptionidkeywordContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitLanguage(ECLParser.LanguageContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDescriptionid(IMECLParser.DescriptionidContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitLanguagecode(ECLParser.LanguagecodeContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDescriptionidset(IMECLParser.DescriptionidsetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitLanguagecodeset(ECLParser.LanguagecodesetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTermfilter(IMECLParser.TermfilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTypefilter(ECLParser.TypefilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTermkeyword(IMECLParser.TermkeywordContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTypeidfilter(ECLParser.TypeidfilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTypedsearchterm(IMECLParser.TypedsearchtermContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTypeid(ECLParser.TypeidContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTypedsearchtermset(IMECLParser.TypedsearchtermsetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTypetokenfilter(ECLParser.TypetokenfilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitWild(IMECLParser.WildContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitType(ECLParser.TypeContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMatchkeyword(IMECLParser.MatchkeywordContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTypetoken(ECLParser.TypetokenContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMatchsearchterm(IMECLParser.MatchsearchtermContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTypetokenset(ECLParser.TypetokensetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMatchsearchtermset(IMECLParser.MatchsearchtermsetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSynonym(ECLParser.SynonymContext ctx) { return visitChildren(ctx); }
+	@Override public T visitWildsearchterm(IMECLParser.WildsearchtermContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitFullyspecifiedname(ECLParser.FullyspecifiednameContext ctx) { return visitChildren(ctx); }
+	@Override public T visitWildsearchtermset(IMECLParser.WildsearchtermsetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDefinition(ECLParser.DefinitionContext ctx) { return visitChildren(ctx); }
+	@Override public T visitLanguagefilter(IMECLParser.LanguagefilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDialectfilter(ECLParser.DialectfilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitLanguage(IMECLParser.LanguageContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDialectidfilter(ECLParser.DialectidfilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitLanguagecode(IMECLParser.LanguagecodeContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDialectid(ECLParser.DialectidContext ctx) { return visitChildren(ctx); }
+	@Override public T visitLanguagecodeset(IMECLParser.LanguagecodesetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDialectaliasfilter(ECLParser.DialectaliasfilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTypefilter(IMECLParser.TypefilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDialect(ECLParser.DialectContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTypeidfilter(IMECLParser.TypeidfilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDialectalias(ECLParser.DialectaliasContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTypeid(IMECLParser.TypeidContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDialectaliasset(ECLParser.DialectaliassetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTypetokenfilter(IMECLParser.TypetokenfilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDialectidset(ECLParser.DialectidsetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitType(IMECLParser.TypeContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAcceptabilityset(ECLParser.AcceptabilitysetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTypetoken(IMECLParser.TypetokenContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAcceptabilityconceptreferenceset(ECLParser.AcceptabilityconceptreferencesetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTypetokenset(IMECLParser.TypetokensetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAcceptabilitytokenset(ECLParser.AcceptabilitytokensetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitSynonym(IMECLParser.SynonymContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAcceptabilitytoken(ECLParser.AcceptabilitytokenContext ctx) { return visitChildren(ctx); }
+	@Override public T visitFullyspecifiedname(IMECLParser.FullyspecifiednameContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAcceptable(ECLParser.AcceptableContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDefinition(IMECLParser.DefinitionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitPreferred(ECLParser.PreferredContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDialectfilter(IMECLParser.DialectfilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitConceptfilterconstraint(ECLParser.ConceptfilterconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDialectidfilter(IMECLParser.DialectidfilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitConceptfilter(ECLParser.ConceptfilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDialectid(IMECLParser.DialectidContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDefinitionstatusfilter(ECLParser.DefinitionstatusfilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDialectaliasfilter(IMECLParser.DialectaliasfilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDefinitionstatusidfilter(ECLParser.DefinitionstatusidfilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDialect(IMECLParser.DialectContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDefinitionstatusidkeyword(ECLParser.DefinitionstatusidkeywordContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDialectalias(IMECLParser.DialectaliasContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDefinitionstatustokenfilter(ECLParser.DefinitionstatustokenfilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDialectaliasset(IMECLParser.DialectaliassetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDefinitionstatuskeyword(ECLParser.DefinitionstatuskeywordContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDialectidset(IMECLParser.DialectidsetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDefinitionstatustoken(ECLParser.DefinitionstatustokenContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAcceptabilityset(IMECLParser.AcceptabilitysetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDefinitionstatustokenset(ECLParser.DefinitionstatustokensetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAcceptabilityconceptreferenceset(IMECLParser.AcceptabilityconceptreferencesetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitPrimitivetoken(ECLParser.PrimitivetokenContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAcceptabilitytokenset(IMECLParser.AcceptabilitytokensetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDefinedtoken(ECLParser.DefinedtokenContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAcceptabilitytoken(IMECLParser.AcceptabilitytokenContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitModulefilter(ECLParser.ModulefilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAcceptable(IMECLParser.AcceptableContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitModuleidkeyword(ECLParser.ModuleidkeywordContext ctx) { return visitChildren(ctx); }
+	@Override public T visitPreferred(IMECLParser.PreferredContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEffectivetimefilter(ECLParser.EffectivetimefilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitConceptfilterconstraint(IMECLParser.ConceptfilterconstraintContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEffectivetimekeyword(ECLParser.EffectivetimekeywordContext ctx) { return visitChildren(ctx); }
+	@Override public T visitConceptfilter(IMECLParser.ConceptfilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTimevalue(ECLParser.TimevalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDefinitionstatusfilter(IMECLParser.DefinitionstatusfilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTimevalueset(ECLParser.TimevaluesetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDefinitionstatusidfilter(IMECLParser.DefinitionstatusidfilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitYear(ECLParser.YearContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDefinitionstatusidkeyword(IMECLParser.DefinitionstatusidkeywordContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMonth(ECLParser.MonthContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDefinitionstatustokenfilter(IMECLParser.DefinitionstatustokenfilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDay(ECLParser.DayContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDefinitionstatuskeyword(IMECLParser.DefinitionstatuskeywordContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitActivefilter(ECLParser.ActivefilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDefinitionstatustoken(IMECLParser.DefinitionstatustokenContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitActivekeyword(ECLParser.ActivekeywordContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDefinitionstatustokenset(IMECLParser.DefinitionstatustokensetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitActivevalue(ECLParser.ActivevalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitPrimitivetoken(IMECLParser.PrimitivetokenContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitActivetruevalue(ECLParser.ActivetruevalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDefinedtoken(IMECLParser.DefinedtokenContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitActivefalsevalue(ECLParser.ActivefalsevalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitModulefilter(IMECLParser.ModulefilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMemberfilterconstraint(ECLParser.MemberfilterconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitModuleidkeyword(IMECLParser.ModuleidkeywordContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMemberfilter(ECLParser.MemberfilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitEffectivetimefilter(IMECLParser.EffectivetimefilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMemberfieldfilter(ECLParser.MemberfieldfilterContext ctx) { return visitChildren(ctx); }
+	@Override public T visitEffectivetimekeyword(IMECLParser.EffectivetimekeywordContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitHistorysupplement(ECLParser.HistorysupplementContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTimevalue(IMECLParser.TimevalueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitHistorykeyword(ECLParser.HistorykeywordContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTimevalueset(IMECLParser.TimevaluesetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitHistoryprofilesuffix(ECLParser.HistoryprofilesuffixContext ctx) { return visitChildren(ctx); }
+	@Override public T visitYear(IMECLParser.YearContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitHistoryminimumsuffix(ECLParser.HistoryminimumsuffixContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMonth(IMECLParser.MonthContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitHistorymoderatesuffix(ECLParser.HistorymoderatesuffixContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDay(IMECLParser.DayContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitHistorymaximumsuffix(ECLParser.HistorymaximumsuffixContext ctx) { return visitChildren(ctx); }
+	@Override public T visitActivefilter(IMECLParser.ActivefilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitHistorysubset(ECLParser.HistorysubsetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitActivekeyword(IMECLParser.ActivekeywordContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNumericvalue(ECLParser.NumericvalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitActivevalue(IMECLParser.ActivevalueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitStringvalue(ECLParser.StringvalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitActivetruevalue(IMECLParser.ActivetruevalueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitIntegervalue(ECLParser.IntegervalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitActivefalsevalue(IMECLParser.ActivefalsevalueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDecimalvalue(ECLParser.DecimalvalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMemberfilterconstraint(IMECLParser.MemberfilterconstraintContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitBooleanvalue(ECLParser.BooleanvalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMemberfilter(IMECLParser.MemberfilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTrue_1(ECLParser.True_1Context ctx) { return visitChildren(ctx); }
+	@Override public T visitMemberfieldfilter(IMECLParser.MemberfieldfilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitFalse_1(ECLParser.False_1Context ctx) { return visitChildren(ctx); }
+	@Override public T visitHistorysupplement(IMECLParser.HistorysupplementContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNonnegativeintegervalue(ECLParser.NonnegativeintegervalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitHistorykeyword(IMECLParser.HistorykeywordContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSctid(ECLParser.SctidContext ctx) { return visitChildren(ctx); }
+	@Override public T visitHistoryprofilesuffix(IMECLParser.HistoryprofilesuffixContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitWs(ECLParser.WsContext ctx) { return visitChildren(ctx); }
+	@Override public T visitHistoryminimumsuffix(IMECLParser.HistoryminimumsuffixContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMws(ECLParser.MwsContext ctx) { return visitChildren(ctx); }
+	@Override public T visitHistorymoderatesuffix(IMECLParser.HistorymoderatesuffixContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitComment(ECLParser.CommentContext ctx) { return visitChildren(ctx); }
+	@Override public T visitHistorymaximumsuffix(IMECLParser.HistorymaximumsuffixContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNonstarchar(ECLParser.NonstarcharContext ctx) { return visitChildren(ctx); }
+	@Override public T visitHistorysubset(IMECLParser.HistorysubsetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitStarwithnonfslash(ECLParser.StarwithnonfslashContext ctx) { return visitChildren(ctx); }
+	@Override public T visitNumericvalue(IMECLParser.NumericvalueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNonfslash(ECLParser.NonfslashContext ctx) { return visitChildren(ctx); }
+	@Override public T visitStringvalue(IMECLParser.StringvalueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSp(ECLParser.SpContext ctx) { return visitChildren(ctx); }
+	@Override public T visitIntegervalue(IMECLParser.IntegervalueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitHtab(ECLParser.HtabContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDecimalvalue(IMECLParser.DecimalvalueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitCr(ECLParser.CrContext ctx) { return visitChildren(ctx); }
+	@Override public T visitBooleanvalue(IMECLParser.BooleanvalueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitLf(ECLParser.LfContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTrue_1(IMECLParser.True_1Context ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitQm(ECLParser.QmContext ctx) { return visitChildren(ctx); }
+	@Override public T visitFalse_1(IMECLParser.False_1Context ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitBs(ECLParser.BsContext ctx) { return visitChildren(ctx); }
+	@Override public T visitNonnegativeintegervalue(IMECLParser.NonnegativeintegervalueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitStar(ECLParser.StarContext ctx) { return visitChildren(ctx); }
+	@Override public T visitSctid(IMECLParser.SctidContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDigit(ECLParser.DigitContext ctx) { return visitChildren(ctx); }
+	@Override public T visitWs(IMECLParser.WsContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitZero(ECLParser.ZeroContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMws(IMECLParser.MwsContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDigitnonzero(ECLParser.DigitnonzeroContext ctx) { return visitChildren(ctx); }
+	@Override public T visitComment(IMECLParser.CommentContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNonwsnonpipe(ECLParser.NonwsnonpipeContext ctx) { return visitChildren(ctx); }
+	@Override public T visitNonstarchar(IMECLParser.NonstarcharContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAnynonescapedchar(ECLParser.AnynonescapedcharContext ctx) { return visitChildren(ctx); }
+	@Override public T visitStarwithnonfslash(IMECLParser.StarwithnonfslashContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEscapedchar(ECLParser.EscapedcharContext ctx) { return visitChildren(ctx); }
+	@Override public T visitNonfslash(IMECLParser.NonfslashContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEscapedwildchar(ECLParser.EscapedwildcharContext ctx) { return visitChildren(ctx); }
+	@Override public T visitSp(IMECLParser.SpContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNonwsnonescapedchar(ECLParser.NonwsnonescapedcharContext ctx) { return visitChildren(ctx); }
+	@Override public T visitHtab(IMECLParser.HtabContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAlpha(ECLParser.AlphaContext ctx) { return visitChildren(ctx); }
+	@Override public T visitCr(IMECLParser.CrContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDash(ECLParser.DashContext ctx) { return visitChildren(ctx); }
+	@Override public T visitLf(IMECLParser.LfContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitQm(IMECLParser.QmContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitBs(IMECLParser.BsContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitStar(IMECLParser.StarContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitDigit(IMECLParser.DigitContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitZero(IMECLParser.ZeroContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitDigitnonzero(IMECLParser.DigitnonzeroContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitNonwsnonpipe(IMECLParser.NonwsnonpipeContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitAnynonescapedchar(IMECLParser.AnynonescapedcharContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitEscapedchar(IMECLParser.EscapedcharContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitEscapedwildchar(IMECLParser.EscapedwildcharContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitNonwsnonescapedchar(IMECLParser.NonwsnonescapedcharContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitAlpha(IMECLParser.AlphaContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitDash(IMECLParser.DashContext ctx) { return visitChildren(ctx); }
 }

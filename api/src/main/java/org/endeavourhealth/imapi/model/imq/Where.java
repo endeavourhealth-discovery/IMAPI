@@ -18,6 +18,7 @@ public class Where extends PropertyRef implements Assignable{
     private List<Node> isNot;
     private Match match;
     private Bool bool;
+    private Bool boolWhere;
     private List<Where> where;
     private Operator operator;
     private String value;
@@ -28,6 +29,32 @@ public class Where extends PropertyRef implements Assignable{
     private PropertyRef relativeTo;
     private boolean isNotNull;
 
+    public Bool getBoolWhere() {
+        return boolWhere;
+    }
+
+    public Where setBoolWhere(Bool boolWhere) {
+        this.boolWhere = boolWhere;
+        return this;
+    }
+
+    public boolean isNull() {
+        return isNull;
+    }
+
+    public Where setNull(boolean aNull) {
+        isNull = aNull;
+        return this;
+    }
+
+    public boolean isNotNull() {
+        return isNotNull;
+    }
+
+    public Where setNotNull(boolean notNull) {
+        isNotNull = notNull;
+        return this;
+    }
 
     public boolean getIsNotNull() {
         return isNotNull;

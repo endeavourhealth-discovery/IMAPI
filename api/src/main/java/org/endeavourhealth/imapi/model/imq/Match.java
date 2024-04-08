@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.model.tripletree.TTContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,10 @@ import java.util.function.Consumer;
 	"ancestorsOf","description","match","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends IriLD {
+
     private Bool bool;
+    private Bool boolMatch;
+    private Bool boolWhere;
     private List<Match> match;
     private List<Node> is;
     private boolean exclude;
@@ -29,6 +33,26 @@ public class Match extends IriLD {
     private String name;
     private Match then;
     private List<IriLD> path;
+
+
+
+    public Bool getBoolMatch() {
+        return boolMatch;
+    }
+
+    public Match setBoolMatch(Bool boolMatch) {
+        this.boolMatch = boolMatch;
+        return this;
+    }
+
+    public Bool getBoolWhere() {
+        return boolWhere;
+    }
+
+    public Match setBoolWhere(Bool boolWhere) {
+        this.boolWhere = boolWhere;
+        return this;
+    }
 
     public Match getThen() {
         return then;

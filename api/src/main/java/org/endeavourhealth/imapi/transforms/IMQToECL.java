@@ -4,13 +4,17 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.DataFormatException;
 
 public class IMQToECL {
 
 	private Map<String,String> names= new HashMap<>();
+	private Prefixes prefixes;
 
 	private enum eclType {
 		exclusion,
@@ -28,6 +32,12 @@ public class IMQToECL {
 	 */
 	public String getECLFromQuery(Query query, Boolean includeName) throws QueryException {
 		StringBuilder ecl = new StringBuilder();
+		if (query.getPrefixes()!=null){
+			prefixes= query.getPrefixes();
+			for (Prefix prefix:prefixes){
+				ecl.append("prefix ").append(prefix.getPrefix()).append(": ").append(prefix.getNamespace()).append("\n");
+			}
+		}
 		match(query, ecl, includeName);
 		return ecl.toString().trim();
 	}
@@ -165,6 +175,8 @@ public class IMQToECL {
 
 
 
+
+
 	private void addRefined(Where where, StringBuilder ecl, Boolean includeNames) throws QueryException {
 		try {
 			if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)){
@@ -203,26 +215,9 @@ public class IMQToECL {
 		addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName());
 	}
 
-	private void addConcept(StringBuilder ecl, boolean includeName, String subsumption2, String id, String name2) {
-		String subsumption = subsumption2;
-		String iri = checkMember(id);
-		if (name2!=null){
-			names.put(id,name2);
-		}
-		String pipe = " | ";
-		if (includeName && null!= name2) {
-			ecl.append(subsumption).append(iri).append(pipe).append(name2).append(pipe);
-		}
-		else if (includeName){
-			if (names.get(id)==null) {
-				EntityRepository entityRepository = new EntityRepository();
-				String name = entityRepository.getEntityReferenceByIri(id).getName();
-				names.put(id,name);
-			}
-			ecl.append(subsumption).append(iri).append(pipe).append(names.get(id)).append(pipe);
-		}
-		else
-			ecl.append(subsumption).append(iri).append(" ");
+	private void addConcept(StringBuilder ecl, boolean includeName, String subsumption, String id, String name) {
+		String iriRef = checkMember(id,name,includeName);
+		ecl.append(subsumption).append(iriRef);
 	}
 
 	private void addClass(Node exp, StringBuilder ecl, boolean includeName) {
@@ -237,18 +232,37 @@ public class IMQToECL {
 		String subsumption="";
 		if (exp.isDescendantsOrSelfOf())
 			subsumption="<< ";
-		if (exp.isDescendantsOf())
+		else if (exp.isDescendantsOf())
 			subsumption="< ";
+		else if (exp.isMemberOf())
+			subsumption="^";
 		return subsumption;
 	}
 
 
-	private String checkMember(String iri) {
-		if (iri.contains("/sct#") || (iri.contains("/im#")))
-			return iri.split("#")[1];
+	private String checkMember(String iri,String name, boolean includeNames) {
+		if (name==null &&includeNames){
+			if (names.get(iri)==null) {
+				EntityRepository entityRepository = new EntityRepository();
+				name = entityRepository.getEntityReferenceByIri(iri).getName();
+				names.put(iri,name);
+			}
+			name= names.get(iri);
+		}
+		if (iri.startsWith(SNOMED.NAMESPACE)){
+			iri= iri.substring(iri.lastIndexOf("#")+1);
+		}
 		else
-			return iri;
-
+			if (iri.contains("#")){
+				if (prefixes!=null){
+					String prefix= prefixes.getPrefix(iri.substring(0,iri.lastIndexOf("#")+1));
+					if (prefix!=null)
+						iri= prefix+":"+ iri.substring(iri.lastIndexOf("#")+1);
+					}
+			}
+			if (includeNames && name!=null) return iri+ "|"+ name+"|";
+			else
+				return iri;
 	}
 
 	/**

@@ -1085,7 +1085,7 @@ public class EntityService {
     }
 
     public void updateSubsetsFromSuper(String agentName, TTEntity entity) throws TTFilerException, JsonProcessingException {
-        TTArray subsets = entity.get(iri(IM.NAMESPACE + "subsetsEdit"));
+        TTArray subsets = entity.get(iri(IM.HAS_SUBSET));
         String entityIri = entity.getIri();
         Set<TTIriRef> subsetsOriginal = getSubsets(entityIri);
         List<TTIriRef> subsetsArray = subsets.stream().map(TTValue::asIriRef).toList();
@@ -1107,7 +1107,7 @@ public class EntityService {
             if (subsetsArray.stream().noneMatch(s -> s.getIri().equals(subsetOriginal.getIri()))) {
                 TTEntity subsetEntity = getFullEntity(subsetOriginal.getIri()).getEntity();
                 TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
-                isSubsetOf.remove(iri(subsetOriginal.getIri()));
+                isSubsetOf.remove(iri(entityIri));
                 updateEntity(subsetEntity,agentName);
             }
         }

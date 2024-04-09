@@ -43,12 +43,12 @@ public class SetRepository {
      * @throws JsonProcessingException if json definitino invalid
      * @throws DataFormatException if query definition invalid
      */
-    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
+    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException{
         //add scheme filter
         return getSetExpansion(imQuery,includeLegacy,statusFilter,schemeFilter,null);
     }
 
-    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
+    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException{
         Set<Concept> result = getExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
         imQuery.getMatch().get(0).setVariable("outerEntity");
         imQuery.match(m->m
@@ -73,7 +73,7 @@ public class SetRepository {
         return result;
     }
 
-    private Set<Concept> getExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
+    private Set<Concept> getExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException{
     Return aReturn= new Return();
         imQuery.addReturn(aReturn);
         aReturn
@@ -145,7 +145,7 @@ public class SetRepository {
         }
     }
 
-    public int getSetExpansionTotalCount(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
+    public int getSetExpansionTotalCount(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException{
         //add scheme filter
         QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
         String sql= new SparqlConverter(newRequest).getCountSparql(statusFilter);

@@ -63,7 +63,7 @@ class SearchServiceTest {
 
 
 	}
- //@Test
+// @Test
 	void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
 		testDefinitions = System.getenv("folder") + "\\Definitions";
 		testResults = System.getenv("folder") + "\\Results";
@@ -71,7 +71,7 @@ class SearchServiceTest {
 		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
 	 output(TestQueries.getAllowableSubtypes());
 		output(TestQueries.query2());
-		output(TestQueries.pathQueryAtenolol3());
+		//output(TestQueries.pathQueryAtenolol3());
 
 	 output(TestQueries.getAllowableQueries());
 
@@ -85,9 +85,9 @@ class SearchServiceTest {
 			output(TestQueries.query2());
 			output(TestQueries.getShaclProperty());
 
-			output(TestQueries.pathToAtenolol());
-			output(TestQueries.pathDobQuery());
-			output(TestQueries.pathToPostCode());
+			//output(TestQueries.pathToAtenolol());
+			//output(TestQueries.pathDobQuery());
+			//output(TestQueries.pathToPostCode());
 			output(TestQueries.deleteSets());
 
 

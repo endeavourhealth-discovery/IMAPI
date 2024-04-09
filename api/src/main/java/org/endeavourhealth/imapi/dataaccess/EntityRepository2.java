@@ -356,21 +356,7 @@ public class EntityRepository2 {
         return maps;
     }
 
-    public Set<TTIriRef> getMatchedCore(String legacy) {
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add(IM_PREFIX)
-                .add(RDFS_PREFIX)
-                .add("select ?concept ?label")
-                .add("where {")
-                .add("    ?legacy im:matchedTo ?concept.")
-                .add("    ?concept rdfs:label ?label}")
-                .add("    ");
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
-            qry.setBinding("legacy", Values.iri(legacy));
-            return getConceptRefsFromResult(qry);
-        }
-    }
+
 
     private TTIriRef getConceptRefFromResult(TupleQuery qry) {
         TTIriRef concept = null;
@@ -543,28 +529,7 @@ public class EntityRepository2 {
         return spql.toString();
     }
 
-    /**
-     * Returns a set expansion as a select query. Note that if legacy is included the result will be a denormalised list.
-     *
-     * @param definition    definition of set
-     * @param includeLegacy whether to include simple legacy maps
-     * @return String containing the sparql query
-     */
-    public String getExpansionAsSelect(TTArray definition, boolean includeLegacy) {
-        Map<String, String> prefixMap = new HashMap<>();
-        StringJoiner spql = new StringJoiner(System.lineSeparator())
-                .add("SELECT ?concept ?name ?code ?scheme ?schemeName ?im1Id ");
-        if (includeLegacy)
-            spql.add("?legacy ?legacyName ?legacyCode ?legacyScheme ?legacySchemeName ?legacyIm1Id");
-        spql.add("WHERE {");
-        addNames(includeLegacy, spql, prefixMap);
-        spql.add("{SELECT distinct ?concept");
-        whereClause(definition, spql, prefixMap);
-        spql.add("}");
-        spql.add("}");
-        spql = insertPrefixes(spql, prefixMap);
-        return spql.toString();
-    }
+
 
     private void whereClause(TTArray definition, StringJoiner spql, Map<String, String> prefixMap) {
         spql.add("WHERE {");

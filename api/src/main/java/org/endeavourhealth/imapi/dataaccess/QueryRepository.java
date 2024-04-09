@@ -94,7 +94,7 @@ public class QueryRepository {
 
     }
 
-    public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
+    public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException,JsonProcessingException,DataFormatException {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             checkReferenceDate();
             new QueryValidator().validateQuery(queryRequest.getQuery());

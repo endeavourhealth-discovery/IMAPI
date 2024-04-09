@@ -41,7 +41,7 @@ public class SetController {
             description = "Publishes an expanded set to IM1"
     )
     @PreAuthorize("hasAuthority('IM1_PUBLISH')")
-    public void publish(@RequestParam(name = "iri") String iri) throws DataFormatException, JsonProcessingException, QueryException {
+    public void publish(@RequestParam(name = "iri") String iri) throws JsonProcessingException, QueryException {
         setExporter.publishSetToIM1(iri);
     }
 
@@ -59,7 +59,7 @@ public class SetController {
         try {
             String result = setExporter.generateForIm1(iri).toString();
             return new HttpEntity<>(result, headers);
-        } catch (JsonProcessingException | QueryException e) {
+        } catch (QueryException e) {
             throw new DownloadException(("Failed to generate export."));
         }
     }

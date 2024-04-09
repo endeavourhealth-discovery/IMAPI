@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.dataaccess;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.logic.reasoner.SetExpander;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -8,13 +10,13 @@ import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.DataFormatException;
 
 public class SparqlConverter {
     private Query query;
     private Update update;
     private final QueryRequest queryRequest;
     private final String tabs = "";
-    private TTContext context;
     int o = 0;
     private String labelVariable;
 
@@ -24,7 +26,6 @@ public class SparqlConverter {
 
     public SparqlConverter(QueryRequest queryRequest) throws QueryException {
         this.queryRequest = queryRequest;
-        context = queryRequest.getAsContext();
         if (queryRequest.getQuery() != null) {
             this.query = queryRequest.getQuery();
             new QueryValidator().validateQuery(this.query);
@@ -43,7 +44,7 @@ public class SparqlConverter {
         return getSelectSparql(statusFilter,false);
     }
 
-    public String getSelectSparql(Set<TTIriRef> statusFilter, boolean countOnly) throws QueryException {
+    public String getSelectSparql(Set<TTIriRef> statusFilter, boolean countOnly) throws QueryException{
 
         StringBuilder selectQl = new StringBuilder();
         addPrefixes(selectQl);
@@ -51,7 +52,7 @@ public class SparqlConverter {
             mainEntity = "entity";
             if (null != query.getMatch().get(0).getVariable())
                 mainEntity = query.getMatch().get(0).getVariable();
-            selectQl.append("SELECT (count (distinct ?"+ mainEntity+") as ?count)");
+            selectQl.append("SELECT (count (distinct ?").append(mainEntity).append(") as ?count)");
         }
         else {
             selectQl.append("SELECT ");
@@ -64,7 +65,7 @@ public class SparqlConverter {
 
     }
 
-    public String getAskSparql(Set<TTIriRef> statusFilter) throws QueryException {
+    public String getAskSparql(Set<TTIriRef> statusFilter) throws QueryException, DataFormatException, JsonProcessingException {
 
         StringBuilder askQl = new StringBuilder();
         addPrefixes(askQl);
@@ -85,14 +86,14 @@ public class SparqlConverter {
         }
     }
 
-    private void addWhereSparql(StringBuilder sparql, Set<TTIriRef> statusFilter, Boolean includeReturns, Boolean countOnly) throws QueryException {
+    private void addWhereSparql(StringBuilder sparql, Set<TTIriRef> statusFilter, Boolean includeReturns, Boolean countOnly) throws QueryException{
         mainEntity = "entity";
         if (null != query.getMatch().get(0).getVariable())
             mainEntity = query.getMatch().get(0).getVariable();
         StringBuilder whereQl = new StringBuilder();
         whereQl.append("WHERE {");
         if (query.getTypeOf() != null) {
-            whereQl.append("?").append(mainEntity).append(" rdf:type ").append(iriFromString(query.getTypeOf().getIri()) + ".\n");
+            whereQl.append("?").append(mainEntity).append(" rdf:type ").append(iriFromString(query.getTypeOf().getIri())).append(".\n");
         }
 
         if (null != queryRequest.getTextSearch()) {
@@ -133,7 +134,7 @@ public class SparqlConverter {
         sparql.append(whereQl).append("\n");
     }
 
-    public String getCountSparql(Set<TTIriRef> statusFilter) throws QueryException {
+    public String getCountSparql(Set<TTIriRef> statusFilter) throws QueryException{
 
         StringBuilder selectQl = new StringBuilder();
         selectQl.append(getDefaultPrefixes());
@@ -152,7 +153,7 @@ public class SparqlConverter {
         StringBuilder whereQl = new StringBuilder();
         whereQl.append("WHERE {");
         if (query.getTypeOf() != null) {
-            whereQl.append("?").append(mainEntity).append(" rdf:type ").append(iriFromString(query.getTypeOf().getIri()) + ".\n");
+            whereQl.append("?").append(mainEntity).append(" rdf:type ").append(iriFromString(query.getTypeOf().getIri())).append(".\n");
         }
 
         if (null != queryRequest.getTextSearch()) {
@@ -230,12 +231,12 @@ public class SparqlConverter {
                 words[i] = "(label:" + words[i] + ((!fuzzy) ? "*" : "~") + ")";
             }
             String searchText = String.join(" && ", words);
-            whereQl.append("\"" + searchText + "\" ;\n");
+            whereQl.append("\"").append(searchText).append("\" ;\n");
             whereQl.append("       con:entities ?").append(mainEntity).append(".\n");
         }
     }
 
-    private void match(StringBuilder whereQl, String parent, Match match) throws QueryException {
+    private void match(StringBuilder whereQl, String parent, Match match) throws QueryException{
         if (match.isExclude()) {
             whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
         }
@@ -250,7 +251,7 @@ public class SparqlConverter {
             whereQl.append(" graph ").append(iriFromAlias(match.getGraph())).append(" {");
         }
         if (match.getMatch() != null) {
-            if (match.getBool() == Bool.or) {
+            if (match.getBool() == Bool.or|| (match.getBoolMatch()!=null &&match.getBoolMatch()==Bool.or)) {
                 for (int i = 0; i < match.getMatch().size(); i++) {
                     if (i == 0)
                         whereQl.append("{ \n");
@@ -260,7 +261,8 @@ public class SparqlConverter {
                     match(whereQl, subject, subMatch);
                     whereQl.append("}\n");
                 }
-            } else {
+            }
+            else {
                 for (Match subMatch : match.getMatch()) {
                     match(whereQl, subject, subMatch);
                 }
@@ -276,7 +278,19 @@ public class SparqlConverter {
             if (match.getInstanceOf() != null) {
                 Node instance = match.getInstanceOf();
                 String inList = iriFromAlias(instance);
-                if (instance.isDescendantsOrSelfOf()) {
+                if (instance.isMemberOf()){
+                    try {
+                        EntityTripleRepository repo = new EntityTripleRepository();
+                        if (!repo.hasPredicates(instance.getIri(), Set.of(IM.HAS_MEMBER))) {
+                            new SetExpander().expandSet(instance.getIri());
+                        }
+                    }
+                    catch (JsonProcessingException e){
+                        throw new QueryException(e.getMessage());
+                    }
+                    whereQl.append("?").append(subject).append(" ^").append("<").append(IM.HAS_MEMBER).append("> ").append("<").append(instance.getIri()).append(">\n");
+                }
+                else if (instance.isDescendantsOrSelfOf()) {
                     o++;
                     whereQl.append("?").append(subject).append(" im:isA ?").append(object).append(".\n");
                     whereQl.append("Filter (?").append(object);
@@ -317,7 +331,7 @@ public class SparqlConverter {
         }
 
         if (match.getWhere() != null) {
-            if (match.getBool() == Bool.or) {
+            if (match.getBoolWhere() == Bool.or) {
                 for (int i = 0; i < match.getWhere().size(); i++) {
                     if (i == 0)
                         whereQl.append("{ \n");
@@ -333,7 +347,10 @@ public class SparqlConverter {
             }
         }
         if (match.getIs() != null) {
-            is(whereQl, subject, match.getIs(), false);
+            if (!match.isExclude())
+                is(whereQl, subject, match.getIs(), false);
+            else
+                is(whereQl, subject, match.getIs(), true);
         }
         if (match.getGraph() != null) {
             whereQl.append("}");
@@ -366,7 +383,7 @@ public class SparqlConverter {
      * @param subject the parent subject passed to this where clause
      * @param where   the where clause
      */
-    private void property(StringBuilder whereQl, String subject, Where where, String parentVariable) throws QueryException, QueryException {
+    private void property(StringBuilder whereQl, String subject, Where where, String parentVariable) throws QueryException{
         String propertyVariable = where.getVariable() != null ? where.getVariable() : parentVariable;
         if (where.isAnyRoleGroup()) {
             whereQl.append("?").append(subject).append(" im:roleGroup ").append("?roleGroup").append(o).append(".\n");
@@ -440,7 +457,7 @@ public class SparqlConverter {
             }
         }
         if (where.getWhere() != null) {
-            if (where.getBool() == Bool.or) {
+            if (where.getBool() == Bool.or|| where.getBoolWhere()== Bool.or) {
                 for (int i = 0; i < where.getWhere().size(); i++) {
                     if (i == 0)
                         whereQl.append("{ \n");
@@ -519,16 +536,15 @@ public class SparqlConverter {
 
     }
 
-    private void whereValue(StringBuilder whereQl, String object, Where where) throws QueryException {
+    private void whereValue(StringBuilder whereQl, String object, Where where) {
         String comp = where.getOperator() != null ? where.getOperator().getValue() : Operator.eq.getValue();
-        String value = where.getValue();
         whereQl.append("Filter (?").append(object).append(comp).append(" ");
         whereQl.append(convertValue(where));
         whereQl.append(")\n");
     }
 
 
-    private String convertValue(Assignable value) throws QueryException {
+    private String convertValue(Assignable value) {
         String dataValue = "\"" + value.getValue() + "\"";
         if (value.getDataType() == null)
             return dataValue;
@@ -599,7 +615,6 @@ public class SparqlConverter {
         } else if (path.getAs() != null) {
             selectQl.append(" ").append(inverse).append("?").append(path.getAs());
         }
-        ;
         whereQl.append("OPTIONAL {");
         if (aReturn.getAs() != null)
             whereQl.append(" ?").append(aReturn.getAs());
@@ -728,7 +743,7 @@ public class SparqlConverter {
     }
 
 
-    public String getUpdateSparql() throws QueryException {
+    public String getUpdateSparql() throws QueryException, DataFormatException, JsonProcessingException {
 
 
         StringBuilder updateQl = new StringBuilder();

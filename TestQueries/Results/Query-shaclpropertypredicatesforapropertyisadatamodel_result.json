@@ -1,15 +1,9 @@
 {
-  "@context" : {
-    "im" : "http://endhealth.info/im#",
-    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "owl" : "http://www.w3.org/2002/07/owl#",
-    "sh" : "http://www.w3.org/ns/shacl#",
-    "xsd" : "http://www.w3.org/2001/XMLSchema#",
-    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
-    "sn" : "http://snomed.info/sct#"
-  },
+  "page" : 1,
+  "count" : 1,
+  "totalCount" : 1,
   "entities" : [ {
-    "@bn" : "genid-954d39b39b5145f09b6f31a0058e5ccc26-b173",
+    "@bn" : "1b1578acd1564be0aa9699100cd7d5fa70",
     "http://www.w3.org/ns/shacl#datatype" : [ {
       "@id" : "http://www.w3.org/2001/XMLSchema#integer",
       "http://www.w3.org/2000/01/rdf-schema#label" : "integer"

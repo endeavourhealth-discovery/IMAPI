@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -51,7 +52,7 @@ public class SetExporter {
         LOG.trace("Done");
     }
 
-    public StringJoiner generateForIm1(String setIri) throws JsonProcessingException, QueryException {
+    public StringJoiner generateForIm1(String setIri) throws QueryException {
         LOG.debug("Exporting set to IMv1");
 
         LOG.trace("Looking up set...");
@@ -83,7 +84,7 @@ public class SetExporter {
         return new HashSet<TTIriRef>(subsets);
     }
 
-    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy, boolean includeSubset, List<String> schemes) throws JsonProcessingException, QueryException {
+    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy, boolean includeSubset, List<String> schemes) throws QueryException{
         Set<String> setIris = getSetsRecursive(setIri);
 
         LOG.trace("Expanding members for sets...");
@@ -99,9 +100,15 @@ public class SetExporter {
                 subResults.addAll(members);
             } else {
                 TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION)).getEntity();
-                if (entity.get(iri(IM.DEFINITION))!=null)
-                    subResults.addAll(setRepository.getSetExpansion(entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class),
-                        includeLegacy,null, schemes));
+                if (entity.get(iri(IM.DEFINITION))!=null) {
+                    try {
+                        subResults.addAll(setRepository.getSetExpansion(entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class),
+                          includeLegacy, null, schemes));
+                    }
+                    catch (JsonProcessingException e){
+                        throw new QueryException(e.getMessage());
+                    }
+                }
                 else
                     subResults.addAll(setRepository.getSetExpansion(new Query()
                       .match(f->f

@@ -28,6 +28,7 @@ tasks {
                 'org.endeavourhealth.imapi.model.DataModelProperty',
                 'org.endeavourhealth.imapi.model.iml.*',
                 'org.endeavourhealth.imapi.model.search.*',
+                'org.endeavourhealth.imapi.model.set.EclSearchRequest',
                 'org.endeavourhealth.imapi.model.imq.*',
                 'org.endeavourhealth.imapi.vocabulary.*',
                 'org.endeavourhealth.imapi.vocabulary.**.*'

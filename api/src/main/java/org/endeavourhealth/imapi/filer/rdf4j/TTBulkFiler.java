@@ -106,8 +106,15 @@ public class TTBulkFiler  implements TTDocumentFiler {
             if (entity.get(iri(IM.HAS_STATUS)) == null)
                 entity.set(iri(IM.HAS_STATUS), iri(IM.ACTIVE));
             if (entity.get(iri(IM.HAS_SCHEME)) == null)
-                entity.set(iri(IM.HAS_SCHEME), TTIriRef.iri(graph));
+                entity.set(iri(IM.HAS_SCHEME), TTIriRef.iri(getScheme(entity.getIri())));
         }
+    }
+
+    private static String getScheme(String iri){
+        if (iri.contains("#"))
+            return iri.split("#")[0];
+        else
+            return iri.substring(0,iri.lastIndexOf("/")+1);
     }
 
     private void transformAndWriteQuads(TTToNQuad converter, TTEntity entity, String entityGraph) throws IOException {

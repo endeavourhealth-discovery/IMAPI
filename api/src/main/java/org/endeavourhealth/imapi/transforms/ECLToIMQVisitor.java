@@ -171,7 +171,10 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 				if (result instanceof Match)
 					match= (Match) result;
 				else if (result instanceof Where) {
-					assert match != null;
+					if (match==null) {
+						match = new Match();
+						match.setTypeOf(new Node().setIri(IM.CONCEPT));
+					}
 					match.addWhere((Where) result);
 				}
 			}

@@ -84,7 +84,7 @@ public class TTBulkFiler  implements TTDocumentFiler {
                 addSubtypes(entity);
                 addTerms(entity, entityGraph);
 
-                setStatusAndScheme(graph, entity);
+                setStatusAndScheme(entity);
 
                 transformAndWriteQuads(converter, entity, entityGraph);
 
@@ -101,7 +101,7 @@ public class TTBulkFiler  implements TTDocumentFiler {
         }
     }
 
-    private static void setStatusAndScheme(String graph, TTEntity entity) {
+    private static void setStatusAndScheme(TTEntity entity) {
         if (entity.get(iri(RDFS.LABEL)) != null) {
             if (entity.get(iri(IM.HAS_STATUS)) == null)
                 entity.set(iri(IM.HAS_STATUS), iri(IM.ACTIVE));

@@ -60,6 +60,7 @@ dependencies {
     implementation libs.apacheCollections4
     implementation libs.apachePoi
     implementation libs.apacheText
+    implementation libs.assertJ
     implementation libs.awsS3
     implementation libs.factPlusPlus
     implementation libs.jacksonDatabind

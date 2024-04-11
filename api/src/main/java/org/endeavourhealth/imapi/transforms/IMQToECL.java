@@ -1,13 +1,13 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.model.eclBuilder.EclType;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.zip.DataFormatException;
 
@@ -16,13 +16,6 @@ public class IMQToECL {
 	private Map<String,String> names= new HashMap<>();
 	private Prefixes prefixes;
 
-	private enum eclType {
-		exclusion,
-		refined,
-		compound,
-		compoundRefined,
-		simple
-	}
 	/**
 	 * Takes a IM ECL compliant definition of a set and returns is ECL language
 	 * @param query         a node representing a class expression e.g. value of im:Definition
@@ -42,24 +35,24 @@ public class IMQToECL {
 		return ecl.toString().trim();
 	}
 
-	private eclType getEclType(Match match){
+	public EclType getEclType(Match match){
 		if (match.getMatch()!=null){
 			if (match.getMatch().size()>0) {
 				if (match.getWhere()!=null)
-					return eclType.compoundRefined;
+					return EclType.compoundRefined;
 			}
 		}
 		if (match.getWhere()!=null)
-			return eclType.refined;
+			return EclType.refined;
 		if (match.getMatch()!=null) {
 			for (Match subMatch : match.getMatch()) {
 				if (subMatch.isExclude())
-					return eclType.exclusion;
+					return EclType.exclusion;
 			}
-			return eclType.compound;
+			return EclType.compound;
 		}
 		if (match.getInstanceOf()!=null)
-			return eclType.simple;
+			return EclType.simple;
 		else return null;
 	}
 
@@ -73,13 +66,13 @@ public class IMQToECL {
 
 
 	private void match(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
-		eclType matchType= getEclType(match);
+		EclType matchType= getEclType(match);
 		if (matchType==null)
 			return;
-		if (matchType==eclType.simple){
+		if (matchType== EclType.simple){
 			addClass(match.getInstanceOf(), ecl, includeNames);
 		}
-		else if (matchType== eclType.refined){
+		else if (matchType== EclType.refined){
 			if (match.getInstanceOf()!=null)
 				addClass(match.getInstanceOf(), ecl, includeNames);
 			else
@@ -87,13 +80,13 @@ public class IMQToECL {
 			addRefinementsToMatch(match, ecl, includeNames);
 			ecl.append("\n");
 		}
-		else if (matchType==eclType.compound||matchType==eclType.compoundRefined){
-			if (matchType== eclType.compoundRefined)
+		else if (matchType== EclType.compound||matchType== EclType.compoundRefined){
+			if (matchType== EclType.compoundRefined)
 				ecl.append("(");
 			boolean first = true;
 			for (Match subMatch : match.getMatch()) {
-				eclType subMatchType=getEclType(subMatch);
-				boolean bracket= (match.getMatch().size()>1&&subMatchType== eclType.refined) ?true: false;
+				EclType subMatchType=getEclType(subMatch);
+				boolean bracket= (match.getMatch().size()>1&&subMatchType== EclType.refined) ?true: false;
 				if (!first){
 					ecl.append("\n");
 					if (match.getBool()==Bool.or){
@@ -109,7 +102,7 @@ public class IMQToECL {
 					ecl.append(")");
 				first = false;
 			}
-			if (matchType== eclType.compoundRefined) {
+			if (matchType== EclType.compoundRefined) {
 				ecl.append(")");
 				addRefinementsToMatch(match, ecl, includeNames);
 			}

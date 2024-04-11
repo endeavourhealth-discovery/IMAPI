@@ -45,11 +45,11 @@ public class SparqlConverter {
     }
 
     public String getSelectSparql(Set<TTIriRef> statusFilter, boolean countOnly) throws QueryException{
+        mainEntity= query.getVariable()!=null ?query.getVariable(): "entity";
 
         StringBuilder selectQl = new StringBuilder();
         addPrefixes(selectQl);
         if (countOnly){
-            mainEntity = "entity";
             if (null != query.getMatch().get(0).getVariable())
                 mainEntity = query.getMatch().get(0).getVariable();
             selectQl.append("SELECT (count (distinct ?").append(mainEntity).append(") as ?count)");
@@ -88,8 +88,13 @@ public class SparqlConverter {
 
     private void addWhereSparql(StringBuilder sparql, Set<TTIriRef> statusFilter, Boolean includeReturns, Boolean countOnly) throws QueryException{
         mainEntity = "entity";
-        if (null != query.getMatch().get(0).getVariable())
-            mainEntity = query.getMatch().get(0).getVariable();
+        if (query.getVariable()!=null){
+            mainEntity= query.getVariable();
+        }
+        else {
+            if (null != query.getMatch().get(0).getVariable())
+                mainEntity = query.getMatch().get(0).getVariable();
+        }
         StringBuilder whereQl = new StringBuilder();
         whereQl.append("WHERE {");
         if (query.getTypeOf() != null) {
@@ -100,9 +105,9 @@ public class SparqlConverter {
             textSearch(whereQl);
         }
 
-        for (Match match : query.getMatch()) {
-            match(whereQl, mainEntity, match);
-        }
+
+        match(whereQl, mainEntity, query);
+
         if (!countOnly){
             if (includeReturns && null != query.getReturn()) {
                 for (Return aReturn : query.getReturn()) {

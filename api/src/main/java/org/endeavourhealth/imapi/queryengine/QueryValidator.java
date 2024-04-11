@@ -15,7 +15,10 @@ public class QueryValidator {
 	public void validateQuery(Query query) throws QueryException {
 		if (query.getMatch() == null)
 			throw new QueryException("Query must have match clause");
-		mainEntity = query.getMatch().get(0).getVariable();
+		mainEntity= query.getVariable();
+		if (mainEntity==null) {
+			mainEntity = query.getMatch().get(0).getVariable();
+		}
 		if (mainEntity==null)
 			mainEntity="entity";
 		for (Match match : query.getMatch()) {

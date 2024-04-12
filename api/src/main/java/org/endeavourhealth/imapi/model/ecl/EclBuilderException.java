@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.eclBuilder;
+package org.endeavourhealth.imapi.model.ecl;
 
 public class EclBuilderException extends Exception{
 	public EclBuilderException(String message) {

@@ -1,18 +1,18 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.eclBuilder.*;
+import org.endeavourhealth.imapi.model.ecl.*;
 import org.endeavourhealth.imapi.model.imq.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class IMQToECLBuilder {
     private IMQToECL imqToECL = new IMQToECL();
-    public BoolGroup getEclBuilderFromQuery(Match query) throws QueryException, EclBuilderException {
+    public ExpressionConstraint getEclBuilderFromQuery(Match query) throws QueryException, EclBuilderException {
         return createBoolGroup(query);
     }
 
-    private BoolGroup createBoolGroup(Match match) throws EclBuilderException {
-        BoolGroup boolGroup = new BoolGroup();
+    private ExpressionConstraint createBoolGroup(Match match) throws EclBuilderException {
+        ExpressionConstraint boolGroup = new ExpressionConstraint();
         EclType matchType = imqToECL.getEclType(match);
         if (null == matchType) throw new EclBuilderException("Failed to get EclType from match");
         if (matchType == EclType.simple) {
@@ -20,15 +20,15 @@ public class IMQToECLBuilder {
         } else if (matchType == EclType.refined) {
             boolGroup.addItem(createConcept(match));
         } else if (matchType == EclType.compound) {
-            Concept concept = createConcept(match);
+            RefinedExpressionConstraint concept = createConcept(match);
             boolGroup.setItems(concept.getConceptItems());
             boolGroup.setConjunction(concept.getConjunction());
         }
         return boolGroup;
     }
 
-    private Concept createConcept(Match imq) throws EclBuilderException {
-        Concept concept = new Concept();
+    private RefinedExpressionConstraint createConcept(Match imq) throws EclBuilderException {
+        RefinedExpressionConstraint concept = new RefinedExpressionConstraint();
         if (null != imq.getInstanceOf()) {
             concept.setConstraintOperator(getOperator(imq.getInstanceOf()));
             concept.setConceptSingle(iri(imq.getInstanceOf().getIri()));

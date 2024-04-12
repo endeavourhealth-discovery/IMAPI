@@ -25,10 +25,12 @@ conceptid :
 
 
  //override ecl defaults
- eclrefinement : (subrefinement | conjunctionrefinementset | disjunctionrefinementset);
+ eclrefinement : (subrefinement | compoundrefinementSet);
+ compoundrefinementSet : (conjunctionrefinementset | disjunctionrefinementset);
  conjunctionrefinementset : subrefinement (ws conjunction ws subrefinement)+;
  disjunctionrefinementset : subrefinement (ws disjunction ws subrefinement)+;
- eclattributeset : (subattributeset | conjunctionattributeset | disjunctionattributeset)?;
+ eclattributeset : (subattributeset | compoundattributeset)?;
+ compoundattributeset : (conjunctionattributeset | disjunctionattributeset);
  conjunctionattributeset : subattributeset (ws conjunction ws subattributeset)+;
  disjunctionattributeset : subattributeset (ws disjunction ws subattributeset)+;
 

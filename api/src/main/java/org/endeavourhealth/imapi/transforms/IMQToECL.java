@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.model.eclBuilder.EclType;
+import org.endeavourhealth.imapi.model.ecl.EclType;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;

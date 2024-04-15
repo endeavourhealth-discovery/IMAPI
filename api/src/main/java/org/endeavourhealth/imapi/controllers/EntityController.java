@@ -19,7 +19,6 @@ import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
-import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.*;
@@ -454,27 +453,19 @@ public class EntityController {
     @GetMapping("/public/setExport")
     public HttpEntity<Object> getSetExport(
             @RequestParam(name = "iri") String iri,
-            @RequestParam(name = "definition") Optional<Boolean> includeDefinition,
-            @RequestParam(name = "core") Optional<Boolean> includeCore,
-            @RequestParam(name = "legacy") Optional<Boolean> includeLegacy,
-            @RequestParam(name = "includeSubsets") Optional<Boolean> includeSubsets,
-            @RequestParam(name = "ownRow") Optional<Boolean> includeOwnRow,
-            @RequestParam(name = "im1id") Optional<Boolean> includeIm1id,
+            @RequestParam(name = "definition", defaultValue = "false") boolean definition,
+            @RequestParam(name = "core", defaultValue = "false") boolean core,
+            @RequestParam(name = "legacy", defaultValue = "false") boolean legacy,
+            @RequestParam(name = "includeSubsets",defaultValue = "false") boolean subsets,
+            @RequestParam(name = "ownRow", defaultValue = "false") boolean ownRow,
+            @RequestParam(name = "im1id", defaultValue = "false") boolean im1id,
             @RequestParam(name = "format") String format,
-            @RequestParam(name = "schemes") Optional<List<String>> includedSchemes
+            @RequestParam(name = "schemes", defaultValue = "") List<String> schemes
     ) throws DownloadException {
         LOG.debug("getSetExport");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
         headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"");
-        boolean definition = (includeDefinition.orElse(false));
-        boolean core = (includeCore.orElse(false));
-        boolean legacy = (includeLegacy.orElse(false));
-        boolean subsets = (includeSubsets.orElse(false));
-        boolean ownRow = (includeOwnRow.orElse(false));
-        boolean im1id = (includeIm1id.orElse(false));
-        List<String> schemes = (includedSchemes.orElse(null));
-
 
         try {
             if ("xlsx".equals(format)) {
@@ -494,7 +485,7 @@ public class EntityController {
                 return new HttpEntity<>(result, headers);
             }
             else if ("object".equals(format)){
-                SetContent result= setService.getSetContent(iri,true,true,legacy,true);
+                SetContent result= setService.getSetContent(iri, definition, core, legacy, subsets, schemes);
                 return getSetHttpEntity(headers,result);
             }
             else {

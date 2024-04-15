@@ -41,7 +41,7 @@ public class SetTextFileExporter {
         }
 
         if (core || legacy) {
-            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy, includeSubsets, schemes)
+            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, core, legacy, includeSubsets, schemes)
                     .stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
 
             if(includeSubsets) {

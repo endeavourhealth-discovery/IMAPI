@@ -183,37 +183,6 @@ public class SetRepository {
         }
     }
 
-
-    public Set<String> getSubsets(String setIri) {
-        Set<String> result = new HashSet<>();
-
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-          .add(IM_PREFIX)
-          .add("SELECT ?subset WHERE {")
-          .add("?subset ?issubset ?set .")
-          .add("}");
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
-            qry.setBinding("set", Values.iri(setIri));
-            qry.setBinding("issubset", Values.iri(IM.IS_SUBSET_OF));
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    String subsetIri = bs.getValue("subset").stringValue();
-                    try {
-                        Values.iri(subsetIri);
-                        result.add(subsetIri);
-                    } catch (IllegalArgumentException ignored) {
-                        LOG.warn("Invalid subset iri [{}] for set [{}]", subsetIri, setIri);
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
     public Set<TTIriRef> getSubsetIrisWithNames(String iri) {
         Set<TTIriRef> result = new HashSet<>();
 

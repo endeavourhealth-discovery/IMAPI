@@ -112,9 +112,11 @@ public class SetExporter {
 
     private Set<Concept> tryGetExpandedSetMembersByDefinition(String iri, boolean legacy, List<String> schemeIris) throws JsonProcessingException, QueryException {
 
-        TTEntity entity = trplRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION)).getEntity();
+        TTEntity entity = trplRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION, RDFS.LABEL)).getEntity();
         if (null == entity)
             return null;
+
+        String name = entity.has(iri(RDFS.LABEL)) ? entity.getName() : "";
 
         Query definition = entity.has(iri(IM.DEFINITION)) ? entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class) : null;
         if (null == definition)
@@ -124,7 +126,7 @@ public class SetExporter {
 
         if (null != result && !result.isEmpty()) {
             LOG.trace("Found {} results", result.size());
-            result.forEach(se -> se.addIsContainedIn(new TTEntity(iri)));
+            result.forEach(se -> se.addIsContainedIn(new TTEntity(iri).setName(name)));
         }
 
 

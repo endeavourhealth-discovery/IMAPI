@@ -88,7 +88,7 @@ public class EqdToIMQ {
 		queryEntity.setName(eqReport.getName());
 		queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
 		if (eqReport.getFolder() != null)
-			queryEntity.addIsContainedIn(new TTEntity(("urn:uuid:" + eqReport.getFolder())));
+			queryEntity.addIsContainedIn(new TTEntity(("urn:uuid:" + eqReport.getFolder())).setName(eqReport.getName()));
 
 		Query qry = new Query();
 

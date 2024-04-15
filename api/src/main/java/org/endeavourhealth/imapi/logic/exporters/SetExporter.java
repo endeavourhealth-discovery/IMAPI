@@ -100,7 +100,7 @@ public class SetExporter {
                 if (null != subsetMembers && !subsetMembers.isEmpty()) {
                     subsetMembers.forEach(ss -> ss.addIsContainedIn(
                         new TTEntity(subset.getIri())
-                            .setName(ss.getName())
+                            .setName(subset.getName())
                     ));
                     result.addAll(subsetMembers);
                 }

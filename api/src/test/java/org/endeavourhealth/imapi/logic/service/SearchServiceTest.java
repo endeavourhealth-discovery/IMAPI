@@ -7,20 +7,16 @@ import org.endeavourhealth.imapi.json.JsonLDMapper;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.imq.Order;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
-import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -171,7 +167,7 @@ class SearchServiceTest {
 		TTEntity entity= es.getFullEntity(IM.NAMESPACE+"VSET_VitalSigns").getEntity();
 		String json = entity.get(TTIriRef.iri(IM.DEFINITION)).asLiteral().getValue();
 		SetExporter exporter = new SetExporter();
-		Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE + "VSET_VitalSigns", false, true, List.of());
+		Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE + "VSET_VitalSigns", true, false, true, List.of());
 		System.out.println(concepts.size());
 	}
 }

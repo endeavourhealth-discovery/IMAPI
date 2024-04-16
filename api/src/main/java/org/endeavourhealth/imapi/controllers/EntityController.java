@@ -28,6 +28,7 @@ import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.iml.Concept;
+import org.endeavourhealth.imapi.model.iml.SetContent;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -279,6 +280,18 @@ public class EntityController {
         }
     }
 
+    private HttpEntity<Object> getSetHttpEntity(HttpHeaders headers, SetContent set) throws JsonProcessingException {
+
+        try (CachedObjectMapper objectMapper = new CachedObjectMapper()) {
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+            String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(set);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            return new HttpEntity<>(json, headers);
+        }
+    }
+
     @GetMapping(value = "/public/download")
     public HttpEntity<Object> download(
             @RequestParam("iri") String iri,
@@ -440,22 +453,23 @@ public class EntityController {
     @GetMapping("/public/setExport")
     public HttpEntity<Object> getSetExport(
             @RequestParam(name = "iri") String iri,
-            @RequestParam(name = "definition") boolean definition,
-            @RequestParam(name = "core") boolean core,
-            @RequestParam(name = "legacy") boolean legacy,
-            @RequestParam(name = "includeSubsets") boolean includeSubsets,
-            @RequestParam(name = "ownRow") boolean ownRow,
-            @RequestParam(name = "im1id") boolean im1id,
+            @RequestParam(name = "definition", defaultValue = "false") boolean definition,
+            @RequestParam(name = "core", defaultValue = "false") boolean core,
+            @RequestParam(name = "legacy", defaultValue = "false") boolean legacy,
+            @RequestParam(name = "includeSubsets",defaultValue = "false") boolean subsets,
+            @RequestParam(name = "ownRow", defaultValue = "false") boolean ownRow,
+            @RequestParam(name = "im1id", defaultValue = "false") boolean im1id,
             @RequestParam(name = "format") String format,
-            @RequestParam(name = "schemes") List<String> schemes
+            @RequestParam(name = "schemes", defaultValue = "") List<String> schemes
     ) throws DownloadException {
         LOG.debug("getSetExport");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
         headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"");
+
         try {
             if ("xlsx".equals(format)) {
-                XSSFWorkbook workbook = entityService.getSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
+                XSSFWorkbook workbook = entityService.getSetExport(iri, definition, core, legacy, subsets, ownRow, im1id, schemes);
                 try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                     workbook.write(outputStream);
                     workbook.close();
@@ -464,12 +478,17 @@ public class EntityController {
                     throw new DownloadException("Failed to write to excel document");
                 }
             } else if ("csv".equals(format)) {
-                String result = setService.getCSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
+                String result = setService.getCSVSetExport(iri, definition, core, legacy, subsets, ownRow, im1id, schemes);
                 return new HttpEntity<>(result, headers);
             } else if ("tsv".equals(format)) {
-                String result = setService.getTSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
+                String result = setService.getTSVSetExport(iri, definition, core, legacy, subsets, ownRow, im1id, schemes);
                 return new HttpEntity<>(result, headers);
-            } else {
+            }
+            else if ("object".equals(format)){
+                SetContent result= setService.getSetContent(iri, definition, core, legacy, subsets, schemes);
+                return getSetHttpEntity(headers,result);
+            }
+            else {
                 return null;
             }
         } catch (IOException e) {

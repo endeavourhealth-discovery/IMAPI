@@ -1260,9 +1260,9 @@ public class EntityService {
         return entityRepository.isAncestor(objectIri, subjectIri);
     }
 
-    public Set<Concept> getFullyExpandedMembers(String iri, boolean includeSubset, boolean includeLegacy, List<String> schemes) throws QueryException, JsonProcessingException {
+    public Set<Concept> getFullyExpandedMembers(String iri, boolean includeLegacy, boolean includeSubset, List<String> schemes) throws QueryException, JsonProcessingException {
         SetExporter setExporter = new SetExporter();
-        Set<Concept> members = setExporter.getExpandedSetMembers(iri, includeLegacy, includeSubset, schemes);
+        Set<Concept> members = setExporter.getExpandedSetMembers(iri, true, includeLegacy, includeSubset, schemes);
         return members;
     }
 

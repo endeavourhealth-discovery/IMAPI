@@ -346,7 +346,10 @@ public class SetRepository {
                 if (lt != null)
                     legacy.setName(lt.stringValue());
                 if (ls != null) {
-                    legacy.setScheme(iri(ls.stringValue(), lsn.stringValue()));
+                    if (lsn == null)
+                        legacy.setScheme(iri(ls.stringValue()));
+                    else
+                        legacy.setScheme(iri(ls.stringValue(), lsn.stringValue()));
                 }
                 if (codeId != null) {
                     legacy.setCodeId(codeId.stringValue());

@@ -112,7 +112,7 @@ public class TTBulkFiler  implements TTDocumentFiler {
 
     private static String getScheme(String iri){
         if (iri.contains("#"))
-            return iri.split("#")[0];
+            return iri.substring(0,iri.lastIndexOf("#")+1);
         else
             return iri.substring(0,iri.lastIndexOf("/")+1);
     }

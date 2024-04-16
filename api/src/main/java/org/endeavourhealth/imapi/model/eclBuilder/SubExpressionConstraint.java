@@ -1,12 +1,29 @@
 package org.endeavourhealth.imapi.model.eclBuilder;
 
+import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.util.List;
-
+@Getter
 public class SubExpressionConstraint {
     private TTIriRef concept;
-    private String operator;
+    private String constraintOperator;
     private Boolean memberOf;
-    private List<TTIriRef> members;
+
+    public SubExpressionConstraint() {
+    }
+
+    public SubExpressionConstraint setConcept(TTIriRef concept) {
+        this.concept = concept;
+        return this;
+    }
+
+    public SubExpressionConstraint setConstraintOperator(String constraintOperator) {
+        this.constraintOperator = constraintOperator;
+        return this;
+    }
+
+    public SubExpressionConstraint setMemberOf(Boolean memberOf) {
+        this.memberOf = memberOf;
+        return this;
+    }
 }

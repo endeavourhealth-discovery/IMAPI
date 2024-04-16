@@ -11,6 +11,7 @@ public class BoolGroup extends BuilderComponent {
     private Bool conjunction;
     private List<BuilderComponent> items;
     private Boolean attributeGroup;
+    private Boolean exclude;
 
     public BoolGroup() {
         super("BoolGroup");
@@ -34,6 +35,11 @@ public class BoolGroup extends BuilderComponent {
 
     public BoolGroup setAttributeGroup(Boolean attributeGroup) {
         this.attributeGroup = attributeGroup;
+        return this;
+    }
+
+    public BoolGroup setExclude(Boolean exclude) {
+        this.exclude = exclude;
         return this;
     }
 

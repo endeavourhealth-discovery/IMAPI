@@ -38,9 +38,12 @@ public class IMQToECLBuilder {
         return boolGroup;
     }
 
-    private BoolGroup createRefinementBoolGroup(Where where) {
+    private BoolGroup createRefinementBoolGroup(Where where) throws EclBuilderException {
         BoolGroup boolGroup = new BoolGroup();
-//        if (where)
+        boolGroup.setConjunction(where.getBoolWhere());
+        for (Where subWhere : where.getWhere()) {
+            boolGroup.addItem(createRefinement(subWhere));
+        }
         return boolGroup;
     }
 

@@ -1,16 +1,12 @@
 package org.endeavourhealth.imapi.model.imq;
 
-public class PropertyRef extends Element {
+public class PropertyRef extends Node{
 	private boolean inverse;
-	private String nodeRef;
 	private String valueVariable;
 
-	public String getNodeRef() {
-		return nodeRef;
-	}
 
 	public PropertyRef setNodeRef(String nodeRef) {
-		this.nodeRef = nodeRef;
+		super.setNodeRef(nodeRef);
 		return this;
 	}
 

@@ -96,4 +96,14 @@ public class EclController {
     public String getECLFromQueryWithNames(@RequestBody Query query) throws QueryException {
         return eclService.getECLFromQuery(query, true);
     }
+
+
+    @PostMapping(value = "/public/queryFromEcl", consumes= "text/plain",  produces = "application/json")
+    @Operation(
+      summary = "Get IMQ query from ecl",
+      description = "Map ecl test to an IM query object"
+    )
+    public Query getQueryFromECL(@RequestBody String ecl ) throws DataFormatException {
+        return eclService.getQueryFromEcl(ecl);
+    }
 }

@@ -41,8 +41,8 @@ public class SetExporter {
     private static final Logger LOG = LoggerFactory.getLogger(SetExporter.class);
 
     private EntityRepository2 entityRepository2 = new EntityRepository2();
-    private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
     private SetRepository setRepository= new SetRepository();
+    private EntityTripleRepository trplRepository = new EntityTripleRepository();
 
     public void publishSetToIM1(String setIri) throws JsonProcessingException, QueryException {
         StringJoiner results = generateForIm1(setIri);
@@ -51,73 +51,86 @@ public class SetExporter {
         LOG.trace("Done");
     }
 
-    public StringJoiner generateForIm1(String setIri) throws JsonProcessingException, QueryException {
+    public StringJoiner generateForIm1(String setIri) throws QueryException, JsonProcessingException {
         LOG.debug("Exporting set to IMv1");
 
         LOG.trace("Looking up set...");
         String name = entityRepository2.getBundle(setIri, Set.of(RDFS.LABEL)).getEntity().getName();
 
-        Set<Concept> members = getExpandedSetMembers(setIri, true, true, List.of());
+        Set<Concept> members = getExpandedSetMembers(setIri, true, true, true, List.of());
 
         return generateIMV1TSV(setIri, name, members);
     }
 
-    private Set<String> getSetsRecursive(String setIri) {
-        LOG.trace("Getting set list...");
-        Set<String> setIris = new HashSet<>();
-
-        Set<String> subsets = setRepository.getSubsets(setIri);
-
-        if (subsets.isEmpty())
-            setIris.add(setIri);
-        else {
-            for (String subset :subsets) {
-                setIris.addAll(getSetsRecursive(subset));
-            }
-        }
-        return setIris;
+    public Set<TTIriRef> getSubsetIrisWithNames(String iri) {
+        Set<TTIriRef> subsets = setRepository.getSubsetIrisWithNames(iri);
+        return new HashSet<>(subsets);
     }
 
-    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy, boolean includeSubset, List<String> schemes) throws JsonProcessingException, QueryException {
-        Set<String> setIris = getSetsRecursive(setIri);
+    public Set<Concept> getExpandedSetMembers(String iri, boolean core, boolean legacy, boolean subsets, List<String> schemes) throws QueryException, JsonProcessingException {
+        if (!(core || legacy || subsets))
+            return new HashSet<>();
 
-        LOG.trace("Expanding members for sets...");
-        Map<String, Concept> result = new HashMap<>();
+        Set<Concept> result = null;
 
-        for(String iri : setIris) {
-            Set<Concept> subResults = new HashSet<>();
-            LOG.trace("Processing set [{}]...", iri);
+        if (core || legacy) {
+            result = tryGetExpandedSetMembersByDefinition(iri, legacy, schemes);
 
-            Set<Concept> members = setRepository.getSetMembers(iri, includeLegacy, schemes);
+//        if (null == result)
+//            // Try get direct/pre-expanded members?
 
-            if (members != null && !members.isEmpty()) {
-                subResults.addAll(members);
-            } else {
-                TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION)).getEntity();
-                if (entity.get(iri(IM.DEFINITION))!=null)
-                    subResults.addAll(setRepository.getSetExpansion(entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class),
-                        includeLegacy,null, schemes));
-                else
-                    subResults.addAll(setRepository.getSetExpansion(new Query()
-                      .match(f->f
-                        .setInstanceOf(new Node().setIri(entity.getIri())
-                        .setDescendantsOrSelfOf(true)))
-                    ,includeLegacy,null, schemes));
+            if (null == result) {
+                Query descendantsOf = new Query()
+                    .match(f -> f
+                        .setInstanceOf(new Node().setIri(iri)
+                            .setDescendantsOrSelfOf(true)));
+                result = setRepository.getSetExpansion(descendantsOf, legacy, null, schemes);
             }
-            if(includeSubset) {
-                TTEntity entity = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL, IM.VERSION)).getEntity();
-                subResults.forEach(m -> {
-                    m.addIsContainedIn(entity);
-                    result.put(m.getIri(), m);
-                });
-            }
-            else {
-                for(Concept subResult: subResults) {
-                    if(!result.containsKey(subResult.getIri())) result.put(subResult.getIri(), subResult);
+        }
+
+        if (null == result)
+            result = new HashSet<>();
+
+        if (subsets) {
+            LOG.trace("Expanding subsets for {}...", iri);
+            Set<TTIriRef> subSetIris = getSubsetIrisWithNames(iri);
+            LOG.trace("Found {} subsets...", subSetIris.size());
+            for (TTIriRef subset : subSetIris) {
+                Set<Concept> subsetMembers = getExpandedSetMembers(subset.getIri(), core, legacy, subsets, schemes);
+                if (null != subsetMembers && !subsetMembers.isEmpty()) {
+                    subsetMembers.forEach(ss -> ss.addIsContainedIn(
+                        new TTEntity(subset.getIri())
+                            .setName(subset.getName())
+                    ));
+                    result.addAll(subsetMembers);
                 }
             }
         }
-        return new HashSet<Concept>(result.values());
+
+        return result;
+    }
+
+    private Set<Concept> tryGetExpandedSetMembersByDefinition(String iri, boolean legacy, List<String> schemeIris) throws JsonProcessingException, QueryException {
+
+        TTEntity entity = trplRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION, RDFS.LABEL)).getEntity();
+        if (null == entity)
+            return null;
+
+        String name = entity.has(iri(RDFS.LABEL)) ? entity.getName() : "";
+
+        Query definition = entity.has(iri(IM.DEFINITION)) ? entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class) : null;
+        if (null == definition)
+            return null;
+
+        Set<Concept> result = setRepository.getSetExpansion(definition, legacy, null, schemeIris);
+
+        if (null != result && !result.isEmpty()) {
+            LOG.trace("Found {} results", result.size());
+            result.forEach(se -> se.addIsContainedIn(new TTEntity(iri).setName(name)));
+        }
+
+
+        return result;
     }
 
     private StringJoiner generateIMV1TSV(String setIri, String name, Set<Concept> members) {

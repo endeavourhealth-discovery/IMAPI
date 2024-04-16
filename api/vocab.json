@@ -4,76 +4,76 @@
     "entries": [
       {
         "name": "NAMESPACE",
-        "value":"\"http://endhealth.info/config#\""
+        "value": "\"http://endhealth.info/config#\""
       },
       {
         "name": "DOMAIN",
-        "value":"\"http://endhealth.info/\""
+        "value": "\"http://endhealth.info/\""
       },
       {
         "name": "PREFIX",
-        "value":"\"cfg\""
+        "value": "\"cfg\""
       },
       {
         "name": "DEFINITION",
-        "value":"CONFIG.NAMESPACE + \"definition\""
+        "value": "CONFIG.NAMESPACE + \"definition\""
       },
       {
         "name": "SUMMARY",
-        "value":"CONFIG.NAMESPACE + \"summary\""
+        "value": "CONFIG.NAMESPACE + \"summary\""
       },
       {
         "name": "FILTER_DEFAULTS",
-        "value":"CONFIG.NAMESPACE + \"filterDefaults\""
+        "value": "CONFIG.NAMESPACE + \"filterDefaults\""
       },
 
       {
         "name": "INFERRED_PREDICATES",
-        "value":"CONFIG.NAMESPACE + \"inferredPredicates\""
+        "value": "CONFIG.NAMESPACE + \"inferredPredicates\""
       },
       {
         "name": "INFERRED_EXCLUDE_PREDICATES",
-        "value":"CONFIG.NAMESPACE + \"inferredExcludePredicates\""
+        "value": "CONFIG.NAMESPACE + \"inferredExcludePredicates\""
       },
       {
         "name": "CONCEPT_DASHBOARD",
-        "value":"CONFIG.NAMESPACE + \"conceptDashboard\""
+        "value": "CONFIG.NAMESPACE + \"conceptDashboard\""
       },
       {
         "name": "DEFAULT_PREDICATE_NAMES",
-        "value":"CONFIG.NAMESPACE + \"defaultPredicateNames\""
+        "value": "CONFIG.NAMESPACE + \"defaultPredicateNames\""
       },
       {
         "name": "XML_SCHEMA_DATA_TYPES",
-        "value":"CONFIG.NAMESPACE + \"xmlSchemaDataTypes\""
+        "value": "CONFIG.NAMESPACE + \"xmlSchemaDataTypes\""
       },
       {
         "name": "DEFAULT_PREFIXES",
-        "value":"CONFIG.NAMESPACE + \"defaultPrefixes\""
+        "value": "CONFIG.NAMESPACE + \"defaultPrefixes\""
       },
       {
         "name": "GRAPH_EXCLUDE_PREDICATES",
-        "value":"CONFIG.NAMESPACE + \"graphExcludePredicates\""
+        "value": "CONFIG.NAMESPACE + \"graphExcludePredicates\""
       },
       {
         "name": "IM1_PUBLISH",
-        "value":"CONFIG.NAMESPACE + \"im1Publish\""
+        "value": "CONFIG.NAMESPACE + \"im1Publish\""
       },
       {
         "name": "IMDIRECTORY_LATEST_RELEASE",
-        "value":"CONFIG.NAMESPACE + \"IMDirectoryLatestRelease\""
+        "value": "CONFIG.NAMESPACE + \"IMDirectoryLatestRelease\""
       },
       {
         "name": "IMDIRECTORY_ALL_RELEASES",
-        "value":"CONFIG.NAMESPACE + \"IMDirectoryAllReleases\""
+        "value": "CONFIG.NAMESPACE + \"IMDirectoryAllReleases\""
       },
       {
         "name": "IMPORT_DATA_LATEST_RELEASE",
-        "value":"CONFIG.NAMESPACE + \"ImportDataLatestRelease\""
+        "value": "CONFIG.NAMESPACE + \"ImportDataLatestRelease\""
       },
       {
         "name": "IMPORT_DATA_ALL_RELEASES",
-        "value":"CONFIG.NAMESPACE + \"ImportDataAllReleases\""
+        "value": "CONFIG.NAMESPACE + \"ImportDataAllReleases\""
       }
     ]
   },
@@ -311,7 +311,7 @@
       },
       {
         "name": "PREVIOUS_ENTITY_OF",
-        "value":"IM.NAMESPACE + \"previousEntityOf\""
+        "value": "IM.NAMESPACE + \"previousEntityOf\""
       },
       {
         "name": "SUBSUMED_BY",
@@ -623,7 +623,7 @@
       },
       {
         "name": "USAGE",
-        "value": "IM.NAMESPACE + \"Usage\""
+        "value": "IM.NAMESPACE + \"SortFieldUsage\""
       },
       {
         "name": "DESCENDING",
@@ -956,6 +956,14 @@
       {
         "name": "ENTITY_IDENTIFIER",
         "value": "IM.NAMESPACE + \"entityIdentifier\""
+      },
+      {
+        "name": "CODE_TEMPLATE",
+        "value": "IM.NAMESPACE + \"codeTemplate\""
+      },
+      {
+        "name": "DATAMODEL_CLASSES",
+        "value": "IM.NAMESPACE + \"DataModelClasses\""
       }
     ]
   },
@@ -1527,6 +1535,10 @@
       {
         "name": "ATTRIBUTE",
         "value": "SNOMED.DOMAIN + \"246061005\""
+      },
+      {
+        "name": "ANY",
+        "value": "SNOMED.NAMESPACE + \"*\""
       }
     ]
   },
@@ -1795,6 +1807,14 @@
       {
         "name": "IRI_BUILDER",
         "value": "COMPONENT.NAMESPACE + \"iriBuilder\""
+      },
+      {
+        "name": "AUTOCOMPLETE_SEARCH_BAR_WRAPPER",
+        "value": "COMPONENT.NAMESPACE + \"autocompleteSearchBarWrapper\""
+      },
+      {
+        "name": "SUBSET_BUILDER",
+        "value": "COMPONENT.NAMESPACE + \"subsetBuilder\""
       }
     ]
   },
@@ -1919,12 +1939,16 @@
         "value": "QUERY.NAMESPACE + \"DataModelPropertyByShape\""
       },
       {
-        "name": "SEARCH_SUBCLASS",
+        "name": "SEARCH_ALLOWABLE_SUBCLASS",
         "value": "QUERY.NAMESPACE + \"SearchAllowableSubclass\""
       },
       {
         "name": "GET_VALUES_FROM_PROPERTY_RANGE",
         "value": "QUERY.NAMESPACE + \"GetValuesFromPropertyRange\""
+      },
+      {
+        "name": "GET_SUBSETS",
+        "value": "QUERY.NAMESPACE + \"GetSubsets\""
       }
     ]
   },
@@ -1979,6 +2003,10 @@
       {
         "name": "DISCOVERY",
         "value": "\"http://endhealth.info/im#\""
+      },
+      {
+        "name": "BNF",
+        "value": "\"http://endhealth.info/bnf#\""
       },
       {
         "name": "ICD10",
@@ -2087,6 +2115,35 @@
       {
         "name": "XMLS",
         "value": "\"http://www.w3.org/2001/XMLSchema#\""
+      }
+    ]
+  },
+  {
+    "name": "CODE_TEMPLATE",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://endhealth.info/\""
+      },
+      {
+        "name": "NAMESPACE",
+        "value": "CODE_TEMPLATE.DOMAIN + \"codeTemplate#\""
+      },
+      {
+        "name": "PREFIX",
+        "value": "\"cTemp\""
+      },
+      {
+        "name": "WRAPPER",
+        "value": "CODE_TEMPLATE.NAMESPACE + \"wrapper\""
+      },
+      {
+        "name": "DATATYPE_MAP",
+        "value": "CODE_TEMPLATE.NAMESPACE + \"datatypeMap\""
+      },
+      {
+        "name": "EXTENSION",
+        "value": "CODE_TEMPLATE.NAMESPACE + \"extension\""
       }
     ]
   }

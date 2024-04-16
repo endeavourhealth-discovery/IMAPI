@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ public class Return {
 	private FunctionClause function;
 	private String as;
 	private List<String> valueRef;
+	private List<IriLD> path;
 
 	public List<String> getValueRef() {
 		return valueRef;
@@ -25,6 +27,29 @@ public class Return {
 		this.valueRef = valueRef;
 		return this;
 	}
+
+	public List<IriLD> getPath() {
+		return path;
+	}
+
+	public Return setPath(List<IriLD> path) {
+		this.path = path;
+		return this;
+	}
+	public Return addPath (IriLD path){
+			if (this.path == null) {
+				this.path = new ArrayList<>();
+			}
+			this.path.add(path);
+			return this;
+		}
+		public Return path (Consumer < IriLD > builder) {
+			IriLD path = new IriLD();
+			addPath(path);
+			builder.accept(path);
+			return this;
+		}
+
 
 	public Return addValueRef(String ref){
 		if (this.valueRef==null)

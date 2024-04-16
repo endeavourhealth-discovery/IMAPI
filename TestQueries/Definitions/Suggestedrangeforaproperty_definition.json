@@ -18,14 +18,14 @@
     "name" : "Suggested range for a property",
     "description" : "get node, class or datatype values (ranges)  of property objects that have 4this as their path",
     "match" : [ {
-      "property" : [ {
+      "where" : [ {
         "@id" : "sh:path",
         "is" : [ {
           "parameter" : "this"
         } ]
       }, {
         "bool" : "or",
-        "property" : [ {
+        "where" : [ {
           "@id" : "sh:node",
           "match" : {
             "variable" : "range"

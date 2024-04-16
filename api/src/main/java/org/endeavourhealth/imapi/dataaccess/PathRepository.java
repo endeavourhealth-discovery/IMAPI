@@ -38,11 +38,11 @@ public class PathRepository {
 		int count=0;
 		if (match==null)
 			return 0;
-		if (match.getProperty()==null)
+		if (match.getWhere()==null)
 			return 0;
 		else {
 			count++;
-			for (Property path:match.getProperty())
+			for (Where path:match.getWhere())
 				count=count+getLength(path.getMatch());
 		}
 		return count;
@@ -79,15 +79,15 @@ public class PathRepository {
 							nextPath
 								.setTypeOf(bs.getValue("entity").stringValue())
 								.setName(bs.getValue("entityName").stringValue());
-							Property path= new Property();
-							nextPath.addProperty(path);
+							Where path= new Where();
+							nextPath.addWhere(path);
 							path
 								.setIri(bs.getValue("path").stringValue())
 								.setName(bs.getValue("pathName").stringValue());
 							Match node= new Match();
 							path.setMatch(node);
 							node.setTypeOf(partial.getTypeOf());
-							node.setProperty(partial.getProperty());
+							node.setWhere(partial.getWhere());
 							if (nextPath.getTypeOf().getIri().equals(source))
 								full.add(nextPath);
 							else
@@ -108,7 +108,7 @@ public class PathRepository {
 			.add("?target ^sh:node ?prop.")
 			.add("?prop sh:path ?path.")
 			.add("?path rdfs:label ?pathName.")
-			.add("?entity sh:property ?prop.")
+			.add("?entity sh:where ?prop.")
 			.add("?entity rdfs:label ?entityName }");
 		return sql.toString();
 	}
@@ -120,7 +120,7 @@ public class PathRepository {
 		//First get the shapes
 		StringJoiner sql = new StringJoiner("\n");
 		sql.add(getDefaultPrefixes())
-			.add("select ?entity ?entityName ?property ?propertyName ?conceptProperty ?conceptPropertyName ?targetType ?targetName ?order")
+			.add("select ?entity ?entityName ?where ?propertyName ?conceptProperty ?conceptPropertyName ?targetType ?targetName ?order")
 			.add("where {")
 			.add( targetIri+" rdf:type ?targetType.")
 			.add(targetIri+" rdfs:label ?targetName")
@@ -129,9 +129,9 @@ public class PathRepository {
 			.add("filter (?concept= " + targetIri + ").")
 			.add("?concept rdfs:label ?conceptName.")
 			.add("?set ^sh:class ?prop.")
-			.add("?prop sh:path ?property.")
-			.add("?property rdfs:label ?propertyName.")
-			.add("?entity sh:property ?prop.")
+			.add("?prop sh:path ?where.")
+			.add("?where rdfs:label ?propertyName.")
+			.add("?entity sh:where ?prop.")
 			.add("?entity rdfs:label ?entityName")
 			.add("}")
 			.add("union")
@@ -143,18 +143,18 @@ public class PathRepository {
 			.add("?concept im:roleGroup ?roleGroup.")
 			.add("?set im:hasMember ?concept.")
 			.add("?set ^sh:class ?prop.")
-			.add("?prop sh:path ?property.")
-			.add("?property rdfs:label ?propertyName.")
-			.add("?entity sh:property ?prop.")
+			.add("?prop sh:path ?where.")
+			.add("?where rdfs:label ?propertyName.")
+			.add("?entity sh:where ?prop.")
 			.add("?entity rdfs:label ?entityName")
 			.add("}")
 			.add("union {")
 			.add(targetIri+ " ^sh:path ?prop.")
 			.add("optional {?prop sh:order ?order}")
-			.add("?entity sh:property ?prop.")
+			.add("?entity sh:where ?prop.")
 			.add("?entity rdfs:label ?entityName }")
 			.add("}")
-			.add("group by ?entity ?entityName ?property ?propertyName ?conceptProperty ?order"+
+			.add("group by ?entity ?entityName ?where ?propertyName ?conceptProperty ?order"+
 					" ?conceptPropertyName ?targetType ?targetName")
 			.add("order by ?order");
 		TupleQuery qry = conn.prepareTupleQuery(sql.toString());
@@ -165,11 +165,11 @@ public class PathRepository {
 				match
 					.setTypeOf(bs.getValue("entity").stringValue())
 				  .setName(bs.getValue("entityName").stringValue());
-				Property where= new Property();
+				Where where= new Where();
 				if (bs.getValue("property")!=null) {
 					String propertyIri = bs.getValue("property").stringValue();
 					if (bs.getValue("conceptProperty")==null) {
-						match.addProperty(where);
+						match.addWhere(where);
 						where
 							.setIri(propertyIri)
 							.setName(bs.getValue("propertyName").stringValue())
@@ -178,13 +178,13 @@ public class PathRepository {
 								.setName(bs.getValue("targetName").stringValue()));
 					}
 					else {
-						Property path= new Property();
-						match.addProperty(path);
+						Where path= new Where();
+						match.addWhere(path);
 						path
 							.setIri(propertyIri)
 							.setName(bs.getValue("propertyName").stringValue())
 							.match(mConcept->mConcept
-								.addProperty(where));
+								.addWhere(where));
 						where
 						.setIri(bs.getValue("conceptProperty").stringValue())
 						.setName(bs.getValue("conceptPropertyName").stringValue())

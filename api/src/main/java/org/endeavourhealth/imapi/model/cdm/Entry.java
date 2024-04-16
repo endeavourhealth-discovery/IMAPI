@@ -28,7 +28,7 @@ public abstract class Entry extends TTEntity {
 	}
 
 	public Entry setDateOfEntry(String dateOfEntry) {
-		set(iri(IM.DATE_OF_ENTRY), TTLiteral.literal("dateOfEntry"));
+		set(iri(IM.DATE_OF_ENTRY), TTLiteral.literal(dateOfEntry));
 		return this;
 	}
 }

@@ -1,14 +1,11 @@
 package org.endeavourhealth.imapi.transforms;
 
-import openllet.shared.tools.Log;
 import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.logic.exporters.ImportMaps;
 import org.endeavourhealth.imapi.model.iml.ConceptSet;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -36,7 +33,14 @@ public class EqdResources {
     private boolean isLinked;
 
 
+    public Map<String, String> getReportNames() {
+        return reportNames;
+    }
 
+    public EqdResources setReportNames(Map<String, String> reportNames) {
+        this.reportNames = reportNames;
+        return this;
+    }
 
     public String getActiveReportName() {
         return activeReportName;
@@ -98,135 +102,148 @@ public class EqdResources {
     }
 
 
-    public void convertCriteria(EQDOCCriteria eqCriteria,
-                                Match match) throws DataFormatException, IOException, QueryException {
-
+    public Match convertCriteria(EQDOCCriteria eqCriteria) throws DataFormatException, IOException, QueryException {
         if ((eqCriteria.getPopulationCriterion() != null)) {
             EQDOCSearchIdentifier srch = eqCriteria.getPopulationCriterion();
+            Match match= new Match();
             match
-                    .addIs(new Node().setIri("urn:uuid:" + srch.getReportGuid()))
-                    .setName(reportNames.get(srch.getReportGuid()));
+              .addIs(new Node().setIri("urn:uuid:" + srch.getReportGuid()))
+              .setName(reportNames.get(srch.getReportGuid()));
+            return match;
         } else {
-            convertCriterion(eqCriteria.getCriterion(), match);
+            return convertCriterion(eqCriteria.getCriterion());
         }
     }
 
 
-    private void convertCriterion(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException, QueryException {
-        if (eqCriterion.isNegation()) {
-            match.setExclude(true);
-        }
+    private Match convertCriterion(EQDOCCriterion eqCriterion) throws DataFormatException, IOException, QueryException {
 
         if (eqCriterion.getLinkedCriterion() != null) {
             isLinked= true;
-            convertLinkedCriterion(eqCriterion, match);
+            Match match= convertLinkedCriterion(eqCriterion);
+            //nestWheres(match);
+            return match;
         } else {
             isLinked=false;
-            convertStandardCriterion(eqCriterion, match);
-        }
-
-    }
-
-    private Match getTablePath(String eqKey, Match match) throws DataFormatException, QueryException {
-        String pathMap = getPath(eqKey);
-        if (pathMap.equals(""))
+            Match match= convertStandardCriterion(eqCriterion);
+            //nestWheres(match);
             return match;
-        String[] paths = pathMap.split(" ");
-        for (int i = 0; i < paths.length - 1; i = i + 2) {
-            if (paths[i].startsWith("^")){
-                match.addPath(new Property().setIri(IM.NAMESPACE+paths[i].substring(1)));
-            }
-            else {
-                Property path = new Property();
-                match.addProperty(path);
-                path.setIri(paths[i]);
-                Match subMatch = new Match();
-                path.setMatch(subMatch);
-                subMatch.setTypeOf(paths[i + 1]);
-                match = subMatch;
+        }
+
+    }
+    private void nestWheres(Match match){
+        if (match.getWhere()!=null){
+            if (match.getWhere().size()>1){
+                List<Where> wheres= match.getWhere();
+                Where newWhere= new Where();
+                newWhere.setBool(Bool.and);
+                newWhere.setWhere(wheres);
+                match.setWhere(List.of(newWhere));
             }
         }
-        return match;
-    }
-
-    private Match getPropertyPaths(Match match, String pathMap) throws QueryException {
-        String[] paths = pathMap.split(" ");
-        for (int i = 0; i < paths.length - 2; i = i + 2) {
-            if (paths[i].startsWith("^")) {
-                match.addPath(new Property().setIri(IM.NAMESPACE + paths[1].substring(1)));
-                match.setTypeOf(IM.NAMESPACE+paths[i]+1);
-            }
-            else {
-                Match subMatch = getPathMatch(match, paths[i]);
-                if (subMatch == null) {
-                    Property path = new Property();
-                    match.addProperty(path);
-                    path.setIri(paths[i]);
-                    subMatch = new Match();
-                    path.setMatch(subMatch);
-                    subMatch.setTypeOf(paths[i + 1]);
-                    match = subMatch;
-                }
-                else
-                    return subMatch;
-            }
+        if (match.getMatch()!=null){
+            for (Match subMatch:match.getMatch())
+                nestWheres(subMatch);
         }
-        return match;
-    }
-
-    private Match getPathMatch(Match match, String property) {
-        if (match.getProperty() == null)
-            return null;
-        for (Property prop : match.getProperty()) {
-            if (prop.getIri().equals(property) || prop.getIri().equals(IM.NAMESPACE + property))
-                return prop.getMatch();
+        if (match.getThen()!=null){
+            nestWheres(match.getThen());
         }
-        return null;
     }
 
-    private void convertStandardCriterion(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException, QueryException {
+    private Match convertStandardCriterion(EQDOCCriterion eqCriterion) throws DataFormatException, IOException, QueryException {
         if (eqCriterion.getFilterAttribute().getRestriction() != null) {
-            convertRestrictionCriterion(eqCriterion, match);
+            Match match= convertRestrictionCriterion(eqCriterion);
+            if (eqCriterion.isNegation()) {
+                match.setExclude(true);
+            }
+            return match;
+
 
         } else {
-            match = getTablePath(eqCriterion.getTable(), match);
-            convertColumns(eqCriterion, match);
+             Match match=convertColumns(eqCriterion);
+            if (eqCriterion.isNegation()) {
+                match.setExclude(true);
+            }
+            return match;
+
         }
     }
 
-    private void convertColumns(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException, QueryException {
+    private Match convertColumns(EQDOCCriterion eqCriterion) throws DataFormatException, IOException, QueryException {
         EQDOCFilterAttribute filterAttribute = eqCriterion.getFilterAttribute();
         List<EQDOCColumnValue> cvs = filterAttribute.getColumnValue();
-        if (cvs.size() == 1) {
-            EQDOCColumnValue cv = cvs.get(0);
-            setColumnWhere(cv, eqCriterion.getTable(), match);
-        } else {
-            match.setBool(Bool.and);
-            for (EQDOCColumnValue cv : filterAttribute.getColumnValue()) {
-                setColumnWhere(cv, eqCriterion.getTable(), match);
+        return convertColumnValues(cvs, eqCriterion.getTable());
+    }
+
+    private void convertPaths(List<Match> matches, Map<String,Match> pathMatchMap,String eqTable,EQDOCColumnValue cv) throws DataFormatException, IOException {
+        String tablePath= getPath(eqTable);
+        String eqColumn = String.join("/", cv.getColumn());
+        String columnPath= getPath(eqTable+"/"+ eqColumn);
+        String property;
+        if (columnPath.contains(" ")){
+            property= columnPath.substring(columnPath.lastIndexOf(" ")+1);
+            columnPath= columnPath.substring(0,columnPath.lastIndexOf(" "));
+        }
+        else {
+            property= columnPath;
+            columnPath="";
+        }
+        String fullPath= (tablePath+" "+ columnPath).trim();
+        Match match=pathMatchMap.get(fullPath);
+        if (match==null) {
+            match = new Match();
+            matches.add(match);
+            pathMatchMap.put(fullPath,match);
+            if (tablePath.contains(" ")) {
+                match.addPath(new IriLD().setIri(IM.NAMESPACE + tablePath.split(" ")[0].replace("^", "")));
+                match.setTypeOf(new Node().setIri(IM.NAMESPACE + tablePath.split(" ")[1]));
             }
+            if(columnPath.contains(" ")) {
+                String[] paths= columnPath.split(" ");
+                for (int i=0; i<paths.length; i=i+2){
+                    Where subProperty= new Where();
+                    match.addWhere(subProperty);
+                    subProperty.setIri(IM.NAMESPACE+ columnPath.split(" ")[i]);
+                    subProperty.setMatch(new Match());
+                    match=subProperty.getMatch();
+                    match.setTypeOf(new Node().setIri(IM.NAMESPACE+columnPath.split(" ")[i+1]));
+                    }
+                }
+        }
+        Where where= new Where();
+        match.addWhere(where);
+        where.setIri(IM.NAMESPACE+property);
+        setProperty(cv,where);
+
+    }
+
+
+    private Match convertColumnValues(List<EQDOCColumnValue> cvs,String eqTable) throws QueryException, DataFormatException, IOException {
+        List<Match> matches= new ArrayList<>();
+        Map<String,Match> pathMatchMap= new HashMap<>();
+        for (EQDOCColumnValue cv : cvs) {
+            convertPaths(matches,pathMatchMap,eqTable,cv);
         }
 
+        if (matches.size()==1){
+            return matches.get(0);
+        }
+        else {
+            Match match= new Match();
+            match.setBool(Bool.and);
+            match.setMatch(matches);
+            return match;
+        }
     }
 
-    private void setColumnWhere(EQDOCColumnValue cv, String eqTable, Match match) throws DataFormatException, IOException, QueryException {
-        String eqColumn = String.join("/", cv.getColumn());
-        String pathMap = getPath(eqTable + "/" + eqColumn);
-        match = getPropertyPaths(match, pathMap);
-        Property property = new Property();
-        match.addProperty(property);
-        property.setIri(pathMap.substring(pathMap.lastIndexOf(" ") + 1));
-        ;
-        setWhere(cv, property);
-    }
 
 
-    private void setWhere(EQDOCColumnValue cv, Property pv) throws DataFormatException, IOException {
+    private void setProperty(EQDOCColumnValue cv, Where pv) throws DataFormatException, IOException {
 
         VocColumnValueInNotIn in = cv.getInNotIn();
         boolean notIn = (in == VocColumnValueInNotIn.NOTIN);
         if (!cv.getValueSet().isEmpty()) {
-            setWhereValueSetSetters(cv, pv, notIn);
+            setPropertyValueSetSetters(cv, pv, notIn);
         } else if (!CollectionUtils.isEmpty(cv.getLibraryItem())) {
             String valueLabel = "";
             for (String vset : cv.getLibraryItem()) {
@@ -255,7 +272,7 @@ public class EqdResources {
         }
     }
 
-    private void setWhereValueSetSetters(EQDOCColumnValue cv, Property pv, boolean notIn) throws DataFormatException, IOException {
+    private void setPropertyValueSetSetters(EQDOCColumnValue cv, Where pv, boolean notIn) throws DataFormatException, IOException {
         for (EQDOCValueSet vs : cv.getValueSet()) {
             if (vs.getId() != null)
                 if (labels.get(vs.getId()) != null) {
@@ -282,35 +299,34 @@ public class EqdResources {
     }
 
 
-    private void convertRestrictionCriterion(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException, QueryException {
-        Match restricted = getTablePath(eqCriterion.getTable(), match);
-        convertColumns(eqCriterion, restricted);
+    private Match convertRestrictionCriterion(EQDOCCriterion eqCriterion) throws DataFormatException, IOException, QueryException {
+        Match restricted = convertColumns(eqCriterion);
         setRestriction(eqCriterion, restricted);
         if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
             counter++;
             String variable = "match_" + counter;
             if (isLinked)
                 restricted.setVariable(variable);
-            Match testMatch = new Match();
-            //testMatch.setNodeRef(variable);
-            restricted.setThen(testMatch);
-            restrictionTest(eqCriterion, testMatch, variable);
+            Match testMatch = restrictionTest(eqCriterion, variable);
+            if (testMatch!=null) {
+                restricted.setThen(testMatch);
+            }
+
         }
+        return restricted;
     }
 
 
-    private void restrictionTest(EQDOCCriterion eqCriterion, Match testMatch, String nodeVariable) throws IOException, DataFormatException, QueryException {
+    private Match restrictionTest(EQDOCCriterion eqCriterion, String nodeVariable) throws IOException, DataFormatException, QueryException {
         EQDOCTestAttribute testAtt = eqCriterion.getFilterAttribute().getRestriction().getTestAttribute();
         if (testAtt != null) {
-            testMatch.setBool(Bool.and);
-            for (EQDOCColumnValue cv : testAtt.getColumnValue()) {
-                setColumnWhere(cv, eqCriterion.getTable(), testMatch);
-            }
+            return convertColumnValues(testAtt.getColumnValue(),eqCriterion.getTable());
         }
+        return null;
 
     }
 
-    private String setRestriction(EQDOCCriterion eqCriterion, Match restricted) throws DataFormatException {
+    private void setRestriction(EQDOCCriterion eqCriterion, Match restricted) throws DataFormatException {
         Order direction;
         EQDOCFilterRestriction restrict = eqCriterion.getFilterAttribute().getRestriction();
         if (restrict.getColumnOrder().getColumns().get(0).getDirection() == VocOrderDirection.ASC) {
@@ -322,43 +338,39 @@ public class EqdResources {
                 .getColumnOrder().getColumns().get(0).getColumn().get(0);
         String orderBy = getPath(eqCriterion.getTable() + "/" + linkColumn);
         counter++;
-        String linkElement = restricted.getProperty().get(0).getVariable();
         restricted.orderBy(o -> o
                 .setProperty(new OrderDirection()
                         .setIri(orderBy)
                         .setDirection(direction))
                 .setLimit(1));
-        return linkElement;
     }
 
 
-    private void convertLinkedCriterion(EQDOCCriterion eqCriterion, Match topMatch) throws DataFormatException, IOException, QueryException {
-        Match targetMatch = new Match();
-        topMatch.addMatch(targetMatch);
-        convertStandardCriterion(eqCriterion, targetMatch);
+    private Match convertLinkedCriterion(EQDOCCriterion eqCriterion) throws DataFormatException, IOException, QueryException {
+        Match topMatch= convertStandardCriterion(eqCriterion);
         counter++;
         String variable = "match_" + counter;
-        targetMatch.setVariable(variable);
-        Match linkMatch = new Match();
-        topMatch.addMatch(linkMatch);
+        topMatch.setVariable(variable);
+
         EQDOCLinkedCriterion eqLinked = eqCriterion.getLinkedCriterion();
         EQDOCCriterion eqLinkedCriterion = eqLinked.getCriterion();
-        convertCriterion(eqLinkedCriterion, linkMatch);
-        Property relationWhere = new Property();
-        linkMatch.addProperty(relationWhere);
+        Match linkMatch= convertCriterion(eqLinkedCriterion);
+        topMatch.setThen(linkMatch);
+        Where relationProperty = new Where();
+        linkMatch.addWhere(relationProperty);
         EQDOCRelationship eqRel = eqLinked.getRelationship();
         String parent = getPath(eqCriterion.getTable() + "/" + eqRel.getParentColumn());
         String child = getPath(eqLinkedCriterion.getTable() + "/" + eqRel.getChildColumn());
-        relationWhere
+        relationProperty
                 .setIri(child)
                 .setOperator((Operator) vocabMap.get(eqRel.getRangeValue().getRangeFrom().getOperator()))
                 .setValue(eqRel.getRangeValue().getRangeFrom().getValue().getValue())
                 .setUnit(eqRel.getRangeValue().getRangeFrom().getValue().getUnit().value())
                 .relativeTo(r -> r.setNodeRef(variable).setIri(parent));
-
+        return topMatch;
     }
 
-    private void setRangeValue(EQDOCRangeValue rv, Property pv) throws DataFormatException {
+    private void setRangeValue(EQDOCRangeValue rv, Where pv) throws DataFormatException {
 
         EQDOCRangeFrom rFrom = rv.getRangeFrom();
         EQDOCRangeTo rTo = rv.getRangeTo();
@@ -437,8 +449,7 @@ public class EqdResources {
     }
 
 
-    private void setRangeCompare(Property pv, EQDOCRangeFrom rFrom, EQDOCRangeTo rTo) throws DataFormatException {
-        String fromComp;
+    private void setRangeCompare(Where pv, EQDOCRangeFrom rFrom, EQDOCRangeTo rTo) throws DataFormatException {
         Range range = new Range();
         pv.setRange(range);
         Value fromValue = new Value();
@@ -467,7 +478,7 @@ public class EqdResources {
     }
 
 
-    private Node getInlineValues(EQDOCValueSet vs, Property pv) throws DataFormatException, IOException {
+    private Node getInlineValues(EQDOCValueSet vs, Where pv) throws DataFormatException, IOException {
         Set<Node> setContent = new HashSet<>();
         Set<Node> excContent = new HashSet<>();
         VocCodeSystemEx scheme = vs.getCodeSystem();

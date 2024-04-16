@@ -2,20 +2,82 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.microsoft.schemas.office.visio.x2012.main.impl.TextTypeImpl;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 
-@JsonPropertyOrder({"parameter","iri","type","set","variable","name"})
+@JsonPropertyOrder({"parameter","iri","variable","parameter","name"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Element extends IriLD implements Entailment{
 	private String variable;
 	private String parameter;
 	private boolean ancestorsOf;
+	private boolean ancestorsOrSelfOf;
 	private boolean descendantsOrSelfOf;
 	private boolean descendantsOf;
+	private boolean childOrSelfOf;
+	private boolean childOf;
+	private boolean parentOrSelfOf;
+	private boolean parentOf;
+	private boolean memberOf;
 	private String nodeRef;
+
+	public boolean isMemberOf() {
+		return memberOf;
+	}
+
+	public Element setMemberOf(boolean memberOf) {
+		this.memberOf = memberOf;
+		return this;
+	}
+
+	public boolean isAncestorsOrSelfOf() {
+		return ancestorsOrSelfOf;
+	}
+
+	public Element setAncestorsOrSelfOf(boolean ancestorsOrSelfOf) {
+		this.ancestorsOrSelfOf = ancestorsOrSelfOf;
+		return this;
+	}
+
+	public boolean isParentOrSelfOf() {
+		return parentOrSelfOf;
+	}
+
+	public Element setParentOrSelfOf(boolean parentOrSelfOf) {
+		this.parentOrSelfOf = parentOrSelfOf;
+		return this;
+	}
+
+	public boolean isParentOf() {
+		return parentOf;
+	}
+
+	public Element setParentOf(boolean parentOf) {
+		this.parentOf = parentOf;
+		return this;
+	}
 
 	public String getNodeRef() {
 		return nodeRef;
+	}
+
+	public boolean isChildOrSelfOf() {
+		return childOrSelfOf;
+	}
+
+	public Element setChildOrSelfOf(boolean childOrSelfOf) {
+		this.childOrSelfOf = childOrSelfOf;
+		return this;
+	}
+
+	public boolean isChildOf() {
+		return childOf;
+	}
+
+	public Element setChildOf(boolean childOf) {
+		this.childOf = childOf;
+		return this;
 	}
 
 	public Element setNodeRef(String nodeRef) {

@@ -10,7 +10,8 @@ import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
-import org.endeavourhealth.imapi.transforms.IMLToECL;
+import org.endeavourhealth.imapi.transforms.ECLToIMQ;
+import org.endeavourhealth.imapi.transforms.IMQToECL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.DataFormatException;
 
 @Component
 public class EclService {
@@ -27,7 +29,7 @@ public class EclService {
 
     public String getEcl(Query inferred) throws QueryException {
         if (inferred == null) throw new QueryException("Missing data for ECL conversion");
-        else return IMLToECL.getECLFromQuery(inferred,true);
+        else return new IMQToECL().getECLFromQuery(inferred,true);
     }
 
     public int getEclSearchTotalCount(EclSearchRequest request) throws QueryException {
@@ -60,6 +62,10 @@ public class EclService {
     }
 
     public String getECLFromQuery(Query query,Boolean includeNames) throws QueryException {
-        return IMLToECL.getECLFromQuery(query, includeNames);
+        return new IMQToECL().getECLFromQuery(query, includeNames);
+    }
+
+    public Query getQueryFromEcl(String ecl) throws DataFormatException {
+        return new ECLToIMQ().getQueryFromECL(ecl);
     }
 }

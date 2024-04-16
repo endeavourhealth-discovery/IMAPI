@@ -7,20 +7,16 @@ import org.endeavourhealth.imapi.json.JsonLDMapper;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.imq.Order;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
-import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -63,7 +59,7 @@ class SearchServiceTest {
 
 
 	}
- //@Test
+// @Test
 	void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
 		testDefinitions = System.getenv("folder") + "\\Definitions";
 		testResults = System.getenv("folder") + "\\Results";
@@ -71,7 +67,7 @@ class SearchServiceTest {
 		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
 	 output(TestQueries.getAllowableSubtypes());
 		output(TestQueries.query2());
-		output(TestQueries.pathQueryAtenolol3());
+		//output(TestQueries.pathQueryAtenolol3());
 
 	 output(TestQueries.getAllowableQueries());
 
@@ -85,9 +81,9 @@ class SearchServiceTest {
 			output(TestQueries.query2());
 			output(TestQueries.getShaclProperty());
 
-			output(TestQueries.pathToAtenolol());
-			output(TestQueries.pathDobQuery());
-			output(TestQueries.pathToPostCode());
+			//output(TestQueries.pathToAtenolol());
+			//output(TestQueries.pathDobQuery());
+			//output(TestQueries.pathToPostCode());
 			output(TestQueries.deleteSets());
 
 
@@ -171,7 +167,7 @@ class SearchServiceTest {
 		TTEntity entity= es.getFullEntity(IM.NAMESPACE+"VSET_VitalSigns").getEntity();
 		String json = entity.get(TTIriRef.iri(IM.DEFINITION)).asLiteral().getValue();
 		SetExporter exporter = new SetExporter();
-		Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE + "VSET_VitalSigns", false, true, List.of());
+		Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE + "VSET_VitalSigns", true, false, true, List.of());
 		System.out.println(concepts.size());
 	}
 }

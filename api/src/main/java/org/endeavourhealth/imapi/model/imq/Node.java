@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 public class Node extends Element{
 
 
+
 	public Node setNodeRef(String nodeRef) {
 		super.setNodeRef(nodeRef);
 		return this;
@@ -48,6 +49,11 @@ public class Node extends Element{
 
 	public Node setDescendantsOf(boolean descendantsOf) {
 		super.setDescendantsOf(descendantsOf);
+		return this;
+	}
+
+	public Node setMemberOf(boolean memberOf){
+		super.setMemberOf(memberOf);
 		return this;
 	}
 

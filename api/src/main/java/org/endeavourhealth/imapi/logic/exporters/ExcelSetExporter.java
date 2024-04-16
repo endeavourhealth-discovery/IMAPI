@@ -11,7 +11,7 @@ import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.transforms.IMLToECL;
+import org.endeavourhealth.imapi.transforms.IMQToECL;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
@@ -65,7 +65,7 @@ public class ExcelSetExporter {
         }
 
         if (core || legacy) {
-            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy, includeSubsets, schemes).stream()
+            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, core, legacy, includeSubsets, schemes).stream()
                     .sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
 
             if(includeSubsets) {
@@ -88,7 +88,7 @@ public class ExcelSetExporter {
     private String getEcl(TTEntity entity) throws QueryException, JsonProcessingException {
         if (entity.get(iri(IM.DEFINITION)) == null)
             return null;
-        return IMLToECL.getECLFromQuery(entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class), true);
+        return new IMQToECL().getECLFromQuery(entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class), true);
     }
 
     private void addCoreExpansionToWorkBook(String setName, Set<Concept> members, boolean im1id, boolean includeSubsets) {
@@ -97,21 +97,21 @@ public class ExcelSetExporter {
         if (null == sheet) sheet = workbook.createSheet("Core expansion");
         if(includeSubsets) {
             if(im1id) {
-                addHeaders(sheet, headerStyle, "code", "term", "scheme","usage", "set", "subset", "subsetIri", "subsetVersion", "extension", "im1Id");
+                addHeaders(sheet, headerStyle, "code", "term", "status","scheme","usage", "set", "subset", "subsetIri", "subsetVersion", "extension", "im1Id");
                 setColumnWidthCoreWithSubset(sheet);
                 sheet.setColumnWidth(8, 2500);
             } else {
-                addHeaders(sheet, headerStyle, "code", "term", "scheme", "usage", "set", "subset", "subsetIri", "subsetVersion", "extension");
+                addHeaders(sheet, headerStyle, "code", "term", "status","scheme", "usage", "set", "subset", "subsetIri", "subsetVersion", "extension");
                 setColumnWidthCoreWithSubset(sheet);
             }
 
         } else {
             if(im1id) {
-                addHeaders(sheet, headerStyle, "code", "term", "scheme","usage", "set", "extension","im1Id");
+                addHeaders(sheet, headerStyle, "code", "term", "status","scheme","usage", "set", "extension","im1Id");
                 setColumnWidthCore(sheet);
                 sheet.setColumnWidth(6, 2500);
             } else {
-                addHeaders(sheet, headerStyle, "code", "term", "scheme","usage", "set", "extension");
+                addHeaders(sheet, headerStyle, "code", "term", "status","scheme","usage", "set", "extension");
                setColumnWidthCore(sheet);
             }
 
@@ -131,6 +131,7 @@ public class ExcelSetExporter {
         String subSet= cl.getIsContainedIn() != null ? cl.getIsContainedIn().iterator().next().getName() : "";
         String subsetIri = cl.getIsContainedIn() != null ? cl.getIsContainedIn().iterator().next().getIri() : "";
         String subsetVersion = cl.getIsContainedIn() != null ? String.valueOf(cl.getIsContainedIn().iterator().next().getVersion()) : "";
+        String status= cl.getStatus().getName();
 
         String code= cl.getCode();
         if (cl.getAlternativeCode()!=null)
@@ -139,17 +140,17 @@ public class ExcelSetExporter {
             for (String im1 : cl.getIm1Id()) {
                 Row row = addRow(sheet);
                 if(includeSubsets) {
-                    addCells(row, code, cl.getName(), scheme, usage, setName , subSet, subsetIri, subsetVersion, isExtension, im1);
+                    addCells(row, code, cl.getName(), status,scheme, usage, setName , subSet, subsetIri, subsetVersion, isExtension, im1);
                 } else {
-                    addCells(row, code, cl.getName(), scheme, usage, setName , isExtension, im1);
+                    addCells(row, code, cl.getName(), status,scheme, usage, setName , isExtension, im1);
                 }
             }
         } else {
             Row row = addRow(sheet);
             if (includeSubsets) {
-                addCells(row,code,cl.getName(), scheme, usage, setName , subSet, subsetIri, subsetVersion, isExtension);
+                addCells(row,code,cl.getName(), status,scheme, usage, setName , subSet, subsetIri, subsetVersion, isExtension);
             } else {
-                addCells(row, code,cl.getName(), scheme, usage, setName , isExtension);
+                addCells(row, code,cl.getName(), status,scheme, usage, setName , isExtension);
             }
         }
         addedCoreIris.add(cl.getIri());

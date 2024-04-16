@@ -11,7 +11,7 @@
   "query" : {
     "name" : "FamilyHistoryExpansionObjectFormat",
     "match" : [ {
-      "property" : [ {
+      "where" : [ {
         "@id" : "im:hasMember",
         "inverse" : true,
         "is" : [ {

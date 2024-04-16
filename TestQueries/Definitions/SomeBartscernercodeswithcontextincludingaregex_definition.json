@@ -11,7 +11,7 @@
   "query" : {
     "name" : "Some Barts cerner codes with context including a regex",
     "match" : [ {
-      "property" : [ {
+      "where" : [ {
         "@id" : "im:scheme",
         "is" : [ {
           "@id" : "http://endhealth.info/bc#"
@@ -19,7 +19,7 @@
       }, {
         "@id" : "im:Concept",
         "match" : {
-          "property" : [ {
+          "where" : [ {
             "@id" : "im:sourceRegex"
           } ]
         },

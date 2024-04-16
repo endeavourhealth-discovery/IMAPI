@@ -84,7 +84,7 @@ public class TTBulkFiler  implements TTDocumentFiler {
                 addSubtypes(entity);
                 addTerms(entity, entityGraph);
 
-                setStatusAndScheme(graph, entity);
+                setStatusAndScheme(entity);
 
                 transformAndWriteQuads(converter, entity, entityGraph);
 
@@ -101,13 +101,20 @@ public class TTBulkFiler  implements TTDocumentFiler {
         }
     }
 
-    private static void setStatusAndScheme(String graph, TTEntity entity) {
+    private static void setStatusAndScheme(TTEntity entity) {
         if (entity.get(iri(RDFS.LABEL)) != null) {
             if (entity.get(iri(IM.HAS_STATUS)) == null)
                 entity.set(iri(IM.HAS_STATUS), iri(IM.ACTIVE));
             if (entity.get(iri(IM.HAS_SCHEME)) == null)
-                entity.set(iri(IM.HAS_SCHEME), TTIriRef.iri(graph));
+                entity.set(iri(IM.HAS_SCHEME), TTIriRef.iri(getScheme(entity.getIri())));
         }
+    }
+
+    private static String getScheme(String iri){
+        if (iri.contains("#"))
+            return iri.substring(0,iri.lastIndexOf("#")+1);
+        else
+            return iri.substring(0,iri.lastIndexOf("/")+1);
     }
 
     private void transformAndWriteQuads(TTToNQuad converter, TTEntity entity, String entityGraph) throws IOException {

@@ -8,6 +8,8 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import java.io.IOException;
 import java.util.zip.DataFormatException;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class EqdListToIMQ {
 	private EqdResources resources;
 
@@ -38,59 +40,50 @@ public class EqdListToIMQ {
 
 	private void convertPatientColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws DataFormatException {
 		EQDOCListColumns eqCols = eqColGroup.getColumnar();
+		Return select= new Return();
+		subQuery.addReturn(select);
 		for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
-			Return select= new Return();
-			subQuery.addReturn(select);
 			String eqColumn= String.join("/",eqCol.getColumn());
-			String[] propertyPath = resources.getPath(eqTable + "/" + eqColumn).split(" ");
-			if (propertyPath.length==1){
-				select.property(p->p.setIri(IM.NAMESPACE+propertyPath[0]));
-			}
-			else {
-				for (int i=0; i<propertyPath.length; i++){
-					ReturnProperty property= new ReturnProperty();
-					property.setIri(IM.NAMESPACE+propertyPath[i]);
-					select.addProperty(property);
-					select= new Return();
-					property.setReturn(select);
-				}
-			}
+			String propertyPath = resources.getPath(eqTable + "/" + eqColumn);
+			convertColumn(select,propertyPath);
 		}
 	}
 
-	private String getLastNode(Match match){
-		if (match.getProperty()!=null){
-			if (match.getProperty().get(0).getMatch()!=null)
-				return getLastNode(match.getProperty().get(0).getMatch());
-			else
-				return match.getVariable();
-		}
-		else
-			return match.getVariable();
-	}
 
 
 	private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws DataFormatException, IOException, QueryException {
 		Return aReturn = new Return();
 		subQuery.addReturn(aReturn);
-		Match match = new Match();
+
+		String tablePath = resources.getPath(eqTable);
+		if (tablePath.contains(" ")) {
+			String[] paths = tablePath.split(" ");
+			for (int i = 0; i < paths.length; i = i + 2) {
+				aReturn.addPath(new IriLD().setIri(paths[i].replace("^", "")));
+			}
+		}
+		Match match= resources.convertCriteria(eqColGroup.getCriteria());
 		subQuery.addMatch(match);
-		resources.convertCriteria(eqColGroup.getCriteria(), match);
-		String node= getLastNode(match);
-		aReturn.setNodeRef(node);
 		EQDOCListColumns eqCols = eqColGroup.getColumnar();
 		for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
 			String eqColumn = String.join("/", eqCol.getColumn());
 			String subPath = resources.getPath(eqTable + "/" + eqColumn);
+			convertColumn(aReturn,subPath);
+		}
+	}
+
+	private void convertColumn(Return aReturn, String subPath) {
+	ReturnProperty property= new ReturnProperty();
+			aReturn.addProperty(property);
 			if (subPath.contains(" ")){
 				String elements[]= subPath.split(" ");
 				for (int i=0; i<elements.length; i=i+2){
-					ReturnProperty property= new ReturnProperty();
-					aReturn.addProperty(property);
 					property.setIri(IM.NAMESPACE+ elements[i]);
 					if (i<(elements.length-2)) {
 						property.setReturn(new Return());
-						aReturn = property.getReturn();
+						ReturnProperty subProperty = new ReturnProperty();
+						property.getReturn().addProperty(subProperty);
+						property= subProperty;
 					}
 				}
 			}
@@ -98,6 +91,5 @@ public class EqdListToIMQ {
 				aReturn.property(p->p.setIri(IM.NAMESPACE+subPath));
 			}
 		}
-	}
 
 }

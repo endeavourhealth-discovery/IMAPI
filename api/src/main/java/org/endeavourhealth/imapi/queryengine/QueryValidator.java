@@ -15,7 +15,10 @@ public class QueryValidator {
 	public void validateQuery(Query query) throws QueryException {
 		if (query.getMatch() == null)
 			throw new QueryException("Query must have match clause");
-		mainEntity = query.getMatch().get(0).getVariable();
+		mainEntity= query.getVariable();
+		if (mainEntity==null) {
+			mainEntity = query.getMatch().get(0).getVariable();
+		}
 		if (mainEntity==null)
 			mainEntity="entity";
 		for (Match match : query.getMatch()) {
@@ -59,7 +62,7 @@ public class QueryValidator {
 	private void validateReturnProperty(String subject, ReturnProperty path) throws QueryException {
 		if (path.getPropertyRef() != null) {
 			if (variables.get(path.getPropertyRef()) == null)
-				throw new QueryException("return_ clause uses an unbound property reference variable (" + path.getPropertyRef()+") should it be a node ref?");
+				throw new QueryException("return_ clause uses an unbound where reference variable (" + path.getPropertyRef()+") should it be a node ref?");
 		}
 		if (path.getReturn() != null) {
 			if (pathMap.get(subject) != null) {
@@ -101,8 +104,8 @@ public class QueryValidator {
 			}
 		}
 		subject= match.getVariable();
-		if (match.getProperty()!=null) {
-			for (Property where:match.getProperty()){
+		if (match.getWhere()!=null) {
+			for (Where where:match.getWhere()){
 				validateWhere(where,subject);
 			}
 		}
@@ -113,14 +116,14 @@ public class QueryValidator {
 
 
 
-	private void validateWhere(Property where, String subject) throws QueryException {
+	private void validateWhere(Where where, String subject) throws QueryException {
 		if (where.getVariable()!=null)
 			variables.put(where.getVariable(),VarType.PATH);
-		if (where.getIri() == null&&where.getParameter()==null&&where.getProperty()==null)
-				throw new QueryException("Property clause has no property iri  (set @id to property iri) ir a parameter");
+		if (where.getIri() == null&&where.getParameter()==null&&where.getWhere()==null)
+				throw new QueryException("Where clause has no where iri  (set @id to where iri) ir a parameter");
 		if (where.getNodeRef() != null) {
 				if (!variables.containsKey(where.getNodeRef()))
-					throw new QueryException("Property clause variable '" + where.getNodeRef() + "' has not been declared in a match path");
+					throw new QueryException("Where clause variable '" + where.getNodeRef() + "' has not been declared in a match path");
 		}
 		if (where.getValueVariable()!=null)
 			variables.put(where.getValueVariable(),VarType.NODE);
@@ -132,8 +135,8 @@ public class QueryValidator {
 		}
 		propertyMap.computeIfAbsent(subject, s -> new HashMap<>())
 				.put(where.getIri(), object);
-		if (where.getProperty()!=null){
-				for (Property property:where.getProperty())
+		if (where.getWhere()!=null){
+				for (Where property:where.getWhere())
 					validateWhere(property,subject);
 			}
 		if (where.getMatch()!=null){

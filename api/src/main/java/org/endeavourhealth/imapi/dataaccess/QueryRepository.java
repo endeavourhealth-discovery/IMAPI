@@ -12,10 +12,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
@@ -66,33 +63,38 @@ public class QueryRepository {
 
     public JsonNode prepareQueryResponse(ObjectNode queryResults, QueryRequest queryRequest, Integer page, Integer count) throws QueryException, DataFormatException, JsonProcessingException {
         ObjectNode queryIMResponse = mapper.createObjectNode();
-        queryIMResponse.put("page", page);
-        queryIMResponse.put("count", count);
-        queryIMResponse.put("totalCount", queryIMCount(queryRequest));
-        if (count == 0 || count > queryIMResponse.get("totalCount").asInt())
-            queryIMResponse.put("count", queryIMResponse.get("totalCount").asInt());
+        if (queryRequest.getPage() != null) {
+            queryIMResponse.put("page", page);
+            queryIMResponse.put("count", count);
+            queryIMResponse.put("totalCount", queryIMCount(queryRequest));
+            if (count == 0 || count > queryIMResponse.get("totalCount").asInt())
+                queryIMResponse.put("count", queryIMResponse.get("totalCount").asInt());
+        } else {
+            int entityCount =  queryResults.get("entities").size();
+            queryIMResponse.put("page", 1);
+            queryIMResponse.put("count", entityCount);
+            queryIMResponse.put("totalCount", entityCount);
+        }
+
         if (queryRequest.getTextSearch() != null) queryIMResponse.put("term", queryRequest.getTextSearch());
         if (queryResults.has("entities")) queryIMResponse.set("entities", queryResults.get("entities"));
         return queryIMResponse;
     }
 
     public Integer queryIMCount(QueryRequest queryRequest) throws QueryException, JsonProcessingException, DataFormatException {
-        Integer totalCount = 0;
         queryRequest.setPage(null);
-        ObjectNode result = mapper.createObjectNode();
         unpackQueryRequest(queryRequest);
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             checkReferenceDate();
             new QueryValidator().validateQuery(queryRequest.getQuery());
             SparqlConverter converter = new SparqlConverter(queryRequest);
-            String spq = converter.getSelectSparql(null);
-            ObjectNode resultNode = graphSelectSearch(spq, conn, result);
-            if (resultNode.has("entities")) return resultNode.get("entities").size();
+            String spq = converter.getSelectSparql(null, true);
+            return graphTotalSearch(spq, conn);
         }
-        return totalCount;
+
     }
 
-    public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
+    public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException,JsonProcessingException,DataFormatException {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             checkReferenceDate();
             new QueryValidator().validateQuery(queryRequest.getQuery());
@@ -166,7 +168,7 @@ public class QueryRepository {
                                     if (arg.getValueIri() == null)
                                         throw new DataFormatException(error + " to have a valueIri :{@id : htttp....}");
                                 } else if (arg.getValueData() == null) {
-                                    throw new DataFormatException(error + " to have valueData property with string value");
+                                    throw new DataFormatException(error + " to have valueData where with string value");
                                 }
                             }
                         if (!found) {
@@ -196,6 +198,17 @@ public class QueryRepository {
             }
         }
         return result;
+    }
+
+
+    private Integer graphTotalSearch(String spq, RepositoryConnection conn) {
+        try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
+            while (rs.hasNext()) {
+                BindingSet bs = rs.next();
+                return Integer.parseInt(bs.getValue("count").stringValue());
+            }
+        }
+        return 0;
     }
 
     private Boolean graphAskSearch(String spq, RepositoryConnection conn) {
@@ -401,7 +414,7 @@ public class QueryRepository {
         }
     }
 
-    private void gatherWhereLabels(Property where, List<TTIriRef> ttIris, Map<String, String> iris) {
+    private void gatherWhereLabels(Where where, List<TTIriRef> ttIris, Map<String, String> iris) {
         if (where.getId() != null)
             addToIriList(where.getId(), ttIris, iris);
 
@@ -417,8 +430,8 @@ public class QueryRepository {
             addToIriList(match.getIri(), ttIris, iris);
         else if (match.getTypeOf() != null)
             addToIriList(match.getTypeOf().getIri(), ttIris, iris);
-        if (match.getProperty() != null) {
-            for (Property where : match.getProperty()) {
+        if (match.getWhere() != null) {
+            for (Where where : match.getWhere()) {
                 gatherWhereLabels(where, ttIris, iris);
             }
         }
@@ -426,8 +439,8 @@ public class QueryRepository {
             match.getMatch().forEach(f -> gatherFromLabels(f, ttIris, iris));
         }
 
-        if (match.getProperty() != null) {
-            for (Property path : match.getProperty()) {
+        if (match.getWhere() != null) {
+            for (Where path : match.getWhere()) {
                 addToIriList(path.getIri(), ttIris, iris);
             }
         }
@@ -465,8 +478,8 @@ public class QueryRepository {
             }
             match.setName(iriLabels.get(match.getTypeOf()));
         }
-        if (match.getProperty() != null) {
-            for (Property where : match.getProperty()) {
+        if (match.getWhere() != null) {
+            for (Where where : match.getWhere()) {
                 setWhereLabels(where, iriLabels);
             }
         }
@@ -485,7 +498,7 @@ public class QueryRepository {
         }
     }
 
-    private void setWhereLabels(Property where, Map<String, String> iris) {
+    private void setWhereLabels(Where where, Map<String, String> iris) {
         if (where.getId() != null)
             where.setName(iris.get(where.getId()));
         if (where.getIs() != null)

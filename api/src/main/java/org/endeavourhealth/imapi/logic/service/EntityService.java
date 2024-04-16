@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.*;
@@ -519,9 +520,9 @@ public class EntityService {
         List<SearchTermCode> termsSummary = new ArrayList<>();
         for (TTValue term : terms.getElements()) {
             if (null != term.asNode().get(iri(IM.CODE)) && null == termsSummary.stream().filter(t -> term.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue().equals(t.getCode())).findAny().orElse(null)) {
-                SearchTermCode newTerm = new SearchTermCode()
-                        .setCode(term.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue())
-                        .setTerm(term.asNode().get(iri(RDFS.LABEL)).get(0).asLiteral().getValue());
+                SearchTermCode newTerm = new SearchTermCode();
+                if (term.asNode().has(iri(IM.CODE))) newTerm.setCode(term.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue());
+                if (term.asNode().has(iri(RDFS.LABEL))) newTerm.setTerm(term.asNode().get(iri(RDFS.LABEL)).get(0).asLiteral().getValue());
                 if (term.asNode().has(iri(IM.HAS_STATUS)))
                     newTerm.setStatus(term.asNode().get(iri(IM.HAS_STATUS)).get(0).asIriRef());
                 termsSummary.add(
@@ -1083,6 +1084,35 @@ public class EntityService {
         return entity;
     }
 
+    public void updateSubsetsFromSuper(String agentName, TTEntity entity) throws TTFilerException, JsonProcessingException {
+        TTArray subsets = entity.get(iri(IM.HAS_SUBSET));
+        String entityIri = entity.getIri();
+        Set<TTIriRef> subsetsOriginal = getSubsets(entityIri);
+        List<TTIriRef> subsetsArray = subsets.stream().map(TTValue::asIriRef).toList();
+        for (TTIriRef subset : subsetsArray) {
+            TTEntity subsetEntity = getFullEntity(subset.getIri()).getEntity();
+            if (null != subsetEntity) {
+                if (!(subsetEntity.isType(iri(IM.VALUESET)) || subsetEntity.isType(iri(IM.CONCEPT_SET)))) throw new TTFilerException("Subsets must be of type valueSet or conceptSet. Type: " + subsetEntity.getType());
+                TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
+                if (null == isSubsetOf) {
+                    subsetEntity.set(iri(IM.IS_SUBSET_OF),new TTArray().add(iri(entityIri)));
+                    updateEntity(subsetEntity,agentName);
+                } else if (isSubsetOf.getElements().stream().noneMatch(i -> Objects.equals(i.asIriRef().getIri(), entityIri))) {
+                    isSubsetOf.add(iri(entityIri));
+                    updateEntity(subsetEntity,agentName);
+                }
+            }
+        }
+        for (TTIriRef subsetOriginal : subsetsOriginal) {
+            if (subsetsArray.stream().noneMatch(s -> s.getIri().equals(subsetOriginal.getIri()))) {
+                TTEntity subsetEntity = getFullEntity(subsetOriginal.getIri()).getEntity();
+                TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
+                isSubsetOf.remove(iri(entityIri));
+                updateEntity(subsetEntity,agentName);
+            }
+        }
+    }
+
     public TTEntity addConceptToTask(String entityIri, String taskIri, String agentName) throws Exception {
         TTEntity entity = getBundleByPredicateExclusions(entityIri, null).getEntity();
         if (entity.get(iri(IM.IN_TASK)) == null) {
@@ -1207,11 +1237,11 @@ public class EntityService {
     private Pageable<EntityReferenceNode> iriRefPageableToEntityReferenceNodePageable(Pageable<TTIriRef> iriRefPageable, List<String> schemeIris, boolean inactive) {
         Pageable<EntityReferenceNode> result = new Pageable<>();
         result.setTotalCount(iriRefPageable.getTotalCount());
-        List<EntityReferenceNode> nodes = new ArrayList<>();
-        for (TTIriRef p : iriRefPageable.getResult()) {
-            nodes.add(getEntityAsEntityReferenceNode(p.getIri(), schemeIris, inactive));
+        Set<String> iris = new HashSet<>();
+        for (TTIriRef entity : iriRefPageable.getResult()) {
+            iris.add(entity.getIri());
         }
-
+        List<EntityReferenceNode> nodes = entityTripleRepository.getEntityReferenceNodes(iris, schemeIris, inactive);
         nodes.sort(comparingInt(EntityReferenceNode::getOrderNumber).thenComparing(EntityReferenceNode::getName));
 
         result.setResult(nodes);
@@ -1230,10 +1260,15 @@ public class EntityService {
         return entityRepository.isAncestor(objectIri, subjectIri);
     }
 
-    public Set<Concept> getFullyExpandedMembers(String iri, boolean includeSubset, boolean includeLegacy, List<String> schemes) throws QueryException, JsonProcessingException {
+    public Set<Concept> getFullyExpandedMembers(String iri, boolean includeLegacy, boolean includeSubset, List<String> schemes) throws QueryException, JsonProcessingException {
         SetExporter setExporter = new SetExporter();
-        Set<Concept> members = setExporter.getExpandedSetMembers(iri, includeLegacy, includeSubset, schemes);
+        Set<Concept> members = setExporter.getExpandedSetMembers(iri, true, includeLegacy, includeSubset, schemes);
         return members;
+    }
+
+    public Set<TTIriRef> getSubsets(String iri) {
+        SetExporter setExporter = new SetExporter();
+        return setExporter.getSubsetIrisWithNames(iri);
     }
 }
 

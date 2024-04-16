@@ -19,7 +19,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -62,8 +61,7 @@ public class ExcelSetExporterTest {
         when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(mockDefinition()));
         when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity().setName("Test")));
         when(setRepository.getSetExpansion(any(), anyBoolean(),any(), anyList())).thenReturn(new HashSet<>());
-        when(setRepository.getSetMembers(any(), anyBoolean(), anyList())).thenReturn(new HashSet<>());
-        when(setRepository.getSubsets(anyString())).thenReturn(new HashSet<>());
+        when(setRepository.getSubsetIrisWithNames(anyString())).thenReturn(new HashSet<>());
         ReflectionTestUtils.setField(excelSetExporter, "setExporter", setExporter);
 
         XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115", true,true,
@@ -88,10 +86,10 @@ public class ExcelSetExporterTest {
                 .setInstanceOf(new Node().setIri("http://snomed.info/sct#39330711000001103").setName("COVID-19 vaccine (product)").setDescendantsOrSelfOf(true)))
                 .match(f->f
                     .setInstanceOf( new Node().setIri("http://snomed.info/sct#10363601000001109").setName("UK product (product)").setDescendantsOrSelfOf(true))
-                  .property(p->p
+                  .where(p->p
                     .setIri(IM.ROLE_GROUP)
                     .match(m1->m1
-                    .property(p1->p1
+                    .where(p1->p1
                       .setIri("http://snomed.info/sct#10362601000001103")
                       .setName("Has VMP (attribute)")
                       .setDescendantsOrSelfOf(true)

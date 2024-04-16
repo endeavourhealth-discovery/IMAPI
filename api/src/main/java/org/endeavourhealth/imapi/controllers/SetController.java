@@ -5,14 +5,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
-import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.logic.service.SetService;
-import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
-import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,9 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.time.LocalDate;
-import java.util.Set;
-import java.util.UnknownFormatConversionException;
-import java.util.zip.DataFormatException;
 
 @RestController
 @RequestMapping("api/set")
@@ -32,7 +23,6 @@ import java.util.zip.DataFormatException;
 public class SetController {
 
     private final EntityService entityService = new EntityService();
-    private final SetService setService = new SetService();
     private final SetExporter setExporter = new SetExporter();
 
     @GetMapping(value = "/publish")
@@ -41,7 +31,7 @@ public class SetController {
             description = "Publishes an expanded set to IM1"
     )
     @PreAuthorize("hasAuthority('IM1_PUBLISH')")
-    public void publish(@RequestParam(name = "iri") String iri) throws DataFormatException, JsonProcessingException, QueryException {
+    public void publish(@RequestParam(name = "iri") String iri) throws JsonProcessingException, QueryException {
         setExporter.publishSetToIM1(iri);
     }
 
@@ -59,7 +49,7 @@ public class SetController {
         try {
             String result = setExporter.generateForIm1(iri).toString();
             return new HttpEntity<>(result, headers);
-        } catch (JsonProcessingException | QueryException e) {
+        } catch (QueryException | JsonProcessingException e) {
             throw new DownloadException(("Failed to generate export."));
         }
     }

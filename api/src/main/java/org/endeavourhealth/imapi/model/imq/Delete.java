@@ -9,7 +9,7 @@ import java.util.List;
 	"where","orderBy","direction","limit","groupBy","having","select"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Delete{
-	private Property where;
+	private Where property;
 	private Element subject;
 	private boolean inverse;
 	private Element predicate;
@@ -17,12 +17,12 @@ public class Delete{
 	private List<Delete> delete;
 
 
-	public Property getWhere() {
-		return where;
+	public Where getProperty() {
+		return property;
 	}
 
-	public Delete setWhere(Property where) {
-		this.where = where;
+	public Delete setProperty(Where where) {
+		this.property = where;
 		return this;
 	}
 

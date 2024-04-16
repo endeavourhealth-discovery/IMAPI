@@ -1,9 +1,12 @@
 {
+  "page" : 1,
+  "count" : 1,
+  "totalCount" : 1,
   "entities" : [ {
     "@id" : "http://www.w3.org/ns/shacl#NodeShape",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Data model/Node shape ",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "genid-59f259d9726e44a19801a4b5c922b94b26-b780",
+      "@bn" : "1b1578acd1564be0aa9699100cd7d5fa903",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://www.w3.org/2000/01/rdf-schema#subClassOf"
       }

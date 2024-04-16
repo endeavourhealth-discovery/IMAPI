@@ -132,7 +132,7 @@ public class IM {
     public static final String HAS_CONTEXT = IM.NAMESPACE + "hasContext";
     public static final String DISPLAY_ORDER = IM.NAMESPACE + "displayOrder";
     public static final String USAGE_TOTAL = IM.NAMESPACE + "usageTotal";
-    public static final String USAGE = IM.NAMESPACE + "Usage";
+    public static final String USAGE = IM.NAMESPACE + "SortFieldUsage";
     public static final String DESCENDING = IM.NAMESPACE + "Descending";
     public static final String ASCENDING = IM.NAMESPACE + "Ascending";
     public static final String PLABEL = IM.NAMESPACE + "pLabel";
@@ -216,4 +216,6 @@ public class IM {
     public static final String PROVENANCE_SOURCE_ENTITY = IM.NAMESPACE + "ProvenanceSourceEntity";
     public static final String DERIVATION_TYPE = IM.NAMESPACE + "derivationType";
     public static final String ENTITY_IDENTIFIER = IM.NAMESPACE + "entityIdentifier";
+    public static final String CODE_TEMPLATE = IM.NAMESPACE + "codeTemplate";
+    public static final String DATAMODEL_CLASSES = IM.NAMESPACE + "DataModelClasses";
 }

@@ -26,7 +26,7 @@
         } ],
         "bool" : "or"
       } ],
-      "property" : [ {
+      "where" : [ {
         "@id" : "im:hasMember",
         "inverse" : true,
         "is" : [ {

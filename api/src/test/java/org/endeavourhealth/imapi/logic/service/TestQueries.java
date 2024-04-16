@@ -54,26 +54,26 @@ public class TestQueries {
 			.match(m->m
 				.setInstanceOf(new Node()
 				.setParameter("myDataModel"))
-				.property(p->p
+				.where(p->p
 					.setIri("http://www.w3.org/ns/shacl#property")
 						.match(m1->m1
 							.setVariable("shaclProperty")
 							.setBool(Bool.and)
-								.property(p2->p2
+								.where(p2->p2
 										.setIri(SHACL.PATH)
 										.is(in->in
 											.setParameter("myProperty")))
-							  .property(p2->p2
+							  .where(p2->p2
 									.setBool(Bool.or)
-									   .property(p3->p3
+									   .where(p3->p3
 												 .setIri(SHACL.CLASS)
 												 .match(m3->m3
 													 .setVariable("propType")))
-										 .property(p3->p3
+										 .where(p3->p3
 												 .setIri(SHACL.NODE)
 												 .match(m3->m3
 													 .setVariable("propType")))
-										.property(p3->p3
+										.where(p3->p3
 											.setIri(SHACL.DATATYPE)
 												.match(m3->m3
 													.setVariable("propType")))))))
@@ -102,20 +102,20 @@ public class TestQueries {
 				.setName("Suggested range for a property")
 				.setDescription("get node, class or datatype values (ranges)  of property objects that have 4this as their path")
 				.match(m->m
-					.property(w->w
+					.where(w->w
 						.setIri(SHACL.PATH)
 						.addIs(new Node().setParameter("this")))
-					.property(w->w
+					.where(w->w
 					.setBool(Bool.or)
-						.property(p->p
+						.where(p->p
 							.setIri(SHACL.NODE)
 						.match(n->n
 							.setVariable("range")))
-						.property(p->p
+						.where(p->p
 							.setIri(SHACL.CLASS)
 						.match(n->n
 							.setVariable("range")))
-						.property(p->p
+						.where(p->p
 							.setIri(SHACL.DATATYPE)
 							.match(n->n
 								.setVariable("range")))))
@@ -133,11 +133,11 @@ public class TestQueries {
 				.match(m->m
 					.setInstanceOf(new Node()
 					.setParameter("$dataModel"))
-					.property(p->p
+					.where(p->p
 						.setIri(SHACL.PROPERTY)
 						.match(n->n
 							.setVariable("shaclProperty")
-							.property(w->w
+							.where(w->w
 								.setIri(SHACL.PATH)
 								.is(in->in.setParameter("$property"))))))
 				.return_(s->s
@@ -172,7 +172,7 @@ public class TestQueries {
 				.setName("Allowable queries for patient cohort")
 				.match(m->m
 					.setTypeOf(IM.NAMESPACE+"CohortQuery")
-					.property(p->p
+					.where(p->p
 						.setIri(IM.RETURN_TYPE)
 						.is(in->in
 							.setParameter("dataModelIri"))))
@@ -243,7 +243,7 @@ public class TestQueries {
 						.match(m1->m1
 						.setInstanceOf(new Node().setIri(SNOMED.NAMESPACE+"11164009")
 						.setDescendantsOrSelfOf(true))))
-					.property(w->w
+					.where(w->w
 						.setIri(IM.HAS_MEMBER)
 						.setInverse(true)
 						.is(n->n
@@ -350,7 +350,7 @@ public class TestQueries {
 			.setName("FamilyHistoryExpansionObjectFormat");
 		query
 			.match(f->f
-			.property(w->w
+			.where(w->w
 				.setIri(IM.HAS_MEMBER)
 				.setInverse(true)
 				.addIs(new Node().setIri(IM.NAMESPACE+"VSET_FamilyHistory"))))
@@ -378,14 +378,14 @@ public class TestQueries {
 		query
 			.match(f->f
 				.setTypeOf(SHACL.NODESHAPE)
-			.property(p->p
+			.where(p->p
 				.setIri(SHACL.PROPERTY)
 				.match(w1->w1
-					.property(p1->p1
+					.where(p1->p1
 					.setIri(SHACL.PATH)
 					.addIs(IM.NAMESPACE+"dateOfBirth")))))
 			.match(m->m
-				.property(p->p
+				.where(p->p
 					.setIri(SHACL.PROPERTY)))
 			.return_(s->s
 				.property(p->p
@@ -491,7 +491,7 @@ public class TestQueries {
 				.match(f ->f
 					.setTypeOf(new Node().setIri(IM.CONCEPT)
 					.setDescendantsOrSelfOf(true))
-					.property(w1-> w1
+					.where(w1-> w1
 						.setIri(RDFS.DOMAIN)
 						.addIs(new Node().setIri(SNOMED.NAMESPACE+"674814021000119106").setAncestorsOf(true))
 					))
@@ -519,15 +519,15 @@ public class TestQueries {
 				.property(s1->s1.setIri(IM.SOURCE_TABLE))
 				.property(s1->s1.setIri(IM.SOURCE_FIELD)))))
 			.match(f->f
-				.property(p->p
+				.where(p->p
 					.setIri(IM.HAS_SCHEME)
 					.is(i->i
 						.setIri(GRAPH.BARTS_CERNER)))
-			.property(p->p
+			.where(p->p
 					.setIri(IM.CONCEPT)
 				.setInverse(true)
 				.match(m1->m1
-				.property(w1->w1
+				.where(w1->w1
 					.setIri(IM.SOURCE_REGEX)))));
 		return new QueryRequest().setQuery(query);
 	}
@@ -541,12 +541,12 @@ public class TestQueries {
 				.setBool(Bool.and)
 				.match(f->f
 						.setInstanceOf(new Node().setIri(SNOMED.NAMESPACE+"763158003").setDescendantsOrSelfOf(true))
-					.property(a1->a1
+					.where(a1->a1
 						.setIri(SNOMED.NAMESPACE+"127489000")
 						.setDescendantsOrSelfOf(true)
 						.setAnyRoleGroup(true)
 						.addIs(new Node().setIri(SNOMED.NAMESPACE+"372665008").setDescendantsOrSelfOf(true)))
-					.property(a2->a2
+					.where(a2->a2
 						.setIri(SNOMED.NAMESPACE+"411116001").setDescendantsOrSelfOf(true)
 						.setAnyRoleGroup(true)
 						.addIs(Node.iri(SNOMED.NAMESPACE+"385268001").setDescendantsOrSelfOf(true)))));

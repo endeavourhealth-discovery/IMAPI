@@ -10,7 +10,7 @@ import java.util.Objects;
 
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-@JsonPropertyOrder({"iri","type","set","name"})
+@JsonPropertyOrder({"iri","name"})
 public class IriLD{
 	private String iri;
 	private String name;

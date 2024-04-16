@@ -51,11 +51,12 @@ public class SetExpander {
 
 	}
 
-	public void expandSet(String iri) throws DataFormatException, JsonProcessingException, QueryException {
+
+	public void expandSet(String iri) throws QueryException,JsonProcessingException {
 		LOG.info("Updating members of "+ iri);
 		TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION));
 		if (setDefinition.getEntity().get(iri(IM.DEFINITION))==null)
-			throw new DataFormatException(iri+ " : Unknown iri or this set has no definition");
+			throw new QueryException(iri+ " : Unknown iri or this set has no definition");
 		//get the expansion.
 
 		Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral()

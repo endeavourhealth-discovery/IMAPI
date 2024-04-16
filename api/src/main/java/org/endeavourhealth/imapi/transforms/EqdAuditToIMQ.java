@@ -8,6 +8,8 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 
 import java.util.zip.DataFormatException;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class EqdAuditToIMQ {
 	private EqdResources resources;
 	private int aliasCount=0;
@@ -30,7 +32,13 @@ public class EqdAuditToIMQ {
 		query.addGroupBy(new PropertyRef().setVariable("population"));
 		EQDOCAggregateReport agg = eqReport.getAuditReport().getCustomAggregate();
 		String eqTable = agg.getLogicalTable();
-		String table = resources.getPath(eqTable);
+		String tablePath= resources.getPath(eqTable);
+		if (tablePath.contains(" ")){
+			String[] paths= tablePath.split(" ");
+			for (int i=0;i<paths.length; i=i+2){
+				aReturn.addPath(new IriLD().setIri(paths[i].replace("^","")));
+			}
+		}
 		for (EQDOCAggregateGroup group : agg.getGroup()) {
 			for (String eqColum : group.getGroupingColumn()) {
 				String pathString = resources.getPath(eqTable + "/" + eqColum);

@@ -1,6 +1,7 @@
 {
-  "entities" : [ {
-    "@id" : "http://snomed.info/sct#702450004",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "FOXG1 syndrome (disorder)"
-  } ]
+  "page" : 1,
+  "count" : 0,
+  "totalCount" : 0,
+  "term" : "FOXG1",
+  "entities" : [ ]
 }

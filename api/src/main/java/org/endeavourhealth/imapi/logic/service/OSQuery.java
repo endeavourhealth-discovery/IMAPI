@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.elasticsearch.common.unit.Fuzziness;
@@ -13,12 +12,8 @@ import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import org.elasticsearch.xcontent.XContentBuilder;
-import org.elasticsearch.xcontent.XContentFactory;
-import org.elasticsearch.xcontent.json.JsonXContent;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
-import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.*;
@@ -30,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -105,6 +99,7 @@ public class OSQuery {
                 String namespace = EntityCache.getDefaultPrefixes().getNamespace(term.substring(0, term.indexOf(":")));
                 if (namespace != null)
                     request.setTermFilter(namespace + term.split(":")[1]);
+                request.getSchemeFilter().clear();
             }
         }
 
@@ -623,8 +618,8 @@ public class OSQuery {
     }
 
     private boolean matchCompatibleWithOpenSearch(Match match){
-        if (match.getProperty() != null){
-            for (Property property : match.getProperty()) {
+        if (match.getWhere() != null){
+            for (Where property : match.getWhere()) {
                 if (!propertyCompatibleWithOpenSearch(property))
                     return false;
             }
@@ -635,7 +630,7 @@ public class OSQuery {
         return true;
     }
 
-    private boolean propertyCompatibleWithOpenSearch(Property property){
+    private boolean propertyCompatibleWithOpenSearch(Where property){
         if (!propertyAvailableInOpenSearch(property.getIri())){
             return false;
         }
@@ -783,7 +778,7 @@ public class OSQuery {
             request.getIsA().addAll(iris);
         }
 
-        if (match.getProperty() != null && !processProperties(request, match))
+        if (match.getWhere() != null && !processProperties(request, match))
             return false;
 
         if (match.getMatch() != null) {
@@ -800,7 +795,7 @@ public class OSQuery {
     }
 
     private static boolean processProperties(SearchRequest request, Match match) throws QueryException {
-        for(Property w : match.getProperty()) {
+        for(Where w : match.getWhere()) {
             if (IM.HAS_SCHEME.equals(w.getIri())) {
                 processSchemeProperty(request, w);
             } else if (IM.HAS_MEMBER.equals(w.getIri()) && w.isInverse()) {
@@ -815,21 +810,21 @@ public class OSQuery {
         return true;
     }
 
-    private static void processSchemeProperty(SearchRequest request, Property w) throws QueryException {
+    private static void processSchemeProperty(SearchRequest request, Where w) throws QueryException {
         if (w.getIs() != null && !w.getIs().isEmpty())
             request.setSchemeFilter(w.getIs().stream().map(Node::getIri).toList());
         else
             throw new QueryException("Scheme filter must be a list (is)");
     }
 
-    private static void processMemberProperty(SearchRequest request, Property w) throws QueryException {
+    private static void processMemberProperty(SearchRequest request, Where w) throws QueryException {
         if (w.getIs() != null && !w.getIs().isEmpty())
             request.setMemberOf(w.getIs().stream().map(Node::getIri).toList());
         else
             throw new QueryException("Set membership filter must be a list (is)");
     }
 
-    private static void processStatusProperty(SearchRequest request, Property w) throws QueryException {
+    private static void processStatusProperty(SearchRequest request, Where w) throws QueryException {
         if (w.getIs() != null && !w.getIs().isEmpty())
             request.setStatusFilter(w.getIs().stream().map(Node::getIri).toList());
         else

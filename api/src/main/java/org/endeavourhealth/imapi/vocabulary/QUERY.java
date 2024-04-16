@@ -22,6 +22,7 @@ public class QUERY {
     public static final String SEARCH_ALLOWABLE_CONTAINED_IN = QUERY.NAMESPACE + "SearchAllowableContainedIn";
     public static final String SEARCH_MAIN_TYPES = QUERY.NAMESPACE + "SearchmainTypes";
     public static final String DM_PROPERTY = QUERY.NAMESPACE + "DataModelPropertyByShape";
-    public static final String SEARCH_SUBCLASS = QUERY.NAMESPACE + "SearchAllowableSubclass";
+    public static final String SEARCH_ALLOWABLE_SUBCLASS = QUERY.NAMESPACE + "SearchAllowableSubclass";
     public static final String GET_VALUES_FROM_PROPERTY_RANGE = QUERY.NAMESPACE + "GetValuesFromPropertyRange";
+    public static final String GET_SUBSETS = QUERY.NAMESPACE + "GetSubsets";
 }

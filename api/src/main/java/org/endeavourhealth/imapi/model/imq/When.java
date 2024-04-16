@@ -1,23 +1,22 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public class When {
-	private Property property;
+	private Where property;
 	private ReturnProperty then;
 
-	public Property getProperty() {
+	public Where getProperty() {
 		return property;
 	}
 
-	public When setProperty(Property property) {
+	public When setProperty(Where property) {
 		this.property = property;
 		return this;
 	}
 
-	public When property(Consumer<Property> builder) {
-		this.property= new Property();
+	public When property(Consumer<Where> builder) {
+		this.property= new Where();
 		builder.accept(this.property);
 		return this;
 	}

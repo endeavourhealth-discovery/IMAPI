@@ -9,22 +9,26 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class IMQToECLBuilder {
     private IMQToECL imqToECL = new IMQToECL();
     public BoolGroup getEclBuilderFromQuery(Match query) throws QueryException, EclBuilderException {
-        return createBoolGroup(query, true);
+        return createBoolGroup(query);
     }
 
-    private BoolGroup createBoolGroup(Match match, boolean rootParent) throws EclBuilderException {
+    private BoolGroup createBoolGroup(Match match) throws EclBuilderException {
         BoolGroup boolGroup = new BoolGroup();
         EclType matchType = imqToECL.getEclType(match);
         if (null == matchType) throw new EclBuilderException("Failed to get EclType from match");
         if (matchType == EclType.simple) {
             boolGroup.addItem(createConcept(match));
         } else if (matchType == EclType.refined) {
-            if (rootParent) boolGroup.addItem(createConcept(match));
+            boolGroup.addItem(createConcept(match));
         } else if (matchType == EclType.compound || matchType == EclType.exclusion) {
             boolGroup.setConjunction(match.getBoolMatch());
             for (Match subMatch : match.getMatch()) {
-                if (null != subMatch.getMatch()) boolGroup.addItem(createBoolGroup(subMatch,false));
-                else boolGroup.addItem(createConcept(subMatch));
+                if (null != subMatch.getMatch()) boolGroup.addItem(createBoolGroup(subMatch));
+                else {
+                    if (null != subMatch.getWhere()) {
+                        boolGroup.addItem(createBoolGroup(subMatch));
+                    } else boolGroup.addItem(createConcept(subMatch));
+                }
             }
             if (match.isExclude()) boolGroup.setExclude(true);
         } else if (matchType == EclType.compoundRefined) {
@@ -60,7 +64,7 @@ public class IMQToECLBuilder {
                 boolGroup.setConjunction(match.getBoolMatch());
                 for (Match subMatch : match.getMatch()) {
                     if (null != subMatch.getBoolMatch()) {
-                        boolGroup.addItem(createBoolGroup(subMatch,false));
+                        boolGroup.addItem(createBoolGroup(subMatch));
                     } else if (null != subMatch.getInstanceOf()) {
                         boolGroup.addItem(createConcept(subMatch));
                     }
@@ -70,7 +74,7 @@ public class IMQToECLBuilder {
                 boolGroup.setConjunction(match.getBoolMatch());
                 for (Match subMatch : match.getMatch()) {
                     if (null != subMatch.getBoolMatch()) {
-                        concept.addConceptItem(createBoolGroup(subMatch,false));
+                        concept.addConceptItem(createBoolGroup(subMatch));
                     } else if (null != subMatch.getInstanceOf()) {
                         concept.addConceptItem(createConcept(subMatch));
                     }

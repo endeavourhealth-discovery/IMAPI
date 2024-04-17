@@ -9,10 +9,10 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class IMQToECLBuilder {
     private IMQToECL imqToECL = new IMQToECL();
     public BoolGroup getEclBuilderFromQuery(Match query) throws QueryException, EclBuilderException {
-        return createBoolGroup(query);
+        return createBoolGroup(query,true);
     }
 
-    private BoolGroup createBoolGroup(Match match) throws EclBuilderException {
+    private BoolGroup createBoolGroup(Match match,boolean rootBool) throws EclBuilderException {
         BoolGroup boolGroup = new BoolGroup();
         EclType matchType = imqToECL.getEclType(match);
         if (null == matchType) throw new EclBuilderException("Failed to get EclType from match");
@@ -23,16 +23,19 @@ public class IMQToECLBuilder {
         } else if (matchType == EclType.compound || matchType == EclType.exclusion) {
             boolGroup.setConjunction(match.getBoolMatch());
             for (Match subMatch : match.getMatch()) {
-                if (null != subMatch.getMatch()) boolGroup.addItem(createBoolGroup(subMatch));
+                if (null != subMatch.getMatch()) {
+                    BoolGroup subBool = createBoolGroup(subMatch,false);
+                    boolGroup.addItem(subBool);
+                }
                 else {
                     if (null != subMatch.getWhere()) {
-                        boolGroup.addItem(createBoolGroup(subMatch));
+                        boolGroup.addItem(createBoolGroup(subMatch,false));
                     } else boolGroup.addItem(createConcept(subMatch));
                 }
             }
             if (match.isExclude()) boolGroup.setExclude(true);
         } else if (matchType == EclType.compoundRefined) {
-            Concept concept = createConcept(match);
+            ExpressionConstraint concept = createConcept(match);
             boolGroup.addItem(concept);
         }
         return boolGroup;
@@ -42,7 +45,13 @@ public class IMQToECLBuilder {
         BoolGroup boolGroup = new BoolGroup();
         boolGroup.setConjunction(where.getBoolWhere());
         for (Where subWhere : where.getWhere()) {
-            boolGroup.addItem(createRefinement(subWhere));
+            if (null != subWhere.getIs() || null != subWhere.getIsNot()) {boolGroup.addItem(createRefinement(subWhere));}
+            else if (null != subWhere.getWhere()) boolGroup.addItem(createRefinementBoolGroup(subWhere));
+            else if (subWhere.getIri().equals(IM.ROLE_GROUP) && null != subWhere.getMatch()) {
+                BoolGroup attributeGroup = createRefinementBoolGroup(subWhere.getMatch());
+                attributeGroup.setAttributeGroup(true);
+                boolGroup.addItem(attributeGroup);
+            }
         }
         return boolGroup;
     }
@@ -51,38 +60,33 @@ public class IMQToECLBuilder {
         BoolGroup boolGroup = new BoolGroup();
         boolGroup.setConjunction(match.getBoolMatch());
         for (Where where : match.getWhere()) {
-            boolGroup.addItem(createRefinement(where));
+            if (null != where.getIs() || null != where.getIsNot()) {boolGroup.addItem(createRefinement(where));}
+            else if (null != where.getWhere()) boolGroup.addItem(createRefinementBoolGroup(where));
+            else if (where.getIri().equals(IM.ROLE_GROUP) && null != where.getMatch()) {
+                BoolGroup attributeGroup = createRefinementBoolGroup(where.getMatch());
+                attributeGroup.setAttributeGroup(true);
+                boolGroup.addItem(attributeGroup);
+            }
         }
         return boolGroup;
     }
 
-    private Concept createConcept(Match match) throws EclBuilderException {
-        Concept concept = new Concept();
+    private ExpressionConstraint createConcept(Match match) throws EclBuilderException {
+        ExpressionConstraint concept = new ExpressionConstraint();
         if (null != match.getInstanceOf()) {
             concept.setConstraintOperator(getOperator(match.getInstanceOf()));
-            concept.setConceptSingle(iri(match.getInstanceOf().getIri()));
-        } else if (null != match.getBoolMatch()) {
+            concept.setConceptSingle(new ConceptReference(match.getInstanceOf().getIri()));
+        } else if (null != match.getMatch()) {
             BoolGroup boolGroup = new BoolGroup();
-            if (null != match.getWhere()) {
-                boolGroup.setConjunction(match.getBoolMatch());
-                for (Match subMatch : match.getMatch()) {
-                    if (null != subMatch.getBoolMatch()) {
-                        boolGroup.addItem(createBoolGroup(subMatch));
-                    } else if (null != subMatch.getInstanceOf()) {
-                        boolGroup.addItem(createConcept(subMatch));
-                    }
-                }
-                concept.addConceptItem(boolGroup);
-            } else {
-                boolGroup.setConjunction(match.getBoolMatch());
-                for (Match subMatch : match.getMatch()) {
-                    if (null != subMatch.getBoolMatch()) {
-                        concept.addConceptItem(createBoolGroup(subMatch));
-                    } else if (null != subMatch.getInstanceOf()) {
-                        concept.addConceptItem(createConcept(subMatch));
-                    }
+            boolGroup.setConjunction(match.getBoolMatch());
+            for (Match subMatch : match.getMatch()) {
+                if (null != subMatch.getBoolMatch()) {
+                    boolGroup.addItem(createBoolGroup(subMatch,false));
+                } else if (null != subMatch.getInstanceOf()) {
+                    boolGroup.addItem(createConcept(subMatch));
                 }
             }
+            concept.setConceptBool(boolGroup);
         }
         if (null != match.getWhere()) {
             if (null != match.getBoolWhere()) {
@@ -104,20 +108,20 @@ public class IMQToECLBuilder {
     private Refinement createRefinement(Where where) throws EclBuilderException {
         Refinement refinement = new Refinement();
         if (null != where.getIri()) {
-            SubExpressionConstraint property = new SubExpressionConstraint().setConcept(iri(where.getIri()));
+            SubExpressionConstraint property = new SubExpressionConstraint().setConcept(new ConceptReference(where.getIri()));
             property.setConstraintOperator(getOperator(where));
             refinement.setProperty(property);
         }
         if (null != where.getIs() && where.getIs().size() == 1) {
             Node whereIs = where.getIs().get(0);
-            SubExpressionConstraint value = new SubExpressionConstraint().setConcept(iri(whereIs.getIri()));
+            SubExpressionConstraint value = new SubExpressionConstraint().setConcept(new ConceptReference(whereIs.getIri()));
             value.setConstraintOperator(getOperator(whereIs));
             refinement.setOperator("=");
             refinement.setValue(value);
         }
         else if (null != where.getIsNot() && where.getIsNot().size() == 1) {
             Node whereIsNot = where.getIsNot().get(0);
-            SubExpressionConstraint value = new SubExpressionConstraint().setConcept(iri(whereIsNot.getIri()));
+            SubExpressionConstraint value = new SubExpressionConstraint().setConcept(new ConceptReference(whereIsNot.getIri()));
             value.setConstraintOperator(getOperator(whereIsNot));
             refinement.setOperator("!=");
             refinement.setValue(value);

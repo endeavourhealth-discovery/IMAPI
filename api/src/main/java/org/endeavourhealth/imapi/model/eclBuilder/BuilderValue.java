@@ -12,7 +12,7 @@ public interface BuilderValue {
     @JsonIgnore
     default boolean isBoolGroup() {return false;}
 
-    default Concept asConcept() {return null;}
+    default ExpressionConstraint asConcept() {return null;}
 
     default Refinement asRefinement() {return null;}
 

@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.transforms;
 
-import io.cucumber.java.it.Ma;
 import org.endeavourhealth.imapi.model.eclBuilder.*;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -15,14 +14,14 @@ public class IMQToECLBuilderTest {
     @Test
     public void convertsDescendantsAndSelf() throws QueryException, EclBuilderException {
         Match match = new Match().setInstanceOf(new Node("http://snomed.info/sct#29857009").setDescendantsOrSelfOf(true));
-        BoolGroup boolGroup = new BoolGroup().addItem(new Concept().setConceptSingle(iri("http://snomed.info/sct#29857009")).setConstraintOperator("<<"));
+        BoolGroup boolGroup = new BoolGroup().addItem(new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#29857009")).setConstraintOperator("<<"));
         assertThat(imqToECLBuilder.getEclBuilderFromQuery(match)).usingRecursiveComparison().isEqualTo(boolGroup);
     }
 
     @Test
     public void convertsDescendantsNotSelf() throws QueryException, EclBuilderException {
         Match match = new Match().setInstanceOf(new Node("http://snomed.info/sct#29857009").setDescendantsOf(true));
-        BoolGroup boolGroup = new BoolGroup().addItem(new Concept().setConceptSingle(iri("http://snomed.info/sct#29857009")).setConstraintOperator("<"));
+        BoolGroup boolGroup = new BoolGroup().addItem(new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#29857009")).setConstraintOperator("<"));
         assertThat(imqToECLBuilder.getEclBuilderFromQuery(match)).usingRecursiveComparison().isEqualTo(boolGroup);
     }
 
@@ -33,8 +32,8 @@ public class IMQToECLBuilderTest {
         Match subMatch1 = new Match().setInstanceOf(new Node("http://snomed.info/sct#298705000").setDescendantsOf(true));
         Match subMatch2 = new Match().setInstanceOf(new Node("http://snomed.info/sct#301366005").setDescendantsOf(true));
         match.addMatch(subMatch1).addMatch(subMatch2);
-        Concept subConcept1 = new Concept().setConceptSingle(iri("http://snomed.info/sct#298705000")).setConstraintOperator("<");
-        Concept subConcept2 = new Concept().setConceptSingle(iri("http://snomed.info/sct#301366005")).setConstraintOperator("<");
+        ExpressionConstraint subConcept1 = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#298705000")).setConstraintOperator("<");
+        ExpressionConstraint subConcept2 = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#301366005")).setConstraintOperator("<");
         BoolGroup boolGroup = new BoolGroup().addItem(subConcept1).addItem(subConcept2).setConjunction(Bool.and);
         BoolGroup actual = imqToECLBuilder.getEclBuilderFromQuery(match);
         assertThat(actual).usingRecursiveComparison().isEqualTo(boolGroup);
@@ -45,9 +44,9 @@ public class IMQToECLBuilderTest {
         Match match = new Match().setInstanceOf(new Node("http://snomed.info/sct#19829001").setDescendantsOf(true));
         Where where = new Where().setIri("http://snomed.info/sct#116676008").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#387207008").setDescendantsOrSelfOf(true));
         match.addWhere(where);
-        Concept concept = new Concept().setConceptSingle(iri("http://snomed.info/sct#19829001")).setConstraintOperator("<");
-        SubExpressionConstraint property = new SubExpressionConstraint().setConstraintOperator("<<").setConcept(iri("http://snomed.info/sct#116676008"));
-        SubExpressionConstraint value = new SubExpressionConstraint().setConstraintOperator("<<").setConcept(iri("http://snomed.info/sct#387207008"));
+        ExpressionConstraint concept = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#19829001")).setConstraintOperator("<");
+        SubExpressionConstraint property = new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#116676008"));
+        SubExpressionConstraint value = new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#387207008"));
         Refinement refinement = new Refinement().setOperator("=").setProperty(property).setValue(value);
         concept.addRefinementItem(refinement);
         BoolGroup boolGroup = new BoolGroup().addItem(concept);
@@ -61,10 +60,10 @@ public class IMQToECLBuilderTest {
         Where where1 = new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#698090000").setDescendantsOrSelfOf(true)).setAnyRoleGroup(true);
         Where where2 = new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#442031002").setDescendantsOrSelfOf(true)).setAnyRoleGroup(true);
         match.addWhere(where1).addWhere(where2);
-        Concept concept = new Concept().setConceptSingle(iri("http://snomed.info/sct#763158003")).setConstraintOperator("<<");
+        ExpressionConstraint concept = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#763158003")).setConstraintOperator("<<");
         concept.setConjunction(Bool.or);
-        Refinement refinement1 = new Refinement().setOperator("=").setProperty(new SubExpressionConstraint().setConcept(iri("http://snomed.info/sct#127489000")).setConstraintOperator("<<")).setValue(new SubExpressionConstraint().setConcept(iri("http://snomed.info/sct#698090000")).setConstraintOperator("<<"));
-        Refinement refinement2 = new Refinement().setOperator("=").setProperty(new SubExpressionConstraint().setConcept(iri("http://snomed.info/sct#127489000")).setConstraintOperator("<<")).setValue(new SubExpressionConstraint().setConcept(iri("http://snomed.info/sct#442031002")).setConstraintOperator("<<"));
+        Refinement refinement1 = new Refinement().setOperator("=").setProperty(new SubExpressionConstraint().setConcept(new ConceptReference("http://snomed.info/sct#127489000")).setConstraintOperator("<<")).setValue(new SubExpressionConstraint().setConcept(new ConceptReference("http://snomed.info/sct#698090000")).setConstraintOperator("<<"));
+        Refinement refinement2 = new Refinement().setOperator("=").setProperty(new SubExpressionConstraint().setConcept(new ConceptReference("http://snomed.info/sct#127489000")).setConstraintOperator("<<")).setValue(new SubExpressionConstraint().setConcept(new ConceptReference("http://snomed.info/sct#442031002")).setConstraintOperator("<<"));
         concept.addRefinementItem(refinement1).addRefinementItem(refinement2);
         BoolGroup boolGroup = new BoolGroup().addItem(concept);
         assertThat(imqToECLBuilder.getEclBuilderFromQuery(match)).usingRecursiveComparison().isEqualTo(boolGroup);
@@ -85,12 +84,12 @@ public class IMQToECLBuilderTest {
         match.addMatch(subMatch1).addMatch(subMatch2);
         BoolGroup rootBool = new BoolGroup().setConjunction(Bool.and);
         BoolGroup subBoolGroup1 = new BoolGroup().setConjunction(Bool.or);
-        Concept concept1 = new Concept().setConceptSingle(iri("http://snomed.info/sct#386725007")).setConstraintOperator("<<");
-        Concept concept2 = new Concept().setConceptSingle(iri("http://snomed.info/sct#431314004")).setConstraintOperator("<<");
+        ExpressionConstraint concept1 = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#386725007")).setConstraintOperator("<<");
+        ExpressionConstraint concept2 = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#431314004")).setConstraintOperator("<<");
         subBoolGroup1.addItem(concept1).addItem(concept2);
         BoolGroup subBoolGroup2 = new BoolGroup().setConjunction(Bool.or).setExclude(true);
-        Concept concept3 = new Concept().setConceptSingle(iri("http://snomed.info/sct#838441000000103")).setConstraintOperator("<<");
-        Concept concept4 = new Concept().setConceptSingle(iri("http://snomed.info/sct#838451000000100")).setConstraintOperator("<<");
+        ExpressionConstraint concept3 = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#838441000000103")).setConstraintOperator("<<");
+        ExpressionConstraint concept4 = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#838451000000100")).setConstraintOperator("<<");
         subBoolGroup2.addItem(concept3).addItem(concept4);
         rootBool.addItem(subBoolGroup1).addItem(subBoolGroup2);
         BoolGroup actual = imqToECLBuilder.getEclBuilderFromQuery(match);
@@ -105,16 +104,16 @@ public class IMQToECLBuilderTest {
         Where where = new Where().setAnyRoleGroup(true).setDescendantsOrSelfOf(true).setIri("http://snomed.info/sct#246075003").addIs(new Node("http://snomed.info/sct#771577000").setDescendantsOrSelfOf(true));
         match.addMatch(subMatch1).addMatch(subMatch2).addWhere(where);
         BoolGroup rootBool = new BoolGroup();
-        Concept compoundConcept = new Concept();
+        ExpressionConstraint compoundConcept = new ExpressionConstraint();
         BoolGroup conceptBool = new BoolGroup().setConjunction(Bool.or);
-        Concept concept1 = new Concept().setConceptSingle(iri("http://snomed.info/sct#91936005")).setConstraintOperator("<<");
-        Concept concept2 = new Concept().setConceptSingle(iri("http://snomed.info/sct#294532003")).setConstraintOperator("<<");
+        ExpressionConstraint concept1 = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#91936005")).setConstraintOperator("<<");
+        ExpressionConstraint concept2 = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#294532003")).setConstraintOperator("<<");
         conceptBool.addItem(concept1).addItem(concept2);
-        compoundConcept.addConceptItem(conceptBool);
+        compoundConcept.setConceptBool(conceptBool);
         Refinement refinement = new Refinement()
             .setOperator("=")
-            .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(iri("http://snomed.info/sct#246075003")))
-            .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(iri("http://snomed.info/sct#771577000")));
+            .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#246075003")))
+            .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#771577000")));
         compoundConcept.addRefinementItem(refinement);
         rootBool.addItem(compoundConcept);
         BoolGroup actual = imqToECLBuilder.getEclBuilderFromQuery(match);
@@ -133,16 +132,16 @@ public class IMQToECLBuilderTest {
         subMatch2.addWhere(where);
         match.addMatch(subMatch1).addMatch(subMatch2);
         BoolGroup rootBool = new BoolGroup().setConjunction(Bool.and);
-        Concept subConcept1 = new Concept().setConceptSingle(iri("http://snomed.info/sct#298705000")).setConstraintOperator("<<");
+        ExpressionConstraint subConcept1 = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#298705000")).setConstraintOperator("<<");
         BoolGroup subBool1 = new BoolGroup();
         Refinement refinement = new Refinement().setOperator("=")
-            .setProperty(new SubExpressionConstraint().setConcept(iri("http://snomed.info/sct#363698007")).setConstraintOperator(""))
-            .setValue(new SubExpressionConstraint().setConcept(iri("http://snomed.info/sct#51185008")).setConstraintOperator("<<"));
+            .setProperty(new SubExpressionConstraint().setConcept(new ConceptReference("http://snomed.info/sct#363698007")).setConstraintOperator(""))
+            .setValue(new SubExpressionConstraint().setConcept(new ConceptReference("http://snomed.info/sct#51185008")).setConstraintOperator("<<"));
         BoolGroup attributeGroup = new BoolGroup()
             .setAttributeGroup(true)
             .addItem(refinement);
-        Concept subConcept2 = new Concept()
-            .setConceptSingle(iri("http://snomed.info/sct#301366005"))
+        ExpressionConstraint subConcept2 = new ExpressionConstraint()
+            .setConceptSingle(new ConceptReference("http://snomed.info/sct#301366005"))
             .setConstraintOperator("<<")
             .addRefinementItem(attributeGroup);
         subBool1.addItem(subConcept2);

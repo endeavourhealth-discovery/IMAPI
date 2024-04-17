@@ -8,51 +8,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class Concept extends BuilderComponent{
+public class ExpressionConstraint extends BuilderComponent{
     private String constraintOperator;
     private Bool conjunction;
-    private TTIriRef conceptSingle;
-    private List<BuilderComponent> conceptItems;
+    private ConceptReference conceptSingle;
+    private BoolGroup conceptBool;
     private List<BuilderComponent> refinementItems;
 
-    public Concept() {
+    public ExpressionConstraint() {
         super("Concept");
     }
 
-    public Concept setConstraintOperator(String constraintOperator) {
+    public ExpressionConstraint setConstraintOperator(String constraintOperator) {
         this.constraintOperator = constraintOperator;
         return this;
     }
 
-    public Concept setConjunction(Bool conjunction) {
+    public ExpressionConstraint setConjunction(Bool conjunction) {
         this.conjunction = conjunction;
         return this;
     }
 
-    public Concept setConceptSingle(TTIriRef concept) {
+    public ExpressionConstraint setConceptSingle(ConceptReference concept) {
         this.conceptSingle = concept;
         return this;
     }
 
-    public Concept setRefinementItems(List<BuilderComponent> refinementItems) {
+    public ExpressionConstraint setRefinementItems(List<BuilderComponent> refinementItems) {
         this.refinementItems = refinementItems;
         return this;
     }
 
-    public Concept addRefinementItem(BuilderComponent refinementItem) {
+    public ExpressionConstraint addRefinementItem(BuilderComponent refinementItem) {
         if (null == this.refinementItems) this.refinementItems = new ArrayList<>();
         this.refinementItems.add(refinementItem);
         return this;
     }
 
-    public Concept setConceptItems(List<BuilderComponent> conceptItems) {
-        this.conceptItems = conceptItems;
-        return this;
-    }
-
-    public Concept addConceptItem(BuilderComponent conceptItem) {
-        if (null == this.conceptItems) this.conceptItems = new ArrayList<>();
-        this.conceptItems.add(conceptItem);
+    public ExpressionConstraint setConceptBool(BoolGroup conceptBool) {
+        this.conceptBool = conceptBool;
         return this;
     }
 
@@ -62,7 +56,7 @@ public class Concept extends BuilderComponent{
     }
 
     @Override
-    public Concept asConcept() {
+    public ExpressionConstraint asConcept() {
         return this;
     }
 }

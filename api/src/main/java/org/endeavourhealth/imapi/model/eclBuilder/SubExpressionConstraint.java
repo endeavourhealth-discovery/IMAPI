@@ -5,14 +5,14 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 @Getter
 public class SubExpressionConstraint {
-    private TTIriRef concept;
+    private ConceptReference concept;
     private String constraintOperator;
     private Boolean memberOf;
 
     public SubExpressionConstraint() {
     }
 
-    public SubExpressionConstraint setConcept(TTIriRef concept) {
+    public SubExpressionConstraint setConcept(ConceptReference concept) {
         this.concept = concept;
         return this;
     }

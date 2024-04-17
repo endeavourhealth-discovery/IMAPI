@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
+import org.endeavourhealth.imapi.model.eclBuilder.BoolGroup;
+import org.endeavourhealth.imapi.model.eclBuilder.EclBuilderException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
@@ -105,5 +107,13 @@ public class EclController {
     )
     public Query getQueryFromECL(@RequestBody String ecl ) throws DataFormatException {
         return eclService.getQueryFromEcl(ecl);
+    }
+
+    @PostMapping(value = "public/eclBuilderFromQuery", produces = "application/json")
+    @Operation(
+        summary = "Get ecl builder component objects from an imq query"
+    )
+    public BoolGroup getEclBuilderFromQuery(@RequestBody Query query) throws QueryException, EclBuilderException {
+        return eclService.getEclBuilderFromQuery(query);
     }
 }

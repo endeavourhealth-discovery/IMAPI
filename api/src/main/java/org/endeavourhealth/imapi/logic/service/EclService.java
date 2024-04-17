@@ -3,6 +3,8 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
+import org.endeavourhealth.imapi.model.eclBuilder.BoolGroup;
+import org.endeavourhealth.imapi.model.eclBuilder.EclBuilderException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.Query;
@@ -12,6 +14,7 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 import org.endeavourhealth.imapi.transforms.ECLToIMQ;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
+import org.endeavourhealth.imapi.transforms.IMQToECLBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -67,5 +70,9 @@ public class EclService {
 
     public Query getQueryFromEcl(String ecl) throws DataFormatException {
         return new ECLToIMQ().getQueryFromECL(ecl);
+    }
+
+    public BoolGroup getEclBuilderFromQuery(Query query) throws QueryException, EclBuilderException {
+        return new IMQToECLBuilder().getEclBuilderFromQuery(query);
     }
 }

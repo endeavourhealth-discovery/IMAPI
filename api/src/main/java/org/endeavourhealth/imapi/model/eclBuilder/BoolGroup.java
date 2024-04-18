@@ -15,6 +15,7 @@ public class BoolGroup extends BuilderComponent {
 
     public BoolGroup() {
         super("BoolGroup");
+        this.conjunction = Bool.or;
     }
 
     public BoolGroup setConjunction(Bool conjunction) {

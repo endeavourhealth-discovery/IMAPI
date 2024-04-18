@@ -17,6 +17,7 @@ public class ExpressionConstraint extends BuilderComponent{
 
     public ExpressionConstraint() {
         super("Concept");
+        this.conjunction = Bool.or;
     }
 
     public ExpressionConstraint setConstraintOperator(String constraintOperator) {

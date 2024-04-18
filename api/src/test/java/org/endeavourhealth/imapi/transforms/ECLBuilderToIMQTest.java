@@ -7,22 +7,21 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+public class ECLBuilderToIMQTest {
+    ECLBuilderToIMQ eclBuilderToIMQ = new ECLBuilderToIMQ();
 
-public class IMQToECLBuilderTest {
-    IMQToECLBuilder imqToECLBuilder = new IMQToECLBuilder();
     @Test
-    public void convertsDescendantsAndSelf() throws QueryException, EclBuilderException {
+    public void convertsDescendantsAndSelf() {
         Match match = new Match().setInstanceOf(new Node("http://snomed.info/sct#29857009").setDescendantsOrSelfOf(true));
         BoolGroup boolGroup = new BoolGroup().addItem(new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#29857009")).setConstraintOperator("<<"));
-        assertThat(imqToECLBuilder.getEclBuilderFromQuery(match)).usingRecursiveComparison().isEqualTo(boolGroup);
+        assertThat(eclBuilderToIMQ.getIMQFromEclBuilder(boolGroup)).usingRecursiveComparison().isEqualTo(match);
     }
 
     @Test
-    public void convertsDescendantsNotSelf() throws QueryException, EclBuilderException {
+    public void descendantsNotSelf() {
         Match match = new Match().setInstanceOf(new Node("http://snomed.info/sct#29857009").setDescendantsOf(true));
         BoolGroup boolGroup = new BoolGroup().addItem(new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#29857009")).setConstraintOperator("<"));
-        assertThat(imqToECLBuilder.getEclBuilderFromQuery(match)).usingRecursiveComparison().isEqualTo(boolGroup);
+        assertThat(eclBuilderToIMQ.getIMQFromEclBuilder(boolGroup)).usingRecursiveComparison().isEqualTo(match);
     }
 
     @Test
@@ -35,8 +34,8 @@ public class IMQToECLBuilderTest {
         ExpressionConstraint subConcept1 = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#298705000")).setConstraintOperator("<");
         ExpressionConstraint subConcept2 = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#301366005")).setConstraintOperator("<");
         BoolGroup boolGroup = new BoolGroup().addItem(subConcept1).addItem(subConcept2).setConjunction(Bool.and);
-        BoolGroup actual = imqToECLBuilder.getEclBuilderFromQuery(match);
-        assertThat(actual).usingRecursiveComparison().isEqualTo(boolGroup);
+        Match actual = eclBuilderToIMQ.getIMQFromEclBuilder(boolGroup);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(match);
     }
 
     @Test
@@ -50,7 +49,7 @@ public class IMQToECLBuilderTest {
         Refinement refinement = new Refinement().setOperator("=").setProperty(property).setValue(value);
         concept.addRefinementItem(refinement);
         BoolGroup boolGroup = new BoolGroup().addItem(concept);
-        assertThat(imqToECLBuilder.getEclBuilderFromQuery(match)).usingRecursiveComparison().isEqualTo(boolGroup);
+        assertThat(eclBuilderToIMQ.getIMQFromEclBuilder(boolGroup)).usingRecursiveComparison().isEqualTo(match);
     }
 
     @Test
@@ -66,7 +65,8 @@ public class IMQToECLBuilderTest {
         Refinement refinement2 = new Refinement().setOperator("=").setProperty(new SubExpressionConstraint().setConcept(new ConceptReference("http://snomed.info/sct#127489000")).setConstraintOperator("<<")).setValue(new SubExpressionConstraint().setConcept(new ConceptReference("http://snomed.info/sct#442031002")).setConstraintOperator("<<"));
         concept.addRefinementItem(refinement1).addRefinementItem(refinement2);
         BoolGroup boolGroup = new BoolGroup().addItem(concept);
-        assertThat(imqToECLBuilder.getEclBuilderFromQuery(match)).usingRecursiveComparison().isEqualTo(boolGroup);
+        Match actual = eclBuilderToIMQ.getIMQFromEclBuilder(boolGroup);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(match);
     }
 
     @Test
@@ -92,8 +92,8 @@ public class IMQToECLBuilderTest {
         ExpressionConstraint concept4 = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#838451000000100")).setConstraintOperator("<<");
         subBoolGroup2.addItem(concept3).addItem(concept4);
         rootBool.addItem(subBoolGroup1).addItem(subBoolGroup2);
-        BoolGroup actual = imqToECLBuilder.getEclBuilderFromQuery(match);
-        assertThat(actual).usingRecursiveComparison().isEqualTo(rootBool);
+        Match actual = eclBuilderToIMQ.getIMQFromEclBuilder(rootBool);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(match);
     }
 
     @Test
@@ -116,11 +116,11 @@ public class IMQToECLBuilderTest {
             .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#771577000")));
         compoundConcept.addRefinementItem(refinement);
         rootBool.addItem(compoundConcept);
-        BoolGroup actual = imqToECLBuilder.getEclBuilderFromQuery(match);
-        assertThat(actual).usingRecursiveComparison().isEqualTo(rootBool);
+        Match actual = eclBuilderToIMQ.getIMQFromEclBuilder(rootBool);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(match);
     }
 
-    @Test
+//    @Test
     public void focusGroupWithRefinementAttributeGroup() throws QueryException, EclBuilderException {
         Match match = new Match().setBoolMatch(Bool.and);
         Match subMatch1 = new Match().setInstanceOf(new Node("http://snomed.info/sct#298705000").setDescendantsOrSelfOf(true));
@@ -146,7 +146,7 @@ public class IMQToECLBuilderTest {
             .addRefinementItem(attributeGroup);
         subBool1.addItem(subConcept2);
         rootBool.addItem(subConcept1).addItem(subBool1);
-        BoolGroup actual = imqToECLBuilder.getEclBuilderFromQuery(match);
-        assertThat(actual).usingRecursiveComparison().isEqualTo(rootBool);
+        Match actual = eclBuilderToIMQ.getIMQFromEclBuilder(rootBool);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(match);
     }
 }

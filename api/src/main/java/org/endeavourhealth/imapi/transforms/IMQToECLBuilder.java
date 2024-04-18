@@ -21,7 +21,7 @@ public class IMQToECLBuilder {
         } else if (matchType == EclType.refined) {
             boolGroup.addItem(createConcept(match));
         } else if (matchType == EclType.compound || matchType == EclType.exclusion) {
-            boolGroup.setConjunction(match.getBoolMatch());
+            if (null != match.getBoolMatch()) boolGroup.setConjunction(match.getBoolMatch());
             for (Match subMatch : match.getMatch()) {
                 if (null != subMatch.getMatch()) {
                     BoolGroup subBool = createBoolGroup(subMatch,false);
@@ -43,7 +43,7 @@ public class IMQToECLBuilder {
 
     private BoolGroup createRefinementBoolGroup(Where where) throws EclBuilderException {
         BoolGroup boolGroup = new BoolGroup();
-        boolGroup.setConjunction(where.getBoolWhere());
+        if (null != where.getBoolWhere()) boolGroup.setConjunction(where.getBoolWhere());
         for (Where subWhere : where.getWhere()) {
             if (null != subWhere.getIs() || null != subWhere.getIsNot()) {boolGroup.addItem(createRefinement(subWhere));}
             else if (null != subWhere.getWhere()) boolGroup.addItem(createRefinementBoolGroup(subWhere));
@@ -58,7 +58,7 @@ public class IMQToECLBuilder {
 
     private BoolGroup createRefinementBoolGroup(Match match) throws EclBuilderException {
         BoolGroup boolGroup = new BoolGroup();
-        boolGroup.setConjunction(match.getBoolMatch());
+        if (null != match.getBoolMatch()) boolGroup.setConjunction(match.getBoolMatch());
         for (Where where : match.getWhere()) {
             if (null != where.getIs() || null != where.getIsNot()) {boolGroup.addItem(createRefinement(where));}
             else if (null != where.getWhere()) boolGroup.addItem(createRefinementBoolGroup(where));
@@ -78,7 +78,7 @@ public class IMQToECLBuilder {
             concept.setConceptSingle(new ConceptReference(match.getInstanceOf().getIri()));
         } else if (null != match.getMatch()) {
             BoolGroup boolGroup = new BoolGroup();
-            boolGroup.setConjunction(match.getBoolMatch());
+            if (null != match.getBoolMatch()) boolGroup.setConjunction(match.getBoolMatch());
             for (Match subMatch : match.getMatch()) {
                 if (null != subMatch.getBoolMatch()) {
                     boolGroup.addItem(createBoolGroup(subMatch,false));

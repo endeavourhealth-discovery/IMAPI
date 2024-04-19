@@ -120,7 +120,7 @@ public class ECLBuilderToIMQTest {
         assertThat(actual).usingRecursiveComparison().isEqualTo(match);
     }
 
-//    @Test
+    @Test
     public void focusGroupWithRefinementAttributeGroup() throws QueryException, EclBuilderException {
         Match match = new Match().setBoolMatch(Bool.and);
         Match subMatch1 = new Match().setInstanceOf(new Node("http://snomed.info/sct#298705000").setDescendantsOrSelfOf(true));
@@ -146,6 +146,127 @@ public class ECLBuilderToIMQTest {
             .addRefinementItem(attributeGroup);
         subBool1.addItem(subConcept2);
         rootBool.addItem(subConcept1).addItem(subBool1);
+        Match actual = eclBuilderToIMQ.getIMQFromEclBuilder(rootBool);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(match);
+    }
+
+    @Test
+    public void focusGroupWithMultipleRefinementGroups() throws QueryException, EclBuilderException {
+        Match match = new Match().setBoolMatch(Bool.or);
+        Match subMatch1 = new Match().setInstanceOf(new Node("http://snomed.info/sct#10363801000001108").setDescendantsOrSelfOf(true));
+        Match subMatch2 = new Match().setInstanceOf(new Node("http://snomed.info/sct#10363901000001102").setDescendantsOrSelfOf(true));
+        Where attributeGroup = new Where()
+            .setIri(IM.ROLE_GROUP)
+            .setMatch(new Match()
+                .setBoolWhere(Bool.or)
+                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116601002").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#396458002").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116571008").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#396012006").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#372584003").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116593003").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116602009").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116601002").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#396458002").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116571008").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#396012006").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#372584003").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116602009").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116593003").setDescendantsOrSelfOf(true)))
+            );
+        Where refinementGroup = new Where()
+            .setBoolWhere(Bool.or)
+            .addWhere(new Where().setIri("http://snomed.info/sct#411116001").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#385268001").setDescendantsOrSelfOf(true)))
+            .addWhere(new Where().setIri("http://snomed.info/sct#13088501000001100").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#21000001106").setDescendantsOrSelfOf(true)))
+            .addWhere(new Where().setIri("http://snomed.info/sct#13088401000001104").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#26643006").setDescendantsOrSelfOf(true)))
+            .addWhere(new Where().setIri("http://snomed.info/sct#10362901000001105").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#385268001").setDescendantsOrSelfOf(true)));
+        Where where = new Where().setBoolWhere(Bool.and).addWhere(attributeGroup).addWhere(refinementGroup);
+        match.addMatch(subMatch1).addMatch(subMatch2);
+        match.addWhere(where);
+        BoolGroup rootBool = new BoolGroup();
+        ExpressionConstraint concept = new ExpressionConstraint().setConjunction(Bool.or);
+        ExpressionConstraint subConcept1 = new ExpressionConstraint().setConstraintOperator("<<").setConceptSingle(new ConceptReference("http://snomed.info/sct#10363801000001108"));
+        ExpressionConstraint subConcept2 = new ExpressionConstraint().setConstraintOperator("<<").setConceptSingle(new ConceptReference("http://snomed.info/sct#10363901000001102"));
+        BoolGroup refinementBoolGroup = new BoolGroup().setConjunction(Bool.and);
+        BoolGroup attributeBoolGroup = new BoolGroup().setConjunction(Bool.or).setAttributeGroup(true)
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#127489000")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#116601002"))))
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#127489000")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#396458002"))))
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#127489000")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#116571008"))))
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#127489000")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#396012006"))))
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#127489000")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#372584003"))))
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#127489000")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#116593003"))))
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#127489000")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#116602009"))))
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#10363001000001101")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#116601002"))))
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#10363001000001101")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#396458002"))))
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#10363001000001101")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#116571008"))))
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#10363001000001101")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#396012006"))))
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#10363001000001101")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#372584003"))))
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#10363001000001101")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#116602009"))))
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#10363001000001101")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#116593003"))))
+            ;
+        BoolGroup subRefinementBoolGroup = new BoolGroup().setConjunction(Bool.or)
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#411116001")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#385268001"))))
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#13088501000001100")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#21000001106"))))
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#13088401000001104")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#26643006"))))
+            .addItem(new Refinement()
+                .setOperator("=")
+                .setProperty(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#10362901000001105")))
+                .setValue(new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#385268001"))))
+            ;
+        refinementBoolGroup.addItem(attributeBoolGroup).addItem(subRefinementBoolGroup);
+        concept.setConceptBool(new BoolGroup().addItem(subConcept1).addItem(subConcept2)).addRefinementItem(refinementBoolGroup);
+        rootBool.addItem(concept);
         Match actual = eclBuilderToIMQ.getIMQFromEclBuilder(rootBool);
         assertThat(actual).usingRecursiveComparison().isEqualTo(match);
     }

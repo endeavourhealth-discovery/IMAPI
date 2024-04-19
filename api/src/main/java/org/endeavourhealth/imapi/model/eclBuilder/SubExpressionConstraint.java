@@ -7,7 +7,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 public class SubExpressionConstraint {
     private ConceptReference concept;
     private String constraintOperator;
-    private Boolean memberOf;
 
     public SubExpressionConstraint() {
     }
@@ -19,11 +18,6 @@ public class SubExpressionConstraint {
 
     public SubExpressionConstraint setConstraintOperator(String constraintOperator) {
         this.constraintOperator = constraintOperator;
-        return this;
-    }
-
-    public SubExpressionConstraint setMemberOf(Boolean memberOf) {
-        this.memberOf = memberOf;
         return this;
     }
 }

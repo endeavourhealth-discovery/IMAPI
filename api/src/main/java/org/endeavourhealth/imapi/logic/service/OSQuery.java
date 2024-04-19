@@ -801,7 +801,9 @@ public class OSQuery {
             } else if (IM.HAS_MEMBER.equals(w.getIri()) && w.isInverse()) {
                 processMemberProperty(request, w);
             } else if (IM.HAS_STATUS.equals(w.getIri())) {
-                processStatusProperty(request, w);
+                processStatusProperty(request, w);}
+            else if (RDF.TYPE.equals(w.getIri())) {
+                    processTypeProperty(request, w);
             } else {
                 return false;
             }
@@ -830,6 +832,14 @@ public class OSQuery {
         else
             throw new QueryException("Status filter must be a list (is)");
     }
+
+    private static void processTypeProperty(SearchRequest request, Where w) throws QueryException {
+        if (w.getIs() != null && !w.getIs().isEmpty())
+            request.setTypeFilter(w.getIs().stream().map(Node::getIri).toList());
+        else
+            throw new QueryException("Status filter must be a list (is)");
+    }
+
 
     private static List<String> listFromAlias(Node type, QueryRequest queryRequest) throws QueryException {
         if (type.getParameter() == null) {

@@ -15,7 +15,7 @@ import cz.habarta.typescript.generator.JsonLibrary
 import cz.habarta.typescript.generator.OptionalProperties
 import cz.habarta.typescript.generator.TypeScriptFileType
 
-if (env != 'prod') {
+if (ENV != 'prod') {
     compileJava.dependsOn 'staticConstGenerator'
 }
 
@@ -46,6 +46,7 @@ tasks {
 
 sonar {
     properties {
+        property 'sonar.gradle.skipCompile', true
         property 'sonar.projectKey', 'endeavourhealth-discovery_IMAPI::api'
         property 'sonar.exclusions', '**/config/**, **/controllers/**, **/dataaccess/**, **/errorhandling/**, **/model/**, **/parser/**, **/vocabulary/**'
     }
@@ -112,7 +113,11 @@ dependencies {
 publishing {
     repositories {
         maven {
-            url = uri('https://maven.discoverydataservice.net/artifactory/libs-snapshot')
+            url = uri('https://artifactory.endhealth.co.uk/repository/maven-snapshots')
+            credentials {
+                username = MAVEN_USERNAME
+                password = MAVEN_PASSWORD
+            }
         }
     }
 }

@@ -19,11 +19,13 @@ public class ECLBuilderToIMQ {
 
     private Match createRootMatch(BoolGroup boolGroup) {
         Match match = new Match();
-        if (null != boolGroup.getConjunction() && boolGroup.getItems().size() > 1) match.setBoolMatch(boolGroup.getConjunction());
         if (null != boolGroup.getItems()) {
+            if (null != boolGroup.getConjunction() && boolGroup.getItems().size() > 1) match.setBoolMatch(boolGroup.getConjunction());
             if (boolGroup.getItems().size() == 1) {
                 if (boolGroup.getItems().get(0).isConcept()) {
                     processConcept(boolGroup.getItems().get(0).asConcept(), match);
+                } else if (boolGroup.getItems().get(0).isBoolGroup()) {
+                    processBoolGroup(boolGroup.getItems().get(0).asBoolGroup(),match);
                 }
             } else {
                 for (BuilderComponent builderComponent : boolGroup.getItems()) {

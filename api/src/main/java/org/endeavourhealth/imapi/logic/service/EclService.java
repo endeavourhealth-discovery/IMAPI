@@ -7,11 +7,13 @@ import org.endeavourhealth.imapi.model.eclBuilder.BoolGroup;
 import org.endeavourhealth.imapi.model.eclBuilder.EclBuilderException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Page;
+import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
+import org.endeavourhealth.imapi.transforms.ECLBuilderToIMQ;
 import org.endeavourhealth.imapi.transforms.ECLToIMQ;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
 import org.endeavourhealth.imapi.transforms.IMQToECLBuilder;
@@ -74,5 +76,10 @@ public class EclService {
 
     public BoolGroup getEclBuilderFromQuery(Query query) throws QueryException, EclBuilderException {
         return new IMQToECLBuilder().getEclBuilderFromQuery(query);
+    }
+
+    public Query getQueryFromEclBuilder(BoolGroup boolGroup) {
+        Match match = new ECLBuilderToIMQ().getIMQFromEclBuilder(boolGroup);
+        return new Query().addMatch(match);
     }
 }

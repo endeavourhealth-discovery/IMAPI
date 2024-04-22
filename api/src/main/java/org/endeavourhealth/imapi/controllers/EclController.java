@@ -116,4 +116,12 @@ public class EclController {
     public BoolGroup getEclBuilderFromQuery(@RequestBody Query query) throws QueryException, EclBuilderException {
         return eclService.getEclBuilderFromQuery(query);
     }
+
+    @PostMapping(value = "public/queryFromEclBuilder", produces = "application/json")
+    @Operation(
+        summary = "Get query from ecl builder component objects"
+    )
+    public Query getQueryFromEclBuilder(@RequestBody BoolGroup boolGroup) {
+        return eclService.getQueryFromEclBuilder(boolGroup);
+    }
 }

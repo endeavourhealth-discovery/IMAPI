@@ -10,6 +10,8 @@ public class BuilderComponent implements BuilderValue {
         this.type = type;
     }
 
+    public BuilderComponent() {}
+
     public BuilderComponent setType(String type) {
         this.type = type;
         return this;

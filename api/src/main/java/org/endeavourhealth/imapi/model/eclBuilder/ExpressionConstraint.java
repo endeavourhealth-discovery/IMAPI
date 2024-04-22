@@ -1,6 +1,9 @@
 package org.endeavourhealth.imapi.model.eclBuilder;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Getter;
+import org.endeavourhealth.imapi.json.ExpressionConstraintDeserializer;
+import org.endeavourhealth.imapi.json.TTEntityDeserializer;
 import org.endeavourhealth.imapi.model.imq.Bool;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
@@ -8,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@JsonDeserialize(using = ExpressionConstraintDeserializer.class)
 public class ExpressionConstraint extends BuilderComponent{
     private String constraintOperator;
     private Bool conjunction;
@@ -16,7 +20,7 @@ public class ExpressionConstraint extends BuilderComponent{
     private List<BuilderComponent> refinementItems;
 
     public ExpressionConstraint() {
-        super("Concept");
+        super("ExpressionConstraint");
         this.conjunction = Bool.or;
     }
 

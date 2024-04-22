@@ -11,6 +11,8 @@ public class ConceptReference {
         this.iri = iri;
     }
 
+    public ConceptReference() {}
+
     public ConceptReference setIri(String iri) {
         this.iri = iri;
         return this;

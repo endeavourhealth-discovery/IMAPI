@@ -1,12 +1,16 @@
 package org.endeavourhealth.imapi.model.eclBuilder;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Getter;
+import org.endeavourhealth.imapi.json.BoolGroupDeserializer;
+import org.endeavourhealth.imapi.json.TTEntityDeserializer;
 import org.endeavourhealth.imapi.model.imq.Bool;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@JsonDeserialize(using = BoolGroupDeserializer.class)
 public class BoolGroup extends BuilderComponent {
     private Bool conjunction;
     private List<BuilderComponent> items;

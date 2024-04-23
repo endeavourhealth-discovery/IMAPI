@@ -30,6 +30,7 @@ tasks {
                 'org.endeavourhealth.imapi.model.search.*',
                 'org.endeavourhealth.imapi.model.set.EclSearchRequest',
                 'org.endeavourhealth.imapi.model.imq.*',
+                'org.endeavourhealth.imapi.model.eclBuilder.*',
                 'org.endeavourhealth.imapi.vocabulary.*',
                 'org.endeavourhealth.imapi.vocabulary.**.*'
         ]
@@ -61,6 +62,7 @@ dependencies {
     implementation libs.apacheCollections4
     implementation libs.apachePoi
     implementation libs.apacheText
+    implementation libs.assertJ
     implementation libs.awsS3
     implementation libs.factPlusPlus
     implementation libs.jacksonDatabind

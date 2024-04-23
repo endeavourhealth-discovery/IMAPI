@@ -59,4 +59,17 @@ public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
 		Query query= new ECLToIMQVisitor().getIMQ(eclCtx,true);
 		return query;
 	}
+
+	public Boolean validateEcl(String ecl) {
+		try {
+			this.ecl = ecl;
+			lexer.setInputStream(CharStreams.fromString(ecl));
+			CommonTokenStream tokens = new CommonTokenStream(lexer);
+			parser.setTokenStream(tokens);
+			IMECLParser.ImeclContext eclCtx = parser.imecl();
+			return true;
+		} catch (Exception ex) {
+			return false;
+		}
+	}
 }

@@ -124,4 +124,12 @@ public class EclController {
     public Query getQueryFromEclBuilder(@RequestBody BoolGroup boolGroup) {
         return eclService.getQueryFromEclBuilder(boolGroup);
     }
+
+    @PostMapping(value = "public/validateEcl", consumes="text/plain", produces = "application/json")
+    @Operation(
+        summary = "Checks that validity of an ecl string"
+    )
+    public Boolean validateEcl(@RequestBody String ecl) {
+        return eclService.validateEcl(ecl);
+    }
 }

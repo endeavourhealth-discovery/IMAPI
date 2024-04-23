@@ -82,4 +82,8 @@ public class EclService {
         Match match = new ECLBuilderToIMQ().getIMQFromEclBuilder(boolGroup);
         return new Query().addMatch(match);
     }
+
+    public Boolean validateEcl(String ecl) {
+        return new ECLToIMQ().validateEcl(ecl);
+    }
 }

@@ -69,7 +69,7 @@ public class SetRepository {
         aReturn.setNodeRef("entity");
         replaced.addReturn(aReturn);
         replaced.match(m->m
-          .setBool(Bool.or)
+          .setBoolMatch(Bool.or)
           .match(m1->m1
             .setVariable("entity")
             .where(p->p

@@ -81,7 +81,7 @@ public class ExcelSetExporterTest {
 
         definition.set(TTIriRef.iri(IM.DEFINITION), TTLiteral.literal(new Query()
             .match(w->w
-              .setBool(Bool.or)
+              .setBoolMatch(Bool.or)
                 .match(f->f
                 .setInstanceOf(new Node().setIri("http://snomed.info/sct#39330711000001103").setName("COVID-19 vaccine (product)").setDescendantsOrSelfOf(true)))
                 .match(f->f

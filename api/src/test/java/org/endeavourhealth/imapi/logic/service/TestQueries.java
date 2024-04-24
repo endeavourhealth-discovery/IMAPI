@@ -58,13 +58,13 @@ public class TestQueries {
 					.setIri("http://www.w3.org/ns/shacl#property")
 						.match(m1->m1
 							.setVariable("shaclProperty")
-							.setBool(Bool.and)
+							.setBoolWhere(Bool.and)
 								.where(p2->p2
 										.setIri(SHACL.PATH)
 										.is(in->in
 											.setParameter("myProperty")))
 							  .where(p2->p2
-									.setBool(Bool.or)
+									.setBoolWhere(Bool.or)
 									   .where(p3->p3
 												 .setIri(SHACL.CLASS)
 												 .match(m3->m3
@@ -106,7 +106,7 @@ public class TestQueries {
 						.setIri(SHACL.PATH)
 						.addIs(new Node().setParameter("this")))
 					.where(w->w
-					.setBool(Bool.or)
+					.setBoolWhere(Bool.or)
 						.where(p->p
 							.setIri(SHACL.NODE)
 						.match(n->n
@@ -236,7 +236,7 @@ public class TestQueries {
 				.setName("Filter concept subtypes that are members of value sets")
 				.match(m->m
 					.match(m2->m2
-						.setBool(Bool.or)
+						.setBoolMatch(Bool.or)
 						.match(m1->m1
 							.setInstanceOf( new Node().setIri(SNOMED.NAMESPACE+"57148006")
 							.setDescendantsOrSelfOf(true)))
@@ -538,7 +538,7 @@ public class TestQueries {
 			.return_(r->r
 			.property(s->s.setIri(RDFS.LABEL)))
 			.match(rf->rf
-				.setBool(Bool.and)
+				.setBoolMatch(Bool.and)
 				.match(f->f
 						.setInstanceOf(new Node().setIri(SNOMED.NAMESPACE+"763158003").setDescendantsOrSelfOf(true))
 					.where(a1->a1

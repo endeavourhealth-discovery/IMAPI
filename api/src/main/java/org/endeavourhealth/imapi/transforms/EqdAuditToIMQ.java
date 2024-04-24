@@ -19,7 +19,7 @@ public class EqdAuditToIMQ {
 		Match match = new Match();
 		query.addMatch(match);
 		match.setVariable("population");
-		match.setBool(Bool.or);
+		match.setBoolMatch(Bool.or);
 		for (String popId : eqReport.getAuditReport().getPopulation()) {
 			match
 				.match(f -> f

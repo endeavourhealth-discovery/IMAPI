@@ -256,7 +256,7 @@ public class SparqlConverter {
             whereQl.append(" graph ").append(iriFromAlias(match.getGraph())).append(" {");
         }
         if (match.getMatch() != null) {
-            if (match.getBool() == Bool.or|| (match.getBoolMatch()!=null &&match.getBoolMatch()==Bool.or)) {
+            if ((match.getBoolMatch()!=null &&match.getBoolMatch()==Bool.or)) {
                 for (int i = 0; i < match.getMatch().size(); i++) {
                     if (i == 0)
                         whereQl.append("{ \n");
@@ -462,7 +462,7 @@ public class SparqlConverter {
             }
         }
         if (where.getWhere() != null) {
-            if (where.getBool() == Bool.or|| where.getBoolWhere()== Bool.or) {
+            if (where.getBoolWhere()== Bool.or) {
                 for (int i = 0; i < where.getWhere().size(); i++) {
                     if (i == 0)
                         whereQl.append("{ \n");

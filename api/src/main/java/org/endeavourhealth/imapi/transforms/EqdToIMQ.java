@@ -122,7 +122,7 @@ public class EqdToIMQ {
 			if (topMatch.getMatch()==null){
 				flatMatches.add(topMatch);
 			}
-			else if (topMatch.getBool()==Bool.or) {
+			else if (topMatch.getBoolMatch()==Bool.or) {
 				flatMatches.add(topMatch);
 				for (Match orMatch : topMatch.getMatch()) {
 					if (orMatch.getMatch() != null) {

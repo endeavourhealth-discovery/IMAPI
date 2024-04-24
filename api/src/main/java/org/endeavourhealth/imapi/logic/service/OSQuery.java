@@ -782,7 +782,7 @@ public class OSQuery {
             return false;
 
         if (match.getMatch() != null) {
-            if (match.getBool() != Bool.or)
+            if (match.getBoolMatch() != Bool.or)
                 return false;
 
             for (Match subMatch : match.getMatch()) {

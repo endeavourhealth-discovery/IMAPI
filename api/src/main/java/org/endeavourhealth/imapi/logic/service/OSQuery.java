@@ -254,6 +254,11 @@ public class OSQuery {
             TermsQueryBuilder tqr = new TermsQueryBuilder("isA.@id", isas);
             qry.filter(tqr);
         }
+        if (!request.getIsMember().isEmpty()) {
+            List<String> isMembers = new ArrayList<>(request.getIsMember());
+            TermsQueryBuilder tqr = new TermsQueryBuilder("isMember.@id", isMembers);
+            qry.filter(tqr);
+        }
         if (!request.getMemberOf().isEmpty()) {
             List<String> memberOfs = new ArrayList<>(request.getMemberOf());
             TermsQueryBuilder tqr = new TermsQueryBuilder("memberOf.@id", memberOfs);
@@ -268,6 +273,11 @@ public class OSQuery {
         if (!request.getIsA().isEmpty()) {
             List<String> isas = new ArrayList<>(request.getIsA());
             boolQuery.must(new TermsQueryBuilder("isA.@id", isas));
+        }
+
+        if (!request.getIsMember().isEmpty()) {
+            List<String> isMembers = new ArrayList<>(request.getIsMember());
+            boolQuery.must(new TermsQueryBuilder("isMember.@id", isMembers));
         }
 
         if (!request.getMemberOf().isEmpty()) {

@@ -26,6 +26,7 @@ public class EntityDocument {
 	Integer weighting;
 	String match;
 	Set<TTIriRef> isA= new HashSet<>();
+	Set<TTIriRef> isMember = new HashSet<>();
 	Set<TTIriRef> memberOf= new HashSet<>();
 	Integer subsumptionCount;
 
@@ -88,6 +89,14 @@ public class EntityDocument {
 	public EntityDocument setIsA(Set<TTIriRef> isA) {
 		this.isA = isA;
 		return this;
+	}
+
+	public Set<TTIriRef> getIsMember() {
+		return isMember;
+	}
+
+	public void setIsMember(Set<TTIriRef> isMember) {
+		this.isMember = isMember;
 	}
 
 	private List<TTIriRef> isDescendentOf = new ArrayList<>();

@@ -179,6 +179,7 @@ public class OpenSearchSender {
         getCore(batch, inList);
         getTermCodes(batch, inList);
         getIsas(batch, inList);
+        getIsMember(batch, inList);
         getSubsumptions(batch,inList);
         getSetMembership(batch, inList);
     }
@@ -380,6 +381,22 @@ public class OpenSearchSender {
         }
 
     }
+
+    private void getIsMember(Map<String, EntityDocument> batch, String inList) {
+        String sql = getBatchIsMemberSql(inList);
+        try (RepositoryConnection conn = repo.getConnection()) {
+            TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
+            try (TupleQueryResult qr = tupleQuery.evaluate()) {
+                while (qr.hasNext()) {
+                    BindingSet rs =  qr.next();
+                    String iri = rs.getValue("iri").stringValue();
+                    EntityDocument blob = batch.get(iri);
+                    blob.getIsMember().add(TTIriRef.iri(rs.getValue("superType").stringValue()));
+                }
+            }
+        }
+    }
+
     private void getSubsumptions(Map<String, EntityDocument> batch, String inList) {
         String sql = getSubsumptionSql(inList);
         try (RepositoryConnection conn = repo.getConnection()) {
@@ -408,6 +425,20 @@ public class OpenSearchSender {
             .add(" ?superType im:status im:Active.")
             .add("}").toString();
     }
+
+    private String getBatchIsMemberSql(String inList) {
+        return new StringJoiner(System.lineSeparator())
+            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+            .add("PREFIX im: <http://endhealth.info/im#>")
+            .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+            .add("select ?iri ?superType")
+            .add("where {")
+            .add(" ?iri im:isMemberOf ?superType.")
+            .add("      filter (?iri in (" + inList + ") )")
+            .add(" ?superType im:status im:Active.")
+            .add("}").toString();
+    }
+
     private String getSubsumptionSql(String inList) {
         return new StringJoiner(System.lineSeparator())
           .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
@@ -684,6 +715,16 @@ public class OpenSearchSender {
                           }
                         },
                         "isA": {
+                          "properties" : {
+                            "@id": {
+                              "type": "keyword"
+                            },
+                            "name" : {
+                              "type" : "text"
+                            }
+                          }
+                        },
+                        "isMember": {
                           "properties" : {
                             "@id": {
                               "type": "keyword"

@@ -21,6 +21,7 @@ public class SearchRequest {
     private List<String> schemeFilter = new ArrayList<>();
     private List<String> markIfDescendentOf = new ArrayList<>();
     private List<String> isA = new ArrayList<>();
+    private List<String> isMember = new ArrayList<>();
     private List<String> memberOf = new ArrayList<>();
     private int page = 1;
     private int size = 20;
@@ -127,6 +128,19 @@ public class SearchRequest {
 
     public SearchRequest setIsA(List<String> isA) {
         this.isA = isA;
+        return this;
+    }
+
+    @Schema(
+        name = "is a member",
+        description = "List of IRIs that must be supertypes of members"
+    )
+    public List<String> getIsMember() {
+        return isMember;
+    }
+
+    public SearchRequest setIsMember(List<String> isMember) {
+        this.isMember = isMember;
         return this;
     }
 

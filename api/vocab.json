@@ -74,6 +74,10 @@
       {
         "name": "IMPORT_DATA_ALL_RELEASES",
         "value": "CONFIG.NAMESPACE + \"ImportDataAllReleases\""
+      },
+      {
+        "name": "MONITORING",
+        "value": "CONFIG.NAMESPACE + \"monitoring\""
       }
     ]
   },

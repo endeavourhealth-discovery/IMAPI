@@ -64,6 +64,9 @@ dependencies {
     implementation libs.apacheText
     implementation libs.assertJ
     implementation libs.awsS3
+    implementation libs.dropwizard
+    implementation libs.dropwizardGraphite
+    implementation libs.dropwizardServlets
     implementation libs.factPlusPlus
     implementation libs.jacksonDatabind
     implementation libs.logbackCore

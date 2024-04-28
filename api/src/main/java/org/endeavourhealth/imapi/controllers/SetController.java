@@ -8,11 +8,14 @@ import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.utility.MetricsHelper;
+import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
+import java.io.IOException;
 import java.time.LocalDate;
 
 @RestController
@@ -31,8 +34,10 @@ public class SetController {
             description = "Publishes an expanded set to IM1"
     )
     @PreAuthorize("hasAuthority('IM1_PUBLISH')")
-    public void publish(@RequestParam(name = "iri") String iri) throws JsonProcessingException, QueryException {
-        setExporter.publishSetToIM1(iri);
+    public void publish(@RequestParam(name = "iri") String iri) throws IOException, QueryException {
+        try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Publish.GET")) {
+            setExporter.publishSetToIM1(iri);
+        }
     }
 
     @GetMapping(value = "/public/export")
@@ -40,17 +45,19 @@ public class SetController {
             summary = "Export set",
             description = "Exporting an expanded set to IM1"
     )
-    public HttpEntity<Object> exportSet(@RequestParam(name = "iri") String iri) throws DownloadException {
-        TTIriRef entity = entityService.getEntityReference(iri);
-        String filename = entity.getName() + " " + LocalDate.now();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(new MediaType("application", "force-download"));
-        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".txt\"");
-        try {
-            String result = setExporter.generateForIm1(iri).toString();
-            return new HttpEntity<>(result, headers);
-        } catch (QueryException | JsonProcessingException e) {
-            throw new DownloadException(("Failed to generate export."));
+    public HttpEntity<Object> exportSet(@RequestParam(name = "iri") String iri) throws DownloadException, IOException {
+        try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Export.GET")) {
+            TTIriRef entity = entityService.getEntityReference(iri);
+            String filename = entity.getName() + " " + LocalDate.now();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(new MediaType("application", "force-download"));
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".txt\"");
+            try {
+                String result = setExporter.generateForIm1(iri).toString();
+                return new HttpEntity<>(result, headers);
+            } catch (QueryException | JsonProcessingException e) {
+                throw new DownloadException(("Failed to generate export."));
+            }
         }
     }
 }

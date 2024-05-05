@@ -21,9 +21,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EqdToIMQ {
 	private final EqdResources resources = new EqdResources();
-	private static final Set<String> roles = new HashSet<>();
-	public Map<String, ConceptSet> valueSets;
-	private Map<String,String> setIris= new HashMap<>();
+
 
 
 

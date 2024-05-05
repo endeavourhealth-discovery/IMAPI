@@ -477,8 +477,9 @@ public class EqdResources {
             Set<Node> concepts = getValue(scheme, ev);
             if (concepts != null) {
                 for (Node iri : concepts) {
-                    Node conRef = new Node().setIri(iri.getIri()).setName(iri.getName())
-                            .setDescendantsOrSelfOf(true);
+                    Node conRef = new Node().setIri(iri.getIri()).setName(iri.getName());
+                    if (ev.isIncludeChildren())
+                            conRef.setDescendantsOrSelfOf(true);
                     setContent.add(conRef);
                 }
             } else
@@ -489,8 +490,9 @@ public class EqdResources {
                         Set<Node> exceptionValue= getValue(scheme,val);
                         if (exceptionValue!=null){
                             for (Node iri:exceptionValue){
-                                Node conRef = new Node().setIri(iri.getIri()).setName(iri.getName())
-                                  .setDescendantsOrSelfOf(true);
+                                Node conRef = new Node().setIri(iri.getIri()).setName(iri.getName());
+                                if (val.isIncludeChildren())
+                                  conRef.setDescendantsOrSelfOf(true);
                                 excContent.add(conRef);
                             }
                         }
@@ -538,15 +540,45 @@ public class EqdResources {
             return setContent.stream().findFirst().get();
         }
         else {
+            if (vs.getDescription()!=null)
+                name=vs.getDescription();
             ConceptSet set = new ConceptSet();
             set.setIri("urn:uuid:" + vs.getId());
             set.setName(name);
-            set.setDefinition(query);
+            if (!memberOnly(query))
+                set.setDefinition(query);
+            else
+                setMemberOnlySet(set,query);
             set.addUsedIn(TTIriRef.iri("urn:uuid:" + activeReport));
             document.addConceptSet(set);
             return new Node().setIri(set.getIri());
         }
     }
+    private void setMemberOnlySet(ConceptSet set, Match match) {
+        if (match.getInstanceOf()!=null)
+            set.addHasMember(iri(match.getInstanceOf().getIri()));
+        if (match.getMatch()!=null) {
+            for (Match subMatch:match.getMatch()){
+                setMemberOnlySet(set,subMatch);
+            }
+        }
+
+    }
+
+    private boolean memberOnly(Match match){
+        if (match.getInstanceOf()!=null){
+            if (match.getInstanceOf().isDescendantsOrSelfOf())
+                return false;
+        }
+        if (match.getMatch()!=null){
+            for (Match subMatch:match.getMatch()){
+                if (!memberOnly(subMatch))
+                    return false;
+            }
+        }
+        return true;
+    }
+
 
     private String getShortName(String name, String previous){
         name=name.split(" \\(")[0];

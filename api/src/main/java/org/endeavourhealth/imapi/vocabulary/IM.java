@@ -13,6 +13,7 @@ public class IM {
     public static final String CODE = IM.NAMESPACE + "code";
     public static final String PREFERRED_NAME = IM.NAMESPACE + "preferredName";
     public static final String HAS_SCHEME = IM.NAMESPACE + "scheme";
+    public static final String BINDING = IM.NAMESPACE+"binding";
     public static final String HAS_STATUS = IM.NAMESPACE + "status";
     public static final String STATUS = IM.NAMESPACE + "Status";
     public static final String CONTENT_TYPE = IM.NAMESPACE + "contentType";

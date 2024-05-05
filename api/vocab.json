@@ -150,6 +150,10 @@
         "value": "IM.NAMESPACE + \"scheme\""
       },
       {
+        "name": "BINDING",
+        "value": "IM.NAMESPACE+\"binding\""
+      },
+      {
         "name": "HAS_STATUS",
         "value": "IM.NAMESPACE + \"status\""
       },

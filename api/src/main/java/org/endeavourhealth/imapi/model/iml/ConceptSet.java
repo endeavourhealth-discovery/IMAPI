@@ -44,4 +44,11 @@ public class ConceptSet extends Entity{
 		this.hasMember = hasMember;
 		return this;
 	}
+
+	public ConceptSet addHasMember(TTIriRef member){
+		if (this.hasMember==null)
+			this.hasMember= new HashSet<>();
+		this.hasMember.add(member);
+		return this;
+	}
 }

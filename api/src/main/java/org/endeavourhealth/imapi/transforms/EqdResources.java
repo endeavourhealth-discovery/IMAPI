@@ -473,7 +473,7 @@ public class EqdResources {
         Set<Node> setContent = new HashSet<>();
         Set<Node> excContent = new HashSet<>();
         VocCodeSystemEx scheme = vs.getCodeSystem();
-        if (vs.getClusterCode()!=null){
+        if (vs.getClusterCode()!=null && !vs.getClusterCode().isEmpty()){
             return new Node().setParameter(vs.getClusterCode().get(0));
         }
         for (EQDOCValueSetValue ev : vs.getValues()) {
@@ -487,7 +487,7 @@ public class EqdResources {
                 }
             } else
                 System.err.println("Missing \t" + ev.getValue() + "\t " + ev.getDisplayName());
-            if (ev.getException().size()>0){
+            if (!ev.getException().isEmpty()){
                 for (EQDOCException exc:ev.getException()){
                     for (EQDOCExceptionValue val:exc.getValues()){
                         Set<Node> exceptionValue= getValue(scheme,val);

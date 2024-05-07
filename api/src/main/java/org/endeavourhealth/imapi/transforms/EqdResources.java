@@ -473,6 +473,9 @@ public class EqdResources {
         Set<Node> setContent = new HashSet<>();
         Set<Node> excContent = new HashSet<>();
         VocCodeSystemEx scheme = vs.getCodeSystem();
+        if (vs.getClusterCode()!=null){
+            return new Node().setParameter(vs.getClusterCode().get(0));
+        }
         for (EQDOCValueSetValue ev : vs.getValues()) {
             Set<Node> concepts = getValue(scheme, ev);
             if (concepts != null) {

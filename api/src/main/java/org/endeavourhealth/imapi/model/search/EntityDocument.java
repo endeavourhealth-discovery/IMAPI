@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 
 public class EntityDocument {
@@ -23,11 +24,39 @@ public class EntityDocument {
 	Set<TTIriRef> entityType = new HashSet<>();
 	TTIriRef status;
 	Set<SearchTermCode> termCode = new HashSet<>();
-	Integer weighting;
+	Integer usageTotal;
 	String match;
 	Set<TTIriRef> isA= new HashSet<>();
 	Set<TTIriRef> memberOf= new HashSet<>();
 	Integer subsumptionCount;
+	Set<Binding> binding;
+
+
+private class Binding {
+	TTIriRef path;
+	TTIriRef node;
+
+}
+
+	public Set<Binding> getBinding() {
+		return binding;
+	}
+
+	public EntityDocument setBinding(Set<Binding> binding) {
+		this.binding = binding;
+		return this;
+	}
+		public EntityDocument addBinding(TTIriRef path,TTIriRef node){
+			if (this.binding == null) {
+				this.binding = new HashSet<>();
+			}
+			Binding binding = new Binding();
+			binding.path=path;
+			binding.node=node;
+			this.binding.add(binding);
+			return this;
+		}
+
 
 	public String getAlternativeCode() {
 		return alternativeCode;
@@ -154,12 +183,12 @@ public class EntityDocument {
 		return this;
 	}
 
-	public Integer getWeighting() {
-		return weighting;
+	public Integer getUsageTotal() {
+		return usageTotal;
 	}
 
-	public EntityDocument setWeighting(Integer weighting) {
-		this.weighting = weighting;
+	public EntityDocument setUsageTotal(Integer usageTotal) {
+		this.usageTotal = usageTotal;
 		return this;
 	}
 

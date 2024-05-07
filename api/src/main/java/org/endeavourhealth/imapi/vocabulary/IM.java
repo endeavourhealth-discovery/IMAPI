@@ -133,6 +133,7 @@ public class IM {
     public static final String HAS_CONTEXT = IM.NAMESPACE + "hasContext";
     public static final String DISPLAY_ORDER = IM.NAMESPACE + "displayOrder";
     public static final String USAGE_TOTAL = IM.NAMESPACE + "usageTotal";
+    public static final String WEIGHTING = IM.NAMESPACE + "usageTotal";
     public static final String USAGE = IM.NAMESPACE + "SortFieldUsage";
     public static final String DESCENDING = IM.NAMESPACE + "Descending";
     public static final String ASCENDING = IM.NAMESPACE + "Ascending";
@@ -140,7 +141,6 @@ public class IM {
     public static final String OLABEL = IM.NAMESPACE + "oLabel";
     public static final String EXAMPLE = IM.NAMESPACE + "example";
     public static final String IM1ID = IM.NAMESPACE + "im1Id";
-    public static final String WEIGHTING = IM.NAMESPACE + "weighting";
     public static final String PRIVACY_LEVEL = IM.NAMESPACE + "privacyLevel";
     public static final String IM1SCHEME = IM.NAMESPACE + "im1Scheme";
     public static final String VALUE_SELECT = IM.NAMESPACE + "valueSelect";

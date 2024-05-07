@@ -43,7 +43,7 @@ public class OSQuery {
     private static final String TERM_CODE_TERM = "termCode.term";
     private static final String MATCH_TERM = "matchTerm";
     private static final String SCHEME = "scheme";
-    private static final String WEIGHTING = "weighting";
+    private static final String USAGE_TOTAL = "usageTotal";
     private static final String STATUS = "status";
     private static final String COMMENT = "comment";
     private boolean hasScriptScore;
@@ -320,7 +320,7 @@ public class OSQuery {
           .setField("length")
           .setDirection(Order.ascending));
         request.orderBy(o->o
-          .setField("weighting"));
+          .setField("usageTotal"));
     }
 
 
@@ -394,7 +394,7 @@ public class OSQuery {
 
         String termCode = "termCode";
 
-        List<String> defaultFields = new ArrayList<>(Arrays.asList("iri", "name", "code", "alternativeCode", termCode, "entityType", STATUS, SCHEME, WEIGHTING,"preferredName"));
+        List<String> defaultFields = new ArrayList<>(Arrays.asList("iri", "name", "code", "alternativeCode", termCode, "entityType", STATUS, SCHEME, USAGE_TOTAL,"preferredName"));
         Set<String> fields = new HashSet<>(defaultFields);
         if (!request.getSelect().isEmpty()) {
             fields.addAll(request.getSelect());
@@ -671,7 +671,7 @@ public class OSQuery {
                         case IM.CODE -> resultNode.put(field, searchResult.getCode());
                         case IM.HAS_STATUS -> resultNode.set(field, fromIri(searchResult.getStatus(), om));
                         case IM.HAS_SCHEME -> resultNode.set(field, fromIri(searchResult.getScheme(), om));
-                        case IM.WEIGHTING -> resultNode.put(field, searchResult.getWeighting());
+                        case IM.USAGE_TOTAL -> resultNode.put(field, searchResult.getUsageTotal());
                         case RDFS.LABEL -> resultNode.put(field, searchResult.getName());
                         case RDFS.COMMENT -> {
                             if (searchResult.getDescription() != null)
@@ -744,7 +744,7 @@ public class OSQuery {
                         else if (prop.getIri().equals(IM.ALTERNATIVE_CODE)) request.addSelect("alternativeCode");
                         else if (prop.getIri().equals(IM.HAS_SCHEME)) request.addSelect(SCHEME);
                         else if (prop.getIri().equals(RDF.TYPE)) request.addSelect("entityType");
-                        else if (prop.getIri().equals(IM.WEIGHTING)) request.addSelect(WEIGHTING);
+                        else if (prop.getIri().equals(IM.USAGE_TOTAL)) request.addSelect(USAGE_TOTAL);
                     }
                 });
         }
@@ -935,7 +935,7 @@ public class OSQuery {
             IM.HAS_STATUS,
             IM.HAS_SCHEME,
             RDF.TYPE,
-            IM.WEIGHTING,
+            IM.USAGE_TOTAL,
             IM.HAS_MEMBER
         ).contains(iri);
     }

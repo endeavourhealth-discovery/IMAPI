@@ -42,7 +42,7 @@ public class TestQueries {
 		 .setField("length")
 		 .setDirection(Order.ascending));
 	 request.orderBy(o->o
-		 .setField("weighting")
+		 .setField("usageTotal")
 		 .setDirection(Order.descending));
 	 return request;
  }

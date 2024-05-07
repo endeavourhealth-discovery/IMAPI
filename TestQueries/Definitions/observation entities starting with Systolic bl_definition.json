@@ -58,7 +58,7 @@
     "not" : false,
     "startsWithTerm" : false
   }, {
-    "field" : "weighting",
+    "field" : "usageTotal",
     "direction" : "descending",
     "iriValue" : null,
     "and" : null,

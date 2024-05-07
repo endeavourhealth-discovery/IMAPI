@@ -25,7 +25,7 @@
     }, {
       "@id" : "http://endhealth.info/im#status"
     }, {
-      "@id" : "http://endhealth.info/im#weighting"
+      "@id" : "http://endhealth.info/im#usageTotal"
     }, {
       "@id" : "http://endhealth.info/im#scheme"
     } ]

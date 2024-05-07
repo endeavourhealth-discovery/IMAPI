@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.springframework.security.core.parameters.P;
 
 import java.io.*;
 import java.net.URI;
@@ -27,6 +26,8 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class OpenSearchSender {
     private static final Logger LOG = LoggerFactory.getLogger(OpenSearchSender.class);
@@ -211,13 +212,13 @@ public class OpenSearchSender {
 
 
                     if (rs.hasBinding("scheme")) {
-                        TTIriRef scheme = TTIriRef.iri(rs.getValue("scheme").stringValue());
+                        TTIriRef scheme = iri(rs.getValue("scheme").stringValue());
 
                         if (rs.getValue("schemeName") != null)
                             scheme.setName(rs.getValue("schemeName").stringValue());
                         blob.setScheme(scheme);
                     } else {
-                        TTIriRef scheme = TTIriRef.iri(rs.getValue("graph").stringValue());
+                        TTIriRef scheme = iri(rs.getValue("graph").stringValue());
 
                         if (rs.getValue("graphName") != null)
                             scheme.setName(rs.getValue("graphName").stringValue());
@@ -225,30 +226,33 @@ public class OpenSearchSender {
                     }
 
                     if (rs.getValue("status") != null) {
-                        TTIriRef status = TTIriRef.iri(rs.getValue("status").stringValue());
+                        TTIriRef status = iri(rs.getValue("status").stringValue());
                         if (rs.getValue("statusName") != null)
                             status.setName(rs.getValue("statusName").stringValue());
                         blob.setStatus(status);
                     }
 
                     if (rs.getValue("type") != null) {
-                        TTIriRef type = TTIriRef.iri(rs.getValue("type").stringValue());
+                        TTIriRef type = iri(rs.getValue("type").stringValue());
                         if (rs.getValue("typeName") != null)
                             type.setName(rs.getValue("typeName").stringValue());
                         blob.addType(type);
                     }
                     TTIriRef extraType;
                     if (rs.getValue("extraType") != null) {
-                        extraType = TTIriRef.iri(rs.getValue("extraType").stringValue());
+                        extraType = iri(rs.getValue("extraType").stringValue());
                         extraType.setName(rs.getValue("extraTypeName").stringValue());
                         blob.addType(extraType);
-                        if (extraType.equals(TTIriRef.iri(IM.NAMESPACE + "DataModelEntity"))) {
-                            int weighting = 2000000;
-                            blob.setWeighting(weighting);
+                        if (extraType.equals(iri(IM.NAMESPACE + "DataModelEntity"))) {
+                            int usageTotal = 2000000;
+                            blob.setUsageTotal(usageTotal);
                         }
                     }
-                    if (rs.getValue("weighting") != null) {
-                        blob.setWeighting(Integer.parseInt(rs.getValue("weighting").stringValue()));
+                    if (rs.getValue("usageTotal") != null) {
+                        blob.setUsageTotal(Integer.parseInt(rs.getValue("usageTotal").stringValue()));
+                    }
+                    if (rs.getValue("path") != null) {
+                        blob.addBinding(iri(rs.getValue("path").stringValue()),iri(rs.getValue("node").stringValue()));
                     }
                     String lengthKey= blob.getPreferredName()!=null ? blob.getPreferredName(): name;
                     lengthKey= getLengthKey(lengthKey);
@@ -282,8 +286,8 @@ public class OpenSearchSender {
             .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
             .add("PREFIX im: <http://endhealth.info/im#>")
             .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-            .add("select ?iri ?name ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?weighting")
-            .add("?extraType ?extraTypeName ?preferredName ?alternativeCode ?graph ?graphName")
+            .add("select ?iri ?name ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?usageTotal")
+            .add("?extraType ?extraTypeName ?preferredName ?alternativeCode ?graph ?graphName ?path ?node")
             .add("where {")
             .add("  graph ?graph {")
             .add("    ?iri rdfs:label ?name.")
@@ -300,7 +304,10 @@ public class OpenSearchSender {
             .add("  Optional {?iri im:scheme ?scheme.")
             .add("  Optional {?scheme rdfs:label ?schemeName } }")
             .add("  Optional {?iri im:code ?code.}")
-            .add("  Optional {?iri im:weighting ?weighting.}")
+          .add("   Optional {?iri im:binding ?binding.")
+          .add("   ?binding sh:path ?path.")
+          .add("   ?binding sh:node ?node. }")
+            .add("  Optional {?iri im:usageTotal ?usageTotal.}")
           .add("  Optional {?iri im:alternativeCode ?alternativeCode.}")
             .add("}").toString();
     }
@@ -323,7 +330,7 @@ public class OpenSearchSender {
                         termCode = rs.getValue("termCode").stringValue();
 
                     if (rs.getValue("termCodeStatus") != null)
-                        status = TTIriRef.iri(rs.getValue("termCodeStatus").stringValue());
+                        status = iri(rs.getValue("termCodeStatus").stringValue());
                     if (synonym != null) {
                         if (status==null)
                             addMatchTerm(blob,synonym);
@@ -374,7 +381,7 @@ public class OpenSearchSender {
                     BindingSet rs = qr.next();
                     String iri = rs.getValue("iri").stringValue();
                     EntityDocument blob = batch.get(iri);
-                    blob.getIsA().add(TTIriRef.iri(rs.getValue("superType").stringValue()));
+                    blob.getIsA().add(iri(rs.getValue("superType").stringValue()));
                 }
             }
         }
@@ -430,7 +437,7 @@ public class OpenSearchSender {
                     BindingSet rs = qr.next();
                     String iri = rs.getValue("iri").stringValue();
                     EntityDocument blob = batch.get(iri);
-                    blob.getMemberOf().add(TTIriRef.iri(rs.getValue("set").stringValue()));
+                    blob.getMemberOf().add(iri(rs.getValue("set").stringValue()));
                 }
 
             }

@@ -6,12 +6,10 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -466,7 +464,7 @@ public class EntityRepository {
                 .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
                 .add("PREFIX im: <http://endhealth.info/im#>")
                 .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-                .add("select ?iri ?name ?preferredName ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?weighting")
+                .add("select ?iri ?name ?preferredName ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?usageTotal")
                 .add("?extraType ?extraTypeName")
                 .add("where {")
                 .add("  graph ?scheme { ?iri rdf:type ?type }")
@@ -480,7 +478,7 @@ public class EntityRepository {
                 .add("    Optional {?status rdfs:label ?statusName} }")
                 .add("    Optional {?scheme rdfs:label ?schemeName }")
                 .add("    Optional {?iri im:code ?code.}")
-                .add("    Optional {?iri im:weighting ?weighting.}")
+                .add("    Optional {?iri im:usageTotal ?usageTotal.}")
                 .add("}").toString();
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
@@ -524,12 +522,12 @@ public class EntityRepository {
             TTIriRef extraType = TTIriRef.iri(rs.getValue("extraType").stringValue(), rs.getValue("extraTypeName").stringValue());
             entityDocument.addType(extraType);
             if (extraType.equals(TTIriRef.iri(IM.NAMESPACE + "DataModelEntity"))) {
-                int weighting = 2000000;
-                entityDocument.setWeighting(weighting);
+                int usageTotal = 2000000;
+                entityDocument.setUsageTotal(usageTotal);
             }
         }
-        if (rs.hasBinding("weighting")) {
-            entityDocument.setWeighting(((Literal) rs.getValue("weighting")).intValue());
+        if (rs.hasBinding("usageTotal")) {
+            entityDocument.setUsageTotal(((Literal) rs.getValue("usageTotal")).intValue());
         }
     }
 

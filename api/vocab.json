@@ -630,6 +630,10 @@
         "value": "IM.NAMESPACE + \"usageTotal\""
       },
       {
+        "name": "WEIGHTING",
+        "value": "IM.NAMESPACE + \"usageTotal\""
+      },
+      {
         "name": "USAGE",
         "value": "IM.NAMESPACE + \"SortFieldUsage\""
       },
@@ -656,10 +660,6 @@
       {
         "name": "IM1ID",
         "value": "IM.NAMESPACE + \"im1Id\""
-      },
-      {
-        "name": "WEIGHTING",
-        "value": "IM.NAMESPACE + \"weighting\""
       },
       {
         "name": "PRIVACY_LEVEL",

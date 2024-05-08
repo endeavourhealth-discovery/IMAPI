@@ -265,6 +265,8 @@ public class OpenSearchSender {
 
             } catch (Exception e) {
                 LOG.error("Bad Query \n{}", sql);
+                e.printStackTrace();
+                System.exit(-1);
             }
         }
     }
@@ -285,6 +287,7 @@ public class OpenSearchSender {
         return new StringJoiner(System.lineSeparator())
             .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
             .add("PREFIX im: <http://endhealth.info/im#>")
+            .add("PREFIX sh: <http://www.w3.org/ns/shacl#>")
             .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
             .add("select ?iri ?name ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?usageTotal")
             .add("?extraType ?extraTypeName ?preferredName ?alternativeCode ?graph ?graphName ?path ?node")

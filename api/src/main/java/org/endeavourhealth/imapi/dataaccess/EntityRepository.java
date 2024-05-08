@@ -849,4 +849,27 @@ public class EntityRepository {
             return sparql.evaluate();
         }
     }
+
+    public Set<String> findLinkedDataModels(String dataModelIri) {
+        Set<String> linkedDMs = new HashSet<>();
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            StringJoiner query = new StringJoiner(System.lineSeparator())
+                    .add("PREFIX sh: <http://www.w3.org/ns/shacl#>")
+                    .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+                    .add("SELECT ?s WHERE {")
+                    .add(" ?s rdf:type sh:NodeShape .")
+                    .add(" ?s sh:property ?o .")
+                    .add(" ?o sh:node ?dm .")
+                    .add("}");
+            TupleQuery qry = conn.prepareTupleQuery(String.valueOf(query));
+            qry.setBinding("dm", iri(dataModelIri));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    linkedDMs.add(bs.getValue("s").stringValue());
+                }
+            }
+        }
+        return linkedDMs;
+    }
 }

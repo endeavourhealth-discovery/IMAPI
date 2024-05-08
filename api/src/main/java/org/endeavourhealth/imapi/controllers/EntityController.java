@@ -900,4 +900,10 @@ public class EntityController {
             entityService.updateSubsetsFromSuper(agentName, entity);
         }
     }
+
+    @GetMapping(value="/public/linkedDataModels")
+    public Set<String> getLinkedDataModels(@RequestParam(name = "dataModelIri") String dataModelIri) {
+        LOG.debug("getLinkedDataModels");
+        return entityService.getLinkedDataModels(dataModelIri);
+    }
 }

@@ -31,13 +31,6 @@ public class EntityDocument {
 	Integer subsumptionCount;
 	Set<Binding> binding;
 
-
-private class Binding {
-	TTIriRef path;
-	TTIriRef node;
-
-}
-
 	public Set<Binding> getBinding() {
 		return binding;
 	}
@@ -51,8 +44,8 @@ private class Binding {
 				this.binding = new HashSet<>();
 			}
 			Binding binding = new Binding();
-			binding.path=path;
-			binding.node=node;
+			binding.setPath(path);
+			binding.setNode(node);
 			this.binding.add(binding);
 			return this;
 		}

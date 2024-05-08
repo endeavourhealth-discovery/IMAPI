@@ -31,5 +31,5 @@ public class GRAPH {
     public static final String CEG16 = "http://endhealth.info/ceg16#";
     public static final String REPORTS = "http://endhealth.info/reports#";
     public static final String OPS_ROLES = "https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#";
-    public static final String XMLS = "http://www.w3.org/2001/XMLSchema#";
+    public static final String XS = "http://www.w3.org/2001/XMLSchema#";
 }

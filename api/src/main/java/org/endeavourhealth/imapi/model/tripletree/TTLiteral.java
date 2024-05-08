@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.json.TTLiteralDeserializer;
 import org.endeavourhealth.imapi.json.TTLiteralSerializer;
-import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.imapi.vocabulary.XS;
 
 import java.io.Serializable;
 import java.util.regex.Pattern;
@@ -81,25 +81,25 @@ public class TTLiteral implements TTValue, Serializable {
     }
     public TTLiteral(Boolean value) {
         this.value = value.toString();
-        this.type = iri(XSD.BOOLEAN);
+        this.type = iri(XS.BOOLEAN);
     }
     public TTLiteral(Integer value) {
         this.value = value.toString();
-        this.type = iri(XSD.INTEGER);
+        this.type = iri(XS.INTEGER);
     }
     public TTLiteral(Long value) {
         this.value = value.toString();
-        this.type = iri(XSD.LONG);
+        this.type = iri(XS.LONG);
     }
     public TTLiteral(Pattern value) {
         this.value = value.toString();
-        this.type = iri(XSD.PATTERN);
+        this.type = iri(XS.PATTERN);
     }
 
     public TTLiteral(Object value) throws JsonProcessingException {
         try (CachedObjectMapper om = new CachedObjectMapper()) {
             this.value = om.writeValueAsString(value);
-            this.type = iri(XSD.STRING);
+            this.type = iri(XS.STRING);
         }
     }
 

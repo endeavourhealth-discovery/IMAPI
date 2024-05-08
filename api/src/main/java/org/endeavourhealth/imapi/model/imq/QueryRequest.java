@@ -209,7 +209,7 @@ public class QueryRequest implements ContextMap {
 		context.put(OWL.NAMESPACE, "owl");
 		context.put(RDF.NAMESPACE, "rdf");
 		context.put(RDFS.NAMESPACE, "rdfs");
-		context.put(XSD.NAMESPACE, "xsd");
+		context.put(XS.NAMESPACE, "xs");
 		context.put(SHACL.NAMESPACE, "sh");
 		return this;
 	}

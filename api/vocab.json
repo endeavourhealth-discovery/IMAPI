@@ -1661,7 +1661,7 @@
     ]
   },
   {
-    "name": "XSD",
+    "name": "XS",
     "entries": [
       {
         "name": "NAMESPACE",
@@ -1669,47 +1669,51 @@
       },
       {
         "name": "PREFIX",
-        "value": "\"xsd\""
+        "value": "\"xs\""
       },
       {
         "name": "PATTERN",
-        "value": "XSD.NAMESPACE + \"pattern\""
+        "value": "XS.NAMESPACE + \"pattern\""
       },
       {
-        "name": "MININCLUSIVE",
-        "value": "XSD.NAMESPACE + \"minInclusive\""
+        "name": "MIN_INCLUSIVE",
+        "value": "XS.NAMESPACE + \"minInclusive\""
       },
       {
-        "name": "MINEXCLUSIVE",
-        "value": "XSD.NAMESPACE + \"minExclusive\""
+        "name": "MIN_EXCLUSIVE",
+        "value": "XS.NAMESPACE + \"minExclusive\""
       },
       {
-        "name": "MAXINCLUSIVE",
-        "value": "XSD.NAMESPACE + \"maxInclusive\""
+        "name": "MAX_INCLUSIVE",
+        "value": "XS.NAMESPACE + \"maxInclusive\""
       },
       {
-        "name": "MAXEXCLUSIVE",
-        "value": "XSD.NAMESPACE + \"maxExclusive\""
+        "name": "MAX_EXCLUSIVE",
+        "value": "XS.NAMESPACE + \"maxExclusive\""
       },
       {
         "name": "INTEGER",
-        "value": "XSD.NAMESPACE + \"integer\""
+        "value": "XS.NAMESPACE + \"integer\""
       },
       {
         "name": "STRING",
-        "value": "XSD.NAMESPACE + \"string\""
+        "value": "XS.NAMESPACE + \"string\""
       },
       {
         "name": "BOOLEAN",
-        "value": "XSD.NAMESPACE + \"boolean\""
+        "value": "XS.NAMESPACE + \"boolean\""
       },
       {
         "name": "LONG",
-        "value": "XSD.NAMESPACE + \"long\""
+        "value": "XS.NAMESPACE + \"long\""
       },
       {
         "name": "DOUBLE",
-        "value": "XSD.NAMESPACE + \"double\""
+        "value": "XS.NAMESPACE + \"double\""
+      },
+      {
+        "name": "DATE_TIME",
+        "value": "XS.NAMESPACE + \"dateTime\""
       }
     ]
   },
@@ -2121,7 +2125,7 @@
         "value": "\"https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#\""
       },
       {
-        "name": "XMLS",
+        "name": "XS",
         "value": "\"http://www.w3.org/2001/XMLSchema#\""
       }
     ]

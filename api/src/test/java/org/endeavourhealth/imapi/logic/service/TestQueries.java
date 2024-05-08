@@ -296,7 +296,7 @@ public class TestQueries {
 			"    \"rdf\" : \"http://www.w3.org/1999/02/22-rdf-syntax-ns#\",\n" +
 			"    \"owl\" : \"http://www.w3.org/2002/07/owl#\",\n" +
 			"    \"sh\" : \"http://www.w3.org/ns/shacl#\",\n" +
-			"    \"xsd\" : \"http://www.w3.org/2001/XMLSchema#\",\n" +
+			"    \"xs\" : \"http://www.w3.org/2001/XMLSchema#\",\n" +
 			"    \"rdfs\" : \"http://www.w3.org/2000/01/rdf-schema#\",\n" +
 			"    \"sn\" : \"http://snomed.info/sct#\"\n" +
 			"  },\n" +

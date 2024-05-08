@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.imapi.vocabulary.XS;
 
 import java.io.IOException;
 
@@ -30,15 +30,15 @@ public class TTLiteralSerializer extends StdSerializer<TTLiteral> {
         usePrefixes = (usePrefixes != null && usePrefixes && helper != null);
 
         if (literal.getType()!=null){
-            if (XSD.STRING.equals(literal.getType().getIri()))
+            if (XS.STRING.equals(literal.getType().getIri()))
                 gen.writeString(literal.getValue());
-            else if (XSD.BOOLEAN.equals(literal.getType().getIri()))
+            else if (XS.BOOLEAN.equals(literal.getType().getIri()))
                 gen.writeBoolean(literal.booleanValue());
-            else if (XSD.INTEGER.equals(literal.getType().getIri()))
+            else if (XS.INTEGER.equals(literal.getType().getIri()))
                 gen.writeNumber(literal.intValue());
-            else if (XSD.LONG.equals(literal.getType().getIri()))
+            else if (XS.LONG.equals(literal.getType().getIri()))
                 gen.writeNumber(literal.longValue());
-            else if (XSD.PATTERN.equals(literal.getType().getIri())) {
+            else if (XS.PATTERN.equals(literal.getType().getIri())) {
                 gen.writeStartObject();
                 gen.writeStringField("@value", literal.getValue());
                 gen.writeStringField("@type", usePrefixes

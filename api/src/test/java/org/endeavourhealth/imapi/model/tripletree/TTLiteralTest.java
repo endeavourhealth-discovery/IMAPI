@@ -8,7 +8,7 @@ import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.imapi.vocabulary.XS;
 import org.junit.jupiter.api.Test;
 
 
@@ -96,14 +96,14 @@ class TTLiteralTest {
     @Test
     void testTTLiteralSerialization_FirstNull() throws JsonProcessingException {
         TTLiteral first = literal(null, (TTIriRef)null);
-        TTLiteral second = literal("TEST", XSD.STRING);
+        TTLiteral second = literal("TEST", XS.STRING);
 
         assertNotEquals(first, second);
     }
 
     @Test
     void testTTLiteralSerialization_SecondNull() throws JsonProcessingException {
-        TTLiteral first = literal("TEST", XSD.STRING);
+        TTLiteral first = literal("TEST", XS.STRING);
         TTLiteral second = literal(null, (TTIriRef)null);
 
         assertNotEquals(first, second);
@@ -111,16 +111,16 @@ class TTLiteralTest {
 
     @Test
     void testTTLiteralSerialization_DiffVal() throws JsonProcessingException {
-        TTLiteral first = literal("SAME", XSD.STRING);
-        TTLiteral second = literal("DIFFERENT", XSD.STRING);
+        TTLiteral first = literal("SAME", XS.STRING);
+        TTLiteral second = literal("DIFFERENT", XS.STRING);
 
         assertNotEquals(first, second);
     }
 
     @Test
     void testTTLiteralSerialization_DiffType() throws JsonProcessingException {
-        TTLiteral first = literal("SAME", XSD.STRING);
-        TTLiteral second = literal("SAME", XSD.INTEGER);
+        TTLiteral first = literal("SAME", XS.STRING);
+        TTLiteral second = literal("SAME", XS.INTEGER);
 
         assertNotEquals(first, second);
     }
@@ -143,8 +143,8 @@ class TTLiteralTest {
 
     @Test
     void testTTLiteralSerialization_Same() throws JsonProcessingException {
-        TTLiteral first = literal("SAME", XSD.STRING);
-        TTLiteral second = literal("SAME", XSD.STRING);
+        TTLiteral first = literal("SAME", XS.STRING);
+        TTLiteral second = literal("SAME", XS.STRING);
 
         assertEquals(first, second);
     }

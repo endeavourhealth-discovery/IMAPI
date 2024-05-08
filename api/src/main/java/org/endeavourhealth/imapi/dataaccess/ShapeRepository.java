@@ -48,7 +48,7 @@ public class ShapeRepository {
 	public static String getAllShapesSql(){
 		return "PREFIX im: <http://endhealth.info/im#>\n" +
 			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-			"PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n" +
+			"PREFIX xs: <http://www.w3.org/2001/XMLSchema#>\n" +
 			"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
 			"PREFIX sh: <http://www.w3.org/ns/shacl#>\n" +
 			"CONSTRUCT {\n" +

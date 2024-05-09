@@ -630,14 +630,6 @@
         "value": "IM.NAMESPACE + \"usageTotal\""
       },
       {
-        "name": "WEIGHTING",
-        "value": "IM.NAMESPACE + \"usageTotal\""
-      },
-      {
-        "name": "USAGE",
-        "value": "IM.NAMESPACE + \"SortFieldUsage\""
-      },
-      {
         "name": "DESCENDING",
         "value": "IM.NAMESPACE + \"Descending\""
       },

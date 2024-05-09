@@ -35,7 +35,7 @@ tasks {
                 'org.endeavourhealth.imapi.vocabulary.**.*'
         ]
         excludeClasses = [
-                'org.endeavourhealth.imapi.model.search.EntityDocument'
+                'org.endeavourhealth.imapi.model.search.Binding'
         ]
         outputFile = '../../IMDirectory/im_library/src/interfaces/AutoGen.ts'
         outputKind = 'module'

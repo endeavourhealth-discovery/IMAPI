@@ -206,7 +206,7 @@ public class PathRepository {
 
 
 	private String getDefaultPrefixes() {
-		return "PREFIX xsd: <" + XSD.NAMESPACE + ">\n" +
+		return "PREFIX xs: <" + XS.NAMESPACE + ">\n" +
 			"PREFIX rdfs: <" + RDFS.NAMESPACE + ">\n" +
 			"PREFIX rdf: <" + RDF.NAMESPACE + ">\n" +
 			"PREFIX im: <" + IM.NAMESPACE + ">\n" +

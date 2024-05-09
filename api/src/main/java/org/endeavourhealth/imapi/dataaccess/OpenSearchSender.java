@@ -703,6 +703,16 @@ public class OpenSearchSender {
                             }
                           }
                         },
+                        "usageTotal": {
+                          "properties" : {
+                            "@id": {
+                              "type": "keyword"
+                            },
+                            "name" : {
+                              "type" : "text"
+                            }
+                          }
+                        },
                         "memberOf": {
                           "properties" : {
                           "@id": {

@@ -133,8 +133,6 @@ public class IM {
     public static final String HAS_CONTEXT = IM.NAMESPACE + "hasContext";
     public static final String DISPLAY_ORDER = IM.NAMESPACE + "displayOrder";
     public static final String USAGE_TOTAL = IM.NAMESPACE + "usageTotal";
-    public static final String WEIGHTING = IM.NAMESPACE + "usageTotal";
-    public static final String USAGE = IM.NAMESPACE + "SortFieldUsage";
     public static final String DESCENDING = IM.NAMESPACE + "Descending";
     public static final String ASCENDING = IM.NAMESPACE + "Ascending";
     public static final String PLABEL = IM.NAMESPACE + "pLabel";

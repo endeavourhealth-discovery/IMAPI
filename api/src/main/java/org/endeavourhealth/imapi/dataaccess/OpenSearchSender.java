@@ -704,14 +704,7 @@ public class OpenSearchSender {
                           }
                         },
                         "usageTotal": {
-                          "properties" : {
-                            "@id": {
-                              "type": "keyword"
-                            },
-                            "name" : {
-                              "type" : "text"
-                            }
-                          }
+                          "type" : "integer"
                         },
                         "memberOf": {
                           "properties" : {

@@ -8,7 +8,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.XS;
+import org.endeavourhealth.imapi.vocabulary.XSD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -297,7 +297,7 @@ public class CodeGenJava {
 
     private String getDataType(TTIriRef dataType, boolean dataModel, boolean isArray) {
         String dataTypeName = null;
-        if (dataType.getIri().startsWith(XS.NAMESPACE)) {
+        if (dataType.getIri().startsWith(XSD.NAMESPACE)) {
             dataTypeName = capitalise(getSuffix(dataType.getIri()));
         } else if (dataModel) {
             dataTypeName = "UUID";

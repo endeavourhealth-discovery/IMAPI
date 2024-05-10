@@ -204,7 +204,7 @@ public class SparqlConverter {
         sparql.append("PREFIX rdf: <" + RDF.NAMESPACE + ">\n");
         prefixes.add(IM.NAMESPACE, "im");
         sparql.append("PREFIX im: <" + IM.NAMESPACE + ">\n");
-        prefixes.add(XSD.NAMESPACE, "xs");
+        prefixes.add(XSD.NAMESPACE, "xsd");
         sparql.append("PREFIX xsd: <" + XSD.NAMESPACE + ">\n");
 		prefixes.add(SNOMED.NAMESPACE,"sn");
 		sparql.append("PREFIX sn: <"+ SNOMED.NAMESPACE+">\n");

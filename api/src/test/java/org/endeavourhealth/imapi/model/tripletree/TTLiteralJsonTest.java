@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.vocabulary.XSD;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -58,7 +59,7 @@ class TTLiteralJsonTest {
         TTLiteral lit = om.readValue(LIT_INT_JSON, TTLiteral.class);
 
         assertEquals("10", lit.getValue());
-        assertEquals(iri(XS.INTEGER), lit.getType());
+        assertEquals(iri(XSD.INTEGER), lit.getType());
     }
 
     @Test
@@ -74,7 +75,7 @@ class TTLiteralJsonTest {
         TTLiteral lit = om.readValue(LIT_BOOL_JSON, TTLiteral.class);
 
         assertEquals("true", lit.getValue());
-        assertEquals(iri(XS.BOOLEAN), lit.getType());
+        assertEquals(iri(XSD.BOOLEAN), lit.getType());
     }
 
     @Test
@@ -90,7 +91,7 @@ class TTLiteralJsonTest {
         TTLiteral lit = om.readValue(LIT_PAT_JSON, TTLiteral.class);
 
         assertEquals(".*", lit.getValue());
-        assertEquals(iri(XS.PATTERN), lit.getType());
+        assertEquals(iri(XSD.PATTERN), lit.getType());
     }
 
 }

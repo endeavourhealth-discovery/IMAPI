@@ -1653,7 +1653,7 @@
     ]
   },
   {
-    "name": "XS",
+    "name": "XSD",
     "entries": [
       {
         "name": "NAMESPACE",
@@ -1661,51 +1661,51 @@
       },
       {
         "name": "PREFIX",
-        "value": "\"xs\""
+        "value": "\"xsd\""
       },
       {
         "name": "PATTERN",
-        "value": "XS.NAMESPACE + \"pattern\""
+        "value": "XSD.NAMESPACE + \"pattern\""
       },
       {
         "name": "MIN_INCLUSIVE",
-        "value": "XS.NAMESPACE + \"minInclusive\""
+        "value": "XSD.NAMESPACE + \"minInclusive\""
       },
       {
         "name": "MIN_EXCLUSIVE",
-        "value": "XS.NAMESPACE + \"minExclusive\""
+        "value": "XSD.NAMESPACE + \"minExclusive\""
       },
       {
         "name": "MAX_INCLUSIVE",
-        "value": "XS.NAMESPACE + \"maxInclusive\""
+        "value": "XSD.NAMESPACE + \"maxInclusive\""
       },
       {
         "name": "MAX_EXCLUSIVE",
-        "value": "XS.NAMESPACE + \"maxExclusive\""
+        "value": "XSD.NAMESPACE + \"maxExclusive\""
       },
       {
         "name": "INTEGER",
-        "value": "XS.NAMESPACE + \"integer\""
+        "value": "XSD.NAMESPACE + \"integer\""
       },
       {
         "name": "STRING",
-        "value": "XS.NAMESPACE + \"string\""
+        "value": "XSD.NAMESPACE + \"string\""
       },
       {
         "name": "BOOLEAN",
-        "value": "XS.NAMESPACE + \"boolean\""
+        "value": "XSD.NAMESPACE + \"boolean\""
       },
       {
         "name": "LONG",
-        "value": "XS.NAMESPACE + \"long\""
+        "value": "XSD.NAMESPACE + \"long\""
       },
       {
         "name": "DOUBLE",
-        "value": "XS.NAMESPACE + \"double\""
+        "value": "XSD.NAMESPACE + \"double\""
       },
       {
         "name": "DATE_TIME",
-        "value": "XS.NAMESPACE + \"dateTime\""
+        "value": "XSD.NAMESPACE + \"dateTime\""
       }
     ]
   },

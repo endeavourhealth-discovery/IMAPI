@@ -37,7 +37,7 @@ public class LuceneIndexer {
 				"          \"propertyChain\": [\n" +
 				"             \"http://endhealth.info/im#code\"\n" +
 				"          ],\n" +
-                "     \"datatype\": \"xs:string\"\n" +
+                "     \"datatype\": \"xsd:string\"\n" +
                 "\n" +
 				"     }\n" +
 				"      ],\n" +

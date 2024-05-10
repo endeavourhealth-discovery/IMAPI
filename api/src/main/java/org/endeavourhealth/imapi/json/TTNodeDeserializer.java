@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.XS;
+import org.endeavourhealth.imapi.vocabulary.XSD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,15 +115,15 @@ public class TTNodeDeserializer {
          return TTLiteral.literal(node.get(IM.VALUE).textValue());
 
       TTIriRef type = iri(expand(node.get(IM.TYPE).asText()));
-      if (XS.STRING.equals(type.getIri()))
+      if (XSD.STRING.equals(type.getIri()))
          return TTLiteral.literal(node.get(IM.VALUE).textValue());
-      else if (XS.BOOLEAN.equals(type.getIri())) {
+      else if (XSD.BOOLEAN.equals(type.getIri())) {
          return TTLiteral.literal(Boolean.valueOf(node.get(IM.VALUE).asText()));
       }
-      else if (XS.INTEGER.equals(type.getIri())) {
+      else if (XSD.INTEGER.equals(type.getIri())) {
          return TTLiteral.literal(Integer.valueOf(node.get(IM.VALUE).asText()));
       }
-      else if (XS.PATTERN.equals(type.getIri()))
+      else if (XSD.PATTERN.equals(type.getIri()))
          return TTLiteral.literal(Pattern.compile(node.get(IM.VALUE).textValue()));
       else
          throw new IOException("Unhandled literal type ["+type.getIri()+"]");

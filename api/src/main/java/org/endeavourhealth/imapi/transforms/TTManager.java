@@ -64,7 +64,7 @@ public class TTManager implements AutoCloseable {
    }
    public TTDocument createDocument() {
       TTContext context= new TTContext();
-      context.add(XS.NAMESPACE,"xs");
+      context.add(XSD.NAMESPACE,"xs");
       context.add(SHACL.NAMESPACE,"sh");
       context.add(IM.NAMESPACE,"im");
       context.add(RDF.NAMESPACE, "rdf","RDF namespace");
@@ -107,7 +107,7 @@ public class TTManager implements AutoCloseable {
      context.add(OWL.NAMESPACE, "owl","OWL2 namespace");
      context.add(RDF.NAMESPACE, "rdf","RDF namespace");
      context.add(RDFS.NAMESPACE, "rdfs","RDFS namespace");
-     context.add(XS.NAMESPACE, "xs","xs namespace");
+     context.add(XSD.NAMESPACE, "xs","xs namespace");
      context.add(SHACL.NAMESPACE, "sh","SHACL namespace");
      return context;
    }
@@ -121,7 +121,7 @@ public class TTManager implements AutoCloseable {
       context.add(OWL.NAMESPACE, "owl","OWL2 namespace");
       context.add(RDF.NAMESPACE, "rdf","RDF namespace");
       context.add(RDFS.NAMESPACE, "rdfs","RDFS namespace");
-      context.add(XS.NAMESPACE, "xs","xs namespace");
+      context.add(XSD.NAMESPACE, "xs","xs namespace");
       context.add(GRAPH.ICD10, "icd10","ICD10 namespace");
       context.add(GRAPH.OPCS4, "opcs4","OPCS4 namespace");
       context.add(GRAPH.EMIS, "emis","EMIS (inc. Read2 like) namespace");
@@ -659,7 +659,7 @@ public class TTManager implements AutoCloseable {
       ctx.add(RDF.NAMESPACE,"rdf");
       ctx.add(SNOMED.NAMESPACE,"sn");
       ctx.add(SHACL.NAMESPACE,"sh");
-      ctx.add(XS.NAMESPACE,"xs");
+      ctx.add(XSD.NAMESPACE,"xs");
       return ctx;
    }
 

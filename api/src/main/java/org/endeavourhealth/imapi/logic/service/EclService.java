@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
+import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.eclBuilder.BoolGroup;
 import org.endeavourhealth.imapi.model.eclBuilder.EclBuilderException;
 import org.endeavourhealth.imapi.model.iml.Concept;
@@ -70,7 +71,7 @@ public class EclService {
         return new IMQToECL().getECLFromQuery(query, includeNames);
     }
 
-    public Query getQueryFromEcl(String ecl) throws DataFormatException {
+    public Query getQueryFromEcl(String ecl) throws DataFormatException, EclFormatException {
         return new ECLToIMQ().getQueryFromECL(ecl);
     }
 

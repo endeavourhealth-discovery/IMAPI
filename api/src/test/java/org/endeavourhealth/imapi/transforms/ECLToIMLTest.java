@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.transforms;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,7 @@ class ECLToIMLTest {
 
 
 // @Test
-	public void ECLToIMLTest() throws DataFormatException, JsonProcessingException, QueryException {
+	public void ECLToIMLTest() throws DataFormatException, JsonProcessingException, QueryException, EclFormatException {
 		String ecl1="(<< 10363801000001108 \n" +
 			" OR << 10363901000001102 ): (<< 127489000  = << 116601002 | Prednisolone (substance) | \n" +
 			" OR << 127489000 | Has active ingredient (attribute) |  = << 396458002 | Hydrocortisone (substance) | \n" +

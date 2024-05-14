@@ -114,7 +114,7 @@ public class EclController {
       summary = "Get IMQ query from ecl",
       description = "Map ecl test to an IM query object"
     )
-    public Query getQueryFromECL(@RequestBody String ecl ) throws DataFormatException, IOException {
+    public Query getQueryFromECL(@RequestBody String ecl ) throws DataFormatException, IOException,EclFormatException {
         try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.QueryFromEcl.POST")) {
             return eclService.getQueryFromEcl(ecl);
         }

@@ -34,9 +34,6 @@ tasks {
                 'org.endeavourhealth.imapi.vocabulary.*',
                 'org.endeavourhealth.imapi.vocabulary.**.*'
         ]
-        excludeClasses = [
-                'org.endeavourhealth.imapi.model.search.Binding'
-        ]
         outputFile = '../../IMDirectory/im_library/src/interfaces/AutoGen.ts'
         outputKind = 'module'
         mapEnum = EnumMapping.asEnum

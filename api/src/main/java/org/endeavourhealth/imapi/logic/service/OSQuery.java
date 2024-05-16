@@ -281,11 +281,11 @@ public class OSQuery {
         return boolQuery;
     }
 
-    private BoolQueryBuilder buildBindingBoolQuery(List<Binding> bindings) {
+    private BoolQueryBuilder buildBindingBoolQuery(List<SearchBinding> bindings) {
         BoolQueryBuilder result = new BoolQueryBuilder();
         result.minimumShouldMatch(1);
 
-        for (Binding binding : bindings) {
+        for (SearchBinding binding : bindings) {
             BoolQueryBuilder inner = new BoolQueryBuilder();
             inner.must(new TermsQueryBuilder("binding.node.@id", binding.getNode().getIri()));
             inner.must(new TermsQueryBuilder("binding.path.@id", binding.getPath().getIri()));

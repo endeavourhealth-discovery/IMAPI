@@ -76,10 +76,12 @@ public class SetExporter {
         if (core || legacy) {
             result = tryGetExpandedSetMembersByDefinition(iri, legacy, schemes);
 
-//        if (null == result)
-//            // Try get direct/pre-expanded members?
+            // If nothing found from definition, try to get direct members
+            if (null == result || result.isEmpty())
+                result = setRepository.getSetMembers(iri, legacy, schemes);
 
-            if (null == result) {
+            // If nothing found from members, try to get descendants
+            if (null == result || result.isEmpty()) {
                 Query descendantsOf = new Query()
                     .match(f -> f
                         .setInstanceOf(new Node().setIri(iri)

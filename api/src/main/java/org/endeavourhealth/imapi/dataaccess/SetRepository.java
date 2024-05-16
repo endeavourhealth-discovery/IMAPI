@@ -230,21 +230,21 @@ public class SetRepository {
                     result.add(cl);
                     Value name = bs.getValue("term");
                     Value code = bs.getValue("code");
-                    Value alternativeCode= bs.getValue("alternativeCode");
+                    Value alternativeCode = bs.getValue("alternativeCode");
                     Value schemeName = bs.getValue("schemeName");
                     Value usage = bs.getValue("usage");
                     Value status = bs.getValue("status");
                     Value statusName = bs.getValue("statusName");
                     Value type = bs.getValue("entityType");
                     Value typeName = bs.getValue("typeName");
-                    Value codeId=bs.getValue("codeId");
+                    Value codeId = bs.getValue("codeId");
                     cl.setIri(concept);
                     if (name != null)
                         cl.setName(name.stringValue());
                     if (code != null) {
                         cl.setCode(code.stringValue());
                     }
-                    if (alternativeCode!=null){
+                    if (alternativeCode != null) {
                         cl.setAlternativeCode(alternativeCode.stringValue());
                     }
                     if (null != scheme) {
@@ -256,7 +256,7 @@ public class SetRepository {
                     if (null != type) {
                         cl.addType(iri(type.stringValue(), typeName.stringValue()));
                     }
-                    if (null!=codeId){
+                    if (null != codeId) {
                         cl.setCodeId(codeId.stringValue());
                     }
                     cl.setUsage(usage == null ? null : ((Literal) usage).intValue());
@@ -272,18 +272,16 @@ public class SetRepository {
                     cl.addIm1Id(im1Id.stringValue());
                 if (includeLegacy) {
                     String legacyScheme = bs.getValue("legacyScheme") != null ? bs.getValue("legacyScheme").stringValue() : null;
-                    if (legacyScheme==null) {
+                    if (legacyScheme == null) {
                         if (!coreSchemes.contains(scheme.stringValue())) {
                             bindLegacyFromCore(bs, cl);
                         }
-                    }
-                    else if (schemes.size()==0){
-                        bindResults(bs,cl);
-                    }
-                    else {
-                            if(schemes.stream().anyMatch(s -> s.equals(legacyScheme))) {
+                    } else if (schemes.size() == 0) {
+                        bindResults(bs, cl);
+                    } else {
+                        if (schemes.stream().anyMatch(s -> s.equals(legacyScheme))) {
                             bindResults(bs, cl);
-                            }
+                        }
                     }
                 }
             }
@@ -511,6 +509,7 @@ public class SetRepository {
           .add("       im:code ?code;")
           .add("       im:scheme ?scheme.")
           .add("    ?scheme rdfs:label ?schemeName .")
+          .add("    OPTIONAL { ?entity im:status ?status . ?status rdfs:label ?statusName . }")
           .add("    OPTIONAL { ?entity im:im1Id ?im1Id . }")
           .add("    OPTIONAL { ?entity im:usageTotal ?use . }")
           .add("    OPTIONAL { ?entity im:codeId ?codeId . }")

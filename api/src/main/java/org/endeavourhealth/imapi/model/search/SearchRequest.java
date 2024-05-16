@@ -19,7 +19,7 @@ public class SearchRequest {
     private List<String> statusFilter = new ArrayList<>();
     private List<String> typeFilter = new ArrayList<>();
     private List<String> schemeFilter = new ArrayList<>();
-    private List<Binding> bindingFilter = new ArrayList<>();
+    private List<SearchBinding> bindingFilter = new ArrayList<>();
     private List<String> markIfDescendentOf = new ArrayList<>();
     private List<String> isA = new ArrayList<>();
     private List<String> memberOf = new ArrayList<>();
@@ -202,11 +202,11 @@ public class SearchRequest {
     @Schema(name = "Binding filter",
         description = "List of binding node and path IRI's",
         example = "[ { node: 'http://endhealth.info/im#Procedure', path: 'http://endhealth.info/im#concept' }]")
-    public List<Binding> getBindingFilter() {
+    public List<SearchBinding> getBindingFilter() {
         return bindingFilter;
     }
 
-    public SearchRequest setBindingFilter(List<Binding> bindingFilter) {
+    public SearchRequest setBindingFilter(List<SearchBinding> bindingFilter) {
         this.bindingFilter = bindingFilter;
         return this;
     }

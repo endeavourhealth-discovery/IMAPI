@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 
 public class EntityDocument {
@@ -29,13 +28,13 @@ public class EntityDocument {
 	Set<TTIriRef> isA= new HashSet<>();
 	Set<TTIriRef> memberOf= new HashSet<>();
 	Integer subsumptionCount;
-	Set<Binding> binding;
+	Set<SearchBinding> binding;
 
-	public Set<Binding> getBinding() {
+	public Set<SearchBinding> getBinding() {
 		return binding;
 	}
 
-	public EntityDocument setBinding(Set<Binding> binding) {
+	public EntityDocument setBinding(Set<SearchBinding> binding) {
 		this.binding = binding;
 		return this;
 	}
@@ -43,7 +42,7 @@ public class EntityDocument {
 			if (this.binding == null) {
 				this.binding = new HashSet<>();
 			}
-			Binding binding = new Binding();
+			SearchBinding binding = new SearchBinding();
 			binding.setPath(path);
 			binding.setNode(node);
 			this.binding.add(binding);

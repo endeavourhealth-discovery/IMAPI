@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.model.search;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-public class Binding {
+public class SearchBinding {
     private TTIriRef path;
     private TTIriRef node;
 
@@ -10,7 +10,7 @@ public class Binding {
         return path;
     }
 
-    public Binding setPath(TTIriRef path) {
+    public SearchBinding setPath(TTIriRef path) {
         this.path = path;
         return this;
     }
@@ -19,7 +19,7 @@ public class Binding {
         return node;
     }
 
-    public Binding setNode(TTIriRef node) {
+    public SearchBinding setNode(TTIriRef node) {
         this.node = node;
         return this;
     }

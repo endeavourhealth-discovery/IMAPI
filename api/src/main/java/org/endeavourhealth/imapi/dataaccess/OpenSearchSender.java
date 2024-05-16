@@ -731,6 +731,24 @@ public class OpenSearchSender {
                         "length" : {
                           "type" : "integer"
                         },
+                        "binding": {
+                          "properties": {
+                            "node": {
+                              "properties": {
+                                "@id" : {
+                                  "type" : "keyword"
+                                }
+                              }
+                            },
+                            "path": {
+                              "properties": {
+                                "@id" : {
+                                  "type" : "keyword"
+                                }
+                              }
+                            }
+                          }
+                        },
                         "termCode" : {
                           "properties" : {
                             "code" : {

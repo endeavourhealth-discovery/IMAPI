@@ -31,6 +31,7 @@ sonar {
 println "Build environment = [$ENV]"
 if (ENV == 'prod') {
     build.finalizedBy 'sonar'
+    build.finalizedBy 'publish'
 }
 
 allprojects {
@@ -54,7 +55,6 @@ allprojects {
         }
     }
 
-    build.finalizedBy 'publish'
     test.finalizedBy jacocoTestReport
 
     repositories {

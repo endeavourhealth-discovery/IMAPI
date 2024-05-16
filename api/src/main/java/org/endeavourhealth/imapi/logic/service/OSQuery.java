@@ -45,7 +45,6 @@ public class OSQuery {
     private static final String SCHEME = "scheme";
     private static final String USAGE_TOTAL = "usageTotal";
     private static final String STATUS = "status";
-    private static final String COMMENT = "comment";
     private boolean hasScriptScore;
 
 
@@ -259,6 +258,10 @@ public class OSQuery {
             TermsQueryBuilder tqr = new TermsQueryBuilder("memberOf.@id", memberOfs);
             qry.filter(tqr);
         }
+        if (!request.getBindingFilter().isEmpty()) {
+            BoolQueryBuilder bqr = buildBindingBoolQuery(request.getBindingFilter());
+            qry.filter(bqr);
+        }
     }
 
 
@@ -278,7 +281,19 @@ public class OSQuery {
         return boolQuery;
     }
 
+    private BoolQueryBuilder buildBindingBoolQuery(List<Binding> bindings) {
+        BoolQueryBuilder result = new BoolQueryBuilder();
+        result.minimumShouldMatch(1);
 
+        for (Binding binding : bindings) {
+            BoolQueryBuilder inner = new BoolQueryBuilder();
+            inner.must(new TermsQueryBuilder("binding.node.@id", binding.getNode().getIri()));
+            inner.must(new TermsQueryBuilder("binding.path.@id", binding.getPath().getIri()));
+            result.should(inner);
+        }
+
+        return result;
+    }
 
 
     private QueryBuilder buildAutoCompleteQuery(SearchRequest request) {

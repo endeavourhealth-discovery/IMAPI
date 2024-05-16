@@ -17,7 +17,7 @@ pname
     : (alpha|digit)+
     ;
 iri :
-    ( digit| alpha| SLASH | HASH | PERIOD | DASH | DOLLAR | PERCENT | UNDERSCORE | COLON )+
+    H T T P (S)? COLON SLASH SLASH alpha+ PERIOD alpha+ SLASH alpha+ HASH (digit | alpha | DASH | DOLLAR | PERCENT | UNDERSCORE)+
     ;
 conceptid :
     (sctid | iri) // enable iris as well as snomed digits

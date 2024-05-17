@@ -1,7 +1,10 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.elasticsearch.common.unit.Fuzziness;
@@ -377,7 +380,14 @@ public class OSQuery {
 
     }
 
-    private SearchResponse wrapandRun(QueryBuilder query,SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    private SearchResponse wrapandRun(QueryBuilder query, SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+        SearchResponse response = wrapandRun(query,request,false);
+        SearchResponse highestUsageResponse = wrapandRun(query,request,true);
+        response.setHighestUsage(highestUsageResponse.getEntities().get(0).getUsageTotal());
+        return response;
+    }
+
+    private SearchResponse wrapandRun(QueryBuilder query,SearchRequest request, boolean highestUsage) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         SearchSourceBuilder bld= new SearchSourceBuilder();
         if (hasScriptScore) {
             Map<String,Object> params= getScript(request);
@@ -386,24 +396,29 @@ public class OSQuery {
                 //Script script= new Script(ScriptType.STORED,null,scriptScore,new HashMap<>());
                 ScriptScoreQueryBuilder sqr = QueryBuilders.scriptScoreQuery(query, script);
                 bld.query(sqr);
-                bld.sort("_score");
+                if (!highestUsage) bld.sort("_score");
             }
             else
                 bld.query(query);
         }
         else
             bld.query(query);
-        setSorts(request,bld);
+        if (!highestUsage) setSorts(request,bld);
+        else bld.sort("usageTotal", SortOrder.DESC);
         if (request.getIndex() == null)
             request.setIndex("concept");
 
         int size = request.getSize();
         int from = request.getFrom();
+        if (highestUsage) {
+            size = 1;
+            from = 0;
+        }
         String sortField = request.getSortField();
         String sortDirection = request.getSortDirection();
 
         bld.size(size).from(from);
-        if (null != sortField) {
+        if (null != sortField && !highestUsage) {
             bld.sort(sortField, null != sortDirection ? SortOrder.fromString(sortDirection) : SortOrder.DESC);
         }
 

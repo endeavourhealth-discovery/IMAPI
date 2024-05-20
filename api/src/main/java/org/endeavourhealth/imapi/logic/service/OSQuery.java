@@ -383,7 +383,7 @@ public class OSQuery {
     private SearchResponse wrapandRun(QueryBuilder query, SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         SearchResponse response = wrapandRun(query,request,false);
         SearchResponse highestUsageResponse = wrapandRun(query,request,true);
-        response.setHighestUsage(highestUsageResponse.getEntities().get(0).getUsageTotal());
+        if (!highestUsageResponse.getEntities().isEmpty()) response.setHighestUsage(highestUsageResponse.getEntities().get(0).getUsageTotal());
         return response;
     }
 

@@ -35,7 +35,7 @@ public class QueryService {
         return queryRepository.getAllByType(typeIri);
     }
 
-    public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults) {
+    public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults, JsonNode highestUsageResults) {
         SearchResponse searchResponse = new SearchResponse();
 
         if (queryResults.has("entities")) {
@@ -53,6 +53,13 @@ public class QueryService {
         if (queryResults.has("count")) searchResponse.setCount(queryResults.get("count").asInt());
         if (queryResults.has("page")) searchResponse.setPage(queryResults.get("page").asInt());
         if (queryResults.has("term")) searchResponse.setTerm(queryResults.get("term").asText());
+
+        if (highestUsageResults.has("entities")) {
+            JsonNode entities = queryResults.get("entities");
+            if (entities.isArray() && !entities.isEmpty() && entities.get(0).has("usageTotal")) {
+                searchResponse.setHighestUsage(Integer.parseInt(entities.get(0).get("usageTotal").asText()));
+            } else searchResponse.setHighestUsage(0);
+        }
         return searchResponse;
     }
 

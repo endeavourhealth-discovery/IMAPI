@@ -41,10 +41,10 @@ public class SparqlConverter {
      * @return String of SPARQL
      **/
     public String getSelectSparql(Set<TTIriRef> statusFilter) throws QueryException {
-        return getSelectSparql(statusFilter,false);
+        return getSelectSparql(statusFilter,false, false);
     }
 
-    public String getSelectSparql(Set<TTIriRef> statusFilter, boolean countOnly) throws QueryException{
+    public String getSelectSparql(Set<TTIriRef> statusFilter, boolean countOnly, boolean highestUsage) throws QueryException{
         mainEntity= query.getVariable()!=null ?query.getVariable(): "entity";
 
         StringBuilder selectQl = new StringBuilder();
@@ -60,7 +60,7 @@ public class SparqlConverter {
         }
         addWhereSparql(selectQl, statusFilter, true,countOnly);
 
-        orderGroupLimit(selectQl, query, countOnly);
+        orderGroupLimit(selectQl, query, countOnly, highestUsage);
         return selectQl.toString();
 
     }
@@ -671,8 +671,8 @@ public class SparqlConverter {
     }
 
 
-    private void orderGroupLimit(StringBuilder selectQl, Query clause, boolean countOnly) throws QueryException {
-        if (null != queryRequest.getTextSearch() && !countOnly) {
+    private void orderGroupLimit(StringBuilder selectQl, Query clause, boolean countOnly, boolean highestUsage) throws QueryException {
+        if (null != queryRequest.getTextSearch() && !(countOnly || highestUsage)) {
             selectQl.append("ORDER BY DESC(").append("strstarts(lcase(?").append(labelVariable)
                     .append("),\"").append(escape(queryRequest.getTextSearch()).split(" ")[0])
                     .append("\")) ASC(strlen(?").append(labelVariable).append("))\n");

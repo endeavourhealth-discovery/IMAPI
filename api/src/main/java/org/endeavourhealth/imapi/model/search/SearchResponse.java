@@ -11,7 +11,7 @@ public class SearchResponse {
     private Integer page;
     private Integer count;
     private Integer totalCount;
-    private Integer maxUsage;
+    private Integer highestUsage;
     private String term;
     private List<SearchResultSummary> entities = new ArrayList<>();
 
@@ -30,8 +30,8 @@ public class SearchResponse {
         return this;
     }
 
-    public SearchResponse setMaxUsage(Integer maxUsage) {
-        this.maxUsage = maxUsage;
+    public SearchResponse setHighestUsage(Integer maxUsage) {
+        this.highestUsage = maxUsage;
         return this;
     }
 

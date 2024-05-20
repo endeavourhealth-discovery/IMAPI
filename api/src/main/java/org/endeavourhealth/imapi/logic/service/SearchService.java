@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.dataaccess.PathRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
@@ -47,7 +48,7 @@ public class SearchService {
                 return osq.convertOSResult(osResult, queryRequest.getQuery());
         }
 
-		return repo.queryIM(queryRequest);
+		return repo.queryIM(queryRequest, false);
 	}
 
 	public Query getQuery(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
@@ -70,7 +71,8 @@ public class SearchService {
      * @throws DataFormatException if query format is invalid
      */
     public SearchResponse queryIMSearch(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
-        ObjectNode result = new ObjectMapper().createObjectNode();
+        ObjectMapper om = new ObjectMapper();
+		ObjectNode result = om.createObjectNode();
         QueryRepository repo = new QueryRepository();
         repo.unpackQueryRequest(queryRequest, result);
 
@@ -80,8 +82,19 @@ public class SearchService {
                 return osResult;
         }
 
-        JsonNode queryResults = repo.queryIM(queryRequest);
-        return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults);
+		QueryRequest highestUsageRequest = om.readValue(om.writeValueAsString(queryRequest), QueryRequest.class);
+		ObjectNode highestUsageResult = om.createObjectNode();
+		repo.unpackQueryRequest(highestUsageRequest,highestUsageResult);
+		highestUsageRequest.getQuery().getReturn().get(0).addProperty(new ReturnProperty().setIri(IM.USAGE_TOTAL).setValueRef("usageTotal"));
+		OrderDirection od = new OrderDirection().setDirection(Order.descending);
+		od.setValueVariable("usageTotal");
+		highestUsageRequest.getQuery().setOrderBy(new OrderLimit().setProperty(od));
+
+        JsonNode queryResults = repo.queryIM(queryRequest, false);
+
+		highestUsageRequest.setPage(new Page().setPageNumber(1).setPageSize(1));
+		JsonNode highestUsageResults = repo.queryIM(highestUsageRequest, true);
+        return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, highestUsageResults);
     }
 
 	/**

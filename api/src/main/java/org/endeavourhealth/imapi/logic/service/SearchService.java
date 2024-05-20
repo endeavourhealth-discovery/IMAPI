@@ -72,22 +72,23 @@ public class SearchService {
      */
     public SearchResponse queryIMSearch(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
         ObjectMapper om = new ObjectMapper();
-		QueryRequest highestUsageRequest = om.readValue(om.writeValueAsString(queryRequest), QueryRequest.class);
 		ObjectNode result = om.createObjectNode();
-		ObjectNode highestUsageResult = om.createObjectNode();
         QueryRepository repo = new QueryRepository();
         repo.unpackQueryRequest(queryRequest, result);
-		repo.unpackQueryRequest(highestUsageRequest,highestUsageResult);
-		highestUsageRequest.getQuery().getReturn().get(0).addProperty(new ReturnProperty().setIri(IM.USAGE_TOTAL).setValueRef("usageTotal"));
-		OrderDirection od = new OrderDirection().setDirection(Order.descending);
-			od.setValueVariable("usageTotal");
-		highestUsageRequest.getQuery().setOrderBy(new OrderLimit().setProperty(od));
 
         if (null != queryRequest.getTextSearch()) {
             SearchResponse osResult = new OSQuery().openSearchQuery(queryRequest);
             if (osResult != null)
                 return osResult;
         }
+
+		QueryRequest highestUsageRequest = om.readValue(om.writeValueAsString(queryRequest), QueryRequest.class);
+		ObjectNode highestUsageResult = om.createObjectNode();
+		repo.unpackQueryRequest(highestUsageRequest,highestUsageResult);
+		highestUsageRequest.getQuery().getReturn().get(0).addProperty(new ReturnProperty().setIri(IM.USAGE_TOTAL).setValueRef("usageTotal"));
+		OrderDirection od = new OrderDirection().setDirection(Order.descending);
+		od.setValueVariable("usageTotal");
+		highestUsageRequest.getQuery().setOrderBy(new OrderLimit().setProperty(od));
 
         JsonNode queryResults = repo.queryIM(queryRequest, false);
 

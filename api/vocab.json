@@ -1706,6 +1706,10 @@
       {
         "name": "DATE_TIME",
         "value": "XSD.NAMESPACE + \"dateTime\""
+      },
+      {
+        "name": "NUMBER",
+        "value": "XSD.NAMESPACE + \"number\""
       }
     ]
   },

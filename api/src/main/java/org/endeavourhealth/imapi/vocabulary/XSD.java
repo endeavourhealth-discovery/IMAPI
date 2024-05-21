@@ -16,4 +16,5 @@ public class XSD {
     public static final String LONG = XSD.NAMESPACE + "long";
     public static final String DOUBLE = XSD.NAMESPACE + "double";
     public static final String DATE_TIME = XSD.NAMESPACE + "dateTime";
+    public static final String NUMBER = XSD.NAMESPACE + "number";
 }

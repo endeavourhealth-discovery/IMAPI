@@ -97,8 +97,9 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 	}
 
 	private void copyMatchToQuery(Match match, Query query) {
-		if (match.getInstanceOf()!=null)
-			query.setInstanceOf(match.getInstanceOf());
+		if (match.getInstanceOf()!=null) {
+			query.addMatch(match);
+		}
 		if (match.isExclude())
 			query.setExclude(true);
 		if (match.getMatch()!=null)

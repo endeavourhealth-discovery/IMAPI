@@ -85,7 +85,11 @@ public class SearchService {
 		QueryRequest highestUsageRequest = om.readValue(om.writeValueAsString(queryRequest), QueryRequest.class);
 		ObjectNode highestUsageResult = om.createObjectNode();
 		repo.unpackQueryRequest(highestUsageRequest,highestUsageResult);
-		highestUsageRequest.getQuery().getReturn().get(0).addProperty(new ReturnProperty().setIri(IM.USAGE_TOTAL).setValueRef("usageTotal"));
+		if (null != highestUsageRequest.getQuery().getReturn()) {
+			highestUsageRequest.getQuery().getReturn().get(0).addProperty(new ReturnProperty().setIri(IM.USAGE_TOTAL).setValueRef("usageTotal"));
+		} else {
+			highestUsageRequest.getQuery().addReturn(new Return().addProperty(new ReturnProperty().setIri(IM.USAGE_TOTAL).setValueRef("usageTotal")));
+		}
 		OrderDirection od = new OrderDirection().setDirection(Order.descending);
 		od.setValueVariable("usageTotal");
 		highestUsageRequest.getQuery().setOrderBy(new OrderLimit().setProperty(od));

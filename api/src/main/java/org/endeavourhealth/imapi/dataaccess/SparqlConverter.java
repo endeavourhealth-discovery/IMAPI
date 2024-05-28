@@ -96,6 +96,8 @@ public class SparqlConverter {
         else {
             if (null != query.getMatch() && null != query.getMatch().get(0).getVariable())
                 mainEntity = query.getMatch().get(0).getVariable();
+            if (null != query.getInstanceOf() && null != query.getInstanceOf().getVariable())
+                mainEntity = query.getInstanceOf().getVariable();
         }
         StringBuilder whereQl = new StringBuilder();
         whereQl.append("WHERE {");

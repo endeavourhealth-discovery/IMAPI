@@ -50,8 +50,10 @@ public class SparqlConverter {
         StringBuilder selectQl = new StringBuilder();
         addPrefixes(selectQl);
         if (countOnly){
-            if (null != query.getMatch().get(0).getVariable())
+            if (null != query.getMatch() && null != query.getMatch().get(0).getVariable())
                 mainEntity = query.getMatch().get(0).getVariable();
+            if (null != query.getInstanceOf() && null != query.getInstanceOf().getVariable())
+                mainEntity = query.getInstanceOf().getVariable();
             selectQl.append("SELECT (count (distinct ?").append(mainEntity).append(") as ?count)");
         }
         else {
@@ -92,7 +94,7 @@ public class SparqlConverter {
             mainEntity= query.getVariable();
         }
         else {
-            if (null != query.getMatch().get(0).getVariable())
+            if (null != query.getMatch() && null != query.getMatch().get(0).getVariable())
                 mainEntity = query.getMatch().get(0).getVariable();
         }
         StringBuilder whereQl = new StringBuilder();
@@ -152,7 +154,7 @@ public class SparqlConverter {
         selectQl.append("SELECT ");
         selectQl.append("(COUNT(distinct ?entity");
         mainEntity = "entity";
-        if (query.getMatch().get(0).getVariable() != null)
+        if (null != query.getMatch() && query.getMatch().get(0).getVariable() != null)
             mainEntity = query.getMatch().get(0).getVariable();
         selectQl.append(") as ?cnt) ");
         StringBuilder whereQl = new StringBuilder();
@@ -165,8 +167,14 @@ public class SparqlConverter {
             textSearch(whereQl);
         }
 
-        for (Match match : query.getMatch()) {
-            match(whereQl, mainEntity, match);
+        if (null != query.getMatch()) {
+            for (Match match : query.getMatch()) {
+                match(whereQl, mainEntity, match);
+            }
+        }
+
+        if (null != query.getInstanceOf()) {
+            match(whereQl, mainEntity, query);
         }
 
         o++;

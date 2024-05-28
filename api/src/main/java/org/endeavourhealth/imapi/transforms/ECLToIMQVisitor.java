@@ -86,14 +86,29 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 							query.addMatch(match);
 						}
 						else
-							query.addMatch(match);
+							copyMatchToQuery(match, query);
 					}
 					else
-						query.addMatch(match);
+						copyMatchToQuery(match, query);
 				}
 			}
 		}
 		return query;
+	}
+
+	private void copyMatchToQuery(Match match, Query query) {
+		if (match.getInstanceOf()!=null) {
+			query.setInstanceOf(match.getInstanceOf());
+		}
+		if (match.isExclude())
+			query.setExclude(true);
+		if (match.getMatch()!=null)
+			query.setMatch(match.getMatch());
+		if (match.getWhere()!=null)
+			query.setWhere(match.getWhere());
+		if (match.getBoolMatch()!=null) {
+			query.setBoolMatch(match.getBoolMatch());
+		}
 	}
 
 	@Override

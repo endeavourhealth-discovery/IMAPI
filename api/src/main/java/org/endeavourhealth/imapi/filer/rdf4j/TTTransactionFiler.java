@@ -184,7 +184,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
         }
     }
 
-    private void fileAsDocument(TTDocument document) throws TTFilerException{
+    private void fileAsDocument(TTDocument document) throws TTFilerException {
             try {
                 startTransaction();
                 LOG.info("Filing entities.... ");
@@ -211,8 +211,12 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
                 LOG.info("Updating range inheritances");
                 new RangeInheritor().inheritRanges(conn);
                 commit();
-            } catch (Exception e){
+            } catch (TTFilerException e){
                 rollback();
+                throw e;
+
+            } catch (Exception e) {
+                throw new TTFilerException(e.getMessage());
             }
     }
     private void fileEntity(TTEntity entity, TTIriRef graph) throws TTFilerException {

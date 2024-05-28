@@ -48,6 +48,7 @@ public class IM {
     public static final String MAP_ENTITY = IM.NAMESPACE + "EntityMap";
     public static final String SET = IM.NAMESPACE + "Set";
     public static final String IS_CONTAINED_IN = IM.NAMESPACE + "isContainedIn";
+    public static final String FUNCTION_TEMPLATE = IM.NAMESPACE + "functionTemplate";
     public static final String ONE_OF = IM.NAMESPACE + "oneOf";
     public static final String COMBINATION_OF = IM.NAMESPACE + "combinationOf";
     public static final String USE_PREDICATES = IM.NAMESPACE + "usePredicates";

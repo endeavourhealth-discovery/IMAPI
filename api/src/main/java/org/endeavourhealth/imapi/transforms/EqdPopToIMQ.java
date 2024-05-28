@@ -36,7 +36,6 @@ public class EqdPopToIMQ {
 				String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
 			Match rootMatch = new Match();
 			query.addMatch(rootMatch);
-				query.addMatch(rootMatch);
 				rootMatch
 					.addIs(new Node().setIri("urn:uuid:" + id))
 					.setName(resources.reportNames.get(id));

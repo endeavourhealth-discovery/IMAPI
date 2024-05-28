@@ -290,6 +290,10 @@
         "value": "IM.NAMESPACE + \"isContainedIn\""
       },
       {
+        "name": "FUNCTION_TEMPLATE",
+        "value": "IM.NAMESPACE + \"functionTemplate\""
+      },
+      {
         "name": "ONE_OF",
         "value": "IM.NAMESPACE + \"oneOf\""
       },

@@ -182,7 +182,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             }
             conn.add(builder.build());
         } catch (RepositoryException | TTFilerException e) {
-            throw new TTFilerException("Failed to file entities", e);
+            throw new TTFilerException("Failed to file entities " + e.getMessage());
         }
 
     }
@@ -291,7 +291,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
         }
     }
 
-    public String expand(String iri) {
+    public String expand(String iri) throws TTFilerException {
         if (prefixMap == null)
             return iri;
         try {
@@ -304,7 +304,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
                 return path + iri.substring(colonPos + 1);
         } catch (StringIndexOutOfBoundsException e) {
             LOG.debug("invalid iri [{}]", iri);
-            return null;
+            throw new TTFilerException("Invalid iri format ("+ iri+")");
         }
     }
 

@@ -13,22 +13,28 @@ public class QueryValidator {
 	private final Map<String, Map<String, String>> propertyMap = new HashMap<>();
 
 	public void validateQuery(Query query) throws QueryException {
-		if (query.getMatch() == null)
-			throw new QueryException("Query must have match clause");
+		if (query.getMatch() == null && null == query.getInstanceOf())
+			throw new QueryException("Query must have match clause or instanceOf");
 		mainEntity= query.getVariable();
-		if (mainEntity==null) {
+		if (mainEntity==null && null != query.getMatch()) {
 			mainEntity = query.getMatch().get(0).getVariable();
 		}
 		if (mainEntity==null)
 			mainEntity="entity";
-		for (Match match : query.getMatch()) {
-			if (match.getVariable() == null&&match.getNodeRef()==null)
-				match.setVariable(mainEntity);
+		if (null != query.getMatch()) {
+			for (Match match : query.getMatch()) {
+				if (match.getVariable() == null && match.getNodeRef() == null)
+					match.setVariable(mainEntity);
 
-			String subject = match.getVariable();
-			if (subject==null)
-				subject=match.getNodeRef();
-			validateMatch(match, subject);
+				String subject = match.getVariable();
+				if (subject == null)
+					subject = match.getNodeRef();
+				validateMatch(match, subject);
+			}
+		}
+		if (null != query.getInstanceOf()) {
+			query.getInstanceOf().setVariable(mainEntity);
+			variables.put(mainEntity,VarType.NODE);
 		}
 
 		if (query.getReturn() == null) {

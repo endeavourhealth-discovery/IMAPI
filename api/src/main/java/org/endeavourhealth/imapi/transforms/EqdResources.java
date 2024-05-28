@@ -111,12 +111,12 @@ public class EqdResources {
               .setName(reportNames.get(srch.getReportGuid()));
             return match;
         } else {
-            return convertCriterion(eqCriteria.getCriterion(),null);
+            return convertCriterion(eqCriteria.getCriterion());
         }
     }
 
 
-    private Match convertCriterion(EQDOCCriterion eqCriterion,String nodeRef) throws DataFormatException, IOException, QueryException {
+    private Match convertCriterion(EQDOCCriterion eqCriterion) throws DataFormatException, IOException, QueryException {
 
         if (eqCriterion.getLinkedCriterion() != null) {
             Match match= convertLinkedCriterion(eqCriterion);
@@ -127,7 +127,7 @@ public class EqdResources {
             }
             return match;
         } else {
-            Match match= convertStandardCriterion(eqCriterion,nodeRef);
+            Match match= convertStandardCriterion(eqCriterion);
             if (match.getWhere()!=null){
                 if (match.getWhere().size()>1){
                     match.setBoolWhere(Bool.and);
@@ -139,9 +139,9 @@ public class EqdResources {
     }
 
 
-    private Match convertStandardCriterion(EQDOCCriterion eqCriterion,String nodeRef) throws DataFormatException, IOException, QueryException {
+    private Match convertStandardCriterion(EQDOCCriterion eqCriterion) throws DataFormatException, IOException, QueryException {
         if (eqCriterion.getFilterAttribute().getRestriction() != null) {
-            Match match= convertRestrictionCriterion(eqCriterion,nodeRef);
+            Match match= convertRestrictionCriterion(eqCriterion);
             if (eqCriterion.isNegation()) {
                 match.setExclude(true);
             }
@@ -153,8 +153,6 @@ public class EqdResources {
             if (eqCriterion.isNegation()) {
                 match.setExclude(true);
             }
-            if (nodeRef!=null)
-                match.setVariable(nodeRef);
             return match;
 
         }
@@ -292,15 +290,13 @@ public class EqdResources {
     }
 
 
-    private Match convertRestrictionCriterion(EQDOCCriterion eqCriterion,String nodeRef) throws DataFormatException, IOException, QueryException {
+    private Match convertRestrictionCriterion(EQDOCCriterion eqCriterion) throws DataFormatException, IOException, QueryException {
         Match restricted = convertColumns(eqCriterion);
         setRestriction(eqCriterion, restricted);
         if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
             Match testMatch = restrictionTest(eqCriterion);
             if (testMatch!=null) {
                 restricted.setThen(testMatch);
-                if (nodeRef!=null)
-                    testMatch.setVariable(nodeRef);
             }
 
         }
@@ -339,10 +335,11 @@ public class EqdResources {
     private Match convertLinkedCriterion(EQDOCCriterion eqCriterion) throws DataFormatException, IOException, QueryException {
         counter++;
         String nodeRef = "match_" + counter;
-        Match topMatch= convertStandardCriterion(eqCriterion,nodeRef);
+        Match topMatch= convertStandardCriterion(eqCriterion);
+        topMatch.setVariable(nodeRef);
         EQDOCLinkedCriterion eqLinked = eqCriterion.getLinkedCriterion();
         EQDOCCriterion eqLinkedCriterion = eqLinked.getCriterion();
-        Match linkMatch= convertCriterion(eqLinkedCriterion,nodeRef);
+        Match linkMatch= convertCriterion(eqLinkedCriterion);
         topMatch.setThen(linkMatch);
         Where relationProperty = new Where();
         linkMatch.addWhere(relationProperty);

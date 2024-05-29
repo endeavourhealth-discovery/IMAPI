@@ -125,6 +125,8 @@ public class EqdResources {
                     match.setBoolWhere(Bool.and);
                 }
             }
+            if (eqCriterion.getDescription()!=null)
+                match.setDescription(eqCriterion.getDescription());
             return match;
         } else {
             Match match= convertStandardCriterion(eqCriterion);
@@ -133,6 +135,8 @@ public class EqdResources {
                     match.setBoolWhere(Bool.and);
                 }
             }
+            if (eqCriterion.getDescription()!=null)
+                match.setDescription(eqCriterion.getDescription());
             return match;
         }
 
@@ -335,14 +339,16 @@ public class EqdResources {
     private Match convertLinkedCriterion(EQDOCCriterion eqCriterion) throws DataFormatException, IOException, QueryException {
         counter++;
         String nodeRef = "match_" + counter;
+        Match linked= new Match();
+        linked.setBoolMatch(Bool.and);
         Match topMatch= convertStandardCriterion(eqCriterion);
         topMatch.setVariable(nodeRef);
+        linked.addMatch(topMatch);
         EQDOCLinkedCriterion eqLinked = eqCriterion.getLinkedCriterion();
         EQDOCCriterion eqLinkedCriterion = eqLinked.getCriterion();
         Match linkMatch= convertCriterion(eqLinkedCriterion);
-        topMatch.setThen(linkMatch);
+        linked.addMatch(linkMatch);
         Where relationProperty = new Where();
-        linkMatch.addWhere(relationProperty);
         EQDOCRelationship eqRel = eqLinked.getRelationship();
         String parent = getPath(eqCriterion.getTable() + "/" + eqRel.getParentColumn());
         String child = getPath(eqLinkedCriterion.getTable() + "/" + eqRel.getChildColumn());
@@ -353,7 +359,11 @@ public class EqdResources {
                 .setValue(eqRel.getRangeValue().getRangeFrom().getValue().getValue())
                 .setUnit(eqRel.getRangeValue().getRangeFrom().getValue().getUnit().value())
                 .relativeTo(r -> r.setNodeRef(finalNodeRef).setIri(parent));
-        return topMatch;
+        if (linkMatch.getMatch()==null)
+            linkMatch.addWhere(relationProperty);
+        else
+            linkMatch.getMatch().get(0).addWhere(relationProperty);
+        return linked;
     }
 
     private void setRangeValue(EQDOCRangeValue rv, Where pv) throws DataFormatException {

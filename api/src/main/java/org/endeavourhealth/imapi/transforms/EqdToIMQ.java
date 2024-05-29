@@ -102,7 +102,7 @@ public class EqdToIMQ {
 			queryEntity.addType(iri(IM.DATASET_QUERY));
 			new EqdAuditToIMQ().convertReport(eqReport, qry, resources);
 		}
-		flattenQuery(qry);
+	 flattenQuery(qry);
 		queryEntity.setDefinition(qry);
 		return queryEntity;
 	}
@@ -110,6 +110,12 @@ public class EqdToIMQ {
 
 
 	private void flattenQuery(Query qry) throws QueryException {
+		if (qry.getBoolMatch()==Bool.or) {
+			return;
+		}
+		if (qry.getWhere()!=null){
+			return;
+		}
 		List<Match> flatMatches= new ArrayList<>();
 		flattenAnds(qry.getMatch(),flatMatches);
 		qry.setMatch(flatMatches);
@@ -117,21 +123,17 @@ public class EqdToIMQ {
 
 	private void flattenAnds(List<Match> topMatches, List<Match> flatMatches) throws QueryException {
 		for (Match topMatch:topMatches) {
+			//Top level match, no nested match
 			if (topMatch.getMatch()==null){
 				flatMatches.add(topMatch);
 			}
-			else if (topMatch.getBoolMatch()==Bool.or) {
-				flatMatches.add(topMatch);
-				for (Match orMatch : topMatch.getMatch()) {
-					if (orMatch.getMatch() != null) {
-						List<Match> newMatchList = new ArrayList<>();
-						flattenAnds(orMatch.getMatch(), newMatchList);
-						orMatch.setMatch(newMatchList);
-					}
+			else if (topMatch.getBoolMatch()!=Bool.or) {
+				for (Match andMatch : topMatch.getMatch()) {
+					flatMatches.add(andMatch);
 				}
 			}
 			else {
-					flattenAnds(topMatch.getMatch(),flatMatches);
+				flatMatches.add(topMatch);
 				}
 			}
 

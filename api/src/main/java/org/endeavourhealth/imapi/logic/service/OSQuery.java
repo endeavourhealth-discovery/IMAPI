@@ -24,6 +24,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,7 @@ import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -854,7 +856,11 @@ public class OSQuery {
                 processStatusProperty(request, w);
             } else if (RDF.TYPE.equals(w.getIri())) {
                 processTypeProperty(request, w);
-            } else {
+            } else if (IM.BINDING.equals(w.getIri())) {
+                processBindingProperty(request, w);
+            }else if (IM.IS_A.equals(w.getIri())) {
+                processIsAProperty(request, w);
+            }  else {
                 return false;
             }
         }
@@ -890,6 +896,30 @@ public class OSQuery {
             throw new QueryException("Status filter must be a list (is)");
     }
 
+    private static void processBindingProperty(SearchRequest request, Where w) throws QueryException {
+        if (null != w.getMatch() && null != w.getMatch().getWhere() && !w.getMatch().getWhere().isEmpty()) {
+            Optional<Where> path = w.getMatch().getWhere().stream().filter(nestedWhere -> SHACL.PATH.equals(nestedWhere.getIri())).findFirst();
+            Optional<Where> node = w.getMatch().getWhere().stream().filter(nestedWhere -> SHACL.NODE.equals(nestedWhere.getIri())).findFirst();
+            if (path.isPresent() && null != path.get().getIs() && !path.get().getIs().isEmpty() && node.isPresent() && null != node.get().getIs() && !node.get().getIs().isEmpty()) {
+                Optional<Node> pathNode = path.get().getIs().stream().findFirst();
+                Optional<Node> nodeNode = node.get().getIs().stream().findFirst();
+                if (pathNode.isPresent() && nodeNode.isPresent()) {
+                    List<SearchBinding> bindingFilter = new ArrayList<>();
+                    bindingFilter.add(new SearchBinding().setNode(new TTIriRef(nodeNode.get().getIri())).setPath(new TTIriRef(pathNode.get().getIri())));
+                    request.setBindingFilter(bindingFilter);
+                }
+            }
+        } else
+            throw new QueryException("Binding must have a path and a node");
+    }
+
+    private static void processIsAProperty(SearchRequest request, Where w) throws QueryException {
+        if (w.getIs() != null && !w.getIs().isEmpty())
+            request.setIsA(w.getIs().stream().map(Node::getIri).toList());
+        else
+            throw new QueryException("Is a filter must be a list (is)");
+
+    }
 
     private static List<String> listFromAlias(Node type, QueryRequest queryRequest) throws QueryException {
         if (type.getParameter() == null) {
@@ -986,7 +1016,10 @@ public class OSQuery {
                 IM.HAS_SCHEME,
                 RDF.TYPE,
                 IM.USAGE_TOTAL,
-                IM.HAS_MEMBER
+                IM.HAS_MEMBER,
+                IM.BINDING,
+                SHACL.NODE,
+                SHACL.PATH
         ).contains(iri);
     }
 

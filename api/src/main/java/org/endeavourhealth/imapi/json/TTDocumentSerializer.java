@@ -47,23 +47,23 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
 
     private static void processGraph(TTDocument document, JsonGenerator gen, TTNodeSerializer helper) throws IOException {
         if (document.getGraph() != null) {
-            gen.writeFieldName("@graph");
-            gen.writeStartObject();
-            gen.writeStringField("@id", helper.prefix(document.getGraph().getIri()));
-            gen.writeEndObject();
+            outputIri(gen, "@graph", document.getGraph(), helper);
         }
     }
 
     private static void processCrud(TTDocument document, JsonGenerator gen, TTNodeSerializer helper) throws IOException {
         if (document.getCrud() != null) {
-            gen.writeFieldName("crud");
-            TTIriRef ref = document.getCrud().asIriRef();
-            gen.writeStartObject();
-            gen.writeStringField("@id", helper.prefix(ref.getIri()));
-            if (ref.getName() != null && !ref.getName().isEmpty())
+            outputIri(gen, "crud",document.getCrud().asIriRef(),helper);
+        }
+    }
+
+    private static void outputIri(JsonGenerator gen, String fieldName,TTIriRef ref,TTNodeSerializer helper) throws IOException {
+      gen.writeFieldName(fieldName);
+      gen.writeStartObject();
+      gen.writeStringField("@id", helper.prefix(ref.getIri()));
+      if (ref.getName() != null && !ref.getName().isEmpty())
                 gen.writeStringField("name", ref.getName());
             gen.writeEndObject();
-        }
     }
 
     private static void processEntities(TTDocument document, JsonGenerator gen, SerializerProvider prov, TTNodeSerializer helper) throws IOException {
@@ -74,10 +74,10 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
                 if (entity.getIri()!=null)
                     gen.writeStringField("@id", helper.prefix(entity.getIri()));
                 if (entity.getGraph() != null) {
-                    gen.writeStringField("@graph", helper.prefix(entity.getGraph().getIri()));
+                    outputIri(gen,"@graph",entity.getGraph(),helper);
                 }
                 if (entity.getCrud() != null) {
-                    gen.writeStringField("crud", helper.prefix(entity.getCrud().getIri()));
+                    outputIri(gen,"crud",entity.getCrud(),helper);
                 }
                 helper.serializeNode(entity, gen, prov);
                 gen.writeEndObject();

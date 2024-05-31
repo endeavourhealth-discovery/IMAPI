@@ -205,6 +205,8 @@ public class IMQToECL {
 
 
 	private void addProperty(PropertyRef exp, StringBuilder ecl, boolean includeName) {
+		if (exp.isInverse())
+			ecl.append(" R ");
 		addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName());
 	}
 
@@ -234,6 +236,8 @@ public class IMQToECL {
 
 
 	private String checkMember(String iri,String name, boolean includeNames) {
+		if (iri==null)
+			return "*";
 		if (name==null &&includeNames){
 			if (names.get(iri)==null) {
 				EntityRepository entityRepository = new EntityRepository();

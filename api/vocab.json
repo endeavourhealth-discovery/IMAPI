@@ -290,6 +290,10 @@
         "value": "IM.NAMESPACE + \"isContainedIn\""
       },
       {
+        "name": "HAS_MEMBER_PARENT",
+        "value": "IM.NAMESPACE + \"hasMemberParent\""
+      },
+      {
         "name": "FUNCTION_TEMPLATE",
         "value": "IM.NAMESPACE + \"functionTemplate\""
       },
@@ -1250,6 +1254,19 @@
     ]
   },
   {
+    "name": "BNF",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://bnf.info/\""
+      },
+      {
+        "name": "NAMESPACE",
+        "value": "BNF.DOMAIN + \"bnf#\""
+      }]
+      }
+    ,
+  {
     "name": "QR",
     "entries": [
       {
@@ -1906,6 +1923,7 @@
         "name": "SEARCH_CONTAINED_IN",
         "value": "QUERY.NAMESPACE + \"SearchContainedIn\""
       },
+
       {
         "name": "ALLOWABLE_CHILD_TYPES",
         "value": "QUERY.NAMESPACE + \"AllowableChildTypes\""

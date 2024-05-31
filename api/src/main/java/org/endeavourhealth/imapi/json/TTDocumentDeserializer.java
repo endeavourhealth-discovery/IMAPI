@@ -65,9 +65,9 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
                 if (field.getKey().equals("@id")) {
                     entity.setIri(helper.expand(field.getValue().textValue()));
                 } else if (field.getKey().equals("@graph")) {
-                    entity.setGraph(new TTIriRef(helper.expand(field.getValue().textValue())));
+                    entity.setGraph(new TTIriRef(helper.expand(field.getValue().get("@id").asText())));
                 } else if (field.getKey().equals("crud")) {
-                    entity.setCrud(new TTIriRef(helper.expand(field.getValue().textValue())));
+                    entity.setCrud(iri(helper.expand(field.getValue().get("@id").asText())));
                 }else {
                     if (field.getValue().isArray())
                         entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeArrayAsValue(field.getValue()));

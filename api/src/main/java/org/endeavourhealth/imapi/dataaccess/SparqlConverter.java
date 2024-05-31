@@ -293,6 +293,14 @@ public class SparqlConverter {
             if (match.getInstanceOf() != null) {
                 Node instance = match.getInstanceOf();
                 String inList = iriFromAlias(instance);
+                if (inList!=null)
+                 if (inList.startsWith("?"))
+                     inList=null;
+                if (inList==null){
+                    if (match.getWhere()==null){
+                        throw new QueryException("Match clause has instance of without an IRI and  without a where clause. In other words, wquerying for everything! ");
+                    }
+                }
                 if (instance.isMemberOf()){
                     try {
                         EntityTripleRepository repo = new EntityTripleRepository();
@@ -308,30 +316,45 @@ public class SparqlConverter {
                 else if (instance.isDescendantsOrSelfOf()) {
                     o++;
                     whereQl.append("?").append(subject).append(" im:isA ?").append(object).append(".\n");
-                    whereQl.append("Filter (?").append(object);
-                    if (!inList.contains(","))
-                        whereQl.append(" =").append(inList).append(")\n");
-                    else
-                        whereQl.append(" in (").append(inList).append("))\n");
+                    if (inList!=null) {
+                        whereQl.append("Filter (?").append(object);
+                        if (!inList.contains(","))
+                            whereQl.append(" =").append(inList).append(")\n");
+                        else
+                            whereQl.append(" in (").append(inList).append("))\n");
+                    }
+                    else {
+                        subject=object;
+                    }
 
                 } else if (instance.isDescendantsOf()) {
                     o++;
                     whereQl.append("?").append(subject).append(" im:isA ?").append(object).append(".\n");
-                    whereQl.append("Filter (?").append(object);
-                    if (!inList.contains(","))
-                        whereQl.append(" =").append(inList).append(")\n");
-                    else
-                        whereQl.append(" in (").append(inList).append("))\n");
-                    whereQl.append("Filter (?").append(subject).append("!= ").append(inList).append(")\n");
+                    if (inList!=null) {
+                        whereQl.append("Filter (?").append(object);
+                        if (!inList.contains(","))
+                            whereQl.append(" =").append(inList).append(")\n");
+                        else
+                            whereQl.append(" in (").append(inList).append("))\n");
+                        whereQl.append("Filter (?").append(subject).append("!= ").append(inList).append(")\n");
+                    }
+                    else {
+                        subject=object;
+                    }
 
                 } else if (instance.isAncestorsOf()) {
                     o++;
                     whereQl.append("?").append(subject).append(" ^im:isA ?").append(object).append(".\n");
                     whereQl.append("Filter (?").append(object);
-                    if (!inList.contains(","))
-                        whereQl.append(" =").append(inList).append(")\n");
-                    else
-                        whereQl.append(" in (").append(inList).append("))\n");
+                    if (inList!=null) {
+                        if (!inList.contains(","))
+                            whereQl.append(" =").append(inList).append(")\n");
+                        else
+                            whereQl.append(" in (").append(inList).append("))\n");
+                    }
+                    else {
+                        subject=object;
+                    }
                 } else {
                     o++;
                     whereQl.append("?").append(subject).append(" rdf:type ?type.\n");
@@ -400,7 +423,7 @@ public class SparqlConverter {
      */
     private void property(StringBuilder whereQl, String subject, Where where, String parentVariable) throws QueryException{
         String propertyVariable = where.getVariable() != null ? where.getVariable() : parentVariable;
-        if (where.isAnyRoleGroup()) {
+        if (where.isAnyRoleGroup()&&!where.isInverse()) {
             whereQl.append("?").append(subject).append(" im:roleGroup ").append("?roleGroup").append(o).append(".\n");
             subject = "roleGroup" + o;
             o++;
@@ -457,6 +480,12 @@ public class SparqlConverter {
                 else
                     whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromString(where.getIri())).append(" ?").append(object).append(".\n");
             }
+            if (where.isAnyRoleGroup()&&where.isInverse()) {
+                o++;
+                whereQl.append("?").append(object).append(" ^im:roleGroup ").append("?subject").append(o).append(".\n");
+                object = "subject" + o;
+            }
+
             if (where.getIsNull()) {
                 whereQl.append(tabs).append(" }");
             }
@@ -487,6 +516,7 @@ public class SparqlConverter {
                 }
             }
         }
+
     }
 
 
@@ -733,9 +763,10 @@ public class SparqlConverter {
                 return iriFromString(resolveReference(parameter, queryRequest));
             } else if (null != variable) {
                 return "?" + variable;
-            } else if (null != valueRef)
+            } else if (null != valueRef) {
                 return "?" + valueRef;
-            throw new QueryException("Type has no iri or variable or parameter variable");
+            }
+            else return null;
         } else
             return (iriFromString(id));
     }

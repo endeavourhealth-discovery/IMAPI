@@ -629,14 +629,6 @@ public class EntityController {
         }
     }
 
-    @GetMapping("/public/mappingSuggestions")
-    public List<SearchResultSummary> getMappingSuggestions(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException, DataFormatException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MappingSuggestions.GET")) {
-            LOG.debug("getMappingSuggestions");
-            return entityService.advancedSearch(request).getEntities();
-        }
-    }
-
     @PostMapping("/public/getNames")
     public Set<TTIriRef> getNames(@RequestBody Set<String> iris) throws IOException {
         try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.GetNames.GET")) {

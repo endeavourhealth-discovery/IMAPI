@@ -62,13 +62,15 @@ public class SetBinder {
 		}
 		return setIris;
 	}
-	public void bindSet(String iri) throws JsonProcessingException, QueryException {
+	public Set<TTNode> bindSet(String iri) throws JsonProcessingException, QueryException {
 		Set<Concept> members= setRepository.getSomeMembers(iri, 10);
 		if (!members.isEmpty()){
 			Set<String> memberIris= members.stream().map(Entity::getIri).collect(Collectors.toSet());
 			Set<TTNode> dataModels= setRepository.getBindingsForConcept(memberIris);
 			setRepository.bindConceptSetToDataModel(iri,dataModels);
+			return dataModels;
 		}
+		return null;
 	}
 
 }

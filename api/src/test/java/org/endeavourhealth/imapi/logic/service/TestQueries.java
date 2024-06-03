@@ -314,34 +314,8 @@ public class TestQueries {
 		return new ObjectMapper().readValue(json,QueryRequest.class);
 	}
 
-	public static QueryRequest pathToAtenolol(){
-		return new QueryRequest()
-			.setPathQuery(new PathQuery()
-				.setName("paths match patient to Atenolol")
-				.setDepth(3)
-				.setSource(IM.NAMESPACE+"Patient")
-				.setTarget(SNOMED.NAMESPACE+"387506000"));
 
-	}
-	public static QueryRequest pathToCSA(){
-		return new QueryRequest()
-			.setPathQuery(new PathQuery()
-				.setName("paths match patient to common service agency")
-				.setDepth(3)
-				.setSource(IM.NAMESPACE+"Patient")
-				.setTarget("http://endhealth.info/im#1000161000252107"));
 
-	}
-
-	public static QueryRequest pathToPostCode(){
-		return new QueryRequest()
-			.setPathQuery(new PathQuery()
-				.setName("paths match patient to post code")
-				.setDepth(3)
-				.setSource(IM.NAMESPACE+"Patient")
-				.setTarget("http://endhealth.info/im#postCode"));
-
-	}
 
 
 

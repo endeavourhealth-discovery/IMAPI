@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
+import org.endeavourhealth.imapi.model.imq.PathQuery;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
@@ -17,6 +18,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,6 +27,8 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 class SearchServiceTest {
 
@@ -81,9 +86,6 @@ class SearchServiceTest {
 			output(TestQueries.query2());
 			output(TestQueries.getShaclProperty());
 
-			//output(TestQueries.pathToAtenolol());
-			//output(TestQueries.pathDobQuery());
-			//output(TestQueries.pathToPostCode());
 			output(TestQueries.deleteSets());
 
 
@@ -102,6 +104,17 @@ class SearchServiceTest {
 	}
 
 
+	//@Test
+	void pathQuery() throws DataFormatException {
+
+		pathOutput(IM.NAMESPACE+"Patient",SNOMED.NAMESPACE+"976831000000100");
+		pathOutput(IM.NAMESPACE+"Patient",IM.NAMESPACE+"postCode");
+		pathOutput(IM.NAMESPACE+"Patient",IM.NAMESPACE+"CSET_OralCorticosteroids");
+	}
+
+	private void pathOutput(String source, String target) throws DataFormatException {
+		PathDocument result= new SearchService().pathQuery(new PathQuery().setSource(iri(source)).setTarget(iri(target)));
+	}
 
 	private void output(SearchRequest request,String name,boolean write) throws IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
 
@@ -151,13 +164,6 @@ class SearchServiceTest {
 		else if (dataSet.getUpdate() != null) {
 			searchService.updateIM(dataSet);
 		}
-		else {
-			PathDocument result = searchService.pathQuery(dataSet);
-			try (FileWriter wr = new FileWriter(testResults + "\\" + name + "_result.json")) {
-				wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
-			}
-			System.out.println("found "+ result.getMatch().size()+" paths");
-		}
 
 	}
 
@@ -165,7 +171,7 @@ class SearchServiceTest {
 	public void setTest() throws DataFormatException, JsonProcessingException, QueryException {
 		EntityService es= new EntityService();
 		TTEntity entity= es.getFullEntity(IM.NAMESPACE+"VSET_VitalSigns").getEntity();
-		String json = entity.get(TTIriRef.iri(IM.DEFINITION)).asLiteral().getValue();
+		String json = entity.get(iri(IM.DEFINITION)).asLiteral().getValue();
 		SetExporter exporter = new SetExporter();
 		Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE + "VSET_VitalSigns", true, false, true, List.of());
 		System.out.println(concepts.size());

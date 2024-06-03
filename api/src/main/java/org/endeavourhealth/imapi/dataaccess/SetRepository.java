@@ -330,7 +330,7 @@ public class SetRepository {
             blank++;
             sj.add("<" + iri + "> <" + IM.BINDING + "> _:b"+blank+".")
               .add("_:b"+blank+" <"+ SHACL.PATH+"> <"+ dataModel.get(iri(SHACL.PATH)).asIriRef().getIri()+">.")
-              .add("_:b"+blank+" <"+ SHACL.NODE+"> <"+ dataModel.getIri()+">.");
+              .add("_:b"+blank+" <"+ SHACL.NODE+"> <"+ dataModel.get(iri(SHACL.NODE)).asIriRef().getIri()+">.");
         }
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             sendUp(sj, conn);
@@ -477,8 +477,8 @@ public class SetRepository {
           .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
           .add("select distinct ?dataModel ?path")
           .add("where { ")
-          .add("    ?setIri ^im:hasMember ?valueSet.")
-          .add("     filter (?setIri in("+iriList+"))" )
+          .add("    ?memberIri ^im:hasMember ?valueSet.")
+          .add("     filter (?memberIri in("+iriList+"))" )
           .add("    ?valueSet ^<"+ SHACL.CLASS+"> ?property.")
           .add("     ?property <"+ SHACL.PATH+"> ?path.")
           .add("     ?property ^<"+ SHACL.PROPERTY+"> ?dataModel.}");
@@ -488,7 +488,7 @@ public class SetRepository {
                 while (rs.hasNext()) {
                     BindingSet bs= rs.next();
                     TTNode dataModel= new TTNode();
-                    dataModel.setIri(bs.getValue("dataModel").stringValue());
+                    dataModel.set(iri(SHACL.NODE),iri(bs.getValue("dataModel").stringValue()));
                     dataModel.set(iri(SHACL.PATH),iri(bs.getValue("path").stringValue()));
                     result.add(dataModel);
                 }

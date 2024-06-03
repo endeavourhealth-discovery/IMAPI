@@ -54,7 +54,7 @@ public class SetExpander {
 		LOG.info("Updating members of " + iri);
 		TTBundle setDefinition = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION));
 		if (setDefinition.getEntity().get(iri(IM.DEFINITION)) == null)
-			throw new QueryException(iri + " : Unknown iri or this set has no definition");
+		return;
 		//get the expansion.
 
 		Set<Concept> members = setRepo.getSetExpansion(setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral()

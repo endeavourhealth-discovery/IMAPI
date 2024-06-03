@@ -116,9 +116,8 @@ public class SearchService {
 	 * @return a generic JSONDocument containing the results in a format defined by the selecr staement and including predicate map
 	 * @throws DataFormatException if query format is invalid
 	 */
-	public PathDocument pathQuery(QueryRequest queryRequest) throws DataFormatException {
-		validateQueryRequest(queryRequest);
-		return new PathRepository().pathQuery(queryRequest);
+	public PathDocument pathQuery(PathQuery pathQuery) throws DataFormatException {
+		return new PathRepository().pathQuery(pathQuery);
 	}
 
 	public void validateQueryRequest(QueryRequest queryRequest) throws DataFormatException {

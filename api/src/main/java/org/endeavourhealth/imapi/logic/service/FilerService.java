@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.logic.reasoner.SetExpander;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -35,7 +36,7 @@ public class FilerService {
         fileProvDoc(document, agentName);
     }
 
-    public void fileDocument(TTDocument document, String agentName) throws TTFilerException, JsonProcessingException {
+    public void fileDocument(TTDocument document, String agentName) throws TTFilerException, JsonProcessingException, QueryException {
         documentFiler.fileDocument(document);
         fileProvDoc(document, agentName);
     }

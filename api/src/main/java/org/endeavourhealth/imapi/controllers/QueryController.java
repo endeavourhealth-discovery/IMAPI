@@ -84,10 +84,10 @@ public class QueryController {
       summary = "Path Query ",
       description = "Query IM for a path between source and target"
     )
-    public PathDocument pathQuery(@RequestBody QueryRequest queryRequest) throws DataFormatException, IOException {
+    public PathDocument pathQuery(@RequestBody PathQuery pathQuery) throws DataFormatException, IOException {
         try (MetricsTimer t = MetricsHelper.recordTime("API.Query.PathQuery.POST")) {
             LOG.debug("pathQuery");
-            return searchService.pathQuery(queryRequest);
+            return searchService.pathQuery(pathQuery);
         }
     }
 

@@ -36,13 +36,15 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 		Set<TTIriRef> toName = new HashSet<>();
 		for (Node node : nodes) {
 			if (node.getName() == null) {
-				toName.add(TTIriRef.iri(node.getIri()));
+				if (node.getIri()!=null)
+				  toName.add(TTIriRef.iri(node.getIri()));
 			}
 		}
 		if (!wheres.isEmpty()) {
 			for (Where where : wheres) {
 				if (where.getName() == null)
-					toName.add(TTIriRef.iri(where.getIri()));
+					if (where.getIri()!=null)
+					  toName.add(TTIriRef.iri(where.getIri()));
 			}
 		}
 
@@ -50,13 +52,15 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 			Map<String, String> nameMap = new EntityRepository2().getNameMap(toName);
 			for (Node node : nodes) {
 				if (node.getName() == null) {
-					node.setName(nameMap.get(node.getIri()));
+					if (node.getIri()!=null)
+					 node.setName(nameMap.get(node.getIri()));
 				}
 			}
 			if (!wheres.isEmpty()) {
 				for (Where where : wheres) {
 					if (where.getName() == null) {
-						where.setName(nameMap.get(where.getIri()));
+						if (where.getIri()!=null)
+						 where.setName(nameMap.get(where.getIri()));
 					}
 				}
 
@@ -81,8 +85,8 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 				else if (result instanceof Match match) {
 					if (query == null)
 						query = new Query();
-					if (match.getBool() != null) {
-						if (match.getBool() == Bool.or) {
+					if (match.getBoolMatch() != null) {
+						if (match.getBoolMatch() == Bool.or) {
 							query.addMatch(match);
 						}
 						else
@@ -97,16 +101,17 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 	}
 
 	private void copyMatchToQuery(Match match, Query query) {
-		if (match.getInstanceOf()!=null)
+		if (match.getInstanceOf()!=null) {
 			query.setInstanceOf(match.getInstanceOf());
+		}
 		if (match.isExclude())
 			query.setExclude(true);
 		if (match.getMatch()!=null)
 			query.setMatch(match.getMatch());
 		if (match.getWhere()!=null)
 			query.setWhere(match.getWhere());
-		if (match.getBool()!=null) {
-			query.setBool(match.getBool());
+		if (match.getBoolMatch()!=null) {
+			query.setBoolMatch(match.getBoolMatch());
 		}
 	}
 
@@ -198,7 +203,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 	@Override
 	public Object visitConjunctionexpressionconstraint(IMECLParser.ConjunctionexpressionconstraintContext ctx) {
 		Match match= new Match();
-		match.setBool(Bool.and);
+		match.setBoolMatch(Bool.and);
 		if (ctx.children!=null){
 			for (ParseTree child:ctx.children){
 				Object result= visit(child);
@@ -213,7 +218,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 	@Override
 	public Object visitDisjunctionexpressionconstraint(IMECLParser.DisjunctionexpressionconstraintContext ctx) {
 		Match match= new Match();
-		match.setBool(Bool.or);
+		match.setBoolMatch(Bool.or);
 		if (ctx.children!=null){
 			for (ParseTree child:ctx.children){
 				Object result= visit(child);
@@ -227,7 +232,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 	@Override
 	public Object visitExclusionexpressionconstraint(IMECLParser.ExclusionexpressionconstraintContext ctx) {
 		Match match= new Match();
-		match.setBool(Bool.and);
+		match.setBoolMatch(Bool.and);
 		if (ctx.children!=null){
 			for (ParseTree child:ctx.children){
 				Object result= visit(child);
@@ -453,7 +458,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 	@Override
 	public Object visitConjunctionrefinementset(IMECLParser.ConjunctionrefinementsetContext ctx) {
 		Where where = new Where();
-		where.setBool(Bool.and);
+		where.setBoolWhere(Bool.and);
 		if (ctx.children!=null) {
 			for (ParseTree child : ctx.children) {
 				Object result = visit(child);
@@ -468,7 +473,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 	@Override
 	public Object visitDisjunctionrefinementset(IMECLParser.DisjunctionrefinementsetContext ctx) {
 		Where where = new Where();
-		where.setBool(Bool.or);
+		where.setBoolWhere(Bool.or);
 		if (ctx.children!=null) {
 			for (ParseTree child : ctx.children) {
 				Object result = visit(child);
@@ -508,7 +513,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 	@Override
 	public Object visitConjunctionattributeset(IMECLParser.ConjunctionattributesetContext ctx) {
 		Where where= new Where();
-		where.setBool(Bool.and);
+		where.setBoolWhere(Bool.and);
 		if (ctx.children!=null) {
 			for (ParseTree child : ctx.children) {
 				Object result = visit(child);
@@ -523,7 +528,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 	@Override
 	public Object visitDisjunctionattributeset(IMECLParser.DisjunctionattributesetContext ctx) {
 		Where where= new Where();
-		where.setBool(Bool.or);
+		where.setBoolWhere(Bool.or);
 		if (ctx.children!=null) {
 			for (ParseTree child : ctx.children) {
 				Object result = visit(child);
@@ -570,9 +575,15 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 	@Override
 	public Object visitEclattribute(IMECLParser.EclattributeContext ctx) {
 		Where where = null;
+		Boolean reverseFlag=false;
 		if (ctx.children != null) {
 			for (ParseTree child : ctx.children) {
 				Object result = visit(child);
+				if (result instanceof Boolean){
+					if ((Boolean) result){
+						reverseFlag=true;
+					}
+				}
 				if (result instanceof Match) {
 					Node node = ((Match) result).getInstanceOf();
 					if (where == null) {
@@ -586,6 +597,8 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 						where.setChildOrSelfOf(node.isChildOrSelfOf());
 						where.setParentOf(node.isParentOf());
 						where.setParentOrSelfOf(node.isParentOrSelfOf());
+						if (reverseFlag)
+							where.setInverse(reverseFlag);
 					}
 					else {
 						where.setIs(List.of(node));
@@ -598,5 +611,8 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 		return where;
 	}
 
-
+	@Override
+	public Object visitReverseflag(IMECLParser.ReverseflagContext ctx) {
+		return true;
+	}
 }

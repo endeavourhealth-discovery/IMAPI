@@ -30,7 +30,7 @@ public class EqdResources {
     private ModelDocument document;
     private final Map<String, Set<TTIriRef>> valueMap = new HashMap<>();
     private int counter = 0;
-    private boolean isLinked;
+
 
 
     public Map<String, String> getReportNames() {
@@ -119,36 +119,29 @@ public class EqdResources {
     private Match convertCriterion(EQDOCCriterion eqCriterion) throws DataFormatException, IOException, QueryException {
 
         if (eqCriterion.getLinkedCriterion() != null) {
-            isLinked= true;
             Match match= convertLinkedCriterion(eqCriterion);
-            //nestWheres(match);
+            if (match.getWhere()!=null){
+                if (match.getWhere().size()>1){
+                    match.setBoolWhere(Bool.and);
+                }
+            }
+            if (eqCriterion.getDescription()!=null)
+                match.setDescription(eqCriterion.getDescription());
             return match;
         } else {
-            isLinked=false;
             Match match= convertStandardCriterion(eqCriterion);
-            //nestWheres(match);
+            if (match.getWhere()!=null){
+                if (match.getWhere().size()>1){
+                    match.setBoolWhere(Bool.and);
+                }
+            }
+            if (eqCriterion.getDescription()!=null)
+                match.setDescription(eqCriterion.getDescription());
             return match;
         }
 
     }
-    private void nestWheres(Match match){
-        if (match.getWhere()!=null){
-            if (match.getWhere().size()>1){
-                List<Where> wheres= match.getWhere();
-                Where newWhere= new Where();
-                newWhere.setBool(Bool.and);
-                newWhere.setWhere(wheres);
-                match.setWhere(List.of(newWhere));
-            }
-        }
-        if (match.getMatch()!=null){
-            for (Match subMatch:match.getMatch())
-                nestWheres(subMatch);
-        }
-        if (match.getThen()!=null){
-            nestWheres(match.getThen());
-        }
-    }
+
 
     private Match convertStandardCriterion(EQDOCCriterion eqCriterion) throws DataFormatException, IOException, QueryException {
         if (eqCriterion.getFilterAttribute().getRestriction() != null) {
@@ -214,6 +207,8 @@ public class EqdResources {
         match.addWhere(where);
         where.setIri(IM.NAMESPACE+property);
         setProperty(cv,where);
+        if (match.getWhere().size()>1)
+            match.setBoolWhere(Bool.and);
 
     }
 
@@ -230,7 +225,7 @@ public class EqdResources {
         }
         else {
             Match match= new Match();
-            match.setBool(Bool.and);
+            match.setBoolMatch(Bool.and);
             match.setMatch(matches);
             return match;
         }
@@ -303,11 +298,7 @@ public class EqdResources {
         Match restricted = convertColumns(eqCriterion);
         setRestriction(eqCriterion, restricted);
         if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
-            counter++;
-            String variable = "match_" + counter;
-            if (isLinked)
-                restricted.setVariable(variable);
-            Match testMatch = restrictionTest(eqCriterion, variable);
+            Match testMatch = restrictionTest(eqCriterion);
             if (testMatch!=null) {
                 restricted.setThen(testMatch);
             }
@@ -317,7 +308,7 @@ public class EqdResources {
     }
 
 
-    private Match restrictionTest(EQDOCCriterion eqCriterion, String nodeVariable) throws IOException, DataFormatException, QueryException {
+    private Match restrictionTest(EQDOCCriterion eqCriterion) throws IOException, DataFormatException, QueryException {
         EQDOCTestAttribute testAtt = eqCriterion.getFilterAttribute().getRestriction().getTestAttribute();
         if (testAtt != null) {
             return convertColumnValues(testAtt.getColumnValue(),eqCriterion.getTable());
@@ -337,7 +328,6 @@ public class EqdResources {
         String linkColumn = eqCriterion.getFilterAttribute().getRestriction()
                 .getColumnOrder().getColumns().get(0).getColumn().get(0);
         String orderBy = getPath(eqCriterion.getTable() + "/" + linkColumn);
-        counter++;
         restricted.orderBy(o -> o
                 .setProperty(new OrderDirection()
                         .setIri(orderBy)
@@ -347,27 +337,33 @@ public class EqdResources {
 
 
     private Match convertLinkedCriterion(EQDOCCriterion eqCriterion) throws DataFormatException, IOException, QueryException {
-        Match topMatch= convertStandardCriterion(eqCriterion);
         counter++;
-        String variable = "match_" + counter;
-        topMatch.setVariable(variable);
-
+        String nodeRef = "match_" + counter;
+        Match linked= new Match();
+        linked.setBoolMatch(Bool.and);
+        Match topMatch= convertStandardCriterion(eqCriterion);
+        topMatch.setVariable(nodeRef);
+        linked.addMatch(topMatch);
         EQDOCLinkedCriterion eqLinked = eqCriterion.getLinkedCriterion();
         EQDOCCriterion eqLinkedCriterion = eqLinked.getCriterion();
         Match linkMatch= convertCriterion(eqLinkedCriterion);
-        topMatch.setThen(linkMatch);
+        linked.addMatch(linkMatch);
         Where relationProperty = new Where();
-        linkMatch.addWhere(relationProperty);
         EQDOCRelationship eqRel = eqLinked.getRelationship();
         String parent = getPath(eqCriterion.getTable() + "/" + eqRel.getParentColumn());
         String child = getPath(eqLinkedCriterion.getTable() + "/" + eqRel.getChildColumn());
+        String finalNodeRef = nodeRef;
         relationProperty
                 .setIri(child)
                 .setOperator((Operator) vocabMap.get(eqRel.getRangeValue().getRangeFrom().getOperator()))
                 .setValue(eqRel.getRangeValue().getRangeFrom().getValue().getValue())
                 .setUnit(eqRel.getRangeValue().getRangeFrom().getValue().getUnit().value())
-                .relativeTo(r -> r.setNodeRef(variable).setIri(parent));
-        return topMatch;
+                .relativeTo(r -> r.setNodeRef(finalNodeRef).setIri(parent));
+        if (linkMatch.getMatch()==null)
+            linkMatch.addWhere(relationProperty);
+        else
+            linkMatch.getMatch().get(0).addWhere(relationProperty);
+        return linked;
     }
 
     private void setRangeValue(EQDOCRangeValue rv, Where pv) throws DataFormatException {
@@ -482,24 +478,29 @@ public class EqdResources {
         Set<Node> setContent = new HashSet<>();
         Set<Node> excContent = new HashSet<>();
         VocCodeSystemEx scheme = vs.getCodeSystem();
+        if (vs.getClusterCode()!=null && !vs.getClusterCode().isEmpty()){
+            return new Node().setParameter(vs.getClusterCode().get(0));
+        }
         for (EQDOCValueSetValue ev : vs.getValues()) {
             Set<Node> concepts = getValue(scheme, ev);
             if (concepts != null) {
                 for (Node iri : concepts) {
-                    Node conRef = new Node().setIri(iri.getIri()).setName(iri.getName())
-                            .setDescendantsOrSelfOf(true);
+                    Node conRef = new Node().setIri(iri.getIri()).setName(iri.getName());
+                    if (ev.isIncludeChildren())
+                            conRef.setDescendantsOrSelfOf(true);
                     setContent.add(conRef);
                 }
             } else
                 System.err.println("Missing \t" + ev.getValue() + "\t " + ev.getDisplayName());
-            if (ev.getException().size()>0){
+            if (!ev.getException().isEmpty()){
                 for (EQDOCException exc:ev.getException()){
                     for (EQDOCExceptionValue val:exc.getValues()){
                         Set<Node> exceptionValue= getValue(scheme,val);
                         if (exceptionValue!=null){
                             for (Node iri:exceptionValue){
-                                Node conRef = new Node().setIri(iri.getIri()).setName(iri.getName())
-                                  .setDescendantsOrSelfOf(true);
+                                Node conRef = new Node().setIri(iri.getIri()).setName(iri.getName());
+                                if (val.isIncludeChildren())
+                                  conRef.setDescendantsOrSelfOf(true);
                                 excContent.add(conRef);
                             }
                         }
@@ -510,7 +511,7 @@ public class EqdResources {
         }
         Query query= new Query();
         Match match = new Match();
-        match.setBool(Bool.or);
+        match.setBoolMatch(Bool.or);
         query.addMatch(match);
         String name="";
         int i=0;
@@ -533,7 +534,7 @@ public class EqdResources {
             name=name+" with exclusions";
             Match outerMatch= new Match();
             outerMatch.addMatch(match);
-            outerMatch.setBool(Bool.and);
+            outerMatch.setBoolMatch(Bool.and);
             query.setMatch(new ArrayList<>());
             query.addMatch(outerMatch);
             for (Node node:excContent){
@@ -547,15 +548,45 @@ public class EqdResources {
             return setContent.stream().findFirst().get();
         }
         else {
+            if (vs.getDescription()!=null)
+                name=vs.getDescription();
             ConceptSet set = new ConceptSet();
             set.setIri("urn:uuid:" + vs.getId());
             set.setName(name);
-            set.setDefinition(query);
+            if (!memberOnly(query))
+                set.setDefinition(query);
+            else
+                setMemberOnlySet(set,query);
             set.addUsedIn(TTIriRef.iri("urn:uuid:" + activeReport));
             document.addConceptSet(set);
             return new Node().setIri(set.getIri());
         }
     }
+    private void setMemberOnlySet(ConceptSet set, Match match) {
+        if (match.getInstanceOf()!=null)
+            set.addHasMember(iri(match.getInstanceOf().getIri()));
+        if (match.getMatch()!=null) {
+            for (Match subMatch:match.getMatch()){
+                setMemberOnlySet(set,subMatch);
+            }
+        }
+
+    }
+
+    private boolean memberOnly(Match match){
+        if (match.getInstanceOf()!=null){
+            if (match.getInstanceOf().isDescendantsOrSelfOf())
+                return false;
+        }
+        if (match.getMatch()!=null){
+            for (Match subMatch:match.getMatch()){
+                if (!memberOnly(subMatch))
+                    return false;
+            }
+        }
+        return true;
+    }
+
 
     private String getShortName(String name, String previous){
         name=name.split(" \\(")[0];
@@ -714,12 +745,10 @@ public class EqdResources {
             if (vs.getValues() != null)
                 if (vs.getValues().size() > 0) {
                     if (vs.getValues().get(0).getDisplayName() != null) {
-                        counter++;
                         return (vs.getValues().get(0).getDisplayName() + " ....");
                     }
                 } else if (vs.getAllValues() != null && vs.getAllValues().getValues() != null
                         && vs.getAllValues().getValues().get(0).getDisplayName() != null) {
-                    counter++;
                     return (vs.getAllValues().getValues().get(0).getDisplayName() + " ....");
                 }
         }

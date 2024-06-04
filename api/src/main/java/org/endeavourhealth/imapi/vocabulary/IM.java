@@ -13,6 +13,7 @@ public class IM {
     public static final String CODE = IM.NAMESPACE + "code";
     public static final String PREFERRED_NAME = IM.NAMESPACE + "preferredName";
     public static final String HAS_SCHEME = IM.NAMESPACE + "scheme";
+    public static final String BINDING = IM.NAMESPACE+"binding";
     public static final String HAS_STATUS = IM.NAMESPACE + "status";
     public static final String STATUS = IM.NAMESPACE + "Status";
     public static final String CONTENT_TYPE = IM.NAMESPACE + "contentType";
@@ -47,6 +48,8 @@ public class IM {
     public static final String MAP_ENTITY = IM.NAMESPACE + "EntityMap";
     public static final String SET = IM.NAMESPACE + "Set";
     public static final String IS_CONTAINED_IN = IM.NAMESPACE + "isContainedIn";
+    public static final String HAS_MEMBER_PARENT = IM.NAMESPACE + "hasMemberParent";
+    public static final String FUNCTION_TEMPLATE = IM.NAMESPACE + "functionTemplate";
     public static final String ONE_OF = IM.NAMESPACE + "oneOf";
     public static final String COMBINATION_OF = IM.NAMESPACE + "combinationOf";
     public static final String USE_PREDICATES = IM.NAMESPACE + "usePredicates";
@@ -132,14 +135,12 @@ public class IM {
     public static final String HAS_CONTEXT = IM.NAMESPACE + "hasContext";
     public static final String DISPLAY_ORDER = IM.NAMESPACE + "displayOrder";
     public static final String USAGE_TOTAL = IM.NAMESPACE + "usageTotal";
-    public static final String USAGE = IM.NAMESPACE + "SortFieldUsage";
     public static final String DESCENDING = IM.NAMESPACE + "Descending";
     public static final String ASCENDING = IM.NAMESPACE + "Ascending";
     public static final String PLABEL = IM.NAMESPACE + "pLabel";
     public static final String OLABEL = IM.NAMESPACE + "oLabel";
     public static final String EXAMPLE = IM.NAMESPACE + "example";
     public static final String IM1ID = IM.NAMESPACE + "im1Id";
-    public static final String WEIGHTING = IM.NAMESPACE + "weighting";
     public static final String PRIVACY_LEVEL = IM.NAMESPACE + "privacyLevel";
     public static final String IM1SCHEME = IM.NAMESPACE + "im1Scheme";
     public static final String VALUE_SELECT = IM.NAMESPACE + "valueSelect";

@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends IriLD {
 
-    private Bool bool;
     private Bool boolMatch;
     private Bool boolWhere;
     private List<Match> match;
@@ -216,15 +215,6 @@ public class Match extends IriLD {
 
     public Match setExclude(boolean exclude) {
         this.exclude = exclude;
-        return this;
-    }
-
-    public Bool getBool() {
-        return bool;
-    }
-
-    public Match setBool(Bool bool) {
-        this.bool = bool;
         return this;
     }
 

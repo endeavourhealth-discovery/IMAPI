@@ -15,7 +15,7 @@ import cz.habarta.typescript.generator.JsonLibrary
 import cz.habarta.typescript.generator.OptionalProperties
 import cz.habarta.typescript.generator.TypeScriptFileType
 
-if (env != 'prod') {
+if (ENV != 'prod') {
     compileJava.dependsOn 'staticConstGenerator'
 }
 
@@ -30,6 +30,7 @@ tasks {
                 'org.endeavourhealth.imapi.model.search.*',
                 'org.endeavourhealth.imapi.model.set.EclSearchRequest',
                 'org.endeavourhealth.imapi.model.imq.*',
+                'org.endeavourhealth.imapi.model.eclBuilder.*',
                 'org.endeavourhealth.imapi.vocabulary.*',
                 'org.endeavourhealth.imapi.vocabulary.**.*'
         ]
@@ -46,6 +47,7 @@ tasks {
 
 sonar {
     properties {
+        property 'sonar.gradle.skipCompile', true
         property 'sonar.projectKey', 'endeavourhealth-discovery_IMAPI::api'
         property 'sonar.exclusions', '**/config/**, **/controllers/**, **/dataaccess/**, **/errorhandling/**, **/model/**, **/parser/**, **/vocabulary/**'
     }
@@ -60,7 +62,11 @@ dependencies {
     implementation libs.apacheCollections4
     implementation libs.apachePoi
     implementation libs.apacheText
+    implementation libs.assertJ
     implementation libs.awsS3
+    implementation libs.dropwizard
+    implementation libs.dropwizardGraphite
+    implementation libs.dropwizardServlets
     implementation libs.factPlusPlus
     implementation libs.jacksonDatabind
     implementation libs.logbackCore
@@ -112,7 +118,11 @@ dependencies {
 publishing {
     repositories {
         maven {
-            url = uri('https://maven.discoverydataservice.net/artifactory/libs-snapshot')
+            url = uri('https://artifactory.endhealth.co.uk/repository/maven-snapshots')
+            credentials {
+                username = MAVEN_USERNAME
+                password = MAVEN_PASSWORD
+            }
         }
     }
 }

@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 
 import java.util.ArrayList;
@@ -45,11 +43,7 @@ public class Query extends Match{
 		return this;
 	}
 
-	@Override
-	public Query setBool(Bool bool) {
-		super.setBool(bool);
-		return this;
-	}
+
 
 
 	public Query setBoolMatch(Bool boolMatch) {

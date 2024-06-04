@@ -418,9 +418,28 @@ public class Reasoner {
       for (TTEntity entity:document.getEntities()){
          if (entity.isType(iri(SHACL.NODESHAPE))) {
             inheritProperties(entity);
+            inheritTemplates(entity);
          }
       }
       return document;
+
+   }
+
+   private void inheritTemplates(TTEntity shape) {
+      if (shape.get(iri(IM.FUNCTION_TEMPLATE))!=null)
+         return;
+      if (shape.get(iri(RDFS.SUBCLASS_OF))!=null){
+         for (TTValue superIri: shape.get(iri(RDFS.SUBCLASS_OF)).getElements()){
+            TTEntity superEntity= manager.getEntity(superIri.asIriRef().getIri());
+            if (superEntity!=null){
+               if (superEntity.isType(iri(SHACL.NODESHAPE))){
+                  inheritTemplates(superEntity);
+                  if (superEntity.get(iri(IM.FUNCTION_TEMPLATE))!=null)
+                     shape.set(iri(IM.FUNCTION_TEMPLATE),superEntity.get(iri(IM.FUNCTION_TEMPLATE)));
+               }
+            }
+         }
+      }
 
    }
 

@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.parser.imecl.IMECLBaseVisitor;
@@ -9,6 +10,7 @@ import org.endeavourhealth.imapi.parser.imecl.IMECLLexer;
 import org.endeavourhealth.imapi.parser.imecl.IMECLParser;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
+import java.util.UnknownFormatConversionException;
 import java.util.zip.DataFormatException;
 
 /**
@@ -38,7 +40,7 @@ public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
 	 * @return Class conforming to IM Query model JSON-LD when serialized.
 	 * @throws DataFormatException for invalid ECL.
 	 */
-	public Query getQueryFromECL(String ecl) throws DataFormatException {
+	public Query getQueryFromECL(String ecl) throws DataFormatException, EclFormatException {
 		return getClassExpression(ecl,false);
 	}
 
@@ -49,14 +51,29 @@ public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
 	 * @return Class conforming to IM Query model JSON-LD when serialized.
 	 * @throws DataFormatException for invalid ECL.
 	 */
-	public Query getClassExpression(String ecl,boolean activeOnly) throws DataFormatException {
+	public Query getClassExpression(String ecl,boolean activeOnly) throws DataFormatException, EclFormatException {
 		this.ecl = ecl;
-		lexer.setInputStream(CharStreams.fromString(ecl));
-		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		parser.setTokenStream(tokens);
-		IMECLParser.ImeclContext eclCtx = parser.imecl();
+		try {
+			lexer.setInputStream(CharStreams.fromString(ecl));
+			CommonTokenStream tokens = new CommonTokenStream(lexer);
+			parser.setTokenStream(tokens);
+			IMECLParser.ImeclContext eclCtx = parser.imecl();
+			return query= new ECLToIMQVisitor().getIMQ(eclCtx,true);
+		} catch (UnknownFormatConversionException error) {
+			throw new EclFormatException("Ecl is invalid",error);
+		}
+	}
 
-		Query query= new ECLToIMQVisitor().getIMQ(eclCtx,true);
-		return query;
+	public Boolean validateEcl(String ecl) {
+		try {
+			this.ecl = ecl;
+			lexer.setInputStream(CharStreams.fromString(ecl));
+			CommonTokenStream tokens = new CommonTokenStream(lexer);
+			parser.setTokenStream(tokens);
+			IMECLParser.ImeclContext eclCtx = parser.imecl();
+			return true;
+		} catch (Exception ex) {
+			return false;
+		}
 	}
 }

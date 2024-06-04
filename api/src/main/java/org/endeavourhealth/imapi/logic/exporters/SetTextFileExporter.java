@@ -45,7 +45,7 @@ public class SetTextFileExporter {
                     .stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
 
             if(includeSubsets) {
-                members = members.stream().sorted(Comparator.comparing(m -> m.getIsContainedIn().iterator().next().getName()))
+                members = members.stream().sorted(Comparator.comparing(m -> (null == m.getIsContainedIn() || m.getIsContainedIn().isEmpty()) ? "" : m.getIsContainedIn().iterator().next().getName()))
                         .collect(Collectors.toCollection(LinkedHashSet::new));
             }
             result = generateFile(setName,members, legacy, ownRow, im1id, del, includeSubsets).toString();
@@ -177,7 +177,7 @@ public class SetTextFileExporter {
         String subSet = member.getIsContainedIn() != null ? member.getIsContainedIn().iterator().next().getName() : null;
         String subsetIri = member.getIsContainedIn() != null ? member.getIsContainedIn().iterator().next().getIri() : null;
         String subsetVersion = member.getIsContainedIn() != null ? String.valueOf(member.getIsContainedIn().iterator().next().getVersion()) : "";
-        String status= member.getStatus().getName();
+        String status= member.getStatus() != null ? member.getStatus().getName() : null;
         if(im1id && member.getIm1Id() != null) {
             member.getIm1Id().forEach(im1 -> {
                 if(includeSubset && subSet != null) {

@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -10,6 +11,8 @@ import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.logic.reasoner.RangeInheritor;
+import org.endeavourhealth.imapi.logic.reasoner.SetExpander;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -124,7 +127,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
     }
 
     @Override
-    public void fileDocument(TTDocument document) throws TTFilerException {
+    public void fileDocument(TTDocument document) throws TTFilerException, JsonProcessingException, QueryException {
         document.getEntities().removeIf(e -> null == e.getIri());
 
         checkDeletes(document);
@@ -184,7 +187,7 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
         }
     }
 
-    private void fileAsDocument(TTDocument document) throws TTFilerException{
+    private void fileAsDocument(TTDocument document) throws TTFilerException, JsonProcessingException, QueryException {
             try {
                 startTransaction();
                 LOG.info("Filing entities.... ");
@@ -211,9 +214,14 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
                 LOG.info("Updating range inheritances");
                 new RangeInheritor().inheritRanges(conn);
                 commit();
-            } catch (Exception e){
+            } catch (TTFilerException e){
                 rollback();
+                throw e;
+
+            } catch (Exception e) {
+                throw new TTFilerException(e.getMessage());
             }
+        updateSets(document);
     }
     private void fileEntity(TTEntity entity, TTIriRef graph) throws TTFilerException {
         if (GRAPH.ODS.equals(graph.getIri()))
@@ -229,6 +237,15 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
         if (document.getGraph() == null)
             document.setGraph(entity.getGraph());
         return entityGraph;
+    }
+
+    public void updateSets(TTDocument document) throws QueryException, JsonProcessingException {
+        for (TTEntity entity:document.getEntities()){
+            if (entity.isType(iri(IM.CONCEPT_SET))||entity.isType(iri(IM.VALUESET))){
+                LOG.info("Expanding set "+ entity.getIri());
+                new SetExpander().expandSet(entity.getIri());
+            }
+        }
     }
 
     public void updateTct(TTDocument document) throws TTFilerException {

@@ -1,27 +1,23 @@
 package org.endeavourhealth.imapi.model.search;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
+@Getter
 public class SearchResponse {
     private Integer page;
     private Integer count;
     private Integer totalCount;
+    private Integer highestUsage;
     private String term;
     private List<SearchResultSummary> entities = new ArrayList<>();
-
-    public String getTerm() {
-        return term;
-    }
 
     public SearchResponse setTerm(String term) {
         this.term = term;
         return this;
-    }
-
-    public Integer getPage() {
-        return page;
     }
 
     public SearchResponse setPage(Integer page) {
@@ -29,17 +25,14 @@ public class SearchResponse {
         return this;
     }
 
-    public Integer getCount() {
-        return count;
-    }
-
     public SearchResponse setCount(Integer count) {
         this.count = count;
         return this;
     }
 
-    public List<SearchResultSummary> getEntities() {
-        return entities;
+    public SearchResponse setHighestUsage(Integer maxUsage) {
+        this.highestUsage = maxUsage;
+        return this;
     }
 
     public SearchResponse setEntities(List<SearchResultSummary> entities) {
@@ -57,11 +50,8 @@ public class SearchResponse {
          return this;
     }
 
-    public Integer getTotalCount() {
-        return totalCount;
-    }
-
-    public void setTotalCount(Integer totalCount) {
+    public SearchResponse setTotalCount(Integer totalCount) {
         this.totalCount = totalCount;
+        return this;
     }
 }

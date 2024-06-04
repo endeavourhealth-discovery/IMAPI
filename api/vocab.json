@@ -74,6 +74,10 @@
       {
         "name": "IMPORT_DATA_ALL_RELEASES",
         "value": "CONFIG.NAMESPACE + \"ImportDataAllReleases\""
+      },
+      {
+        "name": "MONITORING",
+        "value": "CONFIG.NAMESPACE + \"monitoring\""
       }
     ]
   },
@@ -144,6 +148,10 @@
       {
         "name": "HAS_SCHEME",
         "value": "IM.NAMESPACE + \"scheme\""
+      },
+      {
+        "name": "BINDING",
+        "value": "IM.NAMESPACE+\"binding\""
       },
       {
         "name": "HAS_STATUS",
@@ -280,6 +288,14 @@
       {
         "name": "IS_CONTAINED_IN",
         "value": "IM.NAMESPACE + \"isContainedIn\""
+      },
+      {
+        "name": "HAS_MEMBER_PARENT",
+        "value": "IM.NAMESPACE + \"hasMemberParent\""
+      },
+      {
+        "name": "FUNCTION_TEMPLATE",
+        "value": "IM.NAMESPACE + \"functionTemplate\""
       },
       {
         "name": "ONE_OF",
@@ -622,10 +638,6 @@
         "value": "IM.NAMESPACE + \"usageTotal\""
       },
       {
-        "name": "USAGE",
-        "value": "IM.NAMESPACE + \"SortFieldUsage\""
-      },
-      {
         "name": "DESCENDING",
         "value": "IM.NAMESPACE + \"Descending\""
       },
@@ -648,10 +660,6 @@
       {
         "name": "IM1ID",
         "value": "IM.NAMESPACE + \"im1Id\""
-      },
-      {
-        "name": "WEIGHTING",
-        "value": "IM.NAMESPACE + \"weighting\""
       },
       {
         "name": "PRIVACY_LEVEL",
@@ -1246,6 +1254,19 @@
     ]
   },
   {
+    "name": "BNF",
+    "entries": [
+      {
+        "name": "DOMAIN",
+        "value": "\"http://bnf.info/\""
+      },
+      {
+        "name": "NAMESPACE",
+        "value": "BNF.DOMAIN + \"bnf#\""
+      }]
+      }
+    ,
+  {
     "name": "QR",
     "entries": [
       {
@@ -1668,19 +1689,19 @@
         "value": "XSD.NAMESPACE + \"pattern\""
       },
       {
-        "name": "MININCLUSIVE",
+        "name": "MIN_INCLUSIVE",
         "value": "XSD.NAMESPACE + \"minInclusive\""
       },
       {
-        "name": "MINEXCLUSIVE",
+        "name": "MIN_EXCLUSIVE",
         "value": "XSD.NAMESPACE + \"minExclusive\""
       },
       {
-        "name": "MAXINCLUSIVE",
+        "name": "MAX_INCLUSIVE",
         "value": "XSD.NAMESPACE + \"maxInclusive\""
       },
       {
-        "name": "MAXEXCLUSIVE",
+        "name": "MAX_EXCLUSIVE",
         "value": "XSD.NAMESPACE + \"maxExclusive\""
       },
       {
@@ -1702,6 +1723,14 @@
       {
         "name": "DOUBLE",
         "value": "XSD.NAMESPACE + \"double\""
+      },
+      {
+        "name": "DATE_TIME",
+        "value": "XSD.NAMESPACE + \"dateTime\""
+      },
+      {
+        "name": "NUMBER",
+        "value": "XSD.NAMESPACE + \"number\""
       }
     ]
   },
@@ -1894,6 +1923,7 @@
         "name": "SEARCH_CONTAINED_IN",
         "value": "QUERY.NAMESPACE + \"SearchContainedIn\""
       },
+
       {
         "name": "ALLOWABLE_CHILD_TYPES",
         "value": "QUERY.NAMESPACE + \"AllowableChildTypes\""
@@ -2113,7 +2143,7 @@
         "value": "\"https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#\""
       },
       {
-        "name": "XMLS",
+        "name": "XS",
         "value": "\"http://www.w3.org/2001/XMLSchema#\""
       }
     ]

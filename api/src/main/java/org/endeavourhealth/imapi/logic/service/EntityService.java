@@ -1270,5 +1270,10 @@ public class EntityService {
         SetExporter setExporter = new SetExporter();
         return setExporter.getSubsetIrisWithNames(iri);
     }
+
+
+    public Set<String> getLinkedDataModels(String dataModelIri) {
+        return entityRepository.findLinkedDataModels(dataModelIri);
+    }
 }
 

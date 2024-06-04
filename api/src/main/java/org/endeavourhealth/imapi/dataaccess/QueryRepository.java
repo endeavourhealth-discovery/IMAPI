@@ -47,7 +47,7 @@ public class QueryRepository {
      * @throws DataFormatException     if query syntax is invalid
      * @throws JsonProcessingException if the json is invalid
      */
-    public JsonNode queryIM(QueryRequest queryRequest) throws QueryException, JsonProcessingException, DataFormatException {
+    public JsonNode queryIM(QueryRequest queryRequest, boolean highestUsage) throws QueryException, JsonProcessingException, DataFormatException {
         ObjectNode result = mapper.createObjectNode();
         Integer page = queryRequest.getPage() != null ? queryRequest.getPage().getPageNumber() : 1;
         Integer count = queryRequest.getPage() != null ? queryRequest.getPage().getPageSize() : 0;
@@ -55,7 +55,7 @@ public class QueryRepository {
             checkReferenceDate();
             new QueryValidator().validateQuery(queryRequest.getQuery());
             SparqlConverter converter = new SparqlConverter(queryRequest);
-            String spq = converter.getSelectSparql(null);
+            String spq = converter.getSelectSparql(null,false, highestUsage);
             ObjectNode resultNode = graphSelectSearch(spq, conn, result);
             return prepareQueryResponse(resultNode, queryRequest, page, count);
         }
@@ -88,7 +88,7 @@ public class QueryRepository {
             checkReferenceDate();
             new QueryValidator().validateQuery(queryRequest.getQuery());
             SparqlConverter converter = new SparqlConverter(queryRequest);
-            String spq = converter.getSelectSparql(null, true);
+            String spq = converter.getSelectSparql(null, true,false);
             return graphTotalSearch(spq, conn);
         }
 

@@ -94,7 +94,7 @@ public class TestMaps {
 				.propertyMap(m1->m1
 						.setSource("value")
 						.where(w->w
-							.setBool(Bool.and)
+							.setBoolWhere(Bool.and)
 							.where(w1->w1
 								.setIri(IM.NAMESPACE+"system")
 										.setValue("phone"))
@@ -107,7 +107,7 @@ public class TestMaps {
 				.propertyMap(m1->m1
 					.setSource("value"))
 					.where(w->w
-						.setBool(Bool.and)
+						.setBoolWhere(Bool.and)
 						.where(w1->w1
 							.setIri(IM.NAMESPACE+"system")
 								.setValue("phone")

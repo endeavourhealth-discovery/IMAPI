@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.XSD;
 
 public class Value implements Assignable{
 	private Operator operator;

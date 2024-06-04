@@ -41,17 +41,19 @@ public class SparqlConverter {
      * @return String of SPARQL
      **/
     public String getSelectSparql(Set<TTIriRef> statusFilter) throws QueryException {
-        return getSelectSparql(statusFilter,false);
+        return getSelectSparql(statusFilter,false, false);
     }
 
-    public String getSelectSparql(Set<TTIriRef> statusFilter, boolean countOnly) throws QueryException{
+    public String getSelectSparql(Set<TTIriRef> statusFilter, boolean countOnly, boolean highestUsage) throws QueryException{
         mainEntity= query.getVariable()!=null ?query.getVariable(): "entity";
 
         StringBuilder selectQl = new StringBuilder();
         addPrefixes(selectQl);
         if (countOnly){
-            if (null != query.getMatch().get(0).getVariable())
+            if (null != query.getMatch() && null != query.getMatch().get(0).getVariable())
                 mainEntity = query.getMatch().get(0).getVariable();
+            if (null != query.getInstanceOf() && null != query.getInstanceOf().getVariable())
+                mainEntity = query.getInstanceOf().getVariable();
             selectQl.append("SELECT (count (distinct ?").append(mainEntity).append(") as ?count)");
         }
         else {
@@ -60,7 +62,7 @@ public class SparqlConverter {
         }
         addWhereSparql(selectQl, statusFilter, true,countOnly);
 
-        orderGroupLimit(selectQl, query, countOnly);
+        orderGroupLimit(selectQl, query, countOnly, highestUsage);
         return selectQl.toString();
 
     }
@@ -92,8 +94,10 @@ public class SparqlConverter {
             mainEntity= query.getVariable();
         }
         else {
-            if (null != query.getMatch().get(0).getVariable())
+            if (null != query.getMatch() && null != query.getMatch().get(0).getVariable())
                 mainEntity = query.getMatch().get(0).getVariable();
+            if (null != query.getInstanceOf() && null != query.getInstanceOf().getVariable())
+                mainEntity = query.getInstanceOf().getVariable();
         }
         StringBuilder whereQl = new StringBuilder();
         whereQl.append("WHERE {");
@@ -152,7 +156,7 @@ public class SparqlConverter {
         selectQl.append("SELECT ");
         selectQl.append("(COUNT(distinct ?entity");
         mainEntity = "entity";
-        if (query.getMatch().get(0).getVariable() != null)
+        if (null != query.getMatch() && query.getMatch().get(0).getVariable() != null)
             mainEntity = query.getMatch().get(0).getVariable();
         selectQl.append(") as ?cnt) ");
         StringBuilder whereQl = new StringBuilder();
@@ -165,8 +169,14 @@ public class SparqlConverter {
             textSearch(whereQl);
         }
 
-        for (Match match : query.getMatch()) {
-            match(whereQl, mainEntity, match);
+        if (null != query.getMatch()) {
+            for (Match match : query.getMatch()) {
+                match(whereQl, mainEntity, match);
+            }
+        }
+
+        if (null != query.getInstanceOf()) {
+            match(whereQl, mainEntity, query);
         }
 
         o++;
@@ -256,7 +266,7 @@ public class SparqlConverter {
             whereQl.append(" graph ").append(iriFromAlias(match.getGraph())).append(" {");
         }
         if (match.getMatch() != null) {
-            if (match.getBool() == Bool.or|| (match.getBoolMatch()!=null &&match.getBoolMatch()==Bool.or)) {
+            if ((match.getBoolMatch()!=null &&match.getBoolMatch()==Bool.or)) {
                 for (int i = 0; i < match.getMatch().size(); i++) {
                     if (i == 0)
                         whereQl.append("{ \n");
@@ -283,6 +293,14 @@ public class SparqlConverter {
             if (match.getInstanceOf() != null) {
                 Node instance = match.getInstanceOf();
                 String inList = iriFromAlias(instance);
+                if (inList!=null)
+                 if (inList.startsWith("?"))
+                     inList=null;
+                if (inList==null){
+                    if (match.getWhere()==null){
+                        throw new QueryException("Match clause has instance of without an IRI and  without a where clause. In other words, wquerying for everything! ");
+                    }
+                }
                 if (instance.isMemberOf()){
                     try {
                         EntityTripleRepository repo = new EntityTripleRepository();
@@ -298,30 +316,45 @@ public class SparqlConverter {
                 else if (instance.isDescendantsOrSelfOf()) {
                     o++;
                     whereQl.append("?").append(subject).append(" im:isA ?").append(object).append(".\n");
-                    whereQl.append("Filter (?").append(object);
-                    if (!inList.contains(","))
-                        whereQl.append(" =").append(inList).append(")\n");
-                    else
-                        whereQl.append(" in (").append(inList).append("))\n");
+                    if (inList!=null) {
+                        whereQl.append("Filter (?").append(object);
+                        if (!inList.contains(","))
+                            whereQl.append(" =").append(inList).append(")\n");
+                        else
+                            whereQl.append(" in (").append(inList).append("))\n");
+                    }
+                    else {
+                        subject=object;
+                    }
 
                 } else if (instance.isDescendantsOf()) {
                     o++;
                     whereQl.append("?").append(subject).append(" im:isA ?").append(object).append(".\n");
-                    whereQl.append("Filter (?").append(object);
-                    if (!inList.contains(","))
-                        whereQl.append(" =").append(inList).append(")\n");
-                    else
-                        whereQl.append(" in (").append(inList).append("))\n");
-                    whereQl.append("Filter (?").append(subject).append("!= ").append(inList).append(")\n");
+                    if (inList!=null) {
+                        whereQl.append("Filter (?").append(object);
+                        if (!inList.contains(","))
+                            whereQl.append(" =").append(inList).append(")\n");
+                        else
+                            whereQl.append(" in (").append(inList).append("))\n");
+                        whereQl.append("Filter (?").append(subject).append("!= ").append(inList).append(")\n");
+                    }
+                    else {
+                        subject=object;
+                    }
 
                 } else if (instance.isAncestorsOf()) {
                     o++;
                     whereQl.append("?").append(subject).append(" ^im:isA ?").append(object).append(".\n");
                     whereQl.append("Filter (?").append(object);
-                    if (!inList.contains(","))
-                        whereQl.append(" =").append(inList).append(")\n");
-                    else
-                        whereQl.append(" in (").append(inList).append("))\n");
+                    if (inList!=null) {
+                        if (!inList.contains(","))
+                            whereQl.append(" =").append(inList).append(")\n");
+                        else
+                            whereQl.append(" in (").append(inList).append("))\n");
+                    }
+                    else {
+                        subject=object;
+                    }
                 } else {
                     o++;
                     whereQl.append("?").append(subject).append(" rdf:type ?type.\n");
@@ -390,7 +423,7 @@ public class SparqlConverter {
      */
     private void property(StringBuilder whereQl, String subject, Where where, String parentVariable) throws QueryException{
         String propertyVariable = where.getVariable() != null ? where.getVariable() : parentVariable;
-        if (where.isAnyRoleGroup()) {
+        if (where.isAnyRoleGroup()&&!where.isInverse()) {
             whereQl.append("?").append(subject).append(" im:roleGroup ").append("?roleGroup").append(o).append(".\n");
             subject = "roleGroup" + o;
             o++;
@@ -447,6 +480,12 @@ public class SparqlConverter {
                 else
                     whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromString(where.getIri())).append(" ?").append(object).append(".\n");
             }
+            if (where.isAnyRoleGroup()&&where.isInverse()) {
+                o++;
+                whereQl.append("?").append(object).append(" ^im:roleGroup ").append("?subject").append(o).append(".\n");
+                object = "subject" + o;
+            }
+
             if (where.getIsNull()) {
                 whereQl.append(tabs).append(" }");
             }
@@ -462,7 +501,7 @@ public class SparqlConverter {
             }
         }
         if (where.getWhere() != null) {
-            if (where.getBool() == Bool.or|| where.getBoolWhere()== Bool.or) {
+            if (where.getBoolWhere()== Bool.or) {
                 for (int i = 0; i < where.getWhere().size(); i++) {
                     if (i == 0)
                         whereQl.append("{ \n");
@@ -477,6 +516,7 @@ public class SparqlConverter {
                 }
             }
         }
+
     }
 
 
@@ -671,8 +711,8 @@ public class SparqlConverter {
     }
 
 
-    private void orderGroupLimit(StringBuilder selectQl, Query clause, boolean countOnly) throws QueryException {
-        if (null != queryRequest.getTextSearch() && !countOnly) {
+    private void orderGroupLimit(StringBuilder selectQl, Query clause, boolean countOnly, boolean highestUsage) throws QueryException {
+        if (null != queryRequest.getTextSearch() && !(countOnly || highestUsage)) {
             selectQl.append("ORDER BY DESC(").append("strstarts(lcase(?").append(labelVariable)
                     .append("),\"").append(escape(queryRequest.getTextSearch()).split(" ")[0])
                     .append("\")) ASC(strlen(?").append(labelVariable).append("))\n");
@@ -723,9 +763,10 @@ public class SparqlConverter {
                 return iriFromString(resolveReference(parameter, queryRequest));
             } else if (null != variable) {
                 return "?" + variable;
-            } else if (null != valueRef)
+            } else if (null != valueRef) {
                 return "?" + valueRef;
-            throw new QueryException("Type has no iri or variable or parameter variable");
+            }
+            else return null;
         } else
             return (iriFromString(id));
     }

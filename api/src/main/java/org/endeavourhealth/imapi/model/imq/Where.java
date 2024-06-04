@@ -17,7 +17,6 @@ public class Where extends PropertyRef implements Assignable{
     private List<Node> is;
     private List<Node> isNot;
     private Match match;
-    private Bool bool;
     private Bool boolWhere;
     private List<Where> where;
     private Operator operator;
@@ -62,15 +61,6 @@ public class Where extends PropertyRef implements Assignable{
 
     public Where setIsNotNull(boolean notNull) {
         isNotNull = notNull;
-        return this;
-    }
-
-    public Bool getBool() {
-        return bool;
-    }
-
-    public Where setBool(Bool bool) {
-        this.bool = bool;
         return this;
     }
 

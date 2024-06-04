@@ -25,7 +25,7 @@ public class SearchResultSummary {
     @JsonProperty(required = true)
     private Set<TTIriRef> entityType= new HashSet<>();
     @JsonProperty(defaultValue = "0")
-    private Integer weighting;
+    private Integer usageTotal;
     @JsonProperty(defaultValue = "")
     private String match;
     private String preferredName;
@@ -42,7 +42,7 @@ public class SearchResultSummary {
         return this;
     }
 
-    public SearchResultSummary(String name, String iri, String code, String description, TTIriRef status, TTIriRef scheme, Set<TTIriRef> entityTypes, Set<TTIriRef> isDescendentOf, Integer weighting, String match) {
+    public SearchResultSummary(String name, String iri, String code, String description, TTIriRef status, TTIriRef scheme, Set<TTIriRef> entityTypes, Set<TTIriRef> isDescendentOf, Integer usageTotal, String match) {
         this.name = name;
         this.iri = iri;
         this.code = code;
@@ -51,7 +51,7 @@ public class SearchResultSummary {
         this.scheme = scheme;
         this.entityType = entityTypes;
         this.isA = isDescendentOf;
-        this.weighting = weighting;
+        this.usageTotal = usageTotal;
         this.match = match;
     }
 
@@ -145,12 +145,12 @@ public class SearchResultSummary {
         return this;
     }
 
-    public Integer getWeighting() {
-        return weighting;
+    public Integer getUsageTotal() {
+        return usageTotal;
     }
 
-    public SearchResultSummary setWeighting(Integer weighting) {
-        this.weighting = weighting;
+    public SearchResultSummary setUsageTotal(Integer usageTotal) {
+        this.usageTotal = usageTotal;
         return this;
     }
 

@@ -69,8 +69,8 @@ public class ExcelSetExporter {
                     .sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
 
             if(includeSubsets) {
-                members = members.stream().sorted(Comparator.comparing(m -> m.getIsContainedIn()
-                        .iterator().next().getName())).collect(Collectors.toCollection(LinkedHashSet::new));
+                members = members.stream().sorted(Comparator.comparing(m -> (null == m.getIsContainedIn() || m.getIsContainedIn().isEmpty()) ? "" : m.getIsContainedIn().iterator().next().getName()))
+                  .collect(Collectors.toCollection(LinkedHashSet::new));
             }
 
             if (core) {

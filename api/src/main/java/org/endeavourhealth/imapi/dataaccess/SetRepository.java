@@ -15,10 +15,8 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +67,7 @@ public class SetRepository {
         aReturn.setNodeRef("entity");
         replaced.addReturn(aReturn);
         replaced.match(m->m
-          .setBool(Bool.or)
+          .setBoolMatch(Bool.or)
           .match(m1->m1
             .setVariable("entity")
             .where(p->p
@@ -232,21 +230,21 @@ public class SetRepository {
                     result.add(cl);
                     Value name = bs.getValue("term");
                     Value code = bs.getValue("code");
-                    Value alternativeCode= bs.getValue("alternativeCode");
+                    Value alternativeCode = bs.getValue("alternativeCode");
                     Value schemeName = bs.getValue("schemeName");
                     Value usage = bs.getValue("usage");
                     Value status = bs.getValue("status");
                     Value statusName = bs.getValue("statusName");
                     Value type = bs.getValue("entityType");
                     Value typeName = bs.getValue("typeName");
-                    Value codeId=bs.getValue("codeId");
+                    Value codeId = bs.getValue("codeId");
                     cl.setIri(concept);
                     if (name != null)
                         cl.setName(name.stringValue());
                     if (code != null) {
                         cl.setCode(code.stringValue());
                     }
-                    if (alternativeCode!=null){
+                    if (alternativeCode != null) {
                         cl.setAlternativeCode(alternativeCode.stringValue());
                     }
                     if (null != scheme) {
@@ -258,7 +256,7 @@ public class SetRepository {
                     if (null != type) {
                         cl.addType(iri(type.stringValue(), typeName.stringValue()));
                     }
-                    if (null!=codeId){
+                    if (null != codeId) {
                         cl.setCodeId(codeId.stringValue());
                     }
                     cl.setUsage(usage == null ? null : ((Literal) usage).intValue());
@@ -274,18 +272,16 @@ public class SetRepository {
                     cl.addIm1Id(im1Id.stringValue());
                 if (includeLegacy) {
                     String legacyScheme = bs.getValue("legacyScheme") != null ? bs.getValue("legacyScheme").stringValue() : null;
-                    if (legacyScheme==null) {
+                    if (legacyScheme == null) {
                         if (!coreSchemes.contains(scheme.stringValue())) {
                             bindLegacyFromCore(bs, cl);
                         }
-                    }
-                    else if (schemes.size()==0){
-                        bindResults(bs,cl);
-                    }
-                    else {
-                            if(schemes.stream().anyMatch(s -> s.equals(legacyScheme))) {
+                    } else if (schemes.size() == 0) {
+                        bindResults(bs, cl);
+                    } else {
+                        if (schemes.stream().anyMatch(s -> s.equals(legacyScheme))) {
                             bindResults(bs, cl);
-                            }
+                        }
                     }
                 }
             }
@@ -324,6 +320,82 @@ public class SetRepository {
                 legacy.addIm1Id(lid.stringValue());
         }
     }
+
+
+    public void bindConceptSetToDataModel(String iri, Set<TTNode> dataModels) {
+        StringJoiner sj = new StringJoiner("\n");
+        sj.add("INSERT DATA { graph <" + GRAPH.DISCOVERY + "> {");
+        int blank = 0;
+        for (TTNode dataModel:dataModels) {
+            blank++;
+            sj.add("<" + iri + "> <" + IM.BINDING + "> _:b"+blank+".")
+              .add("_:b"+blank+" <"+ SHACL.PATH+"> <"+ dataModel.get(iri(SHACL.PATH)).asIriRef().getIri()+">.")
+              .add("_:b"+blank+" <"+ SHACL.NODE+"> <"+ dataModel.get(iri(SHACL.NODE)).asIriRef().getIri()+">.");
+        }
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            sendUp(sj, conn);
+        }
+
+    }
+
+    public Set<String> getSets() {
+        Set<String> setIris= new HashSet<>();
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            StringJoiner spq = new StringJoiner("\n");
+            spq.add("SELECT distinct ?iri ")
+              .add("WHERE { ?iri <" + RDF.TYPE + "> ?type.")
+              .add("  filter (?type in (<"+IM.VALUESET +">,<"+IM.CONCEPT_SET+">))")
+              .add("?iri <"+ IM.DEFINITION +"> ?d.}");
+            TupleQuery qry = conn.prepareTupleQuery(spq.toString());
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    setIris.add(rs.next().getValue("iri").stringValue());
+                }
+            }
+        }
+        return setIris;
+    }
+
+    public void updateMembers(String iri,Set<Concept> members) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            String spq = "DELETE { <" + iri + "> <" + IM.HAS_MEMBER + "> ?x.}"+
+              "\nWHERE { <" + iri + "> <" + IM.HAS_MEMBER + "> ?x.}";
+            org.eclipse.rdf4j.query.Update upd = conn.prepareUpdate(spq);
+            upd.execute();
+            spq="SELECT ?g where { graph ?g {<"+iri+"> <"+RDF.TYPE +"> ?type }}";
+            TupleQuery qry= conn.prepareTupleQuery(spq);
+            try (TupleQueryResult rs= qry.evaluate()) {
+                BindingSet bs = rs.next();
+                String graph = bs.getValue("g").stringValue();
+                StringJoiner sj = new StringJoiner("\n");
+                sj.add("INSERT DATA { graph <" + graph + "> {");
+                int batch = 0;
+                for (Concept member : members) {
+                    batch++;
+                    if (batch == 1000) {
+                        sendUp(sj, conn);
+                        sj = new StringJoiner("\n");
+                        sj.add("INSERT DATA { graph <" + graph + "> {");
+                        batch = 0;
+                    }
+                    sj.add("<" + iri + "> <" + IM.HAS_MEMBER + "> <" + member.getIri() + ">.");
+                }
+                sendUp(sj, conn);
+            }
+        }
+    }
+
+
+    private void sendUp(StringJoiner sj, RepositoryConnection conn) {
+        sj.add("}}");
+        org.eclipse.rdf4j.query.Update upd= conn.prepareUpdate(sj.toString());
+        conn.begin();
+        upd.execute();
+        conn.commit();
+    }
+
+
+
 
 
 
@@ -370,6 +442,62 @@ public class SetRepository {
         return null;
     }
 
+    public Set<Concept> getSomeMembers(String setIri,Integer limit){
+        StringJoiner spql = new StringJoiner(System.lineSeparator())
+          .add("PREFIX im: <" + IM.NAMESPACE + ">")
+          .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+          .add("select * where { ")
+          .add("    ?setIri im:hasMember ?entity .")
+          .add("}")
+          .add("limit "+ limit);
+        Set<Concept> result=new HashSet<>();
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(spql.toString());
+            qry.setBinding("setIri", Values.iri(setIri));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs= rs.next();
+                    Concept concept= new Concept();
+                    concept.setIri(bs.getValue("entity").stringValue());
+                    result.add(concept);
+
+                }
+            }
+        }
+        return result;
+    }
+
+    public Set<TTNode> getBindingsForConcept(Set<String> members){
+        Set<TTNode> result= new HashSet<>();
+        Set<String> sparqlIris= members.stream().map(m -> "<"+m+">").collect(Collectors.toSet());
+        String iriList=String.join(",",sparqlIris);
+        StringJoiner spql = new StringJoiner(System.lineSeparator())
+          .add("PREFIX im: <" + IM.NAMESPACE + ">")
+          .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+          .add("select distinct ?dataModel ?path")
+          .add("where { ")
+          .add("    ?memberIri ^im:hasMember ?valueSet.")
+          .add("     filter (?memberIri in("+iriList+"))" )
+          .add("    ?valueSet ^<"+ SHACL.CLASS+"> ?property.")
+          .add("     ?property <"+ SHACL.PATH+"> ?path.")
+          .add("     ?property ^<"+ SHACL.PROPERTY+"> ?dataModel.}");
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(spql.toString());
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs= rs.next();
+                    TTNode dataModel= new TTNode();
+                    dataModel.set(iri(SHACL.NODE),iri(bs.getValue("dataModel").stringValue()));
+                    dataModel.set(iri(SHACL.PATH),iri(bs.getValue("path").stringValue()));
+                    result.add(dataModel);
+                }
+            }
+
+        }
+        return result;
+    }
+
 
     public Set<Concept> getSetMembers(String setIri, boolean includeLegacy, List<String> schemes) {
         StringJoiner spql = new StringJoiner(System.lineSeparator())
@@ -381,6 +509,7 @@ public class SetRepository {
           .add("       im:code ?code;")
           .add("       im:scheme ?scheme.")
           .add("    ?scheme rdfs:label ?schemeName .")
+          .add("    OPTIONAL { ?entity im:status ?status . ?status rdfs:label ?statusName . }")
           .add("    OPTIONAL { ?entity im:im1Id ?im1Id . }")
           .add("    OPTIONAL { ?entity im:usageTotal ?use . }")
           .add("    OPTIONAL { ?entity im:codeId ?codeId . }")

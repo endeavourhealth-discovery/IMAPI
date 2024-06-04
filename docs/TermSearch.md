@@ -55,7 +55,7 @@ description   |  description of the concept
 status | status of entity
 scheme | scheme of the entity i.e. the owner of the entity
 entityType | the entity type of the entity
-weighting | an integer representing how often used in real systems
+usageTotal | an integer representing how often used in real systems
 key | list of keys for this entity
 isA |  list of super types that this entity is a subtype of
 termCode  | object containing a term and code

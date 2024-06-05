@@ -64,7 +64,7 @@ class SearchServiceTest {
 
 
 	}
-// @Test
+//@Test
 	void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
 		testDefinitions = System.getenv("folder") + "\\Definitions";
 		testResults = System.getenv("folder") + "\\Results";
@@ -104,16 +104,25 @@ class SearchServiceTest {
 	}
 
 
-	//@Test
+//@Test
 	void pathQuery() throws DataFormatException {
+		pathOutput(IM.NAMESPACE+"Patient",IM.NAMESPACE+"Observation","DataModelType");
+		pathOutput(IM.NAMESPACE+"Patient",IM.NAMESPACE+"CSET_OralCorticosteroids","ConceptSet");
+		pathOutput(IM.NAMESPACE+"Patient",SNOMED.NAMESPACE+"976831000000100","Concept");
+		pathOutput(IM.NAMESPACE+"Patient",IM.NAMESPACE+"Observation","DataModelType");
+		pathOutput(IM.NAMESPACE+"Patient",IM.NAMESPACE+"homeAddress","DirectProperty");
+		pathOutput(IM.NAMESPACE+"Patient",IM.NAMESPACE+"postCode","IndirectProperty");
 
-		pathOutput(IM.NAMESPACE+"Patient",SNOMED.NAMESPACE+"976831000000100");
-		pathOutput(IM.NAMESPACE+"Patient",IM.NAMESPACE+"postCode");
-		pathOutput(IM.NAMESPACE+"Patient",IM.NAMESPACE+"CSET_OralCorticosteroids");
 	}
 
-	private void pathOutput(String source, String target) throws DataFormatException {
+	private void pathOutput(String source, String target,String name) throws DataFormatException {
+		testResults = System.getenv("folder");
 		PathDocument result= new SearchService().pathQuery(new PathQuery().setSource(iri(source)).setTarget(iri(target)));
+		try (FileWriter wr = new FileWriter(testResults + "\\" + "PathQuery_"+name + "_Matches.json")) {
+			wr.write(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void output(SearchRequest request,String name,boolean write) throws IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {

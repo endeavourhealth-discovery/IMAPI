@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.logic.reasoner.RangeInheritor;
+import org.endeavourhealth.imapi.logic.reasoner.SetBinder;
 import org.endeavourhealth.imapi.logic.reasoner.SetExpander;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
@@ -244,6 +245,8 @@ public class TTTransactionFiler implements TTDocumentFiler,AutoCloseable {
             if (entity.isType(iri(IM.CONCEPT_SET))||entity.isType(iri(IM.VALUESET))){
                 LOG.info("Expanding set "+ entity.getIri());
                 new SetExpander().expandSet(entity.getIri());
+                LOG.info("Binding set "+ entity.getIri());
+                new SetBinder().bindSet(entity.getIri());
             }
         }
     }

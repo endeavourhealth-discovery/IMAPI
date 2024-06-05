@@ -972,6 +972,34 @@
       {
         "name": "DATAMODEL_CLASSES",
         "value": "IM.NAMESPACE + \"DataModelClasses\""
+      },
+      {
+        "name": "DATE_TIME",
+        "value": "IM.NAMESPACE + \"DateTime\""
+      },
+      {
+        "name": "TEMPLATE_NUMERIC_EVENT_ORDER",
+        "value": "IM.NAMESPACE + \"TEMPLATE_NumericEventOrder\""
+      },
+      {
+        "name": "ORDER_BY",
+        "value": "IM.NAMESPACE + \"OrderBy\""
+      },
+      {
+        "name": "PARAMETER_TEMPLATE",
+        "value": "IM.NAMESPACE + \"parameterTemplate\""
+      },
+      {
+        "name": "VALUE_TEMPLATE",
+        "value": "IM.NAMESPACE + \"valueTemplate\""
+      },
+      {
+        "name": "DEFAULT_VALUE",
+        "value": "IM.NAMESPACE + \"defaultValue\""
+      },
+      {
+        "name": "LOAD_MORE",
+        "value": "IM.NAMESPACE + \"loadMore\""
       }
     ]
   },
@@ -1731,6 +1759,10 @@
       {
         "name": "NUMBER",
         "value": "XSD.NAMESPACE + \"number\""
+      },
+      {
+        "name": "DECIMAL",
+        "value": "XSD.NAMESPACE + \"decimal\""
       }
     ]
   },

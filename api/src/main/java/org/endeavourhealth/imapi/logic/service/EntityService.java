@@ -975,12 +975,6 @@ public class EntityService {
         return unclassifiedList;
     }
 
-    public List<TTEntity> getMappingSuggestions(String iri, String name) {
-        List<TTEntity> suggestions = entityRepository.findEntitiesByName(name);
-        suggestions.removeIf(iriRef -> iriRef.getIri().equals(iri));
-        return suggestions;
-    }
-
     public Set<TTIriRef> getNames(Set<String> iris) {
         Set<TTIriRef> result = iris.stream().map(TTIriRef::new).collect(Collectors.toSet());
         entityRepository2.getNames(result);

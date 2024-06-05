@@ -712,11 +712,6 @@ public class SparqlConverter {
 
 
     private void orderGroupLimit(StringBuilder selectQl, Query clause, boolean countOnly, boolean highestUsage) throws QueryException {
-        if (null != queryRequest.getTextSearch() && !(countOnly || highestUsage)) {
-            selectQl.append("ORDER BY DESC(").append("strstarts(lcase(?").append(labelVariable)
-                    .append("),\"").append(escape(queryRequest.getTextSearch()).split(" ")[0])
-                    .append("\")) ASC(strlen(?").append(labelVariable).append("))\n");
-        }
         if (null != clause.getGroupBy()) {
             selectQl.append("Group by ");
             for (PropertyRef property : clause.getGroupBy()) {
@@ -725,7 +720,11 @@ public class SparqlConverter {
                 }
             }
         }
-        if (null != clause.getOrderBy() && !countOnly) {
+        if (null != queryRequest.getTextSearch() && !(countOnly || highestUsage)) {
+            selectQl.append("ORDER BY DESC(").append("strstarts(lcase(?").append(labelVariable)
+                    .append("),\"").append(escape(queryRequest.getTextSearch()).split(" ")[0])
+                    .append("\")) ASC(strlen(?").append(labelVariable).append("))\n");
+        } else if (null != clause.getOrderBy() && !countOnly) {
             if (null != clause.getOrderBy().getProperty()) {
                 selectQl.append("Order by ");
                 OrderDirection order = clause.getOrderBy().getProperty();

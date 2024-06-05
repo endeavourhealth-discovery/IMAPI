@@ -219,4 +219,11 @@ public class IM {
     public static final String ENTITY_IDENTIFIER = IM.NAMESPACE + "entityIdentifier";
     public static final String CODE_TEMPLATE = IM.NAMESPACE + "codeTemplate";
     public static final String DATAMODEL_CLASSES = IM.NAMESPACE + "DataModelClasses";
+    public static final String DATE_TIME = IM.NAMESPACE + "DateTime";
+    public static final String TEMPLATE_NUMERIC_EVENT_ORDER = IM.NAMESPACE + "TEMPLATE_NumericEventOrder";
+    public static final String ORDER_BY = IM.NAMESPACE + "OrderBy";
+    public static final String PARAMETER_TEMPLATE = IM.NAMESPACE + "parameterTemplate";
+    public static final String VALUE_TEMPLATE = IM.NAMESPACE + "valueTemplate";
+    public static final String DEFAULT_VALUE = IM.NAMESPACE + "defaultValue";
+    public static final String LOAD_MORE = IM.NAMESPACE + "loadMore";
 }

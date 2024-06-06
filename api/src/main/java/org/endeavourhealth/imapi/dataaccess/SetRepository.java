@@ -323,17 +323,28 @@ public class SetRepository {
 
 
     public void bindConceptSetToDataModel(String iri, Set<TTNode> dataModels) {
-        StringJoiner sj = new StringJoiner("\n");
-        sj.add("INSERT DATA { graph <" + GRAPH.DISCOVERY + "> {");
+
+        StringJoiner deleteBinding = new StringJoiner("\n")
+        .add("DELETE { <"+iri+"> <"+IM.BINDING+"> ?datamodel}")
+          .add("WHERE { <"+iri+"> <"+IM.BINDING+"> ?datamodel}");
+
+        StringJoiner newBinding= new StringJoiner("\n").add("INSERT DATA { graph <" + GRAPH.DISCOVERY + "> {");
         int blank = 0;
         for (TTNode dataModel:dataModels) {
             blank++;
-            sj.add("<" + iri + "> <" + IM.BINDING + "> _:b"+blank+".")
+            newBinding.add("<" + iri + "> <" + IM.BINDING + "> _:b"+blank+".")
               .add("_:b"+blank+" <"+ SHACL.PATH+"> <"+ dataModel.get(iri(SHACL.PATH)).asIriRef().getIri()+">.")
               .add("_:b"+blank+" <"+ SHACL.NODE+"> <"+ dataModel.get(iri(SHACL.NODE)).asIriRef().getIri()+">.");
         }
+        newBinding.add("}}");
+
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            sendUp(sj, conn);
+            conn.begin();
+            org.eclipse.rdf4j.query.Update upd=conn.prepareUpdate(deleteBinding.toString());
+            upd.execute();
+            upd=conn.prepareUpdate(newBinding.toString());
+            upd.execute();
+            conn.commit();
         }
 
     }

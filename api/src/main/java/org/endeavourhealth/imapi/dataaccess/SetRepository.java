@@ -481,7 +481,8 @@ public class SetRepository {
           .add("     filter (?memberIri in("+iriList+"))" )
           .add("    ?valueSet ^<"+ SHACL.CLASS+"> ?property.")
           .add("     ?property <"+ SHACL.PATH+"> ?path.")
-          .add("     ?property ^<"+ SHACL.PROPERTY+"> ?dataModel.}");
+          .add("     ?property ^<"+ SHACL.PROPERTY+"> ?dataModel.}")
+          .add(" group by ?dataModel ?path");
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(spql.toString());
             try (TupleQueryResult rs = qry.evaluate()) {

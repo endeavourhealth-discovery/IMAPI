@@ -153,9 +153,34 @@ public class TTEntity extends TTNode implements Serializable {
         return this;
     }
 
+    @Override
+    public TTEntity set(TTIriRef predicate, Integer value) {
+        super.set(predicate, value);
+        return this;
+    }
+
+    @Override
+    public TTEntity set(TTIriRef predicate, Long value) {
+        super.set(predicate, value);
+        return this;
+    }
+
+    @Override
+    public TTEntity set(TTIriRef predicate, boolean value) {
+        super.set(predicate, value);
+        return this;
+    }
+
+    @Override
+    public TTEntity addObject(TTIriRef predicate, TTValue object) {
+        super.set(predicate, object);
+        return this;
+    }
+
     public TTContext getContext() {
         return context;
     }
+
     public TTIriRef getCrud() {
         return crud;
     }

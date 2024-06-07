@@ -172,8 +172,8 @@ public class TTEntity extends TTNode implements Serializable {
     }
 
     @Override
-    public TTEntity addObject(TTIriRef predicate, TTValue object) {
-        super.set(predicate, object);
+    public TTEntity addObject(TTIriRef predicate, TTValue object){
+        super.addObject(predicate, object);
         return this;
     }
 

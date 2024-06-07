@@ -1555,7 +1555,7 @@
       },
       {
         "name": "ATTRIBUTE",
-        "value": "SNOMED.DOMAIN + \"246061005\""
+        "value": "SNOMED.NAMESPACE + \"246061005\""
       },
       {
         "name": "ANY",

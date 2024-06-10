@@ -870,28 +870,28 @@ public class OSQuery {
 
     private static void processSchemeProperty(SearchRequest request, Where w) throws QueryException {
         if (w.getIs() != null && !w.getIs().isEmpty())
-            request.setSchemeFilter(w.getIs().stream().map(Node::getIri).toList());
+            request.setSchemeFilter(w.getIs().stream().map(Node::getIri).collect(Collectors.toList()));
         else
             throw new QueryException("Scheme filter must be a list (is)");
     }
 
     private static void processMemberProperty(SearchRequest request, Where w) throws QueryException {
         if (w.getIs() != null && !w.getIs().isEmpty())
-            request.setMemberOf(w.getIs().stream().map(Node::getIri).toList());
+            request.setMemberOf(w.getIs().stream().map(Node::getIri).collect(Collectors.toList()));
         else
             throw new QueryException("Set membership filter must be a list (is)");
     }
 
     private static void processStatusProperty(SearchRequest request, Where w) throws QueryException {
         if (w.getIs() != null && !w.getIs().isEmpty())
-            request.setStatusFilter(w.getIs().stream().map(Node::getIri).toList());
+            request.setStatusFilter(w.getIs().stream().map(Node::getIri).collect(Collectors.toList()));
         else
             throw new QueryException("Status filter must be a list (is)");
     }
 
     private static void processTypeProperty(SearchRequest request, Where w) throws QueryException {
         if (w.getIs() != null && !w.getIs().isEmpty())
-            request.setTypeFilter(w.getIs().stream().map(Node::getIri).toList());
+            request.setTypeFilter(w.getIs().stream().map(Node::getIri).collect(Collectors.toList()));
         else
             throw new QueryException("Status filter must be a list (is)");
     }
@@ -915,7 +915,7 @@ public class OSQuery {
 
     private static void processIsAProperty(SearchRequest request, Where w) throws QueryException {
         if (w.getIs() != null && !w.getIs().isEmpty())
-            request.setIsA(w.getIs().stream().map(Node::getIri).toList());
+            request.setIsA(w.getIs().stream().map(Node::getIri).collect(Collectors.toList()));
         else
             throw new QueryException("Is a filter must be a list (is)");
 
@@ -939,7 +939,7 @@ public class OSQuery {
                         return iriList;
                     } else if (null != argument.getValueIriList()) {
                         return
-                                argument.getValueIriList().stream().map(TTIriRef::getIri).toList();
+                                argument.getValueIriList().stream().map(TTIriRef::getIri).collect(Collectors.toList());
                     }
                 }
             }

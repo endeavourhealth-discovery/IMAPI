@@ -120,26 +120,27 @@ public class EqdResources {
 
         if (eqCriterion.getLinkedCriterion() != null) {
             Match match= convertLinkedCriterion(eqCriterion);
-            if (match.getWhere()!=null){
-                if (match.getWhere().size()>1){
-                    match.setBoolWhere(Bool.and);
-                }
-            }
-            if (eqCriterion.getDescription()!=null)
-                match.setDescription(eqCriterion.getDescription());
             return match;
         } else {
             Match match= convertStandardCriterion(eqCriterion);
-            if (match.getWhere()!=null){
-                if (match.getWhere().size()>1){
-                    match.setBoolWhere(Bool.and);
-                }
-            }
-            if (eqCriterion.getDescription()!=null)
-                match.setDescription(eqCriterion.getDescription());
             return match;
         }
 
+    }
+
+
+    private Match setMatchId(EQDOCCriterion eqCriterion, Match match) {
+        if (eqCriterion.getId()!=null) {
+            match.setIri("urn:uuid:" + eqCriterion.getId());
+        }
+        if (match.getWhere()!=null){
+            if (match.getWhere().size()>1){
+                match.setBoolWhere(Bool.and);
+            }
+        }
+        if (eqCriterion.getDescription()!=null)
+            match.setName(eqCriterion.getDescription());
+        return match;
     }
 
 
@@ -149,6 +150,7 @@ public class EqdResources {
             if (eqCriterion.isNegation()) {
                 match.setExclude(true);
             }
+            setMatchId(eqCriterion,match);
             return match;
 
 

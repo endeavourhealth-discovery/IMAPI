@@ -326,9 +326,9 @@ public class OSQuery {
 
 
     private QueryBuilder buildAutoCompleteQuery(SearchRequest request) {
-        if (request.getOrderBy() == null) {
-            addDefaultSorts(request);
-        }
+       // if (request.getOrderBy() == null) {
+            //addDefaultSorts(request);
+        //}
         String requestTerm = getMatchTerm(request.getTermFilter());
         BoolQueryBuilder boolQuery;
         if (request.getPage() == 1 && !requestTerm.contains(" ")) {
@@ -360,17 +360,19 @@ public class OSQuery {
                 .setField("subsumptionCount")
                 .setDirection(Order.descending));
         request.orderBy(o -> o
+          .setField("usageTotal")
+          .setDirection(Order.descending));
+        request.orderBy(o -> o
                 .setField("length")
                 .setDirection(Order.ascending));
-        request.orderBy(o -> o
-                .setField("usageTotal"));
+        ;
     }
 
 
     private QueryBuilder buildNGramQuery(SearchRequest request) {
-        if (request.getOrderBy() == null) {
-            addDefaultSorts(request);
-        }
+        //if (request.getOrderBy() == null) {
+           // addDefaultSorts(request);
+        //}
         String requestTerm = getMatchTerm(request.getTermFilter());
         BoolQueryBuilder boolQuery = new BoolQueryBuilder();
         MatchQueryBuilder mat = new MatchQueryBuilder(TERM_CODE_TERM, requestTerm);
@@ -406,9 +408,9 @@ public class OSQuery {
 
     private SearchResponse wrapandRun(QueryBuilder query, SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         SearchResponse response = wrapandRun(query, request, false);
-        SearchResponse highestUsageResponse = wrapandRun(query, request, true);
-        if (!highestUsageResponse.getEntities().isEmpty())
-            response.setHighestUsage(highestUsageResponse.getEntities().get(0).getUsageTotal());
+        //SearchResponse highestUsageResponse = wrapandRun(query, request, true);
+        //if (!highestUsageResponse.getEntities().isEmpty())
+          //  response.setHighestUsage(highestUsageResponse.getEntities().get(0).getUsageTotal());
         return response;
     }
 
@@ -421,13 +423,16 @@ public class OSQuery {
                 //Script script= new Script(ScriptType.STORED,null,scriptScore,new HashMap<>());
                 ScriptScoreQueryBuilder sqr = QueryBuilders.scriptScoreQuery(query, script);
                 bld.query(sqr);
-                if (!highestUsage) bld.sort("_score");
+               // if (!highestUsage) bld.sort("_score");
             } else
                 bld.query(query);
         } else
             bld.query(query);
+       // if (request.getOrderBy()==null){
+            addDefaultSorts(request);
+        //}
         if (!highestUsage) setSorts(request, bld);
-        else bld.sort("usageTotal", SortOrder.DESC);
+        //else bld.sort("usageTotal", SortOrder.DESC);
         if (request.getIndex() == null)
             request.setIndex("concept");
 

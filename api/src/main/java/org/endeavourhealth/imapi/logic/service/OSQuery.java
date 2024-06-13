@@ -326,9 +326,6 @@ public class OSQuery {
 
 
     private QueryBuilder buildAutoCompleteQuery(SearchRequest request) {
-       // if (request.getOrderBy() == null) {
-            //addDefaultSorts(request);
-        //}
         String requestTerm = getMatchTerm(request.getTermFilter());
         BoolQueryBuilder boolQuery;
         if (request.getPage() == 1 && !requestTerm.contains(" ")) {
@@ -370,9 +367,6 @@ public class OSQuery {
 
 
     private QueryBuilder buildNGramQuery(SearchRequest request) {
-        //if (request.getOrderBy() == null) {
-           // addDefaultSorts(request);
-        //}
         String requestTerm = getMatchTerm(request.getTermFilter());
         BoolQueryBuilder boolQuery = new BoolQueryBuilder();
         MatchQueryBuilder mat = new MatchQueryBuilder(TERM_CODE_TERM, requestTerm);
@@ -408,9 +402,9 @@ public class OSQuery {
 
     private SearchResponse wrapandRun(QueryBuilder query, SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         SearchResponse response = wrapandRun(query, request, false);
-        //SearchResponse highestUsageResponse = wrapandRun(query, request, true);
-        //if (!highestUsageResponse.getEntities().isEmpty())
-          //  response.setHighestUsage(highestUsageResponse.getEntities().get(0).getUsageTotal());
+        SearchResponse highestUsageResponse = wrapandRun(query, request, true);
+        if (!highestUsageResponse.getEntities().isEmpty())
+            response.setHighestUsage(highestUsageResponse.getEntities().get(0).getUsageTotal());
         return response;
     }
 
@@ -420,19 +414,15 @@ public class OSQuery {
             Map<String, Object> params = getScript(request);
             if (params != null) {
                 Script script = new Script(ScriptType.STORED, null, "orderBy", params);
-                //Script script= new Script(ScriptType.STORED,null,scriptScore,new HashMap<>());
                 ScriptScoreQueryBuilder sqr = QueryBuilders.scriptScoreQuery(query, script);
                 bld.query(sqr);
-               // if (!highestUsage) bld.sort("_score");
             } else
                 bld.query(query);
         } else
             bld.query(query);
-       // if (request.getOrderBy()==null){
             addDefaultSorts(request);
-        //}
         if (!highestUsage) setSorts(request, bld);
-        //else bld.sort("usageTotal", SortOrder.DESC);
+        else bld.sort("usageTotal", SortOrder.DESC);
         if (request.getIndex() == null)
             request.setIndex("concept");
 
@@ -442,14 +432,7 @@ public class OSQuery {
             size = 1;
             from = 0;
         }
-        String sortField = request.getSortField();
-        String sortDirection = request.getSortDirection();
-
         bld.size(size).from(from);
-        if (null != sortField && !highestUsage) {
-            bld.sort(sortField, null != sortDirection ? SortOrder.fromString(sortDirection) : SortOrder.DESC);
-        }
-
         String termCode = "termCode";
 
         List<String> defaultFields = new ArrayList<>(Arrays.asList("iri", "name", "code", "alternativeCode", termCode, "entityType", STATUS, SCHEME, USAGE_TOTAL, "preferredName"));

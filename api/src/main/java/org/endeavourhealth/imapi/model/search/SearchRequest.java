@@ -27,10 +27,6 @@ public class SearchRequest {
     private int size = 20;
     private int from;
     private List<String> select = new ArrayList<>();
-    @Deprecated
-    private String sortField;
-    @Deprecated
-    private String sortDirection;
     private List<OrderBy> orderBy;
     private List<Filter> filter;
     private List<Map<Long,String>>timings = new ArrayList<>();
@@ -255,36 +251,5 @@ public class SearchRequest {
         this.index = index;
         return this;
     }
-
-    public String getSortField() {
-        return sortField;
-    }
-
-    /**
-     * set one sort field
-     * @deprecated
-     * Use order by .
-     */
-    @Deprecated
-    public SearchRequest setSortField(String sortField) {
-        this.sortField = sortField;
-        return this;
-    }
-
-    public String getSortDirection() {
-        return sortDirection;
-    }
-
-    /**
-     * set one direction field
-     * @deprecated
-     * Use order by .
-     */
-    @Deprecated
-    public SearchRequest setSortDirection(String sortDirection) {
-        this.sortDirection = sortDirection;
-        return this;
-    }
-
 
 }

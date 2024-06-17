@@ -13,8 +13,6 @@ public class EclSearchRequest {
     private Set<TTIriRef> statusFilter = new HashSet<>();
     private int page = 1;
     private int size = 20;
-    private String sortField;
-    private String sortDirection;
     private Set<String> select = new HashSet<>();
 
     public Query getEclQuery() {
@@ -68,24 +66,6 @@ public class EclSearchRequest {
 
     public EclSearchRequest setSize(int size) {
         this.size = size;
-        return this;
-    }
-
-    public String getSortField() {
-        return sortField;
-    }
-
-    public EclSearchRequest setSortField(String sortField) {
-        this.sortField = sortField;
-        return this;
-    }
-
-    public String getSortDirection() {
-        return sortDirection;
-    }
-
-    public EclSearchRequest setSortDirection(String sortDirection) {
-        this.sortDirection = sortDirection;
         return this;
     }
 

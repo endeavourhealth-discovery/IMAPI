@@ -72,36 +72,38 @@ public class SearchService {
      */
     public SearchResponse queryIMSearch(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
         ObjectMapper om = new ObjectMapper();
-		ObjectNode result = om.createObjectNode();
+
         QueryRepository repo = new QueryRepository();
-        repo.unpackQueryRequest(queryRequest, result);
+        repo.unpackQueryRequest(queryRequest, om.createObjectNode());
 
         if (null != queryRequest.getTextSearch()) {
-            SearchResponse osResult = new OSQuery().openSearchQuery(queryRequest);
-            if (osResult != null)
-                return osResult;
+            return new OSQuery().openSearchQuery(queryRequest);
+        } else {
+            QueryRequest highestUsageRequest = getHighestUseRequestFromQuery(queryRequest, om, repo);
+
+            JsonNode queryResults = repo.queryIM(queryRequest, false);
+            JsonNode highestUsageResults = repo.queryIM(highestUsageRequest, true);
+
+            return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, highestUsageResults);
         }
-
-		QueryRequest highestUsageRequest = om.readValue(om.writeValueAsString(queryRequest), QueryRequest.class);
-		ObjectNode highestUsageResult = om.createObjectNode();
-		repo.unpackQueryRequest(highestUsageRequest,highestUsageResult);
-		if (null != highestUsageRequest.getQuery().getReturn()) {
-			highestUsageRequest.getQuery().getReturn().get(0).addProperty(new ReturnProperty().setIri(IM.USAGE_TOTAL).setValueRef("usageTotal"));
-		} else {
-			highestUsageRequest.getQuery().addReturn(new Return().addProperty(new ReturnProperty().setIri(IM.USAGE_TOTAL).setValueRef("usageTotal")));
-		}
-		OrderDirection od = new OrderDirection().setDirection(Order.descending);
-		od.setValueVariable("usageTotal");
-		highestUsageRequest.getQuery().setOrderBy(new OrderLimit().setProperty(od));
-
-        JsonNode queryResults = repo.queryIM(queryRequest, false);
-
-		highestUsageRequest.setPage(new Page().setPageNumber(1).setPageSize(1));
-		JsonNode highestUsageResults = repo.queryIM(highestUsageRequest, true);
-        return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, highestUsageResults);
     }
 
-	/**
+    private static QueryRequest getHighestUseRequestFromQuery(QueryRequest queryRequest, ObjectMapper om, QueryRepository repo) throws JsonProcessingException, DataFormatException, QueryException {
+        QueryRequest highestUsageRequest = om.readValue(om.writeValueAsString(queryRequest), QueryRequest.class);
+        repo.unpackQueryRequest(highestUsageRequest, om.createObjectNode());
+        if (null != highestUsageRequest.getQuery().getReturn()) {
+            highestUsageRequest.getQuery().getReturn().get(0).addProperty(new ReturnProperty().setIri(IM.USAGE_TOTAL).setValueRef("usageTotal"));
+        } else {
+            highestUsageRequest.getQuery().addReturn(new Return().addProperty(new ReturnProperty().setIri(IM.USAGE_TOTAL).setValueRef("usageTotal")));
+        }
+        OrderDirection od = new OrderDirection().setDirection(Order.descending);
+        od.setValueVariable("usageTotal");
+        highestUsageRequest.getQuery().setOrderBy(new OrderLimit().setProperty(od));
+        highestUsageRequest.setPage(new Page().setPageNumber(1).setPageSize(1));
+        return highestUsageRequest;
+    }
+
+    /**
 	 * Queries and updates IM entity using the query model
 	 * @param queryRequest Query inside a request with parameters
 	 * @throws DataFormatException if query format is invalid

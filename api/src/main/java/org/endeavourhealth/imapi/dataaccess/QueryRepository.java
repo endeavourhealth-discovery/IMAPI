@@ -33,10 +33,8 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
  * Methods to convert a Query object to its Sparql equivalent and return results as a json object
  */
 public class QueryRepository {
-    private Query query;
     private final ObjectMapper mapper = new ObjectMapper();
     private final Set<String> predicates = new HashSet<>();
-    private QueryRequest queryRequest;
 
 
     /**
@@ -52,11 +50,11 @@ public class QueryRepository {
         Integer page = queryRequest.getPage() != null ? queryRequest.getPage().getPageNumber() : 1;
         Integer count = queryRequest.getPage() != null ? queryRequest.getPage().getPageSize() : 0;
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            checkReferenceDate();
+            checkReferenceDate(queryRequest);
             new QueryValidator().validateQuery(queryRequest.getQuery());
             SparqlConverter converter = new SparqlConverter(queryRequest);
             String spq = converter.getSelectSparql(null,false, highestUsage);
-            ObjectNode resultNode = graphSelectSearch(spq, conn, result);
+            ObjectNode resultNode = graphSelectSearch(queryRequest.getQuery(), spq, conn, result);
             return prepareQueryResponse(resultNode, queryRequest, page, count);
         }
     }
@@ -85,7 +83,7 @@ public class QueryRepository {
         queryRequest.setPage(null);
         unpackQueryRequest(queryRequest);
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            checkReferenceDate();
+            checkReferenceDate(queryRequest);
             new QueryValidator().validateQuery(queryRequest.getQuery());
             SparqlConverter converter = new SparqlConverter(queryRequest);
             String spq = converter.getSelectSparql(null, true,false);
@@ -96,7 +94,7 @@ public class QueryRepository {
 
     public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException,JsonProcessingException,DataFormatException {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            checkReferenceDate();
+            checkReferenceDate(queryRequest);
             new QueryValidator().validateQuery(queryRequest.getQuery());
             SparqlConverter converter = new SparqlConverter(queryRequest);
             String spq = converter.getAskSparql(null);
@@ -112,7 +110,6 @@ public class QueryRepository {
      * @throws JsonProcessingException if the json is invalid
      */
     public void updateIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, QueryException {
-        this.queryRequest = queryRequest;
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             if (queryRequest.getUpdate() == null)
                 throw new DataFormatException("Missing update in query request");
@@ -121,7 +118,7 @@ public class QueryRepository {
             TTEntity updateEntity = getEntity(queryRequest.getUpdate().getIri());
             queryRequest.setUpdate(updateEntity.get(TTIriRef.iri(IM.UPDATE_PROCEDURE)).asLiteral().objectValue(Update.class));
 
-            checkReferenceDate();
+            checkReferenceDate(queryRequest);
             SparqlConverter converter = new SparqlConverter(queryRequest);
             String spq = converter.getUpdateSparql();
             graphUpdateSearch(spq, conn);
@@ -136,9 +133,8 @@ public class QueryRepository {
     }
 
     public void unpackQueryRequest(QueryRequest queryRequest, ObjectNode result) throws DataFormatException, JsonProcessingException, QueryException {
-        this.queryRequest = queryRequest;
-        this.query = unpackQuery(queryRequest.getQuery(), queryRequest);
-        queryRequest.setQuery(query);
+        Query unpackedQuery = unpackQuery(queryRequest.getQuery(), queryRequest);
+        queryRequest.setQuery(unpackedQuery);
         if (null != queryRequest.getContext() && null != result)
             result.set("@context", mapper.convertValue(queryRequest.getContext(), JsonNode.class));
     }
@@ -186,7 +182,7 @@ public class QueryRepository {
         return query;
     }
 
-    private ObjectNode graphSelectSearch(String spq, RepositoryConnection conn, ObjectNode result) {
+    private ObjectNode graphSelectSearch(Query query, String spq, RepositoryConnection conn, ObjectNode result) {
         ArrayNode entities = result.putArray("entities");
         try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
             while (rs.hasNext()) {
@@ -336,7 +332,7 @@ public class QueryRepository {
     }
 
 
-    private void checkReferenceDate() {
+    private void checkReferenceDate(QueryRequest queryRequest) {
         if (queryRequest.getReferenceDate() == null) {
             String now = LocalDate.now().toString();
             queryRequest.setReferenceDate(now);

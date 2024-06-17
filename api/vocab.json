@@ -1940,10 +1940,6 @@
         "value": "QUERY.NAMESPACE + \"AllowableRangeSuggestions\""
       },
       {
-        "name": "GET_ISAS",
-        "value": "QUERY.NAMESPACE + \"GetIsas\""
-      },
-      {
         "name": "GET_DESCENDANTS",
         "value": "QUERY.NAMESPACE + \"GetDescendants\""
       },

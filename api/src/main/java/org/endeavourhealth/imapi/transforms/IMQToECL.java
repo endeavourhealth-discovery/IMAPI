@@ -236,7 +236,7 @@ public class IMQToECL {
 
 
 	private String checkMember(String iri,String name, boolean includeNames) {
-		if (iri==null)
+		if (iri==null || iri.isEmpty())
 			return "*";
 		if (name==null &&includeNames){
 			if (names.get(iri)==null) {

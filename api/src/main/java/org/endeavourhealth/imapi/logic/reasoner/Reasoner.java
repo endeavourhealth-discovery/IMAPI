@@ -455,6 +455,11 @@ public class Reasoner {
             TTEntity superEntity = manager.getEntity(superClass.asIriRef().getIri());
             if (superEntity != null) {
                mergeInheritedProperties(properties, mergedProperties, superClass, superEntity);
+               if (shape.get(iri(IM.NAMESPACE+"concept"))==null){
+                  if (superEntity.get(iri(IM.NAMESPACE+"concept"))!=null){
+                     shape.set(iri(IM.NAMESPACE+"concept"),superEntity.get(iri(IM.NAMESPACE+"concept")));
+                  }
+               }
             }
          }
          if (properties != null) {

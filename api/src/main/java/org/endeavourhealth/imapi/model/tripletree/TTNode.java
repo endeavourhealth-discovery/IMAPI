@@ -176,4 +176,14 @@ public class TTNode implements TTValue, Serializable {
         return this;
     }
 
+    @Override
+    public boolean equals(Object object) {
+        TTNode ttNode = (TTNode) object;
+
+        if (ttNode != null) {
+            return (iri != null && (iri.equals(ttNode.iri)));
+        }
+        else
+            return false;
+    }
 }

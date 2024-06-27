@@ -490,9 +490,12 @@ public class SetRepository {
           .add("where { ")
           .add("    ?memberIri ^im:hasMember ?valueSet.")
           .add("     filter (?memberIri in("+iriList+"))" )
+          .add("  {")
           .add("    ?valueSet ^<"+ SHACL.CLASS+"> ?property.")
           .add("     ?property <"+ SHACL.PATH+"> ?path.")
           .add("     ?property ^<"+ SHACL.PROPERTY+"> ?dataModel.}")
+          .add(" union {")
+          .add("    ?valueSet ^<"+ IM.NAMESPACE+"concept"+ "> ?dataModel.}}")
           .add(" group by ?dataModel ?path");
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(spql.toString());
@@ -501,7 +504,10 @@ public class SetRepository {
                     BindingSet bs= rs.next();
                     TTNode dataModel= new TTNode();
                     dataModel.set(iri(SHACL.NODE),iri(bs.getValue("dataModel").stringValue()));
-                    dataModel.set(iri(SHACL.PATH),iri(bs.getValue("path").stringValue()));
+                    if (bs.getValue("path")!=null)
+                        dataModel.set(iri(SHACL.PATH),iri(bs.getValue("path").stringValue()));
+                    else
+                        dataModel.set(iri(SHACL.PATH),iri(IM.NAMESPACE+"concept"));
                     result.add(dataModel);
                 }
             }

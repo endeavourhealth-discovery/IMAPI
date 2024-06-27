@@ -1269,5 +1269,10 @@ public class EntityService {
     public Set<String> getLinkedDataModels(String dataModelIri) {
         return entityRepository.findLinkedDataModels(dataModelIri);
     }
+
+    public List<TTIriRef> getDataModelsFromProperty(String propIri) {
+        return entityRepository.findDataModelsFromProperty(propIri);
+
+    }
 }
 

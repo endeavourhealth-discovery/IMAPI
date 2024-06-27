@@ -898,4 +898,10 @@ public class EntityController {
         LOG.debug("getLinkedDataModels");
         return entityService.getLinkedDataModels(dataModelIri);
     }
+
+    @GetMapping(value="/public/dataModels")
+    public List<TTIriRef> getDataModelsFromProperty(@RequestParam(name = "propIri") String propIri) {
+        LOG.debug("getDataModelsFromProperty");
+        return entityService.getDataModelsFromProperty(propIri);
+    }
 }

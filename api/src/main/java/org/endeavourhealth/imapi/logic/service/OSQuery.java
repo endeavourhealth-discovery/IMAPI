@@ -69,7 +69,7 @@ public class OSQuery {
         request.addTiming("Entry point for \"" + request.getTermFilter() + "\"");
         SearchResponse results;
         results = defaultQuery(request);
-        if (null != results) {
+        if (null != results && null != results.getTotalCount() && results.getTotalCount() > 0) {
             return results;
         }
         if (request.getTermFilter().contains(" ")) {

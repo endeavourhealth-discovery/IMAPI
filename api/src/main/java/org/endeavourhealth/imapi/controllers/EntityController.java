@@ -19,6 +19,8 @@ import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
+import org.endeavourhealth.imapi.logic.exporters.ExcelSearchExporter;
+import org.endeavourhealth.imapi.logic.exporters.SearchTextFileExporter;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.*;
@@ -30,13 +32,10 @@ import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.SetContent;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.search.*;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
-import org.endeavourhealth.imapi.model.search.SearchRequest;
-import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.set.ExportSet;
 import org.endeavourhealth.imapi.model.set.SetAsObject;
@@ -561,6 +560,42 @@ public class EntityController {
                 throw new DownloadException("Failed to write to excel document.");
             } catch (QueryException e) {
                 throw new DownloadException("Failed to get set details for download.");
+            }
+        }
+    }
+
+    @PostMapping("/public/downloadSearchResults")
+    public HttpEntity<Object> downloadSearchResults(@RequestBody DownloadOptions downloadOptions) throws IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, DownloadException, QueryException, DataFormatException {
+        try (MetricsTimer t = MetricsHelper.recordTime("API/Entity.DownloadSearchResults.POST")) {
+            LOG.debug("downloadSearchResults");
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "searchResults." + downloadOptions.getFormat() + "\"");
+
+            try {
+                switch (downloadOptions.getFormat()) {
+                    case "xlsx": {
+                        ExcelSearchExporter excelSearchExporter = new ExcelSearchExporter();
+                        XSSFWorkbook workbook = excelSearchExporter.getSearchAsExcel(downloadOptions);
+                        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                            workbook.write(outputStream);
+                            workbook.close();
+                            return new HttpEntity<>(outputStream.toByteArray(), headers);
+                        } catch (IOException e) {
+                            throw new DownloadException("Failed to write to excel document");
+                        }
+                    }
+                    case "csv":
+                    case "tsv":
+                    {
+                        SearchTextFileExporter searchTextFileExporter = new SearchTextFileExporter();
+                        String result = searchTextFileExporter.getSearchFile(downloadOptions);
+                        return new HttpEntity<>(result, headers);
+                    }
+                    default:throw new DownloadException("Unhandled format: " + downloadOptions.getFormat());
+                }
+            } catch (IOException e) {
+                throw new DownloadException("Failed to write to excel document.");
             }
         }
     }

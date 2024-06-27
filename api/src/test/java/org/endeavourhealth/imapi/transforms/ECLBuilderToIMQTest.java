@@ -11,14 +11,14 @@ public class ECLBuilderToIMQTest {
     ECLBuilderToIMQ eclBuilderToIMQ = new ECLBuilderToIMQ();
 
     @Test
-    public void convertsDescendantsAndSelf() {
+    public void convertsDescendantsAndSelf() throws EclBuilderException {
         Match match = new Match().setInstanceOf(new Node("http://snomed.info/sct#29857009").setDescendantsOrSelfOf(true));
         BoolGroup boolGroup = new BoolGroup().addItem(new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#29857009")).setConstraintOperator("<<"));
         assertThat(eclBuilderToIMQ.getIMQFromEclBuilder(boolGroup)).usingRecursiveComparison().isEqualTo(match);
     }
 
     @Test
-    public void descendantsNotSelf() {
+    public void descendantsNotSelf() throws EclBuilderException {
         Match match = new Match().setInstanceOf(new Node("http://snomed.info/sct#29857009").setDescendantsOf(true));
         BoolGroup boolGroup = new BoolGroup().addItem(new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#29857009")).setConstraintOperator("<"));
         assertThat(eclBuilderToIMQ.getIMQFromEclBuilder(boolGroup)).usingRecursiveComparison().isEqualTo(match);

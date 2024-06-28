@@ -66,24 +66,25 @@ public class SearchTextFileExporter {
 
     private void addRow(SearchResultSummary entity, DownloadOptions downloadOptions, StringJoiner results) throws DownloadException {
         StringJoiner line = new StringJoiner(downloadOptions.getFormat().equals("csv") ? "," : "\t");
-        addItemToJoiner(line, entity.getIri());
-        addItemToJoiner(line ,entity.getName());
-        addItemToJoiner(line, entity.getCode());
-        addItemToJoiner(line, entity.getDescription());
-        addItemToJoiner(line, entity.getStatus());
-        addItemToJoiner(line, entity.getScheme());
-        addItemToJoiner(line, entity.getEntityType());
+        addItemToJoiner(line, entity.getIri(),false);
+        addItemToJoiner(line ,entity.getName(),false);
+        addItemToJoiner(line, entity.getCode(),false);
+        addItemToJoiner(line, entity.getDescription(), false);
+        addItemToJoiner(line, entity.getStatus(), false);
+        addItemToJoiner(line, entity.getScheme(), false);
+        addItemToJoiner(line, entity.getEntityType(), false);
         results.add(line.toString());
     }
 
-    private String iriToString(TTIriRef iri) {
-        return "\"{" + "iri:" + iri.getIri() + "," + "name:'" + iri.getName() + "'}\"";
+    private String iriToString(TTIriRef iri, boolean inArray) {
+        if (inArray) return "\"" + iri.getName() + "\"";
+        else return iri.getName();
     }
 
     private String arrayToString(List<?> list) throws DownloadException {
         StringJoiner stringJoiner = new StringJoiner(",");
         for (Object item : list) {
-            addItemToJoiner(stringJoiner, item);
+            addItemToJoiner(stringJoiner, item, list.size() > 1);
         }
         if (list.size() > 1) return "[" + stringJoiner.toString() + "]";
         return stringJoiner.toString();
@@ -92,16 +93,16 @@ public class SearchTextFileExporter {
     private String setToString(Set<?> set) throws DownloadException {
         StringJoiner stringJoiner = new StringJoiner(",");
         for (Object item : set) {
-            addItemToJoiner(stringJoiner, item);
+            addItemToJoiner(stringJoiner, item, set.size() > 1);
         }
         if (set.size() > 1) return "[" + stringJoiner.toString() + "]";
         return stringJoiner.toString();
     }
 
-    private void addItemToJoiner(StringJoiner stringJoiner, Object item) throws DownloadException {
+    private void addItemToJoiner(StringJoiner stringJoiner, Object item, boolean inArray) throws DownloadException {
         if (item instanceof String string) stringJoiner.add("\"" + string + "\"");
         else if (item instanceof Integer integer) stringJoiner.add(integer.toString());
-        else if (item instanceof TTIriRef ttIriRef) stringJoiner.add(iriToString(ttIriRef));
+        else if (item instanceof TTIriRef ttIriRef) stringJoiner.add(iriToString(ttIriRef, inArray  ));
         else if (item instanceof List<?> list) stringJoiner.add(arrayToString(list));
         else if (item instanceof Set<?> subSet) stringJoiner.add(setToString(subSet));
         else if (null==item) stringJoiner.add("");

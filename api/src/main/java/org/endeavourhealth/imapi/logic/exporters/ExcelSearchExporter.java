@@ -68,8 +68,9 @@ public class ExcelSearchExporter {
         }
     }
 
-    private String iriToString(TTIriRef iri) {
-        return "{" + "iri:" + iri.getIri() + "," + "name:'" + iri.getName() + "'}";
+    private String iriToString(TTIriRef iri, boolean inArray) {
+        if (inArray) return "\"" + iri.getName() + "\"";
+        else return iri.getName();
     }
 
     private void addSearchResultToWorkbook(SearchResultSummary entity, Sheet sheet) {
@@ -96,7 +97,7 @@ public class ExcelSearchExporter {
             intCell.setCellValue((Integer) value);
         } else if (value instanceof TTIriRef) {
             Cell ttIriRefCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.STRING);
-            ttIriRefCell.setCellValue(iriToString((TTIriRef) value));
+            ttIriRefCell.setCellValue(iriToString((TTIriRef) value,false));
         } else if (value instanceof ArrayList<?>) {
             Cell arrayCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.STRING);
             arrayCell.setCellValue(listToString((List<?>) value));
@@ -115,7 +116,7 @@ public class ExcelSearchExporter {
     private String listToString(List<?> list) {
         StringJoiner stringJoiner = new StringJoiner(",");
         for (Object item : list) {
-            addItemToJoiner(item, stringJoiner);
+            addItemToJoiner(item, stringJoiner, list.size() > 1);
         }
         if (list.size() > 1) return "[" + stringJoiner.toString() + "]";
         return stringJoiner.toString();
@@ -124,19 +125,19 @@ public class ExcelSearchExporter {
     private String setToString(Set<?> set) {
         StringJoiner stringJoiner = new StringJoiner(",");
         for (Object item : set) {
-            addItemToJoiner(item, stringJoiner);
+            addItemToJoiner(item, stringJoiner, set.size() > 1);
         }
         if (set.size() > 1) return "[" + stringJoiner.toString() + "]";
         return stringJoiner.toString();
     }
 
-    private void addItemToJoiner(Object item, StringJoiner stringJoiner) {
+    private void addItemToJoiner(Object item, StringJoiner stringJoiner, boolean inArray) {
         if (item instanceof String) stringJoiner.add((String) item);
         else if (item instanceof Integer) {
             Integer itemAsInteger = (Integer) item;
             stringJoiner.add(itemAsInteger.toString());
         } else if (item instanceof TTIriRef) {
-            stringJoiner.add(iriToString((TTIriRef) item));
+            stringJoiner.add(iriToString((TTIriRef) item, inArray));
         } else if (item instanceof ArrayList<?>) {
             stringJoiner.add(listToString((List<?>) item));
         } else if (item instanceof Set<?>) {

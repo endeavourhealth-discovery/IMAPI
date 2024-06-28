@@ -872,4 +872,28 @@ public class EntityRepository {
         }
         return linkedDMs;
     }
+
+    public List<TTIriRef> findDataModelsFromProperty(String propIri) {
+        List<TTIriRef> dmList = new ArrayList<>();
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            StringJoiner query = new StringJoiner(System.lineSeparator())
+                    .add("PREFIX sh: <http://www.w3.org/ns/shacl#>")
+                    .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+                    .add("SELECT ?dm ?dmName WHERE {")
+                    .add(" ?dm sh:property ?prop .")
+                    .add(" ?dm rdfs:label ?dmName .")
+                    .add(" ?prop sh:path ?propIri .")
+                    .add("}");
+            TupleQuery qry = conn.prepareTupleQuery(String.valueOf(query));
+            qry.setBinding("propIri", iri(propIri));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    dmList.add(new TTIriRef(bs.getValue("dm").stringValue(), bs.getValue("dmName").stringValue()));
+                }
+            }
+        }
+        return dmList;
+
+    }
 }

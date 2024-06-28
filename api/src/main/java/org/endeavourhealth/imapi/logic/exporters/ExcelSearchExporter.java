@@ -62,7 +62,7 @@ public class ExcelSearchExporter {
         Sheet sheet = workbook.getSheet("Search results");
         if (null == sheet) sheet = workbook.createSheet("Search results");
         addHeaders(sheet, headerStyle, "Iri" ,"Name", "Code", "Description", "Status", "Scheme", "Type");
-        setColumnWidths(sheet, List.of(5000, 10000, 20000, 20000, 10000, 10000, 10000));
+        setColumnWidths(sheet, List.of(10000, 20000, 5000, 20000, 5000, 10000, 10000));
         for (SearchResultSummary entity : entities) {
             addSearchResultToWorkbook(entity, sheet);
         }

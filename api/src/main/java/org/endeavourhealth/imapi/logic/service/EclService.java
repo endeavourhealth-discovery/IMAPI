@@ -79,7 +79,7 @@ public class EclService {
         return new IMQToECLBuilder().getEclBuilderFromQuery(query);
     }
 
-    public Query getQueryFromEclBuilder(BoolGroup boolGroup) {
+    public Query getQueryFromEclBuilder(BoolGroup boolGroup) throws EclBuilderException {
         Match match = new ECLBuilderToIMQ().getIMQFromEclBuilder(boolGroup);
         return new Query().addMatch(match);
     }

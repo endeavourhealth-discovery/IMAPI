@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.customexceptions.ErrorCodes;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.eclBuilder.EclBuilderException;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.*;
@@ -142,6 +143,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DownloadException.class)
     protected ResponseEntity<Object> handleDownloadException(DownloadException ex) {
         ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), ex, ErrorCodes.DOWNLOAD_EXCEPTION);
+        return buildResponseEntity(error);
+    }
+
+    @ExceptionHandler(EclBuilderException.class)
+    protected ResponseEntity<Object> handleEclBuilderException(EclBuilderException ex) {
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, ErrorCodes.ECL_BUILDER_EXCEPTION);
         return buildResponseEntity(error);
     }
 

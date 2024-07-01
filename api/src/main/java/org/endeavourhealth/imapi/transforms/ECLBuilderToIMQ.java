@@ -1,9 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.eclBuilder.BoolGroup;
-import org.endeavourhealth.imapi.model.eclBuilder.BuilderComponent;
-import org.endeavourhealth.imapi.model.eclBuilder.ExpressionConstraint;
-import org.endeavourhealth.imapi.model.eclBuilder.Refinement;
+import org.endeavourhealth.imapi.model.eclBuilder.*;
 import org.endeavourhealth.imapi.model.imq.Entailment;
 import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Node;
@@ -13,11 +10,11 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import java.util.ArrayList;
 
 public class ECLBuilderToIMQ {
-    public Match getIMQFromEclBuilder(BoolGroup boolGroup) {
+    public Match getIMQFromEclBuilder(BoolGroup boolGroup) throws EclBuilderException {
         return createRootMatch(boolGroup);
     }
 
-    private Match createRootMatch(BoolGroup boolGroup) {
+    private Match createRootMatch(BoolGroup boolGroup) throws EclBuilderException {
         Match match = new Match();
         if (null != boolGroup.getItems()) {
             if (null != boolGroup.getConjunction() && boolGroup.getItems().size() > 1) match.setBoolMatch(boolGroup.getConjunction());
@@ -43,7 +40,7 @@ public class ECLBuilderToIMQ {
         return match;
     }
 
-    private void processConcept(ExpressionConstraint expressionConstraint, Match match) {
+    private void processConcept(ExpressionConstraint expressionConstraint, Match match) throws EclBuilderException {
         if (null != expressionConstraint.getConceptSingle()) {
             Node node = new Node(expressionConstraint.getConceptSingle().getIri());
             setOperator(node,expressionConstraint.getConstraintOperator());
@@ -72,11 +69,11 @@ public class ECLBuilderToIMQ {
         }
     }
 
-    private void processRefinement(Refinement refinement, Match match,boolean roleGroup) {
+    private void processRefinement(Refinement refinement, Match match,boolean roleGroup) throws EclBuilderException {
         Where where = new Where();
         if (!roleGroup) where.setAnyRoleGroup(true);
+        if (null == refinement.getProperty().getConcept()) throw new EclBuilderException("Missing iri for property concept");
         where.setIri(refinement.getProperty().getConcept().getIri());
-        setOperator(where, refinement.getProperty().getConstraintOperator());
         Node value = new Node(refinement.getValue().getConcept().getIri());
         setOperator(value, refinement.getValue().getConstraintOperator());
         if (refinement.getOperator().equals("=")) {
@@ -84,13 +81,14 @@ public class ECLBuilderToIMQ {
         } else if (refinement.getOperator().equals("!=")) {
             where.addIsNot(value);
         }
+        setOperator(where, refinement.getProperty().getConstraintOperator());
         match.addWhere(where);
     }
 
-    private void processRefinement(Refinement refinement, Where where) {
+    private void processRefinement(Refinement refinement, Where where) throws EclBuilderException {
         Where subWhere = new Where();
+        if (null != refinement.getProperty().getConcept()) throw new EclBuilderException("Missing iri for property concept");
         subWhere.setIri(refinement.getProperty().getConcept().getIri());
-        setOperator(subWhere, refinement.getProperty().getConstraintOperator());
         Node value = new Node(refinement.getValue().getConcept().getIri());
         setOperator(value, refinement.getValue().getConstraintOperator());
         if (refinement.getOperator().equals("=")) {
@@ -98,10 +96,11 @@ public class ECLBuilderToIMQ {
         } else if (refinement.getOperator().equals("!=")) {
             subWhere.addIsNot(value);
         }
+        setOperator(subWhere, refinement.getProperty().getConstraintOperator());
         where.addWhere(subWhere);
     }
 
-    private void processBoolGroup(BoolGroup boolGroup, Match match) {
+    private void processBoolGroup(BoolGroup boolGroup, Match match) throws EclBuilderException {
         Match subMatch = new Match();
         if (null != boolGroup.getConjunction() && boolGroup.getItems().size() > 1) {
             subMatch.setBoolMatch(boolGroup.getConjunction());
@@ -120,7 +119,7 @@ public class ECLBuilderToIMQ {
         match.addMatch(subMatch);
     }
 
-    private void processRefinementBoolGroup(BoolGroup boolGroup, Match match) {
+    private void processRefinementBoolGroup(BoolGroup boolGroup, Match match) throws EclBuilderException {
         if (null != boolGroup.getAttributeGroup()) {
             Where attributeGroup = new Where();
             attributeGroup.setIri(IM.ROLE_GROUP);
@@ -147,7 +146,7 @@ public class ECLBuilderToIMQ {
         }
     }
 
-    private void processRefinementBoolGroup(BoolGroup boolGroup, Where where) {
+    private void processRefinementBoolGroup(BoolGroup boolGroup, Where where) throws EclBuilderException {
         if (null != boolGroup.getAttributeGroup()) {
             Where attributeGroup = new Where();
             attributeGroup.setIri(IM.ROLE_GROUP);

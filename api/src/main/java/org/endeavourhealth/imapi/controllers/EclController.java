@@ -134,7 +134,7 @@ public class EclController {
     @Operation(
         summary = "Get query from ecl builder component objects"
     )
-    public Query getQueryFromEclBuilder(@RequestBody BoolGroup boolGroup) throws IOException {
+    public Query getQueryFromEclBuilder(@RequestBody BoolGroup boolGroup) throws IOException, EclBuilderException {
         try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.QueryFromEclBuilder.POST")) {
             return eclService.getQueryFromEclBuilder(boolGroup);
         }

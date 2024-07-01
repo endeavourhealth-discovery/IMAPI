@@ -87,14 +87,15 @@ public class ECLBuilderToIMQ {
 
     private void processRefinement(Refinement refinement, Where where) throws EclBuilderException {
         Where subWhere = new Where();
-        if (null != refinement.getProperty().getConcept()) throw new EclBuilderException("Missing iri for property concept");
-        subWhere.setIri(refinement.getProperty().getConcept().getIri());
-        Node value = new Node(refinement.getValue().getConcept().getIri());
-        setOperator(value, refinement.getValue().getConstraintOperator());
-        if (refinement.getOperator().equals("=")) {
-            subWhere.addIs(value);
-        } else if (refinement.getOperator().equals("!=")) {
-            subWhere.addIsNot(value);
+        if (null != refinement.getProperty().getConcept() && null != refinement.getProperty().getConcept().getIri()) {
+            subWhere.setIri(refinement.getProperty().getConcept().getIri());
+            Node value = new Node(refinement.getValue().getConcept().getIri());
+            setOperator(value, refinement.getValue().getConstraintOperator());
+            if (refinement.getOperator().equals("=")) {
+                subWhere.addIs(value);
+            } else if (refinement.getOperator().equals("!=")) {
+                subWhere.addIsNot(value);
+            }
         }
         setOperator(subWhere, refinement.getProperty().getConstraintOperator());
         where.addWhere(subWhere);

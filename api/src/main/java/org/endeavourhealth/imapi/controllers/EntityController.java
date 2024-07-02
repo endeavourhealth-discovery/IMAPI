@@ -75,18 +75,6 @@ public class EntityController {
     private static final String FORCE_DOWNLOAD = "force-download";
     private static final String APPLICATION = "application";
 
-    @PostMapping(value = "/public/search")
-    @Operation(
-            summary = "Advanced entity search",
-            description = "Performs an advanced entity search with multiple filter options"
-    )
-    public SearchResponse advancedSearch(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Search.POST")) {
-            LOG.debug("advancedSearch");
-            return entityService.advancedSearch(request);
-        }
-    }
-
     @GetMapping(value = "/public/partial", produces = "application/json")
     public TTEntity getPartialEntity(
             @RequestParam(name = "iri") String iri,

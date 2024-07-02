@@ -3,15 +3,13 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.*;
 
 import org.endeavourhealth.imapi.model.iml.Page;
+import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
 import org.endeavourhealth.imapi.vocabulary.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"context","textSearch","argument","referenceDate","query","pathQuery","update"})
@@ -29,6 +27,7 @@ public class QueryRequest implements ContextMap {
 	private Update update;
 	private String referenceDate;
 	private String askIri;
+	private List<Map<Long, String>> timings = new ArrayList<>();
 
 
 
@@ -220,6 +219,19 @@ public class QueryRequest implements ContextMap {
 
 	public QueryRequest setAskIri(String askIri) {
 		this.askIri = askIri;
+		return this;
+	}
+
+	public QueryRequest setTimings(List<Map<Long,String>> timings) {
+		this.timings = timings;
+		return this;
+	}
+
+	public QueryRequest addTiming(String position){
+		long now = new Date().getTime();
+		Map<Long,String> timingMap= new HashMap<>();
+		timingMap.put(now,position);
+		timings.add(timingMap);
 		return this;
 	}
 }

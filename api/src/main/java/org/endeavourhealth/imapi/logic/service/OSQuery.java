@@ -18,6 +18,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -64,15 +65,15 @@ public class OSQuery {
      * @throws QueryException if problem with data format of query
      */
 
-    public SearchResponse multiPhaseQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    public SearchResponse multiPhaseQuery(QueryRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException, QueryException {
 
-        request.addTiming("Entry point for \"" + request.getTermFilter() + "\"");
+        request.addTiming("Entry point for \"" + request.getTextSearch() + "\"");
         SearchResponse results;
         results = defaultQuery(request);
         if (null != results) {
             return results;
         }
-        if (request.getTermFilter().contains(" ")) {
+        if (request.getTextSearch().contains(" ")) {
             results = wrapandRun(buildNGramQuery(request), request);
             if (null != results)
                 return results;
@@ -80,7 +81,7 @@ public class OSQuery {
 
         String corrected = spellingCorrection(request);
         if (corrected != null) {
-            request.setTermFilter(corrected);
+            request.setTextSearch(corrected);
             results = defaultQuery(request);
             if (null != results)
                 return results;
@@ -89,21 +90,18 @@ public class OSQuery {
         return results;
     }
 
-    private SearchResponse defaultQuery(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
-        int page = request.getPage();
-        int size = request.getSize();
-        request.setFrom(size * (page - 1));
-        String term = request.getTermFilter();
+    private SearchResponse defaultQuery(QueryRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException {
+        Page page = request.getPage();
+        String term = request.getTextSearch();
         if (null == term) {
             return boolQuery(request);
         }
         SearchResponse results;
-        if (page == 1 && term != null && (!term.contains(" "))) {
+        if (page.getPageNumber() == 1 && term != null && (!term.contains(" "))) {
             if (term.contains(":")) {
                 String namespace = EntityCache.getDefaultPrefixes().getNamespace(term.substring(0, term.indexOf(":")));
                 if (namespace != null)
-                    request.setTermFilter(namespace + term.split(":")[1]);
-                request.getSchemeFilter().clear();
+                    request.setTextSearch(namespace + term.split(":")[1]);
             }
         }
 
@@ -118,76 +116,26 @@ public class OSQuery {
         return multiWordQuery(request);
     }
 
-    private SearchResponse codeIriQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    private SearchResponse codeIriQuery(QueryRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
 
         QueryBuilder qry = buildCodeIriQuery(request);
         return wrapandRun(qry, request);
     }
 
 
-    private SearchResponse autoCompleteQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    private SearchResponse autoCompleteQuery(QueryRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException, QueryException {
         QueryBuilder qry = buildAutoCompleteQuery(request);
         hasScriptScore = true;
         return wrapandRun(qry, request);
     }
 
-    private Map<String, Object> getScript(SearchRequest request) throws JsonProcessingException {
-        if (request.getOrderBy() == null)
-            return null;
-        Map<String, Object> params = null;
-        for (OrderBy orderBy : request.getOrderBy()) {
-            if (orderBy.getAnd() != null || orderBy.getIriValue() != null || orderBy.isStartsWithTerm()) {
-                if (params == null) {
-                    params = new HashMap<>();
-                    params.put("term", request.getTermFilter().toLowerCase());
-                    Map<String, Object> ordersMap = new HashMap<>();
-                    params.put("orders", ordersMap);
-                    ordersMap.put("orderBy", new ArrayList<>());
-                }
-                Map<String, Object> ordersMap = (Map) params.get("orders");
-                Map<String, Object> orderByMap = new HashMap<>();
-                ((List) ordersMap.get("orderBy")).add(orderByMap);
-                orderByMap.put("field", orderBy.getField());
-                if (orderBy.getIriValue() != null) {
-                    orderByMap.put("iriValue", new ArrayList<>());
-                    for (TTIriRef iriValue : orderBy.getIriValue()) {
-                        ((List) orderByMap.get("iriValue")).add(iriValue.getIri());
-                    }
-                }
-                if (orderBy.getTextValue() != null) {
-                    orderByMap.put("textValue", new ArrayList<>());
-                    for (String textValue : orderBy.getTextValue()) {
-                        ((List) orderByMap.get("textValue")).add(textValue);
-                    }
-                }
-                if (orderBy.isStartsWithTerm()) {
-                    orderByMap.put("startsWithTerm", true);
-                }
-            }
-        }
-        return params;
-
-
-    }
-
-
-    private void setSorts(SearchRequest request, SearchSourceBuilder bld) {
-        if (request.getOrderBy() != null) {
-            for (OrderBy orderBy : request.getOrderBy()) {
-                if (orderBy.getDirection() != null) {
-                    bld.sort(orderBy.getField(), orderBy.getDirection() == Order.descending ? SortOrder.DESC : SortOrder.ASC);
-                }
-            }
-        }
-    }
-
-    private SearchResponse boolQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    private SearchResponse boolQuery(QueryRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException, QueryException {
         QueryBuilder qry = buildBoolQuery(request);
         return wrapandRun(qry, request);
     }
 
 
-    private SearchResponse multiWordQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    private SearchResponse multiWordQuery(QueryRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException, QueryException {
         QueryBuilder qry = buildMultiWordQuery(request);
         return wrapandRun(qry, request);
     }
@@ -201,113 +149,145 @@ public class OSQuery {
             return term.substring(0, 30);
     }
 
-    private BoolQueryBuilder buildCodeIriQuery(SearchRequest request) {
+    private BoolQueryBuilder buildCodeIriQuery(QueryRequest request) {
         BoolQueryBuilder boolBuilder = new BoolQueryBuilder();
-        String term = request.getTermFilter();
+        String term = request.getTextSearch();
         if (term.contains(":")) {
             String namespace = EntityCache.getDefaultPrefixes().getNamespace(term.substring(0, term.indexOf(":")));
             if (namespace != null)
-                request.setTermFilter(namespace + term.split(":")[1]);
+                request.setTextSearch(namespace + term.split(":")[1]);
         }
 
-        TermQueryBuilder tqb = new TermQueryBuilder("code", request.getTermFilter());
+        TermQueryBuilder tqb = new TermQueryBuilder("code", request.getTextSearch());
         boolBuilder.should(tqb);
-        TermQueryBuilder tqac = new TermQueryBuilder("alternativeCode", request.getTermFilter());
+        TermQueryBuilder tqac = new TermQueryBuilder("alternativeCode", request.getTextSearch());
         boolBuilder.should(tqac);
-        TermQueryBuilder tqiri = new TermQueryBuilder("iri", request.getTermFilter());
+        TermQueryBuilder tqiri = new TermQueryBuilder("iri", request.getTextSearch());
         boolBuilder.should(tqiri);
-        TermQueryBuilder tciri = new TermQueryBuilder("termCode.code", request.getTermFilter());
+        TermQueryBuilder tciri = new TermQueryBuilder("termCode.code", request.getTextSearch());
         boolBuilder.should(tciri);
 
         return boolBuilder;
     }
 
+    private QueryBuilder buildBoolQuery(QueryRequest request) throws QueryException {
+        BoolQueryBuilder boolQuery = new BoolQueryBuilder();
+        processMatches(request, boolQuery);
+        return boolQuery;
+    }
 
-    private void addFilters(BoolQueryBuilder qry, SearchRequest request) {
-        if (request.getFilter() != null) {
-            for (Filter filter : request.getFilter()) {
-                String field = filter.getField();
-                if (filter.getIriValue() != null) {
-                    TermsQueryBuilder tqr = new TermsQueryBuilder(field + ".@id",
-                            filter.getIriValue().stream().map(TTIriRef::getIri).collect(Collectors.toList()));
-                    qry.filter(tqr);
-                }
-                if (filter.getTextValue() != null) {
-                    TermsQueryBuilder tqr = new TermsQueryBuilder(field, filter.getTextValue());
-                    qry.filter(tqr);
-                }
-            }
-        }
-        if (!request.getSchemeFilter().isEmpty()) {
-            List<String> schemes = new ArrayList<>(request.getSchemeFilter());
-            TermsQueryBuilder tqr = new TermsQueryBuilder("scheme.@id", schemes);
-            qry.filter(tqr);
-        }
-        if (!request.getStatusFilter().isEmpty()) {
-            List<String> statuses = new ArrayList<>(request.getStatusFilter());
-            TermsQueryBuilder tqr = new TermsQueryBuilder("status.@id", statuses);
-            qry.filter(tqr);
-        }
-        if (!request.getTypeFilter().isEmpty()) {
-            List<String> types = new ArrayList<>(request.getTypeFilter());
-            TermsQueryBuilder tqr = new TermsQueryBuilder("entityType.@id", types);
-            qry.filter(tqr);
-        }
-        if (!request.getIsA().isEmpty()) {
-            List<String> isas = new ArrayList<>(request.getIsA());
-            TermsQueryBuilder tqr = new TermsQueryBuilder("isA.@id", isas);
-            qry.filter(tqr);
-        }
-        if (!request.getMemberOf().isEmpty()) {
-            List<String> memberOfs = new ArrayList<>(request.getMemberOf());
-            TermsQueryBuilder tqr = new TermsQueryBuilder("memberOf.@id", memberOfs);
-            qry.filter(tqr);
-        }
-        if (!request.getBindingFilter().isEmpty()) {
-            BoolQueryBuilder bqr = buildBindingBoolQuery(request.getBindingFilter());
-            qry.filter(bqr);
+    private void processMatches(QueryRequest queryRequest, BoolQueryBuilder boolQuery) throws QueryException {
+        if (null == queryRequest.getQuery().getMatch()) throw new QueryException("Query requires a match for OS conversion");
+        for (Match match : queryRequest.getQuery().getMatch()) {
+            processMatch(match, boolQuery, queryRequest);
         }
     }
 
-
-    private QueryBuilder buildBoolQuery(SearchRequest request) {
-        BoolQueryBuilder boolQuery = new BoolQueryBuilder();
-
-        if (!request.getSchemeFilter().isEmpty()) {
-            List<String> schemes = new ArrayList<>(request.getSchemeFilter());
-            boolQuery.must(new TermsQueryBuilder("scheme.@id", schemes));
+    private void processMatch(Match match, BoolQueryBuilder boolQueryBuilder, QueryRequest queryRequest) throws QueryException {
+        if (null != match.getTypeOf()) {
+            List<String> iris = listFromAlias(match.getTypeOf(), queryRequest);
+            if (iris == null || iris.isEmpty())
+                throw new QueryException("Failed to find query types");
+            boolQueryBuilder.must(new TermsQueryBuilder("entityType.@id", iris));
         }
-        if (!request.getStatusFilter().isEmpty()) {
-            List<String> statuses = new ArrayList<>(request.getStatusFilter());
-            boolQuery.must(new TermsQueryBuilder("status.@id", statuses));
+        if (null != match.getInstanceOf()) {
+            List<String> iris = listFromAlias(match.getInstanceOf(), queryRequest);
+            if (iris == null || iris.isEmpty())
+                throw new QueryException("Failed to find query isas");
+            boolQueryBuilder.must(new TermsQueryBuilder("isA.@id", iris));
         }
-        if (!request.getTypeFilter().isEmpty()) {
-            List<String> types = new ArrayList<>(request.getTypeFilter());
-            boolQuery.must(new TermsQueryBuilder("entityType.@id", types));
+        if (null != match.getWhere()) {
+            processProperties(match, boolQueryBuilder);
         }
-
-        if (!request.getIsA().isEmpty()) {
-            List<String> isas = new ArrayList<>(request.getIsA());
-            boolQuery.must(new TermsQueryBuilder("isA.@id", isas));
-        }
-
-        if (!request.getMemberOf().isEmpty()) {
-            List<String> memberOfs = new ArrayList<>(request.getMemberOf());
-            boolQuery.must(new TermsQueryBuilder("memberOf.@id", memberOfs));
-        }
-
-        if (!request.getBindingFilter().isEmpty()) {
-            for (SearchBinding binding : request.getBindingFilter()) {
-                BoolQueryBuilder inner = new BoolQueryBuilder();
-                inner.must(new TermsQueryBuilder("binding.node.@id", binding.getNode().getIri()));
-                inner.must(new TermsQueryBuilder("binding.path.@id", binding.getPath().getIri()));
-                boolQuery.must(inner);
+        if (null != match.getMatch()) {
+            if (match.getBoolMatch() != Bool.or) throw new QueryException("Match must be Bool.or");
+            for (Match subMatch : match.getMatch()) {
+                processMatch(subMatch, boolQueryBuilder, queryRequest);
             }
         }
+    }
 
+    private void processProperties(Match match, BoolQueryBuilder boolQueryBuilder) throws QueryException {
+        for (Where where : match.getWhere()) {
+            if (IM.HAS_SCHEME.equals(where.getIri())) {
+                processSchemeProperty(boolQueryBuilder, where);
+            } else if (IM.HAS_MEMBER.equals(where.getIri()) && where.isInverse()) {
+                processMemberProperty(boolQueryBuilder, where);
+            } else if (IM.HAS_STATUS.equals(where.getIri())) {
+                processStatusProperty(boolQueryBuilder, where);
+            } else if (RDF.TYPE.equals(where.getIri())) {
+                processTypeProperty(boolQueryBuilder, where);
+            } else if (IM.BINDING.equals(where.getIri())) {
+                processBindingProperty(boolQueryBuilder, where);
+            }else if (IM.IS_A.equals(where.getIri())) {
+                processIsAProperty(boolQueryBuilder, where);
+            }  else {
+                throw new QueryException("Unexpected where encountered: " + where.getIri());
+            }
+        }
+    }
 
+    private static void processSchemeProperty(BoolQueryBuilder boolQueryBuilder, Where w) throws QueryException {
+        if (w.getIs() != null && !w.getIs().isEmpty()) {
+            List<String> schemes = w.getIs().stream().map(Node::getIri).collect(Collectors.toList());
+            boolQueryBuilder.must(new TermsQueryBuilder("scheme.@id", schemes));
+        } else
+            throw new QueryException("Scheme filter must be a list (is)");
+    }
 
-        return boolQuery;
+    private static void processMemberProperty(BoolQueryBuilder boolQueryBuilder, Where w) throws QueryException {
+        if (w.getIs() != null && !w.getIs().isEmpty()) {
+            List<String> memberOfs = w.getIs().stream().map(Node::getIri).collect(Collectors.toList());
+            boolQueryBuilder.must(new TermsQueryBuilder("memberOf.@id", memberOfs));
+        } else
+            throw new QueryException("Set membership filter must be a list (is)");
+    }
+
+    private static void processStatusProperty(BoolQueryBuilder boolQueryBuilder, Where w) throws QueryException {
+        if (w.getIs() != null && !w.getIs().isEmpty()) {
+            List<String> statuses = w.getIs().stream().map(Node::getIri).collect(Collectors.toList());
+            boolQueryBuilder.must(new TermsQueryBuilder("status.@id", statuses));
+        } else
+            throw new QueryException("Status filter must be a list (is)");
+    }
+
+    private static void processTypeProperty(BoolQueryBuilder boolQueryBuilder, Where w) throws QueryException {
+        if (w.getIs() != null && !w.getIs().isEmpty()) {
+            List<String> types = w.getIs().stream().map(Node::getIri).collect(Collectors.toList());
+            boolQueryBuilder.must(new TermsQueryBuilder("entityType.@id", types));
+        } else
+            throw new QueryException("Type filter must be a list (is)");
+    }
+
+    private static void processBindingProperty(BoolQueryBuilder boolQueryBuilder, Where w) throws QueryException {
+        if (null != w.getMatch() && null != w.getMatch().getWhere() && !w.getMatch().getWhere().isEmpty()) {
+            Optional<Where> path = w.getMatch().getWhere().stream().filter(nestedWhere -> SHACL.PATH.equals(nestedWhere.getIri())).findFirst();
+            Optional<Where> node = w.getMatch().getWhere().stream().filter(nestedWhere -> SHACL.NODE.equals(nestedWhere.getIri())).findFirst();
+            if (path.isPresent() && null != path.get().getIs() && !path.get().getIs().isEmpty() && node.isPresent() && null != node.get().getIs() && !node.get().getIs().isEmpty()) {
+                Optional<Node> pathNode = path.get().getIs().stream().findFirst();
+                Optional<Node> nodeNode = node.get().getIs().stream().findFirst();
+                if (pathNode.isPresent() && nodeNode.isPresent()) {
+                    List<SearchBinding> bindingFilter = new ArrayList<>();
+                    bindingFilter.add(new SearchBinding().setNode(new TTIriRef(nodeNode.get().getIri())).setPath(new TTIriRef(pathNode.get().getIri())));
+                    for (SearchBinding binding : bindingFilter) {
+                        BoolQueryBuilder inner = new BoolQueryBuilder();
+                        inner.must(new TermsQueryBuilder("binding.node.@id", binding.getNode().getIri()));
+                        inner.must(new TermsQueryBuilder("binding.path.@id", binding.getPath().getIri()));
+                        boolQueryBuilder.must(inner);
+                    }
+                }
+            }
+        } else
+            throw new QueryException("Binding must have a path and a node");
+    }
+
+    private static void processIsAProperty(BoolQueryBuilder boolQueryBuilder, Where w) throws QueryException {
+        if (w.getIs() != null && !w.getIs().isEmpty()) {
+            List<String> isas = w.getIs().stream().map(Node::getIri).collect(Collectors.toList());
+            boolQueryBuilder.must(new TermsQueryBuilder("isA.@id", isas));
+        } else
+            throw new QueryException("Is a filter must be a list (is)");
+
     }
 
     private BoolQueryBuilder buildBindingBoolQuery(List<SearchBinding> bindings) {
@@ -325,12 +305,12 @@ public class OSQuery {
     }
 
 
-    private QueryBuilder buildAutoCompleteQuery(SearchRequest request) {
-        String requestTerm = getMatchTerm(request.getTermFilter());
+    private QueryBuilder buildAutoCompleteQuery(QueryRequest request) throws QueryException {
+        String requestTerm = getMatchTerm(request.getTextSearch());
         BoolQueryBuilder boolQuery;
-        if (request.getPage() == 1 && !requestTerm.contains(" ")) {
+        if (request.getPage().getPageNumber() == 1 && !requestTerm.contains(" ")) {
             boolQuery = buildCodeIriQuery(request);
-            PrefixQueryBuilder pqb = new PrefixQueryBuilder("key", request.getTermFilter());
+            PrefixQueryBuilder pqb = new PrefixQueryBuilder("key", request.getTextSearch());
             boolQuery.should(pqb);
         } else
             boolQuery = new BoolQueryBuilder();
@@ -344,50 +324,43 @@ public class OSQuery {
                 .slop(1);
         boolQuery.should(mpt);
         boolQuery.minimumShouldMatch(1);
-        addFilters(boolQuery, request);
+        processMatches(request, boolQuery);
 
         return boolQuery;
 
     }
 
-    private void addDefaultSorts(SearchRequest request) {
-        request.orderBy(o -> o.setField("name").setStartsWithTerm(true));
-        request.orderBy(o -> o.setField("preferredName").setStartsWithTerm(true));
-        request.orderBy(o -> o
-                .setField("subsumptionCount")
-                .setDirection(Order.descending));
-        request.orderBy(o -> o
-          .setField("usageTotal")
-          .setDirection(Order.descending));
-        request.orderBy(o -> o
-                .setField("length")
-                .setDirection(Order.ascending));
-        ;
+    private void addDefaultSorts(SearchSourceBuilder bld) {
+//        bld.sort("name");
+//        bld.sort("preferredName");
+        bld.sort("subsumptionCount",SortOrder.DESC);
+        bld.sort("usageTotal", SortOrder.DESC);
+        bld.sort("length",SortOrder.ASC);
     }
 
 
-    private QueryBuilder buildNGramQuery(SearchRequest request) {
-        String requestTerm = getMatchTerm(request.getTermFilter());
+    private QueryBuilder buildNGramQuery(QueryRequest request) throws QueryException {
+        String requestTerm = getMatchTerm(request.getTextSearch());
         BoolQueryBuilder boolQuery = new BoolQueryBuilder();
         MatchQueryBuilder mat = new MatchQueryBuilder(TERM_CODE_TERM, requestTerm);
         mat.analyzer("standard");
         mat.operator(Operator.AND);
         mat.fuzziness(Fuzziness.TWO);
         boolQuery.must(mat);
-        addFilters(boolQuery, request);
+        processMatches(request, boolQuery);
         return boolQuery;
 
     }
 
-    private QueryBuilder buildMultiWordQuery(SearchRequest request) {
+    private QueryBuilder buildMultiWordQuery(QueryRequest request) throws QueryException {
         BoolQueryBuilder qry = new BoolQueryBuilder();
-        MatchPhrasePrefixQueryBuilder pqry = new MatchPhrasePrefixQueryBuilder(TERM_CODE_TERM, request.getTermFilter());
+        MatchPhrasePrefixQueryBuilder pqry = new MatchPhrasePrefixQueryBuilder(TERM_CODE_TERM, request.getTextSearch());
         pqry.analyzer("standard");
         qry.should(pqry);
         BoolQueryBuilder wqry = new BoolQueryBuilder();
         qry.should(wqry);
         int wordPos = 0;
-        for (String term : request.getTermFilter().split(" ")) {
+        for (String term : request.getTextSearch().split(" ")) {
             wordPos++;
             MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder(TERM_CODE_TERM, term);
             mfs.boost(wordPos == 1 ? 4 : 1);
@@ -395,12 +368,12 @@ public class OSQuery {
             wqry.must(mfs);
         }
         qry.minimumShouldMatch(1);
-        addFilters(qry, request);
+        processMatches(request, qry);
         return qry;
 
     }
 
-    private SearchResponse wrapandRun(QueryBuilder query, SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+    private SearchResponse wrapandRun(QueryBuilder query, QueryRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         SearchResponse response = wrapandRun(query, request, false);
         SearchResponse highestUsageResponse = wrapandRun(query, request, true);
         if (!highestUsageResponse.getEntities().isEmpty())
@@ -408,26 +381,13 @@ public class OSQuery {
         return response;
     }
 
-    private SearchResponse wrapandRun(QueryBuilder query, SearchRequest request, boolean highestUsage) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    private SearchResponse wrapandRun(QueryBuilder query, QueryRequest request, boolean highestUsage) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         SearchSourceBuilder bld = new SearchSourceBuilder();
-        if (hasScriptScore) {
-            Map<String, Object> params = getScript(request);
-            if (params != null) {
-                Script script = new Script(ScriptType.STORED, null, "orderBy", params);
-                ScriptScoreQueryBuilder sqr = QueryBuilders.scriptScoreQuery(query, script);
-                bld.query(sqr);
-            } else
-                bld.query(query);
-        } else
-            bld.query(query);
-            addDefaultSorts(request);
-        if (!highestUsage) setSorts(request, bld);
+        bld.query(query);
+        if (!highestUsage) addDefaultSorts(bld);
         else bld.sort("usageTotal", SortOrder.DESC);
-        if (request.getIndex() == null)
-            request.setIndex("concept");
-
-        int size = request.getSize();
-        int from = request.getFrom();
+        int size = request.getPage().getPageSize();
+        int from = request.getPage().getPageSize() * (request.getPage().getPageNumber() - 1);
         if (highestUsage) {
             size = 1;
             from = 0;
@@ -437,12 +397,8 @@ public class OSQuery {
 
         List<String> defaultFields = new ArrayList<>(Arrays.asList("iri", "name", "code", "alternativeCode", termCode, "entityType", STATUS, SCHEME, USAGE_TOTAL, "preferredName"));
         Set<String> fields = new HashSet<>(defaultFields);
-        if (!request.getSelect().isEmpty()) {
-            fields.addAll(request.getSelect());
-        }
         String[] sources = fields.toArray(String[]::new);
         bld.fetchSource(sources, null);
-
         try {
             return runQuery(request, bld);
         } catch (InterruptedException ie) {
@@ -452,7 +408,7 @@ public class OSQuery {
     }
 
 
-    public SearchResponse runQuery(SearchRequest request, SearchSourceBuilder bld) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+    public SearchResponse runQuery(QueryRequest request, SearchSourceBuilder bld) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         request.addTiming("About to run query");
 
         String queryJson = bld.toString();
@@ -468,15 +424,12 @@ public class OSQuery {
 
     }
 
-    private HttpResponse<String> getQueryResponse(SearchRequest request, String queryJson) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
+    private HttpResponse<String> getQueryResponse(QueryRequest request, String queryJson) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
         String url = System.getenv("OPENSEARCH_URL");
         if (url == null)
             throw new OpenSearchException("Environmental variable OPENSEARCH_URL is not set");
 
-
-        String index = request.getIndex();
-        if (index == null)
-            index = System.getenv("OPENSEARCH_INDEX");
+        String index = System.getenv("OPENSEARCH_INDEX");
 
         if (System.getenv("OPENSEARCH_AUTH") == null)
             throw new OpenSearchException("Environmental variable OPENSEARCH_AUTH token is not set");
@@ -541,7 +494,7 @@ public class OSQuery {
         }
     }
 
-    private SearchResponse standardResponse(SearchRequest request, JsonNode root, CachedObjectMapper resultMapper, SearchResponse searchResults) throws JsonProcessingException {
+    private SearchResponse standardResponse(QueryRequest request, JsonNode root, CachedObjectMapper resultMapper, SearchResponse searchResults) throws JsonProcessingException {
         int resultNumber = 0;
         for (JsonNode hit : root.get("hits").get("hits")) {
             resultNumber++;
@@ -552,19 +505,19 @@ public class OSQuery {
                 source.setName(source.getPreferredName());
                 source.setMatch(source.getName());
             }
-            if (resultNumber < 6 && null != request.getTermFilter()) {
-                fetchMatchTerm(source, request.getTermFilter());
+            if (resultNumber < 6 && null != request.getTextSearch()) {
+                fetchMatchTerm(source, request.getTextSearch());
             }
             source.setTermCode(null);
         }
         Integer totalCount = resultMapper.treeToValue(root.get("hits").get("total").get("value"), Integer.class);
         if (null != totalCount) searchResults.setCount(totalCount);
-        if (request.getPage() != 0) searchResults.setPage(request.getPage());
+        if (request.getPage().getPageNumber() != 0) searchResults.setPage(request.getPage().getPageNumber());
         //Sort now donw in query
         // if (!searchResults.isEmpty() && null != request.getTermFilter())
         //   sort(searchResults, request.getTermFilter());
         request.addTiming("Results List built");
-        if (null != request.getTermFilter()) searchResults.setTerm(request.getTermFilter());
+        if (null != request.getTextSearch()) searchResults.setTerm(request.getTextSearch());
         return searchResults;
     }
 
@@ -614,10 +567,7 @@ public class OSQuery {
             }
         }
 
-        SearchRequest searchRequest = queryRequestToSearchRequest(queryRequest);
-        if (searchRequest == null)
-            return null;
-        SearchResponse results = multiPhaseQuery(searchRequest);
+        SearchResponse results = multiPhaseQuery(queryRequest);
         if (results.getEntities().isEmpty())
             return null;
         else
@@ -745,170 +695,6 @@ public class OSQuery {
         return arrayNode;
     }
 
-
-    private SearchRequest queryRequestToSearchRequest(QueryRequest imRequest) throws QueryException {
-
-        SearchRequest request = new SearchRequest();
-        if (imRequest.getPage() != null) {
-            request.setPage(imRequest.getPage().getPageNumber());
-            request.setSize(imRequest.getPage().getPageSize());
-        }
-        request.setTermFilter(imRequest.getTextSearch());
-
-        Query query = imRequest.getQuery();
-        if (query != null) {
-            if (!processMatches(request, query, imRequest))
-                return null;
-            if (query.isActiveOnly()) {
-                if (request.getStatusFilter().isEmpty()) request.setStatusFilter(List.of(IM.ACTIVE));
-            }
-            processSelects(request, query);
-        }
-
-        request.addSelect("iri");
-        request.addSelect("name");
-
-        return request;
-    }
-
-    private void processSelects(SearchRequest request, Query query) {
-        if (query.getReturn() != null) {
-            query.getReturn().stream()
-                    .map(Return::getProperty)
-                    .flatMap(Collection::stream)
-                    .forEach(prop -> {
-                        if (prop.getIri() != null) {
-                            if (prop.getIri().equals(RDFS.COMMENT)) request.addSelect("description");
-                            else if (prop.getIri().equals(IM.CODE)) request.addSelect("code");
-                            else if (prop.getIri().equals(IM.HAS_STATUS)) request.addSelect(STATUS);
-                            else if (prop.getIri().equals(IM.ALTERNATIVE_CODE)) request.addSelect("alternativeCode");
-                            else if (prop.getIri().equals(IM.HAS_SCHEME)) request.addSelect(SCHEME);
-                            else if (prop.getIri().equals(RDF.TYPE)) request.addSelect("entityType");
-                            else if (prop.getIri().equals(IM.USAGE_TOTAL)) request.addSelect(USAGE_TOTAL);
-                        }
-                    });
-        }
-    }
-
-    private static boolean processMatches(SearchRequest request, Query query, QueryRequest imRequest) throws QueryException {
-        if (query.getMatch() == null)
-            return true;
-
-        for (Match match : query.getMatch()) {
-            if (!processMatch(request, match, imRequest))
-                return false;
-        }
-        return true;
-    }
-
-    private static boolean processMatch(SearchRequest request, Match match, QueryRequest imRequest) throws QueryException {
-        if (match.getTypeOf() != null) {
-            List<String> iris = listFromAlias(match.getTypeOf(), imRequest);
-            if (iris == null || iris.isEmpty())
-                return false;
-
-            request.getTypeFilter().addAll(iris);
-        }
-
-        if (match.getInstanceOf() != null) {
-            List<String> iris = listFromAlias(match.getInstanceOf(), imRequest);
-            if (iris == null || iris.isEmpty())
-                return false;
-
-            request.getIsA().addAll(iris);
-        }
-
-        if (match.getWhere() != null && !processProperties(request, match))
-            return false;
-
-        if (match.getMatch() != null) {
-            if (match.getBoolMatch() != Bool.or)
-                return false;
-
-            for (Match subMatch : match.getMatch()) {
-                if (!processMatch(request, subMatch, imRequest))
-                    return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static boolean processProperties(SearchRequest request, Match match) throws QueryException {
-        for (Where w : match.getWhere()) {
-            if (IM.HAS_SCHEME.equals(w.getIri())) {
-                processSchemeProperty(request, w);
-            } else if (IM.HAS_MEMBER.equals(w.getIri()) && w.isInverse()) {
-                processMemberProperty(request, w);
-            } else if (IM.HAS_STATUS.equals(w.getIri())) {
-                processStatusProperty(request, w);
-            } else if (RDF.TYPE.equals(w.getIri())) {
-                processTypeProperty(request, w);
-            } else if (IM.BINDING.equals(w.getIri())) {
-                processBindingProperty(request, w);
-            }else if (IM.IS_A.equals(w.getIri())) {
-                processIsAProperty(request, w);
-            }  else {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static void processSchemeProperty(SearchRequest request, Where w) throws QueryException {
-        if (w.getIs() != null && !w.getIs().isEmpty())
-            request.setSchemeFilter(w.getIs().stream().map(Node::getIri).collect(Collectors.toList()));
-        else
-            throw new QueryException("Scheme filter must be a list (is)");
-    }
-
-    private static void processMemberProperty(SearchRequest request, Where w) throws QueryException {
-        if (w.getIs() != null && !w.getIs().isEmpty())
-            request.setMemberOf(w.getIs().stream().map(Node::getIri).collect(Collectors.toList()));
-        else
-            throw new QueryException("Set membership filter must be a list (is)");
-    }
-
-    private static void processStatusProperty(SearchRequest request, Where w) throws QueryException {
-        if (w.getIs() != null && !w.getIs().isEmpty())
-            request.setStatusFilter(w.getIs().stream().map(Node::getIri).collect(Collectors.toList()));
-        else
-            throw new QueryException("Status filter must be a list (is)");
-    }
-
-    private static void processTypeProperty(SearchRequest request, Where w) throws QueryException {
-        if (w.getIs() != null && !w.getIs().isEmpty())
-            request.setTypeFilter(w.getIs().stream().map(Node::getIri).collect(Collectors.toList()));
-        else
-            throw new QueryException("Status filter must be a list (is)");
-    }
-
-    private static void processBindingProperty(SearchRequest request, Where w) throws QueryException {
-        if (null != w.getMatch() && null != w.getMatch().getWhere() && !w.getMatch().getWhere().isEmpty()) {
-            Optional<Where> path = w.getMatch().getWhere().stream().filter(nestedWhere -> SHACL.PATH.equals(nestedWhere.getIri())).findFirst();
-            Optional<Where> node = w.getMatch().getWhere().stream().filter(nestedWhere -> SHACL.NODE.equals(nestedWhere.getIri())).findFirst();
-            if (path.isPresent() && null != path.get().getIs() && !path.get().getIs().isEmpty() && node.isPresent() && null != node.get().getIs() && !node.get().getIs().isEmpty()) {
-                Optional<Node> pathNode = path.get().getIs().stream().findFirst();
-                Optional<Node> nodeNode = node.get().getIs().stream().findFirst();
-                if (pathNode.isPresent() && nodeNode.isPresent()) {
-                    List<SearchBinding> bindingFilter = new ArrayList<>();
-                    bindingFilter.add(new SearchBinding().setNode(new TTIriRef(nodeNode.get().getIri())).setPath(new TTIriRef(pathNode.get().getIri())));
-                    request.setBindingFilter(bindingFilter);
-                }
-            }
-        } else
-            throw new QueryException("Binding must have a path and a node");
-    }
-
-    private static void processIsAProperty(SearchRequest request, Where w) throws QueryException {
-        if (w.getIs() != null && !w.getIs().isEmpty())
-            request.setIsA(w.getIs().stream().map(Node::getIri).collect(Collectors.toList()));
-        else
-            throw new QueryException("Is a filter must be a list (is)");
-
-    }
-
     private static List<String> listFromAlias(Node type, QueryRequest queryRequest) throws QueryException {
         if (type.getParameter() == null) {
             return List.of(type.getIri());
@@ -936,8 +722,8 @@ public class OSQuery {
             throw new QueryException("Query has a query variable but request has no arguments set");
     }
 
-    private String spellingCorrection(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
-        String oldTerm = request.getTermFilter();
+    private String spellingCorrection(QueryRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+        String oldTerm = request.getTextSearch();
         String newTerm = null;
         String suggestor = "{\n" +
                 "  \"suggest\": {\n" +

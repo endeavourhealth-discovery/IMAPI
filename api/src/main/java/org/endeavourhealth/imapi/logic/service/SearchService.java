@@ -127,16 +127,6 @@ public class SearchService {
 				throw new DataFormatException("Query request must have a Query or an Query object with an iri or a pathQuery");
 	}
 
-    /**
-     * Performs a search on a submitted term looking for name, synonyms, or code, with filters applied
-     * @param request holding the search term (multi or single word) + type/status/scheme filters
-     * @return A set of Summaries of entity documents from the store
-     *
-     */
-	public SearchResponse getEntitiesByTerm(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
-		return new OSQuery().multiPhaseQuery(request);
-	}
-
 }
 
 

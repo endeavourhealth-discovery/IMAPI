@@ -283,12 +283,6 @@ public class EntityService {
         return entityTripleRepository.getConceptUsagesCount(iri);
     }
 
-    public SearchResponse advancedSearch(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
-        SearchResponse searchResults = searchService.getEntitiesByTerm(request);
-        searchResults.setPage(request.getPage());
-        return searchResults;
-    }
-
     public ExportSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit, boolean withHyperlinks) {
         return getValueSetMembers(iri, expandMembers, expandSets, limit, withHyperlinks, null, iri);
     }

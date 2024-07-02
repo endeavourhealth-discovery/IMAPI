@@ -36,34 +36,6 @@ class SearchServiceTest {
 	private String testResults;
 	private String succinctDefinitions;
 
-	//@Test
-	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, IOException {
-		testDefinitions = System.getenv("folder") + "\\Definitions";
-		testResults = System.getenv("folder") + "\\Results";
-	 Date startTime = new Date();
-	 int count=0;
-		 for (String input : List.of("Systolic bloo")) {
-			 count++;
-			 SearchRequest request = TestQueries.observationConcepts(input);
-			 output(request, "observation entities starting with Systolic bl", true);
-			 Long start=null;
-			 for (Map<Long,String> entries: request.getTimings()){
-				 for (Map.Entry<Long,String> entry:entries.entrySet()){
-					 if (start==null){
-						 System.out.println("0 "+ entry.getValue());
-						 start= entry.getKey();
-					 }
-					 else {
-						 System.out.println(entry.getKey() - start + " " + entry.getValue());
-					 }
-				 }
-			 }
-		 }
-	 Date endTime = new Date();
-	 System.out.println("average = "+ ((endTime.getTime()-startTime.getTime())/count)+" milliseconds");
-
-
-	}
 //@Test
 	void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
 		testDefinitions = System.getenv("folder") + "\\Definitions";
@@ -124,21 +96,6 @@ class SearchServiceTest {
 			throw new RuntimeException(e);
 		}
 	}
-
-	private void output(SearchRequest request,String name,boolean write) throws IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
-
-		SearchService ss = new SearchService();
-		SearchResponse results = ss.getEntitiesByTerm(request);
-		if (write) {
-			try (FileWriter wr = new FileWriter(testDefinitions + "\\" + name + "_definition.json")) {
-				wr.write(new ObjectMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(request));
-			}
-			System.out.println("Found "+ results.getEntities().size()+" entities" );
-
-		}
-
-	}
-
 
 	private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
 		String name = null;

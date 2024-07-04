@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"node","variable","iri","name","function","as"})
@@ -24,7 +26,41 @@ public class ReturnProperty {
 	private TTIriRef dataType;
 	private Case casex;
 	private String description;
+	private List<Match> match;
+	private Bool boolMatch;
 
+	public List<Match> getMatch() {
+		return match;
+	}
+
+	public ReturnProperty setMatch(List<Match> match) {
+		this.match = match;
+		return this;
+	}
+	public ReturnProperty addMatch (Match match){
+			if (this.match == null) {
+				this.match = new ArrayList<>();
+			}
+			this.match.add(match);
+			return this;
+		}
+
+	public ReturnProperty match (Consumer < Match > builder) {
+			Match match = new Match();
+			addMatch(match);
+			builder.accept(match);
+			return this;
+		}
+
+
+	public Bool getBoolMatch() {
+		return boolMatch;
+	}
+
+	public ReturnProperty setBoolMatch(Bool boolMatch) {
+		this.boolMatch = boolMatch;
+		return this;
+	}
 
 	@JsonProperty("case")
 	public Case getCase() {

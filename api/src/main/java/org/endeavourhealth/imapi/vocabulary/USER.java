@@ -6,7 +6,10 @@ public class USER {
     public static final String DOMAIN = "http://endhealth.info/";
     public static final String NAMESPACE = USER.DOMAIN + "user#";
     public static final String PREFIX = "usr";
-    public static final String USER_THEME = USER.DOMAIN + "UserTheme";
+    public static final String USER_PRESET = USER.DOMAIN + "UserPreset";
+    public static final String USER_PRIMARY_COLOR = USER.DOMAIN + "UserPrimaryColor";
+    public static final String USER_SURFACE_COLOR = USER.DOMAIN + "UserSurfaceColor";
+    public static final String USER_DARK_MODE = USER.DOMAIN + "UserDarkMode";
     public static final String USER_SCALE = USER.DOMAIN + "UserScale";
     public static final String USER_MRU = USER.DOMAIN + "UserMRU";
     public static final String USER_FAVOURITES = USER.DOMAIN + "UserFavourites";

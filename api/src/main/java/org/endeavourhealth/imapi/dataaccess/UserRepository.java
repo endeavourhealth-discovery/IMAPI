@@ -43,31 +43,13 @@ public class UserRepository {
         return sparql.toString();
     }
 
-    public String getUserTheme(String user) {
+    public String getByPredicate(String user, String predicate) {
         String result = "";
         String sparql = getSparqlSelect();
         try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
             TupleQuery qry = prepareSparql(conn, sparql);
             qry.setBinding("s", iri(USER.NAMESPACE + user));
-            qry.setBinding("p", iri(USER.USER_THEME));
-
-            try (TupleQueryResult rs = qry.evaluate()) {
-                if (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    result = bs.getValue("o").stringValue();
-                }
-            }
-        }
-        return result;
-    }
-
-    public String getUserScale(String user) {
-        String result = "";
-        String sparql = getSparqlSelect();
-        try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-            TupleQuery qry = prepareSparql(conn, sparql);
-            qry.setBinding("s", iri(USER.NAMESPACE + user));
-            qry.setBinding("p", iri(USER.USER_SCALE));
+            qry.setBinding("p", iri(predicate));
 
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
@@ -160,9 +142,9 @@ public class UserRepository {
         insert(user, USER.USER_FAVOURITES, favourites);
     }
 
-    public void updateUserTheme(String user, String theme) throws JsonProcessingException {
-        delete(user, USER.USER_THEME);
-        insert(user, USER.USER_THEME, theme);
+    public void updateByPredicate(String user, String data, String predicate) throws JsonProcessingException {
+        delete(user, predicate);
+        insert(user, predicate, data);
     }
 
     public void updateUserScale(String user, String scale) throws JsonProcessingException {

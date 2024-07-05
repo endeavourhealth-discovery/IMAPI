@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.UserService;
+import org.endeavourhealth.imapi.model.dto.BooleanBody;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
 import org.endeavourhealth.imapi.model.dto.ScaleDto;
 import org.endeavourhealth.imapi.model.dto.ThemeDto;
@@ -32,22 +33,79 @@ public class UserController {
     private final UserService userService = new UserService();
     private final RequestObjectService requestObjectService = new RequestObjectService();
 
-    @GetMapping(value = "/theme", produces = "application/json")
-    public String getUserTheme(HttpServletRequest request) throws IOException {
+    @GetMapping(value = "/preset")
+    public String getUserPreset(HttpServletRequest request) throws IOException {
         try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
-            LOG.debug("getUserTheme");
+            LOG.debug("getUserPreset");
             String userId = requestObjectService.getRequestAgentId(request);
-            return userService.getUserTheme(userId);
+            return userService.getUserPreset(userId);
         }
     }
 
-    @PostMapping(value = "/theme", produces = "application/json")
+    @PostMapping(value = "/preset", consumes = "application/x-www-form-urlencoded")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void updateUserTheme(HttpServletRequest request, @RequestBody ThemeDto themeDto) throws IOException {
+    public void updateUserPreset(HttpServletRequest request, @RequestBody String preset) throws IOException {
         try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
-            LOG.debug("updateUserTheme");
+            LOG.debug("updateUserPreset");
             String userId = requestObjectService.getRequestAgentId(request);
-            userService.updateUserTheme(userId, themeDto.getThemeValue());
+            userService.updateUserPreset(userId, preset);
+        }
+    }
+
+    @GetMapping(value = "/primaryColor")
+    public String getUserPrimaryColor(HttpServletRequest request) throws IOException {
+        try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
+            LOG.debug("getUserPrimaryColor");
+            String userId = requestObjectService.getRequestAgentId(request);
+            return userService.getUserPrimaryColor(userId);
+        }
+    }
+
+    @PostMapping(value = "/primaryColor", consumes = "application/x-www-form-urlencoded")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateUserPriaryColor(HttpServletRequest request, @RequestBody String color) throws IOException {
+        try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
+            LOG.debug("updateUserPrimaryColor");
+            String userId = requestObjectService.getRequestAgentId(request);
+            userService.updateUserPrimaryColor(userId, color);
+        }
+    }
+
+    @GetMapping(value = "/surfaceColor")
+    public String getUserSurfaceColor(HttpServletRequest request) throws IOException {
+        try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
+            LOG.debug("getUserSurfaceColor");
+            String userId = requestObjectService.getRequestAgentId(request);
+            return userService.getUserSurfaceColor(userId);
+        }
+    }
+
+    @PostMapping(value = "/surfaceColor", consumes = "application/x-www-form-urlencoded")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateUserSurfaceColor(HttpServletRequest request, @RequestBody String color) throws IOException {
+        try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
+            LOG.debug("updateUserSurfaceColor");
+            String userId = requestObjectService.getRequestAgentId(request);
+            userService.updateUserSurfaceColor(userId, color);
+        }
+    }
+
+    @GetMapping(value = "/darkMode")
+    public Boolean getUserDarkMode(HttpServletRequest request) throws IOException {
+        try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
+            LOG.debug("getUserDarkMode");
+            String userId = requestObjectService.getRequestAgentId(request);
+            return userService.getUserDarkMode(userId);
+        }
+    }
+
+    @PostMapping(value = "/darkMode")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateUserDarkMode(HttpServletRequest request, @RequestBody BooleanBody darkMode) throws IOException {
+        try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
+            LOG.debug("updateUserDarkMode");
+            String userId = requestObjectService.getRequestAgentId(request);
+            userService.updateUserDarkMode(userId, darkMode.getBool());
         }
     }
 
@@ -60,13 +118,13 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "/scale", produces = "application/json")
+    @PostMapping(value = "/scale", consumes = "application/x-www-form-urlencoded", produces = "application/json")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void updateUserScale(HttpServletRequest request, @RequestBody ScaleDto scaleDto) throws IOException {
+    public void updateUserScale(HttpServletRequest request, @RequestBody String scale) throws IOException {
         try (MetricsTimer t = MetricsHelper.recordTime("API.User.Scale.POST")) {
             LOG.debug("updateUserScale");
             String userId = requestObjectService.getRequestAgentId(request);
-            userService.updateUserScale(userId, scaleDto.getScaleValue());
+            userService.updateUserScale(userId, scale);
         }
     }
 

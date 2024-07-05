@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.dataaccess.UserRepository;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.USER;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -20,20 +21,44 @@ public class UserService {
     private EntityService entityService = new EntityService();
 
 
-    public String getUserTheme(String userId) {
-        return userRepository.getUserTheme(userId);
+    public String getUserPreset(String userId) {
+        return userRepository.getByPredicate(userId, USER.USER_PRESET);
     }
 
-    public void updateUserTheme(String userId, String theme) throws JsonProcessingException {
-        userRepository.updateUserTheme(userId, theme);
+    public void updateUserPreset(String userId, String preset) throws JsonProcessingException {
+        userRepository.updateByPredicate(userId, preset, USER.USER_PRESET);
+    }
+
+    public String getUserPrimaryColor(String userId) {
+        return userRepository.getByPredicate(userId, USER.USER_PRIMARY_COLOR);
+    }
+
+    public void updateUserPrimaryColor(String userId, String color) throws JsonProcessingException {
+        userRepository.updateByPredicate(userId, color, USER.USER_PRIMARY_COLOR);
+    }
+
+    public String getUserSurfaceColor(String userId) {
+        return userRepository.getByPredicate(userId, USER.USER_SURFACE_COLOR);
+    }
+
+    public void updateUserSurfaceColor(String userId, String color) throws JsonProcessingException {
+        userRepository.updateByPredicate(userId, color, USER.USER_SURFACE_COLOR);
+    }
+
+    public Boolean getUserDarkMode(String userId) {
+        return userRepository.getByPredicate(userId, USER.USER_PRESET).equals("true");
+    }
+
+    public void updateUserDarkMode(String userId, Boolean darkMode) throws JsonProcessingException {
+        userRepository.updateByPredicate(userId, darkMode ? "true" : "false", USER.USER_DARK_MODE);
     }
 
     public String getUserScale(String userId) {
-        return userRepository.getUserScale(userId);
+        return userRepository.getByPredicate(userId, USER.USER_SCALE);
     }
 
     public void updateUserScale(String userId, String scale) throws JsonProcessingException {
-        userRepository.updateUserScale(userId, scale);
+        userRepository.updateByPredicate(userId, scale, USER.USER_SCALE);
     }
 
     public List<RecentActivityItemDto> getUserMRU(String userId) throws JsonProcessingException {

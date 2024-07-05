@@ -1607,8 +1607,20 @@
         "value": "\"usr\""
       },
       {
-        "name": "USER_THEME",
-        "value": "USER.DOMAIN + \"UserTheme\""
+        "name": "USER_PRESET",
+        "value": "USER.DOMAIN + \"UserPreset\""
+      },
+      {
+        "name": "USER_PRIMARY_COLOR",
+        "value": "USER.DOMAIN + \"UserPrimaryColor\""
+      },
+      {
+        "name": "USER_SURFACE_COLOR",
+        "value": "USER.DOMAIN + \"UserSurfaceColor\""
+      },
+      {
+        "name": "USER_DARK_MODE",
+        "value": "USER.DOMAIN + \"UserDarkMode\""
       },
       {
         "name": "USER_SCALE",

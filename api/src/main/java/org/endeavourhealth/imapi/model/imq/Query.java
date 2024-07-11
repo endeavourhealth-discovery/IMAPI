@@ -5,10 +5,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"prefix","iri","name","description","activeOnly","bool","match","return","construct","query","groupBy","orderBy"})
@@ -24,6 +27,32 @@ public class Query extends Match{
 	private List<Return> returx;
 	private String iri;
 	private String name;
+	private boolean imQuery;
+	private JsonNode parentResult;
+
+	public JsonNode getParentResult() {
+		return parentResult;
+	}
+
+	public Query setParentResult(JsonNode parentResult) {
+		this.parentResult = parentResult;
+		return this;
+	}
+
+	public boolean isImQuery() {
+		return imQuery;
+	}
+
+	public Query setImQuery(boolean imQuery) {
+		this.imQuery = imQuery;
+		return this;
+	}
+
+	@Override
+  public Query setVariable(String variable) {
+		super.setVariable(variable);
+		return this;
+	}
 
 	public Prefixes getPrefixes() {
 		return prefixes;

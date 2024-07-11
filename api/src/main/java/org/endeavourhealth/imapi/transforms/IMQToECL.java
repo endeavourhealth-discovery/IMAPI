@@ -70,11 +70,11 @@ public class IMQToECL {
 		if (matchType==null)
 			return;
 		if (matchType== EclType.simple){
-			addClass(match.getInstanceOf(), ecl, includeNames);
+			addClass(match.getInstanceOf().get(0), ecl, includeNames);
 		}
 		else if (matchType== EclType.refined){
 			if (match.getInstanceOf()!=null)
-				addClass(match.getInstanceOf(), ecl, includeNames);
+				addClass(match.getInstanceOf().get(0), ecl, includeNames);
 			else
 				ecl.append("*");
 			addRefinementsToMatch(match, ecl, includeNames);

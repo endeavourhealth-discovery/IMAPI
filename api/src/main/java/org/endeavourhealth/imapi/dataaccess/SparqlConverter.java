@@ -43,17 +43,20 @@ public class SparqlConverter {
     public String getSelectSparql(Set<TTIriRef> statusFilter) throws QueryException {
         return getSelectSparql(statusFilter,false, false);
     }
+    public String getSelectSparql(Query query,Set<TTIriRef> statusFilter, boolean countOnly, boolean highestUsage) throws QueryException{
+        this.query= query;
+        return getSelectSparql(statusFilter,countOnly,highestUsage);
+    }
 
     public String getSelectSparql(Set<TTIriRef> statusFilter, boolean countOnly, boolean highestUsage) throws QueryException{
         mainEntity= query.getVariable()!=null ?query.getVariable(): "entity";
-
         StringBuilder selectQl = new StringBuilder();
         addPrefixes(selectQl);
         if (countOnly){
             if (null != query.getMatch() && null != query.getMatch().get(0).getVariable())
                 mainEntity = query.getMatch().get(0).getVariable();
-            if (null != query.getInstanceOf() && null != query.getInstanceOf().getVariable())
-                mainEntity = query.getInstanceOf().getVariable();
+            if (null != query.getInstanceOf() && null != query.getInstanceOf().get(0).getVariable())
+                mainEntity = query.getInstanceOf().get(0).getVariable();
             selectQl.append("SELECT (count (distinct ?").append(mainEntity).append(") as ?count)");
         }
         else {
@@ -81,11 +84,14 @@ public class SparqlConverter {
 
     private void addPrefixes(StringBuilder sparql) {
         sparql.append(getDefaultPrefixes());
+        /* text search no longer supported
         if (null != queryRequest.getTextSearch()) {
 
             sparql.append("PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>\n")
                     .append("PREFIX con: <http://www.ontotext.com/connectors/lucene#>\n");
         }
+
+         */
     }
 
     private void addWhereSparql(StringBuilder sparql, Set<TTIriRef> statusFilter, Boolean includeReturns, Boolean countOnly) throws QueryException{
@@ -96,8 +102,8 @@ public class SparqlConverter {
         else {
             if (null != query.getMatch() && null != query.getMatch().get(0).getVariable())
                 mainEntity = query.getMatch().get(0).getVariable();
-            if (null != query.getInstanceOf() && null != query.getInstanceOf().getVariable())
-                mainEntity = query.getInstanceOf().getVariable();
+            if (null != query.getInstanceOf() && null != query.getInstanceOf().get(0).getVariable())
+                mainEntity = query.getInstanceOf().get(0).getVariable();
         }
         StringBuilder whereQl = new StringBuilder();
         whereQl.append("WHERE {");
@@ -105,9 +111,12 @@ public class SparqlConverter {
             whereQl.append("?").append(mainEntity).append(" rdf:type ").append(iriFromString(query.getTypeOf().getIri())).append(".\n");
         }
 
+        /* Text search no longer supported
         if (null != queryRequest.getTextSearch()) {
             textSearch(whereQl);
         }
+
+         */
 
 
         match(whereQl, mainEntity, query);
@@ -291,81 +300,93 @@ public class SparqlConverter {
         }
         else {
             if (match.getInstanceOf() != null) {
-                Node instance = match.getInstanceOf();
-                String inList = iriFromAlias(instance);
-                if (inList==null){
-                    if (match.getWhere()==null&&instance.getNodeRef()==null){
-                        throw new QueryException("Match clause has instance of without an IRI and  without a where clause. In other words, wquerying for everything! ");
+                boolean first = true;
+                for (Node instance : match.getInstanceOf()) {
+                    if (match.getInstanceOf().size() > 0) {
+                        if (first)
+                            whereQl.append("{");
+                        else
+                            whereQl.append("UNION {");
+                        first= false;
                     }
-                }
-                if (instance.getNodeRef()!=null){
-                    object= instance.getNodeRef();
-                }
-                if (instance.isMemberOf()){
-                    try {
-                        EntityTripleRepository repo = new EntityTripleRepository();
-                        if (!repo.hasPredicates(instance.getIri(), Set.of(IM.HAS_MEMBER))) {
-                            new SetExpander().expandSet(instance.getIri());
+                    String inList = iriFromAlias(instance);
+                    if (inList == null) {
+                        throw new QueryException("Match clause has instance of without an IRI,  and  without a where clause.");
+                    }
+                    if (instance.getNodeRef() != null) {
+                        object = instance.getNodeRef();
+                    }
+                    if (instance.isMemberOf()) {
+                        try {
+                            EntityTripleRepository repo = new EntityTripleRepository();
+                            if (!repo.hasPredicates(instance.getIri(), Set.of(IM.HAS_MEMBER))) {
+                                new SetExpander().expandSet(instance.getIri());
+                            }
+                        } catch (JsonProcessingException e) {
+                            throw new QueryException(e.getMessage());
+                        }
+                        whereQl.append("?").append(subject).append(" ^").append("<").append(IM.HAS_MEMBER).append("> ").append("<").append(instance.getIri()).append(">\n");
+                    }
+
+                    else if (instance.isDescendantsOrSelfOf()) {
+                        o++;
+                        whereQl.append("?").append(subject).append(" im:isA ?").append(object).append(".\n");
+                        if (inList != null) {
+                            whereQl.append("Filter (?").append(object);
+                            if (!inList.contains(","))
+                                whereQl.append(" =").append(inList).append(")\n");
+                            else
+                                whereQl.append(" in (").append(inList).append("))\n");
+                        }
+                        else {
+                            subject = object;
+                        }
+
+                    }
+                    else if (instance.isDescendantsOf()) {
+                        o++;
+                        whereQl.append("?").append(subject).append(" im:isA ?").append(object).append(".\n");
+                        if (inList != null) {
+                            whereQl.append("Filter (?").append(object);
+                            if (!inList.contains(","))
+                                whereQl.append(" =").append(inList).append(")\n");
+                            else
+                                whereQl.append(" in (").append(inList).append("))\n");
+                            whereQl.append("Filter (?").append(subject).append("!= ").append(inList).append(")\n");
+                        }
+                        else {
+                            subject = object;
+                        }
+
+                    }
+                    else if (instance.isAncestorsOf()) {
+                        o++;
+                        whereQl.append("?").append(subject).append(" ^im:isA ?").append(object).append(".\n");
+                        whereQl.append("Filter (?").append(object);
+                        if (inList != null) {
+                            if (!inList.contains(","))
+                                whereQl.append(" =").append(inList).append(")\n");
+                            else
+                                whereQl.append(" in (").append(inList).append("))\n");
+                        }
+                        else {
+                            subject = object;
                         }
                     }
-                    catch (JsonProcessingException e){
-                        throw new QueryException(e.getMessage());
+                    else {
+                        o++;
+                        whereQl.append("?").append(subject).append(" rdf:type ?type.\n");
+                        whereQl.append("Filter (?").append(subject);
+                        if (!inList.contains(","))
+                            whereQl.append(" =").append(inList).append(")\n");
+                        else
+                            whereQl.append(" in (").append(inList).append("))\n");
+
                     }
-                    whereQl.append("?").append(subject).append(" ^").append("<").append(IM.HAS_MEMBER).append("> ").append("<").append(instance.getIri()).append(">\n");
+                    if (match.getInstanceOf().size()>0)
+                        whereQl.append("}");
                 }
 
-                else if (instance.isDescendantsOrSelfOf()) {
-                    o++;
-                    whereQl.append("?").append(subject).append(" im:isA ?").append(object).append(".\n");
-                    if (inList!=null) {
-                        whereQl.append("Filter (?").append(object);
-                        if (!inList.contains(","))
-                            whereQl.append(" =").append(inList).append(")\n");
-                        else
-                            whereQl.append(" in (").append(inList).append("))\n");
-                    }
-                    else {
-                        subject=object;
-                    }
-
-                } else if (instance.isDescendantsOf()) {
-                    o++;
-                    whereQl.append("?").append(subject).append(" im:isA ?").append(object).append(".\n");
-                    if (inList!=null) {
-                        whereQl.append("Filter (?").append(object);
-                        if (!inList.contains(","))
-                            whereQl.append(" =").append(inList).append(")\n");
-                        else
-                            whereQl.append(" in (").append(inList).append("))\n");
-                        whereQl.append("Filter (?").append(subject).append("!= ").append(inList).append(")\n");
-                    }
-                    else {
-                        subject=object;
-                    }
-
-                } else if (instance.isAncestorsOf()) {
-                    o++;
-                    whereQl.append("?").append(subject).append(" ^im:isA ?").append(object).append(".\n");
-                    whereQl.append("Filter (?").append(object);
-                    if (inList!=null) {
-                        if (!inList.contains(","))
-                            whereQl.append(" =").append(inList).append(")\n");
-                        else
-                            whereQl.append(" in (").append(inList).append("))\n");
-                    }
-                    else {
-                        subject=object;
-                    }
-                } else {
-                    o++;
-                    whereQl.append("?").append(subject).append(" rdf:type ?type.\n");
-                    whereQl.append("Filter (?").append(subject);
-                    if (!inList.contains(","))
-                        whereQl.append(" =").append(inList).append(")\n");
-                    else
-                        whereQl.append(" in (").append(inList).append("))\n");
-
-                }
             }
         }
 
@@ -384,12 +405,6 @@ public class SparqlConverter {
                     where(whereQl, subject, where, null);
                 }
             }
-        }
-        if (match.getIs() != null) {
-            if (!match.isExclude())
-                is(whereQl, subject, match.getIs(), false);
-            else
-                is(whereQl, subject, match.getIs(), true);
         }
         if (match.getGraph() != null) {
             whereQl.append("}");
@@ -553,7 +568,7 @@ public class SparqlConverter {
             }
         }
         for (Element item : in) {
-            if (item.isAncestorsOf()) {
+            if (item.isAncestorsOf()||item.isAncestorsOrSelfOf()) {
                 superTypes = true;
                 break;
             }
@@ -789,6 +804,7 @@ public class SparqlConverter {
         } else
             return (iriFromString(id));
     }
+
 
 
     public String iriFromAlias(Node alias) throws QueryException {

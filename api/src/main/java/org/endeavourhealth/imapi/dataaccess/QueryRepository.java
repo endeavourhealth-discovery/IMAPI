@@ -46,15 +46,18 @@ public class QueryRepository {
      * @throws JsonProcessingException if the json is invalid
      */
     public JsonNode queryIM(QueryRequest queryRequest, boolean highestUsage) throws QueryException, JsonProcessingException, DataFormatException {
+        return queryIM(queryRequest,highestUsage,queryRequest.getQuery());
+    }
+    public JsonNode queryIM(QueryRequest queryRequest, boolean highestUsage,Query query) throws QueryException, JsonProcessingException, DataFormatException {
         ObjectNode result = mapper.createObjectNode();
         Integer page = queryRequest.getPage() != null ? queryRequest.getPage().getPageNumber() : 1;
         Integer count = queryRequest.getPage() != null ? queryRequest.getPage().getPageSize() : 0;
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             checkReferenceDate(queryRequest);
-            new QueryValidator().validateQuery(queryRequest.getQuery());
+            new QueryValidator().validateQuery(query);
             SparqlConverter converter = new SparqlConverter(queryRequest);
-            String spq = converter.getSelectSparql(null,false, highestUsage);
-            ObjectNode resultNode = graphSelectSearch(queryRequest.getQuery(), spq, conn, result);
+            String spq = converter.getSelectSparql(query,null, false, highestUsage);
+            ObjectNode resultNode = graphSelectSearch(query, spq, conn, result);
             return prepareQueryResponse(resultNode, queryRequest, page, count);
         }
     }

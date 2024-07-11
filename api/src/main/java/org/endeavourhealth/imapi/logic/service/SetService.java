@@ -55,7 +55,7 @@ public class SetService {
         SetContent result = new SetContent();
 
         LOG.trace("Fetching metadata for {}...", setIri);
-        TTEntity entity = new EntityTripleRepository().getEntityPredicates(setIri, Set.of(RDFS.LABEL, RDFS.COMMENT, IM.STATUS, IM.VERSION, IM.DEFINITION)).getEntity();
+        TTEntity entity = new EntityTripleRepository().getEntityPredicates(setIri, Set.of(RDFS.LABEL, RDFS.COMMENT, IM.HAS_STATUS, IM.VERSION, IM.DEFINITION)).getEntity();
 
         if (null != entity) {
             result.setName(entity.getName())

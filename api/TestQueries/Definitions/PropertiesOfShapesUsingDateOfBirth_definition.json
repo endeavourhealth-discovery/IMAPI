@@ -12,6 +12,9 @@
     "name" : "PropertiesOfShapesUsingDateOfBirth",
     "description" : "all of the data model properties for entities that have a property df a data of birth",
     "match" : [ {
+      "typeOf" : {
+        "@id" : "sh:NodeShape"
+      },
       "where" : [ {
         "@id" : "sh:property",
         "match" : {
@@ -22,10 +25,7 @@
             } ]
           } ]
         }
-      } ],
-      "typeOf" : {
-        "@id" : "sh:NodeShape"
-      }
+      } ]
     }, {
       "where" : [ {
         "@id" : "sh:property"

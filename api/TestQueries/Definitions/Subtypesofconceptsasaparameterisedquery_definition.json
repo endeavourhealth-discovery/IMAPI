@@ -8,27 +8,25 @@
     "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "sn" : "http://snomed.info/sct#"
   },
-  "textSearch" : "Test for patients either aged between 18 and 65 or with diabetes with the most recent ",
   "argument" : [ {
-    "parameter" : "dataModelIri",
-    "valueIri" : {
-      "@id" : "im:Patient"
-    }
+    "parameter" : "this",
+    "valueIriList" : [ {
+      "@id" : "sn:76661004"
+    }, {
+      "@id" : "sn:243640007"
+    } ]
   } ],
   "query" : {
-    "name" : "Allowable queries for patient cohort",
+    "name" : "Subtypes of concepts as a parameterised query",
     "match" : [ {
-      "where" : [ {
-        "@id" : "im:returnType",
-        "is" : [ {
-          "parameter" : "dataModelIri"
-        } ]
+      "instanceOf" : [ {
+        "parameter" : "this",
+        "descendantsOrSelfOf" : true
       } ],
-      "typeOf" : {
-        "@id" : "im:CohortQuery"
-      }
+      "variable" : "c"
     } ],
     "return" : [ {
+      "nodeRef" : "c",
       "property" : [ {
         "@id" : "rdfs:label"
       } ]

@@ -16,6 +16,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.zip.DataFormatException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,7 +31,7 @@ class OSQueryTest_IM {
 
     @Test
     @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-    void imQuery_term() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException {
+    void imQuery_term() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1");
 
@@ -43,7 +44,7 @@ class OSQueryTest_IM {
 
     @Test
     @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-    void imQuery_term_multiScheme() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException {
+    void imQuery_term_multiScheme() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
             .setQuery(new Query()
@@ -64,13 +65,13 @@ class OSQueryTest_IM {
 
     @Test
     @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-    void imQuery_term_isA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException {
+    void imQuery_term_isA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
             .setQuery(new Query()
                 .setMatch(List.of(
                     new Match()
-                        .setInstanceOf(new Node().setIri("http://snomed.info/sct#57148006")
+                        .addInstanceOf(new Node().setIri("http://snomed.info/sct#57148006")
                         .setDescendantsOrSelfOf(true)
                 )))
             );
@@ -82,7 +83,7 @@ class OSQueryTest_IM {
 
     @Test
     @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-    void imQuery_term_multiIsA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException {
+    void imQuery_term_multiIsA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
             .addArgument(new Argument().setParameter("isas").setValueIriList(
@@ -91,7 +92,7 @@ class OSQueryTest_IM {
             .setQuery(new Query()
                 .setMatch(List.of(
                     new Match()
-                        .setInstanceOf(new Node().setParameter("$isas")
+                        .addInstanceOf(new Node().setParameter("$isas")
                         .setDescendantsOrSelfOf(true)
                 )))
             );
@@ -103,7 +104,7 @@ class OSQueryTest_IM {
 
     @Test
     @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-    void imQuery_term_multiMember() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException {
+    void imQuery_term_multiMember() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
             .setQuery(new Query()

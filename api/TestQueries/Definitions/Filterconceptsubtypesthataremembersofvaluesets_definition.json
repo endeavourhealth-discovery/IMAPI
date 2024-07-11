@@ -12,20 +12,6 @@
   "query" : {
     "name" : "Filter concept subtypes that are members of value sets",
     "match" : [ {
-      "match" : [ {
-        "match" : [ {
-          "instanceOf" : {
-            "@id" : "sn:57148006",
-            "descendantsOrSelfOf" : true
-          }
-        }, {
-          "instanceOf" : {
-            "@id" : "sn:11164009",
-            "descendantsOrSelfOf" : true
-          }
-        } ],
-        "bool" : "or"
-      } ],
       "where" : [ {
         "@id" : "im:hasMember",
         "inverse" : true,
@@ -33,6 +19,20 @@
           "@id" : "im:VSET_Conditions"
         }, {
           "@id" : "im:VSET_ASD"
+        } ]
+      } ],
+      "match" : [ {
+        "boolMatch" : "or",
+        "match" : [ {
+          "instanceOf" : [ {
+            "@id" : "sn:57148006",
+            "descendantsOrSelfOf" : true
+          } ]
+        }, {
+          "instanceOf" : [ {
+            "@id" : "sn:11164009",
+            "descendantsOrSelfOf" : true
+          } ]
         } ]
       } ]
     } ]

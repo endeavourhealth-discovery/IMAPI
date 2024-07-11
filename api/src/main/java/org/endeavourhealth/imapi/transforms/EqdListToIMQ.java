@@ -17,7 +17,7 @@ public class EqdListToIMQ {
 		this.resources= resources;
 		String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
 		query.match(f->f
-			.addIs(new Node().setIri("urn:uuid:" + id))
+			.addInstanceOf(new Node().setIri("urn:uuid:" + id).setMemberOf(true))
 			.setName(resources.reportNames.get(id)));
 		for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
 			EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();

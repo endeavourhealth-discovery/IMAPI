@@ -24,7 +24,7 @@
           "parameter" : "this"
         } ]
       }, {
-        "bool" : "or",
+        "boolWhere" : "or",
         "where" : [ {
           "@id" : "sh:node",
           "match" : {

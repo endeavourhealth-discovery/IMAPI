@@ -8,27 +8,19 @@
     "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "sn" : "http://snomed.info/sct#"
   },
-  "argument" : [ {
-    "parameter" : "this",
-    "valueIriList" : [ {
-      "@id" : "sn:76661004"
-    }, {
-      "@id" : "sn:243640007"
-    } ]
-  } ],
   "query" : {
-    "name" : "Subtypes of concepts as a parameterised query",
+    "name" : "AsthmaSubTypesCore",
     "match" : [ {
-      "instanceOf" : {
-        "parameter" : "this",
+      "instanceOf" : [ {
+        "@id" : "sn:195967001",
         "descendantsOrSelfOf" : true
-      },
-      "variable" : "c"
+      } ]
     } ],
     "return" : [ {
-      "nodeRef" : "c",
       "property" : [ {
         "@id" : "rdfs:label"
+      }, {
+        "@id" : "im:code"
       } ]
     } ]
   }

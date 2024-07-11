@@ -83,9 +83,9 @@ public class ExcelSetExporterTest {
             .match(w->w
               .setBoolMatch(Bool.or)
                 .match(f->f
-                .setInstanceOf(new Node().setIri("http://snomed.info/sct#39330711000001103").setName("COVID-19 vaccine (product)").setDescendantsOrSelfOf(true)))
+                .addInstanceOf(new Node().setIri("http://snomed.info/sct#39330711000001103").setName("COVID-19 vaccine (product)").setDescendantsOrSelfOf(true)))
                 .match(f->f
-                    .setInstanceOf( new Node().setIri("http://snomed.info/sct#10363601000001109").setName("UK product (product)").setDescendantsOrSelfOf(true))
+                    .addInstanceOf( new Node().setIri("http://snomed.info/sct#10363601000001109").setName("UK product (product)").setDescendantsOrSelfOf(true))
                   .where(p->p
                     .setIri(IM.ROLE_GROUP)
                     .match(m1->m1

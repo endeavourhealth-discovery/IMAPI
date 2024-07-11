@@ -13,14 +13,14 @@ public class IMQToECLBuilderTest {
     IMQToECLBuilder imqToECLBuilder = new IMQToECLBuilder();
     @Test
     public void convertsDescendantsAndSelf() throws QueryException, EclBuilderException {
-        Match match = new Match().setInstanceOf(new Node("http://snomed.info/sct#29857009").setDescendantsOrSelfOf(true));
+        Match match = new Match().addInstanceOf(new Node("http://snomed.info/sct#29857009").setDescendantsOrSelfOf(true));
         BoolGroup boolGroup = new BoolGroup().addItem(new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#29857009")).setConstraintOperator("<<"));
         assertThat(imqToECLBuilder.getEclBuilderFromQuery(match)).usingRecursiveComparison().isEqualTo(boolGroup);
     }
 
     @Test
     public void convertsDescendantsNotSelf() throws QueryException, EclBuilderException {
-        Match match = new Match().setInstanceOf(new Node("http://snomed.info/sct#29857009").setDescendantsOf(true));
+        Match match = new Match().addInstanceOf(new Node("http://snomed.info/sct#29857009").setDescendantsOf(true));
         BoolGroup boolGroup = new BoolGroup().addItem(new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#29857009")).setConstraintOperator("<"));
         assertThat(imqToECLBuilder.getEclBuilderFromQuery(match)).usingRecursiveComparison().isEqualTo(boolGroup);
     }
@@ -29,8 +29,8 @@ public class IMQToECLBuilderTest {
     public void convertsSimpleAndDescendants() throws QueryException, EclBuilderException {
         Match match = new Match();
         match.setBoolMatch(Bool.and);
-        Match subMatch1 = new Match().setInstanceOf(new Node("http://snomed.info/sct#298705000").setDescendantsOf(true));
-        Match subMatch2 = new Match().setInstanceOf(new Node("http://snomed.info/sct#301366005").setDescendantsOf(true));
+        Match subMatch1 = new Match().addInstanceOf(new Node("http://snomed.info/sct#298705000").setDescendantsOf(true));
+        Match subMatch2 = new Match().addInstanceOf(new Node("http://snomed.info/sct#301366005").setDescendantsOf(true));
         match.addMatch(subMatch1).addMatch(subMatch2);
         ExpressionConstraint subConcept1 = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#298705000")).setConstraintOperator("<");
         ExpressionConstraint subConcept2 = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#301366005")).setConstraintOperator("<");
@@ -41,7 +41,7 @@ public class IMQToECLBuilderTest {
 
     @Test
     public void simpleRefinement() throws QueryException, EclBuilderException {
-        Match match = new Match().setInstanceOf(new Node("http://snomed.info/sct#19829001").setDescendantsOf(true));
+        Match match = new Match().addInstanceOf(new Node("http://snomed.info/sct#19829001").setDescendantsOf(true));
         Where where = new Where().setIri("http://snomed.info/sct#116676008").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#387207008").setDescendantsOrSelfOf(true)).setAnyRoleGroup(true);
         match.addWhere(where);
         ExpressionConstraint concept = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#19829001")).setConstraintOperator("<");
@@ -55,7 +55,7 @@ public class IMQToECLBuilderTest {
 
     @Test
     public void orRefinement() throws QueryException, EclBuilderException {
-        Match match = new Match().setInstanceOf(new Node("http://snomed.info/sct#763158003").setDescendantsOrSelfOf(true));
+        Match match = new Match().addInstanceOf(new Node("http://snomed.info/sct#763158003").setDescendantsOrSelfOf(true));
         match.setBoolWhere(Bool.or);
         Where where1 = new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#698090000").setDescendantsOrSelfOf(true)).setAnyRoleGroup(true);
         Where where2 = new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#442031002").setDescendantsOrSelfOf(true)).setAnyRoleGroup(true);
@@ -74,13 +74,13 @@ public class IMQToECLBuilderTest {
         Match match = new Match().setBoolMatch(Bool.and);
         Match subMatch1 = new Match()
             .setBoolMatch(Bool.or)
-            .addMatch(new Match().setInstanceOf(new Node("http://snomed.info/sct#386725007").setDescendantsOrSelfOf(true)))
-            .addMatch(new Match().setInstanceOf(new Node("http://snomed.info/sct#431314004").setDescendantsOrSelfOf(true)));
+            .addMatch(new Match().addInstanceOf(new Node("http://snomed.info/sct#386725007").setDescendantsOrSelfOf(true)))
+            .addMatch(new Match().addInstanceOf(new Node("http://snomed.info/sct#431314004").setDescendantsOrSelfOf(true)));
         Match subMatch2 = new Match()
             .setExclude(true)
             .setBoolMatch(Bool.or)
-            .addMatch(new Match().setInstanceOf(new Node("http://snomed.info/sct#838441000000103").setDescendantsOrSelfOf(true)))
-            .addMatch(new Match().setInstanceOf(new Node("http://snomed.info/sct#838451000000100").setDescendantsOrSelfOf(true)));
+            .addMatch(new Match().addInstanceOf(new Node("http://snomed.info/sct#838441000000103").setDescendantsOrSelfOf(true)))
+            .addMatch(new Match().addInstanceOf(new Node("http://snomed.info/sct#838451000000100").setDescendantsOrSelfOf(true)));
         match.addMatch(subMatch1).addMatch(subMatch2);
         BoolGroup rootBool = new BoolGroup().setConjunction(Bool.and);
         BoolGroup subBoolGroup1 = new BoolGroup().setConjunction(Bool.or);
@@ -99,8 +99,8 @@ public class IMQToECLBuilderTest {
     @Test
     public void focusGroupWithRefinement() throws QueryException, EclBuilderException {
         Match match = new Match().setBoolMatch(Bool.or);
-        Match subMatch1 = new Match().setInstanceOf(new Node("http://snomed.info/sct#91936005").setDescendantsOrSelfOf(true));
-        Match subMatch2 = new Match().setInstanceOf(new Node("http://snomed.info/sct#294532003").setDescendantsOrSelfOf(true));
+        Match subMatch1 = new Match().addInstanceOf(new Node("http://snomed.info/sct#91936005").setDescendantsOrSelfOf(true));
+        Match subMatch2 = new Match().addInstanceOf(new Node("http://snomed.info/sct#294532003").setDescendantsOrSelfOf(true));
         Where where = new Where().setAnyRoleGroup(true).setDescendantsOrSelfOf(true).setIri("http://snomed.info/sct#246075003").addIs(new Node("http://snomed.info/sct#771577000").setDescendantsOrSelfOf(true));
         match.addMatch(subMatch1).addMatch(subMatch2).addWhere(where);
         BoolGroup rootBool = new BoolGroup();
@@ -123,8 +123,8 @@ public class IMQToECLBuilderTest {
     @Test
     public void focusGroupWithRefinementAttributeGroup() throws QueryException, EclBuilderException {
         Match match = new Match().setBoolMatch(Bool.and);
-        Match subMatch1 = new Match().setInstanceOf(new Node("http://snomed.info/sct#298705000").setDescendantsOrSelfOf(true));
-        Match subMatch2 = new Match().setInstanceOf(new Node("http://snomed.info/sct#301366005").setDescendantsOrSelfOf(true));
+        Match subMatch1 = new Match().addInstanceOf(new Node("http://snomed.info/sct#298705000").setDescendantsOrSelfOf(true));
+        Match subMatch2 = new Match().addInstanceOf(new Node("http://snomed.info/sct#301366005").setDescendantsOrSelfOf(true));
         Where where = new Where()
             .setIri(IM.ROLE_GROUP)
             .setMatch(new Match()
@@ -153,8 +153,8 @@ public class IMQToECLBuilderTest {
     @Test
     public void focusGroupWithMultipleRefinementGroups() throws QueryException, EclBuilderException {
         Match match = new Match().setBoolMatch(Bool.or);
-        Match subMatch1 = new Match().setInstanceOf(new Node("http://snomed.info/sct#10363801000001108").setDescendantsOrSelfOf(true));
-        Match subMatch2 = new Match().setInstanceOf(new Node("http://snomed.info/sct#10363901000001102").setDescendantsOrSelfOf(true));
+        Match subMatch1 = new Match().addInstanceOf(new Node("http://snomed.info/sct#10363801000001108").setDescendantsOrSelfOf(true));
+        Match subMatch2 = new Match().addInstanceOf(new Node("http://snomed.info/sct#10363901000001102").setDescendantsOrSelfOf(true));
         Where attributeGroup = new Where()
             .setIri(IM.ROLE_GROUP)
             .setMatch(new Match()

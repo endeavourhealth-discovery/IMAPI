@@ -1,0 +1,3003 @@
+{
+  "entities" : [ {
+    "@id" : "http://snomed.info/sct#401118009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension annual review (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#195967001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Asthma (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#275944005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring (regime/therapy)"
+  }, {
+    "@id" : "http://snomed.info/sct#396275006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Osteoarthritis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#185719002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring first letter (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#386692008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Menorrhagia (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#38341003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive disorder, systemic arterial (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#201101007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Actinic keratosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#406506008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Attention deficit hyperactivity disorder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#310427004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring invitation (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#185720008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring second letter (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#1066951000000101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring short message service text message first invitation (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#59621000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Essential hypertension (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#85551004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermobility syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#44548000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperactive behavior (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#170579000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension:follow-up default (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#162659009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension resolved (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#266694003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Heat therapy (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#473225006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension medication review (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#66999008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperparathyroidism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#13644009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercholesterolemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#237662005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperprolactinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#254666005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Keratosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#401048005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension six month review (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#14094001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Excessive vomiting in pregnancy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#185721007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring third letter (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#185722000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring verbal invite (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#185723005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring telephone invite (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#1066971000000105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring short message service text message third invitation (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#4754008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Gynecomastia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#312230002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperhidrosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#810981000000107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension self-management plan review (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#846641000000100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglycaemia education (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#247441003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Erythema (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#29966009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#80394007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglycemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#201040000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Callosity (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#48194001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pregnancy-induced hypertension (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#786457000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Overactive urinary bladder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#812021000000106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension self-management plan agreed (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#270440008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring check done (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#266601003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Excessive and frequent menstruation (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#1066961000000103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring short message service text message second invitation (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#38101003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermetropia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#266569009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Benign prostatic hyperplasia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#55822004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipidemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#302870006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertriglyceridemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#49765009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperpigmentation of skin (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#14140009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkalemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#171222001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension screening (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#21639008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypervolemia (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#52613005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Excessive sweating (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#34486009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthyroidism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#66931009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercalcemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1066941000000104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring invitation short message service text message (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#720940008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hepatic lipase deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#788453008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermobility of joint (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#274573005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypernasality and hyponasality (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16034271000119105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of bilateral ankle joint regions (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#314081000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Phenylketonuria screening test (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#18101008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Bowel sounds hyperactive (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#194791005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension caused by drug (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#28401004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of submaxillary gland (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#60002000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic gastritis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#109627009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of retromolar gingiva (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#77063006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipoproteinemia diet, type IV (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#44744000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthyroidism due to molar thyrotropin (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#471885006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic cardiomyopathy with genetic marker (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#427889009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension associated with transplantation (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#289725009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertonic contractions (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#78080008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthermia treatment of cancer (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#19557000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperexplexia (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#1255963003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkinetic dysarthria (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#233563006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertransfusion (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#16034031000119103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of right ulna (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#237765003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperreninemic hypoaldosteronism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#56718006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipoproteinemia diet (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#45338009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of salivary gland (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#29369005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersecretion glaucoma (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1076711000119101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of fat pad of left knee (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#49102001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart AND renal disease in obstetric context (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#15723721000119103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of synovium of bilateral glenohumeral joints (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#35319002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Incomitant heterophoria (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#289174003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperesthesia of special senses (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#1373971000000108",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity to vaccine product containing vaccinia virus antigen (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#431005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of scrotum (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#783740007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Diazoxide-resistant focal hyperinsulinism due to sulfonylurea receptor 1 deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1186799004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperprolactinemia due to hypothyroidism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#198353000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic elongation of cervix (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#445965007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of gastric foveola (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#42930003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Inborn error of amino acid metabolism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#76612001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercoagulability state (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#37910008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermetabolism (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#1256068000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis of skin caused by high temperature (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#29711001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Coagulation panel for thrombosis (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#86573003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperemia of eyelid (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#225372007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Total parenteral nutrition (regime/therapy)"
+  }, {
+    "@id" : "http://snomed.info/sct#229635003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkinetic dysphonia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#5499009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pulmonary hypertensive venous disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#238080004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperalphalipoproteinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#14783006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperbilirubinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#53827007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Excessive salivation (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1293164004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of cricopharyngeal part of inferior constrictor pharyngeus muscle (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#773667003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertelorism, preauricular sinus, punctual pits, deafness syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#76122006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis of pinta (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#80405004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperimmune state (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#50926003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Job's syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#348241000119108",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertropia of right eye (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#440009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Persistent hyperphenylalaninemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#54781007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkalemia, diminished renal excretion (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#79674009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperheparinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#37703005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ectopic hyperinsulinism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#203514008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#96701000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart AND chronic kidney disease on dialysis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#432774005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperacute rejection of lung transplant (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#88469006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Zellweger syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#235038002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Melanin pigmentation of oral mucosa (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1251353009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis caused by drug (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#783696009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperandrogenism due to cortisone reductase deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#829999002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperemia of bilateral palatine tonsils (finding)"
+  }, {
+    "@id" : "http://endhealth.info/emis#1130881000006110",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Adverse reaction to *Hypericum Perforatum"
+  }, {
+    "@id" : "http://snomed.info/sct#5354002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkalemia, transcellular shifts (disorder)"
+  }, {
+    "@id" : "http://endhealth.info/emis#851071000006117",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]BP raised, hyperten not diag"
+  }, {
+    "@id" : "http://snomed.info/sct#232291005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperactive labyrinthine dysfunction (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403459000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis of nipple (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#190535006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersecretion of ovarian progesterone (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#70612009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthermia in newborn (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16021831000119108",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of synovium of joint of bilateral feet (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#763721006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermethioninemia encephalopathy due to deficiency of adenosine kinase (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#96741000119109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart AND chronic kidney disease stage 2 (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#57119000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperammonemia, type III (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#368561000119102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosmolarity due to type 1 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#33243000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Increased gallbladder contraction (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#62078006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Infection caused by Hypodereum (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#89620005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperextension (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#449759005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Complication of systemic hypertensive disorder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#421961002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity reaction (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#83699005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity reaction mediated by immune complex (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#789299000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Marginal keratitis of left eye caused by staphylococcus toxin (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#789298008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Marginal keratitis of bilateral eyes caused by staphylococcus toxin (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#20753005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart disease complicating AND/OR reason for care during pregnancy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#788491008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperinsulinemia due to malignant insulinoma (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#111410004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of urinary bladder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#23501004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Arginase deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1010421009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of left condyloid process of mandible (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#342341000119104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis of right eyelid (disorder)"
+  }, {
+    "@id" : "http://endhealth.info/emis#1603801000006116",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Adverse reaction to *Hypericum"
+  }, {
+    "@id" : "http://endhealth.info/emis#1026931000006114",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Adverse reaction to *Hypercal"
+  }, {
+    "@id" : "http://snomed.info/sct#50177009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Body temperature above reference range (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#111787005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypericum perforatum poisoning (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#308427006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension screening recall (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#403316009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis in porphyria (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#230488004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersomnia of non-organic origin (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#23447005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Guanosine triphosphate cyclohydrolase I deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#347581000119104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermature senile cataract of bilateral eyes (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#73030000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive renal disease in obstetric context (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403255008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis due to hyperthyroidism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#425522009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperammonemic encephalopathy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#73744004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersexuality state (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#190331003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosmolar coma due to type 2 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#201162002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis partialis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#347461000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermature senile cataract of right eye (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#68724006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Tetrahydrobiopterin synthesis defect (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#50956007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Accessory nipple (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#66998000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Large ovary (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#249409004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis of oral mucosa (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#240421006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperimmune cutaneous reaction caused by mycobacterium kansasii (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#45227007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic obstructive cardiomyopathy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#541000119105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension complicating pregnancy, childbirth and the puerperium, antepartum (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#53798001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypervitaminosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#766211000000109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension 9 month review (regime/therapy)"
+  }, {
+    "@id" : "http://snomed.info/sct#1264212004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Lipoprotein (a) hyperlipoproteinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#202809009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermobility of coccyx (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#27712000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypervitaminosis D (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#32671009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipoproteinemia diet, type IIa (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#860880003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperhidrosis due to autonomic dysregulation (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#164998001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity skin test: no reaction (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#441656006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglycemic crisis due to diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#237598005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglycemic disorder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#64964006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperresonance (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#190774002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipidemia, group A (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#32891000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Rotor syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#428098006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of clitoral prepuce (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#296831000119102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of humerus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#60555002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity angiitis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#42051002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of spermatic cord (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#827068008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Stage 2 hypertension (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#71701000119105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension in chronic kidney disease due to type 1 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1264008003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of myometrium (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#547009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersecretion of calcitonin (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#473392002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive nephrosclerosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16034311000119105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of right femur (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#93434009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of gingiva caused by drug (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#46689006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of tonsils (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#368051000119109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglycemia due to type 2 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#348691000119103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertropia of left eye (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#19523008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertaurodontism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1251394001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis of forefoot (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#137941000119106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipidemia due to type 1 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#724284005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertelorism Teebi type (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403831006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Familial hypercholesterolemia due to genetic defect of apolipoprotein B (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#37471005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Extrinsic allergic alveolitis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#238040008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Familial combined hyperlipidemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#302141000119108",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of alveolar part of mandible (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#699649006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of masseter muscle (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#129646001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglobulinemia (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#700109009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Bartter syndrome antenatal type 2 (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#95693006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperviscosity retinopathy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#79355007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart disease in obstetric context (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#15747881000119103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bilateral masseter muscles (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#65846009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Primary ovarian failure (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#347521000119103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermature senile cataract of left eye (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#124214007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Deficiency of steroid 11-beta-monooxygenase (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#402323000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic palmoplantar psoriasis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#38495009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypokalemia, excessive renal losses (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#199839000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertonic uterine inertia with antenatal problem (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#447046001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic scar of upper arm (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#15709601000119109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperpigmentation of right lower eyelid and periocular area (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#27029007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperalimentation formula (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#9723006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperphosphatasemia with bone disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#80893007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthermia generated by intracavitary probes (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#37545009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity to endogenous antigen (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#16034231000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of right foot (disorder)"
+  }, {
+    "@id" : "http://endhealth.info/emis#1100041000006119",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Adverse reaction to *Hypericum/Calendula"
+  }, {
+    "@id" : "http://snomed.info/sct#203357004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic osteoarthropathy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#717883004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic duodenal polyp (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#438603002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperventilation therapy for traumatic brain injury (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#88213004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Aldosteronism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#249710008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Lordosis accentuated (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#1269398002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity to minocycline (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#717888008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperinsulinism due to focal adenomatous hyperplasia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#15951901000119102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis of bilateral eyelids (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#404159002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis due to Hodgkin's disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#4887000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertyrosinemia, Richner-Hanhart type (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#55406008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperalgesia (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#68978004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperventilation (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#53243005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperchromic lesions of pinta (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#57873008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive renal disease complicating AND/OR reason for care during puerperium (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#428896009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosmolality due to uncontrolled type 1 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#123799005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Renovascular hypertension (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#238555008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratotic fissured eczema of palms (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#709109004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercapnic respiratory failure (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#137931000119102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipidemia due to type 2 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403572002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercalcemic metastatic calcification of skin (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16924008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of vulva (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#763280005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Encephalopathy, hypertrophic cardiomyopathy, renal tubular disease syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#49184003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperphonia (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#27538003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthyroidism with Hashimoto disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#40607004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthyroidism due to hydatidiform mole with thyrotoxic crisis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#109624002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of interdental papilla (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#7085002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercalcemia due to sarcoidosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#74930008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperalimentation formula for renal failure (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#310505005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosmolar non-ketotic state due to diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#342361000119100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis of left lower eyelid (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#410055005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperimidodipeptiduria due to proline dipeptidase deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#236463002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkalemic renal tubular acidosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#85544008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperalimentation formula for digestive tract maldevelopment (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#252097006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity finding (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#443799000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Quantitative measurement of number fraction of hypertonic cryohemolysis of red blood cells (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#788954009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperostosis of skull (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#20165001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperphosphatemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#8666004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Supernumerary teeth (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#368601000119102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosmolar coma due to secondary diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#783248004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperimmunoglobulin M syndrome with susceptibility to opportunistic infection (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#717812000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Congenital cataract, hypertrophic cardiomyopathy, mitochondrial myopathy syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#237613005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperproinsulinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#56595005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertyrosinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#865004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperalimentation formula for ileus (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#60878004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Theca-lutein cyst of ovary (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#830156009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Administration of hyperthermic antineoplastic agent into thoracic cavity (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#819971000000103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthermic intraoperative peritoneal chemotherapy (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#406428006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of septomarginal trabeculation (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1163444007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity to macrogol (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#140131000119102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension in chronic kidney disease stage 2 due to type 2 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#845891000000103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension resistant to drug therapy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#15698921000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of infrapatellar fat pad of bilateral knees (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#271838002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperperistalsis (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#190694001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Tyrosinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#303852004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Lysinuric protein intolerance (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16034511000119100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of left fibula (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#54711002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Gingival enlargement (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1052225007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperactive labyrinthine dysfunction of right inner ear (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#83469008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperinsulinism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1268320008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of lower leg (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#192132008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkinetic conduct disorder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#721836009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertelorism with microtia and facial clefting syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#418103007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of lingual tonsil (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#90092004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity reaction mediated by antibody (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403515007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Scleroderma-associated hypermelanosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#205063003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Congenital genu recurvatum (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1076701000119104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of fat pad of right knee (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#301467000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperextension of lumbar spine (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#59790002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypernasality of vowels and voiced consonants (finding)"
+  }, {
+    "@id" : "http://endhealth.info/emis#1603201000006115",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Adverse reaction to *Hypericum Auro Cultum"
+  }, {
+    "@id" : "http://snomed.info/sct#17467004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of nasal turbinates (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#441981006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of ovary (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#275516004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Cardiomegaly due to hypertension (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#298181000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Range of joint movement increased (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#773726000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercholesterolemia due to cholesterol 7alpha-hydroxylase deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#702398007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperferritinemia cataract syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#402852007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglobulinemic purpura (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#762281000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic pachymeningitis due to infection (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1251349007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of nail caused by drug (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#77293007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive spasm of cardiac sphincter (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#16034191000119103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of bilateral humeri (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#229638001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkinetic aphonia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#86854008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperreflexia (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#47445009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperparathyroidism due to vitamin D deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16033711000119108",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of right tibia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#26797002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperemia of urinary bladder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#704667004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension concurrent and due to end stage renal disease on dialysis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#763536006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic polyposis syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#443482000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive urgency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#6962006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive retinopathy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1119257007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosteoidosis (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#198316006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of uterus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#88351001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercalcemia associated with chronic dialysis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1222625002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercyanotic spell due to congenital heart disease (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#250952007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkinetic right ventricular wall (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#403693009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis due to cryotherapy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#96731000119100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart AND chronic kidney disease stage 3 (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#36162004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic adenomatous polyp of stomach (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#9360008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperammonemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#304737009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Familial hyperkalemic periodic paralysis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#268377001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity skin testing (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#253784007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperganglionosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#322311000119101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of synovium of left glenohumeral joint (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#213201002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperstimulation of ovaries (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#15781000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart AND chronic kidney disease with congestive heart failure (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#71938000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercalciuria (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#26857005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperesthesia dolorosa (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#827069000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Stage 1 hypertension (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#361129004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercalcemia caused by lithium (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#444673007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperemesis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#185718005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring offer default (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#268552003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipidemia screening (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#314504001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipidemia risk assessment with New Zealand table (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#15723881000119108",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of synovium of joint of bilateral ankles (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#298745009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of upper limb (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#771419005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperactive delirium following surgical procedure (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#367261000119100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosmolarity due to drug induced diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#237625008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglycemic disorder in pregnancy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#204688002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic Meckel's diverticulum (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#88803002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercortisolism due to pituitary adenoma (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#890119003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic cardiomyopathy due to Friedreich ataxia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#432772009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperacute rejection of liver transplant (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#111499002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Déjérine-Sottas disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#119248009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperalbuminemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#123808002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercupruria (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#340461000119106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperopia of left eye (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#127388009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypergammaglobulinemia (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#34042008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis follicularis in cutem penetrans (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#860862007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic polyp of appendix (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#763720007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermethioninemia due to deficiency of glycine N-methyltransferase (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1145003007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity to vaccine product containing only severe acute respiratory syndrome coronavirus 2 messenger ribonucleic acid (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#386326005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglycemia management (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#201163007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis universalis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#73749009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Neonatal jaundice associated with preterm delivery (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#17902004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipoproteinemia diet, type IIb and type III (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#61285001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ovulation induction (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#27152008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperemesis gravidarum before end of 22 week gestation with carbohydrate depletion (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#70783003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of tunica vaginalis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#367390009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension in the obstetric context (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#781682005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperemia of eye (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#235121004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of minor salivary glands (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#236571000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperacute rejection of renal transplant (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#433234005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of prostate (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#289498004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperpigmentation of vulva (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#25273001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Enlargement of tongue (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1231552009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyper extension internal rotation test (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#22006008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertelorism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#322431000119100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of synovium of glenohumeral joint (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#87469009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of left cardiac atrium, determined by electrocardiogram (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#238664008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic oral lichen planus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#30287008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperornithinemia-hyperammonemia-homocitrullinuria syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403314007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis in hyperthyroidism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#240630008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperreactive malarial splenomegaly syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#303089000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperhidrosis of axilla (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#334851000119100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperopia of right eye (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#89415002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersomnia disorder related to another mental disorder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403254007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis due to acromegaly (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#66622006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of both palatine AND pharyngeal tonsils (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403532006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis with congenital macrogingivae (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403257000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis due to adrenocorticotropic hormone/melanocyte stimulating hormone-secreting tumor (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#724344004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercoagulability syndrome due to glycosylphosphatidylinositol deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#66709007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive renal disease complicating AND/OR reason for care during pregnancy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#48916002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypernasality syndrome due to velopharyngeal incoordination (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1474004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart AND renal disease complicating AND/OR reason for care during childbirth (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#698070009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of salivary gland (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#30654002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of nail (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#80306002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Increased peristalsis (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#267435002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Familial hyperchylomicronemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#135321000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersomnia caused by alcohol (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#254667001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic solar keratosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#372281005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of breast (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#721233005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypergonadotropic hypogonadism with cataract syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#6971002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of tongue papillae (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#409702008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperpyrexia (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#735456000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity disease of liver caused by drug (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16034351000119106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of bilateral hands (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1217058003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of adrenal gland (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1149028005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic interstitial neuropathy of trigeminal nerve (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1148934008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercalcemia due to chronic kidney disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#395204000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosmolar non-ketotic state due to type 2 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#140111000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension in chronic kidney disease stage 4 due to type 2 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#33624008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperirritability (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#37110009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Increased lactation (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1204139007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension due to congenital adrenal hyperplasia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#26874005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bile duct (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#61933008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperadrenergic postural hypotension (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#698854006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperandrogenism due to non-classic type of 21-hydroxylase deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1051005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of islet alpha cells with gastrin excess (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#75722007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Volubility (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#768553002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermanganesemia with dystonia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#402610004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis due to hormonal factor (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#80749003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity pneumonitis panel measurement (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#402612007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis due to neoplasia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#194780003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart and renal disease with renal failure (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#25646005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Isolated cystinuria (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#402611000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis due to endocrine disorder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#402615009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis due to nervous system disorder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#737560000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Blood copper level above reference range (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#248917009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophied cervix (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#82771000119102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension complicating pregnancy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#15709761000119102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperpigmentation of left eyelid and periocular area (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#127991000119101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension concurrent and due to end stage renal disease on dialysis due to type 2 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#860825005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic pachymeningitis due to disorder of immune function (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#3652007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Overproduction of growth hormone (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16034391000119101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of left humerus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#95341004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of toenail (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#717181004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperprolinemia type 2 (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#771115008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypernatremia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#38206000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Exceptionally large at birth (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#54549000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic periostitis of yaws (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#25008002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthyroidism due to struma ovarii (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#236955007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperalimentation of fetus through amniotic cavity (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#472316006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic mitochondrial cardiomyopathy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#37064009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperproteinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#47709007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Humoral hypercalcemia of malignancy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#67968004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of cystic duct (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#703525006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Anhidrotic ectodermal dysplasia with immune deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1088941000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperacusis of left ear (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#434202008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperacute rejection of pancreas transplant (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#724093004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Nephropathy, deafness, hyperparathyroidism syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1279835008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ectodermal dysplasia, hyperhidrosis, cutaneous syndactyly syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#234088000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic lymph node (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#58256000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Dihydropteridine reductase deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16218721000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperparathyroidism due to end stage renal disease on dialysis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#71421000119105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension in chronic kidney disease due to type 2 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#64852002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Sarcosine dehydrogenase deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#423752000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypervigilant behavior (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#69080001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Propionic acidemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#289881007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperpigmentation of female perineum (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#721691004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic polyp of large intestine (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#25728009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypernasality syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#64088006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperviscosity (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#15362005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperalimentation formula for severe diarrhea (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#15707004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercapnia with mixed acid-base disorder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#322381000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of synovium of joint of right hand (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16013009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperalimentation formula for short bowel syndrome (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#717048002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperinsulinism due to hepatocyte nuclear factor 4-alpha deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403377009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperhidrosis due to causalgia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#710160002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperactive tongue (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#702391001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Renal cell carcinoma (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#180928006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperpnea (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#16033831000119105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of right hand (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#195020003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic cardiomyopathy without obstruction (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#34394003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperalimentation formula for burn hypermetabolism (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#62052002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthyroidism caused by amiodarone (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#74450001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperchloremia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#449733007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratotic actinic keratosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#298185009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermobility of spine (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#46795000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Actinic cheilitis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#371951000000100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertonic cryohaemolysis test (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#403507009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Lupus erythematosus-associated hypermelanosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#76556008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperphosphatasia-osteoectasia syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#367641000119101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Increased gastrin secretion (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#776416004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperuricemia, pulmonary hypertension, renal failure, alkalosis syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#699535005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperflexion injury (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#246840002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of orbicularis oculi muscle (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#47016003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperalimentation formula for pancreatitis (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#11888009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperviscosity syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#15953981000119106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of lactiferous duct of bilateral breasts (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#283014003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of mandibular condyle (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#29596007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercapnia (disorder)"
+  }, {
+    "@id" : "http://endhealth.info/emis#1877391000006112",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension clinical management plan no longer in place"
+  }, {
+    "@id" : "http://snomed.info/sct#72271000119100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthyroidism in pregnancy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#427195008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkalemia caused by angiotensin-converting enzyme inhibitor (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#273700000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyper-beta-carnosinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#393573009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypereosinophilic syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#421731000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive optic neuropathy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#237841006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosmolality with hypernatremia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1231186006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ocular lateropulsion (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1269400003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity to nalidixic acid (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#773397000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Non-hypoproteinemic hypertrophic gastropathy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#237847005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkalemic acidosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#721835008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Acrofrontofacionasal dysostosis type 2 (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#76840008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of seminal vesicle (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16033871000119108",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of right fibula (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#706882009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive crisis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#238158000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperoxia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#414555007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Keratoderma blennorrhagicum (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#44553005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Dubin-Johnson syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#88531004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of kidney (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#9617008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipoproteinemia diet, type I (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#66978005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermagnesemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#250081005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Myokymia, hyperhidrosis, impaired muscle relaxation syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#890122001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic cardiomyopathy due to disorder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1256080008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of nail due to psoriasis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1237272007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercalcemia caused by thiazide and/or retinol (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#25967007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis lanuginosa (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#237578000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Excessive somatostatin secretion (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#236405006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperfiltration focal segmental glomerulosclerosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#15709361000119103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperpigmentation of right eyelid and periocular area (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403525002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis following phototherapy for neonatal jaundice (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1186885007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercortisolism due to bilateral adrenocortical hyperplasia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#60968001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Adenomatous goiter (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#203531001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermobile flat foot (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1010424001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of right coronoid process of mandible (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#91471000119102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Drug induced hypersomnia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403313001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis in anorexia nervosa (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#90512009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypervitaminosis E (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#240419001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperimmune cutaneous reaction caused by atypical mycobacteria (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403315008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis in hypothyroidism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#80212005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of clitoris (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#422126006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosmolar coma due to diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403685009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic surgical scar (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403253001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis due to Cushing syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#267626000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermature cataract (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#19877001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Rhinophyma (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#190330002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosmolar coma due to type 1 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403258005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis due to malignant adrenocorticotropic hormone/melanocyte stimulating hormone-secreting tumor (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#699282002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension diet assessment (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#18708008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic interstitial neuropathy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#29748005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of parotid gland (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#38258006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperalimentation formula for inflammatory bowel disease (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#386327001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypervolemia management (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#771441005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperbiliverdinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#322291000119100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of synovium of joint of left hand (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#64465004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypernasality syndrome due to neurologic disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1197782006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthermia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16034671000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of right scapula (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#395050009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring not required (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#295509007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic obesity (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#303090009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperhidrosis of palms (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#26078007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension secondary to renal disease complicating AND/OR reason for care during childbirth (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16034551000119104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of right humerus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#35209006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Sensitivity (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#79830009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis of eyelid (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403260007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis of undetermined etiology (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#69194003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Aldosteronism with nodular hyperplasia of adrenal cortex (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#64534006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic cholecystitis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1162380001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of neck of urinary bladder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#43904005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Macronodular cirrhosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#81891001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersecretion of ovarian androgens (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1187551008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthecosis of ovary (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#46745001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkinetic syndrome with developmental delay (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#367241000119104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosmolar coma due to drug induced diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#14735008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosmolarity (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#7114006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity to foreign antigen (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#422636004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperemia of vocal cord (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#235906009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperbilirubinemia - conjugated - type III (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#342331000119108",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis of right lower eyelid (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#10738631000119109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of lactiferous duct of left breast (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#414436009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperopic astigmatic photorefractive keratectomy (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#59733002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart disease complicating AND/OR reason for care during childbirth (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#111438007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension secondary to renal disease in obstetric context (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#733067006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Telecanthus, hypertelorism, strabismus, pes cavus syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#72894001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of fat pad of knee (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#414438005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic obesity (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#27012009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkinetic heart disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#221531000000107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperuricaemia drugs Band 1 (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#33763006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercalcemic nephropathy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#822995009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglycemia due to diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#860891005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic polyp of esophagus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#428163005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive left ventricular hypertrophy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#286461000119106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperactive pharyngeal gag reflex (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#67723002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthyroidism caused by radio contrast dye (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#771181009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis cubiti (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#235630008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive lower esophageal sphincter (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#33982008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperphosphatasemia with intellectual disability (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#249148008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertonic lower uterine segment during labor (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#19034001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperparathyroidism due to renal insufficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#33985005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperornithinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#700107006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Bartter syndrome antenatal type 1 (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403834003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperimmunoglobulinemia D with periodic fever (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#30652003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermobile Ehlers-Danlos syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#721666004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic polyp of small intestine (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#246806002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Injection of caruncle of eye (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#17091000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Multiple vitamin excess disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#84161008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic gingivitis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#237891005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Autosomal recessive hypophosphatemic bone disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#721171007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic lichen planus of vulva (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#111389006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Dominant dystrophic epidermolysis bullosa (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#46113002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart failure (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1187290008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlordosis deformity of lumbar spine (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#413219009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic gastropathy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#422001004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive choroidopathy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#82281000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of cardiac atrium, determined by electrocardiogram (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#129650008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperalphaglobulinemia (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#129651007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperbetaglobulinemia (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#46764007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Severe pre-eclampsia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#82286005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperimmunoglobulin M syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#433600001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperacute rejection of intestine transplant (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1142084009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypernychthemeral syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1269395004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity to hydrocortisone (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#342321000119105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis of right upper eyelid (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#190920002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperuricemia without signs of inflammatory arthritis and tophaceous disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#763618001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Wiedemann Steiner syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#717889000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypergastrinemia caused by drug (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#41270004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity reaction without blocking antibody (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1217062009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperhormonal amenorrhea (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403784003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic Darier's disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#267446004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosmolality and or hypernatremia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#871649000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic cardiomyopathy due to lysosomal disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#402614008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis due to connective tissue disorder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#402616005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis caused by photodynamic agent (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#334831000119106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Disorder of right retina co-occurrent and due to hypertension (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#35885006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperuricemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#15993004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Alveolar hypoventilation (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#1083821000119101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperacusis of bilateral ears (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#34439005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of ovarian stroma (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1076031000119109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of synovium of joint of right foot (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#56797000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Congenital hypertrichosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#449097000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperfunctioning follicular adenoma of thyroid gland (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#773211003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermobility of thoracic spine (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#428745004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of corneal epithelium (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#95343001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ischemic ulcer of skin due to arterial hypertension (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#10738591000119109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of lactiferous duct of right breast (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#102958008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Increased polarization of nerve cell and nerve fiber (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#735537007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosmolar hyperglycemic coma due to diabetes mellitus without ketoacidosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#59763006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperphosphatasemia tarda (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#345791000119100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperopia of bilateral eyes (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#472318007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic mitochondrial cardiomyopathy associated with cataracts and lactic acidosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#29206004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Testicular hyperfunction (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#111036000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperinsulinar obesity (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403799003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Congenital hypertrichosis lanuginosa (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#18104000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Metabolic acidosis, normal anion gap, acidifying salts (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#771339005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperzincemia and hypercalprotectinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#427888001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of zygomatic bone (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#238562004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratotic eczema of soles (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#739675008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperemesis gravidarum care management (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#1254883007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis of hindfoot (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#39727004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension secondary to renal disease complicating AND/OR reason for care during puerperium (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#26522000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperacute graft rejection (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#643001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of lip (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#783249007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperimmunoglobulin M syndrome without susceptibility to opportunistic infection (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1083101000000106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring invitation email (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#86073008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersomatotropic gigantism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#47719001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypervalinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#783741006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Diazoxide-resistant focal hyperinsulinism due to Kir6.2 deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#234437005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hemophagocytic lymphohistiocytosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#830001007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperemia of Little's area (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#33370009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperemesis gravidarum before end of 22 week gestation with electrolyte imbalance (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#252380005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Allergy profile (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#37295009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperestrogenism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#5126000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of foliate papillae (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#5834008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthyroidism caused by potassium iodide (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#449734001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperopic astigmatism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#88673001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Large penis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#238146000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypervitaminosis B6 (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#246902004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Injection of palpebral conjunctiva (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#1268319002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of lower limb (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#724514003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive esophageal peristalsis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#79398006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercortisolism due to adrenal neoplasm (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#64715009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#45564002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Achalasia of esophagus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#322401000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of synovium of right glenohumeral joint (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16034071000119100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of left foot (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#370999003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Primary hypogonadism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#342351000119102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis of left upper eyelid (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#421452007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperphoria (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#45846002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Sensitive to smells (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#432773004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperacute rejection of cardiac transplant (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#80908008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ornithine carbamoyltransferase deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#132721000119104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive emergency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#11399002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pulmonary hypertensive arterial disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1231189004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ocular ipsipulsion (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#58558003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlysinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#229645001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypernasal voice (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#237848000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkalemia with normal acid-base balance (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1251356001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperhidrosis caused by drug (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#192131001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkinesis with developmental delay (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#24013007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperleucinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#267265005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertonic uterine inertia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#257242002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Aldosteronism due to neoplasm of the adrenal cortex (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#40634001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperemotivity (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#190255006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thyrotoxicosis due to ectopic thyroid nodule with no crisis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#60899001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart disease without congestive heart failure (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#20313009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosmolality (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#707750005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperaldosteronism co-occurrent with hyperplasia of the adrenal cortex (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1237617004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypereosinophilic syndrome due to disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#361202002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of thymus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#432782005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperacute rejection of bone marrow transplant (disorder)"
+  }, {
+    "@id" : "http://endhealth.info/emis#1143561000006110",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Adverse reaction to *Hypericum Herb"
+  }, {
+    "@id" : "http://snomed.info/sct#60313005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of corpus cavernosum (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#14151009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperesthesia (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#39323002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of adenoids (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#737176000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermagnesuria (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#5148006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart disease with congestive heart failure (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#724039002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Psychomotor retardation due to S-adenosylhomocysteine hydrolase deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#52760008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercalcemia due to granulomatous disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1163445008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity to polysorbate-80 (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#233873004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic cardiomyopathy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16034631000119109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of left hand (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#293481008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic-hypertrophic obesity (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#114931000119103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity to abacavir (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#1269353008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity to gentamicin (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#789297003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Marginal keratitis of right eye caused by staphylococcus toxin (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16813005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperuricuria (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#345771000119101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Disorder of bilateral retinas co-occurrent and due to hypertension (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#438933007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperdynamic circulation (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#402725005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipidemia with lipid deposition in skin (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#342553006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Periodic hyperlysinemia with hyperammonemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#204985001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of kidney (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#441797008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of penis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#441798003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of gingiva (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#289486009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis of vulva (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#308428001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension screening call (procedure)"
+  }, {
+    "@id" : "http://endhealth.info/emis#1604541000006119",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Adverse reaction to *Hypericum Auro Cultum"
+  }, {
+    "@id" : "http://snomed.info/sct#308429009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension screening status (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#718713000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic cardiomyopathy with hypotonia and lactic acidosis syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#722379001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Congenital cataract with hypertrichosis and intellectual disability syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1204194004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic cardiomyopathy of apex of heart (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#198941007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension complicating pregnancy, childbirth and the puerperium (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#86234004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart AND renal disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#28729000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Proliferative synovitis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#48552006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension secondary to renal disease complicating AND/OR reason for care during pregnancy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#239191000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic scarring of skin donor site (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#78311009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Histidine transport defect (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#109456000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Multiple supernumerary teeth related to systemic condition (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#34981006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertonic uterine dysfunction (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#196789004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of appendix (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#43123004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermethioninemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#34273003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart disease complicating AND/OR reason for care during puerperium (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#129032061000119103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercoagulable state due to atrial fibrillation (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#700301003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis of upper eyelid (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16033551000119101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of bilateral tibias (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#7046009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperleucine-isoleucinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#78537008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercementosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#61071003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Proline dehydrogenase deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#313491000119103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlordosis deformity of thoracic and lumbar spine (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#277228009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperemic nasal mucosa (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#1187552001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of pituitary (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#308502002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring status (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#76875008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of gallbladder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#427915005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of lactiferous duct (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#773557002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Mandibulofacial dysostosis, macroblepharon, macrostomia syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#47270006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercortisolism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#414437000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperopic photorefractive keratectomy (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#763535005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Supernumerary phalanx (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#423657003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperextension injury of finger (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#82054006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperostosis interna frontalis (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#25289003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperacusis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#40453004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of both palatine AND pharyngeal tonsils (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#735449006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity reaction caused by food (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#203499004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic nonunion of fracture (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#68528007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperphenylalaninemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#111591002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of adenoids (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#24052000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercalcemia due to immobilization (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#49220004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive renal failure (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#419503008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperhomocysteinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#367534004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Supernumerary tooth (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#766937004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension due to gain-of-function mutation in mineralocorticoid receptor (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16034591000119109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of left scapula (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#340441000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Disorder of left retina co-occurrent and due to hypertension (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#721234004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperinsulinism due to hepatocyte nuclear factor 1-alpha deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1142202002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperextension injury of neck (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#342371000119106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis of left eyelid (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#721236002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperinsulinism due to short chain 3-hydroxyacyl-coenzyme A dehydrogenase deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#109545002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic tooth follicle (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#87621000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperemesis gravidarum before end of 22 week gestation with dehydration (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#41115008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperpigmentation of eyelid (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#29405003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypervitaminosis, B complex (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#765155002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of left kidney co-occurrent and due to congenital hypoplasia of right kidney (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#237744009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Adrenal hyperfunction (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1269396003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity to atenolol (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#18678000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperbaric oxygen therapy (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#235929001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of biliary tract (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#49885004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of tonsils (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#718106009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperinsulinism and hyperammonemia syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#111025007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of dermal papillae (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#402613002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis due to nutritional disorder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#700271001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis of lower eyelid (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#297207007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of cervix (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#698640000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension in the puerperium with pulmonary edema (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#28488007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis lenticularis perstans (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#37982009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperdicarboxylicaminoaciduria AND hyperprolinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#238551004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratotic eczema of palms and soles (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#40751003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Persistent hyperphenylalaninemia AND tyrosinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#24782002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic condition of skin (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#238556009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratotic eczema of palms (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#702377007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermanganesemia with dystonia, polycythemia, and cirrhosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#7573000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Classical phenylketonuria (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#421369008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Emotional hypersensitivity (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#397748008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension with albuminuria (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#717182006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperinsulinism due to deficiency of glucokinase (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16033911000119106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of bilateral feet (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#703306007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Primary hyperaldosteronism due to aldosterone-secreting malignant neoplasm of adrenal gland (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#3751000119101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of labia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#733092009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Microcephalus, hypergonadotropic hypogonadism, short stature syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#58034007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Congenital hypergammaglobulinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#81771002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Opitz-Frias syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#40608009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertropia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#201054008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Keratoderma climactericum (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403362001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic acne scar (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#267023007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Excessive eating (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#1137355002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic thyroid nodule (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#114831000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipidemia caused by steroid (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#96711000119105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart AND chronic kidney disease stage 5 (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#78855007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypernasality syndrome due to velopharyngeal weakness (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#124177001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Deficiency of pyrroline-5-carboxylate reductase (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#191956005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Psychogenic hyperventilation (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#275598004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Familial lipoprotein lipase deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#2365002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chronic granular pharyngitis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#699458005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of muscles of mastication (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#190440000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Excessive glucagon secretion (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1260271009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hemorrhagic cerebral infarction due to hypertension (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16034151000119108",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of left tibia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#422194002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperhidrosis with acquired immunodeficiency syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#88899005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity reaction with blocking antibody (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#3744001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipoproteinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16033991000119102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of bilateral clavicles (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#49768006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Past pointing (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#229640006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperfunctional aphonia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1052226008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperactive labyrinthine dysfunction of left inner ear (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#56731001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Increased muscle tone (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#237846001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkalemic alkalosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#721834007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperinsulinism due to uncoupling protein 2 deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#87232008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthyroidism due to ectopic thyroid nodule (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#764456001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperammonemic encephalopathy due to carbonic anhydrase VA deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#124322002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Deficiency of glycerol kinase (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#699260009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercalcemia due to hypervitaminosis D (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#35487009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercarotinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#367991000119101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglycemia due to type 1 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#31847002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthermia treatment (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#185724004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring deleted (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#25467004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperaffectivity (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#34687008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of vas deferens (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#860796007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperphosphatemic familial tumoral calcinosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#12263007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Type 1 hypersensitivity response (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#234173007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperdynamic septic shock (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#104097003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersegmented neutrophil count, blood (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#890121008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic cardiomyopathy due to hyperthyroidism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#87326000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic pharyngitis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#427784006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypernatremic dehydration (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403699008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Laser-induced hyperpigmentation (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#190773008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperbetalipoproteinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#140121000119100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension in chronic kidney disease stage 3 due to type 2 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#367621000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperoxaluria (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#308503007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension monitoring call (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#234112005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic lymph vessel (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#38481006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive renal disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#79280005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersomnia with sleep apnea (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#830155008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Administration of hyperthermic antineoplastic agent into peritoneal cavity (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#16033951000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of left femur (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#739032003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis of mucous membrane of mouth due to and following traumatic injury (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#830000008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperemia of pharynx (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#217791000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermature senile cataract (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#698729002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercalcemia due to tuberculosis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#19843006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic scar (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#194373002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperactive bilateral labyrinthine dysfunction (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1217210001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperostosis cranialis interna (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#371855002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkinetic ventricular wall (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#10649000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperpituitarism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#439000005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperfibrinogenemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#787174003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Intellectual disability, hyperkinetic movement, truncal ataxia syndrome (disorder)"
+  }, {
+    "@id" : "http://endhealth.info/emis#1132771000006116",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Adverse reaction to *Hypercal"
+  }, {
+    "@id" : "http://snomed.info/sct#96751000119106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart AND chronic kidney disease stage 1 (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#169465000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension caused by oral contraceptive pill (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#229637006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperfunctional dysphonia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#278189009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypergranular promyelocytic leukemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#80018001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic glandular gastritis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#699423008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperocclusion (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#66149005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of pancreatic islet beta cell (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#450881007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermetria (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#443762000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic cardiomegaly (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#298200006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermobility of subtalar joint (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#28031001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Cell-mediated immune reaction (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#426065008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity disorder mediated by immune complex (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1254911003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanotic pigmentary mosaicism (disorder)"
+  }, {
+    "@id" : "http://endhealth.info/emis#1759671000006111",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglycaemia due to enteral feeding"
+  }, {
+    "@id" : "http://snomed.info/sct#416477006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthyroidism resolved (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#89000008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis pinnae auris (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#719048006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypergargalesthesia (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#49681005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypericum poisoning (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#17393007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperabduction syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#246769000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermetric saccades (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#86287004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic rhinitis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#250275007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersegmentation (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#140101000119109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension in chronic kidney disease stage 5 due to type 2 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#720459002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercortisolism due to macronodular adrenal hyperplasia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#34230007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperparathyroidism due to lithium therapy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#708686000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperdivergent mandibular plane angle (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#721840000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperuricemia, anemia, renal failure syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#78731006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Poisoning caused by vitamin K (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#128001000119105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension concurrent and due to end stage renal disease on dialysis due to type 1 diabetes mellitus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#2243000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercalcemia due to hyperthyroidism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#8501000119104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart and chronic kidney disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#237793004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperandrogenization syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#367821000119106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension due to compression of renal parenchyma (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#10754921000119106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthyroidism in childbirth (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1269352003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity to succinylcholine (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#87181002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of islet alpha cells with glucagon excess (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1269354002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity to erythromycin (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#111569009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthermia-hyperphagia-hypothyroidism syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1177171004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperfibrinolysis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#473010000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity condition (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#240420007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperimmune cutaneous reaction caused by mycobacterium avium-intracellulare (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#236639003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity of urinary bladder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#129907001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Base excess (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#444552001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of mandibular bone (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#12138000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Large head (disorder)"
+  }, {
+    "@id" : "http://endhealth.info/emis#856941000006116",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyper-extension injury of finger"
+  }, {
+    "@id" : "http://snomed.info/sct#307632004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Non-proteinuric hypertension of pregnancy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#59940009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity alveolitis in lungworm infection (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1076041000119100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of synovium of joint of left foot (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#9009001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Low compliance urinary bladder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403492006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic type discoid lupus erythematosus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#58381000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersplenism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#22450000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperphosphaturia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#15709721000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperpigmentation of left lower eyelid and periocular area (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#254661000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Squamous cell papilloma of skin (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#402322005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic palmar psoriasis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#102939004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermimia (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#55050000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermnesia (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#426780009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypergonadotropic amenorrhea (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#235700007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of Brunner glands of duodenum (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#871638006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic cardiomyopathy due to glycogen storage disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#196479004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of sublingual gland (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#426943005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersomnia disorder related to menstruation (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#28575006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Transient hyperphenylalaninemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#699536006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperextension injury (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#16034711000119106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of bone of left ulna (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#25739007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperhydroxyprolinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#53332000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Spinal arthritis deformans (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#236541008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperchloremic acidosis associated with dialysis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#64654004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglycinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#890120009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic cardiomyopathy due to neuromuscular disorder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#441787004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of gingiva (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#286917001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypergonadism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#48325002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperalimentation formula for peritonitis (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#127001000119106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypervascular lesion of urinary bladder (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#199025001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperemesis gravidarum with metabolic disturbance (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403743001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Arsenic-induced skin pigmentation (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1010422002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of right condyloid process of mandible (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1010423007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of left coronoid process of mandible (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#423294001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Idiopathic hypereosinophilic syndrome (disorder)"
+  }, {
+    "@id" : "http://endhealth.info/emis#1877381000006114",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipidaemia clinical management plan no longer in place"
+  }, {
+    "@id" : "http://snomed.info/sct#1177177000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperphenylalaninemia due to DnaJ heat shock protein family (Hsp40) member C12 deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403312006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis in malnutrition (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#428575007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension secondary to kidney transplant (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#110277001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic thrush (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#735429002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of bone (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#59655002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperprolinemia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#402172000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis caused by phytophotodermatitis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403256009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis of the eyelids due to hyperthyroidism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#785726009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperekplexia epilepsy syndrome (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#403259002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermelanosis due to pheochromocytoma (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#64460009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperalimentation formula for intestinal fistula (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#771509001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic cardiomyopathy and renal tubular disease due to mitochondrial deoxyribonucleic acid mutation (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#61627001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperchlorhydria (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#373123005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkinesis of region of cardiac wall (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#444059002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercholesterolemia well controlled (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#17904003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic laryngitis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#237890006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Autosomal dominant hypophosphatemic bone disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#96721000119103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart AND chronic kidney disease stage 4 (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#313481000119101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlordosis deformity of lumbar and sacral spine (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#721235003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperinsulinism due to insulin receptor deficiency (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#306916006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Increased mobility of tympanic membrane (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#55765009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipoproteinemia diet, type V (finding)"
+  }, {
+    "@id" : "http://endhealth.info/emis#1098851000006118",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Adverse reaction to *Hypericum Perforatum"
+  }, {
+    "@id" : "http://snomed.info/sct#1091551000119105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperacusis of right ear (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#238978007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperschemazia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#194779001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart and renal disease with (congestive) heart failure (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#234993000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity gingivitis (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#77692006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersomnia (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#44387004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Decompression chamber therapy (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#765154003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of right kidney co-occurrent and due to congenital hypoplasia of left kidney (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#1148936005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperphosphatemia due to chronic kidney disease (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#64559002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypervitaminosis A (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#237466001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of gland of Montgomery (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#276878008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Squamous cell hyperplasia of vulva (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#626004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercortisolism due to nonpituitary tumor (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#49171007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive renal disease complicating AND/OR reason for care during childbirth (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#78625002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperparathyroidism due to intestinal malabsorption (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#289861006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis of female perineum (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#53734002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis of yaws (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#871642009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension due to aortic arch obstruction (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#768554008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypermanganesemia with dystonia 2 (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#42077005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Increased flexion (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#50490005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive encephalopathy (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#85316008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophied anal papilla (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#39155009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension education (regime/therapy)"
+  }, {
+    "@id" : "http://snomed.info/sct#44455001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersomnia disorder related to a known organic factor (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#123791008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Fibrinogen in blood above reference range (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#194781004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertensive heart and renal disease with both (congestive) heart failure and renal failure (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#68266006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophic lichen planus (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#106005003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension AND/OR vomiting complicating pregnancy childbirth AND/OR puerperium (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#89452002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic polyp of intestine (disorder)"
+  } ]
+}

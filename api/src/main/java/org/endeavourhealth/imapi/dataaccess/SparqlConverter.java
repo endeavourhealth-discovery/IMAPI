@@ -310,7 +310,7 @@ public class SparqlConverter {
                         first= false;
                     }
                     String inList = iriFromAlias(instance);
-                    if (inList == null) {
+                    if (inList == null&&match.getWhere()==null) {
                         throw new QueryException("Match clause has instance of without an IRI,  and  without a where clause.");
                     }
                     if (instance.getNodeRef() != null) {

@@ -172,12 +172,12 @@ public class IMQToOS {
 		return "def usage=0;" +
 			"if (doc['usageTotal'].size()>0) {" +
 			"  def value = doc['usageTotal'].value;" +
-			"  if (value<10000) {usage = 0;}" +
-			"  else if (value <300000) {usage = 1;}" +
-			"  else if (value <2000000) {usage = 2;}" +
-			"  else if (value <3000000) {usage = 3;}" +
-			"  else if (value <4000000) {usage = 4;}" +
-			"  else {usage = 5;}" +
+			"  if (value<1000) {usage = 0;}" +
+			"  else if (value <30000) {usage = 1;}" +
+			"  else if (value <200000) {usage = 2;}" +
+			"  else if (value <1000000) {usage = 3;}" +
+			"  else if (value <3000000) {usage = 5;}" +
+			"  else {usage = 7;}" +
 			"  }" +
 			"if (_score>1000000) {_score=3;} else _score=0;_score+ usage;";
 	}

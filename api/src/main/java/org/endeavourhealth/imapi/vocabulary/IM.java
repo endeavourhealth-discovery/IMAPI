@@ -226,4 +226,5 @@ public class IM {
     public static final String VALUE_TEMPLATE = IM.NAMESPACE + "valueTemplate";
     public static final String DEFAULT_VALUE = IM.NAMESPACE + "defaultValue";
     public static final String LOAD_MORE = IM.NAMESPACE + "loadMore";
+    public static final String DATA_MODEL_CONCEPT = IM.NAMESPACE + "concept";
 }

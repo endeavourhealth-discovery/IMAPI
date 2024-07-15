@@ -1000,6 +1000,10 @@
       {
         "name": "LOAD_MORE",
         "value": "IM.NAMESPACE + \"loadMore\""
+      },
+      {
+        "name": "DATA_MODEL_CONCEPT",
+        "value": "IM.NAMESPACE + \"concept\""
       }
     ]
   },

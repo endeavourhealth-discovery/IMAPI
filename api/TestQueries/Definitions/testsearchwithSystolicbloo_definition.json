@@ -1,0 +1,37 @@
+{
+  "@context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
+  },
+  "textSearch" : "Systolic bloo",
+  "query" : {
+    "name" : "test search with Systolic bloo",
+    "match" : [ {
+      "where" : [ {
+        "@id" : "rdf:type",
+        "is" : [ {
+          "@id" : "im:Concept"
+        }, {
+          "@id" : "im:ConceptSet"
+        } ]
+      }, {
+        "@id" : "im:status",
+        "is" : [ {
+          "@id" : "im:Active"
+        } ]
+      }, {
+        "@id" : "im:scheme",
+        "is" : [ {
+          "@id" : "im:"
+        }, {
+          "@id" : "sn:"
+        } ]
+      } ]
+    } ]
+  }
+}

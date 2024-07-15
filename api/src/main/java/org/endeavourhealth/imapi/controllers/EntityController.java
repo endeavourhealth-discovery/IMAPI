@@ -32,6 +32,7 @@ import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.SetContent;
 import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.*;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
@@ -80,7 +81,7 @@ public class EntityController {
             summary = "Advanced entity search",
             description = "Performs an advanced entity search with multiple filter options"
     )
-    public SearchResponse advancedSearch(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException {
+    public SearchResponse advancedSearch(@RequestBody QueryRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException, QueryException, DataFormatException {
         try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Search.POST")) {
             LOG.debug("advancedSearch");
             return entityService.advancedSearch(request);

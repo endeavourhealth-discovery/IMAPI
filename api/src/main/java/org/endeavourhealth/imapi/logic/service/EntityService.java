@@ -19,6 +19,7 @@ import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.FormGenerator;
 import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.set.ExportSet;
@@ -39,6 +40,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.DataFormatException;
 
 import static java.util.Comparator.comparingInt;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -283,9 +285,9 @@ public class EntityService {
         return entityTripleRepository.getConceptUsagesCount(iri);
     }
 
-    public SearchResponse advancedSearch(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+    public SearchResponse advancedSearch(QueryRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
         SearchResponse searchResults = searchService.getEntitiesByTerm(request);
-        searchResults.setPage(request.getPage());
+        searchResults.setPage(request.getPage().getPageNumber());
         return searchResults;
     }
 

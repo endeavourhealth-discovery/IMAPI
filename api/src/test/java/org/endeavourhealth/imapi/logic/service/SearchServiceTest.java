@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
@@ -32,44 +34,11 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 class SearchServiceTest {
 
-	private String testDefinitions;
-	private String testResults;
 	private String succinctDefinitions;
 
-	//@Test
-	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, IOException {
-		testDefinitions = System.getenv("folder") + "\\Definitions";
-		testResults = System.getenv("folder") + "\\Results";
-	 Date startTime = new Date();
-	 int count=0;
-		 for (String input : List.of("Systolic bloo")) {
-			 count++;
-			 SearchRequest request = TestQueries.observationConcepts(input);
-			 output(request, "observation entities starting with Systolic bl", true);
-			 Long start=null;
-			 for (Map<Long,String> entries: request.getTimings()){
-				 for (Map.Entry<Long,String> entry:entries.entrySet()){
-					 if (start==null){
-						 System.out.println("0 "+ entry.getValue());
-						 start= entry.getKey();
-					 }
-					 else {
-						 System.out.println(entry.getKey() - start + " " + entry.getValue());
-					 }
-				 }
-			 }
-		 }
-	 Date endTime = new Date();
-	 System.out.println("average = "+ ((endTime.getTime()-startTime.getTime())/count)+" milliseconds");
 
-
-	}
 //@Test
 	void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
-		testDefinitions = System.getenv("folder") + "\\Definitions";
-		testResults = System.getenv("folder") + "\\Results";
-		String testSparql = System.getenv("folder") + "\\Sparql";
-		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
 	 output(TestQueries.getAllowableSubtypes());
 		output(TestQueries.query2());
 		//output(TestQueries.pathQueryAtenolol3());
@@ -116,28 +85,16 @@ class SearchServiceTest {
 	}
 
 	private void pathOutput(String source, String target,String name) throws DataFormatException {
-		testResults = System.getenv("folder");
+		Path path= Paths.get("TestQueries/Results/"+"PathQuery_"+name + "_Matches.json").toAbsolutePath();
 		PathDocument result= new SearchService().pathQuery(new PathQuery().setSource(iri(source)).setTarget(iri(target)));
-		try (FileWriter wr = new FileWriter(testResults + "\\" + "PathQuery_"+name + "_Matches.json")) {
+		try (FileWriter wr = new FileWriter(path.toString())) {
 			wr.write(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private void output(SearchRequest request,String name,boolean write) throws IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
 
-		SearchService ss = new SearchService();
-		SearchResponse results = ss.getEntitiesByTerm(request);
-		if (write) {
-			try (FileWriter wr = new FileWriter(testDefinitions + "\\" + name + "_definition.json")) {
-				wr.write(new ObjectMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(request));
-			}
-			System.out.println("Found "+ results.getEntities().size()+" entities" );
-
-		}
-
-	}
 
 
 	private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
@@ -156,15 +113,17 @@ class SearchServiceTest {
 		SearchService searchService = new SearchService();
 		System.out.println("Testing " + name);
 		dataSet.setContext(TTManager.createBasicContext());
+		Path path= Paths.get("TestQueries/Definitions/"+name + "_definition.json").toAbsolutePath();
 
-		try (FileWriter wr = new FileWriter(testDefinitions + "\\" + name + "_definition.json")) {
+		try (FileWriter wr = new FileWriter( path.toString())) {
 			wr.write(new JsonLDMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(dataSet));
 		}
 		ObjectMapper om= new ObjectMapper();
 
 		if (dataSet.getQuery() != null) {
 			JsonNode result = searchService.queryIM(dataSet);
-			try (FileWriter wr = new FileWriter(testResults + "\\" + name + "_result.json")) {
+			path= Paths.get("TestQueries/Results/"+name + "_results.json").toAbsolutePath();
+			try (FileWriter wr = new FileWriter(path.toString())) {
  				wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
 			}
 

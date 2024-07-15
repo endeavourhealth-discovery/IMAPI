@@ -29,7 +29,7 @@ public class EqdPopToIMQ {
 			Match rootMatch = new Match();
 			query.addMatch(rootMatch);
 				rootMatch
-				.addIs(new Node().setIri(IM.NAMESPACE+"Q_RegisteredGMS"))
+				.addInstanceOf(new Node().setIri(IM.NAMESPACE+"Q_RegisteredGMS").setMemberOf(true))
 				.setName("Registered with GP for GMS services on the reference date");
 		}
 		else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
@@ -37,7 +37,7 @@ public class EqdPopToIMQ {
 			Match rootMatch = new Match();
 			query.addMatch(rootMatch);
 				rootMatch
-					.addIs(new Node().setIri("urn:uuid:" + id))
+					.addInstanceOf(new Node().setIri("urn:uuid:" + id).setMemberOf(true))
 					.setName(resources.reportNames.get(id));
 			}
 

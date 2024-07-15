@@ -8,8 +8,16 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 @JsonPropertyOrder({"parameter","iri","type","set","variable","name"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Node extends Element{
+	private boolean exclude;
 
+	public boolean isExclude() {
+		return exclude;
+	}
 
+	public Node setExclude(boolean exclude) {
+		this.exclude = exclude;
+		return this;
+	}
 
 	public Node setNodeRef(String nodeRef) {
 		super.setNodeRef(nodeRef);
@@ -30,11 +38,6 @@ public class Node extends Element{
 	public Node(String iri){
 		super.setIri(iri);
 	}
-
-
-
-
-
 
 
 	public Node setAncestorsOf(boolean ancestorsOf) {

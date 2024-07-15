@@ -265,13 +265,13 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 					if (result instanceof Node) {
 						node= (Node) result;
 						nodes.add(node);
-						match.setInstanceOf((Node) result);
+						match.addInstanceOf((Node) result);
 					}
 					else if (result instanceof TTIriRef iri) {
 						if (node==null){
 							node= new Node();
 							nodes.add(node);
-							match.setInstanceOf(node);
+							match.addInstanceOf(node);
 						}
 						if (iri.getIri() != null)
 							node.setIri(iri.getIri());
@@ -585,7 +585,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 					}
 				}
 				if (result instanceof Match) {
-					Node node = ((Match) result).getInstanceOf();
+					Node node = ((Match) result).getInstanceOf().get(0);
 					if (where == null) {
 						where = new Where();
 						wheres.add(where);

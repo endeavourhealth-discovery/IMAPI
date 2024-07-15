@@ -8,10 +8,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
 import org.endeavourhealth.imapi.vocabulary.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"context","textSearch","argument","referenceDate","query","pathQuery","update"})
@@ -29,6 +26,43 @@ public class QueryRequest implements ContextMap {
 	private Update update;
 	private String referenceDate;
 	private String askIri;
+	private List<Map<Long,String>>timings = new ArrayList<>();
+	private List<TTIriRef> cohort;
+
+	public List<TTIriRef> getCohort() {
+		return cohort;
+	}
+
+	public QueryRequest setCohort(List<TTIriRef> cohort) {
+		this.cohort = cohort;
+		return this;
+	}
+	public QueryRequest addToCohort (TTIriRef cohort){
+		if (this.cohort == null) {
+			this.cohort = new ArrayList<>();
+		}
+		this.cohort.add(cohort);
+		return this;
+	}
+
+
+	public List<Map<Long,String>> getTimings() {
+		return timings;
+	}
+
+	public QueryRequest setTimings(List<Map<Long,String>> timings) {
+		this.timings = timings;
+		return this;
+	}
+
+	public QueryRequest addTiming(String positiion){
+		long now = new Date().getTime();
+		Map<Long,String> timingMap= new HashMap<>();
+		timingMap.put(now,positiion);
+		timings.add(timingMap);
+		return this;
+	}
+
 
 
 

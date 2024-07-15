@@ -74,8 +74,8 @@ public class IMQToECLBuilder {
     private ExpressionConstraint createConcept(Match match) throws EclBuilderException {
         ExpressionConstraint concept = new ExpressionConstraint();
         if (null != match.getInstanceOf()) {
-            concept.setConstraintOperator(getOperator(match.getInstanceOf()));
-            concept.setConceptSingle(new ConceptReference(match.getInstanceOf().getIri()));
+            concept.setConstraintOperator(getOperator(match.getInstanceOf().get(0)));
+            concept.setConceptSingle(new ConceptReference(match.getInstanceOf().get(0).getIri()));
         } else if (null != match.getMatch()) {
             BoolGroup boolGroup = new BoolGroup();
             if (null != match.getBoolMatch()) boolGroup.setConjunction(match.getBoolMatch());

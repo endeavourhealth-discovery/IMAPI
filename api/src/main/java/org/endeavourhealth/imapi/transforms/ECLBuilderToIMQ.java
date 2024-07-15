@@ -44,7 +44,7 @@ public class ECLBuilderToIMQ {
         if (null != expressionConstraint.getConceptSingle()) {
             Node node = new Node(expressionConstraint.getConceptSingle().getIri());
             setOperator(node,expressionConstraint.getConstraintOperator());
-            match.setInstanceOf(node);
+            match.addInstanceOf(node);
         } else if (null != expressionConstraint.getConceptBool()) {
             match.setBoolMatch(expressionConstraint.getConceptBool().getConjunction());
             for (BuilderComponent builderComponent : expressionConstraint.getConceptBool().getItems()) {
@@ -74,6 +74,7 @@ public class ECLBuilderToIMQ {
         if (!roleGroup) where.setAnyRoleGroup(true);
         if (null == refinement.getProperty().getConcept()) throw new EclBuilderException("Missing iri for property concept");
         where.setIri(refinement.getProperty().getConcept().getIri());
+        if (null == refinement.getValue().getConcept()) throw new EclBuilderException("Missing iri for property value");
         Node value = new Node(refinement.getValue().getConcept().getIri());
         setOperator(value, refinement.getValue().getConstraintOperator());
         if (refinement.getOperator().equals("=")) {

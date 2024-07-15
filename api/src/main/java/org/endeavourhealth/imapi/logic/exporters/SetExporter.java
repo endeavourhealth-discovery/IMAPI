@@ -84,7 +84,7 @@ public class SetExporter {
             if (null == result || result.isEmpty()) {
                 Query descendantsOf = new Query()
                     .match(f -> f
-                        .setInstanceOf(new Node().setIri(iri)
+                        .instanceOf(n->n.setIri(iri)
                             .setDescendantsOrSelfOf(true)));
                 result = setRepository.getSetExpansion(descendantsOf, legacy, null, schemes);
             }

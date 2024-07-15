@@ -1,0 +1,15 @@
+{
+  "page" : 1,
+  "count" : 4,
+  "totalCount" : 4,
+  "term" : "FOXG1",
+  "entities" : [ {
+    "@id" : "http://snomed.info/sct#1254652005"
+  }, {
+    "@id" : "http://snomed.info/sct#771512003"
+  }, {
+    "@id" : "http://snomed.info/sct#783089006"
+  }, {
+    "@id" : "http://snomed.info/sct#702450004"
+  } ]
+}

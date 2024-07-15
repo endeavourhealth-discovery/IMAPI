@@ -56,10 +56,10 @@ public class OpenSearchSender {
 
     public void execute(boolean update) throws IOException, InterruptedException {
         om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+       // om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        //om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
         checkEnvs();
-        putOrderByScript();
+        setScripts();
         checkIndexExists();
 
 
@@ -76,18 +76,19 @@ public class OpenSearchSender {
         Set<String> entityIris = new HashSet<>(2000000);
         if (maxId > 0 && (cache != null)) {
             getIriCache(entityIris);
-        } else {
+        }
+        else {
 
             String sql = new StringJoiner(System.lineSeparator())
-                .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-                .add("PREFIX im: <http://endhealth.info/im#>")
-                .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-                .add("select ?iri")
-                .add("where {")
-                .add("  ?iri rdfs:label ?name.")
-                .add("  filter(isIri(?iri))")
-                .add("}")
-                .add("order by ?iri").toString();
+              .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+              .add("PREFIX im: <http://endhealth.info/im#>")
+              .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+              .add("select ?iri")
+              .add("where {")
+              .add("  ?iri rdfs:label ?name.")
+              .add("  filter(isIri(?iri))")
+              .add("}")
+              .add("order by ?iri").toString();
             try (RepositoryConnection conn = repo.getConnection()) {
                 LOG.info("Fetching entity iris  ...");
                 TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
@@ -133,8 +134,8 @@ public class OpenSearchSender {
             String iri = mapIterator.next();
             mapNumber++;
             EntityDocument doc = new EntityDocument()
-                .setId(mapNumber)
-                .setIri(iri)
+              .setId(mapNumber)
+              .setIri(iri)
               .setSubsumptionCount(0);
             batch.put(iri, doc);
 
@@ -180,9 +181,10 @@ public class OpenSearchSender {
         getCore(batch, inList);
         getTermCodes(batch, inList);
         getIsas(batch, inList);
-        getSubsumptions(batch,inList);
+        getSubsumptions(batch, inList);
         getSetMembership(batch, inList);
     }
+
     private void getCore(Map<String, EntityDocument> batch, String inList) {
         String sql = getBatchCoreSql(inList);
 
@@ -195,6 +197,7 @@ public class OpenSearchSender {
                     EntityDocument blob = batch.get(iri);
                     String name = rs.getValue("name").stringValue();
                     blob.setName(name);
+                    blob.setUsageTotal(0);
 
                     String code;
                     if (rs.getValue("code") != null) {
@@ -205,8 +208,8 @@ public class OpenSearchSender {
                         String preferred = rs.getValue("preferredName").stringValue();
                         blob.setPreferredName(preferred);
                     }
-                    if (rs.getValue("alternativeCode")!=null){
-                        String alternativeCode= rs.getValue("alternativeCode").stringValue();
+                    if (rs.getValue("alternativeCode") != null) {
+                        String alternativeCode = rs.getValue("alternativeCode").stringValue();
                         blob.setAlternativeCode(alternativeCode);
                     }
 
@@ -217,9 +220,9 @@ public class OpenSearchSender {
                         if (rs.getValue("schemeName") != null)
                             scheme.setName(rs.getValue("schemeName").stringValue());
                         blob.setScheme(scheme);
-                    } else {
+                    }
+                    else {
                         TTIriRef scheme = iri(rs.getValue("graph").stringValue());
-
                         if (rs.getValue("graphName") != null)
                             scheme.setName(rs.getValue("graphName").stringValue());
                         blob.setScheme(scheme);
@@ -254,8 +257,8 @@ public class OpenSearchSender {
                     if (rs.getValue("path") != null) {
                         blob.addBinding(iri(rs.getValue("path").stringValue()),iri(rs.getValue("node").stringValue()));
                     }
-                    String lengthKey= blob.getPreferredName()!=null ? blob.getPreferredName(): name;
-                    lengthKey= getLengthKey(lengthKey);
+                    String lengthKey = blob.getPreferredName() != null ? blob.getPreferredName() : name;
+                    lengthKey = getLengthKey(lengthKey);
 
                     blob.setLength(lengthKey.length());
                     blob.addTermCode(name, null, null);
@@ -272,12 +275,13 @@ public class OpenSearchSender {
     }
 
 
+
     private String getLengthKey(String lengthKey) {
-        if (lengthKey.endsWith(")")){
-            String[] words= lengthKey.split(" \\(");
-            lengthKey= words[0];
-            for (int i=1;i<words.length-1;i++){
-                lengthKey=lengthKey+ " ("+words[i];
+        if (lengthKey.endsWith(")")) {
+            String[] words = lengthKey.split(" \\(");
+            lengthKey = words[0];
+            for (int i = 1; i < words.length - 1; i++) {
+                lengthKey = lengthKey + " (" + words[i];
             }
         }
         return lengthKey;
@@ -307,11 +311,11 @@ public class OpenSearchSender {
             .add("  Optional {?iri im:scheme ?scheme.")
             .add("  Optional {?scheme rdfs:label ?schemeName } }")
             .add("  Optional {?iri im:code ?code.}")
-          .add("   Optional {?iri im:binding ?binding.")
-          .add("   ?binding sh:path ?path.")
-          .add("   ?binding sh:node ?node. }")
+            .add("   Optional {?iri im:binding ?binding.")
+            .add("   ?binding sh:path ?path.")
+            .add("   ?binding sh:node ?node. }")
             .add("  Optional {?iri im:usageTotal ?usageTotal.}")
-          .add("  Optional {?iri im:alternativeCode ?alternativeCode.}")
+            .add("  Optional {?iri im:alternativeCode ?alternativeCode.}")
             .add("}").toString();
     }
 
@@ -335,20 +339,19 @@ public class OpenSearchSender {
                     if (rs.getValue("termCodeStatus") != null)
                         status = iri(rs.getValue("termCodeStatus").stringValue());
                     if (synonym != null) {
-                        if (status==null)
-                            addMatchTerm(blob,synonym);
-                        else if (!status.getIri().equals(IM.INACTIVE))
-                            addMatchTerm(blob, synonym);
+                        addMatchTerm(blob, synonym);
                         SearchTermCode tc = getTermCode(blob, synonym);
                         if (tc == null) {
                             blob.addTermCode(synonym, termCode, status);
                             addKey(blob, synonym);
-                        } else {
+                        }
+                        else {
                             if (termCode != null) {
                                 tc.setCode(termCode);
                             }
                         }
-                    } else if (termCode != null) {
+                    }
+                    else if (termCode != null) {
                         SearchTermCode tc = getTermCodeFromCode(blob, termCode);
                         if (tc == null) {
                             blob.addTermCode(null, termCode, status);
@@ -362,17 +365,17 @@ public class OpenSearchSender {
 
     private String getBatchTermsSql(String inList) {
         return new StringJoiner(System.lineSeparator())
-            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-            .add("PREFIX im: <http://endhealth.info/im#>")
-            .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-            .add("select ?iri ?termCode ?synonym ?termCodeStatus")
-            .add("where {")
-            .add("?iri im:hasTermCode ?tc.")
-            .add("      filter (?iri in (" + inList + ") )")
-            .add("       Optional {?tc im:code ?termCode}")
-            .add("       Optional  {?tc rdfs:label ?synonym}")
-            .add("       Optional  {?tc im:status ?termCodeStatus}")
-            .add("}").toString();
+          .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+          .add("PREFIX im: <http://endhealth.info/im#>")
+          .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+          .add("select ?iri ?termCode ?synonym ?termCodeStatus")
+          .add("where {")
+          .add("?iri im:hasTermCode ?tc.")
+          .add("      filter (?iri in (" + inList + ") )")
+          .add("       Optional {?tc im:code ?termCode}")
+          .add("       Optional  {?tc rdfs:label ?synonym}")
+          .add("       Optional  {?tc im:status ?termCodeStatus}")
+          .add("}").toString();
     }
 
     private void getIsas(Map<String, EntityDocument> batch, String inList) {
@@ -390,6 +393,7 @@ public class OpenSearchSender {
         }
 
     }
+
     private void getSubsumptions(Map<String, EntityDocument> batch, String inList) {
         String sql = getSubsumptionSql(inList);
         try (RepositoryConnection conn = repo.getConnection()) {
@@ -406,18 +410,21 @@ public class OpenSearchSender {
 
     }
 
+
+
     private String getBatchIsaSql(String inList) {
         return new StringJoiner(System.lineSeparator())
-            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-            .add("PREFIX im: <http://endhealth.info/im#>")
-            .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-            .add("select ?iri ?superType")
-            .add("where {")
-            .add(" ?iri im:isA ?superType.")
-            .add("      filter (?iri in (" + inList + ") )")
-            .add(" ?superType im:status im:Active.")
-            .add("}").toString();
+          .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+          .add("PREFIX im: <http://endhealth.info/im#>")
+          .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+          .add("select ?iri ?superType")
+          .add("where {")
+          .add(" ?iri im:isA ?superType.")
+          .add("      filter (?iri in (" + inList + ") )")
+          .add(" ?superType im:status im:Active.")
+          .add("}").toString();
     }
+
     private String getSubsumptionSql(String inList) {
         return new StringJoiner(System.lineSeparator())
           .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
@@ -431,6 +438,7 @@ public class OpenSearchSender {
           .add("}")
           .add("group by ?iri").toString();
     }
+
     private void getSetMembership(Map<String, EntityDocument> batch, String inList) {
         String sql = getSetMembershipSql(inList);
         try (RepositoryConnection conn = repo.getConnection()) {
@@ -450,23 +458,21 @@ public class OpenSearchSender {
 
     private String getSetMembershipSql(String inList) {
         return new StringJoiner(System.lineSeparator())
-            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-            .add("PREFIX im: <http://endhealth.info/im#>")
-            .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-            .add("select ?iri ?set")
-            .add("where {")
-            .add(" ?set im:hasMember ?iri.")
-            .add("      filter (?iri in (" + inList + ") )")
-            .add("}").toString();
+          .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+          .add("PREFIX im: <http://endhealth.info/im#>")
+          .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+          .add("select ?iri ?set")
+          .add("where {")
+          .add(" ?set im:hasMember ?iri.")
+          .add("      filter (?iri in (" + inList + ") )")
+          .add("}").toString();
     }
 
 
-
-
     private void addMatchTerm(EntityDocument blob, String term) {
-        term=term.replaceAll("[ '()\\-_./]","").toLowerCase();
-        if (term.length()>30)
-            term=term.substring(0,30);
+        term = term.replaceAll("[ '()\\-_./]", "").toLowerCase();
+        if (term.length() > 30)
+            term = term.substring(0, 30);
         blob.addMatchTerm(term);
     }
 
@@ -553,16 +559,19 @@ public class OpenSearchSender {
 
                             if (retrySleep < 60)
                                 retrySleep = retrySleep * 2;
-                        } else if (response.getStatus() == 403) {
+                        }
+                        else if (response.getStatus() == 403) {
                             String responseData = response.readEntity(String.class);
                             LOG.error(responseData);
                             LOG.error("Potentially out of disk space");
                             throw new IllegalStateException("Potential disk full");
-                        } else if (response.getStatus() != 200 /*&& response.getStatus() != 201*/) {
+                        }
+                        else if (response.getStatus() != 200 /*&& response.getStatus() != 201*/) {
                             String responseData = response.readEntity(String.class);
                             LOG.error(responseData);
                             throw new IllegalStateException("Error posting to OpenSearch");
-                        } else {
+                        }
+                        else {
                             retrySleep = 5;
                             // Check for errors
                             String responseData = response.readEntity(String.class);
@@ -589,30 +598,32 @@ public class OpenSearchSender {
         target = client.target(osUrl).path(index + "/_search");
 
         try (Response response = target
-            .request()
-            .header("Authorization", "Basic " + osAuth)
-            .post(Entity.entity("""
-                {
-                    "aggs" : {
-                      "max_id" : {
-                        "max" : {
-                          "field" : "id"
-                        }
-                      }
-                    },
-                    "size":0
-                  }""", MediaType.APPLICATION_JSON))) {
+          .request()
+          .header("Authorization", "Basic " + osAuth)
+          .post(Entity.entity("""
+            {
+                "aggs" : {
+                  "max_id" : {
+                    "max" : {
+                      "field" : "id"
+                    }
+                  }
+                },
+                "size":0
+              }""", MediaType.APPLICATION_JSON))) {
 
             if (response.getStatus() != 200) {
                 String responseData = response.readEntity(String.class);
                 if (responseData.contains("index_not_found_exception")) {
                     LOG.info("No documents, starting from zero");
                     return 0;
-                } else {
+                }
+                else {
                     LOG.error(responseData);
                     throw new IllegalStateException("Error getting max document id from OpenSearch");
                 }
-            } else {
+            }
+            else {
                 String responseData = response.readEntity(String.class);
                 JsonNode root = om.readTree(responseData);
                 int maxId = root.get("aggregations").get("max_id").get("value").asInt();
@@ -628,14 +639,14 @@ public class OpenSearchSender {
         target = client.target(osUrl).path(index);
 
         try (Response response = target
-            .request()
-            .header("Authorization", "Basic " + osAuth)
-            .head()) {
+          .request()
+          .header("Authorization", "Basic " + osAuth)
+          .head()) {
 
             if (response.getStatus() != 200) {
                 LOG.info("{} does not exist - creating index and default mappings", index);
                 target = client.target(osUrl).path(index);
-                String settings= "{\"settings\": {\n" +
+                String settings = "{\"settings\": {\n" +
                   "    \"analysis\": {\n" +
                   "      \"filter\": {\n" +
                   "        \"edge_ngram_filter\": {\n" +
@@ -656,8 +667,8 @@ public class OpenSearchSender {
                   "      }\n" +
                   "    }\n" +
                   "  },";
-                String mappings= settings+"""
-                  
+                String mappings = settings + """
+                                    
                     "mappings": {
                       "properties": {
                         "scheme": {
@@ -773,64 +784,103 @@ public class OpenSearchSender {
                       }
                     }
                   }
-                  
+                                    
                   """;
 
                 try (Response createResponse = target
-                    .request()
-                    .header("Authorization", "Basic " + osAuth)
-                    .put(Entity.entity(mappings, MediaType.APPLICATION_JSON))) {
+                  .request()
+                  .header("Authorization", "Basic " + osAuth)
+                  .put(Entity.entity(mappings, MediaType.APPLICATION_JSON))) {
                     LOG.info("Index check {}", createResponse.getStatus());
                 }
             }
         }
     }
-    private void putOrderByScript(){
-        String script="{" +
-          "  \"script\": {" +
-          "      \"lang\": \"painless\"," +
-          "      \"source\": \"" +
-          "        def orders = params['orders'];" +
-          "        int score=1000000;" +
-          "    int dif= 100000;" +
-          "    for (int i= 0; i<orders.orderBy.size(); i++){" +
-          "    def orderBy= orders.orderBy.get(i);" +
-          "    def field = orderBy.field;" +
-          "    if (orderBy.iriValue!=null){" +
-          "      field = field + '.@id';" +
-          "      if (doc.containsKey(field)){" +
-          "        for (int q=0; q<orderBy.iriValue.size(); q++){" +
-          "                def iri= orderBy.iriValue[q];" +
-          "                if (!doc[field].contains(iri)){" +
-          "                  score=score-(dif);" +
-          "                }" +
-          "              }" +
-          "            }" +
-          "            else" +
-          "                score=score-(dif*9);" +
-          "          }" +
-          "          if (orderBy.startsWithTerm!=null){" +
-          "            if (orderBy.startsWithTerm==true) {" +
-          "              field=field+'.keyword';" +
-          "              if (doc.containsKey(field)){" +
-          "                if (doc[field].size()>0){" +
-          "                  if (!doc[field].value.toLowerCase().startsWith(params['term'])){" +
-          "                    score=score-dif;" +
-          "                  }" +
-          "                }" +
-          "              }" +
-          "            }" +
-          "          }" +
-          "          dif=dif/10;" +
-          "        }" +
-          "      return score;" +
-          "        \"" +
-          "  }" +
-          "}";
+
+    private void setScripts() {
+        postScript("autocomplete_template", getAutocompleteScript());
+        postScript("ngram_template", getNgramScript());
+    }
+
+    private String getNgramScript() {
+        return "{\"script\": {\"lang\": \"mustache\",\"source\" :\""+
+          "{\\\"from\\\":\\\"{{from}}\\\"," +
+          "   \\\"size\\\":\\\"{{size}}\\\"," +
+          "   \\\"query\\\":{" +
+          "     \\\"script_score\\\":{" +
+          "       \\\"query\\\":{" +
+          "       \\\"bool\\\":{" +
+          "       \\\"filter\\\":{{#toJson}}filters{{/toJson}}," +
+          "         \\\"must\\\":["+
+          "            {\\\"match\\\":{"+
+          "              \\\"termCode.term\\\":{"+
+          "                \\\"query\\\":\\\"{{userText}}\\\","+
+          "                \\\"operator\\\":\\\"AND\\\","+
+          "                \\\"analyzer\\\":\\\"standard\\\",\\\"fuzziness\\\":\\\"2\\\"}}}]"+
+          "         }}," +
+          "       \\\"script\\\":{\\\"source\\\":\\\""+
+        getScoreScript()+
+          "\\\"}}}," +
+          "  \\\"_source\\\":{" +
+          "  \\\"includes\\\":{{#toJson}}sources{{/toJson}}," +
+          "  \\\"excludes\\\":[]" +
+          "}}\"" +
+          "}\n" +
+          "}\n";
 
 
+    }
 
-        target = client.target(osUrl).path("_scripts/orderBy");
+    public String getAutocompleteScript() {
+        return "{\"script\": {\"lang\": \"mustache\",\"source\" :\""+
+          "{\\\"from\\\":\\\"{{from}}\\\"," +
+          "   \\\"size\\\":\\\"{{size}}\\\"," +
+          "   \\\"query\\\":{" +
+          "     \\\"script_score\\\":{" +
+          "       \\\"query\\\":{" +
+          "       \\\"bool\\\":{" +
+          "       \\\"filter\\\":{{#toJson}}filters{{/toJson}}," +
+          "         \\\"should\\\":[" +
+          "            {\\\"term\\\":{\\\"code\\\":{\\\"value\\\":\\\"{{userText}}\\\"}}}," +
+          "            {\\\"term\\\":{\\\"alternativeCode\\\":{\\\"value\\\":\\\"{{userText}}\\\"}}}," +
+          "            {\\\"term\\\":{\\\"iri\\\":{\\\"value\\\":\\\"{{userText}}\\\"}}}," +
+          "            {\\\"term\\\":{\\\"termCode.code\\\":{\\\"value\\\":\\\"{{userText}}\\\"}}}," +
+          "            {\\\"prefix\\\":{\\\"key\\\":{\\\"value\\\":\\\"{{userText}}\\\"}}}," +
+          "            {\\\"prefix\\\":{\\\"matchTerm\\\":{\\\"value\\\":\\\"{{userPrefixText}}\\\",\\\"boost\\\":1000000}}}," +
+          "            {\\\"match_phrase_prefix\\\":{\\\"termCode.term\\\":{\\\"query\\\":\\\"{{userText}}\\\",\\\"analyzer\\\":\\\"standard\\\",\\\"slop\\\":1}}}" +
+          "         ]," +
+          "         \\\"minimum_should_match\\\":\\\"1\\\"" +
+          "         }" +
+          "       }," +
+          "       \\\"script\\\":{\\\"source\\\":\\\""+ getScoreScript()+
+
+          "\\\"}}}," +
+          "  \\\"_source\\\":{" +
+          "  \\\"includes\\\":{{#toJson}}sources{{/toJson}}," +
+          "  \\\"excludes\\\":[]" +
+          "}}\"" +
+          "}\n" +
+          "}\n";
+    }
+
+    private String getScoreScript(){
+        return "def usage=0;"+
+          "if (doc['usageTotal'].size()>0) {"+
+          "  def value = doc['usageTotal'].value;" +
+          "  if (value<10000) {usage = 0;}" +
+          "  else if (value <300000) {usage = 1;}" +
+          "  else if (value <2000000) {usage = 2;}" +
+          "  else if (value <3000000) {usage = 3;}" +
+          "  else if (value <4000000) {usage = 4;}" +
+          "  else {usage = 5;}" +
+          "  }"+
+          "if (_score>1000000) {_score=3;} else _score=0;_score+ usage;";
+    }
+
+
+    private void postScript(String name, String script) {
+
+        target = client.target(osUrl).path("_scripts/"+name);
         Response response = target
           .request()
           .header("Authorization", "Basic " + osAuth)

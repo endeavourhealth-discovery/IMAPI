@@ -8,19 +8,19 @@
     "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "sn" : "http://snomed.info/sct#"
   },
+  "textSearch" : "thia",
+  "argument" : [ {
+    "parameter" : "this",
+    "valueIriList" : [ {
+      "@id" : "sn:105590001"
+    } ]
+  } ],
   "query" : {
-    "name" : "AsthmaSubTypesCore",
+    "name" : "substances starting with 'thia'",
     "match" : [ {
-      "instanceOf" : {
-        "@id" : "sn:195967001",
+      "instanceOf" : [ {
+        "parameter" : "this",
         "descendantsOrSelfOf" : true
-      }
-    } ],
-    "return" : [ {
-      "property" : [ {
-        "@id" : "rdfs:label"
-      }, {
-        "@id" : "im:code"
       } ]
     } ]
   }

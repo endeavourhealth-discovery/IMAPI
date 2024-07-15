@@ -1,0 +1,126 @@
+{
+  "entities" : [ {
+    "@id" : "http://snomed.info/sct#271649006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#708502007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Systolic blood pressure of neonate at birth (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#999035921000230109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "United Kingdom National Health Service primary care data extraction - General practice data extraction - systolic blood pressure simple reference set (foundation metadata concept)"
+  }, {
+    "@id" : "http://snomed.info/sct#814101000000107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Systolic blood pressure centile (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#399304008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Systolic blood pressure on admission (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#398300007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Systolic blood pressure validity range (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#72313002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Systolic arterial pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#413606001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Average home systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#314440001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Average systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#400974009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Standing systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#314445006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Average night interval systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#163030003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "On examination - Systolic blood pressure reading (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#407554009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Sitting systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#315612005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Target systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#198081000000101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ambulatory systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#407556006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Lying systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#314446007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Average day interval systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#314449000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Average 24 hour systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#716579001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Baseline systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#314464000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "24 hour systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#1104341000000101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Royal College of Physicians National Early Warning Score 2 - systolic blood pressure score (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#251071003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Invasive systolic arterial pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#314439003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Maximum systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#314441002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Minimum day interval systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#1087991000000109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Level of reduction in systolic blood pressure on standing (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#18352002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Abnormal systolic arterial pressure (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#81010002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Decreased systolic arterial pressure (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#251070002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Non-invasive systolic arterial pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#18050000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Increased systolic arterial pressure (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#1363291000000105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "National Paediatric Early Warning Score systolic blood pressure score (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#314438006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Minimum systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#707303003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Post exercise systolic blood pressure response abnormal (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#314442009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Minimum night interval systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#1162737008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Self reported systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#314443004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Maximum night interval systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#314444005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Maximum day interval systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#1036551000000101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Non-invasive central systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#707304009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Post exercise systolic blood pressure response normal (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#314447003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Minimum 24 hour systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#314448008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Maximum 24 hour systolic blood pressure (observable entity)"
+  }, {
+    "@id" : "http://snomed.info/sct#12929001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Normal systolic arterial pressure (finding)"
+  } ]
+}

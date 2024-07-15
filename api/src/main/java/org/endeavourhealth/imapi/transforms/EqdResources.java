@@ -107,7 +107,7 @@ public class EqdResources {
             EQDOCSearchIdentifier srch = eqCriteria.getPopulationCriterion();
             Match match= new Match();
             match
-              .addIs(new Node().setIri("urn:uuid:" + srch.getReportGuid()))
+              .addInstanceOf(new Node().setIri("urn:uuid:" + srch.getReportGuid()).setMemberOf(true))
               .setName(reportNames.get(srch.getReportGuid()));
             return match;
         } else {
@@ -521,7 +521,7 @@ public class EqdResources {
             i++;
             Match member= new Match();
             match.addMatch(member);
-            member.setInstanceOf(node);
+            member.addInstanceOf(node);
             if (node.getName()!=null){
                 if (i==3)
                     name=name+" + more...";
@@ -543,7 +543,7 @@ public class EqdResources {
                 Match member= new Match();
                 outerMatch.addMatch(member);
                 member.setExclude(true);
-                member.setInstanceOf(node);
+                member.addInstanceOf(node);
             }
         }
         if (setContent.size()==1&&excContent.isEmpty()){
@@ -565,20 +565,25 @@ public class EqdResources {
         }
     }
     private void setMemberOnlySet(ConceptSet set, Match match) {
-        if (match.getInstanceOf()!=null)
-            set.addHasMember(iri(match.getInstanceOf().getIri()));
-        if (match.getMatch()!=null) {
-            for (Match subMatch:match.getMatch()){
-                setMemberOnlySet(set,subMatch);
+        if (match.getInstanceOf()!=null) {
+            for (Node node : match.getInstanceOf()) {
+                set.addHasMember(iri(node.getIri()));
+            }
+            if (match.getMatch() != null) {
+                for (Match subMatch : match.getMatch()) {
+                    setMemberOnlySet(set, subMatch);
+                }
             }
         }
 
     }
 
     private boolean memberOnly(Match match){
-        if (match.getInstanceOf()!=null){
-            if (match.getInstanceOf().isDescendantsOrSelfOf())
-                return false;
+        if (match.getInstanceOf()!=null) {
+            for (Node node : match.getInstanceOf()) {
+                if (node.isDescendantsOrSelfOf())
+                    return false;
+            }
         }
         if (match.getMatch()!=null){
             for (Match subMatch:match.getMatch()){

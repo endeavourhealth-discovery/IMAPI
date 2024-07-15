@@ -9,15 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"exclude","nodeRef","boolMatch","boolWhere","boolPath","description","graph","iri","set","type","name","path","descendantsOrSelfOf","descendantsOf",
-	"ancestorsOf","description","match","where"})
+@JsonPropertyOrder({"name","description","exclude","nodeRef","boolMatch","boolWhere","iri","typeOf","instanceOf","where","match"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends IriLD {
 
     private Bool boolMatch;
     private Bool boolWhere;
     private List<Match> match;
-    private List<Node> is;
     private boolean exclude;
     private Element graph;
     private List<Where> where;
@@ -26,7 +24,7 @@ public class Match extends IriLD {
     private String nodeRef;
     private boolean optional;
     private FunctionClause aggregate;
-    private Node instanceOf;
+    private List<Node> instanceOf;
     private Node typeOf;
     private String variable;
     private String name;
@@ -111,12 +109,27 @@ public class Match extends IriLD {
         return name;
     }
 
-    public Node getInstanceOf() {
+    public List<Node> getInstanceOf() {
         return instanceOf;
     }
 
-    public Match setInstanceOf(Node instanceOf) {
+    public Match setInstanceOf(List<Node> instanceOf) {
         this.instanceOf = instanceOf;
+        return this;
+    }
+
+    public Match addInstanceOf(Node instanceOf){
+        if (this.instanceOf==null){
+            this.instanceOf= new ArrayList<>();
+        }
+        this.instanceOf.add(instanceOf);
+        return this;
+    }
+
+    public Match instanceOf(Consumer<Node> builder){
+        Node node= new Node();
+        addInstanceOf(node);
+        builder.accept(node);
         return this;
     }
 
@@ -152,31 +165,6 @@ public class Match extends IriLD {
 
     public Match setOptional(boolean optional) {
         this.optional = optional;
-        return this;
-    }
-
-    public List<Node> getIs() {
-        return is;
-    }
-
-    @JsonSetter
-    public Match setIs(List<Node> is) {
-        this.is = is;
-        return this;
-    }
-
-
-    public Match addIs(Node in) {
-        if (this.is == null)
-            this.is = new ArrayList<>();
-        this.is.add(in);
-        return this;
-    }
-
-    public Match is(Consumer<Node> builder) {
-        Node in = new Node();
-        addIs(in);
-        builder.accept(in);
         return this;
     }
 

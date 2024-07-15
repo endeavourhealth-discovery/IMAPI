@@ -33,7 +33,7 @@ public class QueryValidator {
 			}
 		}
 		if (null != query.getInstanceOf()) {
-			query.getInstanceOf().setVariable(mainEntity);
+			query.getInstanceOf().get(0).setVariable(mainEntity);
 			variables.put(mainEntity,VarType.NODE);
 		}
 

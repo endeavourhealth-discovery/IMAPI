@@ -465,9 +465,9 @@ public class SparqlConverter {
                 o++;
                 object = "o" + o;
             }
-            if (where.getIs() != null) {
-                if (where.getIs().get(0).getVariable() != null) {
-                    object = where.getIs().get(0).getVariable();
+            if (where.getInstanceOf() != null) {
+                if (where.getInstanceOf().get(0).getVariable() != null) {
+                    object = where.getInstanceOf().get(0).getVariable();
                 }
             }
             if (where.getIsNull()) {
@@ -505,11 +505,8 @@ public class SparqlConverter {
             if (where.getIsNull()) {
                 whereQl.append(tabs).append(" }");
             }
-            if (where.getIs() != null) {
-                in(whereQl, object, where.getIs(), false);
-            }
-            if (where.getIsNot() != null) {
-                in(whereQl, object, where.getIsNot(), true);
+            if (where.getInstanceOf() != null) {
+                in(whereQl, object, where.getInstanceOf(), false);
             } else if (where.getValue() != null) {
                 whereValue(whereQl, object, where);
             } else if (where.getMatch() != null) {

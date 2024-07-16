@@ -72,17 +72,17 @@ public class SetRepository {
             .setVariable("entity")
             .where(p->p
               .setIri(IM.PREVIOUS_ENTITY_OF)
-              .addIs(new Node().setNodeRef("activeEntity"))))
+              .addInstanceOf(new Node().setNodeRef("activeEntity"))))
           .match(m1->m1
             .setVariable("entity")
             .where(p->p
               .setIri(IM.SUBSUMED_BY)
-              .addIs(new Node().setNodeRef("activeEntity"))))
+              .addInstanceOf(new Node().setNodeRef("activeEntity"))))
           .match(m1->m1
           .setVariable("entity")
           .where(p->p
             .setIri(IM.USUALLY_SUBSUMED_BY)
-            .addIs(new Node().setNodeRef("activeEntity")))));
+            .addInstanceOf(new Node().setNodeRef("activeEntity")))));
         return getExpansion(replaced, includeLegacy, statusFilter, schemeFilter, page);
 
     }

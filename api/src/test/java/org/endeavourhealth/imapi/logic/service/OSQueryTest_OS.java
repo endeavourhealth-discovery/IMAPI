@@ -49,7 +49,7 @@ class OSQueryTest_OS {
             .match(m->m
               .where(w->w
                 .setIri(IM.HAS_SCHEME)
-                .is(is->is.setIri(SNOMED.NAMESPACE)))));
+                .instanceOf(is->is.setIri(SNOMED.NAMESPACE)))));
 
         SearchResponse results = osq.openSearchQuery(req);
         assertEquals(1, results.getEntities().size());

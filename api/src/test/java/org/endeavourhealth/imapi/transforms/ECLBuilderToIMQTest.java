@@ -41,7 +41,7 @@ public class ECLBuilderToIMQTest {
     @Test
     public void simpleRefinement() throws QueryException, EclBuilderException {
         Match match = new Match().addInstanceOf(new Node("http://snomed.info/sct#19829001").setDescendantsOf(true));
-        Where where = new Where().setIri("http://snomed.info/sct#116676008").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#387207008").setDescendantsOrSelfOf(true)).setAnyRoleGroup(true);
+        Where where = new Where().setIri("http://snomed.info/sct#116676008").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#387207008").setDescendantsOrSelfOf(true)).setAnyRoleGroup(true);
         match.addWhere(where);
         ExpressionConstraint concept = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#19829001")).setConstraintOperator("<");
         SubExpressionConstraint property = new SubExpressionConstraint().setConstraintOperator("<<").setConcept(new ConceptReference("http://snomed.info/sct#116676008"));
@@ -56,8 +56,8 @@ public class ECLBuilderToIMQTest {
     public void orRefinement() throws QueryException, EclBuilderException {
         Match match = new Match().addInstanceOf(new Node("http://snomed.info/sct#763158003").setDescendantsOrSelfOf(true));
         match.setBoolWhere(Bool.or);
-        Where where1 = new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#698090000").setDescendantsOrSelfOf(true)).setAnyRoleGroup(true);
-        Where where2 = new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#442031002").setDescendantsOrSelfOf(true)).setAnyRoleGroup(true);
+        Where where1 = new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#698090000").setDescendantsOrSelfOf(true)).setAnyRoleGroup(true);
+        Where where2 = new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#442031002").setDescendantsOrSelfOf(true)).setAnyRoleGroup(true);
         match.addWhere(where1).addWhere(where2);
         ExpressionConstraint concept = new ExpressionConstraint().setConceptSingle(new ConceptReference("http://snomed.info/sct#763158003")).setConstraintOperator("<<");
         concept.setConjunction(Bool.or);
@@ -101,7 +101,7 @@ public class ECLBuilderToIMQTest {
         Match match = new Match().setBoolMatch(Bool.or);
         Match subMatch1 = new Match().addInstanceOf(new Node("http://snomed.info/sct#91936005").setDescendantsOrSelfOf(true));
         Match subMatch2 = new Match().addInstanceOf(new Node("http://snomed.info/sct#294532003").setDescendantsOrSelfOf(true));
-        Where where = new Where().setAnyRoleGroup(true).setDescendantsOrSelfOf(true).setIri("http://snomed.info/sct#246075003").addIs(new Node("http://snomed.info/sct#771577000").setDescendantsOrSelfOf(true));
+        Where where = new Where().setAnyRoleGroup(true).setDescendantsOrSelfOf(true).setIri("http://snomed.info/sct#246075003").addInstanceOf(new Node("http://snomed.info/sct#771577000").setDescendantsOrSelfOf(true));
         match.addMatch(subMatch1).addMatch(subMatch2).addWhere(where);
         BoolGroup rootBool = new BoolGroup();
         ExpressionConstraint compoundConcept = new ExpressionConstraint();
@@ -128,7 +128,7 @@ public class ECLBuilderToIMQTest {
         Where where = new Where()
             .setIri(IM.ROLE_GROUP)
             .setMatch(new Match()
-                .addWhere(new Where().setIri("http://snomed.info/sct#363698007").addIs(new Node("http://snomed.info/sct#51185008").setDescendantsOrSelfOf(true))));
+                .addWhere(new Where().setIri("http://snomed.info/sct#363698007").addInstanceOf(new Node("http://snomed.info/sct#51185008").setDescendantsOrSelfOf(true))));
         subMatch2.addWhere(where);
         match.addMatch(subMatch1).addMatch(subMatch2);
         BoolGroup rootBool = new BoolGroup().setConjunction(Bool.and);
@@ -159,27 +159,27 @@ public class ECLBuilderToIMQTest {
             .setIri(IM.ROLE_GROUP)
             .setMatch(new Match()
                 .setBoolWhere(Bool.or)
-                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116601002").setDescendantsOrSelfOf(true)))
-                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#396458002").setDescendantsOrSelfOf(true)))
-                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116571008").setDescendantsOrSelfOf(true)))
-                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#396012006").setDescendantsOrSelfOf(true)))
-                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#372584003").setDescendantsOrSelfOf(true)))
-                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116593003").setDescendantsOrSelfOf(true)))
-                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116602009").setDescendantsOrSelfOf(true)))
-                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116601002").setDescendantsOrSelfOf(true)))
-                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#396458002").setDescendantsOrSelfOf(true)))
-                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116571008").setDescendantsOrSelfOf(true)))
-                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#396012006").setDescendantsOrSelfOf(true)))
-                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#372584003").setDescendantsOrSelfOf(true)))
-                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116602009").setDescendantsOrSelfOf(true)))
-                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116593003").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#116601002").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#396458002").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#116571008").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#396012006").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#372584003").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#116593003").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#116602009").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#116601002").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#396458002").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#116571008").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#396012006").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#372584003").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#116602009").setDescendantsOrSelfOf(true)))
+                .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#116593003").setDescendantsOrSelfOf(true)))
             );
         Where refinementGroup = new Where()
             .setBoolWhere(Bool.or)
-            .addWhere(new Where().setIri("http://snomed.info/sct#411116001").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#385268001").setDescendantsOrSelfOf(true)))
-            .addWhere(new Where().setIri("http://snomed.info/sct#13088501000001100").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#21000001106").setDescendantsOrSelfOf(true)))
-            .addWhere(new Where().setIri("http://snomed.info/sct#13088401000001104").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#26643006").setDescendantsOrSelfOf(true)))
-            .addWhere(new Where().setIri("http://snomed.info/sct#10362901000001105").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#385268001").setDescendantsOrSelfOf(true)));
+            .addWhere(new Where().setIri("http://snomed.info/sct#411116001").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#385268001").setDescendantsOrSelfOf(true)))
+            .addWhere(new Where().setIri("http://snomed.info/sct#13088501000001100").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#21000001106").setDescendantsOrSelfOf(true)))
+            .addWhere(new Where().setIri("http://snomed.info/sct#13088401000001104").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#26643006").setDescendantsOrSelfOf(true)))
+            .addWhere(new Where().setIri("http://snomed.info/sct#10362901000001105").setDescendantsOrSelfOf(true).addInstanceOf(new Node("http://snomed.info/sct#385268001").setDescendantsOrSelfOf(true)));
         Where where = new Where().setBoolWhere(Bool.and).addWhere(attributeGroup).addWhere(refinementGroup);
         match.addMatch(subMatch1).addMatch(subMatch2);
         match.addWhere(where);

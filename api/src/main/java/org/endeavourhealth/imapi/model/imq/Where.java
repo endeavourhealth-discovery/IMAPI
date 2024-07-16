@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range"
-        , "operator", "isNull", "value", "unit", "in", "isNot", "relativeTo", "anyRoleGroup"})
+        , "operator", "isNull", "value", "unit", "instanceOf", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
 public class Where extends PropertyRef implements Assignable{

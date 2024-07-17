@@ -8,14 +8,13 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range"
-        , "operator", "isNull", "value", "unit", "in", "isNot", "relativeTo", "anyRoleGroup"})
+        , "operator", "isNull", "value", "unit", "instanceOf", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
 public class Where extends PropertyRef implements Assignable{
     private String description;
     private Range range;
-    private List<Node> is;
-    private List<Node> isNot;
+    private List<Node> instanceOf;
     private Match match;
     private Bool boolWhere;
     private List<Where> where;
@@ -151,24 +150,6 @@ public class Where extends PropertyRef implements Assignable{
         return this;
     }
 
-
-    public List<Node> getIsNot() {
-        return isNot;
-    }
-
-    public Where setIsNot(List<Node> isNot) {
-        this.isNot = isNot;
-        return this;
-    }
-
-    public Where addIsNot(Node notIn) {
-        if (this.isNot == null)
-            this.isNot = new ArrayList<>();
-        this.isNot.add(notIn);
-        return this;
-    }
-
-
     public boolean isAnyRoleGroup() {
         return anyRoleGroup;
     }
@@ -212,34 +193,27 @@ public class Where extends PropertyRef implements Assignable{
     }
 
 
-    public List<Node> getIs() {
-        return is;
+    public List<Node> getInstanceOf() {
+        return instanceOf;
     }
 
     @JsonSetter
-    public Where setIs(List<Node> is) {
-        this.is = is;
+    public Where setInstanceOf(List<Node> instanceOf) {
+        this.instanceOf = instanceOf;
         return this;
     }
 
 
-    public Where addIs(Node in) {
-        if (this.is == null)
-            this.is = new ArrayList<>();
-        this.is.add(in);
+    public Where addInstanceOf(Node instanceOfItem) {
+        if (this.instanceOf == null)
+            this.instanceOf = new ArrayList<>();
+        this.instanceOf.add(instanceOfItem);
         return this;
     }
 
-    public Where is(Consumer<Node> builder) {
+    public Where instanceOf(Consumer<Node> builder) {
         Node in = new Node();
-        addIs(in);
-        builder.accept(in);
-        return this;
-    }
-
-    public Where isNot(Consumer<Node> builder) {
-        Node in = new Node();
-        addIsNot(in);
+        addInstanceOf(in);
         builder.accept(in);
         return this;
     }
@@ -249,10 +223,10 @@ public class Where extends PropertyRef implements Assignable{
         return this;
     }
 
-    public Where addIs(String in) {
-        if (this.is == null)
-            this.is = new ArrayList<>();
-        this.is.add(new Node().setIri(in));
+    public Where addInstanceOf(String in) {
+        if (this.instanceOf == null)
+            this.instanceOf = new ArrayList<>();
+        this.instanceOf.add(new Node().setIri(in));
         return this;
     }
 

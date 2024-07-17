@@ -298,8 +298,8 @@ public class IMQToOS {
 	}
 
 	private boolean addIsFilter(String property, Where where) {
-		if (where.getIs() != null) {
-			Set<String> isList = where.getIs().stream().map(IriLD::getIri).collect(Collectors.toSet());
+		if (where.getInstanceOf() != null) {
+			Set<String> isList = where.getInstanceOf().stream().map(IriLD::getIri).collect(Collectors.toSet());
 			addFilter(property, isList);
 			return true;
 		}
@@ -345,10 +345,10 @@ public class IMQToOS {
 		List<String> bindingNode = null;
 		for (Where where : match.getWhere()) {
 			if (where.getIri().equals(SHACL.PATH)) {
-				bindingPath = where.getIs().stream().map(IriLD::getIri).collect(Collectors.toList());
+				bindingPath = where.getInstanceOf().stream().map(IriLD::getIri).collect(Collectors.toList());
 			}
 			else if (where.getIri().equals(SHACL.NODE)) {
-				bindingNode = where.getIs().stream().map(IriLD::getIri).collect(Collectors.toList());
+				bindingNode = where.getInstanceOf().stream().map(IriLD::getIri).collect(Collectors.toList());
 			}
 		}
 		if (bindingPath == null || bindingNode == null)

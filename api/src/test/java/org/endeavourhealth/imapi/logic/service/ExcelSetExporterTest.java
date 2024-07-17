@@ -93,7 +93,7 @@ public class ExcelSetExporterTest {
                       .setIri("http://snomed.info/sct#10362601000001103")
                       .setName("Has VMP (attribute)")
                       .setDescendantsOrSelfOf(true)
-                    .addIs(new Node().setIri("http://snomed.info/sct#39330711000001103")
+                    .addInstanceOf(new Node().setIri("http://snomed.info/sct#39330711000001103")
                       .setName("COVID-19 vaccine (product)")
                       .setDescendantsOrSelfOf(true)))))))));
         return definition;

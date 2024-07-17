@@ -53,7 +53,7 @@ class OSQueryTest_IM {
                         .setWhere(List.of(
                             new Where()
                                 .setIri(IM.HAS_SCHEME)
-                                .setIs(List.of(new Node().setIri(SNOMED.NAMESPACE)))
+                                .setInstanceOf(List.of(new Node().setIri(SNOMED.NAMESPACE)))
                         ))
                 ))
             );
@@ -113,7 +113,7 @@ class OSQueryTest_IM {
                         .addWhere(new Where()
                             .setIri(IM.HAS_MEMBER)
                             .setInverse(true)
-                            .setIs(List.of(new Node().setIri("http://endhealth.info/im#VSET_ASD")))
+                            .setInstanceOf(List.of(new Node().setIri("http://endhealth.info/im#VSET_ASD")))
                         )
                 ))
             );

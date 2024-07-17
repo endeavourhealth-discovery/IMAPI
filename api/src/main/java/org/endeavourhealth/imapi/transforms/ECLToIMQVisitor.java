@@ -601,7 +601,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 							where.setInverse(reverseFlag);
 					}
 					else {
-						where.setIs(List.of(node));
+						where.setInstanceOf(List.of(node));
 						nodes.add(node);
 					}
 				}

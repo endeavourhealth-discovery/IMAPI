@@ -417,8 +417,8 @@ public class QueryRepository {
         if (where.getId() != null)
             addToIriList(where.getId(), ttIris, iris);
 
-        if (where.getIs() != null)
-            for (Element in : where.getIs())
+        if (where.getInstanceOf() != null)
+            for (Element in : where.getInstanceOf())
                 addToIriList(in.getIri(), ttIris, iris);
         if (where.getMatch() != null)
             gatherFromLabels(where.getMatch(), ttIris, iris);
@@ -500,8 +500,8 @@ public class QueryRepository {
     private void setWhereLabels(Where where, Map<String, String> iris) {
         if (where.getId() != null)
             where.setName(iris.get(where.getId()));
-        if (where.getIs() != null)
-            for (Element in : where.getIs())
+        if (where.getInstanceOf() != null)
+            for (Element in : where.getInstanceOf())
                 in.setName(iris.get(in.getIri()));
         if (where.getMatch() != null) {
             setMatchLabels(where.getMatch(), iris);

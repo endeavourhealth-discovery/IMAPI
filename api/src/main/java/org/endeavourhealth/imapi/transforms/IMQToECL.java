@@ -187,8 +187,8 @@ public class IMQToECL {
 					}
 					else {
 						ecl.append(" = ");
-						if (null == where.getIs()) throw new QueryException("Where clause must contain 'is' value");
-						Node value = where.getIs().get(0);
+						if (null == where.getInstanceOf()) throw new QueryException("Where clause must contain 'instanceOf' value");
+						Node value = where.getInstanceOf().get(0);
 						addClass(value, ecl, includeNames);
 					}
 				}

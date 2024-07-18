@@ -32,7 +32,8 @@ tasks {
                 'org.endeavourhealth.imapi.model.imq.*',
                 'org.endeavourhealth.imapi.model.eclBuilder.*',
                 'org.endeavourhealth.imapi.vocabulary.*',
-                'org.endeavourhealth.imapi.vocabulary.**.*'
+                'org.endeavourhealth.imapi.vocabulary.**.*',
+                'org.endeavourhealth.imapi.model.github.*'
         ]
         outputFile = '../../IMDirectory/im_library/src/interfaces/AutoGen.ts'
         outputKind = 'module'

@@ -254,6 +254,14 @@
         "value": "IM.NAMESPACE + \"dataModelProperty\""
       },
       {
+        "name": "ONTOLOGY_PARENT_FOLDER",
+        "value": "IM.NAMESPACE + \"HealthModelOntology\""
+      },
+      {
+        "name": "PROPERTIES_FOLDER",
+        "value": "IM.NAMESPACE + \"Properties\""
+      },
+      {
         "name": "TASK",
         "value": "IM.NAMESPACE + \"Task\""
       },

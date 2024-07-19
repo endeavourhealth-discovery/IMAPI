@@ -43,12 +43,6 @@ public class SearchService {
 		return repo.queryIM(queryRequest, false);
 	}
 
-	public Query getQuery(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
-		QueryRepository repo = new QueryRepository();
-		repo.unpackQueryRequest(queryRequest);
-		return queryRequest.getQuery();
-	}
-
 	public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
 		if (null == queryRequest.getAskIri()) throw new IllegalArgumentException("Query request missing askIri");
 		QueryRepository repo = new QueryRepository();
@@ -101,15 +95,6 @@ public class SearchService {
         highestUsageRequest.setPage(new Page().setPageNumber(1).setPageSize(1));
         return highestUsageRequest;
     }
-
-    /**
-	 * Queries and updates IM entity using the query model
-	 * @param queryRequest Query inside a request with parameters
-	 * @throws DataFormatException if query format is invalid
-	 */
-	public void updateIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, QueryException {
-		new QueryRepository().updateIM(queryRequest);
-	}
 
 	public void validateQueryRequest(QueryRequest queryRequest) throws DataFormatException {
 			if (queryRequest.getQuery()==null&& queryRequest.getPathQuery()==null)

@@ -105,30 +105,6 @@ public class QueryRepository {
         }
     }
 
-    /**
-     * Generic query of IM with the select statements determining the response
-     *
-     * @param queryRequest QueryRequest object
-     * @throws DataFormatException     if query syntax is invalid
-     * @throws JsonProcessingException if the json is invalid
-     */
-    public void updateIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, QueryException {
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            if (queryRequest.getUpdate() == null)
-                throw new DataFormatException("Missing update in query request");
-            if (queryRequest.getUpdate().getIri() == null)
-                throw new DataFormatException("Update queries must reference a predefined definition. Dynamic update based queries not supported");
-            TTEntity updateEntity = getEntity(queryRequest.getUpdate().getIri());
-            queryRequest.setUpdate(updateEntity.get(TTIriRef.iri(IM.UPDATE_PROCEDURE)).asLiteral().objectValue(Update.class));
-
-            checkReferenceDate(queryRequest);
-            SparqlConverter converter = new SparqlConverter(queryRequest);
-            String spq = converter.getUpdateSparql();
-            graphUpdateSearch(spq, conn);
-
-        }
-    }
-
     private void graphUpdateSearch(String spq, RepositoryConnection conn) {
         org.eclipse.rdf4j.query.Update update = conn.prepareUpdate(spq);
         update.execute();
@@ -347,38 +323,6 @@ public class QueryRepository {
         return new EntityRepository2().getBundle(iri,
                 Set.of(IM.DEFINITION, RDF.TYPE, IM.FUNCTION_DEFINITION, IM.UPDATE_PROCEDURE, SHACL.PARAMETER)).getEntity();
 
-    }
-
-
-    /**
-     * Method to populate the iris in a query with their  names
-     *
-     * @param query the query object in iml Query form
-     */
-    public void labelQuery(Query query) {
-        List<TTIriRef> ttIris = new ArrayList<>();
-        Map<String, String> iriLabels = new HashMap<>();
-        gatherQueryLabels(query, ttIris, iriLabels);
-        List<String> iriList = resolveIris(iriLabels.keySet());
-        String iris = String.join(",", iriList);
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            String sql = "Select ?entity ?label where { ?entity <" + RDFS.LABEL + "> ?label.\n" +
-                    "filter (?entity in (" + iris + "))\n}";
-            TupleQuery qry = conn.prepareTupleQuery(sql);
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    String label = bs.getValue("label").stringValue();
-                    String iri = bs.getValue("entity").stringValue();
-                    iriLabels.put(iri, label);
-                }
-            }
-        }
-        for (TTIriRef ttIri : ttIris) {
-            ttIri.setName(iriLabels.get(ttIri.getIri()));
-        }
-        setQueryLabels(query, iriLabels);
     }
 
     public List<String> resolveIris(Set<String> iriLabels) {

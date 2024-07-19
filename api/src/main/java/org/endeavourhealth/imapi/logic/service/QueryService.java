@@ -22,11 +22,6 @@ public class QueryService {
     private final QueryRepository queryRepository = new QueryRepository();
     private final EntityRepository entityRepository = new EntityRepository();
 
-    public Query labelQuery(Query query) {
-        queryRepository.labelQuery(query);
-        return query;
-    }
-
     public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults, JsonNode highestUsageResults) {
         SearchResponse searchResponse = new SearchResponse();
 

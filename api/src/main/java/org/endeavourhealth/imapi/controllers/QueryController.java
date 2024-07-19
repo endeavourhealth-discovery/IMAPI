@@ -68,37 +68,4 @@ public class QueryController {
             return searchService.queryIMSearch(queryRequest);
         }
     }
-
-    @PostMapping("/public/getQuery")
-    @Operation(summary = "get query as query object")
-    public Query getQuery(@RequestBody QueryRequest queryRequest) throws QueryException, DataFormatException, IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
-            LOG.debug("getQuery");
-            return searchService.getQuery(queryRequest);
-        }
-    }
-
-    @PostMapping(value = "/public/labelQuery")
-    @Operation(
-        summary = "Add labels to query",
-        description = "Add names to iri's within a query"
-    )
-    public Query labelQuery(@RequestBody Query query) throws IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Query.LabelQuery.POST")) {
-            return queryService.labelQuery(query);
-        }
-    }
-
-    @PostMapping( "/public/updateIM")
-    @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-    @Operation(
-      summary = "update  IM",
-      description = "Runs a query based update on IM"
-    )
-    public void updateIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, IOException, QueryException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Query.UpdateIM.POST")) {
-            LOG.debug("updateIM");
-            searchService.updateIM(queryRequest);
-        }
-    }
 }

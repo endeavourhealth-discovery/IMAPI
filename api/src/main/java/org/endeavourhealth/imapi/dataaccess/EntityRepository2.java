@@ -912,59 +912,6 @@ public class EntityRepository2 {
                 .add("}")
                 .toString();
     }
-
-
-    public List<TTIriRef> findUnassigned() {
-        List<TTIriRef> result = new ArrayList<>();
-
-        StringJoiner query = new StringJoiner(System.lineSeparator())
-                .add(RDFS_PREFIX + "\n")
-                .add(IM_PREFIX + "\n")
-                .add("SELECT * WHERE {")
-                .add("?s im:status im:Unassigned .")
-                .add("?s rdfs:label ?name .")
-                .add("}");
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(query.toString());
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    result.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
-                }
-            }
-        }
-
-        return result;
-    }
-
-    public List<TTIriRef> findUnclassified() {
-        List<TTIriRef> result = new ArrayList<>();
-
-        StringJoiner query = new StringJoiner(System.lineSeparator())
-                .add(RDFS_PREFIX)
-                .add(IM_PREFIX)
-                .add(SN_PREFIX)
-                .add("SELECT ?s ?name {")
-                .add("GRAPH sn: {")
-                .add("?s im:scheme sn: ;")
-                .add("    rdfs:label ?name .")
-                .add("}")
-                .add("MINUS { ?s (sn:370124000|rdfs:subClassOf|im:isContainedIn|rdfs:subPropertyOf) ?o }")
-                .add("} LIMIT 1000");
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(query.toString());
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    result.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
-                }
-            }
-        }
-
-        return result;
-    }
 }
 
 

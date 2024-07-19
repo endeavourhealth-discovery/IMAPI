@@ -111,31 +111,4 @@ public class ConfigController {
             });
         }
     }
-
-    @GetMapping(value="/public/defaultPredicateNames")
-    public Map<String, String> getDefaultPredicateNames() throws IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Config.DefaultPredicateNames.GET")) {
-            LOG.debug("getDefaultPredicateNames");
-            return configManager.getConfig(CONFIG.DEFAULT_PREDICATE_NAMES, new TypeReference<>() {
-            });
-        }
-    }
-
-    @GetMapping(value="/public/xmlSchemaDataTypes")
-    public List<String> getXMLSchemaDataTypes() throws IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Config.XmlSchemaDataTypes.GET")) {
-            LOG.debug("getXMLSchemaDataTypes");
-            return configManager.getConfig(CONFIG.XML_SCHEMA_DATA_TYPES, new TypeReference<>() {
-            });
-        }
-    }
-
-    @GetMapping(value="/public/graphExcludePredicates")
-    public List<String> getGraphExcludePredicates() throws IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Config.GraphExcludePredicates.GET")) {
-            LOG.debug("getGraphExcludePredicates");
-            return configManager.getConfig(CONFIG.GRAPH_EXCLUDE_PREDICATES, new TypeReference<>() {
-            });
-        }
-    }
 }

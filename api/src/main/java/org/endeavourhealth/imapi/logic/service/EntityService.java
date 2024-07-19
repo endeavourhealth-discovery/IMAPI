@@ -66,34 +66,6 @@ public class EntityService {
         return entityRepository2.getBundle(iri, predicates);
     }
 
-    /**
-     * Returns the entity with local predicate names as plain json including json literals
-     * <p> Works only for known POJO classes in order to resolve the RDF cardinality problem</p>
-     *
-     * @param iri   iri of the entity
-     * @param depth maximum nesting depth
-     * @return string of json
-     * @throws InvocationTargetException
-     * @throws NoSuchMethodException
-     * @throws InstantiationException
-     * @throws IllegalAccessException
-     * @throws JsonProcessingException
-     */
-    public String getAsPlainJson(String iri, int depth) throws NoSuchMethodException, InstantiationException, IllegalAccessException, JsonProcessingException {
-        TTBundle bundle = entityRepository2.getBundle(iri, null, false, depth);
-        Class<?> cls;
-        String entityType = bundle.getEntity().getType().get(0).asIriRef().getIri();
-        if (entityType.equals(IM.FORM_GENERATOR)) {
-            cls = FormGenerator.class;
-        } else {
-            throw new NoSuchMethodException(" entity type " + entityType + " is not supported as a POJO class");
-        }
-
-        try (CachedObjectMapper om = new CachedObjectMapper()) {
-            return om.writeValueAsString(new TTToClassObject().getObject(bundle.getEntity(), cls));
-        }
-    }
-
     public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) {
         TTBundle bundle = entityRepository2.getBundle(iri, excludePredicates, true);
         filterOutSpecifiedPredicates(excludePredicates, bundle);
@@ -266,20 +238,6 @@ public class EntityService {
         SearchResponse searchResults = searchService.getEntitiesByTerm(request);
         searchResults.setPage(request.getPage().getPageNumber());
         return searchResults;
-    }
-
-    public SetAsObject getValueSetMembersAsNode(String iri, boolean expandMembers, boolean expandSubsets, Integer limit) {
-        SetAsObject result = new SetAsObject();
-        TTIriRef valueSet = entityRepository.getEntityReferenceByIri(iri);
-        Set<String> definition = new HashSet<>();
-        definition.add(IM.DEFINITION);
-        TTArray included = getBundle(iri, definition)
-                .getEntity()
-                .get(iri(IM.DEFINITION));
-        result.setIri(valueSet.getIri());
-        result.setName(valueSet.getName());
-        result.setIncluded(included);
-        return result;
     }
 
     private Set<SetMember> getDefinedInclusions(String iri, boolean expandSets, boolean withHyperlinks, String parentSetName, String originalParentIri, Integer limit) {
@@ -531,10 +489,6 @@ public class EntityService {
         return downloadDto;
     }
 
-    public boolean getHasChildren(String iri) {
-        return entityRepository.getHasChildren(iri);
-    }
-
     public XlsHelper getExcelDownload(String iri, List<ComponentLayoutItem> configs, DownloadParams params) {
         if (iri == null || iri.isEmpty())
             return null;
@@ -755,24 +709,6 @@ public class EntityService {
                 .map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
     }
 
-    public EntityDefinitionDto getEntityDefinitionDto(String iri) {
-        TTEntity entity = getBundle(iri, Set.of(RDFS.SUBCLASS_OF, RDF.TYPE, RDFS.LABEL, RDFS.COMMENT, IM.HAS_STATUS)).getEntity();
-        List<TTIriRef> types = entity.getType() == null ? new ArrayList<>()
-                : entity.getType().getElements().stream()
-                .map(t -> new TTIriRef(t.asIriRef().getIri(), t.asIriRef().getName()))
-                .collect(Collectors.toList());
-
-        List<TTIriRef> isa = !entity.has(iri(RDFS.SUBCLASS_OF)) ? new ArrayList<>()
-                : entity.get(iri(RDFS.SUBCLASS_OF)).getElements().stream()
-                .map(t -> new TTIriRef(t.asIriRef().getIri(), t.asIriRef().getName()))
-                .collect(Collectors.toList());
-
-        return new EntityDefinitionDto().setIri(entity.getIri()).setName(entity.getName())
-                .setDescription(entity.getDescription())
-                .setStatus(entity.getStatus() == null ? null : entity.getStatus().getName()).setTypes(types)
-                .setSubtypes(getDefinitionSubTypes(iri)).setIsa(isa);
-    }
-
     public SearchResultSummary getSummary(String iri) {
         if (iri == null || iri.isEmpty())
             return null;
@@ -830,11 +766,6 @@ public class EntityService {
         return document;
     }
 
-    public TTDocument getConceptListByGraph(String iri) {
-        List<String> conceptIris = entityTripleRepository.getConceptIrisByGraph(iri);
-        return getConceptList(conceptIris);
-    }
-
     public List<SimpleMap> getMatchedFrom(String iri) {
         if (iri == null || iri.equals("")) return new ArrayList<>();
         String scheme = iri.substring(0, iri.indexOf("#") + 1);
@@ -887,26 +818,6 @@ public class EntityService {
             parents.add(parent);
             getParentPathRecursive(parent.getIri(), parents);
         }
-    }
-
-    public List<TTIriRef> getPathBetweenNodes(String descendant, String ancestor) {
-        return entityRepository.getPathBetweenNodes(descendant, ancestor);
-    }
-
-    public List<TTIriRef> getUnassigned() {
-        List<TTIriRef> unassignedList = new ArrayList<>();
-        for (TTIriRef unmapped : entityRepository2.findUnassigned()) {
-            unassignedList.add(new TTIriRef().setIri(unmapped.getIri()).setName(unmapped.getName()));
-        }
-        return unassignedList;
-    }
-
-    public List<TTIriRef> getUnclassified() {
-        List<TTIriRef> unclassifiedList = new ArrayList<>();
-        for (TTIriRef unmapped : entityRepository2.findUnclassified()) {
-            unclassifiedList.add(new TTIriRef().setIri(unmapped.getIri()).setName(unmapped.getName()));
-        }
-        return unclassifiedList;
     }
 
     public Set<TTIriRef> getNames(Set<String> iris) {
@@ -1041,12 +952,6 @@ public class EntityService {
         }
     }
 
-    public TTIriRef getShapeFromType(String iri) {
-        if (iri.equals(IM.CONCEPT_SET) || iri.equals(IM.VALUESET))
-            return entityTripleRepository.getShapeFromType(IM.SET);
-        else return entityTripleRepository.getShapeFromType(iri);
-    }
-
     public String getName(String iri) {
         return entityRepository.getEntityReferenceByIri(iri).getName();
     }
@@ -1061,14 +966,6 @@ public class EntityService {
 
     public List<TTIriRef> getProperties() {
         return entityRepository.getProperties();
-    }
-
-    public List<TTIriRef> getClasses() {
-        return entityRepository.getClasses();
-    }
-
-    public List<TTIriRef> getStatuses() {
-        return entityRepository.getStatuses();
     }
 
     public List<TTIriRef> getDistillation(List<TTIriRef> conceptList) {
@@ -1130,10 +1027,6 @@ public class EntityService {
 
     public List<String> getIM1SchemeOptions() {
         return entityRepository.getIM1SchemeOptions();
-    }
-
-    public Boolean isAncestor(String objectIri, String subjectIri) {
-        return entityRepository.isAncestor(objectIri, subjectIri);
     }
 
     public Set<Concept> getFullyExpandedMembers(String iri, boolean includeLegacy, boolean includeSubset, List<String> schemes) throws QueryException, JsonProcessingException {

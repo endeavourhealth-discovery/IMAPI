@@ -315,34 +315,6 @@ public class EntityRepository {
         }
     }
 
-
-    public List<TTIriRef> getPathBetweenNodes(String descendant, String ancestor) {
-        List<TTIriRef> result = new ArrayList<>();
-
-        String spql = new StringJoiner(System.lineSeparator())
-                .add("select *")
-                .add("where {")
-                .add("  ?descendant (" + PARENT_PREDICATES + ")+ ?m .")
-                .add("  ?m (" + PARENT_PREDICATES + ")+ ?ancestor ;")
-                .add("     rdfs:label ?name .")
-                .add("}")
-                .toString();
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = prepareSparql(conn, spql);
-            qry.setBinding("descendant", iri(descendant));
-            qry.setBinding("ancestor", iri(ancestor));
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    result.add(TTIriRef.iri(bs.getValue("m").stringValue(), bs.getValue("name").stringValue()));
-                }
-            }
-        }
-
-        return result;
-    }
-
     public List<TTEntity> findEntitiesByName(String name) {
         List<TTEntity> result = new ArrayList<>();
 
@@ -693,52 +665,6 @@ public class EntityRepository {
         return result;
     }
 
-    public List<TTIriRef> getClasses() {
-        List<TTIriRef> result = new ArrayList<>();
-
-        String spql = new StringJoiner(System.lineSeparator())
-                .add("select ?s ?name {")
-                .add("  ?s rdf:type rdfs:Class ;")
-                .add("  rdfs:label ?name .")
-                .add("}")
-                .toString();
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = prepareSparql(conn, spql);
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    result.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
-                }
-            }
-        }
-
-        return result;
-    }
-
-    public List<TTIriRef> getStatuses() {
-        List<TTIriRef> result = new ArrayList<>();
-
-        String spql = new StringJoiner(System.lineSeparator())
-                .add("select ?s ?name {")
-                .add("  ?s rdfs:subClassOf im:Status ;")
-                .add("  rdfs:label ?name .")
-                .add("}")
-                .toString();
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = prepareSparql(conn, spql);
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    result.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
-                }
-            }
-        }
-
-        return result;
-    }
-
     public Set<String> getDistillation(String iris) {
         Set<String> isas = new HashSet<>();
 
@@ -778,36 +704,6 @@ public class EntityRepository {
             }
         }
         return predicates;
-    }
-
-    public boolean getHasChildren(String iri) {
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            StringJoiner query = new StringJoiner(System.lineSeparator())
-                    .add("PREFIX im: <http://endhealth.info/im#>")
-                    .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-                    .add("SELECT ?c {")
-                    .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?parent.")
-                    .add("} LIMIT 1");
-            TupleQuery qry = conn.prepareTupleQuery(String.valueOf(query));
-            qry.setBinding("parent", iri(iri));
-            try (TupleQueryResult rs = qry.evaluate()) {
-                return rs.hasNext();
-            }
-        }
-    }
-
-    public Boolean isAncestor(String subjectIri, String objectIri) {
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
-                    .add("ASK WHERE {")
-                    .add("?s ?p ?o .")
-                    .add("}");
-            BooleanQuery sparql = conn.prepareBooleanQuery(String.valueOf(stringQuery));
-            sparql.setBinding("s", iri(subjectIri));
-            sparql.setBinding("p", iri(IM.IS_A));
-            sparql.setBinding("o", iri(objectIri));
-            return sparql.evaluate();
-        }
     }
 
     public List<TTIriRef> findDataModelsFromProperty(String propIri) {

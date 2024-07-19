@@ -45,7 +45,7 @@ public class IMQToECLBuilder {
         BoolGroup boolGroup = new BoolGroup();
         if (null != where.getBoolWhere()) boolGroup.setConjunction(where.getBoolWhere());
         for (Where subWhere : where.getWhere()) {
-            if (null != subWhere.getInstanceOf()) {boolGroup.addItem(createRefinement(subWhere));}
+            if (null != subWhere.getIs()) {boolGroup.addItem(createRefinement(subWhere));}
             else if (null != subWhere.getWhere()) boolGroup.addItem(createRefinementBoolGroup(subWhere));
             else if (subWhere.getIri().equals(IM.ROLE_GROUP) && null != subWhere.getMatch()) {
                 BoolGroup attributeGroup = createRefinementBoolGroup(subWhere.getMatch());
@@ -60,7 +60,7 @@ public class IMQToECLBuilder {
         BoolGroup boolGroup = new BoolGroup();
         if (null != match.getBoolMatch()) boolGroup.setConjunction(match.getBoolMatch());
         for (Where where : match.getWhere()) {
-            if (null != where.getInstanceOf()) {boolGroup.addItem(createRefinement(where));}
+            if (null != where.getIs()) {boolGroup.addItem(createRefinement(where));}
             else if (null != where.getWhere()) boolGroup.addItem(createRefinementBoolGroup(where));
             else if (where.getIri().equals(IM.ROLE_GROUP) && null != where.getMatch()) {
                 BoolGroup attributeGroup = createRefinementBoolGroup(where.getMatch());
@@ -93,7 +93,7 @@ public class IMQToECLBuilder {
                 concept.setConjunction(match.getBoolWhere());
             }
             for (Where where : match.getWhere()) {
-                if (null != where.getInstanceOf()) {concept.addRefinementItem(createRefinement(where));}
+                if (null != where.getIs()) {concept.addRefinementItem(createRefinement(where));}
                 else if (null != where.getWhere()) concept.addRefinementItem(createRefinementBoolGroup(where));
                 else if (where.getIri().equals(IM.ROLE_GROUP) && null != where.getMatch()) {
                     BoolGroup attributeGroup = createRefinementBoolGroup(where.getMatch());
@@ -112,8 +112,8 @@ public class IMQToECLBuilder {
             property.setConstraintOperator(getOperator(where));
             refinement.setProperty(property);
         }
-        if (null != where.getInstanceOf() && where.getInstanceOf().size() == 1) {
-            Node whereIs = where.getInstanceOf().get(0);
+        if (null != where.getIs() && where.getIs().size() == 1) {
+            Node whereIs = where.getIs().get(0);
             SubExpressionConstraint value = new SubExpressionConstraint().setConcept(new ConceptReference(whereIs.getIri()));
             value.setConstraintOperator(getOperator(whereIs));
             refinement.setOperator("=");

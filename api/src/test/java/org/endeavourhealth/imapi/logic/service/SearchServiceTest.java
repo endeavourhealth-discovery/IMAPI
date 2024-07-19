@@ -72,31 +72,6 @@ class SearchServiceTest {
 
 	}
 
-
-//@Test
-	void pathQuery() throws DataFormatException {
-		pathOutput(IM.NAMESPACE+"Patient",IM.NAMESPACE+"Observation","DataModelType");
-		pathOutput(IM.NAMESPACE+"Patient",IM.NAMESPACE+"CSET_OralCorticosteroids","ConceptSet");
-		pathOutput(IM.NAMESPACE+"Patient",SNOMED.NAMESPACE+"976831000000100","Concept");
-		pathOutput(IM.NAMESPACE+"Patient",IM.NAMESPACE+"Observation","DataModelType");
-		pathOutput(IM.NAMESPACE+"Patient",IM.NAMESPACE+"homeAddress","DirectProperty");
-		pathOutput(IM.NAMESPACE+"Patient",IM.NAMESPACE+"postCode","IndirectProperty");
-
-	}
-
-	private void pathOutput(String source, String target,String name) throws DataFormatException {
-		Path path= Paths.get("TestQueries/Results/"+"PathQuery_"+name + "_Matches.json").toAbsolutePath();
-		PathDocument result= new SearchService().pathQuery(new PathQuery().setSource(iri(source)).setTarget(iri(target)));
-		try (FileWriter wr = new FileWriter(path.toString())) {
-			wr.write(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-
-
-
 	private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
 		String name = null;
 

@@ -730,47 +730,6 @@ class EntityModelServiceTest {
     }
 
     @Test
-    void getConcept_NullIri() {
-        TTEntity entity = new TTEntity()
-            .setIri("http://endhealth.info/im#myConcept")
-            .setName("My concept")
-            .set(TTIriRef.iri(IM.IS_CHILD_OF), new TTArray()
-                .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
-                .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
-            );
-        when(entityRepository2.getBundle(isNull(), isNull())).thenReturn(new TTBundle().setEntity(entity));
-
-        TTDocument actual = entityService.getConcept(null);
-        assertNotNull(actual);
-    }
-
-    @Test
-    void getConcept_EmptyIri() {
-        TTEntity entity = new TTEntity();
-        when(entityRepository2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
-
-        TTDocument actual = entityService.getConcept("");
-        assertNotNull(actual);
-    }
-
-    @Test
-    void getConcept_Namespace() {
-        List<Namespace> namespaces = new ArrayList<>();
-        namespaces.add(new Namespace("http://endhealth.info/im#25451000252115","",""));
-        when(entityTripleRepository.findNamespaces()).thenReturn(namespaces);
-
-        TTEntity entity = new TTEntity("http://endhealth.info/im#25451000252115")
-            .set(TTIriRef.iri(IM.IS_CHILD_OF), new TTArray()
-                .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
-                .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
-            );
-        when(entityRepository2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
-
-        TTDocument actual = entityService.getConcept("http://endhealth.info/im#25451000252115");
-        assertNotNull(actual);
-    }
-
-    @Test
     void getConceptList_NullIri() {
         TTDocument actual = entityService.getConceptList(null);
         assertNull(actual);

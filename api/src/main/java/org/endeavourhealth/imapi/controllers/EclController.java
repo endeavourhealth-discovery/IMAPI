@@ -43,19 +43,6 @@ public class EclController {
         }
     }
 
-    @PostMapping(value = "/public/evaluateEclQuery", consumes = "application/json", produces = "application/json")
-    @Operation(
-        summary = "Evaluate ECL",
-        description = "Evaluates an query"
-    )
-    public Set<Concept> evaluateEcl(@RequestBody EclSearchRequest request) throws QueryException, EclFormatException, IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("ECL.EvaluateEclQuery.POST")) {
-            return eclService.evaluateECLQuery(request);
-        } catch (UnknownFormatConversionException | JsonProcessingException ex) {
-            throw new EclFormatException("Invalid ECL format", ex);
-        }
-    }
-
     @PostMapping(value = "/public/eclSearch", consumes = "application/json", produces = "application/json")
     @Operation(
         summary = "ECL search",
@@ -66,21 +53,6 @@ public class EclController {
     ) throws EclFormatException, IOException, QueryException {
         try (MetricsTimer t = MetricsHelper.recordTime("ECL.EclSearch.POST")) {
             return eclService.eclSearch(request);
-        } catch (UnknownFormatConversionException ex) {
-            throw new EclFormatException("Invalid ECL format", ex);
-        }
-    }
-
-    @PostMapping(value = "/public/eclSearchTotalCount",consumes = "application/json", produces = "application/json")
-    @Operation(
-        summary = "Count of ecl search",
-        description = "Shows total results for an ecl search as a number"
-    )
-    public Integer eclSearchTotalCount(
-        @RequestBody EclSearchRequest request
-    ) throws EclFormatException, QueryException, IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclSearchTotalCount.POST")) {
-            return eclService.getEclSearchTotalCount(request);
         } catch (UnknownFormatConversionException ex) {
             throw new EclFormatException("Invalid ECL format", ex);
         }

@@ -78,19 +78,6 @@ public class QueryController {
         }
     }
 
-
-    @PostMapping( "/public/pathQuery")
-    @Operation(
-      summary = "Path Query ",
-      description = "Query IM for a path between source and target"
-    )
-    public PathDocument pathQuery(@RequestBody PathQuery pathQuery) throws DataFormatException, IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Query.PathQuery.POST")) {
-            LOG.debug("pathQuery");
-            return searchService.pathQuery(pathQuery);
-        }
-    }
-
     @PostMapping(value = "/public/labelQuery")
     @Operation(
         summary = "Add labels to query",
@@ -112,28 +99,6 @@ public class QueryController {
         try (MetricsTimer t = MetricsHelper.recordTime("API.Query.UpdateIM.POST")) {
             LOG.debug("updateIM");
             searchService.updateIM(queryRequest);
-        }
-    }
-
-    @GetMapping("/public/allQueries")
-    @Operation(
-            summary = "Get all queries",
-            description = "Get all queries"
-    )
-    public List<TTIriRef> getAllQueries() throws IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Query.AllQueries.GET")) {
-            return queryService.getAllQueries();
-        }
-    }
-
-    @GetMapping("/public/allByType")
-    @Operation(
-            summary = "Get entities by type",
-            description = "Get entities by type"
-    )
-    public List<TTIriRef> getAllByType(@RequestParam(name = "iri") String typeIri) throws IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Query.AllByType.POST")) {
-            return queryService.getAllByType(typeIri);
         }
     }
 }

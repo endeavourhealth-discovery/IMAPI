@@ -27,14 +27,6 @@ public class QueryService {
         return query;
     }
 
-    public List<TTIriRef> getAllQueries() {
-        return queryRepository.getAllQueries();
-    }
-
-    public List<TTIriRef> getAllByType(String typeIri) {
-        return queryRepository.getAllByType(typeIri);
-    }
-
     public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults, JsonNode highestUsageResults) {
         SearchResponse searchResponse = new SearchResponse();
 

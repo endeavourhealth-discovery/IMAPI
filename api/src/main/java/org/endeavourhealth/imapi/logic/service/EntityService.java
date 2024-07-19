@@ -187,29 +187,6 @@ public class EntityService {
         return entityTripleRepository.findPartialWithTotalCount(iri, predicateList, schemeIris, rowNumber, size, inactive);
     }
 
-    public ExportSet getHasMember(String iri, String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
-
-        List<TTIriRef> hasMembers = getPartialWithTotalCount(iri, predicateList, schemeIris, page, size, inactive).getResult();
-        TTArray array = new TTArray();
-        for (TTIriRef member : hasMembers) {
-            array.add(member);
-        }
-        Set<SetMember> members = new HashSet<>();
-        members.add(getValueSetMemberFromArray(array, true));
-        for (SetMember setMember : members) {
-            setMember.setLabel("a_MemberIncluded");
-            setMember.setType(MemberType.INCLUDED_SELF);
-            setMember.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
-        }
-        ExportSet result = new ExportSet().setValueSet(getEntityReference(iri));
-
-        Map<String, SetMember> processedMembers = processMembers(members, false, 0, 2000);
-
-        result.addAllMembers(processedMembers.values());
-
-        return result;
-    }
-
     private List<TTIriRef> getChildren(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
         return entityTripleRepository.findImmediateChildrenByIri(iri, schemeIris, rowNumber, pageSize, inactive);
     }
@@ -289,30 +266,6 @@ public class EntityService {
         SearchResponse searchResults = searchService.getEntitiesByTerm(request);
         searchResults.setPage(request.getPage().getPageNumber());
         return searchResults;
-    }
-
-    public ExportSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit, boolean withHyperlinks) {
-        return getValueSetMembers(iri, expandMembers, expandSets, limit, withHyperlinks, null, iri);
-    }
-
-    public ExportSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit, boolean withHyperlinks, String parentSetName, String originalParentIri) {
-        if (iri == null || iri.isEmpty()) {
-            return null;
-        }
-        ExportSet result = new ExportSet().setValueSet(getEntityReference(iri));
-        int memberCount = 0;
-
-        Set<SetMember> definedMemberInclusions = getDefinedInclusions(iri, expandSets, withHyperlinks, parentSetName, originalParentIri, limit);
-
-
-        Map<String, SetMember> evaluatedMemberInclusions = processMembers(definedMemberInclusions, expandMembers, memberCount, limit);
-
-        if (limit != null && memberCount > limit)
-            return result.setLimited(true);
-
-        result.addAllMembers(evaluatedMemberInclusions.values());
-
-        return result;
     }
 
     public SetAsObject getValueSetMembersAsNode(String iri, boolean expandMembers, boolean expandSubsets, Integer limit) {
@@ -859,19 +812,6 @@ public class EntityService {
         return getBundleByPredicateExclusions(iri, predicates);
     }
 
-    public TTDocument getConcept(String iri) {
-        TTBundle bundle = getBundle(iri, null);
-        TTDocument document = new TTDocument();
-        List<Namespace> namespaces = entityTripleRepository.findNamespaces();
-        TTContext context = new TTContext();
-        for (Namespace namespace : namespaces) {
-            context.add(namespace.getIri(), namespace.getPrefix(), namespace.getName());
-        }
-        document.setContext(context);
-        document.addEntity(bundle.getEntity());
-        return document;
-    }
-
     public TTDocument getConceptList(List<String> iris) {
         if (iris == null || iris.isEmpty()) {
             return null;
@@ -959,14 +899,6 @@ public class EntityService {
             unassignedList.add(new TTIriRef().setIri(unmapped.getIri()).setName(unmapped.getName()));
         }
         return unassignedList;
-    }
-
-    public List<TTEntity> getUnmapped(String term, List<String> status, List<String> scheme, List<String> type, Integer usage, Integer limit) {
-        List<TTEntity> unmappedList = new ArrayList<>();
-        if (term.isBlank()) {
-            return entityRepository2.findUnmapped(status, scheme, type, usage, limit);
-        }
-        return unmappedList;
     }
 
     public List<TTIriRef> getUnclassified() {
@@ -1109,50 +1041,10 @@ public class EntityService {
         }
     }
 
-    public TTEntity addConceptToTask(String entityIri, String taskIri, String agentName) throws Exception {
-        TTEntity entity = getBundleByPredicateExclusions(entityIri, null).getEntity();
-        if (entity.get(iri(IM.IN_TASK)) == null) {
-            entity.set(iri(IM.IN_TASK), new TTArray());
-        }
-        entity.get(iri(IM.IN_TASK)).add(iri(taskIri));
-        filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(iri(IM.UPDATE_ALL)).setGraph(iri(IM.GRAPH)), agentName);
-        return getBundleByPredicateExclusions(entity.getIri(), null).getEntity();
-    }
-
-
-    public TTEntity removeConceptFromTask(String taskIri, String removedActionIri, String agentName) throws Exception {
-        TTEntity entity = getBundleByPredicateExclusions(removedActionIri, null).getEntity();
-        entity.set(iri(IM.IN_TASK), entityRepository2.findFilteredInTask(removedActionIri, taskIri));
-        filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(iri(IM.UPDATE_ALL)).setGraph(iri(IM.GRAPH)), agentName);
-        return getBundleByPredicateExclusions(entity.getIri(), null).getEntity();
-    }
-
-    public List<TTEntity> saveMapping(Map<String, List<String>> mappings, String agentName) throws Exception {
-        List<TTEntity> result = new ArrayList<>();
-        for (Map.Entry<String, List<String>> entry : mappings.entrySet()) {
-            TTEntity entity = getBundleByPredicateExclusions(entry.getKey(), null).getEntity();
-            if (entity.has(iri(IM.HAS_STATUS))) {
-                entity.get(iri(IM.HAS_STATUS)).remove(iri(IM.UNASSIGNED));
-            }
-            entity.set(iri(IM.MATCHED_TO), new TTArray());
-            for (String iri : entry.getValue()) {
-                entity.get(iri(IM.MATCHED_TO)).add(iri(iri));
-            }
-            filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(iri(IM.UPDATE_ALL)).setGraph(iri(IM.GRAPH)), agentName);
-            result.add(getBundleByPredicateExclusions(entity.getIri(), null).getEntity());
-        }
-
-        return result;
-    }
-
     public TTIriRef getShapeFromType(String iri) {
         if (iri.equals(IM.CONCEPT_SET) || iri.equals(IM.VALUESET))
             return entityTripleRepository.getShapeFromType(IM.SET);
         else return entityTripleRepository.getShapeFromType(iri);
-    }
-
-    public List<TTEntity> getActions(String taskIri) {
-        return entityRepository2.getActions(taskIri);
     }
 
     public String getName(String iri) {
@@ -1189,14 +1081,6 @@ public class EntityService {
 
     public Set<String> getPredicates(String iri) {
         return entityRepository.getPredicates(iri);
-    }
-
-    public Boolean isValidProperty(String entity, String property) {
-        return entityRepository.isValidProperty(entity, property);
-    }
-
-    public Boolean isValidPropertyValue(String property, String value) {
-        return entityRepository.isValidPropertyValue(property, value);
     }
 
     public Pageable<EntityReferenceNode> getSuperiorPropertiesPaged(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
@@ -1244,10 +1128,6 @@ public class EntityService {
         return result;
     }
 
-    public Boolean hasPredicates(String subjectIri, Set<String> predicateIris) {
-        return entityTripleRepository.hasPredicates(subjectIri, predicateIris);
-    }
-
     public List<String> getIM1SchemeOptions() {
         return entityRepository.getIM1SchemeOptions();
     }
@@ -1265,11 +1145,6 @@ public class EntityService {
     public Set<TTIriRef> getSubsets(String iri) {
         SetExporter setExporter = new SetExporter();
         return setExporter.getSubsetIrisWithNames(iri);
-    }
-
-
-    public Set<String> getLinkedDataModels(String dataModelIri) {
-        return entityRepository.findLinkedDataModels(dataModelIri);
     }
 
     public List<TTIriRef> getDataModelsFromProperty(String propIri) {

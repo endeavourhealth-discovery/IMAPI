@@ -22,22 +22,22 @@ public class TestQueries {
 				 .match(m1->m1
 					 .where(w1->w1
 						 .setIri(SHACL.PATH)
-						 .instanceOf(is->is.setIri(IM.NAMESPACE+"concept")))
+						 .is(is->is.setIri(IM.NAMESPACE+"concept")))
 					 .where(w1->w1
 						 .setIri(SHACL.NODE)
-						 .instanceOf(is->is.setIri(IM.NAMESPACE+"Condition")))))
+						 .is(is->is.setIri(IM.NAMESPACE+"Condition")))))
 			 .where(w->w
 				 .setIri(RDF.TYPE)
-				 .instanceOf(n->n.setIri(IM.CONCEPT))
-					 .instanceOf(n->n.setIri(IM.CONCEPT_SET)))
+				 .is(n->n.setIri(IM.CONCEPT))
+					 .is(n->n.setIri(IM.CONCEPT_SET)))
 				 .where(w->w
 					 .setIri(IM.HAS_STATUS)
-					 .instanceOf(n->n.setIri(IM.ACTIVE)))
+					 .is(n->n.setIri(IM.ACTIVE)))
 			 .where(w->w
 				 .setIri(IM.HAS_SCHEME)
-				 .instanceOf(is->is
+				 .is(is->is
 					 .setIri(IM.NAMESPACE))
-				 .instanceOf(is->is.setIri(SNOMED.NAMESPACE)))));
+				 .is(is->is.setIri(SNOMED.NAMESPACE)))));
 	 return request;
 
  }
@@ -56,7 +56,7 @@ public class TestQueries {
 							.setBoolWhere(Bool.and)
 								.where(p2->p2
 										.setIri(SHACL.PATH)
-										.instanceOf(in->in
+										.is(in->in
 											.setParameter("myProperty")))
 							  .where(p2->p2
 									.setBoolWhere(Bool.or)
@@ -99,7 +99,7 @@ public class TestQueries {
 				.match(m->m
 					.where(w->w
 						.setIri(SHACL.PATH)
-						.addInstanceOf(new Node().setParameter("this")))
+						.addIs(new Node().setParameter("this")))
 					.where(w->w
 					.setBoolWhere(Bool.or)
 						.where(p->p
@@ -134,7 +134,7 @@ public class TestQueries {
 							.setVariable("shaclProperty")
 							.where(w->w
 								.setIri(SHACL.PATH)
-								.instanceOf(in->in.setParameter("$property"))))))
+								.is(in->in.setParameter("$property"))))))
 				.return_(s->s
 					.setNodeRef("shaclProperty")
 					.property(p->p
@@ -169,7 +169,7 @@ public class TestQueries {
 					.setTypeOf(IM.NAMESPACE+"CohortQuery")
 					.where(p->p
 						.setIri(IM.RETURN_TYPE)
-						.instanceOf(in->in
+						.is(in->in
 							.setParameter("dataModelIri"))))
 				.return_(r->r
 					.property(p->p
@@ -240,9 +240,9 @@ public class TestQueries {
 					.where(w->w
 						.setIri(IM.HAS_MEMBER)
 						.setInverse(true)
-						.instanceOf(n->n
+						.is(n->n
 							.setIri(IM.NAMESPACE+"VSET_Conditions"))
-						.instanceOf(n->n
+						.is(n->n
 							.setIri(IM.NAMESPACE+"VSET_ASD")))));
 	}
 
@@ -287,7 +287,7 @@ public class TestQueries {
 			.where(w->w
 				.setIri(IM.HAS_MEMBER)
 				.setInverse(true)
-				.addInstanceOf(new Node().setIri(IM.NAMESPACE+"VSET_FamilyHistory"))))
+				.addIs(new Node().setIri(IM.NAMESPACE+"VSET_FamilyHistory"))))
 			.return_(s->s
 				.property(p->p
 				.setIri(RDFS.LABEL))
@@ -317,7 +317,7 @@ public class TestQueries {
 				.match(w1->w1
 					.where(p1->p1
 					.setIri(SHACL.PATH)
-					.addInstanceOf(IM.NAMESPACE+"dateOfBirth")))))
+					.addIs(IM.NAMESPACE+"dateOfBirth")))))
 			.match(m->m
 				.where(p->p
 					.setIri(SHACL.PROPERTY)))
@@ -405,7 +405,7 @@ public class TestQueries {
 					.setDescendantsOrSelfOf(true))
 					.where(w1-> w1
 						.setIri(RDFS.DOMAIN)
-						.addInstanceOf(new Node().setIri(SNOMED.NAMESPACE+"674814021000119106").setAncestorsOf(true))
+						.addIs(new Node().setIri(SNOMED.NAMESPACE+"674814021000119106").setAncestorsOf(true))
 					))
 				.return_(r->r
 						.property(s->s.setIri(IM.CODE))
@@ -433,7 +433,7 @@ public class TestQueries {
 			.match(f->f
 				.where(p->p
 					.setIri(IM.HAS_SCHEME)
-					.instanceOf(i->i
+					.is(i->i
 						.setIri(GRAPH.BARTS_CERNER)))
 			.where(p->p
 					.setIri(IM.CONCEPT)
@@ -457,11 +457,11 @@ public class TestQueries {
 						.setIri(SNOMED.NAMESPACE+"127489000")
 						.setDescendantsOrSelfOf(true)
 						.setAnyRoleGroup(true)
-						.addInstanceOf(new Node().setIri(SNOMED.NAMESPACE+"372665008").setDescendantsOrSelfOf(true)))
+						.addIs(new Node().setIri(SNOMED.NAMESPACE+"372665008").setDescendantsOrSelfOf(true)))
 					.where(a2->a2
 						.setIri(SNOMED.NAMESPACE+"411116001").setDescendantsOrSelfOf(true)
 						.setAnyRoleGroup(true)
-						.addInstanceOf(Node.iri(SNOMED.NAMESPACE+"385268001").setDescendantsOrSelfOf(true)))));
+						.addIs(Node.iri(SNOMED.NAMESPACE+"385268001").setDescendantsOrSelfOf(true)))));
 
 		return new QueryRequest().setQuery(query);
 

@@ -78,9 +78,9 @@ public class ECLBuilderToIMQ {
         Node value = new Node(refinement.getValue().getConcept().getIri());
         setOperator(value, refinement.getValue().getConstraintOperator());
         if (refinement.getOperator().equals("=")) {
-            where.addInstanceOf(value);
+            where.addIs(value);
         } else if (refinement.getOperator().equals("!=")) {
-            where.addInstanceOf(value.setExclude(true));
+            where.addIs(value.setExclude(true));
         }
         setOperator(where, refinement.getProperty().getConstraintOperator());
         match.addWhere(where);
@@ -93,9 +93,9 @@ public class ECLBuilderToIMQ {
             Node value = new Node(refinement.getValue().getConcept().getIri());
             setOperator(value, refinement.getValue().getConstraintOperator());
             if (refinement.getOperator().equals("=")) {
-                subWhere.addInstanceOf(value);
+                subWhere.addIs(value);
             } else if (refinement.getOperator().equals("!=")) {
-                subWhere.addInstanceOf(value.setExclude(true));
+                subWhere.addIs(value.setExclude(true));
             }
         }
         setOperator(subWhere, refinement.getProperty().getConstraintOperator());

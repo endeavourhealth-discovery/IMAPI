@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 public class Where extends PropertyRef implements Assignable{
     private String description;
     private Range range;
-    private List<Node> instanceOf;
+    private List<Node> is;
     private Match match;
     private Bool boolWhere;
     private List<Where> where;
@@ -193,28 +193,28 @@ public class Where extends PropertyRef implements Assignable{
     }
 
 
-    public List<Node> getInstanceOf() {
-        return instanceOf;
+    public List<Node> getIs() {
+        return is;
     }
 
     @JsonSetter
-    public Where setInstanceOf(List<Node> instanceOf) {
-        this.instanceOf = instanceOf;
+    public Where setIs(List<Node> isList) {
+        this.is = isList;
         return this;
     }
 
 
-    public Where addInstanceOf(Node instanceOfItem) {
-        if (this.instanceOf == null)
-            this.instanceOf = new ArrayList<>();
-        this.instanceOf.add(instanceOfItem);
+    public Where addIs(Node isItem) {
+        if (this.is == null)
+            this.is = new ArrayList<>();
+        this.is.add(isItem);
         return this;
     }
 
-    public Where instanceOf(Consumer<Node> builder) {
-        Node in = new Node();
-        addInstanceOf(in);
-        builder.accept(in);
+    public Where is(Consumer<Node> builder) {
+        Node isItem = new Node();
+        addIs(isItem);
+        builder.accept(isItem);
         return this;
     }
 
@@ -223,10 +223,10 @@ public class Where extends PropertyRef implements Assignable{
         return this;
     }
 
-    public Where addInstanceOf(String in) {
-        if (this.instanceOf == null)
-            this.instanceOf = new ArrayList<>();
-        this.instanceOf.add(new Node().setIri(in));
+    public Where addIs(String isIri) {
+        if (this.is == null)
+            this.is = new ArrayList<>();
+        this.is.add(new Node().setIri(isIri));
         return this;
     }
 

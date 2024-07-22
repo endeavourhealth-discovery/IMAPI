@@ -4,6 +4,8 @@ import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.model.ConceptContextMap;
+import org.endeavourhealth.imapi.model.Context;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -728,5 +730,67 @@ public class EntityRepository {
         }
         return dmList;
 
+    }
+
+    public List<ConceptContextMap> getConceptContextMaps(String iri) {
+        List<ConceptContextMap> result = new ArrayList<>();
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            StringJoiner query = new StringJoiner(System.lineSeparator())
+                .add("SELECT ?nodeName ?sourceVal ?sourceRegex ?propertyName ?publisherName ?systemName ?schema ?table ?field")
+                .add("WHERE {")
+                .add("  ?map ?imConcept ?concept .")
+                .add("  ?node ?imHasMap ?map ;")
+                .add("      ?imTargetProperty ?property ;")
+                .add("      ?rdfsLabl ?nodeName .")
+                .add("  ?property ?rdfsLabel ?propertyName .")
+                .add("  ?context ?imContextNode ?node ;")
+                .add("      ?imSourcePublisher ?publisher .")
+                .add("  ?publisher rdfs:label ?publisherName .")
+                .add("  ?map ?imSourceValue ?sourceVal .")
+                .add("  OPTIONAL { ?context ?imSourceSystem ?system . ?system ?rdfsLabel ?systemName }")
+                .add("  OPTIONAL { ?context ?imSourceSchema ?schema }")
+                .add("  OPTIONAL { ?context ?imSourceTable ?table }")
+                .add("  OPTIONAL { ?context ?imSourceField ?field }")
+                .add("  OPTIONAL { ?context ?imSourceConcept ?concept }")
+                .add("}")
+                .add("ORDER BY ?nodeName ?sourceVal ?publisherName");
+            TupleQuery qry = conn.prepareTupleQuery(String.valueOf(query));
+            qry.setBinding("concept", iri(iri));
+            qry.setBinding("imConcept", iri(IM.CONCEPT));
+            qry.setBinding("imHasMap", iri(IM.HAS_MAP));
+            qry.setBinding("rdfsLabel", iri(RDFS.LABEL));
+            qry.setBinding("imContextNode", iri(IM.CONTEXT_NODE));
+            qry.setBinding("imTargetProperty", iri(IM.TARGET_PROPERTY));
+            qry.setBinding("imSourcePublisher",iri(IM.SOURCE_PUBLISHER));
+            qry.setBinding("imSourceSystem",iri(IM.SOURCE_SYSTEM));
+            qry.setBinding("imSourceSchema",iri(IM.SOURCE_SCHEMA));
+            qry.setBinding("imSourceTable",iri(IM.SOURCE_TABLE));
+            qry.setBinding("imSourceField",iri(IM.SOURCE_FIELD));
+            qry.setBinding("imSourceValue",iri(IM.SOURCE_VALUE));
+            qry.setBinding("imSourceRegex",iri(IM.SOURCE_REGEX));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    if (result.stream().noneMatch(r -> r.getNode().equals(bs.getValue("nodeName").stringValue()) || r.getValue().equals(bs.getValue("sourceVal").stringValue()) || r.getRegex().equals(bs.getValue("sourceRegex").stringValue()))) {
+                        ConceptContextMap conceptContextMap = new ConceptContextMap();
+                        conceptContextMap.setId(UUID.randomUUID().toString());
+                        conceptContextMap.setNode(bs.getValue("nodeName").stringValue());
+                        conceptContextMap.setValue(bs.getValue("sourceVal").stringValue());
+                        conceptContextMap.setRegex(bs.getValue("sourceRegex").stringValue());
+                        Context context = new Context();
+                        context.setPublisher(bs.getValue("publisherName").stringValue());
+                        context.setSystem(bs.getValue("systemName").stringValue());
+                        context.setSchema(bs.getValue("schema").stringValue());
+                        context.setTable(bs.getValue("table").stringValue());
+                        context.setField(bs.getValue("field").stringValue());
+                        List<Context> contexts = new ArrayList<>();
+                        contexts.add(context);
+                        conceptContextMap.setContext(contexts);
+                        result.add(conceptContextMap);
+                    }
+                }
+            }
+        }
+        return result;
     }
 }

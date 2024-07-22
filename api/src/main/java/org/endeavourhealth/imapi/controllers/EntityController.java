@@ -31,6 +31,7 @@ import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.SetContent;
+import org.endeavourhealth.imapi.model.imq.ContextMap;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.*;
@@ -620,5 +621,13 @@ public class EntityController {
     public List<TTIriRef> getDataModelsFromProperty(@RequestParam(name = "propIri") String propIri) {
         LOG.debug("getDataModelsFromProperty");
         return entityService.getDataModelsFromProperty(propIri);
+    }
+
+    @GetMapping(value = "/public/conceptContextMaps")
+    public List<ConceptContextMap> getConceptContextMaps(@RequestParam String iri) throws IOException {
+        try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ConceptContextMaps.GET")) {
+            LOG.debug("getConceptContextMaps");
+            return entityService.getConceptContextMaps(iri);
+        }
     }
 }

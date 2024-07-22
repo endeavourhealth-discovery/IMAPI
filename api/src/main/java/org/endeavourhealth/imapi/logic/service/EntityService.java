@@ -1044,5 +1044,9 @@ public class EntityService {
         return entityRepository.findDataModelsFromProperty(propIri);
 
     }
+
+    public List<ConceptContextMap> getConceptContextMaps(String iri) {
+        return entityRepository.getConceptContextMaps(iri);
+    }
 }
 

@@ -114,10 +114,19 @@ public class IMQToECLBuilder {
         }
         if (null != where.getIs() && where.getIs().size() == 1) {
             Node whereIs = where.getIs().get(0);
-            SubExpressionConstraint value = new SubExpressionConstraint().setConcept(new ConceptReference(whereIs.getIri()));
-            value.setConstraintOperator(getOperator(whereIs));
-            refinement.setOperator("=");
-            refinement.setValue(value);
+            if (!whereIs.isExclude()) {
+                SubExpressionConstraint value = new SubExpressionConstraint().setConcept(new ConceptReference(whereIs.getIri()));
+                value.setConstraintOperator(getOperator(whereIs));
+                refinement.setOperator("=");
+                refinement.setValue(value);
+            }
+            else {
+                SubExpressionConstraint value = new SubExpressionConstraint().setConcept(new ConceptReference(whereIs.getIri()));
+                value.setConstraintOperator(getOperator(whereIs));
+                refinement.setOperator("!=");
+                refinement.setValue(value);
+
+            }
         }
         else throw new EclBuilderException("Where is not valid refinement.");
         return refinement;

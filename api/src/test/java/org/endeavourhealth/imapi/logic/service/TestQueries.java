@@ -11,36 +11,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class TestQueries {
 	public static String ex="http://example.org/qry#";
 
- public static QueryRequest observationConcepts(String input){
-	 QueryRequest request= new QueryRequest();
-	 request.setTextSearch(input);
-	 request.query(q->q
-		 .setName("test search with "+input)
-		 .match(m->m
-			 .where(w->w
-				 .setIri(IM.BINDING)
-				 .match(m1->m1
-					 .where(w1->w1
-						 .setIri(SHACL.PATH)
-						 .is(is->is.setIri(IM.NAMESPACE+"concept")))
-					 .where(w1->w1
-						 .setIri(SHACL.NODE)
-						 .is(is->is.setIri(IM.NAMESPACE+"Condition")))))
-			 .where(w->w
-				 .setIri(RDF.TYPE)
-				 .is(n->n.setIri(IM.CONCEPT))
-					 .is(n->n.setIri(IM.CONCEPT_SET)))
-				 .where(w->w
-					 .setIri(IM.HAS_STATUS)
-					 .is(n->n.setIri(IM.ACTIVE)))
-			 .where(w->w
-				 .setIri(IM.HAS_SCHEME)
-				 .is(is->is
-					 .setIri(IM.NAMESPACE))
-				 .is(is->is.setIri(SNOMED.NAMESPACE)))));
-	 return request;
-
- }
 
 	public static QueryRequest dataModelPropertyRange() {
 		Query query= new Query()

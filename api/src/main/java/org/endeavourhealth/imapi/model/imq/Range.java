@@ -6,10 +6,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"match","from","to","relativeTo"})
+@JsonPropertyOrder({"match","from","to"})
 public class Range {
 	private Assignable from;
 	private Assignable to;
+
 
 	@JsonProperty(required = true)
 	public Assignable getFrom() {

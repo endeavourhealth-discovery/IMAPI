@@ -168,6 +168,8 @@ public class IMQToOS {
 		}
 	}
 
+
+
 	private String getScoreScript() {
 		return "def usage=0;" +
 			"if (doc['usageTotal'].size()>0) {" +

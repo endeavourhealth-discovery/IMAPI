@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
@@ -7,8 +8,6 @@ import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +25,13 @@ public class QueryService {
         queryRepository.labelQuery(query);
         return query;
     }
+    public Query describeQuery(Query query) throws JsonProcessingException {
+        return new QueryDescriptor().describeQuery(query);
+    }
+    public Query describeQuery(String queryIri) throws JsonProcessingException {
+        return new QueryDescriptor().describeQuery(queryIri);
+    }
+
 
     public List<TTIriRef> getAllQueries() {
         return queryRepository.getAllQueries();

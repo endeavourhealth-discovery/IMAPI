@@ -39,7 +39,7 @@ class SearchServiceTest {
 
 //@Test
 	void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
-	 output(TestQueries.getAllowableSubtypes());
+		output(TestQueries.getAllowableSubtypes());
 		output(TestQueries.query2());
 		//output(TestQueries.pathQueryAtenolol3());
 

@@ -256,9 +256,9 @@ public class EqdResources {
                 else
                     iri.setName("Unknown value set");
                 if (!notIn)
-                    pv.addInstanceOf(iri);
+                    pv.addIs(iri);
                 else {
-                    pv.addInstanceOf(iri.setExclude(true));
+                    pv.addIs(iri.setExclude(true));
                 }
                 if (valueLabel.equals(""))
                     valueLabel = "Unknown value set";
@@ -278,12 +278,12 @@ public class EqdResources {
             if (vs.getAllValues() != null) {
                 List<Node> values = getExceptionSet(vs.getAllValues());
                 for (Node node: values) node.setExclude(true);
-                pv.setInstanceOf(values);
+                pv.setIs(values);
             } else {
                 if (!notIn) {
-                    pv.addInstanceOf(getInlineValues(vs, pv));
+                    pv.addIs(getInlineValues(vs, pv));
                 } else {
-                    pv.addInstanceOf(getInlineValues(vs, pv).setExclude(true));
+                    pv.addIs(getInlineValues(vs, pv).setExclude(true));
                 }
             }
         }

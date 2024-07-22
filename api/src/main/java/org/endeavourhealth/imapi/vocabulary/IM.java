@@ -39,6 +39,8 @@ public class IM {
     public static final String PATH_TO = IM.NAMESPACE + "pathTo";
     public static final String OPENSEARCH_QUERY = IM.NAMESPACE + "OpenSearchQuery";
     public static final String DATAMODEL_PROPERTY = IM.NAMESPACE + "dataModelProperty";
+    public static final String ONTOLOGY_PARENT_FOLDER = IM.NAMESPACE + "HealthModelOntology";
+    public static final String PROPERTIES_FOLDER = IM.NAMESPACE + "Properties";
     public static final String TASK = IM.NAMESPACE + "Task";
     public static final String FIELD_GROUP = IM.NAMESPACE + "FieldGroup";
     public static final String MATCH_CLAUSE = IM.NAMESPACE + "MatchClause";

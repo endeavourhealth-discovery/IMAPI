@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.elasticsearch.common.unit.Fuzziness;
@@ -217,75 +218,84 @@ public class OSQuery {
 	}
 
 	private SearchResponse getStandardResults(QueryRequest request) throws JsonProcessingException, QueryException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, DataFormatException {
-		JsonNode root= getIMOSResults(request);
-		if (root==null)
-			return null;
-		try( CachedObjectMapper resultMapper= new CachedObjectMapper()) {
-			SearchResponse searchResults = new SearchResponse();
-			int resultNumber = 0;
-			searchResults.setHighestUsage(0);
-			searchResults.setCount(0);
-			for (JsonNode hit : root.get("hits").get("hits")) {
-				resultNumber++;
-				SearchResultSummary source = resultMapper.treeToValue(hit.get("_source"), SearchResultSummary.class);
-				searchResults.addEntity(source);
-				if (source.getUsageTotal() != null && source.getUsageTotal() > searchResults.getHighestUsage())
-					searchResults.setHighestUsage(source.getUsageTotal());
-				source.setMatch(source.getName());
-				if (source.getPreferredName() != null) {
-					source.setName(source.getPreferredName());
+		try {
+			JsonNode root = getIMOSResults(request);
+			if (root == null)
+				return null;
+			try (CachedObjectMapper resultMapper = new CachedObjectMapper()) {
+				SearchResponse searchResults = new SearchResponse();
+				int resultNumber = 0;
+				searchResults.setHighestUsage(0);
+				searchResults.setCount(0);
+				for (JsonNode hit : root.get("hits").get("hits")) {
+					resultNumber++;
+					SearchResultSummary source = resultMapper.treeToValue(hit.get("_source"), SearchResultSummary.class);
+					searchResults.addEntity(source);
+					if (source.getUsageTotal() != null && source.getUsageTotal() > searchResults.getHighestUsage())
+						searchResults.setHighestUsage(source.getUsageTotal());
 					source.setMatch(source.getName());
+					if (source.getPreferredName() != null) {
+						source.setName(source.getPreferredName());
+						source.setMatch(source.getName());
+					}
+					source.setTermCode(null);
 				}
-				source.setTermCode(null);
+				Integer totalCount = resultMapper.treeToValue(root.get("hits").get("total").get("value"), Integer.class);
+				if (null != totalCount) searchResults.setCount(totalCount);
+				if (request.getPage() != null) {
+					searchResults.setPage(request.getPage().getPageNumber());
+				}
+				request.addTiming("Results List built");
+				searchResults.setTerm(request.getTextSearch());
+				return searchResults;
 			}
-			Integer totalCount = resultMapper.treeToValue(root.get("hits").get("total").get("value"), Integer.class);
-			if (null != totalCount) searchResults.setCount(totalCount);
-			if (request.getPage() != null) {
-				searchResults.setPage(request.getPage().getPageNumber());
-			}
-			request.addTiming("Results List built");
-			searchResults.setTerm(request.getTextSearch());
-			return searchResults;
+		}catch (Exception e) {
+			return new SearchResponse();
 		}
 	}
 
 	private JsonNode getNodeResults(QueryRequest request) throws JsonProcessingException, QueryException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
-		JsonNode root= getIMOSResults(request);
-		if (root==null)
-			return null;
-		try (CachedObjectMapper om = new CachedObjectMapper()) {
-			if (root.get("hits").get("hits").size() > 0) {
-				ObjectNode searchResults = om.createObjectNode();
-				ArrayNode resultNodes = om.createArrayNode();
-				searchResults.set("entities", resultNodes);
-				for (JsonNode hit : root.get("hits").get("hits")) {
-					ObjectNode resultNode = om.createObjectNode();
-					resultNodes.add(resultNode);
-					ObjectNode osResult = om.treeToValue(hit.get("_source"), ObjectNode.class);
-					resultNode.set("@id", osResult.get("iri"));
-					resultNode.set(RDFS.LABEL, osResult.get("name"));
-					if (request.getQuery().getReturn() != null) {
-						for (Return select : request.getQuery().getReturn()) {
-							if (select.getProperty() != null) {
-								for (ReturnProperty prop : select.getProperty()) {
-									if (prop.getIri() != null) {
-										String field = prop.getIri();
-										String osField = field.substring(field.lastIndexOf("#") + 1);
-										if (osResult.get(osField) != null) {
-											resultNode.set(field, osResult.get(osField));
+		try {
+			JsonNode root = getIMOSResults(request);
+			if (root == null)
+				return new ObjectMapper().createObjectNode();
+			try (CachedObjectMapper om = new CachedObjectMapper()) {
+				if (root.get("hits").get("hits").size() > 0) {
+					ObjectNode searchResults = om.createObjectNode();
+					ArrayNode resultNodes = om.createArrayNode();
+					searchResults.set("entities", resultNodes);
+					for (JsonNode hit : root.get("hits").get("hits")) {
+						ObjectNode resultNode = om.createObjectNode();
+						resultNodes.add(resultNode);
+						ObjectNode osResult = om.treeToValue(hit.get("_source"), ObjectNode.class);
+						resultNode.set("@id", osResult.get("iri"));
+						resultNode.set(RDFS.LABEL, osResult.get("name"));
+						if (request.getQuery().getReturn() != null) {
+							for (Return select : request.getQuery().getReturn()) {
+								if (select.getProperty() != null) {
+									for (ReturnProperty prop : select.getProperty()) {
+										if (prop.getIri() != null) {
+											String field = prop.getIri();
+											String osField = field.substring(field.lastIndexOf("#") + 1);
+											if (osResult.get(osField) != null) {
+												resultNode.set(field, osResult.get(osField));
+											}
 										}
 									}
 								}
 							}
 						}
 					}
+					request.addTiming("Results List built");
+					return searchResults;
 				}
-				request.addTiming("Results List built");
-				return searchResults;
+				request.addTiming("no results returned");
 			}
-			request.addTiming("no results returned");
+			return null;
 		}
-		return null;
+		catch (Exception e) {
+			return new ObjectMapper().createObjectNode();
+		}
 	}
 
 

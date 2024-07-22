@@ -624,7 +624,7 @@ public class EntityController {
     }
 
     @GetMapping(value = "/public/conceptContextMaps")
-    public List<ConceptContextMap> getConceptContextMaps(@RequestParam String iri) throws IOException {
+    public List<ConceptContextMap> getConceptContextMaps(@RequestParam(name = "iri") String iri) throws IOException {
         try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ConceptContextMaps.GET")) {
             LOG.debug("getConceptContextMaps");
             return entityService.getConceptContextMaps(iri);

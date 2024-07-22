@@ -72,21 +72,21 @@ public class QueryDescriptor{
 	}
 
 
-	private String getTermInContext(Node node){
+	private String getTermInContext(Node node,Context context){
 		if (node.getParameter()!=null){
 			return node.getParameter();
 		}
 		if (node.getName()!=null) {
-			return getTermInContext(node.getName(), Context.type);
+			return getTermInContext(node.getName(), context);
 		}
 		if (node.getIri() != null) {
-			if (contextTerms.get(node.getIri()+ Context.type)!=null) {
-				return contextTerms.get(node.getIri() + Context.type);
+			if (contextTerms.get(node.getIri()+ context)!=null) {
+				return contextTerms.get(node.getIri() + context);
 			}
 			String name = repo.getEntityPredicates(node.getIri(), Set.of(RDFS.LABEL)).getEntity().getName();
 			if (name==null)
 				name= node.getIri();
-			contextTerms.put(node.getIri() + Context.type, name);
+			contextTerms.put(node.getIri() + context, name);
 			return name;
 		}
 		else if (node.getVariable()!=null) {
@@ -173,10 +173,10 @@ public class QueryDescriptor{
 			if (matchType != MatchType.whereMatch) {
 
 				if (match.getTypeOf() != null) {
-					display.append(getTermInContext(match.getTypeOf()));
+					display.append(getTermInContext(match.getTypeOf(),Context.type));
 				}
 				if (match.getInstanceOf() != null) {
-					display.append("in the cohort :'"+describeInSet(match.getInstanceOf())).append("'");
+					display.append("in the cohort :'"+ describeInstance(match.getInstanceOf())).append("'");
 				};
 			}
 
@@ -219,7 +219,7 @@ public class QueryDescriptor{
 
 
 
-	private String describeInSet(List<Node> inSets) {
+	private String describeInstance(List<Node> inSets) {
 		StringBuilder display= new StringBuilder();
 		if (inSets.size()>1) {
 			display.append("either ");
@@ -236,7 +236,7 @@ public class QueryDescriptor{
 				display.append("'");
 			}
 			else {
-				display.append("'").append(getTermInContext(set)).append("'");
+				display.append("'").append(getTermInContext(set,Context.type)).append("'");
 				}
 		}
 		return display.toString();
@@ -445,7 +445,7 @@ public class QueryDescriptor{
 			if (set.getName()!=null)
 				display.append("'").append(set.getName()).append("'");
 			else
-				display.append("'").append(getTermInContext(set)).append("'");
+				display.append("'").append(getTermInContext(set,Context.value)).append("'");
 		}
 		return display.toString();
 	}

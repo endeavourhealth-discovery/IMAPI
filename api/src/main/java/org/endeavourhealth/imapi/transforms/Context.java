@@ -4,6 +4,7 @@ public enum Context {
 	plural,
 	single,
 	property,
+	value,
 	type,
 	orderBy,
 	match,

@@ -630,4 +630,12 @@ public class EntityController {
             return entityService.getConceptContextMaps(iri);
         }
     }
+
+    @GetMapping(value = "public/checkPropertyType")
+    public String checkPropertyType(@RequestParam(name = "propertyIri") String iri) throws IOException {
+        try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.CheckPropertyType.GET")){
+            LOG.debug("checkPropertyType");
+            return entityService.checkPropertyType(iri);
+        }
+    }
 }

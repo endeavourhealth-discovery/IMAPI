@@ -793,4 +793,28 @@ public class EntityRepository {
         }
         return result;
     }
+
+    public String checkPropertyType(String propIri) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            StringJoiner query = new StringJoiner(System.lineSeparator())
+                .add("SELECT ?objectProperty ?dataProperty ")
+                .add("WHERE {")
+                .add("bind(exists{?propIri ?isA ?objProp} as ?objectProperty)")
+                .add("bind(exists{?propIri ?isA ?dataProp} as ?dataProperty)")
+                .add("}");
+            TupleQuery qry = conn.prepareTupleQuery(query.toString());
+            qry.setBinding("propIri", iri(propIri));
+            qry.setBinding("isA", iri(IM.IS_A));
+            qry.setBinding("objProp", iri(IM.DATAMODEL_OBJECTPROPERTY));
+            qry.setBinding("dataProp", iri(IM.DATAMODEL_DATAPROPERTY));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                if (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    if (bs.hasBinding("objectProperty")) return IM.DATAMODEL_OBJECTPROPERTY;
+                    else if (bs.hasBinding("dataProperty")) return IM.DATAMODEL_DATAPROPERTY;
+                }
+            }
+        }
+        return null;
+    }
 }

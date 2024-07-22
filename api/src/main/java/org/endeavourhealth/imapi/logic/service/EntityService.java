@@ -1048,5 +1048,9 @@ public class EntityService {
     public List<ConceptContextMap> getConceptContextMaps(String iri) {
         return entityRepository.getConceptContextMaps(iri);
     }
+
+    public String checkPropertyType(String iri) {
+        return entityRepository.checkPropertyType(iri);
+    }
 }
 

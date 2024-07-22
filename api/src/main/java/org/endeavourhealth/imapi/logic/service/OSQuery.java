@@ -10,6 +10,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -49,7 +50,10 @@ public class OSQuery {
 		Query query = request.getQuery();
 		JsonNode results;
 		if (query.isImQuery()) {
+			Page page= request.getPage();
+			request.setPage(null);
 			results = new QueryRepository().queryIM(request, false);
+			request.setPage(page);
 		}
 		else {
 			results = getOsResults(request, query);

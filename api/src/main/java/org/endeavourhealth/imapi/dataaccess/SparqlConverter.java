@@ -20,7 +20,6 @@ public class SparqlConverter {
     int o = 0;
     private String labelVariable;
 
-
     String mainEntity;
 
 
@@ -533,24 +532,34 @@ public class SparqlConverter {
     }
 
 
-    private void is(StringBuilder whereQl, String object, List<Node> in, boolean isNot) throws QueryException {
-        if (isNot)
-            whereQl.append("Filter not exists {\n");
+    private void is(StringBuilder whereQl, String object, List<Node> in) throws QueryException {
         o++;
         String sets = "sets" + o;
         whereQl.append("?").append(object).append(" ^im:hasMember ").append("?").append(sets).append(".\n");
 
         List<String> inList = new ArrayList<>();
+        List<String> notList= new ArrayList<>();
         for (Node iri : in) {
-            if (iri.getNodeRef() != null)
-                inList.add("?" + iri.getNodeRef());
-            else
-                inList.add(iriFromAlias(iri));
+            if (iri.isExclude()){
+                if (iri.getNodeRef() != null)
+                    notList.add("?" + iri.getNodeRef());
+                else
+                    notList.add(iriFromAlias(iri));
+            }
+            else {
+                if (iri.getNodeRef() != null)
+                    inList.add("?" + iri.getNodeRef());
+                else
+                    inList.add(iriFromAlias(iri));
+            }
         }
         String inString = String.join(",", inList);
         whereQl.append("Filter (?").append(sets).append(" in (").append(inString).append("))\n");
-        if (isNot)
-            whereQl.append(" }");
+        if (!notList.isEmpty()){
+            String notString = String.join(",", notList);
+            whereQl.append("Filter (?").append(sets).append(" not in (").append(notString).append("))\n");
+
+        }
     }
 
 
@@ -602,12 +611,8 @@ public class SparqlConverter {
     }
 
 
-    private String convertValue(Assignable value) {
-        String dataValue = "\"" + value.getValue() + "\"";
-        if (value.getDataType() == null)
-            return dataValue;
-        else
-            return value + value.getDataType().getIri();
+    private String convertValue(Where value) {
+        return  "\"" + value.getValue() + "\"";
     }
 
 

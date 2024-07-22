@@ -30,8 +30,17 @@ public class Match extends IriLD {
     private String name;
     private Match then;
     private List<IriLD> path;
+    private String displayLabel;
 
 
+    public String getDisplayLabel() {
+        return displayLabel;
+    }
+
+    public Match setDisplayLabel(String displayLabel) {
+        this.displayLabel = displayLabel;
+        return this;
+    }
 
     public Bool getBoolMatch() {
         return boolMatch;

@@ -38,7 +38,7 @@ public class EqdPopToIMQ {
 			query.addMatch(rootMatch);
 				rootMatch
 					.addInstanceOf(new Node().setIri("urn:uuid:" + id).setMemberOf(true))
-					.setName(resources.reportNames.get(id));
+					.setName("in the population "+ resources.reportNames.get(id));
 			}
 
 

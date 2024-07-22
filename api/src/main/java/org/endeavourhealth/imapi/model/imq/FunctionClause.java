@@ -60,11 +60,6 @@ public class FunctionClause extends Value{
 		return this;
 	}
 
-	@JsonSetter
-	public Value setDataType(TTIriRef dataType) {
-		super.setDataType(dataType);
-		return this;
-	}
 
 	public Value setOperator(Operator operator) {
 		super.setOperator(operator);
@@ -72,10 +67,6 @@ public class FunctionClause extends Value{
 	}
 
 
-	public Value setRelativeTo(PropertyRef relativeTo) {
-		super.setRelativeTo(relativeTo);
-		return this;
-	}
 
 
 	@Override

@@ -168,6 +168,8 @@ public class IMQToOS {
 		}
 	}
 
+
+
 	private String getScoreScript() {
 		return "def usage=0;" +
 			"if (doc['usageTotal'].size()>0) {" +
@@ -400,11 +402,11 @@ public class IMQToOS {
 		else if (query.getParentResult()!=null){
 			JsonNode parentResult= query.getParentResult();
 			if (parentResult.get("entities")!=null) {
-				Set<String> iris = new HashSet<>();
 				for (Iterator<JsonNode> it = parentResult.get("entities").elements(); it.hasNext(); ) {
 					JsonNode element = it.next();
-					iris.add(element.get("@id").asText());
+					addToInstanceFilters(type,element.get("@id").asText(),instanceFilters);
 				}
+
 				return;
 			}
 			else

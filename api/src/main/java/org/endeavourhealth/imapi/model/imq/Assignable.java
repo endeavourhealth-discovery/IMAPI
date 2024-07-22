@@ -7,11 +7,6 @@ public interface Assignable {
 
 	public Assignable setOperator(Operator operator);
 
-	public PropertyRef getRelativeTo();
-
-	public Assignable setRelativeTo(PropertyRef relativeTo);
-
-
 	public String getValue();
 
 	public Assignable setValue(String value);
@@ -20,7 +15,4 @@ public interface Assignable {
 
 	public Assignable setUnit(String unit);
 
-	public Assignable setDataType(TTIriRef datatype);
-
-	public TTIriRef getDataType();
 }

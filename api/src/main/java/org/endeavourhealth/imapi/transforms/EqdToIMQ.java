@@ -1,8 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.model.iml.ConceptSet;
+import org.endeavourhealth.imapi.logic.service.QueryDescriptor;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.imq.*;
@@ -103,6 +101,7 @@ public class EqdToIMQ {
 			new EqdAuditToIMQ().convertReport(eqReport, qry, resources);
 		}
 	 flattenQuery(qry);
+		new QueryDescriptor().describeQuery(qry);
 		queryEntity.setDefinition(qry);
 		return queryEntity;
 	}

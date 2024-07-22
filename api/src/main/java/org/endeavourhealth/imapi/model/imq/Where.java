@@ -11,7 +11,7 @@ import java.util.function.Consumer;
         , "operator", "isNull", "value", "unit", "instanceOf", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends PropertyRef implements Assignable{
+public class Where extends PropertyRef{
     private String description;
     private Range range;
     private List<Node> is;
@@ -26,6 +26,16 @@ public class Where extends PropertyRef implements Assignable{
     private boolean isNull;
     private PropertyRef relativeTo;
     private boolean isNotNull;
+    private String displayLabel;
+
+    public String getDisplayLabel() {
+        return displayLabel;
+    }
+
+    public Where setDisplayLabel(String displayLabel) {
+        this.displayLabel = displayLabel;
+        return this;
+    }
 
     public Bool getBoolWhere() {
         return boolWhere;
@@ -236,7 +246,6 @@ public class Where extends PropertyRef implements Assignable{
     }
 
 
-    @Override
     public Where setOperator(Operator operator) {
         this.operator = operator;
         return this;
@@ -261,12 +270,10 @@ public class Where extends PropertyRef implements Assignable{
         return this;
     }
 
-    @Override
     public String getValue() {
         return this.value;
     }
 
-    @Override
     public Where setValue(String value) {
         this.value = value;
         return this;
@@ -277,15 +284,6 @@ public class Where extends PropertyRef implements Assignable{
         return this;
     }
 
-    @Override
-    public Assignable setDataType(TTIriRef datatype) {
-        return null;
-    }
-
-    @Override
-    public TTIriRef getDataType() {
-        return null;
-    }
 
     public String getUnit() {
         return this.unit;

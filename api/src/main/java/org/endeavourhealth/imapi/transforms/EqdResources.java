@@ -30,6 +30,7 @@ public class EqdResources {
     private ModelDocument document;
     private final Map<String, Set<TTIriRef>> valueMap = new HashMap<>();
     private int counter = 0;
+    private int setCounter=0;
 
 
 
@@ -108,7 +109,7 @@ public class EqdResources {
             Match match= new Match();
             match
               .addInstanceOf(new Node().setIri("urn:uuid:" + srch.getReportGuid()).setMemberOf(true))
-              .setName(reportNames.get(srch.getReportGuid()));
+              .setName("in the cohort "+ reportNames.get(srch.getReportGuid()));
             return match;
         } else {
             return convertCriterion(eqCriteria.getCriterion());
@@ -244,24 +245,28 @@ public class EqdResources {
         } else if (!CollectionUtils.isEmpty(cv.getLibraryItem())) {
             String valueLabel = "";
             for (String vset : cv.getLibraryItem()) {
-                String vsetName = null;
+                String vsetName;
                 if (labels.get(vset) != null) {
                     vsetName = (String) labels.get(vset);
-                } else
-                    vsetName = "unknown concept set";
+                } else {
+                    setCounter++;
+                    vsetName = "Library set " + setCounter;
+                }
                 valueLabel = valueLabel + (valueLabel.equals("") ? "" : ", ") + vsetName;
                 Node iri = new Node().setIri("urn:uuid:" + vset);
+                iri.setMemberOf(true);
                 if (vsetName != null)
                     iri.setName(vsetName);
-                else
-                    iri.setName("Unknown value set");
+                else {
+                    setCounter++;
+                    iri.setName("Library set " + setCounter);
+                }
                 if (!notIn)
                     pv.addIs(iri);
                 else {
-                    pv.addIs(iri.setExclude(true));
+                    iri.setExclude(true);
+                    pv.addIs(iri);
                 }
-                if (valueLabel.equals(""))
-                    valueLabel = "Unknown value set";
                 pv.setValueLabel(valueLabel);
             }
         } else if (cv.getRangeValue() != null) {
@@ -277,7 +282,9 @@ public class EqdResources {
                 }
             if (vs.getAllValues() != null) {
                 List<Node> values = getExceptionSet(vs.getAllValues());
-                for (Node node: values) node.setExclude(true);
+                for (Node node: values) {
+                    node.setExclude(true);
+                }
                 pv.setIs(values);
             } else {
                 if (!notIn) {
@@ -387,7 +394,7 @@ public class EqdResources {
 
     }
 
-    private void setCompareFrom(Assignable pv, EQDOCRangeFrom rFrom) throws DataFormatException {
+    private void setCompareFrom(Where where, EQDOCRangeFrom rFrom) throws DataFormatException {
         Operator comp;
         if (rFrom.getOperator() != null)
             comp = (Operator) vocabMap.get(rFrom.getOperator());
@@ -401,19 +408,31 @@ public class EqdResources {
         if (rFrom.getValue().getRelation() != null && rFrom.getValue().getRelation() == VocRelation.RELATIVE) {
             relation = VocRelation.RELATIVE;
         }
-        setCompare(pv, comp, value, units, relation, true);
+        setCompare(where, comp, value, units, relation, true);
     }
 
-    private void setCompare(Assignable pv, Operator comp, String value, String units, VocRelation relation,
+    private void setCompare(Where where, Value pv, Operator comp, String value, String units, VocRelation relation,
                             boolean from) throws DataFormatException {
         if (relation == VocRelation.RELATIVE) {
-            pv.setRelativeTo(new PropertyRef().setParameter("$referenceDate"));
+            where.setRelativeTo(new PropertyRef().setParameter("$referenceDate"));
         }
 
         pv.setOperator(comp);
         pv.setValue(value);
         if (units != null)
-            pv.setUnit(units);
+            where.setUnit(units);
+    }
+
+    private void setCompare(Where where, Operator comp, String value, String units, VocRelation relation,
+                            boolean from) throws DataFormatException {
+        if (relation == VocRelation.RELATIVE) {
+            where.setRelativeTo(new PropertyRef().setParameter("$referenceDate"));
+        }
+
+        where.setOperator(comp);
+        where.setValue(value);
+        if (units != null)
+            where.setUnit(units);
     }
 
     private Operator reverseComp(Operator comp) {
@@ -431,7 +450,7 @@ public class EqdResources {
     }
 
 
-    private void setCompareTo(Assignable pv, EQDOCRangeTo rTo) throws DataFormatException {
+    private void setCompareTo(Where pv, EQDOCRangeTo rTo) throws DataFormatException {
         Operator comp;
         if (rTo.getOperator() != null)
             comp = (Operator) vocabMap.get(rTo.getOperator());
@@ -449,17 +468,40 @@ public class EqdResources {
     }
 
 
-    private void setRangeCompare(Where pv, EQDOCRangeFrom rFrom, EQDOCRangeTo rTo) throws DataFormatException {
+    private void setRangeCompare(Where where, EQDOCRangeFrom rFrom, EQDOCRangeTo rTo) throws DataFormatException {
         Range range = new Range();
-        pv.setRange(range);
+        where.setRange(range);
         Value fromValue = new Value();
         range.setFrom(fromValue);
-        setCompareFrom(fromValue, rFrom);
+        Operator comp;
+        if (rFrom.getOperator() != null)
+            comp = (Operator) vocabMap.get(rFrom.getOperator());
+        else
+            comp = Operator.eq;
+        String value = rFrom.getValue().getValue();
+        String units = null;
+        if (rFrom.getValue().getUnit() != null)
+            units = rFrom.getValue().getUnit().value();
+        VocRelation relation = VocRelation.ABSOLUTE;
+        if (rFrom.getValue().getRelation() != null && rFrom.getValue().getRelation() == VocRelation.RELATIVE) {
+            relation = VocRelation.RELATIVE;
+        }
+        setCompare(where, fromValue, comp, value, units, relation, true);
         Value toValue = new Value();
-        range.setTo(toValue);
-        setCompareTo(toValue, rTo);
-        range.setFrom(fromValue);
-
+        range.setTo(toValue);;
+        if (rFrom.getOperator() != null)
+            comp = (Operator) vocabMap.get(rTo.getOperator());
+        else
+            comp = Operator.eq;
+        value = rTo.getValue().getValue();
+        units = null;
+        if (rTo.getValue().getUnit() != null)
+            units = rTo.getValue().getUnit().value();
+        relation = VocRelation.ABSOLUTE;
+        if (rTo.getValue().getRelation() != null && rTo.getValue().getRelation() == VocRelation.RELATIVE) {
+            relation = VocRelation.RELATIVE;
+        }
+        setCompare(where, toValue, comp, value, units, relation, true);
     }
 
 
@@ -469,7 +511,7 @@ public class EqdResources {
         for (EQDOCExceptionValue ev : set.getValues()) {
             Set<Node> values = getValue(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
             if (values != null) {
-                valueSet.addAll(new ArrayList<>(values));
+                valueSet.addAll(values.stream().map(v -> v.setExclude(true)).toList());
             } else
                 System.err.println("Missing exception sets\t" + ev.getValue() + "\t " + ev.getDisplayName());
         }
@@ -480,8 +522,8 @@ public class EqdResources {
 
     private Node getInlineValues(EQDOCValueSet vs, Where pv) throws DataFormatException, IOException {
         Set<Node> setContent = new HashSet<>();
-        Set<Node> excContent = new HashSet<>();
         VocCodeSystemEx scheme = vs.getCodeSystem();
+        String exclusions="";
         if (vs.getClusterCode()!=null && !vs.getClusterCode().isEmpty()){
             return new Node().setParameter(vs.getClusterCode().get(0));
         }
@@ -497,6 +539,7 @@ public class EqdResources {
             } else
                 System.err.println("Missing \t" + ev.getValue() + "\t " + ev.getDisplayName());
             if (!ev.getException().isEmpty()){
+                exclusions=" (with exclusions)";
                 for (EQDOCException exc:ev.getException()){
                     for (EQDOCExceptionValue val:exc.getValues()){
                         Set<Node> exceptionValue= getValue(scheme,val);
@@ -505,7 +548,8 @@ public class EqdResources {
                                 Node conRef = new Node().setIri(iri.getIri()).setName(iri.getName());
                                 if (val.isIncludeChildren())
                                   conRef.setDescendantsOrSelfOf(true);
-                                excContent.add(conRef);
+                                conRef.setExclude(true);
+                                setContent.add(conRef);
                             }
                         }
                     }
@@ -533,28 +577,11 @@ public class EqdResources {
                     name=getShortName(node.getName(),name);
                 }
             }
+            node.setName(name);
         }
-        if (!excContent.isEmpty()){
-            name=name+" with exclusions";
-            Match outerMatch= new Match();
-            outerMatch.addMatch(match);
-            outerMatch.setBoolMatch(Bool.and);
-            query.setMatch(new ArrayList<>());
-            query.addMatch(outerMatch);
-            for (Node node:excContent){
-                Match member= new Match();
-                outerMatch.addMatch(member);
-                member.setExclude(true);
-                member.addInstanceOf(node);
-            }
-        }
-        if (setContent.size()==1&&excContent.isEmpty()){
-            return setContent.stream().findFirst().get();
-        }
-        else {
-            if (vs.getDescription()!=null)
+        if (vs.getDescription()!=null)
                 name=vs.getDescription();
-            ConceptSet set = new ConceptSet();
+        ConceptSet set = new ConceptSet();
             set.setIri("urn:uuid:" + vs.getId());
             set.setName(name);
             if (!memberOnly(query))
@@ -563,8 +590,7 @@ public class EqdResources {
                 setMemberOnlySet(set,query);
             set.addUsedIn(TTIriRef.iri("urn:uuid:" + activeReport));
             document.addConceptSet(set);
-            return new Node().setIri(set.getIri());
-        }
+            return new Node().setIri(set.getIri()).setName(name+ exclusions);
     }
     private void setMemberOnlySet(ConceptSet set, Match match) {
         if (match.getInstanceOf()!=null) {

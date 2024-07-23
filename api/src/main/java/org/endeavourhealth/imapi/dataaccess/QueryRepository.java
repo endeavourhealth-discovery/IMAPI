@@ -105,6 +105,30 @@ public class QueryRepository {
         }
     }
 
+    /**
+     * Generic query of IM with the select statements determining the response
+     *
+     * @param queryRequest QueryRequest object
+     * @throws DataFormatException     if query syntax is invalid
+     * @throws JsonProcessingException if the json is invalid
+     */
+    public void updateIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, QueryException {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            if (queryRequest.getUpdate() == null)
+                throw new DataFormatException("Missing update in query request");
+            if (queryRequest.getUpdate().getIri() == null)
+                throw new DataFormatException("Update queries must reference a predefined definition. Dynamic update based queries not supported");
+            TTEntity updateEntity = getEntity(queryRequest.getUpdate().getIri());
+            queryRequest.setUpdate(updateEntity.get(TTIriRef.iri(IM.UPDATE_PROCEDURE)).asLiteral().objectValue(Update.class));
+
+            checkReferenceDate(queryRequest);
+            SparqlConverter converter = new SparqlConverter(queryRequest);
+            String spq = converter.getUpdateSparql();
+            graphUpdateSearch(spq, conn);
+
+        }
+    }
+
     private void graphUpdateSearch(String spq, RepositoryConnection conn) {
         org.eclipse.rdf4j.query.Update update = conn.prepareUpdate(spq);
         update.execute();

@@ -111,7 +111,14 @@ public class SearchService {
 		return new OSQuery().openSearchQuery(request);
 	}
 
-
+    /**
+     * Queries and updates IM entity using the query model
+     * @param queryRequest Query inside a request with parameters
+     * @throws DataFormatException if query format is invalid
+     */
+    public void updateIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, QueryException {
+        new QueryRepository().updateIM(queryRequest);
+    }
 
 }
 

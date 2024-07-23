@@ -159,7 +159,7 @@ public class EntityService {
     }
 
     public EntityReferenceNode getEntityAsEntityReferenceNode(String iri, List<String> schemeIris, boolean inactive) {
-        if (null == iri) return new EntityReferenceNode();
+        if (null == iri) throw new IllegalArgumentException("Missing iri parameter");
 
         return entityTripleRepository.getEntityReferenceNode(iri, schemeIris, inactive);
     }

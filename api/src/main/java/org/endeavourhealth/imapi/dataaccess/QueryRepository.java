@@ -349,6 +349,37 @@ public class QueryRepository {
 
     }
 
+    /**
+     * Method to populate the iris in a query with their  names
+     *
+     * @param query the query object in iml Query form
+     */
+    public void labelQuery(Query query) {
+        List<TTIriRef> ttIris = new ArrayList<>();
+        Map<String, String> iriLabels = new HashMap<>();
+        gatherQueryLabels(query, ttIris, iriLabels);
+        List<String> iriList = resolveIris(iriLabels.keySet());
+        String iris = String.join(",", iriList);
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            String sql = "Select ?entity ?label where { ?entity <" + RDFS.LABEL + "> ?label.\n" +
+                "filter (?entity in (" + iris + "))\n}";
+            TupleQuery qry = conn.prepareTupleQuery(sql);
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    String label = bs.getValue("label").stringValue();
+                    String iri = bs.getValue("entity").stringValue();
+                    iriLabels.put(iri, label);
+                }
+            }
+        }
+        for (TTIriRef ttIri : ttIris) {
+            ttIri.setName(iriLabels.get(ttIri.getIri()));
+        }
+        setQueryLabels(query, iriLabels);
+    }
+
     public List<String> resolveIris(Set<String> iriLabels) {
         List<String> iriList = iriLabels.stream().filter(iri -> iri != null && iri.contains("#")).toList();
         return iriList.stream().map(iri -> "<" + iri + ">").collect(Collectors.toList());

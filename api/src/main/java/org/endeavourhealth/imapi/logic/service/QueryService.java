@@ -21,6 +21,11 @@ public class QueryService {
     private final QueryRepository queryRepository = new QueryRepository();
     private final EntityRepository entityRepository = new EntityRepository();
 
+    public Query labelQuery(Query query) {
+        queryRepository.labelQuery(query);
+        return query;
+    }
+
     public Query describeQuery(Query query) throws JsonProcessingException {
         return new QueryDescriptor().describeQuery(query);
     }

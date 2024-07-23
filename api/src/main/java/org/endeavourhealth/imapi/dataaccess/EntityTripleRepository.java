@@ -211,7 +211,7 @@ public class EntityTripleRepository {
                         types.add(new TTIriRef(bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
                     }
                 }
-                else throw new IllegalArgumentException("Iri does not exist");
+                else throw new IllegalArgumentException("Iri does not exist: " + iri);
             }
         }
 

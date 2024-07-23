@@ -137,35 +137,35 @@ class EntityModelServiceTest {
     @Test
     void getImmediateChildren_NotNullIriAndInactiveTrue() {
 
-        EntityReferenceNode entityReferenceNode = new EntityReferenceNode()
+        EntityReferenceNode entityReferenceNode = new EntityReferenceNode("http://snomed.info/sct#62014003")
                 .setChildren(Collections.singletonList(
-                        new EntityReferenceNode("http://endhealth.info/im#25451000252115",
+                        new EntityReferenceNode("http://snomed.info/sct#62014003",
                                 "Adverse reaction to Amlodipine Besilate")))
                 .setParents(Collections.singletonList(
-                        new EntityReferenceNode("http://endhealth.info/im#25451000252115",
+                        new EntityReferenceNode("http://snomed.info/sct#62014003",
                                 "Adverse reaction to Amlodipine Besilate")));
-        when(entityTripleRepository.findImmediateChildrenByIri("http://endhealth.info/im#25451000252115",null,
+        when(entityTripleRepository.findImmediateChildrenByIri("http://snomed.info/sct#62014003",null,
                 0, 20,true))
                 .thenReturn(Collections.singletonList(entityReferenceNode));
         List<EntityReferenceNode> actual = entityService.getImmediateChildren
-                ("http://endhealth.info/im#25451000252115",null, 1, 20, true);
+                ("http://snomed.info/sct#62014003",null, 1, 20, true);
         assertNotNull(actual);
     }
 
     @Test
     void getImmediateChildren_NotNullIriAndInactiveFalse() {
-        EntityReferenceNode entityReferenceNode = new EntityReferenceNode()
+        EntityReferenceNode entityReferenceNode = new EntityReferenceNode("http://snomed.info/sct#62014003")
                 .setChildren(Collections.singletonList(
-                        new EntityReferenceNode("http://endhealth.info/im#25451000252115",
+                        new EntityReferenceNode("http://snomed.info/sct#62014003",
                                 "Adverse reaction to Amlodipine Besilate")))
                 .setParents(Collections.singletonList(
-                        new EntityReferenceNode("http://endhealth.info/im#25451000252115",
+                        new EntityReferenceNode("http://snomed.info/sct#62014003",
                                 "Adverse reaction to Amlodipine Besilate")));
-        when(entityTripleRepository.findImmediateChildrenByIri("http://endhealth.info/im#25451000252115",null,
+        when(entityTripleRepository.findImmediateChildrenByIri("http://snomed.info/sct#62014003",null,
                                 0, 20,false))
                 .thenReturn(Collections.singletonList(entityReferenceNode));
         List<EntityReferenceNode> actual = entityService.getImmediateChildren
-                ("http://endhealth.info/im#25451000252115",null, 1, 20, false);
+                ("http://snomed.info/sct#62014003",null, 1, 20, false);
 
         assertNotNull(actual);
 

@@ -255,12 +255,12 @@ public class OSQuery {
     }
 
     private JsonNode getNodeResults(QueryRequest request) {
-
+        try {
             JsonNode root = getIMOSResults(request);
             if (root == null)
                 return new ObjectMapper().createObjectNode();
             try (CachedObjectMapper om = new CachedObjectMapper()) {
-                if (root.get("hits").get("hits").size() > 0) {
+                if (!root.get("hits").get("hits").isEmpty()) {
                     ObjectNode searchResults = om.createObjectNode();
                     ArrayNode resultNodes = om.createArrayNode();
                     searchResults.set("entities", resultNodes);
@@ -292,17 +292,23 @@ public class OSQuery {
             return;
 
         for (Return select : request.getQuery().getReturn()) {
-            if (select.getProperty() != null) {
-                for (ReturnProperty prop : select.getProperty()) {
-                    if (prop.getIri() != null) {
-                        String field = prop.getIri();
-                        String osField = field.substring(field.lastIndexOf("#") + 1);
-                        if (osResult.get(osField) != null) {
-                            resultNode.set(field, osResult.get(osField));
-                        }
-                    }
+            processNodeResultReturnProperty(osResult, resultNode, select);
+        }
+    }
+
+    private static void processNodeResultReturnProperty(ObjectNode osResult, ObjectNode resultNode, Return select) {
+        if (select.getProperty() == null)
+            return;
+
+        for (ReturnProperty prop : select.getProperty()) {
+            if (prop.getIri() != null) {
+                String field = prop.getIri();
+                String osField = field.substring(field.lastIndexOf("#") + 1);
+                if (osResult.get(osField) != null) {
+                    resultNode.set(field, osResult.get(osField));
                 }
             }
         }
+
     }
 }

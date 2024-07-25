@@ -560,27 +560,6 @@ public class EntityTripleRepository {
         return simpleMaps;
     }
 
-    public List<String> getConceptIrisByGraph(String iri) {
-        List<String> iris = new ArrayList<>();
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add(" SELECT DISTINCT ?s WHERE{")
-                .add(" GRAPH ?g { ?s ?p ?o } .")
-                .add("}")
-                .add(" LIMIT 20 ");
-        try( RepositoryConnection conn = ConnectionManager.getIMConnection()){
-            TupleQuery qry = prepareSparql(conn, sql.toString());
-
-            qry.setBinding("g", iri(iri));
-            try(TupleQueryResult rs = qry.evaluate()){
-                while (rs.hasNext()){
-                    BindingSet bs = rs.next();
-                    iris.add(getString(bs, "s"));
-                }
-            }
-        }
-        return iris;
-    }
-
     public TTIriRef findParentFolderRef(String iri) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?p ?pname")
@@ -603,26 +582,6 @@ public class EntityTripleRepository {
             }
         }
         return null;
-    }
-
-    public TTIriRef getShapeFromType(String iri) {
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add("SELECT ?shape")
-                .add("WHERE {")
-                .add("  ?shape im:targetShape ?iri .")
-                .add("}")
-                .add("LIMIT 1");
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("iri", iri(iri));
-            try (TupleQueryResult rs = qry.evaluate()) {
-                if (rs.hasNext()){
-                    BindingSet bs = rs.next();
-                    return new TTIriRef(bs.getValue("shape").stringValue());
-                } else throw new FindException("No shape found for type: " + iri);
-            }
-        }
     }
 
     public Pageable<TTIriRef> getSuperiorPropertiesByConceptPagedWithTotalCount(String conceptIri, Integer rowNumber, Integer pageSize, boolean inactive) {

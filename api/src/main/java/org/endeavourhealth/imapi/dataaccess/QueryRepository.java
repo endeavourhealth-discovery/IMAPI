@@ -349,7 +349,6 @@ public class QueryRepository {
 
     }
 
-
     /**
      * Method to populate the iris in a query with their  names
      *
@@ -364,7 +363,7 @@ public class QueryRepository {
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             String sql = "Select ?entity ?label where { ?entity <" + RDFS.LABEL + "> ?label.\n" +
-                    "filter (?entity in (" + iris + "))\n}";
+                "filter (?entity in (" + iris + "))\n}";
             TupleQuery qry = conn.prepareTupleQuery(sql);
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
@@ -533,51 +532,5 @@ public class QueryRepository {
 
     private boolean isIri(String iri) {
         return iri.matches("([a-z]+)?[:].*");
-    }
-
-    public List<TTIriRef> getAllQueries() {
-        List<TTIriRef> queries = new ArrayList<>();
-        String sql = new StringJoiner(System.lineSeparator())
-                .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-                .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-                .add("PREFIX im: <http://endhealth.info/im#>")
-                .add("SELECT * WHERE {")
-                .add("?q rdf:type im:Query .")
-                .add("?q rdfs:label ?qname .")
-                .add("}")
-                .toString();
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(sql);
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    queries.add(new TTIriRef(bs.getValue("q").stringValue(), bs.getValue("qname").stringValue()));
-                }
-            }
-        }
-        return queries;
-    }
-
-    public List<TTIriRef> getAllByType(String typeIri) {
-        List<TTIriRef> result = new ArrayList<>();
-        String sql = new StringJoiner(System.lineSeparator())
-                .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-                .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-                .add("SELECT * WHERE {")
-                .add("?e rdf:type ?typeIri .")
-                .add("?e rdfs:label ?ename .")
-                .add("}")
-                .toString();
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(sql);
-            qry.setBinding("typeIri", iri(typeIri));
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    result.add(new TTIriRef(bs.getValue("e").stringValue(), bs.getValue("ename").stringValue()));
-                }
-            }
-        }
-        return result;
     }
 }

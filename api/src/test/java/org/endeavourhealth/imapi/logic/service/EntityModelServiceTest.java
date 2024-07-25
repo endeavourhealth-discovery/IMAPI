@@ -438,62 +438,6 @@ class EntityModelServiceTest {
     }
 
     @Test
-    void getEntityDefinitionDto_NullIri() {
-        TTEntity entity = new TTEntity()
-            .setIri("http://endhealth.info/im#myConcept")
-            .setName("My concept")
-            .set(TTIriRef.iri(RDF.TYPE), new TTArray()
-                .add(TTIriRef.iri(IM.CONCEPT))
-            );
-        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
-
-        EntityDefinitionDto actual = entityService.getEntityDefinitionDto(null);
-        assertNotNull(actual);
-
-    }
-
-    @Test
-    void getEntityDefinitionDto_GetTypeNotNull() {
-        TTEntity entity = new TTEntity()
-            .setIri("http://endhealth.info/im#myConcept")
-            .setName("My concept")
-            .set(TTIriRef.iri(RDF.TYPE), new TTArray()
-                .add(TTIriRef.iri(IM.CONCEPT))
-            );
-        when(entityRepository2.getBundle(isNull(), anySet())).thenReturn(new TTBundle().setEntity(entity));
-
-        EntityDefinitionDto actual = entityService.getEntityDefinitionDto(null);
-        assertNotNull(actual);
-
-    }
-
-    @Test
-    void getEntityDefinitionDto_GetTypeNull() {
-        TTEntity entity = new TTEntity();
-        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
-
-        EntityDefinitionDto actual = entityService.getEntityDefinitionDto(null);
-        assertNotNull(actual);
-
-    }
-
-    @Test
-    void getEntityDefinitionDto_HasSubclassOf() {
-        TTEntity entity = new TTEntity()
-            .setIri("http://endhealth.info/im#myConcept")
-            .setName("My concept")
-            .set(TTIriRef.iri(RDFS.SUBCLASS_OF), new TTArray()
-                .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
-                .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
-            );
-        when(entityRepository2.getBundle(isNull(), anySet())).thenReturn(new TTBundle().setEntity(entity));
-
-        EntityDefinitionDto actual = entityService.getEntityDefinitionDto(null);
-        assertNotNull(actual);
-
-    }
-
-    @Test
     void getSummary_NullIri() {
         SearchResultSummary actual = entityService.getSummary(null);
         assertNull(actual);
@@ -730,47 +674,6 @@ class EntityModelServiceTest {
     }
 
     @Test
-    void getConcept_NullIri() {
-        TTEntity entity = new TTEntity()
-            .setIri("http://endhealth.info/im#myConcept")
-            .setName("My concept")
-            .set(TTIriRef.iri(IM.IS_CHILD_OF), new TTArray()
-                .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
-                .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
-            );
-        when(entityRepository2.getBundle(isNull(), isNull())).thenReturn(new TTBundle().setEntity(entity));
-
-        TTDocument actual = entityService.getConcept(null);
-        assertNotNull(actual);
-    }
-
-    @Test
-    void getConcept_EmptyIri() {
-        TTEntity entity = new TTEntity();
-        when(entityRepository2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
-
-        TTDocument actual = entityService.getConcept("");
-        assertNotNull(actual);
-    }
-
-    @Test
-    void getConcept_Namespace() {
-        List<Namespace> namespaces = new ArrayList<>();
-        namespaces.add(new Namespace("http://endhealth.info/im#25451000252115","",""));
-        when(entityTripleRepository.findNamespaces()).thenReturn(namespaces);
-
-        TTEntity entity = new TTEntity("http://endhealth.info/im#25451000252115")
-            .set(TTIriRef.iri(IM.IS_CHILD_OF), new TTArray()
-                .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
-                .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
-            );
-        when(entityRepository2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
-
-        TTDocument actual = entityService.getConcept("http://endhealth.info/im#25451000252115");
-        assertNotNull(actual);
-    }
-
-    @Test
     void getConceptList_NullIri() {
         TTDocument actual = entityService.getConceptList(null);
         assertNull(actual);
@@ -793,30 +696,6 @@ class EntityModelServiceTest {
         namespaces.add(new Namespace("http://endhealth.info/im#25451000252115","",""));
         when(entityTripleRepository.findNamespaces()).thenReturn(namespaces);
         TTDocument actual = entityService.getConceptList(Collections.singletonList("http://endhealth.info/im#25451000252115"));
-        assertNotNull(actual);
-    }
-
-    @Test
-    void getConceptListByGraph_NullIri() {
-        TTDocument actual = entityService.getConceptListByGraph(null);
-        assertNull(actual);
-    }
-
-    @Test
-    void getConceptListByGraph_EmptyIri() {
-        TTDocument actual = entityService.getConceptListByGraph("");
-        assertNull(actual);
-    }
-
-    @Test
-    void getConceptListByGraph_NotNullIri() {
-        TTEntity entity = new TTEntity();
-        when(entityRepository2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
-        when(entityTripleRepository.getConceptIrisByGraph(any())).thenReturn(Collections.singletonList("http://endhealth.info/im#25451000252115"));
-        List<Namespace> namespaces = new ArrayList<>();
-        namespaces.add(new Namespace("http://endhealth.info/im#25451000252115","",""));
-        when(entityTripleRepository.findNamespaces()).thenReturn(namespaces);
-        TTDocument actual = entityService.getConceptListByGraph("http://endhealth.info/tpp#");
         assertNotNull(actual);
     }
 

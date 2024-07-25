@@ -4,12 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.endeavourhealth.imapi.dataaccess.PathRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
@@ -43,12 +41,6 @@ public class SearchService {
         }
 
 		return repo.queryIM(queryRequest, false);
-	}
-
-	public Query getQuery(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
-		QueryRepository repo = new QueryRepository();
-		repo.unpackQueryRequest(queryRequest);
-		return queryRequest.getQuery();
 	}
 
 	public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
@@ -104,25 +96,6 @@ public class SearchService {
         return highestUsageRequest;
     }
 
-    /**
-	 * Queries and updates IM entity using the query model
-	 * @param queryRequest Query inside a request with parameters
-	 * @throws DataFormatException if query format is invalid
-	 */
-	public void updateIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, QueryException {
-		new QueryRepository().updateIM(queryRequest);
-	}
-
-	/**
-	 * Queries any IM entity using the query model
-	 * @param pathQuery Query inside a request with parameters
-	 * @return a generic JSONDocument containing the results in a format defined by the selecr staement and including predicate map
-	 * @throws DataFormatException if query format is invalid
-	 */
-	public PathDocument pathQuery(PathQuery pathQuery) throws DataFormatException {
-		return new PathRepository().pathQuery(pathQuery);
-	}
-
 	public void validateQueryRequest(QueryRequest queryRequest) throws DataFormatException {
 			if (queryRequest.getQuery()==null&& queryRequest.getPathQuery()==null)
 				throw new DataFormatException("Query request must have a Query or an Query object with an iri or a pathQuery");
@@ -138,7 +111,14 @@ public class SearchService {
 		return new OSQuery().openSearchQuery(request);
 	}
 
-
+    /**
+     * Queries and updates IM entity using the query model
+     * @param queryRequest Query inside a request with parameters
+     * @throws DataFormatException if query format is invalid
+     */
+    public void updateIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, QueryException {
+        new QueryRepository().updateIM(queryRequest);
+    }
 
 }
 

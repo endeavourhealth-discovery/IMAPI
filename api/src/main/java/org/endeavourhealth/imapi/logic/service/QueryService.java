@@ -25,22 +25,13 @@ public class QueryService {
         queryRepository.labelQuery(query);
         return query;
     }
+
     public Query describeQuery(Query query) throws JsonProcessingException {
         return new QueryDescriptor().describeQuery(query);
     }
     public Query describeQuery(String queryIri) throws JsonProcessingException {
         return new QueryDescriptor().describeQuery(queryIri);
     }
-
-
-    public List<TTIriRef> getAllQueries() {
-        return queryRepository.getAllQueries();
-    }
-
-    public List<TTIriRef> getAllByType(String typeIri) {
-        return queryRepository.getAllByType(typeIri);
-    }
-
     public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults, JsonNode highestUsageResults) {
         SearchResponse searchResponse = new SearchResponse();
 

@@ -8,14 +8,14 @@ import org.endeavourhealth.imapi.vocabulary.RDF;
 
 public class DBIDGenerator {
 
-	public void generateDBIDs(){
-		try (RepositoryConnection conn= ConnectionManager.getIMConnection()){
-			String sql= "Select distinct ?entity \nwhere {"+
-				"?entity <"+ RDF.TYPE+"> ?type.\n"+
-				"filter (?entity not in (<"+ IM.NAMESPACE+"Organisation"+">)) }";
-			TupleQuery qry= conn.prepareTupleQuery(sql);
+  public void generateDBIDs() {
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      String sql = "Select distinct ?entity \nwhere {" +
+        "?entity <" + RDF.TYPE + "> ?type.\n" +
+        "filter (?entity not in (<" + IM.NAMESPACE + "Organisation" + ">)) }";
+      TupleQuery qry = conn.prepareTupleQuery(sql);
 
-		}
+    }
 
-	}
+  }
 }

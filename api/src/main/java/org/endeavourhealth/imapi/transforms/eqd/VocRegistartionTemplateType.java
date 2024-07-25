@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.RegistartionTemplateType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -25,31 +25,28 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.RegistartionTemplateType")
 @XmlEnum
 public enum VocRegistartionTemplateType {
 
 
-    /**
-     * View style type
-     * 
-     */
-    VIEW,
+  /**
+   * View style type
+   */
+  VIEW,
 
-    /**
-     * Edit style type
-     * 
-     */
-    EDIT;
+  /**
+   * Edit style type
+   */
+  EDIT;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocRegistartionTemplateType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocRegistartionTemplateType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

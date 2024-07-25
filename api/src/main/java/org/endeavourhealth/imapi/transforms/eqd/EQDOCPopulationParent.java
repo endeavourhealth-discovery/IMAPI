@@ -13,9 +13,9 @@ import jakarta.xml.bind.annotation.*;
 
 /**
  * <p>Java class for EQDOC.PopulationParent complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.PopulationParent"&gt;
  *   &lt;complexContent&gt;
@@ -28,66 +28,56 @@ import jakarta.xml.bind.annotation.*;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.PopulationParent", propOrder = {
-    "searchIdentifier"
+  "searchIdentifier"
 })
 public class EQDOCPopulationParent {
 
-    @XmlElement(name = "SearchIdentifier")
-    protected EQDOCSearchIdentifier searchIdentifier;
-    @XmlAttribute(name = "parentType", required = true)
-    protected VocPopulationParentType parentType;
+  @XmlElement(name = "SearchIdentifier")
+  protected EQDOCSearchIdentifier searchIdentifier;
+  @XmlAttribute(name = "parentType", required = true)
+  protected VocPopulationParentType parentType;
 
-    /**
-     * Gets the value of the searchIdentifier property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCSearchIdentifier }
-     *     
-     */
-    public EQDOCSearchIdentifier getSearchIdentifier() {
-        return searchIdentifier;
-    }
+  /**
+   * Gets the value of the searchIdentifier property.
+   *
+   * @return possible object is
+   * {@link EQDOCSearchIdentifier }
+   */
+  public EQDOCSearchIdentifier getSearchIdentifier() {
+    return searchIdentifier;
+  }
 
-    /**
-     * Sets the value of the searchIdentifier property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCSearchIdentifier }
-     *     
-     */
-    public void setSearchIdentifier(EQDOCSearchIdentifier value) {
-        this.searchIdentifier = value;
-    }
+  /**
+   * Sets the value of the searchIdentifier property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCSearchIdentifier }
+   */
+  public void setSearchIdentifier(EQDOCSearchIdentifier value) {
+    this.searchIdentifier = value;
+  }
 
-    /**
-     * Gets the value of the parentType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocPopulationParentType }
-     *     
-     */
-    public VocPopulationParentType getParentType() {
-        return parentType;
-    }
+  /**
+   * Gets the value of the parentType property.
+   *
+   * @return possible object is
+   * {@link VocPopulationParentType }
+   */
+  public VocPopulationParentType getParentType() {
+    return parentType;
+  }
 
-    /**
-     * Sets the value of the parentType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocPopulationParentType }
-     *     
-     */
-    public void setParentType(VocPopulationParentType value) {
-        this.parentType = value;
-    }
+  /**
+   * Sets the value of the parentType property.
+   *
+   * @param value allowed object is
+   *              {@link VocPopulationParentType }
+   */
+  public void setParentType(VocPopulationParentType value) {
+    this.parentType = value;
+  }
 
 }

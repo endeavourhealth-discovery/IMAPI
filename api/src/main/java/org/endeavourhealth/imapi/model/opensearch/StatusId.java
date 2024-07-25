@@ -3,18 +3,18 @@ package org.endeavourhealth.imapi.model.opensearch;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class StatusId implements MatchPhraseId {
-    private String id;
+  private String id;
 
-    public StatusId(String id) {
-        this.id = id;
-    }
+  public StatusId(String id) {
+    this.id = id;
+  }
 
-    @JsonProperty("status.@id")
-    public String getId() {
-        return id;
-    }
+  @JsonProperty("status.@id")
+  public String getId() {
+    return id;
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 }

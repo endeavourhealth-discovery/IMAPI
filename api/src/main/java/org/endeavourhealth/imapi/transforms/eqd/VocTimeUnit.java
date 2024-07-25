@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.TimeUnit.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -30,61 +30,53 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.TimeUnit")
 @XmlEnum
 public enum VocTimeUnit {
 
 
-    /**
-     * Year
-     * 
-     */
-    Y,
+  /**
+   * Year
+   */
+  Y,
 
-    /**
-     * Month
-     * 
-     */
-    M,
+  /**
+   * Month
+   */
+  M,
 
-    /**
-     * Week
-     * 
-     */
-    W,
+  /**
+   * Week
+   */
+  W,
 
-    /**
-     * Day
-     * 
-     */
-    D,
+  /**
+   * Day
+   */
+  D,
 
-    /**
-     * Hour
-     * 
-     */
-    H,
+  /**
+   * Hour
+   */
+  H,
 
-    /**
-     * Minute
-     * 
-     */
-    N,
+  /**
+   * Minute
+   */
+  N,
 
-    /**
-     * Second
-     * 
-     */
-    S;
+  /**
+   * Second
+   */
+  S;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocTimeUnit fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocTimeUnit fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

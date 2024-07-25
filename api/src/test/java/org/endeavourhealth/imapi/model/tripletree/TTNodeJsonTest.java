@@ -19,130 +19,130 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TTNodeJsonTest {
 
-    @Test
-    void serializationTest() throws JsonProcessingException {
-        TTNode node = TestHelper.getTestEntity();
-        TestHelper.checkEntity(node);
+  @Test
+  void serializationTest() throws JsonProcessingException {
+    TTNode node = TestHelper.getTestEntity();
+    TestHelper.checkEntity(node);
 
-        // Serialize
-        ObjectMapper om = new ObjectMapper();
-        String json = om
-                .writerWithDefaultPrettyPrinter()
-                .writeValueAsString(node);
+    // Serialize
+    ObjectMapper om = new ObjectMapper();
+    String json = om
+      .writerWithDefaultPrettyPrinter()
+      .writeValueAsString(node);
 
-        System.out.println(json);
+    System.out.println(json);
 
-        assertEquals(TestHelper.getTestEntityJson(), json);
-    }
+    assertEquals(TestHelper.getTestEntityJson(), json);
+  }
 
-    @Test
-    void serializationTestPrefix() throws JsonProcessingException {
-        TTNode node = TestHelper.getTestEntity();
-        TestHelper.checkEntity(node);
+  @Test
+  void serializationTestPrefix() throws JsonProcessingException {
+    TTNode node = TestHelper.getTestEntity();
+    TestHelper.checkEntity(node);
 
-        // Serialize
-        ObjectMapper om = new ObjectMapper();
-        String json = om
-                .writerWithDefaultPrettyPrinter()
-                .withAttribute(TTContext.OUTPUT_CONTEXT,true)
-                .writeValueAsString(node);
-
-
-        System.out.println(json);
-
-        assertEquals(TestHelper.getTestEntityJsonPrefixWithContext(), json);
-    }
-
-    @Test
-    void serializationTestSimpleProperties() throws JsonProcessingException {
-        TTNode node = TestHelper.getTestEntity();
-        TestHelper.checkEntity(node);
-
-        // Serialize
-        ObjectMapper om = new ObjectMapper();
-        String json = om
-                .writerWithDefaultPrettyPrinter()
-                .withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, true)
-                .writeValueAsString(node);
-
-        System.out.println(json);
-
-        assertEquals(TestHelper.getTestEntityJsonSimple(), json);
-    }
-
-    @Test
-    void serializationTestSimplePropertiesAndPrefix() throws JsonProcessingException {
-        TTNode node = TestHelper.getTestEntity();
-        TestHelper.checkEntity(node);
-
-        // Serialize
-        ObjectMapper om = new ObjectMapper();
-        String json = om
-                .writerWithDefaultPrettyPrinter()
-                .withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, true)
-                .withAttribute(TTContext.OUTPUT_CONTEXT,true)
-                .writeValueAsString(node);
-
-        System.out.println(json);
-
-        assertEquals(TestHelper.getTestEntityJsonSimplePropertiesAndPrefixWithContext(), json);
-    }
-
-    @Test
-    void serializationTestV2() throws IOException {
-        TTNode node = TestHelper.getTestEntity();
-        TestHelper.checkEntity(node);
-        TTEntity entity = TestHelper.getTestEntity();
-        TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(TTIriRef.iri(RDF.TYPE), TTIriRef.iri(RDFS.LABEL),
-                TTIriRef.iri(RDFS.COMMENT), TTIriRef.iri(IM.CODE),TTIriRef.iri(IM.HAS_SCHEME),TTIriRef.iri(IM.HAS_STATUS),
-                TTIriRef.iri(RDFS.SUBCLASS_OF)));
-
-        SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null));
-        mod.addSerializer(TTEntity.class, ser);
-
-        // Serialize
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(mod);
-        String json = mapper .writerWithDefaultPrettyPrinter()
-                .writeValueAsString(entity);
+    // Serialize
+    ObjectMapper om = new ObjectMapper();
+    String json = om
+      .writerWithDefaultPrettyPrinter()
+      .withAttribute(TTContext.OUTPUT_CONTEXT, true)
+      .writeValueAsString(node);
 
 
-        System.out.println("result : " +json);
+    System.out.println(json);
 
-        assertEquals(TestHelper.getTestEntityJson(), json);
-    }
+    assertEquals(TestHelper.getTestEntityJsonPrefixWithContext(), json);
+  }
 
-    @Test
-    void serializationTestSimplePropertiesV2() throws JsonProcessingException {
-        TTNode node = TestHelper.getTestEntity();
-        TestHelper.checkEntity(node);
+  @Test
+  void serializationTestSimpleProperties() throws JsonProcessingException {
+    TTNode node = TestHelper.getTestEntity();
+    TestHelper.checkEntity(node);
 
-        TTEntity entity = TestHelper.getTestEntity();
-        TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(TTIriRef.iri(RDF.TYPE), TTIriRef.iri(RDFS.LABEL),
-            TTIriRef.iri(RDFS.COMMENT), TTIriRef.iri(IM.CODE),TTIriRef.iri(IM.HAS_SCHEME),TTIriRef.iri(IM.HAS_STATUS),
-            TTIriRef.iri(RDFS.SUBCLASS_OF)));
+    // Serialize
+    ObjectMapper om = new ObjectMapper();
+    String json = om
+      .writerWithDefaultPrettyPrinter()
+      .withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, true)
+      .writeValueAsString(node);
 
-        SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null));
-        mod.addSerializer(TTEntity.class, ser);
+    System.out.println(json);
 
-        // Serialize
-        ObjectMapper om = new ObjectMapper();
-        String json = om
-                .writerWithDefaultPrettyPrinter()
-                .withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, true)
-                .writeValueAsString(node);
+    assertEquals(TestHelper.getTestEntityJsonSimple(), json);
+  }
 
-        System.out.println(json);
+  @Test
+  void serializationTestSimplePropertiesAndPrefix() throws JsonProcessingException {
+    TTNode node = TestHelper.getTestEntity();
+    TestHelper.checkEntity(node);
 
-        assertEquals(TestHelper.getTestEntityJsonSimple(), json);
-    }
+    // Serialize
+    ObjectMapper om = new ObjectMapper();
+    String json = om
+      .writerWithDefaultPrettyPrinter()
+      .withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, true)
+      .withAttribute(TTContext.OUTPUT_CONTEXT, true)
+      .writeValueAsString(node);
 
-    @Test
-    void deserializationTest() throws JsonProcessingException {
-        // Deserialize
-        ObjectMapper om = new ObjectMapper();
-        TTNode adverseReaction = om.readValue(TestHelper.getTestEntityJson(), TTNode.class);
+    System.out.println(json);
 
-        TestHelper.checkEntity(adverseReaction);
-    }
+    assertEquals(TestHelper.getTestEntityJsonSimplePropertiesAndPrefixWithContext(), json);
+  }
+
+  @Test
+  void serializationTestV2() throws IOException {
+    TTNode node = TestHelper.getTestEntity();
+    TestHelper.checkEntity(node);
+    TTEntity entity = TestHelper.getTestEntity();
+    TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(TTIriRef.iri(RDF.TYPE), TTIriRef.iri(RDFS.LABEL),
+      TTIriRef.iri(RDFS.COMMENT), TTIriRef.iri(IM.CODE), TTIriRef.iri(IM.HAS_SCHEME), TTIriRef.iri(IM.HAS_STATUS),
+      TTIriRef.iri(RDFS.SUBCLASS_OF)));
+
+    SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null));
+    mod.addSerializer(TTEntity.class, ser);
+
+    // Serialize
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.registerModule(mod);
+    String json = mapper.writerWithDefaultPrettyPrinter()
+      .writeValueAsString(entity);
+
+
+    System.out.println("result : " + json);
+
+    assertEquals(TestHelper.getTestEntityJson(), json);
+  }
+
+  @Test
+  void serializationTestSimplePropertiesV2() throws JsonProcessingException {
+    TTNode node = TestHelper.getTestEntity();
+    TestHelper.checkEntity(node);
+
+    TTEntity entity = TestHelper.getTestEntity();
+    TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(TTIriRef.iri(RDF.TYPE), TTIriRef.iri(RDFS.LABEL),
+      TTIriRef.iri(RDFS.COMMENT), TTIriRef.iri(IM.CODE), TTIriRef.iri(IM.HAS_SCHEME), TTIriRef.iri(IM.HAS_STATUS),
+      TTIriRef.iri(RDFS.SUBCLASS_OF)));
+
+    SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null));
+    mod.addSerializer(TTEntity.class, ser);
+
+    // Serialize
+    ObjectMapper om = new ObjectMapper();
+    String json = om
+      .writerWithDefaultPrettyPrinter()
+      .withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, true)
+      .writeValueAsString(node);
+
+    System.out.println(json);
+
+    assertEquals(TestHelper.getTestEntityJsonSimple(), json);
+  }
+
+  @Test
+  void deserializationTest() throws JsonProcessingException {
+    // Deserialize
+    ObjectMapper om = new ObjectMapper();
+    TTNode adverseReaction = om.readValue(TestHelper.getTestEntityJson(), TTNode.class);
+
+    TestHelper.checkEntity(adverseReaction);
+  }
 }

@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.ReminderType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -31,67 +31,58 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.ReminderType")
 @XmlEnum
 public enum VocReminderType {
 
 
-    /**
-     * Unknown
-     * 
-     */
-    UNK,
+  /**
+   * Unknown
+   */
+  UNK,
 
-    /**
-     * Letter
-     * 
-     */
-    L,
+  /**
+   * Letter
+   */
+  L,
 
-    /**
-     * Telephone
-     * 
-     */
-    T,
+  /**
+   * Telephone
+   */
+  T,
 
-    /**
-     * Fax
-     * 
-     */
-    FX,
+  /**
+   * Fax
+   */
+  FX,
 
-    /**
-     * e-mail
-     * 
-     */
-    EM,
+  /**
+   * e-mail
+   */
+  EM,
 
-    /**
-     * SMS (Short Message Service)
-     * 
-     */
-    SMS,
+  /**
+   * SMS (Short Message Service)
+   */
+  SMS,
 
-    /**
-     * RHS (Right-hand side)
-     * 
-     */
-    RHS,
+  /**
+   * RHS (Right-hand side)
+   */
+  RHS,
 
-    /**
-     * Verbal
-     * 
-     */
-    V;
+  /**
+   * Verbal
+   */
+  V;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocReminderType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocReminderType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

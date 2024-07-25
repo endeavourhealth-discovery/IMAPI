@@ -18,9 +18,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for EQDOC.Summarise complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.Summarise"&gt;
  *   &lt;complexContent&gt;
@@ -44,94 +44,80 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.Summarise", propOrder = {
-    "function",
-    "listColumnId",
-    "displayName"
+  "function",
+  "listColumnId",
+  "displayName"
 })
 public class EQDOCSummarise {
 
-    @XmlElement(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String function;
-    @XmlElement(required = true)
-    protected String listColumnId;
-    protected String displayName;
+  @XmlElement(required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  protected String function;
+  @XmlElement(required = true)
+  protected String listColumnId;
+  protected String displayName;
 
-    /**
-     * Gets the value of the function property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getFunction() {
-        return function;
-    }
+  /**
+   * Gets the value of the function property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getFunction() {
+    return function;
+  }
 
-    /**
-     * Sets the value of the function property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setFunction(String value) {
-        this.function = value;
-    }
+  /**
+   * Sets the value of the function property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setFunction(String value) {
+    this.function = value;
+  }
 
-    /**
-     * Gets the value of the listColumnId property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getListColumnId() {
-        return listColumnId;
-    }
+  /**
+   * Gets the value of the listColumnId property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getListColumnId() {
+    return listColumnId;
+  }
 
-    /**
-     * Sets the value of the listColumnId property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setListColumnId(String value) {
-        this.listColumnId = value;
-    }
+  /**
+   * Sets the value of the listColumnId property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setListColumnId(String value) {
+    this.listColumnId = value;
+  }
 
-    /**
-     * Gets the value of the displayName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDisplayName() {
-        return displayName;
-    }
+  /**
+   * Gets the value of the displayName property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getDisplayName() {
+    return displayName;
+  }
 
-    /**
-     * Sets the value of the displayName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDisplayName(String value) {
-        this.displayName = value;
-    }
+  /**
+   * Sets the value of the displayName property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setDisplayName(String value) {
+    this.displayName = value;
+  }
 
 }

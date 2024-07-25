@@ -16,9 +16,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for EQDOC.FilterRestriction complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.FilterRestriction"&gt;
  *   &lt;complexContent&gt;
@@ -31,66 +31,56 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.FilterRestriction", propOrder = {
-    "columnOrder",
-    "testAttribute"
+  "columnOrder",
+  "testAttribute"
 })
 public class EQDOCFilterRestriction {
 
-    @XmlElement(required = true)
-    protected EQDOCColumnOrder columnOrder;
-    protected EQDOCTestAttribute testAttribute;
+  @XmlElement(required = true)
+  protected EQDOCColumnOrder columnOrder;
+  protected EQDOCTestAttribute testAttribute;
 
-    /**
-     * Gets the value of the columnOrder property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCColumnOrder }
-     *     
-     */
-    public EQDOCColumnOrder getColumnOrder() {
-        return columnOrder;
-    }
+  /**
+   * Gets the value of the columnOrder property.
+   *
+   * @return possible object is
+   * {@link EQDOCColumnOrder }
+   */
+  public EQDOCColumnOrder getColumnOrder() {
+    return columnOrder;
+  }
 
-    /**
-     * Sets the value of the columnOrder property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCColumnOrder }
-     *     
-     */
-    public void setColumnOrder(EQDOCColumnOrder value) {
-        this.columnOrder = value;
-    }
+  /**
+   * Sets the value of the columnOrder property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCColumnOrder }
+   */
+  public void setColumnOrder(EQDOCColumnOrder value) {
+    this.columnOrder = value;
+  }
 
-    /**
-     * Gets the value of the testAttribute property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCTestAttribute }
-     *     
-     */
-    public EQDOCTestAttribute getTestAttribute() {
-        return testAttribute;
-    }
+  /**
+   * Gets the value of the testAttribute property.
+   *
+   * @return possible object is
+   * {@link EQDOCTestAttribute }
+   */
+  public EQDOCTestAttribute getTestAttribute() {
+    return testAttribute;
+  }
 
-    /**
-     * Sets the value of the testAttribute property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCTestAttribute }
-     *     
-     */
-    public void setTestAttribute(EQDOCTestAttribute value) {
-        this.testAttribute = value;
-    }
+  /**
+   * Sets the value of the testAttribute property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCTestAttribute }
+   */
+  public void setTestAttribute(EQDOCTestAttribute value) {
+    this.testAttribute = value;
+  }
 
 }

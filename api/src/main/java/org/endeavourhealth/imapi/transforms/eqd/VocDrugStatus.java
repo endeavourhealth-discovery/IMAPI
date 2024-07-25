@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.DrugStatus.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -26,37 +26,33 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.DrugStatus")
 @XmlEnum
 public enum VocDrugStatus {
 
 
-    /**
-     * Active
-     * 
-     */
-    A,
+  /**
+   * Active
+   */
+  A,
 
-    /**
-     * Cancelled
-     * 
-     */
-    C,
+  /**
+   * Cancelled
+   */
+  C,
 
-    /**
-     * Never Active
-     * 
-     */
-    N;
+  /**
+   * Never Active
+   */
+  N;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocDrugStatus fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocDrugStatus fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

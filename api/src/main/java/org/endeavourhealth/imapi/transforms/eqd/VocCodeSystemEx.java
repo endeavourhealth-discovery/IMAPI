@@ -15,7 +15,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.CodeSystemEx.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -58,211 +58,181 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.CodeSystemEx")
 @XmlEnum
 public enum VocCodeSystemEx {
 
 
-    /**
-     * EMIS V2 Read Hierarchy (2.16.840.1.113883.2.1.6.2)
-     * 
-     */
-    @XmlEnumValue("READV2")
-    READV_2("READV2"),
+  /**
+   * EMIS V2 Read Hierarchy (2.16.840.1.113883.2.1.6.2)
+   */
+  @XmlEnumValue("READV2")
+  READV_2("READV2"),
 
-    /**
-     * EMIS SnomedCT namespace V2 Read Hierarchy (cdeSubset:11000006131)
-     * 
-     */
-    @XmlEnumValue("SCT_READV2")
-    SCT_READV_2("SCT_READV2"),
+  /**
+   * EMIS SnomedCT namespace V2 Read Hierarchy (cdeSubset:11000006131)
+   */
+  @XmlEnumValue("SCT_READV2")
+  SCT_READV_2("SCT_READV2"),
 
-    /**
-     * EMIS Drug Group Hierarchy
-     * 
-     */
-    DRGGRP("DRGGRP"),
+  /**
+   * EMIS Drug Group Hierarchy
+   */
+  DRGGRP("DRGGRP"),
 
-    /**
-     * EMIS SnomedCT namespace Drug Group Hierarchy (cdeSubset:11000033130)
-     * 
-     */
-    SCT_DRGGRP("SCT_DRGGRP"),
+  /**
+   * EMIS SnomedCT namespace Drug Group Hierarchy (cdeSubset:11000033130)
+   */
+  SCT_DRGGRP("SCT_DRGGRP"),
 
-    /**
-     * EMIS Allergy Drug Group Hierarchy
-     * 
-     */
-    DRGGRP_ALLERGY("DRGGRP_ALLERGY"),
+  /**
+   * EMIS Allergy Drug Group Hierarchy
+   */
+  DRGGRP_ALLERGY("DRGGRP_ALLERGY"),
 
-    /**
-     * EMIS SnomedCT namespace Allergy Drug Group Hierarchy (Subset:41000033134)
-     * 
-     */
-    SCT_DRGGRP_ALLERGY("SCT_DRGGRP_ALLERGY"),
+  /**
+   * EMIS SnomedCT namespace Allergy Drug Group Hierarchy (Subset:41000033134)
+   */
+  SCT_DRGGRP_ALLERGY("SCT_DRGGRP_ALLERGY"),
 
-    /**
-     * EMIS Drug Approved Name Codes
-     * 
-     */
-    APPNAME("APPNAME"),
+  /**
+   * EMIS Drug Approved Name Codes
+   */
+  APPNAME("APPNAME"),
 
-    /**
-     * EMIS SnomedCT namespace Drug Approved Name Codes (cdeSubset:31000033135)
-     * 
-     */
-    SCT_APPNAME("SCT_APPNAME"),
+  /**
+   * EMIS SnomedCT namespace Drug Approved Name Codes (cdeSubset:31000033135)
+   */
+  SCT_APPNAME("SCT_APPNAME"),
 
-    /**
-     * EMIS Allergy Drug Approved Name Codes
-     * 
-     */
-    APPNAME_ALLERGY("APPNAME_ALLERGY"),
+  /**
+   * EMIS Allergy Drug Approved Name Codes
+   */
+  APPNAME_ALLERGY("APPNAME_ALLERGY"),
 
-    /**
-     * EMIS SnomedCT namespace Allergy Drug Approved Name Codes (Subset:61000033133)
-     * 
-     */
-    SCT_APPNAME_ALLERGY("SCT_APPNAME_ALLERGY"),
+  /**
+   * EMIS SnomedCT namespace Allergy Drug Approved Name Codes (Subset:61000033133)
+   */
+  SCT_APPNAME_ALLERGY("SCT_APPNAME_ALLERGY"),
 
-    /**
-     * EMIS Drug Constituent Codes
-     * 
-     */
-    CONST("CONST"),
+  /**
+   * EMIS Drug Constituent Codes
+   */
+  CONST("CONST"),
 
-    /**
-     * EMIS SnomedCT namespace Drug Constituent Codes (cdeSubset:21000033138)
-     * 
-     */
-    SCT_CONST("SCT_CONST"),
+  /**
+   * EMIS SnomedCT namespace Drug Constituent Codes (cdeSubset:21000033138)
+   */
+  SCT_CONST("SCT_CONST"),
 
-    /**
-     * EMIS Allergy Drug Constituent Codes
-     * 
-     */
-    CONST_ALLERGY("CONST_ALLERGY"),
+  /**
+   * EMIS Allergy Drug Constituent Codes
+   */
+  CONST_ALLERGY("CONST_ALLERGY"),
 
-    /**
-     * EMIS SnomedCT namespace Allergy Drug Constituent Codes (Subset:51000033131)
-     * 
-     */
-    SCT_CONST_ALLERGY("SCT_CONST_ALLERGY"),
+  /**
+   * EMIS SnomedCT namespace Allergy Drug Constituent Codes (Subset:51000033131)
+   */
+  SCT_CONST_ALLERGY("SCT_CONST_ALLERGY"),
 
-    /**
-     * EMIS Drug Approved Name and Constituent Codes
-     * 
-     */
-    APPNAME_CONST("APPNAME_CONST"),
+  /**
+   * EMIS Drug Approved Name and Constituent Codes
+   */
+  APPNAME_CONST("APPNAME_CONST"),
 
-    /**
-     * EMIS Allergy Drug Approved Name and Constituent Codes
-     * 
-     */
-    APPNAME_CONST_ALLERGY("APPNAME_CONST_ALLERGY"),
+  /**
+   * EMIS Allergy Drug Approved Name and Constituent Codes
+   */
+  APPNAME_CONST_ALLERGY("APPNAME_CONST_ALLERGY"),
 
-    /**
-     * EMIS Drug Preparation Codes
-     * 
-     */
-    PREP("PREP"),
+  /**
+   * EMIS Drug Preparation Codes
+   */
+  PREP("PREP"),
 
-    /**
-     * EMIS SnomedCT namespace Drug Preparation Codes
-     * 
-     */
-    SCT_PREP("SCT_PREP"),
+  /**
+   * EMIS SnomedCT namespace Drug Preparation Codes
+   */
+  SCT_PREP("SCT_PREP"),
 
-    /**
-     * EMIS Allergy Drug Preparation Codes
-     * 
-     */
-    PREP_ALLERGY("PREP_ALLERGY"),
+  /**
+   * EMIS Allergy Drug Preparation Codes
+   */
+  PREP_ALLERGY("PREP_ALLERGY"),
 
-    /**
-     * EMIS SnomedCT namespace Allergy Drug Preparation Codes
-     * 
-     */
-    SCT_PREP_ALLERGY("SCT_PREP_ALLERGY"),
+  /**
+   * EMIS SnomedCT namespace Allergy Drug Preparation Codes
+   */
+  SCT_PREP_ALLERGY("SCT_PREP_ALLERGY"),
 
-    /**
-     * EMIS Drug Forms
-     * 
-     */
-    DRUGFORM("DRUGFORM"),
+  /**
+   * EMIS Drug Forms
+   */
+  DRUGFORM("DRUGFORM"),
 
-    /**
-     * EMIS SnomedCT namespace Nationality (Subset:101000006136)
-     * 
-     */
-    SCT_NATIONALITY("SCT_NATIONALITY"),
+  /**
+   * EMIS SnomedCT namespace Nationality (Subset:101000006136)
+   */
+  SCT_NATIONALITY("SCT_NATIONALITY"),
 
-    /**
-     * EMIS SnomedCT namespace Ethnic Group (Subset:31000006139)
-     * 
-     */
-    SCT_ETHNICGROUP("SCT_ETHNICGROUP"),
+  /**
+   * EMIS SnomedCT namespace Ethnic Group (Subset:31000006139)
+   */
+  SCT_ETHNICGROUP("SCT_ETHNICGROUP"),
 
-    /**
-     * EMIS SnomedCT namespace Marital Status (Subset:21000006137)
-     * 
-     */
-    SCT_MARITALSTATUS("SCT_MARITALSTATUS"),
+  /**
+   * EMIS SnomedCT namespace Marital Status (Subset:21000006137)
+   */
+  SCT_MARITALSTATUS("SCT_MARITALSTATUS"),
 
-    /**
-     * EMIS SnomedCT namespace Location Type (Subset:91000006135)
-     * 
-     */
-    SCT_LOCATIONTYPE("SCT_LOCATIONTYPE"),
+  /**
+   * EMIS SnomedCT namespace Location Type (Subset:91000006135)
+   */
+  SCT_LOCATIONTYPE("SCT_LOCATIONTYPE"),
 
-    /**
-     * EMIS SnomedCT namespace Speciality (Subset:71000006136)
-     * 
-     */
-    SCT_SPECIALITY("SCT_SPECIALITY"),
+  /**
+   * EMIS SnomedCT namespace Speciality (Subset:71000006136)
+   */
+  SCT_SPECIALITY("SCT_SPECIALITY"),
 
-    /**
-     * EMIS SnomedCT namespace Religion (Subset:61000006134)
-     * 
-     */
-    SCT_RELIGION("SCT_RELIGION"),
+  /**
+   * EMIS SnomedCT namespace Religion (Subset:61000006134)
+   */
+  SCT_RELIGION("SCT_RELIGION"),
 
-    /**
-     * EMIS SnomedCT namespace Organisation Type (Subset:81000006138)
-     * 
-     */
-    SCT_ORGTYPE("SCT_ORGTYPE"),
+  /**
+   * EMIS SnomedCT namespace Organisation Type (Subset:81000006138)
+   */
+  SCT_ORGTYPE("SCT_ORGTYPE"),
 
-    /**
-     * EMIS internal Code system
-     * 
-     */
-    EMISINTERNAL("EMISINTERNAL"),
-    SNOMED_CONCEPT("SNOMED_CONCEPT"),
-    DMD_CONCEPT("DMD_CONCEPT"),
-    EMIS_OLDCODE("EMIS_OLDCODE"),
-    EMISCODEID("EMISCODEID"),
-    @XmlEnumValue("DRUGREAD2")
-    DRUGREAD_2("DRUGREAD2");
-    private final String value;
+  /**
+   * EMIS internal Code system
+   */
+  EMISINTERNAL("EMISINTERNAL"),
+  SNOMED_CONCEPT("SNOMED_CONCEPT"),
+  DMD_CONCEPT("DMD_CONCEPT"),
+  EMIS_OLDCODE("EMIS_OLDCODE"),
+  EMISCODEID("EMISCODEID"),
+  @XmlEnumValue("DRUGREAD2")
+  DRUGREAD_2("DRUGREAD2");
+  private final String value;
 
-    VocCodeSystemEx(String v) {
-        value = v;
+  VocCodeSystemEx(String v) {
+    value = v;
+  }
+
+  public String value() {
+    return value;
+  }
+
+  public static VocCodeSystemEx fromValue(String v) {
+    for (VocCodeSystemEx c : VocCodeSystemEx.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
-
-    public String value() {
-        return value;
-    }
-
-    public static VocCodeSystemEx fromValue(String v) {
-        for (VocCodeSystemEx c: VocCodeSystemEx.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
-    }
+    throw new IllegalArgumentException(v);
+  }
 
 }

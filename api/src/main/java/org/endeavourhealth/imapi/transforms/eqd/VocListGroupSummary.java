@@ -15,7 +15,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.ListGroupSummary.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -26,33 +26,32 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.ListGroupSummary")
 @XmlEnum
 public enum VocListGroupSummary {
 
-    @XmlEnumValue("count")
-    COUNT("count"),
-    @XmlEnumValue("exists")
-    EXISTS("exists");
-    private final String value;
+  @XmlEnumValue("count")
+  COUNT("count"),
+  @XmlEnumValue("exists")
+  EXISTS("exists");
+  private final String value;
 
-    VocListGroupSummary(String v) {
-        value = v;
-    }
+  VocListGroupSummary(String v) {
+    value = v;
+  }
 
-    public String value() {
-        return value;
-    }
+  public String value() {
+    return value;
+  }
 
-    public static VocListGroupSummary fromValue(String v) {
-        for (VocListGroupSummary c: VocListGroupSummary.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
+  public static VocListGroupSummary fromValue(String v) {
+    for (VocListGroupSummary c : VocListGroupSummary.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
+    throw new IllegalArgumentException(v);
+  }
 
 }

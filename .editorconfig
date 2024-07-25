@@ -3,8 +3,19 @@ root = true
 [*]
 charset = utf-8
 end_of_line = lf
-indent_size = 4
+indent_size = 2
 indent_style = space
 insert_final_newline = false
 max_line_length = 120
-tab_width = 4
+tab_width = 2
+
+# Ignore paths
+[/api/src/main/java/org/endeavourhealth/imapi/vocabulary/**/*]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset
+max_line_length = unset
+tab_width = unset

@@ -15,7 +15,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.BandingHierarchyType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -26,33 +26,32 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.BandingHierarchyType")
 @XmlEnum
 public enum VocBandingHierarchyType {
 
-    @XmlEnumValue("drugChapter")
-    DRUG_CHAPTER("drugChapter"),
-    @XmlEnumValue("readCode")
-    READ_CODE("readCode");
-    private final String value;
+  @XmlEnumValue("drugChapter")
+  DRUG_CHAPTER("drugChapter"),
+  @XmlEnumValue("readCode")
+  READ_CODE("readCode");
+  private final String value;
 
-    VocBandingHierarchyType(String v) {
-        value = v;
-    }
+  VocBandingHierarchyType(String v) {
+    value = v;
+  }
 
-    public String value() {
-        return value;
-    }
+  public String value() {
+    return value;
+  }
 
-    public static VocBandingHierarchyType fromValue(String v) {
-        for (VocBandingHierarchyType c: VocBandingHierarchyType.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
+  public static VocBandingHierarchyType fromValue(String v) {
+    for (VocBandingHierarchyType c : VocBandingHierarchyType.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
+    throw new IllegalArgumentException(v);
+  }
 
 }

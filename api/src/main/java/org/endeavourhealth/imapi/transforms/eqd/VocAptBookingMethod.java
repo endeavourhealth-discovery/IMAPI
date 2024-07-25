@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.AptBookingMethod.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -25,31 +25,28 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.AptBookingMethod")
 @XmlEnum
 public enum VocAptBookingMethod {
 
 
-    /**
-     * Practice
-     * 
-     */
-    PRAC,
+  /**
+   * Practice
+   */
+  PRAC,
 
-    /**
-     * EMIS Access
-     * 
-     */
-    EACC;
+  /**
+   * EMIS Access
+   */
+  EACC;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocAptBookingMethod fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocAptBookingMethod fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

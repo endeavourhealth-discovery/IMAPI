@@ -16,9 +16,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for EQDOC.GpesOutput complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.GpesOutput"&gt;
  *   &lt;complexContent&gt;
@@ -30,40 +30,34 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.GpesOutput", propOrder = {
-    "gpesExtractionRequestConfiguration"
+  "gpesExtractionRequestConfiguration"
 })
 public class EQDOCGpesOutput {
 
-    @XmlElement(name = "GpesExtractionRequestConfiguration", required = true)
-    protected EQDOCGpesExtractionRequestConfiguration gpesExtractionRequestConfiguration;
+  @XmlElement(name = "GpesExtractionRequestConfiguration", required = true)
+  protected EQDOCGpesExtractionRequestConfiguration gpesExtractionRequestConfiguration;
 
-    /**
-     * Gets the value of the gpesExtractionRequestConfiguration property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCGpesExtractionRequestConfiguration }
-     *     
-     */
-    public EQDOCGpesExtractionRequestConfiguration getGpesExtractionRequestConfiguration() {
-        return gpesExtractionRequestConfiguration;
-    }
+  /**
+   * Gets the value of the gpesExtractionRequestConfiguration property.
+   *
+   * @return possible object is
+   * {@link EQDOCGpesExtractionRequestConfiguration }
+   */
+  public EQDOCGpesExtractionRequestConfiguration getGpesExtractionRequestConfiguration() {
+    return gpesExtractionRequestConfiguration;
+  }
 
-    /**
-     * Sets the value of the gpesExtractionRequestConfiguration property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCGpesExtractionRequestConfiguration }
-     *     
-     */
-    public void setGpesExtractionRequestConfiguration(EQDOCGpesExtractionRequestConfiguration value) {
-        this.gpesExtractionRequestConfiguration = value;
-    }
+  /**
+   * Sets the value of the gpesExtractionRequestConfiguration property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCGpesExtractionRequestConfiguration }
+   */
+  public void setGpesExtractionRequestConfiguration(EQDOCGpesExtractionRequestConfiguration value) {
+    this.gpesExtractionRequestConfiguration = value;
+  }
 
 }

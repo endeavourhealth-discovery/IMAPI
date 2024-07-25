@@ -13,9 +13,9 @@ import jakarta.xml.bind.annotation.*;
 
 /**
  * <p>Java class for EQDOC.Schedule complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.Schedule"&gt;
  *   &lt;complexContent&gt;
@@ -32,172 +32,146 @@ import jakarta.xml.bind.annotation.*;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.Schedule", propOrder = {
-    "recurrencePattern",
-    "rangeOfRecurrence",
-    "baselineDate",
-    "referenceDate",
-    "author",
-    "instanceType"
+  "recurrencePattern",
+  "rangeOfRecurrence",
+  "baselineDate",
+  "referenceDate",
+  "author",
+  "instanceType"
 })
 public class EQDOCSchedule {
 
-    @XmlElement(required = true)
-    protected EQDOCSchedulePattern recurrencePattern;
-    @XmlElement(required = true)
-    protected EQDOCScheduleRange rangeOfRecurrence;
-    protected EQDOCScheduleDate baselineDate;
-    protected EQDOCScheduleDate referenceDate;
-    protected EQDOCAuthor author;
-    @XmlSchemaType(name = "string")
-    protected VocInstanceType instanceType;
+  @XmlElement(required = true)
+  protected EQDOCSchedulePattern recurrencePattern;
+  @XmlElement(required = true)
+  protected EQDOCScheduleRange rangeOfRecurrence;
+  protected EQDOCScheduleDate baselineDate;
+  protected EQDOCScheduleDate referenceDate;
+  protected EQDOCAuthor author;
+  @XmlSchemaType(name = "string")
+  protected VocInstanceType instanceType;
 
-    /**
-     * Gets the value of the recurrencePattern property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCSchedulePattern }
-     *     
-     */
-    public EQDOCSchedulePattern getRecurrencePattern() {
-        return recurrencePattern;
-    }
+  /**
+   * Gets the value of the recurrencePattern property.
+   *
+   * @return possible object is
+   * {@link EQDOCSchedulePattern }
+   */
+  public EQDOCSchedulePattern getRecurrencePattern() {
+    return recurrencePattern;
+  }
 
-    /**
-     * Sets the value of the recurrencePattern property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCSchedulePattern }
-     *     
-     */
-    public void setRecurrencePattern(EQDOCSchedulePattern value) {
-        this.recurrencePattern = value;
-    }
+  /**
+   * Sets the value of the recurrencePattern property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCSchedulePattern }
+   */
+  public void setRecurrencePattern(EQDOCSchedulePattern value) {
+    this.recurrencePattern = value;
+  }
 
-    /**
-     * Gets the value of the rangeOfRecurrence property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCScheduleRange }
-     *     
-     */
-    public EQDOCScheduleRange getRangeOfRecurrence() {
-        return rangeOfRecurrence;
-    }
+  /**
+   * Gets the value of the rangeOfRecurrence property.
+   *
+   * @return possible object is
+   * {@link EQDOCScheduleRange }
+   */
+  public EQDOCScheduleRange getRangeOfRecurrence() {
+    return rangeOfRecurrence;
+  }
 
-    /**
-     * Sets the value of the rangeOfRecurrence property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCScheduleRange }
-     *     
-     */
-    public void setRangeOfRecurrence(EQDOCScheduleRange value) {
-        this.rangeOfRecurrence = value;
-    }
+  /**
+   * Sets the value of the rangeOfRecurrence property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCScheduleRange }
+   */
+  public void setRangeOfRecurrence(EQDOCScheduleRange value) {
+    this.rangeOfRecurrence = value;
+  }
 
-    /**
-     * Gets the value of the baselineDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCScheduleDate }
-     *     
-     */
-    public EQDOCScheduleDate getBaselineDate() {
-        return baselineDate;
-    }
+  /**
+   * Gets the value of the baselineDate property.
+   *
+   * @return possible object is
+   * {@link EQDOCScheduleDate }
+   */
+  public EQDOCScheduleDate getBaselineDate() {
+    return baselineDate;
+  }
 
-    /**
-     * Sets the value of the baselineDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCScheduleDate }
-     *     
-     */
-    public void setBaselineDate(EQDOCScheduleDate value) {
-        this.baselineDate = value;
-    }
+  /**
+   * Sets the value of the baselineDate property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCScheduleDate }
+   */
+  public void setBaselineDate(EQDOCScheduleDate value) {
+    this.baselineDate = value;
+  }
 
-    /**
-     * Gets the value of the referenceDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCScheduleDate }
-     *     
-     */
-    public EQDOCScheduleDate getReferenceDate() {
-        return referenceDate;
-    }
+  /**
+   * Gets the value of the referenceDate property.
+   *
+   * @return possible object is
+   * {@link EQDOCScheduleDate }
+   */
+  public EQDOCScheduleDate getReferenceDate() {
+    return referenceDate;
+  }
 
-    /**
-     * Sets the value of the referenceDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCScheduleDate }
-     *     
-     */
-    public void setReferenceDate(EQDOCScheduleDate value) {
-        this.referenceDate = value;
-    }
+  /**
+   * Sets the value of the referenceDate property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCScheduleDate }
+   */
+  public void setReferenceDate(EQDOCScheduleDate value) {
+    this.referenceDate = value;
+  }
 
-    /**
-     * Gets the value of the author property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCAuthor }
-     *     
-     */
-    public EQDOCAuthor getAuthor() {
-        return author;
-    }
+  /**
+   * Gets the value of the author property.
+   *
+   * @return possible object is
+   * {@link EQDOCAuthor }
+   */
+  public EQDOCAuthor getAuthor() {
+    return author;
+  }
 
-    /**
-     * Sets the value of the author property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCAuthor }
-     *     
-     */
-    public void setAuthor(EQDOCAuthor value) {
-        this.author = value;
-    }
+  /**
+   * Sets the value of the author property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCAuthor }
+   */
+  public void setAuthor(EQDOCAuthor value) {
+    this.author = value;
+  }
 
-    /**
-     * Gets the value of the instanceType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocInstanceType }
-     *     
-     */
-    public VocInstanceType getInstanceType() {
-        return instanceType;
-    }
+  /**
+   * Gets the value of the instanceType property.
+   *
+   * @return possible object is
+   * {@link VocInstanceType }
+   */
+  public VocInstanceType getInstanceType() {
+    return instanceType;
+  }
 
-    /**
-     * Sets the value of the instanceType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocInstanceType }
-     *     
-     */
-    public void setInstanceType(VocInstanceType value) {
-        this.instanceType = value;
-    }
+  /**
+   * Sets the value of the instanceType property.
+   *
+   * @param value allowed object is
+   *              {@link VocInstanceType }
+   */
+  public void setInstanceType(VocInstanceType value) {
+    this.instanceType = value;
+  }
 
 }

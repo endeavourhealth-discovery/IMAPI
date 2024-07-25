@@ -13,9 +13,9 @@ import jakarta.xml.bind.annotation.*;
 
 /**
  * <p>Java class for EQDOC.AggregateResult complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.AggregateResult"&gt;
  *   &lt;complexContent&gt;
@@ -30,122 +30,104 @@ import jakarta.xml.bind.annotation.*;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.AggregateResult", propOrder = {
-    "source",
-    "column",
-    "calculationType",
-    "displayUnit"
+  "source",
+  "column",
+  "calculationType",
+  "displayUnit"
 })
 public class EQDOCAggregateResult {
 
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "token")
-    protected VocAggregateSource source;
-    protected String column;
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "token")
-    protected VocCalculationType calculationType;
-    @XmlSchemaType(name = "token")
-    protected VocDisplayStyle displayUnit;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "token")
+  protected VocAggregateSource source;
+  protected String column;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "token")
+  protected VocCalculationType calculationType;
+  @XmlSchemaType(name = "token")
+  protected VocDisplayStyle displayUnit;
 
-    /**
-     * Gets the value of the source property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocAggregateSource }
-     *     
-     */
-    public VocAggregateSource getSource() {
-        return source;
-    }
+  /**
+   * Gets the value of the source property.
+   *
+   * @return possible object is
+   * {@link VocAggregateSource }
+   */
+  public VocAggregateSource getSource() {
+    return source;
+  }
 
-    /**
-     * Sets the value of the source property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocAggregateSource }
-     *     
-     */
-    public void setSource(VocAggregateSource value) {
-        this.source = value;
-    }
+  /**
+   * Sets the value of the source property.
+   *
+   * @param value allowed object is
+   *              {@link VocAggregateSource }
+   */
+  public void setSource(VocAggregateSource value) {
+    this.source = value;
+  }
 
-    /**
-     * Gets the value of the column property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getColumn() {
-        return column;
-    }
+  /**
+   * Gets the value of the column property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getColumn() {
+    return column;
+  }
 
-    /**
-     * Sets the value of the column property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setColumn(String value) {
-        this.column = value;
-    }
+  /**
+   * Sets the value of the column property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setColumn(String value) {
+    this.column = value;
+  }
 
-    /**
-     * Gets the value of the calculationType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocCalculationType }
-     *     
-     */
-    public VocCalculationType getCalculationType() {
-        return calculationType;
-    }
+  /**
+   * Gets the value of the calculationType property.
+   *
+   * @return possible object is
+   * {@link VocCalculationType }
+   */
+  public VocCalculationType getCalculationType() {
+    return calculationType;
+  }
 
-    /**
-     * Sets the value of the calculationType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocCalculationType }
-     *     
-     */
-    public void setCalculationType(VocCalculationType value) {
-        this.calculationType = value;
-    }
+  /**
+   * Sets the value of the calculationType property.
+   *
+   * @param value allowed object is
+   *              {@link VocCalculationType }
+   */
+  public void setCalculationType(VocCalculationType value) {
+    this.calculationType = value;
+  }
 
-    /**
-     * Gets the value of the displayUnit property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocDisplayStyle }
-     *     
-     */
-    public VocDisplayStyle getDisplayUnit() {
-        return displayUnit;
-    }
+  /**
+   * Gets the value of the displayUnit property.
+   *
+   * @return possible object is
+   * {@link VocDisplayStyle }
+   */
+  public VocDisplayStyle getDisplayUnit() {
+    return displayUnit;
+  }
 
-    /**
-     * Sets the value of the displayUnit property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocDisplayStyle }
-     *     
-     */
-    public void setDisplayUnit(VocDisplayStyle value) {
-        this.displayUnit = value;
-    }
+  /**
+   * Sets the value of the displayUnit property.
+   *
+   * @param value allowed object is
+   *              {@link VocDisplayStyle }
+   */
+  public void setDisplayUnit(VocDisplayStyle value) {
+    this.displayUnit = value;
+  }
 
 }

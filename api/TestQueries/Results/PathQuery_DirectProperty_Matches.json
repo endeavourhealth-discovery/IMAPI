@@ -1,8 +1,12 @@
 {
-  "match" : [ {
-    "where" : [ {
-      "@id" : "http://endhealth.info/im#homeAddress",
-      "name" : "home address"
-    } ]
-  } ]
+  "match": [
+    {
+      "where": [
+        {
+          "@id": "http://endhealth.info/im#homeAddress",
+          "name": "home address"
+        }
+      ]
+    }
+  ]
 }

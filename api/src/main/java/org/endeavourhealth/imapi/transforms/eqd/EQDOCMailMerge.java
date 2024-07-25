@@ -11,15 +11,16 @@ package org.endeavourhealth.imapi.transforms.eqd;
 import jakarta.xml.bind.annotation.*;
 import jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * <p>Java class for EQDOC.MailMerge complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.MailMerge"&gt;
  *   &lt;complexContent&gt;
@@ -33,104 +34,91 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.MailMerge", propOrder = {
-    "id",
-    "populationType",
-    "tables"
+  "id",
+  "populationType",
+  "tables"
 })
 public class EQDOCMailMerge
-    extends DtDbo
-{
+  extends DtDbo {
 
-    @XmlElement(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String id;
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "token")
-    protected VocPopulationType populationType;
-    @XmlElement(required = true)
-    protected List<EQDOCMailMergeTable> tables;
+  @XmlElement(required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String id;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "token")
+  protected VocPopulationType populationType;
+  @XmlElement(required = true)
+  protected List<EQDOCMailMergeTable> tables;
 
-    /**
-     * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getId() {
-        return id;
+  /**
+   * Gets the value of the id property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getId() {
+    return id;
+  }
+
+  /**
+   * Sets the value of the id property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setId(String value) {
+    this.id = value;
+  }
+
+  /**
+   * Gets the value of the populationType property.
+   *
+   * @return possible object is
+   * {@link VocPopulationType }
+   */
+  public VocPopulationType getPopulationType() {
+    return populationType;
+  }
+
+  /**
+   * Sets the value of the populationType property.
+   *
+   * @param value allowed object is
+   *              {@link VocPopulationType }
+   */
+  public void setPopulationType(VocPopulationType value) {
+    this.populationType = value;
+  }
+
+  /**
+   * Gets the value of the tables property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the tables property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getTables().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCMailMergeTable }
+   */
+  public List<EQDOCMailMergeTable> getTables() {
+    if (tables == null) {
+      tables = new ArrayList<EQDOCMailMergeTable>();
     }
-
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setId(String value) {
-        this.id = value;
-    }
-
-    /**
-     * Gets the value of the populationType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocPopulationType }
-     *     
-     */
-    public VocPopulationType getPopulationType() {
-        return populationType;
-    }
-
-    /**
-     * Sets the value of the populationType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocPopulationType }
-     *     
-     */
-    public void setPopulationType(VocPopulationType value) {
-        this.populationType = value;
-    }
-
-    /**
-     * Gets the value of the tables property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the tables property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getTables().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCMailMergeTable }
-     * 
-     * 
-     */
-    public List<EQDOCMailMergeTable> getTables() {
-        if (tables == null) {
-            tables = new ArrayList<EQDOCMailMergeTable>();
-        }
-        return this.tables;
-    }
+    return this.tables;
+  }
 
 }

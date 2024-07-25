@@ -1,21 +1,30 @@
 {
-  "match" : [ {
-    "where" : [ {
-      "@id" : "http://endhealth.info/im#ethnicity",
-      "name" : "ethnicity"
-    } ]
-  }, {
-    "path" : [ {
-      "@id" : "http://endhealth.info/im#patient",
-      "name" : "patient"
-    } ],
-    "where" : [ {
-      "@id" : "http://endhealth.info/im#concept",
-      "name" : "concept"
-    } ],
-    "typeOf" : {
-      "@id" : "http://endhealth.info/im#Observation",
-      "name" : "Observation"
+  "match": [
+    {
+      "where": [
+        {
+          "@id": "http://endhealth.info/im#ethnicity",
+          "name": "ethnicity"
+        }
+      ]
+    },
+    {
+      "path": [
+        {
+          "@id": "http://endhealth.info/im#patient",
+          "name": "patient"
+        }
+      ],
+      "where": [
+        {
+          "@id": "http://endhealth.info/im#concept",
+          "name": "concept"
+        }
+      ],
+      "typeOf": {
+        "@id": "http://endhealth.info/im#Observation",
+        "name": "Observation"
+      }
     }
-  } ]
+  ]
 }

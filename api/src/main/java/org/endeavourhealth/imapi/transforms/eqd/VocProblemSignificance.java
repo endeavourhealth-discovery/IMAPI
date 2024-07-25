@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.ProblemSignificance.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -25,31 +25,28 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.ProblemSignificance")
 @XmlEnum
 public enum VocProblemSignificance {
 
 
-    /**
-     * Significant
-     * 
-     */
-    S,
+  /**
+   * Significant
+   */
+  S,
 
-    /**
-     * Not Significant (Minor)
-     * 
-     */
-    M;
+  /**
+   * Not Significant (Minor)
+   */
+  M;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocProblemSignificance fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocProblemSignificance fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

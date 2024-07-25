@@ -13,9 +13,9 @@ import jakarta.xml.bind.annotation.*;
 
 /**
  * <p>Java class for EQDOC.AggregateHierarchy complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.AggregateHierarchy"&gt;
  *   &lt;complexContent&gt;
@@ -28,59 +28,51 @@ import jakarta.xml.bind.annotation.*;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.AggregateHierarchy", propOrder = {
-    "hierarchyType",
-    "level"
+  "hierarchyType",
+  "level"
 })
 public class EQDOCAggregateHierarchy {
 
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "string")
-    protected VocBandingHierarchyType hierarchyType;
-    protected int level;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "string")
+  protected VocBandingHierarchyType hierarchyType;
+  protected int level;
 
-    /**
-     * Gets the value of the hierarchyType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocBandingHierarchyType }
-     *     
-     */
-    public VocBandingHierarchyType getHierarchyType() {
-        return hierarchyType;
-    }
+  /**
+   * Gets the value of the hierarchyType property.
+   *
+   * @return possible object is
+   * {@link VocBandingHierarchyType }
+   */
+  public VocBandingHierarchyType getHierarchyType() {
+    return hierarchyType;
+  }
 
-    /**
-     * Sets the value of the hierarchyType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocBandingHierarchyType }
-     *     
-     */
-    public void setHierarchyType(VocBandingHierarchyType value) {
-        this.hierarchyType = value;
-    }
+  /**
+   * Sets the value of the hierarchyType property.
+   *
+   * @param value allowed object is
+   *              {@link VocBandingHierarchyType }
+   */
+  public void setHierarchyType(VocBandingHierarchyType value) {
+    this.hierarchyType = value;
+  }
 
-    /**
-     * Gets the value of the level property.
-     * 
-     */
-    public int getLevel() {
-        return level;
-    }
+  /**
+   * Gets the value of the level property.
+   */
+  public int getLevel() {
+    return level;
+  }
 
-    /**
-     * Sets the value of the level property.
-     * 
-     */
-    public void setLevel(int value) {
-        this.level = value;
-    }
+  /**
+   * Sets the value of the level property.
+   */
+  public void setLevel(int value) {
+    this.level = value;
+  }
 
 }

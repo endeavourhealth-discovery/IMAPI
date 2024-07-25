@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.ReferralTransport.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -26,37 +26,33 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.ReferralTransport")
 @XmlEnum
 public enum VocReferralTransport {
 
 
-    /**
-     * None Required
-     * 
-     */
-    N,
+  /**
+   * None Required
+   */
+  N,
 
-    /**
-     * Required
-     * 
-     */
-    R,
+  /**
+   * Required
+   */
+  R,
 
-    /**
-     * Stretcher
-     * 
-     */
-    S;
+  /**
+   * Stretcher
+   */
+  S;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocReferralTransport fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocReferralTransport fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

@@ -8,55 +8,51 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@JsonPropertyOrder({"nodeVariable","id","count","direction"})
+@JsonPropertyOrder({"nodeVariable", "id", "count", "direction"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class OrderLimit {
-	private OrderDirection property;
-	private int limit;
-	private String description;
-	private PropertyRef partitionBy;
+  private OrderDirection property;
+  private int limit;
+  private String description;
+  private PropertyRef partitionBy;
 
-	public OrderDirection getProperty() {
-		return property;
-	}
+  public OrderDirection getProperty() {
+    return property;
+  }
 
-	public OrderLimit setProperty(OrderDirection property) {
-		this.property = property;
-		return this;
-	}
-
-
-	public PropertyRef getPartitionBy() {
-		return partitionBy;
-	}
-
-	public OrderLimit setPartitionBy(PropertyRef partitionBy) {
-		this.partitionBy = partitionBy;
-		return this;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public OrderLimit setDescription(String description) {
-		this.description = description;
-		return this;
-	}
+  public OrderLimit setProperty(OrderDirection property) {
+    this.property = property;
+    return this;
+  }
 
 
+  public PropertyRef getPartitionBy() {
+    return partitionBy;
+  }
+
+  public OrderLimit setPartitionBy(PropertyRef partitionBy) {
+    this.partitionBy = partitionBy;
+    return this;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public OrderLimit setDescription(String description) {
+    this.description = description;
+    return this;
+  }
 
 
+  public int getLimit() {
+    return limit;
+  }
 
-	public int getLimit() {
-		return limit;
-	}
-
-	public OrderLimit setLimit(int limit) {
-		this.limit = limit;
-		return this;
-	}
-
+  public OrderLimit setLimit(int limit) {
+    this.limit = limit;
+    return this;
+  }
 
 
 }

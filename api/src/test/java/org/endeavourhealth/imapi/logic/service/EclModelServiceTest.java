@@ -19,15 +19,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ExtendWith(MockitoExtension.class)
 @RunWith(JUnitPlatform.class)
 public class EclModelServiceTest {
-    @InjectMocks
-    EclService eclService;
+  @InjectMocks
+  EclService eclService;
 
-    @Test
-    @Ignore
-    void getEcl_NotNullInferred() throws QueryException, JsonProcessingException {
-       String actual = eclService.getEcl(new Query());
-        assertNotNull(actual);
-    }
+  @Test
+  @Ignore
+  void getEcl_NotNullInferred() throws QueryException, JsonProcessingException {
+    String actual = eclService.getEcl(new Query());
+    assertNotNull(actual);
+  }
 
 
 }

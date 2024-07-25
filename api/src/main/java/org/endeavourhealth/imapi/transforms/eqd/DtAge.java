@@ -16,11 +16,11 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * Represents a duration of time.
- * 
+ *
  * <p>Java class for dt.Age complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="dt.Age"&gt;
  *   &lt;complexContent&gt;
@@ -31,56 +31,48 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "dt.Age")
 public class DtAge {
 
-    @XmlAttribute(name = "unit", required = true)
-    protected VocAgeUnit unit;
-    @XmlAttribute(name = "value", required = true)
-    protected short value;
+  @XmlAttribute(name = "unit", required = true)
+  protected VocAgeUnit unit;
+  @XmlAttribute(name = "value", required = true)
+  protected short value;
 
-    /**
-     * Gets the value of the unit property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocAgeUnit }
-     *     
-     */
-    public VocAgeUnit getUnit() {
-        return unit;
-    }
+  /**
+   * Gets the value of the unit property.
+   *
+   * @return possible object is
+   * {@link VocAgeUnit }
+   */
+  public VocAgeUnit getUnit() {
+    return unit;
+  }
 
-    /**
-     * Sets the value of the unit property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocAgeUnit }
-     *     
-     */
-    public void setUnit(VocAgeUnit value) {
-        this.unit = value;
-    }
+  /**
+   * Sets the value of the unit property.
+   *
+   * @param value allowed object is
+   *              {@link VocAgeUnit }
+   */
+  public void setUnit(VocAgeUnit value) {
+    this.unit = value;
+  }
 
-    /**
-     * Gets the value of the value property.
-     * 
-     */
-    public short getValue() {
-        return value;
-    }
+  /**
+   * Gets the value of the value property.
+   */
+  public short getValue() {
+    return value;
+  }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     */
-    public void setValue(short value) {
-        this.value = value;
-    }
+  /**
+   * Sets the value of the value property.
+   */
+  public void setValue(short value) {
+    this.value = value;
+  }
 
 }

@@ -11,44 +11,44 @@ import java.util.List;
 @JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo.Id.NAME)
 @JsonTypeName(value = "bool")
 public class Query {
-    private List<Prefix> musts;
-    private List<Filter> filters;
+  private List<Prefix> musts;
+  private List<Filter> filters;
 
-    public Query(List<Prefix> must, List<Filter> filter) {
-        this.musts = must;
-        this.filters = filter;
-    }
+  public Query(List<Prefix> must, List<Filter> filter) {
+    this.musts = must;
+    this.filters = filter;
+  }
 
-    public Query() {
-        this.musts = new ArrayList<>();
-        this.filters = new ArrayList<>();
-    }
+  public Query() {
+    this.musts = new ArrayList<>();
+    this.filters = new ArrayList<>();
+  }
 
-    @JsonProperty("must")
-    public List<Prefix> getMusts() {
-        return musts;
-    }
+  @JsonProperty("must")
+  public List<Prefix> getMusts() {
+    return musts;
+  }
 
-    public void setMusts(List<Prefix> must) {
-        this.musts = must;
-    }
+  public void setMusts(List<Prefix> must) {
+    this.musts = must;
+  }
 
-    public Query addMust(String must) {
-        this.musts.add(new Prefix(must));
-        return this;
-    }
+  public Query addMust(String must) {
+    this.musts.add(new Prefix(must));
+    return this;
+  }
 
-    @JsonProperty("filter")
-    public List<Filter> getFilters() {
-        return filters;
-    }
+  @JsonProperty("filter")
+  public List<Filter> getFilters() {
+    return filters;
+  }
 
-    public void setFilters(List<Filter> filter) {
-        this.filters = filter;
-    }
+  public void setFilters(List<Filter> filter) {
+    this.filters = filter;
+  }
 
-    public Query addFilter(Filter filter) {
-        this.filters.add(filter);
-        return this;
-    }
+  public Query addFilter(Filter filter) {
+    this.filters.add(filter);
+    return this;
+  }
 }

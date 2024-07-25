@@ -7,80 +7,80 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({"Name", "OrgId", "Status", "orgRecordClass", "GeoLoc", "Roles", "Rels"})
 public class Organisation {
-    private String name;
-    private OrgId orgId;
-    private String status;
-    private String orgRecordClass;
-    private OrgGeoLocation geoLoc;
-    private OrgRelationships rels;
-    private OrgRoles roles;
+  private String name;
+  private OrgId orgId;
+  private String status;
+  private String orgRecordClass;
+  private OrgGeoLocation geoLoc;
+  private OrgRelationships rels;
+  private OrgRoles roles;
 
-    @JsonProperty("Name")
-    public String getName() {
-        return name;
-    }
+  @JsonProperty("Name")
+  public String getName() {
+    return name;
+  }
 
-    public Organisation setName(String name) {
-        this.name = name;
-        return this;
-    }
+  public Organisation setName(String name) {
+    this.name = name;
+    return this;
+  }
 
-    @JsonProperty("OrgId")
-    public OrgId getOrgId() {
-        return orgId;
-    }
+  @JsonProperty("OrgId")
+  public OrgId getOrgId() {
+    return orgId;
+  }
 
-    public Organisation setOrgId(OrgId orgId) {
-        this.orgId = orgId;
-        return this;
-    }
+  public Organisation setOrgId(OrgId orgId) {
+    this.orgId = orgId;
+    return this;
+  }
 
-    @JsonProperty("Status")
-    public String getStatus() {
-        return status;
-    }
+  @JsonProperty("Status")
+  public String getStatus() {
+    return status;
+  }
 
-    public Organisation setStatus(String status) {
-        this.status = status;
-        return this;
-    }
+  public Organisation setStatus(String status) {
+    this.status = status;
+    return this;
+  }
 
-    public String getOrgRecordClass() {
-        return orgRecordClass;
-    }
+  public String getOrgRecordClass() {
+    return orgRecordClass;
+  }
 
-    public Organisation setOrgRecordClass(String orgRecordClass) {
-        this.orgRecordClass = orgRecordClass;
-        return this;
-    }
+  public Organisation setOrgRecordClass(String orgRecordClass) {
+    this.orgRecordClass = orgRecordClass;
+    return this;
+  }
 
-    @JsonProperty("GeoLoc")
-    public OrgGeoLocation getGeoLoc() {
-        return geoLoc;
-    }
+  @JsonProperty("GeoLoc")
+  public OrgGeoLocation getGeoLoc() {
+    return geoLoc;
+  }
 
-    public Organisation setGeoLoc(OrgGeoLocation geoLoc) {
-        this.geoLoc = geoLoc;
-        return this;
-    }
+  public Organisation setGeoLoc(OrgGeoLocation geoLoc) {
+    this.geoLoc = geoLoc;
+    return this;
+  }
 
-    @JsonProperty("Roles")
-    public OrgRoles getRoles() {
-        return roles;
-    }
+  @JsonProperty("Roles")
+  public OrgRoles getRoles() {
+    return roles;
+  }
 
-    public Organisation setRoles(OrgRoles roles) {
-        this.roles = roles;
-        return this;
-    }
+  public Organisation setRoles(OrgRoles roles) {
+    this.roles = roles;
+    return this;
+  }
 
-    @JsonProperty("Rels")
-    public OrgRelationships getRels() {
-        return rels;
-    }
+  @JsonProperty("Rels")
+  public OrgRelationships getRels() {
+    return rels;
+  }
 
-    public Organisation setRels(OrgRelationships rels) {
-        this.rels = rels;
-        return this;
-    }
+  public Organisation setRels(OrgRelationships rels) {
+    this.rels = rels;
+    return this;
+  }
 }

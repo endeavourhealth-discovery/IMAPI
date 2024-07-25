@@ -16,9 +16,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for EQDOC.ScheduleRelativeDate complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.ScheduleRelativeDate"&gt;
  *   &lt;complexContent&gt;
@@ -31,58 +31,50 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.ScheduleRelativeDate", propOrder = {
-    "value",
-    "unit"
+  "value",
+  "unit"
 })
 public class EQDOCScheduleRelativeDate {
 
-    protected int value;
-    @XmlSchemaType(name = "token")
-    protected VocValueUnit unit;
+  protected int value;
+  @XmlSchemaType(name = "token")
+  protected VocValueUnit unit;
 
-    /**
-     * Gets the value of the value property.
-     * 
-     */
-    public int getValue() {
-        return value;
-    }
+  /**
+   * Gets the value of the value property.
+   */
+  public int getValue() {
+    return value;
+  }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     */
-    public void setValue(int value) {
-        this.value = value;
-    }
+  /**
+   * Sets the value of the value property.
+   */
+  public void setValue(int value) {
+    this.value = value;
+  }
 
-    /**
-     * Gets the value of the unit property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocValueUnit }
-     *     
-     */
-    public VocValueUnit getUnit() {
-        return unit;
-    }
+  /**
+   * Gets the value of the unit property.
+   *
+   * @return possible object is
+   * {@link VocValueUnit }
+   */
+  public VocValueUnit getUnit() {
+    return unit;
+  }
 
-    /**
-     * Sets the value of the unit property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocValueUnit }
-     *     
-     */
-    public void setUnit(VocValueUnit value) {
-        this.unit = value;
-    }
+  /**
+   * Sets the value of the unit property.
+   *
+   * @param value allowed object is
+   *              {@link VocValueUnit }
+   */
+  public void setUnit(VocValueUnit value) {
+    this.unit = value;
+  }
 
 }

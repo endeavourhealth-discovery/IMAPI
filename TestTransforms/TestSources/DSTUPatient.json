@@ -1,60 +1,87 @@
 {
-  "active" : true,
-  "address" : [ {
-    "city" : "STOCKPORT",
-    "district" : "",
-    "line" : [ 29, "", "GREENWAY" ],
-    "postalCode" : "SK6 4HH",
-    "text" : "29,,GREENWAY,,STOCKPORT,SK6 4HH",
-    "use" : "home"
-  } ],
-  "birthDate" : "2011-09-07",
-  "careProvider" : [ {
-    "reference" : "Organization/328"
-  }, {
-    "reference" : "Practitioner/1272"
-  } ],
-  "extension" : [ {
-    "url" : "http://endeavourhealth.org/fhir/StructureDefinition/primarycare-ethnic-category-extension",
-    "valueCodeableConcept" : {
-      "coding" : [ {
-        "code" : "K",
-        "display" : "Bangladeshi",
-        "system" : "http://endeavourhealth.org/fhir/StructureDefinition/primarycare-ethnic-category-extension"
-      } ]
+  "active": true,
+  "address": [
+    {
+      "city": "STOCKPORT",
+      "district": "",
+      "line": [
+        29,
+        "",
+        "GREENWAY"
+      ],
+      "postalCode": "SK6 4HH",
+      "text": "29,,GREENWAY,,STOCKPORT,SK6 4HH",
+      "use": "home"
     }
-  } ],
-  "gender" : "F",
-  "id" : 1,
-  "identifier" : [ {
-    "system" : "http://fhir.nhs.net/Id/nhs-number",
-    "use" : "official",
-    "value" : 3127565459
-  }, {
-    "system" : "http://endeavourhealth.org/identifier/patient-number",
-    "use" : "secondary",
-    "value" : 1
-  } ],
-  "managingOrganization" : {
-    "reference" : "Organization/328"
+  ],
+  "birthDate": "2011-09-07",
+  "careProvider": [
+    {
+      "reference": "Organization/328"
+    },
+    {
+      "reference": "Practitioner/1272"
+    }
+  ],
+  "extension": [
+    {
+      "url": "http://endeavourhealth.org/fhir/StructureDefinition/primarycare-ethnic-category-extension",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "code": "K",
+            "display": "Bangladeshi",
+            "system": "http://endeavourhealth.org/fhir/StructureDefinition/primarycare-ethnic-category-extension"
+          }
+        ]
+      }
+    }
+  ],
+  "gender": "F",
+  "id": 1,
+  "identifier": [
+    {
+      "system": "http://fhir.nhs.net/Id/nhs-number",
+      "use": "official",
+      "value": 3127565459
+    },
+    {
+      "system": "http://endeavourhealth.org/identifier/patient-number",
+      "use": "secondary",
+      "value": 1
+    }
+  ],
+  "managingOrganization": {
+    "reference": "Organization/328"
   },
-  "meta" : {
-    "profile" : [ "http://endeavourhealth.org/fhir/StructureDefinition/primarycare-patient" ]
+  "meta": {
+    "profile": [
+      "http://endeavourhealth.org/fhir/StructureDefinition/primarycare-patient"
+    ]
   },
-  "name" : [ {
-    "family" : [ "Albergaria" ],
-    "given" : [ "Lindsey" ],
-    "text" : "Albergaria, Lindsey (Ms)",
-    "use" : "official"
-  } ],
-  "resourceType" : "Patient",
-  "telecom" : [ {
-    "system" : "phone",
-    "use" : "mobile",
-    "value" : "07456223456"
-  }, {
-    "system" : "phone",
-    "use" : "home",
-    "value" : "01945 668768"
-  } ]
+  "name": [
+    {
+      "family": [
+        "Albergaria"
+      ],
+      "given": [
+        "Lindsey"
+      ],
+      "text": "Albergaria, Lindsey (Ms)",
+      "use": "official"
+    }
+  ],
+  "resourceType": "Patient",
+  "telecom": [
+    {
+      "system": "phone",
+      "use": "mobile",
+      "value": "07456223456"
+    },
+    {
+      "system": "phone",
+      "use": "home",
+      "value": "01945 668768"
+    }
+  ]
 }

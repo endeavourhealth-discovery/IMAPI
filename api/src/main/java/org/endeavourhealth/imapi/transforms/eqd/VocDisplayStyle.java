@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.DisplayStyle.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -29,25 +29,24 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.DisplayStyle")
 @XmlEnum
 public enum VocDisplayStyle {
 
-    DURATION_MINUTES,
-    DURATION_HOURS,
-    DURATION_DAYS,
-    DURATION_WEEKS,
-    DURATION_MONTHS,
-    DURATION_YEARS;
+  DURATION_MINUTES,
+  DURATION_HOURS,
+  DURATION_DAYS,
+  DURATION_WEEKS,
+  DURATION_MONTHS,
+  DURATION_YEARS;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocDisplayStyle fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocDisplayStyle fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

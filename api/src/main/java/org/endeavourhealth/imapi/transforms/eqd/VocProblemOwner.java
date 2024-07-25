@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.ProblemOwner.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -26,37 +26,33 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.ProblemOwner")
 @XmlEnum
 public enum VocProblemOwner {
 
 
-    /**
-     * Individual
-     * 
-     */
-    IND,
+  /**
+   * Individual
+   */
+  IND,
 
-    /**
-     * Family
-     * 
-     */
-    FAM,
+  /**
+   * Family
+   */
+  FAM,
 
-    /**
-     * Community
-     * 
-     */
-    COM;
+  /**
+   * Community
+   */
+  COM;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocProblemOwner fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocProblemOwner fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

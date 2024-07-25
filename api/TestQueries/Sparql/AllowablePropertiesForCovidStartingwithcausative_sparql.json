@@ -1,18 +1,18 @@
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX im: <http://endhealth.info/im#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX sn: <http://snomed.info/sct#>
-PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX rdfs: <http: //www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http: //www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX im: <http: //endhealth.info/im#>
+PREFIX xsd: <http: //www.w3.org/2001/XMLSchema#>
+PREFIX sn: <http: //snomed.info/sct#>
+PREFIX sh: <http: //www.w3.org/ns/shacl#>
 
-PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>
-PREFIX con: <http://www.ontotext.com/connectors/lucene#>
+PREFIX con-inst: <http: //www.ontotext.com/connectors/lucene/instance#>
+PREFIX con: <http: //www.ontotext.com/connectors/lucene#>
 SELECT distinct ?entity  ?p2 ?p3
-WHERE {[] a con-inst:im_fts;
-       con:query "label:(causative*)" ;
-       con:entities ?entity.
-?entity rdf:type <http://endhealth.info/im#Concept>.
- OPTIONAL { ?entity <http://endhealth.info/im#code> ?p2.}
- OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p3.}
+WHERE {[] a con-inst: im_fts;
+con: query "label:(causative*)" ;
+con: entities ?entity.
+?entity rdf: type <http: //endhealth.info/im#Concept>.
+OPTIONAL {?entity <http: //endhealth.info/im#code> ?p2.}
+OPTIONAL { ?entity <http: //www.w3.org/2000/01/rdf-schema#label> ?p3.}
 }
-ORDER BY DESC(strstarts(lcase(?p3),"causative")) ASC(strlen(?p3))
+ORDER BY DESC(strstarts(lcase(?p3), "causative")) ASC(strlen(?p3))

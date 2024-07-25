@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.ConsultationType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -37,103 +37,88 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.ConsultationType")
 @XmlEnum
 public enum VocConsultationType {
 
 
-    /**
-     * GP Consultation
-     * 
-     */
-    GP,
+  /**
+   * GP Consultation
+   */
+  GP,
 
-    /**
-     * Assessment
-     * 
-     */
-    ASS,
+  /**
+   * Assessment
+   */
+  ASS,
 
-    /**
-     * Intervention
-     * 
-     */
-    INT,
+  /**
+   * Intervention
+   */
+  INT,
 
-    /**
-     * Telephone call from client
-     * 
-     */
-    TFC,
+  /**
+   * Telephone call from client
+   */
+  TFC,
 
-    /**
-     * Telephone call to client
-     * 
-     */
-    TTC,
+  /**
+   * Telephone call to client
+   */
+  TTC,
 
-    /**
-     * Telephone call from parent/guardian
-     * 
-     */
-    TFP,
+  /**
+   * Telephone call from parent/guardian
+   */
+  TFP,
 
-    /**
-     * Telephone call to parent/guardian
-     * 
-     */
-    TTP,
+  /**
+   * Telephone call to parent/guardian
+   */
+  TTP,
 
-    /**
-     * Telephone call from other
-     * 
-     */
-    TFO,
+  /**
+   * Telephone call from other
+   */
+  TFO,
 
-    /**
-     * Telephone call to other
-     * 
-     */
-    TTO,
+  /**
+   * Telephone call to other
+   */
+  TTO,
 
-    /**
-     * Face to face with client
-     * 
-     */
-    FFC,
+  /**
+   * Face to face with client
+   */
+  FFC,
 
-    /**
-     * Face to face with parent/guardian
-     * 
-     */
-    FFP,
+  /**
+   * Face to face with parent/guardian
+   */
+  FFP,
 
-    /**
-     * Face to face with other
-     * 
-     */
-    FFO,
+  /**
+   * Face to face with other
+   */
+  FFO,
 
-    /**
-     * Other communications
-     * 
-     */
-    OC,
+  /**
+   * Other communications
+   */
+  OC,
 
-    /**
-     * Home Visit
-     * 
-     */
-    HV;
+  /**
+   * Home Visit
+   */
+  HV;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocConsultationType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocConsultationType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

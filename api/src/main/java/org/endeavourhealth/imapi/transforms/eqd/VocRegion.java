@@ -15,7 +15,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.Region.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -33,41 +33,40 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.Region")
 @XmlEnum
 public enum VocRegion {
 
-    ENGLAND("ENGLAND"),
-    SCOTLAND("SCOTLAND"),
-    @XmlEnumValue("NORTHERN IRELAND")
-    NORTHERN_IRELAND("NORTHERN IRELAND"),
-    GUERNSEY("GUERNSEY"),
-    @XmlEnumValue("REPUBLIC OF IRELAND")
-    REPUBLIC_OF_IRELAND("REPUBLIC OF IRELAND"),
-    JERSEY("JERSEY"),
-    @XmlEnumValue("ISLE OF MAN")
-    ISLE_OF_MAN("ISLE OF MAN"),
-    EMIRATES("EMIRATES"),
-    WALES("WALES");
-    private final String value;
+  ENGLAND("ENGLAND"),
+  SCOTLAND("SCOTLAND"),
+  @XmlEnumValue("NORTHERN IRELAND")
+  NORTHERN_IRELAND("NORTHERN IRELAND"),
+  GUERNSEY("GUERNSEY"),
+  @XmlEnumValue("REPUBLIC OF IRELAND")
+  REPUBLIC_OF_IRELAND("REPUBLIC OF IRELAND"),
+  JERSEY("JERSEY"),
+  @XmlEnumValue("ISLE OF MAN")
+  ISLE_OF_MAN("ISLE OF MAN"),
+  EMIRATES("EMIRATES"),
+  WALES("WALES");
+  private final String value;
 
-    VocRegion(String v) {
-        value = v;
-    }
+  VocRegion(String v) {
+    value = v;
+  }
 
-    public String value() {
-        return value;
-    }
+  public String value() {
+    return value;
+  }
 
-    public static VocRegion fromValue(String v) {
-        for (VocRegion c: VocRegion.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
+  public static VocRegion fromValue(String v) {
+    for (VocRegion c : VocRegion.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
+    throw new IllegalArgumentException(v);
+  }
 
 }

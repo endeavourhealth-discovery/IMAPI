@@ -24,29 +24,22 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.zip.DataFormatException;
 
 public class OSQuery {
   private static final Logger LOG = LoggerFactory.getLogger(OSQuery.class);
-  private final List<Map<Long, String>> timings = new ArrayList<>();
-  private IMQToOS converter = new IMQToOS();
+  private final IMQToOS converter = new IMQToOS();
 
-
-  public SearchResponse openSearchQuery(QueryRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException, JsonProcessingException, DataFormatException {
-    SearchResponse results = getStandardResults(request);
-    return results;
+  public SearchResponse openSearchQuery(QueryRequest request) throws QueryException, OpenSearchException {
+    return getStandardResults(request);
   }
 
 
-  public JsonNode imQuery(QueryRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException, JsonProcessingException, DataFormatException {
-    JsonNode results = getNodeResults(request);
-    return results;
+  public JsonNode imQuery(QueryRequest request) {
+    return getNodeResults(request);
   }
 
 
-  public JsonNode getIMOSResults(QueryRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException, JsonProcessingException, DataFormatException {
+  public JsonNode getIMOSResults(QueryRequest request) throws QueryException, OpenSearchException {
     Query query = request.getQuery();
     JsonNode results;
     if (query.isImQuery()) {
@@ -71,30 +64,30 @@ public class OSQuery {
       return results;
   }
 
-  private JsonNode getOsResults(QueryRequest request, Query query) throws QueryException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+  private JsonNode getOsResults(QueryRequest request, Query query) throws QueryException, OpenSearchException {
     SearchSourceBuilder builder = converter.buildQuery(request, query, IMQToOS.QUERY_TYPE.AUTOCOMPLETE);
     if (builder == null)
       return null;
 
     request.addTiming("Entry point for autocomplete\"" + request.getTextSearch() + "\"");
-    JsonNode results = runQuery(builder, request);
-    if (results.get("hits").get("hits").size() > 0) {
+    JsonNode results = runQuery(builder);
+    if (!results.get("hits").get("hits").isEmpty()) {
       return results;
     }
     if (request.getTextSearch().contains(" ")) {
       builder = converter.buildQuery(request, query, IMQToOS.QUERY_TYPE.NGRAM, Fuzziness.ZERO);
-      results = runQuery(builder, request);
-      if (results.get("hits").get("hits").size() > 0) {
+      results = runQuery(builder);
+      if (!results.get("hits").get("hits").isEmpty()) {
         return results;
       } else {
         builder = converter.buildQuery(request, query, IMQToOS.QUERY_TYPE.MULTIWORD);
-        results = runQuery(builder, request);
-        if (results.get("hits").get("hits").size() > 0) {
+        results = runQuery(builder);
+        if (!results.get("hits").get("hits").isEmpty()) {
           return results;
         } else {
           builder = converter.buildQuery(request, query, IMQToOS.QUERY_TYPE.NGRAM, Fuzziness.TWO);
-          results = runQuery(builder, request);
-          if (results.get("hits").get("hits").size() > 0) {
+          results = runQuery(builder);
+          if (!results.get("hits").get("hits").isEmpty()) {
             return results;
           }
         }
@@ -105,15 +98,15 @@ public class OSQuery {
     if (corrected != null) {
       request.setTextSearch(corrected);
       builder = new IMQToOS().buildQuery(request, query, IMQToOS.QUERY_TYPE.AUTOCOMPLETE);
-      return runQuery(builder, request);
+      return runQuery(builder);
     }
     return results;
   }
 
-  private String spellingCorrection(QueryRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+  private String spellingCorrection(QueryRequest request) throws OpenSearchException {
     String oldTerm = request.getTextSearch();
     String newTerm = null;
-    String suggestor = "{\n" +
+    String suggester = "{\n" +
       "  \"suggest\": {\n" +
       "    \"spell-check\": {\n" +
       "      \"text\": \"" + oldTerm + "\",\n" +
@@ -124,29 +117,12 @@ public class OSQuery {
       "    }\n" +
       "  }\n" +
       "}";
-    HttpResponse<String> response = getResponse(false, suggestor);
+    HttpResponse<String> response = getResponse(suggester);
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       JsonNode root = om.readTree(response.body());
       JsonNode suggestions = root.get("suggest").get("spell-check");
       String[] words = oldTerm.split(" ");
-      for (JsonNode suggest : suggestions) {
-        if (suggest.has("options")) {
-          JsonNode options = suggest.get("options");
-          if (options.size() > 0) {
-            String original = suggest.get("text").asText();
-            JsonNode swapNode = options.get(0).get("text");
-            if (original.equals(oldTerm))
-              newTerm = swapNode.asText();
-            else {
-              int wordPos = getWordPos(words, original);
-              if (wordPos > -1) {
-                words[wordPos] = swapNode.asText();
-              }
-            }
-          }
-
-        }
-      }
+      newTerm = processSuggestions(suggestions, oldTerm, newTerm, words);
       if (newTerm == null) {
         newTerm = String.join(" ", words);
       }
@@ -154,7 +130,29 @@ public class OSQuery {
         return null;
       else
         return newTerm;
+    } catch (JsonProcessingException e) {
+      throw new OpenSearchException("Could not parse OpenSearch response", e);
     }
+  }
+
+  private String processSuggestions(JsonNode suggestions, String oldTerm, String newTerm, String[] words) {
+    for (JsonNode suggest : suggestions) {
+      JsonNode options = suggest.get("options");
+
+      if (options != null && !options.isEmpty()) {
+        String original = suggest.get("text").asText();
+        JsonNode swapNode = options.get(0).get("text");
+        if (original.equals(oldTerm))
+          newTerm = swapNode.asText();
+        else {
+          int wordPos = getWordPos(words, original);
+          if (wordPos > -1) {
+            words[wordPos] = swapNode.asText();
+          }
+        }
+      }
+    }
+    return newTerm;
   }
 
   private int getWordPos(String[] words, String wordToFind) {
@@ -166,23 +164,17 @@ public class OSQuery {
   }
 
 
-  private JsonNode runQuery(SearchSourceBuilder bld, QueryRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+  private JsonNode runQuery(SearchSourceBuilder bld) throws OpenSearchException {
     String elastic = bld.toString();
-    HttpResponse<String> response = getResponse(false, elastic);
+    HttpResponse<String> response = getResponse(elastic);
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      JsonNode root = om.readTree(response.body());
-      return root;
-			/*
-			SearchResponse searchResults= new SearchResponse();
-			standardResults(request,root,om,searchResults);
-			addTiming("Query run and response received. Ready to produce search results");
-			return searchResults;
-
-			 */
+      return om.readTree(response.body());
+    } catch (JsonProcessingException e) {
+      throw new OpenSearchException("Query execution failed", e);
     }
   }
 
-  private HttpResponse<String> getResponse(boolean template, String queryJson) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
+  private HttpResponse<String> getResponse(String queryJson) throws OpenSearchException {
 
     String url = System.getenv("OPENSEARCH_URL");
     if (url == null)
@@ -191,19 +183,29 @@ public class OSQuery {
     String index = System.getenv("OPENSEARCH_INDEX");
     if (System.getenv("OPENSEARCH_AUTH") == null)
       throw new OpenSearchException("Environmental variable OPENSEARCH_AUTH token is not set");
-    HttpRequest httpRequest = HttpRequest.newBuilder()
-      .uri(new URI(url + index + "/_search" + (template ? "/template" : "")))
-      .header("Authorization", "Basic " + System.getenv("OPENSEARCH_AUTH"))
-      .header("Content-Type", "application/json")
-      .POST(HttpRequest.BodyPublishers.ofString(queryJson))
-      .build();
-    addTiming("Query sent...");
+
+    HttpRequest httpRequest;
+    try {
+      httpRequest = HttpRequest.newBuilder()
+        .uri(new URI(url + index + "/_search"))
+        .header("Authorization", "Basic " + System.getenv("OPENSEARCH_AUTH"))
+        .header("Content-Type", "application/json")
+        .POST(HttpRequest.BodyPublishers.ofString(queryJson))
+        .build();
+    } catch (URISyntaxException e) {
+      throw new OpenSearchException("Invalid OpenSearch URI", e);
+    }
 
     HttpClient client = HttpClient.newHttpClient();
-    HttpResponse<String> response = client
-      .sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
-      .thenApply(res -> res)
-      .get();
+    HttpResponse<String> response;
+    try {
+      response = client
+        .sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
+        .thenApply(res -> res)
+        .get();
+    } catch (Exception e) {
+      throw new OpenSearchException("OpenSearch call failed", e);
+    }
 
     if (299 < response.statusCode()) {
       LOG.debug("Open search request failed with code: {}", response.statusCode());
@@ -214,18 +216,19 @@ public class OSQuery {
 
   }
 
-  private SearchResponse getStandardResults(QueryRequest request) throws JsonProcessingException, QueryException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, DataFormatException {
+  private SearchResponse getStandardResults(QueryRequest request) throws OpenSearchException, QueryException {
+    SearchResponse searchResults = new SearchResponse();
+
     try {
       JsonNode root = getIMOSResults(request);
+
       if (root == null)
         return null;
+
       try (CachedObjectMapper resultMapper = new CachedObjectMapper()) {
-        SearchResponse searchResults = new SearchResponse();
-        int resultNumber = 0;
         searchResults.setHighestUsage(0);
         searchResults.setCount(0);
         for (JsonNode hit : root.get("hits").get("hits")) {
-          resultNumber++;
           SearchResultSummary source = resultMapper.treeToValue(hit.get("_source"), SearchResultSummary.class);
           searchResults.addEntity(source);
           if (source.getUsageTotal() != null && source.getUsageTotal() > searchResults.getHighestUsage())
@@ -246,43 +249,22 @@ public class OSQuery {
         searchResults.setTerm(request.getTextSearch());
         return searchResults;
       }
-    } catch (Exception e) {
-      return new SearchResponse();
+    } catch (JsonProcessingException e) {
+      throw new OpenSearchException("Could not parse OpenSearch response", e);
     }
   }
 
-  private JsonNode getNodeResults(QueryRequest request) throws JsonProcessingException, QueryException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
+  private JsonNode getNodeResults(QueryRequest request) {
     try {
       JsonNode root = getIMOSResults(request);
       if (root == null)
         return new ObjectMapper().createObjectNode();
       try (CachedObjectMapper om = new CachedObjectMapper()) {
-        if (root.get("hits").get("hits").size() > 0) {
+        if (!root.get("hits").get("hits").isEmpty()) {
           ObjectNode searchResults = om.createObjectNode();
           ArrayNode resultNodes = om.createArrayNode();
           searchResults.set("entities", resultNodes);
-          for (JsonNode hit : root.get("hits").get("hits")) {
-            ObjectNode resultNode = om.createObjectNode();
-            resultNodes.add(resultNode);
-            ObjectNode osResult = om.treeToValue(hit.get("_source"), ObjectNode.class);
-            resultNode.set("@id", osResult.get("iri"));
-            resultNode.set(RDFS.LABEL, osResult.get("name"));
-            if (request.getQuery().getReturn() != null) {
-              for (Return select : request.getQuery().getReturn()) {
-                if (select.getProperty() != null) {
-                  for (ReturnProperty prop : select.getProperty()) {
-                    if (prop.getIri() != null) {
-                      String field = prop.getIri();
-                      String osField = field.substring(field.lastIndexOf("#") + 1);
-                      if (osResult.get(osField) != null) {
-                        resultNode.set(field, osResult.get(osField));
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+          processNodeResults(request, root, om, resultNodes);
           request.addTiming("Results List built");
           return searchResults;
         }
@@ -294,13 +276,39 @@ public class OSQuery {
     }
   }
 
-
-  public void addTiming(String position) {
-    long now = new Date().getTime();
-    Map<Long, String> timingMap = new HashMap<>();
-    timingMap.put(now, position);
-    timings.add(timingMap);
+  private static void processNodeResults(QueryRequest request, JsonNode root, CachedObjectMapper om, ArrayNode resultNodes) throws JsonProcessingException {
+    for (JsonNode hit : root.get("hits").get("hits")) {
+      ObjectNode resultNode = om.createObjectNode();
+      resultNodes.add(resultNode);
+      ObjectNode osResult = om.treeToValue(hit.get("_source"), ObjectNode.class);
+      resultNode.set("@id", osResult.get("iri"));
+      resultNode.set(RDFS.LABEL, osResult.get("name"));
+      processNodeResultReturn(request, osResult, resultNode);
+    }
   }
 
+  private static void processNodeResultReturn(QueryRequest request, ObjectNode osResult, ObjectNode resultNode) {
+    if (null == request.getQuery().getReturn())
+      return;
 
+    for (Return select : request.getQuery().getReturn()) {
+      processNodeResultReturnProperty(osResult, resultNode, select);
+    }
+  }
+
+  private static void processNodeResultReturnProperty(ObjectNode osResult, ObjectNode resultNode, Return select) {
+    if (select.getProperty() == null)
+      return;
+
+    for (ReturnProperty prop : select.getProperty()) {
+      if (prop.getIri() != null) {
+        String field = prop.getIri();
+        String osField = field.substring(field.lastIndexOf("#") + 1);
+        if (osResult.get(osField) != null) {
+          resultNode.set(field, osResult.get(osField));
+        }
+      }
+    }
+
+  }
 }

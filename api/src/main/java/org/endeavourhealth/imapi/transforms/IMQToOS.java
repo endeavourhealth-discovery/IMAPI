@@ -37,6 +37,10 @@ public class IMQToOS {
 	public SearchSourceBuilder buildQuery(QueryRequest imRequest,Query oneQuery,QUERY_TYPE type,Fuzziness fuzziness) throws QueryException {
 		request= imRequest;
 		query= oneQuery;
+		request.setTextSearch(request.getTextSearch()
+			.replace("\"","")
+			.replace("{","")
+			.replace("}",""));
 		switch (type){
 			case AUTOCOMPLETE -> {
 				return autocompleteQuery(request, query);
@@ -130,7 +134,7 @@ public class IMQToOS {
 		if (query == null)
 			return true;
 		if (query.isActiveOnly()) {
-			addFilter("status", Set.of(IM.ACTIVE));
+			addFilterWithId("status", Set.of(IM.ACTIVE));
 		}
 		if (query.getMatch() == null)
 			return true;
@@ -238,14 +242,22 @@ public class IMQToOS {
 		return true;
 	}
 
-	private void addFilter(String property, Set<String> values) {
+	private void addFilterWithId(String property, Set<String> values) {
 		TermsQueryBuilder tqr = new TermsQueryBuilder(property + ".@id", values);
 		boolBuilder.filter(tqr);
 	}
 
+
+	private void addFilter(String property, Set<String> values) {
+		TermsQueryBuilder tqr = new TermsQueryBuilder(property, values);
+		boolBuilder.filter(tqr);
+	}
+
+
+
 	private boolean addMatch(Match match) throws QueryException {
 		if (match.getTypeOf() != null) {
-			addFilter("entityType", Set.of(getIriFromAlias(match.getTypeOf())));
+			addFilterWithId("entityType", Set.of(getIriFromAlias(match.getTypeOf())));
 		}
 
 		if (match.getInstanceOf() != null) {
@@ -285,7 +297,7 @@ public class IMQToOS {
 					return false;
 			}
 			else if (IM.BINDING.equals(w)) {
-				if (!addBindings(where))
+				if (!addBinding(where))
 					return false;
 			}
 			else if (IM.IS_A.equals(w)) {
@@ -302,7 +314,7 @@ public class IMQToOS {
 	private boolean addIsFilter(String property, Where where) {
 		if (where.getIs() != null) {
 			Set<String> isList = where.getIs().stream().map(IriLD::getIri).collect(Collectors.toSet());
-			addFilter(property, isList);
+			addFilterWithId(property, isList);
 			return true;
 		}
 		return false;
@@ -320,44 +332,29 @@ public class IMQToOS {
 	}
 
 
-	private boolean addBindings(Where w) throws QueryException {
-		if (w.getMatch() == null)
-			throw new QueryException("Mossing match clause in binding filter where clause that should contain a path and a node");
-		Match match = w.getMatch();
-		if (match.getWhere() == null && match.getMatch() == null)
-			throw new QueryException("Binding filter must have at least on path node pair");
-		BoolQueryBuilder boolFilter = new BoolQueryBuilder();
-		boolFilter.minimumShouldMatch(1);
-		if (match.getWhere() != null) {
-			boolFilter.must(addBinding(match));
-		}
-		else {
-			for (Match subMatch : match.getMatch()) {
-				boolFilter.should(addBinding(subMatch));
-			}
-		}
-		boolBuilder.filter(boolFilter);
-		return true;
-	}
 
-	private BoolQueryBuilder addBinding(Match match) throws QueryException {
-		BoolQueryBuilder bindingQuery = new BoolQueryBuilder();
 
-		List<String> bindingPath = null;
-		List<String> bindingNode = null;
-		for (Where where : match.getWhere()) {
-			if (where.getIri().equals(SHACL.PATH)) {
-				bindingPath = where.getIs().stream().map(IriLD::getIri).collect(Collectors.toList());
+	private boolean addBinding(Where where) throws QueryException {
+		try {
+			String path=null;
+			String node= null;
+			Match match = where.getMatch();
+			for (Where binding : match.getWhere()) {
+				if (binding.getIri().equals(SHACL.PATH)) {
+					path=getIriFromAlias(binding.getIs().get(0));
+				}
+				else if (binding.getIri().equals(SHACL.NODE)) {
+					node=getIriFromAlias(binding.getIs().get(0));
+				}
 			}
-			else if (where.getIri().equals(SHACL.NODE)) {
-				bindingNode = where.getIs().stream().map(IriLD::getIri).collect(Collectors.toList());
-			}
+			if (path==null||node==null)
+				throw new QueryException("Invalid binding in where clause. Should have match where path and match where node");
+			addFilter("binding",Set.of(path+" "+node));
+			return true;
 		}
-		if (bindingPath == null || bindingNode == null)
-			throw new QueryException("Bindings must have both a path and a node");
-		bindingQuery.must(new TermsQueryBuilder("binding.node.@id", bindingNode));
-		bindingQuery.must(new TermsQueryBuilder("binding.path.@id", bindingPath));
-		return bindingQuery;
+		catch (Exception e){
+			throw new QueryException("Invalid binding in where clause. Should have match where path and match where node");
+		}
 	}
 
 	private void setFromAliases(List<Node> types) throws QueryException {
@@ -367,7 +364,7 @@ public class IMQToOS {
 		}
 		if (!instanceFilters.isEmpty()){
 			for (Map.Entry<String,Set<String>> entry:instanceFilters.entrySet()){
-					addFilter(entry.getKey(),entry.getValue());
+					addFilterWithId(entry.getKey(),entry.getValue());
 				}
 		}
 	}

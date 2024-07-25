@@ -255,7 +255,7 @@ public class OSQuery {
     }
 
     private JsonNode getNodeResults(QueryRequest request) {
-        try {
+
             JsonNode root = getIMOSResults(request);
             if (root == null)
                 return new ObjectMapper().createObjectNode();

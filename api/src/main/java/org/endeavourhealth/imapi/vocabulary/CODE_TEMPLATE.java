@@ -3,10 +3,10 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class CODE_TEMPLATE {
-  public static final String DOMAIN = "http://endhealth.info/";
-  public static final String NAMESPACE = CODE_TEMPLATE.DOMAIN + "codeTemplate#";
-  public static final String PREFIX = "cTemp";
-  public static final String WRAPPER = CODE_TEMPLATE.NAMESPACE + "wrapper";
-  public static final String DATATYPE_MAP = CODE_TEMPLATE.NAMESPACE + "datatypeMap";
-  public static final String EXTENSION = CODE_TEMPLATE.NAMESPACE + "extension";
+    public static final String DOMAIN = "http://endhealth.info/";
+    public static final String NAMESPACE = CODE_TEMPLATE.DOMAIN + "codeTemplate#";
+    public static final String PREFIX = "cTemp";
+    public static final String WRAPPER = CODE_TEMPLATE.NAMESPACE + "wrapper";
+    public static final String DATATYPE_MAP = CODE_TEMPLATE.NAMESPACE + "datatypeMap";
+    public static final String EXTENSION = CODE_TEMPLATE.NAMESPACE + "extension";
 }

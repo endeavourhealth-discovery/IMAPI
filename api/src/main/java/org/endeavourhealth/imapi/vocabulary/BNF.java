@@ -3,6 +3,6 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class BNF {
-  public static final String DOMAIN = "http://bnf.info/";
-  public static final String NAMESPACE = BNF.DOMAIN + "bnf#";
+    public static final String DOMAIN = "http://bnf.info/";
+    public static final String NAMESPACE = BNF.DOMAIN + "bnf#";
 }

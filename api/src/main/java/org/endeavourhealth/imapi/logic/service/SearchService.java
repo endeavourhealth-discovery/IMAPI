@@ -11,11 +11,6 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
-import java.net.URISyntaxException;
-import java.util.concurrent.ExecutionException;
-import java.util.zip.DataFormatException;
-
-
 /**
  * Methods for searching open search / elastic repositories
  */
@@ -23,13 +18,14 @@ import java.util.zip.DataFormatException;
 public class SearchService {
 
 
-	/**
-	 * Queries any IM entity using the query model
-	 * @param queryRequest Query inside a request with parameters
-	 * @return a generic JSONDocument containing the results in a format defined by the select statement and including predicate map
-	 * @throws DataFormatException if query format is invalid
-	 */
-	public JsonNode queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
+    /**
+     * Queries any IM entity using the query model
+     *
+     * @param queryRequest Query inside a request with parameters
+     * @return a generic JSONDocument containing the results in a format defined by the select statement and including predicate map
+     * @throws QueryException if query format is invalid
+     */
+    public JsonNode queryIM(QueryRequest queryRequest) throws QueryException {
         ObjectNode result = new ObjectMapper().createObjectNode();
         QueryRepository repo = new QueryRepository();
         repo.unpackQueryRequest(queryRequest, result);
@@ -40,35 +36,31 @@ public class SearchService {
                 return osResult;
         }
 
-		return repo.queryIM(queryRequest, false);
-	}
+        return repo.queryIM(queryRequest, false);
+    }
 
-	public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
-		if (null == queryRequest.getAskIri()) throw new IllegalArgumentException("Query request missing askIri");
-		QueryRepository repo = new QueryRepository();
-		repo.unpackQueryRequest(queryRequest);
-		return repo.askQueryIM(queryRequest);
-	}
+	public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
+        if (null == queryRequest.getAskIri()) throw new IllegalArgumentException("Query request missing askIri");
+        QueryRepository repo = new QueryRepository();
+        repo.unpackQueryRequest(queryRequest);
+        return repo.askQueryIM(queryRequest);
+    }
 
     /**
      * Queries any IM entity using the query model
+     *
      * @param queryRequest Query inside a request with parameters
      * @return a list of SearchResultSummary
-     * @throws DataFormatException if query format is invalid
+     * @throws QueryException if query format is invalid
      */
-    public SearchResponse queryIMSearch(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
+    public SearchResponse queryIMSearch(QueryRequest queryRequest) throws JsonProcessingException, OpenSearchException, QueryException {
         ObjectMapper om = new ObjectMapper();
 
         QueryRepository repo = new QueryRepository();
         repo.unpackQueryRequest(queryRequest, om.createObjectNode());
 
         if (null != queryRequest.getTextSearch()) {
-					SearchResponse results= new OSQuery().openSearchQuery(queryRequest);
-				//	if (results==null) {
-						//throw new QueryException("IM Query not compatible with open search index.");
-					//}
-					return results;
-					//return new OSQuery().openSearchQuery(queryRequest);
+            return new OSQuery().openSearchQuery(queryRequest);
         } else {
             QueryRequest highestUsageRequest = getHighestUseRequestFromQuery(queryRequest, om, repo);
 
@@ -78,10 +70,9 @@ public class SearchService {
             return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, highestUsageResults);
         }
 
-
     }
 
-    private static QueryRequest getHighestUseRequestFromQuery(QueryRequest queryRequest, ObjectMapper om, QueryRepository repo) throws JsonProcessingException, DataFormatException, QueryException {
+    private static QueryRequest getHighestUseRequestFromQuery(QueryRequest queryRequest, ObjectMapper om, QueryRepository repo) throws JsonProcessingException, QueryException {
         QueryRequest highestUsageRequest = om.readValue(om.writeValueAsString(queryRequest), QueryRequest.class);
         repo.unpackQueryRequest(highestUsageRequest, om.createObjectNode());
         if (null != highestUsageRequest.getQuery().getReturn()) {
@@ -96,27 +87,27 @@ public class SearchService {
         return highestUsageRequest;
     }
 
-	public void validateQueryRequest(QueryRequest queryRequest) throws DataFormatException {
+	public void validateQueryRequest(QueryRequest queryRequest) throws QueryException {
 			if (queryRequest.getQuery()==null&& queryRequest.getPathQuery()==null)
-				throw new DataFormatException("Query request must have a Query or an Query object with an iri or a pathQuery");
+				throw new QueryException("Query request must have a Query or an Query object with an iri or a pathQuery");
 	}
 
-	/**
-	 * Performs a search on a submitted term looking for name, synonyms, or code, with filters applied
-	 * @param request holding the search term (multi or single word) + type/status/scheme filters
-	 * @return A set of Summaries of entity documents from the store
-	 *
-	 */
-	public SearchResponse getEntitiesByTerm(QueryRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException, QueryException, DataFormatException {
-		return new OSQuery().openSearchQuery(request);
-	}
+    /**
+     * Performs a search on a submitted term looking for name, synonyms, or code, with filters applied
+     *
+     * @param request holding the search term (multi or single word) + type/status/scheme filters
+     * @return A set of Summaries of entity documents from the store
+     */
+    public SearchResponse getEntitiesByTerm(QueryRequest request) throws OpenSearchException, QueryException {
+        return new OSQuery().openSearchQuery(request);
+    }
 
     /**
      * Queries and updates IM entity using the query model
      * @param queryRequest Query inside a request with parameters
-     * @throws DataFormatException if query format is invalid
+     * @throws QueryException if query format is invalid
      */
-    public void updateIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, QueryException {
+    public void updateIM(QueryRequest queryRequest) throws JsonProcessingException, QueryException {
         new QueryRepository().updateIM(queryRequest);
     }
 

@@ -13,6 +13,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
@@ -25,7 +26,6 @@ import org.endeavourhealth.imapi.vocabulary.SHACL;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 
@@ -42,13 +42,12 @@ public class QueryRepository {
      *
      * @param queryRequest QueryRequest object
      * @return A document consisting of a list of TTEntity and predicate look ups
-     * @throws DataFormatException     if query syntax is invalid
-     * @throws JsonProcessingException if the json is invalid
+     * @throws QueryException     if query syntax is invalid
      */
-    public JsonNode queryIM(QueryRequest queryRequest, boolean highestUsage) throws QueryException, JsonProcessingException, DataFormatException {
+    public JsonNode queryIM(QueryRequest queryRequest, boolean highestUsage) throws QueryException {
         return queryIM(queryRequest,highestUsage,queryRequest.getQuery());
     }
-    public JsonNode queryIM(QueryRequest queryRequest, boolean highestUsage,Query query) throws QueryException, JsonProcessingException, DataFormatException {
+    public JsonNode queryIM(QueryRequest queryRequest, boolean highestUsage,Query query) throws QueryException {
         ObjectNode result = mapper.createObjectNode();
         Integer page = queryRequest.getPage() != null ? queryRequest.getPage().getPageNumber() : 1;
         Integer count = queryRequest.getPage() != null ? queryRequest.getPage().getPageSize() : 0;
@@ -62,7 +61,7 @@ public class QueryRepository {
         }
     }
 
-    public JsonNode prepareQueryResponse(ObjectNode queryResults, QueryRequest queryRequest, Integer page, Integer count) throws QueryException, DataFormatException, JsonProcessingException {
+    public JsonNode prepareQueryResponse(ObjectNode queryResults, QueryRequest queryRequest, Integer page, Integer count) throws QueryException {
         ObjectNode queryIMResponse = mapper.createObjectNode();
         if (queryRequest.getPage() != null) {
             queryIMResponse.put("page", page);
@@ -82,7 +81,7 @@ public class QueryRepository {
         return queryIMResponse;
     }
 
-    public Integer queryIMCount(QueryRequest queryRequest) throws QueryException, JsonProcessingException, DataFormatException {
+    public Integer queryIMCount(QueryRequest queryRequest) throws QueryException {
         queryRequest.setPage(null);
         unpackQueryRequest(queryRequest);
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
@@ -95,7 +94,7 @@ public class QueryRepository {
 
     }
 
-    public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException,JsonProcessingException,DataFormatException {
+    public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             checkReferenceDate(queryRequest);
             new QueryValidator().validateQuery(queryRequest.getQuery());
@@ -109,15 +108,15 @@ public class QueryRepository {
      * Generic query of IM with the select statements determining the response
      *
      * @param queryRequest QueryRequest object
-     * @throws DataFormatException     if query syntax is invalid
+     * @throws QueryException     if query syntax is invalid
      * @throws JsonProcessingException if the json is invalid
      */
-    public void updateIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, QueryException {
+    public void updateIM(QueryRequest queryRequest) throws JsonProcessingException, QueryException {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             if (queryRequest.getUpdate() == null)
-                throw new DataFormatException("Missing update in query request");
+                throw new QueryException("Missing update in query request");
             if (queryRequest.getUpdate().getIri() == null)
-                throw new DataFormatException("Update queries must reference a predefined definition. Dynamic update based queries not supported");
+                throw new QueryException("Update queries must reference a predefined definition. Dynamic update based queries not supported");
             TTEntity updateEntity = getEntity(queryRequest.getUpdate().getIri());
             queryRequest.setUpdate(updateEntity.get(TTIriRef.iri(IM.UPDATE_PROCEDURE)).asLiteral().objectValue(Update.class));
 
@@ -135,18 +134,18 @@ public class QueryRepository {
 
     }
 
-    public void unpackQueryRequest(QueryRequest queryRequest, ObjectNode result) throws DataFormatException, JsonProcessingException, QueryException {
+    public void unpackQueryRequest(QueryRequest queryRequest, ObjectNode result) throws QueryException {
         Query unpackedQuery = unpackQuery(queryRequest.getQuery(), queryRequest);
         queryRequest.setQuery(unpackedQuery);
         if (null != queryRequest.getContext() && null != result)
             result.set("@context", mapper.convertValue(queryRequest.getContext(), JsonNode.class));
     }
 
-    public void unpackQueryRequest(QueryRequest queryRequest) throws QueryException, DataFormatException, JsonProcessingException {
+    public void unpackQueryRequest(QueryRequest queryRequest) throws QueryException {
         unpackQueryRequest(queryRequest, null);
     }
 
-    private Query unpackQuery(Query query, QueryRequest queryRequest) throws JsonProcessingException, DataFormatException, QueryException {
+    private Query unpackQuery(Query query, QueryRequest queryRequest) throws QueryException {
         if (query.getIri() != null && query.getReturn() == null && query.getMatch() == null) {
             TTEntity entity = getEntity(query.getIri());
             if (entity.get(TTIriRef.iri(SHACL.PARAMETER)) != null) {
@@ -165,22 +164,29 @@ public class QueryRepository {
                                 String error = "Query request arguments require parameter name :'" + parameterName + "' ";
                                 if (parameterType.equals(TTIriRef.iri(IM.NAMESPACE + "IriRef"))) {
                                     if (arg.getValueIri() == null)
-                                        throw new DataFormatException(error + " to have a valueIri :{@id : htttp....}");
+                                        throw new QueryException(error + " to have a valueIri :{@id : htttp....}");
                                 } else if (arg.getValueData() == null) {
-                                    throw new DataFormatException(error + " to have valueData where with string value");
+                                    throw new QueryException(error + " to have valueData where with string value");
                                 }
                             }
                         if (!found) {
                             String error = "Query request expects parameter name '" + parameterName + "' which is not present in the query request";
-                            throw new DataFormatException(error);
+                            throw new QueryException(error);
                         }
                     }
 
                 }
             }
-            if (null == entity.get(TTIriRef.iri(IM.DEFINITION)))
+            TTArray definition = entity.get(TTIriRef.iri(IM.DEFINITION));
+
+            if (null == definition)
                 throw new QueryException("Query: '" + query.getIri() + "' was not found");
-            return entity.get(TTIriRef.iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+
+            try {
+                return definition.asLiteral().objectValue(Query.class);
+            } catch (JsonProcessingException e) {
+                throw new QueryException("Could not parse query definition", e);
+            }
         }
         return query;
     }

@@ -18,9 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
 @RestController
@@ -39,7 +37,7 @@ public class QueryController {
       summary = "Query IM",
       description = "Runs a generic query on IM"
     )
-    public JsonNode queryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, IOException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
+    public JsonNode queryIM(@RequestBody QueryRequest queryRequest) throws IOException, QueryException {
         try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIM.POST")) {
             LOG.debug("queryIM");
             return searchService.queryIM(queryRequest);
@@ -48,7 +46,7 @@ public class QueryController {
 
     @PostMapping("/public/askQueryIM")
     @Operation(summary = "Check if an iri is within a query's results")
-    public Boolean askQueryIM(@RequestBody QueryRequest queryRequest) throws QueryException, DataFormatException, IOException {
+    public Boolean askQueryIM(@RequestBody QueryRequest queryRequest) throws QueryException, IOException {
         try (MetricsTimer t = MetricsHelper.recordTime("API.Query.AskQueryIM.POST")) {
             LOG.debug("askQueryIM");
             return searchService.askQueryIM(queryRequest);
@@ -60,7 +58,7 @@ public class QueryController {
         summary = "Query IM returning conceptSummaries",
         description = "Runs a generic query on IM and returns results as ConceptSummary items."
     )
-    public SearchResponse queryIMSearch(@RequestBody QueryRequest queryRequest) throws DataFormatException, IOException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
+    public SearchResponse queryIMSearch(@RequestBody QueryRequest queryRequest) throws IOException, OpenSearchException, QueryException {
         try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIMSearch.POST")) {
             LOG.debug("queryIMSearch");
             return searchService.queryIMSearch(queryRequest);
@@ -90,7 +88,7 @@ public class QueryController {
 
     @PostMapping("/public/queryDisplayFromQuery")
     @Operation(summary = "get query view from imq as viewable object")
-    public Query describeQueryContent(@RequestBody Query query) throws QueryException, DataFormatException, IOException {
+    public Query describeQueryContent(@RequestBody Query query) throws IOException {
         try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
             LOG.debug("getQueryDisplay");
             return queryService.describeQuery(query);

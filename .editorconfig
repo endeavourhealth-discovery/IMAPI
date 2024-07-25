@@ -10,7 +10,7 @@ max_line_length = 120
 tab_width = 2
 
 # Ignore paths
-[/api/main/java/org/endeavourhealth/imapi/vocabulary/**]
+[/api/src/main/java/org/endeavourhealth/imapi/vocabulary/**/*]
 charset = unset
 end_of_line = unset
 insert_final_newline = unset

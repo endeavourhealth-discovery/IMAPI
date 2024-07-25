@@ -67,6 +67,18 @@ public class QueryController {
         }
     }
 
+    @PostMapping( "/public/pathQuery")
+    @Operation(
+        summary = "Path Query ",
+        description = "Query IM for a path between source and target"
+    )
+    public PathDocument pathQuery(@RequestBody PathQuery pathQuery) throws DataFormatException, IOException {
+        try (MetricsTimer t = MetricsHelper.recordTime("API.Query.PathQuery.POST")) {
+            LOG.debug("pathQuery");
+            return searchService.pathQuery(pathQuery);
+        }
+    }
+
     @PostMapping(value = "/public/labelQuery")
     @Operation(
         summary = "Add labels to query",

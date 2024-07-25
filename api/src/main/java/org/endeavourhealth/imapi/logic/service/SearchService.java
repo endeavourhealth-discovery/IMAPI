@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.endeavourhealth.imapi.dataaccess.PathRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Page;
@@ -110,6 +111,16 @@ public class SearchService {
 	public SearchResponse getEntitiesByTerm(QueryRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException, QueryException, DataFormatException {
 		return new OSQuery().openSearchQuery(request);
 	}
+
+    /**
+     * Queries any IM entity using the query model
+     * @param pathQuery Query inside a request with parameters
+     * @return a generic JSONDocument containing the results in a format defined by the selecr staement and including predicate map
+     * @throws DataFormatException if query format is invalid
+     */
+    public PathDocument pathQuery(PathQuery pathQuery) throws DataFormatException {
+        return new PathRepository().pathQuery(pathQuery);
+    }
 
     /**
      * Queries and updates IM entity using the query model

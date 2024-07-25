@@ -59,7 +59,6 @@ public class OpenSearchSender {
        // om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         //om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
         checkEnvs();
-        setScripts();
         checkIndexExists();
 
 
@@ -177,10 +176,11 @@ public class OpenSearchSender {
     }
 
     private void getEntityBatch(Map<String, EntityDocument> batch) {
-        String inList = batch.keySet().stream().map(iri -> ("<" + iri + ">")).collect(Collectors.joining(","));
+        String inList = batch.keySet().stream().map(iri -> ("<" + iri + ">")).collect(Collectors.joining(" "));
         getCore(batch, inList);
         getTermCodes(batch, inList);
         getIsas(batch, inList);
+        getBindings(batch,inList);
         getSubsumptions(batch, inList);
         getSetMembership(batch, inList);
     }
@@ -254,9 +254,7 @@ public class OpenSearchSender {
                     if (rs.getValue("usageTotal") != null) {
                         blob.setUsageTotal(Integer.parseInt(rs.getValue("usageTotal").stringValue()));
                     }
-                    if (rs.getValue("path") != null) {
-                        blob.addBinding(iri(rs.getValue("path").stringValue()),iri(rs.getValue("node").stringValue()));
-                    }
+
                     String lengthKey = blob.getPreferredName() != null ? blob.getPreferredName() : name;
                     lengthKey = getLengthKey(lengthKey);
 
@@ -298,7 +296,7 @@ public class OpenSearchSender {
             .add("where {")
             .add("  graph ?graph {")
             .add("    ?iri rdfs:label ?name.")
-            .add("    filter (?iri in (" + inList + ") )")
+            .add("    VALUES  ?iri  {" + inList + "}")
             .add("  }")
             .add("  Optional { ?graph rdfs:label ?graphName }")
             .add("  Optional { ?iri rdf:type ?type. Optional {?type rdfs:label ?typeName} }")
@@ -311,9 +309,6 @@ public class OpenSearchSender {
             .add("  Optional {?iri im:scheme ?scheme.")
             .add("  Optional {?scheme rdfs:label ?schemeName } }")
             .add("  Optional {?iri im:code ?code.}")
-            .add("   Optional {?iri im:binding ?binding.")
-            .add("   ?binding sh:path ?path.")
-            .add("   ?binding sh:node ?node. }")
             .add("  Optional {?iri im:usageTotal ?usageTotal.}")
             .add("  Optional {?iri im:alternativeCode ?alternativeCode.}")
             .add("}").toString();
@@ -371,7 +366,7 @@ public class OpenSearchSender {
           .add("select ?iri ?termCode ?synonym ?termCodeStatus")
           .add("where {")
           .add("?iri im:hasTermCode ?tc.")
-          .add("      filter (?iri in (" + inList + ") )")
+          .add("      VALUES  ?iri  {" + inList + "}")
           .add("       Optional {?tc im:code ?termCode}")
           .add("       Optional  {?tc rdfs:label ?synonym}")
           .add("       Optional  {?tc im:status ?termCodeStatus}")
@@ -420,7 +415,7 @@ public class OpenSearchSender {
           .add("select ?iri ?superType")
           .add("where {")
           .add(" ?iri im:isA ?superType.")
-          .add("      filter (?iri in (" + inList + ") )")
+          .add("      VALUES  ?iri  {" + inList + "}")
           .add(" ?superType im:status im:Active.")
           .add("}").toString();
     }
@@ -433,7 +428,7 @@ public class OpenSearchSender {
           .add("select distinct ?iri (count(?subType) as ?subsumptions)")
           .add("where {")
           .add(" ?iri ^im:isA ?subType.")
-          .add("      filter (?iri in (" + inList + ") )")
+          .add("      VALUES  ?iri  {" + inList + "}")
           .add(" ?subType im:status im:Active.")
           .add("}")
           .add("group by ?iri").toString();
@@ -456,6 +451,24 @@ public class OpenSearchSender {
 
     }
 
+
+    private void getBindings(Map<String, EntityDocument> batch, String inList) {
+        String sql = getBindingsSql(inList);
+        try (RepositoryConnection conn = repo.getConnection()) {
+            TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
+            try (TupleQueryResult qr = tupleQuery.evaluate()) {
+                while (qr.hasNext()) {
+                    BindingSet rs = qr.next();
+                    String iri = rs.getValue("iri").stringValue();
+                    EntityDocument blob = batch.get(iri);
+                    blob.addBinding(rs.getValue("path").stringValue(),rs.getValue("node").stringValue());
+                }
+
+            }
+        }
+
+    }
+
     private String getSetMembershipSql(String inList) {
         return new StringJoiner(System.lineSeparator())
           .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
@@ -464,7 +477,27 @@ public class OpenSearchSender {
           .add("select ?iri ?set")
           .add("where {")
           .add(" ?set im:hasMember ?iri.")
-          .add("      filter (?iri in (" + inList + ") )")
+          .add("      VALUES  ?iri  {" + inList + "}")
+          .add("}").toString();
+    }
+    private String getBindingsSql(String inList) {
+        return new StringJoiner(System.lineSeparator())
+          .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+          .add("PREFIX im: <http://endhealth.info/im#>")
+          .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+          .add("PREFIX sh: <http://www.w3.org/ns/shacl#>")
+          .add("select ?iri ?path ?node")
+          .add("where {{")
+          .add(" ?iri im:binding ?binding.")
+          .add(" ?binding sh:path ?path.")
+          .add(" ?binding sh:node ?node.}")
+          .add("union {")
+          .add("?iri ^im:hasMember ?vset.")
+          .add("?vset im:binding ?binding.")
+          .add(" ?binding sh:path ?path.")
+          .add(" ?binding sh:node ?node.")
+          .add("}")
+          .add("VALUES  ?iri  {" + inList + "}")
           .add("}").toString();
     }
 
@@ -743,22 +776,7 @@ public class OpenSearchSender {
                           "type" : "integer"
                         },
                         "binding": {
-                          "properties": {
-                            "node": {
-                              "properties": {
-                                "@id" : {
-                                  "type" : "keyword"
-                                }
-                              }
-                            },
-                            "path": {
-                              "properties": {
-                                "@id" : {
-                                  "type" : "keyword"
-                                }
-                              }
-                            }
-                          }
+                          "type": "keyword"
                         },
                         "termCode" : {
                           "properties" : {
@@ -797,95 +815,5 @@ public class OpenSearchSender {
         }
     }
 
-    private void setScripts() {
-        postScript("autocomplete_template", getAutocompleteScript());
-        postScript("ngram_template", getNgramScript());
-    }
 
-    private String getNgramScript() {
-        return "{\"script\": {\"lang\": \"mustache\",\"source\" :\""+
-          "{\\\"from\\\":\\\"{{from}}\\\"," +
-          "   \\\"size\\\":\\\"{{size}}\\\"," +
-          "   \\\"query\\\":{" +
-          "     \\\"script_score\\\":{" +
-          "       \\\"query\\\":{" +
-          "       \\\"bool\\\":{" +
-          "       \\\"filter\\\":{{#toJson}}filters{{/toJson}}," +
-          "         \\\"must\\\":["+
-          "            {\\\"match\\\":{"+
-          "              \\\"termCode.term\\\":{"+
-          "                \\\"query\\\":\\\"{{userText}}\\\","+
-          "                \\\"operator\\\":\\\"AND\\\","+
-          "                \\\"analyzer\\\":\\\"standard\\\",\\\"fuzziness\\\":\\\"2\\\"}}}]"+
-          "         }}," +
-          "       \\\"script\\\":{\\\"source\\\":\\\""+
-        getScoreScript()+
-          "\\\"}}}," +
-          "  \\\"_source\\\":{" +
-          "  \\\"includes\\\":{{#toJson}}sources{{/toJson}}," +
-          "  \\\"excludes\\\":[]" +
-          "}}\"" +
-          "}\n" +
-          "}\n";
-
-
-    }
-
-    public String getAutocompleteScript() {
-        return "{\"script\": {\"lang\": \"mustache\",\"source\" :\""+
-          "{\\\"from\\\":\\\"{{from}}\\\"," +
-          "   \\\"size\\\":\\\"{{size}}\\\"," +
-          "   \\\"query\\\":{" +
-          "     \\\"script_score\\\":{" +
-          "       \\\"query\\\":{" +
-          "       \\\"bool\\\":{" +
-          "       \\\"filter\\\":{{#toJson}}filters{{/toJson}}," +
-          "         \\\"should\\\":[" +
-          "            {\\\"term\\\":{\\\"code\\\":{\\\"value\\\":\\\"{{userText}}\\\"}}}," +
-          "            {\\\"term\\\":{\\\"alternativeCode\\\":{\\\"value\\\":\\\"{{userText}}\\\"}}}," +
-          "            {\\\"term\\\":{\\\"iri\\\":{\\\"value\\\":\\\"{{userText}}\\\"}}}," +
-          "            {\\\"term\\\":{\\\"termCode.code\\\":{\\\"value\\\":\\\"{{userText}}\\\"}}}," +
-          "            {\\\"prefix\\\":{\\\"key\\\":{\\\"value\\\":\\\"{{userText}}\\\"}}}," +
-          "            {\\\"prefix\\\":{\\\"matchTerm\\\":{\\\"value\\\":\\\"{{userPrefixText}}\\\",\\\"boost\\\":1000000}}}," +
-          "            {\\\"match_phrase_prefix\\\":{\\\"termCode.term\\\":{\\\"query\\\":\\\"{{userText}}\\\",\\\"analyzer\\\":\\\"standard\\\",\\\"slop\\\":1}}}" +
-          "         ]," +
-          "         \\\"minimum_should_match\\\":\\\"1\\\"" +
-          "         }" +
-          "       }," +
-          "       \\\"script\\\":{\\\"source\\\":\\\""+ getScoreScript()+
-
-          "\\\"}}}," +
-          "  \\\"_source\\\":{" +
-          "  \\\"includes\\\":{{#toJson}}sources{{/toJson}}," +
-          "  \\\"excludes\\\":[]" +
-          "}}\"" +
-          "}\n" +
-          "}\n";
-    }
-
-    private String getScoreScript(){
-        return "def usage=0;"+
-          "if (doc['usageTotal'].size()>0) {"+
-          "  def value = doc['usageTotal'].value;" +
-          "  if (value<10000) {usage = 0;}" +
-          "  else if (value <300000) {usage = 1;}" +
-          "  else if (value <2000000) {usage = 2;}" +
-          "  else if (value <3000000) {usage = 3;}" +
-          "  else if (value <4000000) {usage = 4;}" +
-          "  else {usage = 5;}" +
-          "  }"+
-          "if (_score>1000000) {_score=3;} else _score=0;_score+ usage;";
-    }
-
-
-    private void postScript(String name, String script) {
-
-        target = client.target(osUrl).path("_scripts/"+name);
-        Response response = target
-          .request()
-          .header("Authorization", "Basic " + osAuth)
-          .put(Entity.entity(script, MediaType.APPLICATION_JSON));
-        LOG.info("stored script  filing {}", response.getStatus());
-
-    }
 }

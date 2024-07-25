@@ -44,6 +44,8 @@ public class QueryDescriptor{
 
 	public Query describeQuery(String queryIri) throws JsonProcessingException {
 		TTEntity queryEntity = repo.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
+		if (queryEntity.get(iri(IM.DEFINITION))==null)
+			return null;
 		Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
 		query.setName(queryEntity.getName());
 		return describeQuery(query);

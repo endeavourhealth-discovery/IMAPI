@@ -28,24 +28,21 @@ public class EntityDocument {
 	Set<TTIriRef> isA= new HashSet<>();
 	Set<TTIriRef> memberOf= new HashSet<>();
 	Integer subsumptionCount;
-	Set<SearchBinding> binding;
+	Set<String> binding;
 
-	public Set<SearchBinding> getBinding() {
+	public Set<String> getBinding() {
 		return binding;
 	}
 
-	public EntityDocument setBinding(Set<SearchBinding> binding) {
+	public EntityDocument setBinding(Set<String> binding) {
 		this.binding = binding;
 		return this;
 	}
-		public EntityDocument addBinding(TTIriRef path,TTIriRef node){
+		public EntityDocument addBinding(String path,String node){
 			if (this.binding == null) {
 				this.binding = new HashSet<>();
 			}
-			SearchBinding binding = new SearchBinding();
-			binding.setPath(path);
-			binding.setNode(node);
-			this.binding.add(binding);
+			this.binding.add(path+" "+node);
 			return this;
 		}
 

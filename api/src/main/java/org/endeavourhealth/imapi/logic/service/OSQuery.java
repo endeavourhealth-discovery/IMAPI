@@ -222,7 +222,6 @@ public class OSQuery {
 	}
 
 	private SearchResponse getStandardResults(QueryRequest request) throws JsonProcessingException, QueryException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, DataFormatException {
-		try {
 			JsonNode root = getIMOSResults(request);
 			if (root == null)
 				return null;
@@ -253,13 +252,9 @@ public class OSQuery {
 				searchResults.setTerm(request.getTextSearch());
 				return searchResults;
 			}
-		}catch (Exception e) {
-			return new SearchResponse();
-		}
 	}
 
 	private JsonNode getNodeResults(QueryRequest request) throws JsonProcessingException, QueryException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
-		try {
 			JsonNode root = getIMOSResults(request);
 			if (root == null)
 				return new ObjectMapper().createObjectNode();
@@ -295,11 +290,7 @@ public class OSQuery {
 				}
 				request.addTiming("no results returned");
 			}
-			return null;
-		}
-		catch (Exception e) {
-			return new ObjectMapper().createObjectNode();
-		}
+		return null;
 	}
 
 

@@ -15,7 +15,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.CalculationType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -33,47 +33,46 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.CalculationType")
 @XmlEnum
 public enum VocCalculationType {
 
-    @XmlEnumValue("count")
-    COUNT("count"),
-    @XmlEnumValue("percentOfParent")
-    PERCENT_OF_PARENT("percentOfParent"),
-    @XmlEnumValue("percentRow")
-    PERCENT_ROW("percentRow"),
-    @XmlEnumValue("percentColumn")
-    PERCENT_COLUMN("percentColumn"),
-    @XmlEnumValue("percentComplete")
-    PERCENT_COMPLETE("percentComplete"),
-    @XmlEnumValue("sum")
-    SUM("sum"),
-    @XmlEnumValue("averageMean")
-    AVERAGE_MEAN("averageMean"),
-    @XmlEnumValue("minimum")
-    MINIMUM("minimum"),
-    @XmlEnumValue("maximum")
-    MAXIMUM("maximum");
-    private final String value;
+  @XmlEnumValue("count")
+  COUNT("count"),
+  @XmlEnumValue("percentOfParent")
+  PERCENT_OF_PARENT("percentOfParent"),
+  @XmlEnumValue("percentRow")
+  PERCENT_ROW("percentRow"),
+  @XmlEnumValue("percentColumn")
+  PERCENT_COLUMN("percentColumn"),
+  @XmlEnumValue("percentComplete")
+  PERCENT_COMPLETE("percentComplete"),
+  @XmlEnumValue("sum")
+  SUM("sum"),
+  @XmlEnumValue("averageMean")
+  AVERAGE_MEAN("averageMean"),
+  @XmlEnumValue("minimum")
+  MINIMUM("minimum"),
+  @XmlEnumValue("maximum")
+  MAXIMUM("maximum");
+  private final String value;
 
-    VocCalculationType(String v) {
-        value = v;
-    }
+  VocCalculationType(String v) {
+    value = v;
+  }
 
-    public String value() {
-        return value;
-    }
+  public String value() {
+    return value;
+  }
 
-    public static VocCalculationType fromValue(String v) {
-        for (VocCalculationType c: VocCalculationType.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
+  public static VocCalculationType fromValue(String v) {
+    for (VocCalculationType c : VocCalculationType.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
+    throw new IllegalArgumentException(v);
+  }
 
 }

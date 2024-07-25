@@ -17,69 +17,73 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class ExpressionConstraintDeserializer extends StdDeserializer<ExpressionConstraint> {
-    private ObjectMapper mapper = new ObjectMapper();
-    public ExpressionConstraintDeserializer() {
-        this(null);
-    }
+  private ObjectMapper mapper = new ObjectMapper();
 
-    public ExpressionConstraintDeserializer(Class<?> vc) {
-        super(vc);
-    }
+  public ExpressionConstraintDeserializer() {
+    this(null);
+  }
 
-    @Override
-    public ExpressionConstraint deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        JsonNode node = jp.getCodec().readTree(jp);
-        return populateExpressionConstraintFromJson(node);
-    }
+  public ExpressionConstraintDeserializer(Class<?> vc) {
+    super(vc);
+  }
 
-    public ExpressionConstraint populateExpressionConstraintFromJson(JsonNode node) throws IOException {
-        ExpressionConstraint expressionConstraint = new ExpressionConstraint();
-        Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
-        while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> field = fields.next();
-            String key = field.getKey();
-            switch(key) {
-                case "constraintOperator" : {
-                    expressionConstraint.setConstraintOperator(field.getValue().textValue());
-                    break;
-                }
-                case "conjunction" : {
-                    switch (field.getValue().textValue()) {
-                        case "and" : expressionConstraint.setConjunction(Bool.and);
-                            break;
-                        case "or" : expressionConstraint.setConjunction(Bool.or);
-                            break;
-                        default: throw new IOException("Failure to set Bool value from input: " + field.getValue());
-                    }
-                    break;
-                }
-                case "conceptSingle" : {
-                    expressionConstraint.setConceptSingle(mapper.readValue(mapper.writeValueAsString(field.getValue()), ConceptReference.class));
-                    break;
-                }
-                case "conceptBool" : {
-                    expressionConstraint.setConceptBool(mapper.readValue(mapper.writeValueAsString(field.getValue()), BoolGroup.class));
-                    break;
-                }
-                case "refinementItems" : {
-                    ArrayNode arrayNode = (ArrayNode) field.getValue();
-                    Iterator<JsonNode> items = arrayNode.elements();
-                    while (items.hasNext()) {
-                        JsonNode item = items.next();
-                        if (item.isObject() && item.has("type")) {
-                            String type = item.get("type").textValue();
-                            if ("BoolGroup".equals(type)) {
-                                expressionConstraint.addRefinementItem(mapper.readValue(mapper.writeValueAsString(item), BoolGroup.class));
-                            } else if ("ExpressionConstraint".equals(type)) {
-                                expressionConstraint.addRefinementItem(mapper.readValue(mapper.writeValueAsString(item), ExpressionConstraint.class));
-                            } else if ("Refinement".equals(type)) {
-                                expressionConstraint.addRefinementItem(mapper.readValue(mapper.writeValueAsString(item), Refinement.class));
-                            }
-                        } else throw new IOException("Refinement items must be an object with a type field");
-                    }
-                }
-            }
+  @Override
+  public ExpressionConstraint deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    JsonNode node = jp.getCodec().readTree(jp);
+    return populateExpressionConstraintFromJson(node);
+  }
+
+  public ExpressionConstraint populateExpressionConstraintFromJson(JsonNode node) throws IOException {
+    ExpressionConstraint expressionConstraint = new ExpressionConstraint();
+    Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+    while (fields.hasNext()) {
+      Map.Entry<String, JsonNode> field = fields.next();
+      String key = field.getKey();
+      switch (key) {
+        case "constraintOperator": {
+          expressionConstraint.setConstraintOperator(field.getValue().textValue());
+          break;
         }
-        return expressionConstraint;
+        case "conjunction": {
+          switch (field.getValue().textValue()) {
+            case "and":
+              expressionConstraint.setConjunction(Bool.and);
+              break;
+            case "or":
+              expressionConstraint.setConjunction(Bool.or);
+              break;
+            default:
+              throw new IOException("Failure to set Bool value from input: " + field.getValue());
+          }
+          break;
+        }
+        case "conceptSingle": {
+          expressionConstraint.setConceptSingle(mapper.readValue(mapper.writeValueAsString(field.getValue()), ConceptReference.class));
+          break;
+        }
+        case "conceptBool": {
+          expressionConstraint.setConceptBool(mapper.readValue(mapper.writeValueAsString(field.getValue()), BoolGroup.class));
+          break;
+        }
+        case "refinementItems": {
+          ArrayNode arrayNode = (ArrayNode) field.getValue();
+          Iterator<JsonNode> items = arrayNode.elements();
+          while (items.hasNext()) {
+            JsonNode item = items.next();
+            if (item.isObject() && item.has("type")) {
+              String type = item.get("type").textValue();
+              if ("BoolGroup".equals(type)) {
+                expressionConstraint.addRefinementItem(mapper.readValue(mapper.writeValueAsString(item), BoolGroup.class));
+              } else if ("ExpressionConstraint".equals(type)) {
+                expressionConstraint.addRefinementItem(mapper.readValue(mapper.writeValueAsString(item), ExpressionConstraint.class));
+              } else if ("Refinement".equals(type)) {
+                expressionConstraint.addRefinementItem(mapper.readValue(mapper.writeValueAsString(item), Refinement.class));
+              }
+            } else throw new IOException("Refinement items must be an object with a type field");
+          }
+        }
+      }
     }
+    return expressionConstraint;
+  }
 }

@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for EQDOC.FrequencyRange complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.FrequencyRange"&gt;
  *   &lt;complexContent&gt;
@@ -30,65 +30,55 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.FrequencyRange", propOrder = {
-    "rangeFrom",
-    "rangeTo"
+  "rangeFrom",
+  "rangeTo"
 })
 public class EQDOCFrequencyRange {
 
-    protected EQDOCFrequencyRangeFrom rangeFrom;
-    protected EQDOCFrequencyRangeTo rangeTo;
+  protected EQDOCFrequencyRangeFrom rangeFrom;
+  protected EQDOCFrequencyRangeTo rangeTo;
 
-    /**
-     * Gets the value of the rangeFrom property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCFrequencyRangeFrom }
-     *     
-     */
-    public EQDOCFrequencyRangeFrom getRangeFrom() {
-        return rangeFrom;
-    }
+  /**
+   * Gets the value of the rangeFrom property.
+   *
+   * @return possible object is
+   * {@link EQDOCFrequencyRangeFrom }
+   */
+  public EQDOCFrequencyRangeFrom getRangeFrom() {
+    return rangeFrom;
+  }
 
-    /**
-     * Sets the value of the rangeFrom property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCFrequencyRangeFrom }
-     *     
-     */
-    public void setRangeFrom(EQDOCFrequencyRangeFrom value) {
-        this.rangeFrom = value;
-    }
+  /**
+   * Sets the value of the rangeFrom property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCFrequencyRangeFrom }
+   */
+  public void setRangeFrom(EQDOCFrequencyRangeFrom value) {
+    this.rangeFrom = value;
+  }
 
-    /**
-     * Gets the value of the rangeTo property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCFrequencyRangeTo }
-     *     
-     */
-    public EQDOCFrequencyRangeTo getRangeTo() {
-        return rangeTo;
-    }
+  /**
+   * Gets the value of the rangeTo property.
+   *
+   * @return possible object is
+   * {@link EQDOCFrequencyRangeTo }
+   */
+  public EQDOCFrequencyRangeTo getRangeTo() {
+    return rangeTo;
+  }
 
-    /**
-     * Sets the value of the rangeTo property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCFrequencyRangeTo }
-     *     
-     */
-    public void setRangeTo(EQDOCFrequencyRangeTo value) {
-        this.rangeTo = value;
-    }
+  /**
+   * Sets the value of the rangeTo property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCFrequencyRangeTo }
+   */
+  public void setRangeTo(EQDOCFrequencyRangeTo value) {
+    this.rangeTo = value;
+  }
 
 }

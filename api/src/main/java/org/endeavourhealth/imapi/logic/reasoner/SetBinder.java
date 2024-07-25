@@ -30,48 +30,50 @@ import java.util.stream.Collectors;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class SetBinder {
-	private static final Logger LOG = LoggerFactory.getLogger(SetBinder.class);
-	private final EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
-	private final SetRepository setRepository= new SetRepository();
+  private static final Logger LOG = LoggerFactory.getLogger(SetBinder.class);
+  private final EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
+  private final SetRepository setRepository = new SetRepository();
 
-	public void bindSets() throws QueryException, JsonProcessingException {
-		LOG.info("Getting value sets....");
-		Set<String> sets=getSets();
-		int count=0;
-		for (String iri:sets){
-			count++;
-			if (count%100==0) {
-				LOG.info(count + " sets bound");
-			}
-			bindSet(iri);
-		}
-	}
-	private Set<String> getSets() {
-		Set<String> setIris = new HashSet<>();
-		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-			StringJoiner spq = new StringJoiner("\n");
-			spq.add("SELECT distinct ?iri ")
-				.add("WHERE { ?iri <" + RDF.TYPE + "> ?type.")
-				.add("  filter (?type in (<" + IM.CONCEPT_SET + ">,<" + IM.VALUESET + ">)).}");
-			TupleQuery qry = conn.prepareTupleQuery(spq.toString());
-			try (TupleQueryResult rs = qry.evaluate()) {
-				while (rs.hasNext()) {
-					setIris.add(rs.next().getValue("iri").stringValue());
-				}
-			}
-		}
-		return setIris;
-	}
-	public Set<TTNode> bindSet(String iri) throws JsonProcessingException, QueryException {
-		Set<Concept> members= setRepository.getSomeMembers(iri, 10);
-		if (!members.isEmpty()){
-			Set<String> memberIris= members.stream().map(Entity::getIri).collect(Collectors.toSet());
-			Set<TTNode> dataModels= setRepository.getBindingsForConcept(memberIris);
-			setRepository.bindConceptSetToDataModel(iri,dataModels);
-			return dataModels;
-		}
-		return null;
-	}
+  public void bindSets() throws QueryException, JsonProcessingException {
+    LOG.info("Getting value sets....");
+    Set<String> sets = getSets();
+    int count = 0;
+    for (String iri : sets) {
+      count++;
+      if (count % 100 == 0) {
+        LOG.info(count + " sets bound");
+      }
+      bindSet(iri);
+    }
+  }
+
+  private Set<String> getSets() {
+    Set<String> setIris = new HashSet<>();
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      StringJoiner spq = new StringJoiner("\n");
+      spq.add("SELECT distinct ?iri ")
+        .add("WHERE { ?iri <" + RDF.TYPE + "> ?type.")
+        .add("  filter (?type in (<" + IM.CONCEPT_SET + ">,<" + IM.VALUESET + ">)).}");
+      TupleQuery qry = conn.prepareTupleQuery(spq.toString());
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          setIris.add(rs.next().getValue("iri").stringValue());
+        }
+      }
+    }
+    return setIris;
+  }
+
+  public Set<TTNode> bindSet(String iri) throws JsonProcessingException, QueryException {
+    Set<Concept> members = setRepository.getSomeMembers(iri, 10);
+    if (!members.isEmpty()) {
+      Set<String> memberIris = members.stream().map(Entity::getIri).collect(Collectors.toSet());
+      Set<TTNode> dataModels = setRepository.getBindingsForConcept(memberIris);
+      setRepository.bindConceptSetToDataModel(iri, dataModels);
+      return dataModels;
+    }
+    return null;
+  }
 
 }
 

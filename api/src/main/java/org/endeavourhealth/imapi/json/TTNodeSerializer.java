@@ -41,18 +41,18 @@ public class TTNodeSerializer {
     this.prov = prov;
     simpleProperties = (Boolean) prov.getAttribute(TTNodeSerializer.SIMPLE_PROPERTIES);
     simpleProperties = (simpleProperties != null && simpleProperties);
-    if ((!(node instanceof TTEntity)) && node.getIri()!=null)
+    if ((!(node instanceof TTEntity)) && node.getIri() != null)
       gen.writeStringField("@id", prefix(node.getIri()));
     serializePredicates(node, gen, prov);
   }
 
   private void serializePredicates(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
-    List<TTIriRef> orderedPredicates = Stream.of(iri(RDF.TYPE),iri(RDFS.LABEL),iri(RDFS.COMMENT),iri(IM.HAS_STATUS)).collect(Collectors.toList());
+    List<TTIriRef> orderedPredicates = Stream.of(iri(RDF.TYPE), iri(RDFS.LABEL), iri(RDFS.COMMENT), iri(IM.HAS_STATUS)).collect(Collectors.toList());
     if (node.get(iri(RDF.TYPE)) != null) {
       for (TTValue type : node.get(iri(RDF.TYPE)).getElements()) {
-        List<TTIriRef> orderForType= EntityCache.getPredicateOrder(type.asIriRef().getIri());
-        if (orderForType!=null)
-          orderedPredicates= orderForType;
+        List<TTIriRef> orderForType = EntityCache.getPredicateOrder(type.asIriRef().getIri());
+        if (orderForType != null)
+          orderedPredicates = orderForType;
       }
     }
     serializeOrdered(node, orderedPredicates, gen);
@@ -60,8 +60,8 @@ public class TTNodeSerializer {
 
 
   private void serializeOrdered(TTNode node, List<TTIriRef> predicates, JsonGenerator gen) throws IOException {
-    for (TTIriRef predicate:predicates){
-      if (node.get(predicate)!=null) {
+    for (TTIriRef predicate : predicates) {
+      if (node.get(predicate) != null) {
         serializeFieldValue(predicate.getIri(), node.get(predicate), gen);
       }
     }
@@ -75,101 +75,101 @@ public class TTNodeSerializer {
   }
 
 
-    public void serializeFieldValue(String field, TTArray value, JsonGenerator gen) throws IOException {
-        if(simpleProperties && field.contains("#")){
-            field = field.substring(field.indexOf("#")+1);
-        }
-        if (value.isLiteral()) {
-            gen.writeFieldName(prefix(field));
-            serializeValue(value.asLiteral(), gen);
-        } else {
-            gen.writeArrayFieldStart(prefix(field));
-            for (TTValue v : value.iterator()) {
-                serializeValue(v, gen);
-            }
-            gen.writeEndArray();
-        }
+  public void serializeFieldValue(String field, TTArray value, JsonGenerator gen) throws IOException {
+    if (simpleProperties && field.contains("#")) {
+      field = field.substring(field.indexOf("#") + 1);
     }
-
-   public void serializeFieldValue(String field, TTValue value, JsonGenerator gen) throws IOException {
-       if (value.isLiteral()) {
-           if (value.asLiteral().getValue() != null) {
-               gen.writeFieldName(prefix(field));
-               serializeValue(value, gen);
-           }
-       } else {
-           gen.writeFieldName(prefix(field));
-           serializeValue(value, gen);
-       }
-   }
-
-   public void serializeValue(TTValue value, JsonGenerator gen) throws IOException {
-      if (value.isIriRef()) {
-         TTIriRef ref = value.asIriRef();
-         gen.writeStartObject();
-         gen.writeStringField("@id", prefix(ref.getIri()));
-         if (ref.getName() != null && !ref.getName().isEmpty())
-            gen.writeStringField("name", ref.getName());
-         gen.writeEndObject();
-      } else if (value.isLiteral()) {
-         serializeLiteral(value.asLiteral(), gen);
-      } else if (value.isNode()) {
-         gen.writeStartObject();
-         serializeNode((TTNode)value, gen,prov);
-         gen.writeEndObject();
-      } else {
-        prov.defaultSerializeValue(value, gen);
+    if (value.isLiteral()) {
+      gen.writeFieldName(prefix(field));
+      serializeValue(value.asLiteral(), gen);
+    } else {
+      gen.writeArrayFieldStart(prefix(field));
+      for (TTValue v : value.iterator()) {
+        serializeValue(v, gen);
       }
-   }
+      gen.writeEndArray();
+    }
+  }
 
-   public void serializeLiteral(TTLiteral literal, JsonGenerator gen) throws IOException {
-      if (literal.getType()!=null){
-         if (XSD.STRING.equals(literal.getType().getIri()))
-            gen.writeString(literal.getValue());
-         else if (XSD.BOOLEAN.equals(literal.getType().getIri()))
-            gen.writeBoolean(literal.booleanValue());
-         else if (XSD.INTEGER.equals(literal.getType().getIri()))
-            gen.writeNumber(literal.intValue());
-         else if (XSD.LONG.equals(literal.getType().getIri()))
-             gen.writeNumber(literal.longValue());
-         else if (XSD.PATTERN.equals(literal.getType().getIri())) {
-             gen.writeStartObject();
-             gen.writeStringField("@value", literal.getValue());
-             gen.writeStringField("@type",prefix(literal.getType().getIri()));
-             gen.writeEndObject();
-         } else
-            throw new IOException("Unhandled literal type ["+literal.getType().getIri()+"]");
+  public void serializeFieldValue(String field, TTValue value, JsonGenerator gen) throws IOException {
+    if (value.isLiteral()) {
+      if (value.asLiteral().getValue() != null) {
+        gen.writeFieldName(prefix(field));
+        serializeValue(value, gen);
+      }
+    } else {
+      gen.writeFieldName(prefix(field));
+      serializeValue(value, gen);
+    }
+  }
 
+  public void serializeValue(TTValue value, JsonGenerator gen) throws IOException {
+    if (value.isIriRef()) {
+      TTIriRef ref = value.asIriRef();
+      gen.writeStartObject();
+      gen.writeStringField("@id", prefix(ref.getIri()));
+      if (ref.getName() != null && !ref.getName().isEmpty())
+        gen.writeStringField("name", ref.getName());
+      gen.writeEndObject();
+    } else if (value.isLiteral()) {
+      serializeLiteral(value.asLiteral(), gen);
+    } else if (value.isNode()) {
+      gen.writeStartObject();
+      serializeNode((TTNode) value, gen, prov);
+      gen.writeEndObject();
+    } else {
+      prov.defaultSerializeValue(value, gen);
+    }
+  }
+
+  public void serializeLiteral(TTLiteral literal, JsonGenerator gen) throws IOException {
+    if (literal.getType() != null) {
+      if (XSD.STRING.equals(literal.getType().getIri()))
+        gen.writeString(literal.getValue());
+      else if (XSD.BOOLEAN.equals(literal.getType().getIri()))
+        gen.writeBoolean(literal.booleanValue());
+      else if (XSD.INTEGER.equals(literal.getType().getIri()))
+        gen.writeNumber(literal.intValue());
+      else if (XSD.LONG.equals(literal.getType().getIri()))
+        gen.writeNumber(literal.longValue());
+      else if (XSD.PATTERN.equals(literal.getType().getIri())) {
+        gen.writeStartObject();
+        gen.writeStringField("@value", literal.getValue());
+        gen.writeStringField("@type", prefix(literal.getType().getIri()));
+        gen.writeEndObject();
       } else
-         // No type, assume string
-         gen.writeString(literal.getValue());
-   }
+        throw new IOException("Unhandled literal type [" + literal.getType().getIri() + "]");
 
-   public String prefix(String iri) {
-       if (usePrefixes)
-        return contextMap.prefix(iri);
-       else
-           return contextMap.expand(iri);
-   }
+    } else
+      // No type, assume string
+      gen.writeString(literal.getValue());
+  }
 
-   public void serializeContexts(List<TTPrefix> prefixes, JsonGenerator gen) throws IOException {
-      if (usePrefixes && prefixes != null && !prefixes.isEmpty()) {
-         gen.writeFieldName("@context");
-         gen.writeStartObject();
+  public String prefix(String iri) {
+    if (usePrefixes)
+      return contextMap.prefix(iri);
+    else
+      return contextMap.expand(iri);
+  }
 
-         for(TTPrefix prefix : prefixes) {
-            contextMap.add(prefix.getIri(), prefix.getPrefix());
-            gen.writeStringField(prefix.getPrefix(),prefix.getIri());
-         }
-         gen.writeFieldName("entities");
-         gen.writeStartObject();
-         gen.writeStringField("@id","http://envhealth.info/im#entities");
-         gen.writeStringField("@container","@set");
-         gen.writeEndObject();
+  public void serializeContexts(List<TTPrefix> prefixes, JsonGenerator gen) throws IOException {
+    if (usePrefixes && prefixes != null && !prefixes.isEmpty()) {
+      gen.writeFieldName("@context");
+      gen.writeStartObject();
 
-         gen.writeEndObject();
+      for (TTPrefix prefix : prefixes) {
+        contextMap.add(prefix.getIri(), prefix.getPrefix());
+        gen.writeStringField(prefix.getPrefix(), prefix.getIri());
       }
-   }
+      gen.writeFieldName("entities");
+      gen.writeStartObject();
+      gen.writeStringField("@id", "http://envhealth.info/im#entities");
+      gen.writeStringField("@container", "@set");
+      gen.writeEndObject();
+
+      gen.writeEndObject();
+    }
+  }
 
 
 }

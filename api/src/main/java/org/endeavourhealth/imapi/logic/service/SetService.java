@@ -29,57 +29,57 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class SetService {
-    private static final Logger LOG = LoggerFactory.getLogger(SetService.class);
-    private final QueryRepository queryRepository = new QueryRepository();
+  private static final Logger LOG = LoggerFactory.getLogger(SetService.class);
+  private final QueryRepository queryRepository = new QueryRepository();
 
-    private SetTextFileExporter setTextFileExporter = new SetTextFileExporter();
+  private SetTextFileExporter setTextFileExporter = new SetTextFileExporter();
 
-    public String getTSVSetExport(String setIri, boolean definition, boolean core, boolean legacy, boolean includeSubsets,
-                                  boolean ownRow, boolean im1id, List<String> schemes) throws QueryException, JsonProcessingException {
-        return setTextFileExporter.getSetFile(setIri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes, "\t");
+  public String getTSVSetExport(String setIri, boolean definition, boolean core, boolean legacy, boolean includeSubsets,
+                                boolean ownRow, boolean im1id, List<String> schemes) throws QueryException, JsonProcessingException {
+    return setTextFileExporter.getSetFile(setIri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes, "\t");
 
+  }
+
+  public String getCSVSetExport(String setIri, boolean definition, boolean core, boolean legacy, boolean includeSubsets,
+                                boolean ownRow, boolean im1id, List<String> schemes) throws QueryException, JsonProcessingException {
+    return setTextFileExporter.getSetFile(setIri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes, ",");
+
+  }
+
+  public SetContent getSetContent(String setIri, boolean definition, boolean core, boolean legacy, boolean subsets, List<String> schemes) throws QueryException, JsonProcessingException {
+    SetContent result = new SetContent();
+
+    LOG.trace("Fetching metadata for {}...", setIri);
+    TTEntity entity = new EntityTripleRepository().getEntityPredicates(setIri, Set.of(RDFS.LABEL, RDFS.COMMENT, IM.HAS_STATUS, IM.VERSION, IM.DEFINITION)).getEntity();
+
+    if (null != entity) {
+      result.setName(entity.getName())
+        .setDescription(entity.getDescription())
+        .setVersion(entity.getVersion());
+
+      if (null != entity.getStatus())
+        result.setStatus(entity.getStatus().getName());
+
+      if (definition && null != entity.get(iri(IM.DEFINITION))) {
+        Query qryDef = entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+        result.setSetDefinition(new IMQToECL().getECLFromQuery(qryDef, true));
+      }
     }
 
-    public String getCSVSetExport(String setIri, boolean definition, boolean core, boolean legacy, boolean includeSubsets,
-                                  boolean ownRow, boolean im1id, List<String> schemes) throws QueryException, JsonProcessingException {
-        return setTextFileExporter.getSetFile(setIri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes, ",");
+    SetExporter setExporter = new SetExporter();
 
+    if (subsets) {
+      LOG.trace("Fetching subsets...");
+      result.setSubsets(setExporter.getSubsetIrisWithNames(setIri).stream().map(TTIriRef::getIri).collect(Collectors.toSet()));
     }
 
-    public SetContent getSetContent(String setIri, boolean definition, boolean core, boolean legacy, boolean subsets, List<String> schemes) throws QueryException, JsonProcessingException {
-        SetContent result = new SetContent();
-
-        LOG.trace("Fetching metadata for {}...", setIri);
-        TTEntity entity = new EntityTripleRepository().getEntityPredicates(setIri, Set.of(RDFS.LABEL, RDFS.COMMENT, IM.HAS_STATUS, IM.VERSION, IM.DEFINITION)).getEntity();
-
-        if (null != entity) {
-            result.setName(entity.getName())
-                .setDescription(entity.getDescription())
-                .setVersion(entity.getVersion());
-
-            if (null != entity.getStatus())
-                result.setStatus(entity.getStatus().getName());
-
-            if (definition && null != entity.get(iri(IM.DEFINITION))) {
-                Query qryDef = entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
-                result.setSetDefinition(new IMQToECL().getECLFromQuery(qryDef, true));
-            }
-        }
-
-        SetExporter setExporter = new SetExporter();
-
-        if (subsets) {
-            LOG.trace("Fetching subsets...");
-            result.setSubsets(setExporter.getSubsetIrisWithNames(setIri).stream().map(TTIriRef::getIri).collect(Collectors.toSet()));
-        }
-
-        if (core || legacy || subsets) {
-            LOG.trace("Expanding...");
-            result.setConcepts(setExporter
-                .getExpandedSetMembers(setIri, core, legacy, subsets, schemes)
-            );
-        }
-
-        return result;
+    if (core || legacy || subsets) {
+      LOG.trace("Expanding...");
+      result.setConcepts(setExporter
+        .getExpandedSetMembers(setIri, core, legacy, subsets, schemes)
+      );
     }
+
+    return result;
+  }
 }

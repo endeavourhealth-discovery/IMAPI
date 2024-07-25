@@ -9,17 +9,18 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 public class CodeGenService {
-    private static final Logger LOG = LoggerFactory.getLogger(CodeGenService.class);
-    private CodeGenRepository codeGenRepository = new CodeGenRepository();
+  private static final Logger LOG = LoggerFactory.getLogger(CodeGenService.class);
+  private CodeGenRepository codeGenRepository = new CodeGenRepository();
 
-    public List<String> getCodeTemplateList() throws JsonProcessingException {
-        return codeGenRepository.getCodeTemplateList();
-    }
+  public List<String> getCodeTemplateList() throws JsonProcessingException {
+    return codeGenRepository.getCodeTemplateList();
+  }
 
-    public CodeGenDto getCodeTemplate(String name) throws JsonProcessingException {
-        return codeGenRepository.getCodeTemplate(name);
-    }
-    public void updateCodeTemplate(String name, String extension, String wrapper, String dataTypeMap, String template) {
-        codeGenRepository.updateCodeTemplate(name, extension, wrapper, dataTypeMap, template);
-    }
+  public CodeGenDto getCodeTemplate(String name) throws JsonProcessingException {
+    return codeGenRepository.getCodeTemplate(name);
+  }
+
+  public void updateCodeTemplate(String name, String extension, String wrapper, String dataTypeMap, String template) {
+    codeGenRepository.updateCodeTemplate(name, extension, wrapper, dataTypeMap, template);
+  }
 }

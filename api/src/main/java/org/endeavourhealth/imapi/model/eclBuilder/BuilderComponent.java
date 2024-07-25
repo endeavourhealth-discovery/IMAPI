@@ -4,16 +4,17 @@ import lombok.Getter;
 
 @Getter
 public class BuilderComponent implements BuilderValue {
-    private String type;
+  private String type;
 
-    public BuilderComponent(String type) {
-        this.type = type;
-    }
+  public BuilderComponent(String type) {
+    this.type = type;
+  }
 
-    public BuilderComponent() {}
+  public BuilderComponent() {
+  }
 
-    public BuilderComponent setType(String type) {
-        this.type = type;
-        return this;
-    }
+  public BuilderComponent setType(String type) {
+    this.type = type;
+    return this;
+  }
 }

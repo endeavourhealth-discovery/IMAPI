@@ -1,73 +1,89 @@
 {
-  "match" : [ {
-    "name" : "Patient",
-    "property" : [ {
-      "@id" : "http://endhealth.info/im#homeAddress",
-      "name" : "home address",
-      "match" : {
-        "typeOf" : {
-          "@id" : "http://endhealth.info/im#Address"
+  "match": [
+    {
+      "name": "Patient",
+      "property": [
+        {
+          "@id": "http://endhealth.info/im#homeAddress",
+          "name": "home address",
+          "match": {
+            "typeOf": {
+              "@id": "http://endhealth.info/im#Address"
+            }
+          }
         }
+      ],
+      "typeOf": {
+        "@id": "http://endhealth.info/im#Patient"
       }
-    } ],
-    "typeOf" : {
-      "@id" : "http://endhealth.info/im#Patient"
-    }
-  }, {
-    "name" : "Patient",
-    "property" : [ {
-      "@id" : "http://endhealth.info/im#workAddress",
-      "name" : "work address",
-      "match" : {
-        "typeOf" : {
-          "@id" : "http://endhealth.info/im#Address"
+    },
+    {
+      "name": "Patient",
+      "property": [
+        {
+          "@id": "http://endhealth.info/im#workAddress",
+          "name": "work address",
+          "match": {
+            "typeOf": {
+              "@id": "http://endhealth.info/im#Address"
+            }
+          }
         }
+      ],
+      "typeOf": {
+        "@id": "http://endhealth.info/im#Patient"
       }
-    } ],
-    "typeOf" : {
-      "@id" : "http://endhealth.info/im#Patient"
-    }
-  }, {
-    "name" : "Patient",
-    "property" : [ {
-      "@id" : "http://endhealth.info/im#temporaryAddress",
-      "name" : "temporary address",
-      "match" : {
-        "typeOf" : {
-          "@id" : "http://endhealth.info/im#Address"
+    },
+    {
+      "name": "Patient",
+      "property": [
+        {
+          "@id": "http://endhealth.info/im#temporaryAddress",
+          "name": "temporary address",
+          "match": {
+            "typeOf": {
+              "@id": "http://endhealth.info/im#Address"
+            }
+          }
         }
+      ],
+      "typeOf": {
+        "@id": "http://endhealth.info/im#Patient"
       }
-    } ],
-    "typeOf" : {
-      "@id" : "http://endhealth.info/im#Patient"
-    }
-  }, {
-    "name" : "Patient",
-    "property" : [ {
-      "@id" : "http://endhealth.info/im#patientAddress",
-      "name" : "patient address history",
-      "match" : {
-        "typeOf" : {
-          "@id" : "http://endhealth.info/im#PatientAddress"
+    },
+    {
+      "name": "Patient",
+      "property": [
+        {
+          "@id": "http://endhealth.info/im#patientAddress",
+          "name": "patient address history",
+          "match": {
+            "typeOf": {
+              "@id": "http://endhealth.info/im#PatientAddress"
+            }
+          }
         }
+      ],
+      "typeOf": {
+        "@id": "http://endhealth.info/im#Patient"
       }
-    } ],
-    "typeOf" : {
-      "@id" : "http://endhealth.info/im#Patient"
-    }
-  }, {
-    "name" : "Patient",
-    "property" : [ {
-      "@id" : "http://endhealth.info/im#placeOfResidenceAtEvent",
-      "name" : "place of residence at event",
-      "match" : {
-        "typeOf" : {
-          "@id" : "http://endhealth.info/im#PlaceOfResidenceAtEvent"
+    },
+    {
+      "name": "Patient",
+      "property": [
+        {
+          "@id": "http://endhealth.info/im#placeOfResidenceAtEvent",
+          "name": "place of residence at event",
+          "match": {
+            "typeOf": {
+              "@id": "http://endhealth.info/im#PlaceOfResidenceAtEvent"
+            }
+          }
         }
+      ],
+      "typeOf": {
+        "@id": "http://endhealth.info/im#Patient"
       }
-    } ],
-    "typeOf" : {
-      "@id" : "http://endhealth.info/im#Patient"
     }
-  } ]
+  ]
 }

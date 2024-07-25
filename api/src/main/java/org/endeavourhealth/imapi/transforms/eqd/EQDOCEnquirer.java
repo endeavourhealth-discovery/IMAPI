@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for EQDOC.Enquirer complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.Enquirer"&gt;
  *   &lt;complexContent&gt;
@@ -32,121 +32,103 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.Enquirer", propOrder = {
-    "id",
-    "name",
-    "nationalCode",
-    "agreement"
+  "id",
+  "name",
+  "nationalCode",
+  "agreement"
 })
 public class EQDOCEnquirer {
 
-    @XmlElement(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String id;
-    @XmlElement(required = true)
-    protected String name;
-    protected DtCode nationalCode;
-    protected EQDOCEnquirerAgreement agreement;
+  @XmlElement(required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String id;
+  @XmlElement(required = true)
+  protected String name;
+  protected DtCode nationalCode;
+  protected EQDOCEnquirerAgreement agreement;
 
-    /**
-     * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getId() {
-        return id;
-    }
+  /**
+   * Gets the value of the id property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getId() {
+    return id;
+  }
 
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setId(String value) {
-        this.id = value;
-    }
+  /**
+   * Sets the value of the id property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setId(String value) {
+    this.id = value;
+  }
 
-    /**
-     * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getName() {
-        return name;
-    }
+  /**
+   * Gets the value of the name property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setName(String value) {
-        this.name = value;
-    }
+  /**
+   * Sets the value of the name property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setName(String value) {
+    this.name = value;
+  }
 
-    /**
-     * Gets the value of the nationalCode property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link DtCode }
-     *     
-     */
-    public DtCode getNationalCode() {
-        return nationalCode;
-    }
+  /**
+   * Gets the value of the nationalCode property.
+   *
+   * @return possible object is
+   * {@link DtCode }
+   */
+  public DtCode getNationalCode() {
+    return nationalCode;
+  }
 
-    /**
-     * Sets the value of the nationalCode property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link DtCode }
-     *     
-     */
-    public void setNationalCode(DtCode value) {
-        this.nationalCode = value;
-    }
+  /**
+   * Sets the value of the nationalCode property.
+   *
+   * @param value allowed object is
+   *              {@link DtCode }
+   */
+  public void setNationalCode(DtCode value) {
+    this.nationalCode = value;
+  }
 
-    /**
-     * Gets the value of the agreement property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCEnquirerAgreement }
-     *     
-     */
-    public EQDOCEnquirerAgreement getAgreement() {
-        return agreement;
-    }
+  /**
+   * Gets the value of the agreement property.
+   *
+   * @return possible object is
+   * {@link EQDOCEnquirerAgreement }
+   */
+  public EQDOCEnquirerAgreement getAgreement() {
+    return agreement;
+  }
 
-    /**
-     * Sets the value of the agreement property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCEnquirerAgreement }
-     *     
-     */
-    public void setAgreement(EQDOCEnquirerAgreement value) {
-        this.agreement = value;
-    }
+  /**
+   * Sets the value of the agreement property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCEnquirerAgreement }
+   */
+  public void setAgreement(EQDOCEnquirerAgreement value) {
+    this.agreement = value;
+  }
 
 }

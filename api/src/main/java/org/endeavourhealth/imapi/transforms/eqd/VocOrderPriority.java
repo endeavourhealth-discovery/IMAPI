@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.OrderPriority.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -26,37 +26,33 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.OrderPriority")
 @XmlEnum
 public enum VocOrderPriority {
 
 
-    /**
-     * High
-     * 
-     */
-    H,
+  /**
+   * High
+   */
+  H,
 
-    /**
-     * Medium
-     * 
-     */
-    M,
+  /**
+   * Medium
+   */
+  M,
 
-    /**
-     * Low
-     * 
-     */
-    L;
+  /**
+   * Low
+   */
+  L;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocOrderPriority fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocOrderPriority fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

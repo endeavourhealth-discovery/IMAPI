@@ -16,84 +16,84 @@ import java.util.Set;
 
 @Component
 public class UserService {
-    private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
-    private UserRepository userRepository = new UserRepository();
-    private EntityService entityService = new EntityService();
+  private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
+  private UserRepository userRepository = new UserRepository();
+  private EntityService entityService = new EntityService();
 
 
-    public String getUserPreset(String userId) {
-        return userRepository.getByPredicate(userId, USER.USER_PRESET);
-    }
+  public String getUserPreset(String userId) {
+    return userRepository.getByPredicate(userId, USER.USER_PRESET);
+  }
 
-    public void updateUserPreset(String userId, String preset) throws JsonProcessingException {
-        userRepository.updateByPredicate(userId, preset, USER.USER_PRESET);
-    }
+  public void updateUserPreset(String userId, String preset) throws JsonProcessingException {
+    userRepository.updateByPredicate(userId, preset, USER.USER_PRESET);
+  }
 
-    public String getUserPrimaryColor(String userId) {
-        return userRepository.getByPredicate(userId, USER.USER_PRIMARY_COLOR);
-    }
+  public String getUserPrimaryColor(String userId) {
+    return userRepository.getByPredicate(userId, USER.USER_PRIMARY_COLOR);
+  }
 
-    public void updateUserPrimaryColor(String userId, String color) throws JsonProcessingException {
-        userRepository.updateByPredicate(userId, color, USER.USER_PRIMARY_COLOR);
-    }
+  public void updateUserPrimaryColor(String userId, String color) throws JsonProcessingException {
+    userRepository.updateByPredicate(userId, color, USER.USER_PRIMARY_COLOR);
+  }
 
-    public String getUserSurfaceColor(String userId) {
-        return userRepository.getByPredicate(userId, USER.USER_SURFACE_COLOR);
-    }
+  public String getUserSurfaceColor(String userId) {
+    return userRepository.getByPredicate(userId, USER.USER_SURFACE_COLOR);
+  }
 
-    public void updateUserSurfaceColor(String userId, String color) throws JsonProcessingException {
-        userRepository.updateByPredicate(userId, color, USER.USER_SURFACE_COLOR);
-    }
+  public void updateUserSurfaceColor(String userId, String color) throws JsonProcessingException {
+    userRepository.updateByPredicate(userId, color, USER.USER_SURFACE_COLOR);
+  }
 
-    public Boolean getUserDarkMode(String userId) {
-        return userRepository.getByPredicate(userId, USER.USER_PRESET).equals("true");
-    }
+  public Boolean getUserDarkMode(String userId) {
+    return userRepository.getByPredicate(userId, USER.USER_PRESET).equals("true");
+  }
 
-    public void updateUserDarkMode(String userId, Boolean darkMode) throws JsonProcessingException {
-        userRepository.updateByPredicate(userId, darkMode ? "true" : "false", USER.USER_DARK_MODE);
-    }
+  public void updateUserDarkMode(String userId, Boolean darkMode) throws JsonProcessingException {
+    userRepository.updateByPredicate(userId, darkMode ? "true" : "false", USER.USER_DARK_MODE);
+  }
 
-    public String getUserScale(String userId) {
-        return userRepository.getByPredicate(userId, USER.USER_SCALE);
-    }
+  public String getUserScale(String userId) {
+    return userRepository.getByPredicate(userId, USER.USER_SCALE);
+  }
 
-    public void updateUserScale(String userId, String scale) throws JsonProcessingException {
-        userRepository.updateByPredicate(userId, scale, USER.USER_SCALE);
-    }
+  public void updateUserScale(String userId, String scale) throws JsonProcessingException {
+    userRepository.updateByPredicate(userId, scale, USER.USER_SCALE);
+  }
 
-    public List<RecentActivityItemDto> getUserMRU(String userId) throws JsonProcessingException {
-        return userRepository.getUserMRU(userId);
-    }
+  public List<RecentActivityItemDto> getUserMRU(String userId) throws JsonProcessingException {
+    return userRepository.getUserMRU(userId);
+  }
 
-    public void updateUserMRU(String userId, List<RecentActivityItemDto> mru) throws JsonProcessingException {
-        userRepository.updateUserMRU(userId, mru);
-    }
+  public void updateUserMRU(String userId, List<RecentActivityItemDto> mru) throws JsonProcessingException {
+    userRepository.updateUserMRU(userId, mru);
+  }
 
-    public List<String> getUserFavourites(String userId) throws JsonProcessingException {
-        return userRepository.getUserFavourites(userId);
-    }
+  public List<String> getUserFavourites(String userId) throws JsonProcessingException {
+    return userRepository.getUserFavourites(userId);
+  }
 
-    public void updateUserFavourites(String userId, List<String> favourites) throws JsonProcessingException {
-        userRepository.updateUserFavourites(userId, favourites);
-    }
+  public void updateUserFavourites(String userId, List<String> favourites) throws JsonProcessingException {
+    userRepository.updateUserFavourites(userId, favourites);
+  }
 
-    public List<String> getUserOrganisations(String userId) throws JsonProcessingException {
-        return userRepository.getUserOrganisations(userId);
-    }
+  public List<String> getUserOrganisations(String userId) throws JsonProcessingException {
+    return userRepository.getUserOrganisations(userId);
+  }
 
-    public void updateUserOrganisations(String userId, List<String> organisations) throws JsonProcessingException {
-        userRepository.updateUserOrganisations(userId, organisations);
-    }
+  public void updateUserOrganisations(String userId, List<String> organisations) throws JsonProcessingException {
+    userRepository.updateUserOrganisations(userId, organisations);
+  }
 
-    public boolean userIdExists(String userId) {
-        return userRepository.getUserIdExists(userId);
-    }
+  public boolean userIdExists(String userId) {
+    return userRepository.getUserIdExists(userId);
+  }
 
-    public boolean getEditAccess(String userId, String entityIri) throws JsonProcessingException {
-        List<String> organisations = this.getUserOrganisations(userId);
-        Set<String> predicates = Collections.singleton(IM.HAS_SCHEME);
-        TTEntity entity = entityService.getBundle(entityIri, predicates).getEntity();
-        if(null == entity.getScheme()) return false;
-        return organisations.contains(entity.getScheme().getIri());
-    }
+  public boolean getEditAccess(String userId, String entityIri) throws JsonProcessingException {
+    List<String> organisations = this.getUserOrganisations(userId);
+    Set<String> predicates = Collections.singleton(IM.HAS_SCHEME);
+    TTEntity entity = entityService.getBundle(entityIri, predicates).getEntity();
+    if (null == entity.getScheme()) return false;
+    return organisations.contains(entity.getScheme().getIri());
+  }
 }

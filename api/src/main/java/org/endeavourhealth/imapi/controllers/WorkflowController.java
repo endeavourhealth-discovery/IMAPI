@@ -21,28 +21,28 @@ import java.util.List;
 @RestController
 @RequestMapping("workflow")
 @CrossOrigin(origins = "*")
-@Tag(name="WorkflowController")
+@Tag(name = "WorkflowController")
 @RequestScope
 public class WorkflowController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WorkflowController.class);
+  private static final Logger LOG = LoggerFactory.getLogger(WorkflowController.class);
 
-    @Autowired
-    WorkflowService workflowService;
+  @Autowired
+  WorkflowService workflowService;
 
-    @GetMapping()
-    public List<StateMachineConfig> getWorkflows() throws IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.GET")) {
-            LOG.debug("getWorkflows");
-            return workflowService.getWorkflows();
-        }
+  @GetMapping()
+  public List<StateMachineConfig> getWorkflows() throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.GET")) {
+      LOG.debug("getWorkflows");
+      return workflowService.getWorkflows();
     }
+  }
 
-    @GetMapping("/tasks")
-    public List<Task> getWorkflowTasks() throws IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.Tasks.GET")) {
-            LOG.debug("getWorkflowTasks");
-            return workflowService.getWorkflowTasks();
-        }
+  @GetMapping("/tasks")
+  public List<Task> getWorkflowTasks() throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.Tasks.GET")) {
+      LOG.debug("getWorkflowTasks");
+      return workflowService.getWorkflowTasks();
     }
+  }
 }

@@ -28,39 +28,39 @@ import java.util.zip.DataFormatException;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class SetExpander {
-	private static final Logger LOG = LoggerFactory.getLogger(SetExpander.class);
-	private final EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
-	private final SetRepository setRepo = new SetRepository();
+  private static final Logger LOG = LoggerFactory.getLogger(SetExpander.class);
+  private final EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
+  private final SetRepository setRepo = new SetRepository();
 
-	public void expandAllSets() throws DataFormatException, JsonProcessingException, QueryException {
-		LOG.info("Getting value sets....");
-		//First get the list of sets that dont have members already expanded
-		Set<String> sets = setRepo.getSets();
-		//for each set get their definition
-		for (String iri : sets) {
-			LOG.info("Updating members of " + iri);
-			//get the definition
-			TTBundle setDefinition = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION));
-			//get the expansion.
-			Set<Concept> members = setRepo.getSetExpansion(setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class), false, null, List.of());
-			setRepo.updateMembers(iri, members);
+  public void expandAllSets() throws DataFormatException, JsonProcessingException, QueryException {
+    LOG.info("Getting value sets....");
+    //First get the list of sets that dont have members already expanded
+    Set<String> sets = setRepo.getSets();
+    //for each set get their definition
+    for (String iri : sets) {
+      LOG.info("Updating members of " + iri);
+      //get the definition
+      TTBundle setDefinition = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION));
+      //get the expansion.
+      Set<Concept> members = setRepo.getSetExpansion(setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class), false, null, List.of());
+      setRepo.updateMembers(iri, members);
 
-		}
+    }
 
-	}
+  }
 
 
-	public void expandSet(String iri) throws QueryException, JsonProcessingException {
-		LOG.info("Updating members of " + iri);
-		TTBundle setDefinition = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION));
-		if (setDefinition.getEntity().get(iri(IM.DEFINITION)) == null)
-		return;
-		//get the expansion.
+  public void expandSet(String iri) throws QueryException, JsonProcessingException {
+    LOG.info("Updating members of " + iri);
+    TTBundle setDefinition = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION));
+    if (setDefinition.getEntity().get(iri(IM.DEFINITION)) == null)
+      return;
+    //get the expansion.
 
-		Set<Concept> members = setRepo.getSetExpansion(setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral()
-			.objectValue(Query.class), false, null, List.of(), null);
-		setRepo.updateMembers(iri, members);
-	}
+    Set<Concept> members = setRepo.getSetExpansion(setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral()
+      .objectValue(Query.class), false, null, List.of(), null);
+    setRepo.updateMembers(iri, members);
+  }
 }
 
 

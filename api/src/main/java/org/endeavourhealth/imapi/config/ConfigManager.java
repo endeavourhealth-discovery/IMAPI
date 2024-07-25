@@ -28,71 +28,71 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Configuration
 public class ConfigManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConfigManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ConfigManager.class);
 
-    public <T> T getConfig(String iri, TypeReference<T> resultType) throws JsonProcessingException {
-        LOG.debug("getConfig<TypeReference>");
+  public <T> T getConfig(String iri, TypeReference<T> resultType) throws JsonProcessingException {
+    LOG.debug("getConfig<TypeReference>");
 
-        try (CachedObjectMapper om = new CachedObjectMapper()) {
-            Config config = getConfig(iri);
-            if (config == null)
-                return null;
-            return om.readValue(config.getData(), resultType);
+    try (CachedObjectMapper om = new CachedObjectMapper()) {
+      Config config = getConfig(iri);
+      if (config == null)
+        return null;
+      return om.readValue(config.getData(), resultType);
+    }
+  }
+
+  public Config getConfig(String config) {
+    // NOTE - DON'T USE PREFIXES OR 'prepareSparql' HERE
+    //        OR CYCLIC LOOP FETCHING DEFAULT PREFIXES
+    StringJoiner sql = new StringJoiner(System.lineSeparator())
+      .add("SELECT ?name ?data WHERE {")
+      .add("    GRAPH <http://endhealth.info/config#> {")
+      .add("      ?s ?label   ?name ;")
+      .add("         ?config  ?data .")
+      .add("    }")
+      .add("}");
+
+    try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
+      TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+      qry.setBinding("s", Values.iri(config));
+      qry.setBinding("label", Values.iri(RDFS.LABEL));
+      qry.setBinding("config", Values.iri(IM.HAS_CONFIG));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          return new Config()
+            .setName(bs.getValue("name").stringValue())
+            .setData(bs.getValue("data").stringValue());
+        } else {
+          return null;
         }
+      }
     }
+  }
 
-    public Config getConfig(String config) {
-        // NOTE - DON'T USE PREFIXES OR 'prepareSparql' HERE
-        //        OR CYCLIC LOOP FETCHING DEFAULT PREFIXES
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add("SELECT ?name ?data WHERE {")
-                .add("    GRAPH <http://endhealth.info/config#> {")
-                .add("      ?s ?label   ?name ;")
-                .add("         ?config  ?data .")
-                .add("    }")
-                .add("}");
+  public void setConfig(String iri, Config config) {
+    insert(iri, RDFS.LABEL, config.getName());
+    insert(iri, RDFS.COMMENT, config.getComment());
+    insert(iri, IM.HAS_CONFIG, config.getData());
+  }
 
-        try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
-            qry.setBinding("s", Values.iri(config));
-            qry.setBinding("label", Values.iri(RDFS.LABEL));
-            qry.setBinding("config", Values.iri(IM.HAS_CONFIG));
-            try (TupleQueryResult rs = qry.evaluate()) {
-                if (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    return new Config()
-                            .setName(bs.getValue("name").stringValue())
-                            .setData(bs.getValue("data").stringValue());
-                } else {
-                    return null;
-                }
-            }
-        }
+  private String getSparqlInsert() {
+    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("INSERT {").add("  ?s ?p ?o ").add("}").add("WHERE { SELECT ?s ?p ?o {} }");
+    return sparql.toString();
+  }
+
+  private void insert(String subject, String predicate, String object) {
+    try (CachedObjectMapper om = new CachedObjectMapper()) {
+      String sparql = getSparqlInsert();
+      try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
+        Update qry = prepareUpdateSparql(conn, sparql);
+        qry.setBinding("s", Values.iri(subject));
+        qry.setBinding("p", Values.iri(predicate));
+        qry.setBinding("o", literal(object));
+        qry.execute();
+      }
     }
-
-    public void setConfig(String iri, Config config) {
-        insert(iri, RDFS.LABEL, config.getName());
-        insert(iri, RDFS.COMMENT, config.getComment());
-        insert(iri, IM.HAS_CONFIG, config.getData());
-    }
-
-    private String getSparqlInsert() {
-        StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("INSERT {").add("  ?s ?p ?o ").add("}").add("WHERE { SELECT ?s ?p ?o {} }");
-        return sparql.toString();
-    }
-
-    private void insert(String subject, String predicate, String object) {
-        try (CachedObjectMapper om = new CachedObjectMapper()) {
-            String sparql = getSparqlInsert();
-            try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-                Update qry = prepareUpdateSparql(conn, sparql);
-                qry.setBinding("s", Values.iri(subject));
-                qry.setBinding("p", Values.iri(predicate));
-                qry.setBinding("o", literal(object));
-                qry.execute();
-            }
-        }
-    }
+  }
 
 
 }

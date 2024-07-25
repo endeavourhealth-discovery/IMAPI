@@ -13,9 +13,9 @@ import jakarta.xml.bind.annotation.*;
 
 /**
  * <p>Java class for EQDOC.AggregateLibraryBanding complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.AggregateLibraryBanding"&gt;
  *   &lt;complexContent&gt;
@@ -28,68 +28,58 @@ import jakarta.xml.bind.annotation.*;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.AggregateLibraryBanding", propOrder = {
-    "inputAction",
-    "banding"
+  "inputAction",
+  "banding"
 })
 public class EQDOCAggregateLibraryBanding {
 
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "string")
-    protected VocInputAction inputAction;
-    @XmlElement(required = true)
-    protected EQDOCAggregateBanding banding;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "string")
+  protected VocInputAction inputAction;
+  @XmlElement(required = true)
+  protected EQDOCAggregateBanding banding;
 
-    /**
-     * Gets the value of the inputAction property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocInputAction }
-     *     
-     */
-    public VocInputAction getInputAction() {
-        return inputAction;
-    }
+  /**
+   * Gets the value of the inputAction property.
+   *
+   * @return possible object is
+   * {@link VocInputAction }
+   */
+  public VocInputAction getInputAction() {
+    return inputAction;
+  }
 
-    /**
-     * Sets the value of the inputAction property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocInputAction }
-     *     
-     */
-    public void setInputAction(VocInputAction value) {
-        this.inputAction = value;
-    }
+  /**
+   * Sets the value of the inputAction property.
+   *
+   * @param value allowed object is
+   *              {@link VocInputAction }
+   */
+  public void setInputAction(VocInputAction value) {
+    this.inputAction = value;
+  }
 
-    /**
-     * Gets the value of the banding property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCAggregateBanding }
-     *     
-     */
-    public EQDOCAggregateBanding getBanding() {
-        return banding;
-    }
+  /**
+   * Gets the value of the banding property.
+   *
+   * @return possible object is
+   * {@link EQDOCAggregateBanding }
+   */
+  public EQDOCAggregateBanding getBanding() {
+    return banding;
+  }
 
-    /**
-     * Sets the value of the banding property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCAggregateBanding }
-     *     
-     */
-    public void setBanding(EQDOCAggregateBanding value) {
-        this.banding = value;
-    }
+  /**
+   * Sets the value of the banding property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCAggregateBanding }
+   */
+  public void setBanding(EQDOCAggregateBanding value) {
+    this.banding = value;
+  }
 
 }

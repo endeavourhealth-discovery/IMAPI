@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for EQDOC.GpesSubstitutionValue complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.GpesSubstitutionValue"&gt;
  *   &lt;complexContent&gt;
@@ -33,151 +33,129 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.GpesSubstitutionValue", propOrder = {
-    "aid",
-    "description",
-    "customData",
-    "substitutionValueType",
-    "analogousAID"
+  "aid",
+  "description",
+  "customData",
+  "substitutionValueType",
+  "analogousAID"
 })
 public class EQDOCGpesSubstitutionValue {
 
-    @XmlElement(name = "AID", required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String aid;
-    @XmlElement(required = true)
-    protected String description;
-    protected String customData;
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "token")
-    protected VocSubstitutionValueType substitutionValueType;
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String analogousAID;
+  @XmlElement(name = "AID", required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String aid;
+  @XmlElement(required = true)
+  protected String description;
+  protected String customData;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "token")
+  protected VocSubstitutionValueType substitutionValueType;
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String analogousAID;
 
-    /**
-     * Gets the value of the aid property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAID() {
-        return aid;
-    }
+  /**
+   * Gets the value of the aid property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getAID() {
+    return aid;
+  }
 
-    /**
-     * Sets the value of the aid property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAID(String value) {
-        this.aid = value;
-    }
+  /**
+   * Sets the value of the aid property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setAID(String value) {
+    this.aid = value;
+  }
 
-    /**
-     * Gets the value of the description property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDescription() {
-        return description;
-    }
+  /**
+   * Gets the value of the description property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getDescription() {
+    return description;
+  }
 
-    /**
-     * Sets the value of the description property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDescription(String value) {
-        this.description = value;
-    }
+  /**
+   * Sets the value of the description property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setDescription(String value) {
+    this.description = value;
+  }
 
-    /**
-     * Gets the value of the customData property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getCustomData() {
-        return customData;
-    }
+  /**
+   * Gets the value of the customData property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getCustomData() {
+    return customData;
+  }
 
-    /**
-     * Sets the value of the customData property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setCustomData(String value) {
-        this.customData = value;
-    }
+  /**
+   * Sets the value of the customData property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setCustomData(String value) {
+    this.customData = value;
+  }
 
-    /**
-     * Gets the value of the substitutionValueType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocSubstitutionValueType }
-     *     
-     */
-    public VocSubstitutionValueType getSubstitutionValueType() {
-        return substitutionValueType;
-    }
+  /**
+   * Gets the value of the substitutionValueType property.
+   *
+   * @return possible object is
+   * {@link VocSubstitutionValueType }
+   */
+  public VocSubstitutionValueType getSubstitutionValueType() {
+    return substitutionValueType;
+  }
 
-    /**
-     * Sets the value of the substitutionValueType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocSubstitutionValueType }
-     *     
-     */
-    public void setSubstitutionValueType(VocSubstitutionValueType value) {
-        this.substitutionValueType = value;
-    }
+  /**
+   * Sets the value of the substitutionValueType property.
+   *
+   * @param value allowed object is
+   *              {@link VocSubstitutionValueType }
+   */
+  public void setSubstitutionValueType(VocSubstitutionValueType value) {
+    this.substitutionValueType = value;
+  }
 
-    /**
-     * Gets the value of the analogousAID property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAnalogousAID() {
-        return analogousAID;
-    }
+  /**
+   * Gets the value of the analogousAID property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getAnalogousAID() {
+    return analogousAID;
+  }
 
-    /**
-     * Sets the value of the analogousAID property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAnalogousAID(String value) {
-        this.analogousAID = value;
-    }
+  /**
+   * Sets the value of the analogousAID property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setAnalogousAID(String value) {
+    this.analogousAID = value;
+  }
 
 }

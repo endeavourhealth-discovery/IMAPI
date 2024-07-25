@@ -15,7 +15,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.PathMessageType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -28,55 +28,50 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.PathMessageType")
 @XmlEnum
 public enum VocPathMessageType {
 
 
-    /**
-     * ASTM
-     * 
-     */
-    ASTM("ASTM"),
+  /**
+   * ASTM
+   */
+  ASTM("ASTM"),
 
-    /**
-     * MEDRPT
-     * 
-     */
-    MEDRPT("MEDRPT"),
+  /**
+   * MEDRPT
+   */
+  MEDRPT("MEDRPT"),
 
-    /**
-     * NHS002
-     * 
-     */
-    @XmlEnumValue("NHS002")
-    NHS_002("NHS002"),
+  /**
+   * NHS002
+   */
+  @XmlEnumValue("NHS002")
+  NHS_002("NHS002"),
 
-    /**
-     * NHS003
-     * 
-     */
-    @XmlEnumValue("NHS003")
-    NHS_003("NHS003");
-    private final String value;
+  /**
+   * NHS003
+   */
+  @XmlEnumValue("NHS003")
+  NHS_003("NHS003");
+  private final String value;
 
-    VocPathMessageType(String v) {
-        value = v;
+  VocPathMessageType(String v) {
+    value = v;
+  }
+
+  public String value() {
+    return value;
+  }
+
+  public static VocPathMessageType fromValue(String v) {
+    for (VocPathMessageType c : VocPathMessageType.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
-
-    public String value() {
-        return value;
-    }
-
-    public static VocPathMessageType fromValue(String v) {
-        for (VocPathMessageType c: VocPathMessageType.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
-    }
+    throw new IllegalArgumentException(v);
+  }
 
 }

@@ -16,9 +16,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for EQDOC.FrequencyRangeFrom complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.FrequencyRangeFrom"&gt;
  *   &lt;complexContent&gt;
@@ -31,58 +31,50 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.FrequencyRangeFrom", propOrder = {
-    "value",
-    "operator"
+  "value",
+  "operator"
 })
 public class EQDOCFrequencyRangeFrom {
 
-    protected int value;
-    @XmlSchemaType(name = "token")
-    protected VocRangeFromOperator operator;
+  protected int value;
+  @XmlSchemaType(name = "token")
+  protected VocRangeFromOperator operator;
 
-    /**
-     * Gets the value of the value property.
-     * 
-     */
-    public int getValue() {
-        return value;
-    }
+  /**
+   * Gets the value of the value property.
+   */
+  public int getValue() {
+    return value;
+  }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     */
-    public void setValue(int value) {
-        this.value = value;
-    }
+  /**
+   * Sets the value of the value property.
+   */
+  public void setValue(int value) {
+    this.value = value;
+  }
 
-    /**
-     * Gets the value of the operator property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocRangeFromOperator }
-     *     
-     */
-    public VocRangeFromOperator getOperator() {
-        return operator;
-    }
+  /**
+   * Gets the value of the operator property.
+   *
+   * @return possible object is
+   * {@link VocRangeFromOperator }
+   */
+  public VocRangeFromOperator getOperator() {
+    return operator;
+  }
 
-    /**
-     * Sets the value of the operator property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocRangeFromOperator }
-     *     
-     */
-    public void setOperator(VocRangeFromOperator value) {
-        this.operator = value;
-    }
+  /**
+   * Sets the value of the operator property.
+   *
+   * @param value allowed object is
+   *              {@link VocRangeFromOperator }
+   */
+  public void setOperator(VocRangeFromOperator value) {
+    this.operator = value;
+  }
 
 }

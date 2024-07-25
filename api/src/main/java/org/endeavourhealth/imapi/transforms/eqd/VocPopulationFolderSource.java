@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.PopulationFolderSource.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -26,37 +26,33 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.PopulationFolderSource")
 @XmlEnum
 public enum VocPopulationFolderSource {
 
 
-    /**
-     * Organisation based source
-     * 
-     */
-    ORG,
+  /**
+   * Organisation based source
+   */
+  ORG,
 
-    /**
-     * QOF searches (ie nGMS Searches)
-     * 
-     */
-    QOF,
+  /**
+   * QOF searches (ie nGMS Searches)
+   */
+  QOF,
 
-    /**
-     * Emis provided searches
-     * 
-     */
-    EMIS;
+  /**
+   * Emis provided searches
+   */
+  EMIS;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocPopulationFolderSource fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocPopulationFolderSource fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

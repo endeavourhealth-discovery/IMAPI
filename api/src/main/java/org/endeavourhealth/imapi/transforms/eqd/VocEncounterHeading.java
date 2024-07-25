@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.EncounterHeading.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -54,205 +54,173 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.EncounterHeading")
 @XmlEnum
 public enum VocEncounterHeading {
 
 
-    /**
-     * Additional
-     * 
-     */
-    ADD,
+  /**
+   * Additional
+   */
+  ADD,
 
-    /**
-     * Problem
-     * 
-     */
-    PROB,
+  /**
+   * Problem
+   */
+  PROB,
 
-    /**
-     * History
-     * 
-     */
-    HIST,
+  /**
+   * History
+   */
+  HIST,
 
-    /**
-     * Examination
-     * 
-     */
-    EXAM,
+  /**
+   * Examination
+   */
+  EXAM,
 
-    /**
-     * Family History
-     * 
-     */
-    FH,
+  /**
+   * Family History
+   */
+  FH,
 
-    /**
-     * Social
-     * 
-     */
-    SOC,
+  /**
+   * Social
+   */
+  SOC,
 
-    /**
-     * Comment
-     * 
-     */
-    COM,
+  /**
+   * Comment
+   */
+  COM,
 
-    /**
-     * Result
-     * 
-     */
-    RES,
+  /**
+   * Result
+   */
+  RES,
 
-    /**
-     * Medication
-     * 
-     */
-    MED,
+  /**
+   * Medication
+   */
+  MED,
 
-    /**
-     * Follow up
-     * 
-     */
-    DRY,
+  /**
+   * Follow up
+   */
+  DRY,
 
-    /**
-     * Test Request
-     * 
-     */
-    TR,
+  /**
+   * Test Request
+   */
+  TR,
 
-    /**
-     * New Referral
-     * 
-     */
-    REF,
+  /**
+   * New Referral
+   */
+  REF,
 
-    /**
-     * Allergy
-     * 
-     */
-    ALL,
+  /**
+   * Allergy
+   */
+  ALL,
 
-    /**
-     * Referral Activity
-     * 
-     */
-    RA,
+  /**
+   * Referral Activity
+   */
+  RA,
 
-    /**
-     * Signs/Symptoms
-     * 
-     */
-    SS,
+  /**
+   * Signs/Symptoms
+   */
+  SS,
 
-    /**
-     * Problem Ratings
-     * 
-     */
-    PR,
+  /**
+   * Problem Ratings
+   */
+  PR,
 
-    /**
-     * Health Teaching, Guidance, and Counselling
-     * 
-     */
-    HTGC,
+  /**
+   * Health Teaching, Guidance, and Counselling
+   */
+  HTGC,
 
-    /**
-     * Treatments and Procedures
-     * 
-     */
-    TP,
+  /**
+   * Treatments and Procedures
+   */
+  TP,
 
-    /**
-     * Case Management
-     * 
-     */
-    CM,
+  /**
+   * Case Management
+   */
+  CM,
 
-    /**
-     * Surveillance
-     * 
-     */
-    SERV,
+  /**
+   * Surveillance
+   */
+  SERV,
 
-    /**
-     * Assessment Tool
-     * 
-     */
-    AT,
+  /**
+   * Assessment Tool
+   */
+  AT,
 
-    /**
-     * Assessment Tool Details
-     * 
-     */
-    ATD,
+  /**
+   * Assessment Tool Details
+   */
+  ATD,
 
-    /**
-     * Reason for Care
-     * 
-     */
-    RFC,
+  /**
+   * Reason for Care
+   */
+  RFC,
 
-    /**
-     * Hide Sign/Symptom
-     * 
-     */
-    HSS,
+  /**
+   * Hide Sign/Symptom
+   */
+  HSS,
 
-    /**
-     * Assessment Section
-     * 
-     */
-    AS,
+  /**
+   * Assessment Section
+   */
+  AS,
 
-    /**
-     * Health Needs (Community)
-     * 
-     */
-    HN,
+  /**
+   * Health Needs (Community)
+   */
+  HN,
 
-    /**
-     * Action Plan (Community)
-     * 
-     */
-    AP,
+  /**
+   * Action Plan (Community)
+   */
+  AP,
 
-    /**
-     * Procedure Codes (Community)
-     * 
-     */
-    PC,
+  /**
+   * Procedure Codes (Community)
+   */
+  PC,
 
-    /**
-     * Values (Community)
-     * 
-     */
-    VAL,
+  /**
+   * Values (Community)
+   */
+  VAL,
 
-    /**
-     * Template Entry
-     * 
-     */
-    TEMP,
+  /**
+   * Template Entry
+   */
+  TEMP,
 
-    /**
-     * Protocol
-     * 
-     */
-    PRO;
+  /**
+   * Protocol
+   */
+  PRO;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocEncounterHeading fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocEncounterHeading fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

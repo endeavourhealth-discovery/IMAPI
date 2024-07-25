@@ -12,15 +12,16 @@ import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlType;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * <p>Java class for EQDOC.Parameters complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.Parameters"&gt;
  *   &lt;complexContent&gt;
@@ -34,104 +35,94 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.Parameters", propOrder = {
-    "inputParam",
-    "patientFilter",
-    "substitutionValue"
+  "inputParam",
+  "patientFilter",
+  "substitutionValue"
 })
 public class EQDOCParameters {
 
-    @XmlElement(name = "InputParam")
-    protected List<EQDOCInputParameter> inputParam;
-    @XmlElement(name = "PatientFilter")
-    protected EQDOCPatientFilter patientFilter;
-    @XmlElement(name = "SubstitutionValue")
-    protected List<EQDOCSubstitutionValue> substitutionValue;
+  @XmlElement(name = "InputParam")
+  protected List<EQDOCInputParameter> inputParam;
+  @XmlElement(name = "PatientFilter")
+  protected EQDOCPatientFilter patientFilter;
+  @XmlElement(name = "SubstitutionValue")
+  protected List<EQDOCSubstitutionValue> substitutionValue;
 
-    /**
-     * Gets the value of the inputParam property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the inputParam property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getInputParam().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCInputParameter }
-     * 
-     * 
-     */
-    public List<EQDOCInputParameter> getInputParam() {
-        if (inputParam == null) {
-            inputParam = new ArrayList<EQDOCInputParameter>();
-        }
-        return this.inputParam;
+  /**
+   * Gets the value of the inputParam property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the inputParam property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getInputParam().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCInputParameter }
+   */
+  public List<EQDOCInputParameter> getInputParam() {
+    if (inputParam == null) {
+      inputParam = new ArrayList<EQDOCInputParameter>();
     }
+    return this.inputParam;
+  }
 
-    /**
-     * Gets the value of the patientFilter property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCPatientFilter }
-     *     
-     */
-    public EQDOCPatientFilter getPatientFilter() {
-        return patientFilter;
-    }
+  /**
+   * Gets the value of the patientFilter property.
+   *
+   * @return possible object is
+   * {@link EQDOCPatientFilter }
+   */
+  public EQDOCPatientFilter getPatientFilter() {
+    return patientFilter;
+  }
 
-    /**
-     * Sets the value of the patientFilter property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCPatientFilter }
-     *     
-     */
-    public void setPatientFilter(EQDOCPatientFilter value) {
-        this.patientFilter = value;
-    }
+  /**
+   * Sets the value of the patientFilter property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCPatientFilter }
+   */
+  public void setPatientFilter(EQDOCPatientFilter value) {
+    this.patientFilter = value;
+  }
 
-    /**
-     * Gets the value of the substitutionValue property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the substitutionValue property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getSubstitutionValue().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCSubstitutionValue }
-     * 
-     * 
-     */
-    public List<EQDOCSubstitutionValue> getSubstitutionValue() {
-        if (substitutionValue == null) {
-            substitutionValue = new ArrayList<EQDOCSubstitutionValue>();
-        }
-        return this.substitutionValue;
+  /**
+   * Gets the value of the substitutionValue property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the substitutionValue property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getSubstitutionValue().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCSubstitutionValue }
+   */
+  public List<EQDOCSubstitutionValue> getSubstitutionValue() {
+    if (substitutionValue == null) {
+      substitutionValue = new ArrayList<EQDOCSubstitutionValue>();
     }
+    return this.substitutionValue;
+  }
 
 }

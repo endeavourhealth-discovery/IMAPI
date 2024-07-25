@@ -26,7 +26,6 @@
         "name": "FILTER_DEFAULTS",
         "value": "CONFIG.NAMESPACE + \"filterDefaults\""
       },
-
       {
         "name": "INFERRED_PREDICATES",
         "value": "CONFIG.NAMESPACE + \"inferredPredicates\""
@@ -1303,9 +1302,9 @@
       {
         "name": "NAMESPACE",
         "value": "BNF.DOMAIN + \"bnf#\""
-      }]
       }
-    ,
+    ]
+  },
   {
     "name": "QR",
     "entries": [
@@ -1975,7 +1974,6 @@
         "name": "SEARCH_CONTAINED_IN",
         "value": "QUERY.NAMESPACE + \"SearchContainedIn\""
       },
-
       {
         "name": "ALLOWABLE_CHILD_TYPES",
         "value": "QUERY.NAMESPACE + \"AllowableChildTypes\""

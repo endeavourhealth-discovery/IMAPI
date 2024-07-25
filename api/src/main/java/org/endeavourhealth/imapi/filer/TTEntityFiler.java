@@ -7,12 +7,15 @@ import java.util.Map;
 import java.util.Set;
 
 public interface TTEntityFiler {
-    void fileEntity(TTEntity entity, TTIriRef graph) throws TTFilerException;
-    void updateIsAs(String entity) throws TTFilerException;
-    Set<String> getIsAs(String iri) throws TTFilerException;
-    void fileIsAs(Map<String,Set<String>> isAs);
+  void fileEntity(TTEntity entity, TTIriRef graph) throws TTFilerException;
 
-    Set<TTEntity> getDescendants(Set<String> entities);
+  void updateIsAs(String entity) throws TTFilerException;
 
-    void deleteIsas(Set<String> entities);
+  Set<String> getIsAs(String iri) throws TTFilerException;
+
+  void fileIsAs(Map<String, Set<String>> isAs);
+
+  Set<TTEntity> getDescendants(Set<String> entities);
+
+  void deleteIsas(Set<String> entities);
 }

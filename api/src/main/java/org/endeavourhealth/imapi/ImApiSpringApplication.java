@@ -15,28 +15,28 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class })
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @Configuration
 public class ImApiSpringApplication extends SpringBootServletInitializer {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ImApiSpringApplication.class, args);
-	}
-	
-	@Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*");
-        config.setAllowedMethods(Arrays.asList("POST", "OPTIONS", "GET", "DELETE", "PUT"));
-        config.setAllowedHeaders(Arrays.asList("X-Requested-From", "Origin", "Content-Type", "Accept", "Authorization"));
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(ImApiSpringApplication.class, args);
+  }
 
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(ImApiSpringApplication.class);
-    }
+  @Bean
+  public CorsFilter corsFilter() {
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowCredentials(true);
+    config.addAllowedOriginPattern("*");
+    config.setAllowedMethods(Arrays.asList("POST", "OPTIONS", "GET", "DELETE", "PUT"));
+    config.setAllowedHeaders(Arrays.asList("X-Requested-From", "Origin", "Content-Type", "Accept", "Authorization"));
+    source.registerCorsConfiguration("/**", config);
+    return new CorsFilter(source);
+  }
+
+  @Override
+  protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+    return application.sources(ImApiSpringApplication.class);
+  }
 }

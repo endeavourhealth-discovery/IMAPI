@@ -15,7 +15,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.MessageAuthorSystemType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -30,61 +30,55 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.MessageAuthorSystemType")
 @XmlEnum
 public enum VocMessageAuthorSystemType {
 
 
-    /**
-     * EMIS LV clinical system
-     * 
-     */
-    LV("LV"),
+  /**
+   * EMIS LV clinical system
+   */
+  LV("LV"),
 
-    /**
-     * EMIS GV clinical system
-     * 
-     */
-    GV("GV"),
+  /**
+   * EMIS GV clinical system
+   */
+  GV("GV"),
 
-    /**
-     * EMIS PCS clinical system
-     * 
-     */
-    PCS("PCS"),
+  /**
+   * EMIS PCS clinical system
+   */
+  PCS("PCS"),
 
-    /**
-     * EMISWEB clinical system
-     * 
-     */
-    EMISWEB("EMISWEB"),
+  /**
+   * EMISWEB clinical system
+   */
+  EMISWEB("EMISWEB"),
 
-    /**
-     * Clinical system external to EMIS
-     * 
-     */
-    EXT("EXT"),
-    @XmlEnumValue("GP2GP")
-    GP_2_GP("GP2GP");
-    private final String value;
+  /**
+   * Clinical system external to EMIS
+   */
+  EXT("EXT"),
+  @XmlEnumValue("GP2GP")
+  GP_2_GP("GP2GP");
+  private final String value;
 
-    VocMessageAuthorSystemType(String v) {
-        value = v;
+  VocMessageAuthorSystemType(String v) {
+    value = v;
+  }
+
+  public String value() {
+    return value;
+  }
+
+  public static VocMessageAuthorSystemType fromValue(String v) {
+    for (VocMessageAuthorSystemType c : VocMessageAuthorSystemType.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
-
-    public String value() {
-        return value;
-    }
-
-    public static VocMessageAuthorSystemType fromValue(String v) {
-        for (VocMessageAuthorSystemType c: VocMessageAuthorSystemType.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
-    }
+    throw new IllegalArgumentException(v);
+  }
 
 }

@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for EQDOC.BandSingleValue complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.BandSingleValue"&gt;
  *   &lt;complexContent&gt;
@@ -35,150 +35,128 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.BandSingleValue", propOrder = {
-    "value",
-    "datetimeUnit",
-    "timespanUnit",
-    "relation",
-    "displayText"
+  "value",
+  "datetimeUnit",
+  "timespanUnit",
+  "relation",
+  "displayText"
 })
 public class EQDOCBandSingleValue {
 
-    @XmlElement(required = true)
-    protected String value;
-    @XmlSchemaType(name = "token")
-    protected VocBandDateTimeUnit datetimeUnit;
-    @XmlSchemaType(name = "token")
-    protected VocBandTimespanUnit timespanUnit;
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "string")
-    protected VocRelation relation;
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String displayText;
+  @XmlElement(required = true)
+  protected String value;
+  @XmlSchemaType(name = "token")
+  protected VocBandDateTimeUnit datetimeUnit;
+  @XmlSchemaType(name = "token")
+  protected VocBandTimespanUnit timespanUnit;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "string")
+  protected VocRelation relation;
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String displayText;
 
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getValue() {
-        return value;
-    }
+  /**
+   * Gets the value of the value property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getValue() {
+    return value;
+  }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setValue(String value) {
-        this.value = value;
-    }
+  /**
+   * Sets the value of the value property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-    /**
-     * Gets the value of the datetimeUnit property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocBandDateTimeUnit }
-     *     
-     */
-    public VocBandDateTimeUnit getDatetimeUnit() {
-        return datetimeUnit;
-    }
+  /**
+   * Gets the value of the datetimeUnit property.
+   *
+   * @return possible object is
+   * {@link VocBandDateTimeUnit }
+   */
+  public VocBandDateTimeUnit getDatetimeUnit() {
+    return datetimeUnit;
+  }
 
-    /**
-     * Sets the value of the datetimeUnit property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocBandDateTimeUnit }
-     *     
-     */
-    public void setDatetimeUnit(VocBandDateTimeUnit value) {
-        this.datetimeUnit = value;
-    }
+  /**
+   * Sets the value of the datetimeUnit property.
+   *
+   * @param value allowed object is
+   *              {@link VocBandDateTimeUnit }
+   */
+  public void setDatetimeUnit(VocBandDateTimeUnit value) {
+    this.datetimeUnit = value;
+  }
 
-    /**
-     * Gets the value of the timespanUnit property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocBandTimespanUnit }
-     *     
-     */
-    public VocBandTimespanUnit getTimespanUnit() {
-        return timespanUnit;
-    }
+  /**
+   * Gets the value of the timespanUnit property.
+   *
+   * @return possible object is
+   * {@link VocBandTimespanUnit }
+   */
+  public VocBandTimespanUnit getTimespanUnit() {
+    return timespanUnit;
+  }
 
-    /**
-     * Sets the value of the timespanUnit property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocBandTimespanUnit }
-     *     
-     */
-    public void setTimespanUnit(VocBandTimespanUnit value) {
-        this.timespanUnit = value;
-    }
+  /**
+   * Sets the value of the timespanUnit property.
+   *
+   * @param value allowed object is
+   *              {@link VocBandTimespanUnit }
+   */
+  public void setTimespanUnit(VocBandTimespanUnit value) {
+    this.timespanUnit = value;
+  }
 
-    /**
-     * Gets the value of the relation property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocRelation }
-     *     
-     */
-    public VocRelation getRelation() {
-        return relation;
-    }
+  /**
+   * Gets the value of the relation property.
+   *
+   * @return possible object is
+   * {@link VocRelation }
+   */
+  public VocRelation getRelation() {
+    return relation;
+  }
 
-    /**
-     * Sets the value of the relation property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocRelation }
-     *     
-     */
-    public void setRelation(VocRelation value) {
-        this.relation = value;
-    }
+  /**
+   * Sets the value of the relation property.
+   *
+   * @param value allowed object is
+   *              {@link VocRelation }
+   */
+  public void setRelation(VocRelation value) {
+    this.relation = value;
+  }
 
-    /**
-     * Gets the value of the displayText property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDisplayText() {
-        return displayText;
-    }
+  /**
+   * Gets the value of the displayText property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getDisplayText() {
+    return displayText;
+  }
 
-    /**
-     * Sets the value of the displayText property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDisplayText(String value) {
-        this.displayText = value;
-    }
+  /**
+   * Sets the value of the displayText property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setDisplayText(String value) {
+    this.displayText = value;
+  }
 
 }

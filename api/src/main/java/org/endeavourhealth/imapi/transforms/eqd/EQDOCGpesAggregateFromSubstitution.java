@@ -18,9 +18,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for EQDOC.GpesAggregateFromSubstitution complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.GpesAggregateFromSubstitution"&gt;
  *   &lt;complexContent&gt;
@@ -32,92 +32,78 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.GpesAggregateFromSubstitution")
 public class EQDOCGpesAggregateFromSubstitution {
 
-    @XmlAttribute(name = "AID", required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String aid;
-    @XmlAttribute(name = "substitutionValueAid", required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String substitutionValueAid;
-    @XmlAttribute(name = "description", required = true)
-    protected String description;
+  @XmlAttribute(name = "AID", required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  protected String aid;
+  @XmlAttribute(name = "substitutionValueAid", required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  protected String substitutionValueAid;
+  @XmlAttribute(name = "description", required = true)
+  protected String description;
 
-    /**
-     * Gets the value of the aid property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAID() {
-        return aid;
-    }
+  /**
+   * Gets the value of the aid property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getAID() {
+    return aid;
+  }
 
-    /**
-     * Sets the value of the aid property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAID(String value) {
-        this.aid = value;
-    }
+  /**
+   * Sets the value of the aid property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setAID(String value) {
+    this.aid = value;
+  }
 
-    /**
-     * Gets the value of the substitutionValueAid property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getSubstitutionValueAid() {
-        return substitutionValueAid;
-    }
+  /**
+   * Gets the value of the substitutionValueAid property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getSubstitutionValueAid() {
+    return substitutionValueAid;
+  }
 
-    /**
-     * Sets the value of the substitutionValueAid property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setSubstitutionValueAid(String value) {
-        this.substitutionValueAid = value;
-    }
+  /**
+   * Sets the value of the substitutionValueAid property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setSubstitutionValueAid(String value) {
+    this.substitutionValueAid = value;
+  }
 
-    /**
-     * Gets the value of the description property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDescription() {
-        return description;
-    }
+  /**
+   * Gets the value of the description property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getDescription() {
+    return description;
+  }
 
-    /**
-     * Sets the value of the description property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDescription(String value) {
-        this.description = value;
-    }
+  /**
+   * Sets the value of the description property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setDescription(String value) {
+    this.description = value;
+  }
 
 }

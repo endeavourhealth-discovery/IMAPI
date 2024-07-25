@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.ContractualRelationship.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -26,37 +26,33 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.ContractualRelationship")
 @XmlEnum
 public enum VocContractualRelationship {
 
 
-    /**
-     * Employed
-     * 
-     */
-    E,
+  /**
+   * Employed
+   */
+  E,
 
-    /**
-     * Associated
-     * 
-     */
-    A,
+  /**
+   * Associated
+   */
+  A,
 
-    /**
-     * Employed By PCT
-     * 
-     */
-    P;
+  /**
+   * Employed By PCT
+   */
+  P;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocContractualRelationship fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocContractualRelationship fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

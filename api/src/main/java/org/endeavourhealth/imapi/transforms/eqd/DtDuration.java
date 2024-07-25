@@ -16,11 +16,11 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * Represents a duration of time.
- * 
+ *
  * <p>Java class for dt.Duration complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="dt.Duration"&gt;
  *   &lt;complexContent&gt;
@@ -31,56 +31,48 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "dt.Duration")
 public class DtDuration {
 
-    @XmlAttribute(name = "unit", required = true)
-    protected VocTimeUnit unit;
-    @XmlAttribute(name = "value", required = true)
-    protected int value;
+  @XmlAttribute(name = "unit", required = true)
+  protected VocTimeUnit unit;
+  @XmlAttribute(name = "value", required = true)
+  protected int value;
 
-    /**
-     * Gets the value of the unit property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocTimeUnit }
-     *     
-     */
-    public VocTimeUnit getUnit() {
-        return unit;
-    }
+  /**
+   * Gets the value of the unit property.
+   *
+   * @return possible object is
+   * {@link VocTimeUnit }
+   */
+  public VocTimeUnit getUnit() {
+    return unit;
+  }
 
-    /**
-     * Sets the value of the unit property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocTimeUnit }
-     *     
-     */
-    public void setUnit(VocTimeUnit value) {
-        this.unit = value;
-    }
+  /**
+   * Sets the value of the unit property.
+   *
+   * @param value allowed object is
+   *              {@link VocTimeUnit }
+   */
+  public void setUnit(VocTimeUnit value) {
+    this.unit = value;
+  }
 
-    /**
-     * Gets the value of the value property.
-     * 
-     */
-    public int getValue() {
-        return value;
-    }
+  /**
+   * Gets the value of the value property.
+   */
+  public int getValue() {
+    return value;
+  }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     */
-    public void setValue(int value) {
-        this.value = value;
-    }
+  /**
+   * Sets the value of the value property.
+   */
+  public void setValue(int value) {
+    this.value = value;
+  }
 
 }

@@ -18,9 +18,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for EQDOC.GpesFieldPrimaryKeyType complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.GpesFieldPrimaryKeyType"&gt;
  *   &lt;complexContent&gt;
@@ -30,39 +30,33 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.GpesFieldPrimaryKeyType")
 public class EQDOCGpesFieldPrimaryKeyType {
 
-    @XmlAttribute(name = "columnGuid", required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String columnGuid;
+  @XmlAttribute(name = "columnGuid", required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  protected String columnGuid;
 
-    /**
-     * Gets the value of the columnGuid property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getColumnGuid() {
-        return columnGuid;
-    }
+  /**
+   * Gets the value of the columnGuid property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getColumnGuid() {
+    return columnGuid;
+  }
 
-    /**
-     * Sets the value of the columnGuid property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setColumnGuid(String value) {
-        this.columnGuid = value;
-    }
+  /**
+   * Sets the value of the columnGuid property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setColumnGuid(String value) {
+    this.columnGuid = value;
+  }
 
 }

@@ -18,227 +18,227 @@ import java.util.stream.Collectors;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class XlsHelper {
-	private final Workbook workbook;
-	private final CellStyle headerStyle;
+  private final Workbook workbook;
+  private final CellStyle headerStyle;
 
-	public XlsHelper() {
-		this.workbook = new XSSFWorkbook();
-		XSSFFont font = ((XSSFWorkbook) workbook).createFont();
-		this.headerStyle = workbook.createCellStyle();
-		font.setBold(true);
-		headerStyle.setFont(font);
-	}
+  public XlsHelper() {
+    this.workbook = new XSSFWorkbook();
+    XSSFFont font = ((XSSFWorkbook) workbook).createFont();
+    this.headerStyle = workbook.createCellStyle();
+    font.setBold(true);
+    headerStyle.setFont(font);
+  }
 
-	public Workbook getWorkbook() {
-		return workbook;
-	}
+  public Workbook getWorkbook() {
+    return workbook;
+  }
 
-	public void addSummary(TTEntity summary) {
-		if (summary == null) {
-			return;
-		}
-		if (summary.getIri() == null) {
-			return;
-		}
-		Set<TTIriRef> predicates = summary.getPredicateMap().keySet();
-		List<String> predicateNames = new ArrayList<>();
-		predicateNames.add("Iri");
-		predicateNames.addAll(predicates.stream().map(TTIriRef::getName).collect(Collectors.toList()));
-		Sheet sheet = workbook.createSheet("Concept summary");
-		addHeaders(sheet, 10000, predicateNames);
-		Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+  public void addSummary(TTEntity summary) {
+    if (summary == null) {
+      return;
+    }
+    if (summary.getIri() == null) {
+      return;
+    }
+    Set<TTIriRef> predicates = summary.getPredicateMap().keySet();
+    List<String> predicateNames = new ArrayList<>();
+    predicateNames.add("Iri");
+    predicateNames.addAll(predicates.stream().map(TTIriRef::getName).collect(Collectors.toList()));
+    Sheet sheet = workbook.createSheet("Concept summary");
+    addHeaders(sheet, 10000, predicateNames);
+    Row row = sheet.createRow(sheet.getLastRowNum() + 1);
 //		iri
-		Cell iriCell = row.createCell(row.getLastCellNum() + 1);
-		iriCell.setCellValue(summary.getIri());
+    Cell iriCell = row.createCell(row.getLastCellNum() + 1);
+    iriCell.setCellValue(summary.getIri());
 
-		for (TTIriRef predicate : predicates) {
-			Cell cell = row.createCell(row.getLastCellNum());
-			TTArray value = summary.get(iri(predicate.getIri(), predicate.getName()));
-			if (value.isIriRef()) {
-				cell.setCellValue(value.asIriRef().getName());
-			} else if (value.isLiteral()) {
-				cell.setCellValue(value.asLiteral().getValue());
-			} else {
-				String result;
-				List<String> names = value.getElements().stream().map(item -> item.asIriRef().getName()).collect(Collectors.toList());
-				result = String.join(",", names);
-				cell.setCellValue(result);
-			}
-		}
-	}
+    for (TTIriRef predicate : predicates) {
+      Cell cell = row.createCell(row.getLastCellNum());
+      TTArray value = summary.get(iri(predicate.getIri(), predicate.getName()));
+      if (value.isIriRef()) {
+        cell.setCellValue(value.asIriRef().getName());
+      } else if (value.isLiteral()) {
+        cell.setCellValue(value.asLiteral().getValue());
+      } else {
+        String result;
+        List<String> names = value.getElements().stream().map(item -> item.asIriRef().getName()).collect(Collectors.toList());
+        result = String.join(",", names);
+        cell.setCellValue(result);
+      }
+    }
+  }
 
-	public void addHasSubTypes(List<EntityReferenceNode> childrenList) {
-		Sheet sheet = workbook.createSheet("Has sub types");
-		List<String> headers = Arrays.asList("Name", "Iri");
-		addHeaders(sheet, 20000, headers);
+  public void addHasSubTypes(List<EntityReferenceNode> childrenList) {
+    Sheet sheet = workbook.createSheet("Has sub types");
+    List<String> headers = Arrays.asList("Name", "Iri");
+    addHeaders(sheet, 20000, headers);
 
-		for (EntityReferenceNode child : childrenList) {
-			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-			Cell cell = row.createCell(0);
-			cell.setCellValue(child.getName());
-			cell = row.createCell(1);
-			cell.setCellValue(child.getIri());
-		}
-
-	}
-
-	public void addIsChildOf(List<TTValue> childList) {
-		addChild(childList, "Is child of");
-	}
-
-	private void addChild(List<TTValue> childList, String name) {
-		Sheet sheet = workbook.createSheet(name);
-		List<String> headers = Arrays.asList("Iri", "Name");
-		addHeaders(sheet, 10000, headers);
-
-		for (TTValue child : childList) {
-			if (child.isIriRef()) {
-				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-				Cell cell = row.createCell(0);
-				cell.setCellValue(child.asIriRef().getIri());
-				cell = row.createCell(1);
-				cell.setCellValue(child.asIriRef().getName());
-			}
-		}
-	}
-
-	public void addHasChildren(List<TTValue> childList) {
-		addChild(childList, "Has children");
-	}
-
-	public void addMembersSheet(ExportSet exportSet) {
-		Sheet sheet = workbook.createSheet("Members");
-		List<String> headers = Arrays.asList("Member type", "Member name", "Member iri", "Member code", "Scheme name", "Scheme iri", "Subset name", "Subset iri");
-		addHeaders(sheet, 10000, headers);
-
-        addMembers(sheet, exportSet.getMembers());
-
+    for (EntityReferenceNode child : childrenList) {
+      Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+      Cell cell = row.createCell(0);
+      cell.setCellValue(child.getName());
+      cell = row.createCell(1);
+      cell.setCellValue(child.getIri());
     }
 
-    private void addMembers(Sheet sheet, List<SetMember> included) {
-        for (SetMember c : included) {
-            Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-            Cell cell = row.createCell(0);
-			cell.setCellValue(c.getType().name());
-            cell = row.createCell(1);
-            cell.setCellValue(c.getEntity().asIriRef().getName());
-            cell = row.createCell(2);
-            cell.setCellValue(c.getEntity().asIriRef().getIri());
-            cell = row.createCell(3);
-            cell.setCellValue(c.getCode());
+  }
 
-            if (c.getScheme() != null) {
-                cell = row.createCell(4);
-                cell.setCellValue(c.getScheme().getIri());
-                cell = row.createCell(5);
-                cell.setCellValue(c.getScheme().getName());
-            }
-            if (c.getType() == MemberType.SUBSET) {
-				cell = row.createCell(6);
-				cell.setCellValue(c.getDirectParent().getName());
-				cell = row.createCell(7);
-				cell.setCellValue(c.getDirectParent().getIri());
-			} else {
-				cell = row.createCell(6);
-				cell.setCellValue("N/A");
-				cell = row.createCell(7);
-				cell.setCellValue("N/A");
-			}
-        }
+  public void addIsChildOf(List<TTValue> childList) {
+    addChild(childList, "Is child of");
+  }
+
+  private void addChild(List<TTValue> childList, String name) {
+    Sheet sheet = workbook.createSheet(name);
+    List<String> headers = Arrays.asList("Iri", "Name");
+    addHeaders(sheet, 10000, headers);
+
+    for (TTValue child : childList) {
+      if (child.isIriRef()) {
+        Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+        Cell cell = row.createCell(0);
+        cell.setCellValue(child.asIriRef().getIri());
+        cell = row.createCell(1);
+        cell.setCellValue(child.asIriRef().getName());
+      }
     }
+  }
 
-    public void addDataModelProperties(List<DataModelProperty> properties) {
-		Sheet sheet = workbook.createSheet("Data model properties");
-		List<String> headers = Arrays.asList("Included", "Member Name", "Member Iri", "Member Code", "Inherited Name", "Inherited Iri");
-        addHeaders(sheet, 10000, headers);
+  public void addHasChildren(List<TTValue> childList) {
+    addChild(childList, "Has children");
+  }
 
-		for (DataModelProperty property : properties) {
-			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-			Cell cell = row.createCell(0);
-			cell.setCellValue(property.getProperty().getName());
-			cell = row.createCell(1);
-			cell.setCellValue(property.getProperty().getIri());
-			if(property.getType()!=null){
-				cell = row.createCell(2);
-				cell.setCellValue(property.getType().getName());
-				cell = row.createCell(3);
-				cell.setCellValue(property.getType().getIri());
-			}
+  public void addMembersSheet(ExportSet exportSet) {
+    Sheet sheet = workbook.createSheet("Members");
+    List<String> headers = Arrays.asList("Member type", "Member name", "Member iri", "Member code", "Scheme name", "Scheme iri", "Subset name", "Subset iri");
+    addHeaders(sheet, 10000, headers);
 
-			if (null != property.getInheritedFrom()) {
-				cell = row.createCell(4);
-				cell.setCellValue(property.getInheritedFrom().getName());
-				cell = row.createCell(5);
-				cell.setCellValue(property.getInheritedFrom().getIri());
-			}
-		}
-	}
+    addMembers(sheet, exportSet.getMembers());
 
-	public void addTerms(List<SearchTermCode> terms) {
-		Sheet sheet = workbook.createSheet("Terms");
-		List<String> headers = Arrays.asList("Name", "Code", "Status");
-		addHeaders(sheet, 10000, headers);
+  }
 
-		for (SearchTermCode term : terms) {
-			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-			Cell cell = row.createCell(0);
-			cell.setCellValue(term.getTerm());
-			cell = row.createCell(1);
-			cell.setCellValue(term.getCode());
-			cell = row.createCell(2);
-			cell.setCellValue(term.getStatus().getName());
-		}
-	}
+  private void addMembers(Sheet sheet, List<SetMember> included) {
+    for (SetMember c : included) {
+      Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+      Cell cell = row.createCell(0);
+      cell.setCellValue(c.getType().name());
+      cell = row.createCell(1);
+      cell.setCellValue(c.getEntity().asIriRef().getName());
+      cell = row.createCell(2);
+      cell.setCellValue(c.getEntity().asIriRef().getIri());
+      cell = row.createCell(3);
+      cell.setCellValue(c.getCode());
 
-	private void addHeaders(Sheet sheet, int size, List<String> names) {
-        Row header = sheet.createRow(0);
-
-        int i = 0;
-        for(String name: names) {
-            sheet.setColumnWidth(i, size);
-            Cell headerCell = header.createCell(i);
-            headerCell.setCellValue(name);
-            headerCell.setCellStyle(headerStyle);
-            i++;
-        }
+      if (c.getScheme() != null) {
+        cell = row.createCell(4);
+        cell.setCellValue(c.getScheme().getIri());
+        cell = row.createCell(5);
+        cell.setCellValue(c.getScheme().getName());
+      }
+      if (c.getType() == MemberType.SUBSET) {
+        cell = row.createCell(6);
+        cell.setCellValue(c.getDirectParent().getName());
+        cell = row.createCell(7);
+        cell.setCellValue(c.getDirectParent().getIri());
+      } else {
+        cell = row.createCell(6);
+        cell.setCellValue("N/A");
+        cell = row.createCell(7);
+        cell.setCellValue("N/A");
+      }
     }
+  }
 
-    public void addInferred(TTBundle inferred) {
-        Sheet sheet = workbook.createSheet("Inferred");
+  public void addDataModelProperties(List<DataModelProperty> properties) {
+    Sheet sheet = workbook.createSheet("Data model properties");
+    List<String> headers = Arrays.asList("Included", "Member Name", "Member Iri", "Member Code", "Inherited Name", "Inherited Iri");
+    addHeaders(sheet, 10000, headers);
 
-        addBundleToSheet(inferred, sheet);
+    for (DataModelProperty property : properties) {
+      Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+      Cell cell = row.createCell(0);
+      cell.setCellValue(property.getProperty().getName());
+      cell = row.createCell(1);
+      cell.setCellValue(property.getProperty().getIri());
+      if (property.getType() != null) {
+        cell = row.createCell(2);
+        cell.setCellValue(property.getType().getName());
+        cell = row.createCell(3);
+        cell.setCellValue(property.getType().getIri());
+      }
+
+      if (null != property.getInheritedFrom()) {
+        cell = row.createCell(4);
+        cell.setCellValue(property.getInheritedFrom().getName());
+        cell = row.createCell(5);
+        cell.setCellValue(property.getInheritedFrom().getIri());
+      }
     }
+  }
 
-    private void addBundleToSheet(TTBundle inferred, Sheet sheet) {
-        AtomicInteger indent = new AtomicInteger();
-        TTVisitor v = new TTVisitor();
+  public void addTerms(List<SearchTermCode> terms) {
+    Sheet sheet = workbook.createSheet("Terms");
+    List<String> headers = Arrays.asList("Name", "Code", "Status");
+    addHeaders(sheet, 10000, headers);
 
-        v.onIriRef((predicate, iriRef) -> {
-            Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-            Cell cell = row.createCell(indent.get());
-            cell.setCellValue(iriRef.getIri());
-            cell = row.createCell(indent.get() + 1);
-            cell.setCellValue(iriRef.getName());
-        });
-
-        v.onList((predicate, node) -> {
-            Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-            Cell cell = row.createCell(indent.get());
-            cell.setCellValue(predicate.getIri());
-            cell = row.createCell(indent.get() + 1);
-            cell.setCellValue(predicate.getName());
-            indent.getAndIncrement();
-        });
-        v.onListExit((predicate, node) -> indent.getAndDecrement());
-
-        v.onNode((predicate, node) -> {
-            sheet.createRow(sheet.getLastRowNum() + 1);
-            indent.getAndIncrement();
-        });
-        v.onNodeExit((predicate, node) -> indent.getAndDecrement());
-
-        v.visit(inferred.getEntity());
+    for (SearchTermCode term : terms) {
+      Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+      Cell cell = row.createCell(0);
+      cell.setCellValue(term.getTerm());
+      cell = row.createCell(1);
+      cell.setCellValue(term.getCode());
+      cell = row.createCell(2);
+      cell.setCellValue(term.getStatus().getName());
     }
+  }
+
+  private void addHeaders(Sheet sheet, int size, List<String> names) {
+    Row header = sheet.createRow(0);
+
+    int i = 0;
+    for (String name : names) {
+      sheet.setColumnWidth(i, size);
+      Cell headerCell = header.createCell(i);
+      headerCell.setCellValue(name);
+      headerCell.setCellStyle(headerStyle);
+      i++;
+    }
+  }
+
+  public void addInferred(TTBundle inferred) {
+    Sheet sheet = workbook.createSheet("Inferred");
+
+    addBundleToSheet(inferred, sheet);
+  }
+
+  private void addBundleToSheet(TTBundle inferred, Sheet sheet) {
+    AtomicInteger indent = new AtomicInteger();
+    TTVisitor v = new TTVisitor();
+
+    v.onIriRef((predicate, iriRef) -> {
+      Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+      Cell cell = row.createCell(indent.get());
+      cell.setCellValue(iriRef.getIri());
+      cell = row.createCell(indent.get() + 1);
+      cell.setCellValue(iriRef.getName());
+    });
+
+    v.onList((predicate, node) -> {
+      Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+      Cell cell = row.createCell(indent.get());
+      cell.setCellValue(predicate.getIri());
+      cell = row.createCell(indent.get() + 1);
+      cell.setCellValue(predicate.getName());
+      indent.getAndIncrement();
+    });
+    v.onListExit((predicate, node) -> indent.getAndDecrement());
+
+    v.onNode((predicate, node) -> {
+      sheet.createRow(sheet.getLastRowNum() + 1);
+      indent.getAndIncrement();
+    });
+    v.onNodeExit((predicate, node) -> indent.getAndDecrement());
+
+    v.visit(inferred.getEntity());
+  }
 
 
 }

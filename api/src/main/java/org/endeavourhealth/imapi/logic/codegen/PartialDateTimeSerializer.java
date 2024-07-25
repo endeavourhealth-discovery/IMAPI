@@ -9,27 +9,27 @@ import java.time.format.DateTimeFormatter;
 
 public class PartialDateTimeSerializer extends StdSerializer<PartialDateTime> {
 
-    public PartialDateTimeSerializer() {
-        this(null);
+  public PartialDateTimeSerializer() {
+    this(null);
+  }
+
+  protected PartialDateTimeSerializer(Class<PartialDateTime> t) {
+    super(t);
+  }
+
+  @Override
+  public void serialize(PartialDateTime value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    if (value.getDateTime() == null) {
+      return;
     }
 
-    protected PartialDateTimeSerializer(Class<PartialDateTime> t) {
-        super(t);
-    }
+    String isoDateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").format(value.getDateTime());
 
-    @Override
-    public void serialize(PartialDateTime value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        if (value.getDateTime() == null) {
-            return;
-        }
+    gen.writeStartObject();
 
-        String isoDateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").format(value.getDateTime());
+    gen.writeStringField("dateTime", isoDateTime);
+    gen.writeStringField("precision", value.getPrecision().toString());
 
-        gen.writeStartObject();
-
-        gen.writeStringField("dateTime", isoDateTime);
-        gen.writeStringField("precision", value.getPrecision().toString());
-
-        gen.writeEndObject();
-    }
+    gen.writeEndObject();
+  }
 }

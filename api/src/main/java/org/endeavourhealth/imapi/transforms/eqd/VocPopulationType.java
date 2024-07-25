@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.PopulationType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -28,44 +28,39 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.PopulationType")
 @XmlEnum
 public enum VocPopulationType {
 
 
-    /**
-     * Patient based population e.g. Patient IDs are stored as population results
-     * 
-     */
-    PATIENT,
+  /**
+   * Patient based population e.g. Patient IDs are stored as population results
+   */
+  PATIENT,
 
-    /**
-     * Appointmnt based population e.g. Appointment Slot IDs are stored as population results
-     * 
-     */
-    APPOINTMENT,
+  /**
+   * Appointmnt based population e.g. Appointment Slot IDs are stored as population results
+   */
+  APPOINTMENT,
 
-    /**
-     * User based population e.g. User IDs are stored as population results
-     * 
-     */
-    USER,
+  /**
+   * User based population e.g. User IDs are stored as population results
+   */
+  USER,
 
-    /**
-     * Drug based population e.g. Drug IDs are stored as population results
-     * 
-     */
-    DRUG,
-    APPOINTMENT_SESSION;
+  /**
+   * Drug based population e.g. Drug IDs are stored as population results
+   */
+  DRUG,
+  APPOINTMENT_SESSION;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocPopulationType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocPopulationType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

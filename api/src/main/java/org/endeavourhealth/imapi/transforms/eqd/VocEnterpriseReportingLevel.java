@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.EnterpriseReportingLevel.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -27,23 +27,22 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.EnterpriseReportingLevel")
 @XmlEnum
 public enum VocEnterpriseReportingLevel {
 
-    NO_DATA,
-    AGGREGATE,
-    PSEUDO_IDENTIFYING,
-    PATIENT_LEVEL;
+  NO_DATA,
+  AGGREGATE,
+  PSEUDO_IDENTIFYING,
+  PATIENT_LEVEL;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocEnterpriseReportingLevel fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocEnterpriseReportingLevel fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

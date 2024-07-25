@@ -16,11 +16,11 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * Consent Type Name/Value Pair
- * 
+ *
  * <p>Java class for dt.ConsentValue complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="dt.ConsentValue"&gt;
  *   &lt;complexContent&gt;
@@ -33,58 +33,50 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "dt.ConsentValue", propOrder = {
-    "consentType",
-    "consentValue"
+  "consentType",
+  "consentValue"
 })
 public class DtConsentValue {
 
-    @XmlElement(required = true)
-    protected String consentType;
-    protected boolean consentValue;
+  @XmlElement(required = true)
+  protected String consentType;
+  protected boolean consentValue;
 
-    /**
-     * Gets the value of the consentType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getConsentType() {
-        return consentType;
-    }
+  /**
+   * Gets the value of the consentType property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getConsentType() {
+    return consentType;
+  }
 
-    /**
-     * Sets the value of the consentType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setConsentType(String value) {
-        this.consentType = value;
-    }
+  /**
+   * Sets the value of the consentType property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setConsentType(String value) {
+    this.consentType = value;
+  }
 
-    /**
-     * Gets the value of the consentValue property.
-     * 
-     */
-    public boolean isConsentValue() {
-        return consentValue;
-    }
+  /**
+   * Gets the value of the consentValue property.
+   */
+  public boolean isConsentValue() {
+    return consentValue;
+  }
 
-    /**
-     * Sets the value of the consentValue property.
-     * 
-     */
-    public void setConsentValue(boolean value) {
-        this.consentValue = value;
-    }
+  /**
+   * Sets the value of the consentValue property.
+   */
+  public void setConsentValue(boolean value) {
+    this.consentValue = value;
+  }
 
 }

@@ -22,31 +22,31 @@ import java.util.List;
 @Tag(name = "CodeGenController")
 @RequestScope
 public class CodeGenController {
-    private static final Logger LOG = LoggerFactory.getLogger(CodeGenController.class);
-    private final CodeGenService codeGenService = new CodeGenService();
+  private static final Logger LOG = LoggerFactory.getLogger(CodeGenController.class);
+  private final CodeGenService codeGenService = new CodeGenService();
 
-    @GetMapping(value = "/public/codeTemplates", produces = "application/json")
-    public List<String> getCodeTemplateList(HttpServletRequest request) throws IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.CodeTemplates.GET")) {
-            LOG.debug("getCodeTemplateList");
-            return codeGenService.getCodeTemplateList();
-        }
+  @GetMapping(value = "/public/codeTemplates", produces = "application/json")
+  public List<String> getCodeTemplateList(HttpServletRequest request) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.CodeTemplates.GET")) {
+      LOG.debug("getCodeTemplateList");
+      return codeGenService.getCodeTemplateList();
     }
+  }
 
-    @GetMapping(value = "/public/codeTemplate", produces = "application/json")
-    public CodeGenDto getCodeTemplate(HttpServletRequest request, @RequestParam("templateName") String templateName) throws IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.CodeTemplate.GET")) {
-            LOG.debug("getCodeTemplate");
-            return codeGenService.getCodeTemplate(templateName);
-        }
+  @GetMapping(value = "/public/codeTemplate", produces = "application/json")
+  public CodeGenDto getCodeTemplate(HttpServletRequest request, @RequestParam("templateName") String templateName) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.CodeTemplate.GET")) {
+      LOG.debug("getCodeTemplate");
+      return codeGenService.getCodeTemplate(templateName);
     }
+  }
 
-    @PostMapping(value = "/public/codeTemplate", produces = "application/json")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public void updateCodeTemplate(HttpServletRequest request, @RequestBody CodeGenDto codeGenDto) throws IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.CodeTemplate.POST")) {
-            LOG.debug("updateCodeTemplate");
-            codeGenService.updateCodeTemplate(codeGenDto.getName(), codeGenDto.getExtension(), codeGenDto.getCollectionWrapper(), codeGenDto.getDatatypeMap(), codeGenDto.getTemplate());
-        }
+  @PostMapping(value = "/public/codeTemplate", produces = "application/json")
+  @ResponseStatus(HttpStatus.ACCEPTED)
+  public void updateCodeTemplate(HttpServletRequest request, @RequestBody CodeGenDto codeGenDto) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.CodeTemplate.POST")) {
+      LOG.debug("updateCodeTemplate");
+      codeGenService.updateCodeTemplate(codeGenDto.getName(), codeGenDto.getExtension(), codeGenDto.getCollectionWrapper(), codeGenDto.getDatatypeMap(), codeGenDto.getTemplate());
     }
+  }
 }

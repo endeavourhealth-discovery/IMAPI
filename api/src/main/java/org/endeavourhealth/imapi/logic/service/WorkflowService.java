@@ -10,13 +10,13 @@ import java.util.List;
 @Component
 public class WorkflowService {
 
-    private final WorkflowRepository workflowRepository = new WorkflowRepository();
+  private final WorkflowRepository workflowRepository = new WorkflowRepository();
 
-    public List<StateMachineConfig> getWorkflows() {
-        return workflowRepository.getWorkflows();
-    }
+  public List<StateMachineConfig> getWorkflows() {
+    return workflowRepository.getWorkflows();
+  }
 
-    public List<Task> getWorkflowTasks() {
-        return workflowRepository.findAllTasks();
-    }
+  public List<Task> getWorkflowTasks() {
+    return workflowRepository.findAllTasks();
+  }
 }

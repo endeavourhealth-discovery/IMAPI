@@ -11,15 +11,16 @@ package org.endeavourhealth.imapi.transforms.eqd;
 import jakarta.xml.bind.annotation.*;
 import jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * <p>Java class for EQDOC.ListColumn complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.ListColumn"&gt;
  *   &lt;complexContent&gt;
@@ -34,127 +35,111 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.ListColumn", propOrder = {
-    "id",
-    "column",
-    "displayName",
-    "displayUnit"
+  "id",
+  "column",
+  "displayName",
+  "displayUnit"
 })
 public class EQDOCListColumn {
 
-    @XmlElement(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String id;
-    @XmlElement(required = true)
-    protected List<String> column;
-    protected String displayName;
-    @XmlSchemaType(name = "token")
-    protected VocDisplayStyle displayUnit;
+  @XmlElement(required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String id;
+  @XmlElement(required = true)
+  protected List<String> column;
+  protected String displayName;
+  @XmlSchemaType(name = "token")
+  protected VocDisplayStyle displayUnit;
 
-    /**
-     * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getId() {
-        return id;
-    }
+  /**
+   * Gets the value of the id property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getId() {
+    return id;
+  }
 
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setId(String value) {
-        this.id = value;
-    }
+  /**
+   * Sets the value of the id property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setId(String value) {
+    this.id = value;
+  }
 
-    /**
-     * Gets the value of the column property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the column property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getColumn().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link String }
-     * 
-     * 
-     */
-    public List<String> getColumn() {
-        if (column == null) {
-            column = new ArrayList<String>();
-        }
-        return this.column;
+  /**
+   * Gets the value of the column property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the column property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getColumn().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link String }
+   */
+  public List<String> getColumn() {
+    if (column == null) {
+      column = new ArrayList<String>();
     }
+    return this.column;
+  }
 
-    /**
-     * Gets the value of the displayName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDisplayName() {
-        return displayName;
-    }
+  /**
+   * Gets the value of the displayName property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getDisplayName() {
+    return displayName;
+  }
 
-    /**
-     * Sets the value of the displayName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDisplayName(String value) {
-        this.displayName = value;
-    }
+  /**
+   * Sets the value of the displayName property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setDisplayName(String value) {
+    this.displayName = value;
+  }
 
-    /**
-     * Gets the value of the displayUnit property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocDisplayStyle }
-     *     
-     */
-    public VocDisplayStyle getDisplayUnit() {
-        return displayUnit;
-    }
+  /**
+   * Gets the value of the displayUnit property.
+   *
+   * @return possible object is
+   * {@link VocDisplayStyle }
+   */
+  public VocDisplayStyle getDisplayUnit() {
+    return displayUnit;
+  }
 
-    /**
-     * Sets the value of the displayUnit property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocDisplayStyle }
-     *     
-     */
-    public void setDisplayUnit(VocDisplayStyle value) {
-        this.displayUnit = value;
-    }
+  /**
+   * Sets the value of the displayUnit property.
+   *
+   * @param value allowed object is
+   *              {@link VocDisplayStyle }
+   */
+  public void setDisplayUnit(VocDisplayStyle value) {
+    this.displayUnit = value;
+  }
 
 }

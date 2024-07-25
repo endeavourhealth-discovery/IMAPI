@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for EQDOC.ListGrouping complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.ListGrouping"&gt;
  *   &lt;complexContent&gt;
@@ -35,146 +35,124 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.ListGrouping", propOrder = {
-    "columnGroupId",
-    "displayName",
-    "columnar",
-    "summary",
-    "subGroup"
+  "columnGroupId",
+  "displayName",
+  "columnar",
+  "summary",
+  "subGroup"
 })
 public class EQDOCListGrouping {
 
-    @XmlElement(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String columnGroupId;
-    protected Object displayName;
-    protected EQDOCListGroupingColumnar columnar;
-    protected EQDOCListGroupingSummary summary;
-    protected EQDOCListGrouping subGroup;
+  @XmlElement(required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String columnGroupId;
+  protected Object displayName;
+  protected EQDOCListGroupingColumnar columnar;
+  protected EQDOCListGroupingSummary summary;
+  protected EQDOCListGrouping subGroup;
 
-    /**
-     * Gets the value of the columnGroupId property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getColumnGroupId() {
-        return columnGroupId;
-    }
+  /**
+   * Gets the value of the columnGroupId property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getColumnGroupId() {
+    return columnGroupId;
+  }
 
-    /**
-     * Sets the value of the columnGroupId property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setColumnGroupId(String value) {
-        this.columnGroupId = value;
-    }
+  /**
+   * Sets the value of the columnGroupId property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setColumnGroupId(String value) {
+    this.columnGroupId = value;
+  }
 
-    /**
-     * Gets the value of the displayName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Object }
-     *     
-     */
-    public Object getDisplayName() {
-        return displayName;
-    }
+  /**
+   * Gets the value of the displayName property.
+   *
+   * @return possible object is
+   * {@link Object }
+   */
+  public Object getDisplayName() {
+    return displayName;
+  }
 
-    /**
-     * Sets the value of the displayName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Object }
-     *     
-     */
-    public void setDisplayName(Object value) {
-        this.displayName = value;
-    }
+  /**
+   * Sets the value of the displayName property.
+   *
+   * @param value allowed object is
+   *              {@link Object }
+   */
+  public void setDisplayName(Object value) {
+    this.displayName = value;
+  }
 
-    /**
-     * Gets the value of the columnar property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCListGroupingColumnar }
-     *     
-     */
-    public EQDOCListGroupingColumnar getColumnar() {
-        return columnar;
-    }
+  /**
+   * Gets the value of the columnar property.
+   *
+   * @return possible object is
+   * {@link EQDOCListGroupingColumnar }
+   */
+  public EQDOCListGroupingColumnar getColumnar() {
+    return columnar;
+  }
 
-    /**
-     * Sets the value of the columnar property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCListGroupingColumnar }
-     *     
-     */
-    public void setColumnar(EQDOCListGroupingColumnar value) {
-        this.columnar = value;
-    }
+  /**
+   * Sets the value of the columnar property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCListGroupingColumnar }
+   */
+  public void setColumnar(EQDOCListGroupingColumnar value) {
+    this.columnar = value;
+  }
 
-    /**
-     * Gets the value of the summary property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCListGroupingSummary }
-     *     
-     */
-    public EQDOCListGroupingSummary getSummary() {
-        return summary;
-    }
+  /**
+   * Gets the value of the summary property.
+   *
+   * @return possible object is
+   * {@link EQDOCListGroupingSummary }
+   */
+  public EQDOCListGroupingSummary getSummary() {
+    return summary;
+  }
 
-    /**
-     * Sets the value of the summary property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCListGroupingSummary }
-     *     
-     */
-    public void setSummary(EQDOCListGroupingSummary value) {
-        this.summary = value;
-    }
+  /**
+   * Sets the value of the summary property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCListGroupingSummary }
+   */
+  public void setSummary(EQDOCListGroupingSummary value) {
+    this.summary = value;
+  }
 
-    /**
-     * Gets the value of the subGroup property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCListGrouping }
-     *     
-     */
-    public EQDOCListGrouping getSubGroup() {
-        return subGroup;
-    }
+  /**
+   * Gets the value of the subGroup property.
+   *
+   * @return possible object is
+   * {@link EQDOCListGrouping }
+   */
+  public EQDOCListGrouping getSubGroup() {
+    return subGroup;
+  }
 
-    /**
-     * Sets the value of the subGroup property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCListGrouping }
-     *     
-     */
-    public void setSubGroup(EQDOCListGrouping value) {
-        this.subGroup = value;
-    }
+  /**
+   * Sets the value of the subGroup property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCListGrouping }
+   */
+  public void setSubGroup(EQDOCListGrouping value) {
+    this.subGroup = value;
+  }
 
 }

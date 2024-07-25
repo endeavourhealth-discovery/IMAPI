@@ -16,9 +16,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for dt.AgeRange complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="dt.AgeRange"&gt;
  *   &lt;complexContent&gt;
@@ -31,67 +31,57 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "dt.AgeRange", propOrder = {
-    "low",
-    "high"
+  "low",
+  "high"
 })
 public class DtAgeRange {
 
-    @XmlElement(required = true)
-    protected DtAge low;
-    @XmlElement(required = true)
-    protected DtAge high;
+  @XmlElement(required = true)
+  protected DtAge low;
+  @XmlElement(required = true)
+  protected DtAge high;
 
-    /**
-     * Gets the value of the low property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link DtAge }
-     *     
-     */
-    public DtAge getLow() {
-        return low;
-    }
+  /**
+   * Gets the value of the low property.
+   *
+   * @return possible object is
+   * {@link DtAge }
+   */
+  public DtAge getLow() {
+    return low;
+  }
 
-    /**
-     * Sets the value of the low property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link DtAge }
-     *     
-     */
-    public void setLow(DtAge value) {
-        this.low = value;
-    }
+  /**
+   * Sets the value of the low property.
+   *
+   * @param value allowed object is
+   *              {@link DtAge }
+   */
+  public void setLow(DtAge value) {
+    this.low = value;
+  }
 
-    /**
-     * Gets the value of the high property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link DtAge }
-     *     
-     */
-    public DtAge getHigh() {
-        return high;
-    }
+  /**
+   * Gets the value of the high property.
+   *
+   * @return possible object is
+   * {@link DtAge }
+   */
+  public DtAge getHigh() {
+    return high;
+  }
 
-    /**
-     * Sets the value of the high property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link DtAge }
-     *     
-     */
-    public void setHigh(DtAge value) {
-        this.high = value;
-    }
+  /**
+   * Sets the value of the high property.
+   *
+   * @param value allowed object is
+   *              {@link DtAge }
+   */
+  public void setHigh(DtAge value) {
+    this.high = value;
+  }
 
 }

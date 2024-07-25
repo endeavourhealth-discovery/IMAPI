@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for EQDOC.SubstitutionIdentifier complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.SubstitutionIdentifier"&gt;
  *   &lt;complexContent&gt;
@@ -30,67 +30,57 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.SubstitutionIdentifier", propOrder = {
-    "description"
+  "description"
 })
 public class EQDOCSubstitutionIdentifier {
 
-    @XmlElement(name = "Description", required = true)
-    protected String description;
-    @XmlAttribute(name = "guid", required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String guid;
+  @XmlElement(name = "Description", required = true)
+  protected String description;
+  @XmlAttribute(name = "guid", required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  protected String guid;
 
-    /**
-     * Gets the value of the description property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDescription() {
-        return description;
-    }
+  /**
+   * Gets the value of the description property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getDescription() {
+    return description;
+  }
 
-    /**
-     * Sets the value of the description property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDescription(String value) {
-        this.description = value;
-    }
+  /**
+   * Sets the value of the description property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setDescription(String value) {
+    this.description = value;
+  }
 
-    /**
-     * Gets the value of the guid property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getGuid() {
-        return guid;
-    }
+  /**
+   * Gets the value of the guid property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getGuid() {
+    return guid;
+  }
 
-    /**
-     * Sets the value of the guid property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setGuid(String value) {
-        this.guid = value;
-    }
+  /**
+   * Sets the value of the guid property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setGuid(String value) {
+    this.guid = value;
+  }
 
 }

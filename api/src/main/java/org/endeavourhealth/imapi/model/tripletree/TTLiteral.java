@@ -21,163 +21,178 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @JsonSerialize(using = TTLiteralSerializer.class)
 @JsonDeserialize(using = TTLiteralDeserializer.class)
 public class TTLiteral implements TTValue, Serializable {
-    // Static helpers
-    public static TTLiteral literal(String value, TTIriRef type) {
-        return new TTLiteral(value, type);
-    }
-    public static TTLiteral literal(String value, String type) {
-        return new TTLiteral(value, type);
-    }
-    public static TTLiteral literal(String value) {
-        return new TTLiteral(value);
-    }
-    public static TTLiteral literal(Boolean value) {
-        return new TTLiteral(value);
-    }
-    public static TTLiteral literal(Integer value) {
-        return new TTLiteral(value);
-    }
-    public static TTLiteral literal(Long value) {
-        return new TTLiteral(value);
-    }
-    public static TTLiteral literal(Pattern value) {
-        return new TTLiteral(value);
-    }
+  // Static helpers
+  public static TTLiteral literal(String value, TTIriRef type) {
+    return new TTLiteral(value, type);
+  }
 
-    public static TTLiteral literal(Object value) throws JsonProcessingException { return new TTLiteral(value); }
+  public static TTLiteral literal(String value, String type) {
+    return new TTLiteral(value, type);
+  }
 
-    public static TTLiteral literal(JsonNode node) {
-        if (!node.isValueNode())
-            throw new IllegalStateException("Only value Json nodes currently handled");
+  public static TTLiteral literal(String value) {
+    return new TTLiteral(value);
+  }
 
-        if (node.isBoolean())
-            return literal(node.booleanValue());
-        else if (node.isLong())
-            return literal(node.longValue());
-        else if (node.isInt())
-            return literal(node.intValue());
-        else
-            return literal(node.textValue());
+  public static TTLiteral literal(Boolean value) {
+    return new TTLiteral(value);
+  }
+
+  public static TTLiteral literal(Integer value) {
+    return new TTLiteral(value);
+  }
+
+  public static TTLiteral literal(Long value) {
+    return new TTLiteral(value);
+  }
+
+  public static TTLiteral literal(Pattern value) {
+    return new TTLiteral(value);
+  }
+
+  public static TTLiteral literal(Object value) throws JsonProcessingException {
+    return new TTLiteral(value);
+  }
+
+  public static TTLiteral literal(JsonNode node) {
+    if (!node.isValueNode())
+      throw new IllegalStateException("Only value Json nodes currently handled");
+
+    if (node.isBoolean())
+      return literal(node.booleanValue());
+    else if (node.isLong())
+      return literal(node.longValue());
+    else if (node.isInt())
+      return literal(node.intValue());
+    else
+      return literal(node.textValue());
+  }
+
+  private String value;
+  private TTIriRef type;
+
+  // General constructors
+  public TTLiteral() {
+  }
+
+  public TTLiteral(String value, TTIriRef type) {
+    this.value = value;
+    this.type = type;
+  }
+
+  public TTLiteral(String value, String type) {
+    this.value = value;
+    this.type = iri(type);
+  }
+
+  // Type specific constructors
+  public TTLiteral(String value) {
+    this.value = value;
+    this.type = null;
+  }
+
+  public TTLiteral(Boolean value) {
+    this.value = value.toString();
+    this.type = iri(XSD.BOOLEAN);
+  }
+
+  public TTLiteral(Integer value) {
+    this.value = value.toString();
+    this.type = iri(XSD.INTEGER);
+  }
+
+  public TTLiteral(Long value) {
+    this.value = value.toString();
+    this.type = iri(XSD.LONG);
+  }
+
+  public TTLiteral(Pattern value) {
+    this.value = value.toString();
+    this.type = iri(XSD.PATTERN);
+  }
+
+  public TTLiteral(Object value) throws JsonProcessingException {
+    try (CachedObjectMapper om = new CachedObjectMapper()) {
+      this.value = om.writeValueAsString(value);
+      this.type = iri(XSD.STRING);
     }
+  }
 
-    private String value;
-    private TTIriRef type;
+  public String getValue() {
+    return value;
+  }
 
-    // General constructors
-    public TTLiteral() {}
-    public TTLiteral(String value, TTIriRef type) {
-        this.value = value;
-        this.type = type;
-    }
-    public TTLiteral(String value, String type) {
-        this.value = value;
-        this.type = iri(type);
-    }
+  // Type specific getters
+  public Boolean booleanValue() {
+    return Boolean.parseBoolean(this.value);
+  }
 
-    // Type specific constructors
-    public TTLiteral(String value) {
-        this.value = value;
-        this.type = null;
-    }
-    public TTLiteral(Boolean value) {
-        this.value = value.toString();
-        this.type = iri(XSD.BOOLEAN);
-    }
-    public TTLiteral(Integer value) {
-        this.value = value.toString();
-        this.type = iri(XSD.INTEGER);
-    }
-    public TTLiteral(Long value) {
-        this.value = value.toString();
-        this.type = iri(XSD.LONG);
-    }
-    public TTLiteral(Pattern value) {
-        this.value = value.toString();
-        this.type = iri(XSD.PATTERN);
-    }
+  public Integer intValue() {
+    return Integer.parseInt(this.value);
+  }
 
-    public TTLiteral(Object value) throws JsonProcessingException {
-        try (CachedObjectMapper om = new CachedObjectMapper()) {
-            this.value = om.writeValueAsString(value);
-            this.type = iri(XSD.STRING);
-        }
+  public Long longValue() {
+    return Long.parseLong(this.value);
+  }
+
+  public Pattern patternValue() {
+    return Pattern.compile(this.value);
+  }
+
+  public <T> T objectValue(Class<T> valueType) throws JsonProcessingException {
+    try (CachedObjectMapper om = new CachedObjectMapper()) {
+      return om.readValue(this.value, valueType);
     }
+  }
 
-    public String getValue() {
-        return value;
-    }
+  public TTLiteral setValue(String value) {
+    this.value = value;
+    return this;
+  }
 
-    // Type specific getters
-    public Boolean booleanValue() {
-        return Boolean.parseBoolean(this.value);
-    }
+  public TTIriRef getType() {
+    return type;
+  }
 
-    public Integer intValue() {
-        return Integer.parseInt(this.value);
-    }
+  @JsonSetter
+  public TTLiteral setType(TTIriRef type) {
+    this.type = type;
+    return this;
+  }
 
-    public Long longValue() {
-        return Long.parseLong(this.value);
-    }
+  @Override
+  public TTLiteral asLiteral() {
+    return this;
+  }
 
-    public Pattern patternValue() {
-        return Pattern.compile(this.value);
-    }
+  @Override
+  @JsonIgnore
+  public boolean isLiteral() {
+    return true;
+  }
 
-    public <T> T objectValue(Class<T> valueType) throws JsonProcessingException {
-        try (CachedObjectMapper om = new CachedObjectMapper()) {
-            return om.readValue(this.value, valueType);
-        }
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
 
-    public TTLiteral setValue(String value) {
-        this.value = value;
-        return this;
-    }
+    TTLiteral v = (TTLiteral) o;
 
-    public TTIriRef getType() {
-        return type;
-    }
+    if (value == null && v.value != null) return false;
+    if (value != null && !value.equals(v.value)) return false;
 
-    @JsonSetter
-    public TTLiteral setType(TTIriRef type) {
-        this.type = type;
-        return this;
-    }
+    if (type == null && v.type != null) return false;
 
-    @Override
-    public TTLiteral asLiteral() {
-        return this;
-    }
+    return type == null || type.equals(v.type);
+  }
 
-    @Override
-    @JsonIgnore
-    public boolean isLiteral() {
-        return true;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        TTLiteral v = (TTLiteral) o;
-
-        if (value == null && v.value != null) return false;
-        if (value != null && !value.equals(v.value)) return false;
-
-        if (type == null && v.type != null) return false;
-
-        return type == null || type.equals(v.type);
-    }
-
-    @Override
-    public int hashCode() {
-        String toHash = "";
-        if (value != null)
-            toHash += value;
-        if (type != null)
-            toHash += type.getIri();
-        return toHash.hashCode();
-    }
+  @Override
+  public int hashCode() {
+    String toHash = "";
+    if (value != null)
+      toHash += value;
+    if (type != null)
+      toHash += type.getIri();
+    return toHash.hashCode();
+  }
 }

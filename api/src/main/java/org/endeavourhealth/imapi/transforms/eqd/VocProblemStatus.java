@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.ProblemStatus.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -27,43 +27,38 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.ProblemStatus")
 @XmlEnum
 public enum VocProblemStatus {
 
 
-    /**
-     * Active Problem
-     * 
-     */
-    A,
+  /**
+   * Active Problem
+   */
+  A,
 
-    /**
-     * Inactive Problem
-     * 
-     */
-    I,
+  /**
+   * Inactive Problem
+   */
+  I,
 
-    /**
-     * Health Promotion
-     * 
-     */
-    HP,
+  /**
+   * Health Promotion
+   */
+  HP,
 
-    /**
-     * Potential Problem
-     * 
-     */
-    PP;
+  /**
+   * Potential Problem
+   */
+  PP;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocProblemStatus fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocProblemStatus fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

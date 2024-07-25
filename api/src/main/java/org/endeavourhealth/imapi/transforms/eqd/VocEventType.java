@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.EventType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -38,109 +38,93 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.EventType")
 @XmlEnum
 public enum VocEventType {
 
 
-    /**
-     * Observation
-     * 
-     */
-    OBS,
+  /**
+   * Observation
+   */
+  OBS,
 
-    /**
-     * Medication
-     * 
-     */
-    MED,
+  /**
+   * Medication
+   */
+  MED,
 
-    /**
-     * Test Request
-     * 
-     */
-    TR,
+  /**
+   * Test Request
+   */
+  TR,
 
-    /**
-     * Investigation
-     * 
-     */
-    INV,
+  /**
+   * Investigation
+   */
+  INV,
 
-    /**
-     * Value
-     * 
-     */
-    VAL,
+  /**
+   * Value
+   */
+  VAL,
 
-    /**
-     * Medication Issue
-     * 
-     */
-    ISS,
+  /**
+   * Medication Issue
+   */
+  ISS,
 
-    /**
-     * Attachment
-     * 
-     */
-    ATT,
+  /**
+   * Attachment
+   */
+  ATT,
 
-    /**
-     * Referral
-     * 
-     */
-    REF,
+  /**
+   * Referral
+   */
+  REF,
 
-    /**
-     * Diary
-     * 
-     */
-    DRY,
+  /**
+   * Diary
+   */
+  DRY,
 
-    /**
-     * Alert
-     * 
-     */
-    ALT,
+  /**
+   * Alert
+   */
+  ALT,
 
-    /**
-     * Allergy
-     * 
-     */
-    ALL,
+  /**
+   * Allergy
+   */
+  ALL,
 
-    /**
-     * Family history
-     * 
-     */
-    FH,
+  /**
+   * Family history
+   */
+  FH,
 
-    /**
-     * Immunisation
-     * 
-     */
-    IMM,
+  /**
+   * Immunisation
+   */
+  IMM,
 
-    /**
-     * Problem Rating
-     * 
-     */
-    PR,
+  /**
+   * Problem Rating
+   */
+  PR,
 
-    /**
-     * Report
-     * 
-     */
-    REP;
+  /**
+   * Report
+   */
+  REP;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocEventType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocEventType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

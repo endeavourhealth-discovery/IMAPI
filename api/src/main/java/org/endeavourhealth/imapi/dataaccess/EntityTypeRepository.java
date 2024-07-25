@@ -14,33 +14,33 @@ import java.util.StringJoiner;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 
 public class EntityTypeRepository {
-    public TTArray getEntityTypes(String iri) {
-        TTArray result = new TTArray();
+  public TTArray getEntityTypes(String iri) {
+    TTArray result = new TTArray();
 
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?o ?oname")
-            .add("WHERE {")
-            .add("    ?s rdf:type ?o .")
-            .add("    ?o rdfs:label ?oname .")
-            .add("}");
+    StringJoiner sql = new StringJoiner(System.lineSeparator())
+      .add("SELECT ?o ?oname")
+      .add("WHERE {")
+      .add("    ?s rdf:type ?o .")
+      .add("    ?o rdfs:label ?oname .")
+      .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = prepareSparql(conn, sql.toString());
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sql.toString());
 
-            qry.setBinding("s", Values.iri(iri));
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
+      qry.setBinding("s", Values.iri(iri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
 
-                    result.add(new TTIriRef()
-                        .setIri(bs.getValue("o").stringValue())
-                        .setName(bs.getValue("oname").stringValue())
+          result.add(new TTIriRef()
+            .setIri(bs.getValue("o").stringValue())
+            .setName(bs.getValue("oname").stringValue())
 
-                    );
-                }
-            }
+          );
         }
-
-        return result;
+      }
     }
+
+    return result;
+  }
 }

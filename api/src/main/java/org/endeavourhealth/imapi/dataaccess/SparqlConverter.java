@@ -10,7 +10,6 @@ import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
 
 public class SparqlConverter {
     private Query query;
@@ -69,7 +68,7 @@ public class SparqlConverter {
 
     }
 
-    public String getAskSparql(Set<TTIriRef> statusFilter) throws QueryException, DataFormatException, JsonProcessingException {
+    public String getAskSparql(Set<TTIriRef> statusFilter) throws QueryException {
 
         StringBuilder askQl = new StringBuilder();
         addPrefixes(askQl);
@@ -826,7 +825,7 @@ public class SparqlConverter {
     }
 
 
-    public String getUpdateSparql() throws QueryException, DataFormatException, JsonProcessingException {
+    public String getUpdateSparql() throws QueryException {
 
 
         StringBuilder updateQl = new StringBuilder();

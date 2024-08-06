@@ -2,15 +2,18 @@ package org.endeavourhealth.imapi.queryengine;
 
 import org.endeavourhealth.imapi.model.imq.*;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class QueryValidator {
   private final Map<String, VarType> variables = new HashMap<>();
-  private int o = 0;
-  private String mainEntity = null;
   private final Set<String> resultColumns = new HashSet<>();
   private final Map<String, Map<String, Set<String>>> pathMap = new HashMap<>();
   private final Map<String, Map<String, String>> propertyMap = new HashMap<>();
+  private int o = 0;
+  private String mainEntity = null;
 
   public void validateQuery(Query query) throws QueryException {
     if (query.getMatch() == null && null == query.getInstanceOf())
@@ -105,10 +108,9 @@ public class QueryValidator {
         validateMatch(subMatch, subMatch.getVariable());
       }
     }
-    subject = match.getVariable();
     if (match.getWhere() != null) {
       for (Where where : match.getWhere()) {
-        validateWhere(where, subject);
+        validateWhere(where, match.getVariable());
       }
     }
 

@@ -14,7 +14,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.HashMap;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.StringJoiner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -22,9 +25,9 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class CodeGenJava {
   private static final Logger LOG = LoggerFactory.getLogger(CodeGenJava.class);
-  private HTTPRepository repo;
   private final Queue<String> iris = new PriorityQueue<>();
   private final HashMap<String, DataModel> models = new HashMap<>();
+  private HTTPRepository repo;
 
   public void generate(ZipOutputStream os) throws IOException {
     connectToDatabase();
@@ -213,7 +216,7 @@ public class CodeGenJava {
       for (DataModelProperty property : model.getProperties()) {
         String propertyName = property.getName();
         String propertyNameCapitalised = capitalise(property.getName());
-        String propertyNameCamelCase = (null == propertyNameCapitalised) ? null : propertyNameCapitalised.substring(0, 1).toLowerCase() + propertyNameCapitalised.substring(1);
+        String propertyNameCamelCase = propertyNameCapitalised.substring(0, 1).toLowerCase() + propertyNameCapitalised.substring(1);
 
         boolean isArray = property.getMaxCount() != null && property.getMaxCount() > 1;
         String propertyType = getDataType(property.getDataType(), property.isModel(), isArray);
@@ -240,15 +243,15 @@ public class CodeGenJava {
         if (isArray) {
           os.write("\n\n\t/**\n" +
             "\t* Adds the given " + propertyName + " to this " + modelName + "\n" +
-            "\t* @param " + propertyNameCamelCase.substring(0, 1) + " The " + propertyName + " to add\n" +
+            "\t* @param " + propertyNameCamelCase.charAt(0) + " The " + propertyName + " to add\n" +
             "\t* @return " + modelName + "\n" +
             "\t*/\n");
-          os.write("\tpublic " + modelName + " add" + propertyNameCapitalised + "(" + propertyTypeName + " " + propertyNameCamelCase.substring(0, 1) + ") {\n" +
+          os.write("\tpublic " + modelName + " add" + propertyNameCapitalised + "(" + propertyTypeName + " " + propertyNameCamelCase.charAt(0) + ") {\n" +
             "\t\t" + propertyType + " " + propertyNameCamelCase + " = this.get" + propertyNameCapitalised + "();\n" +
             "\t\tif (" + propertyNameCamelCase + " == null) {\n" +
             "\t\t\t" + propertyNameCamelCase + " = new ArrayList();\n" +
             "\t\t\tthis.set" + propertyNameCapitalised + "(" + propertyNameCamelCase + "); \n\t\t}\n" +
-            "\t\t" + propertyNameCamelCase + ".add(" + propertyNameCamelCase.substring(0, 1) + ");\n" +
+            "\t\t" + propertyNameCamelCase + ".add(" + propertyNameCamelCase.charAt(0) + ");\n" +
             "\t\treturn this;\n" +
             "\t}\n");
         }
@@ -260,7 +263,7 @@ public class CodeGenJava {
 
   String capitalise(String name) {
     if (null == name) {
-      return null;
+      throw new IllegalArgumentException("Name cannot be null");
     }
     //name as name
     StringBuilder output = new StringBuilder();
@@ -277,7 +280,7 @@ public class CodeGenJava {
 
   String separate(String name) {
     if (null == name) {
-      return null;
+      throw new IllegalArgumentException("Name cannot be null");
     }
     //name as name
     StringBuilder output = new StringBuilder();

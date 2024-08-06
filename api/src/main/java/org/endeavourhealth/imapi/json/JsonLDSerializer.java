@@ -6,10 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -25,6 +21,10 @@ public class JsonLDSerializer extends StdSerializer<Object> {
   private Map<String, String> iriPrefixMap;
 
 
+  protected JsonLDSerializer(Class<Object> t) {
+    super(t);
+  }
+
   public JsonLDSerializer setPrefixIriMap(Map<String, String> prefixIriMap) {
     this.prefixIriMap = prefixIriMap;
     if (prefixIriMap != null) {
@@ -39,10 +39,6 @@ public class JsonLDSerializer extends StdSerializer<Object> {
   public JsonLDSerializer setDefaultMapper(ObjectMapper defaultMapper) {
     this.defaultMapper = defaultMapper;
     return this;
-  }
-
-  protected JsonLDSerializer(Class<Object> t) {
-    super(t);
   }
 
   @Override
@@ -120,8 +116,6 @@ public class JsonLDSerializer extends StdSerializer<Object> {
     if (colonPos == -1)
       return prefixed;
     String prefix = prefixed.substring(0, colonPos);
-    if (prefixIriMap == null)
-      prefixIriMap = new HashMap<>();
     String namespace = prefixIriMap.get(prefix);
     if (namespace != null) {
       return namespace + prefixed.substring(colonPos + 1);

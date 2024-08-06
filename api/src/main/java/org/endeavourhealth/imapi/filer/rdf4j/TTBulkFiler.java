@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
+import lombok.Getter;
 import org.apache.commons.lang3.SystemUtils;
 import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
@@ -17,11 +18,15 @@ import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+@Getter
 public class TTBulkFiler implements TTDocumentFiler {
   private static final Logger LOG = LoggerFactory.getLogger(TTBulkFiler.class);
+  private static final Set<String> specialChildren = new HashSet<>(List.of(SNOMED.NAMESPACE + "92381000000106"));
   private static String dataPath;
   private static String configTTl;
   private static String preload;
+  private static int privacyLevel = 0;
+  private static int statementCount;
   private FileWriter codeMap;
   private FileWriter termCoreMap;
   private FileWriter coreTerms;
@@ -33,9 +38,99 @@ public class TTBulkFiler implements TTDocumentFiler {
   private FileWriter allEntities;
   private FileWriter codeIds;
   private FileWriter coreIris;
-  private static int privacyLevel = 0;
-  private static int statementCount;
-  private static final Set<String> specialChildren = new HashSet<>(List.of(SNOMED.NAMESPACE + "92381000000106"));
+
+  private static void setStatusAndScheme(TTEntity entity) {
+    if (entity.get(iri(RDFS.LABEL)) != null) {
+      if (entity.get(iri(IM.HAS_STATUS)) == null)
+        entity.set(iri(IM.HAS_STATUS), iri(IM.ACTIVE));
+      if (entity.get(iri(IM.HAS_SCHEME)) == null)
+        entity.set(iri(IM.HAS_SCHEME), TTIriRef.iri(getScheme(entity.getIri())));
+    }
+  }
+
+  private static String getScheme(String iri) {
+    if (iri.contains("#"))
+      return iri.substring(0, iri.lastIndexOf("#") + 1);
+    else
+      return iri.substring(0, iri.lastIndexOf("/") + 1);
+  }
+
+  public static void createRepository() throws TTFilerException {
+    LOG.info("Fast import of {} quad data", new Date());
+    String pathDelimiter = "/";
+    try {
+      String config = configTTl;
+      String data = dataPath;
+      String preloadPath = preload;
+      String command;
+      if (!SystemUtils.OS_NAME.contains("Windows"))
+        command = "importrdf preload -c " + config + "/config.ttl --force -q "
+          + data + " " + data + "/BulkImport*.nq";
+      else
+        command = "importrdf preload -c " + config + "\\config.ttl --force -q "
+          + data + " " + data + "\\BulkImport*.nq";
+      String startCommand = SystemUtils.OS_NAME.contains("Windows") ? "cmd /c " : "bash ";
+
+      LOG.info("Executing command [{}]", startCommand + command);
+
+      Process process = Runtime.getRuntime()
+        .exec(startCommand + command,
+          null, new File(preloadPath));
+      BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
+      BufferedReader e = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+
+      String line = r.readLine();
+      while (line != null) {
+        System.out.println(line);
+        line = r.readLine();
+      }
+
+      boolean error = false;
+      line = e.readLine();
+      while (line != null) {
+        error = true;
+        System.err.println(line);
+        line = e.readLine();
+      }
+
+      process.waitFor();
+
+      if (error || process.exitValue() != 0) {
+        System.err.println("Bulk import failed");
+        throw new TTFilerException("Bulk import failed");
+      }
+
+      File directory = new File(data + pathDelimiter);
+      for (File file : Objects.requireNonNull(directory.listFiles())) {
+        if (!file.isDirectory() && !file.delete())
+          LOG.error("File delete failed");
+      }
+    } catch (IOException | InterruptedException e) {
+      LOG.error(e.getMessage());
+      if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+      throw new TTFilerException(e.getMessage());
+    }
+  }
+
+  public static void setDataPath(String dataPath) {
+    TTBulkFiler.dataPath = dataPath;
+  }
+
+  public static void setConfigTTl(String configTTl) {
+    TTBulkFiler.configTTl = configTTl;
+  }
+
+  public static void setPreload(String preload) {
+    TTBulkFiler.preload = preload;
+  }
+
+  public static void setPrivacyLevel(int privacyLevel) {
+    TTBulkFiler.privacyLevel = privacyLevel;
+  }
+
+  public static void setStatementCount(int statementCount) {
+    TTBulkFiler.statementCount = statementCount;
+  }
 
   public void fileDocument(TTDocument document) throws TTFilerException {
     if (document.getEntities() == null)
@@ -56,13 +151,13 @@ public class TTBulkFiler implements TTDocumentFiler {
     throw new Exception("Deltas cannot be filed by a bulk filer. Set Filer Factory bulk to false");
   }
 
-
   private void writeGraph(TTDocument document) throws TTFilerException {
 
     String graph = null;
     if (document.getGraph() != null) {
       graph = document.getGraph().getIri();
     }
+    assert graph != null;
     String scheme = graph.substring(graph.lastIndexOf("/") + 1);
     String path = dataPath;
 
@@ -71,10 +166,10 @@ public class TTBulkFiler implements TTDocumentFiler {
 
       int counter = 0;
       TTToNQuad converter = new TTToNQuad();
-      LOG.info("Writing out graph data for " + graph);
+      LOG.info("Writing out graph data for {}", graph);
       for (TTEntity entity : document.getEntities()) {
         String entityGraph = entity.getGraph() != null ? entity.getGraph().getIri() : graph;
-        if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > getPrivacyLevel()))
+        if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > privacyLevel))
           continue;
 
         allEntities.write(entity.getIri() + "\n");
@@ -88,7 +183,7 @@ public class TTBulkFiler implements TTDocumentFiler {
 
         transformAndWriteQuads(converter, entity, entityGraph);
 
-        if (counter++ % 100000 == 0)
+        if (counter++ % 100_000 == 0)
           LOG.info("Written {} entities for {}", counter, document.getGraph().getIri());
       }
       LOG.debug("{} entities written to file", counter);
@@ -99,22 +194,6 @@ public class TTBulkFiler implements TTDocumentFiler {
     } finally {
       closeFileWriters();
     }
-  }
-
-  private static void setStatusAndScheme(TTEntity entity) {
-    if (entity.get(iri(RDFS.LABEL)) != null) {
-      if (entity.get(iri(IM.HAS_STATUS)) == null)
-        entity.set(iri(IM.HAS_STATUS), iri(IM.ACTIVE));
-      if (entity.get(iri(IM.HAS_SCHEME)) == null)
-        entity.set(iri(IM.HAS_SCHEME), TTIriRef.iri(getScheme(entity.getIri())));
-    }
-  }
-
-  private static String getScheme(String iri) {
-    if (iri.contains("#"))
-      return iri.substring(0, iri.lastIndexOf("#") + 1);
-    else
-      return iri.substring(0, iri.lastIndexOf("/") + 1);
   }
 
   private void transformAndWriteQuads(TTToNQuad converter, TTEntity entity, String entityGraph) throws IOException {
@@ -266,103 +345,6 @@ public class TTBulkFiler implements TTDocumentFiler {
       }
       termCoreMap.write(newTerm + "\t" + core + "\n");
     }
-  }
-
-  public static void createRepository() throws TTFilerException {
-    LOG.info("Fast import of {} quad data", new Date());
-    String pathDelimiter = "/";
-    try {
-      String config = configTTl;
-      String data = dataPath;
-      String preloadPath = preload;
-      String command;
-      if (!SystemUtils.OS_NAME.contains("Windows"))
-        command = "importrdf preload -c " + config + "/config.ttl --force -q "
-          + data + " " + data + "/BulkImport*.nq";
-      else
-        command = "importrdf preload -c " + config + "\\config.ttl --force -q "
-          + data + " " + data + "\\BulkImport*.nq";
-      String startCommand = SystemUtils.OS_NAME.contains("Windows") ? "cmd /c " : "bash ";
-
-      LOG.info("Executing command [{}]", startCommand + command);
-
-      Process process = Runtime.getRuntime()
-        .exec(startCommand + command,
-          null, new File(preloadPath));
-      BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
-      BufferedReader e = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-
-      String line = r.readLine();
-      while (line != null) {
-        System.out.println(line);
-        line = r.readLine();
-      }
-
-      boolean error = false;
-      line = e.readLine();
-      while (line != null) {
-        error = true;
-        System.err.println(line);
-        line = e.readLine();
-      }
-
-      process.waitFor();
-
-      if (error || process.exitValue() != 0) {
-        System.err.println("Bulk import failed");
-        throw new TTFilerException("Bulk import failed");
-      }
-
-      File directory = new File(data + pathDelimiter);
-      for (File file : Objects.requireNonNull(directory.listFiles())) {
-        if (!file.isDirectory() && !file.delete())
-          LOG.error("File delete failed");
-      }
-    } catch (IOException | InterruptedException e) {
-      LOG.error(e.getMessage());
-      throw new TTFilerException(e.getMessage());
-    }
-  }
-
-
-  public static String getDataPath() {
-    return dataPath;
-  }
-
-  public static void setDataPath(String dataPath) {
-    TTBulkFiler.dataPath = dataPath;
-  }
-
-  public static String getConfigTTl() {
-    return configTTl;
-  }
-
-  public static void setConfigTTl(String configTTl) {
-    TTBulkFiler.configTTl = configTTl;
-  }
-
-  public static String getPreload() {
-    return preload;
-  }
-
-  public static void setPreload(String preload) {
-    TTBulkFiler.preload = preload;
-  }
-
-  public static int getPrivacyLevel() {
-    return privacyLevel;
-  }
-
-  public static void setPrivacyLevel(int privacyLevel) {
-    TTBulkFiler.privacyLevel = privacyLevel;
-  }
-
-  public static int getStatementCount() {
-    return statementCount;
-  }
-
-  public static void setStatementCount(int statementCount) {
-    TTBulkFiler.statementCount = statementCount;
   }
 
   @Override

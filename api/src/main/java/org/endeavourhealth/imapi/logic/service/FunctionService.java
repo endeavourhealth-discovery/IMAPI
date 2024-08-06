@@ -15,11 +15,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class FunctionService {
-  private ConceptRepository conceptRepository = new ConceptRepository();
-  private EntityService entityService = new EntityService();
-  private UserService userService = new UserService();
+  private final ConceptRepository conceptRepository = new ConceptRepository();
+  private final EntityService entityService = new EntityService();
+  private final UserService userService = new UserService();
 
-  private EntityRepository entityRepository = new EntityRepository();
+  private final EntityRepository entityRepository = new EntityRepository();
 
   private final RequestObjectService requestObjectService = new RequestObjectService();
 
@@ -94,12 +94,12 @@ public class FunctionService {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       if (IM.CONCEPT.equals(entityIri)) {
         String finalEntityIri = entityIri;
-        List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(finalEntityIri, RDF.PROPERTY, SHACL.NODESHAPE).contains(t.getIri())).collect(Collectors.toList());
+        List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(finalEntityIri, RDF.PROPERTY, SHACL.NODESHAPE).contains(t.getIri())).toList();
         List<TTIriRef> filteredResultsAsIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
         return om.valueToTree(filteredResultsAsIri);
       } else {
         String finalEntityIri1 = entityIri;
-        List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(finalEntityIri1).contains(t.getIri())).collect(Collectors.toList());
+        List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Objects.equals(finalEntityIri1, t.getIri())).toList();
         List<TTIriRef> originalResultIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
         return om.valueToTree(originalResultIri);
       }
@@ -108,7 +108,7 @@ public class FunctionService {
 
   private JsonNode getLogicOptions() {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      Set<String> iris = new HashSet(Arrays.asList(SHACL.AND, SHACL.OR, SHACL.NOT));
+      Set<String> iris = new HashSet<>(Arrays.asList(SHACL.AND, SHACL.OR, SHACL.NOT));
       Set<TTIriRef> iriRefs = entityService.getNames(iris);
       List<TTIriRef> options = new ArrayList<>(iriRefs);
       return om.valueToTree(options);
@@ -155,10 +155,11 @@ public class FunctionService {
     String finalEntityIri2 = entityIri;
     if (schemes.stream().noneMatch(s -> s.getIri().equals(finalEntityIri2)))
       throw new IllegalArgumentException("Iri is not a valid scheme");
-    CachedObjectMapper om = new CachedObjectMapper();
-    JsonNode generated;
-    if (entityIri.equals(IM.NAMESPACE) || entityIri.equals(SNOMED.NAMESPACE)) {
-      return om.createObjectNode().put("code", conceptRepository.createConcept(IM.NAMESPACE).get("iri").get("@id").asText().split("#")[1]);
-    } else return om.createObjectNode().put("iri", "");
+    try (CachedObjectMapper om = new CachedObjectMapper()) {
+      JsonNode generated;
+      if (entityIri.equals(IM.NAMESPACE) || entityIri.equals(SNOMED.NAMESPACE)) {
+        return om.createObjectNode().put("code", conceptRepository.createConcept(IM.NAMESPACE).get("iri").get("@id").asText().split("#")[1]);
+      } else return om.createObjectNode().put("iri", "");
+    }
   }
 }

@@ -29,15 +29,49 @@ public class OSQuery {
   private static final Logger LOG = LoggerFactory.getLogger(OSQuery.class);
   private final IMQToOS converter = new IMQToOS();
 
+  private static void processNodeResults(QueryRequest request, JsonNode root, CachedObjectMapper om, ArrayNode resultNodes) throws JsonProcessingException {
+    for (JsonNode hit : root.get("hits").get("hits")) {
+      ObjectNode resultNode = om.createObjectNode();
+      resultNodes.add(resultNode);
+      ObjectNode osResult = om.treeToValue(hit.get("_source"), ObjectNode.class);
+      resultNode.set("@id", osResult.get("iri"));
+      resultNode.set(RDFS.LABEL, osResult.get("name"));
+      processNodeResultReturn(request, osResult, resultNode);
+    }
+  }
+
+  private static void processNodeResultReturn(QueryRequest request, ObjectNode osResult, ObjectNode resultNode) {
+    if (null == request.getQuery().getReturn())
+      return;
+
+    for (Return select : request.getQuery().getReturn()) {
+      processNodeResultReturnProperty(osResult, resultNode, select);
+    }
+  }
+
+  private static void processNodeResultReturnProperty(ObjectNode osResult, ObjectNode resultNode, Return select) {
+    if (select.getProperty() == null)
+      return;
+
+    for (ReturnProperty prop : select.getProperty()) {
+      if (prop.getIri() != null) {
+        String field = prop.getIri();
+        String osField = field.substring(field.lastIndexOf("#") + 1);
+        if (osResult.get(osField) != null) {
+          resultNode.set(field, osResult.get(osField));
+        }
+      }
+    }
+
+  }
+
   public SearchResponse openSearchQuery(QueryRequest request) throws QueryException, OpenSearchException {
     return getStandardResults(request);
   }
 
-
   public JsonNode imQuery(QueryRequest request) {
     return getNodeResults(request);
   }
-
 
   public JsonNode getIMOSResults(QueryRequest request) throws QueryException, OpenSearchException {
     Query query = request.getQuery();
@@ -163,7 +197,6 @@ public class OSQuery {
     return -1;
   }
 
-
   private JsonNode runQuery(SearchSourceBuilder bld) throws OpenSearchException {
     String elastic = bld.toString();
     HttpResponse<String> response = getResponse(elastic);
@@ -203,6 +236,9 @@ public class OSQuery {
         .sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
         .thenApply(res -> res)
         .get();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new OpenSearchException("OpenSearch call failed", e);
     } catch (Exception e) {
       throw new OpenSearchException("OpenSearch call failed", e);
     }
@@ -274,41 +310,5 @@ public class OSQuery {
     } catch (Exception e) {
       return new ObjectMapper().createObjectNode();
     }
-  }
-
-  private static void processNodeResults(QueryRequest request, JsonNode root, CachedObjectMapper om, ArrayNode resultNodes) throws JsonProcessingException {
-    for (JsonNode hit : root.get("hits").get("hits")) {
-      ObjectNode resultNode = om.createObjectNode();
-      resultNodes.add(resultNode);
-      ObjectNode osResult = om.treeToValue(hit.get("_source"), ObjectNode.class);
-      resultNode.set("@id", osResult.get("iri"));
-      resultNode.set(RDFS.LABEL, osResult.get("name"));
-      processNodeResultReturn(request, osResult, resultNode);
-    }
-  }
-
-  private static void processNodeResultReturn(QueryRequest request, ObjectNode osResult, ObjectNode resultNode) {
-    if (null == request.getQuery().getReturn())
-      return;
-
-    for (Return select : request.getQuery().getReturn()) {
-      processNodeResultReturnProperty(osResult, resultNode, select);
-    }
-  }
-
-  private static void processNodeResultReturnProperty(ObjectNode osResult, ObjectNode resultNode, Return select) {
-    if (select.getProperty() == null)
-      return;
-
-    for (ReturnProperty prop : select.getProperty()) {
-      if (prop.getIri() != null) {
-        String field = prop.getIri();
-        String osField = field.substring(field.lastIndexOf("#") + 1);
-        if (osResult.get(osField) != null) {
-          resultNode.set(field, osResult.get(osField));
-        }
-      }
-    }
-
   }
 }

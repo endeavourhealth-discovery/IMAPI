@@ -146,7 +146,7 @@ public class TTManager implements AutoCloseable {
   public static boolean termUsed(TTEntity entity, String term) {
     if (entity.get(iri(IM.HAS_TERM_CODE)) != null) {
       for (TTValue val : entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
-        if (val.asNode().get(iri(RDFS.LABEL)).asIriRef().getIri().equals(term))
+        if (val.asNode().get(iri(RDFS.LABEL)).asLiteral().getValue().equals(term))
           return true;
       }
     }

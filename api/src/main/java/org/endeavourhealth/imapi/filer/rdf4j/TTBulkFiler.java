@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
-import lombok.Getter;
 import org.apache.commons.lang3.SystemUtils;
 import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
@@ -18,7 +17,6 @@ import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
-@Getter
 public class TTBulkFiler implements TTDocumentFiler {
   private static final Logger LOG = LoggerFactory.getLogger(TTBulkFiler.class);
   private static final Set<String> specialChildren = new HashSet<>(List.of(SNOMED.NAMESPACE + "92381000000106"));
@@ -112,20 +110,40 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
+  public static String getDataPath() {
+    return dataPath;
+  }
+
   public static void setDataPath(String dataPath) {
     TTBulkFiler.dataPath = dataPath;
+  }
+
+  public static String getConfigTTl() {
+    return configTTl;
   }
 
   public static void setConfigTTl(String configTTl) {
     TTBulkFiler.configTTl = configTTl;
   }
 
+  public static String getPreload() {
+    return preload;
+  }
+
   public static void setPreload(String preload) {
     TTBulkFiler.preload = preload;
   }
 
+  public static int getPrivacyLevel() {
+    return privacyLevel;
+  }
+
   public static void setPrivacyLevel(int privacyLevel) {
     TTBulkFiler.privacyLevel = privacyLevel;
+  }
+
+  public static int getStatementCount() {
+    return statementCount;
   }
 
   public static void setStatementCount(int statementCount) {
@@ -169,7 +187,7 @@ public class TTBulkFiler implements TTDocumentFiler {
       LOG.info("Writing out graph data for {}", graph);
       for (TTEntity entity : document.getEntities()) {
         String entityGraph = entity.getGraph() != null ? entity.getGraph().getIri() : graph;
-        if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > privacyLevel))
+        if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > getPrivacyLevel()))
           continue;
 
         allEntities.write(entity.getIri() + "\n");

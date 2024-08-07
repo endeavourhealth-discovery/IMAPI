@@ -1,20 +1,20 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 
+import static org.eclipse.rdf4j.model.util.Values.iri;
+
 public class PathRepository {
-  private RepositoryConnection conn;
   private final PathDocument document = new PathDocument();
+  private RepositoryConnection conn;
   private TupleQuery queryToShape;
 
   public PathDocument pathQuery(PathQuery pathQuery) {
@@ -34,84 +34,87 @@ public class PathRepository {
 
   private List<Match> getPaths(String source, String target, Integer depth) {
     List<Match> result = new ArrayList<>();
-    StringJoiner sql = new StringJoiner("\n");
+    String sql = """
+      select ?where ?whereLabel ?recordType ?recordTypeLabel ?path ?pathLabel ?where1 ?where1Label
+      where {
+        {
+          ?target sh:property ?property.
+          ?property sh:path ?path.
+          ?path rdfs:label ?pathLabel.
+          ?property sh:node ?source.
+          ?property ^sh:property ?recordType.
+          ?recordType rdfs:label ?recordTypeLabel.
+        } union {
+          ?target ^sh:path ?property.
+          ?property sh:path ?where.
+          ?where rdfs:label ?whereLabel.
+          ?property ^sh:property ?source.
+        } union {
+          ?target ^sh:path ?subProperty.
+          ?subProperty sh:path ?where.
+          ?where rdfs:label ?whereLabel.
+          ?subProperty ^sh:property ?recordType.
+          ?recordType rdfs:label ?recordTypeLabel.
+          ?recordType sh:property ?recordProperty.
+          ?recordProperty sh:path ?path.
+          ?path rdfs:label ?pathLabel.
+          ?recordProperty sh:node ?source.
+        } union {
+          ?target ^sh:path ?subProperty.
+          ?subProperty sh:path ?where.
+          ?where rdfs:label ?whereLabel.
+          ?subProperty ^sh:property ?recordType.
+          ?recordType rdfs:label ?recordTypeLabel.
+          ?recordType ^sh:node ?recordProperty.
+          ?recordProperty sh:path ?where1.
+          ?where1 rdfs:label ?where1Label.
+          ?recordProperty ^sh:property ?source.
+        } union {
+          ?target ^im:hasMember ?valueSet.
+          ?valueSet ^sh:class ?property.
+          ?property sh:path ?where.
+          ?where rdfs:label ?whereLabel.
+          ?property ^sh:property ?source.
+        } union {
+          ?target ^im:hasMember ?valueSet.
+          ?valueSet ^sh:class ?property.
+          ?property sh:path ?where.
+          ?where rdfs:label ?whereLabel.
+          ?property ^sh:property ?recordType.
+          ?recordType rdfs:label ?recordTypeLabel.
+          ?recordType sh:property ?recordProperty.
+          ?recordProperty sh:path ?path.
+          ?path rdfs:label ?pathLabel.
+          ?recordProperty sh:node ?source.
+        } union {
+          ?target ^sh:class ?property.
+          ?property sh:path ?where.
+          ?where rdfs:label ?whereLabel.
+          ?property ^sh:property ?recordType.
+          ?recordType rdfs:label ?recordTypeLabel.
+          ?recordType sh:property ?recordProperty.
+          ?recordProperty sh:path ?path.
+          ?path rdfs:label ?pathLabel.
+          ?recordProperty sh:node ?source.
+        } union {
+          ?target im:binding ?datamodel.
+          ?datamodel sh:path ?where.
+          ?where rdfs:label ?whereLabel.
+          ?datamodel sh:node ?recordType.
+          ?recordType rdfs:label ?recordTypeLabel.
+          ?recordType sh:property ?recordProperty.
+          ?recordProperty sh:path ?path.
+          ?path rdfs:label ?pathLabel.
+          ?recordProperty sh:node ?source.
+        }
+      }
+      group by ?where ?whereLabel  ?recordType ?recordTypeLabel ?path ?pathLabel ?where1 ?where1Label
+      """;
+    sql = addDefaultPrefixes(sql);
     //The logic is to look for a target as a record types, properties, value sets or concepts linked to the source.
-    sql.add(getDefaultPrefixes())
-      .add("select ?where ?whereLabel ?recordType ?recordTypeLabel ?path ?pathLabel ?where1 ?where1Label ")
-      .add("where {")
-      .add("{ ?target sh:property ?property.")
-      .add("  ?property sh:path ?path.")
-      .add("  ?path rdfs:label ?pathLabel.")
-      .add(" ?property sh:node ?source.")
-      .add(" ?property ^sh:property ?recordType.")
-      .add(" ?recordType rdfs:label ?recordTypeLabel.}")
-      .add("union {")
-      .add(" ?target ^sh:path ?property.")
-      .add("  ?property sh:path ?where.")
-      .add("  ?where rdfs:label ?whereLabel.")
-      .add(" ?property ^sh:property ?source.}")
-      .add(" union {")
-      .add(" ?target ^sh:path ?subProperty.")
-      .add("  ?subProperty sh:path ?where.")
-      .add("  ?where rdfs:label ?whereLabel.")
-      .add(" ?subProperty ^sh:property ?recordType.")
-      .add("  ?recordType rdfs:label ?recordTypeLabel.")
-      .add("  ?recordType sh:property ?recordProperty.")
-      .add("  ?recordProperty sh:path ?path.")
-      .add("  ?path rdfs:label ?pathLabel.")
-      .add("  ?recordProperty sh:node ?source.}")
-      .add(" union {")
-      .add(" ?target ^sh:path ?subProperty.")
-      .add("  ?subProperty sh:path ?where.")
-      .add("  ?where rdfs:label ?whereLabel.")
-      .add(" ?subProperty ^sh:property ?recordType.")
-      .add("  ?recordType rdfs:label ?recordTypeLabel.")
-      .add("  ?recordType ^sh:node ?recordProperty.")
-      .add("  ?recordProperty sh:path ?where1.")
-      .add("  ?where1 rdfs:label ?where1Label.")
-      .add("  ?recordProperty ^sh:property ?source.}")
-      .add("union {")
-      .add("  ?target ^im:hasMember ?valueSet.")
-      .add("  ?valueSet ^sh:class ?property.")
-      .add("  ?property sh:path ?where.")
-      .add("  ?where rdfs:label ?whereLabel.")
-      .add("  ?property ^sh:property ?source.}")
-      .add("union {")
-      .add("  ?target ^im:hasMember ?valueSet.")
-      .add("  ?valueSet ^sh:class ?property.")
-      .add("  ?property sh:path ?where.")
-      .add("  ?where rdfs:label ?whereLabel.")
-      .add("  ?property ^sh:property ?recordType.")
-      .add("  ?recordType rdfs:label ?recordTypeLabel.")
-      .add("  ?recordType sh:property ?recordProperty.")
-      .add("  ?recordProperty sh:path ?path.")
-      .add("  ?path rdfs:label ?pathLabel.")
-      .add("  ?recordProperty sh:node ?source.}")
-      .add("union {")
-      .add("  ?target ^sh:class ?property.")
-      .add("  ?property sh:path ?where.")
-      .add("  ?where rdfs:label ?whereLabel.")
-      .add("  ?property ^sh:property ?recordType.")
-      .add("  ?recordType rdfs:label ?recordTypeLabel.")
-      .add("  ?recordType sh:property ?recordProperty.")
-      .add("  ?recordProperty sh:path ?path.")
-      .add("  ?path rdfs:label ?pathLabel.")
-      .add("  ?recordProperty sh:node ?source.}")
-      .add("union {")
-      .add("  ?target im:binding ?datamodel.")
-      .add("  ?datamodel sh:path ?where.")
-      .add("  ?where rdfs:label ?whereLabel.")
-      .add("  ?datamodel sh:node ?recordType.")
-      .add("  ?recordType rdfs:label ?recordTypeLabel.")
-      .add("  ?recordType sh:property ?recordProperty.")
-      .add("  ?recordProperty sh:path ?path.")
-      .add("  ?path rdfs:label ?pathLabel.")
-      .add("  ?recordProperty sh:node ?source.}")
-      .add("}")
-      .add("group by ?where ?whereLabel  ?recordType ?recordTypeLabel ?path ?pathLabel ?where1 ?where1Label ");
-    String sparql = sql.toString().replace("?target", "<" + target + ">");
-    sparql = sparql.replace("?source", "<" + source + ">");
-    TupleQuery qry = conn.prepareTupleQuery(sparql);
+    TupleQuery qry = conn.prepareTupleQuery(sql);
+    qry.setBinding("target", iri(target));
+    qry.setBinding("source", iri(source));
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
@@ -163,13 +166,18 @@ public class PathRepository {
         result.remove(match);
   }
 
-  private String getDefaultPrefixes() {
-    return "PREFIX xsd: <" + XSD.NAMESPACE + ">\n" +
-      "PREFIX rdfs: <" + RDFS.NAMESPACE + ">\n" +
-      "PREFIX rdf: <" + RDF.NAMESPACE + ">\n" +
-      "PREFIX im: <" + IM.NAMESPACE + ">\n" +
-      "PREFIX " + SNOMED.PREFIX + ": <" + SNOMED.NAMESPACE + ">\n" +
-      "PREFIX sh: <" + SHACL.NAMESPACE + ">\n";
+  private String addDefaultPrefixes(String sparql) {
+    StringJoiner sj = new StringJoiner(System.lineSeparator());
+    String prefixes = """
+      PREFIX rdfs: <%s>
+      PREFIX rdf: <%s>
+      PREFIX im: <%s>
+      PREFIX sn: <%s>
+      PREFIX sh: <%s>
+      """.formatted(RDFS.NAMESPACE, RDF.NAMESPACE, IM.NAMESPACE, SNOMED.NAMESPACE, SHACL.NAMESPACE);
+    sj.add(prefixes);
+    sj.add(sparql);
+    return sj.toString();
   }
 
 

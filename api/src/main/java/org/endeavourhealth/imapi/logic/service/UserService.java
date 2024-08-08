@@ -46,7 +46,7 @@ public class UserService {
   }
 
   public Boolean getUserDarkMode(String userId) {
-    return userRepository.getByPredicate(userId, USER.USER_PRESET).equals("true");
+    return userRepository.getByPredicate(userId, USER.USER_DARK_MODE).equals("\"true\"");
   }
 
   public void updateUserDarkMode(String userId, Boolean darkMode) throws JsonProcessingException {

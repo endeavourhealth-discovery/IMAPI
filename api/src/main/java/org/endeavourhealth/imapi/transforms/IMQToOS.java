@@ -103,9 +103,12 @@ public class IMQToOS {
       if (namespace != null)
         term = namespace + term.split(":")[1];
     }
-    addCodesAndKeys(term);
+    addCodesAndIri(term);
 
     String prefix = term.replaceAll("[ '()\\-_./]", "").toLowerCase();
+    TermQueryBuilder tqac = new TermQueryBuilder("preferredName.keyword", term).caseInsensitive(true);
+    tqac.boost(2000000F);
+    boolBuilder.should(tqac);
     PrefixQueryBuilder pqb = new PrefixQueryBuilder("matchTerm", prefix);
     pqb.boost(1000000F);
     boolBuilder.should(pqb);
@@ -140,7 +143,7 @@ public class IMQToOS {
     return true;
   }
 
-  private void addCodesAndKeys(String term) {
+  private void addCodesAndIri(String term) {
     TermQueryBuilder tqb = new TermQueryBuilder("code", term);
     boolBuilder.should(tqb);
     TermQueryBuilder tqac = new TermQueryBuilder("alternativeCode", term);
@@ -149,8 +152,7 @@ public class IMQToOS {
     boolBuilder.should(tqiri);
     TermQueryBuilder tciri = new TermQueryBuilder("termCode.code", term);
     boolBuilder.should(tciri);
-    PrefixQueryBuilder pqb = new PrefixQueryBuilder("key", term);
-    boolBuilder.should(pqb);
+
 
   }
 
@@ -176,7 +178,7 @@ public class IMQToOS {
       "  else if (value <3000000) {usage = 7;}" +
       "  else {usage = 9;}" +
       "  }" +
-      "if (_score>1000000) {_score=4;} else _score=0;_score+ usage;";
+      "if (_score>2000000) {_score=10;} else if (_score>1000000) {_score=4;} else _score=0;_score+ usage;";
   }
 
   private boolean addReturns() {

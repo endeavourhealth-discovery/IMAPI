@@ -586,24 +586,10 @@ public class EntityRepository {
     return null;
   }
 
-  private void addKey(EntityDocument blob, String key) {
-    key = key.split(" ")[0];
-    if (key.length() > 1) {
-      if (key.length() > 20)
-        key = key.substring(0, 20);
-      key = key.toLowerCase();
-      List<String> deletes = new ArrayList<>();
-      boolean skip = false;
-      if (blob.getKey() != null) {
-        for (String already : blob.getKey()) {
-          skip = addKeyStartsWith(key, deletes, skip, already);
-        }
-        if (!deletes.isEmpty())
-          deletes.forEach(d -> blob.getKey().remove(d));
-      }
-      if (!skip)
-        blob.addKey(key);
-    }
+  private void addKey(EntityDocument blob, String term) {
+    term = term.replaceAll("[ '()\\-_./,]", "").toLowerCase();
+    if (term.length() > 30)
+      term = term.substring(0, 30);
   }
 
   private static boolean addKeyStartsWith(String key, List<String> deletes, boolean skip, String already) {

@@ -18,7 +18,6 @@ public class EntityDocument {
   String code;
   String alternativeCode;
   Set<String> matchTerm;
-  Set<String> key = new HashSet<>();
   TTIriRef scheme;
   Set<TTIriRef> entityType = new HashSet<>();
   TTIriRef status;
@@ -236,17 +235,4 @@ public class EntityDocument {
     return this;
   }
 
-  public Set<String> getKey() {
-    return key;
-  }
-
-  public EntityDocument setKey(Set<String> keys) {
-    this.key = keys;
-    return this;
-  }
-
-  public EntityDocument addKey(String key) {
-    this.key.add(key);
-    return this;
-  }
 }

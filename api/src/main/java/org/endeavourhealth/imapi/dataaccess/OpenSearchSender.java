@@ -206,6 +206,11 @@ public class OpenSearchSender {
             String preferred = rs.getValue("preferredName").stringValue();
             blob.setPreferredName(preferred);
           }
+          else if (name.contains(" (")){
+            blob.setPreferredName(name.split(" \\(")[0]);
+          }
+          else
+            blob.setPreferredName(name);
           if (rs.getValue("alternativeCode") != null) {
             String alternativeCode = rs.getValue("alternativeCode").stringValue();
             blob.setAlternativeCode(alternativeCode);
@@ -258,7 +263,6 @@ public class OpenSearchSender {
           blob.setLength(lengthKey.length());
           blob.addTermCode(name, null, null);
           addMatchTerm(blob, name);
-          addKey(blob, name);
         }
 
       } catch (Exception e) {
@@ -334,7 +338,7 @@ public class OpenSearchSender {
             SearchTermCode tc = getTermCode(blob, synonym);
             if (tc == null) {
               blob.addTermCode(synonym, termCode, status);
-              addKey(blob, synonym);
+              addMatchTerm(blob,synonym);
             } else {
               if (termCode != null) {
                 tc.setCode(termCode);
@@ -497,33 +501,10 @@ public class OpenSearchSender {
 
 
   private void addMatchTerm(EntityDocument blob, String term) {
-    term = term.replaceAll("[ '()\\-_./]", "").toLowerCase();
+    term = term.replaceAll("[ '()\\-_./,]", "").toLowerCase();
     if (term.length() > 30)
       term = term.substring(0, 30);
     blob.addMatchTerm(term);
-  }
-
-  private void addKey(EntityDocument blob, String key) {
-    key = key.split(" ")[0];
-    if (key.length() > 1) {
-      if (key.length() > 20)
-        key = key.substring(0, 20);
-      key = key.toLowerCase();
-      List<String> deletes = new ArrayList<>();
-      boolean skip = false;
-      if (blob.getKey() != null) {
-        for (String already : blob.getKey()) {
-          if (key.startsWith(already))
-            deletes.add(already);
-          if (already.startsWith(key))
-            skip = true;
-        }
-        if (!deletes.isEmpty())
-          deletes.forEach(d -> blob.getKey().remove(d));
-      }
-      if (!skip)
-        blob.addKey(key);
-    }
   }
 
   private SearchTermCode getTermCode(EntityDocument blob, String term) {
@@ -753,9 +734,6 @@ public class OpenSearchSender {
                   "type": "keyword"
                 },
                 "iri": {
-                  "type": "keyword"
-                },
-                "key": {
                   "type": "keyword"
                 },
                 "subsumptionCount" : {

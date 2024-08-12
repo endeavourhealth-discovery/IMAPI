@@ -160,13 +160,13 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   @Override
-  public void writeLog(TTDocument document) throws Exception {
+  public void writeLog(TTDocument document) {
 
   }
 
   @Override
-  public void fileDeltas(String dataPath) throws Exception {
-    throw new Exception("Deltas cannot be filed by a bulk filer. Set Filer Factory bulk to false");
+  public void fileDeltas(String dataPath) throws IOException {
+    throw new IOException("Deltas cannot be filed by a bulk filer. Set Filer Factory bulk to false");
   }
 
   private void writeGraph(TTDocument document) throws TTFilerException {
@@ -366,7 +366,7 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     //do nothing
   }
 }

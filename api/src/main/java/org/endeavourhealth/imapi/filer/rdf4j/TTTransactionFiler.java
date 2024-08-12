@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -73,7 +74,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     this.logPath = logPath;
   }
 
-  public void fileDeltas(String deltaPath) throws Exception {
+  public void fileDeltas(String deltaPath) throws IOException, QueryException, TTFilerException {
     this.logPath = deltaPath;
     Map<Integer, String> transactionLogs = new HashMap<>();
     LOG.debug("Filing deltas from [{}]", logPath);
@@ -317,7 +318,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   }
 
 
-  public void writeLog(TTDocument document) throws Exception {
+  public void writeLog(TTDocument document) throws JsonProcessingException {
     LOG.debug("Writing transaction to [{}]", logPath);
     File directory = new File(logPath);
     int logNumber = 0;

@@ -13,7 +13,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -69,7 +75,7 @@ public class TTBulkFiler implements TTDocumentFiler {
           + data + " " + data + "\\BulkImport*.nq";
       String startCommand = SystemUtils.OS_NAME.contains("Windows") ? "cmd /c " : "bash ";
 
-      LOG.info("Executing command [{}]", startCommand + command);
+      LOG.info("Executing command [{}{}]", startCommand, command);
 
       Process process = Runtime.getRuntime()
         .exec(startCommand + command,
@@ -79,7 +85,7 @@ public class TTBulkFiler implements TTDocumentFiler {
 
       String line = r.readLine();
       while (line != null) {
-        System.out.println(line);
+        LOG.info(line);
         line = r.readLine();
       }
 
@@ -87,21 +93,23 @@ public class TTBulkFiler implements TTDocumentFiler {
       line = e.readLine();
       while (line != null) {
         error = true;
-        System.err.println(line);
+        LOG.error(line);
         line = e.readLine();
       }
 
       process.waitFor();
 
       if (error || process.exitValue() != 0) {
-        System.err.println("Bulk import failed");
+        LOG.error("Bulk import failed");
         throw new TTFilerException("Bulk import failed");
       }
-
       File directory = new File(data + pathDelimiter);
-      for (File file : Objects.requireNonNull(directory.listFiles())) {
-        if (!file.isDirectory() && !file.delete())
-          LOG.error("File delete failed");
+      try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory.toPath())) {
+        for (Path file : directoryStream) {
+          if (!Files.isDirectory(file)) {
+            Files.delete(file);
+          }
+        }
       }
     } catch (IOException | InterruptedException e) {
       LOG.error(e.getMessage());

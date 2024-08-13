@@ -5,19 +5,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Stack;
-
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
+
 public class CachedObjectMapper implements AutoCloseable {
-  private static final Stack<ObjectMapper> pool = new Stack<>();
+  private static final Deque<ObjectMapper> pool = new ArrayDeque<>();
 
   private ObjectMapper objectMapper;
 
@@ -56,7 +56,7 @@ public class CachedObjectMapper implements AutoCloseable {
 
   private ObjectMapper pop() {
     synchronized (pool) {
-      if (pool.size() > 0)
+      if (!pool.isEmpty())
         return pool.pop();
       else
         return new ObjectMapper();

@@ -9,7 +9,7 @@ import java.io.IOException;
 public interface TTDocumentFiler extends AutoCloseable {
   void fileDocument(TTDocument document) throws TTFilerException, JsonProcessingException, QueryException;
 
-  void writeLog(TTDocument document) throws JsonProcessingException;
+  void writeLog(TTDocument document) throws JsonProcessingException, TTFilerException;
 
   void fileDeltas(String deltaPath) throws IOException, QueryException, TTFilerException;
 

@@ -100,7 +100,6 @@ public class TTBulkFiler implements TTDocumentFiler {
       process.waitFor();
 
       if (error || process.exitValue() != 0) {
-        LOG.error("Bulk import failed");
         throw new TTFilerException("Bulk import failed");
       }
       File directory = new File(data + pathDelimiter);
@@ -112,7 +111,6 @@ public class TTBulkFiler implements TTDocumentFiler {
         }
       }
     } catch (IOException | InterruptedException e) {
-      LOG.error(e.getMessage());
       if (e instanceof InterruptedException) Thread.currentThread().interrupt();
       throw new TTFilerException(e.getMessage());
     }
@@ -158,6 +156,10 @@ public class TTBulkFiler implements TTDocumentFiler {
     TTBulkFiler.statementCount = statementCount;
   }
 
+  private static void incrementStatementCount() {
+    statementCount++;
+  }
+
   public void fileDocument(TTDocument document) throws TTFilerException {
     if (document.getEntities() == null)
       return;
@@ -168,8 +170,8 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   @Override
-  public void writeLog(TTDocument document) {
-
+  public void writeLog(TTDocument document) throws TTFilerException {
+    throw new TTFilerException("Bulk filer cannot writeLog.");
   }
 
   @Override
@@ -215,7 +217,6 @@ public class TTBulkFiler implements TTDocumentFiler {
       LOG.debug("{} entities written to file", counter);
       LOG.info("Finished - total of {} statements,  {}", statementCount, new Date());
     } catch (Exception e) {
-      LOG.error(e.getMessage());
       throw new TTFilerException(e.getMessage());
     } finally {
       closeFileWriters();
@@ -226,13 +227,12 @@ public class TTBulkFiler implements TTDocumentFiler {
     List<String> quadList = converter.transformEntity(entity, entityGraph);
     for (String quad : quadList) {
       quads.write(quad + "\n");
-      statementCount++;
+      incrementStatementCount();
     }
   }
 
   private void createFileWriters(String scheme, String path) throws IOException {
     quads = new FileWriter(path + "/BulkImport" + ".nq", true);
-    //quads = new FileWriter(path + "/BulkImport-" + fileNumber + ".nq");
     codeMap = new FileWriter(path + "/CodeMap.txt", true);
     termCoreMap = new FileWriter(path + "/TermCoreMap-" + scheme + ".txt", true);
     subtypes = new FileWriter(path + "/SubTypes" + ".txt", true);

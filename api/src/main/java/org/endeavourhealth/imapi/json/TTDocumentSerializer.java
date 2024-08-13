@@ -7,12 +7,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * JSON LD- Serializer for TTDocument (triple tree node with collection of entities)
@@ -26,23 +22,6 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
 
   public TTDocumentSerializer(Class<TTDocument> t) {
     super(t);
-  }
-
-
-  @Override
-  public void serialize(TTDocument document, JsonGenerator gen, SerializerProvider prov) throws IOException {
-    Boolean usePrefixes = (Boolean) prov.getAttribute(TTContext.OUTPUT_CONTEXT);
-    usePrefixes = (usePrefixes != null && usePrefixes);
-
-    TTNodeSerializer helper = new TTNodeSerializer(document.getContext(), usePrefixes);
-    gen.writeStartObject();
-    helper.serializeContexts(document.getPrefixes(), gen);
-    processGraph(document, gen, helper);
-    processCrud(document, gen, helper);
-    processEntities(document, gen, prov, helper);
-
-
-    gen.writeEndObject();
   }
 
   private static void processGraph(TTDocument document, JsonGenerator gen, TTNodeSerializer helper) throws IOException {
@@ -84,6 +63,22 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
       }
       gen.writeEndArray();
     }
+  }
+
+  @Override
+  public void serialize(TTDocument document, JsonGenerator gen, SerializerProvider prov) throws IOException {
+    Boolean usePrefixes = (Boolean) prov.getAttribute(TTContext.OUTPUT_CONTEXT);
+    usePrefixes = (usePrefixes != null && usePrefixes);
+
+    TTNodeSerializer helper = new TTNodeSerializer(document.getContext(), usePrefixes);
+    gen.writeStartObject();
+    helper.serializeContexts(document.getPrefixes(), gen);
+    processGraph(document, gen, helper);
+    processCrud(document, gen, helper);
+    processEntities(document, gen, prov, helper);
+
+
+    gen.writeEndObject();
   }
 
 }

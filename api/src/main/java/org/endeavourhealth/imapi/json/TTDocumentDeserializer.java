@@ -16,6 +16,10 @@ import java.util.Map;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
+  private static final String GRAPH = "@graph";
+  private static final String ID = "@id";
+  private static final String CRUD = "crud";
+  private static final String ENTITIES = "entities";
   private final TTContext context = new TTContext();
 
   public TTDocumentDeserializer() {
@@ -38,12 +42,12 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
     helper.populatePrefixesFromJson(node, prefixes);
     if (!prefixes.isEmpty())
       result.setContext(context);
-    if (node.get("@graph") != null)
-      result.setGraph(iri(helper.expand(node.get("@graph").get("@id").asText())));
-    if (node.get("crud") != null)
-      result.setCrud(iri(helper.expand(node.get("crud").get("@id").asText())));
-    if (node.get("entities") != null) {
-      result.setEntities(getEntities(node.withArray("entities")));
+    if (node.get(GRAPH) != null)
+      result.setGraph(iri(helper.expand(node.get(GRAPH).get(ID).asText())));
+    if (node.get(CRUD) != null)
+      result.setCrud(iri(helper.expand(node.get(CRUD).get(ID).asText())));
+    if (node.get(ENTITIES) != null) {
+      result.setEntities(getEntities(node.withArray(ENTITIES)));
     }
 
 
@@ -62,12 +66,12 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
       Iterator<Map.Entry<String, JsonNode>> fields = entityNode.fields();
       while (fields.hasNext()) {
         Map.Entry<String, JsonNode> field = fields.next();
-        if (field.getKey().equals("@id")) {
+        if (field.getKey().equals(ID)) {
           entity.setIri(helper.expand(field.getValue().textValue()));
-        } else if (field.getKey().equals("@graph")) {
-          entity.setGraph(new TTIriRef(helper.expand(field.getValue().get("@id").asText())));
-        } else if (field.getKey().equals("crud")) {
-          entity.setCrud(iri(helper.expand(field.getValue().get("@id").asText())));
+        } else if (field.getKey().equals(GRAPH)) {
+          entity.setGraph(new TTIriRef(helper.expand(field.getValue().get(ID).asText())));
+        } else if (field.getKey().equals(CRUD)) {
+          entity.setCrud(iri(helper.expand(field.getValue().get(ID).asText())));
         } else {
           if (field.getValue().isArray())
             entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeArrayAsValue(field.getValue()));

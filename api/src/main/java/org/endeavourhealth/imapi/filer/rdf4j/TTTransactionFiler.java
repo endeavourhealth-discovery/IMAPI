@@ -19,9 +19,9 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.TTManager;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,20 +35,20 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
  * Methods to create update and delete entities and generate a transaction log with the ability to refile
  * from the transaction log in order to process deltas after a bulk load
  * Methods may be called via CRUD instructions or file entities that contain the CRUD instructions.
- * <p>All entities must have a graph and a crud transation</p>
+ * <p>All entities must have a graph and a crud transaction</p>
  */
 public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   private static final Logger LOG = LoggerFactory.getLogger(TTTransactionFiler.class);
-  private RepositoryConnection conn;
-  private Set<String> entitiesFiled;
-  private String logPath;
-  private final String TTLog = "TTLog-";
-  private Map<String, Set<String>> isAs;
-  private TTManager manager;
-  private Set<String> done;
+  private static final String TTLOG = "TTLog-";
   protected TTEntityFiler conceptFiler;
   protected TTEntityFiler instanceFiler;
   protected Map<String, String> prefixMap = new HashMap<>();
+  private RepositoryConnection conn;
+  private Set<String> entitiesFiled;
+  private String logPath;
+  private Map<String, Set<String>> isAs;
+  private TTManager manager;
+  private Set<String> done;
 
 
   /**
@@ -74,6 +74,60 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     this.logPath = logPath;
   }
 
+  private static Map<String, Set<String>> getEntitiesToCheckForUsage(TTDocument transaction) throws TTFilerException {
+    Map<String, Set<String>> toCheck = new HashMap<>();
+    for (TTEntity entity : transaction.getEntities()) {
+
+      setEntityCrudOperation(transaction, entity);
+
+      if (Objects.equals(entity.getCrud(), iri(IM.UPDATE_ALL))) {
+        if (entity.getGraph() == null && transaction.getGraph() == null)
+          throw new TTFilerException("Entity " + entity.getIri() + " must have a graph assigned, or the transaction must have a default graph");
+        String graph = entity.getGraph() != null ? entity.getGraph().getIri() : transaction.getGraph().getIri();
+        if (entity.getPredicateMap().isEmpty())
+          toCheck.computeIfAbsent(graph, g -> new HashSet<>()).add("<" + entity.getIri() + ">");
+      }
+
+    }
+    return toCheck;
+  }
+
+  private static void setEntityCrudOperation(TTDocument transaction, TTEntity entity) {
+    if (entity.getCrud() == null) {
+      if (transaction.getCrud() != null) {
+        entity.setCrud(transaction.getCrud());
+      } else
+        entity.setCrud(iri(IM.UPDATE_ALL));
+    }
+  }
+
+  private static void checkIfEntitiesCurrentlyInUse(Map<String, Set<String>> toCheck) throws TTFilerException {
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      for (Map.Entry<String, Set<String>> entry : toCheck.entrySet()) {
+        String graph = entry.getKey();
+        Set<String> entities = entry.getValue();
+        String sql = "select * where \n{ graph <" + graph + "> {" +
+          "?s ?p ?o.\n" +
+          "filter (?o in(" + String.join(",", entities) + "))" +
+          "filter (?p!= <" + IM.IS_A + ">) } }";
+        TupleQuery qry = conn.prepareTupleQuery(sql);
+        try (TupleQueryResult rs = qry.evaluate()) {
+          if (rs.hasNext())
+            throw new TTFilerException("Entities have been used as objects or predicates. These must be deleted first");
+        }
+      }
+    }
+  }
+
+  private static TTIriRef processGraphs(TTDocument document, TTEntity entity) {
+    TTIriRef entityGraph = entity.getGraph();
+    if (entityGraph == null)
+      entityGraph = document.getGraph();
+    if (document.getGraph() == null)
+      document.setGraph(entity.getGraph());
+    return entityGraph;
+  }
+
   public void fileDeltas(String deltaPath) throws IOException, QueryException, TTFilerException {
     this.logPath = deltaPath;
     Map<Integer, String> transactionLogs = new HashMap<>();
@@ -82,17 +136,17 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     for (File file : Objects.requireNonNull(directory.listFiles())) {
       if (!file.isDirectory()) {
         String name = file.getName();
-        if (name.startsWith(TTLog)) {
+        if (name.startsWith(TTLOG)) {
           int counter = Integer.parseInt(name.split("-")[1].split("\\.")[0]);
           transactionLogs.put(counter, file.getAbsolutePath());
         }
       }
     }
-    try (TTManager manager = new TTManager()) {
+    try (TTManager ttManager = new TTManager()) {
       for (Integer logNumber : transactionLogs.keySet().stream().sorted().toList()) {
         LOG.info("Filing TTLog-{}.json", logNumber);
-        manager.loadDocument(new File(transactionLogs.get(logNumber)));
-        fileDocument(manager.getDocument());
+        ttManager.loadDocument(new File(transactionLogs.get(logNumber)));
+        fileDocument(ttManager.getDocument());
       }
     }
 
@@ -144,51 +198,6 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
   }
 
-  private static Map<String, Set<String>> getEntitiesToCheckForUsage(TTDocument transaction) throws TTFilerException {
-    Map<String, Set<String>> toCheck = new HashMap<>();
-    for (TTEntity entity : transaction.getEntities()) {
-
-      setEntityCrudOperation(transaction, entity);
-
-      if (Objects.equals(entity.getCrud(), iri(IM.UPDATE_ALL))) {
-        if (entity.getGraph() == null && transaction.getGraph() == null)
-          throw new TTFilerException("Entity " + entity.getIri() + " must have a graph assigned, or the transaction must have a default graph");
-        String graph = entity.getGraph() != null ? entity.getGraph().getIri() : transaction.getGraph().getIri();
-        if (entity.getPredicateMap().isEmpty())
-          toCheck.computeIfAbsent(graph, g -> new HashSet<>()).add("<" + entity.getIri() + ">");
-      }
-
-    }
-    return toCheck;
-  }
-
-  private static void setEntityCrudOperation(TTDocument transaction, TTEntity entity) {
-    if (entity.getCrud() == null) {
-      if (transaction.getCrud() != null) {
-        entity.setCrud(transaction.getCrud());
-      } else
-        entity.setCrud(iri(IM.UPDATE_ALL));
-    }
-  }
-
-  private static void checkIfEntitiesCurrentlyInUse(Map<String, Set<String>> toCheck) throws TTFilerException {
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      for (Map.Entry<String, Set<String>> entry : toCheck.entrySet()) {
-        String graph = entry.getKey();
-        Set<String> entities = entry.getValue();
-        String sql = "select * where \n{ graph <" + graph + "> {" +
-          "?s ?p ?o.\n" +
-          "filter (?o in(" + String.join(",", entities) + "))" +
-          "filter (?p!= <" + IM.IS_A + ">) } }";
-        TupleQuery qry = conn.prepareTupleQuery(sql);
-        try (TupleQueryResult rs = qry.evaluate()) {
-          if (rs.hasNext())
-            throw new TTFilerException("Entities have been used as objects or predicates. These must be deleted first");
-        }
-      }
-    }
-  }
-
   private void fileAsDocument(TTDocument document) throws TTFilerException, JsonProcessingException, QueryException {
     try {
       startTransaction();
@@ -233,21 +242,12 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       conceptFiler.fileEntity(entity, graph);
   }
 
-  private static TTIriRef processGraphs(TTDocument document, TTEntity entity) {
-    TTIriRef entityGraph = entity.getGraph();
-    if (entityGraph == null)
-      entityGraph = document.getGraph();
-    if (document.getGraph() == null)
-      document.setGraph(entity.getGraph());
-    return entityGraph;
-  }
-
   public void updateSets(TTDocument document) throws QueryException, JsonProcessingException {
     for (TTEntity entity : document.getEntities()) {
       if (entity.isType(iri(IM.CONCEPT_SET)) || entity.isType(iri(IM.VALUESET))) {
-        LOG.info("Expanding set " + entity.getIri());
+        LOG.info("Expanding set {}", entity.getIri());
         new SetExpander().expandSet(entity.getIri());
-        LOG.info("Binding set " + entity.getIri());
+        LOG.info("Binding set {}", entity.getIri());
         new SetBinder().bindSet(entity.getIri());
       }
     }
@@ -259,13 +259,21 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     manager = new TTManager();
     manager.setDocument(document).createIndex();
     LOG.info("Generating isas.... ");
-    int i = 0;
     LOG.info("Collecting known descendants");
     Set<TTEntity> descendants = conceptFiler.getDescendants(entitiesFiled);
     Set<TTEntity> toClose = new HashSet<>(document.getEntities());
-    ;
     toClose.addAll(descendants);
     //set external isas first i.e. top of the tree
+    setExternalIsas(toClose);
+    //Now get next levels from top to bottom
+    for (TTEntity entity : toClose) {
+      getInternalIsAs(entity);
+    }
+    conceptFiler.deleteIsas(isAs.keySet());
+    conceptFiler.fileIsAs(isAs);
+  }
+
+  private void setExternalIsas(Set<TTEntity> toClose) throws TTFilerException {
     for (TTEntity entity : toClose) {
       for (String iriRef : List.of(RDFS.SUBCLASS_OF, IM.LOCAL_SUBCLASS_OF)) {
         String subclass = entity.getIri();
@@ -282,12 +290,6 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
         }
       }
     }
-    //Now get next levels from top to bottom
-    for (TTEntity entity : toClose) {
-      getInternalIsAs(entity);
-    }
-    conceptFiler.deleteIsas(isAs.keySet());
-    conceptFiler.fileIsAs(isAs);
   }
 
   private Set<String> getInternalIsAs(TTEntity entity) {
@@ -297,24 +299,28 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       isAs.get(subclass).add(subclass);
       for (String iriRef : List.of(RDFS.SUBCLASS_OF, IM.LOCAL_SUBCLASS_OF)) {
         if (entity.get(iri(iriRef)) != null) {
-          for (TTValue superClass : entity.get(iri(iriRef)).getElements()) {
-            String iri = superClass.asIriRef().getIri();
-            if (!done.contains(iri)) {
-              isAs.get(subclass).add(iri);
-              Set<String> superIsas = getInternalIsAs(manager.getEntity(iri));
-              if (superIsas != null)
-                isAs.get(subclass).addAll(superIsas);
-              done.add(iri);
-            } else {
-              if (isAs.get(iri) != null)
-                isAs.get(subclass).addAll(isAs.get(iri));
-            }
-          }
+          processSuperClass(entity, iriRef, subclass);
         }
       }
     }
     done.add(subclass);
     return isAs.get(subclass);
+  }
+
+  private void processSuperClass(TTEntity entity, String iriRef, String subclass) {
+    for (TTValue superClass : entity.get(iri(iriRef)).getElements()) {
+      String iri = superClass.asIriRef().getIri();
+      if (!done.contains(iri)) {
+        isAs.get(subclass).add(iri);
+        Set<String> superIsas = getInternalIsAs(manager.getEntity(iri));
+        if (superIsas != null)
+          isAs.get(subclass).addAll(superIsas);
+        done.add(iri);
+      } else {
+        if (isAs.get(iri) != null)
+          isAs.get(subclass).addAll(isAs.get(iri));
+      }
+    }
   }
 
 
@@ -325,37 +331,21 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     for (File file : Objects.requireNonNull(directory.listFiles()))
       if (!file.isDirectory()) {
         String name = file.getName();
-        if (name.startsWith(TTLog)) {
+        if (name.startsWith(TTLOG)) {
           int counter = Integer.parseInt(name.split("-")[1].split("\\.")[0]);
           if (counter > logNumber)
             logNumber = counter;
         }
       }
     logNumber++;
-    File logFile = new File(logPath + TTLog + logNumber + ".json");
-    try (TTManager manager = new TTManager()) {
-      manager.setDocument(document);
-      manager.saveDocument(logFile);
+    File logFile = new File(logPath + TTLOG + logNumber + ".json");
+    try (TTManager ttManager = new TTManager()) {
+      ttManager.setDocument(document);
+      ttManager.saveDocument(logFile);
     }
   }
 
-
-  private TupleQueryResult runQuery(RepositoryConnection conn, String sql) {
-    TupleQuery qr = conn.prepareTupleQuery(sql);
-    return qr.evaluate();
-  }
-
-  private void validateGraph(Set<TTEntity> entities) throws TTFilerException {
-    for (TTEntity entity : entities) {
-      if (entity.getGraph() == null)
-        throw new TTFilerException("Each entity must have a graph assigned");
-      if (entity.getCrud() == null)
-        throw new TTFilerException("All entities must have UpdateAll," +
-          "UpdatePredicates, AddTriple CRUD operations");
-    }
-  }
-
-  public void fileEntities(Map<String, String> prefixMap, TTDocument document) throws TTFilerException {
+  public void fileEntities(TTDocument document) throws TTFilerException {
     LOG.info("Filing entities.... ");
 
     TTIriRef defaultGraph = document.getGraph() != null ? document.getGraph() : iri(GRAPH.DISCOVERY);

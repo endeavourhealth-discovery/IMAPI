@@ -170,13 +170,13 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   @Override
-  public void writeLog(TTDocument document) throws TTFilerException {
-    throw new TTFilerException("Bulk filer cannot writeLog.");
+  public void writeLog(TTDocument document) {
+    throw new UnsupportedOperationException("TTBulkFiler does not support writeLog");
   }
 
   @Override
-  public void fileDeltas(String dataPath) throws IOException {
-    throw new IOException("Deltas cannot be filed by a bulk filer. Set Filer Factory bulk to false");
+  public void fileDeltas(String dataPath) {
+    throw new UnsupportedOperationException("Deltas cannot be filed by a bulk filer. Set Filer Factory bulk to false");
   }
 
   private void writeGraph(TTDocument document) throws TTFilerException {

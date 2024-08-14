@@ -25,7 +25,7 @@ public class PartialDateTimeDeserializer extends StdDeserializer<PartialDateTime
 
   @SneakyThrows
   @Override
-  public PartialDateTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+  public PartialDateTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
 
     JsonNode node = p.getCodec().readTree(p);
     String isoDateTime = node.get("dateTime").textValue();

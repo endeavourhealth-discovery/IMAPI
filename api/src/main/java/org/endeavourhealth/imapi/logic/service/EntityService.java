@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
+import org.endeavourhealth.imapi.logic.exporters.ExcelSetOptions;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
@@ -791,7 +792,7 @@ public class EntityService {
     if (iri == null || "".equals(iri)) {
       return null;
     }
-    return new ExcelSetExporter().getSetAsExcel(iri, definition, core, legacy, includeSubsets, inlineLegacy, im1id, schemes);
+    return new ExcelSetExporter().getSetAsExcel(new ExcelSetOptions(iri, definition, core, legacy, includeSubsets, inlineLegacy, im1id, schemes));
   }
 
   /**

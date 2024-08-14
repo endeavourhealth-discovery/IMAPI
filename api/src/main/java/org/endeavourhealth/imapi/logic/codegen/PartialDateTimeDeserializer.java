@@ -31,7 +31,7 @@ public class PartialDateTimeDeserializer extends StdDeserializer<PartialDateTime
     String isoDateTime = node.get("dateTime").textValue();
     String precision = node.get("precision").textValue();
 
-    return new PartialDateTime(OffsetDateTime.parse(isoDateTime), PartialDateTime.Precision.valueOf(precision));
+    return new PartialDateTime(OffsetDateTime.parse(isoDateTime), Precision.valueOf(precision));
   }
 
   private Object getNodeValue(JsonNode value, JsonParser p, DeserializationContext ctxt) throws IOException {

@@ -2,32 +2,33 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
-import org.endeavourhealth.imapi.logic.exporters.ExcelSetOptions;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.dto.*;
+import org.endeavourhealth.imapi.model.dto.DownloadDto;
+import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
+import org.endeavourhealth.imapi.model.dto.ParentDto;
+import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
 import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.iml.FormGenerator;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
-import org.endeavourhealth.imapi.model.search.*;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.search.EntityDocument;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.set.ExportSet;
 import org.endeavourhealth.imapi.model.set.MemberType;
-import org.endeavourhealth.imapi.model.set.SetAsObject;
 import org.endeavourhealth.imapi.model.set.SetMember;
-import org.endeavourhealth.imapi.transforms.TTToClassObject;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTToString;
 import org.endeavourhealth.imapi.validators.EntityValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -35,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -48,13 +48,11 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class EntityService {
+  public static final int MAX_CHILDREN = 200;
   private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
   private static final FilerService filerService = new FilerService();
   private boolean direct = false;
   private boolean desc = false;
-
-  public static final int MAX_CHILDREN = 200;
-
   private EntityRepository entityRepository = new EntityRepository();
   private EntityTctRepository entityTctRepository = new EntityTctRepository();
   private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
@@ -62,17 +60,6 @@ public class EntityService {
   private ConfigManager configManager = new ConfigManager();
   private EntityRepository2 entityRepository2 = new EntityRepository2();
   private SearchService searchService = new SearchService();
-
-  public TTBundle getBundle(String iri, Set<String> predicates) {
-    return entityRepository2.getBundle(iri, predicates);
-  }
-
-  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) {
-    TTBundle bundle = entityRepository2.getBundle(iri, excludePredicates, true);
-    filterOutSpecifiedPredicates(excludePredicates, bundle);
-    filterOutInactiveTermCodes(bundle);
-    return bundle;
-  }
 
   private static void filterOutSpecifiedPredicates(Set<String> excludePredicates, TTBundle bundle) {
     if (excludePredicates != null) {
@@ -100,6 +87,17 @@ public class EntityService {
       }
       bundle.getEntity().set(iri(IM.HAS_TERM_CODE), activeTermCodes);
     }
+  }
+
+  public TTBundle getBundle(String iri, Set<String> predicates) {
+    return entityRepository2.getBundle(iri, predicates);
+  }
+
+  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) {
+    TTBundle bundle = entityRepository2.getBundle(iri, excludePredicates, true);
+    filterOutSpecifiedPredicates(excludePredicates, bundle);
+    filterOutInactiveTermCodes(bundle);
+    return bundle;
   }
 
   public TTIriRef getEntityReference(String iri) {
@@ -792,7 +790,7 @@ public class EntityService {
     if (iri == null || "".equals(iri)) {
       return null;
     }
-    return new ExcelSetExporter().getSetAsExcel(new ExcelSetOptions(iri, definition, core, legacy, includeSubsets, inlineLegacy, im1id, schemes));
+    return new ExcelSetExporter().getSetAsExcel(new SetExporterOptions(iri, definition, core, legacy, includeSubsets, inlineLegacy, im1id, schemes));
   }
 
   /**

@@ -29,6 +29,7 @@ import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.SetContent;
 import org.endeavourhealth.imapi.model.imq.ContextMap;
@@ -377,6 +378,8 @@ public class EntityController {
       headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
       headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"");
 
+      SetExporterOptions options = new SetExporterOptions(iri, definition, core, legacy, subsets, ownRow, im1id, schemes);
+
       try {
         if ("xlsx".equals(format)) {
           XSSFWorkbook workbook = entityService.getSetExport(iri, definition, core, legacy, subsets, ownRow, im1id, schemes);
@@ -388,10 +391,10 @@ public class EntityController {
             throw new DownloadException("Failed to write to excel document");
           }
         } else if ("csv".equals(format)) {
-          String result = setService.getCSVSetExport(iri, definition, core, legacy, subsets, ownRow, im1id, schemes);
+          String result = setService.getCSVSetExport(options);
           return new HttpEntity<>(result, headers);
         } else if ("tsv".equals(format)) {
-          String result = setService.getTSVSetExport(iri, definition, core, legacy, subsets, ownRow, im1id, schemes);
+          String result = setService.getTSVSetExport(options);
           return new HttpEntity<>(result, headers);
         } else if ("object".equals(format)) {
           SetContent result = setService.getSetContent(iri, definition, core, legacy, subsets, schemes);

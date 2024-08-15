@@ -7,6 +7,7 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
+import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
@@ -20,6 +21,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.logic.exporters.helpers.ExporterHelpers.setUsage;
+import static org.endeavourhealth.imapi.logic.exporters.helpers.ExporterHelpers.setSubSet;
+import static org.endeavourhealth.imapi.logic.exporters.helpers.ExporterHelpers.setSubsetIri;
+import static org.endeavourhealth.imapi.logic.exporters.helpers.ExporterHelpers.setSubsetVersion;
+import static org.endeavourhealth.imapi.logic.exporters.helpers.ExporterHelpers.setIsExtension;
 
 /**
  * Manages the Exports concept set data in excel workboook format
@@ -115,7 +121,7 @@ public class ExcelSetExporter {
    * @param options of the set
    * @return work book
    */
-  public XSSFWorkbook getSetAsExcel(ExcelSetOptions options) throws JsonProcessingException, QueryException {
+  public XSSFWorkbook getSetAsExcel(SetExporterOptions options) throws JsonProcessingException, QueryException {
     TTEntity entity = entityTripleRepository.getEntityPredicates(options.getSetIri(), Set.of(IM.DEFINITION)).getEntity();
     if (entity.getIri() == null || entity.getIri().isEmpty())
       return workbook;
@@ -189,26 +195,6 @@ public class ExcelSetExporter {
         addCoreExpansionConceptToWorkBook(sheet, addedCoreIris, cl, im1id, setName, includeSubsets);
       }
     }
-  }
-
-  private String setUsage(Concept concept) {
-    return concept.getUsage() == null ? "" : concept.getUsage().toString();
-  }
-
-  private String setIsExtension(Concept concept) {
-    return concept.getScheme().getIri().contains("sct#") ? "N" : "Y";
-  }
-
-  private String setSubSet(Concept concept) {
-    return concept.getIsContainedIn() != null ? concept.getIsContainedIn().iterator().next().getName() : "";
-  }
-
-  private String setSubsetIri(Concept concept) {
-    return concept.getIsContainedIn() != null ? concept.getIsContainedIn().iterator().next().getIri() : "";
-  }
-
-  private String setSubsetVersion(Concept concept) {
-    return concept.getIsContainedIn() != null ? String.valueOf(concept.getIsContainedIn().iterator().next().getVersion()) : "";
   }
 
   private void addCoreExpansionConceptToWorkBook(Sheet sheet, Set<String> addedCoreIris, Concept concept, boolean im1id, String setName, boolean includeSubsets) {

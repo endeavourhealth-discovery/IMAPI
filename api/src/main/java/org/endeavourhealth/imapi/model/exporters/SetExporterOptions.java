@@ -1,10 +1,10 @@
-package org.endeavourhealth.imapi.logic.exporters;
+package org.endeavourhealth.imapi.model.exporters;
 
 import lombok.Getter;
 
 import java.util.List;
 
-public class ExcelSetOptions {
+public class SetExporterOptions {
   @Getter
   private String setIri;
   @Getter
@@ -21,7 +21,7 @@ public class ExcelSetOptions {
   @Getter
   private List<String> schemes;
 
-  public ExcelSetOptions(String setIri, boolean definition, boolean core, boolean legacy, boolean includeSubsets, boolean ownRow, boolean im1id, List<String> schemes) {
+  public SetExporterOptions(String setIri, boolean definition, boolean core, boolean legacy, boolean includeSubsets, boolean ownRow, boolean im1id, List<String> schemes) {
     this.setIri = setIri;
     this.definition = definition;
     this.core = core;

@@ -2,8 +2,10 @@ package org.endeavourhealth.imapi.transforms;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.fhir.CodeSystem;
+import org.endeavourhealth.imapi.model.fhir.FHIRConcept;
 import org.endeavourhealth.imapi.model.fhir.Include;
 import org.endeavourhealth.imapi.model.fhir.ValueSet;
+import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Bool;
 import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Node;
@@ -13,6 +15,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.FHIR;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +27,7 @@ public class FHIRToIM {
   public TTEntity convertValueSet(ValueSet valueSet, TTIriRef setType,String folder) throws JsonProcessingException {
     TTEntity set= new TTEntity()
       .addType(setType)
-      .setIri(valueSet.getURL())
+      .setIri(FHIR.GRAPH_FHIR+"ValueSet/"+ valueSet.getID())
       .setStatus(valueSet.getStatus().equals("active")? iri(IM.ACTIVE): iri(IM.DRAFT))
       .setName(valueSet.getName().replaceAll("([a-z])([A-Z])", "$1 $2"))
       .setDescription(valueSet.getDescription());
@@ -57,12 +60,23 @@ public class FHIRToIM {
     List<TTEntity> concepts= new ArrayList<>();
     TTEntity parent= new TTEntity()
       .addType(iri(IM.CONCEPT))
-      .setIri(codeSystem.getURL())
+      .setCode(codeSystem.getID())
+      .setIri(FHIR.GRAPH_FHIR+"CodeSystem/"+codeSystem.getID())
       .setStatus(codeSystem.getStatus().equals("active") ?iri(IM.ACTIVE): iri(IM.DRAFT))
       .setName(codeSystem.getTitle())
       .setDescription(codeSystem.getDescription());
     parent.addObject(iri(IM.IS_CONTAINED_IN),iri(folder));
     concepts.add(parent);
+    for (FHIRConcept fhirConcept:codeSystem.getConcept()){
+      TTEntity concept= new TTEntity()
+        .addType(iri(IM.CONCEPT))
+        .setName(fhirConcept.getDisplay()+" ("+ parent.getName()+")")
+        .setDescription(fhirConcept.getDefinition())
+        .setIri(parent.getIri()+"/"+ fhirConcept.getCode())
+        .setCode(fhirConcept.getCode());
+      concept.addObject(iri(RDFS.SUBCLASS_OF),iri(parent.getIri()));
+      concepts.add(concept);
+    }
 
     return concepts;
 

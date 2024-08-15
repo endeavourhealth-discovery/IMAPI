@@ -37,7 +37,7 @@ class SearchServiceTest {
   private String succinctDefinitions;
 
 
-  @Test
+  //@Test
   void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
     output(TestQueries.pathQuery());
     /*

@@ -22,7 +22,7 @@ public class CodeSystem {
     private String valueSet;
     private String hierarchyMeaning;
     private String content;
-    private Concept[] concept;
+    private FHIRConcept[] concept;
 
     @JsonProperty("resourceType")
     public String getResourceType() { return resourceType; }
@@ -120,7 +120,7 @@ public class CodeSystem {
     public void setContent(String value) { this.content = value; }
 
     @JsonProperty("concept")
-    public Concept[] getConcept() { return concept; }
+    public FHIRConcept[] getConcept() { return concept; }
     @JsonProperty("concept")
-    public void setConcept(Concept[] value) { this.concept = value; }
+    public void setConcept(FHIRConcept[] value) { this.concept = value; }
 }

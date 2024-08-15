@@ -1,0 +1,16 @@
+{
+  "match" : [ {
+    "typeOf" : {
+      "@id" : "http://endhealth.info/im#Condition",
+      "name" : "Condition"
+    },
+    "where" : [ {
+      "@id" : "http://endhealth.info/im#concept",
+      "name" : "concept"
+    } ],
+    "path" : [ {
+      "@id" : "http://endhealth.info/im#patient",
+      "name" : "patient"
+    } ]
+  } ]
+}

@@ -11,6 +11,13 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class TestQueries {
   public static String ex = "http://example.org/qry#";
 
+  public static QueryRequest pathQuery(){
+    return new QueryRequest().setPathQuery(new PathQuery()
+        .setName("DiabetesPath")
+      .setTarget(iri("http://snomed.info/sct#44054006"))
+      .setSource(iri(IM.NAMESPACE+"Patient")));
+  }
+
 
   public static QueryRequest dataModelPropertyRange() {
     Query query = new Query()

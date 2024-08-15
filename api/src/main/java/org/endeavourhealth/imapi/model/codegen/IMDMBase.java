@@ -3,6 +3,8 @@ package org.endeavourhealth.imapi.logic.codegen;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
+import org.endeavourhealth.imapi.json.IMDMDeserializer;
+import org.endeavourhealth.imapi.json.IMDMSerializer;
 
 import java.util.HashMap;
 import java.util.Map;

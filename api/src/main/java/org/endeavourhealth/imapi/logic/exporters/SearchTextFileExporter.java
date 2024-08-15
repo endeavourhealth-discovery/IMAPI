@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.logic.exporters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.service.EclService;
-import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
@@ -10,7 +9,6 @@ import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.DownloadOptions;
-import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
@@ -18,20 +16,17 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.concurrent.ExecutionException;
-import java.util.zip.DataFormatException;
 
 public class SearchTextFileExporter {
   private static final Logger LOG = LoggerFactory.getLogger(SearchTextFileExporter.class);
   private SearchService searchService = new SearchService();
   private EclService eclService = new EclService();
 
-  public String getSearchFile(DownloadOptions downloadOptions) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException, DownloadException {
-    LOG.debug("Exporting search results to " + downloadOptions.getFormat());
+  public String getSearchFile(DownloadOptions downloadOptions) throws OpenSearchException, JsonProcessingException, QueryException, DownloadException {
+    LOG.debug("Exporting search results to {}", downloadOptions.getFormat());
     SearchResponse searchResponse = null;
     if (null != downloadOptions.getQueryRequest()) {
       QueryRequest queryRequest = downloadOptions.getQueryRequest();

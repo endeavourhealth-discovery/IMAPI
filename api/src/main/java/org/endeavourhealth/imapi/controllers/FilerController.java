@@ -65,11 +65,7 @@ public class FilerController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Document.POST")) {
       LOG.debug("fileDocument");
       String agentName = reqObjService.getRequestAgentName(request);
-      if (withoutTransaction) {
-        filerService.fileDocument(document, agentName);
-      } else {
-        filerService.fileTransactionDocument(document, agentName);
-      }
+      filerService.fileDocument(document, agentName);
       return ResponseEntity.ok().build();
     }
   }

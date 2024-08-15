@@ -55,7 +55,7 @@ public class Reasoner {
     return false;
   }
 
-  public TTDocument generateInferred(TTDocument document) throws OWLOntologyCreationException, DataFormatException {
+  public TTDocument generateInferred(TTDocument document) throws OWLOntologyCreationException {
     //Creates isas
     manager = new TTManager();
     manager.setDocument(document);
@@ -126,7 +126,7 @@ public class Reasoner {
     entity.set(iri(RDFS.DOMAIN), newDomains);
   }
 
-  private void addDocumentRoles() throws DataFormatException {
+  private void addDocumentRoles() {
     if (inferred.getEntities() == null)
       return;
     for (TTEntity entity : inferred.getEntities()) {
@@ -134,7 +134,7 @@ public class Reasoner {
     }
   }
 
-  private void addEntityRoles(TTEntity entity) throws DataFormatException {
+  private void addEntityRoles(TTEntity entity) {
     if (entity.get(iri(RDFS.SUBCLASS_OF)) != null) {
       for (TTValue superClass : entity.get(iri(RDFS.SUBCLASS_OF)).iterator()) {
         if (!superClass.isIriRef()) {

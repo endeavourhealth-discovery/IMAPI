@@ -1,19 +1,11 @@
 package org.endeavourhealth.imapi.controllers;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.zip.DataFormatException;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
@@ -21,28 +13,27 @@ import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSearchExporter;
 import org.endeavourhealth.imapi.logic.exporters.SearchTextFileExporter;
+import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.*;
+import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
+import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.SetContent;
-import org.endeavourhealth.imapi.model.imq.ContextMap;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
-import org.endeavourhealth.imapi.model.search.*;
-import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
-import org.endeavourhealth.imapi.model.dto.GraphDto;
-import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.model.set.ExportSet;
-import org.endeavourhealth.imapi.model.set.SetAsObject;
-import org.endeavourhealth.imapi.transforms.TTToTurtle;
+import org.endeavourhealth.imapi.model.search.DownloadOptions;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.model.tripletree.TTBundle;
+import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
@@ -58,8 +49,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
-
-import jakarta.servlet.http.HttpServletRequest;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.zip.DataFormatException;
 
 @RestController
 @RequestMapping("api/entity")
@@ -68,15 +64,13 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestScope
 public class EntityController {
   private static final Logger LOG = LoggerFactory.getLogger(EntityController.class);
-
+  private static final String ATTACHMENT = "attachment;filename=\"";
+  private static final String FORCE_DOWNLOAD = "force-download";
+  private static final String APPLICATION = "application";
   private final EntityService entityService = new EntityService();
   private final SetService setService = new SetService();
   private final ConfigManager configManager = new ConfigManager();
   private final RequestObjectService reqObjService = new RequestObjectService();
-
-  private static final String ATTACHMENT = "attachment;filename=\"";
-  private static final String FORCE_DOWNLOAD = "force-download";
-  private static final String APPLICATION = "application";
 
   @GetMapping(value = "/public/partial", produces = "application/json")
   public TTEntity getPartialEntity(
@@ -382,7 +376,7 @@ public class EntityController {
 
       try {
         if ("xlsx".equals(format)) {
-          XSSFWorkbook workbook = entityService.getSetExport(iri, definition, core, legacy, subsets, ownRow, im1id, schemes);
+          XSSFWorkbook workbook = entityService.getSetExport(new SetExporterOptions(iri, definition, core, legacy, subsets, ownRow, im1id, schemes));
           try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             workbook.write(outputStream);
             workbook.close();

@@ -1,8 +1,9 @@
-package org.endeavourhealth.imapi.logic.codegen;
+package org.endeavourhealth.imapi.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import org.endeavourhealth.imapi.model.codegen.IMDMBase;
 
 import java.io.IOException;
 import java.util.Map;

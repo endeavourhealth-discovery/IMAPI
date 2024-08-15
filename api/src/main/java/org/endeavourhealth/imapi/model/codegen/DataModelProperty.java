@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.logic.codegen;
+package org.endeavourhealth.imapi.model.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
@@ -33,6 +33,11 @@ public class DataModelProperty {
     return isModel;
   }
 
+  public DataModelProperty setModel(boolean model) {
+    isModel = model;
+    return this;
+  }
+
   public String getComment() {
     return comment;
   }
@@ -57,11 +62,6 @@ public class DataModelProperty {
 
   public DataModelProperty setMinCount(Integer minCount) {
     this.minCount = minCount;
-    return this;
-  }
-
-  public DataModelProperty setModel(boolean model) {
-    isModel = model;
     return this;
   }
 }

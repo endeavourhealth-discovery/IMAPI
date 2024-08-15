@@ -1,12 +1,14 @@
-package org.endeavourhealth.imapi.logic.codegen;
+package org.endeavourhealth.imapi.json;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.SneakyThrows;
+import org.endeavourhealth.imapi.model.codegen.IMDMBase;
+import org.endeavourhealth.imapi.model.codegen.PartialDateTime;
+import org.endeavourhealth.imapi.model.codegen.Precision;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;

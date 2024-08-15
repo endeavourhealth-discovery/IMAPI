@@ -1,12 +1,10 @@
-package org.endeavourhealth.imapi.logic.codegen;
+package org.endeavourhealth.imapi.model.codegen;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import org.endeavourhealth.imapi.json.PartialDateTimeDeserializer;
 import org.endeavourhealth.imapi.json.PartialDateTimeSerializer;
-import org.endeavourhealth.imapi.model.codegen.Precision;
-import org.endeavourhealth.imapi.model.codegen.TimeUnits;
 
 import java.time.*;
 import java.util.Date;

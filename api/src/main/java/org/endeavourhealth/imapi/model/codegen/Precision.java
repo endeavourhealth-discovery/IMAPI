@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.logic.codegen;
+package org.endeavourhealth.imapi.model.codegen;
 
 public enum Precision {
   YYYY,

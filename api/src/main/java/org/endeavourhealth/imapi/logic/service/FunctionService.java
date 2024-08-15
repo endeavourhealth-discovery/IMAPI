@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.imq.Argument;
@@ -12,14 +11,14 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class FunctionService {
+  public static final String ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY = "One or more arguments are missing parameter key";
+  public static final String ENTITY_IRI = "entityIri";
+  public static final String NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY = "No entity iri where in request body";
   private final ConceptRepository conceptRepository = new ConceptRepository();
   private final EntityService entityService = new EntityService();
   private final UserService userService = new UserService();
-
-  private final EntityRepository entityRepository = new EntityRepository();
 
   private final RequestObjectService requestObjectService = new RequestObjectService();
 
@@ -45,12 +44,12 @@ public class FunctionService {
     String fieldName = null;
     for (Argument arg : arguments) {
       if (null == arg.getParameter())
-        throw new IllegalArgumentException("One or more arguments are missing parameter key");
-      if ("entityIri".equals(arg.getParameter())) iri = arg.getValueVariable();
+        throw new IllegalArgumentException(ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY);
+      if (ENTITY_IRI.equals(arg.getParameter())) iri = arg.getValueVariable();
       if ("fieldName".equals(arg.getParameter())) fieldName = arg.getValueData();
     }
     if (null == iri)
-      throw new IllegalArgumentException("No entity iri where in request body");
+      throw new IllegalArgumentException(NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY);
     if (null == fieldName)
       throw new IllegalArgumentException("No 'fieldName' to return the local name in. e.g. \"fieldName\" : \"code\"");
     try (CachedObjectMapper om = new CachedObjectMapper()) {
@@ -64,16 +63,16 @@ public class FunctionService {
     String iri = null;
     for (Argument arg : arguments) {
       if (null == arg.getParameter())
-        throw new IllegalArgumentException("One or more arguments are missing parameter key");
-      if ("entityIri".equals(arg.getParameter())) iri = arg.getValueVariable();
+        throw new IllegalArgumentException(ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY);
+      if (ENTITY_IRI.equals(arg.getParameter())) iri = arg.getValueVariable();
     }
     if (null == iri)
-      throw new IllegalArgumentException("No entity iri where in request body");
+      throw new IllegalArgumentException(NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY);
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       String schemeIri = iri.substring(0, iri.lastIndexOf("#") + 1);
       List<EntityReferenceNode> schemes = entityService.getImmediateChildren(IM.GRAPH, new ArrayList<>(), 1, 1000, false);
       List<EntityReferenceNode> schemesFiltered = schemes.stream().filter(s -> s.getIri().equals(schemeIri)).toList();
-      List<TTIriRef> schemesFilteredIriRef = schemesFiltered.stream().map(s -> new TTIriRef().setIri(s.getIri()).setName(s.getName())).collect(Collectors.toList());
+      List<TTIriRef> schemesFilteredIriRef = schemesFiltered.stream().map(s -> new TTIriRef().setIri(s.getIri()).setName(s.getName())).toList();
       if (schemesFiltered.isEmpty()) throw new IllegalArgumentException("Iri has invalid scheme");
       return om.valueToTree(schemesFilteredIriRef);
     }
@@ -85,22 +84,22 @@ public class FunctionService {
     String entityIri = null;
     for (Argument arg : arguments) {
       if (null == arg.getParameter())
-        throw new IllegalArgumentException("One or more arguments are missing parameter key");
-      if ("entityIri".equals(arg.getParameter())) entityIri = arg.getValueIri().getIri();
+        throw new IllegalArgumentException(ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY);
+      if (ENTITY_IRI.equals(arg.getParameter())) entityIri = arg.getValueIri().getIri();
     }
     if (null == entityIri)
-      throw new IllegalArgumentException("No entity iri where in request body");
+      throw new IllegalArgumentException(NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY);
     List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.ENTITY_TYPES, null, 1, 200, false);
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       if (IM.CONCEPT.equals(entityIri)) {
         String finalEntityIri = entityIri;
         List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(finalEntityIri, RDF.PROPERTY, SHACL.NODESHAPE).contains(t.getIri())).toList();
-        List<TTIriRef> filteredResultsAsIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
+        List<TTIriRef> filteredResultsAsIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).toList();
         return om.valueToTree(filteredResultsAsIri);
       } else {
         String finalEntityIri1 = entityIri;
         List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Objects.equals(finalEntityIri1, t.getIri())).toList();
-        List<TTIriRef> originalResultIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
+        List<TTIriRef> originalResultIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).toList();
         return om.valueToTree(originalResultIri);
       }
     }
@@ -117,7 +116,7 @@ public class FunctionService {
 
   private JsonNode getSetEditorIriSchemes() {
     List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.GRAPH, null, 1, 200, false);
-    List<TTIriRef> resultsAsIri = results.stream().map(r -> new TTIriRef(r.getIri(), r.getName())).collect(Collectors.toList());
+    List<TTIriRef> resultsAsIri = results.stream().map(r -> new TTIriRef(r.getIri(), r.getName())).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.valueToTree(resultsAsIri);
     }
@@ -127,7 +126,7 @@ public class FunctionService {
     List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.GRAPH, null, 1, 200, false);
     String userId = requestObjectService.getRequestAgentId(request);
     List<String> organisations = userService.getUserOrganisations(userId);
-    List<TTIriRef> resultsAsIri = results.stream().filter(r -> organisations.stream().anyMatch(o -> o.equals(r.getIri()))).map(r -> new TTIriRef(r.getIri(), r.getName())).collect(Collectors.toList());
+    List<TTIriRef> resultsAsIri = results.stream().filter(r -> organisations.stream().anyMatch(o -> o.equals(r.getIri()))).map(r -> new TTIriRef(r.getIri(), r.getName())).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.valueToTree(resultsAsIri);
     }
@@ -146,7 +145,7 @@ public class FunctionService {
     String entityIri = null;
     for (Argument arg : arguments) {
       if (null == arg.getParameter())
-        throw new IllegalArgumentException("One or more arguments are missing parameter key");
+        throw new IllegalArgumentException(ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY);
       if ("scheme".equals(arg.getParameter())) entityIri = arg.getValueIri().getIri();
     }
     if (null == entityIri)
@@ -156,7 +155,6 @@ public class FunctionService {
     if (schemes.stream().noneMatch(s -> s.getIri().equals(finalEntityIri2)))
       throw new IllegalArgumentException("Iri is not a valid scheme");
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      JsonNode generated;
       if (entityIri.equals(IM.NAMESPACE) || entityIri.equals(SNOMED.NAMESPACE)) {
         return om.createObjectNode().put("code", conceptRepository.createConcept(IM.NAMESPACE).get("iri").get("@id").asText().split("#")[1]);
       } else return om.createObjectNode().put("iri", "");

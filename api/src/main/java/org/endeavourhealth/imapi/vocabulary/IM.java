@@ -230,4 +230,5 @@ public class IM {
     public static final String LOAD_MORE = IM.NAMESPACE + "loadMore";
     public static final String DATA_MODEL_CONCEPT = IM.NAMESPACE + "concept";
     public static final String NUMERIC_VALUE = IM.NAMESPACE + "NumericValue";
+    public static final String HEALTH_RECORDS = IM.NAMESPACE + "HealthRecords";
 }

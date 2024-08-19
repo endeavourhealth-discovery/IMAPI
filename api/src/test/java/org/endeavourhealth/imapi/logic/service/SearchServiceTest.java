@@ -39,6 +39,8 @@ class SearchServiceTest {
 
   //@Test
   void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
+    output(TestQueries.pathQuery());
+    /*
     output(TestQueries.getAllowableSubtypes());
     output(TestQueries.query2());
     //output(TestQueries.pathQueryAtenolol3());
@@ -69,6 +71,8 @@ class SearchServiceTest {
     output(TestQueries.getConcepts());
     output(TestQueries.query4());
 
+     */
+
 
   }
 
@@ -95,17 +99,25 @@ class SearchServiceTest {
     }
     ObjectMapper om = new ObjectMapper();
 
+    Path of = Path.of("TestQueries/Results/" + name + "_results.json");
     if (dataSet.getQuery() != null) {
       JsonNode result = searchService.queryIM(dataSet);
-      path = Paths.get("TestQueries/Results/" + name + "_results.json").toAbsolutePath();
+      path = of.toAbsolutePath();
+      try (FileWriter wr = new FileWriter(path.toString())) {
+        wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
+        System.out.println("Found " + result.get("entities").size() + " entities");
+      }
+    }
+    else if (dataSet.getPathQuery() != null) {
+      PathDocument result= searchService.pathQuery(dataSet.getPathQuery());
+      path = of.toAbsolutePath();
       try (FileWriter wr = new FileWriter(path.toString())) {
         wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
       }
-
-      System.out.println("Found " + result.get("entities").size() + " entities");
     } else if (dataSet.getUpdate() != null) {
       searchService.updateIM(dataSet);
     }
+
 
   }
 

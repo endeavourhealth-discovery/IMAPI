@@ -1011,6 +1011,14 @@
       {
         "name": "DATA_MODEL_CONCEPT",
         "value": "IM.NAMESPACE + \"concept\""
+      },
+      {
+        "name": "NUMERIC_VALUE",
+        "value": "IM.NAMESPACE + \"NumericValue\""
+      },
+      {
+        "name": "HEALTH_RECORDS",
+        "value": "IM.NAMESPACE + \"HealthRecords\""
       }
     ]
   },

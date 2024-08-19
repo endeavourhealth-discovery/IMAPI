@@ -1,6 +1,9 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
@@ -23,9 +26,186 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 
 public class EntityRepository {
+  static final String PARENT_PREDICATES = "rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf";
   private static final Logger LOG = LoggerFactory.getLogger(EntityRepository.class);
 
-  static final String PARENT_PREDICATES = "rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf";
+  /**
+   * returns and entity from a recursive SPARQL query with property paths based on the
+   * required sub predicates
+   *
+   * @param iri            iri of the entity
+   * @param mainPredicates set of predicates for the main body, null if all
+   * @param subPredicates  set of predicates for recursive blank node/ sub node
+   * @return the entity populated
+   */
+  private static TTEntity getEntityWithSubPredicates(String iri, Set<TTIriRef> mainPredicates, Set<TTIriRef> subPredicates) {
+    RepositoryConnection conn = ConnectionManager.getIMConnection();
+    StringBuilder mainPredVar;
+    StringBuilder subPredVar = new StringBuilder("?p2");
+    if (mainPredicates != null) {
+      int i = 0;
+      mainPredVar = new StringBuilder("(");
+      for (TTIriRef pred : mainPredicates) {
+        mainPredVar.append(i > 0 ? "," : "").append("<").append(pred.getIri()).append("> ");
+        i++;
+      }
+      mainPredVar.append(")");
+    }
+    if (subPredicates != null) {
+      int i = 0;
+      subPredVar = new StringBuilder("(");
+      for (TTIriRef pred : subPredicates) {
+        subPredVar.append(i > 0 ? "|" : "").append("<").append(pred.getIri()).append("> ");
+        i++;
+      }
+      subPredVar.append(")+ ");
+    }
+
+    String sql = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+      "PREFIX im: <http://endhealth.info/im#>\n" +
+      "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+      "CONSTRUCT {\n" +
+      "   ?entity ?p1 ?o1.\n" +
+      "  ?o1 rdfs:label ?iriLabel1.\n" +
+      "   ?s2 ?p2 ?o2.\n" +
+      "   ?o2 ?p3 ?o3.\n" +
+      "    ?o3 rdfs:label ?iriLabel3.\n" +
+      "}\n" +
+      "\n" +
+      "where {\n" +
+      "    ?entity ?p1 ?o1.\n" +
+      "     Optional { ?o1 rdfs:label ?iriLabel1.\n" +
+      "            filter(isIri(?o1))}\n" +
+      "    optional {\n" +
+      "    ?o1 " + subPredVar + " ?o2.\n" +
+      "   ?s2 ?p2 ?o2.\n" +
+      "        filter(isBlank(?o1))\n" +
+      "       Optional {?o2 ?p3 ?o3.\n" +
+      "            filter(isBlank(?o2))}\n" +
+      "       \n" +
+      "        Optional {?o3 rdfs:label ?iriLabel3.\n" +
+      "            filter (isIri(?o3))}\n" +
+      "   }\n" +
+      "}\n";
+    GraphQuery qry = conn.prepareGraphQuery(sql);
+    qry.setBinding("entity",
+      iri(Objects.requireNonNull(iri,
+        "iri may not be null")));
+
+    GraphQueryResult gs = qry.evaluate();
+    Map<Value, TTValue> valueMap = new HashMap<>();
+    TTEntity entity = new TTEntity().setIri(iri);
+    int i = 0;
+    for (org.eclipse.rdf4j.model.Statement st : gs) {
+      i++;
+      if (i % 100 == 0) {
+        LOG.debug("{} {} {} {}", i, st.getSubject().stringValue(), st.getPredicate().stringValue(), st.getObject().stringValue());
+      }
+      populateEntity(st, entity, valueMap);
+    }
+    return entity;
+  }
+
+  /**
+   * populates an entity or sub nodes with statement
+   *
+   * @param st       statement to add to entity
+   * @param entity   the entity to add the statement to
+   * @param valueMap the map from statement to node that builds
+   */
+  private static void populateEntity(Statement st, TTEntity entity, Map<Value, TTValue> valueMap) {
+    Resource subject = st.getSubject();
+    TTIriRef predicate = TTIriRef.iri(st.getPredicate().stringValue());
+    Value value = st.getObject();
+    valueMap.put(st.getPredicate(), predicate);
+    if (valueMap.get(subject) == null) {
+      if (subject.stringValue().equals(entity.getIri()))
+        valueMap.put(subject, entity);
+      else if (subject.isIRI())
+        valueMap.put(subject, TTIriRef.iri(subject.stringValue()));
+      else
+        valueMap.put(subject, new TTNode());
+    }
+    TTValue ttValue = valueMap.get(subject);
+    if (ttValue.isIriRef()) {
+      if (predicate.getIri().equals(RDFS.LABEL))
+        ttValue.asIriRef().setName(value.stringValue());
+    } else {
+      processNode(value, valueMap, subject, st, predicate);
+    }
+  }
+
+  private static void processNode(Value value, Map<Value, TTValue> valueMap, Resource subject, Statement st, TTIriRef predicate) {
+    TTNode node = valueMap.get(subject).asNode();
+    if (value.isLiteral()) {
+      node.set(TTIriRef.iri(st.getPredicate().stringValue()), TTLiteral.literal(value.stringValue(), ((Literal) value).getDatatype().stringValue()));
+    } else if (value.isIRI()) {
+      TTIriRef objectIri = null;
+      if (valueMap.get(value) != null)
+        objectIri = valueMap.get(value).asIriRef();
+      if (objectIri == null)
+        objectIri = TTIriRef.iri(value.stringValue());
+      if (node.get(predicate) == null)
+        node.set(predicate, objectIri);
+      else
+        node.addObject(predicate, objectIri);
+      valueMap.putIfAbsent(value, objectIri);
+    } else if (value.isBNode()) {
+      TTNode ob = new TTNode();
+      if (node.get(predicate) == null)
+        node.set(predicate, ob);
+      else
+        node.addObject(predicate, ob);
+      valueMap.put(value, ob);
+    }
+  }
+
+  private static void hydrateCorePropertiesSetEntityDocumentProperties(EntityDocument entityDocument, TupleQueryResult qr) {
+    BindingSet rs = qr.next();
+    entityDocument.setName(rs.getValue("name").stringValue());
+    entityDocument.addTermCode(entityDocument.getName(), null, null);
+
+    if (rs.hasBinding("preferredName"))
+      entityDocument.setPreferredName(rs.getValue("preferredName").stringValue());
+
+    if (rs.hasBinding("code"))
+      entityDocument.setCode(rs.getValue("code").stringValue());
+
+    if (rs.hasBinding("scheme"))
+      entityDocument.setScheme(new TTIriRef(rs.getValue("scheme").stringValue()));
+
+    if (rs.hasBinding("status")) {
+      TTIriRef status = TTIriRef.iri(rs.getValue("status").stringValue());
+      if (rs.hasBinding("statusName"))
+        status.setName(rs.getValue("statusName").stringValue());
+      entityDocument.setStatus(status);
+    }
+
+    TTIriRef type = TTIriRef.iri(rs.getValue("type").stringValue());
+    if (rs.hasBinding("typeName"))
+      type.setName(rs.getValue("typeName").stringValue());
+    entityDocument.addType(type);
+
+    if (rs.hasBinding("extraType")) {
+      TTIriRef extraType = TTIriRef.iri(rs.getValue("extraType").stringValue(), rs.getValue("extraTypeName").stringValue());
+      entityDocument.addType(extraType);
+      if (extraType.equals(TTIriRef.iri(IM.NAMESPACE + "DataModelEntity"))) {
+        int usageTotal = 2000000;
+        entityDocument.setUsageTotal(usageTotal);
+      }
+    }
+    if (rs.hasBinding("usageTotal")) {
+      entityDocument.setUsageTotal(((Literal) rs.getValue("usageTotal")).intValue());
+    }
+  }
+
+  private static boolean addKeyStartsWith(String key, List<String> deletes, boolean skip, String already) {
+    if (key.startsWith(already))
+      deletes.add(already);
+    if (already.startsWith(key))
+      skip = true;
+    return skip;
+  }
 
   public TTIriRef getEntityReferenceByIri(String iri) {
     TTIriRef result = new TTIriRef();
@@ -185,138 +365,6 @@ public class EntityRepository {
     return result;
   }
 
-
-  /**
-   * returns and entity from a recursive SPARQL query with property paths based on the
-   * required sub predicates
-   *
-   * @param iri            iri of the entity
-   * @param mainPredicates set of predicates for the main body, null if all
-   * @param subPredicates  set of predicates for recursive blank node/ sub node
-   * @return the entity populated
-   */
-  private static TTEntity getEntityWithSubPredicates(String iri, Set<TTIriRef> mainPredicates, Set<TTIriRef> subPredicates) {
-    RepositoryConnection conn = ConnectionManager.getIMConnection();
-    StringBuilder mainPredVar;
-    StringBuilder subPredVar = new StringBuilder("?p2");
-    if (mainPredicates != null) {
-      int i = 0;
-      mainPredVar = new StringBuilder("(");
-      for (TTIriRef pred : mainPredicates) {
-        mainPredVar.append(i > 0 ? "," : "").append("<").append(pred.getIri()).append("> ");
-        i++;
-      }
-      mainPredVar.append(")");
-    }
-    if (subPredicates != null) {
-      int i = 0;
-      subPredVar = new StringBuilder("(");
-      for (TTIriRef pred : subPredicates) {
-        subPredVar.append(i > 0 ? "|" : "").append("<").append(pred.getIri()).append("> ");
-        i++;
-      }
-      subPredVar.append(")+ ");
-    }
-
-    String sql = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-      "PREFIX im: <http://endhealth.info/im#>\n" +
-      "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
-      "CONSTRUCT {\n" +
-      "   ?entity ?p1 ?o1.\n" +
-      "  ?o1 rdfs:label ?iriLabel1.\n" +
-      "   ?s2 ?p2 ?o2.\n" +
-      "   ?o2 ?p3 ?o3.\n" +
-      "    ?o3 rdfs:label ?iriLabel3.\n" +
-      "}\n" +
-      "\n" +
-      "where {\n" +
-      "    ?entity ?p1 ?o1.\n" +
-      "     Optional { ?o1 rdfs:label ?iriLabel1.\n" +
-      "            filter(isIri(?o1))}\n" +
-      "    optional {\n" +
-      "    ?o1 " + subPredVar + " ?o2.\n" +
-      "   ?s2 ?p2 ?o2.\n" +
-      "        filter(isBlank(?o1))\n" +
-      "       Optional {?o2 ?p3 ?o3.\n" +
-      "            filter(isBlank(?o2))}\n" +
-      "       \n" +
-      "        Optional {?o3 rdfs:label ?iriLabel3.\n" +
-      "            filter (isIri(?o3))}\n" +
-      "   }\n" +
-      "}\n";
-    GraphQuery qry = conn.prepareGraphQuery(sql);
-    qry.setBinding("entity",
-      iri(Objects.requireNonNull(iri,
-        "iri may not be null")));
-
-    GraphQueryResult gs = qry.evaluate();
-    Map<Value, TTValue> valueMap = new HashMap<>();
-    TTEntity entity = new TTEntity().setIri(iri);
-    int i = 0;
-    for (org.eclipse.rdf4j.model.Statement st : gs) {
-      i++;
-      if (i % 100 == 0) {
-        LOG.debug("{} {} {} {}", i, st.getSubject().stringValue(), st.getPredicate().stringValue(), st.getObject().stringValue());
-      }
-      populateEntity(st, entity, valueMap);
-    }
-    return entity;
-  }
-
-  /**
-   * populates an entity or sub nodes with statement
-   *
-   * @param st       statement to add to entity
-   * @param entity   the entity to add the statement to
-   * @param valueMap the map from statement to node that builds
-   */
-  private static void populateEntity(Statement st, TTEntity entity, Map<Value, TTValue> valueMap) {
-    Resource subject = st.getSubject();
-    TTIriRef predicate = TTIriRef.iri(st.getPredicate().stringValue());
-    Value value = st.getObject();
-    valueMap.put(st.getPredicate(), predicate);
-    if (valueMap.get(subject) == null) {
-      if (subject.stringValue().equals(entity.getIri()))
-        valueMap.put(subject, entity);
-      else if (subject.isIRI())
-        valueMap.put(subject, TTIriRef.iri(subject.stringValue()));
-      else
-        valueMap.put(subject, new TTNode());
-    }
-    TTValue ttValue = valueMap.get(subject);
-    if (ttValue.isIriRef()) {
-      if (predicate.getIri().equals(RDFS.LABEL))
-        ttValue.asIriRef().setName(value.stringValue());
-    } else {
-      processNode(value, valueMap, subject, st, predicate);
-    }
-  }
-
-  private static void processNode(Value value, Map<Value, TTValue> valueMap, Resource subject, Statement st, TTIriRef predicate) {
-    TTNode node = valueMap.get(subject).asNode();
-    if (value.isLiteral()) {
-      node.set(TTIriRef.iri(st.getPredicate().stringValue()), TTLiteral.literal(value.stringValue(), ((Literal) value).getDatatype().stringValue()));
-    } else if (value.isIRI()) {
-      TTIriRef objectIri = null;
-      if (valueMap.get(value) != null)
-        objectIri = valueMap.get(value).asIriRef();
-      if (objectIri == null)
-        objectIri = TTIriRef.iri(value.stringValue());
-      if (node.get(predicate) == null)
-        node.set(predicate, objectIri);
-      else
-        node.addObject(predicate, objectIri);
-      valueMap.putIfAbsent(value, objectIri);
-    } else if (value.isBNode()) {
-      TTNode ob = new TTNode();
-      if (node.get(predicate) == null)
-        node.set(predicate, ob);
-      else
-        node.addObject(predicate, ob);
-      valueMap.put(value, ob);
-    }
-  }
-
   public List<TTEntity> findEntitiesByName(String name) {
     List<TTEntity> result = new ArrayList<>();
 
@@ -466,45 +514,6 @@ public class EntityRepository {
     }
   }
 
-  private static void hydrateCorePropertiesSetEntityDocumentProperties(EntityDocument entityDocument, TupleQueryResult qr) {
-    BindingSet rs = qr.next();
-    entityDocument.setName(rs.getValue("name").stringValue());
-    entityDocument.addTermCode(entityDocument.getName(), null, null);
-
-    if (rs.hasBinding("preferredName"))
-      entityDocument.setPreferredName(rs.getValue("preferredName").stringValue());
-
-    if (rs.hasBinding("code"))
-      entityDocument.setCode(rs.getValue("code").stringValue());
-
-    if (rs.hasBinding("scheme"))
-      entityDocument.setScheme(new TTIriRef(rs.getValue("scheme").stringValue()));
-
-    if (rs.hasBinding("status")) {
-      TTIriRef status = TTIriRef.iri(rs.getValue("status").stringValue());
-      if (rs.hasBinding("statusName"))
-        status.setName(rs.getValue("statusName").stringValue());
-      entityDocument.setStatus(status);
-    }
-
-    TTIriRef type = TTIriRef.iri(rs.getValue("type").stringValue());
-    if (rs.hasBinding("typeName"))
-      type.setName(rs.getValue("typeName").stringValue());
-    entityDocument.addType(type);
-
-    if (rs.hasBinding("extraType")) {
-      TTIriRef extraType = TTIriRef.iri(rs.getValue("extraType").stringValue(), rs.getValue("extraTypeName").stringValue());
-      entityDocument.addType(extraType);
-      if (extraType.equals(TTIriRef.iri(IM.NAMESPACE + "DataModelEntity"))) {
-        int usageTotal = 2000000;
-        entityDocument.setUsageTotal(usageTotal);
-      }
-    }
-    if (rs.hasBinding("usageTotal")) {
-      entityDocument.setUsageTotal(((Literal) rs.getValue("usageTotal")).intValue());
-    }
-  }
-
   private void hydrateTerms(EntityDocument entityDocument) {
     String spql = new StringJoiner(System.lineSeparator())
       .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
@@ -590,14 +599,6 @@ public class EntityRepository {
     term = term.replaceAll("[ '()\\-_./,]", "").toLowerCase();
     if (term.length() > 30)
       term = term.substring(0, 30);
-  }
-
-  private static boolean addKeyStartsWith(String key, List<String> deletes, boolean skip, String already) {
-    if (key.startsWith(already))
-      deletes.add(already);
-    if (already.startsWith(key))
-      skip = true;
-    return skip;
   }
 
   private SearchTermCode getTermCodeFromCode(EntityDocument blob, String code) {
@@ -757,12 +758,14 @@ public class EntityRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          if (result.stream().noneMatch(r -> r.getNode().equals(bs.getValue("nodeName").stringValue()) || r.getValue().equals(bs.getValue("sourceVal").stringValue()) || r.getRegex().equals(bs.getValue("sourceRegex").stringValue()))) {
+          if (result.stream().noneMatch(r -> r.getNode().equals(bs.getValue("nodeName").stringValue()) || r.getValue().equals(bs.getValue("sourceVal").stringValue()) || (bs.getValue("sourceRegex") != null && r.getRegex().equals(bs.getValue("sourceRegex").stringValue())))) {
             ConceptContextMap conceptContextMap = new ConceptContextMap();
             conceptContextMap.setId(UUID.randomUUID().toString());
             conceptContextMap.setNode(bs.getValue("nodeName").stringValue());
             conceptContextMap.setValue(bs.getValue("sourceVal").stringValue());
-            conceptContextMap.setRegex(bs.getValue("sourceRegex").stringValue());
+            conceptContextMap.setProperty(bs.getValue("propertyName").stringValue());
+            if (bs.getValue("sourceRegex") != null)
+              conceptContextMap.setRegex(bs.getValue("sourceRegex").stringValue());
             Context context = new Context();
             context.setPublisher(bs.getValue("publisherName").stringValue());
             context.setSystem(bs.getValue("systemName").stringValue());

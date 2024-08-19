@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import javax.naming.directory.InvalidAttributesException;
 import java.util.StringJoiner;
 
-import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addPrefixes;
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class SetReducer {
@@ -82,7 +82,7 @@ public class SetReducer {
         }
       }
       """;
-    return addPrefixes(sparql);
+    return addSparqlPrefixes(sparql);
   }
 
   private String getOrSql(TTEntity set) {

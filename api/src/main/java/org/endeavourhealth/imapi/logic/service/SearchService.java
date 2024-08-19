@@ -19,16 +19,18 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 public class SearchService {
 
 
+  public static final String USAGE_TOTAL = "usageTotal";
+
   private static QueryRequest getHighestUseRequestFromQuery(QueryRequest queryRequest, ObjectMapper om, QueryRepository repo) throws JsonProcessingException, QueryException {
     QueryRequest highestUsageRequest = om.readValue(om.writeValueAsString(queryRequest), QueryRequest.class);
     repo.unpackQueryRequest(highestUsageRequest, om.createObjectNode());
     if (null != highestUsageRequest.getQuery().getReturn()) {
-      highestUsageRequest.getQuery().getReturn().get(0).addProperty(new ReturnProperty().setIri(IM.USAGE_TOTAL).setValueRef("usageTotal"));
+      highestUsageRequest.getQuery().getReturn().get(0).addProperty(new ReturnProperty().setIri(IM.USAGE_TOTAL).setValueRef(USAGE_TOTAL));
     } else {
-      highestUsageRequest.getQuery().addReturn(new Return().addProperty(new ReturnProperty().setIri(IM.USAGE_TOTAL).setValueRef("usageTotal")));
+      highestUsageRequest.getQuery().addReturn(new Return().addProperty(new ReturnProperty().setIri(IM.USAGE_TOTAL).setValueRef(USAGE_TOTAL)));
     }
     OrderDirection od = new OrderDirection().setDirection(Order.descending);
-    od.setValueVariable("usageTotal");
+    od.setValueVariable(USAGE_TOTAL);
     highestUsageRequest.getQuery().setOrderBy(new OrderLimit().setProperty(od));
     highestUsageRequest.setPage(new Page().setPageNumber(1).setPageSize(1));
     return highestUsageRequest;

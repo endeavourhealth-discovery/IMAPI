@@ -43,7 +43,7 @@ public class SparqlHelper {
     return "(" + String.join(",", q) + ")";
   }
 
-  public static String addPrefixes(String sparql) {
+  public static String addSparqlPrefixes(String sparql) {
     String prefixes = """
       PREFIX rdfs: %s
       PREFIX im: %s

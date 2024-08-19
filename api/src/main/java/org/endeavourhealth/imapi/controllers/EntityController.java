@@ -30,6 +30,7 @@ import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.DownloadOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -372,11 +373,12 @@ public class EntityController {
       headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
       headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"");
 
-      SetExporterOptions options = new SetExporterOptions(iri, definition, core, legacy, subsets, ownRow, im1id, schemes);
+      SetOptions setOptions = new SetOptions(iri, definition, core, legacy, subsets, schemes);
+      SetExporterOptions exportOptions = new SetExporterOptions(setOptions, ownRow, im1id);
 
       try {
         if ("xlsx".equals(format)) {
-          XSSFWorkbook workbook = entityService.getSetExport(options);
+          XSSFWorkbook workbook = entityService.getSetExport(exportOptions);
           try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             workbook.write(outputStream);
             workbook.close();
@@ -385,13 +387,13 @@ public class EntityController {
             throw new DownloadException("Failed to write to excel document");
           }
         } else if ("csv".equals(format)) {
-          String result = setService.getCSVSetExport(options);
+          String result = setService.getCSVSetExport(exportOptions);
           return new HttpEntity<>(result, headers);
         } else if ("tsv".equals(format)) {
-          String result = setService.getTSVSetExport(options);
+          String result = setService.getTSVSetExport(exportOptions);
           return new HttpEntity<>(result, headers);
         } else if ("object".equals(format)) {
-          SetContent result = setService.getSetContent(iri, definition, core, legacy, subsets, schemes);
+          SetContent result = setService.getSetContent(setOptions);
           return getSetHttpEntity(headers, result);
         } else {
           return null;

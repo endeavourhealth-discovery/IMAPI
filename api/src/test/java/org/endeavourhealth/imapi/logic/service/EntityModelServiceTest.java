@@ -18,6 +18,7 @@ import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -722,13 +723,15 @@ class EntityModelServiceTest {
 
   @Test
   void getSetExport_NullIri() throws DataFormatException, JsonProcessingException, QueryException {
-    XSSFWorkbook actual = entityService.getSetExport(new SetExporterOptions(null, false, true, true, true, true, false, List.of()));
+    SetOptions setOptions = new SetOptions(null, false, true, true, true,List.of());
+    XSSFWorkbook actual = entityService.getSetExport(new SetExporterOptions( setOptions,true, false));
     assertNull(actual);
   }
 
   @Test
   void getSetExport_EmptyIri() throws DataFormatException, JsonProcessingException, QueryException {
-    XSSFWorkbook actual = entityService.getSetExport(new SetExporterOptions("", false, true, true, true, true, false, List.of()));
+    SetOptions setOptions = new SetOptions("", false, true, true, true,List.of());
+    XSSFWorkbook actual = entityService.getSetExport(new SetExporterOptions(setOptions, true, false));
     assertNull(actual);
   }
 }

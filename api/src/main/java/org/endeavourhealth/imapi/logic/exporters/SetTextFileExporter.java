@@ -34,7 +34,7 @@ public class SetTextFileExporter {
     if (options.includeSubsets()) {
       addSubsetHeader(options, results, del);
     } else {
-      if (options.isLegacy()) {
+      if (options.includeLegacy()) {
         if (options.isOwnRow()) {
           results.add(getCoreHeader(del));
         } else {
@@ -56,7 +56,7 @@ public class SetTextFileExporter {
   }
 
   private static void addSubsetHeader(SetExporterOptions options, StringJoiner results, String del) {
-    if (options.isLegacy()) {
+    if (options.includeLegacy()) {
       if (options.isOwnRow()) {
         results.add(getCoreHeaderWithSubset(del));
       } else {
@@ -98,12 +98,12 @@ public class SetTextFileExporter {
       return null;
 
     String ecl = getEcl(entity);
-    if (ecl != null && options.isDefinition()) {
+    if (ecl != null && options.includeDefinition()) {
       result = ecl;
     }
 
-    if (options.isCore() || options.isLegacy()) {
-      Set<Concept> members = setExporter.getExpandedSetMembers(options.getSetIri(), options.isCore(), options.isLegacy(), options.includeSubsets(), options.getSchemes())
+    if (options.includeCore() || options.includeLegacy()) {
+      Set<Concept> members = setExporter.getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes())
         .stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
 
       if (options.includeSubsets()) {
@@ -130,12 +130,12 @@ public class SetTextFileExporter {
 
     for (Concept member : members) {
       String isExtension = member.getScheme().getIri().contains("sct#") ? "N" : "Y";
-      if (member.getMatchedFrom() != null && options.isLegacy()) {
+      if (member.getMatchedFrom() != null && options.includeLegacy()) {
         addLegacy(options, results, member, setName, isExtension, del);
       } else {
         addOnlyCore(options, results, member, setName, isExtension, del);
       }
-      if (options.isLegacy() && options.isOwnRow()) {
+      if (options.includeLegacy() && options.isOwnRow()) {
         results.add("");
       }
     }

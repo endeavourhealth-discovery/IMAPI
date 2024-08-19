@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addPrefixes;
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 
 public class ImportMaps implements AutoCloseable {
   private FileRepository fileRepo = new FileRepository(TTBulkFiler.getDataPath());
@@ -441,7 +441,7 @@ public class ImportMaps implements AutoCloseable {
           }
         }
         """;
-      TupleQuery qry = conn.prepareTupleQuery(addPrefixes(sparql));
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sparql));
       qry.setBinding("snomedNamespace", iri(SNOMED.NAMESPACE));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {

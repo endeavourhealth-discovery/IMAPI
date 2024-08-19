@@ -108,8 +108,7 @@ public class QueryDescriptor {
     }
     if (ref.getName() != null) {
       display = display + getTermInContext(ref.getName(), Context.property);
-    }
-    if (ref.getIri() != null) {
+    } else if (ref.getIri() != null) {
       if (contextTerms.get(ref.getIri() + Context.property) != null) {
         display = display + contextTerms.get(ref.getIri() + Context.property);
         if (ref.isInverse()) {
@@ -256,7 +255,7 @@ public class QueryDescriptor {
     } else {
       String propertyName = getTermInContext(where);
       if (!where.getIri().equals(IM.NAMESPACE + "concept")) {
-        display.append(propertyName.equals("") ? "" : propertyName + " ");
+        display.append(propertyName.isEmpty() ? "" : propertyName + " ");
       }
       if (where.getRange() != null) {
         display.append(describeRangeProperty(where, where.getIri().toLowerCase().contains("date")));

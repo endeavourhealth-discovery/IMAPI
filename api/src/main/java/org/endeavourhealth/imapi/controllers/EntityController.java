@@ -376,7 +376,7 @@ public class EntityController {
 
       try {
         if ("xlsx".equals(format)) {
-          XSSFWorkbook workbook = entityService.getSetExport(new SetExporterOptions(iri, definition, core, legacy, subsets, ownRow, im1id, schemes));
+          XSSFWorkbook workbook = entityService.getSetExport(options);
           try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             workbook.write(outputStream);
             workbook.close();

@@ -144,13 +144,13 @@ public class SetTextFileExporter {
 
   private void addLegacy(SetExporterOptions options, StringJoiner results, Concept member, String setName, String isExtension, String del) {
     String scheme = member.getScheme().getName();
-    String subSet = setSubSet(member);
-    String subsetIri = setSubsetIri(member);
+    String subSet = getSubSet(member);
+    String subsetIri = getSubsetIri(member);
     String subsetVersion = setSubsetVersion(member);
     String status = member.getStatus().getName();
 
-    String usage = setUsage(member);
-    String code = setCode(member);
+    String usage = getUsage(member);
+    String code = getCode(member);
     if (options.isOwnRow()) {
       if (options.includeSubsets() && subSet != null) {
         addLineData(del, results, code, member.getName(), status, scheme, usage, setName, subSet, subsetIri, subsetVersion, isExtension);
@@ -192,11 +192,11 @@ public class SetTextFileExporter {
 
   private void addOnlyCore(SetExporterOptions options, StringJoiner results, Concept member, String setName, String isExtension, String del) {
     String scheme = member.getScheme().getName();
-    String usage = setUsage(member);
-    String subSet = setSubSet(member);
-    String subsetIri = setSubsetIri(member);
+    String usage = getUsage(member);
+    String subSet = getSubSet(member);
+    String subsetIri = getSubsetIri(member);
     String subsetVersion = setSubsetVersion(member);
-    String status = setStatus(member);
+    String status = getStatus(member);
     if (options.isIm1id() && member.getIm1Id() != null) {
       member.getIm1Id().forEach(im1 -> {
         if (options.includeSubsets() && subSet != null) {

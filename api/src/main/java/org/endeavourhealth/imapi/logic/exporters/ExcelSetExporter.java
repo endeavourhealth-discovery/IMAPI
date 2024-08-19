@@ -20,12 +20,8 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.endeavourhealth.imapi.logic.exporters.helpers.ExporterHelpers.*;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.logic.exporters.helpers.ExporterHelpers.setUsage;
-import static org.endeavourhealth.imapi.logic.exporters.helpers.ExporterHelpers.setSubSet;
-import static org.endeavourhealth.imapi.logic.exporters.helpers.ExporterHelpers.setSubsetIri;
-import static org.endeavourhealth.imapi.logic.exporters.helpers.ExporterHelpers.setSubsetVersion;
-import static org.endeavourhealth.imapi.logic.exporters.helpers.ExporterHelpers.setIsExtension;
 
 /**
  * Manages the Exports concept set data in excel workboook format
@@ -198,11 +194,11 @@ public class ExcelSetExporter {
   }
 
   private void addCoreExpansionConceptToWorkBook(Sheet sheet, Set<String> addedCoreIris, Concept concept, boolean im1id, String setName, boolean includeSubsets) {
-    String usage = setUsage(concept);
+    String usage = getUsage(concept);
     String scheme = concept.getScheme().getName();
-    String isExtension = setIsExtension(concept);
-    String subSet = setSubSet(concept);
-    String subsetIri = setSubsetIri(concept);
+    String isExtension = getIsExtension(concept);
+    String subSet = getSubSet(concept);
+    String subsetIri = getSubsetIri(concept);
     String subsetVersion = setSubsetVersion(concept);
     String status = concept.getStatus().getName();
 
@@ -274,11 +270,11 @@ public class ExcelSetExporter {
 
     for (Concept concept : members) {
       String scheme = concept.getScheme().getName();
-      String subset = setSubSet(concept);
-      String subsetIri = setSubsetIri(concept);
+      String subset = getSubSet(concept);
+      String subsetIri = getSubsetIri(concept);
       String subsetVersion = setSubsetVersion(concept);
-      String isExtension = setIsExtension(concept);
-      String usage = setUsage(concept);
+      String isExtension = getIsExtension(concept);
+      String usage = getUsage(concept);
       String code = concept.getCode();
       if (concept.getAlternativeCode() != null)
         code = concept.getAlternativeCode();
@@ -309,10 +305,10 @@ public class ExcelSetExporter {
   private void addLegacyExpansionConceptsToWorkbook(Sheet sheet, Concept concept, String isExtension, List<Concept> sortedLegacy,
                                                     boolean im1id, boolean ownRow, String setName, boolean includeSubsets) {
     String scheme = concept.getScheme().getName();
-    String subset = setSubSet(concept);
-    String subsetIri = setSubsetIri(concept);
+    String subset = getSubSet(concept);
+    String subsetIri = getSubsetIri(concept);
     String subsetVersion = setSubsetVersion(concept);
-    String usage = setUsage(concept);
+    String usage = getUsage(concept);
     String code = concept.getCode();
     if (concept.getAlternativeCode() != null)
       code = concept.getAlternativeCode();
@@ -328,7 +324,7 @@ public class ExcelSetExporter {
       String legacyCode = legacy.getCode();
       String legacyScheme = legacy.getScheme().getIri();
       String legacyTerm = legacy.getName();
-      String legacyUsage = setUsage(legacy);
+      String legacyUsage = getUsage(legacy);
       String legacyCodeId = legacy.getCodeId();
       if (legacy.getIm1Id() == null || !im1id) {
         Row row = addRow(sheet);

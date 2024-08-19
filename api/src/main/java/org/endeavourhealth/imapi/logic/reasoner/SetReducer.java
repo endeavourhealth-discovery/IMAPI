@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import javax.naming.directory.InvalidAttributesException;
 import java.util.StringJoiner;
 
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addPrefixes;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class SetReducer {
@@ -34,7 +35,7 @@ public class SetReducer {
    */
   public TTEntity reduce(TTEntity set) throws InvalidAttributesException {
     String sql = null;
-    Integer originalSize;
+    int originalSize;
     if (set.get(iri(IM.DEFINITION)) != null) {
       sql = getOrSql(set);
       if (sql == null)
@@ -61,7 +62,7 @@ public class SetReducer {
           ors.addObject(iri(SHACL.OR), TTIriRef.iri(bs.getValue("member").stringValue()));
         }
         set.getPredicateMap().remove(iri(IM.HAS_MEMBER));
-        Integer newSize = set.get(iri(IM.DEFINITION)).asNode().get(iri(SHACL.OR)).size();
+        int newSize = set.get(iri(IM.DEFINITION)).asNode().get(iri(SHACL.OR)).size();
         LOG.info("for set {} original size = {} new size {} removed {} members", set.getIri(), originalSize, newSize, (originalSize - newSize));
       }
     }
@@ -69,19 +70,19 @@ public class SetReducer {
   }
 
   private String getMemberSql() {
-    StringJoiner sql = new StringJoiner("\n");
-    sql.add("PREFIX im: <http://endhealth.info/im#>")
-      .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-      .add("Selection distinct ?member ?name")
-      .add("where {")
-      .add("    ?set im:hasMember ?member.")
-      .add("    ?member rdfs:label ?name.")
-      .add("   filter not exists {")
-      .add("    ?member im:isA ?super.")
-      .add("    filter (?super!=?member)")
-      .add("     ?set im:hasMember ?super")
-      .add("    }}");
-    return sql.toString();
+    String sparql = """
+      SELECT DISTINCT ?member ?name
+      WHERE {
+        ?set im:hasMember ?member.
+        ?member rdfs:label ?name.
+        FILTER not exists {
+          ?member im:isA ?super.
+          filter (?super!=?member)
+          ?set im:hasMember ?super
+        }
+      }
+      """;
+    return addPrefixes(sparql);
   }
 
   private String getOrSql(TTEntity set) {

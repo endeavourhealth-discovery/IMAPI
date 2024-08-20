@@ -6,20 +6,23 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
-import org.endeavourhealth.imapi.model.*;
+import org.endeavourhealth.imapi.model.DataModelProperty;
+import org.endeavourhealth.imapi.model.DownloadParams;
+import org.endeavourhealth.imapi.model.EntityReferenceNode;
+import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
-import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
 import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
@@ -34,7 +37,7 @@ import java.util.zip.DataFormatException;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @RunWith(JUnitPlatform.class)
@@ -719,13 +722,13 @@ class EntityModelServiceTest {
 
   @Test
   void getSetExport_NullIri() throws DataFormatException, JsonProcessingException, QueryException {
-    XSSFWorkbook actual = entityService.getSetExport(null, false, true, true, true, true, false, List.of());
+    XSSFWorkbook actual = entityService.getSetExport(new SetExporterOptions(null, false, true, true, true, true, false, List.of()));
     assertNull(actual);
   }
 
   @Test
   void getSetExport_EmptyIri() throws DataFormatException, JsonProcessingException, QueryException {
-    XSSFWorkbook actual = entityService.getSetExport("", false, true, true, true, true, false, List.of());
+    XSSFWorkbook actual = entityService.getSetExport(new SetExporterOptions("", false, true, true, true, true, false, List.of()));
     assertNull(actual);
   }
 }

@@ -10,13 +10,16 @@ import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.directory.InvalidAttributesException;
-import java.util.*;
+import java.util.StringJoiner;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class SetReducer {
+  private static final Logger LOG = LoggerFactory.getLogger(SetReducer.class);
 
 
   /**
@@ -59,8 +62,7 @@ public class SetReducer {
         }
         set.getPredicateMap().remove(iri(IM.HAS_MEMBER));
         Integer newSize = set.get(iri(IM.DEFINITION)).asNode().get(iri(SHACL.OR)).size();
-        System.out.println("for set " + set.getIri() +
-          " original size = " + originalSize + " new size " + newSize + " removed " + (originalSize - newSize) + " members");
+        LOG.info("for set {} original size = {} new size {} removed {} members", set.getIri(), originalSize, newSize, (originalSize - newSize));
       }
     }
     return set;

@@ -1,12 +1,11 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.filer.TTDocumentFiler;
-import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
-
 import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
+import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
 import org.endeavourhealth.imapi.logic.reasoner.SetExpander;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
@@ -15,8 +14,8 @@ import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.stereotype.Component;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -30,11 +29,6 @@ public class FilerService {
   private final ProvService provService = new ProvService();
   private final EntityService entityService = new EntityService();
   private final OpenSearchService openSearchService = new OpenSearchService();
-
-  public void fileTransactionDocument(TTDocument document, String agentName) throws Exception {
-    documentFiler.fileDocument(document);
-    fileProvDoc(document, agentName);
-  }
 
   public void fileDocument(TTDocument document, String agentName) throws TTFilerException, JsonProcessingException, QueryException {
     documentFiler.fileDocument(document);

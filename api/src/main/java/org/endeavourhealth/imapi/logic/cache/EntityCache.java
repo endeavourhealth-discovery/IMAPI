@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.logic.cache;
 
+import lombok.Getter;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.PropertyRepository;
 import org.endeavourhealth.imapi.dataaccess.ShapeRepository;
@@ -8,7 +9,6 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -19,15 +19,24 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EntityCache implements Runnable {
 
-  public static TTContext defaultPrefixes;
+  @Getter
+  public static final TTContext defaultPrefixes = new TTContext()
+    .add(RDFS.NAMESPACE, "rdfs")
+    .add(RDF.NAMESPACE, "rdf")
+    .add(IM.NAMESPACE, "im")
+    .add(XSD.NAMESPACE, "xsd")
+    .add(SNOMED.NAMESPACE, "sn");
   public static final Object shapeLock = new Object();
   public static final Object propertyLock = new Object();
   public static final Object entityLock = new Object();
 
+  @Getter
   static final Map<String, TTEntity> shapes = new HashMap<>();
+  @Getter
   static final Map<String, TTEntity> properties = new HashMap<>();
   static final Map<String, TTEntity> entities = new HashMap<>();
   static final Map<String, List<TTIriRef>> predicateOrder = new HashMap<>();
+  @Getter
   static final Map<String, String> predicateNames = new HashMap<>();
 
 
@@ -70,15 +79,6 @@ public class EntityCache implements Runnable {
     TTBundle bundle = new TTBundle().setEntity(property);
     predicates.forEach(i -> bundle.getPredicates().put(i.getIri(), predicateNames.get(i.getIri())));
     return bundle;
-  }
-
-  /**
-   * Returns the full shape map from IM
-   *
-   * @return a TransformMap of iri to shapes
-   */
-  public static Map<String, TTEntity> getProperties() {
-    return properties;
   }
 
   public static void addProperty(TTEntity property) {
@@ -143,8 +143,11 @@ public class EntityCache implements Runnable {
     for (Map.Entry<String, TTEntity> entry : shapeMap.getEntities().entrySet()) {
       EntityCache.addShape(entry.getValue());
       if (entry.getValue().get(iri(SHACL.PROPERTY)) != null) {
-        List<TTIriRef> properties = entry.getValue().get(iri(SHACL.PROPERTY)).stream().map(p -> p.asNode().get(iri(SHACL.PATH)).asIriRef())
-          .collect(Collectors.toList());
+        List<TTIriRef> properties = entry
+          .getValue()
+          .get(iri(SHACL.PROPERTY))
+          .stream().map(p -> p.asNode().get(iri(SHACL.PATH)).asIriRef())
+          .toList();
         EntityCache.setPredicateOrder(entry.getKey(), properties);
         properties.forEach(p -> EntityCache.addPredicateName(p.getIri(), p.getName()));
       }
@@ -161,15 +164,6 @@ public class EntityCache implements Runnable {
     }
   }
 
-  /**
-   * Returns the full shape map from IM
-   *
-   * @return a TransformMap of iri to shapes
-   */
-  public static Map<String, TTEntity> getShapes() {
-    return shapes;
-  }
-
   public static void addShape(TTEntity shape) {
     shapes.put(shape.getIri(), shape);
   }
@@ -182,16 +176,6 @@ public class EntityCache implements Runnable {
 
   public static void setPredicateOrder(String iri, List<TTIriRef> properties) {
     predicateOrder.put(iri, properties);
-  }
-
-  /**
-   * Returns te list of iri to name predicate maps for use by applications.
-   * <p>Generally an entity bundle will hold subset relevant to the entity</p>
-   *
-   * @return the iri name map
-   */
-  public static Map<String, String> getPredicateNames() {
-    return predicateNames;
   }
 
   /**
@@ -248,18 +232,6 @@ public class EntityCache implements Runnable {
       }
     }
     return iris;
-  }
-
-  public static TTContext getDefaultPrefixes() {
-    if (defaultPrefixes == null) {
-      defaultPrefixes = new TTContext();
-      defaultPrefixes.add(RDFS.NAMESPACE, "rdfs");
-      defaultPrefixes.add(RDF.NAMESPACE, "rdf");
-      defaultPrefixes.add(IM.NAMESPACE, "im");
-      defaultPrefixes.add(XSD.NAMESPACE, "xsd");
-      defaultPrefixes.add(SNOMED.NAMESPACE, "sn");
-    }
-    return defaultPrefixes;
   }
 
 

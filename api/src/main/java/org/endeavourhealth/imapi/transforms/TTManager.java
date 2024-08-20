@@ -647,7 +647,7 @@ public class TTManager implements AutoCloseable {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     if (entityMap != null) entityMap.clear();
     if (nameMap != null) nameMap.clear();
   }

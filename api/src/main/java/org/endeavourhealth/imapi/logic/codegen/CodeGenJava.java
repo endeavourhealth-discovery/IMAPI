@@ -7,6 +7,8 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.http.HTTPRepository;
+import org.endeavourhealth.imapi.model.codegen.DataModel;
+import org.endeavourhealth.imapi.model.codegen.DataModelProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 import org.slf4j.Logger;
@@ -17,7 +19,6 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.StringJoiner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -53,16 +54,17 @@ public class CodeGenJava {
   private void getModelList() {
     LOG.debug("getting model list");
 
-    String sql = new StringJoiner(System.lineSeparator())
-      .add("PREFIX im: <http://endhealth.info/im#>")
-      .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-      .add("PREFIX shacl: <http://www.w3.org/ns/shacl#>")
-      .add("select ?iri")
-      .add("where { ")
-      .add("    ?iri (im:isContainedIn|rdfs:subClassOf)* im:HealthDataModel ;")
-      .add("        rdf:type shacl:NodeShape .")
-      .add("}")
-      .toString();
+    String sql = """
+      PREFIX im: <http://endhealth.info/im#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX shacl: <http://www.w3.org/ns/shacl#>
+            
+      SELECT ?iri
+      WHERE {
+        ?iri (im:isContainedIn|rdfs:subClassOf)* im:HealthDataModel ;
+        rdf:type shacl:NodeShape .
+      }
+      """;
 
     try (RepositoryConnection con = repo.getConnection()) {
       TupleQuery query = con.prepareTupleQuery(sql);
@@ -93,30 +95,31 @@ public class CodeGenJava {
 
     DataModel model = new DataModel().setIri(iri);
 
-    String sql = new StringJoiner(System.lineSeparator())
-      .add("PREFIX im: <http://endhealth.info/im#>")
-      .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-      .add("PREFIX shacl: <http://www.w3.org/ns/shacl#>")
-      .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-      .add("select ?iri ?model ?comment ?propname ?type ?typeName ?dm ?min ?max ?propcomment ?order")
-      .add("where { ")
-      .add("    ?iri shacl:property ?prop .")
-      .add("    ?iri rdfs:label ?model .")
-      .add("    ?iri rdfs:comment ?comment .")
-      .add("    ?prop shacl:path ?propIri .")
-      .add("    ?propIri rdfs:label ?propname .")
-      .add("    optional { ?prop shacl:order ?order }")
-      .add("    optional { ?prop shacl:class ?type }")
-      .add("    optional { ?prop shacl:datatype ?type }")
-      .add("    optional { ?prop shacl:node ?type }")
-      .add("    optional { ?type rdfs:label ?typeName }")
-      .add("    optional { ?prop rdfs:comment ?propcomment }")
-      .add("    optional { ?prop shacl:maxCount ?max }")
-      .add("    optional { ?prop shacl:minCount ?min }")
-      .add("    bind( exists { ?type rdf:type shacl:NodeShape } as ?dm)")
-      .add("    filter not exists { ?prop im:inversePath ?inverse }")
-      .add("} order by ?order ")
-      .toString();
+    String sql = """
+      PREFIX im: <http://endhealth.info/im#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX shacl: <http://www.w3.org/ns/shacl#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            
+      SELECT ?iri ?model ?comment ?propname ?type ?typeName ?dm ?min ?max ?propcomment ?order
+      WHERE {
+        ?iri shacl:property ?prop .
+        ?iri rdfs:label ?model .
+        ?iri rdfs:comment ?comment .
+        ?prop shacl:path ?propIri .
+        ?propIri rdfs:label ?propname .
+        OPTIONAL { ?prop shacl:order ?order }
+        OPTIONAL { ?prop shacl:class ?type }
+        OPTIONAL { ?prop shacl:datatype ?type }
+        OPTIONAL { ?prop shacl:node ?type }
+        OPTIONAL { ?type rdfs:label ?typeName }
+        OPTIONAL { ?prop rdfs:comment ?propcomment }
+        OPTIONAL { ?prop shacl:maxCount ?max }
+        OPTIONAL { ?prop shacl:minCount ?min }
+        bind( exists { ?type rdf:type shacl:NodeShape } as ?dm)
+        FILTER not exists { ?prop im:inversePath ?inverse }
+        } ORDER BY ?order
+      """;
 
     try (RepositoryConnection con = repo.getConnection()) {
       TupleQuery query = con.prepareTupleQuery(sql);
@@ -184,34 +187,41 @@ public class CodeGenJava {
     zs.flush();
   }
 
+  private String capitalizeFirstCharacter(String input) {
+    return input.substring(0, 1).toUpperCase() + separate(input).substring(1);
+  }
+
   private String generateJavaCodeForModel(DataModel model, String modelName) throws IOException {
     try (StringWriter os = new StringWriter()) {
 
       String modelNameSeparated = separate(modelName);
       String modelComment = model.getComment();
 
-      os.write("package org.endeavourhealth.imapi.logic.codegen;\n" +
-        "\nimport org.endeavourhealth.imapi.model.tripletree.TTIriRef;\n" +
-        "\nimport java.util.UUID;");
+      os.write("""
+        package org.endeavourhealth.imapi.logic.codegen;
+                
+        import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+                
+        import java.util.UUID;
+                
+        /**
+        * Represents %s.
+        """.formatted(modelNameSeparated));
 
-      os.write("\n\n/**\n" +
-        "* Represents " + modelNameSeparated + ".\n");
       if (modelComment != null)
         os.write("* " + modelComment + "\n");
-      os.write("*/\n");
-      os.write("public class " + modelName + " extends IMDMBase<" + modelName + "> {\n");
-      //os.write("\n\n\t/**\n" +
-      //"\t* " + modelName.substring(0, 1).toUpperCase() + modelNameSeparated.substring(1) + " constructor \n" +
-      //"\t*/");
-      //os.write("\n\tpublic " + modelName + "() {\n" +
-      //"\t\tsuper(\"" + modelName + "\");\n" +
-      //"\t}");
-      os.write("\n\n\t/**\n" +
-        "\t* " + modelName.substring(0, 1).toUpperCase() + modelNameSeparated.substring(1) + " constructor with identifier\n" +
-        "\t*/");
-      os.write("\n\tpublic " + modelName + "(UUID id) {\n" +
-        "\t\tsuper(\"" + modelName + "\", id);\n" +
-        "\t}");
+      os.write("""
+        */
+        public class %s extends IMDMBase<%s> {
+                
+                
+          /**
+          * %s constructor with identifier
+          */
+          public %s (UUID id) {
+            super(%s, id);
+          }
+        """.formatted(modelName, modelName, capitalizeFirstCharacter(modelName), modelName, modelName));
 
       for (DataModelProperty property : model.getProperties()) {
         String propertyName = property.getName();
@@ -222,38 +232,87 @@ public class CodeGenJava {
         String propertyType = getDataType(property.getDataType(), property.isModel(), isArray);
         String propertyTypeName = getDataType(property.getDataType(), property.isModel(), false);
 
-        os.write("\n\n\t/**\n" +
-          "\t* Gets the " + propertyName + " of this " + modelNameSeparated + "\n");
-        if (property.getComment() != null)
-          os.write("\t* " + property.getComment() + "\n");
-        os.write("\t* @return " + propertyNameCamelCase + "\n" +
-          "\t*/\n");
-        os.write("\tpublic " + propertyType + " get" + propertyNameCapitalised + "() {\n" +
-          "\t\treturn getProperty" + "(\"" + propertyNameCamelCase + "\");\n" +
-          "\t}\n");
-        os.write("\n\n\t/**\n" +
-          "\t* Changes the " + propertyName + " of this " + modelName + "\n" +
-          "\t* @param " + propertyNameCamelCase + " The new " + propertyName + " to set\n" +
-          "\t* @return " + modelName + "\n" +
-          "\t*/\n");
-        os.write("\tpublic " + modelName + " set" + propertyNameCapitalised + "(" + propertyType + " " + propertyNameCamelCase + ") {\n" +
-          "\t\tsetProperty(\"" + propertyNameCamelCase + "\", " + propertyNameCamelCase + ");\n" +
-          "\t\treturn this;\n" +
-          "\t}\n");
+        os.write("""
+                      
+                      
+            /**
+            * Gets the %s of this %s
+          """.formatted(propertyName, modelNameSeparated));
+        if (property.getComment() != null) os.write("""
+            * %s
+          """.formatted(property.getComment()));
+        os.write("""
+              * @return %s
+              */
+              public %s get%s() {
+                return getProperty("%s");
+              }
+                      
+              /**
+              * Changes the %s of this %s
+              * @param %s The new %s to set
+              * @return %s
+              */
+              public %s set%s(%s %s) {
+                setProperty("%s", %s);
+                return this;
+              }
+            """.formatted(
+            propertyNameCamelCase,
+            propertyType,
+            propertyNameCapitalised,
+            propertyNameCamelCase,
+            propertyName,
+            modelName,
+            propertyNameCamelCase,
+            propertyName,
+            modelName,
+            modelName,
+            propertyNameCapitalised,
+            propertyType,
+            propertyNameCamelCase,
+            propertyNameCamelCase,
+            propertyNameCamelCase
+          )
+        );
         if (isArray) {
-          os.write("\n\n\t/**\n" +
-            "\t* Adds the given " + propertyName + " to this " + modelName + "\n" +
-            "\t* @param " + propertyNameCamelCase.charAt(0) + " The " + propertyName + " to add\n" +
-            "\t* @return " + modelName + "\n" +
-            "\t*/\n");
-          os.write("\tpublic " + modelName + " add" + propertyNameCapitalised + "(" + propertyTypeName + " " + propertyNameCamelCase.charAt(0) + ") {\n" +
-            "\t\t" + propertyType + " " + propertyNameCamelCase + " = this.get" + propertyNameCapitalised + "();\n" +
-            "\t\tif (" + propertyNameCamelCase + " == null) {\n" +
-            "\t\t\t" + propertyNameCamelCase + " = new ArrayList();\n" +
-            "\t\t\tthis.set" + propertyNameCapitalised + "(" + propertyNameCamelCase + "); \n\t\t}\n" +
-            "\t\t" + propertyNameCamelCase + ".add(" + propertyNameCamelCase.charAt(0) + ");\n" +
-            "\t\treturn this;\n" +
-            "\t}\n");
+          os.write("""
+                          
+                /**
+                * Adds the given %s to this %s
+                * @param %s The %s to add
+                @return %s
+                */
+                public %s add%s(%s %s) {
+                  %s %s = this.get%s();
+                  if (%s == null) {
+                    %s = new ArrayList();
+                    this.set%s(%s)
+                  }
+                  %s.add(%s);
+                  return this;
+                }
+              """.formatted(
+              propertyName,
+              modelName,
+              propertyNameCamelCase.charAt(0),
+              propertyName,
+              modelName,
+              modelName,
+              propertyNameCapitalised,
+              propertyTypeName,
+              propertyNameCamelCase.charAt(0),
+              propertyType,
+              propertyNameCamelCase,
+              propertyNameCapitalised,
+              propertyNameCamelCase,
+              propertyNameCamelCase,
+              propertyNameCapitalised,
+              propertyNameCamelCase,
+              propertyNameCamelCase,
+              propertyNameCamelCase.charAt(0)
+            )
+          );
         }
       }
       os.write("}\n\n");

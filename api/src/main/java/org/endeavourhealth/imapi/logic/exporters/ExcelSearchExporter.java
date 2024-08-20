@@ -16,13 +16,10 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.concurrent.ExecutionException;
-import java.util.zip.DataFormatException;
 
 public class ExcelSearchExporter {
   private XSSFWorkbook workbook;
@@ -39,7 +36,7 @@ public class ExcelSearchExporter {
     headerStyle.setWrapText(true);
   }
 
-  public XSSFWorkbook getSearchAsExcel(DownloadOptions downloadOptions) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  public XSSFWorkbook getSearchAsExcel(DownloadOptions downloadOptions) throws OpenSearchException, JsonProcessingException, QueryException {
     SearchResponse searchResponse = null;
     if (null != downloadOptions.getQueryRequest()) {
       QueryRequest queryRequest = downloadOptions.getQueryRequest();
@@ -84,31 +81,35 @@ public class ExcelSearchExporter {
     addCellValue(row, entity.getEntityType());
   }
 
+  private int getLastCellNum(Row row) {
+    return row.getLastCellNum() == -1 ? 0 : row.getLastCellNum();
+  }
+
   private void addCellValue(Row row, Object value) {
-    if (value instanceof String) {
-      Cell stringCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.STRING);
-      if (((String) value).contains("\n")) {
+    if (value instanceof String valueAsString) {
+      Cell stringCell = row.createCell(getLastCellNum(row), CellType.STRING);
+      if (valueAsString.contains("\n")) {
         stringCell.getRow()
-          .setHeightInPoints(stringCell.getSheet().getDefaultRowHeightInPoints() * ((String) value).split("\n").length);
+          .setHeightInPoints(stringCell.getSheet().getDefaultRowHeightInPoints() * valueAsString.split("\n").length);
       }
-      stringCell.setCellValue((String) value);
-    } else if (value instanceof Integer) {
-      Cell intCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.NUMERIC);
-      intCell.setCellValue((Integer) value);
-    } else if (value instanceof TTIriRef) {
-      Cell ttIriRefCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.STRING);
-      ttIriRefCell.setCellValue(iriToString((TTIriRef) value, false));
-    } else if (value instanceof ArrayList<?>) {
-      Cell arrayCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.STRING);
-      arrayCell.setCellValue(listToString((List<?>) value));
-    } else if (value instanceof Set<?>) {
-      Cell arrayCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.STRING);
-      arrayCell.setCellValue(setToString((Set<?>) value));
+      stringCell.setCellValue(valueAsString);
+    } else if (value instanceof Integer valueAsInteger) {
+      Cell intCell = row.createCell(getLastCellNum(row), CellType.NUMERIC);
+      intCell.setCellValue(valueAsInteger);
+    } else if (value instanceof TTIriRef valueAsTTIriRef) {
+      Cell ttIriRefCell = row.createCell(getLastCellNum(row), CellType.STRING);
+      ttIriRefCell.setCellValue(iriToString(valueAsTTIriRef, false));
+    } else if (value instanceof ArrayList<?> valueAsList) {
+      Cell arrayCell = row.createCell(getLastCellNum(row), CellType.STRING);
+      arrayCell.setCellValue(listToString(valueAsList));
+    } else if (value instanceof Set<?> valueAsSet) {
+      Cell arrayCell = row.createCell(getLastCellNum(row), CellType.STRING);
+      arrayCell.setCellValue(setToString(valueAsSet));
     } else if (null == value) {
-      Cell intCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.STRING);
+      Cell intCell = row.createCell(getLastCellNum(row), CellType.STRING);
       intCell.setCellValue("");
     } else {
-      Cell iriCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.STRING);
+      Cell iriCell = row.createCell(getLastCellNum(row), CellType.STRING);
       iriCell.setCellValue("UNHANDLED TYPE");
     }
   }
@@ -132,16 +133,15 @@ public class ExcelSearchExporter {
   }
 
   private void addItemToJoiner(Object item, StringJoiner stringJoiner, boolean inArray) {
-    if (item instanceof String) stringJoiner.add((String) item);
-    else if (item instanceof Integer) {
-      Integer itemAsInteger = (Integer) item;
+    if (item instanceof String itemAsString) stringJoiner.add(itemAsString);
+    else if (item instanceof Integer itemAsInteger) {
       stringJoiner.add(itemAsInteger.toString());
-    } else if (item instanceof TTIriRef) {
-      stringJoiner.add(iriToString((TTIriRef) item, inArray));
-    } else if (item instanceof ArrayList<?>) {
-      stringJoiner.add(listToString((List<?>) item));
-    } else if (item instanceof Set<?>) {
-      stringJoiner.add(setToString((Set<?>) item));
+    } else if (item instanceof TTIriRef itemAsTTIriRef) {
+      stringJoiner.add(iriToString(itemAsTTIriRef, inArray));
+    } else if (item instanceof ArrayList<?> itemAsList) {
+      stringJoiner.add(listToString(itemAsList));
+    } else if (item instanceof Set<?> itemAsSet) {
+      stringJoiner.add(setToString(itemAsSet));
     }
   }
 

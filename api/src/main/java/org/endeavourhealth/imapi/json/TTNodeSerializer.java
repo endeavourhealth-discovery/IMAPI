@@ -4,12 +4,14 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -43,11 +45,11 @@ public class TTNodeSerializer {
     simpleProperties = (simpleProperties != null && simpleProperties);
     if ((!(node instanceof TTEntity)) && node.getIri() != null)
       gen.writeStringField("@id", prefix(node.getIri()));
-    serializePredicates(node, gen, prov);
+    serializePredicates(node, gen);
   }
 
-  private void serializePredicates(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
-    List<TTIriRef> orderedPredicates = Stream.of(iri(RDF.TYPE), iri(RDFS.LABEL), iri(RDFS.COMMENT), iri(IM.HAS_STATUS)).collect(Collectors.toList());
+  private void serializePredicates(TTNode node, JsonGenerator gen) throws IOException {
+    List<TTIriRef> orderedPredicates = Stream.of(iri(RDF.TYPE), iri(RDFS.LABEL), iri(RDFS.COMMENT), iri(IM.HAS_STATUS)).toList();
     if (node.get(iri(RDF.TYPE)) != null) {
       for (TTValue type : node.get(iri(RDF.TYPE)).getElements()) {
         List<TTIriRef> orderForType = EntityCache.getPredicateOrder(type.asIriRef().getIri());

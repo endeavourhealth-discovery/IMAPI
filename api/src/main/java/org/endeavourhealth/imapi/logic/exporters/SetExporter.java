@@ -16,7 +16,6 @@ import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.AWSConfig;
 import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -94,35 +93,39 @@ public class SetExporter {
       result = new HashSet<>();
 
     if (subsets) {
-      LOG.trace("Expanding subsets for {}...", iri);
-      Set<TTIriRef> subSetIris = getSubsetIrisWithNames(iri);
-      LOG.trace("Found {} subsets...", subSetIris.size());
-      for (TTIriRef subset : subSetIris) {
-        Set<Concept> subsetMembers = getExpandedSetMembers(subset.getIri(), core, legacy, subsets, schemes);
-        if (null != subsetMembers && !subsetMembers.isEmpty()) {
-          subsetMembers.forEach(ss -> ss.addIsContainedIn(
-            new TTEntity(subset.getIri())
-              .setName(subset.getName())
-          ));
-          result.addAll(subsetMembers);
-        }
-      }
+      expandSubsets(iri, core, legacy, schemes, result);
     }
 
     return result;
+  }
+
+  private void expandSubsets(String iri, boolean core, boolean legacy, List<String> schemes, Set<Concept> result) throws QueryException, JsonProcessingException {
+    LOG.trace("Expanding subsets for {}...", iri);
+    Set<TTIriRef> subSetIris = getSubsetIrisWithNames(iri);
+    LOG.trace("Found {} subsets...", subSetIris.size());
+    for (TTIriRef subset : subSetIris) {
+      Set<Concept> subsetMembers = getExpandedSetMembers(subset.getIri(), core, legacy, true, schemes);
+      if (null != subsetMembers && !subsetMembers.isEmpty()) {
+        subsetMembers.forEach(ss -> ss.addIsContainedIn(
+          new TTEntity(subset.getIri())
+            .setName(subset.getName())
+        ));
+        result.addAll(subsetMembers);
+      }
+    }
   }
 
   private Set<Concept> tryGetExpandedSetMembersByDefinition(String iri, boolean legacy, List<String> schemeIris) throws JsonProcessingException, QueryException {
 
     TTEntity entity = trplRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION, RDFS.LABEL)).getEntity();
     if (null == entity)
-      return null;
+      return Collections.emptySet();
 
     String name = entity.has(iri(RDFS.LABEL)) ? entity.getName() : "";
 
     Query definition = entity.has(iri(IM.DEFINITION)) ? entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class) : null;
     if (null == definition)
-      return null;
+      return Collections.emptySet();
 
     Set<Concept> result = setRepository.getSetExpansion(definition, legacy, null, schemeIris);
 

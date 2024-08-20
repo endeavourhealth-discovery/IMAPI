@@ -13,7 +13,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -69,7 +75,7 @@ public class TTBulkFiler implements TTDocumentFiler {
           + data + " " + data + "\\BulkImport*.nq";
       String startCommand = SystemUtils.OS_NAME.contains("Windows") ? "cmd /c " : "bash ";
 
-      LOG.info("Executing command [{}]", startCommand + command);
+      LOG.info("Executing command [{}{}]", startCommand, command);
 
       Process process = Runtime.getRuntime()
         .exec(startCommand + command,
@@ -79,7 +85,7 @@ public class TTBulkFiler implements TTDocumentFiler {
 
       String line = r.readLine();
       while (line != null) {
-        System.out.println(line);
+        LOG.info(line);
         line = r.readLine();
       }
 
@@ -87,24 +93,24 @@ public class TTBulkFiler implements TTDocumentFiler {
       line = e.readLine();
       while (line != null) {
         error = true;
-        System.err.println(line);
+        LOG.error(line);
         line = e.readLine();
       }
 
       process.waitFor();
 
       if (error || process.exitValue() != 0) {
-        System.err.println("Bulk import failed");
         throw new TTFilerException("Bulk import failed");
       }
-
       File directory = new File(data + pathDelimiter);
-      for (File file : Objects.requireNonNull(directory.listFiles())) {
-        if (!file.isDirectory() && !file.delete())
-          LOG.error("File delete failed");
+      try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory.toPath())) {
+        for (Path file : directoryStream) {
+          if (!Files.isDirectory(file)) {
+            Files.delete(file);
+          }
+        }
       }
     } catch (IOException | InterruptedException e) {
-      LOG.error(e.getMessage());
       if (e instanceof InterruptedException) Thread.currentThread().interrupt();
       throw new TTFilerException(e.getMessage());
     }
@@ -150,6 +156,10 @@ public class TTBulkFiler implements TTDocumentFiler {
     TTBulkFiler.statementCount = statementCount;
   }
 
+  private static void incrementStatementCount() {
+    statementCount++;
+  }
+
   public void fileDocument(TTDocument document) throws TTFilerException {
     if (document.getEntities() == null)
       return;
@@ -160,13 +170,13 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   @Override
-  public void writeLog(TTDocument document) throws Exception {
-
+  public void writeLog(TTDocument document) {
+    throw new UnsupportedOperationException("TTBulkFiler does not support writeLog");
   }
 
   @Override
-  public void fileDeltas(String dataPath) throws Exception {
-    throw new Exception("Deltas cannot be filed by a bulk filer. Set Filer Factory bulk to false");
+  public void fileDeltas(String dataPath) {
+    throw new UnsupportedOperationException("Deltas cannot be filed by a bulk filer. Set Filer Factory bulk to false");
   }
 
   private void writeGraph(TTDocument document) throws TTFilerException {
@@ -207,7 +217,6 @@ public class TTBulkFiler implements TTDocumentFiler {
       LOG.debug("{} entities written to file", counter);
       LOG.info("Finished - total of {} statements,  {}", statementCount, new Date());
     } catch (Exception e) {
-      LOG.error(e.getMessage());
       throw new TTFilerException(e.getMessage());
     } finally {
       closeFileWriters();
@@ -218,13 +227,12 @@ public class TTBulkFiler implements TTDocumentFiler {
     List<String> quadList = converter.transformEntity(entity, entityGraph);
     for (String quad : quadList) {
       quads.write(quad + "\n");
-      statementCount++;
+      incrementStatementCount();
     }
   }
 
   private void createFileWriters(String scheme, String path) throws IOException {
     quads = new FileWriter(path + "/BulkImport" + ".nq", true);
-    //quads = new FileWriter(path + "/BulkImport-" + fileNumber + ".nq");
     codeMap = new FileWriter(path + "/CodeMap.txt", true);
     termCoreMap = new FileWriter(path + "/TermCoreMap-" + scheme + ".txt", true);
     subtypes = new FileWriter(path + "/SubTypes" + ".txt", true);
@@ -366,7 +374,7 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     //do nothing
   }
 }

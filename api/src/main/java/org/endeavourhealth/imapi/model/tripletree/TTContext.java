@@ -33,15 +33,17 @@ public class TTContext implements Serializable {
     return prefixes;
   }
 
-  public void add(String iri, String prefix) {
+  public TTContext add(String iri, String prefix) {
     byIri.put(iri, prefix);
     byPrefix.put(prefix, iri);
+    return this;
   }
 
-  public void add(String iri, String prefix, String name) {
+  public TTContext add(String iri, String prefix, String name) {
     byIri.put(iri, prefix);
     byPrefix.put(prefix, iri);
     toName.put(iri, name);
+    return this;
   }
 
 

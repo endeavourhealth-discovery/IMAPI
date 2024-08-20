@@ -4,16 +4,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.endeavourhealth.imapi.model.codegen.IMDMBase;
+import org.endeavourhealth.imapi.model.codegen.PartialDateTime;
+import org.endeavourhealth.imapi.model.codegen.Precision;
+import org.endeavourhealth.imapi.model.codegen.TimeUnits;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.*;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CodeGenTest {
 
@@ -120,19 +126,19 @@ class CodeGenTest {
   @Test
   void testPartialDateTime() {
 
-    PartialDateTime testYear = new PartialDateTime(1980);
+    PartialDateTime testYear = new PartialDateTime(new TimeUnits(1980), Precision.YYYY, ZoneOffset.UTC);
     String testYearString = "1980";
-    PartialDateTime testMonth = new PartialDateTime(1980, 1);
+    PartialDateTime testMonth = new PartialDateTime(new TimeUnits(1980, 1), Precision.YYYY_MM, ZoneOffset.UTC);
     String testMonthString = "1980-01";
-    PartialDateTime testDay = new PartialDateTime(1980, 1, 5);
+    PartialDateTime testDay = new PartialDateTime(new TimeUnits(1980, 1, 5), Precision.YYYY_MM_DD, ZoneOffset.UTC);
     String testDayString = "1980-01-05";
-    PartialDateTime testTime = new PartialDateTime(1980, 1, 5, 2, 3, 24);
+    PartialDateTime testTime = new PartialDateTime(new TimeUnits(1980, 1, 5, 2, 3, 24), Precision.YYYY_MM_DD_HH_MM_SS, ZoneOffset.UTC);
     String testTimeString = "1980-01-05T02:03:24Z";
-    PartialDateTime testNano = new PartialDateTime(1980, 1, 5, 2, 3, 24, 55);
+    PartialDateTime testNano = new PartialDateTime(new TimeUnits(1980, 1, 5, 2, 3, 24, 55), Precision.YYYY_MM_DD_HH_MM_SS_NNN, ZoneOffset.UTC);
     String testNanoString = "1980-01-05T02:03:24.55Z";
-    PartialDateTime testOffset = new PartialDateTime(1980, 1, 5, 2, 3, 24, 535, "+02:00");
+    PartialDateTime testOffset = new PartialDateTime(new TimeUnits(1980, 1, 5, 2, 3, 24, 535), Precision.YYYY_MM_DD_HH_MM_SS_NNN_ZZZZ, ZoneOffset.of("+02:00"));
     String testOffsetString = "1980-01-05T02:03:24.535+02:00";
-    PartialDateTime testNanoLength = new PartialDateTime(1980, 1, 5, 23, 30, 4, 5, "+02:00");
+    PartialDateTime testNanoLength = new PartialDateTime(new TimeUnits(1980, 1, 5, 23, 30, 4, 5), Precision.YYYY_MM_DD_HH_MM_SS_NNN_ZZZZ, ZoneOffset.of("+02:00"));
     String testNanoLengthString = "1980-01-05T23:30:04.5+02:00";
 
     assertEquals(testYear.getDateTime(), PartialDateTime.parse(testYearString).getDateTime(), "YYYY parsing incorrectly");
@@ -147,8 +153,8 @@ class CodeGenTest {
 
   @Test
   void testPartialDateTimeEquality() {
-    PartialDateTime pdt1 = new PartialDateTime(LocalDateTime.of(2000, 1, 1, 9, 0), PartialDateTime.Precision.YYYY_MM_DD);
-    PartialDateTime pdt2 = new PartialDateTime(LocalDateTime.of(2000, 1, 1, 10, 0), PartialDateTime.Precision.YYYY_MM_DD);
+    PartialDateTime pdt1 = new PartialDateTime(LocalDateTime.of(2000, 1, 1, 9, 0), Precision.YYYY_MM_DD);
+    PartialDateTime pdt2 = new PartialDateTime(LocalDateTime.of(2000, 1, 1, 10, 0), Precision.YYYY_MM_DD);
 
     assertTrue(pdt1.equals(pdt2));
   }

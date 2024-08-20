@@ -13,19 +13,18 @@ import java.util.*;
 
 public class ClosureGeneratorBulk implements TCGenerator {
   private static final Logger LOG = LoggerFactory.getLogger(ClosureGeneratorBulk.class);
+  private static final String[] topConcepts = {"http://snomed.info/sct#138875005", IM.CONCEPT, "http://snomed.info/sct#370115009"};
+  private final Set<String> blockingIris = new HashSet<>();
   private Map<String, Map<String, Set<String>>> relationshipMap;
   private HashMap<String, Set<String>> closureMap;
-  private static final String[] topConcepts = {"http://snomed.info/sct#138875005", IM.CONCEPT, "http://snomed.info/sct#370115009"};
   private int counter;
-  private final Set<String> blockingIris = new HashSet<>();
-
 
   @Override
   public void generateClosure(String outpath, boolean secure) throws IOException {
     getTctBlockers();
     FileRepository repo = new FileRepository(outpath);
 
-    relationshipMap = new HashMap<>(1000000);
+    relationshipMap = new HashMap<>(1_000_000);
     LOG.info("Getting all subtypes....");
     repo.fetchRelationships(relationshipMap, blockingIris);
 
@@ -39,14 +38,14 @@ public class ClosureGeneratorBulk implements TCGenerator {
 
 
   private void getTctBlockers() {
-    LOG.debug(String.format("Getting %s ", "top level stoppers"));
+    LOG.debug("Getting top level stoppers");
     blockingIris.addAll(Arrays.asList(topConcepts));
     //For now, only exclude top snomed and im concept
   }
 
 
   private void buildClosure() {
-    closureMap = new HashMap<>(10000000);
+    closureMap = new HashMap<>(10_000_000);
     LOG.debug("Generating closure map for subclasses");
     int c = 0;
     counter = 0;
@@ -55,11 +54,11 @@ public class ClosureGeneratorBulk implements TCGenerator {
       String child = row.getKey();
       if (closureMap.get(child) == null) {
         if (c % 100000 == 0)
-          LOG.debug(String.format("Processed %d entities", c));
+          LOG.debug("Processed {} entities", c);
         generateClosure(child);
       }
     }
-    LOG.debug(String.format("Closure built with  %d triples with  %d keys", counter, closureMap.size()));
+    LOG.debug("Closure built with {} triples with {} keys", counter, closureMap.size());
   }
 
 
@@ -98,19 +97,19 @@ public class ClosureGeneratorBulk implements TCGenerator {
     for (Map.Entry<String, Set<String>> entry : closureMap.entrySet()) {
       int isas = entry.getValue().size();
       if (isas > max) {
-        LOG.info(entry.getKey() + " has " + isas + " isas");
+        LOG.info("{} has {} isas", entry.getKey(), isas);
         max = isas;
       }
       for (String closure : entry.getValue()) {
         counter++;
         TTBulkFiler.setStatementCount(TTBulkFiler.getStatementCount() + 1);
-        if (counter % 1000000 == 0)
+        if (counter % 1_000_000 == 0)
           LOG.info("Written {} isas ", counter);
         fw.write("<" + entry.getKey() + "> <" + IM.IS_A + "> <" + closure + "> <" + IM.NAMESPACE + ">.\n");
       }
     }
     fw.close();
-    LOG.debug(counter + " Closure triples written");
+    LOG.debug("{} Closure triples written", counter);
     LOG.debug("statement count {}", TTBulkFiler.getStatementCount());
   }
 

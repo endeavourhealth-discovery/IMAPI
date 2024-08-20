@@ -1,12 +1,13 @@
-package org.endeavourhealth.imapi.logic.codegen;
+package org.endeavourhealth.imapi.json;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.SneakyThrows;
+import org.endeavourhealth.imapi.model.codegen.IMDMBase;
+import org.endeavourhealth.imapi.model.codegen.PartialDateTime;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-public class IMDMDeserializer extends StdDeserializer<IMDMBase> {
+public class IMDMDeserializer extends StdDeserializer<IMDMBase<?>> {
 
   protected IMDMDeserializer() {
     this(null);
@@ -26,13 +27,13 @@ public class IMDMDeserializer extends StdDeserializer<IMDMBase> {
 
   @SneakyThrows
   @Override
-  public IMDMBase deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+  public IMDMBase<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
 
     JsonNode node = p.getCodec().readTree(p);
     String id = node.get("_id").textValue();
     String type = node.get("_type").textValue();
 
-    IMDMBase result = (IMDMBase) Class.forName("org.endeavourhealth.imapi.logic.codegen." + type).getConstructor(UUID.class).newInstance(UUID.fromString(id));
+    IMDMBase<?> result = (IMDMBase<?>) Class.forName("org.endeavourhealth.imapi.logic.codegen." + type).getConstructor(UUID.class).newInstance(UUID.fromString(id));
 
     for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
       String n = it.next();

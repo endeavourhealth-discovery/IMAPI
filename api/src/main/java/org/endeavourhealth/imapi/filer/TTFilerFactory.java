@@ -30,7 +30,7 @@ public class TTFilerFactory {
     return new TTEntityFilerRdf4j();
   }
 
-  public static TCGenerator getClosureGenerator() throws TTFilerException {
+  public static TCGenerator getClosureGenerator() {
     return new ClosureGeneratorBulk();
   }
 

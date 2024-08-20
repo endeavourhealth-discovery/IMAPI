@@ -40,50 +40,40 @@ public class ExpressionConstraintDeserializer extends StdDeserializer<Expression
       Map.Entry<String, JsonNode> field = fields.next();
       String key = field.getKey();
       switch (key) {
-        case "constraintOperator": {
-          expressionConstraint.setConstraintOperator(field.getValue().textValue());
-          break;
-        }
-        case "conjunction": {
+        case "constraintOperator" -> expressionConstraint.setConstraintOperator(field.getValue().textValue());
+        case "conjunction" -> {
           switch (field.getValue().textValue()) {
-            case "and":
-              expressionConstraint.setConjunction(Bool.and);
-              break;
-            case "or":
-              expressionConstraint.setConjunction(Bool.or);
-              break;
-            default:
-              throw new IOException("Failure to set Bool value from input: " + field.getValue());
+            case "and" -> expressionConstraint.setConjunction(Bool.and);
+            case "or" -> expressionConstraint.setConjunction(Bool.or);
+            default -> throw new IOException("Failure to set Bool value from input: " + field.getValue());
           }
-          break;
         }
-        case "conceptSingle": {
+        case "conceptSingle" ->
           expressionConstraint.setConceptSingle(mapper.readValue(mapper.writeValueAsString(field.getValue()), ConceptReference.class));
-          break;
-        }
-        case "conceptBool": {
+        case "conceptBool" ->
           expressionConstraint.setConceptBool(mapper.readValue(mapper.writeValueAsString(field.getValue()), BoolGroup.class));
-          break;
-        }
-        case "refinementItems": {
-          ArrayNode arrayNode = (ArrayNode) field.getValue();
-          Iterator<JsonNode> items = arrayNode.elements();
-          while (items.hasNext()) {
-            JsonNode item = items.next();
-            if (item.isObject() && item.has("type")) {
-              String type = item.get("type").textValue();
-              if ("BoolGroup".equals(type)) {
-                expressionConstraint.addRefinementItem(mapper.readValue(mapper.writeValueAsString(item), BoolGroup.class));
-              } else if ("ExpressionConstraint".equals(type)) {
-                expressionConstraint.addRefinementItem(mapper.readValue(mapper.writeValueAsString(item), ExpressionConstraint.class));
-              } else if ("Refinement".equals(type)) {
-                expressionConstraint.addRefinementItem(mapper.readValue(mapper.writeValueAsString(item), Refinement.class));
-              }
-            } else throw new IOException("Refinement items must be an object with a type field");
-          }
-        }
+        case "refinementItems" -> processRefinementItems(field, expressionConstraint);
+        default -> throw new IOException("Unexpected key encountered while deserializing ExpressionConstraint: " + key);
       }
     }
     return expressionConstraint;
+  }
+
+  private void processRefinementItems(Map.Entry<String, JsonNode> field, ExpressionConstraint expressionConstraint) throws IOException {
+    ArrayNode arrayNode = (ArrayNode) field.getValue();
+    Iterator<JsonNode> items = arrayNode.elements();
+    while (items.hasNext()) {
+      JsonNode item = items.next();
+      if (item.isObject() && item.has("type")) {
+        String type = item.get("type").textValue();
+        if ("BoolGroup".equals(type)) {
+          expressionConstraint.addRefinementItem(mapper.readValue(mapper.writeValueAsString(item), BoolGroup.class));
+        } else if ("ExpressionConstraint".equals(type)) {
+          expressionConstraint.addRefinementItem(mapper.readValue(mapper.writeValueAsString(item), ExpressionConstraint.class));
+        } else if ("Refinement".equals(type)) {
+          expressionConstraint.addRefinementItem(mapper.readValue(mapper.writeValueAsString(item), Refinement.class));
+        }
+      } else throw new IOException("Refinement items must be an object with a type field");
+    }
   }
 }

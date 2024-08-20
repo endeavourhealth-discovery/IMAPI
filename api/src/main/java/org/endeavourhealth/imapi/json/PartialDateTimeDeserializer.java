@@ -1,12 +1,14 @@
-package org.endeavourhealth.imapi.logic.codegen;
+package org.endeavourhealth.imapi.json;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.SneakyThrows;
+import org.endeavourhealth.imapi.model.codegen.IMDMBase;
+import org.endeavourhealth.imapi.model.codegen.PartialDateTime;
+import org.endeavourhealth.imapi.model.codegen.Precision;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -25,13 +27,13 @@ public class PartialDateTimeDeserializer extends StdDeserializer<PartialDateTime
 
   @SneakyThrows
   @Override
-  public PartialDateTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+  public PartialDateTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
 
     JsonNode node = p.getCodec().readTree(p);
     String isoDateTime = node.get("dateTime").textValue();
     String precision = node.get("precision").textValue();
 
-    return new PartialDateTime(OffsetDateTime.parse(isoDateTime), PartialDateTime.Precision.valueOf(precision));
+    return new PartialDateTime(OffsetDateTime.parse(isoDateTime), Precision.valueOf(precision));
   }
 
   private Object getNodeValue(JsonNode value, JsonParser p, DeserializationContext ctxt) throws IOException {

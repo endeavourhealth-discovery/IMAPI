@@ -7,7 +7,10 @@ import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.impl.ValidatingValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
-import org.eclipse.rdf4j.query.*;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
@@ -27,34 +30,46 @@ import static org.eclipse.rdf4j.model.util.Values.*;
 
 public class TTEntityFilerRdf4j implements TTEntityFiler {
   private static final Logger LOG = LoggerFactory.getLogger(TTEntityFilerRdf4j.class);
-
-  private RepositoryConnection conn;
+  private static final ValueFactory valueFactory = new ValidatingValueFactory(SimpleValueFactory.getInstance());
   private final Map<String, String> prefixMap;
   private final Update deleteTriples;
   String blockers = "<http://snomed.info/sct#138875005>,<" + IM.NAMESPACE + "Concept>";
-
-  private static final ValueFactory valueFactory = new ValidatingValueFactory(SimpleValueFactory.getInstance());
+  private RepositoryConnection conn;
 
   public TTEntityFilerRdf4j(RepositoryConnection conn, Map<String, String> prefixMap) {
     this.conn = conn;
     this.prefixMap = prefixMap;
-    deleteTriples = conn.prepareUpdate("DELETE {?concept ?p1 ?o1.\n" +
-      "        ?o1 ?p2 ?o2.\n" +
-      "        ?o2 ?p3 ?o3.\n" +
-      "        ?o3 ?p4 ?o4." +
-      "        ?o4 ?p5 ?o5.}\n" +
-      "where \n" +
-      "    { GRAPH ?graph {?concept ?p1 ?o1.\n" +
-      "    OPTIONAL {?o1 ?p2 ?o2.\n" +
-      "        filter (isBlank(?o1))\n" +
-      "        OPTIONAL { \n" +
-      "            ?o2 ?p3 ?o3\n" +
-      "            filter (isBlank(?o2))\n" +
-      "            OPTIONAL {?o3 ?p4 ?o4.\n" +
-      "                filter(isBlank(?o3))" +
-      "                OPTIONAL {?o4 ?p5 ?o5" +
-      "                    filter(isBlank(?o4))}}}\n" +
-      "        }}}");
+    String sparql = """
+      DELETE {
+        ?concept ?p1 ?o1.
+        ?o1 ?p2 ?o2.
+        ?o2 ?p3 ?o3.
+        ?o3 ?p4 ?o4.
+        ?o4 ?p5 ?o5.
+      }
+      where {
+        GRAPH ?graph {
+          ?concept ?p1 ?o1.
+          OPTIONAL {
+            ?o1 ?p2 ?o2.
+            filter (isBlank(?o1))
+            OPTIONAL {
+              ?o2 ?p3 ?o3
+              filter (isBlank(?o2))
+              OPTIONAL {
+                ?o3 ?p4 ?o4.
+                filter(isBlank(?o3))
+                OPTIONAL {
+                  ?o4 ?p5 ?o5
+                  filter(isBlank(?o4))
+                }
+              }
+            }
+          }
+        }
+      }
+      """;
+    deleteTriples = conn.prepareUpdate(sparql);
   }
 
   public TTEntityFilerRdf4j() {
@@ -84,19 +99,26 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   }
 
   @Override
-  public void updateIsAs(String entity) throws TTFilerException {
-
+  public void updateIsAs(String entity) {
+    throw new UnsupportedOperationException("TTEntityFilerRdf4j does not support updateIsAs");
   }
 
   public void deleteIsas(Set<String> entities) {
     LOG.info("Deleting descendant and ascendant isas");
     for (String entity : entities) {
-      StringJoiner deleteSql = new StringJoiner("\n");
-      deleteSql.add("DELETE { ?descendant <" + IM.IS_A + "> ?allAncestors." +
-          "  ?entity <" + IM.IS_A + "> ?ancestors.}")
-        .add("WHERE {?descendant <" + IM.IS_A + "> ?entity.")
-        .add("filter (?entity = <" + entity + ">)}");
-      Update deleteIsas = conn.prepareUpdate(deleteSql.toString());
+      String deleteSql = """
+        DELETE {
+          ?descendant ?isA ?allAncestors.
+          ?entity ?isA ?ancestors.
+        }
+        WHERE {
+          ?descendant ?isA ?entity.
+          filter (?entity = ?entity)
+        }
+        """;
+      Update deleteIsas = conn.prepareUpdate(deleteSql);
+      deleteIsas.setBinding("isA", iri(IM.IS_A));
+      deleteIsas.setBinding("entity", iri(entity));
       deleteIsas.execute();
     }
 
@@ -106,11 +128,17 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     Set<TTEntity> descendants = new HashSet<>();
     Map<String, TTEntity> entityMap = new HashMap<>();
     for (String entity : entities) {
-      StringJoiner getDescendantSql = new StringJoiner("\n")
-        .add("Select ?descendant ?superclass")
-        .add("where {?descendant <" + IM.IS_A + "> <" + entity + ">.")
-        .add("?descendant <" + RDFS.SUBCLASS_OF + "> ?superclass.}");
-      TupleQuery qry = conn.prepareTupleQuery(getDescendantSql.toString());
+      String sparql = """
+        SELECT ?descendant ?superclass
+        WHERE {
+          ?descendant ?isA ?entity.
+          ?descendant ?subClassOf ?superclass.
+        }
+        """;
+      TupleQuery qry = conn.prepareTupleQuery(sparql);
+      qry.setBinding("entity", iri(entity));
+      qry.setBinding("subClassOf", iri(RDFS.SUBCLASS_OF));
+      qry.setBinding("isA", iri(IM.IS_A));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -131,13 +159,17 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
   public Set<String> getIsAs(String superClass) {
     Set<String> isAs = new HashSet<>();
-    StringJoiner getIsas = new StringJoiner("\n");
-    getIsas
-      .add("Select distinct ?ancestor")
-      .add("Where {")
-      .add("<" + superClass + "> <" + IM.IS_A + "> ?ancestor")
-      .add("filter (?ancestor not in (" + blockers + "))}");
-    TupleQuery qry = conn.prepareTupleQuery(getIsas.toString());
+    String sparql = """
+      SELECT distinct ?ancestor
+      WHERE {
+        <" + superClass + "> <" + IM.IS_A + "> ?ancestor
+        filter (?ancestor not in (" + blockers + "))
+      }
+      """;
+    TupleQuery qry = conn.prepareTupleQuery(sparql);
+    qry.setBinding("superClass", iri(superClass));
+    qry.setBinding("isA", iri(IM.IS_A));
+    qry.setBinding("blockers", literal(blockers));
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
@@ -150,18 +182,18 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   @Override
   public void fileIsAs(Map<String, Set<String>> isAs) {
     int count = 0;
-    for (String child : isAs.keySet()) {
+    for (Map.Entry<String, Set<String>> child : isAs.entrySet()) {
       count++;
       StringJoiner addSql = new StringJoiner("\n")
         .add("INSERT DATA {");
-      for (String ancestor : isAs.get(child)) {
-        addSql.add("<" + child + "> <" + IM.IS_A + "> <" + ancestor + ">.");
+      for (String ancestor : isAs.get(child.getKey())) {
+        addSql.add("<" + child.getKey() + "> <" + IM.IS_A + "> <" + ancestor + ">.");
       }
       addSql.add("}");
       Update addIsAs = conn.prepareUpdate(addSql.toString());
       addIsAs.execute();
       if (count % 100 == 0) {
-        LOG.info("isas added for " + count + " entities");
+        LOG.info("isas added for {} entities", count);
       }
     }
   }
@@ -209,22 +241,37 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
         predList.append(", ");
       predList.append("<").append(predicateIri).append(">");
     }
-    String spq = "DELETE {?concept ?p1 ?o1.\n" +
-      "        ?o1 ?p2 ?o2.\n" +
-      "        ?o2 ?p3 ?o3.\n" +
-      "        ?o3 ?p4 ?o4.}\n" +
-      "where { graph <" + graph.getIri() + "> {\n" +
-      "    {?concept ?p1 ?o1.\n" +
-      "    filter(?p1 in(" + predList + "))\n" +
-      "    OPTIONAL {?o1 ?p2 ?o2.\n" +
-      "        filter (isBlank(?o1))\n" +
-      "        OPTIONAL { \n" +
-      "            ?o2 ?p3 ?o3\n" +
-      "            filter (isBlank(?o2))\n" +
-      "            OPTIONAL {?o3 ?p4 ?o4.\n" +
-      "                filter(!isBlank(?o3))}}\n" +
-      "        }} }}\n";
+    String spq = """
+        DELETE {
+          ?concept ?p1 ?o1.
+          ?o1 ?p2 ?o2.
+          ?o2 ?p3 ?o3.
+          ?o3 ?p4 ?o4.
+        }
+        WHERE {
+          graph ?graphIri {
+            {
+              ?concept ?p1 ?o1.
+              filter(?p1 in(?predList))
+              OPTIONAL {
+                ?o1 ?p2 ?o2.
+                filter (isBlank(?o1))
+                OPTIONAL {
+                  ?o2 ?p3 ?o3
+                  filter (isBlank(?o2))
+                  OPTIONAL {
+                    ?o3 ?p4 ?o4.
+                    filter(!isBlank(?o3))
+                  }
+                }
+              }
+            }
+          }
+        }
+      """;
     Update deletePredicates = conn.prepareUpdate(spq);
+    deletePredicates.setBinding("graphIri", iri(graph.getIri()));
+    deletePredicates.setBinding("predList", literal(predList.toString()));
     deletePredicates.setBinding("concept", valueFactory.createIRI(entity.getIri()));
     try {
       deletePredicates.execute();

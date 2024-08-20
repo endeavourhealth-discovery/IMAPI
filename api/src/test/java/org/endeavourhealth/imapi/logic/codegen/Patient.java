@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.logic.codegen;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.codegen.IMDMBase;
 
 import java.util.UUID;
 

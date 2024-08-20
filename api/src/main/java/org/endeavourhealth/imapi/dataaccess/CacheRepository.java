@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.transforms.TTManager;
 
 import java.util.*;
 
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 /**
@@ -49,21 +50,24 @@ public class CacheRepository {
   }
 
   private String getSchemaSql() {
-    return "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-      "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
-      "PREFIX im: <http://endhealth.info/im#>\n" +
-      "PREFIX sh: <http://www.w3.org/ns/shacl#> \n" +
-      "CONSTRUCT {\n" +
-      "    ?shape ?p ?o.\n" +
-      "     ?o ?p2 ?o2.\n" +
-      "}\n" +
-      "where  {\n" +
-      " ?shape rdf:type sh:NodeShape.\n" +
-      "    \t?shape ?p ?o.\n" +
-      "    filter (?p != im:isA)\n" +
-      "    Optional { ?o ?p2 ?o2\n" +
-      "        filter (isBlank(?o) &&(?p2 in(sh:path, sh:class,sh:node,sh:datatype,sh:order,sh:nodeKind))) \n" +
-      "            }}";
+    String sparql = """
+      CONSTRUCT {
+        ?shape ?p ?o.
+        ?o ?p2 ?o2.
+      }
+      WHERE {
+        ?shape rdf:type sh:NodeShape.
+        ?shape ?p ?o.
+        filter (?p != im:isA)
+        OPTIONAL { ?o ?p2 ?o2
+          FILTER (
+            isBlank(?o) &&
+            (?p2 in(sh:path, sh:class,sh:node,sh:datatype,sh:order,sh:nodeKind))
+          )
+        }
+      }
+      """;
+    return addSparqlPrefixes(sparql);
   }
 
   private void processStatement(Set<TTEntity> entities, Map<String, TTValue> valueMap, Map<String, TTNode> subjectMap, Statement st) {

@@ -123,7 +123,7 @@ public class SetRepository {
       .property(s -> s
         .setIri(IM.NAMESPACE + "usageTotal").as("usage"))
       .property(s -> s
-        .setIri(IM.IM1ID).as("im1Id"))
+        .setIri(IM.IM_1_ID).as("im1Id"))
       .property(s -> s
         .setIri(IM.HAS_STATUS)
         .return_(s2 -> s2
@@ -166,7 +166,7 @@ public class SetRepository {
               .setIri(IM.CODE_ID)
               .as("legacyCodeId"))
             .property(s -> s
-              .setIri(IM.IM1ID).as("legacyIm1Id"))));
+              .setIri(IM.IM_1_ID).as("legacyIm1Id"))));
     }
     return aReturn;
   }

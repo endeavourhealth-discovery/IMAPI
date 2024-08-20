@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
+import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.imq.Argument;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.*;
 
@@ -22,7 +24,7 @@ public class FunctionService {
 
   private final RequestObjectService requestObjectService = new RequestObjectService();
 
-  public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws Exception {
+  public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws QueryException, TTFilerException, JsonProcessingException {
     return switch (iri) {
       case IM_FUNCTION.SNOMED_CONCEPT_GENERATOR -> conceptRepository.createConcept(IM.NAMESPACE);
       case IM_FUNCTION.LOCAL_NAME_RETRIEVER -> getLocalName(arguments);
@@ -139,7 +141,7 @@ public class FunctionService {
     }
   }
 
-  private JsonNode generateIriCode(List<Argument> arguments) throws Exception {
+  private JsonNode generateIriCode(List<Argument> arguments) throws QueryException, TTFilerException, JsonProcessingException {
     if (null == arguments)
       throw new IllegalArgumentException("No arguments, send array of json where/value pairs in request body");
     String entityIri = null;

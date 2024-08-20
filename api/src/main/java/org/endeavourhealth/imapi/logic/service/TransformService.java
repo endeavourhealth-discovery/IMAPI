@@ -2,9 +2,9 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
+import org.endeavourhealth.imapi.model.iml.TransformRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.map.MapObject;
-import org.endeavourhealth.imapi.model.iml.TransformRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
@@ -15,7 +15,10 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.util.ResourceUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.zip.DataFormatException;
 
@@ -24,7 +27,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @PropertySource("classpath:eqdmap.properties")
 public class TransformService {
 
-  public ModelDocument transformEqd(EnquiryDocument eqDoc) throws FileNotFoundException, IOException, DataFormatException, QueryException {
+  public ModelDocument transformEqd(EnquiryDocument eqDoc) throws IOException, DataFormatException, QueryException {
     Properties dataMap = new Properties();
     Properties criteriaLabels = new Properties();
 

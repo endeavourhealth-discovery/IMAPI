@@ -2,11 +2,7 @@ package org.endeavourhealth.imapi.dataaccess;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.TupleQuery;
-import org.eclipse.rdf4j.query.BooleanQuery;
-import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.query.Update;
+import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
@@ -130,7 +126,7 @@ public class UserRepository {
     if (!mru.isEmpty() && mru.stream().allMatch(this::isValidRecentActivityItem)) {
       delete(user, USER.USER_MRU);
       insert(user, USER.USER_MRU, mru);
-    } else throw new Error("One or more activity items are invalid");
+    } else throw new IllegalArgumentException("One or more activity items are invalid");
   }
 
   private boolean isValidRecentActivityItem(RecentActivityItemDto item) {
@@ -147,9 +143,8 @@ public class UserRepository {
     insert(user, predicate, data);
   }
 
-  public void updateUserScale(String user, String scale) throws JsonProcessingException {
-    delete(user, USER.USER_SCALE);
-    insert(user, USER.USER_SCALE, scale);
+  public void updateByPredicate(String user, Boolean data, String predicate) throws JsonProcessingException {
+    updateByPredicate(user, String.valueOf(data), predicate);
   }
 
   public List<String> getUserOrganisations(String user) throws JsonProcessingException {

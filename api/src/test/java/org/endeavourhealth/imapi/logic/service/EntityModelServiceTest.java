@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
@@ -15,7 +14,6 @@ import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
-import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -32,7 +30,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
-import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.*;
@@ -721,14 +718,14 @@ class EntityModelServiceTest {
   }
 
   @Test
-  void getSetExport_NullIri() throws DataFormatException, JsonProcessingException, QueryException {
-    XSSFWorkbook actual = entityService.getSetExport(new SetExporterOptions(null, false, true, true, true, true, false, List.of()));
-    assertNull(actual);
+  void getSetExport_NullIri() {
+    SetExporterOptions options = new SetExporterOptions(null, false, true, true, true, true, false, List.of());
+    assertThrows(IllegalArgumentException.class, () -> entityService.getSetExport(options));
   }
 
   @Test
-  void getSetExport_EmptyIri() throws DataFormatException, JsonProcessingException, QueryException {
-    XSSFWorkbook actual = entityService.getSetExport(new SetExporterOptions("", false, true, true, true, true, false, List.of()));
-    assertNull(actual);
+  void getSetExport_EmptyIri() {
+    SetExporterOptions options = new SetExporterOptions("", false, true, true, true, true, false, List.of());
+    assertThrows(IllegalArgumentException.class, () -> entityService.getSetExport(options));
   }
 }

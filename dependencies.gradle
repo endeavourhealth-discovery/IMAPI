@@ -6,6 +6,7 @@ ext {
     apacheText        : '1.11.0',
     assertJ           : '3.25.3',
     aws               : '1.12.605',
+            cucumber            : '7.15.0',
     cucumber          : '7.14.1',
     dropwizard        : '4.2.25',
     elasticSearch     : '8.11.1',

@@ -254,7 +254,7 @@ public class QueryDescriptor {
     } else {
       String propertyName = getTermInContext(where);
       if (!where.getIri().equals(IM.NAMESPACE + "concept")) {
-        display.append(propertyName.equals("") ? "" : propertyName + " ");
+        display.append(propertyName.isEmpty() ? "" : propertyName + " ");
       }
       if (where.getRange() != null) {
         display.append(describeRangeProperty(where, where.getIri().toLowerCase().contains("date")));

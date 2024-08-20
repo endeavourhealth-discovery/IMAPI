@@ -12,7 +12,7 @@ ext {
     factPlusPlus      : '1.6.5',
     h2                : '2.2.224',
     jackson           : '2.16.0',
-    jersey            : '3.1.4',
+            jersey              : '3.1.5',
     junit             : '5.10.1',
     junitRunner       : '1.10.1',
     logback           : '1.4.14',
@@ -37,6 +37,7 @@ ext {
   ]
   libs = [
     imGrammar         : "org.endeavourhealth.informationManager:Grammar:1.0-SNAPSHOT",
+            imGrammar           : "org.endeavourhealth.informationManager:Grammar:1.0-SNAPSHOT",
     antlr             : "org.antlr:antlr4-runtime:$versions.antlr",
     apacheCollections4: "org.apache.commons:commons-collections4:$versions.apacheCollections4",
     apachePoi         : "org.apache.poi:poi-ooxml:$versions.apachePoi",

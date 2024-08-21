@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.DataFormatException;
 
 public class TTTranslator implements SyntaxTranslator {
 
@@ -47,7 +46,7 @@ public class TTTranslator implements SyntaxTranslator {
   }
 
   @Override
-  public Object convertToTarget(Object from) throws DataFormatException {
+  public Object convertToTarget(Object from) {
     if (from instanceof Map<?, ?> fromMap) {
       TTNode result = new TTNode();
       for (Map.Entry<?, ?> entry : fromMap.entrySet()) {
@@ -60,7 +59,7 @@ public class TTTranslator implements SyntaxTranslator {
         else if (value instanceof TTValue valueTTValue) {
           result.set(TTIriRef.iri(key), valueTTValue);
         } else
-          throw new DataFormatException("Unknown sub node type in target map " + value.getClass().getSimpleName());
+          throw new IllegalArgumentException("Unknown sub node type in target map " + value.getClass().getSimpleName());
       }
       return result;
     } else if (from instanceof Collection<?> fromCollection) {
@@ -78,7 +77,7 @@ public class TTTranslator implements SyntaxTranslator {
     return null;
   }
 
-  private Object convertToTargetSingle(Object from) throws DataFormatException {
+  private Object convertToTargetSingle(Object from) {
     try {
       if (from instanceof String fromString)
         return TTLiteral.literal(fromString);
@@ -88,12 +87,12 @@ public class TTTranslator implements SyntaxTranslator {
         return from;
       }
     } catch (JsonProcessingException e) {
-      throw new DataFormatException("Unknown target value type " + from.getClass().getName());
+      throw new IllegalArgumentException("Unknown target value type " + from.getClass().getName());
     }
   }
 
   @Override
-  public void setPropertyValue(MapProperty rule, Object targetEntity, String property, Object targetValue) throws DataFormatException {
+  public void setPropertyValue(MapProperty rule, Object targetEntity, String property, Object targetValue) {
     try {
       if (property.equals("@id") || property.equals("id") || property.equals("iri"))
         ((TTNode) targetEntity).setIri(((TTLiteral) targetValue).getValue());
@@ -118,7 +117,7 @@ public class TTTranslator implements SyntaxTranslator {
         }
       }
     } catch (JsonProcessingException e) {
-      throw new DataFormatException("Value of property : " + property + " cannot be set as its class is invalid (" + targetValue.getClass().getSimpleName() + ")");
+      throw new IllegalArgumentException("Value of property : " + property + " cannot be set as its class is invalid (" + targetValue.getClass().getSimpleName() + ")");
     }
   }
 

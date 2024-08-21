@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.endeavourhealth.imapi.model.map.MapProperty;
 
 import java.util.ArrayList;
-import java.util.zip.DataFormatException;
 
 public class JsonTranslator implements SyntaxTranslator {
 
@@ -15,7 +14,7 @@ public class JsonTranslator implements SyntaxTranslator {
   }
 
   @Override
-  public Object convertFromSource(Object from) throws DataFormatException {
+  public Object convertFromSource(Object from) {
     try {
       if (from instanceof ArrayNode fromArrayNode) {
         ArrayList<Object> target = new ArrayList<>();
@@ -26,7 +25,7 @@ public class JsonTranslator implements SyntaxTranslator {
       } else
         return (convertNode(from));
     } catch (Exception e) {
-      throw new DataFormatException("Unknown json source to Triple (LD) object : " + from.getClass().getSimpleName());
+      throw new IllegalArgumentException("Unknown json source to Triple (LD) object : " + from.getClass().getSimpleName());
     }
   }
 
@@ -41,10 +40,10 @@ public class JsonTranslator implements SyntaxTranslator {
   }
 
   @Override
-  public Object getPropertyValue(Object source, String property) throws DataFormatException {
+  public Object getPropertyValue(Object source, String property) {
     if (source instanceof ArrayNode sourceArrayNode) {
       if (sourceArrayNode.size() > 1)
-        throw new DataFormatException("Looking for value of property : " + property + "  but Source object is list. Either source is wrongly formatted or the map should have a list mode set");
+        throw new IllegalArgumentException("Looking for value of property : " + property + "  but Source object is list. Either source is wrongly formatted or the map should have a list mode set");
       else
         source = sourceArrayNode.get(0);
     }
@@ -61,7 +60,7 @@ public class JsonTranslator implements SyntaxTranslator {
   }
 
 
-  private Object convertNode(Object node) throws DataFormatException {
+  private Object convertNode(Object node) {
     if (node instanceof JsonNode nodeJsonNode) {
       if (nodeJsonNode.isTextual())
         return nodeJsonNode.asText();
@@ -78,7 +77,7 @@ public class JsonTranslator implements SyntaxTranslator {
       else
         return node;
     } else
-      throw new DataFormatException("Unexpected json object : " + node.getClass().getSimpleName());
+      throw new IllegalArgumentException("Unexpected json object : " + node.getClass().getSimpleName());
   }
 
 

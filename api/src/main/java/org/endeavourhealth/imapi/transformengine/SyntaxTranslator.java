@@ -6,15 +6,15 @@ import org.endeavourhealth.imapi.model.map.MapProperty;
 import java.util.zip.DataFormatException;
 
 public interface SyntaxTranslator {
-  Object convertToTarget(Object from) throws DataFormatException;
+  Object convertToTarget(Object from);
 
-  Object convertFromSource(Object from) throws DataFormatException;
+  Object convertFromSource(Object from);
 
-  void setPropertyValue(MapProperty rule, Object targetEntity, String path, Object targetValue) throws DataFormatException;
+  void setPropertyValue(MapProperty rule, Object targetEntity, String path, Object targetValue);
 
   Object createEntity(String type);
 
-  Object getPropertyValue(Object source, String property) throws DataFormatException, JsonProcessingException;
+  Object getPropertyValue(Object source, String property) throws JsonProcessingException;
 
 
   boolean isCollection(Object source);

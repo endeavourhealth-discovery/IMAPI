@@ -53,6 +53,7 @@ public class ExpressionConstraintDeserializer extends StdDeserializer<Expression
         case "conceptBool" ->
           expressionConstraint.setConceptBool(mapper.readValue(mapper.writeValueAsString(field.getValue()), BoolGroup.class));
         case "refinementItems" -> processRefinementItems(field, expressionConstraint);
+        case "type" -> expressionConstraint.setType(field.getValue().textValue());
         default -> throw new IOException("Unexpected key encountered while deserializing ExpressionConstraint: " + key);
       }
     }

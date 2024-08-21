@@ -43,6 +43,7 @@ public class BoolGroupDeserializer extends StdDeserializer<BoolGroup> {
         case "attributeGroup" -> boolGroup.setAttributeGroup(field.getValue().booleanValue());
         case "exclude" -> boolGroup.setExclude(field.getValue().booleanValue());
         case "items" -> processItems(field, boolGroup);
+        case "type" -> boolGroup.setType(field.getValue().textValue());
         default -> throw new IOException("Unexpected key while deserializing BoolGroup: " + key);
       }
     }

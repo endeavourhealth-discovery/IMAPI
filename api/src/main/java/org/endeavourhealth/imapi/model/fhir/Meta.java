@@ -1,16 +1,16 @@
 package org.endeavourhealth.imapi.model.fhir;
 
 import com.fasterxml.jackson.annotation.*;
-import java.time.OffsetDateTime;
+
 
 public class Meta {
-    private OffsetDateTime lastUpdated;
+    private String lastUpdated;
     private String[] profile;
 
     @JsonProperty("lastUpdated")
-    public OffsetDateTime getLastUpdated() { return lastUpdated; }
+    public String getLastUpdated() { return lastUpdated; }
     @JsonProperty("lastUpdated")
-    public void setLastUpdated(OffsetDateTime value) { this.lastUpdated = value; }
+    public void setLastUpdated(String value) { this.lastUpdated = value; }
 
     @JsonProperty("profile")
     public String[] getProfile() { return profile; }

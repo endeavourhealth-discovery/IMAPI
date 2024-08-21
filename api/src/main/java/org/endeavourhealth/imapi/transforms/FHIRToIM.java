@@ -27,9 +27,9 @@ public class FHIRToIM {
   public TTEntity convertValueSet(ValueSet valueSet, TTIriRef setType,String folder) throws JsonProcessingException {
     TTEntity set= new TTEntity()
       .addType(setType)
-      .setIri(FHIR.GRAPH_FHIR+"ValueSet/"+ valueSet.getID())
+      .setIri(valueSet.getURL())
       .setStatus(valueSet.getStatus().equals("active")? iri(IM.ACTIVE): iri(IM.DRAFT))
-      .setName(valueSet.getName().replaceAll("([a-z])([A-Z])", "$1 $2"))
+      .setName("FHIR "+ valueSet.getName().replaceAll("([a-z])([A-Z])", "$1 $2"))
       .setDescription(valueSet.getDescription());
     set.addObject(iri(IM.IS_CONTAINED_IN), iri(folder));
     if (valueSet.getCompose()!=null){
@@ -39,7 +39,8 @@ public class FHIRToIM {
         Match match= new Match();
         query.addMatch(match);
         if (valueSet.getCompose().getInclude().length==1){
-          match.addInstanceOf(new Node().setIri(include[0].getSystem())
+          String member= include[0].getSystem();
+          match.addInstanceOf(new Node().setIri(member)
             .setDescendantsOrSelfOf(true));
         }
         else {
@@ -47,7 +48,8 @@ public class FHIRToIM {
           for (int i=0; i>include.length;i++){
             Match memberMatch= new Match();
             match.addMatch(memberMatch);
-            memberMatch.addInstanceOf(new Node().setIri(include[i].getSystem()).setDescendantsOrSelfOf(true));
+            String member= include[i].getSystem().replaceAll("fhir/","fhir#");
+            memberMatch.addInstanceOf(new Node().setIri(member).setDescendantsOrSelfOf(true));
           }
         }
         set.set(iri(IM.DEFINITION), TTLiteral.literal(query));
@@ -58,12 +60,15 @@ public class FHIRToIM {
   }
   public List<TTEntity> convertCodeSystem(CodeSystem codeSystem,String folder){
     List<TTEntity> concepts= new ArrayList<>();
+    String iri= codeSystem.getUrl();
+    Object rawQuery= new Object();
     TTEntity parent= new TTEntity()
       .addType(iri(IM.CONCEPT))
       .setCode(codeSystem.getID())
-      .setIri(FHIR.GRAPH_FHIR+"CodeSystem/"+codeSystem.getID())
+      .setIri(iri)
+      .setStatus(iri(FHIR.GRAPH_FHIR))
       .setStatus(codeSystem.getStatus().equals("active") ?iri(IM.ACTIVE): iri(IM.DRAFT))
-      .setName(codeSystem.getTitle())
+      .setName(codeSystem.getTitle()+ "( FHIR code system)")
       .setDescription(codeSystem.getDescription());
     parent.addObject(iri(IM.IS_CONTAINED_IN),iri(folder));
     concepts.add(parent);
@@ -73,6 +78,7 @@ public class FHIRToIM {
         .setName(fhirConcept.getDisplay()+" ("+ parent.getName()+")")
         .setDescription(fhirConcept.getDefinition())
         .setIri(parent.getIri()+"/"+ fhirConcept.getCode())
+        .setScheme(iri(FHIR.GRAPH_FHIR))
         .setCode(fhirConcept.getCode());
       concept.addObject(iri(RDFS.SUBCLASS_OF),iri(parent.getIri()));
       concepts.add(concept);

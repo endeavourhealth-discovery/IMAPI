@@ -23,8 +23,54 @@ public class CodeSystem {
     private String hierarchyMeaning;
     private String content;
     private FHIRConcept[] concept;
+    private String date;
+  private Contact[] contact;
 
-    @JsonProperty("resourceType")
+  public Contact[] getContact() {
+    return contact;
+  }
+
+  public CodeSystem setContact(Contact[] contact) {
+    this.contact = contact;
+    return this;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public CodeSystem setId(String id) {
+    this.id = id;
+    return this;
+  }
+
+  public String getUrl() {
+    return url;
+  }
+
+  public CodeSystem setUrl(String url) {
+    this.url = url;
+    return this;
+  }
+
+  public boolean isExperimental() {
+    return experimental;
+  }
+
+  public boolean isCaseSensitive() {
+    return caseSensitive;
+  }
+
+  public String getDate() {
+    return date;
+  }
+
+  public CodeSystem setDate(String date) {
+    this.date = date;
+    return this;
+  }
+
+  @JsonProperty("resourceType")
     public String getResourceType() { return resourceType; }
     @JsonProperty("resourceType")
     public void setResourceType(String value) { this.resourceType = value; }

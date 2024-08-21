@@ -2,12 +2,14 @@ package org.endeavourhealth.imapi.model.fhir;
 
 import com.fasterxml.jackson.annotation.*;
 
+import java.util.Map;
+
 public class ValueSet {
     private String resourceType;
     private String id;
     private Meta meta;
     private Text text;
-    private Extension[] extension;
+    private Map<String,Object>[] extension;
     private String url;
     private Identifier[] identifier;
     private String version;
@@ -20,8 +22,50 @@ public class ValueSet {
     private String description;
     private Jurisdiction[] jurisdiction;
     private Compose compose;
+    private String date;
+     private boolean immutable;
 
-    @JsonProperty("resourceType")
+  public boolean isImmutable() {
+    return immutable;
+  }
+
+  public ValueSet setImmutable(boolean immutable) {
+    this.immutable = immutable;
+    return this;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public ValueSet setId(String id) {
+    this.id = id;
+    return this;
+  }
+
+  public String getUrl() {
+    return url;
+  }
+
+  public ValueSet setUrl(String url) {
+    this.url = url;
+    return this;
+  }
+
+  public boolean isExperimental() {
+    return experimental;
+  }
+
+  public String getDate() {
+    return date;
+  }
+
+  public ValueSet setDate(String date) {
+    this.date = date;
+    return this;
+  }
+
+  @JsonProperty("resourceType")
     public String getResourceType() { return resourceType; }
     @JsonProperty("resourceType")
     public void setResourceType(String value) { this.resourceType = value; }
@@ -42,9 +86,9 @@ public class ValueSet {
     public void setText(Text value) { this.text = value; }
 
     @JsonProperty("extension")
-    public Extension[] getExtension() { return extension; }
+    public Map<String,Object>[] getExtension() { return extension; }
     @JsonProperty("extension")
-    public void setExtension(Extension[] value) { this.extension = value; }
+    public void setExtension(Map<String,Object>[] value) { this.extension = value; }
 
     @JsonProperty("url")
     public String getURL() { return url; }

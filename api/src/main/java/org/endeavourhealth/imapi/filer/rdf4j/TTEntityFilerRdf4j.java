@@ -159,17 +159,13 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
   public Set<String> getIsAs(String superClass) {
     Set<String> isAs = new HashSet<>();
-    String sparql = """
-      SELECT distinct ?ancestor
-      WHERE {
-        <" + superClass + "> <" + IM.IS_A + "> ?ancestor
-        filter (?ancestor not in (" + blockers + "))
-      }
-      """;
-    TupleQuery qry = conn.prepareTupleQuery(sparql);
-    qry.setBinding("superClass", iri(superClass));
-    qry.setBinding("isA", iri(IM.IS_A));
-    qry.setBinding("blockers", literal(blockers));
+    StringJoiner getIsas = new StringJoiner("\n");
+    getIsas
+      .add("Select distinct ?ancestor")
+      .add("Where {")
+      .add("<" + superClass + "> <" + IM.IS_A + "> ?ancestor")
+      .add("filter (?ancestor not in (" + blockers + "))}");
+    TupleQuery qry = conn.prepareTupleQuery(getIsas.toString());
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();

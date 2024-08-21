@@ -24,6 +24,17 @@ public class CodeSystem {
     private String content;
     private FHIRConcept[] concept;
     private String date;
+    private String copyright;
+
+  public String getCopyright() {
+    return copyright;
+  }
+
+  public CodeSystem setCopyright(String copyright) {
+    this.copyright = copyright;
+    return this;
+  }
+
   private Contact[] contact;
 
   public Contact[] getContact() {

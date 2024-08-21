@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.PatientType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -57,223 +57,188 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.PatientType")
 @XmlEnum
 public enum VocPatientType {
 
 
-    /**
-     * EMG
-     * 
-     */
-    E,
+  /**
+   * EMG
+   */
+  E,
 
-    /**
-     * Immediately necessary
-     * 
-     */
-    IN,
+  /**
+   * Immediately necessary
+   */
+  IN,
 
-    /**
-     * Private
-     * 
-     */
-    PRIV,
+  /**
+   * Private
+   */
+  PRIV,
 
-    /**
-     * Regular
-     * 
-     */
-    REG,
+  /**
+   * Regular
+   */
+  REG,
 
-    /**
-     * Temporary
-     * 
-     */
-    TMP,
+  /**
+   * Temporary
+   */
+  TMP,
 
-    /**
-     * Community Registered
-     * 
-     */
-    COMM,
+  /**
+   * Community Registered
+   */
+  COMM,
 
-    /**
-     * Dummy
-     * 
-     */
-    DUM,
+  /**
+   * Dummy
+   */
+  DUM,
 
-    /**
-     * Other
-     * 
-     */
-    OTH,
+  /**
+   * Other
+   */
+  OTH,
 
-    /**
-     * Contraceptive Services
-     * 
-     */
-    CON,
+  /**
+   * Contraceptive Services
+   */
+  CON,
 
-    /**
-     * Maternity Services
-     * 
-     */
-    MTS,
+  /**
+   * Maternity Services
+   */
+  MTS,
 
-    /**
-     * Child Health Services
-     * 
-     */
-    CHS,
+  /**
+   * Child Health Services
+   */
+  CHS,
 
-    /**
-     * Walk-In Patient
-     * 
-     */
-    WIP,
+  /**
+   * Walk-In Patient
+   */
+  WIP,
 
-    /**
-     * Minor Surgery
-     * 
-     */
-    MIS,
+  /**
+   * Minor Surgery
+   */
+  MIS,
 
-    /**
-     * Sexual Health
-     * 
-     */
-    SEX,
+  /**
+   * Sexual Health
+   */
+  SEX,
 
-    /**
-     * Pre Registration
-     * 
-     */
-    PRE,
+  /**
+   * Pre Registration
+   */
+  PRE,
 
-    /**
-     * Yellow Fever
-     * 
-     */
-    YEL,
+  /**
+   * Yellow Fever
+   */
+  YEL,
 
-    /**
-     * Dermatology
-     * 
-     */
-    DER,
+  /**
+   * Dermatology
+   */
+  DER,
 
-    /**
-     * Diabetic
-     * 
-     */
-    DIA,
+  /**
+   * Diabetic
+   */
+  DIA,
 
-    /**
-     * Rheumatology
-     * 
-     */
-    RHM,
+  /**
+   * Rheumatology
+   */
+  RHM,
 
-    /**
-     * Chiropody
-     * 
-     */
-    CHR,
+  /**
+   * Chiropody
+   */
+  CHR,
 
-    /**
-     * Coronary Health Checks
-     * 
-     */
-    CHC,
+  /**
+   * Coronary Health Checks
+   */
+  CHC,
 
-    /**
-     * Ultrasound
-     * 
-     */
-    ULT,
+  /**
+   * Ultrasound
+   */
+  ULT,
 
-    /**
-     * BCG Clinic
-     * 
-     */
-    BCG,
+  /**
+   * BCG Clinic
+   */
+  BCG,
 
-    /**
-     * Vasectomy
-     * 
-     */
-    VAS,
+  /**
+   * Vasectomy
+   */
+  VAS,
 
-    /**
-     * Acupuncture
-     * 
-     */
-    ACU,
+  /**
+   * Acupuncture
+   */
+  ACU,
 
-    /**
-     * Reflexology
-     * 
-     */
-    REF,
+  /**
+   * Reflexology
+   */
+  REF,
 
-    /**
-     * Hypnotherapy
-     * 
-     */
-    HYP,
+  /**
+   * Hypnotherapy
+   */
+  HYP,
 
-    /**
-     * Out of Hours
-     * 
-     */
-    OOH,
+  /**
+   * Out of Hours
+   */
+  OOH,
 
-    /**
-     * Rehabilitation
-     * 
-     */
-    RBN,
+  /**
+   * Rehabilitation
+   */
+  RBN,
 
-    /**
-     * Antenatal
-     * 
-     */
-    ANT,
+  /**
+   * Antenatal
+   */
+  ANT,
 
-    /**
-     * Audiology
-     * 
-     */
-    AUD,
+  /**
+   * Audiology
+   */
+  AUD,
 
-    /**
-     * Gynaecology
-     * 
-     */
-    GYN,
+  /**
+   * Gynaecology
+   */
+  GYN,
 
-    /**
-     * Doppler
-     * 
-     */
-    DOP,
+  /**
+   * Doppler
+   */
+  DOP,
 
-    /**
-     * Secondary Registration
-     * 
-     */
-    SEC;
+  /**
+   * Secondary Registration
+   */
+  SEC;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocPatientType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocPatientType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

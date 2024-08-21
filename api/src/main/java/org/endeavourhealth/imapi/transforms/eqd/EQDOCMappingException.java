@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for EQDOC.MappingException complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.MappingException"&gt;
  *   &lt;complexContent&gt;
@@ -31,95 +31,81 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.MappingException", propOrder = {
-    "name",
-    "reportGUID",
-    "codeId"
+  "name",
+  "reportGUID",
+  "codeId"
 })
 public class EQDOCMappingException {
 
-    @XmlElement(required = true)
-    protected String name;
-    @XmlElement(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String reportGUID;
-    protected String codeId;
+  @XmlElement(required = true)
+  protected String name;
+  @XmlElement(required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String reportGUID;
+  protected String codeId;
 
-    /**
-     * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getName() {
-        return name;
-    }
+  /**
+   * Gets the value of the name property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setName(String value) {
-        this.name = value;
-    }
+  /**
+   * Sets the value of the name property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setName(String value) {
+    this.name = value;
+  }
 
-    /**
-     * Gets the value of the reportGUID property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getReportGUID() {
-        return reportGUID;
-    }
+  /**
+   * Gets the value of the reportGUID property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getReportGUID() {
+    return reportGUID;
+  }
 
-    /**
-     * Sets the value of the reportGUID property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setReportGUID(String value) {
-        this.reportGUID = value;
-    }
+  /**
+   * Sets the value of the reportGUID property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setReportGUID(String value) {
+    this.reportGUID = value;
+  }
 
-    /**
-     * Gets the value of the codeId property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getCodeId() {
-        return codeId;
-    }
+  /**
+   * Gets the value of the codeId property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getCodeId() {
+    return codeId;
+  }
 
-    /**
-     * Sets the value of the codeId property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setCodeId(String value) {
-        this.codeId = value;
-    }
+  /**
+   * Sets the value of the codeId property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setCodeId(String value) {
+    this.codeId = value;
+  }
 
 }

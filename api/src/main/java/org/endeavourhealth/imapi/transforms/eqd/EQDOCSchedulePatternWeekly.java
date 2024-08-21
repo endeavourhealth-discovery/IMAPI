@@ -9,15 +9,16 @@
 package org.endeavourhealth.imapi.transforms.eqd;
 
 import jakarta.xml.bind.annotation.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * <p>Java class for EQDOC.SchedulePatternWeekly complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.SchedulePatternWeekly"&gt;
  *   &lt;complexContent&gt;
@@ -30,64 +31,58 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.SchedulePatternWeekly", propOrder = {
-    "interval",
-    "dayOfWeek"
+  "interval",
+  "dayOfWeek"
 })
 public class EQDOCSchedulePatternWeekly {
 
-    protected int interval;
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "token")
-    protected List<VocDayOfWeek> dayOfWeek;
+  protected int interval;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "token")
+  protected List<VocDayOfWeek> dayOfWeek;
 
-    /**
-     * Gets the value of the interval property.
-     * 
-     */
-    public int getInterval() {
-        return interval;
-    }
+  /**
+   * Gets the value of the interval property.
+   */
+  public int getInterval() {
+    return interval;
+  }
 
-    /**
-     * Sets the value of the interval property.
-     * 
-     */
-    public void setInterval(int value) {
-        this.interval = value;
-    }
+  /**
+   * Sets the value of the interval property.
+   */
+  public void setInterval(int value) {
+    this.interval = value;
+  }
 
-    /**
-     * Gets the value of the dayOfWeek property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the dayOfWeek property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getDayOfWeek().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link VocDayOfWeek }
-     * 
-     * 
-     */
-    public List<VocDayOfWeek> getDayOfWeek() {
-        if (dayOfWeek == null) {
-            dayOfWeek = new ArrayList<VocDayOfWeek>();
-        }
-        return this.dayOfWeek;
+  /**
+   * Gets the value of the dayOfWeek property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the dayOfWeek property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getDayOfWeek().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link VocDayOfWeek }
+   */
+  public List<VocDayOfWeek> getDayOfWeek() {
+    if (dayOfWeek == null) {
+      dayOfWeek = new ArrayList<VocDayOfWeek>();
     }
+    return this.dayOfWeek;
+  }
 
 }

@@ -1,218 +1,184 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 
+import static org.eclipse.rdf4j.model.util.Values.iri;
+
 public class PathRepository {
-	private RepositoryConnection conn;
-	private final PathDocument document= new PathDocument();
-	private TupleQuery queryToShape;
+  private final PathDocument document = new PathDocument();
+  private RepositoryConnection conn;
+  private TupleQuery queryToShape;
 
-	public PathDocument pathQuery(QueryRequest request) {
-		TTContext context = request.getAsContext();
-		try (RepositoryConnection conn = ConnectionManager.getIMConnection()){
-			this.conn= conn;
-			PathQuery pathQuery = request.getPathQuery();
-			String targetIri = context.expand(pathQuery.getTarget().getIri());
-			Integer depth = pathQuery.getDepth();
-			String source = context.expand(pathQuery.getSource().getIri());
-			List<Match> paths= getAllPaths(source,targetIri,depth);
-			if (paths!=null) {
-				paths.sort(Comparator.comparing(this::getLength));
-				document.setMatch(paths);
-				}
-		}
-		return document;
-	}
-
-	private int getLength(Match match){
-		int count=0;
-		if (match==null)
-			return 0;
-		if (match.getProperty()==null)
-			return 0;
-		else {
-			count++;
-			for (Property path:match.getProperty())
-				count=count+getLength(path.getMatch());
-		}
-		return count;
-	}
+  public PathDocument pathQuery(PathQuery pathQuery) {
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      this.conn = conn;
+      String targetIri = pathQuery.getTarget().getIri();
+      Integer depth = pathQuery.getDepth();
+      String source = pathQuery.getSource().getIri();
+      List<Match> paths = getPaths(source, targetIri, depth);
+      if (paths != null) {
+        document.setMatch(paths);
+      }
+    }
+    return document;
+  }
 
 
-	private List<Match> getAllPaths(String source, String target,Integer depth) {
-        switch(source) {
-            case USER.USER_THEME: break;
-            case SNOMED.ATTRIBUTE: break;
+  private List<Match> getPaths(String source, String target, Integer depth) {
+    List<Match> result = new ArrayList<>();
+    String sql = """
+      select ?where ?whereLabel ?recordType ?recordTypeLabel ?path ?pathLabel ?where1 ?where1Label
+      where {
+        {
+          ?target sh:property ?property.
+          ?property sh:path ?path.
+          ?path rdfs:label ?pathLabel.
+          ?property sh:node ?source.
+          ?property ^sh:property ?recordType.
+          ?recordType rdfs:label ?recordTypeLabel.
+        } union {
+          ?target ^sh:path ?property.
+          ?property sh:path ?where.
+          ?where rdfs:label ?whereLabel.
+          ?property ^sh:property ?source.
+        } union {
+          ?target ^sh:path ?subProperty.
+          ?subProperty sh:path ?where.
+          ?where rdfs:label ?whereLabel.
+          ?subProperty ^sh:property ?recordType.
+          ?recordType rdfs:label ?recordTypeLabel.
+          ?recordType sh:property ?recordProperty.
+          ?recordProperty sh:path ?path.
+          ?path rdfs:label ?pathLabel.
+          ?recordProperty sh:node ?source.
+        } union {
+          ?target ^sh:path ?subProperty.
+          ?subProperty sh:path ?where.
+          ?where rdfs:label ?whereLabel.
+          ?subProperty ^sh:property ?recordType.
+          ?recordType rdfs:label ?recordTypeLabel.
+          ?recordType ^sh:node ?recordProperty.
+          ?recordProperty sh:path ?where1.
+          ?where1 rdfs:label ?where1Label.
+          ?recordProperty ^sh:property ?source.
+        } union {
+          ?target ^im:hasMember ?valueSet.
+          ?valueSet ^sh:class ?property.
+          ?property sh:path ?where.
+          ?where rdfs:label ?whereLabel.
+          ?property ^sh:property ?source.
+        } union {
+          ?target ^im:hasMember ?valueSet.
+          ?valueSet ^sh:class ?property.
+          ?property sh:path ?where.
+          ?where rdfs:label ?whereLabel.
+          ?property ^sh:property ?recordType.
+          ?recordType rdfs:label ?recordTypeLabel.
+          ?recordType sh:property ?recordProperty.
+          ?recordProperty sh:path ?path.
+          ?path rdfs:label ?pathLabel.
+          ?recordProperty sh:node ?source.
+        } union {
+          ?target ^sh:class ?property.
+          ?property sh:path ?where.
+          ?where rdfs:label ?whereLabel.
+          ?property ^sh:property ?recordType.
+          ?recordType rdfs:label ?recordTypeLabel.
+          ?recordType sh:property ?recordProperty.
+          ?recordProperty sh:path ?path.
+          ?path rdfs:label ?pathLabel.
+          ?recordProperty sh:node ?source.
+        } union {
+          ?target im:binding ?datamodel.
+          ?datamodel sh:path ?where.
+          ?where rdfs:label ?whereLabel.
+          ?datamodel sh:node ?recordType.
+          ?recordType rdfs:label ?recordTypeLabel.
+          ?recordType sh:property ?recordProperty.
+          ?recordProperty sh:path ?path.
+          ?path rdfs:label ?pathLabel.
+          ?recordProperty sh:node ?source.
+        }
+      }
+      group by ?where ?whereLabel  ?recordType ?recordTypeLabel ?path ?pathLabel ?where1 ?where1Label
+      """;
+    sql = addDefaultPrefixes(sql);
+    //The logic is to look for a target as a record types, properties, value sets or concepts linked to the source.
+    TupleQuery qry = conn.prepareTupleQuery(sql);
+    qry.setBinding("target", iri(target));
+    qry.setBinding("source", iri(source));
+    try (TupleQueryResult rs = qry.evaluate()) {
+      while (rs.hasNext()) {
+        BindingSet bs = rs.next();
+        Match match = new Match();
+        if (bs.getValue("where1") != null) {
+          Match superMatch = new Match();
+          result.add(superMatch);
+          superMatch.addWhere(new Where().setIri(bs.getValue("where1").stringValue())
+            .setName(bs.getValue("where1Label").stringValue())
+            .setMatch(match));
+        } else
+          result.add(match);
+        if (bs.getValue("recordType") != null) {
+          match.setTypeOf(new Node().setIri(bs.getValue("recordType").stringValue())
+            .setName(bs.getValue("recordTypeLabel").stringValue()));
+        }
+        if (bs.getValue("where") != null) {
+          match.addWhere(new Where()
+            .setIri(bs.getValue("where").stringValue())
+            .setName(bs.getValue("whereLabel").stringValue()));
+        }
+        if (bs.getValue("path") != null) {
+          match.addPath(new IriLD().setIri(bs.getValue("path").stringValue())
+            .setName(bs.getValue("pathLabel").stringValue()));
         }
 
-		queryToShape = conn.prepareTupleQuery(getPathSql());
-		List<Match> partial;
-		List<Match> full = new ArrayList<>();
-		partial = getPathsFromShape(source, target,full);
-		if (partial.isEmpty())
-			return null;
-		for (int tries = 1; tries < depth; tries++) {
-			partial = nextPaths(source, partial, full);
-		}
-		return full;
-	}
+      }
+    }
+    sortWherePaths(result);
+    return result;
+  }
 
-	private List<Match> nextPaths(String source, List<Match> partials, List<Match> full) {
-		List<Match> next= new ArrayList<>();
-		for (Match partial:partials){
-					queryToShape.setBinding("target", Values.iri(partial.getTypeOf().getIri()));
-					try (TupleQueryResult rs = queryToShape.evaluate()) {
-						while (rs.hasNext()) {
-							BindingSet bs = rs.next();
-							Match nextPath= new Match();
-							next.add(nextPath);
-							nextPath
-								.setTypeOf(bs.getValue("entity").stringValue())
-								.setName(bs.getValue("entityName").stringValue());
-							Property path= new Property();
-							nextPath.addProperty(path);
-							path
-								.setIri(bs.getValue("path").stringValue())
-								.setName(bs.getValue("pathName").stringValue());
-							Match node= new Match();
-							path.setMatch(node);
-							node.setTypeOf(partial.getTypeOf());
-							node.setProperty(partial.getProperty());
-							if (nextPath.getTypeOf().getIri().equals(source))
-								full.add(nextPath);
-							else
-								next.add(nextPath);
-						}
-					}
-				}
-		return next;
-	}
+  private void sortWherePaths(List<Match> result) {
+    Set<Match> remove = new HashSet<>();
+    for (int i = 0; i < result.size(); i++) {
+      Match pathMatch = result.get(i);
+      if (pathMatch.getPath() != null) {
+        for (int q = i + 1; q < result.size(); q++) {
+          Match hasWhere = result.get(q);
+          if (hasWhere.getWhere() != null)
+            if (hasWhere.getWhere().get(0).getMatch() != null)
+              if (hasWhere.getWhere().get(0).getMatch().getTypeOf().equals(pathMatch.getTypeOf()))
+                remove.add(pathMatch);
+        }
+      }
+    }
+    if (!remove.isEmpty())
+      for (Match match : remove)
+        result.remove(match);
+  }
 
-
-  private String getPathSql() {
-
-		StringJoiner sql = new StringJoiner("\n");
-		sql.add(getDefaultPrefixes());
-		sql.add("Select ?entity ?entityName ?path ?pathName ?target")
-			.add("Where{")
-			.add("?target ^sh:node ?prop.")
-			.add("?prop sh:path ?path.")
-			.add("?path rdfs:label ?pathName.")
-			.add("?entity sh:property ?prop.")
-			.add("?entity rdfs:label ?entityName }");
-		return sql.toString();
-	}
-
-
-	private List<Match> getPathsFromShape(String source, String target,List<Match> full) {
-		String targetIri = "<" + target + ">";
-		List<Match> pathsFromShape = new ArrayList<>();
-		//First get the shapes
-		StringJoiner sql = new StringJoiner("\n");
-		sql.add(getDefaultPrefixes())
-			.add("select ?entity ?entityName ?property ?propertyName ?conceptProperty ?conceptPropertyName ?targetType ?targetName ?order")
-			.add("where {")
-			.add( targetIri+" rdf:type ?targetType.")
-			.add(targetIri+" rdfs:label ?targetName")
-			.add("{")
-			.add(" ?concept ^im:hasMember ?set.")
-			.add("filter (?concept= " + targetIri + ").")
-			.add("?concept rdfs:label ?conceptName.")
-			.add("?set ^sh:class ?prop.")
-			.add("?prop sh:path ?property.")
-			.add("?property rdfs:label ?propertyName.")
-			.add("?entity sh:property ?prop.")
-			.add("?entity rdfs:label ?entityName")
-			.add("}")
-			.add("union")
-			.add("{")
-			.add("?roleGroup ?conceptProperty ?target.")
-			.add("?conceptProperty rdfs:label ?conceptPropertyName.")
-			.add("?target im:isA ?superTarget.")
-			.add("filter (?superTarget=" + targetIri + ")")
-			.add("?concept im:roleGroup ?roleGroup.")
-			.add("?set im:hasMember ?concept.")
-			.add("?set ^sh:class ?prop.")
-			.add("?prop sh:path ?property.")
-			.add("?property rdfs:label ?propertyName.")
-			.add("?entity sh:property ?prop.")
-			.add("?entity rdfs:label ?entityName")
-			.add("}")
-			.add("union {")
-			.add(targetIri+ " ^sh:path ?prop.")
-			.add("optional {?prop sh:order ?order}")
-			.add("?entity sh:property ?prop.")
-			.add("?entity rdfs:label ?entityName }")
-			.add("}")
-			.add("group by ?entity ?entityName ?property ?propertyName ?conceptProperty ?order"+
-					" ?conceptPropertyName ?targetType ?targetName")
-			.add("order by ?order");
-		TupleQuery qry = conn.prepareTupleQuery(sql.toString());
-		try (TupleQueryResult rs = qry.evaluate()) {
-			while (rs.hasNext()) {
-				BindingSet bs = rs.next();
-				Match match= new Match();
-				match
-					.setTypeOf(bs.getValue("entity").stringValue())
-				  .setName(bs.getValue("entityName").stringValue());
-				Property where= new Property();
-				if (bs.getValue("property")!=null) {
-					String propertyIri = bs.getValue("property").stringValue();
-					if (bs.getValue("conceptProperty")==null) {
-						match.addProperty(where);
-						where
-							.setIri(propertyIri)
-							.setName(bs.getValue("propertyName").stringValue())
-							.addIs(new Node()
-								.setIri(targetIri)
-								.setName(bs.getValue("targetName").stringValue()));
-					}
-					else {
-						Property path= new Property();
-						match.addProperty(path);
-						path
-							.setIri(propertyIri)
-							.setName(bs.getValue("propertyName").stringValue())
-							.match(mConcept->mConcept
-								.addProperty(where));
-						where
-						.setIri(bs.getValue("conceptProperty").stringValue())
-						.setName(bs.getValue("conceptPropertyName").stringValue())
-						.setAnyRoleGroup(true)
-						.addIs(new Node()
-						.setIri(targetIri)
-						.setName(bs.getValue("targetName").stringValue()));
-					}
-				}
-				if (match.getTypeOf().getIri().equals(source)){
-					full.add(match);
-				}
-				else
-					pathsFromShape.add(match);
-			}
-		}
-		return pathsFromShape;
-	}
-
-
-	private String getDefaultPrefixes() {
-		return "PREFIX xsd: <" + XSD.NAMESPACE + ">\n" +
-			"PREFIX rdfs: <" + RDFS.NAMESPACE + ">\n" +
-			"PREFIX rdf: <" + RDF.NAMESPACE + ">\n" +
-			"PREFIX im: <" + IM.NAMESPACE + ">\n" +
-			"PREFIX " + SNOMED.PREFIX + ": <" + SNOMED.NAMESPACE + ">\n" +
-			"PREFIX sh: <" + SHACL.NAMESPACE + ">\n";
-	}
+  private String addDefaultPrefixes(String sparql) {
+    StringJoiner sj = new StringJoiner(System.lineSeparator());
+    String prefixes = """
+      PREFIX rdfs: <%s>
+      PREFIX rdf: <%s>
+      PREFIX im: <%s>
+      PREFIX sn: <%s>
+      PREFIX sh: <%s>
+      """.formatted(RDFS.NAMESPACE, RDF.NAMESPACE, IM.NAMESPACE, SNOMED.NAMESPACE, SHACL.NAMESPACE);
+    sj.add(prefixes);
+    sj.add(sparql);
+    return sj.toString();
+  }
 
 
 }

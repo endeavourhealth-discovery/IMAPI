@@ -13,9 +13,9 @@ import jakarta.xml.bind.annotation.*;
 
 /**
  * <p>Java class for EQDOC.ListGroupingSummary complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.ListGroupingSummary"&gt;
  *   &lt;complexContent&gt;
@@ -28,69 +28,59 @@ import jakarta.xml.bind.annotation.*;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.ListGroupingSummary", propOrder = {
-    "summary",
-    "direction"
+  "summary",
+  "direction"
 })
 public class EQDOCListGroupingSummary {
 
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "token")
-    protected VocListGroupSummary summary;
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "token")
-    protected VocOrderDirection direction;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "token")
+  protected VocListGroupSummary summary;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "token")
+  protected VocOrderDirection direction;
 
-    /**
-     * Gets the value of the summary property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocListGroupSummary }
-     *     
-     */
-    public VocListGroupSummary getSummary() {
-        return summary;
-    }
+  /**
+   * Gets the value of the summary property.
+   *
+   * @return possible object is
+   * {@link VocListGroupSummary }
+   */
+  public VocListGroupSummary getSummary() {
+    return summary;
+  }
 
-    /**
-     * Sets the value of the summary property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocListGroupSummary }
-     *     
-     */
-    public void setSummary(VocListGroupSummary value) {
-        this.summary = value;
-    }
+  /**
+   * Sets the value of the summary property.
+   *
+   * @param value allowed object is
+   *              {@link VocListGroupSummary }
+   */
+  public void setSummary(VocListGroupSummary value) {
+    this.summary = value;
+  }
 
-    /**
-     * Gets the value of the direction property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocOrderDirection }
-     *     
-     */
-    public VocOrderDirection getDirection() {
-        return direction;
-    }
+  /**
+   * Gets the value of the direction property.
+   *
+   * @return possible object is
+   * {@link VocOrderDirection }
+   */
+  public VocOrderDirection getDirection() {
+    return direction;
+  }
 
-    /**
-     * Sets the value of the direction property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocOrderDirection }
-     *     
-     */
-    public void setDirection(VocOrderDirection value) {
-        this.direction = value;
-    }
+  /**
+   * Sets the value of the direction property.
+   *
+   * @param value allowed object is
+   *              {@link VocOrderDirection }
+   */
+  public void setDirection(VocOrderDirection value) {
+    this.direction = value;
+  }
 
 }

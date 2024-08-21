@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.BandDateTimeUnit.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -36,87 +36,75 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.BandDateTimeUnit")
 @XmlEnum
 public enum VocBandDateTimeUnit {
 
 
-    /**
-     * Specific date + time (e.g. "1971-11-19 15:35")
-     * 
-     */
-    DATETIME,
+  /**
+   * Specific date + time (e.g. "1971-11-19 15:35")
+   */
+  DATETIME,
 
-    /**
-     * Specific date (e.g. 1971-11-19)
-     * 
-     */
-    DATE,
+  /**
+   * Specific date (e.g. 1971-11-19)
+   */
+  DATE,
 
-    /**
-     * Represents numeric number of days
-     * 
-     */
-    DAY,
+  /**
+   * Represents numeric number of days
+   */
+  DAY,
 
-    /**
-     * Represents numeric number of weeks
-     * 
-     */
-    WEEK,
+  /**
+   * Represents numeric number of weeks
+   */
+  WEEK,
 
-    /**
-     * Year
-     * 
-     */
-    YEAR,
+  /**
+   * Year
+   */
+  YEAR,
 
-    /**
-     * Numeric month.  1=Jan, 12=Dec
-     * 
-     */
-    MONTH,
+  /**
+   * Numeric month.  1=Jan, 12=Dec
+   */
+  MONTH,
 
-    /**
-     * Numeric week. When is week 1???
-     * 
-     */
-    WEEKOFYEAR,
+  /**
+   * Numeric week. When is week 1???
+   */
+  WEEKOFYEAR,
 
-    /**
-     * MON, TUE, WED, THU, FRI, SAT, SUN
-     * 
-     */
-    DAYOFWEEK,
+  /**
+   * MON, TUE, WED, THU, FRI, SAT, SUN
+   */
+  DAYOFWEEK,
 
-    /**
-     *  1-24
-     * 
-     */
-    HOUR,
+  /**
+   * 1-24
+   */
+  HOUR,
 
-    /**
-     *  1-60
-     * 
-     */
-    MINUTE,
+  /**
+   * 1-60
+   */
+  MINUTE,
 
-    /**
-     * Eg 15:30
-     * 
-     */
-    HOURMINUTE,
-    QUARTER,
-    FISCALYEAR;
+  /**
+   * Eg 15:30
+   */
+  HOURMINUTE,
+  QUARTER,
+  FISCALYEAR;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocBandDateTimeUnit fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocBandDateTimeUnit fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

@@ -16,9 +16,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for EQDOC.SingleValue complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.SingleValue"&gt;
  *   &lt;complexContent&gt;
@@ -32,92 +32,78 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.SingleValue", propOrder = {
-    "constant",
-    "variable",
-    "function"
+  "constant",
+  "variable",
+  "function"
 })
 public class EQDOCSingleValue {
 
-    @XmlSchemaType(name = "token")
-    protected VocSingleValueConstant constant;
-    protected EQDOCValue variable;
-    protected EQDOCMethodCall function;
+  @XmlSchemaType(name = "token")
+  protected VocSingleValueConstant constant;
+  protected EQDOCValue variable;
+  protected EQDOCMethodCall function;
 
-    /**
-     * Gets the value of the constant property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocSingleValueConstant }
-     *     
-     */
-    public VocSingleValueConstant getConstant() {
-        return constant;
-    }
+  /**
+   * Gets the value of the constant property.
+   *
+   * @return possible object is
+   * {@link VocSingleValueConstant }
+   */
+  public VocSingleValueConstant getConstant() {
+    return constant;
+  }
 
-    /**
-     * Sets the value of the constant property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocSingleValueConstant }
-     *     
-     */
-    public void setConstant(VocSingleValueConstant value) {
-        this.constant = value;
-    }
+  /**
+   * Sets the value of the constant property.
+   *
+   * @param value allowed object is
+   *              {@link VocSingleValueConstant }
+   */
+  public void setConstant(VocSingleValueConstant value) {
+    this.constant = value;
+  }
 
-    /**
-     * Gets the value of the variable property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCValue }
-     *     
-     */
-    public EQDOCValue getVariable() {
-        return variable;
-    }
+  /**
+   * Gets the value of the variable property.
+   *
+   * @return possible object is
+   * {@link EQDOCValue }
+   */
+  public EQDOCValue getVariable() {
+    return variable;
+  }
 
-    /**
-     * Sets the value of the variable property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCValue }
-     *     
-     */
-    public void setVariable(EQDOCValue value) {
-        this.variable = value;
-    }
+  /**
+   * Sets the value of the variable property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCValue }
+   */
+  public void setVariable(EQDOCValue value) {
+    this.variable = value;
+  }
 
-    /**
-     * Gets the value of the function property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCMethodCall }
-     *     
-     */
-    public EQDOCMethodCall getFunction() {
-        return function;
-    }
+  /**
+   * Gets the value of the function property.
+   *
+   * @return possible object is
+   * {@link EQDOCMethodCall }
+   */
+  public EQDOCMethodCall getFunction() {
+    return function;
+  }
 
-    /**
-     * Sets the value of the function property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCMethodCall }
-     *     
-     */
-    public void setFunction(EQDOCMethodCall value) {
-        this.function = value;
-    }
+  /**
+   * Sets the value of the function property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCMethodCall }
+   */
+  public void setFunction(EQDOCMethodCall value) {
+    this.function = value;
+  }
 
 }

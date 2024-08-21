@@ -13,6 +13,7 @@ public class IM {
     public static final String CODE = IM.NAMESPACE + "code";
     public static final String PREFERRED_NAME = IM.NAMESPACE + "preferredName";
     public static final String HAS_SCHEME = IM.NAMESPACE + "scheme";
+    public static final String BINDING = IM.NAMESPACE+"binding";
     public static final String HAS_STATUS = IM.NAMESPACE + "status";
     public static final String STATUS = IM.NAMESPACE + "Status";
     public static final String CONTENT_TYPE = IM.NAMESPACE + "contentType";
@@ -38,6 +39,8 @@ public class IM {
     public static final String PATH_TO = IM.NAMESPACE + "pathTo";
     public static final String OPENSEARCH_QUERY = IM.NAMESPACE + "OpenSearchQuery";
     public static final String DATAMODEL_PROPERTY = IM.NAMESPACE + "dataModelProperty";
+    public static final String ONTOLOGY_PARENT_FOLDER = IM.NAMESPACE + "HealthModelOntology";
+    public static final String PROPERTIES_FOLDER = IM.NAMESPACE + "Properties";
     public static final String TASK = IM.NAMESPACE + "Task";
     public static final String FIELD_GROUP = IM.NAMESPACE + "FieldGroup";
     public static final String MATCH_CLAUSE = IM.NAMESPACE + "MatchClause";
@@ -47,6 +50,8 @@ public class IM {
     public static final String MAP_ENTITY = IM.NAMESPACE + "EntityMap";
     public static final String SET = IM.NAMESPACE + "Set";
     public static final String IS_CONTAINED_IN = IM.NAMESPACE + "isContainedIn";
+    public static final String HAS_MEMBER_PARENT = IM.NAMESPACE + "hasMemberParent";
+    public static final String FUNCTION_TEMPLATE = IM.NAMESPACE + "functionTemplate";
     public static final String ONE_OF = IM.NAMESPACE + "oneOf";
     public static final String COMBINATION_OF = IM.NAMESPACE + "combinationOf";
     public static final String USE_PREDICATES = IM.NAMESPACE + "usePredicates";
@@ -54,6 +59,7 @@ public class IM {
     public static final String HAS_CHILDREN = IM.NAMESPACE + "hasChildren";
     public static final String IS_A = IM.NAMESPACE + "isA";
     public static final String IS_CHILD_OF = IM.NAMESPACE + "isChildOf";
+    public static final String PREVIOUS_ENTITY_OF = IM.NAMESPACE + "previousEntityOf";
     public static final String SUBSUMED_BY = IM.NAMESPACE + "subsumedBy";
     public static final String USUALLY_SUBSUMED_BY = IM.NAMESPACE + "usuallySubsumedBy";
     public static final String APPROXIMATE_SUBSUMED_BY = IM.NAMESPACE + "approximateSubsumedBy";
@@ -131,14 +137,12 @@ public class IM {
     public static final String HAS_CONTEXT = IM.NAMESPACE + "hasContext";
     public static final String DISPLAY_ORDER = IM.NAMESPACE + "displayOrder";
     public static final String USAGE_TOTAL = IM.NAMESPACE + "usageTotal";
-    public static final String USAGE = IM.NAMESPACE + "Usage";
     public static final String DESCENDING = IM.NAMESPACE + "Descending";
     public static final String ASCENDING = IM.NAMESPACE + "Ascending";
     public static final String PLABEL = IM.NAMESPACE + "pLabel";
     public static final String OLABEL = IM.NAMESPACE + "oLabel";
     public static final String EXAMPLE = IM.NAMESPACE + "example";
     public static final String IM1ID = IM.NAMESPACE + "im1Id";
-    public static final String WEIGHTING = IM.NAMESPACE + "weighting";
     public static final String PRIVACY_LEVEL = IM.NAMESPACE + "privacyLevel";
     public static final String IM1SCHEME = IM.NAMESPACE + "im1Scheme";
     public static final String VALUE_SELECT = IM.NAMESPACE + "valueSelect";
@@ -215,4 +219,16 @@ public class IM {
     public static final String PROVENANCE_SOURCE_ENTITY = IM.NAMESPACE + "ProvenanceSourceEntity";
     public static final String DERIVATION_TYPE = IM.NAMESPACE + "derivationType";
     public static final String ENTITY_IDENTIFIER = IM.NAMESPACE + "entityIdentifier";
+    public static final String CODE_TEMPLATE = IM.NAMESPACE + "codeTemplate";
+    public static final String DATAMODEL_CLASSES = IM.NAMESPACE + "DataModelClasses";
+    public static final String DATE_TIME = IM.NAMESPACE + "DateTime";
+    public static final String TEMPLATE_NUMERIC_EVENT_ORDER = IM.NAMESPACE + "TEMPLATE_NumericEventOrder";
+    public static final String ORDER_BY = IM.NAMESPACE + "OrderBy";
+    public static final String PARAMETER_TEMPLATE = IM.NAMESPACE + "parameterTemplate";
+    public static final String VALUE_TEMPLATE = IM.NAMESPACE + "valueTemplate";
+    public static final String DEFAULT_VALUE = IM.NAMESPACE + "defaultValue";
+    public static final String LOAD_MORE = IM.NAMESPACE + "loadMore";
+    public static final String DATA_MODEL_CONCEPT = IM.NAMESPACE + "concept";
+    public static final String NUMERIC_VALUE = IM.NAMESPACE + "NumericValue";
+    public static final String HEALTH_RECORDS = IM.NAMESPACE + "HealthRecords";
 }

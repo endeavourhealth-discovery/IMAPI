@@ -1,14 +1,20 @@
 package org.endeavourhealth.imapi.model.imq;
 
 public interface Entailment {
-	boolean isAncestorsOf();
-	Entailment setAncestorsOf(boolean ancestorsOf);
+  boolean isAncestorsOf();
 
-	boolean isDescendantsOrSelfOf();
+  Entailment setAncestorsOf(boolean ancestorsOf);
 
-	Entailment setDescendantsOrSelfOf(boolean descendantsOrSelfOf);
+  boolean isDescendantsOrSelfOf();
 
-	boolean isDescendantsOf();
-	Entailment setDescendantsOf(boolean descendantsOf);
+  Entailment setDescendantsOrSelfOf(boolean descendantsOrSelfOf);
+
+  boolean isDescendantsOf();
+
+  Entailment setDescendantsOf(boolean descendantsOf);
+
+  boolean isMemberOf();
+
+  Entailment setMemberOf(boolean descendantsOf);
 
 }

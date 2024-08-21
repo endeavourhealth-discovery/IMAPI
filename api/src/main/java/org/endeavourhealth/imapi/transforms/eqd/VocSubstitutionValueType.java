@@ -15,7 +15,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.SubstitutionValueType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -33,52 +33,50 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.SubstitutionValueType")
 @XmlEnum
 public enum VocSubstitutionValueType {
 
 
-    /**
-     * ReadCode version2 - e.g.ClinicalCodes
-     * 
-     */
-    @XmlEnumValue("Codes")
-    CODES("Codes"),
-    @XmlEnumValue("Drugs")
-    DRUGS("Drugs"),
-    @XmlEnumValue("CodesOrDrugs")
-    CODES_OR_DRUGS("CodesOrDrugs"),
-    @XmlEnumValue("Date")
-    DATE("Date"),
-    @XmlEnumValue("List")
-    LIST("List"),
-    @XmlEnumValue("BaselineDate")
-    BASELINE_DATE("BaselineDate"),
-    @XmlEnumValue("ReferenceDate")
-    REFERENCE_DATE("ReferenceDate"),
-    @XmlEnumValue("OpenEndedStartDate")
-    OPEN_ENDED_START_DATE("OpenEndedStartDate"),
-    @XmlEnumValue("OpenEndedEndDate")
-    OPEN_ENDED_END_DATE("OpenEndedEndDate");
-    private final String value;
+  /**
+   * ReadCode version2 - e.g.ClinicalCodes
+   */
+  @XmlEnumValue("Codes")
+  CODES("Codes"),
+  @XmlEnumValue("Drugs")
+  DRUGS("Drugs"),
+  @XmlEnumValue("CodesOrDrugs")
+  CODES_OR_DRUGS("CodesOrDrugs"),
+  @XmlEnumValue("Date")
+  DATE("Date"),
+  @XmlEnumValue("List")
+  LIST("List"),
+  @XmlEnumValue("BaselineDate")
+  BASELINE_DATE("BaselineDate"),
+  @XmlEnumValue("ReferenceDate")
+  REFERENCE_DATE("ReferenceDate"),
+  @XmlEnumValue("OpenEndedStartDate")
+  OPEN_ENDED_START_DATE("OpenEndedStartDate"),
+  @XmlEnumValue("OpenEndedEndDate")
+  OPEN_ENDED_END_DATE("OpenEndedEndDate");
+  private final String value;
 
-    VocSubstitutionValueType(String v) {
-        value = v;
-    }
+  VocSubstitutionValueType(String v) {
+    value = v;
+  }
 
-    public String value() {
-        return value;
-    }
+  public String value() {
+    return value;
+  }
 
-    public static VocSubstitutionValueType fromValue(String v) {
-        for (VocSubstitutionValueType c: VocSubstitutionValueType.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
+  public static VocSubstitutionValueType fromValue(String v) {
+    for (VocSubstitutionValueType c : VocSubstitutionValueType.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
+    throw new IllegalArgumentException(v);
+  }
 
 }

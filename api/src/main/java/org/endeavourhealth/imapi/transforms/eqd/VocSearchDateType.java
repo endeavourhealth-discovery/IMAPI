@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.SearchDateType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -26,37 +26,33 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.SearchDateType")
 @XmlEnum
 public enum VocSearchDateType {
 
 
-    /**
-     * Baseline date
-     * 
-     */
-    BASELINE,
+  /**
+   * Baseline date
+   */
+  BASELINE,
 
-    /**
-     * Reference date
-     * 
-     */
-    REFERENCE,
+  /**
+   * Reference date
+   */
+  REFERENCE,
 
-    /**
-     * Todays date
-     * 
-     */
-    TODAY;
+  /**
+   * Todays date
+   */
+  TODAY;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocSearchDateType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocSearchDateType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

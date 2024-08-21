@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.ReferralRequestType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -31,67 +31,58 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.ReferralRequestType")
 @XmlEnum
 public enum VocReferralRequestType {
 
 
-    /**
-     * Unknown
-     * 
-     */
-    UNK,
+  /**
+   * Unknown
+   */
+  UNK,
 
-    /**
-     * Outpatient
-     * 
-     */
-    OUT,
+  /**
+   * Outpatient
+   */
+  OUT,
 
-    /**
-     * Admission
-     * 
-     */
-    ADM,
+  /**
+   * Admission
+   */
+  ADM,
 
-    /**
-     * Day care
-     * 
-     */
-    DAY,
+  /**
+   * Day care
+   */
+  DAY,
 
-    /**
-     * Investigation
-     * 
-     */
-    INV,
+  /**
+   * Investigation
+   */
+  INV,
 
-    /**
-     * Domiciliary visit
-     * 
-     */
-    DOM,
+  /**
+   * Domiciliary visit
+   */
+  DOM,
 
-    /**
-     * Self referral
-     * 
-     */
-    SELF,
+  /**
+   * Self referral
+   */
+  SELF,
 
-    /**
-     * Community Care
-     * 
-     */
-    COM;
+  /**
+   * Community Care
+   */
+  COM;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocReferralRequestType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocReferralRequestType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

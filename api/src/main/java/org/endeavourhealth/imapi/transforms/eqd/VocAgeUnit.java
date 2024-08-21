@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.AgeUnit.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -27,43 +27,38 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.AgeUnit")
 @XmlEnum
 public enum VocAgeUnit {
 
 
-    /**
-     * Year
-     * 
-     */
-    Y,
+  /**
+   * Year
+   */
+  Y,
 
-    /**
-     * Month
-     * 
-     */
-    M,
+  /**
+   * Month
+   */
+  M,
 
-    /**
-     * Week
-     * 
-     */
-    W,
+  /**
+   * Week
+   */
+  W,
 
-    /**
-     * Day
-     * 
-     */
-    D;
+  /**
+   * Day
+   */
+  D;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocAgeUnit fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocAgeUnit fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

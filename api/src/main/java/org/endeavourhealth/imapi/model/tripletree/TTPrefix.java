@@ -1,46 +1,48 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
 public class TTPrefix {
-    String iri;
-    String prefix;
-    String name;
+  String iri;
+  String prefix;
+  String name;
 
-    public TTPrefix() {}
+  public TTPrefix() {
+  }
 
-    public TTPrefix(String iri, String prefix) {
-        this.iri = iri;
-        this.prefix = prefix;
-    }
-    public TTPrefix(String iri, String prefix,String name) {
-        this.iri = iri;
-        this.prefix = prefix;
-        this.name=name;
-    }
+  public TTPrefix(String iri, String prefix) {
+    this.iri = iri;
+    this.prefix = prefix;
+  }
 
-    public String getIri() {
-        return iri;
-    }
+  public TTPrefix(String iri, String prefix, String name) {
+    this.iri = iri;
+    this.prefix = prefix;
+    this.name = name;
+  }
 
-    public TTPrefix setIri(String iri) {
-        this.iri = iri;
-        return this;
-    }
+  public String getIri() {
+    return iri;
+  }
 
-    public String getPrefix() {
-        return prefix;
-    }
+  public TTPrefix setIri(String iri) {
+    this.iri = iri;
+    return this;
+  }
 
-    public TTPrefix setPrefix(String prefix) {
-        this.prefix = prefix;
-        return this;
-    }
+  public String getPrefix() {
+    return prefix;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public TTPrefix setPrefix(String prefix) {
+    this.prefix = prefix;
+    return this;
+  }
 
-    public TTPrefix setName(String name) {
-        this.name = name;
-        return this;
-    }
+  public String getName() {
+    return name;
+  }
+
+  public TTPrefix setName(String name) {
+    this.name = name;
+    return this;
+  }
 }

@@ -16,9 +16,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for EQDOC.GpesExtractionRequirementSource complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.GpesExtractionRequirementSource"&gt;
  *   &lt;complexContent&gt;
@@ -31,59 +31,51 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.GpesExtractionRequirementSource", propOrder = {
-    "extractionRequirementSourceId",
-    "extractionRequirementSourceDescription"
+  "extractionRequirementSourceId",
+  "extractionRequirementSourceDescription"
 })
 public class EQDOCGpesExtractionRequirementSource {
 
-    @XmlElement(name = "ExtractionRequirementSourceId")
-    protected int extractionRequirementSourceId;
-    @XmlElement(name = "ExtractionRequirementSourceDescription", required = true)
-    protected String extractionRequirementSourceDescription;
+  @XmlElement(name = "ExtractionRequirementSourceId")
+  protected int extractionRequirementSourceId;
+  @XmlElement(name = "ExtractionRequirementSourceDescription", required = true)
+  protected String extractionRequirementSourceDescription;
 
-    /**
-     * Gets the value of the extractionRequirementSourceId property.
-     * 
-     */
-    public int getExtractionRequirementSourceId() {
-        return extractionRequirementSourceId;
-    }
+  /**
+   * Gets the value of the extractionRequirementSourceId property.
+   */
+  public int getExtractionRequirementSourceId() {
+    return extractionRequirementSourceId;
+  }
 
-    /**
-     * Sets the value of the extractionRequirementSourceId property.
-     * 
-     */
-    public void setExtractionRequirementSourceId(int value) {
-        this.extractionRequirementSourceId = value;
-    }
+  /**
+   * Sets the value of the extractionRequirementSourceId property.
+   */
+  public void setExtractionRequirementSourceId(int value) {
+    this.extractionRequirementSourceId = value;
+  }
 
-    /**
-     * Gets the value of the extractionRequirementSourceDescription property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getExtractionRequirementSourceDescription() {
-        return extractionRequirementSourceDescription;
-    }
+  /**
+   * Gets the value of the extractionRequirementSourceDescription property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getExtractionRequirementSourceDescription() {
+    return extractionRequirementSourceDescription;
+  }
 
-    /**
-     * Sets the value of the extractionRequirementSourceDescription property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setExtractionRequirementSourceDescription(String value) {
-        this.extractionRequirementSourceDescription = value;
-    }
+  /**
+   * Sets the value of the extractionRequirementSourceDescription property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setExtractionRequirementSourceDescription(String value) {
+    this.extractionRequirementSourceDescription = value;
+  }
 
 }

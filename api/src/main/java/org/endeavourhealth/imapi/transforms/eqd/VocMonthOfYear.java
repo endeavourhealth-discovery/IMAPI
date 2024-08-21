@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.MonthOfYear.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -35,31 +35,30 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.MonthOfYear")
 @XmlEnum
 public enum VocMonthOfYear {
 
-    JAN,
-    FEB,
-    MAR,
-    APR,
-    MAY,
-    JUN,
-    JUL,
-    AUG,
-    SEP,
-    OCT,
-    NOV,
-    DEC;
+  JAN,
+  FEB,
+  MAR,
+  APR,
+  MAY,
+  JUN,
+  JUL,
+  AUG,
+  SEP,
+  OCT,
+  NOV,
+  DEC;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocMonthOfYear fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocMonthOfYear fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

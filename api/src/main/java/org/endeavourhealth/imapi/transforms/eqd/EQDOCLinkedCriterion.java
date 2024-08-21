@@ -16,9 +16,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for EQDOC.LinkedCriterion complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.LinkedCriterion"&gt;
  *   &lt;complexContent&gt;
@@ -34,92 +34,78 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.LinkedCriterion", propOrder = {
-    "relationship",
-    "criterion",
-    "libraryItem"
+  "relationship",
+  "criterion",
+  "libraryItem"
 })
 public class EQDOCLinkedCriterion {
 
-    @XmlElement(required = true)
-    protected EQDOCRelationship relationship;
-    protected EQDOCCriterion criterion;
-    protected EQDOCLibraryItemCriterion libraryItem;
+  @XmlElement(required = true)
+  protected EQDOCRelationship relationship;
+  protected EQDOCCriterion criterion;
+  protected EQDOCLibraryItemCriterion libraryItem;
 
-    /**
-     * Gets the value of the relationship property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCRelationship }
-     *     
-     */
-    public EQDOCRelationship getRelationship() {
-        return relationship;
-    }
+  /**
+   * Gets the value of the relationship property.
+   *
+   * @return possible object is
+   * {@link EQDOCRelationship }
+   */
+  public EQDOCRelationship getRelationship() {
+    return relationship;
+  }
 
-    /**
-     * Sets the value of the relationship property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCRelationship }
-     *     
-     */
-    public void setRelationship(EQDOCRelationship value) {
-        this.relationship = value;
-    }
+  /**
+   * Sets the value of the relationship property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCRelationship }
+   */
+  public void setRelationship(EQDOCRelationship value) {
+    this.relationship = value;
+  }
 
-    /**
-     * Gets the value of the criterion property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCCriterion }
-     *     
-     */
-    public EQDOCCriterion getCriterion() {
-        return criterion;
-    }
+  /**
+   * Gets the value of the criterion property.
+   *
+   * @return possible object is
+   * {@link EQDOCCriterion }
+   */
+  public EQDOCCriterion getCriterion() {
+    return criterion;
+  }
 
-    /**
-     * Sets the value of the criterion property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCCriterion }
-     *     
-     */
-    public void setCriterion(EQDOCCriterion value) {
-        this.criterion = value;
-    }
+  /**
+   * Sets the value of the criterion property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCCriterion }
+   */
+  public void setCriterion(EQDOCCriterion value) {
+    this.criterion = value;
+  }
 
-    /**
-     * Gets the value of the libraryItem property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCLibraryItemCriterion }
-     *     
-     */
-    public EQDOCLibraryItemCriterion getLibraryItem() {
-        return libraryItem;
-    }
+  /**
+   * Gets the value of the libraryItem property.
+   *
+   * @return possible object is
+   * {@link EQDOCLibraryItemCriterion }
+   */
+  public EQDOCLibraryItemCriterion getLibraryItem() {
+    return libraryItem;
+  }
 
-    /**
-     * Sets the value of the libraryItem property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCLibraryItemCriterion }
-     *     
-     */
-    public void setLibraryItem(EQDOCLibraryItemCriterion value) {
-        this.libraryItem = value;
-    }
+  /**
+   * Sets the value of the libraryItem property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCLibraryItemCriterion }
+   */
+  public void setLibraryItem(EQDOCLibraryItemCriterion value) {
+    this.libraryItem = value;
+  }
 
 }

@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.RuleAction.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -27,43 +27,38 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.RuleAction")
 @XmlEnum
 public enum VocRuleAction {
 
 
-    /**
-     * Move to next rule
-     * 
-     */
-    NEXT,
+  /**
+   * Move to next rule
+   */
+  NEXT,
 
-    /**
-     * Select items into final result
-     * 
-     */
-    SELECT,
+  /**
+   * Select items into final result
+   */
+  SELECT,
 
-    /**
-     * Reject Items from final result
-     * 
-     */
-    REJECT,
+  /**
+   * Reject Items from final result
+   */
+  REJECT,
 
-    /**
-     * Move to specified rule
-     * 
-     */
-    GOTO;
+  /**
+   * Move to specified rule
+   */
+  GOTO;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocRuleAction fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocRuleAction fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

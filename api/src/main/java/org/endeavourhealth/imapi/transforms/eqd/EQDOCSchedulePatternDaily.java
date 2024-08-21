@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for EQDOC.SchedulePatternDaily complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.SchedulePatternDaily"&gt;
  *   &lt;complexContent&gt;
@@ -29,31 +29,27 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.SchedulePatternDaily", propOrder = {
-    "interval"
+  "interval"
 })
 public class EQDOCSchedulePatternDaily {
 
-    protected int interval;
+  protected int interval;
 
-    /**
-     * Gets the value of the interval property.
-     * 
-     */
-    public int getInterval() {
-        return interval;
-    }
+  /**
+   * Gets the value of the interval property.
+   */
+  public int getInterval() {
+    return interval;
+  }
 
-    /**
-     * Sets the value of the interval property.
-     * 
-     */
-    public void setInterval(int value) {
-        this.interval = value;
-    }
+  /**
+   * Sets the value of the interval property.
+   */
+  public void setInterval(int value) {
+    this.interval = value;
+  }
 
 }

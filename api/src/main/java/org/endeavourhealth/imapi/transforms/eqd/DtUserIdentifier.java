@@ -13,9 +13,9 @@ import jakarta.xml.bind.annotation.*;
 
 /**
  * <p>Java class for dt.UserIdentifier complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="dt.UserIdentifier"&gt;
  *   &lt;complexContent&gt;
@@ -34,70 +34,59 @@ import jakarta.xml.bind.annotation.*;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "dt.UserIdentifier", propOrder = {
-    "identifierType",
-    "value"
+  "identifierType",
+  "value"
 })
 public class DtUserIdentifier
-    extends DtDbo
-{
+  extends DtDbo {
 
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "token")
-    protected VocUserIdentifierType identifierType;
-    @XmlElement(required = true)
-    protected String value;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "token")
+  protected VocUserIdentifierType identifierType;
+  @XmlElement(required = true)
+  protected String value;
 
-    /**
-     * Gets the value of the identifierType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocUserIdentifierType }
-     *     
-     */
-    public VocUserIdentifierType getIdentifierType() {
-        return identifierType;
-    }
+  /**
+   * Gets the value of the identifierType property.
+   *
+   * @return possible object is
+   * {@link VocUserIdentifierType }
+   */
+  public VocUserIdentifierType getIdentifierType() {
+    return identifierType;
+  }
 
-    /**
-     * Sets the value of the identifierType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocUserIdentifierType }
-     *     
-     */
-    public void setIdentifierType(VocUserIdentifierType value) {
-        this.identifierType = value;
-    }
+  /**
+   * Sets the value of the identifierType property.
+   *
+   * @param value allowed object is
+   *              {@link VocUserIdentifierType }
+   */
+  public void setIdentifierType(VocUserIdentifierType value) {
+    this.identifierType = value;
+  }
 
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getValue() {
-        return value;
-    }
+  /**
+   * Gets the value of the value property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getValue() {
+    return value;
+  }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setValue(String value) {
-        this.value = value;
-    }
+  /**
+   * Sets the value of the value property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setValue(String value) {
+    this.value = value;
+  }
 
 }

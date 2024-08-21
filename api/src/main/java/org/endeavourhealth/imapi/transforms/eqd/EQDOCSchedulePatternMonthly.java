@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for EQDOC.SchedulePatternMonthly complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.SchedulePatternMonthly"&gt;
  *   &lt;complexContent&gt;
@@ -60,242 +60,214 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.SchedulePatternMonthly", propOrder = {
-    "dayOfMonth",
-    "dayOfWeek"
+  "dayOfMonth",
+  "dayOfWeek"
 })
 public class EQDOCSchedulePatternMonthly {
 
-    protected DayOfMonth dayOfMonth;
-    protected DayOfWeek dayOfWeek;
+  protected DayOfMonth dayOfMonth;
+  protected DayOfWeek dayOfWeek;
+
+  /**
+   * Gets the value of the dayOfMonth property.
+   *
+   * @return possible object is
+   * {@link DayOfMonth }
+   */
+  public DayOfMonth getDayOfMonth() {
+    return dayOfMonth;
+  }
+
+  /**
+   * Sets the value of the dayOfMonth property.
+   *
+   * @param value allowed object is
+   *              {@link DayOfMonth }
+   */
+  public void setDayOfMonth(DayOfMonth value) {
+    this.dayOfMonth = value;
+  }
+
+  /**
+   * Gets the value of the dayOfWeek property.
+   *
+   * @return possible object is
+   * {@link DayOfWeek }
+   */
+  public DayOfWeek getDayOfWeek() {
+    return dayOfWeek;
+  }
+
+  /**
+   * Sets the value of the dayOfWeek property.
+   *
+   * @param value allowed object is
+   *              {@link DayOfWeek }
+   */
+  public void setDayOfWeek(DayOfWeek value) {
+    this.dayOfWeek = value;
+  }
+
+
+  /**
+   * <p>Java class for anonymous complex type.
+   *
+   * <p>The following schema fragment specifies the expected content contained within this class.
+   *
+   * <pre>
+   * &lt;complexType&gt;
+   *   &lt;complexContent&gt;
+   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+   *       &lt;sequence&gt;
+   *         &lt;element name="dayOfMonth"&gt;
+   *           &lt;simpleType&gt;
+   *             &lt;restriction base="{http://www.w3.org/2001/XMLSchema}int"&gt;
+   *               &lt;minInclusive value="1"/&gt;
+   *               &lt;maxInclusive value="31"/&gt;
+   *             &lt;/restriction&gt;
+   *           &lt;/simpleType&gt;
+   *         &lt;/element&gt;
+   *         &lt;element name="interval" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+   *       &lt;/sequence&gt;
+   *     &lt;/restriction&gt;
+   *   &lt;/complexContent&gt;
+   * &lt;/complexType&gt;
+   * </pre>
+   */
+  @XmlAccessorType(XmlAccessType.FIELD)
+  @XmlType(name = "", propOrder = {
+    "dayOfMonth",
+    "interval"
+  })
+  public static class DayOfMonth {
+
+    protected int dayOfMonth;
+    protected int interval;
 
     /**
      * Gets the value of the dayOfMonth property.
-     *
-     * @return
-     *     possible object is
-     *     {@link DayOfMonth }
-     *
      */
-    public DayOfMonth getDayOfMonth() {
-        return dayOfMonth;
+    public int getDayOfMonth() {
+      return dayOfMonth;
     }
 
     /**
      * Sets the value of the dayOfMonth property.
-     *
-     * @param value
-     *     allowed object is
-     *     {@link DayOfMonth }
-     *
      */
-    public void setDayOfMonth(DayOfMonth value) {
-        this.dayOfMonth = value;
+    public void setDayOfMonth(int value) {
+      this.dayOfMonth = value;
+    }
+
+    /**
+     * Gets the value of the interval property.
+     */
+    public int getInterval() {
+      return interval;
+    }
+
+    /**
+     * Sets the value of the interval property.
+     */
+    public void setInterval(int value) {
+      this.interval = value;
+    }
+
+  }
+
+
+  /**
+   * <p>Java class for anonymous complex type.
+   *
+   * <p>The following schema fragment specifies the expected content contained within this class.
+   *
+   * <pre>
+   * &lt;complexType&gt;
+   *   &lt;complexContent&gt;
+   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+   *       &lt;sequence&gt;
+   *         &lt;element name="occurrence" type="{http://www.e-mis.com/emisopen}voc.SchedulePatternOccurrence"/&gt;
+   *         &lt;element name="dayOfWeek" type="{http://www.e-mis.com/emisopen}voc.DayOfWeek"/&gt;
+   *         &lt;element name="interval" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+   *       &lt;/sequence&gt;
+   *     &lt;/restriction&gt;
+   *   &lt;/complexContent&gt;
+   * &lt;/complexType&gt;
+   * </pre>
+   */
+  @XmlAccessorType(XmlAccessType.FIELD)
+  @XmlType(name = "", propOrder = {
+    "occurrence",
+    "dayOfWeek",
+    "interval"
+  })
+  public static class DayOfWeek {
+
+    @XmlElement(required = true)
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+    @XmlSchemaType(name = "token")
+    protected String occurrence;
+    @XmlElement(required = true)
+    @XmlSchemaType(name = "token")
+    protected VocDayOfWeek dayOfWeek;
+    protected int interval;
+
+    /**
+     * Gets the value of the occurrence property.
+     *
+     * @return possible object is
+     * {@link String }
+     */
+    public String getOccurrence() {
+      return occurrence;
+    }
+
+    /**
+     * Sets the value of the occurrence property.
+     *
+     * @param value allowed object is
+     *              {@link String }
+     */
+    public void setOccurrence(String value) {
+      this.occurrence = value;
     }
 
     /**
      * Gets the value of the dayOfWeek property.
      *
-     * @return
-     *     possible object is
-     *     {@link DayOfWeek }
-     *
+     * @return possible object is
+     * {@link VocDayOfWeek }
      */
-    public DayOfWeek getDayOfWeek() {
-        return dayOfWeek;
+    public VocDayOfWeek getDayOfWeek() {
+      return dayOfWeek;
     }
 
     /**
      * Sets the value of the dayOfWeek property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link DayOfWeek }
-     *
+     * @param value allowed object is
+     *              {@link VocDayOfWeek }
      */
-    public void setDayOfWeek(DayOfWeek value) {
-        this.dayOfWeek = value;
+    public void setDayOfWeek(VocDayOfWeek value) {
+      this.dayOfWeek = value;
     }
-
 
     /**
-     * <p>Java class for anonymous complex type.
-     * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
-     * <pre>
-     * &lt;complexType&gt;
-     *   &lt;complexContent&gt;
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *       &lt;sequence&gt;
-     *         &lt;element name="dayOfMonth"&gt;
-     *           &lt;simpleType&gt;
-     *             &lt;restriction base="{http://www.w3.org/2001/XMLSchema}int"&gt;
-     *               &lt;minInclusive value="1"/&gt;
-     *               &lt;maxInclusive value="31"/&gt;
-     *             &lt;/restriction&gt;
-     *           &lt;/simpleType&gt;
-     *         &lt;/element&gt;
-     *         &lt;element name="interval" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
-     *       &lt;/sequence&gt;
-     *     &lt;/restriction&gt;
-     *   &lt;/complexContent&gt;
-     * &lt;/complexType&gt;
-     * </pre>
-     * 
-     * 
+     * Gets the value of the interval property.
      */
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
-        "dayOfMonth",
-        "interval"
-    })
-    public static class DayOfMonth {
-
-        protected int dayOfMonth;
-        protected int interval;
-
-        /**
-         * Gets the value of the dayOfMonth property.
-         * 
-         */
-        public int getDayOfMonth() {
-            return dayOfMonth;
-        }
-
-        /**
-         * Sets the value of the dayOfMonth property.
-         * 
-         */
-        public void setDayOfMonth(int value) {
-            this.dayOfMonth = value;
-        }
-
-        /**
-         * Gets the value of the interval property.
-         * 
-         */
-        public int getInterval() {
-            return interval;
-        }
-
-        /**
-         * Sets the value of the interval property.
-         * 
-         */
-        public void setInterval(int value) {
-            this.interval = value;
-        }
-
+    public int getInterval() {
+      return interval;
     }
-
 
     /**
-     * <p>Java class for anonymous complex type.
-     * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
-     * <pre>
-     * &lt;complexType&gt;
-     *   &lt;complexContent&gt;
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *       &lt;sequence&gt;
-     *         &lt;element name="occurrence" type="{http://www.e-mis.com/emisopen}voc.SchedulePatternOccurrence"/&gt;
-     *         &lt;element name="dayOfWeek" type="{http://www.e-mis.com/emisopen}voc.DayOfWeek"/&gt;
-     *         &lt;element name="interval" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
-     *       &lt;/sequence&gt;
-     *     &lt;/restriction&gt;
-     *   &lt;/complexContent&gt;
-     * &lt;/complexType&gt;
-     * </pre>
-     * 
-     * 
+     * Sets the value of the interval property.
      */
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
-        "occurrence",
-        "dayOfWeek",
-        "interval"
-    })
-    public static class DayOfWeek {
-
-        @XmlElement(required = true)
-        @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-        @XmlSchemaType(name = "token")
-        protected String occurrence;
-        @XmlElement(required = true)
-        @XmlSchemaType(name = "token")
-        protected VocDayOfWeek dayOfWeek;
-        protected int interval;
-
-        /**
-         * Gets the value of the occurrence property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
-        public String getOccurrence() {
-            return occurrence;
-        }
-
-        /**
-         * Sets the value of the occurrence property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
-        public void setOccurrence(String value) {
-            this.occurrence = value;
-        }
-
-        /**
-         * Gets the value of the dayOfWeek property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link VocDayOfWeek }
-         *     
-         */
-        public VocDayOfWeek getDayOfWeek() {
-            return dayOfWeek;
-        }
-
-        /**
-         * Sets the value of the dayOfWeek property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link VocDayOfWeek }
-         *     
-         */
-        public void setDayOfWeek(VocDayOfWeek value) {
-            this.dayOfWeek = value;
-        }
-
-        /**
-         * Gets the value of the interval property.
-         * 
-         */
-        public int getInterval() {
-            return interval;
-        }
-
-        /**
-         * Sets the value of the interval property.
-         * 
-         */
-        public void setInterval(int value) {
-            this.interval = value;
-        }
-
+    public void setInterval(int value) {
+      this.interval = value;
     }
+
+  }
 
 }

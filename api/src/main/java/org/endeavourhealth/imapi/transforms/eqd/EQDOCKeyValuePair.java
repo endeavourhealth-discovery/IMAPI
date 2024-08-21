@@ -11,15 +11,16 @@ package org.endeavourhealth.imapi.transforms.eqd;
 import jakarta.xml.bind.annotation.*;
 import jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * <p>Java class for EQDOC.KeyValuePair complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.KeyValuePair"&gt;
  *   &lt;complexContent&gt;
@@ -57,326 +58,286 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.KeyValuePair", propOrder = {
-    "codeSystem",
-    "key",
-    "value"
+  "codeSystem",
+  "key",
+  "value"
 })
 public class EQDOCKeyValuePair {
 
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "token")
+  protected VocCodeSystemEx codeSystem;
+  @XmlElement(required = true)
+  protected Key key;
+  @XmlElement(required = true)
+  protected List<Value> value;
+
+  /**
+   * Gets the value of the codeSystem property.
+   *
+   * @return possible object is
+   * {@link VocCodeSystemEx }
+   */
+  public VocCodeSystemEx getCodeSystem() {
+    return codeSystem;
+  }
+
+  /**
+   * Sets the value of the codeSystem property.
+   *
+   * @param value allowed object is
+   *              {@link VocCodeSystemEx }
+   */
+  public void setCodeSystem(VocCodeSystemEx value) {
+    this.codeSystem = value;
+  }
+
+  /**
+   * Gets the value of the key property.
+   *
+   * @return possible object is
+   * {@link Key }
+   */
+  public Key getKey() {
+    return key;
+  }
+
+  /**
+   * Sets the value of the key property.
+   *
+   * @param value allowed object is
+   *              {@link Key }
+   */
+  public void setKey(Key value) {
+    this.key = value;
+  }
+
+  /**
+   * Gets the value of the value property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the value property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getValue().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link Value }
+   */
+  public List<Value> getValue() {
+    if (value == null) {
+      value = new ArrayList<Value>();
+    }
+    return this.value;
+  }
+
+
+  /**
+   * <p>Java class for anonymous complex type.
+   *
+   * <p>The following schema fragment specifies the expected content contained within this class.
+   *
+   * <pre>
+   * &lt;complexType&gt;
+   *   &lt;complexContent&gt;
+   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+   *       &lt;sequence&gt;
+   *         &lt;element name="code" type="{http://www.w3.org/2001/XMLSchema}token"/&gt;
+   *         &lt;element name="displayName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+   *         &lt;element name="legacyCode" type="{http://www.w3.org/2001/XMLSchema}token" minOccurs="0"/&gt;
+   *       &lt;/sequence&gt;
+   *     &lt;/restriction&gt;
+   *   &lt;/complexContent&gt;
+   * &lt;/complexType&gt;
+   * </pre>
+   */
+  @XmlAccessorType(XmlAccessType.FIELD)
+  @XmlType(name = "", propOrder = {
+    "code",
+    "displayName",
+    "legacyCode"
+  })
+  public static class Key {
+
     @XmlElement(required = true)
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlSchemaType(name = "token")
-    protected VocCodeSystemEx codeSystem;
+    protected String code;
+    protected String displayName;
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+    @XmlSchemaType(name = "token")
+    protected String legacyCode;
+
+    /**
+     * Gets the value of the code property.
+     *
+     * @return possible object is
+     * {@link String }
+     */
+    public String getCode() {
+      return code;
+    }
+
+    /**
+     * Sets the value of the code property.
+     *
+     * @param value allowed object is
+     *              {@link String }
+     */
+    public void setCode(String value) {
+      this.code = value;
+    }
+
+    /**
+     * Gets the value of the displayName property.
+     *
+     * @return possible object is
+     * {@link String }
+     */
+    public String getDisplayName() {
+      return displayName;
+    }
+
+    /**
+     * Sets the value of the displayName property.
+     *
+     * @param value allowed object is
+     *              {@link String }
+     */
+    public void setDisplayName(String value) {
+      this.displayName = value;
+    }
+
+    /**
+     * Gets the value of the legacyCode property.
+     *
+     * @return possible object is
+     * {@link String }
+     */
+    public String getLegacyCode() {
+      return legacyCode;
+    }
+
+    /**
+     * Sets the value of the legacyCode property.
+     *
+     * @param value allowed object is
+     *              {@link String }
+     */
+    public void setLegacyCode(String value) {
+      this.legacyCode = value;
+    }
+
+  }
+
+
+  /**
+   * <p>Java class for anonymous complex type.
+   *
+   * <p>The following schema fragment specifies the expected content contained within this class.
+   *
+   * <pre>
+   * &lt;complexType&gt;
+   *   &lt;complexContent&gt;
+   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+   *       &lt;sequence&gt;
+   *         &lt;element name="code" type="{http://www.w3.org/2001/XMLSchema}token"/&gt;
+   *         &lt;element name="displayName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+   *         &lt;element name="legacyCode" type="{http://www.w3.org/2001/XMLSchema}token" minOccurs="0"/&gt;
+   *       &lt;/sequence&gt;
+   *     &lt;/restriction&gt;
+   *   &lt;/complexContent&gt;
+   * &lt;/complexType&gt;
+   * </pre>
+   */
+  @XmlAccessorType(XmlAccessType.FIELD)
+  @XmlType(name = "", propOrder = {
+    "code",
+    "displayName",
+    "legacyCode"
+  })
+  public static class Value {
+
     @XmlElement(required = true)
-    protected Key key;
-    @XmlElement(required = true)
-    protected List<Value> value;
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+    @XmlSchemaType(name = "token")
+    protected String code;
+    protected String displayName;
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+    @XmlSchemaType(name = "token")
+    protected String legacyCode;
 
     /**
-     * Gets the value of the codeSystem property.
+     * Gets the value of the code property.
      *
-     * @return
-     *     possible object is
-     *     {@link VocCodeSystemEx }
-     *
+     * @return possible object is
+     * {@link String }
      */
-    public VocCodeSystemEx getCodeSystem() {
-        return codeSystem;
+    public String getCode() {
+      return code;
     }
 
     /**
-     * Sets the value of the codeSystem property.
+     * Sets the value of the code property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link VocCodeSystemEx }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
-    public void setCodeSystem(VocCodeSystemEx value) {
-        this.codeSystem = value;
+    public void setCode(String value) {
+      this.code = value;
     }
 
     /**
-     * Gets the value of the key property.
+     * Gets the value of the displayName property.
      *
-     * @return
-     *     possible object is
-     *     {@link Key }
-     *
+     * @return possible object is
+     * {@link String }
      */
-    public Key getKey() {
-        return key;
+    public String getDisplayName() {
+      return displayName;
     }
 
     /**
-     * Sets the value of the key property.
+     * Sets the value of the displayName property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Key }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
-    public void setKey(Key value) {
-        this.key = value;
+    public void setDisplayName(String value) {
+      this.displayName = value;
     }
 
     /**
-     * Gets the value of the value property.
+     * Gets the value of the legacyCode property.
      *
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the value property.
-     *
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getValue().add(newItem);
-     * </pre>
-     *
-     *
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Value }
-     *
-     *
+     * @return possible object is
+     * {@link String }
      */
-    public List<Value> getValue() {
-        if (value == null) {
-            value = new ArrayList<Value>();
-        }
-        return this.value;
+    public String getLegacyCode() {
+      return legacyCode;
     }
-
 
     /**
-     * <p>Java class for anonymous complex type.
-     * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
-     * <pre>
-     * &lt;complexType&gt;
-     *   &lt;complexContent&gt;
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *       &lt;sequence&gt;
-     *         &lt;element name="code" type="{http://www.w3.org/2001/XMLSchema}token"/&gt;
-     *         &lt;element name="displayName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
-     *         &lt;element name="legacyCode" type="{http://www.w3.org/2001/XMLSchema}token" minOccurs="0"/&gt;
-     *       &lt;/sequence&gt;
-     *     &lt;/restriction&gt;
-     *   &lt;/complexContent&gt;
-     * &lt;/complexType&gt;
-     * </pre>
-     * 
-     * 
+     * Sets the value of the legacyCode property.
+     *
+     * @param value allowed object is
+     *              {@link String }
      */
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
-        "code",
-        "displayName",
-        "legacyCode"
-    })
-    public static class Key {
-
-        @XmlElement(required = true)
-        @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-        @XmlSchemaType(name = "token")
-        protected String code;
-        protected String displayName;
-        @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-        @XmlSchemaType(name = "token")
-        protected String legacyCode;
-
-        /**
-         * Gets the value of the code property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
-        public String getCode() {
-            return code;
-        }
-
-        /**
-         * Sets the value of the code property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
-        public void setCode(String value) {
-            this.code = value;
-        }
-
-        /**
-         * Gets the value of the displayName property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
-        public String getDisplayName() {
-            return displayName;
-        }
-
-        /**
-         * Sets the value of the displayName property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
-        public void setDisplayName(String value) {
-            this.displayName = value;
-        }
-
-        /**
-         * Gets the value of the legacyCode property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
-        public String getLegacyCode() {
-            return legacyCode;
-        }
-
-        /**
-         * Sets the value of the legacyCode property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
-        public void setLegacyCode(String value) {
-            this.legacyCode = value;
-        }
-
+    public void setLegacyCode(String value) {
+      this.legacyCode = value;
     }
 
-
-    /**
-     * <p>Java class for anonymous complex type.
-     * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
-     * <pre>
-     * &lt;complexType&gt;
-     *   &lt;complexContent&gt;
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *       &lt;sequence&gt;
-     *         &lt;element name="code" type="{http://www.w3.org/2001/XMLSchema}token"/&gt;
-     *         &lt;element name="displayName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
-     *         &lt;element name="legacyCode" type="{http://www.w3.org/2001/XMLSchema}token" minOccurs="0"/&gt;
-     *       &lt;/sequence&gt;
-     *     &lt;/restriction&gt;
-     *   &lt;/complexContent&gt;
-     * &lt;/complexType&gt;
-     * </pre>
-     * 
-     * 
-     */
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
-        "code",
-        "displayName",
-        "legacyCode"
-    })
-    public static class Value {
-
-        @XmlElement(required = true)
-        @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-        @XmlSchemaType(name = "token")
-        protected String code;
-        protected String displayName;
-        @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-        @XmlSchemaType(name = "token")
-        protected String legacyCode;
-
-        /**
-         * Gets the value of the code property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
-        public String getCode() {
-            return code;
-        }
-
-        /**
-         * Sets the value of the code property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
-        public void setCode(String value) {
-            this.code = value;
-        }
-
-        /**
-         * Gets the value of the displayName property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
-        public String getDisplayName() {
-            return displayName;
-        }
-
-        /**
-         * Sets the value of the displayName property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
-        public void setDisplayName(String value) {
-            this.displayName = value;
-        }
-
-        /**
-         * Gets the value of the legacyCode property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
-        public String getLegacyCode() {
-            return legacyCode;
-        }
-
-        /**
-         * Sets the value of the legacyCode property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
-        public void setLegacyCode(String value) {
-            this.legacyCode = value;
-        }
-
-    }
+  }
 
 }

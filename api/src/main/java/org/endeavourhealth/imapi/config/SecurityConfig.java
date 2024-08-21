@@ -20,59 +20,59 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Configuration  
+@Configuration
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
-    @Bean
-    protected SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
-        http
-            .csrf(c -> c.disable())
-            .authorizeHttpRequests(req -> req
-                .requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/v3/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .exceptionHandling(ex -> ex
-                .accessDeniedHandler(accessDeniedHandler())
-                .authenticationEntryPoint(authenticationEntryPoint())
-            )
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .oauth2ResourceServer(oa2 -> oa2.jwt(jwt -> jwt.jwtAuthenticationConverter(grantedAuthoritiesExtractor())));
-        return http.build();
-    }
+  @Bean
+  protected SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
+    http
+      .csrf(c -> c.disable())
+      .authorizeHttpRequests(req -> req
+        .requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/v3/**").permitAll()
+        .anyRequest().authenticated()
+      )
+      .exceptionHandling(ex -> ex
+        .accessDeniedHandler(accessDeniedHandler())
+        .authenticationEntryPoint(authenticationEntryPoint())
+      )
+      .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+      .oauth2ResourceServer(oa2 -> oa2.jwt(jwt -> jwt.jwtAuthenticationConverter(grantedAuthoritiesExtractor())));
+    return http.build();
+  }
 
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
-    }
+  @Bean
+  public WebSecurityCustomizer webSecurityCustomizer() {
+    return web -> web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
+  }
 
-    private HttpFirewall allowUrlEncodedSlashHttpFirewall() {
-        StrictHttpFirewall firewall = new StrictHttpFirewall();
-        firewall.setAllowUrlEncodedSlash(true);
-        firewall.setAllowUrlEncodedDoubleSlash(true);
-        firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST", "DELETE"));
-        return firewall;
-    }
+  private HttpFirewall allowUrlEncodedSlashHttpFirewall() {
+    StrictHttpFirewall firewall = new StrictHttpFirewall();
+    firewall.setAllowUrlEncodedSlash(true);
+    firewall.setAllowUrlEncodedDoubleSlash(true);
+    firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST", "DELETE"));
+    return firewall;
+  }
 
-    private JwtAuthenticationConverter grantedAuthoritiesExtractor() {
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
-                    List<String> list = (List<String>) jwt.getClaims().getOrDefault("cognito:groups", new ArrayList<String>());
-                    return list.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-                }
-        );
-        return jwtAuthenticationConverter;
-    }
+  private JwtAuthenticationConverter grantedAuthoritiesExtractor() {
+    JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
+        List<String> list = (List<String>) jwt.getClaims().getOrDefault("cognito:groups", new ArrayList<String>());
+        return list.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+      }
+    );
+    return jwtAuthenticationConverter;
+  }
 
-    RestAccessDeniedHandler accessDeniedHandler() {
-        return new RestAccessDeniedHandler();
-    }
+  RestAccessDeniedHandler accessDeniedHandler() {
+    return new RestAccessDeniedHandler();
+  }
 
-    RestAuthenticationEntryPoint authenticationEntryPoint() {
-        return new RestAuthenticationEntryPoint();
-    }
+  RestAuthenticationEntryPoint authenticationEntryPoint() {
+    return new RestAuthenticationEntryPoint();
+  }
 }

@@ -1,0 +1,77 @@
+{
+  "@context": {
+    "im": "http://endhealth.info/im#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "sh": "http://www.w3.org/ns/shacl#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "sn": "http://snomed.info/sct#"
+  },
+  "query": {
+    "name": "PropertiesOfShapesUsingDateOfBirth",
+    "description": "all of the data model properties for entities that have a property df a data of birth",
+    "match": [
+      {
+        "typeOf": {
+          "@id": "sh:NodeShape"
+        },
+        "where": [
+          {
+            "@id": "sh:property",
+            "match": {
+              "where": [
+                {
+                  "@id": "sh:path",
+                  "is": [
+                    {
+                      "@id": "im:dateOfBirth"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "where": [
+          {
+            "@id": "sh:property"
+          }
+        ]
+      }
+    ],
+    "return": [
+      {
+        "property": [
+          {
+            "@id": "sh:property",
+            "return": {
+              "property": [
+                {
+                  "@id": "sh:path"
+                },
+                {
+                  "@id": "sh:node"
+                },
+                {
+                  "@id": "sh:minCount"
+                },
+                {
+                  "@id": "sh:maxCount"
+                },
+                {
+                  "@id": "sh:class"
+                },
+                {
+                  "@id": "sh:datatype"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

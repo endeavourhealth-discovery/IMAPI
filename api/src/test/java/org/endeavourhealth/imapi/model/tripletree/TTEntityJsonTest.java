@@ -9,57 +9,57 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
- class TTEntityJsonTest {
-    @Test
-    void serializationTest() throws JsonProcessingException {
-        TTEntity adverseReaction = TestHelper.getTestEntity();
+class TTEntityJsonTest {
+  @Test
+  void serializationTest() throws JsonProcessingException {
+    TTEntity adverseReaction = TestHelper.getTestEntity();
 
-        ObjectMapper om = new ObjectMapper();
-        String actual = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
+    ObjectMapper om = new ObjectMapper();
+    String actual = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
 
-        String expected = TestHelper.getTestEntityJson();
+    String expected = TestHelper.getTestEntityJson();
 
-        assertEquals(expected, actual);
-    }
+    assertEquals(expected, actual);
+  }
 
-    @Test
-    void deserializationTest() throws JsonProcessingException {
-        TTEntity adverseReaction = TestHelper.getTestEntity();
+  @Test
+  void deserializationTest() throws JsonProcessingException {
+    TTEntity adverseReaction = TestHelper.getTestEntity();
 
-        // Serialize
-        ObjectMapper om = new ObjectMapper();
-        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
+    // Serialize
+    ObjectMapper om = new ObjectMapper();
+    String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
 
-        // Deserialize
-        adverseReaction = om.readValue(json, TTEntity.class);
+    // Deserialize
+    adverseReaction = om.readValue(json, TTEntity.class);
 
-        TestHelper.checkEntity(adverseReaction);
-    }
+    TestHelper.checkEntity(adverseReaction);
+  }
 
-    @Test
-    void flipFlopTest() throws JsonProcessingException {
-        TTEntity adverseReaction = TestHelper.getTestEntity();
+  @Test
+  void flipFlopTest() throws JsonProcessingException {
+    TTEntity adverseReaction = TestHelper.getTestEntity();
 
-        // Serialize
-        ObjectMapper om = new ObjectMapper();
-        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
+    // Serialize
+    ObjectMapper om = new ObjectMapper();
+    String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
 
-        // Deserialize
-        adverseReaction = om.readValue(json, TTEntity.class);
+    // Deserialize
+    adverseReaction = om.readValue(json, TTEntity.class);
 
-        // Reserialize
-        String out = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
+    // Reserialize
+    String out = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
 
-        System.out.println("================= IN ==================");
-        System.out.println(json);
-        System.out.println("----------------- OUT -----------------");
-        System.out.println(out);
-        System.out.println("=======================================");
+    System.out.println("================= IN ==================");
+    System.out.println(json);
+    System.out.println("----------------- OUT -----------------");
+    System.out.println(out);
+    System.out.println("=======================================");
 
-        // Compare
-        String expected = Arrays.stream(json.split(System.lineSeparator())).sorted().collect(Collectors.joining(System.lineSeparator()));
-        String actual = Arrays.stream(out.split(System.lineSeparator())).sorted().collect(Collectors.joining(System.lineSeparator()));
+    // Compare
+    String expected = Arrays.stream(json.split(System.lineSeparator())).sorted().collect(Collectors.joining(System.lineSeparator()));
+    String actual = Arrays.stream(out.split(System.lineSeparator())).sorted().collect(Collectors.joining(System.lineSeparator()));
 
-        assertEquals(expected, actual);
-    }
+    assertEquals(expected, actual);
+  }
 }

@@ -15,7 +15,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.UpdateMode.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -28,37 +28,36 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.UpdateMode")
 @XmlEnum
 public enum VocUpdateMode {
 
-    @XmlEnumValue("add")
-    ADD("add"),
-    @XmlEnumValue("edit")
-    EDIT("edit"),
-    @XmlEnumValue("delete")
-    DELETE("delete"),
-    @XmlEnumValue("none")
-    NONE("none");
-    private final String value;
+  @XmlEnumValue("add")
+  ADD("add"),
+  @XmlEnumValue("edit")
+  EDIT("edit"),
+  @XmlEnumValue("delete")
+  DELETE("delete"),
+  @XmlEnumValue("none")
+  NONE("none");
+  private final String value;
 
-    VocUpdateMode(String v) {
-        value = v;
-    }
+  VocUpdateMode(String v) {
+    value = v;
+  }
 
-    public String value() {
-        return value;
-    }
+  public String value() {
+    return value;
+  }
 
-    public static VocUpdateMode fromValue(String v) {
-        for (VocUpdateMode c: VocUpdateMode.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
+  public static VocUpdateMode fromValue(String v) {
+    for (VocUpdateMode c : VocUpdateMode.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
+    throw new IllegalArgumentException(v);
+  }
 
 }

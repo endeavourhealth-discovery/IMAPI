@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.AddressType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -28,49 +28,43 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.AddressType")
 @XmlEnum
 public enum VocAddressType {
 
 
-    /**
-     * Home Address
-     * 
-     */
-    H,
+  /**
+   * Home Address
+   */
+  H,
 
-    /**
-     * Work Address
-     * 
-     */
-    W,
+  /**
+   * Work Address
+   */
+  W,
 
-    /**
-     * Temporary Address
-     * 
-     */
-    TMP,
+  /**
+   * Temporary Address
+   */
+  TMP,
 
-    /**
-     * Carer Address
-     * 
-     */
-    CAR,
+  /**
+   * Carer Address
+   */
+  CAR,
 
-    /**
-     * School Address
-     * 
-     */
-    SCH;
+  /**
+   * School Address
+   */
+  SCH;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocAddressType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocAddressType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

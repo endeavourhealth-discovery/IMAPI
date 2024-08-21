@@ -21,4 +21,5 @@ public class CONFIG {
     public static final String IMDIRECTORY_ALL_RELEASES = CONFIG.NAMESPACE + "IMDirectoryAllReleases";
     public static final String IMPORT_DATA_LATEST_RELEASE = CONFIG.NAMESPACE + "ImportDataLatestRelease";
     public static final String IMPORT_DATA_ALL_RELEASES = CONFIG.NAMESPACE + "ImportDataAllReleases";
+    public static final String MONITORING = CONFIG.NAMESPACE + "monitoring";
 }

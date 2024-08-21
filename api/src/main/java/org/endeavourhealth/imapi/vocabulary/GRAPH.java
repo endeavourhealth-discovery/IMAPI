@@ -4,6 +4,7 @@ package org.endeavourhealth.imapi.vocabulary;
 
 public class GRAPH {
     public static final String DISCOVERY = "http://endhealth.info/im#";
+    public static final String BNF = "http://endhealth.info/bnf#";
     public static final String ICD10 = "http://endhealth.info/icd10#";
     public static final String EMIS = "http://endhealth.info/emis#";
     public static final String CPRD_MED = "http://endhealth.info/cprdm#";
@@ -30,5 +31,5 @@ public class GRAPH {
     public static final String CEG16 = "http://endhealth.info/ceg16#";
     public static final String REPORTS = "http://endhealth.info/reports#";
     public static final String OPS_ROLES = "https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#";
-    public static final String XMLS = "http://www.w3.org/2001/XMLSchema#";
+    public static final String XS = "http://www.w3.org/2001/XMLSchema#";
 }

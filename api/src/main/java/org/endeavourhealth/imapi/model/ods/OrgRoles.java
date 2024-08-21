@@ -8,24 +8,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrgRoles {
-    private List<OrgRole> role = new ArrayList<>();
+  private List<OrgRole> role = new ArrayList<>();
 
-    @JsonProperty("Role")
-    public List<OrgRole> getRole() {
-        return role;
-    }
+  @JsonProperty("Role")
+  public List<OrgRole> getRole() {
+    return role;
+  }
 
-    public OrgRoles setRole(List<OrgRole> role) {
-        this.role = role;
-        return this;
-    }
+  public OrgRoles setRole(List<OrgRole> role) {
+    this.role = role;
+    return this;
+  }
 
-    public OrgRoles addRole(OrgRole orgRole) {
-        if (role == null)
-            role = new ArrayList<>();
+  public OrgRoles addRole(OrgRole orgRole) {
+    if (role == null)
+      role = new ArrayList<>();
 
-        role.add(orgRole);
+    role.add(orgRole);
 
-        return this;
-    }
+    return this;
+  }
 }

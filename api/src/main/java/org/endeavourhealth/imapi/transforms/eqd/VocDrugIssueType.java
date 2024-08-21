@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.DrugIssueType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -31,67 +31,58 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.DrugIssueType")
 @XmlEnum
 public enum VocDrugIssueType {
 
 
-    /**
-     * Print
-     * 
-     */
-    P,
+  /**
+   * Print
+   */
+  P,
 
-    /**
-     * Issue Without Script
-     * 
-     */
-    Q,
+  /**
+   * Issue Without Script
+   */
+  Q,
 
-    /**
-     * Handwitten
-     * 
-     */
-    H,
+  /**
+   * Handwitten
+   */
+  H,
 
-    /**
-     * Outside
-     * 
-     */
-    O,
+  /**
+   * Outside
+   */
+  O,
 
-    /**
-     * Dispensing
-     * 
-     */
-    D,
+  /**
+   * Dispensing
+   */
+  D,
 
-    /**
-     * Repeat Dispensing
-     * 
-     */
-    B,
+  /**
+   * Repeat Dispensing
+   */
+  B,
 
-    /**
-     * Store
-     * 
-     */
-    S,
+  /**
+   * Store
+   */
+  S,
 
-    /**
-     * Automatic
-     * 
-     */
-    A;
+  /**
+   * Automatic
+   */
+  A;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocDrugIssueType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocDrugIssueType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.PatientIdentifierType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -36,97 +36,83 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.PatientIdentifierType")
 @XmlEnum
 public enum VocPatientIdentifierType {
 
 
-    /**
-     * NHS Number
-     * 
-     */
-    NHS,
+  /**
+   * NHS Number
+   */
+  NHS,
 
-    /**
-     * Old NHS Number
-     * 
-     */
-    ONHS,
+  /**
+   * Old NHS Number
+   */
+  ONHS,
 
-    /**
-     * CHI Number
-     * 
-     */
-    CHI,
+  /**
+   * CHI Number
+   */
+  CHI,
 
-    /**
-     * HC Number
-     * 
-     */
-    HC,
+  /**
+   * HC Number
+   */
+  HC,
 
-    /**
-     * GRO Number
-     * 
-     */
-    GRO,
+  /**
+   * GRO Number
+   */
+  GRO,
 
-    /**
-     * UPCI Number
-     * 
-     */
-    UPCI,
+  /**
+   * UPCI Number
+   */
+  UPCI,
 
-    /**
-     * MOD Service Number
-     * 
-     */
-    MOD,
+  /**
+   * MOD Service Number
+   */
+  MOD,
 
-    /**
-     * SSH Number
-     * 
-     */
-    SSH,
+  /**
+   * SSH Number
+   */
+  SSH,
 
-    /**
-     * Insurance Number
-     * 
-     */
-    INS,
+  /**
+   * Insurance Number
+   */
+  INS,
 
-    /**
-     * Army Number
-     * 
-     */
-    ARMY,
+  /**
+   * Army Number
+   */
+  ARMY,
 
-    /**
-     * Royal Air Force Number
-     * 
-     */
-    RAF,
+  /**
+   * Royal Air Force Number
+   */
+  RAF,
 
-    /**
-     * Royal Navy Number
-     * 
-     */
-    NAVY,
+  /**
+   * Royal Navy Number
+   */
+  NAVY,
 
-    /**
-     * Hospital Number
-     * 
-     */
-    HOSP;
+  /**
+   * Hospital Number
+   */
+  HOSP;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocPatientIdentifierType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocPatientIdentifierType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

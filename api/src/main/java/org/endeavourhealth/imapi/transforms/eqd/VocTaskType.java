@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.TaskType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -34,30 +34,29 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.TaskType")
 @XmlEnum
 public enum VocTaskType {
 
-    BOOK_APPOINTMENT,
-    BOOK_APPOINTMENT_DOCTOR,
-    BOOK_APPOINTMENT_NURSE,
-    TELEPHONE_PATIENT,
-    SCREEN_MESSAGE,
-    RESULTS_FOR_INFO,
-    MEETING_NOTIFICATION,
-    PATIENT_NOTE,
-    ADMIN_NOTE,
-    FORM_TO_COMPLETE,
-    REPEAT_TEST;
+  BOOK_APPOINTMENT,
+  BOOK_APPOINTMENT_DOCTOR,
+  BOOK_APPOINTMENT_NURSE,
+  TELEPHONE_PATIENT,
+  SCREEN_MESSAGE,
+  RESULTS_FOR_INFO,
+  MEETING_NOTIFICATION,
+  PATIENT_NOTE,
+  ADMIN_NOTE,
+  FORM_TO_COMPLETE,
+  REPEAT_TEST;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocTaskType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocTaskType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

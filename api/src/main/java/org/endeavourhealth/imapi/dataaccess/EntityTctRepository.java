@@ -15,33 +15,33 @@ import java.util.StringJoiner;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 
 public class EntityTctRepository {
-    public List<TTIriRef> findAncestorsByType(String childIri, String relationshipIri, List<String> candidateAncestorIris) {
-        List<TTIriRef> result = new ArrayList<>();
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?aname")
-            .add("WHERE {")
-            .add("  ?c ?r ?a .")
-            .add("  ?a rdfs:label ?aname .")
-            .add("}");
+  public List<TTIriRef> findAncestorsByType(String childIri, String relationshipIri, List<String> candidateAncestorIris) {
+    List<TTIriRef> result = new ArrayList<>();
+    StringJoiner sql = new StringJoiner(System.lineSeparator())
+      .add("SELECT ?aname")
+      .add("WHERE {")
+      .add("  ?c ?r ?a .")
+      .add("  ?a rdfs:label ?aname .")
+      .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("c", Values.iri(childIri));
-            qry.setBinding("r", Values.iri(relationshipIri));
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sql.toString());
+      qry.setBinding("c", Values.iri(childIri));
+      qry.setBinding("r", Values.iri(relationshipIri));
 
-            for(String candidate: candidateAncestorIris) {
-                qry.setBinding("a", Values.iri(candidate));
-                try (TupleQueryResult rs = qry.evaluate()) {
-                    if (rs.hasNext()) {
-                        BindingSet bs = rs.next();
-                        result.add(new TTIriRef()
-                            .setIri(candidate)
-                            .setName(bs.getValue("aname").stringValue())
-                        );
-                    }
-                }
-            }
+      for (String candidate : candidateAncestorIris) {
+        qry.setBinding("a", Values.iri(candidate));
+        try (TupleQueryResult rs = qry.evaluate()) {
+          if (rs.hasNext()) {
+            BindingSet bs = rs.next();
+            result.add(new TTIriRef()
+              .setIri(candidate)
+              .setName(bs.getValue("aname").stringValue())
+            );
+          }
         }
-        return result;
+      }
     }
+    return result;
+  }
 }

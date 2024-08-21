@@ -12,17 +12,18 @@ import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlType;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * Aggregate reports needs rows, columns or rows and columns.
- * 
+ *
  * <p>Java class for EQDOC.AggregateReport complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.AggregateReport"&gt;
  *   &lt;complexContent&gt;
@@ -40,207 +41,181 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.AggregateReport", propOrder = {
-    "logicalTable",
-    "criteria",
-    "group",
-    "rows",
-    "columns",
-    "result",
-    "populationFilter"
+  "logicalTable",
+  "criteria",
+  "group",
+  "rows",
+  "columns",
+  "result",
+  "populationFilter"
 })
 public class EQDOCAggregateReport {
 
-    @XmlElement(required = true)
-    protected String logicalTable;
-    protected EQDOCCriteria criteria;
-    protected List<EQDOCAggregateGroup> group;
-    protected EQDOCAggregateLayout rows;
-    protected EQDOCAggregateLayout columns;
-    @XmlElement(required = true)
-    protected EQDOCAggregateResult result;
-    protected List<EQDOCCriteriaGroup> populationFilter;
+  @XmlElement(required = true)
+  protected String logicalTable;
+  protected EQDOCCriteria criteria;
+  protected List<EQDOCAggregateGroup> group;
+  protected EQDOCAggregateLayout rows;
+  protected EQDOCAggregateLayout columns;
+  @XmlElement(required = true)
+  protected EQDOCAggregateResult result;
+  protected List<EQDOCCriteriaGroup> populationFilter;
 
-    /**
-     * Gets the value of the logicalTable property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getLogicalTable() {
-        return logicalTable;
-    }
+  /**
+   * Gets the value of the logicalTable property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getLogicalTable() {
+    return logicalTable;
+  }
 
-    /**
-     * Sets the value of the logicalTable property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setLogicalTable(String value) {
-        this.logicalTable = value;
-    }
+  /**
+   * Sets the value of the logicalTable property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setLogicalTable(String value) {
+    this.logicalTable = value;
+  }
 
-    /**
-     * Gets the value of the criteria property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCCriteria }
-     *     
-     */
-    public EQDOCCriteria getCriteria() {
-        return criteria;
-    }
+  /**
+   * Gets the value of the criteria property.
+   *
+   * @return possible object is
+   * {@link EQDOCCriteria }
+   */
+  public EQDOCCriteria getCriteria() {
+    return criteria;
+  }
 
-    /**
-     * Sets the value of the criteria property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCCriteria }
-     *     
-     */
-    public void setCriteria(EQDOCCriteria value) {
-        this.criteria = value;
-    }
+  /**
+   * Sets the value of the criteria property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCCriteria }
+   */
+  public void setCriteria(EQDOCCriteria value) {
+    this.criteria = value;
+  }
 
-    /**
-     * Gets the value of the group property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the group property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getGroup().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCAggregateGroup }
-     * 
-     * 
-     */
-    public List<EQDOCAggregateGroup> getGroup() {
-        if (group == null) {
-            group = new ArrayList<EQDOCAggregateGroup>();
-        }
-        return this.group;
+  /**
+   * Gets the value of the group property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the group property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getGroup().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCAggregateGroup }
+   */
+  public List<EQDOCAggregateGroup> getGroup() {
+    if (group == null) {
+      group = new ArrayList<EQDOCAggregateGroup>();
     }
+    return this.group;
+  }
 
-    /**
-     * Gets the value of the rows property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCAggregateLayout }
-     *     
-     */
-    public EQDOCAggregateLayout getRows() {
-        return rows;
-    }
+  /**
+   * Gets the value of the rows property.
+   *
+   * @return possible object is
+   * {@link EQDOCAggregateLayout }
+   */
+  public EQDOCAggregateLayout getRows() {
+    return rows;
+  }
 
-    /**
-     * Sets the value of the rows property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCAggregateLayout }
-     *     
-     */
-    public void setRows(EQDOCAggregateLayout value) {
-        this.rows = value;
-    }
+  /**
+   * Sets the value of the rows property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCAggregateLayout }
+   */
+  public void setRows(EQDOCAggregateLayout value) {
+    this.rows = value;
+  }
 
-    /**
-     * Gets the value of the columns property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCAggregateLayout }
-     *     
-     */
-    public EQDOCAggregateLayout getColumns() {
-        return columns;
-    }
+  /**
+   * Gets the value of the columns property.
+   *
+   * @return possible object is
+   * {@link EQDOCAggregateLayout }
+   */
+  public EQDOCAggregateLayout getColumns() {
+    return columns;
+  }
 
-    /**
-     * Sets the value of the columns property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCAggregateLayout }
-     *     
-     */
-    public void setColumns(EQDOCAggregateLayout value) {
-        this.columns = value;
-    }
+  /**
+   * Sets the value of the columns property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCAggregateLayout }
+   */
+  public void setColumns(EQDOCAggregateLayout value) {
+    this.columns = value;
+  }
 
-    /**
-     * Gets the value of the result property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCAggregateResult }
-     *     
-     */
-    public EQDOCAggregateResult getResult() {
-        return result;
-    }
+  /**
+   * Gets the value of the result property.
+   *
+   * @return possible object is
+   * {@link EQDOCAggregateResult }
+   */
+  public EQDOCAggregateResult getResult() {
+    return result;
+  }
 
-    /**
-     * Sets the value of the result property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCAggregateResult }
-     *     
-     */
-    public void setResult(EQDOCAggregateResult value) {
-        this.result = value;
-    }
+  /**
+   * Sets the value of the result property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCAggregateResult }
+   */
+  public void setResult(EQDOCAggregateResult value) {
+    this.result = value;
+  }
 
-    /**
-     * Gets the value of the populationFilter property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the populationFilter property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getPopulationFilter().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCCriteriaGroup }
-     * 
-     * 
-     */
-    public List<EQDOCCriteriaGroup> getPopulationFilter() {
-        if (populationFilter == null) {
-            populationFilter = new ArrayList<EQDOCCriteriaGroup>();
-        }
-        return this.populationFilter;
+  /**
+   * Gets the value of the populationFilter property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the populationFilter property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getPopulationFilter().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCCriteriaGroup }
+   */
+  public List<EQDOCCriteriaGroup> getPopulationFilter() {
+    if (populationFilter == null) {
+      populationFilter = new ArrayList<EQDOCCriteriaGroup>();
     }
+    return this.populationFilter;
+  }
 
 }

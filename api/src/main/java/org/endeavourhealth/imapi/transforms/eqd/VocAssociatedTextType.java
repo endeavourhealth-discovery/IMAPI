@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.AssociatedTextType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -31,67 +31,58 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.AssociatedTextType")
 @XmlEnum
 public enum VocAssociatedTextType {
 
 
-    /**
-     * Report comment
-     * 
-     */
-    RC,
+  /**
+   * Report comment
+   */
+  RC,
 
-    /**
-     * Filing comment
-     * 
-     */
-    FC,
+  /**
+   * Filing comment
+   */
+  FC,
 
-    /**
-     * Pre clinical code text
-     * 
-     */
-    PRE,
+  /**
+   * Pre clinical code text
+   */
+  PRE,
 
-    /**
-     * Post clinical code text
-     * 
-     */
-    POST,
+  /**
+   * Post clinical code text
+   */
+  POST,
 
-    /**
-     * Heading
-     * 
-     */
-    HEAD,
+  /**
+   * Heading
+   */
+  HEAD,
 
-    /**
-     * User Comment
-     * 
-     */
-    UC,
+  /**
+   * User Comment
+   */
+  UC,
 
-    /**
-     * Drug Information
-     * 
-     */
-    DI,
+  /**
+   * Drug Information
+   */
+  DI,
 
-    /**
-     * Clinical Information
-     * 
-     */
-    CI;
+  /**
+   * Clinical Information
+   */
+  CI;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocAssociatedTextType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocAssociatedTextType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

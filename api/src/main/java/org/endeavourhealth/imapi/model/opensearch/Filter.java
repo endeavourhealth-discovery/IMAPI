@@ -10,40 +10,40 @@ import java.util.List;
 @JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo.Id.NAME)
 @JsonTypeName(value = "bool")
 public class Filter {
-    private List<MatchPhraseId> shoulds;
-    private int minimum;
+  private List<MatchPhraseId> shoulds;
+  private int minimum;
 
-    public Filter(int minimum, List<MatchPhraseId> should) {
-        this.shoulds = should;
-        this.minimum = minimum;
-    }
+  public Filter(int minimum, List<MatchPhraseId> should) {
+    this.shoulds = should;
+    this.minimum = minimum;
+  }
 
-    public Filter(int minimum) {
-        this.shoulds = new ArrayList<>();
-        this.minimum = minimum;
-    }
+  public Filter(int minimum) {
+    this.shoulds = new ArrayList<>();
+    this.minimum = minimum;
+  }
 
-    @JsonProperty("should")
-    public List<MatchPhraseId> getShoulds() {
-        return shoulds;
-    }
+  @JsonProperty("should")
+  public List<MatchPhraseId> getShoulds() {
+    return shoulds;
+  }
 
-    public Filter setShoulds(List<MatchPhraseId> shoulds) {
-        this.shoulds = shoulds;
-        return this;
-    }
+  public Filter setShoulds(List<MatchPhraseId> shoulds) {
+    this.shoulds = shoulds;
+    return this;
+  }
 
-    public Filter addShould(MatchPhraseId should) {
-        this.shoulds.add(should);
-        return this;
-    }
+  public Filter addShould(MatchPhraseId should) {
+    this.shoulds.add(should);
+    return this;
+  }
 
-    @JsonProperty("minimum_should_match")
-    public int getMinimum() {
-        return minimum;
-    }
+  @JsonProperty("minimum_should_match")
+  public int getMinimum() {
+    return minimum;
+  }
 
-    public void setMinimum(int minimum) {
-        this.minimum = minimum;
-    }
+  public void setMinimum(int minimum) {
+    this.minimum = minimum;
+  }
 }

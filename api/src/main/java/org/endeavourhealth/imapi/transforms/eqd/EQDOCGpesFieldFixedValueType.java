@@ -16,9 +16,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for EQDOC.GpesFieldFixedValueType complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.GpesFieldFixedValueType"&gt;
  *   &lt;complexContent&gt;
@@ -29,64 +29,54 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.GpesFieldFixedValueType")
 public class EQDOCGpesFieldFixedValueType {
 
-    @XmlAttribute(name = "columnName", required = true)
-    protected String columnName;
-    @XmlAttribute(name = "value", required = true)
-    protected String value;
+  @XmlAttribute(name = "columnName", required = true)
+  protected String columnName;
+  @XmlAttribute(name = "value", required = true)
+  protected String value;
 
-    /**
-     * Gets the value of the columnName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getColumnName() {
-        return columnName;
-    }
+  /**
+   * Gets the value of the columnName property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getColumnName() {
+    return columnName;
+  }
 
-    /**
-     * Sets the value of the columnName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setColumnName(String value) {
-        this.columnName = value;
-    }
+  /**
+   * Sets the value of the columnName property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setColumnName(String value) {
+    this.columnName = value;
+  }
 
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getValue() {
-        return value;
-    }
+  /**
+   * Gets the value of the value property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getValue() {
+    return value;
+  }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setValue(String value) {
-        this.value = value;
-    }
+  /**
+   * Sets the value of the value property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setValue(String value) {
+    this.value = value;
+  }
 
 }

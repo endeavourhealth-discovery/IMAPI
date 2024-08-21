@@ -14,15 +14,16 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlType;
 import jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * <p>Java class for EQDOC.SubstitutionValue complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.SubstitutionValue"&gt;
  *   &lt;complexContent&gt;
@@ -37,123 +38,107 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.SubstitutionValue", propOrder = {
-    "valueSet",
-    "singleValue",
-    "value"
+  "valueSet",
+  "singleValue",
+  "value"
 })
 public class EQDOCSubstitutionValue {
 
-    protected List<EQDOCValueSet> valueSet;
-    protected EQDOCSingleValue singleValue;
-    protected EQDOCValue value;
-    @XmlAttribute(name = "guid", required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String guid;
+  protected List<EQDOCValueSet> valueSet;
+  protected EQDOCSingleValue singleValue;
+  protected EQDOCValue value;
+  @XmlAttribute(name = "guid", required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  protected String guid;
 
-    /**
-     * Gets the value of the valueSet property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the valueSet property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getValueSet().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCValueSet }
-     * 
-     * 
-     */
-    public List<EQDOCValueSet> getValueSet() {
-        if (valueSet == null) {
-            valueSet = new ArrayList<EQDOCValueSet>();
-        }
-        return this.valueSet;
+  /**
+   * Gets the value of the valueSet property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the valueSet property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getValueSet().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCValueSet }
+   */
+  public List<EQDOCValueSet> getValueSet() {
+    if (valueSet == null) {
+      valueSet = new ArrayList<EQDOCValueSet>();
     }
+    return this.valueSet;
+  }
 
-    /**
-     * Gets the value of the singleValue property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCSingleValue }
-     *     
-     */
-    public EQDOCSingleValue getSingleValue() {
-        return singleValue;
-    }
+  /**
+   * Gets the value of the singleValue property.
+   *
+   * @return possible object is
+   * {@link EQDOCSingleValue }
+   */
+  public EQDOCSingleValue getSingleValue() {
+    return singleValue;
+  }
 
-    /**
-     * Sets the value of the singleValue property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCSingleValue }
-     *     
-     */
-    public void setSingleValue(EQDOCSingleValue value) {
-        this.singleValue = value;
-    }
+  /**
+   * Sets the value of the singleValue property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCSingleValue }
+   */
+  public void setSingleValue(EQDOCSingleValue value) {
+    this.singleValue = value;
+  }
 
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCValue }
-     *     
-     */
-    public EQDOCValue getValue() {
-        return value;
-    }
+  /**
+   * Gets the value of the value property.
+   *
+   * @return possible object is
+   * {@link EQDOCValue }
+   */
+  public EQDOCValue getValue() {
+    return value;
+  }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCValue }
-     *     
-     */
-    public void setValue(EQDOCValue value) {
-        this.value = value;
-    }
+  /**
+   * Sets the value of the value property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCValue }
+   */
+  public void setValue(EQDOCValue value) {
+    this.value = value;
+  }
 
-    /**
-     * Gets the value of the guid property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getGuid() {
-        return guid;
-    }
+  /**
+   * Gets the value of the guid property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getGuid() {
+    return guid;
+  }
 
-    /**
-     * Sets the value of the guid property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setGuid(String value) {
-        this.guid = value;
-    }
+  /**
+   * Sets the value of the guid property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setGuid(String value) {
+    this.guid = value;
+  }
 
 }

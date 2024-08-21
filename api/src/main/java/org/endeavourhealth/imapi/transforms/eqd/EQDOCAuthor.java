@@ -18,9 +18,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for EQDOC.Author complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.Author"&gt;
  *   &lt;complexContent&gt;
@@ -33,67 +33,57 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.Author", propOrder = {
-    "userInRole",
-    "authorName"
+  "userInRole",
+  "authorName"
 })
 public class EQDOCAuthor {
 
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String userInRole;
-    protected String authorName;
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String userInRole;
+  protected String authorName;
 
-    /**
-     * Gets the value of the userInRole property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserInRole() {
-        return userInRole;
-    }
+  /**
+   * Gets the value of the userInRole property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getUserInRole() {
+    return userInRole;
+  }
 
-    /**
-     * Sets the value of the userInRole property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUserInRole(String value) {
-        this.userInRole = value;
-    }
+  /**
+   * Sets the value of the userInRole property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setUserInRole(String value) {
+    this.userInRole = value;
+  }
 
-    /**
-     * Gets the value of the authorName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAuthorName() {
-        return authorName;
-    }
+  /**
+   * Gets the value of the authorName property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getAuthorName() {
+    return authorName;
+  }
 
-    /**
-     * Sets the value of the authorName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAuthorName(String value) {
-        this.authorName = value;
-    }
+  /**
+   * Sets the value of the authorName property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setAuthorName(String value) {
+    this.authorName = value;
+  }
 
 }

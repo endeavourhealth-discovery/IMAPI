@@ -11,15 +11,16 @@ package org.endeavourhealth.imapi.transforms.eqd;
 import jakarta.xml.bind.annotation.*;
 import jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * <p>Java class for EQDOC.CriteriaGroupDefinition complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.CriteriaGroupDefinition"&gt;
  *   &lt;complexContent&gt;
@@ -33,101 +34,89 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.CriteriaGroupDefinition", propOrder = {
-    "memberOperator",
-    "criteria",
-    "parentPopulationGuid"
+  "memberOperator",
+  "criteria",
+  "parentPopulationGuid"
 })
 public class EQDOCCriteriaGroupDefinition {
 
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "token")
-    protected VocMemberOperator memberOperator;
-    @XmlElement(required = true)
-    protected List<EQDOCCriteria> criteria;
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String parentPopulationGuid;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "token")
+  protected VocMemberOperator memberOperator;
+  @XmlElement(required = true)
+  protected List<EQDOCCriteria> criteria;
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String parentPopulationGuid;
 
-    /**
-     * Gets the value of the memberOperator property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocMemberOperator }
-     *     
-     */
-    public VocMemberOperator getMemberOperator() {
-        return memberOperator;
-    }
+  /**
+   * Gets the value of the memberOperator property.
+   *
+   * @return possible object is
+   * {@link VocMemberOperator }
+   */
+  public VocMemberOperator getMemberOperator() {
+    return memberOperator;
+  }
 
-    /**
-     * Sets the value of the memberOperator property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocMemberOperator }
-     *     
-     */
-    public void setMemberOperator(VocMemberOperator value) {
-        this.memberOperator = value;
-    }
+  /**
+   * Sets the value of the memberOperator property.
+   *
+   * @param value allowed object is
+   *              {@link VocMemberOperator }
+   */
+  public void setMemberOperator(VocMemberOperator value) {
+    this.memberOperator = value;
+  }
 
-    /**
-     * Gets the value of the criteria property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the criteria property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getCriteria().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCCriteria }
-     * 
-     * 
-     */
-    public List<EQDOCCriteria> getCriteria() {
-        if (criteria == null) {
-            criteria = new ArrayList<EQDOCCriteria>();
-        }
-        return this.criteria;
+  /**
+   * Gets the value of the criteria property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the criteria property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getCriteria().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCCriteria }
+   */
+  public List<EQDOCCriteria> getCriteria() {
+    if (criteria == null) {
+      criteria = new ArrayList<EQDOCCriteria>();
     }
+    return this.criteria;
+  }
 
-    /**
-     * Gets the value of the parentPopulationGuid property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getParentPopulationGuid() {
-        return parentPopulationGuid;
-    }
+  /**
+   * Gets the value of the parentPopulationGuid property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getParentPopulationGuid() {
+    return parentPopulationGuid;
+  }
 
-    /**
-     * Sets the value of the parentPopulationGuid property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setParentPopulationGuid(String value) {
-        this.parentPopulationGuid = value;
-    }
+  /**
+   * Sets the value of the parentPopulationGuid property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setParentPopulationGuid(String value) {
+    this.parentPopulationGuid = value;
+  }
 
 }

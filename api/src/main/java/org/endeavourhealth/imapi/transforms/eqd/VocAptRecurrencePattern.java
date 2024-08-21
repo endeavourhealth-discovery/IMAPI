@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.AptRecurrencePattern.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -28,49 +28,43 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.AptRecurrencePattern")
 @XmlEnum
 public enum VocAptRecurrencePattern {
 
 
-    /**
-     * Hourly
-     * 
-     */
-    HOUR,
+  /**
+   * Hourly
+   */
+  HOUR,
 
-    /**
-     * Daily
-     * 
-     */
-    DAY,
+  /**
+   * Daily
+   */
+  DAY,
 
-    /**
-     * Weekly
-     * 
-     */
-    WEEK,
+  /**
+   * Weekly
+   */
+  WEEK,
 
-    /**
-     * Monthly
-     * 
-     */
-    MONTH,
+  /**
+   * Monthly
+   */
+  MONTH,
 
-    /**
-     * Yearly
-     * 
-     */
-    YEAR;
+  /**
+   * Yearly
+   */
+  YEAR;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocAptRecurrencePattern fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocAptRecurrencePattern fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

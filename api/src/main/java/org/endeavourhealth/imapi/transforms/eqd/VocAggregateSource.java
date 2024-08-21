@@ -15,7 +15,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.AggregateSource.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -27,35 +27,34 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.AggregateSource")
 @XmlEnum
 public enum VocAggregateSource {
 
-    @XmlEnumValue("population")
-    POPULATION("population"),
-    @XmlEnumValue("record")
-    RECORD("record"),
-    @XmlEnumValue("column")
-    COLUMN("column");
-    private final String value;
+  @XmlEnumValue("population")
+  POPULATION("population"),
+  @XmlEnumValue("record")
+  RECORD("record"),
+  @XmlEnumValue("column")
+  COLUMN("column");
+  private final String value;
 
-    VocAggregateSource(String v) {
-        value = v;
-    }
+  VocAggregateSource(String v) {
+    value = v;
+  }
 
-    public String value() {
-        return value;
-    }
+  public String value() {
+    return value;
+  }
 
-    public static VocAggregateSource fromValue(String v) {
-        for (VocAggregateSource c: VocAggregateSource.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
+  public static VocAggregateSource fromValue(String v) {
+    for (VocAggregateSource c : VocAggregateSource.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
+    throw new IllegalArgumentException(v);
+  }
 
 }

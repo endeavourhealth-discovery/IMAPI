@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.SingleValueConstant.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -25,31 +25,28 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.SingleValueConstant")
 @XmlEnum
 public enum VocSingleValueConstant {
 
 
-    /**
-     * Actual search date
-     * 
-     */
-    SEARCHDATE,
+  /**
+   * Actual search date
+   */
+  SEARCHDATE,
 
-    /**
-     * Todays date
-     * 
-     */
-    TODAY;
+  /**
+   * Todays date
+   */
+  TODAY;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocSingleValueConstant fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocSingleValueConstant fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

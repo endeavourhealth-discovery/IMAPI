@@ -9,15 +9,16 @@
 package org.endeavourhealth.imapi.transforms.eqd;
 
 import jakarta.xml.bind.annotation.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * <p>Java class for EQDOC.Exception complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.Exception"&gt;
  *   &lt;complexContent&gt;
@@ -30,73 +31,65 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.Exception", propOrder = {
-    "codeSystem",
-    "values"
+  "codeSystem",
+  "values"
 })
 public class EQDOCException {
 
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "token")
-    protected VocCodeSystemEx codeSystem;
-    @XmlElement(required = true)
-    protected List<EQDOCExceptionValue> values;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "token")
+  protected VocCodeSystemEx codeSystem;
+  @XmlElement(required = true)
+  protected List<EQDOCExceptionValue> values;
 
-    /**
-     * Gets the value of the codeSystem property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocCodeSystemEx }
-     *     
-     */
-    public VocCodeSystemEx getCodeSystem() {
-        return codeSystem;
-    }
+  /**
+   * Gets the value of the codeSystem property.
+   *
+   * @return possible object is
+   * {@link VocCodeSystemEx }
+   */
+  public VocCodeSystemEx getCodeSystem() {
+    return codeSystem;
+  }
 
-    /**
-     * Sets the value of the codeSystem property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocCodeSystemEx }
-     *     
-     */
-    public void setCodeSystem(VocCodeSystemEx value) {
-        this.codeSystem = value;
-    }
+  /**
+   * Sets the value of the codeSystem property.
+   *
+   * @param value allowed object is
+   *              {@link VocCodeSystemEx }
+   */
+  public void setCodeSystem(VocCodeSystemEx value) {
+    this.codeSystem = value;
+  }
 
-    /**
-     * Gets the value of the values property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the values property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getValues().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCExceptionValue }
-     * 
-     * 
-     */
-    public List<EQDOCExceptionValue> getValues() {
-        if (values == null) {
-            values = new ArrayList<EQDOCExceptionValue>();
-        }
-        return this.values;
+  /**
+   * Gets the value of the values property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the values property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getValues().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCExceptionValue }
+   */
+  public List<EQDOCExceptionValue> getValues() {
+    if (values == null) {
+      values = new ArrayList<EQDOCExceptionValue>();
     }
+    return this.values;
+  }
 
 }

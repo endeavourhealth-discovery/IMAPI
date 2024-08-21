@@ -25,20 +25,20 @@ public class QueryDescriptor {
     contextTerms = new HashMap<>();
     nodeRefNames = new HashMap<>();
     contextTerms.putAll(Map.of(
-      PATIENT + Context.single, PATIENT,
-      PATIENT + Context.plural, "Patients",
-      IM.NAMESPACE + "Observation" + Context.type, "",
-      IM.NAMESPACE + "observation" + Context.path, "",
-      IM.NAMESPACE + "concept" + Context.property, "",
-      IM.NAMESPACE + "Prescription" + Context.type, "Prescription for ",
-      "DATE" + Context.plural, "",
-      "YEAR" + Context.plural, "years",
-      "MONTH" + Context.plural, "months",
-      "DAY" + Context.plural, "days"));
+      PATIENT + Context.SINGLE, PATIENT,
+      PATIENT + Context.PLURAL, "Patients",
+      IM.NAMESPACE + "Observation" + Context.TYPE, "",
+      IM.NAMESPACE + "observation" + Context.PATH, "",
+      IM.NAMESPACE + "concept" + Context.PROPERTY, "",
+      IM.NAMESPACE + "Prescription" + Context.TYPE, "Prescription for ",
+      "DATE" + Context.PLURAL, "",
+      "YEAR" + Context.PLURAL, "years",
+      "MONTH" + Context.PLURAL, "months",
+      "DAY" + Context.PLURAL, "days"));
     contextTerms.putAll(Map.of(
-      "YEARS" + Context.plural, "years",
-      "MONTHS" + Context.plural, "months",
-      "DAYS" + Context.plural, "days"));
+      "YEARS" + Context.PLURAL, "years",
+      "MONTHS" + Context.PLURAL, "months",
+      "DAYS" + Context.PLURAL, "days"));
   }
 
   public Query describeQuery(String queryIri) throws JsonProcessingException {
@@ -103,7 +103,7 @@ public class QueryDescriptor {
       display = "is ";
     }
     if (ref.getName() != null) {
-      display = display + getTermInContext(ref.getName(), Context.property);
+      display = display + getTermInContext(ref.getName(), Context.PROPERTY);
     }
     if (ref.getIri() != null) {
       display = processRefIri(display, ref);
@@ -119,8 +119,8 @@ public class QueryDescriptor {
   }
 
   private String processRefIri(String display, PropertyRef ref) {
-    if (contextTerms.get(ref.getIri() + Context.property) != null) {
-      display = display + contextTerms.get(ref.getIri() + Context.property);
+    if (contextTerms.get(ref.getIri() + Context.PROPERTY) != null) {
+      display = display + contextTerms.get(ref.getIri() + Context.PROPERTY);
       if (ref.isInverse()) {
         display = display + " of ";
       }
@@ -128,8 +128,8 @@ public class QueryDescriptor {
       String name = repo.getEntityPredicates(ref.getIri(), Set.of(RDFS.LABEL)).getEntity().getName();
       if (name == null)
         name = ref.getIri();
-      contextTerms.put(ref.getIri() + Context.property, name);
-      display = display + getTermInContext(name, Context.property);
+      contextTerms.put(ref.getIri() + Context.PROPERTY, name);
+      display = display + getTermInContext(name, Context.PROPERTY);
     }
     return display;
   }
@@ -169,7 +169,7 @@ public class QueryDescriptor {
     if (matchType != MatchType.WHERE_MATCH) {
 
       if (match.getTypeOf() != null) {
-        display.append(getTermInContext(match.getTypeOf(), Context.type));
+        display.append(getTermInContext(match.getTypeOf(), Context.TYPE));
       }
       if (match.getInstanceOf() != null) {
         display.append("in the cohort :'").append(describeInstance(match.getInstanceOf())).append("'");
@@ -222,7 +222,7 @@ public class QueryDescriptor {
         display.append(set.getName());
         display.append("'");
       } else {
-        display.append("'").append(getTermInContext(set, Context.type)).append("'");
+        display.append("'").append(getTermInContext(set, Context.TYPE)).append("'");
       }
     }
     return display.toString();
@@ -280,7 +280,7 @@ public class QueryDescriptor {
   private void describeValueWhere(StringBuilder display, Where where, boolean isDate) {
     Operator operator = where.getOperator();
     String value = where.getValue() != null ? where.getValue() + " " : "";
-    String units = where.getUnit() == null ? "" : getTermInContext(where.getUnit(), Context.plural);
+    String units = where.getUnit() == null ? "" : getTermInContext(where.getUnit(), Context.PLURAL);
     if (isDate) {
       describeDateRangePart(display, where, operator, value, value.startsWith("-"), units);
     } else {
@@ -308,7 +308,7 @@ public class QueryDescriptor {
   }
 
   private void describeRange(StringBuilder display, Where where, Operator fromOperator, String fromValue, Operator toOperator, String toValue) {
-    String units = where.getUnit() == null ? "" : getTermInContext(where.getUnit(), Context.plural);
+    String units = where.getUnit() == null ? "" : getTermInContext(where.getUnit(), Context.PLURAL);
     if (where.getRelativeTo() != null)
       display.append("between ");
     switch (fromOperator) {
@@ -339,7 +339,7 @@ public class QueryDescriptor {
   private void describeDateRange(StringBuilder display, Where where, Operator fromOperator, String fromValue, Operator toOperator, String toValue) {
     boolean fromPast = false;
     boolean toPast = false;
-    String units = where.getUnit() == null ? "" : getTermInContext(where.getUnit(), Context.plural);
+    String units = where.getUnit() == null ? "" : getTermInContext(where.getUnit(), Context.PLURAL);
     if (fromValue.startsWith("-")) {
       fromPast = true;
       fromValue = fromValue.replace("-", "");
@@ -423,7 +423,7 @@ public class QueryDescriptor {
       if (set.getName() != null)
         display.append("'").append(set.getName()).append("'");
       else
-        display.append("'").append(getTermInContext(set, Context.value)).append("'");
+        display.append("'").append(getTermInContext(set, Context.VALUE)).append("'");
     }
     return display.toString();
   }

@@ -1,19 +1,17 @@
 package org.endeavourhealth.imapi.transforms;
 
 
+import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.IOException;
-import java.util.zip.DataFormatException;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EqdListToIMQ {
   private EqdResources resources;
 
-  public void convertReport(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException, IOException, QueryException {
+  public void convertReport(EQDOCReport eqReport, Query query, EqdResources resources) throws IOException, QueryException, EQDException {
     this.resources = resources;
     String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
     query.match(f -> f
@@ -28,7 +26,7 @@ public class EqdListToIMQ {
   }
 
 
-  private void convertListGroup(EQDOCListColumnGroup eqColGroup, Query subQuery) throws DataFormatException, IOException, QueryException {
+  private void convertListGroup(EQDOCListColumnGroup eqColGroup, Query subQuery) throws IOException, QueryException, EQDException {
     String eqTable = eqColGroup.getLogicalTableName();
     subQuery.setName(eqColGroup.getDisplayName());
     if (eqColGroup.getCriteria() == null) {
@@ -38,19 +36,20 @@ public class EqdListToIMQ {
     }
   }
 
-  private void convertPatientColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws DataFormatException {
+  private void convertPatientColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws EQDException {
     EQDOCListColumns eqCols = eqColGroup.getColumnar();
     Return select = new Return();
     subQuery.addReturn(select);
     for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
       String eqColumn = String.join("/", eqCol.getColumn());
-      String propertyPath = resources.getPath(eqTable + "/" + eqColumn);
+      String eqULR = eqTable + "/" + eqColumn;
+      String propertyPath = resources.getPath(eqULR);
       convertColumn(select, propertyPath);
     }
   }
 
 
-  private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws DataFormatException, IOException, QueryException {
+  private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws IOException, QueryException, EQDException {
     Return aReturn = new Return();
     subQuery.addReturn(aReturn);
 
@@ -66,7 +65,8 @@ public class EqdListToIMQ {
     EQDOCListColumns eqCols = eqColGroup.getColumnar();
     for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
       String eqColumn = String.join("/", eqCol.getColumn());
-      String subPath = resources.getPath(eqTable + "/" + eqColumn);
+      String eqURL = eqTable + "/" + eqColumn;
+      String subPath = resources.getPath(eqURL);
       convertColumn(aReturn, subPath);
     }
   }
@@ -75,7 +75,7 @@ public class EqdListToIMQ {
     ReturnProperty property = new ReturnProperty();
     aReturn.addProperty(property);
     if (subPath.contains(" ")) {
-      String elements[] = subPath.split(" ");
+      String[] elements = subPath.split(" ");
       for (int i = 0; i < elements.length; i = i + 2) {
         property.setIri(IM.NAMESPACE + elements[i]);
         if (i < (elements.length - 2)) {

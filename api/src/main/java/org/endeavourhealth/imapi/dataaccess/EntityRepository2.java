@@ -20,11 +20,9 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class EntityRepository2 {
   private static final Logger LOG = LoggerFactory.getLogger(EntityRepository2.class);
 
-  private String IM_PREFIX = "PREFIX im: <" + IM.NAMESPACE + ">";
-  private String RDFS_PREFIX = "PREFIX rdfs: <" + RDFS.NAMESPACE + ">";
-  private String RDF_PREFIX = "PREFIX rdf: <" + RDF.NAMESPACE + ">";
-  private String SH_PREFIX = "PREFIX sh: <" + SHACL.NAMESPACE + ">";
-  private String SN_PREFIX = "PREFIX sn: <" + SNOMED.NAMESPACE + ">";
+  private static final String IM_PREFIX = "PREFIX im: <" + IM.NAMESPACE + ">";
+  private static final String RDFS_PREFIX = "PREFIX rdfs: <" + RDFS.NAMESPACE + ">";
+  private static final String RDF_PREFIX = "PREFIX rdf: <" + RDF.NAMESPACE + ">";
 
   public static Map<String, String> getIriNames(RepositoryConnection conn, Set<TTIriRef> iris) {
     Map<String, String> names = new HashMap<>();
@@ -378,15 +376,15 @@ public class EntityRepository2 {
   }
 
   public Map<String, Set<String>> getAllMatchedLegacy() {
-    StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add(IM_PREFIX)
-      .add(RDFS_PREFIX)
-      .add(RDF_PREFIX)
-      .add("select ?legacy ?concept")
-      .add("where {?legacy im:matchedTo ?concept.}");
+    String sql = """
+      SELECT ?legacy ?concept
+      WHERE {
+        ?legacy im:matchedTo ?concept.
+      }
+      """;
     Map<String, Set<String>> maps = new HashMap<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
       TTIriRef concept = new TTIriRef();
       try (TupleQueryResult gs = qry.evaluate()) {
         while (gs.hasNext()) {
@@ -466,11 +464,13 @@ public class EntityRepository2 {
         sql.add("   FILTER (?1predicate IN (" + inPredicates + "))");
       sql.add("}");
       if (!excludePredicates) {
-        sql.add("UNION {");
-        sql.add("  ?1predicate owl:inverseOf ?1revPredicate .");
-        sql.add("  ?1Level ?1revPredicate ?entity");
-        sql.add("   FILTER (?1predicate IN (" + inPredicates + "))");
-        sql.add("}");
+        sql.add("""
+          UNION {
+          ?1predicate owl:inverseOf ?1revPredicate .
+          ?1Level ?1revPredicate ?entity
+          FILTER (?1predicate IN (%s))
+          }
+          """.formatted(inPredicates));
       }
 
     } else sql.add("}");
@@ -488,7 +488,7 @@ public class EntityRepository2 {
     return sql;
   }
 
-  private void processStatement(TTBundle bundle, Map<String, TTValue> tripleMap, String entityIri, Statement st) throws RuntimeException {
+  private void processStatement(TTBundle bundle, Map<String, TTValue> tripleMap, String entityIri, Statement st) {
     TTEntity entity = bundle.getEntity();
     Resource s = st.getSubject();
     IRI p = st.getPredicate();
@@ -550,8 +550,6 @@ public class EntityRepository2 {
   public String getExpansionAsGraph(TTArray definition, boolean includeLegacy) {
     Map<String, String> prefixMap = new HashMap<>();
     StringJoiner spql = new StringJoiner(System.lineSeparator())
-      .add(IM_PREFIX)
-      .add(RDFS_PREFIX)
       .add("CONSTRUCT {?concept rdfs:label ?name.")
       .add("?concept im:code ?code.")
       .add("?concept im:scheme ?legacyScheme")
@@ -568,8 +566,7 @@ public class EntityRepository2 {
     spql.add("{SELECT distinct ?concept");
     whereClause(definition, spql, prefixMap);
     spql.add("}");
-    spql = insertPrefixes(spql, prefixMap);
-    return spql.toString();
+    return addSparqlPrefixes(spql.toString());
   }
 
   private void whereClause(TTArray definition, StringJoiner spql, Map<String, String> prefixMap) {
@@ -607,7 +604,7 @@ public class EntityRepository2 {
       if (superClass.isIriRef())
         values.append(getShort(superClass.asIriRef().getIri(), prefixMap)).append(" ");
     }
-    if (!values.toString().equals("")) {
+    if (!values.toString().isEmpty()) {
       spql.add("{ ?concept " + isa(prefixMap) + " ?superClass.");
       values = new StringBuilder("VALUES ?superClass {" + values + "}");
       spql.add(values.toString());
@@ -752,21 +749,6 @@ public class EntityRepository2 {
     spql.add("}");
   }
 
-  private StringJoiner insertPrefixes(StringJoiner spql, Map<String, String> prefixMap) {
-    StringBuilder sb = new StringBuilder();
-    for (Map.Entry<String, String> entry : prefixMap.entrySet()) {
-      sb.append("PREFIX ")
-        .append(entry.getValue())
-        .append(": <")
-        .append(entry.getKey())
-        .append(">\n");
-    }
-    String spqlString = spql.toString();
-    return new StringJoiner(System.lineSeparator())
-      .add(sb.toString())
-      .add(spqlString);
-  }
-
   public boolean isSet(String iri) {
     StringJoiner sql = new StringJoiner(System.lineSeparator())
       .add(RDF_PREFIX)
@@ -790,16 +772,16 @@ public class EntityRepository2 {
   public List<String> getMemberIris(String iri) {
     List<String> result = new ArrayList<>();
 
-    StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add(IM_PREFIX)
-      .add(SH_PREFIX)
-      .add("SELECT ?o2 WHERE {")
-      .add("?s im:definition ?o .")
-      .add("?o (sh:or|sh:and) ?o2 .")
-      .add("}");
+    String sql = """
+      SELECT ?o2
+      WHERE {
+        ?s im:definition ?o .
+        ?o (sh:or|sh:and) ?o2 .
+      }
+      """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
       qry.setBinding("s", Values.iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -821,15 +803,16 @@ public class EntityRepository2 {
   public Set<TTIriRef> getIsSubsetOf(String subsetIri) {
     Set<TTIriRef> result = new HashSet<>();
 
-    StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add(IM_PREFIX)
-      .add("SELECT ?set ?name WHERE {")
-      .add("?subset ?issubset ?set .")
-      .add("?set ?label ?name .")
-      .add("}");
+    String sql = """
+      SELECT ?set ?name
+      WHERE {
+        ?subset ?issubset ?set .
+        ?set ?label ?name .
+      }
+      """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
       qry.setBinding("subset", Values.iri(subsetIri));
       qry.setBinding("issubset", Values.iri(IM.IS_SUBSET_OF));
       qry.setBinding("label", Values.iri(RDFS.LABEL));
@@ -854,7 +837,7 @@ public class EntityRepository2 {
     String sql = getLinkedShapeSql();
     Set<TTEntity> shapes = new HashSet<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      GraphQuery qry = conn.prepareGraphQuery(sql);
+      GraphQuery qry = conn.prepareGraphQuery(addSparqlPrefixes(sql));
       qry.setBinding("shape", Values.iri(iri));
       try (GraphQueryResult gs = qry.evaluate()) {
         Map<String, TTValue> valueMap = new HashMap<>();
@@ -902,24 +885,23 @@ public class EntityRepository2 {
   }
 
   private String getLinkedShapeSql() {
-    return new StringJoiner(System.lineSeparator())
-      .add(RDF_PREFIX)
-      .add(RDFS_PREFIX)
-      .add(IM_PREFIX)
-      .add(SH_PREFIX)
-      .add("Construct {")
-      .add("    ?s ?p ?o.")
-      .add("    ?sub ?p2 ?o2.")
-      .add("    ?o2 ?p3 ?o3.")
-      .add("}")
-      .add("where { ?s ?p ?o.")
-      .add("    filter (?s= ?shape)")
-      .add("    ?s (sh:property|sh:node)+ ?sub.")
-      .add("    ?sub ?p2 ?o2.")
-      .add("    Optional { ?o2 ?p3 ?o3")
-      .add("        filter (isBlank(?o2))}")
-      .add("}")
-      .toString();
+    return """
+      CONSTRUCT {
+        ?s ?p ?o.
+        ?sub ?p2 ?o2.
+        ?o2 ?p3 ?o3.
+      }
+      WHERE {
+        ?s ?p ?o.
+        FILTER (?s= ?shape)
+        ?s (sh:property|sh:node)+ ?sub.
+        ?sub ?p2 ?o2.
+        OPTIONAL {
+          ?o2 ?p3 ?o3
+          FILTER (isBlank(?o2))
+        }
+      }
+      """;
   }
 }
 

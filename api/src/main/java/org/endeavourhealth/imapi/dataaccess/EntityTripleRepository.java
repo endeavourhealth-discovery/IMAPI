@@ -51,17 +51,21 @@ public class EntityTripleRepository {
     List<TTIriRef> result = new ArrayList<>();
 
     StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add("PREFIX shacl: <http://www.w3.org/ns/shacl#>")
-      .add("SELECT DISTINCT ?s ?name WHERE {")
-      .add("    { ?s ?p ?o . }")
-      .add("    UNION")
-      .add("    { ?s shacl:property ?prop .")
-      .add("        ?prop shacl:path ?propIri .")
-      .add("        FILTER(?propIri = ?o) }")
-      .add("    ?s rdfs:label ?name .")
-      .add("    ?s im:status ?status .")
-      .add("    FILTER (?p != rdfs:subclassOf && ?status != im:Inactive)")
-      .add("}");
+      .add("""
+        PREFIX shacl: <http://www.w3.org/ns/shacl#>
+        SELECT DISTINCT ?s ?name
+        WHERE {
+          { ?s ?p ?o . }
+          UNION {
+            ?s shacl:property ?prop .
+            ?prop shacl:path ?propIri .
+            FILTER(?propIri = ?o) 
+          }
+          ?s rdfs:label ?name .
+          ?s im:status ?status .
+          FILTER (?p != rdfs:subclassOf && ?status != im:Inactive)
+        }
+        """);
 
     if (rowNumber != null && pageSize != null) {
       sql.add("LIMIT " + pageSize + " OFFSET " + rowNumber);

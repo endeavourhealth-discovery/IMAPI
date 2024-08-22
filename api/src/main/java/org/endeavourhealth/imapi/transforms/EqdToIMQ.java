@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.logic.service.QueryDescriptor;
+import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.imq.*;
@@ -9,21 +10,24 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.io.IOException;
 import java.util.*;
-import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EqdToIMQ {
+  private static final Logger LOG = LoggerFactory.getLogger(EqdToIMQ.class);
+  public static final String URN_UUID = "urn:uuid:";
   private final EqdResources resources = new EqdResources();
 
 
   public ModelDocument convertEQD(EnquiryDocument eqd, Properties dataMap,
 
-                                  Properties criteriaLabels) throws DataFormatException, IOException, QueryException {
+                                  Properties criteriaLabels) throws IOException, QueryException, EQDException {
 
     resources.setDataMap(dataMap);
     resources.setDocument(new ModelDocument());
@@ -42,27 +46,27 @@ public class EqdToIMQ {
 
   }
 
-  private void convertReports(EnquiryDocument eqd) throws DataFormatException, IOException, QueryException {
+  private void convertReports(EnquiryDocument eqd) throws IOException, QueryException, EQDException {
     for (EQDOCReport eqReport : Objects.requireNonNull(eqd.getReport())) {
       if (eqReport.getId() == null)
-        throw new DataFormatException("No report id");
+        throw new EQDException("No report id");
       if (eqReport.getName() == null)
-        throw new DataFormatException("No report name");
-      System.out.println(eqReport.getName());
+        throw new EQDException("No report name");
+      LOG.info(eqReport.getName());
       QueryEntity qry = convertReport(eqReport);
       resources.getDocument().addQuery(qry);
     }
   }
 
-  private void convertFolders(EnquiryDocument eqd) throws DataFormatException {
+  private void convertFolders(EnquiryDocument eqd) throws EQDException {
     List<EQDOCFolder> eqFolders = eqd.getReportFolder();
     if (eqFolders != null) {
       for (EQDOCFolder eqFolder : eqFolders) {
         if (eqFolder.getId() == null)
-          throw new DataFormatException("No folder id");
+          throw new EQDException("No folder id");
         if (eqFolder.getName() == null)
-          throw new DataFormatException("No folder name");
-        String iri = "urn:uuid:" + eqFolder.getId();
+          throw new EQDException("No folder name");
+        String iri = URN_UUID + eqFolder.getId();
         Entity folder = new Entity()
           .setIri(iri)
           .addType(iri(IM.FOLDER))
@@ -73,16 +77,16 @@ public class EqdToIMQ {
   }
 
 
-  public QueryEntity convertReport(EQDOCReport eqReport) throws DataFormatException, IOException, QueryException {
+  public QueryEntity convertReport(EQDOCReport eqReport) throws IOException, QueryException, EQDException {
 
     resources.setActiveReport(eqReport.getId());
     resources.setActiveReportName(eqReport.getName());
     QueryEntity queryEntity = new QueryEntity();
-    queryEntity.setIri("urn:uuid:" + eqReport.getId());
+    queryEntity.setIri(URN_UUID + eqReport.getId());
     queryEntity.setName(eqReport.getName());
     queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
     if (eqReport.getFolder() != null)
-      queryEntity.addIsContainedIn(new TTEntity(("urn:uuid:" + eqReport.getFolder())).setName(eqReport.getName()));
+      queryEntity.addIsContainedIn(new TTEntity((URN_UUID + eqReport.getFolder())).setName(eqReport.getName()));
 
     Query qry = new Query();
 
@@ -103,7 +107,7 @@ public class EqdToIMQ {
   }
 
 
-  private void flattenQuery(Query qry) throws QueryException {
+  private void flattenQuery(Query qry) {
     if (qry.getBoolMatch() == Bool.or) {
       return;
     }
@@ -115,15 +119,13 @@ public class EqdToIMQ {
     qry.setMatch(flatMatches);
   }
 
-  private void flattenAnds(List<Match> topMatches, List<Match> flatMatches) throws QueryException {
+  private void flattenAnds(List<Match> topMatches, List<Match> flatMatches) {
     for (Match topMatch : topMatches) {
       //Top level match, no nested match
       if (topMatch.getMatch() == null) {
         flatMatches.add(topMatch);
       } else if (topMatch.getBoolMatch() != Bool.or) {
-        for (Match andMatch : topMatch.getMatch()) {
-          flatMatches.add(andMatch);
-        }
+        flatMatches.addAll(topMatch.getMatch());
       } else {
         flatMatches.add(topMatch);
       }

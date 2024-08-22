@@ -88,8 +88,8 @@ public class FileRepository {
           Set<String> parents = parentMap.computeIfAbsent(child, k -> new HashSet<>());
           parents.add(parent);
         }
-        if (count % 1000000 == 0)
-          LOG.info(count + " relationships collected");
+        if (count % 1_000_000 == 0)
+          LOG.info("{} relationships collected", count);
         line = reader.readLine();
       }
     }
@@ -150,7 +150,7 @@ public class FileRepository {
         String[] fields = line.split("\t");
         String legacy = fields[0];
         if (fields.length < 2) {
-          LOG.info("invalid line " + line);
+          LOG.info("invalid line {}", line);
           String x = reader.readLine();
           LOG.info(x);
           line = line + x;

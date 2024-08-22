@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.client.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
@@ -17,16 +19,17 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class OpenSearchSender {
@@ -55,8 +58,6 @@ public class OpenSearchSender {
 
   public void execute(boolean update) throws IOException, InterruptedException {
     om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    // om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-    //om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
     checkEnvs();
     checkIndexExists();
 
@@ -71,24 +72,22 @@ public class OpenSearchSender {
 
   private void continueUpload(int maxId) throws IOException, InterruptedException {
     target = client.target(osUrl).path("_bulk");
-    Set<String> entityIris = new HashSet<>(2000000);
+    Set<String> entityIris = new HashSet<>(2_000_000);
     if (maxId > 0 && (cache != null)) {
       getIriCache(entityIris);
     } else {
 
-      String sql = new StringJoiner(System.lineSeparator())
-        .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-        .add("PREFIX im: <http://endhealth.info/im#>")
-        .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-        .add("select ?iri")
-        .add("where {")
-        .add("  ?iri rdfs:label ?name.")
-        .add("  filter(isIri(?iri))")
-        .add("}")
-        .add("order by ?iri").toString();
+      String sql = """
+        SELECT ?iri
+        WHERE {
+          ?iri rdfs:label ?name.
+          FILTER(isIri(?iri))
+        }
+        ORDER BY ?iri
+        """;
       try (RepositoryConnection conn = repo.getConnection()) {
         LOG.info("Fetching entity iris  ...");
-        TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
+        TupleQuery tupleQuery = conn.prepareTupleQuery(addSparqlPrefixes(sql));
 
         int count = 0;
         try (TupleQueryResult qr = tupleQuery.evaluate()) {
@@ -169,7 +168,7 @@ public class OpenSearchSender {
         line = reader.readLine();
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.error(e.getMessage(), e);
     }
   }
 
@@ -205,11 +204,9 @@ public class OpenSearchSender {
           if (rs.getValue("preferredName") != null) {
             String preferred = rs.getValue("preferredName").stringValue();
             blob.setPreferredName(preferred);
-          }
-          else if (name.contains(" (")){
+          } else if (name.contains(" (")) {
             blob.setPreferredName(name.split(" \\(")[0]);
-          }
-          else
+          } else
             blob.setPreferredName(name);
           if (rs.getValue("alternativeCode") != null) {
             String alternativeCode = rs.getValue("alternativeCode").stringValue();
@@ -266,8 +263,7 @@ public class OpenSearchSender {
         }
 
       } catch (Exception e) {
-        LOG.error("Bad Query \n{}", sql);
-        e.printStackTrace();
+        LOG.error("Bad Query \n{}", sql, e);
         System.exit(-1);
       }
     }
@@ -277,10 +273,11 @@ public class OpenSearchSender {
   private String getLengthKey(String lengthKey) {
     if (lengthKey.endsWith(")")) {
       String[] words = lengthKey.split(" \\(");
-      lengthKey = words[0];
+      StringBuilder lengthKeyBuilder = new StringBuilder(words[0]);
       for (int i = 1; i < words.length - 1; i++) {
-        lengthKey = lengthKey + " (" + words[i];
+        lengthKeyBuilder.append(" (").append(words[i]);
       }
+      lengthKey = lengthKeyBuilder.toString();
     }
     return lengthKey;
   }
@@ -338,7 +335,7 @@ public class OpenSearchSender {
             SearchTermCode tc = getTermCode(blob, synonym);
             if (tc == null) {
               blob.addTermCode(synonym, termCode, status);
-              addMatchTerm(blob,synonym);
+              addMatchTerm(blob, synonym);
             } else {
               if (termCode != null) {
                 tc.setCode(termCode);

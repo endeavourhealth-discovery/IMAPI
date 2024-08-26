@@ -106,6 +106,15 @@
     ]
   },
   {
+    "name": "IMQ",
+    "entries": [
+      {
+        "name": "NAMESPACE",
+        "value": "\"http://endhealth.info/imq#\""
+      }
+    ]
+  },
+  {
     "name": "IM",
     "entries": [
       {
@@ -2165,8 +2174,8 @@
         "value": "\"http://endhealth.info/config#\""
       },
       {
-        "name": "CEG_QUERY",
-        "value": "\"http://endhealth.info/ceg/qry#\""
+        "name": "CEG",
+        "value": "\"http://endhealth.info/ceg#\""
       },
       {
         "name": "NHS_TFC",
@@ -2187,10 +2196,6 @@
       {
         "name": "QUERY",
         "value": "\"http://endhealth.info/query#\""
-      },
-      {
-        "name": "CEG16",
-        "value": "\"http://endhealth.info/ceg16#\""
       },
       {
         "name": "REPORTS",

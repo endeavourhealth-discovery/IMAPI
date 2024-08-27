@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.dataaccess;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -9,8 +11,12 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FileRepository {
 
@@ -23,6 +29,8 @@ public class FileRepository {
   private final Map<String, Map<String, String>> termCodes = new HashMap<>();
   private final Map<String, Map<String, Set<String>>> codeIds = new HashMap<>();
   private final Map<String, String> coreIris = new HashMap<>();
+  @Setter
+  @Getter
   private String dataPath;
 
   public FileRepository(String dataPath) {
@@ -38,42 +46,23 @@ public class FileRepository {
 
   private void fetchCoreIris() throws IOException {
     String fileName = getFile("CoreIris");
-    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-      String line = reader.readLine();
-      while (line != null && !line.isEmpty()) {
-        String[] fields = line.split("\t");
-        String iri = fields[0];
-        String name = fields[1];
-        coreIris.put(iri, name);
-        line = reader.readLine();
-      }
-    }
+    readFileToStringMap(fileName, coreIris);
   }
 
   public Map<String, String> getCodeToIri() throws IOException {
     Map<String, String> codeToIri = new HashMap<>();
     String fileName = getFile("CodeMap");
-    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-      String line = reader.readLine();
-      while (line != null && !line.isEmpty()) {
-        String[] fields = line.split("\t");
-        String code = fields[0];
-        String iri = fields[1];
-        codeToIri.put(code, iri);
-        line = reader.readLine();
-      }
-    }
+    readFileToStringMap(fileName, codeToIri);
     return codeToIri;
   }
 
   public void fetchRelationships(Map<String, Map<String, Set<String>>> relationshipMap,
                                  Set<String> blockingIris) throws IOException {
     String fileName = getFile("SubTypes");
-    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-      int count = 0;
-      String line = reader.readLine();
-      while (line != null && !line.isEmpty()) {
-        count++;
+    AtomicInteger count = new AtomicInteger();
+    try (Stream<String> lines = Files.lines(Paths.get(fileName))) {
+      lines.forEach(line -> {
+        count.getAndIncrement();
         String[] fields = line.split("\t");
         String child = fields[0];
         String relationship = fields[1];
@@ -88,10 +77,9 @@ public class FileRepository {
           Set<String> parents = parentMap.computeIfAbsent(child, k -> new HashSet<>());
           parents.add(parent);
         }
-        if (count % 1_000_000 == 0)
+        if (count.get() % 1_000_000 == 0)
           LOG.info("{} relationships collected", count);
-        line = reader.readLine();
-      }
+      });
     }
   }
 
@@ -167,16 +155,7 @@ public class FileRepository {
 
   private void fetchCoreTerms() throws IOException {
     String fileName = getFile("CoreTerms");
-    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-      String line = reader.readLine();
-      while (line != null && !line.isEmpty()) {
-        String[] fields = line.split("\t");
-        String term = fields[0];
-        String iri = fields[1];
-        coreTerms.put(term, iri);
-        line = reader.readLine();
-      }
-    }
+    readFileToStringMap(fileName, coreTerms);
   }
 
   public Set<TTIriRef> getCoreFromCode(String originalCode, List<String> schemes) {
@@ -207,12 +186,8 @@ public class FileRepository {
   public Set<String> getAllEntities() throws IOException {
     Set<String> entities = new HashSet<>();
     String fileName = getFile("Entities");
-    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-      String line = reader.readLine();
-      while (line != null && !line.isEmpty()) {
-        entities.add(line);
-        line = reader.readLine();
-      }
+    try (Stream<String> lines = Files.lines(Paths.get(fileName))) {
+      lines.forEach(entities::add);
     }
     return entities;
   }
@@ -221,54 +196,20 @@ public class FileRepository {
   public void fetchCodeMap(String scheme) throws IOException {
     Map<String, Set<String>> codeSet = codes.computeIfAbsent(scheme, s -> new HashMap<>());
     String fileName = getSchemeFile("CodeMap", scheme);
-    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-      String line = reader.readLine();
-      while (line != null && !line.isEmpty()) {
-        String[] fields = line.split("\t");
-        String code = fields[0];
-        String iri = fields[1];
-        Set<String> coreSet = codeSet.computeIfAbsent(code, c -> new HashSet<>());
-        coreSet.add(iri);
-        line = reader.readLine();
-      }
-
-    }
+    readFileToSetMap(fileName, codeSet);
   }
 
   public void fetchCodeIds(String scheme) throws IOException {
     Map<String, Set<String>> codeSet = codeIds.computeIfAbsent(scheme, s -> new HashMap<>());
     String fileName = getSchemeFile("CodeIds", scheme);
-    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-      String line = reader.readLine();
-      while (line != null && !line.isEmpty()) {
-        String[] fields = line.split("\t");
-        String code = fields[0];
-        String iri = fields[1];
-        Set<String> coreSet = codeSet.computeIfAbsent(code, c -> new HashSet<>());
-        coreSet.add(iri);
-        line = reader.readLine();
-      }
-
-    }
+    readFileToSetMap(fileName, codeSet);
   }
 
 
   public void fetchTermCodes(String scheme) throws IOException {
     Map<String, String> iris = termCodes.computeIfAbsent(scheme, s -> new HashMap<>());
     String fileName = getSchemeFile("TermCodes", scheme);
-    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-      String line = reader.readLine();
-      while (line != null && !line.isEmpty()) {
-        String[] fields = line.split("\t");
-        String code = fields[0];
-        String iri = fields[1];
-        iris.put(code, iri);
-        line = reader.readLine();
-      }
-
-    }
-
-
+    readFileToStringMap(fileName, iris);
   }
 
   public Map<String, Set<String>> getDescendants(String concept) throws IOException {
@@ -278,9 +219,8 @@ public class FileRepository {
   private Map<String, Set<String>> fetchDescendants(String concept) throws IOException {
     String fileName = getFile("Descendants");
     Map<String, Set<String>> children = new HashMap<>();
-    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-      String line = reader.readLine();
-      while (line != null && !line.isEmpty()) {
+    try (Stream<String> lines = Files.lines(Paths.get(fileName))) {
+      lines.forEach(line -> {
         String[] fields = line.split("\t");
         String parent = fields[0];
         String child = fields[1];
@@ -288,9 +228,8 @@ public class FileRepository {
         if (parent.equals(concept)) {
           Set<String> childTerms = children.computeIfAbsent(child, c -> new HashSet<>());
           childTerms.add(childName);
-          line = reader.readLine();
         }
-      }
+      });
     }
     return children;
 
@@ -306,35 +245,36 @@ public class FileRepository {
   public Map<String, Set<String>> fetchCodeCoreMap(String scheme) throws IOException {
     Map<String, Set<String>> coreMap = codeCoreMap.computeIfAbsent(scheme, s -> new HashMap<>());
     String fileName = getSchemeFile("CodeCoreMap", scheme);
-    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-      String line = reader.readLine();
-      while (line != null && !line.isEmpty()) {
-        String[] fields = line.split("\t");
-        String code = fields[0];
-        String core = fields[1];
-        Set<String> coreSet = coreMap.computeIfAbsent(code, c -> new HashSet<>());
-        coreSet.add(core);
-        line = reader.readLine();
-      }
-
-    }
+    readFileToSetMap(fileName, coreMap);
     return codeCoreMap.get(scheme);
   }
 
   public void fetchTermCoreMap(String scheme) throws IOException {
     Map<String, Set<String>> coreMap = termCoreMap.computeIfAbsent(scheme, s -> new HashMap<>());
     String fileName = getSchemeFile("TermCoreMap", scheme);
-    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-      String line = reader.readLine();
-      while (line != null && !line.isEmpty()) {
+    readFileToSetMap(fileName, coreMap);
+  }
+
+  private void readFileToSetMap(String fileName, Map<String, Set<String>> coreMap) throws IOException {
+    try (Stream<String> lines = Files.lines(Paths.get(fileName))) {
+      lines.forEach(line -> {
         String[] fields = line.split("\t");
         String term = fields[0];
         String core = fields[1];
         Set<String> coreSet = coreMap.computeIfAbsent(term, c -> new HashSet<>());
         coreSet.add(core);
-        line = reader.readLine();
-      }
+      });
+    }
+  }
 
+  private void readFileToStringMap(String fileName, Map<String, String> stringMap) throws IOException {
+    try (Stream<String> lines = Files.lines(Paths.get(fileName))) {
+      lines.forEach(line -> {
+        String[] fields = line.split("\t");
+        String code = fields[0];
+        String iri = fields[1];
+        stringMap.put(code, iri);
+      });
     }
   }
 
@@ -348,11 +288,4 @@ public class FileRepository {
     return dataPath + "/" + fileType + ".txt";
   }
 
-  public String getDataPath() {
-    return dataPath;
-  }
-
-  public void setDataPath(String dataPath) {
-    this.dataPath = dataPath;
-  }
 }

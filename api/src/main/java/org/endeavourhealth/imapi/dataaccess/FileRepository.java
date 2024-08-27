@@ -141,7 +141,7 @@ public class FileRepository {
           LOG.info("invalid line {}", line);
           String x = reader.readLine();
           LOG.info(x);
-          line = line + x;
+          line = String.join("", line, x);
           fields = line.split("\t");
         }
         String core = fields[1];

@@ -408,12 +408,12 @@ public class EntityRepository {
   public List<ParentDto> findParentHierarchies(String iri) {
     List<ParentDto> result = new ArrayList<>();
 
-    String spql = new StringJoiner(System.lineSeparator())
-      .add("SELECT * {")
-      .add("?s (" + PARENT_PREDICATES + ") ?o .")
-      .add("?o rdfs:label ?name .")
-      .add("}")
-      .toString();
+    String spql = """
+      SELECT * {
+        ?s (%s) ?o .
+        ?o rdfs:label ?name .
+      }
+      """.formatted(PARENT_PREDICATES);
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = prepareSparql(conn, spql);

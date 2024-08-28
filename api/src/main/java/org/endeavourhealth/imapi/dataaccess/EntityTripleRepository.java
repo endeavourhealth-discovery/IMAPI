@@ -132,9 +132,9 @@ public class EntityTripleRepository {
           GRAPH ?g { ?s rdfs:label ?name } .
           VALUES ?s { ?iriLine }
           OPTIONAL { ?s sh:order ?order . }
-          BIND(EXISTS{?child (?parentPredicates) ?s} AS ?hasChildren)
-          BIND(EXISTS{?grandChild (?parentPredicates) ?child. ?child (?parentPredicates) ?s} AS ?hasGrandchildren)
-        """);
+          BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
+          BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?s} AS ?hasGrandchildren)
+        """.formatted(PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
 
     if (schemeIris != null && !schemeIris.isEmpty()) {
       sql.add(valueList("g", schemeIris));
@@ -149,7 +149,6 @@ public class EntityTripleRepository {
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = prepareSparql(conn, sql.toString());
       qry.setBinding("iriLine", literal(iriLine));
-      qry.setBinding("parentPredicates", literal(PARENT_PREDICATES));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -188,9 +187,9 @@ public class EntityTripleRepository {
           OPTIONAL { ?s rdf:type ?typeIri .
             OPTIONAL { ?typeIri rdfs:label ?typeName . }
           }
-          BIND(EXISTS{?child (?parentPredicates) ?s} AS ?hasChildren)
-          BIND(EXISTS{?grandChild (?parentPredicates) ?child. ?child (?parentPredicates) ?s} AS ?hasGrandchildren)
-        """);
+          BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
+          BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?s} AS ?hasGrandchildren)
+        """.formatted(PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
 
     if (schemeIris != null && !schemeIris.isEmpty()) {
       sql.add(valueList("g", schemeIris));
@@ -205,7 +204,6 @@ public class EntityTripleRepository {
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = prepareSparql(conn, sql.toString());
       qry.setBinding("s", iri(iri));
-      qry.setBinding("parentPredicates", literal(PARENT_PREDICATES));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -588,15 +586,14 @@ public class EntityTripleRepository {
     String sql = """
       SELECT ?p ?pname
       WHERE {
-        ?c (?parentPredicates) ?p .
+        ?c (%s) ?p .
         ?p rdfs:label ?pname .
       }
-      """;
+      """.formatted(PARENT_PREDICATES);
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = prepareSparql(conn, sql);
       qry.setBinding("c", iri(iri));
-      qry.setBinding("parentPredicates", literal(PARENT_PREDICATES));
 
       LOG.debug(EXECUTING);
       try (TupleQueryResult rs = qry.evaluate()) {

@@ -381,8 +381,9 @@ public class IMQToOS {
       } else
         throw new QueryException("Match clause has no iri, parameter or no parent results");
 
+    } else {
+      throw new QueryException("Match clause has no iri, parameter or node reference");
     }
-    throw new QueryException("Match clause has no iri, parameter or node reference");
   }
 
   private void addToInstanceFilters(Node type, String iri, Map<String, Set<String>> instanceFilters) {

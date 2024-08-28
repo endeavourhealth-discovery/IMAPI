@@ -665,16 +665,8 @@
         "value": "IM.NAMESPACE + \"example\""
       },
       {
-        "name": "IM1ID",
-        "value": "IM.NAMESPACE + \"im1Id\""
-      },
-      {
         "name": "PRIVACY_LEVEL",
         "value": "IM.NAMESPACE + \"privacyLevel\""
-      },
-      {
-        "name": "IM1SCHEME",
-        "value": "IM.NAMESPACE + \"im1Scheme\""
       },
       {
         "name": "VALUE_SELECT",
@@ -1019,6 +1011,10 @@
       {
         "name": "HEALTH_RECORDS",
         "value": "IM.NAMESPACE + \"HealthRecords\""
+      },
+      {
+        "name": "HAS_INCREMENTAL_FROM",
+        "value": "IM.NAMESPACE + \"hasIncrementalFrom\""
       }
     ]
   },

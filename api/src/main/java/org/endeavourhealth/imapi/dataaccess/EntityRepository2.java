@@ -14,17 +14,44 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EntityRepository2 {
   private static final Logger LOG = LoggerFactory.getLogger(EntityRepository2.class);
 
-  private String IM_PREFIX = "PREFIX im: <" + IM.NAMESPACE + ">";
-  private String RDFS_PREFIX = "PREFIX rdfs: <" + RDFS.NAMESPACE + ">";
-  private String RDF_PREFIX = "PREFIX rdf: <" + RDF.NAMESPACE + ">";
-  private String SH_PREFIX = "PREFIX sh: <" + SHACL.NAMESPACE + ">";
-  private String SN_PREFIX = "PREFIX sn: <" + SNOMED.NAMESPACE + ">";
+  private static final String IM_PREFIX = "PREFIX im: <" + IM.NAMESPACE + ">";
+  private static final String RDFS_PREFIX = "PREFIX rdfs: <" + RDFS.NAMESPACE + ">";
+  private static final String RDF_PREFIX = "PREFIX rdf: <" + RDF.NAMESPACE + ">";
 
+  public static Map<String, String> getIriNames(RepositoryConnection conn, Set<TTIriRef> iris) {
+    Map<String, String> names = new HashMap<>();
+    if (iris == null || iris.isEmpty())
+      return names;
+
+    String iriTokens = iris.stream().map(i -> "<" + i.getIri() + ">").collect(Collectors.joining(","));
+    StringJoiner sql = new StringJoiner(System.lineSeparator());
+    sql.add("SELECT ?iri ?label ?description")
+      .add("WHERE {")
+      .add("?iri rdfs:label ?label.");
+    sql.add("Optional { ?iri rdfs:comment ?description }");
+    sql.add(" filter (?iri in (")
+      .add(iriTokens + "))")
+      .add("}");
+    TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+    try (TupleQueryResult rs = qry.evaluate()) {
+      while (rs.hasNext()) {
+        BindingSet bs = rs.next();
+        TTIriRef iri = iri(bs.getValue("iri").stringValue());
+        iris.stream().filter(i -> i.equals(iri))
+          .findFirst().ifPresent(i -> {
+            i.setName(bs.getValue("label").stringValue());
+            if (bs.getValue("description") != null) i.setDescription(bs.getValue("description").stringValue());
+          });
+      }
+    }
+    return names;
+  }
 
   /**
    * An alternative method of getting an entity definition assuming all predicates inclided
@@ -46,7 +73,6 @@ public class EntityRepository2 {
   public TTBundle getBundle(String iri, Set<String> predicates) {
     return getBundle(iri, predicates, false);
   }
-
 
   /**
    * An alternative method of getting an entity definition
@@ -118,48 +144,49 @@ public class EntityRepository2 {
   }
 
   public Map<String, String> getNameMap(Set<TTIriRef> iris) {
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      Map<String, String> nameMap = new HashMap<>();
-      getNames(iris);
-      for (TTIriRef iri : iris) {
-        nameMap.put(iri.getIri(), iri.getName());
-      }
-      return nameMap;
+    Map<String, String> nameMap = new HashMap<>();
+    getNames(iris);
+    for (TTIriRef iri : iris) {
+      nameMap.put(iri.getIri(), iri.getName());
     }
+    return nameMap;
   }
 
   /**
    * creates ranges for properties without ranges where the super properties have them
    */
   public void inheritRanges(RepositoryConnection conn) {
-    StringJoiner sql = new StringJoiner("\n")
-      .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" +
-        "insert {?property rdfs:range ?range}" +
-        "where {\n" +
-        "    {\n" +
-        "   Select ?property ?range\n" +
-        "   where {\n" +
-        "    ?property rdf:type rdf:Property.\n" +
-        "    #filter (?property= <http://snomed.info/sct#10362801000001104> )\n" +
-        "    ?property (rdfs:subClassOf)* ?superclass.\n" +
-        "    filter not exists { \n" +
-        "        ?property (rdfs:subClassOf) [\n" +
-        "            (rdfs:subClassOf)+ ?superclass]}\n" +
-        "            filter not exists {?property rdfs:range ?anyrange}\n" +
-        "    ?superclass rdfs:range ?range. \n" +
-        "    ?range rdfs:label ?rlabel.\n" +
-        "   }}}");
+    String sql = """
+      INSERT {?property rdfs:range ?range}
+      WHERE {
+        SELECT ?property ?range
+        WHERE {
+          ?property rdf:type rdf:Property.
+          {
+            #filter (?property= <http://snomed.info/sct#10362801000001104> )
+            ?property (rdfs:subClassOf)* ?superclass.
+            filter not exists {
+              ?property (rdfs:subClassOf) [
+                (rdfs:subClassOf)+ ?superclass
+              ]
+            }
+            filter not exists {?property rdfs:range ?anyrange}
+            ?superclass rdfs:range ?range.
+            ?range rdfs:label ?rlabel.
+          }
+        }
+      }
+      """;
     if (conn != null) {
-      Update upd = conn.prepareUpdate(sql.toString());
+      Update upd = conn.prepareUpdate(addSparqlPrefixes(sql));
       upd.execute();
     } else {
       try (RepositoryConnection conn2 = ConnectionManager.getIMConnection()) {
-        Update upd = conn2.prepareUpdate(sql.toString());
+        Update upd = conn2.prepareUpdate(addSparqlPrefixes(sql));
         upd.execute();
       }
     }
   }
-
 
   /**
    * Returns an entity iri and name from a code or a term code
@@ -169,30 +196,38 @@ public class EntityRepository2 {
    */
   public Set<TTIriRef> getCoreFromCode(String code, List<String> schemes) {
     StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add(IM_PREFIX)
-      .add(RDFS_PREFIX)
-      .add("select ?concept ?label");
+      .add("SELECT ?concept ?label");
     for (String scheme : schemes) {
-      sql.add("from <" + scheme + ">");
+      sql.add("FROM <" + scheme + ">");
     }
-    sql.add("where {  {")
-      .add(" ?concept im:code ?code.")
-      .add("    filter (isIri(?concept))")
-      .add(" ?concept rdfs:label ?label.}")
-      .add("  UNION{?concept im:hasTermCode ?node.")
-      .add("        ?node im:code ?code.")
-      .add("          filter not exists { ?concept im:matchedTo ?core}")
-      .add("        ?concept rdfs:label ?label}")
-      .add("  UNION {?legacy im:hasTermCode ?node.")
-      .add("         ?node im:code ?code.")
-      .add("          ?legacy im:matchedTo ?concept.")
-      .add("         ?concept rdfs:label ?label.}")
-      .add("   UNION {?legacy im:codeId ?code.")
-      .add("          ?legacy im:matchedTo ?concept.")
-      .add("          ?concept rdfs:label ?label.}")
-      .add("}");
+    sql.add("""
+      WHERE {
+        {
+          ?concept im:code ?code.
+          filter (isIri(?concept))
+          ?concept rdfs:label ?label.
+        }
+        UNION {
+          ?concept im:hasTermCode ?node.
+          ?node im:code ?code.
+          filter not exists { ?concept im:matchedTo ?core}
+          ?concept rdfs:label ?label
+        }
+        UNION {
+          ?legacy im:hasTermCode ?node.
+          ?node im:code ?code.
+          ?legacy im:matchedTo ?concept.
+          ?concept rdfs:label ?label.
+        }
+        UNION {
+          ?legacy im:codeId ?code.
+          ?legacy im:matchedTo ?concept.
+          ?concept rdfs:label ?label.
+        }
+      }
+      """);
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql.toString()));
       qry.setBinding("code", Values.literal(code));
       return getConceptRefsFromResult(qry);
     }
@@ -206,19 +241,20 @@ public class EntityRepository2 {
    */
   public Set<TTIriRef> getCoreFromCodeId(String codeId, List<String> schemes) {
     StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add(IM_PREFIX)
-      .add(RDFS_PREFIX)
-      .add("select ?concept ?label");
+      .add("SELECT ?concept ?label");
     for (String scheme : schemes) {
-      sql.add("from <" + scheme + ">");
+      sql.add("FROM <" + scheme + ">");
     }
-    sql.add("where {  ")
-      .add(" ?legacy im:codeId ?codeId.")
-      .add(" ?legacy im:matchedTo ?concept.")
-      .add(" ?concept rdfs:label ?label.}");
+    sql.add("""
+      WHERE {
+        ?legacy im:codeId ?codeId.
+        ?legacy im:matchedTo ?concept.
+        ?concept rdfs:label ?label.
+      }
+      """);
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql.toString()));
       qry.setBinding("codeId", Values.literal(codeId));
       return getConceptRefsFromResult(qry);
     }
@@ -232,16 +268,20 @@ public class EntityRepository2 {
    * @return iri and name of entity
    */
   public Set<TTIriRef> getCoreFromLegacyTerm(String term, String scheme) {
-    StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add(IM_PREFIX)
-      .add(RDFS_PREFIX)
-      .add("select ?concept ?label")
-      .add("where { graph ?scheme {")
-      .add("?legacy rdfs:label ?term.")
-      .add("?legacy im:matchedTo ?concept.}")
-      .add("{?concept rdfs:label ?label} }");
+    String sql = """
+      SELECT ?concept ?label
+      WHERE {
+        GRAPH ?scheme {
+          ?legacy rdfs:label ?term.
+          ?legacy im:matchedTo ?concept.
+        }
+        {
+          ?concept rdfs:label ?label
+        }
+      }
+      """;
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
       qry.setBinding("term", Values.literal(term));
       qry.setBinding("scheme", Values.iri(scheme));
       return getConceptRefsFromResult(qry);
@@ -257,16 +297,20 @@ public class EntityRepository2 {
    */
 
   public Set<TTIriRef> getReferenceFromTermCode(String code, String scheme) {
-    StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add(IM_PREFIX)
-      .add(RDFS_PREFIX)
-      .add("select ?concept ?label")
-      .add("where { graph ?scheme {")
-      .add("?tc im:code ?code.")
-      .add("?concept im:hasTermCode ?tc.}")
-      .add("{?concept rdfs:label ?label} }");
+    String sql = """
+      SELECT ?concept ?label
+      WHERE {
+        GRAPH ?scheme {
+          ?tc im:code ?code.
+          ?concept im:hasTermCode ?tc.
+        }
+        {
+          ?concept rdfs:label ?label
+        }
+      }
+      """;
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
       qry.setBinding("code", Values.literal(code));
       qry.setBinding("scheme", Values.iri(scheme));
       return getConceptRefsFromResult(qry);
@@ -274,17 +318,17 @@ public class EntityRepository2 {
   }
 
   public Map<String, String> getCodeToIri() {
-    StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add(IM_PREFIX)
-      .add(RDFS_PREFIX)
-      .add("select ?code ?scheme ?iri ?altCode")
-      .add("where {")
-      .add("?iri im:code ?code.")
-      .add("OPTIONAL {?iri im:alternativeCode ?altCode}")
-      .add("?iri im:scheme ?scheme }");
+    String sql = """
+      SELECT ?code ?scheme ?iri ?altCode
+      WHERE {
+        ?iri im:code ?code.
+        OPTIONAL {?iri im:alternativeCode ?altCode}
+        ?iri im:scheme ?scheme
+      }
+      """;
     Map<String, String> codeToIri = new HashMap<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
       try (TupleQueryResult gs = qry.evaluate()) {
         while (gs.hasNext()) {
           BindingSet bs = gs.next();
@@ -309,36 +353,38 @@ public class EntityRepository2 {
    * @return iri and name of entity
    */
   public TTIriRef getReferenceFromCoreTerm(String term) {
-    List<String> schemes = List.of(IM.NAMESPACE, SNOMED.NAMESPACE);
-    StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add(IM_PREFIX)
-      .add(RDFS_PREFIX)
-      .add("select ?concept ?label");
-    for (String scheme : schemes) {
-      sql.add("from <" + scheme + ">");
-    }
-    sql.add("where { {")
-      .add("?concept rdfs:label ?term.")
-      .add("filter(isIri(?concept))}")
-      .add("union { ?concept im:hasTermCode ?tc.")
-      .add("?tc rdfs:label ?term.} }");
+    String sql = """
+      select ?concept ?label
+      from <%s>
+      from <%s>
+      where {
+        {
+          ?concept rdfs:label ?term.
+          filter(isIri(?concept))
+        }
+        union {
+          ?concept im:hasTermCode ?tc.
+          ?tc rdfs:label ?term.
+        }
+      }
+      """.formatted(IM.NAMESPACE, SNOMED.NAMESPACE);
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
       qry.setBinding("term", Values.literal(term));
       return getConceptRefFromResult(qry);
     }
   }
 
   public Map<String, Set<String>> getAllMatchedLegacy() {
-    StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add(IM_PREFIX)
-      .add(RDFS_PREFIX)
-      .add(RDF_PREFIX)
-      .add("select ?legacy ?concept")
-      .add("where {?legacy im:matchedTo ?concept.}");
+    String sql = """
+      SELECT ?legacy ?concept
+      WHERE {
+        ?legacy im:matchedTo ?concept.
+      }
+      """;
     Map<String, Set<String>> maps = new HashMap<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
       TTIriRef concept = new TTIriRef();
       try (TupleQueryResult gs = qry.evaluate()) {
         while (gs.hasNext()) {
@@ -354,7 +400,6 @@ public class EntityRepository2 {
     }
     return maps;
   }
-
 
   private TTIriRef getConceptRefFromResult(TupleQuery qry) {
     TTIriRef concept = null;
@@ -386,7 +431,6 @@ public class EntityRepository2 {
     }
     return results;
   }
-
 
   private StringJoiner getBundleSparql(
     Set<String> predicates,
@@ -420,11 +464,13 @@ public class EntityRepository2 {
         sql.add("   FILTER (?1predicate IN (" + inPredicates + "))");
       sql.add("}");
       if (!excludePredicates) {
-        sql.add("UNION {");
-        sql.add("  ?1predicate owl:inverseOf ?1revPredicate .");
-        sql.add("  ?1Level ?1revPredicate ?entity");
-        sql.add("   FILTER (?1predicate IN (" + inPredicates + "))");
-        sql.add("}");
+        sql.add("""
+          UNION {
+          ?1predicate owl:inverseOf ?1revPredicate .
+          ?1Level ?1revPredicate ?entity
+          FILTER (?1predicate IN (%s))
+          }
+          """.formatted(inPredicates));
       }
 
     } else sql.add("}");
@@ -442,7 +488,7 @@ public class EntityRepository2 {
     return sql;
   }
 
-  private void processStatement(TTBundle bundle, Map<String, TTValue> tripleMap, String entityIri, Statement st) throws RuntimeException {
+  private void processStatement(TTBundle bundle, Map<String, TTValue> tripleMap, String entityIri, Statement st) {
     TTEntity entity = bundle.getEntity();
     Resource s = st.getSubject();
     IRI p = st.getPredicate();
@@ -494,7 +540,6 @@ public class EntityRepository2 {
     }
   }
 
-
   /**
    * Generates sparql from a concept set entity
    *
@@ -505,8 +550,6 @@ public class EntityRepository2 {
   public String getExpansionAsGraph(TTArray definition, boolean includeLegacy) {
     Map<String, String> prefixMap = new HashMap<>();
     StringJoiner spql = new StringJoiner(System.lineSeparator())
-      .add(IM_PREFIX)
-      .add(RDFS_PREFIX)
       .add("CONSTRUCT {?concept rdfs:label ?name.")
       .add("?concept im:code ?code.")
       .add("?concept im:scheme ?legacyScheme")
@@ -523,10 +566,8 @@ public class EntityRepository2 {
     spql.add("{SELECT distinct ?concept");
     whereClause(definition, spql, prefixMap);
     spql.add("}");
-    spql = insertPrefixes(spql, prefixMap);
-    return spql.toString();
+    return addSparqlPrefixes(spql.toString());
   }
-
 
   private void whereClause(TTArray definition, StringJoiner spql, Map<String, String> prefixMap) {
     spql.add("WHERE {");
@@ -563,7 +604,7 @@ public class EntityRepository2 {
       if (superClass.isIriRef())
         values.append(getShort(superClass.asIriRef().getIri(), prefixMap)).append(" ");
     }
-    if (!values.toString().equals("")) {
+    if (!values.toString().isEmpty()) {
       spql.add("{ ?concept " + isa(prefixMap) + " ?superClass.");
       values = new StringBuilder("VALUES ?superClass {" + values + "}");
       spql.add(values.toString());
@@ -635,7 +676,6 @@ public class EntityRepository2 {
     }
     spql.add("?concept " + getShort(IM.IS_A, "im", prefixMap) + " ?superMember.");
   }
-
 
   private String getShort(String iri, Map<String, String> prefixMap) {
     if (iri.contains("#")) {
@@ -709,21 +749,6 @@ public class EntityRepository2 {
     spql.add("}");
   }
 
-  private StringJoiner insertPrefixes(StringJoiner spql, Map<String, String> prefixMap) {
-    StringBuilder sb = new StringBuilder();
-    for (Map.Entry<String, String> entry : prefixMap.entrySet()) {
-      sb.append("PREFIX ")
-        .append(entry.getValue())
-        .append(": <")
-        .append(entry.getKey())
-        .append(">\n");
-    }
-    String spqlString = spql.toString();
-    return new StringJoiner(System.lineSeparator())
-      .add(sb.toString())
-      .add(spqlString);
-  }
-
   public boolean isSet(String iri) {
     StringJoiner sql = new StringJoiner(System.lineSeparator())
       .add(RDF_PREFIX)
@@ -747,16 +772,16 @@ public class EntityRepository2 {
   public List<String> getMemberIris(String iri) {
     List<String> result = new ArrayList<>();
 
-    StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add(IM_PREFIX)
-      .add(SH_PREFIX)
-      .add("SELECT ?o2 WHERE {")
-      .add("?s im:definition ?o .")
-      .add("?o (sh:or|sh:and) ?o2 .")
-      .add("}");
+    String sql = """
+      SELECT ?o2
+      WHERE {
+        ?s im:definition ?o .
+        ?o (sh:or|sh:and) ?o2 .
+      }
+      """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
       qry.setBinding("s", Values.iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -775,19 +800,19 @@ public class EntityRepository2 {
     return result;
   }
 
-
   public Set<TTIriRef> getIsSubsetOf(String subsetIri) {
     Set<TTIriRef> result = new HashSet<>();
 
-    StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add(IM_PREFIX)
-      .add("SELECT ?set ?name WHERE {")
-      .add("?subset ?issubset ?set .")
-      .add("?set ?label ?name .")
-      .add("}");
+    String sql = """
+      SELECT ?set ?name
+      WHERE {
+        ?subset ?issubset ?set .
+        ?set ?label ?name .
+      }
+      """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
       qry.setBinding("subset", Values.iri(subsetIri));
       qry.setBinding("issubset", Values.iri(IM.IS_SUBSET_OF));
       qry.setBinding("label", Values.iri(RDFS.LABEL));
@@ -808,41 +833,11 @@ public class EntityRepository2 {
     return result;
   }
 
-
-  public static Map<String, String> getIriNames(RepositoryConnection conn, Set<TTIriRef> iris) {
-    Map<String, String> names = new HashMap<>();
-    if (iris == null || iris.isEmpty())
-      return names;
-
-    String iriTokens = iris.stream().map(i -> "<" + i.getIri() + ">").collect(Collectors.joining(","));
-    StringJoiner sql = new StringJoiner(System.lineSeparator());
-    sql.add("SELECT ?iri ?label ?description")
-      .add("WHERE {")
-      .add("?iri rdfs:label ?label.");
-    sql.add("Optional { ?iri rdfs:comment ?description }");
-    sql.add(" filter (?iri in (")
-      .add(iriTokens + "))")
-      .add("}");
-    TupleQuery qry = conn.prepareTupleQuery(sql.toString());
-    try (TupleQueryResult rs = qry.evaluate()) {
-      while (rs.hasNext()) {
-        BindingSet bs = rs.next();
-        TTIriRef iri = iri(bs.getValue("iri").stringValue());
-        iris.stream().filter(i -> i.equals(iri))
-          .findFirst().ifPresent(i -> {
-            i.setName(bs.getValue("label").stringValue());
-            if (bs.getValue("description") != null) i.setDescription(bs.getValue("description").stringValue());
-          });
-      }
-    }
-    return names;
-  }
-
   public Set<TTEntity> getLinkedShapes(String iri) {
     String sql = getLinkedShapeSql();
     Set<TTEntity> shapes = new HashSet<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      GraphQuery qry = conn.prepareGraphQuery(sql);
+      GraphQuery qry = conn.prepareGraphQuery(addSparqlPrefixes(sql));
       qry.setBinding("shape", Values.iri(iri));
       try (GraphQueryResult gs = qry.evaluate()) {
         Map<String, TTValue> valueMap = new HashMap<>();
@@ -890,24 +885,23 @@ public class EntityRepository2 {
   }
 
   private String getLinkedShapeSql() {
-    return new StringJoiner(System.lineSeparator())
-      .add(RDF_PREFIX)
-      .add(RDFS_PREFIX)
-      .add(IM_PREFIX)
-      .add(SH_PREFIX)
-      .add("Construct {")
-      .add("    ?s ?p ?o.")
-      .add("    ?sub ?p2 ?o2.")
-      .add("    ?o2 ?p3 ?o3.")
-      .add("}")
-      .add("where { ?s ?p ?o.")
-      .add("    filter (?s= ?shape)")
-      .add("    ?s (sh:property|sh:node)+ ?sub.")
-      .add("    ?sub ?p2 ?o2.")
-      .add("    Optional { ?o2 ?p3 ?o3")
-      .add("        filter (isBlank(?o2))}")
-      .add("}")
-      .toString();
+    return """
+      CONSTRUCT {
+        ?s ?p ?o.
+        ?sub ?p2 ?o2.
+        ?o2 ?p3 ?o3.
+      }
+      WHERE {
+        ?s ?p ?o.
+        FILTER (?s= ?shape)
+        ?s (sh:property|sh:node)+ ?sub.
+        ?sub ?p2 ?o2.
+        OPTIONAL {
+          ?o2 ?p3 ?o3
+          FILTER (isBlank(?o2))
+        }
+      }
+      """;
   }
 }
 

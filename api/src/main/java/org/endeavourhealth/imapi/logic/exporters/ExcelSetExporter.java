@@ -125,12 +125,12 @@ public class ExcelSetExporter {
     String setName = entityRepository2.getBundle(options.getSetIri(), Set.of(RDFS.LABEL)).getEntity().getName();
 
     String ecl = getEcl(entity);
-    if (ecl != null && options.isDefinition()) {
+    if (ecl != null && options.includeDefinition()) {
       addDefinitionToWorkbook(ecl);
     }
 
-    if (options.isCore() || options.isLegacy()) {
-      Set<Concept> members = setExporter.getExpandedSetMembers(options.getSetIri(), options.isCore(), options.isLegacy(), options.includeSubsets(), options.getSchemes()).stream()
+    if (options.includeCore() || options.includeLegacy()) {
+      Set<Concept> members = setExporter.getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes()).stream()
         .sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
 
       if (options.includeSubsets()) {
@@ -138,11 +138,11 @@ public class ExcelSetExporter {
           .collect(Collectors.toCollection(LinkedHashSet::new));
       }
 
-      if (options.isCore()) {
+      if (options.includeCore()) {
         addCoreExpansionToWorkBook(setName, members, options.isIm1id(), options.includeSubsets());
       }
 
-      if (options.isLegacy()) {
+      if (options.includeLegacy()) {
         addLegacyExpansionToWorkBook(setName, members, options.isIm1id(), options.isOwnRow(), options.includeSubsets());
       }
     }

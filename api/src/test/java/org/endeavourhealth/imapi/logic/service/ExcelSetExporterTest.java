@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.model.imq.Bool;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.junit.jupiter.api.Test;
@@ -55,8 +56,9 @@ public class ExcelSetExporterTest {
   @Test
   void getSetExport_NotNullIriNoConcept() throws JsonProcessingException, QueryException {
     when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity()));
-    SetExporterOptions options = new SetExporterOptions("http://endhealth.info/im#25451000252115", true, true,
-      true, true, true, false, List.of());
+    SetOptions setOptions = new SetOptions("http://endhealth.info/im#25451000252115", true, true,
+      true, true,List.of());
+    SetExporterOptions options = new SetExporterOptions(setOptions,true, false);
     XSSFWorkbook actual = excelSetExporter.getSetAsExcel(options);
     assertNotNull(actual);
   }
@@ -68,9 +70,9 @@ public class ExcelSetExporterTest {
     when(setRepository.getSetExpansion(any(), anyBoolean(), any(), anyList())).thenReturn(new HashSet<>());
     when(setRepository.getSubsetIrisWithNames(anyString())).thenReturn(new HashSet<>());
     ReflectionTestUtils.setField(excelSetExporter, "setExporter", setExporter);
-
-    SetExporterOptions options = new SetExporterOptions("http://endhealth.info/im#25451000252115", true, true,
-      true, true, true, false, List.of());
+    SetOptions setOptions = new SetOptions("http://endhealth.info/im#25451000252115", true, true,
+      true, true,List.of());
+    SetExporterOptions options = new SetExporterOptions(setOptions, true, false);
     XSSFWorkbook actual = excelSetExporter.getSetAsExcel(options);
 
     assertNotNull(actual);

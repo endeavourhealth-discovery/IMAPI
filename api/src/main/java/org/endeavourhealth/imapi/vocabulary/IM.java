@@ -142,9 +142,7 @@ public class IM {
     public static final String PLABEL = IM.NAMESPACE + "pLabel";
     public static final String OLABEL = IM.NAMESPACE + "oLabel";
     public static final String EXAMPLE = IM.NAMESPACE + "example";
-    public static final String IM1ID = IM.NAMESPACE + "im1Id";
     public static final String PRIVACY_LEVEL = IM.NAMESPACE + "privacyLevel";
-    public static final String IM1SCHEME = IM.NAMESPACE + "im1Scheme";
     public static final String VALUE_SELECT = IM.NAMESPACE + "valueSelect";
     public static final String VALUE_VARIABLE = IM.NAMESPACE + "valueVariable";
     public static final String PLACEHOLDER = IM.NAMESPACE + "placeHolder";
@@ -231,4 +229,5 @@ public class IM {
     public static final String DATA_MODEL_CONCEPT = IM.NAMESPACE + "concept";
     public static final String NUMERIC_VALUE = IM.NAMESPACE + "NumericValue";
     public static final String HEALTH_RECORDS = IM.NAMESPACE + "HealthRecords";
+    public static final String HAS_INCREMENTAL_FROM = IM.NAMESPACE + "hasIncrementalFrom";
 }

@@ -32,7 +32,7 @@ public class EclService {
   }
 
   public int getEclSearchTotalCount(EclSearchRequest request) throws QueryException {
-    return setRepository.getSetExpansionTotalCount(request.getEclQuery(), request.isIncludeLegacy(), request.getStatusFilter(), List.of());
+    return setRepository.getSetExpansionTotalCount(request.getEclQuery(), request.getStatusFilter());
   }
 
   public Set<Concept> evaluateECLQuery(EclSearchRequest request) throws QueryException {

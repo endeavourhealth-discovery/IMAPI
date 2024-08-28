@@ -1,13 +1,13 @@
 package org.endeavourhealth.imapi.transforms;
 
 public enum Context {
-  plural,
-  single,
-  property,
-  value,
-  type,
-  orderBy,
-  match,
-  path,
-  units
+  PLURAL,
+  SINGLE,
+  PROPERTY,
+  VALUE,
+  TYPE,
+  ORDER_BY,
+  MATCH,
+  PATH,
+  UNITS
 }

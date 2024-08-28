@@ -9,8 +9,6 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.USER;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +20,6 @@ import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.pre
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareUpdateSparql;
 
 public class UserRepository {
-  private static final Logger LOG = LoggerFactory.getLogger(UserRepository.class);
 
   public String getSparqlSelect() {
     StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("SELECT ?o WHERE {").add("  ?s ?p ?o").add("}");
@@ -79,7 +76,7 @@ public class UserRepository {
   }
 
   public List<String> getUserFavourites(String user) throws JsonProcessingException {
-    List<String> result = new ArrayList<String>();
+    List<String> result = new ArrayList<>();
     String sparql = getSparqlSelect();
 
     try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {

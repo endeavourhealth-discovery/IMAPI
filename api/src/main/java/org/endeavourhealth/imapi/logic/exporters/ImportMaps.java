@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 
 public class ImportMaps implements AutoCloseable {
   private FileRepository fileRepo = new FileRepository(TTBulkFiler.getDataPath());
@@ -432,17 +433,15 @@ public class ImportMaps implements AutoCloseable {
     Map<String, String> termMap = new HashMap<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection();) {
       String sparql = """
-        PREFIX im: <%s>
-                
         SELECT ?snomed ?descid
-        WHERE { 
+        WHERE {
           GRAPH ?snomedNamespace {
             ?snomed im:hasTermCode ?node.
-            ?node im:code ?descid. 
+            ?node im:code ?descid.
           }
         }
-        """.formatted(IM.NAMESPACE);
-      TupleQuery qry = conn.prepareTupleQuery(sparql);
+        """;
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sparql));
       qry.setBinding("snomedNamespace", iri(SNOMED.NAMESPACE));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {

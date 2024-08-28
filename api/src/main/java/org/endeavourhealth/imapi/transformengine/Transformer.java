@@ -11,7 +11,6 @@ import org.endeavourhealth.imapi.model.map.MapProperty;
 
 
 import java.util.*;
-import java.util.zip.DataFormatException;
 
 /**
  * Transformer engine to mapObject a collection of source objects to target objects using a transformation map
@@ -28,7 +27,7 @@ public class Transformer {
   private final SyntaxTranslator sourceTranslator;
   private final SyntaxTranslator targetTranslator;
 
-  public Transformer(String sourceFormat, String targetFormat) throws DataFormatException {
+  public Transformer(String sourceFormat, String targetFormat) {
     this.sourceFormat = sourceFormat;
     this.targetFormat = targetFormat;
     this.sourceTranslator = TransformFactory.createConverter(sourceFormat);
@@ -48,7 +47,7 @@ public class Transformer {
    * @return a set of target objects in the target format
    */
 
-  public Set<Object> transformObject(Object source, MapObject objectMap, Map<String, Object> varToObject) throws Exception {
+  public Set<Object> transformObject(Object source, MapObject objectMap, Map<String, Object> varToObject) throws JsonProcessingException {
     this.varToObject = varToObject;
     if (this.varToObject == null)
       this.varToObject = new HashMap<>();
@@ -57,23 +56,23 @@ public class Transformer {
       transformObjectList((List<?>) source, objectMap, varToObject);
     } else {
       boolean hasTargetObjects = transformObjectValue(source, objectMap);
-      if (!hasTargetObjects) return null;
+      if (!hasTargetObjects) return Collections.emptySet();
     }
     return targetObjects;
   }
 
-  private void transformObjectList(List<?> source, MapObject objectMap, Map<String, Object> varToObject) throws Exception {
+  private void transformObjectList(List<?> source, MapObject objectMap, Map<String, Object> varToObject) throws JsonProcessingException {
     for (Object sourceItem : source) {
       transformObject(sourceItem, objectMap, varToObject);
     }
   }
 
-  private boolean transformObjectValue(Object source, MapObject objectMap) throws Exception {
+  private boolean transformObjectValue(Object source, MapObject objectMap) throws JsonProcessingException {
     if (objectMap.getWhere() != null && !where(objectMap.getWhere(), source))
       return false;
 
     if (objectMap.getTargetType() == null)
-      throw new DataFormatException("Object map has no target object to create");
+      throw new IllegalArgumentException("Object map has no target object to create");
 
     Object targetObject = targetTranslator.createEntity(objectMap.getTargetType());
     targetObjects.add(targetObject);
@@ -85,9 +84,9 @@ public class Transformer {
   }
 
 
-  public void transformProperty(Object sourceObject, Object targetObject, MapProperty rule, Map<String, Object> varToObject) throws Exception {
-    if (sourceObject instanceof List) {
-      for (Object sourceItem : (List) sourceObject) {
+  public void transformProperty(Object sourceObject, Object targetObject, MapProperty rule, Map<String, Object> varToObject) throws JsonProcessingException {
+    if (sourceObject instanceof List<?> sourceObjectList) {
+      for (Object sourceItem : sourceObjectList) {
         transformProperty(sourceItem, targetObject, rule, varToObject);
       }
     } else {
@@ -97,13 +96,13 @@ public class Transformer {
       } else if (rule.getTarget() != null) {
         transformPropertyTarget(sourceObject, targetObject, rule, varToObject);
       } else
-        throw new DataFormatException("unrecognised property map. No source property");
+        throw new IllegalArgumentException("unrecognised property map. No source property");
     }
   }
 
-  private void transformPropertySource(Object sourceObject, Object targetObject, MapProperty rule, Map<String, Object> varToObject) throws Exception {
+  private void transformPropertySource(Object sourceObject, Object targetObject, MapProperty rule, Map<String, Object> varToObject) throws JsonProcessingException {
     if (targetObject == null)
-      throw new DataFormatException("Data map or value map has not created or retrieved a target entity to populate ");
+      throw new IllegalArgumentException("Data map or value map has not created or retrieved a target entity to populate ");
 
     Match where = rule.getWhere();
     if (where != null && !where(where, sourceObject))
@@ -131,33 +130,33 @@ public class Transformer {
     } else if (rule.getTarget() != null) {
       transformPropertySourceTarget(targetObject, rule, varToObject, sourceValue);
     } else
-      throw new DataFormatException("no target property, property map or object map for source " + source + "property");
+      throw new IllegalArgumentException("no target property, property map or object map for source " + source + "property");
   }
 
-  private void transformPropertySourcePropertyMap(Object targetObject, MapProperty rule, Object sourceValue) throws Exception {
+  private void transformPropertySourcePropertyMap(Object targetObject, MapProperty rule, Object sourceValue) throws JsonProcessingException {
     Transformer flatTransformer = new Transformer(sourceFormat, targetFormat);
     for (MapProperty propertyMap : rule.getPropertyMap()) {
       flatTransformer.transformProperty(sourceValue, targetObject, propertyMap, this.varToObject);
     }
   }
 
-  private void transformPropertySourceObjectMap(Object targetObject, MapProperty rule, String source, Object sourceValue) throws Exception {
+  private void transformPropertySourceObjectMap(Object targetObject, MapProperty rule, String source, Object sourceValue) throws JsonProcessingException {
     Transformer nestedTransformer = new Transformer(sourceFormat, targetFormat);
     if (rule.getTarget() != null) {
       Object targetValue = targetTranslator.convertToTarget(nestedTransformer
         .transformObject(sourceValue, rule.getObjectMap(), this.varToObject));
       targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetValue);
     } else
-      throw new DataFormatException("Map has an object map for processing property " + source + " but no target property to assign the object to. This should be a property map list instead");
+      throw new IllegalArgumentException("Map has an object map for processing property " + source + " but no target property to assign the object to. This should be a property map list instead");
   }
 
-  private void transformPropertySourceFunction(Object targetObject, MapProperty rule) throws DataFormatException {
+  private void transformPropertySourceFunction(Object targetObject, MapProperty rule) {
     Object targetValue = targetTranslator.convertToTarget(runFunction(rule.getFunction()));
     if (rule.getTarget() != null)
       targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetValue);
   }
 
-  private void transformPropertySourceTarget(Object targetObject, MapProperty rule, Map<String, Object> varToObject, Object sourceValue) throws DataFormatException {
+  private void transformPropertySourceTarget(Object targetObject, MapProperty rule, Map<String, Object> varToObject, Object sourceValue) {
     if (rule.getValueData() != null) {
       targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), rule.getValueData());
     } else if (rule.getValueVariable() != null) {
@@ -167,7 +166,7 @@ public class Transformer {
     }
   }
 
-  private void transformPropertyTarget(Object sourceObject, Object targetObject, MapProperty rule, Map<String, Object> varToObject) throws Exception {
+  private void transformPropertyTarget(Object sourceObject, Object targetObject, MapProperty rule, Map<String, Object> varToObject) throws JsonProcessingException {
     if (rule.getObjectMap() != null) {
       Transformer nestedTransformer = new Transformer(sourceFormat, targetFormat);
       Object targetValue = targetTranslator.convertToTarget(nestedTransformer
@@ -178,24 +177,24 @@ public class Transformer {
     } else if (rule.getValueVariable() != null) {
       targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), varToObject.get(rule.getValueVariable()));
     } else
-      throw new DataFormatException("Property map has a target property of " + rule.getTarget() + " but no source property and no object map for the target property.");
+      throw new IllegalArgumentException("Property map has a target property of " + rule.getTarget() + " but no source property and no object map for the target property.");
   }
 
 
-  private Object runFunction(MapFunction functionClause) throws DataFormatException {
+  private Object runFunction(MapFunction functionClause) {
     Map<String, Object> args = getFunctionArguments(functionClause);
     return TransformFunctions.runFunction(functionClause.getIri(), args);
   }
 
 
-  private Map<String, Object> getFunctionArguments(MapFunction functionClause) throws DataFormatException {
+  private Map<String, Object> getFunctionArguments(MapFunction functionClause) {
     if (functionClause.getArgument() != null) {
       return getArguments(functionClause.getArgument());
     } else
-      return null;
+      return Collections.emptyMap();
   }
 
-  private Map<String, Object> getArguments(List<Argument> arguments) throws DataFormatException {
+  private Map<String, Object> getArguments(List<Argument> arguments) {
     Map<String, Object> result = new HashMap<>();
     int argIndex = 0;
     for (Argument argument : arguments) {
@@ -208,7 +207,7 @@ public class Transformer {
       else if (argument.getValueVariable() != null) {
         Object variableValue = varToObject.get(argument.getValueVariable());
         if (variableValue == null)
-          throw new DataFormatException("argument : " + parameter + ",  variable: " + argument.getValueVariable() + "  in function has not been defined");
+          throw new IllegalArgumentException("argument : " + parameter + ",  variable: " + argument.getValueVariable() + "  in function has not been defined");
         result.put(parameter, varToObject.get(argument.getValueVariable()));
       }
 
@@ -216,25 +215,7 @@ public class Transformer {
     return result;
   }
 
-	/*private Object query(Object sourceEntity, String path,Property where) throws DataFormatException, JsonProcessingException {
-		if (where.getWhere() != null) { // should this be == null? (see else)
-			if (where(where, sourceEntity))
-				return sourceTranslator.getPropertyValue(sourceEntity,path);
-			else
-				return null;
-		}
-		else if (where.getWhere()!=null){
-			for (Property and:where.getWhere()){
-				if (!where(and,sourceEntity))
-					return null;
-			}
-			return sourceTranslator.getPropertyValue(sourceEntity,path);
-		}
-		else
-			throw new DataFormatException("Property clause for rule on path : "+path+" has clause format not yet supported");
-	}*/
-
-  private boolean where(Match where, Object sourceNode) throws DataFormatException, JsonProcessingException {
+  private boolean where(Match where, Object sourceNode) throws JsonProcessingException {
     for (Where property : where.getWhere()) {
       Object sourceValue = sourceTranslator.getPropertyValue(sourceNode, property.getId());
       if (property.getValue() != null && property.getValue().equals(sourceValue))
@@ -243,7 +224,7 @@ public class Transformer {
     return false;
   }
 
-  public Object getListItems(List source, ListMode listMode) {
+  public Object getListItems(List<?> source, ListMode listMode) {
     if (listMode == ListMode.FIRST)
       return source.get(0);
     else if (listMode == ListMode.REST) {

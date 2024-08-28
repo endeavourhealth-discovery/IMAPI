@@ -25,15 +25,16 @@ import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.pre
 public class CodeGenRepository {
   private static final Logger LOG = LoggerFactory.getLogger(CodeGenRepository.class);
 
-  public List<String> getCodeTemplateList() throws JsonProcessingException {
+  public List<String> getCodeTemplateList() {
     List<String> result = new ArrayList<>();
-    StringJoiner sparql = new StringJoiner(System.lineSeparator())
-      .add("SELECT ?name WHERE {")
-      .add("  ?s ?type ?codeTemplate .")
-      .add("  ?s ?label ?name")
-      .add("}");
+    String sparql = """
+      SELECT ?name WHERE {
+        ?s ?type ?codeTemplate .
+        ?s ?label ?name
+      }
+      """;
     try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
-      TupleQuery qry = prepareSparql(conn, sparql.toString());
+      TupleQuery qry = prepareSparql(conn, sparql);
       qry.setBinding("type", iri(RDF.TYPE));
       qry.setBinding("codeTemplate", iri(IM.CODE_TEMPLATE));
       qry.setBinding("label", iri(RDFS.LABEL));
@@ -48,15 +49,15 @@ public class CodeGenRepository {
     return result;
   }
 
-  public CodeGenDto getCodeTemplate(String name) throws JsonProcessingException {
+  public CodeGenDto getCodeTemplate(String name) {
     CodeGenDto result = new CodeGenDto();
-    List<String> stuff = new ArrayList<>();
-    StringJoiner sparql = new StringJoiner(System.lineSeparator())
-      .add("SELECT ?p ?o WHERE {")
-      .add("  ?s ?p ?o .")
-      .add("}");
+    String sparql = """
+      SELECT ?p ?o WHERE {
+        ?s ?p ?o .
+      }
+      """;
     try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
-      TupleQuery qry = prepareSparql(conn, sparql.toString());
+      TupleQuery qry = prepareSparql(conn, sparql);
       qry.setBinding("s", iri(CODE_TEMPLATE.NAMESPACE + name));
 
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -81,24 +82,31 @@ public class CodeGenRepository {
   }
 
   public void updateCodeTemplate(String name, String extension, String wrapper, String dataTypeMap, String template) {
-    StringJoiner deleteSparql = new StringJoiner(System.lineSeparator()).add("DELETE WHERE {").add("  ?s ?p ?o").add("}");
+    String deleteSparql = """
+      DELETE WHERE {
+        ?s ?p ?o
+      }
+      """;
     try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
-      Update qry = conn.prepareUpdate(deleteSparql.toString());
+      Update qry = conn.prepareUpdate(deleteSparql);
       qry.setBinding("s", iri(CODE_TEMPLATE.NAMESPACE + name));
       qry.execute();
     }
-    StringJoiner insertSparql = new StringJoiner(System.lineSeparator())
-      .add("INSERT {")
-      .add("  ?iri ?label ?name .")
-      .add("  ?iri ?extensionType ?extension .")
-      .add("  ?iri ?type ?typeIri .")
-      .add("  ?iri ?definition ?template .")
-      .add("  ?iri ?typeMap ?datatypeMap .")
-      .add("  ?iri ?wrapperType ?wrapper .")
-      .add("}")
-      .add("WHERE { SELECT ?iri ?label ?extension {} }");
+    String insertSparql = """
+      INSERT {
+        ?iri ?label ?name .
+        ?iri ?extensionType ?extension .
+        ?iri ?type ?typeIri .
+        ?iri ?definition ?template .
+        ?iri ?typeMap ?datatypeMap .
+        ?iri ?wrapperType ?wrapper .
+      }
+      WHERE {
+        SELECT ?iri ?label ?extension {}
+      }
+      """;
     try (RepositoryConnection conn2 = ConnectionManager.getConfigConnection()) {
-      Update qry2 = prepareUpdateSparql(conn2, insertSparql.toString());
+      Update qry2 = prepareUpdateSparql(conn2, insertSparql);
       qry2.setBinding("iri", iri(CODE_TEMPLATE.NAMESPACE + name));
       qry2.setBinding("label", iri(RDFS.LABEL));
       qry2.setBinding("name", literal(name));

@@ -7,8 +7,6 @@ import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
-import java.util.ArrayList;
-
 public class ECLBuilderToIMQ {
   public Match getIMQFromEclBuilder(BoolGroup boolGroup) throws EclBuilderException {
     return createRootMatch(boolGroup);
@@ -27,18 +25,22 @@ public class ECLBuilderToIMQ {
         }
       } else {
         for (BuilderComponent builderComponent : boolGroup.getItems()) {
-          if (builderComponent.isConcept()) {
-            Match subMatch = new Match();
-            processConcept(builderComponent.asConcept(), subMatch);
-            match.addMatch(subMatch);
-          }
-          if (builderComponent.isBoolGroup()) {
-            processBoolGroup(builderComponent.asBoolGroup(), match);
-          }
+          processBoolGroupItems(builderComponent, match);
         }
       }
     }
     return match;
+  }
+
+  private void processBoolGroupItems(BuilderComponent builderComponent, Match match) throws EclBuilderException {
+    if (builderComponent.isConcept()) {
+      Match subMatch = new Match();
+      processConcept(builderComponent.asConcept(), subMatch);
+      match.addMatch(subMatch);
+    }
+    if (builderComponent.isBoolGroup()) {
+      processBoolGroup(builderComponent.asBoolGroup(), match);
+    }
   }
 
   private void processConcept(ExpressionConstraint expressionConstraint, Match match) throws EclBuilderException {
@@ -59,14 +61,18 @@ public class ECLBuilderToIMQ {
       }
     }
     if (null != expressionConstraint.getRefinementItems()) {
-      if (expressionConstraint.getRefinementItems().size() > 1)
-        match.setBoolWhere(expressionConstraint.getConjunction());
-      for (BuilderComponent builderComponent : expressionConstraint.getRefinementItems()) {
-        if (builderComponent.isRefinement()) {
-          processRefinement(builderComponent.asRefinement(), match, false);
-        } else if (builderComponent.isBoolGroup()) {
-          processRefinementBoolGroup(builderComponent.asBoolGroup(), match);
-        }
+      processConceptRefinementItems(expressionConstraint, match);
+    }
+  }
+
+  private void processConceptRefinementItems(ExpressionConstraint expressionConstraint, Match match) throws EclBuilderException {
+    if (expressionConstraint.getRefinementItems().size() > 1)
+      match.setBoolWhere(expressionConstraint.getConjunction());
+    for (BuilderComponent builderComponent : expressionConstraint.getRefinementItems()) {
+      if (builderComponent.isRefinement()) {
+        processRefinement(builderComponent.asRefinement(), match, false);
+      } else if (builderComponent.isBoolGroup()) {
+        processRefinementBoolGroup(builderComponent.asBoolGroup(), match);
       }
     }
   }
@@ -89,7 +95,7 @@ public class ECLBuilderToIMQ {
     match.addWhere(where);
   }
 
-  private void processRefinement(Refinement refinement, Where where) throws EclBuilderException {
+  private void processRefinement(Refinement refinement, Where where) {
     Where subWhere = new Where();
     if (null != refinement.getProperty().getConcept() && null != refinement.getProperty().getConcept().getIri()) {
       subWhere.setIri(refinement.getProperty().getConcept().getIri());
@@ -126,60 +132,50 @@ public class ECLBuilderToIMQ {
 
   private void processRefinementBoolGroup(BoolGroup boolGroup, Match match) throws EclBuilderException {
     if (null != boolGroup.getAttributeGroup()) {
-      Where attributeGroup = new Where();
-      attributeGroup.setIri(IM.ROLE_GROUP);
-      Match attributeMatch = new Match();
-      if (boolGroup.getItems().size() > 1 && null != boolGroup.getConjunction()) {
-        attributeMatch.setBoolWhere(boolGroup.getConjunction());
-      }
-      for (BuilderComponent subBuilderComponent : boolGroup.getItems()) {
-        if (subBuilderComponent.isRefinement())
-          processRefinement(subBuilderComponent.asRefinement(), attributeMatch, true);
-        else if (subBuilderComponent.isBoolGroup())
-          processRefinementBoolGroup(subBuilderComponent.asBoolGroup(), attributeMatch);
-      }
-      attributeGroup.setMatch(attributeMatch);
+      Where attributeGroup = createAttributeGroup(boolGroup);
       match.addWhere(attributeGroup);
     } else {
-      Where where = new Where();
-      if (boolGroup.getItems().size() > 1 && null != boolGroup.getConjunction()) {
-        where.setBoolWhere(boolGroup.getConjunction());
-      }
-      for (BuilderComponent subBuilderComponent : boolGroup.getItems()) {
-        if (subBuilderComponent.isRefinement()) processRefinement(subBuilderComponent.asRefinement(), where);
-        else if (subBuilderComponent.isBoolGroup())
-          processRefinementBoolGroup(subBuilderComponent.asBoolGroup(), where);
-      }
+      Where where = createSubWhere(boolGroup);
       match.addWhere(where);
     }
   }
 
+  private Where createAttributeGroup(BoolGroup boolGroup) throws EclBuilderException {
+    Where attributeGroup = new Where();
+    attributeGroup.setIri(IM.ROLE_GROUP);
+    Match attributeMatch = new Match();
+    if (boolGroup.getItems().size() > 1 && null != boolGroup.getConjunction()) {
+      attributeMatch.setBoolWhere(boolGroup.getConjunction());
+    }
+    for (BuilderComponent subBuilderComponent : boolGroup.getItems()) {
+      if (subBuilderComponent.isRefinement())
+        processRefinement(subBuilderComponent.asRefinement(), attributeMatch, true);
+      else if (subBuilderComponent.isBoolGroup())
+        processRefinementBoolGroup(subBuilderComponent.asBoolGroup(), attributeMatch);
+    }
+    attributeGroup.setMatch(attributeMatch);
+    return attributeGroup;
+  }
+
+  private Where createSubWhere(BoolGroup boolGroup) throws EclBuilderException {
+    Where subWhere = new Where();
+    if (null != boolGroup.getConjunction() && boolGroup.getItems().size() > 1) {
+      subWhere.setBoolWhere(boolGroup.getConjunction());
+    }
+    for (BuilderComponent subBuilderComponent : boolGroup.getItems()) {
+      if (subBuilderComponent.isRefinement()) processRefinement(subBuilderComponent.asRefinement(), subWhere);
+      else if (subBuilderComponent.isBoolGroup())
+        processRefinementBoolGroup(subBuilderComponent.asBoolGroup(), subWhere);
+    }
+    return subWhere;
+  }
+
   private void processRefinementBoolGroup(BoolGroup boolGroup, Where where) throws EclBuilderException {
     if (null != boolGroup.getAttributeGroup()) {
-      Where attributeGroup = new Where();
-      attributeGroup.setIri(IM.ROLE_GROUP);
-      Match attributeMatch = new Match();
-      if (boolGroup.getItems().size() > 1 && null != boolGroup.getConjunction()) {
-        attributeMatch.setBoolWhere(boolGroup.getConjunction());
-      }
-      for (BuilderComponent subBuilderComponent : boolGroup.getItems()) {
-        if (subBuilderComponent.isRefinement())
-          processRefinement(subBuilderComponent.asRefinement(), attributeMatch, true);
-        else if (subBuilderComponent.isBoolGroup())
-          processRefinementBoolGroup(subBuilderComponent.asBoolGroup(), attributeMatch);
-      }
-      attributeGroup.setMatch(attributeMatch);
+      Where attributeGroup = createAttributeGroup(boolGroup);
       where.addWhere(attributeGroup);
     } else {
-      Where subWhere = new Where();
-      if (null != boolGroup.getConjunction() && boolGroup.getItems().size() > 1) {
-        subWhere.setBoolWhere(boolGroup.getConjunction());
-      }
-      for (BuilderComponent subBuilderComponent : boolGroup.getItems()) {
-        if (subBuilderComponent.isRefinement()) processRefinement(subBuilderComponent.asRefinement(), subWhere);
-        else if (subBuilderComponent.isBoolGroup())
-          processRefinementBoolGroup(subBuilderComponent.asBoolGroup(), subWhere);
-      }
+      Where subWhere = createSubWhere(boolGroup);
       where.addWhere(subWhere);
     }
   }

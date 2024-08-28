@@ -14,7 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
-public class ECLToIMQVisitor extends IMECLBaseVisitor {
+public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   private List<Node> nodes = new ArrayList<>();
   private List<Where> wheres = new ArrayList<>();
@@ -31,40 +31,42 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
   }
 
   private void addNames() {
-    Set<TTIriRef> toName = new HashSet<>();
-    for (Node node : nodes) {
-      if (node.getName() == null) {
-        if (node.getIri() != null)
-          toName.add(TTIriRef.iri(node.getIri()));
-      }
-    }
-    if (!wheres.isEmpty()) {
-      for (Where where : wheres) {
-        if (where.getName() == null)
-          if (where.getIri() != null)
-            toName.add(TTIriRef.iri(where.getIri()));
-      }
-    }
+    Set<TTIriRef> toName = getToNameIris();
 
     if (!toName.isEmpty()) {
       Map<String, String> nameMap = new EntityRepository2().getNameMap(toName);
       for (Node node : nodes) {
-        if (node.getName() == null) {
-          if (node.getIri() != null)
-            node.setName(nameMap.get(node.getIri()));
-        }
-      }
-      if (!wheres.isEmpty()) {
-        for (Where where : wheres) {
-          if (where.getName() == null) {
-            if (where.getIri() != null)
-              where.setName(nameMap.get(where.getIri()));
-          }
-        }
+        if (node.getName() == null && node.getIri() != null)
+          node.setName(nameMap.get(node.getIri()));
 
+      }
+      addWhereNames(nameMap);
+    }
+  }
+
+  private void addWhereNames(Map<String, String> nameMap) {
+    if (!wheres.isEmpty()) {
+      for (Where where : wheres) {
+        if (where.getName() == null && where.getIri() != null)
+          where.setName(nameMap.get(where.getIri()));
       }
     }
+  }
 
+  private Set<TTIriRef> getToNameIris() {
+    Set<TTIriRef> toName = new HashSet<>();
+    for (Node node : nodes) {
+      if (node.getName() == null && node.getIri() != null)
+        toName.add(TTIriRef.iri(node.getIri()));
+
+    }
+    if (!wheres.isEmpty()) {
+      for (Where where : wheres) {
+        if (where.getName() == null && where.getIri() != null)
+          toName.add(TTIriRef.iri(where.getIri()));
+      }
+    }
+    return toName;
   }
 
 
@@ -74,8 +76,8 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Prefixes) {
-          prefixes = (Prefixes) result;
+        if (result instanceof Prefixes asPrefixes) {
+          prefixes = asPrefixes;
           if (query == null)
             query = new Query();
           query.setPrefixes(prefixes);
@@ -111,17 +113,17 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
   }
 
   @Override
-  public Object visitPrefixes(IMECLParser.PrefixesContext ctx) {
-    Prefixes prefixes = new Prefixes();
+  public Prefixes visitPrefixes(IMECLParser.PrefixesContext ctx) {
+    Prefixes eclPrefixes = new Prefixes();
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Prefix) {
-          prefixes.add((Prefix) result);
+        if (result instanceof Prefix asPrefix) {
+          eclPrefixes.add(asPrefix);
         }
       }
     }
-    return prefixes;
+    return eclPrefixes;
 
   }
 
@@ -153,8 +155,8 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Match)
-          return result;
+        if (result instanceof Match match)
+          return match;
       }
     }
 
@@ -167,14 +169,14 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Match)
-          match = (Match) result;
-        else if (result instanceof Where) {
+        if (result instanceof Match asMatch)
+          match = asMatch;
+        else if (result instanceof Where asWhere) {
           if (match == null) {
             match = new Match();
             match.setTypeOf(new Node().setIri(IM.CONCEPT));
           }
-          match.addWhere((Where) result);
+          match.addWhere(asWhere);
         }
       }
     }
@@ -186,8 +188,8 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Match)
-          return result;
+        if (result instanceof Match asMatch)
+          return asMatch;
       }
     }
     return null;
@@ -201,8 +203,8 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Match)
-          match.addMatch((Match) result);
+        if (result instanceof Match asMatch)
+          match.addMatch(asMatch);
       }
     }
     return match;
@@ -216,8 +218,8 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Match)
-          match.addMatch((Match) result);
+        if (result instanceof Match asMatch)
+          match.addMatch(asMatch);
       }
     }
     return match;
@@ -230,12 +232,12 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Match) {
+        if (result instanceof Match asMatch) {
           if (match.getMatch() == null)
-            match.addMatch((Match) result);
+            match.addMatch(asMatch);
           else {
-            ((Match) result).setExclude(true);
-            match.addMatch((Match) result);
+            asMatch.setExclude(true);
+            match.addMatch(asMatch);
           }
         }
       }
@@ -256,10 +258,10 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
             return result;
           if (match == null)
             match = new Match();
-          if (result instanceof Node) {
-            node = (Node) result;
+          if (result instanceof Node asNode) {
+            node = asNode;
             nodes.add(node);
-            match.addInstanceOf((Node) result);
+            match.addInstanceOf(asNode);
           } else if (result instanceof TTIriRef iri) {
             if (node == null) {
               node = new Node();
@@ -346,11 +348,11 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
     if (resolved == null) {
       try {
         // Creating a URL object from the given string
-        URL url = new URL(iriRef);
+        new URL(iriRef);
         // If no exception is thrown, the URL is valid
         resolved = iriRef;
       } catch (MalformedURLException e) {
-        throw new RuntimeException("invalid iri syntax in : " + iriRef);
+        throw new IllegalStateException("invalid iri syntax in : " + iriRef);
       }
     }
     return resolved;
@@ -359,7 +361,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
 
   @Override
   public Object visitErrorNode(ErrorNode node) {
-    throw new RuntimeException("invalid syntax in " + node.getText());
+    throw new IllegalStateException("invalid syntax in " + node.getText());
   }
 
   @Override
@@ -451,8 +453,8 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Where) {
-          where.addWhere((Where) result);
+        if (result instanceof Where asWhere) {
+          where.addWhere(asWhere);
         }
       }
     }
@@ -466,8 +468,8 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Where) {
-          where.addWhere((Where) result);
+        if (result instanceof Where asWhere) {
+          where.addWhere(asWhere);
         }
       }
     }
@@ -506,8 +508,8 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Where) {
-          where.addWhere((Where) result);
+        if (result instanceof Where asWhere) {
+          where.addWhere(asWhere);
         }
       }
     }
@@ -521,8 +523,8 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Where) {
-          where.addWhere((Where) result);
+        if (result instanceof Where asWhere) {
+          where.addWhere(asWhere);
         }
       }
     }
@@ -552,8 +554,8 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Where) {
-          match.addWhere((Where) result);
+        if (result instanceof Where asWhere) {
+          match.addWhere(asWhere);
         }
       }
     }
@@ -564,17 +566,16 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor {
   @Override
   public Object visitEclattribute(IMECLParser.EclattributeContext ctx) {
     Where where = null;
-    Boolean reverseFlag = false;
+    boolean reverseFlag = false;
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Boolean) {
-          if ((Boolean) result) {
-            reverseFlag = true;
-          }
+        if (result instanceof Boolean asBoolean && Boolean.TRUE.equals(asBoolean)) {
+          reverseFlag = true;
         }
-        if (result instanceof Match) {
-          Node node = ((Match) result).getInstanceOf().get(0);
+
+        if (result instanceof Match asMatch) {
+          Node node = (asMatch).getInstanceOf().get(0);
           if (where == null) {
             where = new Where();
             wheres.add(where);

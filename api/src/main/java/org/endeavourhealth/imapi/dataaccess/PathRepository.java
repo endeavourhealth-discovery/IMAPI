@@ -6,33 +6,28 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 
 public class PathRepository {
   private final PathDocument document = new PathDocument();
   private RepositoryConnection conn;
-  private TupleQuery queryToShape;
 
   public PathDocument pathQuery(PathQuery pathQuery) {
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      this.conn = conn;
+    try (RepositoryConnection connLocal = ConnectionManager.getIMConnection()) {
+      this.conn = connLocal;
       String targetIri = pathQuery.getTarget().getIri();
-      Integer depth = pathQuery.getDepth();
       String source = pathQuery.getSource().getIri();
-      List<Match> paths = getPaths(source, targetIri, depth);
-      if (paths != null) {
-        document.setMatch(paths);
-      }
+      List<Match> paths = getPaths(source, targetIri);
+      document.setMatch(paths);
     }
     return document;
   }
 
-
-  private List<Match> getPaths(String source, String target, Integer depth) {
+  private List<Match> getPaths(String source, String target) {
     List<Match> result = new ArrayList<>();
     String sql = """
       select ?where ?whereLabel ?recordType ?recordTypeLabel ?path ?pathLabel ?where1 ?where1Label
@@ -110,9 +105,8 @@ public class PathRepository {
       }
       group by ?where ?whereLabel  ?recordType ?recordTypeLabel ?path ?pathLabel ?where1 ?where1Label
       """;
-    sql = addDefaultPrefixes(sql);
     //The logic is to look for a target as a record types, properties, value sets or concepts linked to the source.
-    TupleQuery qry = conn.prepareTupleQuery(sql);
+    TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
     qry.setBinding("target", iri(target));
     qry.setBinding("source", iri(source));
     try (TupleQueryResult rs = qry.evaluate()) {
@@ -154,10 +148,8 @@ public class PathRepository {
       if (pathMatch.getPath() != null) {
         for (int q = i + 1; q < result.size(); q++) {
           Match hasWhere = result.get(q);
-          if (hasWhere.getWhere() != null)
-            if (hasWhere.getWhere().get(0).getMatch() != null)
-              if (hasWhere.getWhere().get(0).getMatch().getTypeOf().equals(pathMatch.getTypeOf()))
-                remove.add(pathMatch);
+          if (hasWhere.getWhere() != null && hasWhere.getWhere().get(0).getMatch() != null && hasWhere.getWhere().get(0).getMatch().getTypeOf().equals(pathMatch.getTypeOf()))
+            remove.add(pathMatch);
         }
       }
     }
@@ -165,20 +157,4 @@ public class PathRepository {
       for (Match match : remove)
         result.remove(match);
   }
-
-  private String addDefaultPrefixes(String sparql) {
-    StringJoiner sj = new StringJoiner(System.lineSeparator());
-    String prefixes = """
-      PREFIX rdfs: <%s>
-      PREFIX rdf: <%s>
-      PREFIX im: <%s>
-      PREFIX sn: <%s>
-      PREFIX sh: <%s>
-      """.formatted(RDFS.NAMESPACE, RDF.NAMESPACE, IM.NAMESPACE, SNOMED.NAMESPACE, SHACL.NAMESPACE);
-    sj.add(prefixes);
-    sj.add(sparql);
-    return sj.toString();
-  }
-
-
 }

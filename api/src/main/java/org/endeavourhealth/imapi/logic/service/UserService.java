@@ -6,8 +6,6 @@ import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.USER;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -16,9 +14,8 @@ import java.util.Set;
 
 @Component
 public class UserService {
-  private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
-  private UserRepository userRepository = new UserRepository();
-  private EntityService entityService = new EntityService();
+  private final UserRepository userRepository = new UserRepository();
+  private final EntityService entityService = new EntityService();
 
 
   public String getUserPreset(String userId) {
@@ -50,7 +47,7 @@ public class UserService {
   }
 
   public void updateUserDarkMode(String userId, Boolean darkMode) throws JsonProcessingException {
-    userRepository.updateByPredicate(userId, darkMode ? "true" : "false", USER.USER_DARK_MODE);
+    userRepository.updateByPredicate(userId, darkMode, USER.USER_DARK_MODE);
   }
 
   public String getUserScale(String userId) {

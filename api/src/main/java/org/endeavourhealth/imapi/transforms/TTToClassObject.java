@@ -4,13 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class TTToClassObject {
-  public <T> T getObject(TTEntity entity, Class<T> classType) throws InstantiationException, IllegalAccessException, JsonProcessingException {
-    T obj = classType.newInstance();
+  public <T> T getObject(TTEntity entity, Class<T> classType) throws InstantiationException, IllegalAccessException, JsonProcessingException, NoSuchMethodException, InvocationTargetException {
+    T obj = classType.getDeclaredConstructor().newInstance();
     setField(obj, "iri", entity.getIri());
     processNode(entity, obj, classType);
     return obj;

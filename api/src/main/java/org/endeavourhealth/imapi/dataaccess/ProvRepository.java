@@ -15,25 +15,32 @@ import java.util.StringJoiner;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 
 public class ProvRepository {
   public List<TTEntity> getProvHistory(String iri) {
     List<TTEntity> results = new ArrayList<>();
 
-    StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add("SELECT * WHERE {")
-      .add("?prov <http://endhealth.info/im#provenanceTarget> ?entity ;")
-      .add("      <http://endhealth.info/im#effectiveDate> ?effectiveDate ;")
-      .add("      <http://endhealth.info/im#provenanceActivityType> ?activityType .")
-      .add("Optional {?prov <http://endhealth.info/im#provenanceAgent> ?agent .")
-      .add("         Optional {?agent rdfs:label ?agentName .}}")
-      .add("Optional {?prov <http://endhealth.info/im#usedEntity> ?usedEntity .")
-      .add("         Optional {?usedEntity rdfs:label ?usedEntityName .}}")
-      .add("Optional {?activityType rdfs:label ?activityTypeName .}")
-      .add("} order by desc(?effectiveDate)");
+    String sql = """
+      SELECT *
+      WHERE {
+        ?prov im:provenanceTarget ?entity ;
+        im:effectiveDate ?effectiveDate ;
+        im:provenanceActivityType ?activityType .
+        Optional {
+          ?prov im:provenanceAgent ?agent .
+          Optional {?agent rdfs:label ?agentName .}
+        }
+        Optional {
+          ?prov im:usedEntity ?usedEntity .
+          Optional {?usedEntity rdfs:label ?usedEntityName .}
+        }
+        Optional {?activityType rdfs:label ?activityTypeName .}
+      } order by desc(?effectiveDate)
+      """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql.toString());
+      TupleQuery qry = prepareSparql(conn, addSparqlPrefixes(sql));
       qry.setBinding("entity", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {

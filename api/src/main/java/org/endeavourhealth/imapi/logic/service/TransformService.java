@@ -1,10 +1,12 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
+import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
+import org.endeavourhealth.imapi.model.iml.TransformRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.map.MapObject;
-import org.endeavourhealth.imapi.model.iml.TransformRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
@@ -15,16 +17,18 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.util.ResourceUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
-import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @PropertySource("classpath:eqdmap.properties")
 public class TransformService {
 
-  public ModelDocument transformEqd(EnquiryDocument eqDoc) throws FileNotFoundException, IOException, DataFormatException, QueryException {
+  public ModelDocument transformEqd(EnquiryDocument eqDoc) throws IOException, QueryException, EQDException {
     Properties dataMap = new Properties();
     Properties criteriaLabels = new Properties();
 
@@ -51,7 +55,7 @@ public class TransformService {
    * @throws Exception With a reference to the underlying reason for failure to transform.
    */
 
-  public Set<Object> runTransform(TransformRequest request) throws Exception {
+  public Set<Object> runTransform(TransformRequest request) throws JsonProcessingException {
     validateInputs(request.getSourceFormat(), request.getTargetFormat(), request.getTransformMap(), request.getSource());
     String mapIri = request.getTransformMap().getIri();
     TTEntity mapEntity = EntityCache.getEntity(mapIri).getEntity();
@@ -60,7 +64,7 @@ public class TransformService {
     if (mapEntity.get(iri(IM.ENTITY_MAP)) != null) {
       return transformGraph(request, mapEntity);
     } else if (mapEntity.get(TTIriRef.iri(IM.DEFINITION)) == null) {
-      throw new DataFormatException("IRI sent as graph map is not a graph map or entity map?");
+      throw new IllegalStateException("IRI sent as graph map is not a graph map or entity map?");
     } else {
       //Must be entity map
       MapObject mapObject = mapEntity.get(TTIriRef.iri(IM.DEFINITION)).asLiteral().objectValue(MapObject.class);
@@ -68,7 +72,7 @@ public class TransformService {
     }
   }
 
-  private Set<Object> transformEntities(TransformRequest request, MapObject mapData) throws Exception {
+  private Set<Object> transformEntities(TransformRequest request, MapObject mapData) throws JsonProcessingException {
     Transformer transform = new Transformer(request.getSourceFormat(), request.getTargetFormat());
     Set<Object> targetObjects = new HashSet<>();
     //Look for the typed source data (String iri, object list) to transform
@@ -81,11 +85,11 @@ public class TransformService {
       }
     }
     if (targetObjects.isEmpty())
-      throw new DataFormatException("transform request source types do not have valid Data maps");
+      throw new IllegalStateException("transform request source types do not have valid Data maps");
     return targetObjects;
   }
 
-  private Set<Object> transformGraph(TransformRequest request, TTEntity graphMapEntity) throws Exception {
+  private Set<Object> transformGraph(TransformRequest request, TTEntity graphMapEntity) throws JsonProcessingException {
     Transformer transform = new Transformer(request.getSourceFormat(), request.getTargetFormat());
     Set<Object> targetObjects = new HashSet<>();
     for (TTValue map : graphMapEntity.get(TTIriRef.iri(IM.ENTITY_MAP)).getElements()) {
@@ -103,20 +107,20 @@ public class TransformService {
       }
     }
     if (targetObjects.isEmpty())
-      throw new DataFormatException("transform request source types do not have valid Data maps");
+      throw new IllegalStateException("transform request source types do not have valid Data maps");
     return targetObjects;
   }
 
 
-  private void validateInputs(String sourceFormat, String targetFormat, TTIriRef graphMapIri, Map<String, List<Object>> sources) throws DataFormatException {
+  private void validateInputs(String sourceFormat, String targetFormat, TTIriRef graphMapIri, Map<String, List<Object>> sources) {
     if (sourceFormat == null)
-      throw new DataFormatException("Source format must be defined in request (e.g. sourceFormat : JSON)");
+      throw new IllegalArgumentException("Source format must be defined in request (e.g. sourceFormat : JSON)");
     if (targetFormat == null)
-      throw new DataFormatException("Target format must be defined in request (e.g. targetFormat : JSON-LD)");
+      throw new IllegalArgumentException("Target format must be defined in request (e.g. targetFormat : JSON-LD)");
     if (graphMapIri == null)
-      throw new DataFormatException("Graph Map iri (\"@id\" : \"http...\" must be present in request");
+      throw new IllegalArgumentException("Graph Map iri (\"@id\" : \"http...\" must be present in request");
     if (sources == null)
-      throw new DataFormatException("No data Sources in request...");
+      throw new IllegalArgumentException("No data Sources in request...");
 
   }
 

@@ -9,23 +9,22 @@ import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.util.StringJoiner;
-
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 
 public class EntityTypeRepository {
   public TTArray getEntityTypes(String iri) {
     TTArray result = new TTArray();
 
-    StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add("SELECT ?o ?oname")
-      .add("WHERE {")
-      .add("    ?s rdf:type ?o .")
-      .add("    ?o rdfs:label ?oname .")
-      .add("}");
+    String sql = """
+      SELECT ?o ?oname
+      WHERE {
+        ?s rdf:type ?o .
+        ?o rdfs:label ?oname .
+      }
+      """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql.toString());
+      TupleQuery qry = prepareSparql(conn, sql);
 
       qry.setBinding("s", Values.iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {

@@ -333,10 +333,11 @@ public class EntityController {
 
   @GetMapping("/public/dataModelProperties")
   public TTEntity getDataModelProperties(
-    @RequestParam(name = "iri") String iri) throws IOException {
+    @RequestParam(name = "iri") String iri,
+    @RequestParam(name = "parent",required = false) String parent) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
       LOG.debug("getDataModelProperties");
-      return entityService.getDataModelPropertiesAndSubClasses(iri);
+      return entityService.getDataModelPropertiesAndSubClasses(iri,parent);
     }
   }
 

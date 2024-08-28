@@ -333,11 +333,16 @@ public class EntityService {
     return xls;
   }
 
-  public TTEntity getDataModelPropertiesAndSubClasses(String iri){
+  public TTEntity getDataModelPropertiesAndSubClasses(String iri,String parent){
     TTEntity entity =entityTripleRepository.getEntityPredicates(iri,Set.of(SHACL.PROPERTY)).getEntity();
     List<TTValue> properties= new ArrayList<>();
     if (entity.get(iri(SHACL.PROPERTY))!=null) {
-      properties = entity.get(iri(SHACL.PROPERTY)).getElements();
+        for (TTValue property:entity.get(iri(SHACL.PROPERTY)).getElements()){
+          if (property.asNode().get(iri(IM.INHERITED_FROM))==null||parent==null)
+            properties.add(property);
+          else if (!property.asNode().get(iri(IM.INHERITED_FROM)).asIriRef().getIri().equals(parent))
+            properties.add(property);
+      }
     };
     List<EntityReferenceNode> children = getImmediateChildren(iri,null,null,null,false);
     if (children!=null &&!children.isEmpty()){

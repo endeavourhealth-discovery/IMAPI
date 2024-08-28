@@ -130,11 +130,11 @@ public class EntityTripleRepository {
         SELECT ?s ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren
         WHERE {
           GRAPH ?g { ?s rdfs:label ?name } .
-          VALUES ?s { ?iriLine }
+          VALUES ?s { %s }
           OPTIONAL { ?s sh:order ?order . }
           BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
           BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?s} AS ?hasGrandchildren)
-        """.formatted(PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
+        """.formatted(iriLine, PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
 
     if (schemeIris != null && !schemeIris.isEmpty()) {
       sql.add(valueList("g", schemeIris));
@@ -148,7 +148,6 @@ public class EntityTripleRepository {
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = prepareSparql(conn, sql.toString());
-      qry.setBinding("iriLine", literal(iriLine));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

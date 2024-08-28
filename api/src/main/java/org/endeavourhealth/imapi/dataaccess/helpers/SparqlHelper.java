@@ -45,12 +45,12 @@ public class SparqlHelper {
 
   public static String addSparqlPrefixes(String sparql) {
     String prefixes = """
-      PREFIX rdfs: %s
-      PREFIX im: %s
-      PREFIX rdf: %s
-      PREFIX sn: %s
-      PREFIX sh: %s
-      PREFIX xsd: %s
+      PREFIX rdfs: <%s>
+      PREFIX im: <%s>
+      PREFIX rdf: <%s>
+      PREFIX sn: <%s>
+      PREFIX sh: <%s>
+      PREFIX xsd: <%s>
       
       """.formatted(RDFS.NAMESPACE, IM.NAMESPACE, RDF.NAMESPACE, SNOMED.NAMESPACE, SHACL.NAMESPACE, XSD.NAMESPACE);
     StringJoiner sj = new StringJoiner(System.lineSeparator());

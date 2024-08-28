@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.Getter;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.BooleanQuery;
@@ -27,13 +28,15 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.eclipse.rdf4j.model.util.Values.iri;
-
 /**
  * Methods to convert a Query object to its Sparql equivalent and return results as a json object
  */
 public class QueryRepository {
+  public static final String COUNT = "count";
+  public static final String TOTAL_COUNT = "totalCount";
+  public static final String ENTITIES = "entities";
   private final ObjectMapper mapper = new ObjectMapper();
+  @Getter
   private final Set<String> predicates = new HashSet<>();
 
 
@@ -66,19 +69,19 @@ public class QueryRepository {
     ObjectNode queryIMResponse = mapper.createObjectNode();
     if (queryRequest.getPage() != null) {
       queryIMResponse.put("page", page);
-      queryIMResponse.put("count", count);
-      queryIMResponse.put("totalCount", queryIMCount(queryRequest));
-      if (count == 0 || count > queryIMResponse.get("totalCount").asInt())
-        queryIMResponse.put("count", queryIMResponse.get("totalCount").asInt());
+      queryIMResponse.put(COUNT, count);
+      queryIMResponse.put(TOTAL_COUNT, queryIMCount(queryRequest));
+      if (count == 0 || count > queryIMResponse.get(TOTAL_COUNT).asInt())
+        queryIMResponse.put(COUNT, queryIMResponse.get(TOTAL_COUNT).asInt());
     } else {
-      int entityCount = queryResults.get("entities").size();
+      int entityCount = queryResults.get(ENTITIES).size();
       queryIMResponse.put("page", 1);
-      queryIMResponse.put("count", entityCount);
-      queryIMResponse.put("totalCount", entityCount);
+      queryIMResponse.put(COUNT, entityCount);
+      queryIMResponse.put(TOTAL_COUNT, entityCount);
     }
 
     if (queryRequest.getTextSearch() != null) queryIMResponse.put("term", queryRequest.getTextSearch());
-    if (queryResults.has("entities")) queryIMResponse.set("entities", queryResults.get("entities"));
+    if (queryResults.has(ENTITIES)) queryIMResponse.set(ENTITIES, queryResults.get(ENTITIES));
     return queryIMResponse;
   }
 
@@ -151,31 +154,7 @@ public class QueryRepository {
       TTEntity entity = getEntity(query.getIri());
       if (entity.get(TTIriRef.iri(SHACL.PARAMETER)) != null) {
         for (TTValue param : entity.get(TTIriRef.iri(SHACL.PARAMETER)).getElements()) {
-          if (param.asNode().get(TTIriRef.iri(SHACL.MINCOUNT)) != null) {
-            String parameterName = param.asNode().get(TTIriRef.iri(RDFS.LABEL)).asLiteral().getValue();
-            TTIriRef parameterType;
-            if (param.asNode().get(TTIriRef.iri(SHACL.DATATYPE)) != null)
-              parameterType = param.asNode().get(TTIriRef.iri(SHACL.DATATYPE)).asIriRef();
-            else
-              parameterType = param.asNode().get(TTIriRef.iri(SHACL.CLASS)).asIriRef();
-            boolean found = false;
-            for (Argument arg : queryRequest.getArgument())
-              if (arg.getParameter().equals(parameterName)) {
-                found = true;
-                String error = "Query request arguments require parameter name :'" + parameterName + "' ";
-                if (parameterType.equals(TTIriRef.iri(IM.NAMESPACE + "IriRef"))) {
-                  if (arg.getValueIri() == null)
-                    throw new QueryException(error + " to have a valueIri :{@id : htttp....}");
-                } else if (arg.getValueData() == null) {
-                  throw new QueryException(error + " to have valueData where with string value");
-                }
-              }
-            if (!found) {
-              String error = "Query request expects parameter name '" + parameterName + "' which is not present in the query request";
-              throw new QueryException(error);
-            }
-          }
-
+          processParam(param, queryRequest);
         }
       }
       TTArray definition = entity.get(TTIriRef.iri(IM.DEFINITION));
@@ -192,8 +171,34 @@ public class QueryRepository {
     return query;
   }
 
+  private void processParam(TTValue param, QueryRequest queryRequest) throws QueryException {
+    if (param.asNode().get(TTIriRef.iri(SHACL.MINCOUNT)) == null) return;
+    String parameterName = param.asNode().get(TTIriRef.iri(RDFS.LABEL)).asLiteral().getValue();
+    TTIriRef parameterType;
+    if (param.asNode().get(TTIriRef.iri(SHACL.DATATYPE)) != null)
+      parameterType = param.asNode().get(TTIriRef.iri(SHACL.DATATYPE)).asIriRef();
+    else
+      parameterType = param.asNode().get(TTIriRef.iri(SHACL.CLASS)).asIriRef();
+    boolean found = false;
+    for (Argument arg : queryRequest.getArgument())
+      if (arg.getParameter().equals(parameterName)) {
+        found = true;
+        String error = "Query request arguments require parameter name :'" + parameterName + "' ";
+        if (parameterType.equals(TTIriRef.iri(IM.NAMESPACE + "IriRef"))) {
+          if (arg.getValueIri() == null)
+            throw new QueryException(error + " to have a valueIri :{@id : http....}");
+        } else if (arg.getValueData() == null) {
+          throw new QueryException(error + " to have valueData where with string value");
+        }
+      }
+    if (!found) {
+      String error = "Query request expects parameter name '" + parameterName + "' which is not present in the query request";
+      throw new QueryException(error);
+    }
+  }
+
   private ObjectNode graphSelectSearch(Query query, String spq, RepositoryConnection conn, ObjectNode result) {
-    ArrayNode entities = result.putArray("entities");
+    ArrayNode entities = result.putArray(ENTITIES);
     try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
@@ -211,7 +216,7 @@ public class QueryRepository {
     try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
-        return Integer.parseInt(bs.getValue("count").stringValue());
+        if (bs.hasBinding(COUNT)) return Integer.parseInt(bs.getValue(COUNT).stringValue());
       }
     }
     return 0;
@@ -337,11 +342,6 @@ public class QueryRepository {
   }
 
 
-  public Set<String> getPredicates() {
-    return predicates;
-  }
-
-
   private void checkReferenceDate(QueryRequest queryRequest) {
     if (queryRequest.getReferenceDate() == null) {
       String now = LocalDate.now().toString();
@@ -389,7 +389,7 @@ public class QueryRepository {
 
   public List<String> resolveIris(Set<String> iriLabels) {
     List<String> iriList = iriLabels.stream().filter(iri -> iri != null && iri.contains("#")).toList();
-    return iriList.stream().map(iri -> "<" + iri + ">").collect(Collectors.toList());
+    return iriList.stream().map(iri -> "<" + iri + ">").toList();
   }
 
   private void gatherQueryLabels(Query query, List<TTIriRef> ttIris, Map<String, String> iris) {
@@ -481,7 +481,7 @@ public class QueryRepository {
       if (!isIri(match.getTypeOf().getIri())) {
         match.setTypeOf(IM.NAMESPACE + match.getTypeOf().getIri());
       }
-      match.setName(iriLabels.get(match.getTypeOf()));
+      match.setName(iriLabels.get(match.getTypeOf().getIri()));
     }
     if (match.getWhere() != null) {
       for (Where where : match.getWhere()) {
@@ -538,6 +538,6 @@ public class QueryRepository {
   }
 
   private boolean isIri(String iri) {
-    return iri.matches("([a-z]+)?[:].*");
+    return iri.matches("([a-z]+)?:.*");
   }
 }

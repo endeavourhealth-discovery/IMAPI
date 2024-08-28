@@ -333,6 +333,37 @@ public class EntityService {
     return xls;
   }
 
+  public TTEntity getDataModelPropertiesAndSubClasses(String iri){
+    TTEntity entity =entityTripleRepository.getEntityPredicates(iri,Set.of(SHACL.PROPERTY)).getEntity();
+    List<TTValue> properties= new ArrayList<>();
+    if (entity.get(iri(SHACL.PROPERTY))!=null) {
+      properties = entity.get(iri(SHACL.PROPERTY)).getElements();
+    };
+    List<EntityReferenceNode> children = getImmediateChildren(iri,null,null,null,false);
+    if (children!=null &&!children.isEmpty()){
+      TTNode subclasses= new TTNode()
+        .set(iri(SHACL.ORDER),TTLiteral.literal(0))
+        .set(iri(SHACL.PATH),new TTIriRef().setIri(IM.NAMESPACE+"hasSubclasses").setName("has subtypes"));
+      for (EntityReferenceNode type:children){
+        subclasses.addObject(iri(SHACL.NODE),new TTIriRef().setIri(type.getIri()).setName(type.getName()));
+      }
+      properties.add(subclasses);
+    }
+    if (!properties.isEmpty()) {
+      properties= properties
+        .stream().sorted(Comparator
+          .comparing(p->p.asNode().get(iri(SHACL.ORDER))==null ?1: p.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue())).toList();
+      TTArray ordered= new TTArray();
+      for (TTValue property:properties)
+        ordered.add(property);
+      entity.set(iri(SHACL.PROPERTY),ordered);
+      return entity;
+    }
+    else {
+      return entity;
+    }
+  }
+
   public List<DataModelProperty> getDataModelProperties(String iri) {
     TTEntity entity = getBundle(iri, Set.of(SHACL.PROPERTY, RDFS.LABEL)).getEntity();
     return getDataModelProperties(entity);

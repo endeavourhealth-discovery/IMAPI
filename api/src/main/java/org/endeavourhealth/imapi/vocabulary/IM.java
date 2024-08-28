@@ -10,6 +10,7 @@ public class IM {
     public static final String VALUE = "@value";
     public static final String TYPE = "@type";
     public static final String id = IM.NAMESPACE + "id";
+    public static final String RELATIONSHIP_TYPE = IM.NAMESPACE+"relationshipType";
     public static final String CODE = IM.NAMESPACE + "code";
     public static final String PREFERRED_NAME = IM.NAMESPACE + "preferredName";
     public static final String HAS_SCHEME = IM.NAMESPACE + "scheme";

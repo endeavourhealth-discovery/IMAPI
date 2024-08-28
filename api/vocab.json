@@ -146,6 +146,10 @@
         "value": "IM.NAMESPACE + \"id\""
       },
       {
+        "name": "RELATIONSHIP_TYPE",
+        "value": "IM.NAMESPACE+\"relationshipType\""
+      },
+      {
         "name": "CODE",
         "value": "IM.NAMESPACE + \"code\""
       },

@@ -3,22 +3,19 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.controllers.EntityController;
 import org.endeavourhealth.imapi.json.JsonLDMapper;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
-import org.endeavourhealth.imapi.model.imq.PathQuery;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
-import org.endeavourhealth.imapi.model.search.SearchRequest;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
@@ -26,7 +23,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
@@ -35,6 +33,12 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 class SearchServiceTest {
 
   private String succinctDefinitions;
+
+  //@Test
+    void testdataModelProperties() throws IOException {
+    System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(
+      new EntityController().getDataModelProperties(IM.NAMESPACE+"Observation")));
+  }
 
 
   //@Test

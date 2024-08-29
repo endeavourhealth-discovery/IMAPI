@@ -99,6 +99,12 @@ public class EntityRepository2 {
     TTBundle bundle = new TTBundle()
       .setEntity(new TTEntity().setIri(iri))
       .setPredicates(new HashMap<>());
+    if (predicates.contains(RDFS.LABEL)&&!predicates.contains(RDFS.COMMENT)){
+      Set<String> predicatesPlus= new HashSet<>();
+      predicatesPlus.addAll(predicates);
+      predicatesPlus.add(RDFS.COMMENT);
+      predicates= predicatesPlus;
+    }
 
     StringJoiner sql = getBundleSparql(predicates, excludePredicates, depth);
 
@@ -110,14 +116,17 @@ public class EntityRepository2 {
         for (org.eclipse.rdf4j.model.Statement st : gs) {
           processStatement(bundle, valueMap, iri, st);
         }
-        Set<TTIriRef> iris = TTManager.getIrisFromNode(bundle.getEntity());
-        getIriNames(conn, iris);
-        setNames(bundle.getEntity(), iris);
-        iris.forEach(bundle::addPredicate);
+        //Set<TTIriRef> iris = TTManager.getIrisFromNode(bundle.getEntity());
+        //getIriNames(conn, iris);
+        //setNames(bundle.getEntity(), iris);
+        //iris.forEach(bundle::addPredicate);
       }
       return bundle;
     }
   }
+
+
+
 
   private void setNames(TTValue subject, Set<TTIriRef> iris) {
     HashMap<String, String> names = new HashMap<>();

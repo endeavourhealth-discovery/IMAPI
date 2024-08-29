@@ -22,13 +22,12 @@ public class GRAPH {
     public static final String IM1 = "http://endhealth.info/im1#";
     public static final String ENCOUNTERS = "http://endhealth.info/enc#";
     public static final String CONFIG = "http://endhealth.info/config#";
-    public static final String CEG_QUERY = "http://endhealth.info/ceg/qry#";
+    public static final String CEG = "http://endhealth.info/ceg#";
     public static final String NHS_TFC = "http://endhealth.info/nhstfc#";
     public static final String STATS = "http://endhealth.info/stats#";
     public static final String DELTAS = "http://endhealth.info/deltas#";
     public static final String PROV = "http://endhealth.info/prov#";
     public static final String QUERY = "http://endhealth.info/query#";
-    public static final String CEG16 = "http://endhealth.info/ceg16#";
     public static final String REPORTS = "http://endhealth.info/reports#";
     public static final String OPS_ROLES = "https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#";
     public static final String XS = "http://www.w3.org/2001/XMLSchema#";

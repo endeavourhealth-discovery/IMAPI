@@ -352,7 +352,7 @@ public class TTManager implements AutoCloseable {
     context.add(GRAPH.PRSB, "prsb", "PRSB namespace");
     context.add(GRAPH.KINGS_WINPATH, "kchwinpath", "KCH Winpath codes");
     context.add(GRAPH.KINGS_APEX, "kchapex", "KCH Apex codes");
-    context.add(GRAPH.CEG16, "ceg13", "CEG ethnicity 16+ category");
+    context.add(GRAPH.CEG, "ceg", "CEG ethnicity 16+ category");
     context.add(GRAPH.NHSDD_ETHNIC_2001, "nhse2001", "NHS Ethnicitity categories 2001 census");
     context.add(GRAPH.VISION, "vis", "Vision (incl. Read2) namespace");
     return context;

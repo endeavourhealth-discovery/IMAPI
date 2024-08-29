@@ -29,13 +29,13 @@ public class EqdToIMQ {
 
                                   Properties criteriaLabels) throws IOException, QueryException, EQDException {
 
-    resources.setDataMap(dataMap);
-    resources.setDocument(new ModelDocument());
-    resources.setLabels(criteriaLabels);
-    addReportNames(eqd);
-    convertFolders(eqd);
-    convertReports(eqd);
-    return resources.getDocument();
+      resources.setDataMap(dataMap);
+      resources.setDocument(new ModelDocument());
+      resources.setLabels(criteriaLabels);
+      addReportNames(eqd);
+      convertFolders(eqd);
+      convertReports(eqd);
+      return resources.getDocument();
   }
 
   private void addReportNames(EnquiryDocument eqd) {

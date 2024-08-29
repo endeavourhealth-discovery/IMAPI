@@ -28,6 +28,7 @@ public class FHIRToIM {
     TTEntity set= new TTEntity()
       .addType(setType)
       .setIri(valueSet.getURL())
+      .setScheme(iri(FHIR.GRAPH_FHIR))
       .setStatus(valueSet.getStatus().equals("active")? iri(IM.ACTIVE): iri(IM.DRAFT))
       .setName("FHIR "+ valueSet.getName().replaceAll("([a-z])([A-Z])", "$1 $2"))
       .setDescription(valueSet.getDescription());
@@ -66,7 +67,7 @@ public class FHIRToIM {
       .addType(iri(IM.CONCEPT))
       .setCode(codeSystem.getID())
       .setIri(iri)
-      .setStatus(iri(FHIR.GRAPH_FHIR))
+      .setScheme(iri(FHIR.GRAPH_FHIR))
       .setStatus(codeSystem.getStatus().equals("active") ?iri(IM.ACTIVE): iri(IM.DRAFT))
       .setName(codeSystem.getTitle()+ "( FHIR code system)")
       .setDescription(codeSystem.getDescription());

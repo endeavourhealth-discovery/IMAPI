@@ -201,7 +201,7 @@ public class ImportMaps implements AutoCloseable {
       SELECT ?child ?name
       WHERE {
         GRAPH ?graph {
-          ?child ?subClassOf+ ?concept.
+          ?child ?subClassOf ?concept.
           ?child ?label ?name.
         }
       }

@@ -5,8 +5,18 @@ import com.fasterxml.jackson.annotation.*;
 public class Identifier {
     private String system;
     private String value;
+    private String use;
 
-    @JsonProperty("system")
+  public String getUse() {
+    return use;
+  }
+
+  public Identifier setUse(String use) {
+    this.use = use;
+    return this;
+  }
+
+  @JsonProperty("system")
     public String getSystem() { return system; }
     @JsonProperty("system")
     public void setSystem(String value) { this.system = value; }

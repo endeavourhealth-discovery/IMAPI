@@ -100,6 +100,7 @@ public class EntityController {
     }
   }
 
+
   @GetMapping(value = "/fullEntity", produces = "application/json")
   public TTEntity getFullEntity(@RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
@@ -332,10 +333,12 @@ public class EntityController {
   }
 
   @GetMapping("/public/dataModelProperties")
-  public List<DataModelProperty> getDataModelProperties(@RequestParam(name = "iri") String iri) throws IOException {
+  public TTEntity getDataModelProperties(
+    @RequestParam(name = "iri") String iri,
+    @RequestParam(name = "parent",required = false) String parent) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
       LOG.debug("getDataModelProperties");
-      return entityService.getDataModelProperties(iri);
+      return entityService.getDataModelPropertiesAndSubClasses(iri,parent);
     }
   }
 

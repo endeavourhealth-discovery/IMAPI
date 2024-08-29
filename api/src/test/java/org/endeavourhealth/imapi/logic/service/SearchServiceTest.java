@@ -15,8 +15,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -35,9 +33,9 @@ class SearchServiceTest {
   private String succinctDefinitions;
 
   //@Test
-    void testdataModelProperties() throws IOException {
+  void testdataModelProperties() throws IOException {
     System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(
-      new EntityController().getDataModelProperties(IM.NAMESPACE+"Observation")));
+      new EntityController().getDataModelProperties(IM.NAMESPACE + "Observation", null)));
   }
 
 
@@ -111,9 +109,8 @@ class SearchServiceTest {
         wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
         System.out.println("Found " + result.get("entities").size() + " entities");
       }
-    }
-    else if (dataSet.getPathQuery() != null) {
-      PathDocument result= searchService.pathQuery(dataSet.getPathQuery());
+    } else if (dataSet.getPathQuery() != null) {
+      PathDocument result = searchService.pathQuery(dataSet.getPathQuery());
       path = of.toAbsolutePath();
       try (FileWriter wr = new FileWriter(path.toString())) {
         wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));

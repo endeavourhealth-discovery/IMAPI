@@ -44,7 +44,7 @@ public class SetBinder {
         SELECT distinct ?iri
         WHERE {
           ?iri ?rdfType ?type.
-          filter (?type in (imConceptSet,imValueSet)).
+          filter (?type in (?imConceptSet, ?imValueSet)).
         }
         """;
       TupleQuery qry = conn.prepareTupleQuery(sparql);

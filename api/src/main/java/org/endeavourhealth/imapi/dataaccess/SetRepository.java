@@ -29,7 +29,6 @@ import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparq
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class SetRepository {
-  private static final Logger LOG = LoggerFactory.getLogger(SetRepository.class);
   public static final String ACTIVE_ENTITY = "activeEntity";
   public static final String ENTITY = "entity";
   public static final String IM_1_ID = "im1Id";
@@ -37,6 +36,7 @@ public class SetRepository {
   public static final String TYPE_NAME = "typeName";
   public static final String LEGACY_SCHEME = "legacyScheme";
   public static final String CONCEPT = "concept";
+  private static final Logger LOG = LoggerFactory.getLogger(SetRepository.class);
   private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
 
   /**
@@ -351,10 +351,10 @@ public class SetRepository {
       String pathIri = dataModel.get(iri(SHACL.PATH)).asIriRef().getIri();
       String nodeIri = dataModel.get(iri(SHACL.NODE)).asIriRef().getIri();
       newBinding.add("""
-          <%s> im:binding _:b%s .
-          _:b%s sh:path %s .
-          _:b%s sh:node %s .
-          """.formatted(iri, blankCount, blankCount, pathIri, blankCount, nodeIri));
+        <%s> im:binding _:b%s .
+        _:b%s sh:path %s .
+        _:b%s sh:node %s .
+        """.formatted(iri, blankCount, blankCount, pathIri, blankCount, nodeIri));
     }
     newBinding.add("}}");
 
@@ -489,13 +489,12 @@ public class SetRepository {
       WHERE {
         ?setIri im:hasMember ?entity .
       }
-      LIMIT ?limit
-      """;
+      LIMIT %d
+      """.formatted(limit);
     Set<Concept> result = new HashSet<>();
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sparql));
-      qry.setBinding("limit", Values.literal(limit));
       qry.setBinding("setIri", Values.iri(setIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -532,7 +531,7 @@ public class SetRepository {
       """;
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(spql));
-      qry.setBinding("iriList",Values.literal(iriList));
+      qry.setBinding("iriList", Values.literal(iriList));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

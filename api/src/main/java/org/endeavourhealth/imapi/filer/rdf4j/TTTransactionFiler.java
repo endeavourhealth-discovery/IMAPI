@@ -185,6 +185,11 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
 
   @Override
   public void fileDocument(TTDocument document) throws TTFilerException, JsonProcessingException, QueryException {
+    if (document.getEntities() == null) {
+      LOG.error("Document has no entities");
+      return;
+    }
+
     document.getEntities().removeIf(e -> null == e.getIri());
 
     checkDeletes(document);

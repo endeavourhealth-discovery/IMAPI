@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Null;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.FilerService;
@@ -37,6 +38,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -225,7 +227,7 @@ public class FilerController {
 
   @GetMapping("deltas/download")
   @PreAuthorize("hasAuthority('IMAdmin')")
-  public HttpEntity<Object> downloadDeltas() throws Exception {
+  public HttpEntity<Object> downloadDeltas() throws NullPointerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Deltas.Download.GET")) {
       LOG.debug("downloadDeltas");
       HttpHeaders headers = new HttpHeaders();
@@ -233,25 +235,28 @@ public class FilerController {
       // Collect files into Zip
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-        File directory = new File(System.getenv("DELTA_PATH"));
-        if (directory.exists()) {
-          for (File file : Objects.requireNonNull(directory.listFiles())) {
-            if (!file.isDirectory()) {
-              String name = file.getName();
-              if (name.startsWith("TTLog-")) {
-                zos.putNextEntry(new ZipEntry(name));
-                byte[] fileData = Files.readAllBytes(file.toPath());
-                zos.write(fileData);
-                zos.closeEntry();
+        try {
+          File directory = new File(System.getenv("DELTA_PATH"));
+          if (directory.exists()) {
+            for (File file : Objects.requireNonNull(directory.listFiles())) {
+              if (!file.isDirectory()) {
+                String name = file.getName();
+                if (name.startsWith("TTLog-")) {
+                  zos.putNextEntry(new ZipEntry(name));
+                  byte[] fileData = Files.readAllBytes(file.toPath());
+                  zos.write(fileData);
+                  zos.closeEntry();
+                }
               }
             }
+            headers.setContentType(new MediaType("application", "force-download"));
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"deltas.zip\"");
+            return new HttpEntity<>(baos.toByteArray(), headers);
           }
-          headers.setContentType(new MediaType("application", "force-download"));
-          headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"deltas.zip\"");
-          return new HttpEntity<>(baos.toByteArray(), headers);
-        } else {
-          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (NullPointerException e) {
+          LOG.error("Unable to find environment variable path for delta download.");
         }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
       }
     }
   }

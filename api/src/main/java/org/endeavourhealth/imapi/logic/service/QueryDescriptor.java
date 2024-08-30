@@ -104,12 +104,12 @@ public class QueryDescriptor {
     }
     if (ref.getName() != null) {
       display = display + getTermInContext(ref.getName(), Context.PROPERTY);
-    }
-    if (ref.getIri() != null) {
+    } else if (ref.getIri() != null) {
       display = processRefIri(display, ref);
     } else if (ref.getParameter() != null) {
       display = ref.getParameter();
-    } else if (ref.getNodeRef() != null) {
+    }
+    if (ref.getNodeRef() != null) {
       if (nodeRefNames.get(ref.getNodeRef()) != null) {
         display = display + " of " + nodeRefNames.get(ref.getNodeRef());
       } else
@@ -258,7 +258,7 @@ public class QueryDescriptor {
       }
       if (where.getRange() != null) {
         display.append(describeRangeProperty(where, where.getIri().toLowerCase().contains("date")));
-      } else if (where.getValue() != null || where.getOperator() != null) {
+      } else if (where.getValue() != null || where.getRelativeTo() != null || where.getOperator() != null) {
         describeValueWhere(display, where, where.getIri().toLowerCase().contains("date"));
       } else if (where.getIs() != null) {
         display.append(describeIsProperty(where));
@@ -401,7 +401,7 @@ public class QueryDescriptor {
       if (relativeTo.getParameter() != null) {
         display.append(relativeTo.getParameter());
       } else {
-        display.append("the ").append(propertyName).append(" of ");
+        display.append("the ").append(propertyName);
 
       }
 

@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.filer.TTFilerException;
@@ -254,7 +253,7 @@ public class FilerController {
         } catch (NullPointerException e) {
           LOG.error("Unable to find environment variable path for delta download.");
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to find environment variable path for delta download.");
       }
     }
   }

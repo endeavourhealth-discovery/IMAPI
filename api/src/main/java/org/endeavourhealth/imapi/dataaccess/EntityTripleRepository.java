@@ -93,8 +93,8 @@ public class EntityTripleRepository {
       WHERE {
         { ?s ?p ?o . }
         UNION {
-          ?s shacl:property ?prop .
-          ?prop shacl:path ?propIri .
+          ?s sh:property ?prop .
+          ?prop sh:path ?propIri .
           FILTER(?propIri = ?o)
         }
         ?s im:status ?status .
@@ -102,8 +102,9 @@ public class EntityTripleRepository {
       }
       """;
 
+
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, addSparqlPrefixes(sql));
+      TupleQuery qry = prepareSparql(conn, sql);
       qry.setBinding("o", iri(objectIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {

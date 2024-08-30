@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for EQDOC.ListReportLevelSort complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.ListReportLevelSort"&gt;
  *   &lt;complexContent&gt;
@@ -29,42 +29,36 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.ListReportLevelSort", propOrder = {
-    "columnGroupId"
+  "columnGroupId"
 })
 public class EQDOCListReportLevelSort {
 
-    @XmlElement(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String columnGroupId;
+  @XmlElement(required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String columnGroupId;
 
-    /**
-     * Gets the value of the columnGroupId property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getColumnGroupId() {
-        return columnGroupId;
-    }
+  /**
+   * Gets the value of the columnGroupId property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getColumnGroupId() {
+    return columnGroupId;
+  }
 
-    /**
-     * Sets the value of the columnGroupId property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setColumnGroupId(String value) {
-        this.columnGroupId = value;
-    }
+  /**
+   * Sets the value of the columnGroupId property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setColumnGroupId(String value) {
+    this.columnGroupId = value;
+  }
 
 }

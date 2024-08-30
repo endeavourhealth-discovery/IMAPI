@@ -11,6 +11,7 @@ package org.endeavourhealth.imapi.transforms.eqd;
 import jakarta.xml.bind.annotation.*;
 import jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +19,9 @@ import java.util.List;
 
 /**
  * <p>Java class for EnquiryDocument complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EnquiryDocument"&gt;
  *   &lt;complexContent&gt;
@@ -45,421 +46,375 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EnquiryDocument", propOrder = {
-    "id",
-    "name",
-    "creationTime",
-    "enquirer",
-    "reportFolder",
-    "report",
-    "libraryItem",
-    "mailMergeItem",
-    "reportCollections",
-    "reportSetGroup",
-    "qmas",
-    "gpes"
+  "id",
+  "name",
+  "creationTime",
+  "enquirer",
+  "reportFolder",
+  "report",
+  "libraryItem",
+  "mailMergeItem",
+  "reportCollections",
+  "reportSetGroup",
+  "qmas",
+  "gpes"
 })
 @XmlRootElement
 public class EnquiryDocument {
 
-    @XmlElement(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String id;
-    protected String name;
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar creationTime;
-    protected EQDOCEnquirer enquirer;
-    protected List<EQDOCFolder> reportFolder;
-    protected List<EQDOCReport> report;
-    protected List<EQDOCLibraryItem> libraryItem;
-    protected List<EQDOCMailMerge> mailMergeItem;
-    protected List<EQDOCReportCollections> reportCollections;
-    protected List<EQDOCReportSetGroup> reportSetGroup;
-    @XmlElement(name = "QMAS")
-    protected EQDOCQMAS qmas;
-    @XmlElement(name = "GPES")
-    protected EQDOCGPES gpes;
-    @XmlAttribute(name = "schemaVersion", required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String schemaVersion;
-    @XmlAttribute(name = "version", required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String version;
+  @XmlElement(required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String id;
+  protected String name;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "dateTime")
+  protected XMLGregorianCalendar creationTime;
+  protected EQDOCEnquirer enquirer;
+  protected List<EQDOCFolder> reportFolder;
+  protected List<EQDOCReport> report;
+  protected List<EQDOCLibraryItem> libraryItem;
+  protected List<EQDOCMailMerge> mailMergeItem;
+  protected List<EQDOCReportCollections> reportCollections;
+  protected List<EQDOCReportSetGroup> reportSetGroup;
+  @XmlElement(name = "QMAS")
+  protected EQDOCQMAS qmas;
+  @XmlElement(name = "GPES")
+  protected EQDOCGPES gpes;
+  @XmlAttribute(name = "schemaVersion", required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  protected String schemaVersion;
+  @XmlAttribute(name = "version", required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  protected String version;
 
-    /**
-     * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getId() {
-        return id;
-    }
+  /**
+   * Gets the value of the id property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getId() {
+    return id;
+  }
 
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setId(String value) {
-        this.id = value;
-    }
+  /**
+   * Sets the value of the id property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setId(String value) {
+    this.id = value;
+  }
 
-    /**
-     * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getName() {
-        return name;
-    }
+  /**
+   * Gets the value of the name property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setName(String value) {
-        this.name = value;
-    }
+  /**
+   * Sets the value of the name property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setName(String value) {
+    this.name = value;
+  }
 
-    /**
-     * Gets the value of the creationTime property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getCreationTime() {
-        return creationTime;
-    }
+  /**
+   * Gets the value of the creationTime property.
+   *
+   * @return possible object is
+   * {@link XMLGregorianCalendar }
+   */
+  public XMLGregorianCalendar getCreationTime() {
+    return creationTime;
+  }
 
-    /**
-     * Sets the value of the creationTime property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setCreationTime(XMLGregorianCalendar value) {
-        this.creationTime = value;
-    }
+  /**
+   * Sets the value of the creationTime property.
+   *
+   * @param value allowed object is
+   *              {@link XMLGregorianCalendar }
+   */
+  public void setCreationTime(XMLGregorianCalendar value) {
+    this.creationTime = value;
+  }
 
-    /**
-     * Gets the value of the enquirer property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCEnquirer }
-     *     
-     */
-    public EQDOCEnquirer getEnquirer() {
-        return enquirer;
-    }
+  /**
+   * Gets the value of the enquirer property.
+   *
+   * @return possible object is
+   * {@link EQDOCEnquirer }
+   */
+  public EQDOCEnquirer getEnquirer() {
+    return enquirer;
+  }
 
-    /**
-     * Sets the value of the enquirer property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCEnquirer }
-     *     
-     */
-    public void setEnquirer(EQDOCEnquirer value) {
-        this.enquirer = value;
-    }
+  /**
+   * Sets the value of the enquirer property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCEnquirer }
+   */
+  public void setEnquirer(EQDOCEnquirer value) {
+    this.enquirer = value;
+  }
 
-    /**
-     * Gets the value of the reportFolder property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the reportFolder property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getReportFolder().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCFolder }
-     * 
-     * 
-     */
-    public List<EQDOCFolder> getReportFolder() {
-        if (reportFolder == null) {
-            reportFolder = new ArrayList<EQDOCFolder>();
-        }
-        return this.reportFolder;
+  /**
+   * Gets the value of the reportFolder property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the reportFolder property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getReportFolder().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCFolder }
+   */
+  public List<EQDOCFolder> getReportFolder() {
+    if (reportFolder == null) {
+      reportFolder = new ArrayList<EQDOCFolder>();
     }
+    return this.reportFolder;
+  }
 
-    /**
-     * Gets the value of the report property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the report property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getReport().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCReport }
-     * 
-     * 
-     */
-    public List<EQDOCReport> getReport() {
-        if (report == null) {
-            report = new ArrayList<EQDOCReport>();
-        }
-        return this.report;
+  /**
+   * Gets the value of the report property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the report property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getReport().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCReport }
+   */
+  public List<EQDOCReport> getReport() {
+    if (report == null) {
+      report = new ArrayList<EQDOCReport>();
     }
+    return this.report;
+  }
 
-    /**
-     * Gets the value of the libraryItem property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the libraryItem property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getLibraryItem().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCLibraryItem }
-     * 
-     * 
-     */
-    public List<EQDOCLibraryItem> getLibraryItem() {
-        if (libraryItem == null) {
-            libraryItem = new ArrayList<EQDOCLibraryItem>();
-        }
-        return this.libraryItem;
+  /**
+   * Gets the value of the libraryItem property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the libraryItem property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getLibraryItem().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCLibraryItem }
+   */
+  public List<EQDOCLibraryItem> getLibraryItem() {
+    if (libraryItem == null) {
+      libraryItem = new ArrayList<EQDOCLibraryItem>();
     }
+    return this.libraryItem;
+  }
 
-    /**
-     * Gets the value of the mailMergeItem property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the mailMergeItem property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getMailMergeItem().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCMailMerge }
-     * 
-     * 
-     */
-    public List<EQDOCMailMerge> getMailMergeItem() {
-        if (mailMergeItem == null) {
-            mailMergeItem = new ArrayList<EQDOCMailMerge>();
-        }
-        return this.mailMergeItem;
+  /**
+   * Gets the value of the mailMergeItem property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the mailMergeItem property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getMailMergeItem().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCMailMerge }
+   */
+  public List<EQDOCMailMerge> getMailMergeItem() {
+    if (mailMergeItem == null) {
+      mailMergeItem = new ArrayList<EQDOCMailMerge>();
     }
+    return this.mailMergeItem;
+  }
 
-    /**
-     * Gets the value of the reportCollections property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the reportCollections property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getReportCollections().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCReportCollections }
-     * 
-     * 
-     */
-    public List<EQDOCReportCollections> getReportCollections() {
-        if (reportCollections == null) {
-            reportCollections = new ArrayList<EQDOCReportCollections>();
-        }
-        return this.reportCollections;
+  /**
+   * Gets the value of the reportCollections property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the reportCollections property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getReportCollections().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCReportCollections }
+   */
+  public List<EQDOCReportCollections> getReportCollections() {
+    if (reportCollections == null) {
+      reportCollections = new ArrayList<EQDOCReportCollections>();
     }
+    return this.reportCollections;
+  }
 
-    /**
-     * Gets the value of the reportSetGroup property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the reportSetGroup property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getReportSetGroup().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCReportSetGroup }
-     * 
-     * 
-     */
-    public List<EQDOCReportSetGroup> getReportSetGroup() {
-        if (reportSetGroup == null) {
-            reportSetGroup = new ArrayList<EQDOCReportSetGroup>();
-        }
-        return this.reportSetGroup;
+  /**
+   * Gets the value of the reportSetGroup property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the reportSetGroup property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getReportSetGroup().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCReportSetGroup }
+   */
+  public List<EQDOCReportSetGroup> getReportSetGroup() {
+    if (reportSetGroup == null) {
+      reportSetGroup = new ArrayList<EQDOCReportSetGroup>();
     }
+    return this.reportSetGroup;
+  }
 
-    /**
-     * Gets the value of the qmas property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCQMAS }
-     *     
-     */
-    public EQDOCQMAS getQMAS() {
-        return qmas;
-    }
+  /**
+   * Gets the value of the qmas property.
+   *
+   * @return possible object is
+   * {@link EQDOCQMAS }
+   */
+  public EQDOCQMAS getQMAS() {
+    return qmas;
+  }
 
-    /**
-     * Sets the value of the qmas property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCQMAS }
-     *     
-     */
-    public void setQMAS(EQDOCQMAS value) {
-        this.qmas = value;
-    }
+  /**
+   * Sets the value of the qmas property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCQMAS }
+   */
+  public void setQMAS(EQDOCQMAS value) {
+    this.qmas = value;
+  }
 
-    /**
-     * Gets the value of the gpes property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCGPES }
-     *     
-     */
-    public EQDOCGPES getGPES() {
-        return gpes;
-    }
+  /**
+   * Gets the value of the gpes property.
+   *
+   * @return possible object is
+   * {@link EQDOCGPES }
+   */
+  public EQDOCGPES getGPES() {
+    return gpes;
+  }
 
-    /**
-     * Sets the value of the gpes property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCGPES }
-     *     
-     */
-    public void setGPES(EQDOCGPES value) {
-        this.gpes = value;
-    }
+  /**
+   * Sets the value of the gpes property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCGPES }
+   */
+  public void setGPES(EQDOCGPES value) {
+    this.gpes = value;
+  }
 
-    /**
-     * Gets the value of the schemaVersion property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getSchemaVersion() {
-        if (schemaVersion == null) {
-            return "32.0.0";
-        } else {
-            return schemaVersion;
-        }
+  /**
+   * Gets the value of the schemaVersion property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getSchemaVersion() {
+    if (schemaVersion == null) {
+      return "32.0.0";
+    } else {
+      return schemaVersion;
     }
+  }
 
-    /**
-     * Sets the value of the schemaVersion property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setSchemaVersion(String value) {
-        this.schemaVersion = value;
-    }
+  /**
+   * Sets the value of the schemaVersion property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setSchemaVersion(String value) {
+    this.schemaVersion = value;
+  }
 
-    /**
-     * Gets the value of the version property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getVersion() {
-        return version;
-    }
+  /**
+   * Gets the value of the version property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getVersion() {
+    return version;
+  }
 
-    /**
-     * Sets the value of the version property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setVersion(String value) {
-        this.version = value;
-    }
+  /**
+   * Sets the value of the version property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setVersion(String value) {
+    this.version = value;
+  }
 
 }

@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.PrescriptionType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -26,37 +26,33 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.PrescriptionType")
 @XmlEnum
 public enum VocPrescriptionType {
 
 
-    /**
-     * Acute
-     * 
-     */
-    A,
+  /**
+   * Acute
+   */
+  A,
 
-    /**
-     * Repeat
-     * 
-     */
-    R,
+  /**
+   * Repeat
+   */
+  R,
 
-    /**
-     * Automatic
-     * 
-     */
-    U;
+  /**
+   * Automatic
+   */
+  U;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocPrescriptionType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocPrescriptionType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

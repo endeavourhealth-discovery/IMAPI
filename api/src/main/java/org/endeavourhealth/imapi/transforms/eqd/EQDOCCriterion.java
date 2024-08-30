@@ -11,15 +11,16 @@ package org.endeavourhealth.imapi.transforms.eqd;
 import jakarta.xml.bind.annotation.*;
 import jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * <p>Java class for EQDOC.Criterion complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.Criterion"&gt;
  *   &lt;complexContent&gt;
@@ -39,261 +40,225 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.Criterion", propOrder = {
-    "id",
-    "table",
-    "displayName",
-    "description",
-    "baseCriteriaGroup",
-    "negation",
-    "filterAttribute",
-    "linkedCriterion",
-    "exceptionCode"
+  "id",
+  "table",
+  "displayName",
+  "description",
+  "baseCriteriaGroup",
+  "negation",
+  "filterAttribute",
+  "linkedCriterion",
+  "exceptionCode"
 })
 public class EQDOCCriterion {
 
-    @XmlElement(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String id;
-    @XmlElement(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String table;
-    @XmlElement(required = true)
-    protected String displayName;
-    protected String description;
-    protected List<EQDOCBaseCriteriaGroup> baseCriteriaGroup;
-    @XmlElement(defaultValue = "false")
-    protected Boolean negation;
-    @XmlElement(required = true)
-    protected EQDOCFilterAttribute filterAttribute;
-    protected EQDOCLinkedCriterion linkedCriterion;
-    protected String exceptionCode;
+  @XmlElement(required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String id;
+  @XmlElement(required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String table;
+  @XmlElement(required = true)
+  protected String displayName;
+  protected String description;
+  protected List<EQDOCBaseCriteriaGroup> baseCriteriaGroup;
+  @XmlElement(defaultValue = "false")
+  protected Boolean negation;
+  @XmlElement(required = true)
+  protected EQDOCFilterAttribute filterAttribute;
+  protected EQDOCLinkedCriterion linkedCriterion;
+  protected String exceptionCode;
 
-    /**
-     * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getId() {
-        return id;
-    }
+  /**
+   * Gets the value of the id property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getId() {
+    return id;
+  }
 
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setId(String value) {
-        this.id = value;
-    }
+  /**
+   * Sets the value of the id property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setId(String value) {
+    this.id = value;
+  }
 
-    /**
-     * Gets the value of the table property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getTable() {
-        return table;
-    }
+  /**
+   * Gets the value of the table property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getTable() {
+    return table;
+  }
 
-    /**
-     * Sets the value of the table property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setTable(String value) {
-        this.table = value;
-    }
+  /**
+   * Sets the value of the table property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setTable(String value) {
+    this.table = value;
+  }
 
-    /**
-     * Gets the value of the displayName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDisplayName() {
-        return displayName;
-    }
+  /**
+   * Gets the value of the displayName property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getDisplayName() {
+    return displayName;
+  }
 
-    /**
-     * Sets the value of the displayName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDisplayName(String value) {
-        this.displayName = value;
-    }
+  /**
+   * Sets the value of the displayName property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setDisplayName(String value) {
+    this.displayName = value;
+  }
 
-    /**
-     * Gets the value of the description property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDescription() {
-        return description;
-    }
+  /**
+   * Gets the value of the description property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getDescription() {
+    return description;
+  }
 
-    /**
-     * Sets the value of the description property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDescription(String value) {
-        this.description = value;
-    }
+  /**
+   * Sets the value of the description property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setDescription(String value) {
+    this.description = value;
+  }
 
-    /**
-     * Gets the value of the baseCriteriaGroup property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the baseCriteriaGroup property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getBaseCriteriaGroup().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCBaseCriteriaGroup }
-     * 
-     * 
-     */
-    public List<EQDOCBaseCriteriaGroup> getBaseCriteriaGroup() {
-        if (baseCriteriaGroup == null) {
-            baseCriteriaGroup = new ArrayList<EQDOCBaseCriteriaGroup>();
-        }
-        return this.baseCriteriaGroup;
+  /**
+   * Gets the value of the baseCriteriaGroup property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the baseCriteriaGroup property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getBaseCriteriaGroup().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCBaseCriteriaGroup }
+   */
+  public List<EQDOCBaseCriteriaGroup> getBaseCriteriaGroup() {
+    if (baseCriteriaGroup == null) {
+      baseCriteriaGroup = new ArrayList<EQDOCBaseCriteriaGroup>();
     }
+    return this.baseCriteriaGroup;
+  }
 
-    /**
-     * Gets the value of the negation property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
-     */
-    public Boolean isNegation() {
-        return negation;
-    }
+  /**
+   * Gets the value of the negation property.
+   *
+   * @return possible object is
+   * {@link Boolean }
+   */
+  public Boolean isNegation() {
+    return negation;
+  }
 
-    /**
-     * Sets the value of the negation property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
-     */
-    public void setNegation(Boolean value) {
-        this.negation = value;
-    }
+  /**
+   * Sets the value of the negation property.
+   *
+   * @param value allowed object is
+   *              {@link Boolean }
+   */
+  public void setNegation(Boolean value) {
+    this.negation = value;
+  }
 
-    /**
-     * Gets the value of the filterAttribute property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCFilterAttribute }
-     *     
-     */
-    public EQDOCFilterAttribute getFilterAttribute() {
-        return filterAttribute;
-    }
+  /**
+   * Gets the value of the filterAttribute property.
+   *
+   * @return possible object is
+   * {@link EQDOCFilterAttribute }
+   */
+  public EQDOCFilterAttribute getFilterAttribute() {
+    return filterAttribute;
+  }
 
-    /**
-     * Sets the value of the filterAttribute property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCFilterAttribute }
-     *     
-     */
-    public void setFilterAttribute(EQDOCFilterAttribute value) {
-        this.filterAttribute = value;
-    }
+  /**
+   * Sets the value of the filterAttribute property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCFilterAttribute }
+   */
+  public void setFilterAttribute(EQDOCFilterAttribute value) {
+    this.filterAttribute = value;
+  }
 
-    /**
-     * Gets the value of the linkedCriterion property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCLinkedCriterion }
-     *     
-     */
-    public EQDOCLinkedCriterion getLinkedCriterion() {
-        return linkedCriterion;
-    }
+  /**
+   * Gets the value of the linkedCriterion property.
+   *
+   * @return possible object is
+   * {@link EQDOCLinkedCriterion }
+   */
+  public EQDOCLinkedCriterion getLinkedCriterion() {
+    return linkedCriterion;
+  }
 
-    /**
-     * Sets the value of the linkedCriterion property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCLinkedCriterion }
-     *     
-     */
-    public void setLinkedCriterion(EQDOCLinkedCriterion value) {
-        this.linkedCriterion = value;
-    }
+  /**
+   * Sets the value of the linkedCriterion property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCLinkedCriterion }
+   */
+  public void setLinkedCriterion(EQDOCLinkedCriterion value) {
+    this.linkedCriterion = value;
+  }
 
-    /**
-     * Gets the value of the exceptionCode property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getExceptionCode() {
-        return exceptionCode;
-    }
+  /**
+   * Gets the value of the exceptionCode property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getExceptionCode() {
+    return exceptionCode;
+  }
 
-    /**
-     * Sets the value of the exceptionCode property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setExceptionCode(String value) {
-        this.exceptionCode = value;
-    }
+  /**
+   * Sets the value of the exceptionCode property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setExceptionCode(String value) {
+    this.exceptionCode = value;
+  }
 
 }

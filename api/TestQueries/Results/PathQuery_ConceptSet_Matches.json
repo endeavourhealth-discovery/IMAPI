@@ -1,0 +1,40 @@
+{
+  "match": [
+    {
+      "path": [
+        {
+          "@id": "http://endhealth.info/im#patient",
+          "name": "patient"
+        }
+      ],
+      "where": [
+        {
+          "@id": "http://endhealth.info/im#concept",
+          "name": "concept"
+        }
+      ],
+      "typeOf": {
+        "@id": "http://endhealth.info/im#MedicationAuthorisation",
+        "name": "Medication authorisation"
+      }
+    },
+    {
+      "path": [
+        {
+          "@id": "http://endhealth.info/im#patient",
+          "name": "patient"
+        }
+      ],
+      "where": [
+        {
+          "@id": "http://endhealth.info/im#concept",
+          "name": "concept"
+        }
+      ],
+      "typeOf": {
+        "@id": "http://endhealth.info/im#MedicationRequest",
+        "name": "Medication request / Prescription"
+      }
+    }
+  ]
+}

@@ -12,14 +12,15 @@ import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlType;
+
 import java.math.BigDecimal;
 
 
 /**
  * <p>Java class for dt.PostcodeData complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="dt.PostcodeData"&gt;
  *   &lt;complexContent&gt;
@@ -112,356 +113,304 @@ import java.math.BigDecimal;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "dt.PostcodeData", propOrder = {
-    "countryCode",
-    "pctCode",
-    "townsendScore",
-    "imd",
-    "houseInPoorCondition",
-    "combinedAirQualityIndex",
-    "nitrogenDioxide",
-    "pm10",
-    "sulphurDioxide",
-    "benzene",
-    "ruralityEnglandWales",
-    "ruralityScotland",
-    "version"
+  "countryCode",
+  "pctCode",
+  "townsendScore",
+  "imd",
+  "houseInPoorCondition",
+  "combinedAirQualityIndex",
+  "nitrogenDioxide",
+  "pm10",
+  "sulphurDioxide",
+  "benzene",
+  "ruralityEnglandWales",
+  "ruralityScotland",
+  "version"
 })
 public class DtPostcodeData {
 
-    @XmlElement(name = "CountryCode", required = true)
-    protected String countryCode;
-    @XmlElement(name = "PCTCode", required = true)
-    protected String pctCode;
-    @XmlElement(name = "TownsendScore", required = true)
-    protected BigDecimal townsendScore;
-    @XmlElement(name = "IMD", required = true)
-    protected BigDecimal imd;
-    @XmlElement(name = "HouseInPoorCondition", required = true)
-    protected BigDecimal houseInPoorCondition;
-    @XmlElement(name = "CombinedAirQualityIndex", required = true)
-    protected BigDecimal combinedAirQualityIndex;
-    @XmlElement(name = "NitrogenDioxide", required = true)
-    protected BigDecimal nitrogenDioxide;
-    @XmlElement(name = "PM10", required = true)
-    protected BigDecimal pm10;
-    @XmlElement(name = "SulphurDioxide", required = true)
-    protected BigDecimal sulphurDioxide;
-    @XmlElement(name = "Benzene", required = true)
-    protected BigDecimal benzene;
-    @XmlElement(name = "RuralityEnglandWales", required = true)
-    protected String ruralityEnglandWales;
-    @XmlElement(name = "RuralityScotland", required = true)
-    protected String ruralityScotland;
-    @XmlElement(name = "Version")
-    protected int version;
+  @XmlElement(name = "CountryCode", required = true)
+  protected String countryCode;
+  @XmlElement(name = "PCTCode", required = true)
+  protected String pctCode;
+  @XmlElement(name = "TownsendScore", required = true)
+  protected BigDecimal townsendScore;
+  @XmlElement(name = "IMD", required = true)
+  protected BigDecimal imd;
+  @XmlElement(name = "HouseInPoorCondition", required = true)
+  protected BigDecimal houseInPoorCondition;
+  @XmlElement(name = "CombinedAirQualityIndex", required = true)
+  protected BigDecimal combinedAirQualityIndex;
+  @XmlElement(name = "NitrogenDioxide", required = true)
+  protected BigDecimal nitrogenDioxide;
+  @XmlElement(name = "PM10", required = true)
+  protected BigDecimal pm10;
+  @XmlElement(name = "SulphurDioxide", required = true)
+  protected BigDecimal sulphurDioxide;
+  @XmlElement(name = "Benzene", required = true)
+  protected BigDecimal benzene;
+  @XmlElement(name = "RuralityEnglandWales", required = true)
+  protected String ruralityEnglandWales;
+  @XmlElement(name = "RuralityScotland", required = true)
+  protected String ruralityScotland;
+  @XmlElement(name = "Version")
+  protected int version;
 
-    /**
-     * Gets the value of the countryCode property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getCountryCode() {
-        return countryCode;
-    }
+  /**
+   * Gets the value of the countryCode property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getCountryCode() {
+    return countryCode;
+  }
 
-    /**
-     * Sets the value of the countryCode property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setCountryCode(String value) {
-        this.countryCode = value;
-    }
+  /**
+   * Sets the value of the countryCode property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setCountryCode(String value) {
+    this.countryCode = value;
+  }
 
-    /**
-     * Gets the value of the pctCode property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPCTCode() {
-        return pctCode;
-    }
+  /**
+   * Gets the value of the pctCode property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getPCTCode() {
+    return pctCode;
+  }
 
-    /**
-     * Sets the value of the pctCode property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPCTCode(String value) {
-        this.pctCode = value;
-    }
+  /**
+   * Sets the value of the pctCode property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setPCTCode(String value) {
+    this.pctCode = value;
+  }
 
-    /**
-     * Gets the value of the townsendScore property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public BigDecimal getTownsendScore() {
-        return townsendScore;
-    }
+  /**
+   * Gets the value of the townsendScore property.
+   *
+   * @return possible object is
+   * {@link BigDecimal }
+   */
+  public BigDecimal getTownsendScore() {
+    return townsendScore;
+  }
 
-    /**
-     * Sets the value of the townsendScore property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public void setTownsendScore(BigDecimal value) {
-        this.townsendScore = value;
-    }
+  /**
+   * Sets the value of the townsendScore property.
+   *
+   * @param value allowed object is
+   *              {@link BigDecimal }
+   */
+  public void setTownsendScore(BigDecimal value) {
+    this.townsendScore = value;
+  }
 
-    /**
-     * Gets the value of the imd property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public BigDecimal getIMD() {
-        return imd;
-    }
+  /**
+   * Gets the value of the imd property.
+   *
+   * @return possible object is
+   * {@link BigDecimal }
+   */
+  public BigDecimal getIMD() {
+    return imd;
+  }
 
-    /**
-     * Sets the value of the imd property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public void setIMD(BigDecimal value) {
-        this.imd = value;
-    }
+  /**
+   * Sets the value of the imd property.
+   *
+   * @param value allowed object is
+   *              {@link BigDecimal }
+   */
+  public void setIMD(BigDecimal value) {
+    this.imd = value;
+  }
 
-    /**
-     * Gets the value of the houseInPoorCondition property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public BigDecimal getHouseInPoorCondition() {
-        return houseInPoorCondition;
-    }
+  /**
+   * Gets the value of the houseInPoorCondition property.
+   *
+   * @return possible object is
+   * {@link BigDecimal }
+   */
+  public BigDecimal getHouseInPoorCondition() {
+    return houseInPoorCondition;
+  }
 
-    /**
-     * Sets the value of the houseInPoorCondition property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public void setHouseInPoorCondition(BigDecimal value) {
-        this.houseInPoorCondition = value;
-    }
+  /**
+   * Sets the value of the houseInPoorCondition property.
+   *
+   * @param value allowed object is
+   *              {@link BigDecimal }
+   */
+  public void setHouseInPoorCondition(BigDecimal value) {
+    this.houseInPoorCondition = value;
+  }
 
-    /**
-     * Gets the value of the combinedAirQualityIndex property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public BigDecimal getCombinedAirQualityIndex() {
-        return combinedAirQualityIndex;
-    }
+  /**
+   * Gets the value of the combinedAirQualityIndex property.
+   *
+   * @return possible object is
+   * {@link BigDecimal }
+   */
+  public BigDecimal getCombinedAirQualityIndex() {
+    return combinedAirQualityIndex;
+  }
 
-    /**
-     * Sets the value of the combinedAirQualityIndex property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public void setCombinedAirQualityIndex(BigDecimal value) {
-        this.combinedAirQualityIndex = value;
-    }
+  /**
+   * Sets the value of the combinedAirQualityIndex property.
+   *
+   * @param value allowed object is
+   *              {@link BigDecimal }
+   */
+  public void setCombinedAirQualityIndex(BigDecimal value) {
+    this.combinedAirQualityIndex = value;
+  }
 
-    /**
-     * Gets the value of the nitrogenDioxide property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public BigDecimal getNitrogenDioxide() {
-        return nitrogenDioxide;
-    }
+  /**
+   * Gets the value of the nitrogenDioxide property.
+   *
+   * @return possible object is
+   * {@link BigDecimal }
+   */
+  public BigDecimal getNitrogenDioxide() {
+    return nitrogenDioxide;
+  }
 
-    /**
-     * Sets the value of the nitrogenDioxide property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public void setNitrogenDioxide(BigDecimal value) {
-        this.nitrogenDioxide = value;
-    }
+  /**
+   * Sets the value of the nitrogenDioxide property.
+   *
+   * @param value allowed object is
+   *              {@link BigDecimal }
+   */
+  public void setNitrogenDioxide(BigDecimal value) {
+    this.nitrogenDioxide = value;
+  }
 
-    /**
-     * Gets the value of the pm10 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public BigDecimal getPM10() {
-        return pm10;
-    }
+  /**
+   * Gets the value of the pm10 property.
+   *
+   * @return possible object is
+   * {@link BigDecimal }
+   */
+  public BigDecimal getPM10() {
+    return pm10;
+  }
 
-    /**
-     * Sets the value of the pm10 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public void setPM10(BigDecimal value) {
-        this.pm10 = value;
-    }
+  /**
+   * Sets the value of the pm10 property.
+   *
+   * @param value allowed object is
+   *              {@link BigDecimal }
+   */
+  public void setPM10(BigDecimal value) {
+    this.pm10 = value;
+  }
 
-    /**
-     * Gets the value of the sulphurDioxide property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public BigDecimal getSulphurDioxide() {
-        return sulphurDioxide;
-    }
+  /**
+   * Gets the value of the sulphurDioxide property.
+   *
+   * @return possible object is
+   * {@link BigDecimal }
+   */
+  public BigDecimal getSulphurDioxide() {
+    return sulphurDioxide;
+  }
 
-    /**
-     * Sets the value of the sulphurDioxide property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public void setSulphurDioxide(BigDecimal value) {
-        this.sulphurDioxide = value;
-    }
+  /**
+   * Sets the value of the sulphurDioxide property.
+   *
+   * @param value allowed object is
+   *              {@link BigDecimal }
+   */
+  public void setSulphurDioxide(BigDecimal value) {
+    this.sulphurDioxide = value;
+  }
 
-    /**
-     * Gets the value of the benzene property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public BigDecimal getBenzene() {
-        return benzene;
-    }
+  /**
+   * Gets the value of the benzene property.
+   *
+   * @return possible object is
+   * {@link BigDecimal }
+   */
+  public BigDecimal getBenzene() {
+    return benzene;
+  }
 
-    /**
-     * Sets the value of the benzene property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public void setBenzene(BigDecimal value) {
-        this.benzene = value;
-    }
+  /**
+   * Sets the value of the benzene property.
+   *
+   * @param value allowed object is
+   *              {@link BigDecimal }
+   */
+  public void setBenzene(BigDecimal value) {
+    this.benzene = value;
+  }
 
-    /**
-     * Gets the value of the ruralityEnglandWales property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getRuralityEnglandWales() {
-        return ruralityEnglandWales;
-    }
+  /**
+   * Gets the value of the ruralityEnglandWales property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getRuralityEnglandWales() {
+    return ruralityEnglandWales;
+  }
 
-    /**
-     * Sets the value of the ruralityEnglandWales property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setRuralityEnglandWales(String value) {
-        this.ruralityEnglandWales = value;
-    }
+  /**
+   * Sets the value of the ruralityEnglandWales property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setRuralityEnglandWales(String value) {
+    this.ruralityEnglandWales = value;
+  }
 
-    /**
-     * Gets the value of the ruralityScotland property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getRuralityScotland() {
-        return ruralityScotland;
-    }
+  /**
+   * Gets the value of the ruralityScotland property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getRuralityScotland() {
+    return ruralityScotland;
+  }
 
-    /**
-     * Sets the value of the ruralityScotland property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setRuralityScotland(String value) {
-        this.ruralityScotland = value;
-    }
+  /**
+   * Sets the value of the ruralityScotland property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setRuralityScotland(String value) {
+    this.ruralityScotland = value;
+  }
 
-    /**
-     * Gets the value of the version property.
-     * 
-     */
-    public int getVersion() {
-        return version;
-    }
+  /**
+   * Gets the value of the version property.
+   */
+  public int getVersion() {
+    return version;
+  }
 
-    /**
-     * Sets the value of the version property.
-     * 
-     */
-    public void setVersion(int value) {
-        this.version = value;
-    }
+  /**
+   * Sets the value of the version property.
+   */
+  public void setVersion(int value) {
+    this.version = value;
+  }
 
 }

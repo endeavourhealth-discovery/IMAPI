@@ -51,213 +51,209 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Tag(name = "FilerController")
 @RequestScope
 public class FilerController {
-    private static final Logger LOG = LoggerFactory.getLogger(FilerController.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FilerController.class);
 
-    private final FilerService filerService = new FilerService();
-    private final EntityService entityService = new EntityService();
-    private final RequestObjectService reqObjService = new RequestObjectService();
+  private final FilerService filerService = new FilerService();
+  private final EntityService entityService = new EntityService();
+  private final RequestObjectService reqObjService = new RequestObjectService();
 
-    private final SearchService searchService = new SearchService();
+  private final SearchService searchService = new SearchService();
 
-    @PostMapping("file/document")
-    @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-    public ResponseEntity fileDocument(@RequestBody TTDocument document, @RequestParam(name = "withoutTransaction", required = false) boolean withoutTransaction, HttpServletRequest request) throws Exception {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Document.POST")) {
-            LOG.debug("fileDocument");
-            String agentName = reqObjService.getRequestAgentName(request);
-            if (withoutTransaction) {
-                filerService.fileDocument(document, agentName);
-            } else {
-                filerService.fileTransactionDocument(document, agentName);
-            }
-            return ResponseEntity.ok().build();
-        }
+  @PostMapping("file/document")
+  @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  public ResponseEntity fileDocument(@RequestBody TTDocument document, @RequestParam(name = "withoutTransaction", required = false) boolean withoutTransaction, HttpServletRequest request) throws Exception {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Document.POST")) {
+      LOG.debug("fileDocument");
+      String agentName = reqObjService.getRequestAgentName(request);
+      filerService.fileDocument(document, agentName);
+      return ResponseEntity.ok().build();
     }
+  }
 
-    @PostMapping("file/entity")
-    @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-    public void fileEntity(@RequestBody TTEntity entity, @RequestParam(name = "graph") String graph, @RequestParam(name = "crud") String crud, HttpServletRequest request) throws TTFilerException, IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Entity.POST")) {
-            LOG.debug("fileEntity");
-            String agentName = reqObjService.getRequestAgentName(request);
-            TTEntity usedEntity = null;
-            if (entityService.iriExists(entity.getIri())) {
-                usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
-                entity.setVersion(usedEntity.getVersion() + 1);
-            }
+  @PostMapping("file/entity")
+  @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  public void fileEntity(@RequestBody TTEntity entity, @RequestParam(name = "graph") String graph, @RequestParam(name = "crud") String crud, HttpServletRequest request) throws TTFilerException, IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Entity.POST")) {
+      LOG.debug("fileEntity");
+      String agentName = reqObjService.getRequestAgentName(request);
+      TTEntity usedEntity = null;
+      if (entityService.iriExists(entity.getIri())) {
+        usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
+        entity.setVersion(usedEntity.getVersion() + 1);
+      }
 
-            if (graph != null && !graph.isEmpty()) entity.setGraph(iri(graph));
+      if (graph != null && !graph.isEmpty()) entity.setGraph(iri(graph));
 
-            if (crud != null && !crud.isEmpty()) entity.setCrud(iri(crud));
+      if (crud != null && !crud.isEmpty()) entity.setCrud(iri(crud));
 
-            filerService.fileEntity(entity, entity.getGraph(), agentName, usedEntity);
-        }
+      filerService.fileEntity(entity, entity.getGraph(), agentName, usedEntity);
     }
+  }
 
-    @PostMapping("folder/move")
-    @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-    public ResponseEntity moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, HttpServletRequest request) throws Exception {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Move.POST")) {
-            LOG.debug("moveFolder");
+  @PostMapping("folder/move")
+  @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  public ResponseEntity moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, HttpServletRequest request) throws Exception {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Move.POST")) {
+      LOG.debug("moveFolder");
 
 
-            if (!entityService.iriExists(entityIri) || !entityService.iriExists(oldFolderIri) || !entityService.iriExists(newFolderIri)) {
-                return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "One of the IRIs does not exist");
-            }
+      if (!entityService.iriExists(entityIri) || !entityService.iriExists(oldFolderIri) || !entityService.iriExists(newFolderIri)) {
+        return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "One of the IRIs does not exist");
+      }
 
-            if (entityIri.equals(newFolderIri)) {
-                return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Cannot move entity into itself");
-            }
+      if (entityIri.equals(newFolderIri)) {
+        return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Cannot move entity into itself");
+      }
 
-            if (oldFolderIri.equals(newFolderIri)) {
-                return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Source and target are the same");
-            }
+      if (oldFolderIri.equals(newFolderIri)) {
+        return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Source and target are the same");
+      }
 
-            TTEntity entity = entityService.getBundle(entityIri, Set.of(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
-            if (!entity.has(iri(IM.IS_CONTAINED_IN))) {
-                return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in a folder");
-            }
+      TTEntity entity = entityService.getBundle(entityIri, Set.of(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
+      if (!entity.has(iri(IM.IS_CONTAINED_IN))) {
+        return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in a folder");
+      }
 
-            TTArray folders = entity.get(iri(IM.IS_CONTAINED_IN));
-            if (!folders.contains(iri(oldFolderIri))) {
-                return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in the specified folder");
-            }
+      TTArray folders = entity.get(iri(IM.IS_CONTAINED_IN));
+      if (!folders.contains(iri(oldFolderIri))) {
+        return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in the specified folder");
+      }
 
-            if (entityService.isLinked(newFolderIri, iri(IM.IS_CONTAINED_IN), oldFolderIri)) {
-                return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Target folder is a descendant of the Entity");
-            }
-            TTEntity usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
+      if (entityService.isLinked(newFolderIri, iri(IM.IS_CONTAINED_IN), oldFolderIri)) {
+        return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Target folder is a descendant of the Entity");
+      }
+      TTEntity usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
 
-            folders.remove(iri(oldFolderIri));
-            folders.add(iri(newFolderIri));
-            entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
+      folders.remove(iri(oldFolderIri));
+      folders.add(iri(newFolderIri));
+      entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
 
-            String agentName = reqObjService.getRequestAgentName(request);
-            filerService.fileEntity(entity, iri(GRAPH.DISCOVERY), agentName, usedEntity);
+      String agentName = reqObjService.getRequestAgentName(request);
+      filerService.fileEntity(entity, iri(GRAPH.DISCOVERY), agentName, usedEntity);
 
-            return ResponseEntity.ok().build();
-        }
+      return ResponseEntity.ok().build();
     }
+  }
 
-    @PostMapping("folder/add")
-    @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-    public ResponseEntity addToFolder(
-            @RequestParam(name = "entity") String entityIri,
-            @RequestParam(name = "folder") String folderIri,
-            HttpServletRequest request) throws Exception {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Add.POST")) {
-            LOG.debug("addToFolder");
+  @PostMapping("folder/add")
+  @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  public ResponseEntity addToFolder(
+    @RequestParam(name = "entity") String entityIri,
+    @RequestParam(name = "folder") String folderIri,
+    HttpServletRequest request) throws Exception {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Add.POST")) {
+      LOG.debug("addToFolder");
 
-            if (!entityService.iriExists(entityIri) || !entityService.iriExists(folderIri)) {
-                return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot add to folder", "One of the IRIs does not exist");
-            }
+      if (!entityService.iriExists(entityIri) || !entityService.iriExists(folderIri)) {
+        return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot add to folder", "One of the IRIs does not exist");
+      }
 
-            if (entityIri.equals(folderIri)) {
-                return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Cannot move entity into itself");
-            }
+      if (entityIri.equals(folderIri)) {
+        return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Cannot move entity into itself");
+      }
 
-            TTEntity entity = entityService.getBundle(entityIri, Set.of(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
-            TTArray folders = entity.get(iri(IM.IS_CONTAINED_IN));
-            if (folders == null) folders = new TTArray();
-            folders.add(iri(folderIri));
+      TTEntity entity = entityService.getBundle(entityIri, Set.of(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
+      TTArray folders = entity.get(iri(IM.IS_CONTAINED_IN));
+      if (folders == null) folders = new TTArray();
+      folders.add(iri(folderIri));
 
-            String agentName = reqObjService.getRequestAgentName(request);
-            TTEntity usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
-            entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
-            filerService.fileEntity(entity, iri(GRAPH.DISCOVERY), agentName, usedEntity);
+      String agentName = reqObjService.getRequestAgentName(request);
+      TTEntity usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
+      entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
+      filerService.fileEntity(entity, iri(GRAPH.DISCOVERY), agentName, usedEntity);
 
-            return ResponseEntity.ok().build();
-        }
+      return ResponseEntity.ok().build();
     }
+  }
 
-    @PostMapping("folder/create")
-    @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-    public String createFolder(
-        @RequestParam(name = "container") String container,
-        @RequestParam(name = "name") String name,
-        HttpServletRequest request) throws Exception {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Create.POST")) {
-            LOG.debug("createFolder");
+  @PostMapping("folder/create")
+  @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  public String createFolder(
+    @RequestParam(name = "container") String container,
+    @RequestParam(name = "name") String name,
+    HttpServletRequest request) throws Exception {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Create.POST")) {
+      LOG.debug("createFolder");
 
-            if (name.isBlank()) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, name is null");
-            }
+      if (name.isBlank()) {
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, name is null");
+      }
 
-            if (!entityService.iriExists(container)) {
-                LOG.error("Cannot create, container does not exist");
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, container does not exist");
-            }
+      if (!entityService.iriExists(container)) {
+        LOG.error("Cannot create, container does not exist");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, container does not exist");
+      }
 
-            String iri = IM.NAMESPACE + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8.toString());
-            if (entityService.iriExists(iri)) {
-                LOG.error("Entity with that name already exists");
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity with that name already exists");
-            }
+      String iri = IM.NAMESPACE + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8.toString());
+      if (entityService.iriExists(iri)) {
+        LOG.error("Entity with that name already exists");
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity with that name already exists");
+      }
 
-            Query query = new Query()
-                .setName("Allowable child types for a folder")
-                .setIri(IM.NAMESPACE + "Query_AllowableChildTypes");
-            QueryRequest queryRequest = new QueryRequest()
-                .setQuery(query)
-                .argument(a -> a
-                    .setParameter("this")
-                    .setValueIri(TTIriRef.iri(container)));
-            JsonNode results = searchService.queryIM(queryRequest);
+      Query query = new Query()
+        .setName("Allowable child types for a folder")
+        .setIri(IM.NAMESPACE + "Query_AllowableChildTypes");
+      QueryRequest queryRequest = new QueryRequest()
+        .setQuery(query)
+        .argument(a -> a
+          .setParameter("this")
+          .setValueIri(TTIriRef.iri(container)));
+      JsonNode results = searchService.queryIM(queryRequest);
 
-            TTEntity entity = new TTEntity(iri)
-                .setName(name)
-                .setScheme(iri(GRAPH.DISCOVERY))
-                .addType(iri(IM.FOLDER))
-                .set(iri(IM.IS_CONTAINED_IN), iri(container))
-                .setVersion(1)
-                .setCrud(iri(IM.ADD_QUADS));
+      TTEntity entity = new TTEntity(iri)
+        .setName(name)
+        .setScheme(iri(GRAPH.DISCOVERY))
+        .addType(iri(IM.FOLDER))
+        .set(iri(IM.IS_CONTAINED_IN), iri(container))
+        .setVersion(1)
+        .setCrud(iri(IM.ADD_QUADS));
 
-            TTArray contentTypes = new TTArray();
-            for (JsonNode j : results.get("entities")) {
-                TTIriRef contentType = new TTIriRef();
-                contentType.setIri(j.get("@id").asText());
-                contentType.setName(j.get(RDFS.LABEL).asText());
-                contentTypes.add(contentType);
-            }
-            entity.set(iri(IM.CONTENT_TYPE), contentTypes);
+      TTArray contentTypes = new TTArray();
+      for (JsonNode j : results.get("entities")) {
+        TTIriRef contentType = new TTIriRef();
+        contentType.setIri(j.get("@id").asText());
+        contentType.setName(j.get(RDFS.LABEL).asText());
+        contentTypes.add(contentType);
+      }
+      entity.set(iri(IM.CONTENT_TYPE), contentTypes);
 
-            String agentName = reqObjService.getRequestAgentName(request);
-            filerService.fileEntity(entity, iri(GRAPH.DISCOVERY), agentName, null);
-            return iri;
-        }
+      String agentName = reqObjService.getRequestAgentName(request);
+      filerService.fileEntity(entity, iri(GRAPH.DISCOVERY), agentName, null);
+      return iri;
     }
+  }
 
-    @GetMapping("deltas/download")
-    @PreAuthorize("hasAuthority('IMAdmin')")
-    public HttpEntity<Object> downloadDeltas() throws Exception {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Deltas.Download.GET")) {
-            LOG.debug("downloadDeltas");
-            HttpHeaders headers = new HttpHeaders();
+  @GetMapping("deltas/download")
+  @PreAuthorize("hasAuthority('IMAdmin')")
+  public HttpEntity<Object> downloadDeltas() throws Exception {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Deltas.Download.GET")) {
+      LOG.debug("downloadDeltas");
+      HttpHeaders headers = new HttpHeaders();
 
-            // Collect files into Zip
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-                File directory = new File(System.getenv("DELTA_PATH"));
+      // Collect files into Zip
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+        File directory = new File(System.getenv("DELTA_PATH"));
                 if (directory.exists()) {
-                    for (File file : Objects.requireNonNull(directory.listFiles())) {
-                        if (!file.isDirectory()) {
-                            String name = file.getName();
-                            if (name.startsWith("TTLog-")) {
-                                zos.putNextEntry(new ZipEntry(name));
-                                byte[] fileData = Files.readAllBytes(file.toPath());
-                                zos.write(fileData);
-                                zos.closeEntry();
-                            }
-                        }
-                    }
-                    headers.setContentType(new MediaType("application", "force-download"));
-                    headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"deltas.zip\"");
+        for (File file : Objects.requireNonNull(directory.listFiles())) {
+          if (!file.isDirectory()) {
+            String name = file.getName();
+            if (name.startsWith("TTLog-")) {
+              zos.putNextEntry(new ZipEntry(name));
+              byte[] fileData = Files.readAllBytes(file.toPath());
+              zos.write(fileData);
+              zos.closeEntry();
+            }
+          }
+        }
+        headers.setContentType(new MediaType("application", "force-download"));
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"deltas.zip\"");
                     return new HttpEntity<>(baos.toByteArray(), headers);
                 } else {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
                 }
 
             }
-        }
     }
+  }
 }

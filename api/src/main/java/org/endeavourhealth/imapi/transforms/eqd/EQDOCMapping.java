@@ -12,15 +12,16 @@ import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlType;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * <p>Java class for EQDOC.Mapping complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.Mapping"&gt;
  *   &lt;complexContent&gt;
@@ -33,72 +34,64 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.Mapping", propOrder = {
-    "practicePopulationGUID",
-    "mapItem"
+  "practicePopulationGUID",
+  "mapItem"
 })
 public class EQDOCMapping {
 
-    @XmlElement(required = true)
-    protected String practicePopulationGUID;
-    @XmlElement(required = true)
-    protected List<EQDOCMapItem> mapItem;
+  @XmlElement(required = true)
+  protected String practicePopulationGUID;
+  @XmlElement(required = true)
+  protected List<EQDOCMapItem> mapItem;
 
-    /**
-     * Gets the value of the practicePopulationGUID property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPracticePopulationGUID() {
-        return practicePopulationGUID;
-    }
+  /**
+   * Gets the value of the practicePopulationGUID property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getPracticePopulationGUID() {
+    return practicePopulationGUID;
+  }
 
-    /**
-     * Sets the value of the practicePopulationGUID property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPracticePopulationGUID(String value) {
-        this.practicePopulationGUID = value;
-    }
+  /**
+   * Sets the value of the practicePopulationGUID property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setPracticePopulationGUID(String value) {
+    this.practicePopulationGUID = value;
+  }
 
-    /**
-     * Gets the value of the mapItem property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the mapItem property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getMapItem().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCMapItem }
-     * 
-     * 
-     */
-    public List<EQDOCMapItem> getMapItem() {
-        if (mapItem == null) {
-            mapItem = new ArrayList<EQDOCMapItem>();
-        }
-        return this.mapItem;
+  /**
+   * Gets the value of the mapItem property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the mapItem property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getMapItem().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCMapItem }
+   */
+  public List<EQDOCMapItem> getMapItem() {
+    if (mapItem == null) {
+      mapItem = new ArrayList<EQDOCMapItem>();
     }
+    return this.mapItem;
+  }
 
 }

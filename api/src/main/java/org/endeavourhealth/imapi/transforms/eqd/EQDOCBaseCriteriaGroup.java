@@ -15,11 +15,11 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * Produces a set of data items on which to base the owning criterion. A least one criterion within the group must ultimately share the same logical table name as the owning criterion.
- * 
+ *
  * <p>Java class for EQDOC.BaseCriteriaGroup complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.BaseCriteriaGroup"&gt;
  *   &lt;complexContent&gt;
@@ -32,70 +32,60 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.BaseCriteriaGroup", propOrder = {
-    "definition",
-    "libraryItem"
+  "definition",
+  "libraryItem"
 })
 @XmlSeeAlso({
-    EQDOCCriteriaGroup.class
+  EQDOCCriteriaGroup.class
 })
 public class EQDOCBaseCriteriaGroup {
 
-    protected EQDOCCriteriaGroupDefinition definition;
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String libraryItem;
+  protected EQDOCCriteriaGroupDefinition definition;
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String libraryItem;
 
-    /**
-     * Gets the value of the definition property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCCriteriaGroupDefinition }
-     *     
-     */
-    public EQDOCCriteriaGroupDefinition getDefinition() {
-        return definition;
-    }
+  /**
+   * Gets the value of the definition property.
+   *
+   * @return possible object is
+   * {@link EQDOCCriteriaGroupDefinition }
+   */
+  public EQDOCCriteriaGroupDefinition getDefinition() {
+    return definition;
+  }
 
-    /**
-     * Sets the value of the definition property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCCriteriaGroupDefinition }
-     *     
-     */
-    public void setDefinition(EQDOCCriteriaGroupDefinition value) {
-        this.definition = value;
-    }
+  /**
+   * Sets the value of the definition property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCCriteriaGroupDefinition }
+   */
+  public void setDefinition(EQDOCCriteriaGroupDefinition value) {
+    this.definition = value;
+  }
 
-    /**
-     * Gets the value of the libraryItem property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getLibraryItem() {
-        return libraryItem;
-    }
+  /**
+   * Gets the value of the libraryItem property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getLibraryItem() {
+    return libraryItem;
+  }
 
-    /**
-     * Sets the value of the libraryItem property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setLibraryItem(String value) {
-        this.libraryItem = value;
-    }
+  /**
+   * Sets the value of the libraryItem property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setLibraryItem(String value) {
+    this.libraryItem = value;
+  }
 
 }

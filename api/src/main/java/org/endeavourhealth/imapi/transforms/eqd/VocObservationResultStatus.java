@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.ObservationResultStatus.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -26,37 +26,33 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.ObservationResultStatus")
 @XmlEnum
 public enum VocObservationResultStatus {
 
 
-    /**
-     * Provisional
-     * 
-     */
-    PR,
+  /**
+   * Provisional
+   */
+  PR,
 
-    /**
-     * Intrim
-     * 
-     */
-    IN,
+  /**
+   * Intrim
+   */
+  IN,
 
-    /**
-     * Not Available
-     * 
-     */
-    NA;
+  /**
+   * Not Available
+   */
+  NA;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocObservationResultStatus fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocObservationResultStatus fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

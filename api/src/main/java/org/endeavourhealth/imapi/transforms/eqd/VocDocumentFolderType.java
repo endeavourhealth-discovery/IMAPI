@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.DocumentFolderType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -29,55 +29,48 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.DocumentFolderType")
 @XmlEnum
 public enum VocDocumentFolderType {
 
 
-    /**
-     * EMIS Patient
-     * 
-     */
-    EPAT,
+  /**
+   * EMIS Patient
+   */
+  EPAT,
 
-    /**
-     * EMIS Organisation
-     * 
-     */
-    EORG,
+  /**
+   * EMIS Organisation
+   */
+  EORG,
 
-    /**
-     * EMIS Unfiled
-     * 
-     */
-    EU,
+  /**
+   * EMIS Unfiled
+   */
+  EU,
 
-    /**
-     * Patient
-     * 
-     */
-    PAT,
+  /**
+   * Patient
+   */
+  PAT,
 
-    /**
-     * Organisation
-     * 
-     */
-    ORG,
+  /**
+   * Organisation
+   */
+  ORG,
 
-    /**
-     * Unfiled
-     * 
-     */
-    U;
+  /**
+   * Unfiled
+   */
+  U;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocDocumentFolderType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocDocumentFolderType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

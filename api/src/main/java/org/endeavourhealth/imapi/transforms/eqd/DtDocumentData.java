@@ -13,9 +13,9 @@ import jakarta.xml.bind.annotation.*;
 
 /**
  * <p>Java class for dt.DocumentData complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="dt.DocumentData"&gt;
  *   &lt;complexContent&gt;
@@ -30,118 +30,100 @@ import jakarta.xml.bind.annotation.*;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "dt.DocumentData", propOrder = {
-    "reference",
-    "documentData"
+  "reference",
+  "documentData"
 })
 public class DtDocumentData {
 
-    @XmlSchemaType(name = "anyURI")
-    protected String reference;
-    protected String documentData;
-    @XmlAttribute(name = "encoding")
-    protected VocBinaryDataEncoding encoding;
-    @XmlAttribute(name = "compression")
-    protected VocCompressionAlgorithm compression;
+  @XmlSchemaType(name = "anyURI")
+  protected String reference;
+  protected String documentData;
+  @XmlAttribute(name = "encoding")
+  protected VocBinaryDataEncoding encoding;
+  @XmlAttribute(name = "compression")
+  protected VocCompressionAlgorithm compression;
 
-    /**
-     * Gets the value of the reference property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getReference() {
-        return reference;
-    }
+  /**
+   * Gets the value of the reference property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getReference() {
+    return reference;
+  }
 
-    /**
-     * Sets the value of the reference property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setReference(String value) {
-        this.reference = value;
-    }
+  /**
+   * Sets the value of the reference property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setReference(String value) {
+    this.reference = value;
+  }
 
-    /**
-     * Gets the value of the documentData property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDocumentData() {
-        return documentData;
-    }
+  /**
+   * Gets the value of the documentData property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getDocumentData() {
+    return documentData;
+  }
 
-    /**
-     * Sets the value of the documentData property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDocumentData(String value) {
-        this.documentData = value;
-    }
+  /**
+   * Sets the value of the documentData property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setDocumentData(String value) {
+    this.documentData = value;
+  }
 
-    /**
-     * Gets the value of the encoding property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocBinaryDataEncoding }
-     *     
-     */
-    public VocBinaryDataEncoding getEncoding() {
-        return encoding;
-    }
+  /**
+   * Gets the value of the encoding property.
+   *
+   * @return possible object is
+   * {@link VocBinaryDataEncoding }
+   */
+  public VocBinaryDataEncoding getEncoding() {
+    return encoding;
+  }
 
-    /**
-     * Sets the value of the encoding property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocBinaryDataEncoding }
-     *     
-     */
-    public void setEncoding(VocBinaryDataEncoding value) {
-        this.encoding = value;
-    }
+  /**
+   * Sets the value of the encoding property.
+   *
+   * @param value allowed object is
+   *              {@link VocBinaryDataEncoding }
+   */
+  public void setEncoding(VocBinaryDataEncoding value) {
+    this.encoding = value;
+  }
 
-    /**
-     * Gets the value of the compression property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocCompressionAlgorithm }
-     *     
-     */
-    public VocCompressionAlgorithm getCompression() {
-        return compression;
-    }
+  /**
+   * Gets the value of the compression property.
+   *
+   * @return possible object is
+   * {@link VocCompressionAlgorithm }
+   */
+  public VocCompressionAlgorithm getCompression() {
+    return compression;
+  }
 
-    /**
-     * Sets the value of the compression property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocCompressionAlgorithm }
-     *     
-     */
-    public void setCompression(VocCompressionAlgorithm value) {
-        this.compression = value;
-    }
+  /**
+   * Sets the value of the compression property.
+   *
+   * @param value allowed object is
+   *              {@link VocCompressionAlgorithm }
+   */
+  public void setCompression(VocCompressionAlgorithm value) {
+    this.compression = value;
+  }
 
 }

@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.ExtractionRequirementSource.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -24,25 +24,23 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.ExtractionRequirementSource")
 @XmlEnum
 public enum VocExtractionRequirementSource {
 
 
-    /**
-     * General Practice Extraction Service
-     * 
-     */
-    GPES;
+  /**
+   * General Practice Extraction Service
+   */
+  GPES;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocExtractionRequirementSource fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocExtractionRequirementSource fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

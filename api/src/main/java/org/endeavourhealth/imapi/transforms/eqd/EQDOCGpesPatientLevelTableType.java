@@ -11,15 +11,16 @@ package org.endeavourhealth.imapi.transforms.eqd;
 import jakarta.xml.bind.annotation.*;
 import jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * <p>Java class for EQDOC.GpesPatientLevelTableType complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.GpesPatientLevelTableType"&gt;
  *   &lt;complexContent&gt;
@@ -36,82 +37,74 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.GpesPatientLevelTableType", propOrder = {
-    "fieldFromColumnOrFixedValueOrPrimaryKey"
+  "fieldFromColumnOrFixedValueOrPrimaryKey"
 })
 public class EQDOCGpesPatientLevelTableType {
 
-    @XmlElements({
-        @XmlElement(name = "fieldFromColumn", type = EQDOCGpesFieldFromColumnType.class),
-        @XmlElement(name = "fixedValue", type = EQDOCGpesFieldFixedValueType.class),
-        @XmlElement(name = "primaryKey", type = EQDOCGpesFieldPrimaryKeyType.class),
-        @XmlElement(name = "link", type = EQDOCGpesFieldLinkType.class),
-        @XmlElement(name = "fieldFromPatientLookup", type = EQDOCGpesFieldFromPatientLookup.class)
-    })
-    protected List<Object> fieldFromColumnOrFixedValueOrPrimaryKey;
-    @XmlAttribute(name = "columnGroupGuid", required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String columnGroupGuid;
+  @XmlElements({
+    @XmlElement(name = "fieldFromColumn", type = EQDOCGpesFieldFromColumnType.class),
+    @XmlElement(name = "fixedValue", type = EQDOCGpesFieldFixedValueType.class),
+    @XmlElement(name = "primaryKey", type = EQDOCGpesFieldPrimaryKeyType.class),
+    @XmlElement(name = "link", type = EQDOCGpesFieldLinkType.class),
+    @XmlElement(name = "fieldFromPatientLookup", type = EQDOCGpesFieldFromPatientLookup.class)
+  })
+  protected List<Object> fieldFromColumnOrFixedValueOrPrimaryKey;
+  @XmlAttribute(name = "columnGroupGuid", required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  protected String columnGroupGuid;
 
-    /**
-     * Gets the value of the fieldFromColumnOrFixedValueOrPrimaryKey property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the fieldFromColumnOrFixedValueOrPrimaryKey property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getFieldFromColumnOrFixedValueOrPrimaryKey().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCGpesFieldFromColumnType }
-     * {@link EQDOCGpesFieldFixedValueType }
-     * {@link EQDOCGpesFieldPrimaryKeyType }
-     * {@link EQDOCGpesFieldLinkType }
-     * {@link EQDOCGpesFieldFromPatientLookup }
-     * 
-     * 
-     */
-    public List<Object> getFieldFromColumnOrFixedValueOrPrimaryKey() {
-        if (fieldFromColumnOrFixedValueOrPrimaryKey == null) {
-            fieldFromColumnOrFixedValueOrPrimaryKey = new ArrayList<Object>();
-        }
-        return this.fieldFromColumnOrFixedValueOrPrimaryKey;
+  /**
+   * Gets the value of the fieldFromColumnOrFixedValueOrPrimaryKey property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the fieldFromColumnOrFixedValueOrPrimaryKey property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getFieldFromColumnOrFixedValueOrPrimaryKey().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCGpesFieldFromColumnType }
+   * {@link EQDOCGpesFieldFixedValueType }
+   * {@link EQDOCGpesFieldPrimaryKeyType }
+   * {@link EQDOCGpesFieldLinkType }
+   * {@link EQDOCGpesFieldFromPatientLookup }
+   */
+  public List<Object> getFieldFromColumnOrFixedValueOrPrimaryKey() {
+    if (fieldFromColumnOrFixedValueOrPrimaryKey == null) {
+      fieldFromColumnOrFixedValueOrPrimaryKey = new ArrayList<Object>();
     }
+    return this.fieldFromColumnOrFixedValueOrPrimaryKey;
+  }
 
-    /**
-     * Gets the value of the columnGroupGuid property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getColumnGroupGuid() {
-        return columnGroupGuid;
-    }
+  /**
+   * Gets the value of the columnGroupGuid property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getColumnGroupGuid() {
+    return columnGroupGuid;
+  }
 
-    /**
-     * Sets the value of the columnGroupGuid property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setColumnGroupGuid(String value) {
-        this.columnGroupGuid = value;
-    }
+  /**
+   * Sets the value of the columnGroupGuid property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setColumnGroupGuid(String value) {
+    this.columnGroupGuid = value;
+  }
 
 }

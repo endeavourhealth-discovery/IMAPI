@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.Relation.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -25,21 +25,20 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.Relation")
 @XmlEnum
 public enum VocRelation {
 
-    RELATIVE,
-    ABSOLUTE;
+  RELATIVE,
+  ABSOLUTE;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocRelation fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocRelation fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

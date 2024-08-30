@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for EQDOC.BandRange complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.BandRange"&gt;
  *   &lt;complexContent&gt;
@@ -30,65 +30,55 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.BandRange", propOrder = {
-    "rangeFrom",
-    "rangeTo"
+  "rangeFrom",
+  "rangeTo"
 })
 public class EQDOCBandRange {
 
-    protected EQDOCBandRangeFrom rangeFrom;
-    protected EQDOCBandRangeTo rangeTo;
+  protected EQDOCBandRangeFrom rangeFrom;
+  protected EQDOCBandRangeTo rangeTo;
 
-    /**
-     * Gets the value of the rangeFrom property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCBandRangeFrom }
-     *     
-     */
-    public EQDOCBandRangeFrom getRangeFrom() {
-        return rangeFrom;
-    }
+  /**
+   * Gets the value of the rangeFrom property.
+   *
+   * @return possible object is
+   * {@link EQDOCBandRangeFrom }
+   */
+  public EQDOCBandRangeFrom getRangeFrom() {
+    return rangeFrom;
+  }
 
-    /**
-     * Sets the value of the rangeFrom property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCBandRangeFrom }
-     *     
-     */
-    public void setRangeFrom(EQDOCBandRangeFrom value) {
-        this.rangeFrom = value;
-    }
+  /**
+   * Sets the value of the rangeFrom property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCBandRangeFrom }
+   */
+  public void setRangeFrom(EQDOCBandRangeFrom value) {
+    this.rangeFrom = value;
+  }
 
-    /**
-     * Gets the value of the rangeTo property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCBandRangeTo }
-     *     
-     */
-    public EQDOCBandRangeTo getRangeTo() {
-        return rangeTo;
-    }
+  /**
+   * Gets the value of the rangeTo property.
+   *
+   * @return possible object is
+   * {@link EQDOCBandRangeTo }
+   */
+  public EQDOCBandRangeTo getRangeTo() {
+    return rangeTo;
+  }
 
-    /**
-     * Sets the value of the rangeTo property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCBandRangeTo }
-     *     
-     */
-    public void setRangeTo(EQDOCBandRangeTo value) {
-        this.rangeTo = value;
-    }
+  /**
+   * Sets the value of the rangeTo property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCBandRangeTo }
+   */
+  public void setRangeTo(EQDOCBandRangeTo value) {
+    this.rangeTo = value;
+  }
 
 }

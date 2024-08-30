@@ -1,0 +1,16 @@
+{
+  "match": [
+    {
+      "path": [
+        {
+          "@id": "http://endhealth.info/im#patient",
+          "name": "patient"
+        }
+      ],
+      "typeOf": {
+        "@id": "http://endhealth.info/im#Observation",
+        "name": "Observation"
+      }
+    }
+  ]
+}

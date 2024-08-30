@@ -10,14 +10,14 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
  * static utilities to handle templated display orders of RDF nodes
  */
 public class TTDisplay {
-	private TTDisplay() {
-		throw new IllegalStateException("Utility class");
-	}
+  private TTDisplay() {
+    throw new IllegalStateException("Utility class");
+  }
 
-	private static TTIriRef[] entity = {iri(RDF.TYPE),iri(RDFS.LABEL),iri(IM.DEFINITION)};
+  private static TTIriRef[] entity = {iri(RDF.TYPE), iri(RDFS.LABEL), iri(IM.DEFINITION)};
 
-	public static TTIriRef[] getTemplate(TTNode node){
-		return entity;
-	}
+  public static TTIriRef[] getTemplate(TTNode node) {
+    return entity;
+  }
 
 }

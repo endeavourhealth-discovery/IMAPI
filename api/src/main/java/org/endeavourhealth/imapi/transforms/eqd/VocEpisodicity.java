@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.Episodicity.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -32,73 +32,63 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.Episodicity")
 @XmlEnum
 public enum VocEpisodicity {
 
 
-    /**
-     * None
-     * 
-     */
-    NONE,
+  /**
+   * None
+   */
+  NONE,
 
-    /**
-     * First Occurrence
-     * 
-     */
-    FIRST,
+  /**
+   * First Occurrence
+   */
+  FIRST,
 
-    /**
-     * New Occurrence
-     * 
-     */
-    NEW,
+  /**
+   * New Occurrence
+   */
+  NEW,
 
-    /**
-     * Problem Review
-     * 
-     */
-    REV,
+  /**
+   * Problem Review
+   */
+  REV,
 
-    /**
-     * Problem Flare Up
-     * 
-     */
-    FLA,
+  /**
+   * Problem Flare Up
+   */
+  FLA,
 
-    /**
-     * Problem Ended
-     * 
-     */
-    END,
+  /**
+   * Problem Ended
+   */
+  END,
 
-    /**
-     * Changed
-     * 
-     */
-    CHG,
+  /**
+   * Changed
+   */
+  CHG,
 
-    /**
-     * Evolved
-     * 
-     */
-    EVO,
+  /**
+   * Evolved
+   */
+  EVO,
 
-    /**
-     * Problem Outcome
-     * 
-     */
-    OUT;
+  /**
+   * Problem Outcome
+   */
+  OUT;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocEpisodicity fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocEpisodicity fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

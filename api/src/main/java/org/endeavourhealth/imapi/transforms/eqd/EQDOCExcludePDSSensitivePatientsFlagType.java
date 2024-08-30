@@ -15,11 +15,11 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * Empty type to be used as flag
- * 
+ *
  * <p>Java class for EQDOC.ExcludePDSSensitivePatientsFlagType complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.ExcludePDSSensitivePatientsFlagType"&gt;
  *   &lt;complexContent&gt;
@@ -28,8 +28,6 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.ExcludePDSSensitivePatientsFlagType")

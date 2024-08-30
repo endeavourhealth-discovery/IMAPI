@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.BandingUnit.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -29,25 +29,24 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.BandingUnit")
 @XmlEnum
 public enum VocBandingUnit {
 
-    YEAR,
-    HOUR,
-    WEEKOFYEAR,
-    WEEK,
-    MONTH,
-    DAY;
+  YEAR,
+  HOUR,
+  WEEKOFYEAR,
+  WEEK,
+  MONTH,
+  DAY;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocBandingUnit fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocBandingUnit fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

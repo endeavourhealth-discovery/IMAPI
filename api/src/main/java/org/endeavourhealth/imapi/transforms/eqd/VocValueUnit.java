@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.ValueUnit.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -33,59 +33,52 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.ValueUnit")
 @XmlEnum
 public enum VocValueUnit {
 
 
-    /**
-     * Actual date (e.g. 19/11/1971)
-     * 
-     */
-    DATE,
+  /**
+   * Actual date (e.g. 19/11/1971)
+   */
+  DATE,
 
-    /**
-     * Year
-     * 
-     */
-    YEAR,
+  /**
+   * Year
+   */
+  YEAR,
 
-    /**
-     * Month
-     * 
-     */
-    MONTH,
+  /**
+   * Month
+   */
+  MONTH,
 
-    /**
-     * Week
-     * 
-     */
-    WEEK,
+  /**
+   * Week
+   */
+  WEEK,
 
-    /**
-     * Day
-     * 
-     */
-    DAY,
+  /**
+   * Day
+   */
+  DAY,
 
-    /**
-     * Actual Time (e.g. 10:00:00)
-     * 
-     */
-    TIME,
-    MINUTE,
-    HOUR,
-    QUARTER,
-    FISCALYEAR;
+  /**
+   * Actual Time (e.g. 10:00:00)
+   */
+  TIME,
+  MINUTE,
+  HOUR,
+  QUARTER,
+  FISCALYEAR;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocValueUnit fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocValueUnit fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

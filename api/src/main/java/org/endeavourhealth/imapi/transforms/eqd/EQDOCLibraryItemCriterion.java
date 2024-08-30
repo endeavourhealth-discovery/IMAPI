@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for EQDOC.LibraryItemCriterion complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.LibraryItemCriterion"&gt;
  *   &lt;complexContent&gt;
@@ -30,68 +30,58 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.LibraryItemCriterion", propOrder = {
-    "negate",
-    "libraryItem"
+  "negate",
+  "libraryItem"
 })
 public class EQDOCLibraryItemCriterion {
 
-    protected Boolean negate;
-    @XmlElement(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String libraryItem;
+  protected Boolean negate;
+  @XmlElement(required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String libraryItem;
 
-    /**
-     * Gets the value of the negate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
-     */
-    public Boolean isNegate() {
-        return negate;
-    }
+  /**
+   * Gets the value of the negate property.
+   *
+   * @return possible object is
+   * {@link Boolean }
+   */
+  public Boolean isNegate() {
+    return negate;
+  }
 
-    /**
-     * Sets the value of the negate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
-     */
-    public void setNegate(Boolean value) {
-        this.negate = value;
-    }
+  /**
+   * Sets the value of the negate property.
+   *
+   * @param value allowed object is
+   *              {@link Boolean }
+   */
+  public void setNegate(Boolean value) {
+    this.negate = value;
+  }
 
-    /**
-     * Gets the value of the libraryItem property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getLibraryItem() {
-        return libraryItem;
-    }
+  /**
+   * Gets the value of the libraryItem property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getLibraryItem() {
+    return libraryItem;
+  }
 
-    /**
-     * Sets the value of the libraryItem property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setLibraryItem(String value) {
-        this.libraryItem = value;
-    }
+  /**
+   * Sets the value of the libraryItem property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setLibraryItem(String value) {
+    this.libraryItem = value;
+  }
 
 }

@@ -13,9 +13,9 @@ import jakarta.xml.bind.annotation.*;
 
 /**
  * <p>Java class for EQDOC.Value complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.Value"&gt;
  *   &lt;complexContent&gt;
@@ -30,121 +30,103 @@ import jakarta.xml.bind.annotation.*;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.Value", propOrder = {
-    "value",
-    "unit",
-    "relation",
-    "precision"
+  "value",
+  "unit",
+  "relation",
+  "precision"
 })
 public class EQDOCValue {
 
-    @XmlElement(required = true)
-    protected String value;
-    @XmlSchemaType(name = "token")
-    protected VocValueUnit unit;
-    @XmlSchemaType(name = "string")
-    protected VocRelation relation;
-    @XmlSchemaType(name = "token")
-    protected VocValueUnit precision;
+  @XmlElement(required = true)
+  protected String value;
+  @XmlSchemaType(name = "token")
+  protected VocValueUnit unit;
+  @XmlSchemaType(name = "string")
+  protected VocRelation relation;
+  @XmlSchemaType(name = "token")
+  protected VocValueUnit precision;
 
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getValue() {
-        return value;
-    }
+  /**
+   * Gets the value of the value property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getValue() {
+    return value;
+  }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setValue(String value) {
-        this.value = value;
-    }
+  /**
+   * Sets the value of the value property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-    /**
-     * Gets the value of the unit property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocValueUnit }
-     *     
-     */
-    public VocValueUnit getUnit() {
-        return unit;
-    }
+  /**
+   * Gets the value of the unit property.
+   *
+   * @return possible object is
+   * {@link VocValueUnit }
+   */
+  public VocValueUnit getUnit() {
+    return unit;
+  }
 
-    /**
-     * Sets the value of the unit property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocValueUnit }
-     *     
-     */
-    public void setUnit(VocValueUnit value) {
-        this.unit = value;
-    }
+  /**
+   * Sets the value of the unit property.
+   *
+   * @param value allowed object is
+   *              {@link VocValueUnit }
+   */
+  public void setUnit(VocValueUnit value) {
+    this.unit = value;
+  }
 
-    /**
-     * Gets the value of the relation property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocRelation }
-     *     
-     */
-    public VocRelation getRelation() {
-        return relation;
-    }
+  /**
+   * Gets the value of the relation property.
+   *
+   * @return possible object is
+   * {@link VocRelation }
+   */
+  public VocRelation getRelation() {
+    return relation;
+  }
 
-    /**
-     * Sets the value of the relation property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocRelation }
-     *     
-     */
-    public void setRelation(VocRelation value) {
-        this.relation = value;
-    }
+  /**
+   * Sets the value of the relation property.
+   *
+   * @param value allowed object is
+   *              {@link VocRelation }
+   */
+  public void setRelation(VocRelation value) {
+    this.relation = value;
+  }
 
-    /**
-     * Gets the value of the precision property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocValueUnit }
-     *     
-     */
-    public VocValueUnit getPrecision() {
-        return precision;
-    }
+  /**
+   * Gets the value of the precision property.
+   *
+   * @return possible object is
+   * {@link VocValueUnit }
+   */
+  public VocValueUnit getPrecision() {
+    return precision;
+  }
 
-    /**
-     * Sets the value of the precision property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocValueUnit }
-     *     
-     */
-    public void setPrecision(VocValueUnit value) {
-        this.precision = value;
-    }
+  /**
+   * Sets the value of the precision property.
+   *
+   * @param value allowed object is
+   *              {@link VocValueUnit }
+   */
+  public void setPrecision(VocValueUnit value) {
+    this.precision = value;
+  }
 
 }

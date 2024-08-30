@@ -13,273 +13,258 @@ import java.util.zip.DataFormatException;
 
 public class IMQToECL {
 
-	private Map<String,String> names= new HashMap<>();
-	private Prefixes prefixes;
+  private Map<String, String> names = new HashMap<>();
+  private Prefixes prefixes;
 
-	/**
-	 * Takes a IM ECL compliant definition of a set and returns is ECL language
-	 * @param query         a node representing a class expression e.g. value of im:Definition
-	 * @param includeName flag to include the concept term is the output
-	 * @return String of ECL
-	 * @throws DataFormatException invalid or unsupported ECL syntax
-	 */
-	public String getECLFromQuery(Query query, Boolean includeName) throws QueryException {
-		StringBuilder ecl = new StringBuilder();
-		if (query.getPrefixes()!=null){
-			prefixes= query.getPrefixes();
-			for (Prefix prefix:prefixes){
-				ecl.append("prefix ").append(prefix.getPrefix()).append(": ").append(prefix.getNamespace()).append("\n");
-			}
-		}
-		match(query, ecl, includeName);
-		return ecl.toString().trim();
-	}
+  /**
+   * Takes a IM ECL compliant definition of a set and returns is ECL language
+   *
+   * @param query       a node representing a class expression e.g. value of im:Definition
+   * @param includeName flag to include the concept term is the output
+   * @return String of ECL
+   * @throws DataFormatException invalid or unsupported ECL syntax
+   */
+  public String getECLFromQuery(Query query, Boolean includeName) throws QueryException {
+    StringBuilder ecl = new StringBuilder();
+    if (query.getPrefixes() != null) {
+      prefixes = query.getPrefixes();
+      for (Prefix prefix : prefixes) {
+        ecl.append("prefix ").append(prefix.getPrefix()).append(": ").append(prefix.getNamespace()).append("\n");
+      }
+    }
+    match(query, ecl, includeName);
+    return ecl.toString().trim();
+  }
 
-	public EclType getEclType(Match match){
-		if (match.getMatch()!=null){
-			if (match.getMatch().size()>0) {
-				if (match.getWhere()!=null)
-					return EclType.compoundRefined;
-			}
-		}
-		if (match.getWhere()!=null)
-			return EclType.refined;
-		if (match.getMatch()!=null) {
-			for (Match subMatch : match.getMatch()) {
-				if (subMatch.isExclude())
-					return EclType.exclusion;
-			}
-			return EclType.compound;
-		}
-		if (match.getInstanceOf()!=null)
-			return EclType.simple;
-		else return null;
-	}
+  public EclType getEclType(Match match) {
+    if (match.getMatch() != null) {
+      if (match.getMatch().size() > 0) {
+        if (match.getWhere() != null)
+          return EclType.compoundRefined;
+      }
+    }
+    if (match.getWhere() != null)
+      return EclType.refined;
+    if (match.getMatch() != null) {
+      for (Match subMatch : match.getMatch()) {
+        if (subMatch.isExclude())
+          return EclType.exclusion;
+      }
+      return EclType.compound;
+    }
+    if (match.getInstanceOf() != null)
+      return EclType.simple;
+    else return null;
+  }
 
-	public String getECLFromQuery(Query query) throws QueryException {
-		return getECLFromQuery(query,false);
-	}
+  public String getECLFromQuery(Query query) throws QueryException {
+    return getECLFromQuery(query, false);
+  }
 
-	private boolean isList(Match match){
-		return null != match.getMatch();
-	}
-
-
-	private void match(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
-		EclType matchType= getEclType(match);
-		if (matchType==null)
-			return;
-		if (matchType== EclType.simple){
-			addClass(match.getInstanceOf(), ecl, includeNames);
-		}
-		else if (matchType== EclType.refined){
-			if (match.getInstanceOf()!=null)
-				addClass(match.getInstanceOf(), ecl, includeNames);
-			else
-				ecl.append("*");
-			addRefinementsToMatch(match, ecl, includeNames);
-			ecl.append("\n");
-		}
-		else if (matchType== EclType.compound||matchType== EclType.compoundRefined){
-			if (matchType== EclType.compoundRefined)
-				ecl.append("(");
-			boolean first = true;
-			for (Match subMatch : match.getMatch()) {
-				EclType subMatchType=getEclType(subMatch);
-				boolean bracket= (match.getMatch().size()>1&&subMatchType== EclType.refined) ?true: false;
-				if (!first){
-					ecl.append("\n");
-					if (match.getBoolMatch()==Bool.or){
-						ecl.append(" OR ");
-					}
-					else
-						ecl.append(" AND ");
-				}
-				if (bracket)
-					ecl.append("(");
-				match(subMatch, ecl, includeNames);
-				if (bracket)
-					ecl.append(")");
-				first = false;
-			}
-			if (matchType== EclType.compoundRefined) {
-				ecl.append(")");
-				addRefinementsToMatch(match, ecl, includeNames);
-			}
-			ecl.append("\n");
-		}
-		else {
-			boolean first = true;
-			ecl.append("(");
-			for (Match subMatch : match.getMatch()) {
-				if (subMatch.isExclude()){
-					ecl.append(")");
-					ecl.append(" MINUS ");
-				}
-				match(subMatch,ecl,includeNames);
-				ecl.append("\n");
-			}
-		}
-	}
+  private boolean isList(Match match) {
+    return null != match.getMatch();
+  }
 
 
-
-	private void addRefinementsToMatch(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
-		ecl.append(": ");
-		boolean first = true;
-		for (Where where:match.getWhere()){
-			if (!first){
-				ecl.append("\n AND ");
-			}
-			first= false;
-			if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)){
-				ecl.append(" { ");
-				addRefinementsToMatch(where.getMatch(),ecl,includeNames);
-				ecl.append("}");
-			}
-			else {
-				addRefined(where,ecl,includeNames);
-			}
-		}
-	}
-
-	private void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames) throws QueryException {
-		if (null!=property.getIri() &&property.getIri().equals(IM.ROLE_GROUP)){
-			ecl.append(" { ");
-			addRefinementsToMatch(property.getMatch(),ecl,includeNames);
-			ecl.append("}");
-		}
-		else {
-			boolean first = true;
-			for (Where subProperty : property.getWhere()) {
-				if (!first) {
-					ecl.append("\n");
-					if (property.getBoolWhere()==Bool.or){
-						ecl.append(" OR ");
-					}
-					else
-						ecl.append(" , ");
-				}
-				first = false;
-				addRefined(subProperty, ecl, includeNames);
-				}
-			}
-	}
-
-
-
-
-
-	private void addRefined(Where where, StringBuilder ecl, Boolean includeNames) throws QueryException {
-		try {
-			if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)){
-				ecl.append(" { ");
-				addRefinementsToMatch(where.getMatch(),ecl,includeNames);
-				ecl.append("}");
-			}
-			else {
-				if (null == where.getWhere()) {
-					addProperty(where, ecl, includeNames);
-					if (where.getMatch() != null) {
-						ecl.append(" = (");
-						match(where.getMatch(), ecl, includeNames);
-						ecl.append(")");
-					}
-					else {
-						ecl.append(" = ");
-						if (null == where.getIs()) throw new QueryException("Where clause must contain 'is' value");
-						Node value = where.getIs().get(0);
-						addClass(value, ecl, includeNames);
-					}
-				}
-				else {
-					ecl.append("(");
-					addRefinementsToWhere(where, ecl, includeNames);
-					ecl.append(")");
-				}
-			}
-		} catch (Exception e) {
-			throw new QueryException("Where clause inside a role group clause must contain a where");
-		}
-	}
+  private void match(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
+    EclType matchType = getEclType(match);
+    if (matchType == null)
+      return;
+    if (matchType == EclType.simple) {
+      addClass(match.getInstanceOf().get(0), ecl, includeNames);
+    } else if (matchType == EclType.refined) {
+      if (match.getInstanceOf() != null)
+        addClass(match.getInstanceOf().get(0), ecl, includeNames);
+      else
+        ecl.append("*");
+      addRefinementsToMatch(match, ecl, includeNames);
+      ecl.append("\n");
+    } else if (matchType == EclType.compound || matchType == EclType.compoundRefined) {
+      if (matchType == EclType.compoundRefined)
+        ecl.append("(");
+      boolean first = true;
+      for (Match subMatch : match.getMatch()) {
+        EclType subMatchType = getEclType(subMatch);
+        boolean bracket = (match.getMatch().size() > 1 && subMatchType == EclType.refined) ? true : false;
+        if (!first) {
+          ecl.append("\n");
+          if (match.getBoolMatch() == Bool.or) {
+            ecl.append(" OR ");
+          } else
+            ecl.append(" AND ");
+        }
+        if (bracket)
+          ecl.append("(");
+        match(subMatch, ecl, includeNames);
+        if (bracket)
+          ecl.append(")");
+        first = false;
+      }
+      if (matchType == EclType.compoundRefined) {
+        ecl.append(")");
+        addRefinementsToMatch(match, ecl, includeNames);
+      }
+      ecl.append("\n");
+    } else {
+      boolean first = true;
+      ecl.append("(");
+      for (Match subMatch : match.getMatch()) {
+        if (subMatch.isExclude()) {
+          ecl.append(")");
+          ecl.append(" MINUS ");
+        }
+        match(subMatch, ecl, includeNames);
+        ecl.append("\n");
+      }
+    }
+  }
 
 
-	private void addProperty(PropertyRef exp, StringBuilder ecl, boolean includeName) {
-		if (exp.isInverse())
-			ecl.append(" R ");
-		addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName());
-	}
+  private void addRefinementsToMatch(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
+    ecl.append(": ");
+    boolean first = true;
+    for (Where where : match.getWhere()) {
+      if (!first) {
+        ecl.append("\n AND ");
+      }
+      first = false;
+      if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)) {
+        ecl.append(" { ");
+        addRefinementsToMatch(where.getMatch(), ecl, includeNames);
+        ecl.append("}");
+      } else {
+        addRefined(where, ecl, includeNames);
+      }
+    }
+  }
 
-	private void addConcept(StringBuilder ecl, boolean includeName, String subsumption, String id, String name) {
-		String iriRef = checkMember(id,name,includeName);
-		ecl.append(subsumption).append(iriRef);
-	}
-
-	private void addClass(Node exp, StringBuilder ecl, boolean includeName) {
-			addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName());
-	}
-
-
-	private String getSubsumption(Entailment exp) {
-        if (exp == null)
-            return "";
-
-		String subsumption="";
-		if (exp.isDescendantsOrSelfOf())
-			subsumption="<< ";
-		else if (exp.isDescendantsOf())
-			subsumption="< ";
-		else if (exp.isMemberOf())
-			subsumption="^";
-		return subsumption;
-	}
+  private void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames) throws QueryException {
+    if (null != property.getIri() && property.getIri().equals(IM.ROLE_GROUP)) {
+      ecl.append(" { ");
+      addRefinementsToMatch(property.getMatch(), ecl, includeNames);
+      ecl.append("}");
+    } else {
+      boolean first = true;
+      for (Where subProperty : property.getWhere()) {
+        if (!first) {
+          ecl.append("\n");
+          if (property.getBoolWhere() == Bool.or) {
+            ecl.append(" OR ");
+          } else
+            ecl.append(" , ");
+        }
+        first = false;
+        addRefined(subProperty, ecl, includeNames);
+      }
+    }
+  }
 
 
-	private String checkMember(String iri,String name, boolean includeNames) {
-		if (iri==null)
-			return "*";
-		if (name==null &&includeNames){
-			if (names.get(iri)==null) {
-				EntityRepository entityRepository = new EntityRepository();
-				name = entityRepository.getEntityReferenceByIri(iri).getName();
-				names.put(iri,name);
-			}
-			name= names.get(iri);
-		}
-		if (iri.startsWith(SNOMED.NAMESPACE)){
-			iri= iri.substring(iri.lastIndexOf("#")+1);
-		}
-		else
-			if (iri.contains("#")){
-				if (prefixes!=null){
-					String prefix= prefixes.getPrefix(iri.substring(0,iri.lastIndexOf("#")+1));
-					if (prefix!=null)
-						iri= prefix+":"+ iri.substring(iri.lastIndexOf("#")+1);
-					}
-			}
-			if (includeNames && name!=null) return iri+ "|"+ name+"|";
-			else
-				return iri;
-	}
+  private void addRefined(Where where, StringBuilder ecl, Boolean includeNames) throws QueryException {
+    try {
+      if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)) {
+        ecl.append(" { ");
+        addRefinementsToMatch(where.getMatch(), ecl, includeNames);
+        ecl.append("}");
+      } else {
+        if (null == where.getWhere()) {
+          addProperty(where, ecl, includeNames);
+          if (where.getMatch() != null) {
+            ecl.append(" = (");
+            match(where.getMatch(), ecl, includeNames);
+            ecl.append(")");
+          } else {
+            ecl.append(" = ");
+            if (null == where.getIs()) throw new QueryException("Where clause must contain 'instanceOf' value");
+            Node value = where.getIs().get(0);
+            addClass(value, ecl, includeNames);
+          }
+        } else {
+          ecl.append("(");
+          addRefinementsToWhere(where, ecl, includeNames);
+          ecl.append(")");
+        }
+      }
+    } catch (Exception e) {
+      throw new QueryException("Where clause inside a role group clause must contain a where");
+    }
+  }
 
-	/**
-	 * Gets simple iri set as ECL for compatibility with definition
-	 *
-	 * @param members a TTArray or TTNNode containing an iri set
-	 * @return ECL String
-	 */
 
-	public String getMembersAsECL(TTArray members) {
-		StringBuilder ecl = new StringBuilder();
-		boolean first = true;
-		String or = " OR ";
-		for (TTValue iriRef : members.getElements()) {
-			if (!first)
-				ecl.append(or).append("\n");
-			addClass(new Node().setIri(iriRef.asIriRef().getIri()), ecl, true);
-			first = false;
-		}
-		return ecl.toString();
-	}
+  private void addProperty(PropertyRef exp, StringBuilder ecl, boolean includeName) {
+    if (exp.isInverse())
+      ecl.append(" R ");
+    addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName());
+  }
+
+  private void addConcept(StringBuilder ecl, boolean includeName, String subsumption, String id, String name) {
+    String iriRef = checkMember(id, name, includeName);
+    ecl.append(subsumption).append(iriRef);
+  }
+
+  private void addClass(Node exp, StringBuilder ecl, boolean includeName) {
+    addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName());
+  }
+
+
+  private String getSubsumption(Entailment exp) {
+    if (exp == null)
+      return "";
+
+    String subsumption = "";
+    if (exp.isDescendantsOrSelfOf())
+      subsumption = "<< ";
+    else if (exp.isDescendantsOf())
+      subsumption = "< ";
+    else if (exp.isMemberOf())
+      subsumption = "^";
+    return subsumption;
+  }
+
+
+  private String checkMember(String iri, String name, boolean includeNames) {
+    if (iri == null || iri.isEmpty())
+      return "*";
+    if (name == null && includeNames) {
+      if (names.get(iri) == null) {
+        EntityRepository entityRepository = new EntityRepository();
+        name = entityRepository.getEntityReferenceByIri(iri).getName();
+        names.put(iri, name);
+      }
+      name = names.get(iri);
+    }
+    if (iri.startsWith(SNOMED.NAMESPACE)) {
+      iri = iri.substring(iri.lastIndexOf("#") + 1);
+    } else if (iri.contains("#")) {
+      if (prefixes != null) {
+        String prefix = prefixes.getPrefix(iri.substring(0, iri.lastIndexOf("#") + 1));
+        if (prefix != null)
+          iri = prefix + ":" + iri.substring(iri.lastIndexOf("#") + 1);
+      }
+    }
+    if (includeNames && name != null) return iri + "|" + name + "|";
+    else
+      return iri;
+  }
+
+  /**
+   * Gets simple iri set as ECL for compatibility with definition
+   *
+   * @param members a TTArray or TTNNode containing an iri set
+   * @return ECL String
+   */
+
+  public String getMembersAsECL(TTArray members) {
+    StringBuilder ecl = new StringBuilder();
+    boolean first = true;
+    String or = " OR ";
+    for (TTValue iriRef : members.getElements()) {
+      if (!first)
+        ecl.append(or).append("\n");
+      addClass(new Node().setIri(iriRef.asIriRef().getIri()), ecl, true);
+      first = false;
+    }
+    return ecl.toString();
+  }
 
 }

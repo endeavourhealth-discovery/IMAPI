@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.PopulationParentType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -26,37 +26,33 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.PopulationParentType")
 @XmlEnum
 public enum VocPopulationParentType {
 
 
-    /**
-     * All items inclued as parent (e.g. All patients and users)
-     * 
-     */
-    ALL,
+  /**
+   * All items inclued as parent (e.g. All patients and users)
+   */
+  ALL,
 
-    /**
-     * Active items included as parent (e.g. Currently registered patients and acive users)
-     * 
-     */
-    ACTIVE,
+  /**
+   * Active items included as parent (e.g. Currently registered patients and acive users)
+   */
+  ACTIVE,
 
-    /**
-     * Results of a specified population included as parent
-     * 
-     */
-    POP;
+  /**
+   * Results of a specified population included as parent
+   */
+  POP;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocPopulationParentType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocPopulationParentType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

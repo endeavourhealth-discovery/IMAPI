@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.MemberOperator.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -25,31 +25,28 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.MemberOperator")
 @XmlEnum
 public enum VocMemberOperator {
 
 
-    /**
-     * And operator
-     * 
-     */
-    AND,
+  /**
+   * And operator
+   */
+  AND,
 
-    /**
-     * Or operator
-     * 
-     */
-    OR;
+  /**
+   * Or operator
+   */
+  OR;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocMemberOperator fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocMemberOperator fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

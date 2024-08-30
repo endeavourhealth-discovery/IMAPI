@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.ContactType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -28,49 +28,43 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.ContactType")
 @XmlEnum
 public enum VocContactType {
 
 
-    /**
-     * Home Phone Number
-     * 
-     */
-    H,
+  /**
+   * Home Phone Number
+   */
+  H,
 
-    /**
-     * Work Phone Number
-     * 
-     */
-    W,
+  /**
+   * Work Phone Number
+   */
+  W,
 
-    /**
-     * Mobile Phone Number
-     * 
-     */
-    M,
+  /**
+   * Mobile Phone Number
+   */
+  M,
 
-    /**
-     * Fax Number
-     * 
-     */
-    FX,
+  /**
+   * Fax Number
+   */
+  FX,
 
-    /**
-     * Email Address
-     * 
-     */
-    EM;
+  /**
+   * Email Address
+   */
+  EM;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocContactType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocContactType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

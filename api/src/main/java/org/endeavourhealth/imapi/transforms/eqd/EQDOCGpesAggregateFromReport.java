@@ -18,9 +18,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for EQDOC.GpesAggregateFromReport complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.GpesAggregateFromReport"&gt;
  *   &lt;complexContent&gt;
@@ -32,92 +32,78 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.GpesAggregateFromReport")
 public class EQDOCGpesAggregateFromReport {
 
-    @XmlAttribute(name = "AID", required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String aid;
-    @XmlAttribute(name = "reportGuid", required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String reportGuid;
-    @XmlAttribute(name = "description", required = true)
-    protected String description;
+  @XmlAttribute(name = "AID", required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  protected String aid;
+  @XmlAttribute(name = "reportGuid", required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  protected String reportGuid;
+  @XmlAttribute(name = "description", required = true)
+  protected String description;
 
-    /**
-     * Gets the value of the aid property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAID() {
-        return aid;
-    }
+  /**
+   * Gets the value of the aid property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getAID() {
+    return aid;
+  }
 
-    /**
-     * Sets the value of the aid property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAID(String value) {
-        this.aid = value;
-    }
+  /**
+   * Sets the value of the aid property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setAID(String value) {
+    this.aid = value;
+  }
 
-    /**
-     * Gets the value of the reportGuid property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getReportGuid() {
-        return reportGuid;
-    }
+  /**
+   * Gets the value of the reportGuid property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getReportGuid() {
+    return reportGuid;
+  }
 
-    /**
-     * Sets the value of the reportGuid property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setReportGuid(String value) {
-        this.reportGuid = value;
-    }
+  /**
+   * Sets the value of the reportGuid property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setReportGuid(String value) {
+    this.reportGuid = value;
+  }
 
-    /**
-     * Gets the value of the description property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDescription() {
-        return description;
-    }
+  /**
+   * Gets the value of the description property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getDescription() {
+    return description;
+  }
 
-    /**
-     * Sets the value of the description property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDescription(String value) {
-        this.description = value;
-    }
+  /**
+   * Sets the value of the description property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setDescription(String value) {
+    this.description = value;
+  }
 
 }

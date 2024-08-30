@@ -6,166 +6,167 @@ import com.microsoft.schemas.office.visio.x2012.main.impl.TextTypeImpl;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 
-@JsonPropertyOrder({"parameter","iri","variable","parameter","name"})
+@JsonPropertyOrder({"parameter", "iri", "variable", "parameter", "name"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Element extends IriLD implements Entailment{
-	private String variable;
-	private String parameter;
-	private boolean ancestorsOf;
-	private boolean ancestorsOrSelfOf;
-	private boolean descendantsOrSelfOf;
-	private boolean descendantsOf;
-	private boolean childOrSelfOf;
-	private boolean childOf;
-	private boolean parentOrSelfOf;
-	private boolean parentOf;
-	private boolean memberOf;
-	private String nodeRef;
+public class Element extends IriLD implements Entailment {
+  private String variable;
+  private String parameter;
+  private boolean ancestorsOf;
+  private boolean ancestorsOrSelfOf;
+  private boolean descendantsOrSelfOf;
+  private boolean descendantsOf;
+  private boolean childOrSelfOf;
+  private boolean childOf;
+  private boolean parentOrSelfOf;
+  private boolean parentOf;
+  private boolean memberOf;
+  private String nodeRef;
 
-	public boolean isMemberOf() {
-		return memberOf;
-	}
+  public boolean isMemberOf() {
+    return memberOf;
+  }
 
-	public Element setMemberOf(boolean memberOf) {
-		this.memberOf = memberOf;
-		return this;
-	}
+  public Element setMemberOf(boolean memberOf) {
+    this.memberOf = memberOf;
+    return this;
+  }
 
-	public boolean isAncestorsOrSelfOf() {
-		return ancestorsOrSelfOf;
-	}
+  public boolean isAncestorsOrSelfOf() {
+    return ancestorsOrSelfOf;
+  }
 
-	public Element setAncestorsOrSelfOf(boolean ancestorsOrSelfOf) {
-		this.ancestorsOrSelfOf = ancestorsOrSelfOf;
-		return this;
-	}
+  public Element setAncestorsOrSelfOf(boolean ancestorsOrSelfOf) {
+    this.ancestorsOrSelfOf = ancestorsOrSelfOf;
+    return this;
+  }
 
-	public boolean isParentOrSelfOf() {
-		return parentOrSelfOf;
-	}
+  public boolean isParentOrSelfOf() {
+    return parentOrSelfOf;
+  }
 
-	public Element setParentOrSelfOf(boolean parentOrSelfOf) {
-		this.parentOrSelfOf = parentOrSelfOf;
-		return this;
-	}
+  public Element setParentOrSelfOf(boolean parentOrSelfOf) {
+    this.parentOrSelfOf = parentOrSelfOf;
+    return this;
+  }
 
-	public boolean isParentOf() {
-		return parentOf;
-	}
+  public boolean isParentOf() {
+    return parentOf;
+  }
 
-	public Element setParentOf(boolean parentOf) {
-		this.parentOf = parentOf;
-		return this;
-	}
+  public Element setParentOf(boolean parentOf) {
+    this.parentOf = parentOf;
+    return this;
+  }
 
-	public String getNodeRef() {
-		return nodeRef;
-	}
+  public String getNodeRef() {
+    return nodeRef;
+  }
 
-	public boolean isChildOrSelfOf() {
-		return childOrSelfOf;
-	}
+  public boolean isChildOrSelfOf() {
+    return childOrSelfOf;
+  }
 
-	public Element setChildOrSelfOf(boolean childOrSelfOf) {
-		this.childOrSelfOf = childOrSelfOf;
-		return this;
-	}
+  public Element setChildOrSelfOf(boolean childOrSelfOf) {
+    this.childOrSelfOf = childOrSelfOf;
+    return this;
+  }
 
-	public boolean isChildOf() {
-		return childOf;
-	}
+  public boolean isChildOf() {
+    return childOf;
+  }
 
-	public Element setChildOf(boolean childOf) {
-		this.childOf = childOf;
-		return this;
-	}
+  public Element setChildOf(boolean childOf) {
+    this.childOf = childOf;
+    return this;
+  }
 
-	public Element setNodeRef(String nodeRef) {
-		this.nodeRef = nodeRef;
-		return this;
-	}
+  public Element setNodeRef(String nodeRef) {
+    this.nodeRef = nodeRef;
+    return this;
+  }
 
-	public static Element iri(String iri) {
-		return new Element(iri);
-	}
-	public static Element iri(String iri, String name) {
-		return new Element(iri, name);
-	}
+  public static Element iri(String iri) {
+    return new Element(iri);
+  }
 
-	public Element() {
-	}
-	public Element(String iri) {
-		setIri(iri);
-	}
-	public Element(String iri, String name) {
-		setIri(iri);
-		setName(name);
-	}
+  public static Element iri(String iri, String name) {
+    return new Element(iri, name);
+  }
 
-	public Element setIri(String iri) {
-		super.setIri(iri);
-		return this;
-	}
+  public Element() {
+  }
 
+  public Element(String iri) {
+    setIri(iri);
+  }
 
-	public Element setName(String name) {
-		super.setName(name);
-		return this;
-	}
+  public Element(String iri, String name) {
+    setIri(iri);
+    setName(name);
+  }
+
+  public Element setIri(String iri) {
+    super.setIri(iri);
+    return this;
+  }
 
 
-
-	public String getParameter() {
-		return parameter;
-	}
-
-	public Element setParameter(String parameter) {
-		this.parameter = parameter;
-		return this;
-	}
-
-	public String getVariable() {
-		return variable;
-	}
+  public Element setName(String name) {
+    super.setName(name);
+    return this;
+  }
 
 
-	public boolean isAncestorsOf() {
-		return ancestorsOf;
-	}
+  public String getParameter() {
+    return parameter;
+  }
+
+  public Element setParameter(String parameter) {
+    this.parameter = parameter;
+    return this;
+  }
+
+  public String getVariable() {
+    return variable;
+  }
 
 
-	public Element setAncestorsOf(boolean ancestorsOf) {
-		this.ancestorsOf = ancestorsOf;
-		return this;
-	}
+  public boolean isAncestorsOf() {
+    return ancestorsOf;
+  }
 
 
-	public boolean isDescendantsOrSelfOf() {
-		return descendantsOrSelfOf;
-	}
+  public Element setAncestorsOf(boolean ancestorsOf) {
+    this.ancestorsOf = ancestorsOf;
+    return this;
+  }
 
 
-	public Element setDescendantsOrSelfOf(boolean descendantsOrSelfOf) {
-		this.descendantsOrSelfOf = descendantsOrSelfOf;
-		return this;
-	}
+  public boolean isDescendantsOrSelfOf() {
+    return descendantsOrSelfOf;
+  }
 
 
-	public boolean isDescendantsOf() {
-		return descendantsOf;
-	}
-
-	public Element setDescendantsOf(boolean descendantsOf) {
-		this.descendantsOf = descendantsOf;
-		return this;
-	}
+  public Element setDescendantsOrSelfOf(boolean descendantsOrSelfOf) {
+    this.descendantsOrSelfOf = descendantsOrSelfOf;
+    return this;
+  }
 
 
-	public Element setVariable(String variable) {
-		this.variable=variable;
-		return this;
-	}
+  public boolean isDescendantsOf() {
+    return descendantsOf;
+  }
 
+  public Element setDescendantsOf(boolean descendantsOf) {
+    this.descendantsOf = descendantsOf;
+    return this;
+  }
+
+
+  public Element setVariable(String variable) {
+    this.variable = variable;
+    return this;
+  }
 
 
 }

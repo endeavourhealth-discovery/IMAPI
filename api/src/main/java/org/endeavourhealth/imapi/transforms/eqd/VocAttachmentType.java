@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.AttachmentType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -30,61 +30,53 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.AttachmentType")
 @XmlEnum
 public enum VocAttachmentType {
 
 
-    /**
-     * Word Document
-     * 
-     */
-    WORD,
+  /**
+   * Word Document
+   */
+  WORD,
 
-    /**
-     * JPeg File
-     * 
-     */
-    JPEG,
+  /**
+   * JPeg File
+   */
+  JPEG,
 
-    /**
-     * GIF File
-     * 
-     */
-    GIF,
+  /**
+   * GIF File
+   */
+  GIF,
 
-    /**
-     * TIF File
-     * 
-     */
-    TIF,
+  /**
+   * TIF File
+   */
+  TIF,
 
-    /**
-     * BMP File
-     * 
-     */
-    BMP,
+  /**
+   * BMP File
+   */
+  BMP,
 
-    /**
-     * XML Document
-     * 
-     */
-    XML,
+  /**
+   * XML Document
+   */
+  XML,
 
-    /**
-     * RTF Document
-     * 
-     */
-    RTF;
+  /**
+   * RTF Document
+   */
+  RTF;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocAttachmentType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocAttachmentType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

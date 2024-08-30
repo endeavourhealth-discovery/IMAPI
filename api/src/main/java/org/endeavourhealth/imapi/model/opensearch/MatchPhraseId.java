@@ -6,5 +6,5 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 @JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo.Id.NAME)
 @JsonTypeName(value = "match_phrase")
 public interface MatchPhraseId {
-    String getId();
+  String getId();
 }

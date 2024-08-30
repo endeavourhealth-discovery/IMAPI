@@ -1,0 +1,156 @@
+{
+  "entities": [
+    {
+      "@id": "http://snomed.info/sct#40342009",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamylal sodium (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#69459001",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamin-phosphate pyrophosphorylase (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#126229007",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamine mononitrate (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#96197004",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thialbarbital (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#15254004",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamine kinase (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#43909000",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamine triphosphate (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#259659006",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamine (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#428162000",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiazole (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#363552000",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamphenicol (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#725643005",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiacetazone (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#62301006",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamine oxidase (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#37656002",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamazole (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#58847001",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamin-diphosphate kinase (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#372747003",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiazide diuretic (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#259660001",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamine phosphate (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#372568004",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiazolidinedione (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#67803007",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamine pyridinylase (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#4196411000001105",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamine phosphoric acid ester chloride dihydrate (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#64026007",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamin-phosphate kinase (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#29157006",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiazolsulfone (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#53609006",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiaminase (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#734975009",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamphenicol aminoacetate hydrochloride (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#438491000124106",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamin supplement (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#126228004",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamine hydrochloride (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#726013002",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Cocarboxylase tetrahydrate (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#428467004",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamethoxam (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#416624006",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Tiabendazole (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#764663005",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamylal (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#58138007",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamine pyrophosphokinase (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#84217005",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Titan yellow stain (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#96120008",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Arsenamide sodium (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#259661002",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamine pyrophosphate (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#421149006",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiazine (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#36636007",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiamine-triphosphatase (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#116362000",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiazin dye (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#860766002",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Thiazide (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#781636002",
+      "http://www.w3.org/2000/01/rdf-schema#label": "2-sulfanylidene-1,3-thiazolidine-4-carboxylic acid (substance)"
+    },
+    {
+      "@id": "http://snomed.info/sct#706929003",
+      "http://www.w3.org/2000/01/rdf-schema#label": "Free thiamine (substance)"
+    }
+  ]
+}

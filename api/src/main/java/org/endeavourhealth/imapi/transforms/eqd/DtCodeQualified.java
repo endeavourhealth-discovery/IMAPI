@@ -11,15 +11,16 @@ package org.endeavourhealth.imapi.transforms.eqd;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlType;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * <p>Java class for dt.CodeQualified complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="dt.CodeQualified"&gt;
  *   &lt;complexContent&gt;
@@ -32,77 +33,70 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "dt.CodeQualified", propOrder = {
-    "qualifier",
-    "translation"
+  "qualifier",
+  "translation"
 })
 public class DtCodeQualified
-    extends DtCode
-{
+  extends DtCode {
 
-    protected List<DtQualifier> qualifier;
-    protected List<DtCodeQualified> translation;
+  protected List<DtQualifier> qualifier;
+  protected List<DtCodeQualified> translation;
 
-    /**
-     * Gets the value of the qualifier property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the qualifier property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getQualifier().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link DtQualifier }
-     * 
-     * 
-     */
-    public List<DtQualifier> getQualifier() {
-        if (qualifier == null) {
-            qualifier = new ArrayList<DtQualifier>();
-        }
-        return this.qualifier;
+  /**
+   * Gets the value of the qualifier property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the qualifier property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getQualifier().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link DtQualifier }
+   */
+  public List<DtQualifier> getQualifier() {
+    if (qualifier == null) {
+      qualifier = new ArrayList<DtQualifier>();
     }
+    return this.qualifier;
+  }
 
-    /**
-     * Gets the value of the translation property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the translation property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getTranslation().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link DtCodeQualified }
-     * 
-     * 
-     */
-    public List<DtCodeQualified> getTranslation() {
-        if (translation == null) {
-            translation = new ArrayList<DtCodeQualified>();
-        }
-        return this.translation;
+  /**
+   * Gets the value of the translation property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the translation property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getTranslation().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link DtCodeQualified }
+   */
+  public List<DtCodeQualified> getTranslation() {
+    if (translation == null) {
+      translation = new ArrayList<DtCodeQualified>();
     }
+    return this.translation;
+  }
 
 }

@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.AptStatus.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -33,79 +33,68 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.AptStatus")
 @XmlEnum
 public enum VocAptStatus {
 
 
-    /**
-     * Slot Available
-     * 
-     */
-    SA,
+  /**
+   * Slot Available
+   */
+  SA,
 
-    /**
-     * Slot Booked
-     * 
-     */
-    SB,
+  /**
+   * Slot Booked
+   */
+  SB,
 
-    /**
-     * Patient Arrived
-     * 
-     */
-    PA,
+  /**
+   * Patient Arrived
+   */
+  PA,
 
-    /**
-     * Patient Sent In
-     * 
-     */
-    PSI,
+  /**
+   * Patient Sent In
+   */
+  PSI,
 
-    /**
-     * Patient Left
-     * 
-     */
-    PL,
+  /**
+   * Patient Left
+   */
+  PL,
 
-    /**
-     * Patient DNA
-     * 
-     */
-    DNA,
+  /**
+   * Patient DNA
+   */
+  DNA,
 
-    /**
-     * Patient Walked Out
-     * 
-     */
-    PWO,
+  /**
+   * Patient Walked Out
+   */
+  PWO,
 
-    /**
-     * Visited
-     * 
-     */
-    VIS,
+  /**
+   * Visited
+   */
+  VIS,
 
-    /**
-     * Telephone - Complete
-     * 
-     */
-    TC,
+  /**
+   * Telephone - Complete
+   */
+  TC,
 
-    /**
-     * Telephone - Not In
-     * 
-     */
-    TNI;
+  /**
+   * Telephone - Not In
+   */
+  TNI;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocAptStatus fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocAptStatus fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

@@ -12,14 +12,15 @@ import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlSchemaType;
 import jakarta.xml.bind.annotation.XmlType;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
  * <p>Java class for EQDOC.ScheduleDate complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.ScheduleDate"&gt;
  *   &lt;complexContent&gt;
@@ -32,66 +33,56 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.ScheduleDate", propOrder = {
-    "fixedDate",
-    "relativeDate"
+  "fixedDate",
+  "relativeDate"
 })
 public class EQDOCScheduleDate {
 
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar fixedDate;
-    protected EQDOCScheduleRelativeDate relativeDate;
+  @XmlSchemaType(name = "dateTime")
+  protected XMLGregorianCalendar fixedDate;
+  protected EQDOCScheduleRelativeDate relativeDate;
 
-    /**
-     * Gets the value of the fixedDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getFixedDate() {
-        return fixedDate;
-    }
+  /**
+   * Gets the value of the fixedDate property.
+   *
+   * @return possible object is
+   * {@link XMLGregorianCalendar }
+   */
+  public XMLGregorianCalendar getFixedDate() {
+    return fixedDate;
+  }
 
-    /**
-     * Sets the value of the fixedDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setFixedDate(XMLGregorianCalendar value) {
-        this.fixedDate = value;
-    }
+  /**
+   * Sets the value of the fixedDate property.
+   *
+   * @param value allowed object is
+   *              {@link XMLGregorianCalendar }
+   */
+  public void setFixedDate(XMLGregorianCalendar value) {
+    this.fixedDate = value;
+  }
 
-    /**
-     * Gets the value of the relativeDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCScheduleRelativeDate }
-     *     
-     */
-    public EQDOCScheduleRelativeDate getRelativeDate() {
-        return relativeDate;
-    }
+  /**
+   * Gets the value of the relativeDate property.
+   *
+   * @return possible object is
+   * {@link EQDOCScheduleRelativeDate }
+   */
+  public EQDOCScheduleRelativeDate getRelativeDate() {
+    return relativeDate;
+  }
 
-    /**
-     * Sets the value of the relativeDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCScheduleRelativeDate }
-     *     
-     */
-    public void setRelativeDate(EQDOCScheduleRelativeDate value) {
-        this.relativeDate = value;
-    }
+  /**
+   * Sets the value of the relativeDate property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCScheduleRelativeDate }
+   */
+  public void setRelativeDate(EQDOCScheduleRelativeDate value) {
+    this.relativeDate = value;
+  }
 
 }

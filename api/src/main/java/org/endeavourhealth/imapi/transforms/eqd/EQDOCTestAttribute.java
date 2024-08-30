@@ -12,15 +12,16 @@ import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlType;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * <p>Java class for EQDOC.TestAttribute complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.TestAttribute"&gt;
  *   &lt;complexContent&gt;
@@ -33,71 +34,63 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.TestAttribute", propOrder = {
-    "columnValue",
-    "recordFrequency"
+  "columnValue",
+  "recordFrequency"
 })
 public class EQDOCTestAttribute {
 
-    @XmlElement(required = true)
-    protected List<EQDOCColumnValue> columnValue;
-    protected EQDOCRecordFrequency recordFrequency;
+  @XmlElement(required = true)
+  protected List<EQDOCColumnValue> columnValue;
+  protected EQDOCRecordFrequency recordFrequency;
 
-    /**
-     * Gets the value of the columnValue property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the columnValue property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getColumnValue().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCColumnValue }
-     * 
-     * 
-     */
-    public List<EQDOCColumnValue> getColumnValue() {
-        if (columnValue == null) {
-            columnValue = new ArrayList<EQDOCColumnValue>();
-        }
-        return this.columnValue;
+  /**
+   * Gets the value of the columnValue property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the columnValue property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getColumnValue().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCColumnValue }
+   */
+  public List<EQDOCColumnValue> getColumnValue() {
+    if (columnValue == null) {
+      columnValue = new ArrayList<EQDOCColumnValue>();
     }
+    return this.columnValue;
+  }
 
-    /**
-     * Gets the value of the recordFrequency property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCRecordFrequency }
-     *     
-     */
-    public EQDOCRecordFrequency getRecordFrequency() {
-        return recordFrequency;
-    }
+  /**
+   * Gets the value of the recordFrequency property.
+   *
+   * @return possible object is
+   * {@link EQDOCRecordFrequency }
+   */
+  public EQDOCRecordFrequency getRecordFrequency() {
+    return recordFrequency;
+  }
 
-    /**
-     * Sets the value of the recordFrequency property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCRecordFrequency }
-     *     
-     */
-    public void setRecordFrequency(EQDOCRecordFrequency value) {
-        this.recordFrequency = value;
-    }
+  /**
+   * Sets the value of the recordFrequency property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCRecordFrequency }
+   */
+  public void setRecordFrequency(EQDOCRecordFrequency value) {
+    this.recordFrequency = value;
+  }
 
 }

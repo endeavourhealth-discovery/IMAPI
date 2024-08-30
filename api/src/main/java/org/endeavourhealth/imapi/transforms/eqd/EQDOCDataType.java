@@ -15,7 +15,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for EQDOC.DataType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -29,39 +29,38 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "EQDOC.DataType")
 @XmlEnum
 public enum EQDOCDataType {
 
-    @XmlEnumValue("integer")
-    INTEGER("integer"),
-    @XmlEnumValue("text")
-    TEXT("text"),
-    @XmlEnumValue("dateTime")
-    DATE_TIME("dateTime"),
-    @XmlEnumValue("float")
-    FLOAT("float"),
-    @XmlEnumValue("char")
-    CHAR("char");
-    private final String value;
+  @XmlEnumValue("integer")
+  INTEGER("integer"),
+  @XmlEnumValue("text")
+  TEXT("text"),
+  @XmlEnumValue("dateTime")
+  DATE_TIME("dateTime"),
+  @XmlEnumValue("float")
+  FLOAT("float"),
+  @XmlEnumValue("char")
+  CHAR("char");
+  private final String value;
 
-    EQDOCDataType(String v) {
-        value = v;
-    }
+  EQDOCDataType(String v) {
+    value = v;
+  }
 
-    public String value() {
-        return value;
-    }
+  public String value() {
+    return value;
+  }
 
-    public static EQDOCDataType fromValue(String v) {
-        for (EQDOCDataType c: EQDOCDataType.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
+  public static EQDOCDataType fromValue(String v) {
+    for (EQDOCDataType c : EQDOCDataType.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
+    throw new IllegalArgumentException(v);
+  }
 
 }

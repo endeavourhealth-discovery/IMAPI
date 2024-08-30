@@ -13,9 +13,9 @@ import jakarta.xml.bind.annotation.*;
 
 /**
  * <p>Java class for dt.PatientIdentifier complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="dt.PatientIdentifier"&gt;
  *   &lt;complexContent&gt;
@@ -34,70 +34,59 @@ import jakarta.xml.bind.annotation.*;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "dt.PatientIdentifier", propOrder = {
-    "identifierType",
-    "value"
+  "identifierType",
+  "value"
 })
 public class DtPatientIdentifier
-    extends DtDbo
-{
+  extends DtDbo {
 
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "token")
-    protected VocPatientIdentifierType identifierType;
-    @XmlElement(required = true)
-    protected String value;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "token")
+  protected VocPatientIdentifierType identifierType;
+  @XmlElement(required = true)
+  protected String value;
 
-    /**
-     * Gets the value of the identifierType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocPatientIdentifierType }
-     *     
-     */
-    public VocPatientIdentifierType getIdentifierType() {
-        return identifierType;
-    }
+  /**
+   * Gets the value of the identifierType property.
+   *
+   * @return possible object is
+   * {@link VocPatientIdentifierType }
+   */
+  public VocPatientIdentifierType getIdentifierType() {
+    return identifierType;
+  }
 
-    /**
-     * Sets the value of the identifierType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocPatientIdentifierType }
-     *     
-     */
-    public void setIdentifierType(VocPatientIdentifierType value) {
-        this.identifierType = value;
-    }
+  /**
+   * Sets the value of the identifierType property.
+   *
+   * @param value allowed object is
+   *              {@link VocPatientIdentifierType }
+   */
+  public void setIdentifierType(VocPatientIdentifierType value) {
+    this.identifierType = value;
+  }
 
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getValue() {
-        return value;
-    }
+  /**
+   * Gets the value of the value property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getValue() {
+    return value;
+  }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setValue(String value) {
-        this.value = value;
-    }
+  /**
+   * Sets the value of the value property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setValue(String value) {
+    this.value = value;
+  }
 
 }

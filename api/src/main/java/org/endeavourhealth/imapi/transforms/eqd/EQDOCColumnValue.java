@@ -11,15 +11,16 @@ package org.endeavourhealth.imapi.transforms.eqd;
 import jakarta.xml.bind.annotation.*;
 import jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * <p>Java class for EQDOC.ColumnValue complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.ColumnValue"&gt;
  *   &lt;complexContent&gt;
@@ -45,382 +46,336 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.ColumnValue", propOrder = {
-    "id",
-    "column",
-    "displayName",
-    "inNotIn",
-    "valueDisplay",
-    "valueSet",
-    "libraryItem",
-    "rangeValue",
-    "singleValue",
-    "function",
-    "parameter",
-    "qualifier",
-    "substitutionIdentifier"
+  "id",
+  "column",
+  "displayName",
+  "inNotIn",
+  "valueDisplay",
+  "valueSet",
+  "libraryItem",
+  "rangeValue",
+  "singleValue",
+  "function",
+  "parameter",
+  "qualifier",
+  "substitutionIdentifier"
 })
 public class EQDOCColumnValue {
 
-    @XmlElement(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String id;
-    @XmlElement(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected List<String> column;
-    @XmlElement(required = true)
-    protected String displayName;
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "token")
-    protected VocColumnValueInNotIn inNotIn;
-    protected String valueDisplay;
-    protected List<EQDOCValueSet> valueSet;
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected List<String> libraryItem;
-    protected EQDOCRangeValue rangeValue;
-    protected EQDOCSingleValue singleValue;
-    protected EQDOCMethodCall function;
-    protected EQDOCParameter parameter;
-    protected EQDOCKeyValuePair qualifier;
-    protected List<EQDOCSubstitutionIdentifier> substitutionIdentifier;
+  @XmlElement(required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String id;
+  @XmlElement(required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected List<String> column;
+  @XmlElement(required = true)
+  protected String displayName;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "token")
+  protected VocColumnValueInNotIn inNotIn;
+  protected String valueDisplay;
+  protected List<EQDOCValueSet> valueSet;
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected List<String> libraryItem;
+  protected EQDOCRangeValue rangeValue;
+  protected EQDOCSingleValue singleValue;
+  protected EQDOCMethodCall function;
+  protected EQDOCParameter parameter;
+  protected EQDOCKeyValuePair qualifier;
+  protected List<EQDOCSubstitutionIdentifier> substitutionIdentifier;
 
-    /**
-     * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getId() {
-        return id;
-    }
+  /**
+   * Gets the value of the id property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getId() {
+    return id;
+  }
 
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setId(String value) {
-        this.id = value;
-    }
+  /**
+   * Sets the value of the id property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setId(String value) {
+    this.id = value;
+  }
 
-    /**
-     * Gets the value of the column property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the column property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getColumn().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link String }
-     * 
-     * 
-     */
-    public List<String> getColumn() {
-        if (column == null) {
-            column = new ArrayList<String>();
-        }
-        return this.column;
+  /**
+   * Gets the value of the column property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the column property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getColumn().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link String }
+   */
+  public List<String> getColumn() {
+    if (column == null) {
+      column = new ArrayList<String>();
     }
+    return this.column;
+  }
 
-    /**
-     * Gets the value of the displayName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDisplayName() {
-        return displayName;
-    }
+  /**
+   * Gets the value of the displayName property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getDisplayName() {
+    return displayName;
+  }
 
-    /**
-     * Sets the value of the displayName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDisplayName(String value) {
-        this.displayName = value;
-    }
+  /**
+   * Sets the value of the displayName property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setDisplayName(String value) {
+    this.displayName = value;
+  }
 
-    /**
-     * Gets the value of the inNotIn property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocColumnValueInNotIn }
-     *     
-     */
-    public VocColumnValueInNotIn getInNotIn() {
-        return inNotIn;
-    }
+  /**
+   * Gets the value of the inNotIn property.
+   *
+   * @return possible object is
+   * {@link VocColumnValueInNotIn }
+   */
+  public VocColumnValueInNotIn getInNotIn() {
+    return inNotIn;
+  }
 
-    /**
-     * Sets the value of the inNotIn property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocColumnValueInNotIn }
-     *     
-     */
-    public void setInNotIn(VocColumnValueInNotIn value) {
-        this.inNotIn = value;
-    }
+  /**
+   * Sets the value of the inNotIn property.
+   *
+   * @param value allowed object is
+   *              {@link VocColumnValueInNotIn }
+   */
+  public void setInNotIn(VocColumnValueInNotIn value) {
+    this.inNotIn = value;
+  }
 
-    /**
-     * Gets the value of the valueDisplay property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getValueDisplay() {
-        return valueDisplay;
-    }
+  /**
+   * Gets the value of the valueDisplay property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getValueDisplay() {
+    return valueDisplay;
+  }
 
-    /**
-     * Sets the value of the valueDisplay property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setValueDisplay(String value) {
-        this.valueDisplay = value;
-    }
+  /**
+   * Sets the value of the valueDisplay property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setValueDisplay(String value) {
+    this.valueDisplay = value;
+  }
 
-    /**
-     * Gets the value of the valueSet property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the valueSet property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getValueSet().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCValueSet }
-     * 
-     * 
-     */
-    public List<EQDOCValueSet> getValueSet() {
-        if (valueSet == null) {
-            valueSet = new ArrayList<EQDOCValueSet>();
-        }
-        return this.valueSet;
+  /**
+   * Gets the value of the valueSet property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the valueSet property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getValueSet().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCValueSet }
+   */
+  public List<EQDOCValueSet> getValueSet() {
+    if (valueSet == null) {
+      valueSet = new ArrayList<EQDOCValueSet>();
     }
+    return this.valueSet;
+  }
 
-    /**
-     * Gets the value of the libraryItem property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the libraryItem property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getLibraryItem().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link String }
-     * 
-     * 
-     */
-    public List<String> getLibraryItem() {
-        if (libraryItem == null) {
-            libraryItem = new ArrayList<String>();
-        }
-        return this.libraryItem;
+  /**
+   * Gets the value of the libraryItem property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the libraryItem property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getLibraryItem().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link String }
+   */
+  public List<String> getLibraryItem() {
+    if (libraryItem == null) {
+      libraryItem = new ArrayList<String>();
     }
+    return this.libraryItem;
+  }
 
-    /**
-     * Gets the value of the rangeValue property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCRangeValue }
-     *     
-     */
-    public EQDOCRangeValue getRangeValue() {
-        return rangeValue;
-    }
+  /**
+   * Gets the value of the rangeValue property.
+   *
+   * @return possible object is
+   * {@link EQDOCRangeValue }
+   */
+  public EQDOCRangeValue getRangeValue() {
+    return rangeValue;
+  }
 
-    /**
-     * Sets the value of the rangeValue property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCRangeValue }
-     *     
-     */
-    public void setRangeValue(EQDOCRangeValue value) {
-        this.rangeValue = value;
-    }
+  /**
+   * Sets the value of the rangeValue property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCRangeValue }
+   */
+  public void setRangeValue(EQDOCRangeValue value) {
+    this.rangeValue = value;
+  }
 
-    /**
-     * Gets the value of the singleValue property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCSingleValue }
-     *     
-     */
-    public EQDOCSingleValue getSingleValue() {
-        return singleValue;
-    }
+  /**
+   * Gets the value of the singleValue property.
+   *
+   * @return possible object is
+   * {@link EQDOCSingleValue }
+   */
+  public EQDOCSingleValue getSingleValue() {
+    return singleValue;
+  }
 
-    /**
-     * Sets the value of the singleValue property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCSingleValue }
-     *     
-     */
-    public void setSingleValue(EQDOCSingleValue value) {
-        this.singleValue = value;
-    }
+  /**
+   * Sets the value of the singleValue property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCSingleValue }
+   */
+  public void setSingleValue(EQDOCSingleValue value) {
+    this.singleValue = value;
+  }
 
-    /**
-     * Gets the value of the function property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCMethodCall }
-     *     
-     */
-    public EQDOCMethodCall getFunction() {
-        return function;
-    }
+  /**
+   * Gets the value of the function property.
+   *
+   * @return possible object is
+   * {@link EQDOCMethodCall }
+   */
+  public EQDOCMethodCall getFunction() {
+    return function;
+  }
 
-    /**
-     * Sets the value of the function property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCMethodCall }
-     *     
-     */
-    public void setFunction(EQDOCMethodCall value) {
-        this.function = value;
-    }
+  /**
+   * Sets the value of the function property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCMethodCall }
+   */
+  public void setFunction(EQDOCMethodCall value) {
+    this.function = value;
+  }
 
-    /**
-     * Gets the value of the parameter property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCParameter }
-     *     
-     */
-    public EQDOCParameter getParameter() {
-        return parameter;
-    }
+  /**
+   * Gets the value of the parameter property.
+   *
+   * @return possible object is
+   * {@link EQDOCParameter }
+   */
+  public EQDOCParameter getParameter() {
+    return parameter;
+  }
 
-    /**
-     * Sets the value of the parameter property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCParameter }
-     *     
-     */
-    public void setParameter(EQDOCParameter value) {
-        this.parameter = value;
-    }
+  /**
+   * Sets the value of the parameter property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCParameter }
+   */
+  public void setParameter(EQDOCParameter value) {
+    this.parameter = value;
+  }
 
-    /**
-     * Gets the value of the qualifier property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCKeyValuePair }
-     *     
-     */
-    public EQDOCKeyValuePair getQualifier() {
-        return qualifier;
-    }
+  /**
+   * Gets the value of the qualifier property.
+   *
+   * @return possible object is
+   * {@link EQDOCKeyValuePair }
+   */
+  public EQDOCKeyValuePair getQualifier() {
+    return qualifier;
+  }
 
-    /**
-     * Sets the value of the qualifier property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCKeyValuePair }
-     *     
-     */
-    public void setQualifier(EQDOCKeyValuePair value) {
-        this.qualifier = value;
-    }
+  /**
+   * Sets the value of the qualifier property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCKeyValuePair }
+   */
+  public void setQualifier(EQDOCKeyValuePair value) {
+    this.qualifier = value;
+  }
 
-    /**
-     * Gets the value of the substitutionIdentifier property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the substitutionIdentifier property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getSubstitutionIdentifier().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCSubstitutionIdentifier }
-     * 
-     * 
-     */
-    public List<EQDOCSubstitutionIdentifier> getSubstitutionIdentifier() {
-        if (substitutionIdentifier == null) {
-            substitutionIdentifier = new ArrayList<EQDOCSubstitutionIdentifier>();
-        }
-        return this.substitutionIdentifier;
+  /**
+   * Gets the value of the substitutionIdentifier property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the substitutionIdentifier property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getSubstitutionIdentifier().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCSubstitutionIdentifier }
+   */
+  public List<EQDOCSubstitutionIdentifier> getSubstitutionIdentifier() {
+    if (substitutionIdentifier == null) {
+      substitutionIdentifier = new ArrayList<EQDOCSubstitutionIdentifier>();
     }
+    return this.substitutionIdentifier;
+  }
 
 }

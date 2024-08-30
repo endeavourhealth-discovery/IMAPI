@@ -18,9 +18,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for EQDOC.FolderAssociation complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.FolderAssociation"&gt;
  *   &lt;complexContent&gt;
@@ -33,69 +33,59 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.FolderAssociation", propOrder = {
-    "organisation",
-    "speciality"
+  "organisation",
+  "speciality"
 })
 public class EQDOCFolderAssociation {
 
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String organisation;
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String speciality;
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String organisation;
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String speciality;
 
-    /**
-     * Gets the value of the organisation property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getOrganisation() {
-        return organisation;
-    }
+  /**
+   * Gets the value of the organisation property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getOrganisation() {
+    return organisation;
+  }
 
-    /**
-     * Sets the value of the organisation property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setOrganisation(String value) {
-        this.organisation = value;
-    }
+  /**
+   * Sets the value of the organisation property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setOrganisation(String value) {
+    this.organisation = value;
+  }
 
-    /**
-     * Gets the value of the speciality property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getSpeciality() {
-        return speciality;
-    }
+  /**
+   * Gets the value of the speciality property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getSpeciality() {
+    return speciality;
+  }
 
-    /**
-     * Sets the value of the speciality property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setSpeciality(String value) {
-        this.speciality = value;
-    }
+  /**
+   * Sets the value of the speciality property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setSpeciality(String value) {
+    this.speciality = value;
+  }
 
 }

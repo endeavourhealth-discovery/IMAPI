@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -60,7 +61,7 @@ public class FileRepository {
                                  Set<String> blockingIris) throws IOException {
     String fileName = getFile("SubTypes");
     AtomicInteger count = new AtomicInteger();
-    try (Stream<String> lines = Files.lines(Paths.get(fileName))) {
+    try (Stream<String> lines = Files.lines(Paths.get(fileName), StandardCharsets.ISO_8859_1)) {
       lines.forEach(line -> {
         count.getAndIncrement();
         String[] fields = line.split("\t");
@@ -186,7 +187,7 @@ public class FileRepository {
   public Set<String> getAllEntities() throws IOException {
     Set<String> entities = new HashSet<>();
     String fileName = getFile("Entities");
-    try (Stream<String> lines = Files.lines(Paths.get(fileName))) {
+    try (Stream<String> lines = Files.lines(Paths.get(fileName), StandardCharsets.ISO_8859_1)) {
       lines.forEach(entities::add);
     }
     return entities;
@@ -219,7 +220,7 @@ public class FileRepository {
   private Map<String, Set<String>> fetchDescendants(String concept) throws IOException {
     String fileName = getFile("Descendants");
     Map<String, Set<String>> children = new HashMap<>();
-    try (Stream<String> lines = Files.lines(Paths.get(fileName))) {
+    try (Stream<String> lines = Files.lines(Paths.get(fileName), StandardCharsets.ISO_8859_1)) {
       lines.forEach(line -> {
         String[] fields = line.split("\t");
         String parent = fields[0];
@@ -256,7 +257,7 @@ public class FileRepository {
   }
 
   private void readFileToSetMap(String fileName, Map<String, Set<String>> coreMap) throws IOException {
-    try (Stream<String> lines = Files.lines(Paths.get(fileName))) {
+    try (Stream<String> lines = Files.lines(Paths.get(fileName), StandardCharsets.ISO_8859_1)) {
       lines.forEach(line -> {
         String[] fields = line.split("\t");
         String term = fields[0];
@@ -268,7 +269,7 @@ public class FileRepository {
   }
 
   private void readFileToStringMap(String fileName, Map<String, String> stringMap) throws IOException {
-    try (Stream<String> lines = Files.lines(Paths.get(fileName))) {
+    try (Stream<String> lines = Files.lines(Paths.get(fileName), StandardCharsets.ISO_8859_1)) {
       lines.forEach(line -> {
         String[] fields = line.split("\t");
         String code = fields[0];

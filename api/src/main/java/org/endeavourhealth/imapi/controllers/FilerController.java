@@ -234,26 +234,25 @@ public class FilerController {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       try (ZipOutputStream zos = new ZipOutputStream(baos)) {
         File directory = new File(System.getenv("DELTA_PATH"));
-                if (directory.exists()) {
-        for (File file : Objects.requireNonNull(directory.listFiles())) {
-          if (!file.isDirectory()) {
-            String name = file.getName();
-            if (name.startsWith("TTLog-")) {
-              zos.putNextEntry(new ZipEntry(name));
-              byte[] fileData = Files.readAllBytes(file.toPath());
-              zos.write(fileData);
-              zos.closeEntry();
+        if (directory.exists()) {
+          for (File file : Objects.requireNonNull(directory.listFiles())) {
+            if (!file.isDirectory()) {
+              String name = file.getName();
+              if (name.startsWith("TTLog-")) {
+                zos.putNextEntry(new ZipEntry(name));
+                byte[] fileData = Files.readAllBytes(file.toPath());
+                zos.write(fileData);
+                zos.closeEntry();
+              }
             }
           }
+          headers.setContentType(new MediaType("application", "force-download"));
+          headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"deltas.zip\"");
+          return new HttpEntity<>(baos.toByteArray(), headers);
+        } else {
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
-        headers.setContentType(new MediaType("application", "force-download"));
-        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"deltas.zip\"");
-                    return new HttpEntity<>(baos.toByteArray(), headers);
-                } else {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-                }
-
-            }
+      }
     }
   }
 }

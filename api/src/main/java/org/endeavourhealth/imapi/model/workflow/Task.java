@@ -1,45 +1,77 @@
 package org.endeavourhealth.imapi.model.workflow;
 
+import lombok.Getter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.workflow.task.TaskHistory;
+import org.endeavourhealth.imapi.model.workflow.task.TaskState;
+import org.endeavourhealth.imapi.model.workflow.task.TaskType;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
 public class Task {
 
-  private String name;
-  private String state;
-  private String id;
-  private String workflow;
+    private TTIriRef id;
+    private String createdBy;
+    private TaskType type;
+    private TaskState state;
+    private String assignedTo;
+    private LocalDateTime dateCreated;
+    private List<TaskHistory> history;
 
-  public String getWorkflow() {
-    return workflow;
-  }
+    public Task(TTIriRef id, String createdBy, TaskType type, TaskState state, String assignedTo, LocalDateTime dateCreated, List<TaskHistory> history) {
+        this.id = id;
+        this.createdBy = createdBy;
+        this.type = type;
+        this.state = state;
+        this.assignedTo = assignedTo;
+        this.dateCreated = dateCreated;
+        this.history = history;
+    }
 
-  public Task setWorkflow(String workflow) {
-    this.workflow = workflow;
-    return this;
-  }
+    public Task() {}
 
-  public String getName() {
-    return name;
-  }
+    public Task setId(TTIriRef id) {
+        this.id = id;
+        return this;
+    }
 
-  public Task setName(String name) {
-    this.name = name;
-    return this;
-  }
+    public Task setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+        return this;
+    }
 
-  public String getState() {
-    return state;
-  }
+    public Task setType(TaskType type) {
+        this.type = type;
+        return this;
+    }
 
-  public Task setState(String state) {
-    this.state = state;
-    return this;
-  }
+    public Task setState(TaskState state) {
+        this.state = state;
+        return this;
+    }
 
-  public String getId() {
-    return id;
-  }
+    public Task setAssignedTo(String assignedTo) {
+        this.assignedTo = assignedTo;
+        return this;
+    }
 
-  public Task setId(String id) {
-    this.id = id;
-    return this;
-  }
+    public Task setDateCreated(LocalDateTime dateCreated) {
+        this.dateCreated = dateCreated;
+        return this;
+    }
+
+    public Task setHistory(List<TaskHistory> history) {
+        this.history = history;
+        return this;
+    }
+
+    public Task addTaskHistory(TaskHistory taskHistory) {
+        if (null == this.history) this.history = new ArrayList<>();
+        this.history.add(taskHistory);
+        return this;
+    }
 }

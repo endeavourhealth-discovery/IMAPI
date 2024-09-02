@@ -39,6 +39,10 @@ public class ConnectionManager {
     return getRepository("user").getConnection();
   }
 
+    public static RepositoryConnection getWorkflowConnection() {
+        return getRepository("workflow").getConnection();
+    }
+
 
   public static TupleQuery prepareSparql(RepositoryConnection conn, String sparql) {
     try {

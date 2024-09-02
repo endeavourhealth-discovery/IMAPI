@@ -33,7 +33,9 @@ tasks {
       'org.endeavourhealth.imapi.model.eclBuilder.*',
       'org.endeavourhealth.imapi.vocabulary.*',
       'org.endeavourhealth.imapi.vocabulary.**.*',
-      'org.endeavourhealth.imapi.model.github.*'
+      'org.endeavourhealth.imapi.model.github.*',
+      'org.endeavourhealth.imapi.model.workflow.*',
+      'org.endeavourhealth.imapi.model.workflow.**.*'
     ]
     outputFile = '../../IMDirectory/im_library/src/interfaces/AutoGen.ts'
     outputKind = 'module'
@@ -59,11 +61,15 @@ war {
 }
 
 dependencies {
+  implementation libs.angusMail
   implementation libs.antlr
   implementation libs.apacheCollections4
   implementation libs.apachePoi
   implementation libs.apacheText
   implementation libs.assertJ
+  implementation libs.awsCognitoIDP
+  implementation libs.awsSDK
+  implementation libs.awsSDKCore
   implementation libs.awsS3
   implementation libs.dropwizard
   implementation libs.dropwizardGraphite

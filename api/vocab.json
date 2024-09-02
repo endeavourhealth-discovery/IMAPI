@@ -1712,8 +1712,16 @@
         "value": "WORKFLOW.NAMESPACE + \"operatingSystem\""
       },
       {
+        "name": "OPERATING_SYSTEM_OTHER",
+        "value": "WORKFLOW.NAMESPACE + \"operatingSystemOther\""
+      },
+      {
         "name": "BROWSER",
         "value": "WORKFLOW.NAMESPACE + \"browser\""
+      },
+      {
+        "name": "BROWSER_OTHER",
+        "value": "WORKFLOW.NAMESPACE + \"browserOther\""
       },
       {
         "name": "SEVERITY",
@@ -1738,6 +1746,38 @@
       {
         "name": "RELATED_VERSION",
         "value": "WORKFLOW.NAMESPACE + \"relatedVersion\""
+      },
+      {
+        "name": "REQUESTED_ROLE",
+        "value": "WORKFLOW.NAMESPACE + \"requestedRole\""
+      },
+      {
+        "name": "APPROVAL_TYPE",
+        "value": "WORKFLOW.NAMESPACE + \"approvalType\""
+      },
+      {
+        "name": "HISTORY",
+        "value": "WORKFLOW.NAMESPACE + \"history\""
+      },
+      {
+        "name": "HISTORY_PREDICATE",
+        "value": "WORKFLOW.NAMESPACE + \"historyPredicate\""
+      },
+      {
+        "name": "HISTORY_ORIGINAL_OBJECT",
+        "value": "WORKFLOW.NAMESPACE + \"historyOriginalObject\""
+      },
+      {
+        "name": "HISTORY_NEW_OBJECT",
+        "value": "WORKFLOW.NAMESPACE + \"historyNewObject\""
+      },
+      {
+        "name": "HISTORY_CHANGE_DATE",
+        "value": "WORKFLOW.NAMESPACE + \"historyChangeDate\""
+      },
+      {
+        "name": "MODIFIED_BY",
+        "value": "WORKFLOW.NAMESPACE + \"modifiedBy\""
       }
     ]
   },

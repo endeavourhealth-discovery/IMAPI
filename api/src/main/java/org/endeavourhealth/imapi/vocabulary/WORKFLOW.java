@@ -13,11 +13,21 @@ public class WORKFLOW {
     public static final String RELATED_PRODUCT = WORKFLOW.NAMESPACE + "relatedProduct";
     public static final String RELATED_MODULE = WORKFLOW.NAMESPACE + "relatedModule";
     public static final String OPERATING_SYSTEM = WORKFLOW.NAMESPACE + "operatingSystem";
+    public static final String OPERATING_SYSTEM_OTHER = WORKFLOW.NAMESPACE + "operatingSystemOther";
     public static final String BROWSER = WORKFLOW.NAMESPACE + "browser";
+    public static final String BROWSER_OTHER = WORKFLOW.NAMESPACE + "browserOther";
     public static final String SEVERITY = WORKFLOW.NAMESPACE + "severity";
     public static final String ERROR = WORKFLOW.NAMESPACE + "errorDetails";
     public static final String REPRODUCE_STEPS = WORKFLOW.NAMESPACE + "reproduceSteps";
     public static final String EXPECTED_RESULT = WORKFLOW.NAMESPACE + "expectedResult";
     public static final String ACTUAL_RESULT = WORKFLOW.NAMESPACE + "actualResult";
     public static final String RELATED_VERSION = WORKFLOW.NAMESPACE + "relatedVersion";
+    public static final String REQUESTED_ROLE = WORKFLOW.NAMESPACE + "requestedRole";
+    public static final String APPROVAL_TYPE = WORKFLOW.NAMESPACE + "approvalType";
+    public static final String HISTORY = WORKFLOW.NAMESPACE + "history";
+    public static final String HISTORY_PREDICATE = WORKFLOW.NAMESPACE + "historyPredicate";
+    public static final String HISTORY_ORIGINAL_OBJECT = WORKFLOW.NAMESPACE + "historyOriginalObject";
+    public static final String HISTORY_NEW_OBJECT = WORKFLOW.NAMESPACE + "historyNewObject";
+    public static final String HISTORY_CHANGE_DATE = WORKFLOW.NAMESPACE + "historyChangeDate";
+    public static final String MODIFIED_BY = WORKFLOW.NAMESPACE + "modifiedBy";
 }

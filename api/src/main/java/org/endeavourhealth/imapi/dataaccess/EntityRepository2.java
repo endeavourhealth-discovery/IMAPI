@@ -99,7 +99,7 @@ public class EntityRepository2 {
     TTBundle bundle = new TTBundle()
       .setEntity(new TTEntity().setIri(iri))
       .setPredicates(new HashMap<>());
-    if (predicates.contains(RDFS.LABEL) && !predicates.contains(RDFS.COMMENT)) {
+    if (null != predicates && predicates.contains(RDFS.LABEL) && !predicates.contains(RDFS.COMMENT)) {
       Set<String> predicatesPlus = new HashSet<>();
       predicatesPlus.addAll(predicates);
       predicatesPlus.add(RDFS.COMMENT);

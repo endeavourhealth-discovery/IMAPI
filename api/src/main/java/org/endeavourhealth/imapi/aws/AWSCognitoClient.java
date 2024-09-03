@@ -22,7 +22,7 @@ public class AWSCognitoClient {
   }
 
   private AWSCognitoIdentityProvider createCognitoClient() {
-    AWSCredentials cred = new BasicAWSCredentials(System.getenv("AWS_ACCESS_KEY"), System.getenv("AWS_SECRET_ACCESS_KEY"));
+    AWSCredentials cred = new BasicAWSCredentials(System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_SECRET_ACCESS_KEY"));
     AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(cred);
     return AWSCognitoIdentityProviderClientBuilder.standard().withCredentials(credentialsProvider).withRegion(System.getenv("COGNITO_REGION")).build();
   }

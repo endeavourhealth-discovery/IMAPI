@@ -7,7 +7,10 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.imq.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
@@ -33,6 +36,13 @@ public class PathRepository {
       select ?where ?whereLabel ?recordType ?recordTypeLabel ?path ?pathLabel ?where1 ?where1Label
       where {
         {
+          ?target im:binding ?binding .
+          ?binding sh:node ?source .
+          ?binding sh:path ?where .
+          ?where rdfs:label ?whereLabel.
+          ?binding sh:node ?recordType .
+          ?recordType rdfs:label ?recordTypeLabel.
+        } union {
           ?target sh:property ?property.
           ?property sh:path ?path.
           ?path rdfs:label ?pathLabel.

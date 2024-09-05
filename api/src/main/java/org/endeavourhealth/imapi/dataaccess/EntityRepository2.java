@@ -24,8 +24,12 @@ public class EntityRepository2 {
   private static final String RDFS_PREFIX = "PREFIX rdfs: <" + RDFS.NAMESPACE + ">";
   private static final String RDF_PREFIX = "PREFIX rdf: <" + RDF.NAMESPACE + ">";
 
+
   public static Map<String, String> getIriNames(RepositoryConnection conn, Set<TTIriRef> iris) {
-    Map<String, String> names = new HashMap<>();
+    return getIriNames(conn, iris, new HashMap<>());
+  }
+
+  public static Map<String, String> getIriNames(RepositoryConnection conn, Set<TTIriRef> iris, Map<String, String> names) {
     if (iris == null || iris.isEmpty())
       return names;
 
@@ -49,6 +53,8 @@ public class EntityRepository2 {
             if (bs.getValue("description") != null) i.setDescription(bs.getValue("description").stringValue());
           });
       }
+    } catch (Exception e) {
+      e.printStackTrace();
     }
     return names;
   }

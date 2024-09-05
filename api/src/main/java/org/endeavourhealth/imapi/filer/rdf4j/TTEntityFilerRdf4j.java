@@ -248,7 +248,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
           graph ?graphIri {
             {
               ?concept ?p1 ?o1.
-              filter(?p1 in(?predList))
+              filter(?p1 in(%s))
               OPTIONAL {
                 ?o1 ?p2 ?o2.
                 filter (isBlank(?o1))
@@ -264,10 +264,9 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             }
           }
         }
-      """;
+      """.formatted(predList);
     Update deletePredicates = conn.prepareUpdate(spq);
     deletePredicates.setBinding("graphIri", iri(graph.getIri()));
-    deletePredicates.setBinding("predList", literal(predList.toString()));
     deletePredicates.setBinding("concept", valueFactory.createIRI(entity.getIri()));
     try {
       deletePredicates.execute();

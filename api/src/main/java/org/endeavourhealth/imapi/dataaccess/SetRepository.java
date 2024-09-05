@@ -363,7 +363,7 @@ public class SetRepository {
       org.eclipse.rdf4j.query.Update upd = conn.prepareUpdate(addSparqlPrefixes(deleteBinding));
       upd.setBinding(CONCEPT, Values.iri(iri));
       upd.execute();
-      upd = conn.prepareUpdate(newBinding.toString());
+      upd = conn.prepareUpdate(addSparqlPrefixes(newBinding.toString()));
       upd.execute();
       conn.commit();
     }
@@ -517,7 +517,7 @@ public class SetRepository {
       SELECT distinct ?dataModel ?path
       WHERE {
         ?memberIri ^im:hasMember ?valueSet.
-        filter (?memberIri in(?iriList))
+        filter (?memberIri in(%s))
         {
           ?valueSet ^sh:class ?property.
           ?property sh:path ?path.
@@ -528,10 +528,9 @@ public class SetRepository {
         }
       }
       GROUP BY ?dataModel ?path
-      """;
+      """.formatted(iriList);
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(spql));
-      qry.setBinding("iriList", Values.literal(iriList));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

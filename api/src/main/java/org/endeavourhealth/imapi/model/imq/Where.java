@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.*;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +27,17 @@ public class Where extends PropertyRef {
   private boolean isNotNull;
   private String displayLabel;
 
+  public Where() {
+  }
+
+  public Where(String iri) {
+    super.setIri(iri);
+  }
+
+  public static Where iri(String iri) {
+    return new Where(iri);
+  }
+
   public String getDisplayLabel() {
     return displayLabel;
   }
@@ -46,30 +56,21 @@ public class Where extends PropertyRef {
     return this;
   }
 
-  public boolean isNull() {
-    return isNull;
-  }
-
-  public Where setNull(boolean aNull) {
-    isNull = aNull;
-    return this;
-  }
-
-  public boolean isNotNull() {
-    return isNotNull;
-  }
-
-  public Where setNotNull(boolean notNull) {
-    isNotNull = notNull;
-    return this;
-  }
-
   public boolean getIsNotNull() {
     return isNotNull;
   }
 
   public Where setIsNotNull(boolean notNull) {
     isNotNull = notNull;
+    return this;
+  }
+
+  public boolean getIsNull() {
+    return isNull;
+  }
+
+  public Where setIsNull(boolean aNull) {
+    isNull = aNull;
     return this;
   }
 
@@ -102,18 +103,6 @@ public class Where extends PropertyRef {
     return this;
   }
 
-  public static Where iri(String iri) {
-    return new Where(iri);
-  }
-
-  public Where() {
-  }
-
-  public Where(String iri) {
-    super.setIri(iri);
-  }
-
-
   @JsonProperty("@id")
   public String getId() {
     return super.getIri();
@@ -122,15 +111,6 @@ public class Where extends PropertyRef {
   @Override
   public Where setNodeRef(String nodeRef) {
     super.setNodeRef(nodeRef);
-    return this;
-  }
-
-  public boolean getIsNull() {
-    return isNull;
-  }
-
-  public Where setIsNull(boolean aNull) {
-    isNull = aNull;
     return this;
   }
 
@@ -192,16 +172,14 @@ public class Where extends PropertyRef {
     return this;
   }
 
+  public String getDescription() {
+    return description;
+  }
 
   public Where setDescription(String description) {
     this.description = description;
     return this;
   }
-
-  public String getDescription() {
-    return description;
-  }
-
 
   public List<Node> getIs() {
     return is;
@@ -245,16 +223,14 @@ public class Where extends PropertyRef {
     return this;
   }
 
+  public Operator getOperator() {
+    return this.operator;
+  }
 
   public Where setOperator(Operator operator) {
     this.operator = operator;
     return this;
   }
-
-  public Operator getOperator() {
-    return this.operator;
-  }
-
 
   public PropertyRef getRelativeTo() {
     return this.relativeTo;
@@ -279,16 +255,14 @@ public class Where extends PropertyRef {
     return this;
   }
 
-  public Where setUnit(String unit) {
-    this.unit = unit;
-    return this;
-  }
-
-
   public String getUnit() {
     return this.unit;
   }
 
+  public Where setUnit(String unit) {
+    this.unit = unit;
+    return this;
+  }
 
   public Range getRange() {
     return range;

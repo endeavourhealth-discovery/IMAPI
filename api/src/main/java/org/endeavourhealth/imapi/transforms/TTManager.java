@@ -236,13 +236,14 @@ public class TTManager implements AutoCloseable {
   }
 
   private static Set<TTIriRef> addToIrisFromNode(TTValue subject, Set<TTIriRef> iris) {
-    if (subject.isIriRef())
+    if (subject.isIriRef() && (subject.asIriRef().getName() == null || subject.asIriRef().getName().isEmpty()))
       iris.add(subject.asIriRef());
     else if (subject.isNode() && subject.asNode().getPredicateMap() != null) {
       for (Map.Entry<TTIriRef, TTArray> entry : subject.asNode().getPredicateMap().entrySet()) {
-        iris.add(entry.getKey());
+        if (entry.getKey().getName() == null || entry.getKey().getName().isEmpty())
+          iris.add(entry.getKey());
         for (TTValue v : entry.getValue().getElements()) {
-          if (v.isIriRef())
+          if (v.isIriRef() && (v.asIriRef().getName() == null || v.asIriRef().getName().isEmpty()))
             iris.add(v.asIriRef());
           else if (v.isNode())
             addToIrisFromNode(v, iris);

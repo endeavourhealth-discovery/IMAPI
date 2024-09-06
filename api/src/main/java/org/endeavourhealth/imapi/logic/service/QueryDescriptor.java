@@ -262,6 +262,10 @@ public class QueryDescriptor {
         describeValueWhere(display, where, where.getIri().toLowerCase().contains("date"));
       } else if (where.getIs() != null) {
         display.append(describeIsProperty(where));
+      } else if (where.getIsNull()) {
+        display.append("is not recorded");
+      } else if (where.getIsNotNull()) {
+        display.append("is recorded");
       }
       if (where.getMatch() != null) {
         describeMatch(where.getMatch(), MatchType.WHERE_MATCH);
@@ -313,6 +317,7 @@ public class QueryDescriptor {
       display.append("between ");
     switch (fromOperator) {
       case gt -> display.append("over ").append(fromValue);
+      case gte -> display.append("equal to or over ").append(fromValue);
       case lt -> display.append("under ").append(fromValue);
       case lte -> display.append("up to ").append(fromValue);
       default -> display.append(fromValue);
@@ -332,6 +337,10 @@ public class QueryDescriptor {
       case gt -> display.append("over ").append(toValue);//makes no sense
       case gte -> display.append("equal to or more than ").append(toValue);  //makes no sense
       case lt -> display.append("under ").append(toValue);
+      case lte -> display.append("equal to or less than ").append(toValue);
+      case contains -> display.append("contains ").append(toValue);
+      case eq -> display.append("is ").append(toValue);
+      case start -> display.append("starts with ").append(toValue);
       default -> display.append(toValue);
     }
   }
@@ -365,6 +374,12 @@ public class QueryDescriptor {
         case lte:
           display.append("before or on ").append(toValue);
           break;
+        case gt:
+          display.append("after ").append(toValue);
+          break;
+        case gte:
+          display.append("after or on ").append(toValue);
+          break;
         default:
           display.append(toValue);
       }
@@ -375,16 +390,15 @@ public class QueryDescriptor {
 
   private void processComplexDateRangePart(StringBuilder display, Where where, Operator toOperator, String toValue, boolean toPast, String units) {
     switch (toOperator) {
-      case lt:
-        display.append("before ");
-        break;
-      case lte:
-        display.append("up to ");
-        break;
-      default:
+      case gt -> display.append("after ");
+      case gte -> display.append("after or on ");
+      case lt -> display.append("before ");
+      case lte -> display.append("up to ");
+      default -> {
         if (!hasRelativeTo(where) && toPast) {
           display.append("within the last ");
         }
+      }
     }
     display.append(toValue.replace("-", "")).append(units);
     if (hasRelativeTo(where)) {
@@ -418,8 +432,12 @@ public class QueryDescriptor {
       if (!first)
         display.append("or ");
       first = false;
-      if (set.isMemberOf())
-        display.append(" in set ");
+      if (set.isExclude())
+        display.append(" exclude ");
+      if (set.isMemberOf()) {
+        if (set.isExclude()) display.append(" from set ");
+        else display.append(" in set ");
+      }
       if (set.getName() != null)
         display.append("'").append(set.getName()).append("'");
       else

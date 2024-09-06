@@ -137,8 +137,8 @@ public class EntityRepository2 {
           processStatement(bundle, valueMap, iri, st);
         }
         Set<TTIriRef> iris = TTManager.getIrisFromNode(bundle.getEntity());
-        getIriNames(conn, iris);
-        setNames(bundle.getEntity(), iris);
+        Map<String, String> names = getIriNames(conn, iris);
+        setNames(bundle.getEntity(), names);
         iris.forEach(bundle::addPredicate);
       }
       return bundle;
@@ -146,18 +146,16 @@ public class EntityRepository2 {
   }
 
 
-  private void setNames(TTValue subject, Set<TTIriRef> iris) {
-    HashMap<String, String> names = new HashMap<>();
-    iris.forEach(i -> names.put(i.getIri(), i.getName()));
-    if (subject.isIriRef())
+  private void setNames(TTValue subject, Map<String, String> names) {
+    if (subject.isIriRef() && (subject.asIriRef().getName() == null || subject.asIriRef().getName().isEmpty()))
       subject.asIriRef().setName(names.get(subject.asIriRef().getIri()));
     else if (subject.isNode() && subject.asNode().getPredicateMap() != null) {
       for (Map.Entry<TTIriRef, TTArray> entry : subject.asNode().getPredicateMap().entrySet()) {
         for (TTValue value : entry.getValue().getElements()) {
-          if (value.isIriRef())
+          if (value.isIriRef() && (value.asIriRef().getName() == null || value.asIriRef().getName().isEmpty()))
             value.asIriRef().setName(names.get(value.asIriRef().getIri()));
           else if (value.isNode())
-            setNames(value, iris);
+            setNames(value, names);
         }
       }
 

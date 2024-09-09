@@ -374,8 +374,6 @@ public class EntityController {
       LOG.debug("getSetExport");
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
-      String fileExtension = "";
-      if ("FHIR".equals(format)) fileExtension = "json";
       headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"");
 
       SetOptions setOptions = new SetOptions(iri, definition, core, legacy, subsets, schemes);

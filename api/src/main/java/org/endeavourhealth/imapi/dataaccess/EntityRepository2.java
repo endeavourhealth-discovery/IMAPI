@@ -4,7 +4,6 @@ import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
@@ -23,7 +22,7 @@ public class EntityRepository2 {
   private static final String IM_PREFIX = "PREFIX im: <" + IM.NAMESPACE + ">";
   private static final String RDFS_PREFIX = "PREFIX rdfs: <" + RDFS.NAMESPACE + ">";
   private static final String RDF_PREFIX = "PREFIX rdf: <" + RDF.NAMESPACE + ">";
-  private static final TimedCache<String, String> iriNameCache = new TimedCache<>("IriNameCache", 30, 5, 100);
+//  private static final TimedCache<String, String> iriNameCache = new TimedCache<>("IriNameCache", 30, 5, 100);
 
   public static Map<String, String> getIriNames(RepositoryConnection conn, Set<TTIriRef> iris) {
     Map<String, String> names = new HashMap<>();
@@ -34,11 +33,11 @@ public class EntityRepository2 {
     Set<String> toFetch = new HashSet<>();
 
     iris.forEach(i -> {
-      String name = iriNameCache.get(i.getIri());
-      if (name != null)
-        names.put(i.getIri(), name);
-      else
-        toFetch.add("<" + i.getIri() + ">");
+//      String name = iriNameCache.get(i.getIri());
+//      if (name != null)
+//        names.put(i.getIri(), name);
+//      else
+      toFetch.add("<" + i.getIri() + ">");
     });
 
     if (toFetch.isEmpty()) {
@@ -63,7 +62,7 @@ public class EntityRepository2 {
           .findFirst().ifPresent(i -> {
             i.setName(bs.getValue("label").stringValue());
             if (bs.getValue("description") != null) i.setDescription(bs.getValue("description").stringValue());
-            iriNameCache.put(i.getIri(), i.getName());
+//            iriNameCache.put(i.getIri(), i.getName());
           });
       }
     } catch (Exception e) {
@@ -137,8 +136,12 @@ public class EntityRepository2 {
           processStatement(bundle, valueMap, iri, st);
         }
         Set<TTIriRef> iris = TTManager.getIrisFromNode(bundle.getEntity());
-        Map<String, String> names = getIriNames(conn, iris);
-        setNames(bundle.getEntity(), names);
+        getIriNames(conn, iris);
+        HashMap<String, String> iriToName = new HashMap<>();
+        for (TTIriRef ttIriRef : iris) {
+          iriToName.put(ttIriRef.getIri(), ttIriRef.getName());
+        }
+        setNames(bundle.getEntity(), iriToName);
         iris.forEach(bundle::addPredicate);
       }
       return bundle;
@@ -146,16 +149,16 @@ public class EntityRepository2 {
   }
 
 
-  private void setNames(TTValue subject, Map<String, String> names) {
+  private void setNames(TTValue subject, Map<String, String> iriToName) {
     if (subject.isIriRef() && (subject.asIriRef().getName() == null || subject.asIriRef().getName().isEmpty()))
-      subject.asIriRef().setName(names.get(subject.asIriRef().getIri()));
+      subject.asIriRef().setName(iriToName.get(subject.asIriRef().getIri()));
     else if (subject.isNode() && subject.asNode().getPredicateMap() != null) {
       for (Map.Entry<TTIriRef, TTArray> entry : subject.asNode().getPredicateMap().entrySet()) {
         for (TTValue value : entry.getValue().getElements()) {
           if (value.isIriRef() && (value.asIriRef().getName() == null || value.asIriRef().getName().isEmpty()))
-            value.asIriRef().setName(names.get(value.asIriRef().getIri()));
+            value.asIriRef().setName(iriToName.get(value.asIriRef().getIri()));
           else if (value.isNode())
-            setNames(value, names);
+            setNames(value, iriToName);
         }
       }
 

@@ -11,11 +11,9 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
-import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 
 public class ProvRepository {
   public List<TTEntity> getProvHistory(String iri) {
@@ -40,7 +38,7 @@ public class ProvRepository {
       """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, addSparqlPrefixes(sql));
+      TupleQuery qry = prepareSparql(conn, sql);
       qry.setBinding("entity", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {

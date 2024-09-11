@@ -658,13 +658,12 @@ public class EntityRepository {
       String sql = """
         SELECT ?child
         WHERE {
-        VALUES ?child { ?iris }
-        VALUES ?parent { ?iris }
+        VALUES ?child { %s }
+        VALUES ?parent { %s }
         ?child ?isA ?parent .
         FILTER (?child != ?parent)}
-        """;
+        """.formatted(iris, iris);
       TupleQuery qry = conn.prepareTupleQuery(sql);
-      qry.setBinding("iris", literal(iris));
       qry.setBinding("isA", iri(IM.IS_A));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {

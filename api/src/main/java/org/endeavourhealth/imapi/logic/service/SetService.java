@@ -110,7 +110,8 @@ public class SetService {
       v.setVersion(String.valueOf(result.getVersion()));
 
 
-      filter.setValue(result.getSetDefinition());
+      TTEntity entityDefinition = new EntityTripleRepository().getEntityPredicates(options.getSetIri(), Set.of(IM.DEFINITION)).getEntity();
+      filter.setValue(entityDefinition.get(iri(IM.DEFINITION)).asLiteral().getValue());
       filters.add(filter);
       includeConcept.setFilter(filters);
       includes.add(includeConcept);

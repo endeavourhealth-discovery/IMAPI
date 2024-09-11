@@ -335,10 +335,10 @@ public class EntityController {
   @GetMapping("/public/dataModelProperties")
   public TTEntity getDataModelProperties(
     @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "parent",required = false) String parent) throws IOException {
+    @RequestParam(name = "parent", required = false) String parent) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
       LOG.debug("getDataModelProperties");
-      return entityService.getDataModelPropertiesAndSubClasses(iri,parent);
+      return entityService.getDataModelPropertiesAndSubClasses(iri, parent);
     }
   }
 
@@ -398,6 +398,9 @@ public class EntityController {
         } else if ("object".equals(format)) {
           SetContent result = setService.getSetContent(setOptions);
           return getSetHttpEntity(headers, result);
+        } else if ("FHIR".equals(format)) {
+          String result = setService.getFHIRSetExport(exportOptions);
+          return new HttpEntity<>(result, headers);
         } else {
           return null;
         }

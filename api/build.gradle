@@ -79,6 +79,7 @@ dependencies {
   implementation libs.logbackCore
   implementation libs.logbackClassic
   implementation libs.elasticsearch
+  implementation libs.hapiFHIRR4
   implementation libs.jerseyClient
   implementation libs.jerseyInject
   implementation libs.owlApi

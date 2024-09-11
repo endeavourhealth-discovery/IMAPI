@@ -339,7 +339,6 @@ public class QueryDescriptor {
       case lt -> display.append("under ").append(toValue);
       case lte -> display.append("equal to or less than ").append(toValue);
       case contains -> display.append("contains ").append(toValue);
-      case eq -> display.append("is ").append(toValue);
       case start -> display.append("starts with ").append(toValue);
       default -> display.append(toValue);
     }
@@ -374,12 +373,6 @@ public class QueryDescriptor {
         case lte:
           display.append("before or on ").append(toValue);
           break;
-        case gt:
-          display.append("after ").append(toValue);
-          break;
-        case gte:
-          display.append("after or on ").append(toValue);
-          break;
         default:
           display.append(toValue);
       }
@@ -395,17 +388,13 @@ public class QueryDescriptor {
       case lt -> display.append("before ");
       case lte -> display.append("up to ");
       default -> {
-        if (!hasRelativeTo(where) && toPast) {
-          display.append("within the last ");
-        }
+        if (toPast) display.append("within the last ");
       }
     }
     display.append(toValue.replace("-", "")).append(units);
-    if (hasRelativeTo(where)) {
-      if (toPast)
-        display.append("prior to ");
-      else
-        display.append("after ");
+    if (hasRelativeTo(where) && where.getValue() != null) {
+      if (toPast) display.append(" from ");
+      else display.append(" after ");
     }
   }
 

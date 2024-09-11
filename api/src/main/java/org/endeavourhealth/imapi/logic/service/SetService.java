@@ -88,7 +88,7 @@ public class SetService {
     LOG.debug("Exporting set to FHIR ValueSet");
     SetContent result = getSetContent(options);
 
-    ValueSet v = new ValueSet();
+    ValueSet valueSet = new ValueSet();
     ValueSet.ValueSetExpansionComponent expansion = new ValueSet.ValueSetExpansionComponent();
     ValueSet.ConceptSetFilterComponent filter = new ValueSet.ConceptSetFilterComponent();
     ValueSet.ValueSetComposeComponent compose = new ValueSet.ValueSetComposeComponent();
@@ -97,24 +97,25 @@ public class SetService {
     List<ValueSet.ConceptSetFilterComponent> filters = new ArrayList<>();
     List<ValueSet.ConceptSetComponent> includes = new ArrayList<>();
 
-    v.setLanguage("en");
-    v.setUrl(options.getSetIri());
+    valueSet.setLanguage("en");
+    valueSet.setUrl(options.getSetIri());
     if (null != result) {
-      v.setVersion(String.valueOf(result.getVersion()));
-      v.setName(result.getName());
-      v.setTitle(result.getName());
-      v.setDescription(result.getDescription());
+      valueSet.setVersion(String.valueOf(result.getVersion()));
+      valueSet.setName(result.getName());
+      valueSet.setTitle(result.getName());
+      valueSet.setDescription(result.getDescription());
       if (null != result.getStatus()) {
-        v.setStatus(Enumerations.PublicationStatus.valueOf(result.getStatus().toUpperCase()));
+        valueSet.setStatus(Enumerations.PublicationStatus.valueOf(result.getStatus().toUpperCase()));
       }
-      v.setVersion(String.valueOf(result.getVersion()));
+      valueSet.setVersion(String.valueOf(result.getVersion()));
 
-
-      TTEntity entityDefinition = new EntityTripleRepository().getEntityPredicates(options.getSetIri(), Set.of(IM.DEFINITION)).getEntity();
-      filter.setValue(entityDefinition.get(iri(IM.DEFINITION)).asLiteral().getValue());
-      filters.add(filter);
-      includeConcept.setFilter(filters);
-      includes.add(includeConcept);
+      if (options.includeDefinition()) {
+        TTEntity entityDefinition = new EntityTripleRepository().getEntityPredicates(options.getSetIri(), Set.of(IM.DEFINITION)).getEntity();
+        filter.setValue(entityDefinition.get(iri(IM.DEFINITION)).asLiteral().getValue());
+        filters.add(filter);
+        includeConcept.setFilter(filters);
+        includes.add(includeConcept);
+      }
 
       if (!result.getSubsets().isEmpty()) {
         List<CanonicalType> subsetList = new ArrayList<>();
@@ -140,14 +141,14 @@ public class SetService {
     }
 
     compose.setInclude(includes);
-    v.setCompose(compose);
+    valueSet.setCompose(compose);
     expansion.setContains(contains);
-    v.setExpansion(expansion);
+    valueSet.setExpansion(expansion);
 
     FhirContext ctx = FhirContext.forR4();
     IParser parser = ctx.newJsonParser();
 
-    return parser.encodeResourceToString(v);
+    return parser.encodeResourceToString(valueSet);
   }
 }
 

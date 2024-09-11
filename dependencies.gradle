@@ -14,7 +14,7 @@ ext {
     dropwizard        : '4.2.25',
     elasticSearch     : '8.14.0',
     factPlusPlus      : '1.6.5',
-    h2                : '2.2.224',
+    h2                : '2.3.232',
     hapiFHIRR4        : '7.4.0',
     jackson           : '2.16.0',
     jersey            : '3.1.5',

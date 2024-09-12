@@ -109,13 +109,11 @@ public class SetService {
       }
       valueSet.setVersion(String.valueOf(result.getVersion()));
 
-      if (options.includeDefinition()) {
-        TTEntity entityDefinition = new EntityTripleRepository().getEntityPredicates(options.getSetIri(), Set.of(IM.DEFINITION)).getEntity();
-        filter.setValue(entityDefinition.get(iri(IM.DEFINITION)).asLiteral().getValue());
-        filters.add(filter);
-        includeConcept.setFilter(filters);
-        includes.add(includeConcept);
-      }
+      TTEntity entityDefinition = new EntityTripleRepository().getEntityPredicates(options.getSetIri(), Set.of(IM.DEFINITION)).getEntity();
+      filter.setValue(entityDefinition.get(iri(IM.DEFINITION)).asLiteral().getValue());
+      filters.add(filter);
+      includeConcept.setFilter(filters);
+      includes.add(includeConcept);
 
       if (!result.getSubsets().isEmpty()) {
         List<CanonicalType> subsetList = new ArrayList<>();

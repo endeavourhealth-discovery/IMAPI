@@ -352,8 +352,8 @@ public class SetRepository {
       String nodeIri = dataModel.get(iri(SHACL.NODE)).asIriRef().getIri();
       newBinding.add("""
         <%s> im:binding _:b%s .
-        _:b%s sh:path %s .
-        _:b%s sh:node %s .
+        _:b%s sh:path <%s> .
+        _:b%s sh:node <%s> .
         """.formatted(iri, blankCount, blankCount, pathIri, blankCount, nodeIri));
     }
     newBinding.add("}}");

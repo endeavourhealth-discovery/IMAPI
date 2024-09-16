@@ -4,6 +4,7 @@ import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
@@ -22,26 +23,25 @@ public class EntityRepository2 {
   private static final String IM_PREFIX = "PREFIX im: <" + IM.NAMESPACE + ">";
   private static final String RDFS_PREFIX = "PREFIX rdfs: <" + RDFS.NAMESPACE + ">";
   private static final String RDF_PREFIX = "PREFIX rdf: <" + RDF.NAMESPACE + ">";
-//  private static final TimedCache<String, String> iriNameCache = new TimedCache<>("IriNameCache", 30, 5, 100);
+  private static final TimedCache<String, String> iriNameCache = new TimedCache<>("IriNameCache", 30, 5, 100);
 
-  public static Map<String, String> getIriNames(RepositoryConnection conn, Set<TTIriRef> iris) {
-    Map<String, String> names = new HashMap<>();
+  public static void getIriNames(RepositoryConnection conn, Set<TTIriRef> iris) {
 
     if (iris == null || iris.isEmpty())
-      return names;
+      return;
 
     Set<String> toFetch = new HashSet<>();
 
     iris.forEach(i -> {
-//      String name = iriNameCache.get(i.getIri());
-//      if (name != null)
-//        names.put(i.getIri(), name);
-//      else
-      toFetch.add("<" + i.getIri() + ">");
+      String name = iriNameCache.get(i.getIri());
+      if (name != null)
+        i.setName(name);
+      else
+        toFetch.add("<" + i.getIri() + ">");
     });
 
     if (toFetch.isEmpty()) {
-      return names;
+      return;
     }
 
     String sql = """
@@ -61,15 +61,13 @@ public class EntityRepository2 {
         iris.stream().filter(i -> i.equals(iri))
           .findFirst().ifPresent(i -> {
             i.setName(bs.getValue("label").stringValue());
+            iriNameCache.put(i.getIri(), i.getName());
             if (bs.getValue("description") != null) i.setDescription(bs.getValue("description").stringValue());
-//            iriNameCache.put(i.getIri(), i.getName());
           });
       }
     } catch (Exception e) {
       e.printStackTrace();
     }
-
-    return names;
   }
 
   /**

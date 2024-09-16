@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.model;
 
-public class DownloadParams {
+public class DownloadEntityOptions {
+  private String entityIri;
+  private String format;
   private boolean includeHasSubtypes;
   private boolean includeInferred;
   private boolean includeProperties;
@@ -12,7 +14,7 @@ public class DownloadParams {
   private boolean includeHasChildren;
   private boolean includeInactive;
 
-  public DownloadParams() {
+  public DownloadEntityOptions() {
     this.includeHasChildren = false;
     this.includeInactive = false;
     this.includeInferred = false;
@@ -25,11 +27,29 @@ public class DownloadParams {
     this.includeTerms = false;
   }
 
+  public String getEntityIri() {
+    return entityIri;
+  }
+
+  public DownloadEntityOptions setEntityIri(String entityIri) {
+    this.entityIri = entityIri;
+    return this;
+  }
+
+  public String getFormat() {
+    return format;
+  }
+
+  public DownloadEntityOptions setFormat(String format) {
+    this.format = format;
+    return this;
+  }
+
   public boolean includeHasSubtypes() {
     return includeHasSubtypes;
   }
 
-  public DownloadParams setIncludeHasSubtypes(boolean includeSubtypes) {
+  public DownloadEntityOptions setIncludeHasSubtypes(boolean includeSubtypes) {
     this.includeHasSubtypes = includeSubtypes;
     return this;
   }
@@ -38,7 +58,7 @@ public class DownloadParams {
     return includeInferred;
   }
 
-  public DownloadParams setIncludeInferred(boolean includeInferred) {
+  public DownloadEntityOptions setIncludeInferred(boolean includeInferred) {
     this.includeInferred = includeInferred;
     return this;
   }
@@ -47,7 +67,7 @@ public class DownloadParams {
     return includeProperties;
   }
 
-  public DownloadParams setIncludeProperties(boolean includeProperties) {
+  public DownloadEntityOptions setIncludeProperties(boolean includeProperties) {
     this.includeProperties = includeProperties;
     return this;
   }
@@ -56,7 +76,7 @@ public class DownloadParams {
     return includeMembers;
   }
 
-  public DownloadParams setIncludeMembers(boolean includeMembers) {
+  public DownloadEntityOptions setIncludeMembers(boolean includeMembers) {
     this.includeMembers = includeMembers;
     return this;
   }
@@ -65,7 +85,7 @@ public class DownloadParams {
     return expandMembers;
   }
 
-  public DownloadParams setExpandMembers(boolean expandMembers) {
+  public DownloadEntityOptions setExpandMembers(boolean expandMembers) {
     this.expandMembers = expandMembers;
     return this;
   }
@@ -74,7 +94,7 @@ public class DownloadParams {
     return expandSubsets;
   }
 
-  public DownloadParams setExpandSubsets(boolean expandSubsets) {
+  public DownloadEntityOptions setExpandSubsets(boolean expandSubsets) {
     this.expandSubsets = expandSubsets;
     return this;
   }
@@ -83,7 +103,7 @@ public class DownloadParams {
     return includeTerms;
   }
 
-  public DownloadParams setIncludeTerms(boolean includeTerms) {
+  public DownloadEntityOptions setIncludeTerms(boolean includeTerms) {
     this.includeTerms = includeTerms;
     return this;
   }
@@ -92,7 +112,7 @@ public class DownloadParams {
     return includeIsChildOf;
   }
 
-  public DownloadParams setIncludeIsChildOf(boolean includeIsChildOf) {
+  public DownloadEntityOptions setIncludeIsChildOf(boolean includeIsChildOf) {
     this.includeIsChildOf = includeIsChildOf;
     return this;
   }
@@ -101,7 +121,7 @@ public class DownloadParams {
     return includeHasChildren;
   }
 
-  public DownloadParams setIncludeHasChildren(boolean includeHasChildren) {
+  public DownloadEntityOptions setIncludeHasChildren(boolean includeHasChildren) {
     this.includeHasChildren = includeHasChildren;
     return this;
   }
@@ -110,7 +130,7 @@ public class DownloadParams {
     return includeInactive;
   }
 
-  public DownloadParams setIncludeInactive(boolean includeInactive) {
+  public DownloadEntityOptions setIncludeInactive(boolean includeInactive) {
     this.includeInactive = includeInactive;
     return this;
   }

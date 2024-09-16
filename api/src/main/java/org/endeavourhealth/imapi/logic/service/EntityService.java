@@ -269,7 +269,7 @@ public class EntityService {
     return getBundle(iri, new HashSet<>(predicates)).getEntity();
   }
 
-  public DownloadDto getJsonDownload(String iri, List<ComponentLayoutItem> configs, DownloadParams params) {
+  public DownloadDto getJsonDownload(String iri, List<ComponentLayoutItem> configs, DownloadEntityOptions params) {
     if (iri == null || iri.isEmpty())
       return null;
 
@@ -299,7 +299,7 @@ public class EntityService {
     return downloadDto;
   }
 
-  public XlsHelper getExcelDownload(String iri, List<ComponentLayoutItem> configs, DownloadParams params) {
+  public XlsHelper getExcelDownload(String iri, List<ComponentLayoutItem> configs, DownloadEntityOptions params) {
     if (iri == null || iri.isEmpty())
       return null;
 
@@ -333,38 +333,38 @@ public class EntityService {
     return xls;
   }
 
-  public TTEntity getDataModelPropertiesAndSubClasses(String iri,String parent){
-    TTEntity entity =entityTripleRepository.getEntityPredicates(iri,Set.of(SHACL.PROPERTY)).getEntity();
-    List<TTValue> properties= new ArrayList<>();
-    if (entity.get(iri(SHACL.PROPERTY))!=null) {
-        for (TTValue property:entity.get(iri(SHACL.PROPERTY)).getElements()){
-          if (property.asNode().get(iri(IM.INHERITED_FROM))==null||parent==null)
-            properties.add(property);
-          else if (!property.asNode().get(iri(IM.INHERITED_FROM)).asIriRef().getIri().equals(parent))
-            properties.add(property);
+  public TTEntity getDataModelPropertiesAndSubClasses(String iri, String parent) {
+    TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(SHACL.PROPERTY)).getEntity();
+    List<TTValue> properties = new ArrayList<>();
+    if (entity.get(iri(SHACL.PROPERTY)) != null) {
+      for (TTValue property : entity.get(iri(SHACL.PROPERTY)).getElements()) {
+        if (property.asNode().get(iri(IM.INHERITED_FROM)) == null || parent == null)
+          properties.add(property);
+        else if (!property.asNode().get(iri(IM.INHERITED_FROM)).asIriRef().getIri().equals(parent))
+          properties.add(property);
       }
-    };
-    List<EntityReferenceNode> children = getImmediateChildren(iri,null,null,null,false);
-    if (children!=null &&!children.isEmpty()){
-      TTNode subclasses= new TTNode()
-        .set(iri(SHACL.ORDER),TTLiteral.literal(0))
-        .set(iri(SHACL.PATH),new TTIriRef().setIri(IM.NAMESPACE+"hasSubclasses").setName("has subtypes"));
-      for (EntityReferenceNode type:children){
-        subclasses.addObject(iri(SHACL.NODE),new TTIriRef().setIri(type.getIri()).setName(type.getName()));
+    }
+    ;
+    List<EntityReferenceNode> children = getImmediateChildren(iri, null, null, null, false);
+    if (children != null && !children.isEmpty()) {
+      TTNode subclasses = new TTNode()
+        .set(iri(SHACL.ORDER), TTLiteral.literal(0))
+        .set(iri(SHACL.PATH), new TTIriRef().setIri(IM.NAMESPACE + "hasSubclasses").setName("has subtypes"));
+      for (EntityReferenceNode type : children) {
+        subclasses.addObject(iri(SHACL.NODE), new TTIriRef().setIri(type.getIri()).setName(type.getName()));
       }
       properties.add(subclasses);
     }
     if (!properties.isEmpty()) {
-      properties= properties
+      properties = properties
         .stream().sorted(Comparator
-          .comparing(p->p.asNode().get(iri(SHACL.ORDER))==null ?1: p.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue())).toList();
-      TTArray ordered= new TTArray();
-      for (TTValue property:properties)
+          .comparing(p -> p.asNode().get(iri(SHACL.ORDER)) == null ? 1 : p.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue())).toList();
+      TTArray ordered = new TTArray();
+      for (TTValue property : properties)
         ordered.add(property);
-      entity.set(iri(SHACL.PROPERTY),ordered);
+      entity.set(iri(SHACL.PROPERTY), ordered);
       return entity;
-    }
-    else {
+    } else {
       return entity;
     }
   }

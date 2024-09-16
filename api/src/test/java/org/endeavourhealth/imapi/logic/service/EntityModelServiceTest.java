@@ -6,7 +6,7 @@ import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.DownloadParams;
+import org.endeavourhealth.imapi.model.DownloadEntityOptions;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
@@ -521,7 +521,7 @@ class EntityModelServiceTest {
   @Test
   void getJsonDownload_NullIri() {
     List<ComponentLayoutItem> configs = new ArrayList<>();
-    DownloadParams params = new DownloadParams();
+    DownloadEntityOptions params = new DownloadEntityOptions();
     DownloadDto actual = entityService.getJsonDownload(null, configs, params);
     assertNull(actual);
   }
@@ -529,7 +529,7 @@ class EntityModelServiceTest {
   @Test
   void getJsonDownload_EmptyIri() {
     List<ComponentLayoutItem> configs = new ArrayList<>();
-    DownloadParams params = new DownloadParams();
+    DownloadEntityOptions params = new DownloadEntityOptions();
     DownloadDto actual = entityService.getJsonDownload("", configs, params);
     assertNull(actual);
   }
@@ -546,7 +546,7 @@ class EntityModelServiceTest {
       );
     when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
-    DownloadParams params = new DownloadParams();
+    DownloadEntityOptions params = new DownloadEntityOptions();
 
     DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", configs, params);
     assertNotNull(actual);
@@ -566,7 +566,7 @@ class EntityModelServiceTest {
       );
     when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
-    DownloadParams params = new DownloadParams();
+    DownloadEntityOptions params = new DownloadEntityOptions();
     params
       .setIncludeInactive(true)
       .setIncludeTerms(true)
@@ -586,7 +586,7 @@ class EntityModelServiceTest {
   @Test
   void getExcelDownload_NullIri() {
     List<ComponentLayoutItem> configs = new ArrayList<>();
-    DownloadParams params = new DownloadParams();
+    DownloadEntityOptions params = new DownloadEntityOptions();
     XlsHelper actual = entityService.getExcelDownload(null, configs, params);
     assertNull(actual);
 
@@ -595,7 +595,7 @@ class EntityModelServiceTest {
   @Test
   void getExcelDownload_EmptyIri() {
     List<ComponentLayoutItem> configs = new ArrayList<>();
-    DownloadParams params = new DownloadParams();
+    DownloadEntityOptions params = new DownloadEntityOptions();
     XlsHelper actual = entityService.getExcelDownload("", configs, params);
     assertNull(actual);
 
@@ -606,7 +606,7 @@ class EntityModelServiceTest {
     List<ComponentLayoutItem> configs = new ArrayList<>();
     configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF));
 
-    DownloadParams params = new DownloadParams();
+    DownloadEntityOptions params = new DownloadEntityOptions();
 
     TTEntity entity = new TTEntity()
       .set(TTIriRef.iri(IM.IS_CHILD_OF), new TTArray()
@@ -625,7 +625,7 @@ class EntityModelServiceTest {
     List<ComponentLayoutItem> configs = new ArrayList<>();
     configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF));
 
-    DownloadParams params = new DownloadParams();
+    DownloadEntityOptions params = new DownloadEntityOptions();
     params
       .setIncludeInactive(true)
       .setIncludeTerms(true)

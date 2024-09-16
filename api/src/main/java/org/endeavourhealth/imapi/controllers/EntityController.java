@@ -27,7 +27,7 @@ import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.SetContent;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.search.DownloadOptions;
+import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.set.SetOptions;
@@ -37,10 +37,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.CONFIG;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -57,6 +54,8 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @RestController
 @RequestMapping("api/entity")
@@ -158,7 +157,7 @@ public class EntityController {
         size = EntityService.MAX_CHILDREN;
       }
       TTEntity entity = entityService.getBundle(iri, Set.of(RDF.TYPE)).getEntity();
-      boolean inactive = entity.getType() != null && entity.getType().contains(TTIriRef.iri(IM.TASK));
+      boolean inactive = entity.getType() != null && entity.getType().contains(iri(IM.TASK));
       return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive);
     }
   }
@@ -219,23 +218,28 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/download")
-  public HttpEntity<Object> download(
-    @RequestParam("iri") String iri,
-    @RequestParam("format") String format,
-    @RequestParam(name = "hasSubTypes", required = false, defaultValue = "false") boolean hasSubTypes,
-    @RequestParam(name = "inferred", required = false, defaultValue = "false") boolean inferred,
-    @RequestParam(name = "dataModelProperties", required = false, defaultValue = "false") boolean dataModelProperties,
-    @RequestParam(name = "members", required = false, defaultValue = "false") boolean members,
-    @RequestParam(name = "expandMembers", required = false, defaultValue = "false") boolean expandMembers,
-    @RequestParam(name = "expandSubsets", required = false, defaultValue = "false") boolean expandSubsets,
-    @RequestParam(name = "terms", required = false, defaultValue = "false") boolean terms,
-    @RequestParam(name = "isChildOf", required = false, defaultValue = "false") boolean isChildOf,
-    @RequestParam(name = "hasChildren", required = false, defaultValue = "false") boolean hasChildren,
-    @RequestParam(name = "inactive", required = false, defaultValue = "false") boolean inactive
+  @GetMapping(value = "/public/downloadEntity")
+  public HttpEntity<Object> downloadEntity(
+    @RequestParam(name = "iri") String iri
   ) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Download.GET")) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DownloadEntity.GET")) {
+      LOG.debug("Download entity");
+      TTBundle entity = entityService.getFullEntity(iri);
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_JSON);
+      headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + entity.getEntity().get(iri(RDFS.LABEL)) + ".json\"");
+      return new HttpEntity<>(entity, headers);
+    }
+  }
+
+  @PostMapping(value = "/public/download")
+  public HttpEntity<Object> download(
+    @RequestBody DownloadEntityOptions downloadEntityOptions
+  ) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Download.POST")) {
       LOG.debug("download");
+      String iri = downloadEntityOptions.getEntityIri();
+      String format = downloadEntityOptions.getFormat();
       if (iri == null || iri.isEmpty() || format == null || format.isEmpty())
         return null;
       TTIriRef entity = entityService.getEntityReference(iri);
@@ -243,10 +247,8 @@ public class EntityController {
       });
       String filename = entity.getName() + " " + LocalDate.now();
       HttpHeaders headers = new HttpHeaders();
-      DownloadParams params = new DownloadParams();
-      params.setIncludeHasSubtypes(hasSubTypes).setIncludeInferred(inferred).setIncludeProperties(dataModelProperties).setIncludeMembers(members).setExpandMembers(expandMembers).setExpandSubsets(expandSubsets).setIncludeTerms(terms).setIncludeIsChildOf(isChildOf).setIncludeHasChildren(hasChildren).setIncludeInactive(inactive);
       if ("excel".equals(format)) {
-        XlsHelper xls = entityService.getExcelDownload(iri, configs, params);
+        XlsHelper xls = entityService.getExcelDownload(iri, configs, downloadEntityOptions);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
           xls.getWorkbook().write(outputStream);
@@ -256,7 +258,7 @@ public class EntityController {
           return new HttpEntity<>(outputStream.toByteArray(), headers);
         }
       } else {
-        DownloadDto json = entityService.getJsonDownload(iri, configs, params);
+        DownloadDto json = entityService.getJsonDownload(iri, configs, downloadEntityOptions);
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".json\"");
         return new HttpEntity<>(json, headers);
@@ -335,10 +337,10 @@ public class EntityController {
   @GetMapping("/public/dataModelProperties")
   public TTEntity getDataModelProperties(
     @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "parent",required = false) String parent) throws IOException {
+    @RequestParam(name = "parent", required = false) String parent) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
       LOG.debug("getDataModelProperties");
-      return entityService.getDataModelPropertiesAndSubClasses(iri,parent);
+      return entityService.getDataModelPropertiesAndSubClasses(iri, parent);
     }
   }
 
@@ -410,18 +412,18 @@ public class EntityController {
   }
 
   @PostMapping("/public/downloadSearchResults")
-  public HttpEntity<Object> downloadSearchResults(@RequestBody DownloadOptions downloadOptions) throws IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, DownloadException, QueryException, DataFormatException {
+  public HttpEntity<Object> downloadSearchResults(@RequestBody DownloadByQueryOptions downloadByQueryOptions) throws IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, DownloadException, QueryException, DataFormatException {
     try (MetricsTimer t = MetricsHelper.recordTime("API/Entity.DownloadSearchResults.POST")) {
       LOG.debug("downloadSearchResults");
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
-      headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "searchResults." + downloadOptions.getFormat() + "\"");
+      headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "searchResults." + downloadByQueryOptions.getFormat() + "\"");
 
       try {
-        switch (downloadOptions.getFormat()) {
+        switch (downloadByQueryOptions.getFormat()) {
           case "xlsx": {
             ExcelSearchExporter excelSearchExporter = new ExcelSearchExporter();
-            XSSFWorkbook workbook = excelSearchExporter.getSearchAsExcel(downloadOptions);
+            XSSFWorkbook workbook = excelSearchExporter.getSearchAsExcel(downloadByQueryOptions);
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
               workbook.write(outputStream);
               workbook.close();
@@ -433,11 +435,11 @@ public class EntityController {
           case "csv":
           case "tsv": {
             SearchTextFileExporter searchTextFileExporter = new SearchTextFileExporter();
-            String result = searchTextFileExporter.getSearchFile(downloadOptions);
+            String result = searchTextFileExporter.getSearchFile(downloadByQueryOptions);
             return new HttpEntity<>(result, headers);
           }
           default:
-            throw new DownloadException("Unhandled format: " + downloadOptions.getFormat());
+            throw new DownloadException("Unhandled format: " + downloadByQueryOptions.getFormat());
         }
       } catch (IOException e) {
         throw new DownloadException("Failed to write to excel document.");

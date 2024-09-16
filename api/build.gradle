@@ -35,7 +35,8 @@ tasks {
       'org.endeavourhealth.imapi.vocabulary.**.*',
       'org.endeavourhealth.imapi.model.github.*',
       'org.endeavourhealth.imapi.model.workflow.*',
-      'org.endeavourhealth.imapi.model.workflow.**.*'
+      'org.endeavourhealth.imapi.model.workflow.**.*',
+      'org.endeavourhealth.imapi.model.DownloadEntityOptions'
     ]
     outputFile = '../../IMDirectory/im_library/src/interfaces/AutoGen.ts'
     outputKind = 'module'

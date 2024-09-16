@@ -5,7 +5,7 @@ import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 
 @Getter
-public class DownloadOptions {
+public class DownloadByQueryOptions {
   private QueryRequest queryRequest;
   private EclSearchRequest eclSearchRequest;
   private int totalCount;
@@ -17,52 +17,52 @@ public class DownloadOptions {
   private boolean subsetsOnOwnRow;
   private boolean im1id;
 
-  public DownloadOptions setQueryRequest(QueryRequest queryRequest) {
+  public DownloadByQueryOptions setQueryRequest(QueryRequest queryRequest) {
     this.queryRequest = queryRequest;
     return this;
   }
 
-  public DownloadOptions setEclSearchRequest(EclSearchRequest eclSearchRequest) {
+  public DownloadByQueryOptions setEclSearchRequest(EclSearchRequest eclSearchRequest) {
     this.eclSearchRequest = eclSearchRequest;
     return this;
   }
 
-  public DownloadOptions setTotalCount(int totalCount) {
+  public DownloadByQueryOptions setTotalCount(int totalCount) {
     this.totalCount = totalCount;
     return this;
   }
 
-  public DownloadOptions setFormat(String format) {
+  public DownloadByQueryOptions setFormat(String format) {
     this.format = format;
     return this;
   }
 
-  public DownloadOptions setIncludeDefinition(boolean includeDefinition) {
+  public DownloadByQueryOptions setIncludeDefinition(boolean includeDefinition) {
     this.includeDefinition = includeDefinition;
     return this;
   }
 
-  public DownloadOptions setIncludeCore(boolean includeCore) {
+  public DownloadByQueryOptions setIncludeCore(boolean includeCore) {
     this.includeCore = includeCore;
     return this;
   }
 
-  public DownloadOptions setIncludeLegacy(boolean includeLegacy) {
+  public DownloadByQueryOptions setIncludeLegacy(boolean includeLegacy) {
     this.includeLegacy = includeLegacy;
     return this;
   }
 
-  public DownloadOptions setIncludeSubsets(boolean includeSubsets) {
+  public DownloadByQueryOptions setIncludeSubsets(boolean includeSubsets) {
     this.includeSubsets = includeSubsets;
     return this;
   }
 
-  public DownloadOptions setSubsetsOnOwnRow(boolean subsetsOnOwnRow) {
+  public DownloadByQueryOptions setSubsetsOnOwnRow(boolean subsetsOnOwnRow) {
     this.subsetsOnOwnRow = subsetsOnOwnRow;
     return this;
   }
 
-  public DownloadOptions setIm1id(boolean im1id) {
+  public DownloadByQueryOptions setIm1id(boolean im1id) {
     this.im1id = im1id;
     return this;
   }

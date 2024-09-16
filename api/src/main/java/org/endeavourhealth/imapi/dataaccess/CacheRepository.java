@@ -1,13 +1,20 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import org.eclipse.rdf4j.model.*;
-import org.eclipse.rdf4j.query.*;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.query.GraphQuery;
+import org.eclipse.rdf4j.query.GraphQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
@@ -32,7 +39,7 @@ public class CacheRepository {
       }
       Set<TTIriRef> iris = new HashSet<>();
       shapes.forEach(e -> iris.addAll(TTManager.getIrisFromNode(e)));
-      Map<String, String> iriNames = EntityRepository2.getIriNames(conn, iris);
+      EntityRepository2.getIriNames(conn, iris);
       Set<TTBundle> result = new HashSet<>();
       for (TTEntity shape : shapes) {
         TTBundle bundle = new TTBundle();
@@ -40,7 +47,6 @@ public class CacheRepository {
         result.add(bundle);
         Set<TTIriRef> shapeIris = TTManager.getIrisFromNode(shape);
         for (TTIriRef iri : shapeIris) {
-          iri.setName(iriNames.get(iri.getIri()));
           bundle.addPredicate(iri);
         }
       }

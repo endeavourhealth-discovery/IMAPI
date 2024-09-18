@@ -1,8 +1,10 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.SystemUtils;
 import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTToNQuad;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -16,10 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -167,6 +166,11 @@ public class TTBulkFiler implements TTDocumentFiler {
       return;
     writeGraph(document);
 
+  }
+
+  @Override
+  public void fileDocument(TTDocument document, String taskId, Map<String, Integer> progressMap) throws TTFilerException, JsonProcessingException, QueryException {
+//
   }
 
   @Override

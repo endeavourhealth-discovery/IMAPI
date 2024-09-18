@@ -186,14 +186,25 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   @Override
   public void fileDocument(TTDocument document) throws TTFilerException, JsonProcessingException, QueryException {
     if (document.getEntities() == null) {
-      LOG.error("Document has no entities");
-      return;
+      throw new TTFilerException("Document has no entities");
     }
 
     document.getEntities().removeIf(e -> null == e.getIri());
 
     checkDeletes(document);
     fileAsDocument(document);
+  }
+
+  @Override
+  public void fileDocument(TTDocument document, String taskId, Map<String, Integer> progressMap) throws TTFilerException, JsonProcessingException, QueryException {
+    if (document.getEntities() == null) {
+      throw new TTFilerException("Document has no entities");
+    }
+
+    document.getEntities().removeIf(e -> null == e.getIri());
+
+    checkDeletes(document);
+    fileAsDocument(document, taskId, progressMap);
   }
 
   private void checkDeletes(TTDocument transaction) throws TTFilerException {
@@ -238,6 +249,68 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       throw new TTFilerException(e.getMessage());
     }
     updateSets(document);
+  }
+
+  private void fileAsDocument(TTDocument document, String taskId, Map<String, Integer> progressMap) throws TTFilerException, JsonProcessingException, QueryException {
+    progressMap.put(taskId, 0);
+//    new Thread(() -> {
+//      try {
+//        try {
+//          startTransaction();
+//          LOG.info("Filing entities.... ");
+//          int i = 0;
+//          entitiesFiled = new HashSet<>();
+//          for (TTEntity entity : document.getEntities()) {
+//            Integer previousProgress = progressMap.getOrDefault(taskId, 0);
+//            progressMap.put(taskId, previousProgress++);
+//            setEntityCrudOperation(document, entity);
+//
+//            TTIriRef entityGraph = processGraphs(document, entity);
+//
+//            if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
+//              continue;
+//
+//            fileEntity(entity, entityGraph);
+//            entitiesFiled.add(entity.getIri());
+//            i++;
+//            if (i % 100 == 0)
+//              LOG.info("Filed {}  entities in transaction from {} in graph {}", i, document.getEntities().size(), entityGraph.getIri());
+//
+//          }
+//          if (logPath != null)
+//            writeLog(document);
+//          updateTct(document);
+//          LOG.info("Updating range inheritances");
+//          new RangeInheritor().inheritRanges(conn);
+//          commit();
+//        } catch (TTFilerException e) {
+//          rollback();
+//          throw e;
+//
+//        } catch (Exception e) {
+//          throw new TTFilerException(e.getMessage());
+//        }
+//        updateSets(document);
+//      } catch (TTFilerException e) {
+//        throw new RuntimeException(e);
+//      } catch (QueryException e) {
+//        throw new RuntimeException(e);
+//      } catch (JsonProcessingException e) {
+//        throw new RuntimeException(e);
+//      }
+//    }).start();
+
+    try {
+      LOG.info("Filing entities.... ");
+      int totalSteps = 100;
+      for (int i = 1; i <= totalSteps; i++) {
+        Thread.sleep(100);
+        progressMap.put(taskId, i); // Update progress
+        System.out.println(progressMap.get(taskId));
+      }
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
   }
 
   private void fileEntity(TTEntity entity, TTIriRef graph) throws TTFilerException {

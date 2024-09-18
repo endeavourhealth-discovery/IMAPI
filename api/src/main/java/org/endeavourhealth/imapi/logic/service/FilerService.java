@@ -18,6 +18,9 @@ import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
@@ -29,10 +32,24 @@ public class FilerService {
   private final ProvService provService = new ProvService();
   private final EntityService entityService = new EntityService();
   private final OpenSearchService openSearchService = new OpenSearchService();
+  private final Map<String, Integer> progressMap = new HashMap<>();
 
-  public void fileDocument(TTDocument document, String agentName) throws TTFilerException, JsonProcessingException, QueryException {
-    documentFiler.fileDocument(document);
-    fileProvDoc(document, agentName);
+  public void fileDocument(TTDocument document, String agentName, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
+    new Thread(() -> {
+      try {
+        documentFiler.fileDocument(document, taskId, progressMap);
+//        fileProvDoc(document, agentName);
+      } catch (TTFilerException | JsonProcessingException | QueryException e) {
+        throw new RuntimeException(e);
+      }
+    }).start();
+  }
+
+  public int getTaskProgress(String taskId) {
+    System.out.println(taskId);
+    System.out.println(progressMap.size());
+    System.out.println(progressMap.get(taskId));
+    return progressMap.getOrDefault(taskId, 0);
   }
 
   public void fileEntity(TTEntity entity, TTIriRef graph, String agentName, TTEntity usedEntity) throws TTFilerException {

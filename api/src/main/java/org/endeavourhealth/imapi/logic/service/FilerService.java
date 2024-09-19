@@ -18,8 +18,8 @@ import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -32,9 +32,13 @@ public class FilerService {
   private final ProvService provService = new ProvService();
   private final EntityService entityService = new EntityService();
   private final OpenSearchService openSearchService = new OpenSearchService();
-  private final Map<String, Integer> progressMap = new HashMap<>();
+  private final Map<String, Integer> progressMap = new ConcurrentHashMap<>();
 
   public void fileDocument(TTDocument document, String agentName, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
+    System.out.println(taskId);
+    progressMap.put(taskId, 0);
+    System.out.println(progressMap.size());
+    System.out.println(progressMap.get(taskId));
     new Thread(() -> {
       try {
         documentFiler.fileDocument(document, taskId, progressMap);
@@ -49,7 +53,7 @@ public class FilerService {
     System.out.println(taskId);
     System.out.println(progressMap.size());
     System.out.println(progressMap.get(taskId));
-    return progressMap.getOrDefault(taskId, 0);
+    return progressMap.getOrDefault(taskId, -1);
   }
 
   public void fileEntity(TTEntity entity, TTIriRef graph, String agentName, TTEntity usedEntity) throws TTFilerException {

@@ -252,7 +252,6 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   }
 
   private void fileAsDocument(TTDocument document, String taskId, Map<String, Integer> progressMap) throws TTFilerException, JsonProcessingException, QueryException {
-    progressMap.put(taskId, 0);
 //    new Thread(() -> {
 //      try {
 //        try {
@@ -306,7 +305,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       for (int i = 1; i <= totalSteps; i++) {
         Thread.sleep(100);
         progressMap.put(taskId, i); // Update progress
-        System.out.println(progressMap.get(taskId));
+//        System.out.println(progressMap.get(taskId));
       }
     } catch (InterruptedException e) {
       e.printStackTrace();

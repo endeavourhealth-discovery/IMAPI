@@ -120,7 +120,8 @@ public class UserRepository {
   }
 
   public void updateUserMRU(String user, List<RecentActivityItemDto> mru) throws JsonProcessingException {
-    if (!mru.isEmpty() && mru.stream().allMatch(this::isValidRecentActivityItem)) {
+    if (mru.isEmpty()) {delete(user, USER.USER_MRU);return;}
+    if (mru.stream().allMatch(this::isValidRecentActivityItem)) {
       delete(user, USER.USER_MRU);
       insert(user, USER.USER_MRU, mru);
     } else throw new IllegalArgumentException("One or more activity items are invalid");

@@ -25,563 +25,619 @@ import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class SetRepository {
-    private static final Logger LOG = LoggerFactory.getLogger(SetRepository.class);
-    private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
-    private String IM_PREFIX = "PREFIX im: <" + IM.NAMESPACE + ">";
+  public static final String ACTIVE_ENTITY = "activeEntity";
+  public static final String ENTITY = "entity";
+  public static final String IM_1_ID = "im1Id";
+  public static final String ENTITY_TYPE = "entityType";
+  public static final String TYPE_NAME = "typeName";
+  public static final String LEGACY_SCHEME = "legacyScheme";
+  public static final String CONCEPT = "concept";
+  private static final Logger LOG = LoggerFactory.getLogger(SetRepository.class);
+  private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
 
-    /**
-     * Returns an expanded set members match an iml set definition. If already expanded then returns members
-     * otherwise expands and retuens members
-     * @param imQuery im query conforming to ecl language constraints
-     * @param includeLegacy  to include legacy concepts linked by matchedTo to core concept
-     * @return a Set of concepts with matchedFrom legacy concepts and list of im1 ids
-     * @throws JsonProcessingException if json definitino invalid
-     * @throws DataFormatException if query definition invalid
-     */
-    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException{
-        //add scheme filter
-        return getSetExpansion(imQuery,includeLegacy,statusFilter,schemeFilter,null);
+  /**
+   * Returns an expanded set members match an iml set definition. If already expanded then returns members
+   * otherwise expands and retuens members
+   *
+   * @param imQuery       im query conforming to ecl language constraints
+   * @param includeLegacy to include legacy concepts linked by matchedTo to core concept
+   * @return a Set of concepts with matchedFrom legacy concepts and list of im1 ids
+   * @throws JsonProcessingException if json definitino invalid
+   * @throws DataFormatException     if query definition invalid
+   */
+  public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
+    //add scheme filter
+    return getSetExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, null);
+  }
+
+  public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
+    Set<Concept> result = getActiveExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
+    Set<Concept> result2 = getReplacedExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
+    result.addAll(result2);
+    return result;
+  }
+
+  private Set<Concept> getReplacedExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
+    Query replaced = new Query();
+    replaced.addMatch(imQuery);
+    replaced.setVariable(ACTIVE_ENTITY);
+    replaced.getMatch().get(0).setVariable(ACTIVE_ENTITY);
+    if (replaced.getMatch().get(0).getMatch() != null) {
+      for (Match match : replaced.getMatch().get(0).getMatch()) {
+        match.setVariable(ACTIVE_ENTITY);
+      }
     }
+    Return aReturn = setReturn(imQuery, includeLegacy);
+    aReturn.setNodeRef(ENTITY);
+    replaced.addReturn(aReturn);
+    replaced.match(m -> m
+      .setBoolMatch(Bool.or)
+      .match(m1 -> m1
+        .setVariable(ENTITY)
+        .where(p -> p
+          .setIri(IM.PREVIOUS_ENTITY_OF)
+          .addIs(new Node().setNodeRef(ACTIVE_ENTITY))))
+      .match(m1 -> m1
+        .setVariable(ENTITY)
+        .where(p -> p
+          .setIri(IM.SUBSUMED_BY)
+          .addIs(new Node().setNodeRef(ACTIVE_ENTITY))))
+      .match(m1 -> m1
+        .setVariable(ENTITY)
+        .where(p -> p
+          .setIri(IM.USUALLY_SUBSUMED_BY)
+          .addIs(new Node().setNodeRef(ACTIVE_ENTITY)))));
+    return getExpansion(replaced, includeLegacy, statusFilter, schemeFilter, page);
 
-    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException{
-        Set<Concept> result = getActiveExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
-        Set<Concept> result2 = getReplacedExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
-        result.addAll(result2);
-        return result;
+  }
+
+  private Set<Concept> getActiveExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
+    Return aReturn = setReturn(imQuery, includeLegacy);
+    imQuery.addReturn(aReturn);
+    return getExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
+  }
+
+  private Set<Concept> getExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
+    QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
+    if (null != page && null != page.getPageNumber() && null != page.getPageSize()) newRequest.setPage(page);
+    String sql = new SparqlConverter(newRequest).getSelectSparql(statusFilter);
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = conn.prepareTupleQuery(sql);
+      return getCoreLegacyCodesForSparql(qry, includeLegacy, schemeFilter);
+
     }
+  }
 
-    private Set<Concept> getReplacedExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
-    Query replaced= new Query();
-        replaced.addMatch(imQuery);
-        replaced.setVariable("activeEntity");
-        replaced.getMatch().get(0).setVariable("activeEntity");
-        if (replaced.getMatch().get(0).getMatch()!=null){
-            for (Match match:replaced.getMatch().get(0).getMatch()){
-                match.setVariable("activeEntity");
-            }
+
+  private Return setReturn(Query imQuery, boolean includeLegacy) {
+    Return aReturn = new Return();
+    imQuery.addReturn(aReturn);
+    aReturn
+      .property(s -> s
+        .setIri(RDFS.LABEL).as("term"))
+      .property(s -> s
+        .setIri(IM.CODE).as("code"))
+      .property(s -> s
+        .setIri(IM.HAS_SCHEME)
+        .return_(n -> n
+          .as("scheme")
+          .property(s2 -> s2
+            .setIri(RDFS.LABEL).as("schemeName"))))
+      .property(s -> s
+        .setIri(IM.NAMESPACE + "usageTotal").as("usage"))
+      .property(s -> s
+        .setIri(IM.IM_1_ID).as(IM_1_ID))
+      .property(s -> s
+        .setIri(IM.HAS_STATUS)
+        .return_(s2 -> s2
+          .as("status")
+          .property(p -> p
+            .setIri(RDFS.LABEL).as("statusName"))))
+      .property(s -> s
+        .setIri(RDF.TYPE)
+        .return_(s2 -> s2
+          .as(ENTITY_TYPE)
+          .property(p -> p
+            .setIri(RDFS.LABEL).as(TYPE_NAME))))
+      .property(s -> s
+        .setIri(IM.CODE_ID)
+        .as("codeId"))
+      .property(s -> s
+        .setIri(IM.ALTERNATIVE_CODE)
+        .as("alternativeCode"));
+
+    if (includeLegacy) {
+      aReturn
+        .property(p -> p
+          .setIri(IM.MATCHED_TO)
+          .setInverse(true)
+          .return_(n -> n
+            .as("legacy")
+            .property(s -> s
+              .setIri(RDFS.LABEL).as("legacyTerm"))
+            .property(s -> s
+              .setIri(IM.CODE).as("legacyCode"))
+            .property(s -> s
+              .setIri(IM.HAS_SCHEME)
+              .return_(n1 -> n1
+                .as(LEGACY_SCHEME)
+                .property(p1 -> p1
+                  .setIri(RDFS.LABEL).as("legacySchemeName"))))
+            .property(s -> s
+              .setIri(IM.NAMESPACE + "usageTotal").as("legacyUse"))
+            .property(s -> s
+              .setIri(IM.CODE_ID)
+              .as("legacyCodeId"))
+            .property(s -> s
+              .setIri(IM.IM_1_ID).as("legacyIm1Id"))));
+    }
+    return aReturn;
+  }
+
+
+  public int getSetExpansionTotalCount(Query imQuery, Set<TTIriRef> statusFilter) throws QueryException {
+    //add scheme filter
+    QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
+    String sql = new SparqlConverter(newRequest).getCountSparql(statusFilter);
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = conn.prepareTupleQuery(sql);
+      return getCountForSparql(qry);
+
+    }
+  }
+
+  public Set<TTIriRef> getSubsetIrisWithNames(String iri) {
+    Set<TTIriRef> result = new HashSet<>();
+
+    String sql = """
+      SELECT ?subset ?name
+      WHERE {
+        ?subset ?isSubset ?set .
+        ?subset ?label ?name .
+      }
+      """;
+
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
+      qry.setBinding("set", Values.iri(iri));
+      qry.setBinding("isSubset", Values.iri(IM.IS_SUBSET_OF));
+      qry.setBinding("label", Values.iri(RDFS.LABEL));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String subsetIri = bs.getValue("subset").stringValue();
+          String subsetName = bs.getValue("name").stringValue();
+          try {
+            TTIriRef subset = new TTIriRef(subsetIri, subsetName);
+            result.add(subset);
+          } catch (IllegalArgumentException ignored) {
+            LOG.warn("Invalid subset iri [{}] for set [{}]", subsetIri, iri);
+          }
         }
-        Return aReturn = setReturn(imQuery, includeLegacy);
-        aReturn.setNodeRef("entity");
-        replaced.addReturn(aReturn);
-        replaced.match(m->m
-          .setBoolMatch(Bool.or)
-          .match(m1->m1
-            .setVariable("entity")
-            .where(p->p
-              .setIri(IM.PREVIOUS_ENTITY_OF)
-              .addIs(new Node().setNodeRef("activeEntity"))))
-          .match(m1->m1
-            .setVariable("entity")
-            .where(p->p
-              .setIri(IM.SUBSUMED_BY)
-              .addIs(new Node().setNodeRef("activeEntity"))))
-          .match(m1->m1
-          .setVariable("entity")
-          .where(p->p
-            .setIri(IM.USUALLY_SUBSUMED_BY)
-            .addIs(new Node().setNodeRef("activeEntity")))));
-        return getExpansion(replaced, includeLegacy, statusFilter, schemeFilter, page);
-
+      }
     }
 
-    private Set<Concept> getActiveExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
-        Return aReturn = setReturn(imQuery, includeLegacy);
-        imQuery.addReturn(aReturn);
-        return getExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
-    }
-    private Set<Concept> getExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
-        QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
-        if (null != page && null!= page.getPageNumber() && null!= page.getPageSize()) newRequest.setPage(page);
-        String sql= new SparqlConverter(newRequest).getSelectSparql(statusFilter);
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(sql);
-            return getCoreLegacyCodesForSparql(qry, includeLegacy, schemeFilter);
+    return result;
+  }
 
+  private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes) {
+    Set<Concept> result = new HashSet<>();
+    Set<String> coreSchemes = Set.of(SNOMED.NAMESPACE, IM.NAMESPACE);
+    Map<String, Concept> conceptMap = new HashMap<>();
+    try (TupleQueryResult rs = qry.evaluate()) {
+      while (rs.hasNext()) {
+        BindingSet bs = rs.next();
+        String concept = bs.getValue(ENTITY).stringValue();
+        Concept cl = conceptMap.get(concept);
+        Value scheme = bs.getValue("scheme");
+        if (cl == null) {
+          cl = buildConcept(concept, conceptMap, result, bs, scheme);
+        } else {
+          Value type = bs.getValue(ENTITY_TYPE);
+          Value typeName = bs.getValue(TYPE_NAME);
+          if (null != type) {
+            cl.addType(iri(type.stringValue(), typeName.stringValue()));
+          }
         }
-    }
-
-
-    private Return setReturn(Query imQuery, boolean includeLegacy) {
-        Return aReturn = new Return();
-        imQuery.addReturn(aReturn);
-        aReturn
-          .property(s -> s
-            .setIri(RDFS.LABEL).as("term"))
-          .property(s -> s
-            .setIri(IM.CODE).as("code"))
-          .property(s -> s
-            .setIri(IM.HAS_SCHEME)
-            .return_(n -> n
-              .as("scheme")
-              .property(s2 -> s2
-                .setIri(RDFS.LABEL).as("schemeName"))))
-          .property(s -> s
-            .setIri(IM.NAMESPACE + "usageTotal").as("usage"))
-          .property(s -> s
-            .setIri(IM.IM1ID).as("im1Id"))
-          .property(s -> s
-            .setIri(IM.HAS_STATUS)
-            .return_(s2 -> s2
-              .as("status")
-              .property(p -> p
-                .setIri(RDFS.LABEL).as("statusName"))))
-          .property(s -> s
-            .setIri(RDF.TYPE)
-            .return_(s2 -> s2
-              .as("entityType")
-              .property(p -> p
-                .setIri(RDFS.LABEL).as("typeName"))))
-          .property(s -> s
-            .setIri(IM.CODE_ID)
-            .as("codeId"))
-          .property(s -> s
-            .setIri(IM.ALTERNATIVE_CODE)
-            .as("alternativeCode"));
-
+        Value im1Id = bs.getValue(IM_1_ID);
+        if (im1Id != null)
+          cl.addIm1Id(im1Id.stringValue());
         if (includeLegacy) {
-            aReturn
-              .property(p -> p
-                .setIri(IM.MATCHED_TO)
-                .setInverse(true)
-                .return_(n -> n
-                  .as("legacy")
-                  .property(s -> s
-                    .setIri(RDFS.LABEL).as("legacyTerm"))
-                  .property(s -> s
-                    .setIri(IM.CODE).as("legacyCode"))
-                  .property(s -> s
-                    .setIri(IM.HAS_SCHEME)
-                    .return_(n1 -> n1
-                      .as("legacyScheme")
-                      .property(p1 -> p1
-                        .setIri(RDFS.LABEL).as("legacySchemeName"))))
-                  .property(s -> s
-                    .setIri(IM.NAMESPACE + "usageTotal").as("legacyUse"))
-                  .property(s -> s
-                    .setIri(IM.CODE_ID)
-                    .as("legacyCodeId"))
-                  .property(s -> s
-                    .setIri(IM.IM1ID).as("legacyIm1Id"))));
-        }
-        return aReturn;
-    }
-
-
-    public int getSetExpansionTotalCount(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException{
-        //add scheme filter
-        QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
-        String sql= new SparqlConverter(newRequest).getCountSparql(statusFilter);
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(sql);
-            return getCountForSparql(qry, includeLegacy, schemeFilter);
-
-        }
-    }
-
-    public Set<TTIriRef> getSubsetIrisWithNames(String iri) {
-        Set<TTIriRef> result = new HashSet<>();
-
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add(IM_PREFIX)
-                .add("SELECT ?subset ?name WHERE {")
-                .add("?subset ?issubset ?set .")
-                .add("?subset ?label ?name .")
-                .add("}");
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
-            qry.setBinding("set", Values.iri(iri));
-            qry.setBinding("issubset", Values.iri(IM.IS_SUBSET_OF));
-            qry.setBinding("label", Values.iri(RDFS.LABEL));
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    String subsetIri = bs.getValue("subset").stringValue();
-                    String subsetName = bs.getValue("name").stringValue();
-                    try {
-                        TTIriRef subset = new TTIriRef(subsetIri,subsetName);
-                        result.add(subset);
-                    } catch (IllegalArgumentException ignored) {
-                        LOG.warn("Invalid subset iri [{}] for set [{}]", subsetIri, iri);
-                    }
-                }
+          String legacyScheme = bs.getValue(LEGACY_SCHEME) != null ? bs.getValue(LEGACY_SCHEME).stringValue() : null;
+          if (legacyScheme == null) {
+            if (scheme != null && !coreSchemes.contains(scheme.stringValue())) {
+              bindLegacyFromCore(bs, cl);
             }
-        }
-
-        return result;
-    }
-
-    private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes) {
-        Set<Concept> result = new HashSet<>();
-        Set<String> coreSchemes= Set.of(SNOMED.NAMESPACE,IM.NAMESPACE);
-        Map<String,Concept> conceptMap= new HashMap<>();
-        try (TupleQueryResult rs = qry.evaluate()) {
-            while (rs.hasNext()) {
-                BindingSet bs = rs.next();
-                String concept = bs.getValue("entity").stringValue();
-                Concept cl = conceptMap.get(concept);
-                Value scheme = bs.getValue("scheme");
-                if (cl == null) {
-                    cl = new Concept();
-                    conceptMap.put(concept, cl);
-                    result.add(cl);
-                    Value name = bs.getValue("term");
-                    Value code = bs.getValue("code");
-                    Value alternativeCode = bs.getValue("alternativeCode");
-                    Value schemeName = bs.getValue("schemeName");
-                    Value usage = bs.getValue("usage");
-                    Value status = bs.getValue("status");
-                    Value statusName = bs.getValue("statusName");
-                    Value type = bs.getValue("entityType");
-                    Value typeName = bs.getValue("typeName");
-                    Value codeId = bs.getValue("codeId");
-                    cl.setIri(concept);
-                    if (name != null)
-                        cl.setName(name.stringValue());
-                    if (code != null) {
-                        cl.setCode(code.stringValue());
-                    }
-                    if (alternativeCode != null) {
-                        cl.setAlternativeCode(alternativeCode.stringValue());
-                    }
-                    if (null != scheme) {
-                        cl.setScheme(iri(scheme.stringValue(), schemeName.stringValue()));
-                    }
-                    if (null != status) {
-                        cl.setStatus(iri(status.stringValue(), statusName.stringValue()));
-                    }
-                    if (null != type) {
-                        cl.addType(iri(type.stringValue(), typeName.stringValue()));
-                    }
-                    if (null != codeId) {
-                        cl.setCodeId(codeId.stringValue());
-                    }
-                    cl.setUsage(usage == null ? null : ((Literal) usage).intValue());
-                } else {
-                    Value type = bs.getValue("entityType");
-                    Value typeName = bs.getValue("typeName");
-                    if (null != type) {
-                        cl.addType(iri(type.stringValue(), typeName.stringValue()));
-                    }
-                }
-                Value im1Id = bs.getValue("im1Id");
-                if (im1Id != null)
-                    cl.addIm1Id(im1Id.stringValue());
-                if (includeLegacy) {
-                    String legacyScheme = bs.getValue("legacyScheme") != null ? bs.getValue("legacyScheme").stringValue() : null;
-                    if (legacyScheme == null) {
-                        if (!coreSchemes.contains(scheme.stringValue())) {
-                            bindLegacyFromCore(bs, cl);
-                        }
-                    } else if (schemes.size() == 0) {
-                        bindResults(bs, cl);
-                    } else {
-                        if (schemes.stream().anyMatch(s -> s.equals(legacyScheme))) {
-                            bindResults(bs, cl);
-                        }
-                    }
-                }
+          } else if (schemes.isEmpty()) {
+            bindResults(bs, cl);
+          } else {
+            if (schemes.stream().anyMatch(s -> s.equals(legacyScheme))) {
+              bindResults(bs, cl);
             }
+          }
         }
-        return result.stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
+      }
+    }
+    return result.stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
+  }
+
+  private Concept buildConcept(String concept, Map<String, Concept> conceptMap, Set<Concept> result, BindingSet bs, Value scheme) {
+    Concept cl = new Concept();
+    conceptMap.put(concept, cl);
+    result.add(cl);
+    Value name = bs.getValue("term");
+    Value code = bs.getValue("code");
+    Value alternativeCode = bs.getValue("alternativeCode");
+    Value schemeName = bs.getValue("schemeName");
+    Value usage = bs.getValue("usage");
+    Value status = bs.getValue("status");
+    Value statusName = bs.getValue("statusName");
+    Value type = bs.getValue(ENTITY_TYPE);
+    Value typeName = bs.getValue(TYPE_NAME);
+    Value codeId = bs.getValue("codeId");
+    cl.setIri(concept);
+    if (name != null)
+      cl.setName(name.stringValue());
+    if (code != null) {
+      cl.setCode(code.stringValue());
+    }
+    if (alternativeCode != null) {
+      cl.setAlternativeCode(alternativeCode.stringValue());
+    }
+    if (null != scheme) {
+      cl.setScheme(iri(scheme.stringValue(), schemeName.stringValue()));
+    }
+    if (null != status) {
+      cl.setStatus(iri(status.stringValue(), statusName.stringValue()));
+    }
+    if (null != type) {
+      cl.addType(iri(type.stringValue(), typeName.stringValue()));
+    }
+    if (null != codeId) {
+      cl.setCodeId(codeId.stringValue());
+    }
+    cl.setUsage(usage == null ? null : ((Literal) usage).intValue());
+    return cl;
+  }
+
+  private int getCountForSparql(TupleQuery qry) {
+    try (TupleQueryResult rs = qry.evaluate()) {
+      if (rs.hasNext()) {
+        BindingSet bs = rs.next();
+        return ((Literal) bs.getValue("cnt")).intValue();
+      } else {
+        return 0;
+      }
+    }
+  }
+
+
+  private void bindLegacyFromCore(BindingSet bs, Concept cl) {
+    String legIri = cl.getIri();
+    if (legIri != null) {
+      Concept legacy = matchLegacy(cl, legIri);
+      if (legacy == null) {
+        legacy = new Concept();
+        cl.addMatchedFrom(legacy);
+        legacy.setIri(legIri);
+        legacy.setCode(cl.getCode());
+        legacy.setName(cl.getName());
+        legacy.setScheme(cl.getScheme());
+        legacy.setCodeId(cl.getCodeId());
+        legacy.setUsage(cl.getUsage());
+      }
+      Value lid = bs.getValue(IM_1_ID);
+      if (lid != null)
+        legacy.addIm1Id(lid.stringValue());
+    }
+  }
+
+
+  public void bindConceptSetToDataModel(String iri, Set<TTNode> dataModels) {
+
+    String deleteBinding = """
+      DELETE { ?concept im:binding ?datamodel}
+      WHERE { ?concept im:binding ?datamodel}
+      """;
+
+    StringJoiner newBinding = new StringJoiner("\n").add("INSERT DATA { graph <" + GRAPH.DISCOVERY + "> {");
+    int blankCount = 0;
+    for (TTNode dataModel : dataModels) {
+      blankCount++;
+      String pathIri = dataModel.get(iri(SHACL.PATH)).asIriRef().getIri();
+      String nodeIri = dataModel.get(iri(SHACL.NODE)).asIriRef().getIri();
+      newBinding.add("""
+        <%s> im:binding _:b%s .
+        _:b%s sh:path <%s> .
+        _:b%s sh:node <%s> .
+        """.formatted(iri, blankCount, blankCount, pathIri, blankCount, nodeIri));
+    }
+    newBinding.add("}}");
+
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      conn.begin();
+      org.eclipse.rdf4j.query.Update upd = conn.prepareUpdate(addSparqlPrefixes(deleteBinding));
+      upd.setBinding(CONCEPT, Values.iri(iri));
+      upd.execute();
+      upd = conn.prepareUpdate(addSparqlPrefixes(newBinding.toString()));
+      upd.execute();
+      conn.commit();
     }
 
-    private int getCountForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes) {
-        try (TupleQueryResult rs = qry.evaluate()) {
-            if (rs.hasNext()) {
-                BindingSet bs = rs.next();
-                return ((Literal) bs.getValue("cnt")).intValue();
-            } else {
-                return 0;
-            }
+  }
+
+  public Set<String> getSets() {
+    Set<String> setIris = new HashSet<>();
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      String spq = """
+        SELECT distinct ?iri
+        WHERE {
+          ?iri rdf:type ?type.
+          FILTER (?type in (im:ValueSet, im:ConceptSet))
+          ?iri im:definition ?d.
         }
-    }
+        """;
 
-
-    private void bindLegacyFromCore(BindingSet bs, Concept cl) {
-        String legIri =cl.getIri();
-        if (legIri != null) {
-            Concept legacy = matchLegacy(cl, legIri);
-            if (legacy == null) {
-                legacy = new Concept();
-                cl.addMatchedFrom(legacy);
-                legacy.setIri(legIri);
-                legacy.setCode(cl.getCode());
-                legacy.setName(cl.getName());
-                legacy.setScheme(cl.getScheme());
-                legacy.setCodeId(cl.getCodeId());
-                legacy.setUsage(cl.getUsage());
-            }
-            Value lid = bs.getValue("im1Id");
-            if (lid != null)
-                legacy.addIm1Id(lid.stringValue());
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(spq));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          setIris.add(rs.next().getValue("iri").stringValue());
         }
+      }
     }
+    return setIris;
+  }
 
-
-    public void bindConceptSetToDataModel(String iri, Set<TTNode> dataModels) {
+  public void updateMembers(String iri, Set<Concept> members) {
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      String spq = """
+        DELETE { ?concept im:hasMember ?x.}
+        WHERE { ?concept im:hasMember ?x.}
+        """;
+      org.eclipse.rdf4j.query.Update upd = conn.prepareUpdate(addSparqlPrefixes(spq));
+      upd.setBinding(CONCEPT, Values.iri(iri));
+      upd.execute();
+      spq = """
+        SELECT ?g
+        WHERE {
+          graph ?g {?concept rdf:type ?type }
+        }
+        """;
+      TupleQuery qry = conn.prepareTupleQuery(spq);
+      qry.setBinding(CONCEPT, Values.iri(iri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        BindingSet bs = rs.next();
+        String graph = bs.getValue("g").stringValue();
         StringJoiner sj = new StringJoiner("\n");
-        sj.add("INSERT DATA { graph <" + GRAPH.DISCOVERY + "> {");
-        int blank = 0;
-        for (TTNode dataModel:dataModels) {
-            blank++;
-            sj.add("<" + iri + "> <" + IM.BINDING + "> _:b"+blank+".")
-              .add("_:b"+blank+" <"+ SHACL.PATH+"> <"+ dataModel.get(iri(SHACL.PATH)).asIriRef().getIri()+">.")
-              .add("_:b"+blank+" <"+ SHACL.NODE+"> <"+ dataModel.get(iri(SHACL.NODE)).asIriRef().getIri()+">.");
-        }
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+        sj.add("INSERT DATA { graph <" + graph + "> {");
+        int batch = 0;
+        for (Concept member : members) {
+          batch++;
+          if (batch == 1000) {
             sendUp(sj, conn);
+            sj = new StringJoiner("\n");
+            sj.add("INSERT DATA { graph <" + graph + "> {");
+            batch = 0;
+          }
+          sj.add("<" + iri + "> im:hasMember <" + member.getIri() + ">.");
         }
-
+        sendUp(sj, conn);
+      }
     }
+  }
 
-    public Set<String> getSets() {
-        Set<String> setIris= new HashSet<>();
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            StringJoiner spq = new StringJoiner("\n");
-            spq.add("SELECT distinct ?iri ")
-              .add("WHERE { ?iri <" + RDF.TYPE + "> ?type.")
-              .add("  filter (?type in (<"+IM.VALUESET +">,<"+IM.CONCEPT_SET+">))")
-              .add("?iri <"+ IM.DEFINITION +"> ?d.}");
-            TupleQuery qry = conn.prepareTupleQuery(spq.toString());
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    setIris.add(rs.next().getValue("iri").stringValue());
-                }
-            }
+
+  private void sendUp(StringJoiner sj, RepositoryConnection conn) {
+    sj.add("}}");
+    org.eclipse.rdf4j.query.Update upd = conn.prepareUpdate(addSparqlPrefixes(sj.toString()));
+    conn.begin();
+    upd.execute();
+    conn.commit();
+  }
+
+
+  private void bindResults(BindingSet bs, Concept cl) {
+    Value legIri = bs.getValue("legacy");
+    if (legIri != null) {
+      Concept legacy = matchLegacy(cl, legIri.stringValue());
+      if (legacy == null) {
+        legacy = new Concept();
+        cl.addMatchedFrom(legacy);
+        legacy.setIri(legIri.stringValue());
+        Value lc = bs.getValue("legacyCode");
+        Value lt = bs.getValue("legacyTerm");
+        Value ls = bs.getValue(LEGACY_SCHEME);
+        Value lsn = bs.getValue("legacySchemeName");
+        Value luse = bs.getValue("legacyUse");
+        Value codeId = bs.getValue("legacyCodeId");
+        if (lc != null)
+          legacy.setCode(lc.stringValue());
+        if (lt != null)
+          legacy.setName(lt.stringValue());
+        if (ls != null) {
+          if (lsn == null)
+            legacy.setScheme(iri(ls.stringValue()));
+          else
+            legacy.setScheme(iri(ls.stringValue(), lsn.stringValue()));
         }
-        return setIris;
-    }
-
-    public void updateMembers(String iri,Set<Concept> members) {
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            String spq = "DELETE { <" + iri + "> <" + IM.HAS_MEMBER + "> ?x.}"+
-              "\nWHERE { <" + iri + "> <" + IM.HAS_MEMBER + "> ?x.}";
-            org.eclipse.rdf4j.query.Update upd = conn.prepareUpdate(spq);
-            upd.execute();
-            spq="SELECT ?g where { graph ?g {<"+iri+"> <"+RDF.TYPE +"> ?type }}";
-            TupleQuery qry= conn.prepareTupleQuery(spq);
-            try (TupleQueryResult rs= qry.evaluate()) {
-                BindingSet bs = rs.next();
-                String graph = bs.getValue("g").stringValue();
-                StringJoiner sj = new StringJoiner("\n");
-                sj.add("INSERT DATA { graph <" + graph + "> {");
-                int batch = 0;
-                for (Concept member : members) {
-                    batch++;
-                    if (batch == 1000) {
-                        sendUp(sj, conn);
-                        sj = new StringJoiner("\n");
-                        sj.add("INSERT DATA { graph <" + graph + "> {");
-                        batch = 0;
-                    }
-                    sj.add("<" + iri + "> <" + IM.HAS_MEMBER + "> <" + member.getIri() + ">.");
-                }
-                sendUp(sj, conn);
-            }
+        if (codeId != null) {
+          legacy.setCodeId(codeId.stringValue());
         }
+        legacy.setUsage(luse == null ? null : ((Literal) luse).intValue());
+      }
+      Value lid = bs.getValue("legacyIm1Id");
+      if (lid != null)
+        legacy.addIm1Id(lid.stringValue());
     }
+  }
 
+  private Concept matchLegacy(Concept cl, String iri) {
+    if (cl.getMatchedFrom() != null)
+      for (Concept legacy : cl.getMatchedFrom())
+        if (legacy.getIri().equals(iri))
+          return legacy;
+    return null;
+  }
 
-    private void sendUp(StringJoiner sj, RepositoryConnection conn) {
-        sj.add("}}");
-        org.eclipse.rdf4j.query.Update upd= conn.prepareUpdate(sj.toString());
-        conn.begin();
-        upd.execute();
-        conn.commit();
-    }
+  public Set<Concept> getSomeMembers(String setIri, Integer limit) {
+    String sparql = """
+      SELECT *
+      WHERE {
+        ?setIri im:hasMember ?entity .
+      }
+      LIMIT %d
+      """.formatted(limit);
+    Set<Concept> result = new HashSet<>();
 
-
-
-
-
-
-    private void bindResults(BindingSet bs, Concept cl) {
-        Value legIri = bs.getValue("legacy");
-        if (legIri != null) {
-            Concept legacy = matchLegacy(cl, legIri.stringValue());
-            if (legacy == null) {
-                legacy = new Concept();
-                cl.addMatchedFrom(legacy);
-                legacy.setIri(legIri.stringValue());
-                Value lc = bs.getValue("legacyCode");
-                Value lt = bs.getValue("legacyTerm");
-                Value ls = bs.getValue("legacyScheme");
-                Value lsn = bs.getValue("legacySchemeName");
-                Value luse = bs.getValue("legacyUse");
-                Value codeId = bs.getValue("legacyCodeId");
-                if (lc != null)
-                    legacy.setCode(lc.stringValue());
-                if (lt != null)
-                    legacy.setName(lt.stringValue());
-                if (ls != null) {
-                    if (lsn == null)
-                        legacy.setScheme(iri(ls.stringValue()));
-                    else
-                        legacy.setScheme(iri(ls.stringValue(), lsn.stringValue()));
-                }
-                if (codeId != null) {
-                    legacy.setCodeId(codeId.stringValue());
-                }
-                legacy.setUsage(luse == null ? null : ((Literal) luse).intValue());
-            }
-            Value lid = bs.getValue("legacyIm1Id");
-            if (lid != null)
-                legacy.addIm1Id(lid.stringValue());
-        }
-    }
-
-    private Concept matchLegacy(Concept cl,String iri){
-        if (cl.getMatchedFrom()!=null)
-            for (Concept legacy:cl.getMatchedFrom())
-                if (legacy.getIri().equals(iri))
-                    return legacy;
-        return null;
-    }
-
-    public Set<Concept> getSomeMembers(String setIri,Integer limit){
-        StringJoiner spql = new StringJoiner(System.lineSeparator())
-          .add("PREFIX im: <" + IM.NAMESPACE + ">")
-          .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-          .add("select * where { ")
-          .add("    ?setIri im:hasMember ?entity .")
-          .add("}")
-          .add("limit "+ limit);
-        Set<Concept> result=new HashSet<>();
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(spql.toString());
-            qry.setBinding("setIri", Values.iri(setIri));
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs= rs.next();
-                    Concept concept= new Concept();
-                    concept.setIri(bs.getValue("entity").stringValue());
-                    result.add(concept);
-
-                }
-            }
-        }
-        return result;
-    }
-
-    public Set<TTNode> getBindingsForConcept(Set<String> members){
-        Set<TTNode> result= new HashSet<>();
-        Set<String> sparqlIris= members.stream().map(m -> "<"+m+">").collect(Collectors.toSet());
-        String iriList=String.join(",",sparqlIris);
-        StringJoiner spql = new StringJoiner(System.lineSeparator())
-          .add("PREFIX im: <" + IM.NAMESPACE + ">")
-          .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-          .add("select distinct ?dataModel ?path")
-          .add("where { ")
-          .add("    ?memberIri ^im:hasMember ?valueSet.")
-          .add("     filter (?memberIri in("+iriList+"))" )
-          .add("    ?valueSet ^<"+ SHACL.CLASS+"> ?property.")
-          .add("     ?property <"+ SHACL.PATH+"> ?path.")
-          .add("     ?property ^<"+ SHACL.PROPERTY+"> ?dataModel.}");
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(spql.toString());
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs= rs.next();
-                    TTNode dataModel= new TTNode();
-                    dataModel.set(iri(SHACL.NODE),iri(bs.getValue("dataModel").stringValue()));
-                    dataModel.set(iri(SHACL.PATH),iri(bs.getValue("path").stringValue()));
-                    result.add(dataModel);
-                }
-            }
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sparql));
+      qry.setBinding("setIri", Values.iri(setIri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          Concept concept = new Concept();
+          concept.setIri(bs.getValue(ENTITY).stringValue());
+          result.add(concept);
 
         }
-        return result;
+      }
     }
+    return result;
+  }
 
-
-    public Set<Concept> getSetMembers(String setIri, boolean includeLegacy, List<String> schemes) {
-        StringJoiner spql = new StringJoiner(System.lineSeparator())
-          .add("PREFIX im: <" + IM.NAMESPACE + ">")
-          .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-          .add("select * where { ")
-          .add("    ?setIri im:hasMember ?entity .")
-          .add("    ?entity rdfs:label ?term;")
-          .add("       im:code ?code;")
-          .add("       im:scheme ?scheme.")
-          .add("    ?scheme rdfs:label ?schemeName .")
-          .add("    OPTIONAL { ?entity im:status ?status . ?status rdfs:label ?statusName . }")
-          .add("    OPTIONAL { ?entity im:im1Id ?im1Id . }")
-          .add("    OPTIONAL { ?entity im:usageTotal ?use . }")
-          .add("    OPTIONAL { ?entity im:codeId ?codeId . }")
-          .add("    OPTIONAL { ?entity im:alternativeCode ?alternativeCode.}");
-
-        if (includeLegacy) {
-            spql.add("    OPTIONAL {")
-              .add("        ?legacy im:matchedTo ?entity;")
-              .add("                rdfs:label ?legacyTerm;")
-              .add("                im:code ?legacyCode;")
-              .add("                im:scheme ?legacyScheme.");
-
-            if(schemes.size() != 0) {
-                String schemeIris = String.join(",", getIris(schemes));
-                spql.add(" FILTER (?legacyScheme IN (" + schemeIris + "))");
-            }
-
-            spql.add("        ?legacyScheme rdfs:label ?legacySchemeName .")
-              .add("        OPTIONAL { ?legacy im:im1Id ?legacyIm1Id }")
-              .add("        OPTIONAL { ?legacy im:usageTotal ?legacyUse }")
-              .add("        OPTIONAL { ?legacy im:codeId ?codeId}")
-              .add("        OPTIONAL { ?legacy im:codeId ?legacyCodeId}")
-              .add("    }");
+  public Set<TTNode> getBindingsForConcept(Set<String> members) {
+    Set<TTNode> result = new HashSet<>();
+    Set<String> sparqlIris = members.stream().map(m -> "<" + m + ">").collect(Collectors.toSet());
+    String iriList = String.join(",", sparqlIris);
+    String spql = """
+      SELECT distinct ?dataModel ?path
+      WHERE {
+        ?memberIri ^im:hasMember ?valueSet.
+        filter (?memberIri in(%s))
+        {
+          ?valueSet ^sh:class ?property.
+          ?property sh:path ?path.
+          ?property ^sh:property ?dataModel.
         }
-
-        spql.add("}  ");
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(spql.toString());
-            qry.setBinding("setIri", Values.iri(setIri));
-            return getCoreLegacyCodesForSparql(qry, includeLegacy,List.of());
+        UNION {
+          ?valueSet ^im:concept ?dataModel.
         }
-    }
-
-    private List<String> getIris(List<String> schemes) {
-       return schemes.stream().map(iri -> "<" + iri + ">").collect(Collectors.toList());
-    }
-
-
-    public Set<TTEntity> getAllConceptSets(TTIriRef type) {
-        Set<TTEntity> result = new HashSet<>();
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?s")
-            .add("WHERE {")
-            .add("  ?s rdf:type ?o")
-            .add("}");
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("o", Values.iri(type.getIri()));
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    String iri = bs.getValue("s").stringValue();
-                    TTEntity set = getSetDefinition(iri);
-                    if (set.get(iri(IM.DEFINITION)) != null)
-                        result.add(set);
-                }
-            }
+      }
+      GROUP BY ?dataModel ?path
+      """.formatted(iriList);
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(spql));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          TTNode dataModel = new TTNode();
+          dataModel.set(iri(SHACL.NODE), iri(bs.getValue("dataModel").stringValue()));
+          if (bs.getValue("path") != null)
+            dataModel.set(iri(SHACL.PATH), iri(bs.getValue("path").stringValue()));
+          else
+            dataModel.set(iri(SHACL.PATH), iri(IM.NAMESPACE + CONCEPT));
+          result.add(dataModel);
         }
-        return result;
+      }
+
+    }
+    return result;
+  }
+
+
+  public Set<Concept> getSetMembers(String setIri, boolean includeLegacy, List<String> schemes) {
+    StringJoiner spql = new StringJoiner(System.lineSeparator())
+      .add("""
+        SELECT *
+        WHERE {
+          ?setIri im:hasMember ?entity .
+          ?entity rdfs:label ?term;
+          im:code ?code;
+          im:scheme ?scheme.
+          ?scheme rdfs:label ?schemeName .
+          OPTIONAL { ?entity im:status ?status . ?status rdfs:label ?statusName . }
+          OPTIONAL { ?entity im:im1Id ?im1Id . }
+          OPTIONAL { ?entity im:usageTotal ?use . }
+          OPTIONAL { ?entity im:codeId ?codeId . }
+          OPTIONAL { ?entity im:alternativeCode ?alternativeCode.}
+        """);
+
+    if (includeLegacy) {
+      spql.add("""
+        OPTIONAL {
+          ?legacy im:matchedTo ?entity;
+          rdfs:label ?legacyTerm;
+          im:code ?legacyCode;
+          im:scheme ?legacyScheme.
+        """);
+
+      if (!schemes.isEmpty()) {
+        String schemeIris = String.join(",", getIris(schemes));
+        spql.add(" FILTER (?legacyScheme IN (" + schemeIris + "))");
+      }
+
+      spql.add("""
+          ?legacyScheme rdfs:label ?legacySchemeName .
+          OPTIONAL { ?legacy im:im1Id ?legacyIm1Id }
+          OPTIONAL { ?legacy im:usageTotal ?legacyUse }
+          OPTIONAL { ?legacy im:codeId ?codeId}
+          OPTIONAL { ?legacy im:codeId ?legacyCodeId}
+        }
+        """);
     }
 
-    public TTEntity getSetDefinition(String setIri) {
-        Set<String> predicates= new HashSet<>();
-        predicates.add(IM.DEFINITION);
-        predicates.add(IM.IS_CONTAINED_IN);
-        predicates.add(RDFS.LABEL);
+    spql.add("}  ");
 
-        TTBundle entityPredicates = entityTripleRepository.getEntityPredicates(setIri, predicates);
-        return entityPredicates.getEntity();
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(spql.toString()));
+      qry.setBinding("setIri", Values.iri(setIri));
+      return getCoreLegacyCodesForSparql(qry, includeLegacy, List.of());
     }
+  }
+
+  private List<String> getIris(List<String> schemes) {
+    return schemes.stream().map(iri -> "<" + iri + ">").toList();
+  }
+
+
+  public Set<TTEntity> getAllConceptSets(TTIriRef type) {
+    Set<TTEntity> result = new HashSet<>();
+    String sql = """
+      SELECT ?s
+      WHERE {
+        ?s rdf:type ?o
+      }
+      """;
+
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sql);
+      qry.setBinding("o", Values.iri(type.getIri()));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String iri = bs.getValue("s").stringValue();
+          TTEntity set = getSetDefinition(iri);
+          if (set.get(iri(IM.DEFINITION)) != null)
+            result.add(set);
+        }
+      }
+    }
+    return result;
+  }
+
+  public TTEntity getSetDefinition(String setIri) {
+    Set<String> predicates = new HashSet<>();
+    predicates.add(IM.DEFINITION);
+    predicates.add(IM.IS_CONTAINED_IN);
+    predicates.add(RDFS.LABEL);
+
+    TTBundle entityPredicates = entityTripleRepository.getEntityPredicates(setIri, predicates);
+    return entityPredicates.getEntity();
+  }
 
 
 }

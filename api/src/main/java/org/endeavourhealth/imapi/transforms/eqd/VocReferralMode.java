@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.ReferralMode.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -29,55 +29,48 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.ReferralMode")
 @XmlEnum
 public enum VocReferralMode {
 
 
-    /**
-     * Electronic
-     * 
-     */
-    E,
+  /**
+   * Electronic
+   */
+  E,
 
-    /**
-     * Telephone
-     * 
-     */
-    T,
+  /**
+   * Telephone
+   */
+  T,
 
-    /**
-     * Verbal
-     * 
-     */
-    V,
+  /**
+   * Verbal
+   */
+  V,
 
-    /**
-     * Written
-     * 
-     */
-    W,
+  /**
+   * Written
+   */
+  W,
 
-    /**
-     * Mediated
-     * 
-     */
-    M,
+  /**
+   * Mediated
+   */
+  M,
 
-    /**
-     * WCCG
-     * 
-     */
-    C;
+  /**
+   * WCCG
+   */
+  C;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocReferralMode fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocReferralMode fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

@@ -7,125 +7,132 @@ import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper;
 import org.endeavourhealth.imapi.model.tripletree.TTEntityMap;
 
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
+
 /**
  * Data access class for accessing information about rdf properties
  */
 public class PropertyRepository {
 
-	private PropertyRepository() {
-		throw new IllegalStateException("Utility class");
-	}
+  private PropertyRepository() {
+    throw new IllegalStateException("Utility class");
+  }
 
-	public static TTEntityMap getProperty(String focusIri){
-		String sql = getPropertiesSql();
-		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-			GraphQuery qry = conn.prepareGraphQuery(sql);
-			qry.setBinding("entity", Values.iri(focusIri));
-			return GraphHelper.getEntityMap(qry);
-		}
-	}
-	/**
-	 * Gets all properties from the information module e.g. for use to populate the cache
-	 * @return maps from iri to shapes and predicate names for the property entity predicates.
-	 * All iris referenced include their labels as names, except for the mode predicates themselves
-	 */
-	public static TTEntityMap getProperties(){
-		String sql = getAllPropertiesSql();
-		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-			GraphQuery qry = conn.prepareGraphQuery(sql);
-			return GraphHelper.getEntityMap(qry);
-		}
-	}
+  public static TTEntityMap getProperty(String focusIri) {
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      GraphQuery qry = conn.prepareGraphQuery(addSparqlPrefixes(PROPERTIES_SQL));
+      qry.setBinding("entity", Values.iri(focusIri));
+      return GraphHelper.getEntityMap(qry);
+    }
+  }
 
-	public static String getPropertiesSql(){
-		return "PREFIX im: <http://endhealth.info/im#>\n" +
-			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-			"PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n" +
-			"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
-			"PREFIX sh: <http://www.w3.org/ns/shacl#>\n" +
-			"CONSTRUCT {\n" +
-			"    ?entity ?predicate ?object.\n" +
-			"    ?predicate im:pLabel ?predicateLabel.\n" +
-			"    ?object im:oLabel ?objectLabel.\n" +
-			"    ?object ?subPredicate ?subObject.\n" +
-			"    ?subPredicate im:pLabel ?subPredicateLabel.\n" +
-			"    ?subObject im:oLabel ?subObjectLabel.\n" +
-			"    ?subObject ?subObPred  ?subObOb.\n"+
-			"    ?superShape ?superPred ?superOb.\n" +
-			"    ?superPred im:pLabel ?superPredLabel.\n" +
-			"    ?superOb ?superSubPred ?superSubOb.\n" +
-			"    ?superSubPred im:pLabel ?superSubPredLabel.\n" +
-			"    ?superSubOb im:oLabel ?superSubObLabel.\n" +
-			"    ?superSubOb ?superSubObPred ?superSubObOb.\n"+
-			"}\n" +
-			"where \n" +
-			"    {?entity rdf:type sh:NodeShape.\n" +
-			"    ?entity ?predicate ?object.\n" +
-			"    filter (?predicate!=im:isA)\n" +
-			"    Optional {?predicate rdfs:label ?predicateLabel}\n" +
-			"    optional {\n" +
-			"        ?object rdfs:label ?objectLabel.\n"+
-	    "            filter(isIri(?object))}\n" +
-			"    optional {\n" +
-			"        ?object ?subPredicate ?subObject.\n" +
-			"        filter (isBlank(?object))\n" +
-			"        Optional { ?subPredicate rdfs:label ?subPredicateLabel}\n" +
-			"        Optional { ?subObject rdfs:label ?subObjectLabel" +
-			"                   filter(isIri(?subObject)) }\n" +
-			"        Optional { ?subObject ?subObPred ?subObOb.\n"+
-			"                   filter(isBlank(?subObject)) }\n" +
-			"    } \n" +
-			"    Optional {\n" +
-			"        ?entity rdfs:subPropertyOf+ ?superShape.\n" +
-			"        ?superShape rdf:type sh:NodeShape.\n"+
-			"        ?superShape ?superPred ?superOb.\n" +
-			"        filter(?superPred!=im:isA)\n" +
-			"        Optional { ?superPred rdfs:label ?superPredLabel}\n" +
-			"        Optional {\n" +
-			"          ?superOb ?superSubPred ?superSubOb.\n" +
-			"            filter (isBlank(?superOb))\n" +
-			"            Optional { ?superSubPred rdfs:label ?superSubPredLabel}\n" +
-			"            Optional { ?superSubOb rdfs:label ?superSubObLabel." +
-			"                       filter(isIri(?superSubOb)}\n" +
-			"            Optional { ?superSubOb ?superSubObPred ?superSubObOb.\n" +
-			"                       filter(isBlank(?superSubOb)) }\n"+
-			"        }}}";
+  /**
+   * Gets all properties from the information module e.g. for use to populate the cache
+   *
+   * @return maps from iri to shapes and predicate names for the property entity predicates.
+   * All iris referenced include their labels as names, except for the mode predicates themselves
+   */
+  public static TTEntityMap getProperties() {
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      GraphQuery qry = conn.prepareGraphQuery(addSparqlPrefixes(GET_ALL_PROPERTIES_SQL));
+      return GraphHelper.getEntityMap(qry);
+    }
+  }
 
-	}
+  public static final String PROPERTIES_SQL = """
+      CONSTRUCT {
+        ?entity ?predicate ?object.
+        ?predicate im:pLabel ?predicateLabel.
+        ?object im:oLabel ?objectLabel.
+        ?object ?subPredicate ?subObject.
+        ?subPredicate im:pLabel ?subPredicateLabel.
+        ?subObject im:oLabel ?subObjectLabel.
+        ?subObject ?subObPred  ?subObOb.
+        ?superShape ?superPred ?superOb.
+        ?superPred im:pLabel ?superPredLabel.
+        ?superOb ?superSubPred ?superSubOb.
+        ?superSubPred im:pLabel ?superSubPredLabel.
+        ?superSubOb im:oLabel ?superSubObLabel.
+        ?superSubOb ?superSubObPred ?superSubObOb.
+      }
+      WHERE {
+        ?entity rdf:type sh:NodeShape.
+        ?entity ?predicate ?object.
+        filter (?predicate!=im:isA)
+        Optional {?predicate rdfs:label ?predicateLabel}
+        OPTIONAL {
+          ?object rdfs:label ?objectLabel.
+          filter(isIri(?object))
+        }
+        OPTIONAL {
+          ?object ?subPredicate ?subObject.
+          filter (isBlank(?object))
+          Optional { ?subPredicate rdfs:label ?subPredicateLabel}
+          Optional {
+            ?subObject rdfs:label ?subObjectLabel
+            filter(isIri(?subObject))
+          }
+          Optional {
+            ?subObject ?subObPred ?subObOb.
+            filter(isBlank(?subObject))
+          }
+        }
+        Optional {
+          ?entity rdfs:subPropertyOf+ ?superShape.
+          ?superShape rdf:type sh:NodeShape.
+          ?superShape ?superPred ?superOb.
+          filter(?superPred!=im:isA)
+          Optional { ?superPred rdfs:label ?superPredLabel}
+          Optional {
+            ?superOb ?superSubPred ?superSubOb.
+            filter (isBlank(?superOb))
+            Optional { ?superSubPred rdfs:label ?superSubPredLabel}
+            Optional {
+              ?superSubOb rdfs:label ?superSubObLabel.
+              filter(isIri(?superSubOb)
+            }
+            Optional {
+              ?superSubOb ?superSubObPred ?superSubObOb.
+              filter(isBlank(?superSubOb))
+            }
+          }
+        }
+      }
+      """;
 
 
-	private static String getAllPropertiesSql(){
-		return "PREFIX im: <http://endhealth.info/im#>\n" +
-			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-			"PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n" +
-			"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
-			"PREFIX sh: <http://www.w3.org/ns/shacl#>\n" +
-			"CONSTRUCT {\n" +
-			"    ?entity ?predicate ?object.\n" +
-			"    ?predicate im:pLabel ?predicateLabel.\n" +
-			"    ?object im:oLabel ?objectLabel.\n" +
-			"    ?object ?subPredicate ?subObject.\n" +
-			"    ?subPredicate im:pLabel ?subPredicateLabel.\n" +
-			"    ?subObject im:oLabel ?subObjectLabel.\n" +
-			"    ?subObject ?subObPred ?subObOb.\n" +
-			"}\n" +
-			"where \n" +
-			"    {?entity rdf:type rdf:PropertyRef.\n" +
-			"    ?entity ?predicate ?object.\n" +
-			"    filter (?predicate!=im:isA)\n" +
-			"    Optional {?predicate rdfs:label ?predicateLabel}\n" +
-			"    optional {\n" +
-			"        ?object rdfs:label ?objectLabel." +
-			"          filter (isIri(?object)) }\n" +
-			"    optional {\n" +
-			"        ?object ?subPredicate ?subObject.\n" +
-			"        filter (isBlank(?object))\n" +
-			"        Optional { ?subPredicate rdfs:label ?subPredicateLabel}\n" +
-			"        Optional { ?subObject rdfs:label ?subObjectLabel.\n" +
-			"                    filter(isIri(?subObject))}\n" +
-			"        Optional { ?subObject ?subObPred ?subObOb.\n" +
-			"                   filter (isBlank(?subObject))}\n" +
-			"    } \n" +
-			" }";
-	}
+  private static final String GET_ALL_PROPERTIES_SQL = """
+      CONSTRUCT {
+        ?entity ?predicate ?object.
+        ?predicate im:pLabel ?predicateLabel.
+        ?object im:oLabel ?objectLabel.
+        ?object ?subPredicate ?subObject.
+        ?subPredicate im:pLabel ?subPredicateLabel.
+        ?subObject im:oLabel ?subObjectLabel.
+        ?subObject ?subObPred ?subObOb.
+      }
+      WHERE {
+        ?entity rdf:type rdf:PropertyRef.
+        ?entity ?predicate ?object.
+        filter (?predicate!=im:isA)
+        Optional {?predicate rdfs:label ?predicateLabel}
+        OPTIONAL {
+          ?object rdfs:label ?objectLabel.
+          filter (isIri(?object))
+        }
+        OPTIONAL {
+          ?object ?subPredicate ?subObject.
+          filter (isBlank(?object))
+          Optional { ?subPredicate rdfs:label ?subPredicateLabel}
+          Optional {
+            ?subObject rdfs:label ?subObjectLabel.
+            filter(isIri(?subObject))
+          }
+          Optional {
+            ?subObject ?subObPred ?subObOb.
+            filter (isBlank(?subObject))
+          }
+        }
+      }
+      """;
 }

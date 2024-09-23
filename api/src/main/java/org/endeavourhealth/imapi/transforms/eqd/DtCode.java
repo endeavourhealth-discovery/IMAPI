@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for dt.Code complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="dt.Code"&gt;
  *   &lt;complexContent&gt;
@@ -29,96 +29,82 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "dt.Code")
 @XmlSeeAlso({
-    DtCodeQualified.class
+  DtCodeQualified.class
 })
 public class DtCode {
 
-    @XmlAttribute(name = "codeSystem", required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String codeSystem;
-    @XmlAttribute(name = "displayName", required = true)
-    protected String displayName;
-    @XmlAttribute(name = "code", required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String code;
+  @XmlAttribute(name = "codeSystem", required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  protected String codeSystem;
+  @XmlAttribute(name = "displayName", required = true)
+  protected String displayName;
+  @XmlAttribute(name = "code", required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String code;
 
-    /**
-     * Gets the value of the codeSystem property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getCodeSystem() {
-        return codeSystem;
-    }
+  /**
+   * Gets the value of the codeSystem property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getCodeSystem() {
+    return codeSystem;
+  }
 
-    /**
-     * Sets the value of the codeSystem property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setCodeSystem(String value) {
-        this.codeSystem = value;
-    }
+  /**
+   * Sets the value of the codeSystem property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setCodeSystem(String value) {
+    this.codeSystem = value;
+  }
 
-    /**
-     * Gets the value of the displayName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDisplayName() {
-        return displayName;
-    }
+  /**
+   * Gets the value of the displayName property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getDisplayName() {
+    return displayName;
+  }
 
-    /**
-     * Sets the value of the displayName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDisplayName(String value) {
-        this.displayName = value;
-    }
+  /**
+   * Sets the value of the displayName property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setDisplayName(String value) {
+    this.displayName = value;
+  }
 
-    /**
-     * Gets the value of the code property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getCode() {
-        return code;
-    }
+  /**
+   * Gets the value of the code property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getCode() {
+    return code;
+  }
 
-    /**
-     * Sets the value of the code property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setCode(String value) {
-        this.code = value;
-    }
+  /**
+   * Sets the value of the code property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setCode(String value) {
+    this.code = value;
+  }
 
 }

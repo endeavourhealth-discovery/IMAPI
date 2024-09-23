@@ -15,7 +15,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.BinaryDataEncoding.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -26,42 +26,39 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.BinaryDataEncoding")
 @XmlEnum
 public enum VocBinaryDataEncoding {
 
 
-    /**
-     * Text
-     * 
-     */
-    TXT("TXT"),
+  /**
+   * Text
+   */
+  TXT("TXT"),
 
-    /**
-     * Base 64
-     * 
-     */
-    @XmlEnumValue("B64")
-    B_64("B64");
-    private final String value;
+  /**
+   * Base 64
+   */
+  @XmlEnumValue("B64")
+  B_64("B64");
+  private final String value;
 
-    VocBinaryDataEncoding(String v) {
-        value = v;
+  VocBinaryDataEncoding(String v) {
+    value = v;
+  }
+
+  public String value() {
+    return value;
+  }
+
+  public static VocBinaryDataEncoding fromValue(String v) {
+    for (VocBinaryDataEncoding c : VocBinaryDataEncoding.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
-
-    public String value() {
-        return value;
-    }
-
-    public static VocBinaryDataEncoding fromValue(String v) {
-        for (VocBinaryDataEncoding c: VocBinaryDataEncoding.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
-    }
+    throw new IllegalArgumentException(v);
+  }
 
 }

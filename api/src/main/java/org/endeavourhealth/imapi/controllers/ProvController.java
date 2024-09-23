@@ -20,15 +20,15 @@ import java.util.List;
 @RequestScope
 public class ProvController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ProvController.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProvController.class);
 
-    ProvService provService = new ProvService();
+  ProvService provService = new ProvService();
 
-    @GetMapping("/public/history")
-    public List<TTEntity> getProvHistory(@RequestParam(name = "iri") String iri) throws IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Prov.History.GET")) {
-            LOG.debug("getProvHistory");
-            return provService.getProvHistory(iri);
-        }
+  @GetMapping("/public/history")
+  public List<TTEntity> getProvHistory(@RequestParam(name = "iri") String iri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Prov.History.GET")) {
+      LOG.debug("getProvHistory");
+      return provService.getProvHistory(iri);
     }
+  }
 }

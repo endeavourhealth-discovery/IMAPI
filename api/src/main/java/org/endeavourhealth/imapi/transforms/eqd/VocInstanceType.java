@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.InstanceType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -35,31 +35,30 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.InstanceType")
 @XmlEnum
 public enum VocInstanceType {
 
-    DEFAULT,
-    HOW_AM_I_DRIVING,
-    LOOK_AHEAD_3,
-    REGULAR,
-    INTERIM,
-    CROSS_DB_CHILD,
-    LOOK_AHEAD_1,
-    LOOK_AHEAD_FIANCIAL,
-    QSURV_DAILY,
-    QSURV_WEEKLY_INCIDENCE,
-    QSURV_WEEKLY_TREND,
-    QSURV_MONTHLY;
+  DEFAULT,
+  HOW_AM_I_DRIVING,
+  LOOK_AHEAD_3,
+  REGULAR,
+  INTERIM,
+  CROSS_DB_CHILD,
+  LOOK_AHEAD_1,
+  LOOK_AHEAD_FIANCIAL,
+  QSURV_DAILY,
+  QSURV_WEEKLY_INCIDENCE,
+  QSURV_WEEKLY_TREND,
+  QSURV_MONTHLY;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocInstanceType fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocInstanceType fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for EQDOC.ListSortColumn complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.ListSortColumn"&gt;
  *   &lt;complexContent&gt;
@@ -30,70 +30,60 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.ListSortColumn", propOrder = {
-    "columnId",
-    "direction"
+  "columnId",
+  "direction"
 })
 public class EQDOCListSortColumn {
 
-    @XmlElement(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String columnId;
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "token")
-    protected VocOrderDirection direction;
+  @XmlElement(required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String columnId;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "token")
+  protected VocOrderDirection direction;
 
-    /**
-     * Gets the value of the columnId property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getColumnId() {
-        return columnId;
-    }
+  /**
+   * Gets the value of the columnId property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getColumnId() {
+    return columnId;
+  }
 
-    /**
-     * Sets the value of the columnId property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setColumnId(String value) {
-        this.columnId = value;
-    }
+  /**
+   * Sets the value of the columnId property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setColumnId(String value) {
+    this.columnId = value;
+  }
 
-    /**
-     * Gets the value of the direction property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocOrderDirection }
-     *     
-     */
-    public VocOrderDirection getDirection() {
-        return direction;
-    }
+  /**
+   * Gets the value of the direction property.
+   *
+   * @return possible object is
+   * {@link VocOrderDirection }
+   */
+  public VocOrderDirection getDirection() {
+    return direction;
+  }
 
-    /**
-     * Sets the value of the direction property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocOrderDirection }
-     *     
-     */
-    public void setDirection(VocOrderDirection value) {
-        this.direction = value;
-    }
+  /**
+   * Sets the value of the direction property.
+   *
+   * @param value allowed object is
+   *              {@link VocOrderDirection }
+   */
+  public void setDirection(VocOrderDirection value) {
+    this.direction = value;
+  }
 
 }

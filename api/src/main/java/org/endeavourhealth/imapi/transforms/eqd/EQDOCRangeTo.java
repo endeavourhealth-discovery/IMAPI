@@ -16,9 +16,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for EQDOC.RangeTo complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.RangeTo"&gt;
  *   &lt;complexContent&gt;
@@ -35,118 +35,100 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.RangeTo", propOrder = {
-    "operator",
-    "value",
-    "function",
-    "substitutionIdentifier"
+  "operator",
+  "value",
+  "function",
+  "substitutionIdentifier"
 })
 public class EQDOCRangeTo {
 
-    @XmlSchemaType(name = "token")
-    protected VocRangeToOperator operator;
-    protected EQDOCValue value;
-    protected EQDOCMethodCall function;
-    protected EQDOCSubstitutionIdentifier substitutionIdentifier;
+  @XmlSchemaType(name = "token")
+  protected VocRangeToOperator operator;
+  protected EQDOCValue value;
+  protected EQDOCMethodCall function;
+  protected EQDOCSubstitutionIdentifier substitutionIdentifier;
 
-    /**
-     * Gets the value of the operator property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocRangeToOperator }
-     *     
-     */
-    public VocRangeToOperator getOperator() {
-        return operator;
-    }
+  /**
+   * Gets the value of the operator property.
+   *
+   * @return possible object is
+   * {@link VocRangeToOperator }
+   */
+  public VocRangeToOperator getOperator() {
+    return operator;
+  }
 
-    /**
-     * Sets the value of the operator property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocRangeToOperator }
-     *     
-     */
-    public void setOperator(VocRangeToOperator value) {
-        this.operator = value;
-    }
+  /**
+   * Sets the value of the operator property.
+   *
+   * @param value allowed object is
+   *              {@link VocRangeToOperator }
+   */
+  public void setOperator(VocRangeToOperator value) {
+    this.operator = value;
+  }
 
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCValue }
-     *     
-     */
-    public EQDOCValue getValue() {
-        return value;
-    }
+  /**
+   * Gets the value of the value property.
+   *
+   * @return possible object is
+   * {@link EQDOCValue }
+   */
+  public EQDOCValue getValue() {
+    return value;
+  }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCValue }
-     *     
-     */
-    public void setValue(EQDOCValue value) {
-        this.value = value;
-    }
+  /**
+   * Sets the value of the value property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCValue }
+   */
+  public void setValue(EQDOCValue value) {
+    this.value = value;
+  }
 
-    /**
-     * Gets the value of the function property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCMethodCall }
-     *     
-     */
-    public EQDOCMethodCall getFunction() {
-        return function;
-    }
+  /**
+   * Gets the value of the function property.
+   *
+   * @return possible object is
+   * {@link EQDOCMethodCall }
+   */
+  public EQDOCMethodCall getFunction() {
+    return function;
+  }
 
-    /**
-     * Sets the value of the function property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCMethodCall }
-     *     
-     */
-    public void setFunction(EQDOCMethodCall value) {
-        this.function = value;
-    }
+  /**
+   * Sets the value of the function property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCMethodCall }
+   */
+  public void setFunction(EQDOCMethodCall value) {
+    this.function = value;
+  }
 
-    /**
-     * Gets the value of the substitutionIdentifier property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCSubstitutionIdentifier }
-     *     
-     */
-    public EQDOCSubstitutionIdentifier getSubstitutionIdentifier() {
-        return substitutionIdentifier;
-    }
+  /**
+   * Gets the value of the substitutionIdentifier property.
+   *
+   * @return possible object is
+   * {@link EQDOCSubstitutionIdentifier }
+   */
+  public EQDOCSubstitutionIdentifier getSubstitutionIdentifier() {
+    return substitutionIdentifier;
+  }
 
-    /**
-     * Sets the value of the substitutionIdentifier property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCSubstitutionIdentifier }
-     *     
-     */
-    public void setSubstitutionIdentifier(EQDOCSubstitutionIdentifier value) {
-        this.substitutionIdentifier = value;
-    }
+  /**
+   * Sets the value of the substitutionIdentifier property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCSubstitutionIdentifier }
+   */
+  public void setSubstitutionIdentifier(EQDOCSubstitutionIdentifier value) {
+    this.substitutionIdentifier = value;
+  }
 
 }

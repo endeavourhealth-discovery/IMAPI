@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * <p>Java class for dt.Contact complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="dt.Contact"&gt;
  *   &lt;complexContent&gt;
@@ -37,98 +37,83 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "dt.Contact", propOrder = {
-    "id",
-    "contactType",
-    "value"
+  "id",
+  "contactType",
+  "value"
 })
 public class DtContact
-    extends DtDbo
-{
+  extends DtDbo {
 
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String id;
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "token")
-    protected VocContactType contactType;
-    @XmlElement(required = true)
-    protected String value;
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String id;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "token")
+  protected VocContactType contactType;
+  @XmlElement(required = true)
+  protected String value;
 
-    /**
-     * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getId() {
-        return id;
-    }
+  /**
+   * Gets the value of the id property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getId() {
+    return id;
+  }
 
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setId(String value) {
-        this.id = value;
-    }
+  /**
+   * Sets the value of the id property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setId(String value) {
+    this.id = value;
+  }
 
-    /**
-     * Gets the value of the contactType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocContactType }
-     *     
-     */
-    public VocContactType getContactType() {
-        return contactType;
-    }
+  /**
+   * Gets the value of the contactType property.
+   *
+   * @return possible object is
+   * {@link VocContactType }
+   */
+  public VocContactType getContactType() {
+    return contactType;
+  }
 
-    /**
-     * Sets the value of the contactType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocContactType }
-     *     
-     */
-    public void setContactType(VocContactType value) {
-        this.contactType = value;
-    }
+  /**
+   * Sets the value of the contactType property.
+   *
+   * @param value allowed object is
+   *              {@link VocContactType }
+   */
+  public void setContactType(VocContactType value) {
+    this.contactType = value;
+  }
 
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getValue() {
-        return value;
-    }
+  /**
+   * Gets the value of the value property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getValue() {
+    return value;
+  }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setValue(String value) {
-        this.value = value;
-    }
+  /**
+   * Sets the value of the value property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setValue(String value) {
+    this.value = value;
+  }
 
 }

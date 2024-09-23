@@ -21,19 +21,20 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("api/function")
 @CrossOrigin(origins = "*")
-@Tag(name="FunctionController")
+@Tag(name = "FunctionController")
 @RequestScope
 public class FunctionController {
-	private static final Logger LOG = LoggerFactory.getLogger(FunctionController.class);
-	@PostMapping( "/public/callFunction")
-	@Operation(
-		summary = "function",
-		description = "Runs a function IM passing in the iri of the function and a list (map) parameter name/ value arguments"
-	)
-	public JsonNode callFunction(HttpServletRequest request, @RequestBody FunctionRequest function) throws Exception {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Function.CallFunction.POST")) {
-            LOG.debug("callFunction");
-            return new FunctionService().callFunction(request, function.getFunctionIri(), function.getArguments());
-        }
+  private static final Logger LOG = LoggerFactory.getLogger(FunctionController.class);
+
+  @PostMapping("/public/callFunction")
+  @Operation(
+    summary = "function",
+    description = "Runs a function IM passing in the iri of the function and a list (map) parameter name/ value arguments"
+  )
+  public JsonNode callFunction(HttpServletRequest request, @RequestBody FunctionRequest function) throws Exception {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Function.CallFunction.POST")) {
+      LOG.debug("callFunction");
+      return new FunctionService().callFunction(request, function.getFunctionIri(), function.getArguments());
     }
+  }
 }

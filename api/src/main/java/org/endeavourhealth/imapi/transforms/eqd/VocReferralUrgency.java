@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.ReferralUrgency.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -28,49 +28,43 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.ReferralUrgency")
 @XmlEnum
 public enum VocReferralUrgency {
 
 
-    /**
-     * Routine
-     * 
-     */
-    R,
+  /**
+   * Routine
+   */
+  R,
 
-    /**
-     * Soon
-     * 
-     */
-    S,
+  /**
+   * Soon
+   */
+  S,
 
-    /**
-     * Urgent
-     * 
-     */
-    U,
+  /**
+   * Urgent
+   */
+  U,
 
-    /**
-     * Dated
-     * 
-     */
-    D,
+  /**
+   * Dated
+   */
+  D,
 
-    /**
-     * Two Week Wait
-     * 
-     */
-    T;
+  /**
+   * Two Week Wait
+   */
+  T;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocReferralUrgency fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocReferralUrgency fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

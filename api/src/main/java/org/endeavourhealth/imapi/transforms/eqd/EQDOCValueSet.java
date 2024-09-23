@@ -11,15 +11,16 @@ package org.endeavourhealth.imapi.transforms.eqd;
 import jakarta.xml.bind.annotation.*;
 import jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * <p>Java class for EQDOC.ValueSet complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.ValueSet"&gt;
  *   &lt;complexContent&gt;
@@ -38,186 +39,164 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.ValueSet", propOrder = {
-    "id",
-    "codeSystem",
-    "description",
-    "allValues",
-    "values",
-    "clusterCode"
+  "id",
+  "codeSystem",
+  "description",
+  "allValues",
+  "values",
+  "clusterCode"
 })
 public class EQDOCValueSet {
 
-    @XmlElement(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected String id;
-    @XmlElement(required = true)
-    @XmlSchemaType(name = "token")
-    protected VocCodeSystemEx codeSystem;
-    protected String description;
-    protected EQDOCException allValues;
-    protected List<EQDOCValueSetValue> values;
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlSchemaType(name = "token")
-    protected List<String> clusterCode;
+  @XmlElement(required = true)
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected String id;
+  @XmlElement(required = true)
+  @XmlSchemaType(name = "token")
+  protected VocCodeSystemEx codeSystem;
+  protected String description;
+  protected EQDOCException allValues;
+  protected List<EQDOCValueSetValue> values;
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  @XmlSchemaType(name = "token")
+  protected List<String> clusterCode;
 
-    /**
-     * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getId() {
-        return id;
-    }
+  /**
+   * Gets the value of the id property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getId() {
+    return id;
+  }
 
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setId(String value) {
-        this.id = value;
-    }
+  /**
+   * Sets the value of the id property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setId(String value) {
+    this.id = value;
+  }
 
-    /**
-     * Gets the value of the codeSystem property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocCodeSystemEx }
-     *     
-     */
-    public VocCodeSystemEx getCodeSystem() {
-        return codeSystem;
-    }
+  /**
+   * Gets the value of the codeSystem property.
+   *
+   * @return possible object is
+   * {@link VocCodeSystemEx }
+   */
+  public VocCodeSystemEx getCodeSystem() {
+    return codeSystem;
+  }
 
-    /**
-     * Sets the value of the codeSystem property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocCodeSystemEx }
-     *     
-     */
-    public void setCodeSystem(VocCodeSystemEx value) {
-        this.codeSystem = value;
-    }
+  /**
+   * Sets the value of the codeSystem property.
+   *
+   * @param value allowed object is
+   *              {@link VocCodeSystemEx }
+   */
+  public void setCodeSystem(VocCodeSystemEx value) {
+    this.codeSystem = value;
+  }
 
-    /**
-     * Gets the value of the description property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDescription() {
-        return description;
-    }
+  /**
+   * Gets the value of the description property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getDescription() {
+    return description;
+  }
 
-    /**
-     * Sets the value of the description property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDescription(String value) {
-        this.description = value;
-    }
+  /**
+   * Sets the value of the description property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setDescription(String value) {
+    this.description = value;
+  }
 
-    /**
-     * Gets the value of the allValues property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCException }
-     *     
-     */
-    public EQDOCException getAllValues() {
-        return allValues;
-    }
+  /**
+   * Gets the value of the allValues property.
+   *
+   * @return possible object is
+   * {@link EQDOCException }
+   */
+  public EQDOCException getAllValues() {
+    return allValues;
+  }
 
-    /**
-     * Sets the value of the allValues property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCException }
-     *     
-     */
-    public void setAllValues(EQDOCException value) {
-        this.allValues = value;
-    }
+  /**
+   * Sets the value of the allValues property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCException }
+   */
+  public void setAllValues(EQDOCException value) {
+    this.allValues = value;
+  }
 
-    /**
-     * Gets the value of the values property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the values property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getValues().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCValueSetValue }
-     * 
-     * 
-     */
-    public List<EQDOCValueSetValue> getValues() {
-        if (values == null) {
-            values = new ArrayList<EQDOCValueSetValue>();
-        }
-        return this.values;
+  /**
+   * Gets the value of the values property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the values property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getValues().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCValueSetValue }
+   */
+  public List<EQDOCValueSetValue> getValues() {
+    if (values == null) {
+      values = new ArrayList<EQDOCValueSetValue>();
     }
+    return this.values;
+  }
 
-    /**
-     * Gets the value of the clusterCode property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the clusterCode property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getClusterCode().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link String }
-     * 
-     * 
-     */
-    public List<String> getClusterCode() {
-        if (clusterCode == null) {
-            clusterCode = new ArrayList<String>();
-        }
-        return this.clusterCode;
+  /**
+   * Gets the value of the clusterCode property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the clusterCode property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getClusterCode().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link String }
+   */
+  public List<String> getClusterCode() {
+    if (clusterCode == null) {
+      clusterCode = new ArrayList<String>();
     }
+    return this.clusterCode;
+  }
 
 }

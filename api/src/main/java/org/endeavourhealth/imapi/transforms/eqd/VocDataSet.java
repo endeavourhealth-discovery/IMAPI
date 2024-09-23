@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.DataSet.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -25,31 +25,28 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.DataSet")
 @XmlEnum
 public enum VocDataSet {
 
 
-    /**
-     * Retinal Screening Code
-     * 
-     */
-    RSC,
+  /**
+   * Retinal Screening Code
+   */
+  RSC,
 
-    /**
-     * Childhood Immunisation Code
-     * 
-     */
-    CIC;
+  /**
+   * Childhood Immunisation Code
+   */
+  CIC;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocDataSet fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocDataSet fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

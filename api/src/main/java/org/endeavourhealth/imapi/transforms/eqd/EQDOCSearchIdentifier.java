@@ -18,11 +18,11 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * Defines the version independent GUID of a pop man search
- * 
+ *
  * <p>Java class for EQDOC.SearchIdentifier complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.SearchIdentifier"&gt;
  *   &lt;complexContent&gt;
@@ -34,92 +34,78 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.SearchIdentifier")
 public class EQDOCSearchIdentifier {
 
-    @XmlAttribute(name = "reportGuid")
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String reportGuid;
-    @XmlAttribute(name = "versionIndependentGuid")
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String versionIndependentGuid;
-    @XmlAttribute(name = "populationType")
-    protected VocInstanceType populationType;
+  @XmlAttribute(name = "reportGuid")
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  protected String reportGuid;
+  @XmlAttribute(name = "versionIndependentGuid")
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  protected String versionIndependentGuid;
+  @XmlAttribute(name = "populationType")
+  protected VocInstanceType populationType;
 
-    /**
-     * Gets the value of the reportGuid property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getReportGuid() {
-        return reportGuid;
-    }
+  /**
+   * Gets the value of the reportGuid property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getReportGuid() {
+    return reportGuid;
+  }
 
-    /**
-     * Sets the value of the reportGuid property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setReportGuid(String value) {
-        this.reportGuid = value;
-    }
+  /**
+   * Sets the value of the reportGuid property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setReportGuid(String value) {
+    this.reportGuid = value;
+  }
 
-    /**
-     * Gets the value of the versionIndependentGuid property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getVersionIndependentGuid() {
-        return versionIndependentGuid;
-    }
+  /**
+   * Gets the value of the versionIndependentGuid property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getVersionIndependentGuid() {
+    return versionIndependentGuid;
+  }
 
-    /**
-     * Sets the value of the versionIndependentGuid property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setVersionIndependentGuid(String value) {
-        this.versionIndependentGuid = value;
-    }
+  /**
+   * Sets the value of the versionIndependentGuid property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setVersionIndependentGuid(String value) {
+    this.versionIndependentGuid = value;
+  }
 
-    /**
-     * Gets the value of the populationType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocInstanceType }
-     *     
-     */
-    public VocInstanceType getPopulationType() {
-        return populationType;
-    }
+  /**
+   * Gets the value of the populationType property.
+   *
+   * @return possible object is
+   * {@link VocInstanceType }
+   */
+  public VocInstanceType getPopulationType() {
+    return populationType;
+  }
 
-    /**
-     * Sets the value of the populationType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocInstanceType }
-     *     
-     */
-    public void setPopulationType(VocInstanceType value) {
-        this.populationType = value;
-    }
+  /**
+   * Sets the value of the populationType property.
+   *
+   * @param value allowed object is
+   *              {@link VocInstanceType }
+   */
+  public void setPopulationType(VocInstanceType value) {
+    this.populationType = value;
+  }
 
 }

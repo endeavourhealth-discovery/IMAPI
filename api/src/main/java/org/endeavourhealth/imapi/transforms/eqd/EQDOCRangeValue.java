@@ -16,9 +16,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for EQDOC.RangeValue complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.RangeValue"&gt;
  *   &lt;complexContent&gt;
@@ -32,91 +32,77 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.RangeValue", propOrder = {
-    "rangeFrom",
-    "rangeTo"
+  "rangeFrom",
+  "rangeTo"
 })
 public class EQDOCRangeValue {
 
-    protected EQDOCRangeFrom rangeFrom;
-    protected EQDOCRangeTo rangeTo;
-    @XmlAttribute(name = "relativeTo")
-    protected String relativeTo;
+  protected EQDOCRangeFrom rangeFrom;
+  protected EQDOCRangeTo rangeTo;
+  @XmlAttribute(name = "relativeTo")
+  protected String relativeTo;
 
-    /**
-     * Gets the value of the rangeFrom property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCRangeFrom }
-     *     
-     */
-    public EQDOCRangeFrom getRangeFrom() {
-        return rangeFrom;
-    }
+  /**
+   * Gets the value of the rangeFrom property.
+   *
+   * @return possible object is
+   * {@link EQDOCRangeFrom }
+   */
+  public EQDOCRangeFrom getRangeFrom() {
+    return rangeFrom;
+  }
 
-    /**
-     * Sets the value of the rangeFrom property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCRangeFrom }
-     *     
-     */
-    public void setRangeFrom(EQDOCRangeFrom value) {
-        this.rangeFrom = value;
-    }
+  /**
+   * Sets the value of the rangeFrom property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCRangeFrom }
+   */
+  public void setRangeFrom(EQDOCRangeFrom value) {
+    this.rangeFrom = value;
+  }
 
-    /**
-     * Gets the value of the rangeTo property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCRangeTo }
-     *     
-     */
-    public EQDOCRangeTo getRangeTo() {
-        return rangeTo;
-    }
+  /**
+   * Gets the value of the rangeTo property.
+   *
+   * @return possible object is
+   * {@link EQDOCRangeTo }
+   */
+  public EQDOCRangeTo getRangeTo() {
+    return rangeTo;
+  }
 
-    /**
-     * Sets the value of the rangeTo property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCRangeTo }
-     *     
-     */
-    public void setRangeTo(EQDOCRangeTo value) {
-        this.rangeTo = value;
-    }
+  /**
+   * Sets the value of the rangeTo property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCRangeTo }
+   */
+  public void setRangeTo(EQDOCRangeTo value) {
+    this.rangeTo = value;
+  }
 
-    /**
-     * Gets the value of the relativeTo property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getRelativeTo() {
-        return relativeTo;
-    }
+  /**
+   * Gets the value of the relativeTo property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getRelativeTo() {
+    return relativeTo;
+  }
 
-    /**
-     * Sets the value of the relativeTo property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setRelativeTo(String value) {
-        this.relativeTo = value;
-    }
+  /**
+   * Sets the value of the relativeTo property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setRelativeTo(String value) {
+    this.relativeTo = value;
+  }
 
 }

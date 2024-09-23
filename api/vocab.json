@@ -26,7 +26,6 @@
         "name": "FILTER_DEFAULTS",
         "value": "CONFIG.NAMESPACE + \"filterDefaults\""
       },
-
       {
         "name": "INFERRED_PREDICATES",
         "value": "CONFIG.NAMESPACE + \"inferredPredicates\""
@@ -107,6 +106,15 @@
     ]
   },
   {
+    "name": "IMQ",
+    "entries": [
+      {
+        "name": "NAMESPACE",
+        "value": "\"http://endhealth.info/imq#\""
+      }
+    ]
+  },
+  {
     "name": "IM",
     "entries": [
       {
@@ -136,6 +144,10 @@
       {
         "name": "id",
         "value": "IM.NAMESPACE + \"id\""
+      },
+      {
+        "name": "RELATIONSHIP_TYPE",
+        "value": "IM.NAMESPACE+\"relationshipType\""
       },
       {
         "name": "CODE",
@@ -252,6 +264,14 @@
       {
         "name": "DATAMODEL_PROPERTY",
         "value": "IM.NAMESPACE + \"dataModelProperty\""
+      },
+      {
+        "name": "ONTOLOGY_PARENT_FOLDER",
+        "value": "IM.NAMESPACE + \"HealthModelOntology\""
+      },
+      {
+        "name": "PROPERTIES_FOLDER",
+        "value": "IM.NAMESPACE + \"Properties\""
       },
       {
         "name": "TASK",
@@ -658,16 +678,8 @@
         "value": "IM.NAMESPACE + \"example\""
       },
       {
-        "name": "IM1ID",
-        "value": "IM.NAMESPACE + \"im1Id\""
-      },
-      {
         "name": "PRIVACY_LEVEL",
         "value": "IM.NAMESPACE + \"privacyLevel\""
-      },
-      {
-        "name": "IM1SCHEME",
-        "value": "IM.NAMESPACE + \"im1Scheme\""
       },
       {
         "name": "VALUE_SELECT",
@@ -972,6 +984,50 @@
       {
         "name": "DATAMODEL_CLASSES",
         "value": "IM.NAMESPACE + \"DataModelClasses\""
+      },
+      {
+        "name": "DATE_TIME",
+        "value": "IM.NAMESPACE + \"DateTime\""
+      },
+      {
+        "name": "TEMPLATE_NUMERIC_EVENT_ORDER",
+        "value": "IM.NAMESPACE + \"TEMPLATE_NumericEventOrder\""
+      },
+      {
+        "name": "ORDER_BY",
+        "value": "IM.NAMESPACE + \"OrderBy\""
+      },
+      {
+        "name": "PARAMETER_TEMPLATE",
+        "value": "IM.NAMESPACE + \"parameterTemplate\""
+      },
+      {
+        "name": "VALUE_TEMPLATE",
+        "value": "IM.NAMESPACE + \"valueTemplate\""
+      },
+      {
+        "name": "DEFAULT_VALUE",
+        "value": "IM.NAMESPACE + \"defaultValue\""
+      },
+      {
+        "name": "LOAD_MORE",
+        "value": "IM.NAMESPACE + \"loadMore\""
+      },
+      {
+        "name": "DATA_MODEL_CONCEPT",
+        "value": "IM.NAMESPACE + \"concept\""
+      },
+      {
+        "name": "NUMERIC_VALUE",
+        "value": "IM.NAMESPACE + \"NumericValue\""
+      },
+      {
+        "name": "HEALTH_RECORDS",
+        "value": "IM.NAMESPACE + \"HealthRecords\""
+      },
+      {
+        "name": "HAS_INCREMENTAL_FROM",
+        "value": "IM.NAMESPACE + \"hasIncrementalFrom\""
       }
     ]
   },
@@ -1263,9 +1319,9 @@
       {
         "name": "NAMESPACE",
         "value": "BNF.DOMAIN + \"bnf#\""
-      }]
       }
-    ,
+    ]
+  },
   {
     "name": "QR",
     "entries": [
@@ -1555,7 +1611,7 @@
       },
       {
         "name": "ATTRIBUTE",
-        "value": "SNOMED.DOMAIN + \"246061005\""
+        "value": "SNOMED.NAMESPACE + \"246061005\""
       },
       {
         "name": "ANY",
@@ -1579,8 +1635,20 @@
         "value": "\"usr\""
       },
       {
-        "name": "USER_THEME",
-        "value": "USER.DOMAIN + \"UserTheme\""
+        "name": "USER_PRESET",
+        "value": "USER.DOMAIN + \"UserPreset\""
+      },
+      {
+        "name": "USER_PRIMARY_COLOR",
+        "value": "USER.DOMAIN + \"UserPrimaryColor\""
+      },
+      {
+        "name": "USER_SURFACE_COLOR",
+        "value": "USER.DOMAIN + \"UserSurfaceColor\""
+      },
+      {
+        "name": "USER_DARK_MODE",
+        "value": "USER.DOMAIN + \"UserDarkMode\""
       },
       {
         "name": "USER_SCALE",
@@ -1644,8 +1712,16 @@
         "value": "WORKFLOW.NAMESPACE + \"operatingSystem\""
       },
       {
+        "name": "OPERATING_SYSTEM_OTHER",
+        "value": "WORKFLOW.NAMESPACE + \"operatingSystemOther\""
+      },
+      {
         "name": "BROWSER",
         "value": "WORKFLOW.NAMESPACE + \"browser\""
+      },
+      {
+        "name": "BROWSER_OTHER",
+        "value": "WORKFLOW.NAMESPACE + \"browserOther\""
       },
       {
         "name": "SEVERITY",
@@ -1670,6 +1746,38 @@
       {
         "name": "RELATED_VERSION",
         "value": "WORKFLOW.NAMESPACE + \"relatedVersion\""
+      },
+      {
+        "name": "REQUESTED_ROLE",
+        "value": "WORKFLOW.NAMESPACE + \"requestedRole\""
+      },
+      {
+        "name": "APPROVAL_TYPE",
+        "value": "WORKFLOW.NAMESPACE + \"approvalType\""
+      },
+      {
+        "name": "HISTORY",
+        "value": "WORKFLOW.NAMESPACE + \"history\""
+      },
+      {
+        "name": "HISTORY_PREDICATE",
+        "value": "WORKFLOW.NAMESPACE + \"historyPredicate\""
+      },
+      {
+        "name": "HISTORY_ORIGINAL_OBJECT",
+        "value": "WORKFLOW.NAMESPACE + \"historyOriginalObject\""
+      },
+      {
+        "name": "HISTORY_NEW_OBJECT",
+        "value": "WORKFLOW.NAMESPACE + \"historyNewObject\""
+      },
+      {
+        "name": "HISTORY_CHANGE_DATE",
+        "value": "WORKFLOW.NAMESPACE + \"historyChangeDate\""
+      },
+      {
+        "name": "MODIFIED_BY",
+        "value": "WORKFLOW.NAMESPACE + \"modifiedBy\""
       }
     ]
   },
@@ -1731,6 +1839,10 @@
       {
         "name": "NUMBER",
         "value": "XSD.NAMESPACE + \"number\""
+      },
+      {
+        "name": "DECIMAL",
+        "value": "XSD.NAMESPACE + \"decimal\""
       }
     ]
   },
@@ -1908,10 +2020,6 @@
         "value": "QUERY.NAMESPACE + \"AllowableRangeSuggestions\""
       },
       {
-        "name": "GET_ISAS",
-        "value": "QUERY.NAMESPACE + \"GetIsas\""
-      },
-      {
         "name": "GET_DESCENDANTS",
         "value": "QUERY.NAMESPACE + \"GetDescendants\""
       },
@@ -1923,7 +2031,6 @@
         "name": "SEARCH_CONTAINED_IN",
         "value": "QUERY.NAMESPACE + \"SearchContainedIn\""
       },
-
       {
         "name": "ALLOWABLE_CHILD_TYPES",
         "value": "QUERY.NAMESPACE + \"AllowableChildTypes\""
@@ -2107,8 +2214,8 @@
         "value": "\"http://endhealth.info/config#\""
       },
       {
-        "name": "CEG_QUERY",
-        "value": "\"http://endhealth.info/ceg/qry#\""
+        "name": "CEG",
+        "value": "\"http://endhealth.info/ceg#\""
       },
       {
         "name": "NHS_TFC",
@@ -2129,10 +2236,6 @@
       {
         "name": "QUERY",
         "value": "\"http://endhealth.info/query#\""
-      },
-      {
-        "name": "CEG16",
-        "value": "\"http://endhealth.info/ceg16#\""
       },
       {
         "name": "REPORTS",

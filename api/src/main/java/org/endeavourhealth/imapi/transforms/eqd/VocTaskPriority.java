@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.TaskPriority.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -26,22 +26,21 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.TaskPriority")
 @XmlEnum
 public enum VocTaskPriority {
 
-    HIGH,
-    LOW,
-    NORMAL;
+  HIGH,
+  LOW,
+  NORMAL;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocTaskPriority fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocTaskPriority fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

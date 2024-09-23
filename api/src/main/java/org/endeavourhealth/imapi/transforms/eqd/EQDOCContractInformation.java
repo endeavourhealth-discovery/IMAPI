@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for EQDOC.ContractInformation complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.ContractInformation"&gt;
  *   &lt;complexContent&gt;
@@ -32,109 +32,93 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.ContractInformation", propOrder = {
-    "scoreNeeded",
-    "minimum",
-    "maximum",
-    "target"
+  "scoreNeeded",
+  "minimum",
+  "maximum",
+  "target"
 })
 public class EQDOCContractInformation {
 
-    protected boolean scoreNeeded;
-    protected Integer minimum;
-    protected Integer maximum;
-    protected Integer target;
+  protected boolean scoreNeeded;
+  protected Integer minimum;
+  protected Integer maximum;
+  protected Integer target;
 
-    /**
-     * Gets the value of the scoreNeeded property.
-     * 
-     */
-    public boolean isScoreNeeded() {
-        return scoreNeeded;
-    }
+  /**
+   * Gets the value of the scoreNeeded property.
+   */
+  public boolean isScoreNeeded() {
+    return scoreNeeded;
+  }
 
-    /**
-     * Sets the value of the scoreNeeded property.
-     * 
-     */
-    public void setScoreNeeded(boolean value) {
-        this.scoreNeeded = value;
-    }
+  /**
+   * Sets the value of the scoreNeeded property.
+   */
+  public void setScoreNeeded(boolean value) {
+    this.scoreNeeded = value;
+  }
 
-    /**
-     * Gets the value of the minimum property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
-     */
-    public Integer getMinimum() {
-        return minimum;
-    }
+  /**
+   * Gets the value of the minimum property.
+   *
+   * @return possible object is
+   * {@link Integer }
+   */
+  public Integer getMinimum() {
+    return minimum;
+  }
 
-    /**
-     * Sets the value of the minimum property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
-     */
-    public void setMinimum(Integer value) {
-        this.minimum = value;
-    }
+  /**
+   * Sets the value of the minimum property.
+   *
+   * @param value allowed object is
+   *              {@link Integer }
+   */
+  public void setMinimum(Integer value) {
+    this.minimum = value;
+  }
 
-    /**
-     * Gets the value of the maximum property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
-     */
-    public Integer getMaximum() {
-        return maximum;
-    }
+  /**
+   * Gets the value of the maximum property.
+   *
+   * @return possible object is
+   * {@link Integer }
+   */
+  public Integer getMaximum() {
+    return maximum;
+  }
 
-    /**
-     * Sets the value of the maximum property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
-     */
-    public void setMaximum(Integer value) {
-        this.maximum = value;
-    }
+  /**
+   * Sets the value of the maximum property.
+   *
+   * @param value allowed object is
+   *              {@link Integer }
+   */
+  public void setMaximum(Integer value) {
+    this.maximum = value;
+  }
 
-    /**
-     * Gets the value of the target property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
-     */
-    public Integer getTarget() {
-        return target;
-    }
+  /**
+   * Gets the value of the target property.
+   *
+   * @return possible object is
+   * {@link Integer }
+   */
+  public Integer getTarget() {
+    return target;
+  }
 
-    /**
-     * Sets the value of the target property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
-     */
-    public void setTarget(Integer value) {
-        this.target = value;
-    }
+  /**
+   * Sets the value of the target property.
+   *
+   * @param value allowed object is
+   *              {@link Integer }
+   */
+  public void setTarget(Integer value) {
+    this.target = value;
+  }
 
 }

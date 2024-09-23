@@ -8,10 +8,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SpringDocConfig {
 
-	@Bean
-	public OpenAPI api() {
-		return new OpenAPI()
-				.info(new Info().title("IMAPI"));
-	}
+  @Bean
+  public OpenAPI api() {
+    return new OpenAPI()
+      .info(new Info().title("IMAPI"));
+  }
 
 }

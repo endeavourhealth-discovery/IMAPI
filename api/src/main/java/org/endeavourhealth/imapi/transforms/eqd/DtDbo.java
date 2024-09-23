@@ -11,16 +11,17 @@ package org.endeavourhealth.imapi.transforms.eqd;
 import jakarta.xml.bind.annotation.*;
 import jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
  * Database Object
- * 
+ *
  * <p>Java class for dt.dbo complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="dt.dbo"&gt;
  *   &lt;complexContent&gt;
@@ -33,130 +34,112 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "dt.dbo")
 @XmlSeeAlso({
-    DtContact.class,
-    DtPatientIdentifier.class,
-    DtUserIdentifier.class,
-    EQDOCFolder.class,
-    EQDOCReport.class,
-    EQDOCLibraryItem.class,
-    EQDOCMailMerge.class
+  DtContact.class,
+  DtPatientIdentifier.class,
+  DtUserIdentifier.class,
+  EQDOCFolder.class,
+  EQDOCReport.class,
+  EQDOCLibraryItem.class,
+  EQDOCMailMerge.class
 })
 public class DtDbo {
 
-    @XmlAttribute(name = "updateMode")
-    protected VocUpdateMode updateMode;
-    @XmlAttribute(name = "auditDeleteDate")
-    protected XMLGregorianCalendar auditDeleteDate;
-    @XmlAttribute(name = "auditDeleteUserInRole")
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String auditDeleteUserInRole;
-    @XmlAttribute(name = "auditDeleteInfo")
-    protected String auditDeleteInfo;
+  @XmlAttribute(name = "updateMode")
+  protected VocUpdateMode updateMode;
+  @XmlAttribute(name = "auditDeleteDate")
+  protected XMLGregorianCalendar auditDeleteDate;
+  @XmlAttribute(name = "auditDeleteUserInRole")
+  @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+  protected String auditDeleteUserInRole;
+  @XmlAttribute(name = "auditDeleteInfo")
+  protected String auditDeleteInfo;
 
-    /**
-     * Gets the value of the updateMode property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocUpdateMode }
-     *     
-     */
-    public VocUpdateMode getUpdateMode() {
-        if (updateMode == null) {
-            return VocUpdateMode.NONE;
-        } else {
-            return updateMode;
-        }
+  /**
+   * Gets the value of the updateMode property.
+   *
+   * @return possible object is
+   * {@link VocUpdateMode }
+   */
+  public VocUpdateMode getUpdateMode() {
+    if (updateMode == null) {
+      return VocUpdateMode.NONE;
+    } else {
+      return updateMode;
     }
+  }
 
-    /**
-     * Sets the value of the updateMode property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocUpdateMode }
-     *     
-     */
-    public void setUpdateMode(VocUpdateMode value) {
-        this.updateMode = value;
-    }
+  /**
+   * Sets the value of the updateMode property.
+   *
+   * @param value allowed object is
+   *              {@link VocUpdateMode }
+   */
+  public void setUpdateMode(VocUpdateMode value) {
+    this.updateMode = value;
+  }
 
-    /**
-     * Gets the value of the auditDeleteDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getAuditDeleteDate() {
-        return auditDeleteDate;
-    }
+  /**
+   * Gets the value of the auditDeleteDate property.
+   *
+   * @return possible object is
+   * {@link XMLGregorianCalendar }
+   */
+  public XMLGregorianCalendar getAuditDeleteDate() {
+    return auditDeleteDate;
+  }
 
-    /**
-     * Sets the value of the auditDeleteDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setAuditDeleteDate(XMLGregorianCalendar value) {
-        this.auditDeleteDate = value;
-    }
+  /**
+   * Sets the value of the auditDeleteDate property.
+   *
+   * @param value allowed object is
+   *              {@link XMLGregorianCalendar }
+   */
+  public void setAuditDeleteDate(XMLGregorianCalendar value) {
+    this.auditDeleteDate = value;
+  }
 
-    /**
-     * Gets the value of the auditDeleteUserInRole property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAuditDeleteUserInRole() {
-        return auditDeleteUserInRole;
-    }
+  /**
+   * Gets the value of the auditDeleteUserInRole property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getAuditDeleteUserInRole() {
+    return auditDeleteUserInRole;
+  }
 
-    /**
-     * Sets the value of the auditDeleteUserInRole property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAuditDeleteUserInRole(String value) {
-        this.auditDeleteUserInRole = value;
-    }
+  /**
+   * Sets the value of the auditDeleteUserInRole property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setAuditDeleteUserInRole(String value) {
+    this.auditDeleteUserInRole = value;
+  }
 
-    /**
-     * Gets the value of the auditDeleteInfo property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAuditDeleteInfo() {
-        return auditDeleteInfo;
-    }
+  /**
+   * Gets the value of the auditDeleteInfo property.
+   *
+   * @return possible object is
+   * {@link String }
+   */
+  public String getAuditDeleteInfo() {
+    return auditDeleteInfo;
+  }
 
-    /**
-     * Sets the value of the auditDeleteInfo property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAuditDeleteInfo(String value) {
-        this.auditDeleteInfo = value;
-    }
+  /**
+   * Sets the value of the auditDeleteInfo property.
+   *
+   * @param value allowed object is
+   *              {@link String }
+   */
+  public void setAuditDeleteInfo(String value) {
+    this.auditDeleteInfo = value;
+  }
 
 }

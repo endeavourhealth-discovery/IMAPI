@@ -16,9 +16,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for dt.Qualifier complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="dt.Qualifier"&gt;
  *   &lt;complexContent&gt;
@@ -31,67 +31,57 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "dt.Qualifier", propOrder = {
-    "name",
-    "value"
+  "name",
+  "value"
 })
 public class DtQualifier {
 
-    @XmlElement(required = true)
-    protected DtCode name;
-    @XmlElement(required = true)
-    protected DtCode value;
+  @XmlElement(required = true)
+  protected DtCode name;
+  @XmlElement(required = true)
+  protected DtCode value;
 
-    /**
-     * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link DtCode }
-     *     
-     */
-    public DtCode getName() {
-        return name;
-    }
+  /**
+   * Gets the value of the name property.
+   *
+   * @return possible object is
+   * {@link DtCode }
+   */
+  public DtCode getName() {
+    return name;
+  }
 
-    /**
-     * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link DtCode }
-     *     
-     */
-    public void setName(DtCode value) {
-        this.name = value;
-    }
+  /**
+   * Sets the value of the name property.
+   *
+   * @param value allowed object is
+   *              {@link DtCode }
+   */
+  public void setName(DtCode value) {
+    this.name = value;
+  }
 
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link DtCode }
-     *     
-     */
-    public DtCode getValue() {
-        return value;
-    }
+  /**
+   * Gets the value of the value property.
+   *
+   * @return possible object is
+   * {@link DtCode }
+   */
+  public DtCode getValue() {
+    return value;
+  }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link DtCode }
-     *     
-     */
-    public void setValue(DtCode value) {
-        this.value = value;
-    }
+  /**
+   * Sets the value of the value property.
+   *
+   * @param value allowed object is
+   *              {@link DtCode }
+   */
+  public void setValue(DtCode value) {
+    this.value = value;
+  }
 
 }

@@ -10,6 +10,7 @@ public class IM {
     public static final String VALUE = "@value";
     public static final String TYPE = "@type";
     public static final String id = IM.NAMESPACE + "id";
+    public static final String RELATIONSHIP_TYPE = IM.NAMESPACE+"relationshipType";
     public static final String CODE = IM.NAMESPACE + "code";
     public static final String PREFERRED_NAME = IM.NAMESPACE + "preferredName";
     public static final String HAS_SCHEME = IM.NAMESPACE + "scheme";
@@ -39,6 +40,8 @@ public class IM {
     public static final String PATH_TO = IM.NAMESPACE + "pathTo";
     public static final String OPENSEARCH_QUERY = IM.NAMESPACE + "OpenSearchQuery";
     public static final String DATAMODEL_PROPERTY = IM.NAMESPACE + "dataModelProperty";
+    public static final String ONTOLOGY_PARENT_FOLDER = IM.NAMESPACE + "HealthModelOntology";
+    public static final String PROPERTIES_FOLDER = IM.NAMESPACE + "Properties";
     public static final String TASK = IM.NAMESPACE + "Task";
     public static final String FIELD_GROUP = IM.NAMESPACE + "FieldGroup";
     public static final String MATCH_CLAUSE = IM.NAMESPACE + "MatchClause";
@@ -140,9 +143,7 @@ public class IM {
     public static final String PLABEL = IM.NAMESPACE + "pLabel";
     public static final String OLABEL = IM.NAMESPACE + "oLabel";
     public static final String EXAMPLE = IM.NAMESPACE + "example";
-    public static final String IM1ID = IM.NAMESPACE + "im1Id";
     public static final String PRIVACY_LEVEL = IM.NAMESPACE + "privacyLevel";
-    public static final String IM1SCHEME = IM.NAMESPACE + "im1Scheme";
     public static final String VALUE_SELECT = IM.NAMESPACE + "valueSelect";
     public static final String VALUE_VARIABLE = IM.NAMESPACE + "valueVariable";
     public static final String PLACEHOLDER = IM.NAMESPACE + "placeHolder";
@@ -219,4 +220,15 @@ public class IM {
     public static final String ENTITY_IDENTIFIER = IM.NAMESPACE + "entityIdentifier";
     public static final String CODE_TEMPLATE = IM.NAMESPACE + "codeTemplate";
     public static final String DATAMODEL_CLASSES = IM.NAMESPACE + "DataModelClasses";
+    public static final String DATE_TIME = IM.NAMESPACE + "DateTime";
+    public static final String TEMPLATE_NUMERIC_EVENT_ORDER = IM.NAMESPACE + "TEMPLATE_NumericEventOrder";
+    public static final String ORDER_BY = IM.NAMESPACE + "OrderBy";
+    public static final String PARAMETER_TEMPLATE = IM.NAMESPACE + "parameterTemplate";
+    public static final String VALUE_TEMPLATE = IM.NAMESPACE + "valueTemplate";
+    public static final String DEFAULT_VALUE = IM.NAMESPACE + "defaultValue";
+    public static final String LOAD_MORE = IM.NAMESPACE + "loadMore";
+    public static final String DATA_MODEL_CONCEPT = IM.NAMESPACE + "concept";
+    public static final String NUMERIC_VALUE = IM.NAMESPACE + "NumericValue";
+    public static final String HEALTH_RECORDS = IM.NAMESPACE + "HealthRecords";
+    public static final String HAS_INCREMENTAL_FROM = IM.NAMESPACE + "hasIncrementalFrom";
 }

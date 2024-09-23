@@ -14,15 +14,16 @@ import java.io.IOException;
 @RestController
 @RequestMapping("api/status")
 @CrossOrigin(origins = "*")
-@Tag(name="StatusController")
+@Tag(name = "StatusController")
 @RequestScope
 public class StatusController {
-    private static final Logger LOG = LoggerFactory.getLogger(StatusController.class);
-    @GetMapping( "/public/healthCheck")
-    public ResponseEntity<String> healthCheck() throws IOException {
-        try (MetricsTimer t = MetricsHelper.recordTime("API.Status.HealthCheck.GET")) {
-            LOG.debug("healthCheck");
-            return ResponseEntity.ok("OK");
-        }
+  private static final Logger LOG = LoggerFactory.getLogger(StatusController.class);
+
+  @GetMapping("/public/healthCheck")
+  public ResponseEntity<String> healthCheck() throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Status.HealthCheck.GET")) {
+      LOG.debug("healthCheck");
+      return ResponseEntity.ok("OK");
     }
+  }
 }

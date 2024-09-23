@@ -4,47 +4,49 @@ package org.endeavourhealth.imapi.filer;
 import org.endeavourhealth.imapi.filer.rdf4j.*;
 
 public class TTFilerFactory {
-    private static boolean bulk = false;
-    private static int privacyLevel=0;
-    private static boolean transactional= false;
-    private TTFilerFactory() {}
+  private static boolean bulk = false;
+  private static int privacyLevel = 0;
+  private static boolean transactional = false;
 
-    public static boolean isTransactional() {
-        return transactional;
-    }
+  private TTFilerFactory() {
+  }
 
-    public static void setTransactional(boolean transactional) {
-        TTFilerFactory.transactional = transactional;
-    }
+  public static boolean isTransactional() {
+    return transactional;
+  }
 
-    public static TTDocumentFiler getDocumentFiler() {
-        if (!bulk)
-            return new TTTransactionFiler();
-        else
-            return new TTBulkFiler();
-    }
+  public static void setTransactional(boolean transactional) {
+    TTFilerFactory.transactional = transactional;
+  }
 
-    public static TTEntityFiler getEntityFiler(){
-        return new TTEntityFilerRdf4j();
-    }
+  public static TTDocumentFiler getDocumentFiler() {
+    if (!bulk)
+      return new TTTransactionFiler();
+    else
+      return new TTBulkFiler();
+  }
 
-    public static TCGenerator getClosureGenerator() throws TTFilerException {
-            return new ClosureGeneratorBulk();
-    }
+  public static TTEntityFiler getEntityFiler() {
+    return new TTEntityFilerRdf4j();
+  }
 
-    public static boolean isBulk() {
-        return bulk;
-    }
+  public static TCGenerator getClosureGenerator() {
+    return new ClosureGeneratorBulk();
+  }
 
-    public static void setBulk(boolean bulk) {
-        TTFilerFactory.bulk = bulk;
-    }
+  public static boolean isBulk() {
+    return bulk;
+  }
 
-    public static int getPrivacyLevel() {
-        return privacyLevel;
-    }
+  public static void setBulk(boolean bulk) {
+    TTFilerFactory.bulk = bulk;
+  }
 
-    public static void setPrivacyLevel(int privacyLevel) {
-        TTFilerFactory.privacyLevel = privacyLevel;
-    }
+  public static int getPrivacyLevel() {
+    return privacyLevel;
+  }
+
+  public static void setPrivacyLevel(int privacyLevel) {
+    TTFilerFactory.privacyLevel = privacyLevel;
+  }
 }

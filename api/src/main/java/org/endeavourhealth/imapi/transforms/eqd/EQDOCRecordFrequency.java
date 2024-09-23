@@ -15,9 +15,9 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for EQDOC.RecordFrequency complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.RecordFrequency"&gt;
  *   &lt;complexContent&gt;
@@ -30,65 +30,55 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.RecordFrequency", propOrder = {
-    "frequencyValue",
-    "frequencyRange"
+  "frequencyValue",
+  "frequencyRange"
 })
 public class EQDOCRecordFrequency {
 
-    protected Integer frequencyValue;
-    protected EQDOCFrequencyRange frequencyRange;
+  protected Integer frequencyValue;
+  protected EQDOCFrequencyRange frequencyRange;
 
-    /**
-     * Gets the value of the frequencyValue property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
-     */
-    public Integer getFrequencyValue() {
-        return frequencyValue;
-    }
+  /**
+   * Gets the value of the frequencyValue property.
+   *
+   * @return possible object is
+   * {@link Integer }
+   */
+  public Integer getFrequencyValue() {
+    return frequencyValue;
+  }
 
-    /**
-     * Sets the value of the frequencyValue property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
-     */
-    public void setFrequencyValue(Integer value) {
-        this.frequencyValue = value;
-    }
+  /**
+   * Sets the value of the frequencyValue property.
+   *
+   * @param value allowed object is
+   *              {@link Integer }
+   */
+  public void setFrequencyValue(Integer value) {
+    this.frequencyValue = value;
+  }
 
-    /**
-     * Gets the value of the frequencyRange property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EQDOCFrequencyRange }
-     *     
-     */
-    public EQDOCFrequencyRange getFrequencyRange() {
-        return frequencyRange;
-    }
+  /**
+   * Gets the value of the frequencyRange property.
+   *
+   * @return possible object is
+   * {@link EQDOCFrequencyRange }
+   */
+  public EQDOCFrequencyRange getFrequencyRange() {
+    return frequencyRange;
+  }
 
-    /**
-     * Sets the value of the frequencyRange property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EQDOCFrequencyRange }
-     *     
-     */
-    public void setFrequencyRange(EQDOCFrequencyRange value) {
-        this.frequencyRange = value;
-    }
+  /**
+   * Sets the value of the frequencyRange property.
+   *
+   * @param value allowed object is
+   *              {@link EQDOCFrequencyRange }
+   */
+  public void setFrequencyRange(EQDOCFrequencyRange value) {
+    this.frequencyRange = value;
+  }
 
 }

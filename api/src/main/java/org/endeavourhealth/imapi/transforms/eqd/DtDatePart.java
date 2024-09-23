@@ -12,16 +12,17 @@ import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlType;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
  * Represents a specific instant of time (ISO 8601). Combinations of date and time of day values are defined by the datepart property.
- * 
+ *
  * <p>Java class for dt.DatePart complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="dt.DatePart"&gt;
  *   &lt;complexContent&gt;
@@ -32,64 +33,54 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "dt.DatePart")
 public class DtDatePart {
 
-    @XmlAttribute(name = "datepart", required = true)
-    protected VocDatePart datepart;
-    @XmlAttribute(name = "value")
-    protected XMLGregorianCalendar value;
+  @XmlAttribute(name = "datepart", required = true)
+  protected VocDatePart datepart;
+  @XmlAttribute(name = "value")
+  protected XMLGregorianCalendar value;
 
-    /**
-     * Gets the value of the datepart property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link VocDatePart }
-     *     
-     */
-    public VocDatePart getDatepart() {
-        return datepart;
-    }
+  /**
+   * Gets the value of the datepart property.
+   *
+   * @return possible object is
+   * {@link VocDatePart }
+   */
+  public VocDatePart getDatepart() {
+    return datepart;
+  }
 
-    /**
-     * Sets the value of the datepart property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link VocDatePart }
-     *     
-     */
-    public void setDatepart(VocDatePart value) {
-        this.datepart = value;
-    }
+  /**
+   * Sets the value of the datepart property.
+   *
+   * @param value allowed object is
+   *              {@link VocDatePart }
+   */
+  public void setDatepart(VocDatePart value) {
+    this.datepart = value;
+  }
 
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getValue() {
-        return value;
-    }
+  /**
+   * Gets the value of the value property.
+   *
+   * @return possible object is
+   * {@link XMLGregorianCalendar }
+   */
+  public XMLGregorianCalendar getValue() {
+    return value;
+  }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setValue(XMLGregorianCalendar value) {
-        this.value = value;
-    }
+  /**
+   * Sets the value of the value property.
+   *
+   * @param value allowed object is
+   *              {@link XMLGregorianCalendar }
+   */
+  public void setValue(XMLGregorianCalendar value) {
+    this.value = value;
+  }
 
 }

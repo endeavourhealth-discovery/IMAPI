@@ -16,43 +16,42 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class TTLiteralDeserializer extends StdDeserializer<TTLiteral> {
-    private transient TTNodeDeserializer helper;
+  private transient TTNodeDeserializer helper;
 
-    public TTLiteralDeserializer() {
-        this(null);
+  public TTLiteralDeserializer() {
+    this(null);
+  }
+
+  public TTLiteralDeserializer(Class<TTLiteral> t) {
+    super(t);
+  }
+
+  public TTLiteralDeserializer(Class<TTLiteral> t, TTNodeDeserializer helper) {
+    super(t);
+    this.helper = helper;
+  }
+
+  @Override
+  public TTLiteral deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
+    JsonNode node = jsonParser.getCodec().readTree(jsonParser);
+
+    if (!node.has(IM.TYPE)) {
+      if (node.isValueNode())
+        return literal(node);
+      else
+        return literal(node.get(IM.VALUE).textValue());
     }
 
-    public TTLiteralDeserializer(Class<TTLiteral> t) {
-        super(t);
-    }
-    public TTLiteralDeserializer(Class<TTLiteral> t, TTNodeDeserializer helper) {
-        super(t);
-        this.helper = helper;
-    }
-
-    @Override
-    public TTLiteral deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
-        JsonNode node = jsonParser.getCodec().readTree(jsonParser);
-
-        if (!node.has(IM.TYPE)) {
-            if (node.isValueNode())
-                return literal(node);
-            else
-                return literal(node.get(IM.VALUE).textValue());
-        }
-
-        TTIriRef type = iri(helper == null ? node.get(IM.TYPE).asText() : helper.expand(node.get(IM.TYPE).asText()));
-        if (XSD.STRING.equals(type.getIri()))
-            return literal(node.get(IM.VALUE).textValue());
-        else if (XSD.BOOLEAN.equals(type.getIri())) {
-            return literal(Boolean.valueOf(node.get(IM.VALUE).asText()));
-        }
-        else if (XSD.INTEGER.equals(type.getIri())) {
-            return literal(Integer.valueOf(node.get(IM.VALUE).asText()));
-        }
-        else if (XSD.PATTERN.equals(type.getIri()))
-            return literal(Pattern.compile(node.get(IM.VALUE).textValue()));
-        else
-            throw new IOException("Unhandled literal type ["+type.getIri()+"]");
-    }
+    TTIriRef type = iri(helper == null ? node.get(IM.TYPE).asText() : helper.expand(node.get(IM.TYPE).asText()));
+    if (XSD.STRING.equals(type.getIri()))
+      return literal(node.get(IM.VALUE).textValue());
+    else if (XSD.BOOLEAN.equals(type.getIri())) {
+      return literal(Boolean.valueOf(node.get(IM.VALUE).asText()));
+    } else if (XSD.INTEGER.equals(type.getIri())) {
+      return literal(Integer.valueOf(node.get(IM.VALUE).asText()));
+    } else if (XSD.PATTERN.equals(type.getIri()))
+      return literal(Pattern.compile(node.get(IM.VALUE).textValue()));
+    else
+      throw new IOException("Unhandled literal type [" + type.getIri() + "]");
+  }
 }

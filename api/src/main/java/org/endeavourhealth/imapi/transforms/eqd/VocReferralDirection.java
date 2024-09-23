@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.ReferralDirection.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -26,37 +26,33 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.ReferralDirection")
 @XmlEnum
 public enum VocReferralDirection {
 
 
-    /**
-     * This value is not used, it is used to allow c# to interact with our db whose Inbound =1 and Outbound = 2
-     * 
-     */
-    NOTUSED,
+  /**
+   * This value is not used, it is used to allow c# to interact with our db whose Inbound =1 and Outbound = 2
+   */
+  NOTUSED,
 
-    /**
-     * Inbound Referral
-     * 
-     */
-    IN,
+  /**
+   * Inbound Referral
+   */
+  IN,
 
-    /**
-     * Outbound Referral
-     * 
-     */
-    OUT;
+  /**
+   * Outbound Referral
+   */
+  OUT;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocReferralDirection fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocReferralDirection fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

@@ -11,15 +11,16 @@ package org.endeavourhealth.imapi.transforms.eqd;
 import jakarta.xml.bind.annotation.*;
 import jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * <p>Java class for EQDOC.ColumnOrder complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="EQDOC.ColumnOrder"&gt;
  *   &lt;complexContent&gt;
@@ -45,213 +46,193 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EQDOC.ColumnOrder", propOrder = {
-    "recordCount",
-    "columns",
-    "groupBy"
+  "recordCount",
+  "columns",
+  "groupBy"
 })
 public class EQDOCColumnOrder {
 
-    @XmlElement(defaultValue = "1")
-    protected int recordCount;
+  @XmlElement(defaultValue = "1")
+  protected int recordCount;
+  @XmlElement(required = true)
+  protected List<Columns> columns;
+  protected List<EQDOCColumnOrderGrouping> groupBy;
+
+  /**
+   * Gets the value of the recordCount property.
+   */
+  public int getRecordCount() {
+    return recordCount;
+  }
+
+  /**
+   * Sets the value of the recordCount property.
+   */
+  public void setRecordCount(int value) {
+    this.recordCount = value;
+  }
+
+  /**
+   * Gets the value of the columns property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the columns property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getColumns().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link Columns }
+   */
+  public List<Columns> getColumns() {
+    if (columns == null) {
+      columns = new ArrayList<Columns>();
+    }
+    return this.columns;
+  }
+
+  /**
+   * Gets the value of the groupBy property.
+   *
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the groupBy property.
+   *
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getGroupBy().add(newItem);
+   * </pre>
+   *
+   *
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link EQDOCColumnOrderGrouping }
+   */
+  public List<EQDOCColumnOrderGrouping> getGroupBy() {
+    if (groupBy == null) {
+      groupBy = new ArrayList<EQDOCColumnOrderGrouping>();
+    }
+    return this.groupBy;
+  }
+
+
+  /**
+   * <p>Java class for anonymous complex type.
+   *
+   * <p>The following schema fragment specifies the expected content contained within this class.
+   *
+   * <pre>
+   * &lt;complexType&gt;
+   *   &lt;complexContent&gt;
+   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+   *       &lt;sequence&gt;
+   *         &lt;element name="column" type="{http://www.w3.org/2001/XMLSchema}token" maxOccurs="unbounded"/&gt;
+   *         &lt;element name="displayName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+   *         &lt;element name="direction" type="{http://www.e-mis.com/emisopen}voc.OrderDirection"/&gt;
+   *       &lt;/sequence&gt;
+   *     &lt;/restriction&gt;
+   *   &lt;/complexContent&gt;
+   * &lt;/complexType&gt;
+   * </pre>
+   */
+  @XmlAccessorType(XmlAccessType.FIELD)
+  @XmlType(name = "", propOrder = {
+    "column",
+    "displayName",
+    "direction"
+  })
+  public static class Columns {
+
     @XmlElement(required = true)
-    protected List<Columns> columns;
-    protected List<EQDOCColumnOrderGrouping> groupBy;
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+    @XmlSchemaType(name = "token")
+    protected List<String> column;
+    protected String displayName;
+    @XmlElement(required = true)
+    @XmlSchemaType(name = "token")
+    protected VocOrderDirection direction;
 
     /**
-     * Gets the value of the recordCount property.
-     *
-     */
-    public int getRecordCount() {
-        return recordCount;
-    }
-
-    /**
-     * Sets the value of the recordCount property.
-     *
-     */
-    public void setRecordCount(int value) {
-        this.recordCount = value;
-    }
-
-    /**
-     * Gets the value of the columns property.
+     * Gets the value of the column property.
      *
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the columns property.
+     * This is why there is not a <CODE>set</CODE> method for the column property.
      *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getColumns().add(newItem);
+     *    getColumn().add(newItem);
      * </pre>
      *
      *
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link Columns }
-     *
-     *
+     * {@link String }
      */
-    public List<Columns> getColumns() {
-        if (columns == null) {
-            columns = new ArrayList<Columns>();
-        }
-        return this.columns;
+    public List<String> getColumn() {
+      if (column == null) {
+        column = new ArrayList<String>();
+      }
+      return this.column;
     }
 
     /**
-     * Gets the value of the groupBy property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the groupBy property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getGroupBy().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EQDOCColumnOrderGrouping }
-     * 
-     * 
+     * Gets the value of the displayName property.
+     *
+     * @return possible object is
+     * {@link String }
      */
-    public List<EQDOCColumnOrderGrouping> getGroupBy() {
-        if (groupBy == null) {
-            groupBy = new ArrayList<EQDOCColumnOrderGrouping>();
-        }
-        return this.groupBy;
+    public String getDisplayName() {
+      return displayName;
     }
-
 
     /**
-     * <p>Java class for anonymous complex type.
-     * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
-     * <pre>
-     * &lt;complexType&gt;
-     *   &lt;complexContent&gt;
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *       &lt;sequence&gt;
-     *         &lt;element name="column" type="{http://www.w3.org/2001/XMLSchema}token" maxOccurs="unbounded"/&gt;
-     *         &lt;element name="displayName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
-     *         &lt;element name="direction" type="{http://www.e-mis.com/emisopen}voc.OrderDirection"/&gt;
-     *       &lt;/sequence&gt;
-     *     &lt;/restriction&gt;
-     *   &lt;/complexContent&gt;
-     * &lt;/complexType&gt;
-     * </pre>
-     * 
-     * 
+     * Sets the value of the displayName property.
+     *
+     * @param value allowed object is
+     *              {@link String }
      */
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
-        "column",
-        "displayName",
-        "direction"
-    })
-    public static class Columns {
-
-        @XmlElement(required = true)
-        @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-        @XmlSchemaType(name = "token")
-        protected List<String> column;
-        protected String displayName;
-        @XmlElement(required = true)
-        @XmlSchemaType(name = "token")
-        protected VocOrderDirection direction;
-
-        /**
-         * Gets the value of the column property.
-         * 
-         * <p>
-         * This accessor method returns a reference to the live list,
-         * not a snapshot. Therefore any modification you make to the
-         * returned list will be present inside the JAXB object.
-         * This is why there is not a <CODE>set</CODE> method for the column property.
-         * 
-         * <p>
-         * For example, to add a new item, do as follows:
-         * <pre>
-         *    getColumn().add(newItem);
-         * </pre>
-         * 
-         * 
-         * <p>
-         * Objects of the following type(s) are allowed in the list
-         * {@link String }
-         * 
-         * 
-         */
-        public List<String> getColumn() {
-            if (column == null) {
-                column = new ArrayList<String>();
-            }
-            return this.column;
-        }
-
-        /**
-         * Gets the value of the displayName property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
-        public String getDisplayName() {
-            return displayName;
-        }
-
-        /**
-         * Sets the value of the displayName property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
-        public void setDisplayName(String value) {
-            this.displayName = value;
-        }
-
-        /**
-         * Gets the value of the direction property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link VocOrderDirection }
-         *     
-         */
-        public VocOrderDirection getDirection() {
-            return direction;
-        }
-
-        /**
-         * Sets the value of the direction property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link VocOrderDirection }
-         *     
-         */
-        public void setDirection(VocOrderDirection value) {
-            this.direction = value;
-        }
-
+    public void setDisplayName(String value) {
+      this.displayName = value;
     }
+
+    /**
+     * Gets the value of the direction property.
+     *
+     * @return possible object is
+     * {@link VocOrderDirection }
+     */
+    public VocOrderDirection getDirection() {
+      return direction;
+    }
+
+    /**
+     * Sets the value of the direction property.
+     *
+     * @param value allowed object is
+     *              {@link VocOrderDirection }
+     */
+    public void setDirection(VocOrderDirection value) {
+      this.direction = value;
+    }
+
+  }
 
 }

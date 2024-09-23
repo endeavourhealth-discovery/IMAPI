@@ -14,7 +14,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for voc.CaseloadPatientProperty.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -42,133 +42,113 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
- * 
  */
 @XmlType(name = "voc.CaseloadPatientProperty")
 @XmlEnum
 public enum VocCaseloadPatientProperty {
 
 
-    /**
-     * Walking Quarters
-     * 
-     */
-    WQ,
+  /**
+   * Walking Quarters
+   */
+  WQ,
 
-    /**
-     * Water Miles
-     * 
-     */
-    WM,
+  /**
+   * Water Miles
+   */
+  WM,
 
-    /**
-     * Rural Mileage
-     * 
-     */
-    RM,
+  /**
+   * Rural Mileage
+   */
+  RM,
 
-    /**
-     * Road Mileage
-     * 
-     */
-    RDM,
+  /**
+   * Road Mileage
+   */
+  RDM,
 
-    /**
-     * Foot Milage
-     * 
-     */
-    FM,
+  /**
+   * Foot Milage
+   */
+  FM,
 
-    /**
-     * Blocked Special Marker
-     * 
-     */
-    BSM,
+  /**
+   * Blocked Special Marker
+   */
+  BSM,
 
-    /**
-     * Trading Partner HA
-     * 
-     */
-    TPHA,
+  /**
+   * Trading Partner HA
+   */
+  TPHA,
 
-    /**
-     * Residential Institute Location
-     * 
-     */
-    RIL,
+  /**
+   * Residential Institute Location
+   */
+  RIL,
 
-    /**
-     * Branch Surgery Organisation
-     * 
-     */
-    BS,
+  /**
+   * Branch Surgery Organisation
+   */
+  BS,
 
-    /**
-     * Records At
-     * 
-     */
-    RA,
+  /**
+   * Records At
+   */
+  RA,
 
-    /**
-     * Freeze Flag
-     * 
-     */
-    FZ,
+  /**
+   * Freeze Flag
+   */
+  FZ,
 
-    /**
-     * Dispensing
-     * 
-     */
-    DISP,
+  /**
+   * Dispensing
+   */
+  DISP,
 
-    /**
-     * Medication Screen Message
-     * 
-     */
-    MSM,
+  /**
+   * Medication Screen Message
+   */
+  MSM,
 
-    /**
-     * Difficult Quarters
-     * 
-     */
-    DQ,
+  /**
+   * Difficult Quarters
+   */
+  DQ,
 
-    /**
-     * Exemption Expiry Date
-     * 
-     */
-    EED,
+  /**
+   * Exemption Expiry Date
+   */
+  EED,
 
-    /**
-     * Review Date
-     * 
-     */
-    RD,
+  /**
+   * Review Date
+   */
+  RD,
 
-    /**
-     * Reminder Sent
-     * 
-     */
-    RS,
+  /**
+   * Reminder Sent
+   */
+  RS,
 
-    /**
-     * Resident Status
-     * 
-     */
-    RESS,
+  /**
+   * Resident Status
+   */
+  RESS,
 
-    /**
-     * Automatic Week Number
-     * 
-     */
-    AWN;
+  /**
+   * Automatic Week Number
+   */
+  AWN;
 
-    public String value() {
-        return name();
-    }
+  public String value() {
+    return name();
+  }
 
-    public static VocCaseloadPatientProperty fromValue(String v) {
-        return valueOf(v);
-    }
+  public static VocCaseloadPatientProperty fromValue(String v) {
+    return valueOf(v);
+  }
 
 }

@@ -23,6 +23,7 @@ import java.util.StringJoiner;
 
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareUpdateSparql;
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Configuration
@@ -42,18 +43,15 @@ public class ConfigManager {
   }
 
   public Config getConfig(String config) {
-    // NOTE - DON'T USE PREFIXES OR 'prepareSparql' HERE
-    //        OR CYCLIC LOOP FETCHING DEFAULT PREFIXES
-    StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add("SELECT ?name ?data WHERE {")
-      .add("    GRAPH <http://endhealth.info/config#> {")
-      .add("      ?s ?label   ?name ;")
-      .add("         ?config  ?data .")
-      .add("    }")
-      .add("}");
+    String sql = """
+      SELECT ?name ?data WHERE {
+        ?s ?label   ?name ;
+        ?config  ?data .
+      }
+      """;
 
     try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
       qry.setBinding("s", Values.iri(config));
       qry.setBinding("label", Values.iri(RDFS.LABEL));
       qry.setBinding("config", Values.iri(IM.HAS_CONFIG));
@@ -84,7 +82,7 @@ public class ConfigManager {
   private void insert(String subject, String predicate, String object) {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       String sparql = getSparqlInsert();
-      try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
+      try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
         Update qry = prepareUpdateSparql(conn, sparql);
         qry.setBinding("s", Values.iri(subject));
         qry.setBinding("p", Values.iri(predicate));

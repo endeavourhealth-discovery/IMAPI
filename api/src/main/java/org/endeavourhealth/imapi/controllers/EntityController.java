@@ -47,6 +47,7 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.*;
@@ -223,14 +224,16 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DownloadEntity.GET")) {
       LOG.debug("Download entity");
       TTBundle entity = entityService.getFullEntity(iri);
-      TTDocument document = new TTManager().createDocument();
+      TTManager manager = new TTManager();
+      TTDocument document = manager.createDocument();
       List<TTEntity> entityList = new ArrayList<>();
       entityList.add(entity.getEntity());
       document.setEntities(entityList);
+      String json = manager.getJson(document);
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_JSON);
       headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + entity.getEntity().get(iri(RDFS.LABEL)) + ".json\"");
-      return new HttpEntity<>(document, headers);
+      return new HttpEntity<>(json, headers);
     }
   }
 

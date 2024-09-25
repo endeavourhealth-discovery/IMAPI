@@ -108,22 +108,6 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/matchedFrom", produces = "application/json")
-  public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MatchedFrom.GET")) {
-      LOG.debug("getMatchedFrom");
-      return entityService.getMatchedFrom(iri);
-    }
-  }
-
-  @GetMapping(value = "/public/matchedTo", produces = "application/json")
-  public Collection<SimpleMap> getMatchedTo(@RequestParam(name = "iri") String iri) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MatchedTo.GET")) {
-      LOG.debug("getMatchedTo");
-      return entityService.getMatchedTo(iri);
-    }
-  }
-
   @GetMapping(value = "/public/partialBundle", produces = "application/json")
   public TTBundle getPartialEntityBundle(
     @RequestParam(name = "iri") String iri,
@@ -203,18 +187,6 @@ public class EntityController {
         size = 10;
       }
       return entityService.getPartialWithTotalCount(iri, predicate, schemeIris, page, size, false);
-    }
-  }
-
-  private HttpEntity<Object> getSetHttpEntity(HttpHeaders headers, SetContent set) throws JsonProcessingException {
-
-    try (CachedObjectMapper objectMapper = new CachedObjectMapper()) {
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-      String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(set);
-      headers.setContentType(MediaType.APPLICATION_JSON);
-      return new HttpEntity<>(json, headers);
     }
   }
 
@@ -326,24 +298,6 @@ public class EntityController {
     }
   }
 
-  @GetMapping("/public/termCode")
-  public List<SearchTermCode> getTermCodes(@RequestParam(name = "iri") String iri, @RequestParam(name = "includeInactive") Optional<Boolean> includeInactive) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.TermCode.GET")) {
-      LOG.debug("getTermCodes");
-      return entityService.getEntityTermCodes(iri, includeInactive.orElseGet(() -> false));
-    }
-  }
-
-  @GetMapping("/public/dataModelProperties")
-  public TTEntity getDataModelProperties(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "parent", required = false) String parent) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
-      LOG.debug("getDataModelProperties");
-      return entityService.getDataModelPropertiesAndSubClasses(iri, parent);
-    }
-  }
-
   @GetMapping("/public/summary")
   public SearchResultSummary getSummary(@RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Summary.GET")) {
@@ -357,60 +311,6 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
       LOG.debug("getNamespaces");
       return entityService.getNamespaces();
-    }
-  }
-
-  @GetMapping("/public/setExport")
-  public HttpEntity<Object> getSetExport(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "definition", defaultValue = "false") boolean definition,
-    @RequestParam(name = "core", defaultValue = "false") boolean core,
-    @RequestParam(name = "legacy", defaultValue = "false") boolean legacy,
-    @RequestParam(name = "includeSubsets", defaultValue = "false") boolean subsets,
-    @RequestParam(name = "ownRow", defaultValue = "false") boolean ownRow,
-    @RequestParam(name = "im1id", defaultValue = "false") boolean im1id,
-    @RequestParam(name = "format") String format,
-    @RequestParam(name = "schemes", defaultValue = "") List<String> schemes
-  ) throws DownloadException, IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SetExport.GET")) {
-      LOG.debug("getSetExport");
-      HttpHeaders headers = new HttpHeaders();
-      headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
-      headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"");
-
-      SetOptions setOptions = new SetOptions(iri, definition, core, legacy, subsets, schemes);
-      SetExporterOptions exportOptions = new SetExporterOptions(setOptions, ownRow, im1id);
-
-      try {
-        if ("xlsx".equals(format)) {
-          XSSFWorkbook workbook = entityService.getSetExport(exportOptions);
-          try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            workbook.write(outputStream);
-            workbook.close();
-            return new HttpEntity<>(outputStream.toByteArray(), headers);
-          } catch (IOException e) {
-            throw new DownloadException("Failed to write to excel document");
-          }
-        } else if ("csv".equals(format)) {
-          String result = setService.getCSVSetExport(exportOptions);
-          return new HttpEntity<>(result, headers);
-        } else if ("tsv".equals(format)) {
-          String result = setService.getTSVSetExport(exportOptions);
-          return new HttpEntity<>(result, headers);
-        } else if ("object".equals(format)) {
-          SetContent result = setService.getSetContent(setOptions);
-          return getSetHttpEntity(headers, result);
-        } else if ("FHIR".equals(format)) {
-          String result = setService.getFHIRSetExport(exportOptions);
-          return new HttpEntity<>(result, headers);
-        } else {
-          return null;
-        }
-      } catch (IOException e) {
-        throw new DownloadException("Failed to write to excel document.");
-      } catch (QueryException e) {
-        throw new DownloadException("Failed to get set details for download.");
-      }
     }
   }
 
@@ -447,27 +347,6 @@ public class EntityController {
       } catch (IOException e) {
         throw new DownloadException("Failed to write to excel document.");
       }
-    }
-  }
-
-  @GetMapping("/public/expandedMembers")
-  public Set<Concept> getFullyExpandedMembers(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "legacy", required = false) boolean legacy,
-    @RequestParam(name = "includeSubsets", required = false) boolean includeSubsets,
-    @RequestParam(name = "schemes", required = false) List<String> schemes) throws QueryException, IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ExpandedMembers.GET")) {
-      LOG.debug("getFullyExpandedMembers");
-      return entityService.getFullyExpandedMembers(iri, legacy, includeSubsets, schemes);
-    }
-  }
-
-  @GetMapping("/public/subsets")
-  public Set<TTIriRef> getSubsets(
-    @RequestParam(name = "iri") String iri) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Subsets.GET")) {
-      LOG.debug("getSubsets");
-      return entityService.getSubsets(iri);
     }
   }
 
@@ -527,22 +406,6 @@ public class EntityController {
     }
   }
 
-  @GetMapping("/public/properties")
-  public List<TTIriRef> getProperties() throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Properties.GET")) {
-      LOG.debug("getProperties");
-      return entityService.getProperties();
-    }
-  }
-
-  @PostMapping(value = "public/distillation")
-  public List<TTIriRef> getDistillation(@RequestBody List<TTIriRef> conceptList) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Distillation.POST")) {
-      LOG.debug("getDistillation");
-      return entityService.getDistillation(conceptList);
-    }
-  }
-
   @GetMapping(value = "/public/predicates")
   public Set<String> getPredicates(@RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Predicates.GET")) {
@@ -551,98 +414,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/superiorPropertiesPaged")
-  @Operation(
-    summary = "Get top level properties for an entity as a tree node",
-    description = "Finds the highest parent (superior) properties for an entity and returns then in a tree node format for use in a hierarchy tree"
-  )
-  public Pageable<EntityReferenceNode> getSuperiorPropertiesPaged(
-    @RequestParam(name = "conceptIri") String iri,
-    @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
-    @RequestParam(name = "page", required = false) Integer page,
-    @RequestParam(name = "size", required = false) Integer size,
-    @RequestParam(name = "inactive", required = false) boolean inactive
-  ) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SuperiorPropertiesPaged.GET")) {
-      LOG.debug("getSuperiorPropertiesPaged");
-      if (null == page) page = 1;
-      if (null == size) size = EntityService.MAX_CHILDREN;
-      if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
-      return entityService.getSuperiorPropertiesPaged(iri, schemeIris, page, size, inactive);
-    }
-  }
 
-  @GetMapping(value = "/public/superiorPropertiesBoolFocusPaged")
-  @Operation(
-    summary = "Get top level properties for an entity as a tree node",
-    description = "Finds the highest parent (superior) properties for an entity and returns then in a tree node format for use in a hierarchy tree"
-  )
-  public Pageable<EntityReferenceNode> getSuperiorPropertiesBoolFocusPaged(
-    @RequestParam(name = "conceptIris") List<String> conceptIris,
-    @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
-    @RequestParam(name = "page", required = false) Integer page,
-    @RequestParam(name = "size", required = false) Integer size,
-    @RequestParam(name = "inactive", required = false) boolean inactive
-  ) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SuperiorPropertiesBoolFocusPaged.GET")) {
-      LOG.debug("getSuperiorPropertiesBoolFocusPaged");
-      if (null == page) page = 1;
-      if (null == size) size = EntityService.MAX_CHILDREN;
-      if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
-      return entityService.getSuperiorPropertiesBoolFocusPaged(conceptIris, schemeIris, page, size, inactive);
-    }
-  }
 
-  @GetMapping(value = "/public/superiorPropertyValuesPaged")
-  @Operation(
-    summary = "Get top level property values for an entity as a tree node",
-    description = "Finds the highest parent (superior) property value for an entity and returns then in a tree node format for use in a hierarchy tree"
-  )
-  public Pageable<EntityReferenceNode> getSuperiorPropertyValuesPaged(
-    @RequestParam(name = "propertyIri") String iri,
-    @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
-    @RequestParam(name = "page", required = false) Integer page,
-    @RequestParam(name = "size", required = false) Integer size,
-    @RequestParam(name = "inactive", required = false) boolean inactive
-  ) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SuperiorPropertyValuesPaged.GET")) {
-      LOG.debug("getSuperiorPropertyValuesPaged");
-      if (null == page) page = 1;
-      if (null == size) size = EntityService.MAX_CHILDREN;
-      if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
-      return entityService.getSuperiorPropertyValuesPaged(iri, schemeIris, page, size, inactive);
-    }
-  }
 
-  @PostMapping(value = "/updateSubsetsFromSuper")
-  @PreAuthorize("hasAuthority('edit') or hasAuthority('create')")
-  public void updateSubsetsFromSuper(@RequestBody TTEntity entity, HttpServletRequest request) throws IOException, TTFilerException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UpdateSubsetsFromSuper.POST")) {
-      LOG.debug("updateSubsetsFromSuper");
-      String agentName = reqObjService.getRequestAgentName(request);
-      entityService.updateSubsetsFromSuper(agentName, entity);
-    }
-  }
-
-  @GetMapping(value = "/public/dataModels")
-  public List<TTIriRef> getDataModelsFromProperty(@RequestParam(name = "propIri") String propIri) {
-    LOG.debug("getDataModelsFromProperty");
-    return entityService.getDataModelsFromProperty(propIri);
-  }
-
-  @GetMapping(value = "/public/conceptContextMaps")
-  public List<ConceptContextMap> getConceptContextMaps(@RequestParam(name = "iri") String iri) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ConceptContextMaps.GET")) {
-      LOG.debug("getConceptContextMaps");
-      return entityService.getConceptContextMaps(iri);
-    }
-  }
-
-  @GetMapping(value = "public/checkPropertyType")
-  public String checkPropertyType(@RequestParam(name = "propertyIri") String iri) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.CheckPropertyType.GET")) {
-      LOG.debug("checkPropertyType");
-      return entityService.checkPropertyType(iri);
-    }
-  }
 }

@@ -74,16 +74,20 @@ public class ConfigManager {
     insert(iri, IM.HAS_CONFIG, config.getData());
   }
 
-  private String getSparqlInsert() {
-    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("INSERT {").add("  ?s ?p ?o ").add("}").add("WHERE { SELECT ?s ?p ?o {} }");
-    return sparql.toString();
-  }
+  private String INSERT_SPARQL = """
+      DELETE {
+        ?s ?p ?oAny
+      }
+      INSERT {
+        ?s ?p ?o
+      }
+      WHERE { ?s ?p ?oAny }
+      """;
 
   private void insert(String subject, String predicate, String object) {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      String sparql = getSparqlInsert();
       try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
-        Update qry = prepareUpdateSparql(conn, sparql);
+        Update qry = prepareUpdateSparql(conn, INSERT_SPARQL);
         qry.setBinding("s", Values.iri(subject));
         qry.setBinding("p", Values.iri(predicate));
         qry.setBinding("o", literal(object));

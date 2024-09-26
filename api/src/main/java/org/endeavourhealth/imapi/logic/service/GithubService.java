@@ -4,9 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.config.ConfigManager;
+import org.endeavourhealth.imapi.controllers.GithubController;
 import org.endeavourhealth.imapi.model.config.Config;
 import org.endeavourhealth.imapi.model.github.GithubRelease;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +21,7 @@ import java.util.*;
 
 @Component
 public class GithubService {
+  private static final Logger LOG = LoggerFactory.getLogger(GithubController.class.getName());
   ConfigManager configManager = new ConfigManager();
   public GithubRelease getGithubLatestRelease() throws JsonProcessingException {
     return configManager.getConfig(CONFIG.IMDIRECTORY_LATEST_RELEASE, new TypeReference<>() {
@@ -51,6 +55,7 @@ public class GithubService {
 
   @Scheduled(cron = "0 0 0 * * *")
   public void updateGithubConfig() throws IOException {
+    LOG.info("updating github config");
     String owner = "endeavourhealth-discovery";
     String repo = "IMDirectory";
     GithubRelease latestRelease = getLatestReleaseFromGithub(owner, repo);

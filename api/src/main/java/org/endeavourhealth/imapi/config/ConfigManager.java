@@ -85,6 +85,7 @@ public class ConfigManager {
       """;
 
   private void insert(String subject, String predicate, String object) {
+    if (null == subject || subject.isEmpty() || null == predicate || predicate.isEmpty()) throw new IllegalArgumentException("Subject or Predicate cannot be null");
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
         Update qry = prepareUpdateSparql(conn, INSERT_SPARQL);

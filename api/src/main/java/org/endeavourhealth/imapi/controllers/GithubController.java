@@ -46,9 +46,9 @@ public class GithubController {
     }
   }
 
-  @GetMapping(value = "/updateGithubConfig")
+  @PostMapping(value = "/updateGithubConfig")
   @PreAuthorize("hasAuthority('IMAdmin')")
-  public void updateGithubConfig() throws IOException {
+  public void updateGithubConfig() throws IOException, InterruptedException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubConfig.UPDATE")) {
       LOG.debug("updateGithubConfig");
       githubService.updateGithubConfig();

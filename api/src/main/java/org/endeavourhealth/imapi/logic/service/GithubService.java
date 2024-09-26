@@ -1,17 +1,24 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.controllers.GithubController;
 import org.endeavourhealth.imapi.model.config.Config;
+import org.endeavourhealth.imapi.model.github.GithubDTO;
 import org.endeavourhealth.imapi.model.github.GithubRelease;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +61,7 @@ public class GithubService {
   }
 
   @Scheduled(cron = "0 0 0 * * *")
-  public void updateGithubConfig() throws IOException {
+  public void updateGithubConfig() throws IOException, InterruptedException {
     LOG.info("updating github config");
     String owner = "endeavourhealth-discovery";
     String repo = "IMDirectory";
@@ -64,36 +71,45 @@ public class GithubService {
     setGithubReleases(allReleases);
   }
 
-  private GithubRelease getLatestReleaseFromGithub(String owner, String repo) throws IOException {
-    String command = """
-      curl -L \\
-        -H "Accept: application/vnd.github+json" \\
-        -H "Authorization: Bearer %s" \\
-        -H "X-GitHub-Api-Version: 2022-11-28" \\
-        https://api.github.com/repos/%s/%s/releases/latest
-      """.formatted(System.getenv("GITHUB_TOKEN"), owner, repo);
-    Process process = Runtime.getRuntime().exec(command);
-    InputStream inputStream = process.getInputStream();
+  private GithubRelease getLatestReleaseFromGithub(String owner, String repo) throws IOException, InterruptedException {
+    HttpClient client = HttpClient.newBuilder()
+      .followRedirects(HttpClient.Redirect.NORMAL)
+      .build();
+
+    HttpRequest request = HttpRequest.newBuilder()
+      .uri(URI.create("https://api.github.com/repos/%s/%s/releases/latest".formatted(owner, repo)))
+      .GET()
+      .setHeader("Accept", "application/vnd.github+json")
+      .setHeader("Authorization", "Bearer %s".formatted(System.getenv("GITHUB_TOKEN")))
+      .setHeader("X-GitHub-Api-Version", "2022-11-28")
+      .build();
+
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
     ObjectMapper mapper = new ObjectMapper();
-    Map<String, Object> jsonReleaseMap = mapper.readValue(inputStream, Map.class);
+    GithubDTO jsonReleaseMap = mapper.readValue(response.body(), GithubDTO.class);
     return processGithubRelease(jsonReleaseMap);
   }
 
-  private List<GithubRelease> getAllReleasesFromGithub(String owner, String repo) throws IOException {
-    String command = """
-      curl -L \\
-        -H "Accept: application/vnd.github+json" \\
-        -H "Authorization: Bearer %s" \\
-        -H "X-GitHub-Api-Version: 2022-11-28" \\
-        https://api.github.com/repos/%s/%s/releases
-      """.formatted(System.getenv("GITHUB_TOKEN"), owner, repo);
-    Process process = Runtime.getRuntime().exec(command);
-    InputStream inputStream = process.getInputStream();
+  private List<GithubRelease> getAllReleasesFromGithub(String owner, String repo) throws IOException, InterruptedException {
+    HttpClient client = HttpClient.newBuilder()
+      .followRedirects(HttpClient.Redirect.NORMAL)
+      .build();
+
+    HttpRequest request = HttpRequest.newBuilder()
+      .uri(URI.create("https://api.github.com/repos/%s/%s/releases".formatted(owner, repo)))
+      .GET()
+      .setHeader("Accept", "application/vnd.github+json")
+      .setHeader("Authorization", "Bearer %s".formatted(System.getenv("GITHUB_TOKEN")))
+      .setHeader("X-GitHub-Api-Version", "2022-11-28")
+      .build();
+
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     ObjectMapper mapper = new ObjectMapper();
     List<GithubRelease> results = new ArrayList<>();
-    List<LinkedHashMap<String, Object>> jsonReleasesList = mapper.readValue(inputStream, List.class);
-    for (LinkedHashMap<String, Object> jsonRelease : jsonReleasesList) {
-      results.add(processGithubRelease(jsonRelease));
+    List<GithubDTO> githubDTOList = mapper.readValue(response.body(), new TypeReference<List<GithubDTO>>() {});
+    for (GithubDTO githubDTO : githubDTOList) {
+      results.add(processGithubRelease(githubDTO));
     }
     return results;
   }
@@ -110,24 +126,14 @@ public class GithubService {
     return dateTime.format(formatterOutput);
   }
 
-  private GithubRelease processGithubRelease(Map<String,Object> jsonReleaseMap) throws IOException {
-    GithubRelease release = new GithubRelease();
-    String version = (String) jsonReleaseMap.get("tag_name");
-    release.setVersion(version);
-    String name = (String) jsonReleaseMap.get("name");
-    release.setTitle(name);
-    String createdAt = (String) jsonReleaseMap.get("created_at");
-    release.setCreatedDate(processDate(createdAt));
-    String publishedAt = (String) jsonReleaseMap.get("published_at");
-    release.setPublishedDate(processDate(publishedAt));
-    String releaseNotes = (String) jsonReleaseMap.get("body");
-    release.setReleaseNotes(processReleaseNotes(releaseNotes));
-    Object author = jsonReleaseMap.get("author");
-    Map<String, String> authorMap = (Map<String, String>) author;
-    String authorName = authorMap.get("login");
-    release.setAuthor(authorName);
-    String url = (String) jsonReleaseMap.get("html_url");
-    release.setUrl(url);
-    return release;
+  private GithubRelease processGithubRelease(GithubDTO githubDTO) throws IOException {
+    return new GithubRelease()
+      .setVersion(githubDTO.getTag_name())
+      .setTitle(githubDTO.getName())
+      .setCreatedDate(processDate(githubDTO.getCreated_at()))
+      .setPublishedDate(processDate(githubDTO.getPublished_at()))
+      .setReleaseNotes(processReleaseNotes(githubDTO.getBody()))
+      .setAuthor(githubDTO.getAuthor().getLogin())
+      .setUrl(githubDTO.getHtml_url());
   }
 }

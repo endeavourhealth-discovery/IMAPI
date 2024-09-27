@@ -3,7 +3,11 @@ package org.endeavourhealth.imapi.logic.service;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.dataaccess.SetRepository;
+import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.logic.exporters.SetTextFileExporter;
 import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
@@ -25,9 +29,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.endeavourhealth.imapi.logic.service.EntityService.updateEntity;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 
@@ -36,6 +42,9 @@ public class SetService {
   private static final Logger LOG = LoggerFactory.getLogger(SetService.class);
 
   private final SetTextFileExporter setTextFileExporter = new SetTextFileExporter();
+  private SetRepository setRepository = new SetRepository();
+  private EntityRepository entityRepository = new EntityRepository();
+
 
   public String getTSVSetExport(SetExporterOptions options) throws QueryException, JsonProcessingException {
     return setTextFileExporter.getSetFile(options, "\t");
@@ -51,7 +60,7 @@ public class SetService {
     SetContent result = new SetContent();
 
     LOG.trace("Fetching metadata for {}...", options.getSetIri());
-    TTEntity entity = new EntityTripleRepository().getEntityPredicates(options.getSetIri(), Set.of(RDFS.LABEL, RDFS.COMMENT, IM.HAS_STATUS, IM.VERSION, IM.DEFINITION)).getEntity();
+    TTEntity entity = new EntityRepository().getEntityPredicates(options.getSetIri(), Set.of(RDFS.LABEL, RDFS.COMMENT, IM.HAS_STATUS, IM.VERSION, IM.DEFINITION)).getEntity();
 
     if (null != entity) {
       result.setName(entity.getName())
@@ -109,7 +118,7 @@ public class SetService {
       }
       valueSet.setVersion(String.valueOf(result.getVersion()));
 
-      TTEntity entityDefinition = new EntityTripleRepository().getEntityPredicates(options.getSetIri(), Set.of(IM.DEFINITION)).getEntity();
+      TTEntity entityDefinition = new EntityRepository().getEntityPredicates(options.getSetIri(), Set.of(IM.DEFINITION)).getEntity();
       filter.setValue(entityDefinition.get(iri(IM.DEFINITION)).asLiteral().getValue());
       filters.add(filter);
       includeConcept.setFilter(filters);
@@ -147,6 +156,62 @@ public class SetService {
     IParser parser = ctx.newJsonParser();
 
     return parser.encodeResourceToString(valueSet);
+  }
+
+  public Set<Concept> getFullyExpandedMembers(String iri, boolean includeLegacy, boolean includeSubset, List<String> schemes) throws QueryException, JsonProcessingException {
+    SetExporter setExporter = new SetExporter();
+    return setExporter.getExpandedSetMembers(iri, true, includeLegacy, includeSubset, schemes);
+  }
+
+  public Set<TTIriRef> getSubsets(String iri) {
+    SetExporter setExporter = new SetExporter();
+    return setExporter.getSubsetIrisWithNames(iri);
+  }
+
+  public List<TTIriRef> getDistillation(List<TTIriRef> conceptList) {
+    List<String> iriList = conceptList.stream().map(c -> "<" + c.getIri() + ">").toList();
+    String iris = String.join(" ", iriList);
+    Set<String> isas = setRepository.getDistillation(iris);
+    conceptList.removeIf(c -> isas.contains(c.getIri()));
+    return conceptList;
+  }
+
+
+  public XSSFWorkbook getSetExport(SetExporterOptions options) throws JsonProcessingException, QueryException {
+    if (options.getSetIri() == null || options.getSetIri().isEmpty()) {
+      throw new IllegalArgumentException("SetIri is required");
+    }
+    return new ExcelSetExporter().getSetAsExcel(options);
+  }
+
+  public void updateSubsetsFromSuper(String agentName, TTEntity entity) throws TTFilerException, JsonProcessingException {
+    TTArray subsets = entity.get(iri(IM.HAS_SUBSET));
+    String entityIri = entity.getIri();
+    Set<TTIriRef> subsetsOriginal = getSubsets(entityIri);
+    List<TTIriRef> subsetsArray = subsets.stream().map(TTValue::asIriRef).toList();
+    for (TTIriRef subset : subsetsArray) {
+      TTEntity subsetEntity = entityRepository.getBundle(subset.getIri()).getEntity();
+      if (null != subsetEntity) {
+        if (!(subsetEntity.isType(iri(IM.VALUESET)) || subsetEntity.isType(iri(IM.CONCEPT_SET))))
+          throw new TTFilerException("Subsets must be of type valueSet or conceptSet. Type: " + subsetEntity.getType());
+        TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
+        if (null == isSubsetOf) {
+          subsetEntity.set(iri(IM.IS_SUBSET_OF), new TTArray().add(iri(entityIri)));
+          updateEntity(subsetEntity, agentName);
+        } else if (isSubsetOf.getElements().stream().noneMatch(i -> Objects.equals(i.asIriRef().getIri(), entityIri))) {
+          isSubsetOf.add(iri(entityIri));
+          updateEntity(subsetEntity, agentName);
+        }
+      }
+    }
+    for (TTIriRef subsetOriginal : subsetsOriginal) {
+      if (subsetsArray.stream().noneMatch(s -> s.getIri().equals(subsetOriginal.getIri()))) {
+        TTEntity subsetEntity = entityRepository.getBundle(subsetOriginal.getIri()).getEntity();
+        TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
+        isSubsetOf.remove(iri(entityIri));
+        updateEntity(subsetEntity, agentName);
+      }
+    }
   }
 }
 

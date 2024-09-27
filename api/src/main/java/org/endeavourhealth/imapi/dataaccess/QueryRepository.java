@@ -351,7 +351,7 @@ public class QueryRepository {
   }
 
   private TTEntity getEntity(String iri) {
-    return new EntityRepository2().getBundle(iri,
+    return new EntityRepository().getBundle(iri,
       Set.of(IM.DEFINITION, RDF.TYPE, IM.FUNCTION_DEFINITION, IM.UPDATE_PROCEDURE, SHACL.PARAMETER)).getEntity();
 
   }

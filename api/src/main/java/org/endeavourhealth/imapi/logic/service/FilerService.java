@@ -18,6 +18,7 @@ import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.stereotype.Component;
 
+import static org.endeavourhealth.imapi.logic.service.EntityService.getBundle;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
@@ -71,7 +72,7 @@ public class FilerService {
     for (TTEntity entity : document.getEntities()) {
       TTEntity usedEntity = null;
       if (entityService.iriExists(entity.getIri())) {
-        usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
+        usedEntity = getBundle(entity.getIri(), null).getEntity();
       }
       ProvAgent agent = fileProvAgent(entity, agentName);
       TTEntity provUsedEntity = fileUsedEntity(usedEntity);

@@ -37,7 +37,7 @@ public class SetRepository {
   public static final String LEGACY_SCHEME = "legacyScheme";
   public static final String CONCEPT = "concept";
   private static final Logger LOG = LoggerFactory.getLogger(SetRepository.class);
-  private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
+  private EntityRepository entityRepository = new EntityRepository();
 
   /**
    * Returns an expanded set members match an iml set definition. If already expanded then returns members
@@ -635,9 +635,33 @@ public class SetRepository {
     predicates.add(IM.IS_CONTAINED_IN);
     predicates.add(RDFS.LABEL);
 
-    TTBundle entityPredicates = entityTripleRepository.getEntityPredicates(setIri, predicates);
+    TTBundle entityPredicates = entityRepository.getEntityPredicates(setIri, predicates);
     return entityPredicates.getEntity();
   }
 
+  public Set<String> getDistillation(String iris) {
+    Set<String> isas = new HashSet<>();
+
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      String sql = """
+        SELECT ?child
+        WHERE {
+        VALUES ?child { %s }
+        VALUES ?parent { %s }
+        ?child ?isA ?parent .
+        FILTER (?child != ?parent)}
+        """.formatted(iris, iris);
+      TupleQuery qry = conn.prepareTupleQuery(sql);
+      qry.setBinding("isA", Values.iri(IM.IS_A));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          isas.add(bs.getValue("child").stringValue());
+
+        }
+      }
+      return isas;
+    }
+  }
 
 }

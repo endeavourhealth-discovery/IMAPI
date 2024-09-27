@@ -45,20 +45,16 @@ import java.util.Set;
 public class SetController {
 
   private final EntityService entityService = new EntityService();
+  private final SetService setService = new SetService();
   private final SetExporter setExporter = new SetExporter();
   private static final Logger LOG = LoggerFactory.getLogger(SetController.class);
   private static final String ATTACHMENT = "attachment;filename=\"";
   private static final String FORCE_DOWNLOAD = "force-download";
   private static final String APPLICATION = "application";
-  private final SetService setService = new SetService();
-  private final ConfigManager configManager = new ConfigManager();
   private final RequestObjectService reqObjService = new RequestObjectService();
 
   @GetMapping(value = "/publish")
-  @Operation(
-    summary = "Publish set",
-    description = "Publishes an expanded set to IM1"
-  )
+  @Operation(summary = "Publish set", description = "Publishes an expanded set to IM1")
   @PreAuthorize("hasAuthority('IM1_PUBLISH')")
   public void publish(@RequestParam(name = "iri") String iri) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Publish.GET")) {
@@ -67,10 +63,7 @@ public class SetController {
   }
 
   @GetMapping(value = "/public/export")
-  @Operation(
-    summary = "Export set",
-    description = "Exporting an expanded set to IM1"
-  )
+  @Operation(summary = "Export set", description = "Exporting an expanded set to IM1")
   public HttpEntity<Object> exportSet(@RequestParam(name = "iri") String iri) throws DownloadException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Export.GET")) {
       TTIriRef entity = entityService.getEntityReference(iri);
@@ -88,23 +81,18 @@ public class SetController {
   }
 
   @GetMapping("/public/expandedMembers")
-  public Set<Concept> getFullyExpandedMembers(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "legacy", required = false) boolean legacy,
-    @RequestParam(name = "includeSubsets", required = false) boolean includeSubsets,
-    @RequestParam(name = "schemes", required = false) List<String> schemes) throws QueryException, IOException {
+  public Set<Concept> getFullyExpandedMembers(@RequestParam(name = "iri") String iri, @RequestParam(name = "legacy", required = false) boolean legacy, @RequestParam(name = "includeSubsets", required = false) boolean includeSubsets, @RequestParam(name = "schemes", required = false) List<String> schemes) throws QueryException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ExpandedMembers.GET")) {
       LOG.debug("getFullyExpandedMembers");
-      return entityService.getFullyExpandedMembers(iri, legacy, includeSubsets, schemes);
+      return setService.getFullyExpandedMembers(iri, legacy, includeSubsets, schemes);
     }
   }
 
   @GetMapping("/public/subsets")
-  public Set<TTIriRef> getSubsets(
-    @RequestParam(name = "iri") String iri) throws IOException {
+  public Set<TTIriRef> getSubsets(@RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Subsets.GET")) {
       LOG.debug("getSubsets");
-      return entityService.getSubsets(iri);
+      return setService.getSubsets(iri);
     }
   }
 
@@ -112,22 +100,12 @@ public class SetController {
   public List<TTIriRef> getDistillation(@RequestBody List<TTIriRef> conceptList) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Distillation.POST")) {
       LOG.debug("getDistillation");
-      return entityService.getDistillation(conceptList);
+      return setService.getDistillation(conceptList);
     }
   }
 
   @GetMapping("/public/setExport")
-  public HttpEntity<Object> getSetExport(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "definition", defaultValue = "false") boolean definition,
-    @RequestParam(name = "core", defaultValue = "false") boolean core,
-    @RequestParam(name = "legacy", defaultValue = "false") boolean legacy,
-    @RequestParam(name = "includeSubsets", defaultValue = "false") boolean subsets,
-    @RequestParam(name = "ownRow", defaultValue = "false") boolean ownRow,
-    @RequestParam(name = "im1id", defaultValue = "false") boolean im1id,
-    @RequestParam(name = "format") String format,
-    @RequestParam(name = "schemes", defaultValue = "") List<String> schemes
-  ) throws DownloadException, IOException {
+  public HttpEntity<Object> getSetExport(@RequestParam(name = "iri") String iri, @RequestParam(name = "definition", defaultValue = "false") boolean definition, @RequestParam(name = "core", defaultValue = "false") boolean core, @RequestParam(name = "legacy", defaultValue = "false") boolean legacy, @RequestParam(name = "includeSubsets", defaultValue = "false") boolean subsets, @RequestParam(name = "ownRow", defaultValue = "false") boolean ownRow, @RequestParam(name = "im1id", defaultValue = "false") boolean im1id, @RequestParam(name = "format") String format, @RequestParam(name = "schemes", defaultValue = "") List<String> schemes) throws DownloadException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SetExport.GET")) {
       LOG.debug("getSetExport");
       HttpHeaders headers = new HttpHeaders();
@@ -139,7 +117,7 @@ public class SetController {
 
       try {
         if ("xlsx".equals(format)) {
-          XSSFWorkbook workbook = entityService.getSetExport(exportOptions);
+          XSSFWorkbook workbook = setService.getSetExport(exportOptions);
           try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             workbook.write(outputStream);
             workbook.close();
@@ -176,7 +154,7 @@ public class SetController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UpdateSubsetsFromSuper.POST")) {
       LOG.debug("updateSubsetsFromSuper");
       String agentName = reqObjService.getRequestAgentName(request);
-      entityService.updateSubsetsFromSuper(agentName, entity);
+      setService.updateSubsetsFromSuper(agentName, entity);
     }
   }
 

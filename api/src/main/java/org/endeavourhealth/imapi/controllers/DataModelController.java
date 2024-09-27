@@ -4,6 +4,7 @@ package org.endeavourhealth.imapi.controllers;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
+import org.endeavourhealth.imapi.logic.service.DataModelService;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SetService;
@@ -26,16 +27,14 @@ import java.util.List;
 @RequestScope
 public class DataModelController {
 
-  private final EntityService entityService = new EntityService();
+  private final DataModelService dataModelService = new DataModelService();
   private static final Logger LOG = LoggerFactory.getLogger(DataModelController.class);
 
   @GetMapping("/public/dataModelProperties")
-  public TTEntity getDataModelProperties(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "parent", required = false) String parent) throws IOException {
+  public TTEntity getDataModelProperties(@RequestParam(name = "iri") String iri, @RequestParam(name = "parent", required = false) String parent) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
       LOG.debug("getDataModelProperties");
-      return entityService.getDataModelPropertiesAndSubClasses(iri, parent);
+      return dataModelService.getDataModelPropertiesAndSubClasses(iri, parent);
     }
   }
 
@@ -43,21 +42,21 @@ public class DataModelController {
   public List<TTIriRef> getProperties() throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Properties.GET")) {
       LOG.debug("getProperties");
-      return entityService.getProperties();
+      return dataModelService.getProperties();
     }
   }
 
   @GetMapping(value = "/public/dataModels")
   public List<TTIriRef> getDataModelsFromProperty(@RequestParam(name = "propIri") String propIri) {
     LOG.debug("getDataModelsFromProperty");
-    return entityService.getDataModelsFromProperty(propIri);
+    return dataModelService.getDataModelsFromProperty(propIri);
   }
 
   @GetMapping(value = "public/checkPropertyType")
   public String checkPropertyType(@RequestParam(name = "propertyIri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.CheckPropertyType.GET")) {
       LOG.debug("checkPropertyType");
-      return entityService.checkPropertyType(iri);
+      return dataModelService.checkPropertyType(iri);
     }
   }
 }

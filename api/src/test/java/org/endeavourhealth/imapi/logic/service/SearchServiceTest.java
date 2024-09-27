@@ -33,13 +33,6 @@ class SearchServiceTest {
   private String succinctDefinitions;
 
   //@Test
-  void testdataModelProperties() throws IOException {
-    System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(
-      new EntityController().getDataModelProperties(IM.NAMESPACE + "Observation", null)));
-  }
-
-
-  //@Test
   void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
     output(TestQueries.pathQuery());
     /*
@@ -124,8 +117,7 @@ class SearchServiceTest {
 
   //@Test
   public void setTest() throws DataFormatException, JsonProcessingException, QueryException {
-    EntityService es = new EntityService();
-    TTEntity entity = es.getFullEntity(IM.NAMESPACE + "VSET_VitalSigns").getEntity();
+    TTEntity entity = EntityService.getBundle(IM.NAMESPACE + "VSET_VitalSigns", null).getEntity();
     String json = entity.get(iri(IM.DEFINITION)).asLiteral().getValue();
     SetExporter exporter = new SetExporter();
     Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE + "VSET_VitalSigns", true, false, true, List.of());

@@ -1,8 +1,7 @@
 package org.endeavourhealth.imapi.logic.exporters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
-import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
@@ -26,9 +25,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class SetTextFileExporter {
   public static final String IM_1_ID = "im1id";
   private static final Logger LOG = LoggerFactory.getLogger(SetTextFileExporter.class);
-  private final EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
   private final SetExporter setExporter = new SetExporter();
-  private final EntityRepository2 entityRepository2 = new EntityRepository2();
+  private final EntityRepository entityRepository = new EntityRepository();
 
   private static void addHeader(SetExporterOptions options, StringJoiner results, String del) {
     if (options.includeSubsets()) {
@@ -89,11 +87,11 @@ public class SetTextFileExporter {
 
   public String getSetFile(SetExporterOptions options, String del) throws QueryException, JsonProcessingException {
     LOG.debug("Exporting set to TSV");
-    String setName = entityRepository2.getBundle(options.getSetIri(), Set.of(RDFS.LABEL)).getEntity().getName();
+    String setName = entityRepository.getBundle(options.getSetIri(), Set.of(RDFS.LABEL)).getEntity().getName();
 
     String result = "";
 
-    TTEntity entity = entityTripleRepository.getEntityPredicates(options.getSetIri(), Set.of(IM.DEFINITION)).getEntity();
+    TTEntity entity = entityRepository.getEntityPredicates(options.getSetIri(), Set.of(IM.DEFINITION)).getEntity();
     if (entity.getIri() == null || entity.getIri().isEmpty())
       return null;
 

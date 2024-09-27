@@ -404,8 +404,8 @@ public class SparqlConverter {
 
   private void processMatchIsMemberOf(StringBuilder whereQl, Node instance, String subject) throws QueryException {
     try {
-      EntityTripleRepository repo = new EntityTripleRepository();
-      if (Boolean.FALSE.equals(repo.hasPredicates(instance.getIri(), Set.of(IM.HAS_MEMBER)))) {
+      EntityRepository entityRepository = new EntityRepository();
+      if (Boolean.FALSE.equals(entityRepository.hasPredicates(instance.getIri(), Set.of(IM.HAS_MEMBER)))) {
         new SetExpander().expandSet(instance.getIri());
       }
     } catch (JsonProcessingException e) {

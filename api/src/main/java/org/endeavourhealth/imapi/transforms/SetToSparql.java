@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -11,14 +11,14 @@ import java.util.Set;
 import java.util.zip.DataFormatException;
 
 public class SetToSparql {
-  private EntityTripleRepository entityRepo = new EntityTripleRepository();
+  private EntityRepository entityRepository = new EntityRepository();
   private String tabs = "   ";
 
 
   public String getExpansionSparql(String entityVar, String iri) throws DataFormatException {
 
     Set<String> predicates = Set.of(RDFS.LABEL, IM.DEFINITION);
-    TTEntity entity = entityRepo.getEntityPredicates(iri, predicates).getEntity();
+    TTEntity entity = entityRepository.getEntityPredicates(iri, predicates).getEntity();
     StringBuilder subQuery = new StringBuilder();
     if (entity.get(TTIriRef.iri(IM.HAS_MEMBER)) != null) {
       subQuery.append("?").append(entityVar).append(" ")

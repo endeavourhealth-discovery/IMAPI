@@ -31,10 +31,8 @@ import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.set.SetOptions;
-import org.endeavourhealth.imapi.model.tripletree.TTBundle;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -49,6 +47,7 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.*;
@@ -168,11 +167,17 @@ public class EntityController {
   public HttpEntity<Object> downloadEntity(@RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DownloadEntity.GET")) {
       LOG.debug("Download entity");
-      TTBundle entity = entityService.getBundle(iri, null);
+      TTBundle entity = entityService.getFullEntity(iri);
+      TTManager manager = new TTManager();
+      TTDocument document = manager.createDocument();
+      List<TTEntity> entityList = new ArrayList<>();
+      entityList.add(entity.getEntity());
+      document.setEntities(entityList);
+      String json = manager.getJson(document);
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_JSON);
       headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + entity.getEntity().get(iri(RDFS.LABEL)) + ".json\"");
-      return new HttpEntity<>(entity, headers);
+      return new HttpEntity<>(json, headers);
     }
   }
 

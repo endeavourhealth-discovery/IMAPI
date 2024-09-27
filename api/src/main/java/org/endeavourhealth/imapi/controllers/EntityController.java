@@ -167,7 +167,7 @@ public class EntityController {
   public HttpEntity<Object> downloadEntity(@RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DownloadEntity.GET")) {
       LOG.debug("Download entity");
-      TTBundle entity = entityService.getFullEntity(iri);
+      TTBundle entity = EntityService.getBundle(iri, null);
       TTManager manager = new TTManager();
       TTDocument document = manager.createDocument();
       List<TTEntity> entityList = new ArrayList<>();

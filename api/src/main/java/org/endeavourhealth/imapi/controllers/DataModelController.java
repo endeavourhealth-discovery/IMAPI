@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/concept")
+@RequestMapping("api/dataModel")
 @CrossOrigin(origins = "*")
 @Tag(name = "Data model Controller")
 @RequestScope
@@ -46,11 +46,11 @@ public class DataModelController {
     }
   }
 
-  @GetMapping(value = "/public/dataModels")
-  public List<TTIriRef> getDataModelsFromProperty(@RequestParam(name = "propIri") String propIri) {
-    LOG.debug("getDataModelsFromProperty");
-    return dataModelService.getDataModelsFromProperty(propIri);
-  }
+//  @GetMapping(value = "/public/dataModels")
+//  public List<TTIriRef> getDataModelsFromProperty(@RequestParam(name = "propIri") String propIri) {
+//    LOG.debug("getDataModelsFromProperty");
+//    return dataModelService.getDataModelsFromProperty(propIri);
+//  }
 
   @GetMapping(value = "public/checkPropertyType")
   public String checkPropertyType(@RequestParam(name = "propertyIri") String iri) throws IOException {

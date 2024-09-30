@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
@@ -36,6 +37,11 @@ public class DataModelProperty implements Serializable {
     return this;
   }
 
+  @JsonIgnore
+  public boolean hasProperty() {
+    return property != null;
+  }
+
   public String getPattern() {
     return pattern;
   }
@@ -53,6 +59,11 @@ public class DataModelProperty implements Serializable {
   public DataModelProperty setType(TTIriRef objectType) {
     this.type = objectType;
     return this;
+  }
+
+  @JsonIgnore
+  public boolean hasType() {
+    return type != null;
   }
 
   public String getMinInclusive() {
@@ -100,5 +111,10 @@ public class DataModelProperty implements Serializable {
   public DataModelProperty setInheritedFrom(TTIriRef inheritedFrom) {
     this.inheritedFrom = inheritedFrom;
     return this;
+  }
+
+  @JsonIgnore
+  public boolean isArray() {
+    return maxExclusive == null || maxExclusive.isEmpty() || maxExclusive.equals("0");
   }
 }

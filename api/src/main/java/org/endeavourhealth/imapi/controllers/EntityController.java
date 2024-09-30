@@ -14,6 +14,7 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSearchExporter;
 import org.endeavourhealth.imapi.logic.exporters.SearchTextFileExporter;
 import org.endeavourhealth.imapi.logic.service.EntityService;
+import org.endeavourhealth.imapi.logic.service.FilerService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.*;
@@ -69,6 +70,11 @@ public class EntityController {
   private final EntityService entityService = new EntityService();
   private final ConfigManager configManager = new ConfigManager();
   private final RequestObjectService reqObjService = new RequestObjectService();
+  private final FilerService filerService;
+
+  public EntityController(FilerService filerService) {
+    this.filerService = filerService;
+  }
 
   @GetMapping(value = "/public/partial", produces = "application/json")
   public TTEntity getPartialEntity(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) throws IOException {
@@ -126,7 +132,7 @@ public class EntityController {
       }
       TTEntity entity = entityService.getBundle(iri, Set.of(RDF.TYPE)).getEntity();
       boolean inactive = entity.getType() != null && entity.getType().contains(iri(IM.TASK));
-      return EntityService.getImmediateChildren(iri, schemeIris, page, size, inactive);
+      return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive);
     }
   }
 
@@ -134,7 +140,7 @@ public class EntityController {
   public EntityReferenceNode getEntityAsEntityReferenceNode(@RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.AsEntityReferenceNode.GET")) {
       LOG.debug("getEntityAsEntityReferenceNode");
-      return EntityService.getEntityAsEntityReferenceNode(iri);
+      return entityService.getEntityAsEntityReferenceNode(iri);
     }
   }
 
@@ -167,7 +173,7 @@ public class EntityController {
   public HttpEntity<Object> downloadEntity(@RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DownloadEntity.GET")) {
       LOG.debug("Download entity");
-      TTBundle entity = EntityService.getBundle(iri, null);
+      TTBundle entity = entityService.getBundle(iri, null);
       TTManager manager = new TTManager();
       TTDocument document = manager.createDocument();
       List<TTEntity> entityList = new ArrayList<>();
@@ -242,7 +248,7 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       LOG.debug("createEntity");
       String agentName = reqObjService.getRequestAgentName(request);
-      return entityService.createEntity(entity, agentName);
+      return filerService.createEntity(entity, agentName);
     }
   }
 
@@ -252,7 +258,7 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       LOG.debug("updateEntity");
       String agentName = reqObjService.getRequestAgentName(request);
-      return EntityService.updateEntity(entity, agentName);
+      return filerService.updateEntity(entity, agentName);
     }
   }
 

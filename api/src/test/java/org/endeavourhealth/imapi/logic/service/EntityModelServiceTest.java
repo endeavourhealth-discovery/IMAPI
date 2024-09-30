@@ -44,7 +44,7 @@ class EntityModelServiceTest {
   EntityService entityService = new EntityService();
 
   @Mock
-  EntityRepository entityRepository = new EntityRepository();
+  EntityRepository entityRepository;
 
   @Mock
   ConfigManager configManager = new ConfigManager();
@@ -329,8 +329,6 @@ class EntityModelServiceTest {
 
   @Test
   void getGraphData_NullIri() {
-    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity()));
-
     GraphDto actual = entityService.getGraphData(null);
     assertNotNull(actual);
   }

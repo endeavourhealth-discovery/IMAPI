@@ -13,13 +13,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-import static org.endeavourhealth.imapi.logic.service.EntityService.getImmediateChildren;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class DataModelService {
   private EntityRepository entityRepository = new EntityRepository();
   private DataModelRepository dataModelRepository = new DataModelRepository();
+  private EntityService entityService = new EntityService();
 
   public List<TTIriRef> getDataModelsFromProperty(String propIri) {
     return dataModelRepository.findDataModelsFromProperty(propIri);
@@ -46,7 +46,7 @@ public class DataModelService {
       }
     }
     ;
-    List<EntityReferenceNode> children = getImmediateChildren(iri, null, null, null, false);
+    List<EntityReferenceNode> children = entityService.getImmediateChildren(iri, null, null, null, false);
     if (children != null && !children.isEmpty()) {
       TTNode subclasses = new TTNode()
         .set(iri(SHACL.ORDER), TTLiteral.literal(0))

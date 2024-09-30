@@ -31,6 +31,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 class SearchServiceTest {
 
   private String succinctDefinitions;
+  EntityService entityService = new EntityService();
 
   //@Test
   void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
@@ -117,7 +118,7 @@ class SearchServiceTest {
 
   //@Test
   public void setTest() throws DataFormatException, JsonProcessingException, QueryException {
-    TTEntity entity = EntityService.getBundle(IM.NAMESPACE + "VSET_VitalSigns", null).getEntity();
+    TTEntity entity = entityService.getBundle(IM.NAMESPACE + "VSET_VitalSigns", null).getEntity();
     String json = entity.get(iri(IM.DEFINITION)).asLiteral().getValue();
     SetExporter exporter = new SetExporter();
     Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE + "VSET_VitalSigns", true, false, true, List.of());

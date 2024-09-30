@@ -33,7 +33,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.endeavourhealth.imapi.logic.service.EntityService.updateEntity;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 
@@ -44,7 +43,7 @@ public class SetService {
   private final SetTextFileExporter setTextFileExporter = new SetTextFileExporter();
   private SetRepository setRepository = new SetRepository();
   private EntityRepository entityRepository = new EntityRepository();
-
+  private FilerService filerService = new FilerService();
 
   public String getTSVSetExport(SetExporterOptions options) throws QueryException, JsonProcessingException {
     return setTextFileExporter.getSetFile(options, "\t");
@@ -197,10 +196,10 @@ public class SetService {
         TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
         if (null == isSubsetOf) {
           subsetEntity.set(iri(IM.IS_SUBSET_OF), new TTArray().add(iri(entityIri)));
-          updateEntity(subsetEntity, agentName);
+          filerService.updateEntity(subsetEntity, agentName);
         } else if (isSubsetOf.getElements().stream().noneMatch(i -> Objects.equals(i.asIriRef().getIri(), entityIri))) {
           isSubsetOf.add(iri(entityIri));
-          updateEntity(subsetEntity, agentName);
+          filerService.updateEntity(subsetEntity, agentName);
         }
       }
     }
@@ -209,7 +208,7 @@ public class SetService {
         TTEntity subsetEntity = entityRepository.getBundle(subsetOriginal.getIri()).getEntity();
         TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
         isSubsetOf.remove(iri(entityIri));
-        updateEntity(subsetEntity, agentName);
+        filerService.updateEntity(subsetEntity, agentName);
       }
     }
   }

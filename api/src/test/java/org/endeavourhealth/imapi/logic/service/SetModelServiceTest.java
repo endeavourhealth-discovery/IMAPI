@@ -7,8 +7,12 @@ import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
 import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -19,13 +23,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
+@RunWith(JUnitPlatform.class)
 public class SetModelServiceTest {
 
   @InjectMocks
   SetService setService = new SetService();
 
   @Mock
-  SetRepository setRepository = new SetRepository();
+  SetRepository setRepository;
 
   @Test
   void getSetExport_NullIri() {
@@ -59,7 +65,7 @@ public class SetModelServiceTest {
 
     List<TTIriRef> actual = setService.getDistillation(conceptList);
 
-    assertEquals(actual, distList);
+    assertEquals(actual, distList.stream().map(distIri -> new TTIriRef().setIri(distIri)).toList());
 
   }
 }

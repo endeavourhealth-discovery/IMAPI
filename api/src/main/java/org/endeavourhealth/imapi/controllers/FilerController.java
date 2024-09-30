@@ -41,7 +41,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.endeavourhealth.imapi.logic.service.EntityService.getBundle;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @RestController
@@ -78,7 +77,7 @@ public class FilerController {
       String agentName = reqObjService.getRequestAgentName(request);
       TTEntity usedEntity = null;
       if (entityService.iriExists(entity.getIri())) {
-        usedEntity = getBundle(entity.getIri(), null).getEntity();
+        usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
         entity.setVersion(usedEntity.getVersion() + 1);
       }
 
@@ -109,7 +108,7 @@ public class FilerController {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Source and target are the same");
       }
 
-      TTEntity entity = getBundle(entityIri, Set.of(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
+      TTEntity entity = entityService.getBundle(entityIri, Set.of(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
       if (!entity.has(iri(IM.IS_CONTAINED_IN))) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in a folder");
       }
@@ -122,7 +121,7 @@ public class FilerController {
       if (entityService.isLinked(newFolderIri, iri(IM.IS_CONTAINED_IN), oldFolderIri)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Target folder is a descendant of the Entity");
       }
-      TTEntity usedEntity = getBundle(entity.getIri(), null).getEntity();
+      TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
 
       folders.remove(iri(oldFolderIri));
       folders.add(iri(newFolderIri));
@@ -152,13 +151,13 @@ public class FilerController {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Cannot move entity into itself");
       }
 
-      TTEntity entity = getBundle(entityIri, Set.of(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
+      TTEntity entity = entityService.getBundle(entityIri, Set.of(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
       TTArray folders = entity.get(iri(IM.IS_CONTAINED_IN));
       if (folders == null) folders = new TTArray();
       folders.add(iri(folderIri));
 
       String agentName = reqObjService.getRequestAgentName(request);
-      TTEntity usedEntity = getBundle(entity.getIri(), null).getEntity();
+      TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
       filerService.fileEntity(entity, iri(GRAPH.DISCOVERY), agentName, usedEntity);
 

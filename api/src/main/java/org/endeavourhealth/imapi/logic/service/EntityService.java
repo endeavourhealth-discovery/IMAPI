@@ -2,30 +2,17 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
-import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.logic.CachedObjectMapper;
-import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
-import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
-import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
-import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
-import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
@@ -34,7 +21,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.Comparator.comparingInt;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -43,10 +29,9 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class EntityService {
   public static final int MAX_CHILDREN = 200;
   private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
-  private static final FilerService filerService = new FilerService();
   private static DataModelService dataModelService = new DataModelService();
   private static ConceptService conceptService = new ConceptService();
-  private static EntityRepository entityRepository = new EntityRepository();
+  private EntityRepository entityRepository = new EntityRepository();
   private ConfigManager configManager = new ConfigManager();
 
   private static void filterOutSpecifiedPredicates(Set<String> excludePredicates, TTBundle bundle) {
@@ -59,7 +44,7 @@ public class EntityService {
     }
   }
 
-  public static TTBundle getBundle(String iri, Set<String> predicates) {
+  public TTBundle getBundle(String iri, Set<String> predicates) {
     return entityRepository.getBundle(iri, predicates);
   }
 
@@ -73,32 +58,6 @@ public class EntityService {
   public TTIriRef getEntityReference(String iri) {
     if (iri == null || iri.isEmpty()) return null;
     return entityRepository.getEntityReferenceByIri(iri);
-  }
-
-  public static List<EntityReferenceNode> getImmediateChildren(String iri, List<String> schemeIris, Integer pageIndex, Integer pageSize, boolean inactive) {
-    if (iri == null || iri.isEmpty()) return Collections.emptyList();
-
-    List<EntityReferenceNode> result = new ArrayList<>();
-    int rowNumber = 0;
-    if (pageIndex != null && pageSize != null) rowNumber = (pageIndex - 1) * pageSize;
-
-    for (TTIriRef c : getChildren(iri, schemeIris, rowNumber, pageSize, inactive)) {
-      result.add(getEntityAsEntityReferenceNode(c.getIri()));
-    }
-
-    result.sort(comparingInt(EntityReferenceNode::getOrderNumber).thenComparing(EntityReferenceNode::getName));
-
-    return result;
-  }
-
-  public static EntityReferenceNode getEntityAsEntityReferenceNode(String iri) {
-    return getEntityAsEntityReferenceNode(iri, null, false);
-  }
-
-  public static EntityReferenceNode getEntityAsEntityReferenceNode(String iri, List<String> schemeIris, boolean inactive) {
-    if (null == iri) throw new IllegalArgumentException("Missing iri parameter");
-
-    return entityRepository.getEntityReferenceNode(iri, schemeIris, inactive);
   }
 
   public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
@@ -118,10 +77,6 @@ public class EntityService {
     if (page != null && size != null) rowNumber = (page - 1) * size;
 
     return entityRepository.findPartialWithTotalCount(iri, predicateList, schemeIris, rowNumber, size, inactive);
-  }
-
-  private static List<TTIriRef> getChildren(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
-    return entityRepository.findImmediateChildrenByIri(iri, schemeIris, rowNumber, pageSize, inactive);
   }
 
   public List<EntityReferenceNode> getImmediateParents(String iri, List<String> schemeIris, Integer pageIndex, Integer pageSize, boolean inactive) {
@@ -255,6 +210,8 @@ public class EntityService {
 
 
   public GraphDto getGraphData(String iri) {
+    if(null == iri || iri.isEmpty()) return new GraphDto();
+
     TTEntity entity = getBundle(iri, Set.of(RDFS.SUBCLASS_OF, RDFS.LABEL)).getEntity();
 
     GraphDto graphData = new GraphDto().setKey("0").setIri(entity.getIri()).setName(entity.getName());
@@ -491,26 +448,8 @@ public class EntityService {
     return found ? i : -1;
   }
 
-  public static boolean iriExists(String iri) {
+  public boolean iriExists(String iri) {
     return entityRepository.iriExists(iri);
-  }
-
-  public static TTEntity createEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {
-    isValid(entity, "Create");
-    TTIriRef graph = iri(GRAPH.DISCOVERY);
-    entity.setCrud(iri(IM.ADD_QUADS)).setVersion(1);
-    filerService.fileEntity(entity, graph, agentName, null);
-    return entity;
-  }
-
-  public static TTEntity updateEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {
-    isValid(entity, "Update");
-    TTIriRef graph = iri(GRAPH.DISCOVERY);
-    entity.setCrud(iri(IM.UPDATE_ALL));
-    TTEntity usedEntity = getBundle(entity.getIri(), null).getEntity();
-    entity.setVersion(usedEntity.getVersion() + 1);
-    filerService.fileEntity(entity, graph, agentName, usedEntity);
-    return entity;
   }
 
   protected static void filterOutInactiveTermCodes(TTBundle bundle) {
@@ -544,7 +483,11 @@ public class EntityService {
     return entityRepository.getPredicates(iri);
   }
 
-  protected static Pageable<EntityReferenceNode> iriRefPageableToEntityReferenceNodePageable(Pageable<TTIriRef> iriRefPageable, List<String> schemeIris, boolean inactive) {
+  public List<String> getIM1SchemeOptions() {
+    return entityRepository.getIM1SchemeOptions();
+  }
+
+  protected Pageable<EntityReferenceNode> iriRefPageableToEntityReferenceNodePageable(Pageable<TTIriRef> iriRefPageable, List<String> schemeIris, boolean inactive) {
     Pageable<EntityReferenceNode> result = new Pageable<>();
     result.setTotalCount(iriRefPageable.getTotalCount());
     Set<String> iris = new HashSet<>();
@@ -558,65 +501,35 @@ public class EntityService {
     return result;
   }
 
-  public List<String> getIM1SchemeOptions() {
-    return entityRepository.getIM1SchemeOptions();
-  }
+  public List<EntityReferenceNode> getImmediateChildren(String iri, List<String> schemeIris, Integer pageIndex, Integer pageSize, boolean inactive) {
+    if (iri == null || iri.isEmpty()) return Collections.emptyList();
 
+    List<EntityReferenceNode> result = new ArrayList<>();
+    int rowNumber = 0;
+    if (pageIndex != null && pageSize != null) rowNumber = (pageIndex - 1) * pageSize;
 
-  public static void isValid(TTEntity entity, String mode) throws TTFilerException, JsonProcessingException {
-    ArrayList<String> errorMessages = new ArrayList();
-    try (CachedObjectMapper om = new CachedObjectMapper()) {
-      if (Boolean.TRUE.equals(!isValidIri(entity))) errorMessages.add("Missing iri.");
-      if ("Create".equals(mode) && iriExists(entity.getIri())) errorMessages.add("Iri already exists.");
-      if ("Update".equals(mode) && !iriExists(entity.getIri())) errorMessages.add("Iri doesn't exists.");
-      if (Boolean.TRUE.equals(!isValidName(entity))) errorMessages.add("Name is invalid.");
-      if (Boolean.TRUE.equals(!isValidType(entity))) errorMessages.add("Types are invalid.");
-      if (Boolean.TRUE.equals(!isValidStatus(entity))) errorMessages.add("Status is invalid");
-      if (Boolean.TRUE.equals(!hasParents(entity))) errorMessages.add("Parents are invalid");
-      if (!errorMessages.isEmpty()) {
-        String errorsAsString = String.join(",", errorMessages);
-        throw new TTFilerException(mode + " entity errors: [" + errorsAsString + "] for entity " + om.writeValueAsString(entity));
-      }
+    for (TTIriRef c : getChildren(iri, schemeIris, rowNumber, pageSize, inactive)) {
+      result.add(getEntityAsEntityReferenceNode(c.getIri()));
     }
+
+    result.sort(comparingInt(EntityReferenceNode::getOrderNumber).thenComparing(EntityReferenceNode::getName));
+
+    return result;
   }
 
-  private static Boolean isValidIri(TTEntity entity) {
-    if (null == entity.getIri()) return false;
-    return !"".equals(entity.getIri());
+  private List<TTIriRef> getChildren(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
+    return entityRepository.findImmediateChildrenByIri(iri, schemeIris, rowNumber, pageSize, inactive);
   }
 
-  private static Boolean isValidName(TTEntity entity) {
-    if (null == entity.getName()) return false;
-    return !"".equals(entity.getName());
+
+  public EntityReferenceNode getEntityAsEntityReferenceNode(String iri) {
+    return getEntityAsEntityReferenceNode(iri, null, false);
   }
 
-  private static Boolean isValidType(TTEntity entity) {
-    if (null == entity.getType()) return false;
-    if (entity.getType().isEmpty()) return false;
-    return entity.getType().getElements().stream().allMatch(TTValue::isIriRef);
-  }
+  public EntityReferenceNode getEntityAsEntityReferenceNode(String iri, List<String> schemeIris, boolean inactive) {
+    if (null == iri) throw new IllegalArgumentException("Missing iri parameter");
 
-  private static Boolean isValidStatus(TTEntity entity) {
-    if (null == entity.getStatus()) return false;
-    return entity.getStatus().isIriRef();
-  }
-
-  private static Boolean hasParents(TTEntity entity) {
-    if (null == entity.get(iri(IM.IS_A)) && null == entity.get(iri(IM.IS_CONTAINED_IN)) && null == entity.get(iri(RDFS.SUBCLASS_OF)) && null == entity.get(iri(IM.IS_SUBSET_OF)))
-      return false;
-    if (null != entity.get(iri(IM.IS_A)) && !entity.get(iri(IM.IS_A)).isEmpty()) {
-      if (!entity.get(iri(IM.IS_A)).getElements().stream().allMatch(TTValue::isIriRef)) return false;
-    }
-    if (null != entity.get(iri(IM.IS_CONTAINED_IN)) && !entity.get(iri(IM.IS_CONTAINED_IN)).isEmpty()) {
-      if (!entity.get(iri(IM.IS_CONTAINED_IN)).getElements().stream().allMatch(TTValue::isIriRef)) return false;
-    }
-    if (null != entity.get(iri(RDFS.SUBCLASS_OF)) && !entity.get(iri(RDFS.SUBCLASS_OF)).isEmpty()) {
-      if (!entity.get(iri(RDFS.SUBCLASS_OF)).getElements().stream().allMatch(TTValue::isIriRef)) return false;
-    }
-    if (null != entity.get(iri(IM.IS_SUBSET_OF)) && !entity.get(iri(IM.IS_SUBSET_OF)).isEmpty()) {
-      if (!entity.get(iri(IM.IS_SUBSET_OF)).getElements().stream().allMatch(TTValue::isIriRef)) return false;
-    }
-    return true;
+    return entityRepository.getEntityReferenceNode(iri, schemeIris, inactive);
   }
 }
 

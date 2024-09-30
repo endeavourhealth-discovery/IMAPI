@@ -23,12 +23,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.endeavourhealth.imapi.logic.service.EntityService.filterOutInactiveTermCodes;
-import static org.endeavourhealth.imapi.logic.service.EntityService.iriRefPageableToEntityReferenceNodePageable;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class ConceptService {
 
+  private EntityService entityService = new EntityService();
   private EntityRepository entityRepository = new EntityRepository();
   private ConceptRepository conceptRepository = new ConceptRepository();
 
@@ -71,7 +71,7 @@ public class ConceptService {
     if (null != page && null != size) rowNumber = (page - 1) * size;
 
     Pageable<TTIriRef> propertiesAndCount = conceptRepository.getSuperiorPropertiesByConceptPagedWithTotalCount(iri, rowNumber, size, inactive);
-    return iriRefPageableToEntityReferenceNodePageable(propertiesAndCount, schemeIris, inactive);
+    return entityService.iriRefPageableToEntityReferenceNodePageable(propertiesAndCount, schemeIris, inactive);
   }
 
   public Pageable<EntityReferenceNode> getSuperiorPropertiesBoolFocusPaged(List<String> conceptIris, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
@@ -81,7 +81,7 @@ public class ConceptService {
     if (null != page && null != size) rowNumber = (page - 1) * size;
 
     Pageable<TTIriRef> propertiesAndCount = conceptRepository.getSuperiorPropertiesByConceptBoolFocusPagedWithTotalCount(conceptIris, rowNumber, size, inactive);
-    return iriRefPageableToEntityReferenceNodePageable(propertiesAndCount, schemeIris, inactive);
+    return entityService.iriRefPageableToEntityReferenceNodePageable(propertiesAndCount, schemeIris, inactive);
   }
 
   public Pageable<EntityReferenceNode> getSuperiorPropertyValuesPaged(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
@@ -92,7 +92,7 @@ public class ConceptService {
 
 
     Pageable<TTIriRef> propertiesAndCount = conceptRepository.getSuperiorPropertyValuesByPropertyPagedWithTotalCount(iri, rowNumber, size, inactive);
-    return iriRefPageableToEntityReferenceNodePageable(propertiesAndCount, schemeIris, inactive);
+    return entityService.iriRefPageableToEntityReferenceNodePageable(propertiesAndCount, schemeIris, inactive);
   }
 
   public List<ConceptContextMap> getConceptContextMaps(String iri) {

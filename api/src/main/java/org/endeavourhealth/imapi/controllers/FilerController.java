@@ -62,16 +62,21 @@ public class FilerController {
       LOG.debug("fileDocument");
       String agentName = reqObjService.getRequestAgentName(request);
       String taskId = UUID.randomUUID().toString();
-      filerService.fileDocument(document, agentName, taskId);
       Map<String, String> response = new HashMap<>();
-      response.put("taskId", taskId);
+      try {
+        filerService.fileDocument(document, agentName, taskId);
+        response.put("taskId", taskId);
+      } catch (Exception e) {
+        Integer taskProgress = filerService.getTaskProgress(taskId);
+        response.put("progress", taskProgress == null ? "NONE" : String.valueOf(taskProgress));
+      }
       return ResponseEntity.ok(response);
     }
   }
 
   @GetMapping("file/document/{taskId}")
   public ResponseEntity<Map<String, Integer>> getProgress(@PathVariable("taskId") String taskId) {
-    int progress = filerService.getTaskProgress(taskId);
+    Integer progress = filerService.getTaskProgress(taskId);
     Map<String, Integer> response = new HashMap<>();
     response.put("progress", progress);
     return ResponseEntity.ok(response);

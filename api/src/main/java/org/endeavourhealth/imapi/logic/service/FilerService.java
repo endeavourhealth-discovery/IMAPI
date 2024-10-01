@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
@@ -18,30 +17,23 @@ import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class FilerService {
 
-  private final TTDocumentFiler documentFiler = new TTTransactionFiler();
+  private final TTTransactionFiler documentFiler = new TTTransactionFiler();
   private final TTEntityFiler entityFiler = new TTEntityFilerRdf4j();
   private final TTEntityFiler entityProvFiler = entityFiler;
   private final ProvService provService = new ProvService();
   private final EntityService entityService = new EntityService();
   private final OpenSearchService openSearchService = new OpenSearchService();
-  private final Map<String, Integer> progressMap = new ConcurrentHashMap<>();
 
   public void fileDocument(TTDocument document, String agentName, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
     System.out.println(taskId);
-    progressMap.put(taskId, 0);
-    System.out.println(progressMap.size());
-    System.out.println(progressMap.get(taskId));
     new Thread(() -> {
       try {
-        documentFiler.fileDocument(document, taskId, progressMap);
+        documentFiler.fileDocument(document, taskId);
 //        fileProvDoc(document, agentName);
       } catch (TTFilerException | JsonProcessingException | QueryException e) {
         throw new RuntimeException(e);
@@ -49,11 +41,8 @@ public class FilerService {
     }).start();
   }
 
-  public int getTaskProgress(String taskId) {
-    System.out.println(taskId);
-    System.out.println(progressMap.size());
-    System.out.println(progressMap.get(taskId));
-    return progressMap.getOrDefault(taskId, -1);
+  public Integer getTaskProgress(String taskId) {
+    return documentFiler.getFilingProgress(taskId);
   }
 
   public void fileEntity(TTEntity entity, TTIriRef graph, String agentName, TTEntity usedEntity) throws TTFilerException {

@@ -256,68 +256,47 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   }
 
   private synchronized void fileAsDocument(TTDocument document, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
-/*    new Thread(() -> {
-      try {
-        try {
-          startTransaction();
-          LOG.info("Filing entities.... ");
-          int i = 0;
-          entitiesFiled = new HashSet<>();
-          for (TTEntity entity : document.getEntities()) {
-            Integer previousProgress = progressMap.getOrDefault(taskId, 0);
-            progressMap.put(taskId, previousProgress++);
-            setEntityCrudOperation(document, entity);
-
-            TTIriRef entityGraph = processGraphs(document, entity);
-
-            if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
-              continue;
-
-            fileEntity(entity, entityGraph);
-            entitiesFiled.add(entity.getIri());
-            i++;
-            if (i % 100 == 0)
-              LOG.info("Filed {}  entities in transaction from {} in graph {}", i, document.getEntities().size(), entityGraph.getIri());
-
-          }
-          if (logPath != null)
-            writeLog(document);
-          updateTct(document);
-          LOG.info("Updating range inheritances");
-          new RangeInheritor().inheritRanges(conn);
-          commit();
-        } catch (TTFilerException e) {
-          rollback();
-          throw e;
-
-        } catch (Exception e) {
-          throw new TTFilerException(e.getMessage());
-        }
-        updateSets(document);
-      } catch (TTFilerException e) {
-        throw new RuntimeException(e);
-      } catch (QueryException e) {
-        throw new RuntimeException(e);
-      } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-      }
-    }).start();*/
 
     if (filingProgress != null)
       throw new TTFilerException("There is a document already filing, please try again later");
-
     filingProgress = 0;
-    LOG.info("Filing entities.... ");
     try {
-      int totalSteps = 100;
-      for (int i = 1; i <= totalSteps; i++) {
-        Thread.sleep(100);
-        filingProgress = i;
-      }
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+      startTransaction();
+      LOG.info("Filing entities.... ");
+      int i = 0;
+      int totalEntities = document.getEntities().size();
+      entitiesFiled = new HashSet<>();
+      for (TTEntity entity : document.getEntities()) {
+        i++;
+        filingProgress = Math.round((float) i / totalEntities * 100);
+        setEntityCrudOperation(document, entity);
 
+        TTIriRef entityGraph = processGraphs(document, entity);
+
+        if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
+          continue;
+
+        fileEntity(entity, entityGraph);
+        entitiesFiled.add(entity.getIri());
+
+        if (i % 100 == 0)
+          LOG.info("Filed {}  entities in transaction from {} in graph {}", i, document.getEntities().size(), entityGraph.getIri());
+
+      }
+      if (logPath != null)
+        writeLog(document);
+      updateTct(document);
+      LOG.info("Updating range inheritances");
+      new RangeInheritor().inheritRanges(conn);
+      commit();
+    } catch (TTFilerException e) {
+      rollback();
+      throw e;
+
+    } catch (Exception e) {
+      throw new TTFilerException(e.getMessage());
+    }
+    updateSets(document);
     filingProgress = null;
   }
 

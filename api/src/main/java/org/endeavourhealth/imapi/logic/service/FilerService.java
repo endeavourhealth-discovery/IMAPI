@@ -30,11 +30,10 @@ public class FilerService {
   private final OpenSearchService openSearchService = new OpenSearchService();
 
   public void fileDocument(TTDocument document, String agentName, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
-    System.out.println(taskId);
     new Thread(() -> {
       try {
         documentFiler.fileDocument(document, taskId);
-//        fileProvDoc(document, agentName);
+        fileProvDoc(document, agentName);
       } catch (TTFilerException | JsonProcessingException | QueryException e) {
         throw new RuntimeException(e);
       }

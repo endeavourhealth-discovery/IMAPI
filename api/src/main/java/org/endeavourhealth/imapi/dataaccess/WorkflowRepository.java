@@ -23,7 +23,6 @@ import org.endeavourhealth.imapi.vocabulary.WORKFLOW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -114,12 +113,12 @@ public class WorkflowRepository {
                     TaskHistory taskHistory = new TaskHistory();
                     BindingSet bs = rs.next();
                     taskHistory.setPredicate(bs.getValue("predicateData").stringValue());
-                    if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO) && !bs.getValue("originalObjectData").stringValue().equals("UNASSIGNED")) taskHistory.setOriginalObject(awsCognitoClient.adminGetUser(bs.getValue("originalObjectData").stringValue()));
+                    if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO) && !bs.getValue("originalObjectData").stringValue().equals("UNASSIGNED")) taskHistory.setOriginalObject(awsCognitoClient.adminGetUsername(bs.getValue("originalObjectData").stringValue()));
                     else taskHistory.setOriginalObject(bs.getValue("originalObjectData").stringValue());
-                    if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO) && !bs.getValue("newObjectData").stringValue().equals("UNASSIGNED")) taskHistory.setNewObject(awsCognitoClient.adminGetUser(bs.getValue("newObjectData").stringValue()));
+                    if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO) && !bs.getValue("newObjectData").stringValue().equals("UNASSIGNED")) taskHistory.setNewObject(awsCognitoClient.adminGetUsername(bs.getValue("newObjectData").stringValue()));
                     else taskHistory.setNewObject(bs.getValue("newObjectData").stringValue());
                     taskHistory.setChangeDate(LocalDateTime.parse(bs.getValue("changeDateData").stringValue()));
-                    taskHistory.setModifiedBy(awsCognitoClient.adminGetUser(bs.getValue("modifiedByData").stringValue()));
+                    taskHistory.setModifiedBy(awsCognitoClient.adminGetUsername(bs.getValue("modifiedByData").stringValue()));
                     results.add(taskHistory);
                 }
             }
@@ -398,8 +397,8 @@ public class WorkflowRepository {
     private void mapTaskFromBindingSet(Task task, BindingSet bs) throws UserNotFoundException {
         task.setId(TTIriRef.iri(bs.getValue("s").stringValue()));
         task.setType(TaskType.valueOf(bs.getValue("typeData").stringValue()));
-        task.setCreatedBy(awsCognitoClient.adminGetUser(bs.getValue("createdByData").stringValue()));
-        if (!bs.getValue("assignedToData").stringValue().equals("UNASSIGNED")) task.setAssignedTo(awsCognitoClient.adminGetUser(bs.getValue("assignedToData").stringValue()));
+        task.setCreatedBy(awsCognitoClient.adminGetUsername(bs.getValue("createdByData").stringValue()));
+        if (!bs.getValue("assignedToData").stringValue().equals("UNASSIGNED")) task.setAssignedTo(awsCognitoClient.adminGetUsername(bs.getValue("assignedToData").stringValue()));
         else task.setAssignedTo(bs.getValue("assignedToData").stringValue());
         task.setState(TaskState.valueOf(bs.getValue("stateData").stringValue()));
         task.setDateCreated(LocalDateTime.parse(bs.getValue("dateCreatedData").stringValue()));

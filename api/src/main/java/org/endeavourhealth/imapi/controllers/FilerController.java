@@ -2,11 +2,12 @@ package org.endeavourhealth.imapi.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.FilerService;
-import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
+import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.ProblemDetailResponse;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
@@ -16,9 +17,9 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -27,17 +28,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.server.ResponseStatusException;
 
-
-import jakarta.servlet.http.HttpServletRequest;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -60,13 +57,29 @@ public class FilerController {
 
   @PostMapping("file/document")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-  public ResponseEntity fileDocument(@RequestBody TTDocument document, @RequestParam(name = "withoutTransaction", required = false) boolean withoutTransaction, HttpServletRequest request) throws Exception {
+  public ResponseEntity fileDocument(@RequestBody TTDocument document, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Document.POST")) {
       LOG.debug("fileDocument");
       String agentName = reqObjService.getRequestAgentName(request);
-      filerService.fileDocument(document, agentName);
-      return ResponseEntity.ok().build();
+      String taskId = UUID.randomUUID().toString();
+      Map<String, String> response = new HashMap<>();
+      try {
+        filerService.fileDocument(document, agentName, taskId);
+        response.put("taskId", taskId);
+      } catch (Exception e) {
+        Integer taskProgress = filerService.getTaskProgress(taskId);
+        response.put("progress", taskProgress == null ? "NONE" : String.valueOf(taskProgress));
+      }
+      return ResponseEntity.ok(response);
     }
+  }
+
+  @GetMapping("file/document/{taskId}")
+  public ResponseEntity<Map<String, Integer>> getProgress(@PathVariable("taskId") String taskId) {
+    Integer progress = filerService.getTaskProgress(taskId);
+    Map<String, Integer> response = new HashMap<>();
+    response.put("progress", progress);
+    return ResponseEntity.ok(response);
   }
 
   @PostMapping("file/entity")

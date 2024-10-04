@@ -54,7 +54,7 @@ public class SecurityConfig {
     StrictHttpFirewall firewall = new StrictHttpFirewall();
     firewall.setAllowUrlEncodedSlash(true);
     firewall.setAllowUrlEncodedDoubleSlash(true);
-    firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST", "DELETE"));
+    firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST", "DELETE","PUT"));
     return firewall;
   }
 

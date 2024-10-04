@@ -51,7 +51,7 @@ public class AdminController {
     }
   }
 
-  @GetMapping(value = "/cognito/usersInGroup")
+  @GetMapping(value = "/cognito/group/users")
   public List<String> listUsersInGroup(@RequestParam("group") String group) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.usersInGroup.GET")) {
       LOG.debug("getUsersInGroup");
@@ -59,7 +59,7 @@ public class AdminController {
     }
   }
 
-  @PostMapping(value = "/cognito/addUserToGroup")
+  @PostMapping(value = "/cognito/group/user")
   public void addUserToGroup(@RequestBody CognitoGroupRequest cognitoGroupRequest) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.addUserToGroup.POST")) {
       LOG.debug("addUserToGroup");
@@ -67,23 +67,23 @@ public class AdminController {
     }
   }
 
-  @PostMapping(value = "/cognito/removeUserFromGroup")
+  @DeleteMapping(value = "/cognito/group/user")
   public void removeUserFromGroup(@RequestBody CognitoGroupRequest cognitoGroupRequest) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.removeUserFromGroup.POST")) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.removeUserFromGroup.DELETE")) {
       LOG.debug("removeUserFromGroup");
       awsCognitoClient.adminRemoveUserFromGroup(cognitoGroupRequest.getUsername(), cognitoGroupRequest.getGroupName());
     }
   }
 
-  @PostMapping(value = "cognito/deleteUser")
+  @DeleteMapping(value = "cognito/user")
   public void deleteUser(@RequestBody CognitoGroupRequest cognitoGroupRequest) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.deleteUser.POST")) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.deleteUser.DELETE")) {
       LOG.debug("deleteUser");
       awsCognitoClient.adminDeleteUser(cognitoGroupRequest.getUsername());
     }
   }
 
-  @PostMapping(value = "cognito/createUser")
+  @PostMapping(value = "cognito/user")
   public User createUser(@RequestBody User user) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Cognito.createUser.POST")) {
       LOG.debug("createUser");

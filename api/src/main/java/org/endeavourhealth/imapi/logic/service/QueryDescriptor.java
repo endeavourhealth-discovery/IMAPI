@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.transforms.Context;
@@ -19,7 +19,7 @@ public class QueryDescriptor {
   public static final String PATIENT = "Patient";
   private final Map<String, String> contextTerms;
   private final Map<String, String> nodeRefNames;
-  private final EntityTripleRepository repo = new EntityTripleRepository();
+  private final EntityRepository entityRepository = new EntityRepository();
 
   public QueryDescriptor() {
     contextTerms = new HashMap<>();
@@ -42,7 +42,7 @@ public class QueryDescriptor {
   }
 
   public Query describeQuery(String queryIri) throws JsonProcessingException {
-    TTEntity queryEntity = repo.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
+    TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null)
       return null;
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
@@ -81,7 +81,7 @@ public class QueryDescriptor {
       if (contextTerms.get(node.getIri() + context) != null) {
         return contextTerms.get(node.getIri() + context);
       }
-      String name = repo.getEntityPredicates(node.getIri(), Set.of(RDFS.LABEL)).getEntity().getName();
+      String name = entityRepository.getEntityPredicates(node.getIri(), Set.of(RDFS.LABEL)).getEntity().getName();
       if (name == null)
         name = node.getIri();
       contextTerms.put(node.getIri() + context, name);
@@ -125,7 +125,7 @@ public class QueryDescriptor {
         display = display + " of ";
       }
     } else {
-      String name = repo.getEntityPredicates(ref.getIri(), Set.of(RDFS.LABEL)).getEntity().getName();
+      String name = entityRepository.getEntityPredicates(ref.getIri(), Set.of(RDFS.LABEL)).getEntity().getName();
       if (name == null)
         name = ref.getIri();
       contextTerms.put(ref.getIri() + Context.PROPERTY, name);

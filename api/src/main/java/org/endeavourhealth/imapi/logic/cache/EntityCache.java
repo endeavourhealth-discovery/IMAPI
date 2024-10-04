@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.cache;
 
 import lombok.Getter;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.PropertyRepository;
 import org.endeavourhealth.imapi.dataaccess.ShapeRepository;
 import org.endeavourhealth.imapi.logic.reasoner.Inferrer;
@@ -96,8 +96,8 @@ public class EntityCache implements Runnable {
     TTEntity entity = entities.get(iri);
     if (entity == null) {
       synchronized (entityLock) {
-        EntityRepository2 repo = new EntityRepository2();
-        TTBundle bundle = repo.getBundle(iri);
+        EntityRepository entityRepository = new EntityRepository();
+        TTBundle bundle = entityRepository.getBundle(iri);
         if (bundle != null) {
           entities.put(iri, bundle.getEntity());
           predicateNames.putAll(bundle.getPredicates());

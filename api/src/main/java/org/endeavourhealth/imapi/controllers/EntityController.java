@@ -14,6 +14,7 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSearchExporter;
 import org.endeavourhealth.imapi.logic.exporters.SearchTextFileExporter;
 import org.endeavourhealth.imapi.logic.service.EntityService;
+import org.endeavourhealth.imapi.logic.service.FilerService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.*;
@@ -67,15 +68,16 @@ public class EntityController {
   private static final String FORCE_DOWNLOAD = "force-download";
   private static final String APPLICATION = "application";
   private final EntityService entityService = new EntityService();
-  private final SetService setService = new SetService();
   private final ConfigManager configManager = new ConfigManager();
   private final RequestObjectService reqObjService = new RequestObjectService();
+  private final FilerService filerService;
+
+  public EntityController(FilerService filerService) {
+    this.filerService = filerService;
+  }
 
   @GetMapping(value = "/public/partial", produces = "application/json")
-  public TTEntity getPartialEntity(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "predicates") Set<String> predicates
-  ) throws IOException {
+  public TTEntity getPartialEntity(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Partial.GET")) {
       LOG.debug("getPartialEntity");
       return entityService.getBundle(iri, predicates).getEntity();
@@ -83,10 +85,7 @@ public class EntityController {
   }
 
   @GetMapping(value = "/public/partials", produces = "application/json")
-  public List<TTEntity> getPartialEntities(
-    @RequestParam(name = "iris") Set<String> iris,
-    @RequestParam(name = "predicates") Set<String> predicates
-  ) throws IOException {
+  public List<TTEntity> getPartialEntities(@RequestParam(name = "iris") Set<String> iris, @RequestParam(name = "predicates") Set<String> predicates) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Partials.GET")) {
       LOG.debug("getPartialEntities");
       List<TTEntity> entities = new ArrayList<>();
@@ -107,27 +106,8 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/matchedFrom", produces = "application/json")
-  public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MatchedFrom.GET")) {
-      LOG.debug("getMatchedFrom");
-      return entityService.getMatchedFrom(iri);
-    }
-  }
-
-  @GetMapping(value = "/public/matchedTo", produces = "application/json")
-  public Collection<SimpleMap> getMatchedTo(@RequestParam(name = "iri") String iri) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MatchedTo.GET")) {
-      LOG.debug("getMatchedTo");
-      return entityService.getMatchedTo(iri);
-    }
-  }
-
   @GetMapping(value = "/public/partialBundle", produces = "application/json")
-  public TTBundle getPartialEntityBundle(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "predicates") Set<String> predicates
-  ) throws IOException {
+  public TTBundle getPartialEntityBundle(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PartialBundle.GET")) {
       LOG.debug("getPartialEntityBundle");
       return entityService.getBundle(iri, predicates);
@@ -143,12 +123,7 @@ public class EntityController {
   }
 
   @GetMapping(value = "/public/children")
-  public List<EntityReferenceNode> getEntityChildren(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
-    @RequestParam(name = "page", required = false) Integer page,
-    @RequestParam(name = "size", required = false) Integer size
-  ) throws IOException {
+  public List<EntityReferenceNode> getEntityChildren(@RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Children.GET")) {
       LOG.debug("getEntityChildren");
       if (page == null && size == null) {
@@ -170,12 +145,7 @@ public class EntityController {
   }
 
   @GetMapping(value = "/public/childrenPaged")
-  public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
-    @RequestParam(name = "page", required = false) Integer page,
-    @RequestParam(name = "size", required = false) Integer size
-  ) throws IOException {
+  public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(@RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ChildrenPaged.GET")) {
 
       LOG.debug("getEntityChildrenPagedWithTotalCount");
@@ -188,13 +158,7 @@ public class EntityController {
   }
 
   @GetMapping(value = "/public/partialAndTotalCount")
-  public Pageable<TTIriRef> getPartialAndTotalCount(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "predicate") String predicate,
-    @RequestParam(name = "page", required = false) Integer page,
-    @RequestParam(name = "size", required = false) Integer size,
-    @RequestParam(name = "schemeIris", required = false) List<String> schemeIris
-  ) throws IOException {
+  public Pageable<TTIriRef> getPartialAndTotalCount(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicate") String predicate, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PartialAndTotalCount.GET")) {
       LOG.debug("getPartialAndTotalCount");
       if (page == null && size == null) {
@@ -205,25 +169,11 @@ public class EntityController {
     }
   }
 
-  private HttpEntity<Object> getSetHttpEntity(HttpHeaders headers, SetContent set) throws JsonProcessingException {
-
-    try (CachedObjectMapper objectMapper = new CachedObjectMapper()) {
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-      String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(set);
-      headers.setContentType(MediaType.APPLICATION_JSON);
-      return new HttpEntity<>(json, headers);
-    }
-  }
-
   @GetMapping(value = "/public/downloadEntity")
-  public HttpEntity<Object> downloadEntity(
-    @RequestParam(name = "iri") String iri
-  ) throws IOException {
+  public HttpEntity<Object> downloadEntity(@RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DownloadEntity.GET")) {
       LOG.debug("Download entity");
-      TTBundle entity = entityService.getFullEntity(iri);
+      TTBundle entity = entityService.getBundle(iri, null);
       TTManager manager = new TTManager();
       TTDocument document = manager.createDocument();
       List<TTEntity> entityList = new ArrayList<>();
@@ -238,15 +188,12 @@ public class EntityController {
   }
 
   @PostMapping(value = "/public/download")
-  public HttpEntity<Object> download(
-    @RequestBody DownloadEntityOptions downloadEntityOptions
-  ) throws IOException {
+  public HttpEntity<Object> download(@RequestBody DownloadEntityOptions downloadEntityOptions) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Download.POST")) {
       LOG.debug("download");
       String iri = downloadEntityOptions.getEntityIri();
       String format = downloadEntityOptions.getFormat();
-      if (iri == null || iri.isEmpty() || format == null || format.isEmpty())
-        return null;
+      if (iri == null || iri.isEmpty() || format == null || format.isEmpty()) return null;
       TTIriRef entity = entityService.getEntityReference(iri);
       List<ComponentLayoutItem> configs = configManager.getConfig(CONFIG.DEFINITION, new TypeReference<>() {
       });
@@ -272,12 +219,7 @@ public class EntityController {
   }
 
   @GetMapping(value = "/public/parents")
-  public List<EntityReferenceNode> getEntityParents(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
-    @RequestParam(name = "page", required = false) Integer page,
-    @RequestParam(name = "size", required = false) Integer size
-  ) throws IOException {
+  public List<EntityReferenceNode> getEntityParents(@RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Parents.GET")) {
       LOG.debug("getEntityParents");
       return entityService.getImmediateParents(iri, schemeIris, page, size, false);
@@ -285,10 +227,7 @@ public class EntityController {
   }
 
   @GetMapping(value = "/public/usages")
-  public List<TTEntity> entityUsages(@RequestParam(name = "iri") String iri,
-                                     @RequestParam(name = "page", required = false) Integer page,
-                                     @RequestParam(name = "size", required = false) Integer size
-  ) throws IOException {
+  public List<TTEntity> entityUsages(@RequestParam(name = "iri") String iri, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Usages.GET")) {
       LOG.debug("entityUsages");
       return entityService.usages(iri, page, size);
@@ -309,7 +248,7 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       LOG.debug("createEntity");
       String agentName = reqObjService.getRequestAgentName(request);
-      return entityService.createEntity(entity, agentName);
+      return filerService.createEntity(entity, agentName);
     }
   }
 
@@ -319,7 +258,7 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       LOG.debug("updateEntity");
       String agentName = reqObjService.getRequestAgentName(request);
-      return entityService.updateEntity(entity, agentName);
+      return filerService.updateEntity(entity, agentName);
     }
   }
 
@@ -328,24 +267,6 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Graph.GET")) {
       LOG.debug("getGraphData");
       return entityService.getGraphData(iri);
-    }
-  }
-
-  @GetMapping("/public/termCode")
-  public List<SearchTermCode> getTermCodes(@RequestParam(name = "iri") String iri, @RequestParam(name = "includeInactive") Optional<Boolean> includeInactive) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.TermCode.GET")) {
-      LOG.debug("getTermCodes");
-      return entityService.getEntityTermCodes(iri, includeInactive.orElseGet(() -> false));
-    }
-  }
-
-  @GetMapping("/public/dataModelProperties")
-  public TTEntity getDataModelProperties(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "parent", required = false) String parent) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
-      LOG.debug("getDataModelProperties");
-      return entityService.getDataModelPropertiesAndSubClasses(iri, parent);
     }
   }
 
@@ -362,60 +283,6 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
       LOG.debug("getNamespaces");
       return entityService.getNamespaces();
-    }
-  }
-
-  @GetMapping("/public/setExport")
-  public HttpEntity<Object> getSetExport(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "definition", defaultValue = "false") boolean definition,
-    @RequestParam(name = "core", defaultValue = "false") boolean core,
-    @RequestParam(name = "legacy", defaultValue = "false") boolean legacy,
-    @RequestParam(name = "includeSubsets", defaultValue = "false") boolean subsets,
-    @RequestParam(name = "ownRow", defaultValue = "false") boolean ownRow,
-    @RequestParam(name = "im1id", defaultValue = "false") boolean im1id,
-    @RequestParam(name = "format") String format,
-    @RequestParam(name = "schemes", defaultValue = "") List<String> schemes
-  ) throws DownloadException, IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SetExport.GET")) {
-      LOG.debug("getSetExport");
-      HttpHeaders headers = new HttpHeaders();
-      headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
-      headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"");
-
-      SetOptions setOptions = new SetOptions(iri, definition, core, legacy, subsets, schemes);
-      SetExporterOptions exportOptions = new SetExporterOptions(setOptions, ownRow, im1id);
-
-      try {
-        if ("xlsx".equals(format)) {
-          XSSFWorkbook workbook = entityService.getSetExport(exportOptions);
-          try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            workbook.write(outputStream);
-            workbook.close();
-            return new HttpEntity<>(outputStream.toByteArray(), headers);
-          } catch (IOException e) {
-            throw new DownloadException("Failed to write to excel document");
-          }
-        } else if ("csv".equals(format)) {
-          String result = setService.getCSVSetExport(exportOptions);
-          return new HttpEntity<>(result, headers);
-        } else if ("tsv".equals(format)) {
-          String result = setService.getTSVSetExport(exportOptions);
-          return new HttpEntity<>(result, headers);
-        } else if ("object".equals(format)) {
-          SetContent result = setService.getSetContent(setOptions);
-          return getSetHttpEntity(headers, result);
-        } else if ("FHIR".equals(format)) {
-          String result = setService.getFHIRSetExport(exportOptions);
-          return new HttpEntity<>(result, headers);
-        } else {
-          return null;
-        }
-      } catch (IOException e) {
-        throw new DownloadException("Failed to write to excel document.");
-      } catch (QueryException e) {
-        throw new DownloadException("Failed to get set details for download.");
-      }
     }
   }
 
@@ -455,27 +322,6 @@ public class EntityController {
     }
   }
 
-  @GetMapping("/public/expandedMembers")
-  public Set<Concept> getFullyExpandedMembers(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "legacy", required = false) boolean legacy,
-    @RequestParam(name = "includeSubsets", required = false) boolean includeSubsets,
-    @RequestParam(name = "schemes", required = false) List<String> schemes) throws QueryException, IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ExpandedMembers.GET")) {
-      LOG.debug("getFullyExpandedMembers");
-      return entityService.getFullyExpandedMembers(iri, legacy, includeSubsets, schemes);
-    }
-  }
-
-  @GetMapping("/public/subsets")
-  public Set<TTIriRef> getSubsets(
-    @RequestParam(name = "iri") String iri) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Subsets.GET")) {
-      LOG.debug("getSubsets");
-      return entityService.getSubsets(iri);
-    }
-  }
-
   @GetMapping("/public/folderPath")
   public List<TTIriRef> getFolderPath(@RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FolderPath.GET")) {
@@ -493,10 +339,7 @@ public class EntityController {
   }
 
   @GetMapping("/public/shortestParentHierarchy")
-  public List<TTIriRef> getShortestPathBetweenNodes(
-    @RequestParam(name = "ancestor") String ancestor,
-    @RequestParam(name = "descendant") String descendant
-  ) throws IOException {
+  public List<TTIriRef> getShortestPathBetweenNodes(@RequestParam(name = "ancestor") String ancestor, @RequestParam(name = "descendant") String descendant) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ShortestParentHierarchy.GET")) {
       LOG.debug("getShortestPathBetweenNodes");
       return entityService.getShortestPathBetweenNodes(ancestor, descendant);
@@ -512,9 +355,7 @@ public class EntityController {
   }
 
   @GetMapping("/public/entityByPredicateExclusions")
-  public TTEntity getEntityByPredicateExclusions(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "predicates") Set<String> predicates) throws IOException {
+  public TTEntity getEntityByPredicateExclusions(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.EntityByPredicateExclusions.GET")) {
       LOG.debug("getEntityByPredicateExclusions");
       return entityService.getBundleByPredicateExclusions(iri, predicates).getEntity();
@@ -522,29 +363,10 @@ public class EntityController {
   }
 
   @GetMapping("/public/bundleByPredicateExclusions")
-  public TTBundle getBundleByPredicateExclusions(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "predicates") Set<String> predicates
-  ) throws IOException {
+  public TTBundle getBundleByPredicateExclusions(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.BundleByPredicateExclusions.GET")) {
       LOG.debug("getBundleByPredicateExclusions");
       return entityService.getBundleByPredicateExclusions(iri, predicates);
-    }
-  }
-
-  @GetMapping("/public/properties")
-  public List<TTIriRef> getProperties() throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Properties.GET")) {
-      LOG.debug("getProperties");
-      return entityService.getProperties();
-    }
-  }
-
-  @PostMapping(value = "public/distillation")
-  public List<TTIriRef> getDistillation(@RequestBody List<TTIriRef> conceptList) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Distillation.POST")) {
-      LOG.debug("getDistillation");
-      return entityService.getDistillation(conceptList);
     }
   }
 
@@ -556,98 +378,5 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/superiorPropertiesPaged")
-  @Operation(
-    summary = "Get top level properties for an entity as a tree node",
-    description = "Finds the highest parent (superior) properties for an entity and returns then in a tree node format for use in a hierarchy tree"
-  )
-  public Pageable<EntityReferenceNode> getSuperiorPropertiesPaged(
-    @RequestParam(name = "conceptIri") String iri,
-    @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
-    @RequestParam(name = "page", required = false) Integer page,
-    @RequestParam(name = "size", required = false) Integer size,
-    @RequestParam(name = "inactive", required = false) boolean inactive
-  ) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SuperiorPropertiesPaged.GET")) {
-      LOG.debug("getSuperiorPropertiesPaged");
-      if (null == page) page = 1;
-      if (null == size) size = EntityService.MAX_CHILDREN;
-      if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
-      return entityService.getSuperiorPropertiesPaged(iri, schemeIris, page, size, inactive);
-    }
-  }
 
-  @GetMapping(value = "/public/superiorPropertiesBoolFocusPaged")
-  @Operation(
-    summary = "Get top level properties for an entity as a tree node",
-    description = "Finds the highest parent (superior) properties for an entity and returns then in a tree node format for use in a hierarchy tree"
-  )
-  public Pageable<EntityReferenceNode> getSuperiorPropertiesBoolFocusPaged(
-    @RequestParam(name = "conceptIris") List<String> conceptIris,
-    @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
-    @RequestParam(name = "page", required = false) Integer page,
-    @RequestParam(name = "size", required = false) Integer size,
-    @RequestParam(name = "inactive", required = false) boolean inactive
-  ) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SuperiorPropertiesBoolFocusPaged.GET")) {
-      LOG.debug("getSuperiorPropertiesBoolFocusPaged");
-      if (null == page) page = 1;
-      if (null == size) size = EntityService.MAX_CHILDREN;
-      if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
-      return entityService.getSuperiorPropertiesBoolFocusPaged(conceptIris, schemeIris, page, size, inactive);
-    }
-  }
-
-  @GetMapping(value = "/public/superiorPropertyValuesPaged")
-  @Operation(
-    summary = "Get top level property values for an entity as a tree node",
-    description = "Finds the highest parent (superior) property value for an entity and returns then in a tree node format for use in a hierarchy tree"
-  )
-  public Pageable<EntityReferenceNode> getSuperiorPropertyValuesPaged(
-    @RequestParam(name = "propertyIri") String iri,
-    @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
-    @RequestParam(name = "page", required = false) Integer page,
-    @RequestParam(name = "size", required = false) Integer size,
-    @RequestParam(name = "inactive", required = false) boolean inactive
-  ) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SuperiorPropertyValuesPaged.GET")) {
-      LOG.debug("getSuperiorPropertyValuesPaged");
-      if (null == page) page = 1;
-      if (null == size) size = EntityService.MAX_CHILDREN;
-      if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
-      return entityService.getSuperiorPropertyValuesPaged(iri, schemeIris, page, size, inactive);
-    }
-  }
-
-  @PostMapping(value = "/updateSubsetsFromSuper")
-  @PreAuthorize("hasAuthority('edit') or hasAuthority('create')")
-  public void updateSubsetsFromSuper(@RequestBody TTEntity entity, HttpServletRequest request) throws IOException, TTFilerException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UpdateSubsetsFromSuper.POST")) {
-      LOG.debug("updateSubsetsFromSuper");
-      String agentName = reqObjService.getRequestAgentName(request);
-      entityService.updateSubsetsFromSuper(agentName, entity);
-    }
-  }
-
-  @GetMapping(value = "/public/dataModels")
-  public List<TTIriRef> getDataModelsFromProperty(@RequestParam(name = "propIri") String propIri) {
-    LOG.debug("getDataModelsFromProperty");
-    return entityService.getDataModelsFromProperty(propIri);
-  }
-
-  @GetMapping(value = "/public/conceptContextMaps")
-  public List<ConceptContextMap> getConceptContextMaps(@RequestParam(name = "iri") String iri) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ConceptContextMaps.GET")) {
-      LOG.debug("getConceptContextMaps");
-      return entityService.getConceptContextMaps(iri);
-    }
-  }
-
-  @GetMapping(value = "public/checkPropertyType")
-  public String checkPropertyType(@RequestParam(name = "propertyIri") String iri) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.CheckPropertyType.GET")) {
-      LOG.debug("checkPropertyType");
-      return entityService.checkPropertyType(iri);
-    }
-  }
 }

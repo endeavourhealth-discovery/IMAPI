@@ -2,8 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
-import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
@@ -45,17 +44,14 @@ public class ExcelSetExporterTest {
   ExcelSetExporter excelSetExporter;
 
   @Mock
-  EntityTripleRepository entityTripleRepository;
-
-  @Mock
-  EntityRepository2 entityRepository2;
+  EntityRepository entityRepository;
 
   @Mock
   SetRepository setRepository;
 
   @Test
   void getSetExport_NotNullIriNoConcept() throws JsonProcessingException, QueryException {
-    when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity()));
+    when(entityRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity()));
     SetOptions setOptions = new SetOptions("http://endhealth.info/im#25451000252115", true, true,
       true, true,List.of());
     SetExporterOptions options = new SetExporterOptions(setOptions,true, false);
@@ -65,8 +61,8 @@ public class ExcelSetExporterTest {
 
   @Test
   void getSetExport_NotNullIriWithDefinition() throws JsonProcessingException, QueryException {
-    when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(mockDefinition()));
-    when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity().setName("Test")));
+    when(entityRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(mockDefinition()));
+    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity().setName("Test")));
     when(setRepository.getSetExpansion(any(), anyBoolean(), any(), anyList())).thenReturn(new HashSet<>());
     when(setRepository.getSubsetIrisWithNames(anyString())).thenReturn(new HashSet<>());
     ReflectionTestUtils.setField(excelSetExporter, "setExporter", setExporter);

@@ -90,7 +90,7 @@ public class FilerController {
       String agentName = reqObjService.getRequestAgentName(request);
       TTEntity usedEntity = null;
       if (entityService.iriExists(entity.getIri())) {
-        usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
+        usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
         entity.setVersion(usedEntity.getVersion() + 1);
       }
 
@@ -134,7 +134,7 @@ public class FilerController {
       if (entityService.isLinked(newFolderIri, iri(IM.IS_CONTAINED_IN), oldFolderIri)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Target folder is a descendant of the Entity");
       }
-      TTEntity usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
+      TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
 
       folders.remove(iri(oldFolderIri));
       folders.add(iri(newFolderIri));
@@ -170,7 +170,7 @@ public class FilerController {
       folders.add(iri(folderIri));
 
       String agentName = reqObjService.getRequestAgentName(request);
-      TTEntity usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
+      TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
       filerService.fileEntity(entity, iri(GRAPH.DISCOVERY), agentName, usedEntity);
 

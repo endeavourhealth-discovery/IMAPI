@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.ProvRepository;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
@@ -23,8 +22,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class ProvService {
 
   ProvRepository provRepository = new ProvRepository();
-  EntityRepository2 entityRepository2 = new EntityRepository2();
-
 
   public ProvAgent buildProvenanceAgent(TTEntity targetEntity, String agentName) {
     String root;

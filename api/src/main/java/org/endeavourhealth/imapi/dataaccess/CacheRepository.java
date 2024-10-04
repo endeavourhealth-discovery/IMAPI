@@ -39,7 +39,7 @@ public class CacheRepository {
       }
       Set<TTIriRef> iris = new HashSet<>();
       shapes.forEach(e -> iris.addAll(TTManager.getIrisFromNode(e)));
-      EntityRepository2.getIriNames(conn, iris);
+      EntityRepository.getIriNames(conn, iris);
       Set<TTBundle> result = new HashSet<>();
       for (TTEntity shape : shapes) {
         TTBundle bundle = new TTBundle();

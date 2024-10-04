@@ -11,8 +11,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.endeavourhealth.imapi.config.ConfigManager;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
-import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.AWSConfig;
 import org.endeavourhealth.imapi.model.iml.Concept;
@@ -39,9 +38,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class SetExporter {
   private static final Logger LOG = LoggerFactory.getLogger(SetExporter.class);
 
-  private EntityRepository2 entityRepository2 = new EntityRepository2();
+  private EntityRepository entityRepository = new EntityRepository();
   private SetRepository setRepository = new SetRepository();
-  private EntityTripleRepository trplRepository = new EntityTripleRepository();
 
   public void publishSetToIM1(String setIri) throws JsonProcessingException, QueryException {
     StringJoiner results = generateForIm1(setIri);
@@ -54,7 +52,7 @@ public class SetExporter {
     LOG.debug("Exporting set to IMv1");
 
     LOG.trace("Looking up set...");
-    String name = entityRepository2.getBundle(setIri, Set.of(RDFS.LABEL)).getEntity().getName();
+    String name = entityRepository.getBundle(setIri, Set.of(RDFS.LABEL)).getEntity().getName();
 
     Set<Concept> members = getExpandedSetMembers(setIri, true, true, true, List.of());
 
@@ -117,7 +115,7 @@ public class SetExporter {
 
   private Set<Concept> tryGetExpandedSetMembersByDefinition(String iri, boolean legacy, List<String> schemeIris) throws JsonProcessingException, QueryException {
 
-    TTEntity entity = trplRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION, RDFS.LABEL)).getEntity();
+    TTEntity entity = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION, RDFS.LABEL)).getEntity();
     if (null == entity)
       return Collections.emptySet();
 

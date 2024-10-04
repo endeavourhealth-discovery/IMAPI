@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @RunWith(JUnitPlatform.class)
 public class EclModelServiceTest {
   @InjectMocks
-  EclService eclService;
+  EclService eclService = new EclService();
 
   @Test
   @Ignore

@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.dataaccess;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
@@ -9,13 +11,17 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.dto.CodeGenDto;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.CODE_TEMPLATE;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.StringJoiner;
+import java.util.Map;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
@@ -65,7 +71,13 @@ public class CodeGenRepository {
           BindingSet bs = rs.next();
           try (CachedObjectMapper om = new CachedObjectMapper()) {
             switch (bs.getValue("p").stringValue()) {
-              case (CODE_TEMPLATE.DATATYPE_MAP) -> result.setDatatypeMap(bs.getValue("o").stringValue());
+              case (CODE_TEMPLATE.DATATYPE_MAP) -> {
+                ArrayNode map = (ArrayNode) om.readTree(bs.getValue("o").stringValue());
+                for (Iterator<JsonNode> it = map.elements(); it.hasNext(); ) {
+                  JsonNode ele = it.next();
+                  result.getDatatypeMap().put(ele.get("code").asText(), ele.get("replace").asText());
+                }
+              }
               case (CODE_TEMPLATE.WRAPPER) -> result.setCollectionWrapper(bs.getValue("o").stringValue());
               case (CODE_TEMPLATE.EXTENSION) -> result.setExtension(bs.getValue("o").stringValue());
               case (RDFS.LABEL) -> result.setName(bs.getValue("o").stringValue());
@@ -74,6 +86,8 @@ public class CodeGenRepository {
                 break;
               }
             }
+          } catch (JsonProcessingException e) {
+            LOG.error("Unable to parse codeTemplate", e);
           }
         }
       }
@@ -81,7 +95,7 @@ public class CodeGenRepository {
     return result;
   }
 
-  public void updateCodeTemplate(String name, String extension, String wrapper, String dataTypeMap, String template) {
+  public void updateCodeTemplate(String name, String extension, String wrapper, Map<String, String> dataTypeMap, String template) {
     String deleteSparql = """
       DELETE WHERE {
         ?s ?p ?o

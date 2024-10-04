@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
@@ -28,16 +27,26 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class FilerService {
 
-  private final TTDocumentFiler documentFiler = new TTTransactionFiler();
+  private final TTTransactionFiler documentFiler = new TTTransactionFiler();
   private final TTEntityFiler entityFiler = new TTEntityFilerRdf4j();
   private final TTEntityFiler entityProvFiler = entityFiler;
   private final ProvService provService = new ProvService();
   private final EntityService entityService = new EntityService();
   private final OpenSearchService openSearchService = new OpenSearchService();
 
-  public void fileDocument(TTDocument document, String agentName) throws TTFilerException, JsonProcessingException, QueryException {
-    documentFiler.fileDocument(document);
-    fileProvDoc(document, agentName);
+  public void fileDocument(TTDocument document, String agentName, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
+    new Thread(() -> {
+      try {
+        documentFiler.fileDocument(document, taskId);
+        fileProvDoc(document, agentName);
+      } catch (TTFilerException | JsonProcessingException | QueryException e) {
+        throw new RuntimeException(e);
+      }
+    }).start();
+  }
+
+  public Integer getTaskProgress(String taskId) {
+    return documentFiler.getFilingProgress(taskId);
   }
 
   public void fileEntity(TTEntity entity, TTIriRef graph, String agentName, TTEntity usedEntity) throws TTFilerException {

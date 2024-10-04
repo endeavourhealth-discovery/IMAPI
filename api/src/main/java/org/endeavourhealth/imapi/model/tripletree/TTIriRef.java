@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.endeavourhealth.imapi.vocabulary.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -14,41 +12,30 @@ import java.util.regex.Pattern;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TTIriRef implements TTValue, Serializable {
-  public static TTIriRef iri(String iri) {
-    return new TTIriRef(iri);
-  }
-
-  public static TTIriRef iri(String iri, String name) {
-    return new TTIriRef(iri, name);
-  }
-
   private static Pattern iriPattern = Pattern.compile("([a-z]+)?[:].*");
   private String iri;
   @JsonProperty(defaultValue = "")
   private String name;
   @JsonProperty(defaultValue = "")
   private String description;
-
-
-  public String getDescription() {
-    return description;
-  }
-
-  public TTIriRef setDescription(String description) {
-    this.description = description;
-    return this;
-  }
-
   public TTIriRef() {
   }
-
   public TTIriRef(String iri) {
     setIri(iri);
   }
 
+
   public TTIriRef(String iri, String name) {
     setIri(iri);
     setName(name);
+  }
+
+  public static TTIriRef iri(String iri) {
+    return new TTIriRef(iri);
+  }
+
+  public static TTIriRef iri(String iri, String name) {
+    return new TTIriRef(iri, name);
   }
 
   @JsonProperty(value = "@id", required = true)
@@ -77,6 +64,11 @@ public class TTIriRef implements TTValue, Serializable {
     return this;
   }
 
+  @JsonIgnore
+  public boolean hasName() {
+    return name != null && !name.isEmpty();
+  }
+
   @Override
   public TTIriRef asIriRef() {
     return this;
@@ -86,6 +78,21 @@ public class TTIriRef implements TTValue, Serializable {
   @JsonIgnore
   public boolean isIriRef() {
     return true;
+  }
+
+
+  public String getDescription() {
+    return description;
+  }
+
+  public TTIriRef setDescription(String description) {
+    this.description = description;
+    return this;
+  }
+
+  @JsonIgnore
+  public boolean hasDescription() {
+    return description != null && !description.isEmpty();
   }
 
   @Override

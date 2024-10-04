@@ -40,6 +40,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   private static final Logger LOG = LoggerFactory.getLogger(TTTransactionFiler.class);
   private static final String TTLOG = "TTLog-";
+  private static Integer filingProgress = null;
   protected TTEntityFiler conceptFiler;
   protected TTEntityFiler instanceFiler;
   protected Map<String, String> prefixMap = new HashMap<>();
@@ -186,14 +187,24 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   @Override
   public void fileDocument(TTDocument document) throws TTFilerException, JsonProcessingException, QueryException {
     if (document.getEntities() == null) {
-      LOG.error("Document has no entities");
-      return;
+      throw new TTFilerException("Document has no entities");
     }
 
     document.getEntities().removeIf(e -> null == e.getIri());
 
     checkDeletes(document);
     fileAsDocument(document);
+  }
+
+  public void fileDocument(TTDocument document, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
+    if (document.getEntities() == null) {
+      throw new TTFilerException("Document has no entities");
+    }
+
+    document.getEntities().removeIf(e -> null == e.getIri());
+
+    checkDeletes(document);
+    fileAsDocument(document, taskId);
   }
 
   private void checkDeletes(TTDocument transaction) throws TTFilerException {
@@ -238,6 +249,55 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       throw new TTFilerException(e.getMessage());
     }
     updateSets(document);
+  }
+
+  public synchronized Integer getFilingProgress(String taskId) {
+    return filingProgress;
+  }
+
+  private synchronized void fileAsDocument(TTDocument document, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
+
+    if (filingProgress != null)
+      throw new TTFilerException("There is a document already filing, please try again later");
+    filingProgress = 0;
+    try {
+      startTransaction();
+      LOG.info("Filing entities.... ");
+      int i = 0;
+      int totalEntities = document.getEntities().size();
+      entitiesFiled = new HashSet<>();
+      for (TTEntity entity : document.getEntities()) {
+        i++;
+        filingProgress = Math.round((float) i / totalEntities * 100);
+        setEntityCrudOperation(document, entity);
+
+        TTIriRef entityGraph = processGraphs(document, entity);
+
+        if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
+          continue;
+
+        fileEntity(entity, entityGraph);
+        entitiesFiled.add(entity.getIri());
+
+        if (i % 100 == 0)
+          LOG.info("Filed {}  entities in transaction from {} in graph {}", i, document.getEntities().size(), entityGraph.getIri());
+
+      }
+      if (logPath != null)
+        writeLog(document);
+      updateTct(document);
+      LOG.info("Updating range inheritances");
+      new RangeInheritor().inheritRanges(conn);
+      commit();
+    } catch (TTFilerException e) {
+      rollback();
+      throw e;
+
+    } catch (Exception e) {
+      throw new TTFilerException(e.getMessage());
+    }
+    updateSets(document);
+    filingProgress = null;
   }
 
   private void fileEntity(TTEntity entity, TTIriRef graph) throws TTFilerException {

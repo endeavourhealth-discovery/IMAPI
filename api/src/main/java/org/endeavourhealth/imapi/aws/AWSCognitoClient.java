@@ -1,13 +1,11 @@
 package org.endeavourhealth.imapi.aws;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
-import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClientBuilder;
-import com.amazonaws.services.cognitoidp.model.*;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
 import org.endeavourhealth.imapi.model.admin.User;
 
 import java.util.HashMap;
@@ -17,25 +15,31 @@ import java.util.Objects;
 
 public class AWSCognitoClient {
   private static final Map<String, String> userCache = new HashMap<>();
-  private final AWSCognitoIdentityProvider identityProvider;
+  private final CognitoIdentityProviderClient identityProvider;
 
   public AWSCognitoClient() {
     this.identityProvider = createCognitoClient();
   }
 
-  private AWSCognitoIdentityProvider createCognitoClient() {
-    AWSCredentials cred = new BasicAWSCredentials(System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_SECRET_ACCESS_KEY"));
-    AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(cred);
-    return AWSCognitoIdentityProviderClientBuilder.standard().withCredentials(credentialsProvider).withRegion(System.getenv("COGNITO_REGION")).build();
+  private CognitoIdentityProviderClient createCognitoClient() {
+    AwsBasicCredentials credentials = AwsBasicCredentials.create(System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_SECRET_ACCESS_KEY"));
+    AwsCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(credentials);
+    return CognitoIdentityProviderClient.builder()
+      .region(Region.of(System.getenv("COGNITO_REGION")))
+      .credentialsProvider(credentialsProvider)
+      .build();
   }
 
   public String adminGetUsername(String id) throws UserNotFoundException {
     String username = userCache.get(id);
     if (null != username) return username;
-    ListUsersRequest usersRequest = new ListUsersRequest().withUserPoolId(System.getenv("COGNITO_USER_POOL")).withAttributesToGet("sub").withFilter("sub = \"" + id + "\"");
-    ListUsersResult result = identityProvider.listUsers(usersRequest);
-    if (result.getUsers().isEmpty()) throw new UserNotFoundException("User with id: " + id + " not found.");
-    username = result.getUsers().get(0).getUsername();
+    ListUsersRequest usersRequest = ListUsersRequest.builder()
+      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .attributesToGet("sub").filter("sub = \"" + id + "\"")
+      .build();
+    ListUsersResponse result = identityProvider.listUsers(usersRequest);
+    if (result.users().isEmpty()) throw new UserNotFoundException("User with id: " + id + " not found.");
+    username = result.users().get(0).username();
     userCache.put(id, username);
     return username;
   }
@@ -43,77 +47,104 @@ public class AWSCognitoClient {
   public String adminGetId(String username) throws UserNotFoundException {
     String id = getKeysByValue(username);
     if (null != id) return id;
-    AdminGetUserResult result = adminGetUserByUsername(username);
-    id = result.getUserAttributes().get(0).getValue();
+    AdminGetUserResponse result = adminGetUserByUsername(username);
+    id = result.userAttributes().get(0).value();
     userCache.put(id, username);
     return id;
   }
 
   public User adminGetUser(String username) throws UserNotFoundException {
     try {
-      AdminGetUserRequest request = new AdminGetUserRequest().withUserPoolId(System.getenv("COGNITO_USER_POOL")).withUsername(username);
-      AdminGetUserResult result = identityProvider.adminGetUser(request);
+      AdminGetUserRequest request = AdminGetUserRequest.builder()
+        .userPoolId(System.getenv("COGNITO_USER_POOL"))
+        .username(username)
+        .build();
+      AdminGetUserResponse result = identityProvider.adminGetUser(request);
       User user = awsUserToUser(result);
-      AdminListGroupsForUserRequest adminListGroupsForUserRequest = new AdminListGroupsForUserRequest().withUserPoolId(System.getenv("COGNITO_USER_POOL")).withUsername(username);
-      AdminListGroupsForUserResult adminListGroupsForUserResult = identityProvider.adminListGroupsForUser(adminListGroupsForUserRequest);
-      user.setRoles(adminListGroupsForUserResult.getGroups().stream().map(GroupType::getGroupName).toList());
+      AdminListGroupsForUserRequest adminListGroupsForUserRequest = AdminListGroupsForUserRequest.builder()
+        .userPoolId(System.getenv("COGNITO_USER_POOL"))
+        .username(username)
+        .build();
+      AdminListGroupsForUserResponse adminListGroupsForUserResult = identityProvider.adminListGroupsForUser(adminListGroupsForUserRequest);
+      user.setRoles(adminListGroupsForUserResult.groups().stream().map(GroupType::groupName).toList());
       return user;
-    } catch (AmazonServiceException ase) {
+    } catch (CognitoIdentityProviderException e) {
       throw new UserNotFoundException("User with id: " + username + " not found.");
     }
   }
 
   public void adminAddUserToGroup(String username, String group) {
-    AdminAddUserToGroupRequest adminAddUserToGroupRequest = new AdminAddUserToGroupRequest().withUserPoolId(System.getenv("COGNITO_USER_POOL")).withUsername(username).withGroupName(group);
+    AdminAddUserToGroupRequest adminAddUserToGroupRequest = AdminAddUserToGroupRequest.builder()
+      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .username(username)
+      .groupName(group)
+      .build();
     identityProvider.adminAddUserToGroup(adminAddUserToGroupRequest);
   }
 
   public void adminRemoveUserFromGroup(String username, String group) {
-    AdminRemoveUserFromGroupRequest adminRemoveUserFromGroupRequest = new AdminRemoveUserFromGroupRequest().withUserPoolId(System.getenv("COGNITO_USER_POOL")).withUsername(username).withGroupName(group);
+    AdminRemoveUserFromGroupRequest adminRemoveUserFromGroupRequest = AdminRemoveUserFromGroupRequest.builder()
+      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .username(username).groupName(group)
+      .build();
     identityProvider.adminRemoveUserFromGroup(adminRemoveUserFromGroupRequest);
   }
 
   public void adminDeleteUser(String username) {
-    AdminDeleteUserRequest adminDeleteUserRequest = new AdminDeleteUserRequest().withUsername(username).withUserPoolId(System.getenv("COGNITO_USER_POOL"));
+    AdminDeleteUserRequest adminDeleteUserRequest = AdminDeleteUserRequest.builder()
+      .username(username)
+      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .build();
     identityProvider.adminDeleteUser(adminDeleteUserRequest);
   }
 
-  private AdminGetUserResult adminGetUserByUsername(String username) throws UserNotFoundException {
+  private AdminGetUserResponse adminGetUserByUsername(String username) throws UserNotFoundException {
     try {
-      AdminGetUserRequest adminGetUserRequest = new AdminGetUserRequest().withUserPoolId(System.getenv("COGNITO_USER_POOL")).withUsername(username);
+      AdminGetUserRequest adminGetUserRequest = AdminGetUserRequest.builder()
+        .userPoolId(System.getenv("COGNITO_USER_POOL"))
+        .username(username)
+        .build();
       return identityProvider.adminGetUser(adminGetUserRequest);
-    } catch (AWSCognitoIdentityProviderException e) {
+    } catch (CognitoIdentityProviderException e) {
       throw new UserNotFoundException("User with username: " + username + " not found.");
     }
   }
 
   public List<String> adminListUsers() {
-    ListUsersRequest listUsersRequest = new ListUsersRequest().withUserPoolId(System.getenv("COGNITO_USER_POOL"));
-    ListUsersResult listUsersResult = identityProvider.listUsers(listUsersRequest);
-    return listUsersResult.getUsers().stream().map(UserType::getUsername).sorted().toList();
+    ListUsersRequest listUsersRequest = ListUsersRequest.builder()
+      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .build();
+    ListUsersResponse listUsersResult = identityProvider.listUsers(listUsersRequest);
+    return listUsersResult.users().stream().map(UserType::username).sorted().toList();
   }
 
   public List<String> adminListGroups() {
-    ListGroupsRequest listGroupsRequest = new ListGroupsRequest().withUserPoolId(System.getenv("COGNITO_USER_POOL"));
-    ListGroupsResult listGroupsResult = identityProvider.listGroups(listGroupsRequest);
-    return listGroupsResult.getGroups().stream().map(GroupType::getGroupName).sorted().toList();
+    ListGroupsRequest listGroupsRequest = ListGroupsRequest.builder()
+      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .build();
+    ListGroupsResponse listGroupsResult = identityProvider.listGroups(listGroupsRequest);
+    return listGroupsResult.groups().stream().map(GroupType::groupName).sorted().toList();
   }
 
   public List<String> adminListUsersInGroup(String groupName) {
-    ListUsersInGroupRequest listUsersInGroupRequest = new ListUsersInGroupRequest().withUserPoolId(System.getenv("COGNITO_USER_POOL")).withGroupName(groupName);
-    ListUsersInGroupResult listUsersInGroupResult = identityProvider.listUsersInGroup(listUsersInGroupRequest);
-    return listUsersInGroupResult.getUsers().stream().map(UserType::getUsername).toList();
+    ListUsersInGroupRequest listUsersInGroupRequest = ListUsersInGroupRequest.builder()
+      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .groupName(groupName)
+      .build();
+    ListUsersInGroupResponse listUsersInGroupResult = identityProvider.listUsersInGroup(listUsersInGroupRequest);
+    return listUsersInGroupResult.users().stream().map(UserType::username).toList();
   }
 
   public User adminCreateUser(User user) {
-    AdminCreateUserRequest adminCreateUserRequest = new AdminCreateUserRequest().withUserPoolId(System.getenv("COGNITO_USER_POOL"))
-      .withUsername(user.getUsername())
-      .withUserAttributes(new AttributeType().withName("email").withValue(user.getEmail()))
-      .withUserAttributes(new AttributeType().withName("custom:forename").withValue(user.getFirstName()))
-      .withUserAttributes(new AttributeType().withName("custom:surname").withValue(user.getLastName()))
-      .withUserAttributes(new AttributeType().withName("custom:avatar").withValue(user.getAvatar()));
-    AdminCreateUserResult result = identityProvider.adminCreateUser(adminCreateUserRequest);
-    return awsUserToUser(result.getUser());
+    AdminCreateUserRequest adminCreateUserRequest = AdminCreateUserRequest.builder().userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .username(user.getUsername())
+      .userAttributes(AttributeType.builder().name("email").value(user.getEmail()).build())
+      .userAttributes(AttributeType.builder().name("custom:forename").value(user.getFirstName()).build())
+      .userAttributes(AttributeType.builder().name("custom:surname").value(user.getLastName()).build())
+      .userAttributes(AttributeType.builder().name("custom:avatar").value(user.getAvatar()).build())
+      .build();
+    AdminCreateUserResponse result = identityProvider.adminCreateUser(adminCreateUserRequest);
+    return awsUserToUser(result.user());
   }
 
   private String getKeysByValue(String value) {
@@ -123,28 +154,28 @@ public class AWSCognitoClient {
     return null;
   }
 
-  private User awsUserToUser(AdminGetUserResult result) {
+  private User awsUserToUser(AdminGetUserResponse result) {
     User user = new User();
-    result.getUserAttributes().stream().filter(att -> att.getName().equals("sub")).findFirst().ifPresent(id -> user.setId(id.getValue()));
-    user.setUsername(result.getUsername());
-    user.setMfaStatus(result.getUserMFASettingList());
-    result.getUserAttributes().stream().filter(att -> att.getName().equals("email")).findFirst().ifPresent(email -> user.setEmail(email.getValue()));
-    result.getUserAttributes().stream().filter(att -> att.getName().equals("custom:forename")).findFirst().ifPresent(forename -> user.setFirstName(forename.getValue()));
-    result.getUserAttributes().stream().filter(att -> att.getName().equals("custom:surname")).findFirst().ifPresent(surname -> user.setLastName(surname.getValue()));
-    result.getUserAttributes().stream().filter(att -> att.getName().equals("custom:avatar")).findFirst().ifPresent(avatar -> user.setAvatar(avatar.getValue()));
+    result.userAttributes().stream().filter(att -> att.name().equals("sub")).findFirst().ifPresent(id -> user.setId(id.value()));
+    user.setUsername(result.username());
+    user.setMfaStatus(result.mfaOptions().stream().map(MFAOptionType::attributeName).toList());
+    result.userAttributes().stream().filter(att -> att.name().equals("email")).findFirst().ifPresent(email -> user.setEmail(email.value()));
+    result.userAttributes().stream().filter(att -> att.name().equals("custom:forename")).findFirst().ifPresent(forename -> user.setFirstName(forename.value()));
+    result.userAttributes().stream().filter(att -> att.name().equals("custom:surname")).findFirst().ifPresent(surname -> user.setLastName(surname.value()));
+    result.userAttributes().stream().filter(att -> att.name().equals("custom:avatar")).findFirst().ifPresent(avatar -> user.setAvatar(avatar.value()));
     user.setPassword("");
     return user;
   }
 
   private User awsUserToUser(UserType result) {
     User user = new User();
-    result.getAttributes().stream().filter(att -> att.getName().equals("sub")).findFirst().ifPresent(id -> user.setId(id.getValue()));
-    user.setUsername(result.getUsername());
-    user.setMfaStatus(result.getMFAOptions().stream().map(MFAOptionType::getAttributeName).toList());
-    result.getAttributes().stream().filter(att -> att.getName().equals("email")).findFirst().ifPresent(email -> user.setEmail(email.getValue()));
-    result.getAttributes().stream().filter(att -> att.getName().equals("custom:forename")).findFirst().ifPresent(forename -> user.setFirstName(forename.getValue()));
-    result.getAttributes().stream().filter(att -> att.getName().equals("custom:surname")).findFirst().ifPresent(surname -> user.setLastName(surname.getValue()));
-    result.getAttributes().stream().filter(att -> att.getName().equals("custom:avatar")).findFirst().ifPresent(avatar -> user.setAvatar(avatar.getValue()));
+    result.attributes().stream().filter(att -> att.name().equals("sub")).findFirst().ifPresent(id -> user.setId(id.value()));
+    user.setUsername(result.username());
+    user.setMfaStatus(result.mfaOptions().stream().map(MFAOptionType::attributeName).toList());
+    result.attributes().stream().filter(att -> att.name().equals("email")).findFirst().ifPresent(email -> user.setEmail(email.value()));
+    result.attributes().stream().filter(att -> att.name().equals("custom:forename")).findFirst().ifPresent(forename -> user.setFirstName(forename.value()));
+    result.attributes().stream().filter(att -> att.name().equals("custom:surname")).findFirst().ifPresent(surname -> user.setLastName(surname.value()));
+    result.attributes().stream().filter(att -> att.name().equals("custom:avatar")).findFirst().ifPresent(avatar -> user.setAvatar(avatar.value()));
     user.setPassword("");
     return user;
   }

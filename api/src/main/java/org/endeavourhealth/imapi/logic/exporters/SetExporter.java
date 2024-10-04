@@ -1,13 +1,12 @@
 package org.endeavourhealth.imapi.logic.exporters;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.endeavourhealth.imapi.config.ConfigManager;
@@ -197,31 +196,28 @@ public class SetExporter {
       LOG.debug("No IM1_PUBLISH config found, reverting to defaults");
     }
 
-    AmazonS3ClientBuilder s3Builder = AmazonS3ClientBuilder
-      .standard()
-      .withRegion(region);
-
-    if (accessKey != null && !accessKey.isEmpty() && secretKey != null && !secretKey.isEmpty())
-      s3Builder.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)));
-
-    final AmazonS3 s3 = s3Builder.build();
-    try {
-      Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-      SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH:mm:ss");
-      String filename = date.format(timestamp.getTime()) + "_valueset.tsv";
-
-      byte[] byteData = results.toString().getBytes();
-      InputStream stream = new ByteArrayInputStream(byteData);
-
-      ObjectMetadata meta = new ObjectMetadata();
-      meta.setContentLength(byteData.length);
-
-      PutObjectRequest por = new PutObjectRequest(bucket, filename, stream, meta)
-        .withCannedAcl(CannedAccessControlList.BucketOwnerFullControl);
-
-      s3.putObject(por);
-    } catch (AmazonServiceException e) {
-      LOG.error(e.getErrorMessage());
+    if (accessKey != null && !accessKey.isEmpty() && secretKey != null && !secretKey.isEmpty()) {
+      throw new IllegalArgumentException("AccessKey or SecretKey cannot be empty");
     }
+
+    try (S3Client s3 = S3Client.builder().region(Region.of(region)).credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey))).build()) {
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH:mm:ss");
+        String filename = date.format(timestamp.getTime()) + "_valueset.tsv";
+
+        byte[] byteData = results.toString().getBytes();
+        InputStream stream = new ByteArrayInputStream(byteData);
+
+        PutObjectRequest por = PutObjectRequest.builder()
+          .bucket(bucket)
+          .key(filename)
+          .contentLength((long) byteData.length)
+          .grantFullControl(bucket)
+          .build();
+
+        s3.putObject(por, RequestBody.fromInputStream(stream, byteData.length));
+      } catch (S3Exception e) {
+        LOG.error(e.getMessage());
+      }
   }
 }

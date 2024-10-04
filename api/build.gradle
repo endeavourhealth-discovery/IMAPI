@@ -69,7 +69,7 @@ dependencies {
   implementation libs.apacheText
   implementation libs.assertJ
   implementation libs.awsCognitoIDP
-  implementation libs.awsSDK
+  implementation libs.awsSDKBOM
   implementation libs.awsSDKCore
   implementation libs.awsS3
   implementation libs.dropwizard

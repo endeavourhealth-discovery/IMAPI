@@ -45,7 +45,7 @@ public class EqdListToIMQ {
       if (!eqColumn.equals("PATIENT")) {
         String eqULR = eqTable + "/" + eqColumn;
         String propertyPath = resources.getPath(eqULR);
-        convertColumn(select, propertyPath);
+        convertColumn(select, propertyPath,eqCol.getDisplayName());
       }
     }
   }
@@ -61,7 +61,7 @@ public class EqdListToIMQ {
       for (int i = 0; i < paths.length; i = i + 2) {
         ReturnProperty path= new ReturnProperty();
         aReturn.addProperty(path);
-        path.setIri(IM.NAMESPACE+paths[i].replace("^", ""));
+        path.setIri(paths[i].replace("^", ""));
         aReturn=new Return();
         path.setReturn(aReturn);
       }
@@ -73,17 +73,19 @@ public class EqdListToIMQ {
       String eqColumn = String.join("/", eqCol.getColumn());
       String eqURL = eqTable + "/" + eqColumn;
       String subPath = resources.getPath(eqURL);
-      convertColumn(aReturn, subPath);
+      convertColumn(aReturn, subPath,eqCol.getDisplayName());
     }
   }
 
-  private void convertColumn(Return aReturn, String subPath) {
+  private void convertColumn(Return aReturn, String subPath,String as) {
     ReturnProperty property = new ReturnProperty();
+    if (as!=null)
+      property.setAs(as);
     aReturn.addProperty(property);
     if (subPath.contains(" ")) {
       String[] elements = subPath.split(" ");
       for (int i = 0; i < elements.length; i = i + 2) {
-        property.setIri(IM.NAMESPACE + elements[i]);
+        property.setIri(elements[i]);
         if (i < (elements.length - 2)) {
           property.setReturn(new Return());
           ReturnProperty subProperty = new ReturnProperty();
@@ -92,7 +94,7 @@ public class EqdListToIMQ {
         }
       }
     } else {
-      property.setIri(IM.NAMESPACE + subPath);
+      property.setIri(subPath);
     }
   }
 

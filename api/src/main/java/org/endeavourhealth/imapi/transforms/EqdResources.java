@@ -84,21 +84,7 @@ public class EqdResources {
     vocabMap.put(VocOrderDirection.ASC, "ASC");
   }
 
-  public TTIriRef getIri(String token) throws IOException {
-    if (token.equals("label"))
-      return iri(RDFS.LABEL).setName("label");
-    else {
-      if (!token.contains(":")) {
-        TTIriRef iri = TTIriRef.iri(IM.NAMESPACE + token);
-        iri.setName(importMaps.getCoreName(IM.NAMESPACE + token));
-        return iri;
-      } else {
-        TTIriRef iri = TTIriRef.iri(token);
-        iri.setName(importMaps.getCoreName(token));
-        return iri;
-      }
-    }
-  }
+
 
 
   public Match convertCriteria(EQDOCCriteria eqCriteria) throws IOException, QueryException, EQDException {
@@ -186,24 +172,24 @@ public class EqdResources {
       matches.add(match);
       pathMatchMap.put(fullPath, match);
       if (tablePath.contains(" ")) {
-        match.addPath(new IriLD().setIri(IM.NAMESPACE + tablePath.split(" ")[0]));
-        match.setTypeOf(new Node().setIri(IM.NAMESPACE + tablePath.split(" ")[1]));
+        match.addPath(new IriLD().setIri(tablePath.split(" ")[0]));
+        match.setTypeOf(new Node().setIri(tablePath.split(" ")[1]));
       }
       if (columnPath.contains(" ")) {
         String[] paths = columnPath.split(" ");
         for (int i = 0; i < paths.length; i = i + 2) {
           Where subProperty = new Where();
           match.addWhere(subProperty);
-          subProperty.setIri(IM.NAMESPACE + columnPath.split(" ")[i]);
+          subProperty.setIri(columnPath.split(" ")[i]);
           subProperty.setMatch(new Match());
           match = subProperty.getMatch();
-          match.setTypeOf(new Node().setIri(IM.NAMESPACE + columnPath.split(" ")[i + 1]));
+          match.setTypeOf(new Node().setIri(columnPath.split(" ")[i + 1]));
         }
       }
     }
     Where where = new Where();
     match.addWhere(where);
-    where.setIri(IM.NAMESPACE + property);
+    where.setIri(property);
     setProperty(cv, where);
     if (match.getWhere().size() > 1)
       match.setBoolWhere(Bool.and);
@@ -293,7 +279,13 @@ public class EqdResources {
     Object target = dataMap.get(eqdPath);
     if (target == null)
       throw new EQDException("unknown map : " + eqdPath);
-    return (String) target;
+    if (((String) target).equals(""))
+      return "";
+    String[] paths= ((String) target).split(" ");
+    for (int i=0; i<paths.length; i++){
+      paths[i]=paths[i].contains("rdfs") ?RDFS.NAMESPACE+paths[i].split(":")[1] : IM.NAMESPACE+paths[i];
+    }
+    return String.join(" ",paths);
   }
 
 

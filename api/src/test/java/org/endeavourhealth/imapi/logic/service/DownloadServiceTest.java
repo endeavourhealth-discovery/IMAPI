@@ -13,16 +13,12 @@ import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.junit.Before;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -40,7 +36,16 @@ public class DownloadServiceTest {
   @InjectMocks
   DownloadService downloadService = new DownloadService();
 
-  @Spy
+  @InjectMocks
+  EntityService entityService = spy(EntityService.class);
+
+  @InjectMocks
+  ConceptService conceptService = spy(ConceptService.class);
+
+  @InjectMocks
+  DataModelService dataModelService = spy(DataModelService.class);
+
+  @Mock
   EntityRepository entityRepository;
 
   @Mock
@@ -78,7 +83,7 @@ public class DownloadServiceTest {
         .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
         .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
       );
-    when(entityRepository.getBundle(anyString(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
     DownloadEntityOptions params = new DownloadEntityOptions();
 
@@ -98,7 +103,7 @@ public class DownloadServiceTest {
         .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
         .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
       );
-    when(entityRepository.getBundle(anyString(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
     DownloadEntityOptions params = new DownloadEntityOptions();
     params
@@ -148,8 +153,7 @@ public class DownloadServiceTest {
         .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
       );
 
-    doReturn(new TTBundle().setEntity(entity)).when(entityRepository).getBundle(any(), anySet());
-//    when(entityRepository.getBundle(anyString(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
     XlsHelper actual = downloadService.getExcelDownload("http://endhealth.info/im#25451000252115", configs, params);
     assertNotNull(actual);
@@ -179,7 +183,7 @@ public class DownloadServiceTest {
         .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
         .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
       );
-    when(entityRepository.getBundle(anyString(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
     XlsHelper actual = downloadService.getExcelDownload("http://endhealth.info/im#25451000252115", configs, params);
     assertNotNull(actual);

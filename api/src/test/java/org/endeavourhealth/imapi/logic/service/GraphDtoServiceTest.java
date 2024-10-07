@@ -20,6 +20,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,7 +30,10 @@ public class GraphDtoServiceTest {
   GraphDtoService graphDtoService = new GraphDtoService();
 
   @InjectMocks
-  EntityService entityService = new EntityService();
+  EntityService entityService = spy(EntityService.class);
+
+  @InjectMocks
+  DataModelService dataModelService = spy(DataModelService.class);
 
   @Mock
   EntityRepository entityRepository;

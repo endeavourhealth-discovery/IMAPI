@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 public class When {
   private Where property;
-  private ReturnProperty then;
+  private Return then;
 
   public Where getProperty() {
     return property;
@@ -21,17 +21,17 @@ public class When {
     return this;
   }
 
-  public ReturnProperty getThen() {
+  public Return getThen() {
     return then;
   }
 
-  public When setThen(ReturnProperty then) {
+  public When setThen(Return then) {
     this.then = then;
     return this;
   }
 
-  public When then(Consumer<ReturnProperty> builder) {
-    this.then = new ReturnProperty();
+  public When then(Consumer<Return> builder) {
+    this.then = new Return();
     builder.accept(this.then);
     return this;
   }

@@ -42,9 +42,11 @@ public class EqdListToIMQ {
     subQuery.addReturn(select);
     for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
       String eqColumn = String.join("/", eqCol.getColumn());
-      String eqULR = eqTable + "/" + eqColumn;
-      String propertyPath = resources.getPath(eqULR);
-      convertColumn(select, propertyPath);
+      if (!eqColumn.equals("PATIENT")) {
+        String eqULR = eqTable + "/" + eqColumn;
+        String propertyPath = resources.getPath(eqULR);
+        convertColumn(select, propertyPath);
+      }
     }
   }
 
@@ -57,7 +59,11 @@ public class EqdListToIMQ {
     if (tablePath.contains(" ")) {
       String[] paths = tablePath.split(" ");
       for (int i = 0; i < paths.length; i = i + 2) {
-        aReturn.addPath(new IriLD().setIri(paths[i].replace("^", "")));
+        ReturnProperty path= new ReturnProperty();
+        aReturn.addProperty(path);
+        path.setIri(IM.NAMESPACE+paths[i].replace("^", ""));
+        aReturn=new Return();
+        path.setReturn(aReturn);
       }
     }
     Match match = resources.convertCriteria(eqColGroup.getCriteria());
@@ -86,7 +92,7 @@ public class EqdListToIMQ {
         }
       }
     } else {
-      aReturn.property(p -> p.setIri(IM.NAMESPACE + subPath));
+      property.setIri(IM.NAMESPACE + subPath);
     }
   }
 

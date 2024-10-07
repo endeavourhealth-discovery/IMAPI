@@ -186,7 +186,7 @@ public class EqdResources {
       matches.add(match);
       pathMatchMap.put(fullPath, match);
       if (tablePath.contains(" ")) {
-        match.addPath(new IriLD().setIri(IM.NAMESPACE + tablePath.split(" ")[0].replace("^", "")));
+        match.addPath(new IriLD().setIri(IM.NAMESPACE + tablePath.split(" ")[0]));
         match.setTypeOf(new Node().setIri(IM.NAMESPACE + tablePath.split(" ")[1]));
       }
       if (columnPath.contains(" ")) {
@@ -303,6 +303,7 @@ public class EqdResources {
     if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
       Match testMatch = restrictionTest(eqCriterion);
       if (testMatch != null) {
+        testMatch.setPath(null);
         restricted.setThen(testMatch);
       }
 

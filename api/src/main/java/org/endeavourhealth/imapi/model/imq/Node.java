@@ -5,10 +5,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 
-@JsonPropertyOrder({"parameter", "iri", "type", "set", "variable", "name"})
+@JsonPropertyOrder({"parameter", "iri", "type", "set", "variable", "qualifier","name"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Node extends Element {
   private boolean exclude;
+
+  public Node setQualifier(String qualifier) {
+    super.setQualifier(qualifier);
+    return this;
+  }
 
   public boolean isExclude() {
     return exclude;

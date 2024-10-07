@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 public class ReturnProperty {
   private String iri;
   private String nodeRef;
+  private String name;
   private String propertyRef;
   private String value;
   private String valueRef;
@@ -28,6 +29,15 @@ public class ReturnProperty {
   private String description;
   private List<Match> match;
   private Bool boolMatch;
+
+  public String getName() {
+    return name;
+  }
+
+  public ReturnProperty setName(String name) {
+    this.name = name;
+    return this;
+  }
 
   public List<Match> getMatch() {
     return match;

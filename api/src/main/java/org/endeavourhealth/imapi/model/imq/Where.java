@@ -10,7 +10,7 @@ import java.util.function.Consumer;
   , "operator", "isNull", "value", "unit", "instanceOf", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends PropertyRef {
+public class Where extends PropertyRef implements Assignable{
   private String description;
   private Range range;
   private List<Node> is;
@@ -18,6 +18,7 @@ public class Where extends PropertyRef {
   private Bool boolWhere;
   private List<Where> where;
   private Operator operator;
+  private String inlineOperator;
   private String value;
   private String unit;
   private String valueLabel;
@@ -25,7 +26,31 @@ public class Where extends PropertyRef {
   private boolean isNull;
   private PropertyRef relativeTo;
   private boolean isNotNull;
+
+  /**
+   * @deprecated No longer required as the display is made up of description - value label.
+   */
+  @Deprecated
   private String displayLabel;
+
+
+  /**
+   * @deprecated No longer required as the display is made up of description - value label.
+   */
+  @Deprecated
+  public String getDisplayLabel() {
+    return displayLabel;
+  }
+
+
+  /**
+   * @deprecated No longer required as the display is made up of description - value label.
+   */
+  @Deprecated
+  public Where setDisplayLabel(String displayLabel) {
+    this.displayLabel = displayLabel;
+    return this;
+  }
 
   public Where() {
   }
@@ -38,12 +63,22 @@ public class Where extends PropertyRef {
     return new Where(iri);
   }
 
-  public String getDisplayLabel() {
-    return displayLabel;
+  public String getInlineOperator() {
+    return inlineOperator;
   }
 
-  public Where setDisplayLabel(String displayLabel) {
-    this.displayLabel = displayLabel;
+  public Where setQualifier(String qualifier){
+    super.setQualifier(qualifier);
+    return this;
+  }
+
+  @Override
+  public String getValueLabel() {
+    return this.valueLabel;
+  }
+
+  public Where setInlineOperator(String inlineOperator) {
+    this.inlineOperator = inlineOperator;
     return this;
   }
 
@@ -131,9 +166,6 @@ public class Where extends PropertyRef {
   }
 
 
-  public String getValueLabel() {
-    return valueLabel;
-  }
 
   public Where setValueLabel(String valueLabel) {
     this.valueLabel = valueLabel;

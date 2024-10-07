@@ -4,6 +4,10 @@ public class PropertyRef extends Node {
   private boolean inverse;
   private String valueVariable;
 
+  public PropertyRef setIri(String iri){
+    super.setIri(iri);
+    return this;
+  }
 
   public PropertyRef setNodeRef(String nodeRef) {
     super.setNodeRef(nodeRef);

@@ -21,6 +21,7 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -33,6 +34,7 @@ public class FilerService {
   private final ProvService provService = new ProvService();
   private final EntityService entityService = new EntityService();
   private final OpenSearchService openSearchService = new OpenSearchService();
+  private final UserService userService = new UserService();
 
   public void fileDocument(TTDocument document, String agentName, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
     new Thread(() -> {
@@ -200,4 +202,10 @@ public class FilerService {
     }
     return true;
   }
+
+  public Boolean userCanFile(String agentId, TTIriRef iriRef) throws JsonProcessingException {
+    List<String> orgList = userService.getUserOrganisations(agentId);
+    return orgList != null && iriRef != null && orgList.contains(iriRef.getIri());
+  }
+
 }

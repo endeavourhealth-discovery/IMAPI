@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.logic.service.FilerService;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
-import org.endeavourhealth.imapi.logic.service.SearchService;
+import org.endeavourhealth.imapi.logic.service.*;
 import org.endeavourhealth.imapi.model.ProblemDetailResponse;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
@@ -52,7 +49,6 @@ public class FilerController {
   private final FilerService filerService = new FilerService();
   private final EntityService entityService = new EntityService();
   private final RequestObjectService reqObjService = new RequestObjectService();
-
   private final SearchService searchService = new SearchService();
 
   @PostMapping("file/document")
@@ -63,6 +59,10 @@ public class FilerController {
       String agentName = reqObjService.getRequestAgentName(request);
       String taskId = UUID.randomUUID().toString();
       Map<String, String> response = new HashMap<>();
+
+      String agentId = reqObjService.getRequestAgentId(request);
+      if(!filerService.userCanFile(agentId, document.getGraph())) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
       try {
         filerService.fileDocument(document, agentName, taskId);
         response.put("taskId", taskId);
@@ -84,7 +84,7 @@ public class FilerController {
 
   @PostMapping("file/entity")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-  public void fileEntity(@RequestBody TTEntity entity, @RequestParam(name = "graph") String graph, @RequestParam(name = "crud") String crud, HttpServletRequest request) throws TTFilerException, IOException {
+  public ResponseEntity fileEntity(@RequestBody TTEntity entity, @RequestParam(name = "graph") String graph, @RequestParam(name = "crud") String crud, HttpServletRequest request) throws TTFilerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Entity.POST")) {
       LOG.debug("fileEntity");
       String agentName = reqObjService.getRequestAgentName(request);
@@ -98,7 +98,11 @@ public class FilerController {
 
       if (crud != null && !crud.isEmpty()) entity.setCrud(iri(crud));
 
+      String agentId = reqObjService.getRequestAgentId(request);
+      if(!filerService.userCanFile(agentId, new TTIriRef(graph))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
       filerService.fileEntity(entity, entity.getGraph(), agentName, usedEntity);
+      return ResponseEntity.ok().build();
     }
   }
 

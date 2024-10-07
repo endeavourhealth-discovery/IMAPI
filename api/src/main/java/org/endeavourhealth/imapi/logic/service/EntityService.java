@@ -4,12 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.*;
-import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
-import org.endeavourhealth.imapi.model.dto.DownloadDto;
-import org.endeavourhealth.imapi.model.dto.GraphDto;
-import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -29,8 +25,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class EntityService {
   public static final int MAX_CHILDREN = 200;
   private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
-  private static DataModelService dataModelService = new DataModelService();
-  private static ConceptService conceptService = new ConceptService();
   private EntityRepository entityRepository = new EntityRepository();
   private ConfigManager configManager = new ConfigManager();
 
@@ -144,160 +138,6 @@ public class EntityService {
     List<ComponentLayoutItem> filteredConfigs = configs.stream().filter(config -> !excludedForSummary.contains(config.getPredicate())).toList();
     List<String> predicates = filteredConfigs.stream().map(ComponentLayoutItem::getPredicate).toList();
     return getBundle(iri, new HashSet<>(predicates)).getEntity();
-  }
-
-  public DownloadDto getJsonDownload(String iri, List<ComponentLayoutItem> configs, DownloadEntityOptions params) {
-    if (iri == null || iri.isEmpty()) return null;
-
-    DownloadDto downloadDto = new DownloadDto();
-
-    downloadDto.setSummary(getSummaryFromConfig(iri, configs));
-
-    if (params.includeHasSubtypes()) {
-      downloadDto.setHasSubTypes(getImmediateChildren(iri, null, null, null, params.includeInactive()));
-    }
-    if (params.includeInferred()) {
-      downloadDto.setInferred(getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASS_OF, IM.ROLE_GROUP))).getEntity());
-    }
-    if (params.includeProperties()) {
-      downloadDto.setDataModelProperties(dataModelService.getDataModelProperties(iri));
-    }
-    if (params.includeTerms()) {
-      downloadDto.setTerms(conceptService.getEntityTermCodes(iri, false));
-    }
-    if (params.includeIsChildOf()) {
-      downloadDto.setIsChildOf(getBundle(iri, new HashSet<>(List.of(IM.IS_CHILD_OF))).getEntity().get(iri(IM.IS_CHILD_OF)));
-    }
-    if (params.includeHasChildren()) {
-      downloadDto.setHasChildren(getBundle(iri, new HashSet<>(List.of(IM.HAS_CHILDREN))).getEntity().get(iri(IM.HAS_CHILDREN)));
-    }
-
-    return downloadDto;
-  }
-
-  public XlsHelper getExcelDownload(String iri, List<ComponentLayoutItem> configs, DownloadEntityOptions params) {
-    if (iri == null || iri.isEmpty()) return null;
-
-    XlsHelper xls = new XlsHelper();
-
-    xls.addSummary(getSummaryFromConfig(iri, configs));
-
-    if (params.includeHasSubtypes()) {
-      xls.addHasSubTypes(getImmediateChildren(iri, null, null, null, params.includeInactive()));
-    }
-    if (params.includeInferred()) {
-      xls.addInferred(getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASS_OF, IM.ROLE_GROUP))));
-    }
-    if (params.includeProperties()) {
-      xls.addDataModelProperties(dataModelService.getDataModelProperties(iri));
-    }
-    if (params.includeTerms()) {
-      xls.addTerms(conceptService.getEntityTermCodes(iri, false));
-    }
-    TTEntity isChildOfEntity = getBundle(iri, new HashSet<>(List.of(IM.IS_CHILD_OF))).getEntity();
-    TTArray isChildOfData = isChildOfEntity.get(iri(IM.IS_CHILD_OF));
-    if (params.includeIsChildOf() && isChildOfData != null) {
-      xls.addIsChildOf(isChildOfData.getElements());
-    }
-    TTEntity hasChildrenEntity = getBundle(iri, new HashSet<>(List.of(IM.HAS_CHILDREN))).getEntity();
-    TTArray hasChildrenData = hasChildrenEntity.get(iri(IM.HAS_CHILDREN));
-    if (params.includeHasChildren() && hasChildrenData != null) {
-      xls.addHasChildren(hasChildrenData.getElements());
-    }
-
-    return xls;
-  }
-
-
-  public GraphDto getGraphData(String iri) {
-    if(null == iri || iri.isEmpty()) return new GraphDto();
-
-    TTEntity entity = getBundle(iri, Set.of(RDFS.SUBCLASS_OF, RDFS.LABEL)).getEntity();
-
-    GraphDto graphData = new GraphDto().setKey("0").setIri(entity.getIri()).setName(entity.getName());
-    GraphDto graphParents = new GraphDto().setKey("0_0").setName("Is a");
-    GraphDto graphChildren = new GraphDto().setKey("0_1").setName("Subtypes");
-
-    TTBundle axioms = getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASS_OF, IM.ROLE_GROUP)));
-    List<GraphDto> axiomGraph = new ArrayList<>();
-
-    List<GraphDto> dataModelProps = dataModelService.getDataModelProperties(iri).stream().map(prop -> new GraphDto(prop.getProperty().getIri(), prop.getProperty().getName(), prop.getType() != null ? prop.getType().getIri() : "", prop.getType() != null ? prop.getType().getName() : "", prop.getInheritedFrom() != null ? prop.getInheritedFrom().getIri() : "", prop.getInheritedFrom() != null ? prop.getInheritedFrom().getName() : "")).toList();
-
-    List<GraphDto> isas = getEntityDefinedParents(entity);
-
-    List<GraphDto> subtypes = getDefinitionSubTypes(iri).stream().map(subtype -> new GraphDto().setName(subtype.getName()).setIri(subtype.getIri())).toList();
-
-    GraphDto axiom = new GraphDto().setKey("0_2").setName("Axioms");
-    GraphDto axiomWrapper = getWrapper(axiomGraph, "0_2_0");
-    addWrapper(axiom, axiomWrapper, "0_2_0");
-
-    GraphDto dataModel = new GraphDto().setKey("0_3").setName("Data model properties");
-
-    GraphDto dataModelDirect = new GraphDto().setKey("0_3_0").setName("Direct");
-    GraphDto dataModelDirectWrapper = getWrapper(dataModelProps, "0_3_0_0");
-    addWrapper(dataModelDirect, dataModelDirectWrapper, "0_3_0_0");
-
-    GraphDto dataModelInherited = new GraphDto().setKey("0_3_1").setName("Inherited");
-    GraphDto dataModelInheritedWrapper = getDataModelInheritedWrapper(dataModelProps);
-    addWrapper(dataModelInherited, dataModelInheritedWrapper, "0_3_1_0");
-
-    if (!dataModelDirectWrapper.getLeafNodes().isEmpty()) {
-      dataModel.getChildren().add(dataModelDirect);
-    }
-    if (!dataModelInheritedWrapper.getLeafNodes().isEmpty()) {
-      dataModel.getChildren().add(dataModelInherited);
-    }
-
-    GraphDto childrenWrapper = new GraphDto().setKey("0_1_0").setType(!subtypes.isEmpty() ? GraphType.SUBTYPE : GraphType.NONE);
-    childrenWrapper.getLeafNodes().addAll(subtypes);
-
-    GraphDto parentsWrapper = new GraphDto().setKey("0_0_0").setType(!isas.isEmpty() ? GraphType.ISA : GraphType.NONE);
-    parentsWrapper.getLeafNodes().addAll(isas);
-
-    graphParents.getChildren().add(parentsWrapper);
-    graphChildren.getChildren().add(childrenWrapper);
-
-    graphData.getChildren().add(graphParents);
-    graphData.getChildren().add(graphChildren);
-    if (!(axiomWrapper.getLeafNodes().isEmpty())) {
-      graphData.getChildren().add(axiom);
-    }
-    if (!(dataModelDirectWrapper.getLeafNodes().isEmpty() && dataModelInheritedWrapper.getLeafNodes().isEmpty())) {
-      graphData.getChildren().add(dataModel);
-    }
-    return graphData;
-  }
-
-  private GraphDto getWrapper(List<GraphDto> props, String key) {
-    GraphDto wrapper = new GraphDto().setKey(key).setType(GraphType.PROPERTIES);
-    wrapper.getLeafNodes().addAll(props.stream().filter(prop -> prop.getInheritedFromIri() == null).toList());
-    return wrapper;
-  }
-
-  private GraphDto getDataModelInheritedWrapper(List<GraphDto> dataModelProps) {
-    GraphDto dataModelInheritedWrapper = new GraphDto().setKey("0_3_1_0").setType(GraphType.PROPERTIES);
-    dataModelInheritedWrapper.getLeafNodes().addAll(dataModelProps.stream().filter(prop -> prop.getInheritedFromIri() != null).toList());
-    return dataModelInheritedWrapper;
-  }
-
-  private void addWrapper(GraphDto dto, GraphDto wrapper, String key) {
-    dto.getChildren().add(wrapper.getLeafNodes().isEmpty() ? new GraphDto().setKey(key).setType(GraphType.NONE) : wrapper);
-  }
-
-  private List<GraphDto> getEntityDefinedParents(TTEntity entity) {
-    TTArray parent = entity.get(iri(RDFS.SUBCLASS_OF));
-    if (parent == null) return Collections.emptyList();
-    List<GraphDto> result = new ArrayList<>();
-    parent.getElements().forEach(item -> {
-      if (!OWL.THING.equals(item.asIriRef().getIri()))
-        result.add(new GraphDto().setIri(item.asIriRef().getIri()).setName(item.asIriRef().getName()).setPropertyType(iri(RDFS.SUBCLASS_OF).getName()));
-    });
-
-    return result;
-  }
-
-  public List<TTIriRef> getDefinitionSubTypes(String iri) {
-    return entityRepository.findImmediateChildrenByIri(iri, null, null, null, false).stream().map(t -> new TTIriRef(t.getIri(), t.getName())).toList();
   }
 
   public SearchResultSummary getSummary(String iri) {
@@ -517,7 +357,7 @@ public class EntityService {
     return result;
   }
 
-  private List<TTIriRef> getChildren(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
+  public List<TTIriRef> getChildren(String iri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
     return entityRepository.findImmediateChildrenByIri(iri, schemeIris, rowNumber, pageSize, inactive);
   }
 

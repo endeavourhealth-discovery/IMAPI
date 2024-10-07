@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.config.ConfigManager;
+import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
@@ -32,6 +33,9 @@ public class ConceptModelServiceTest {
 
   @Mock
   EntityRepository entityRepository;
+
+  @Mock
+  ConceptRepository conceptRepository;
 
   @Test
   void getEntityTermCodes_NullIri() {

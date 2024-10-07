@@ -21,11 +21,6 @@ public class DataModelService {
   private DataModelRepository dataModelRepository = new DataModelRepository();
   private EntityService entityService = new EntityService();
 
-  public List<TTIriRef> getDataModelsFromProperty(String propIri) {
-    return dataModelRepository.findDataModelsFromProperty(propIri);
-
-  }
-
   public String checkPropertyType(String iri) {
     return dataModelRepository.checkPropertyType(iri);
   }
@@ -45,7 +40,7 @@ public class DataModelService {
           properties.add(property);
       }
     }
-    ;
+
     List<EntityReferenceNode> children = entityService.getImmediateChildren(iri, null, null, null, false);
     if (children != null && !children.isEmpty()) {
       TTNode subclasses = new TTNode()

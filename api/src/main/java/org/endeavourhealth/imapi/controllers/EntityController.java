@@ -68,7 +68,6 @@ public class EntityController {
   private static final String FORCE_DOWNLOAD = "force-download";
   private static final String APPLICATION = "application";
   private final EntityService entityService = new EntityService();
-  private final ConfigManager configManager = new ConfigManager();
   private final RequestObjectService reqObjService = new RequestObjectService();
   private final FilerService filerService;
 
@@ -187,37 +186,6 @@ public class EntityController {
     }
   }
 
-  @PostMapping(value = "/public/download")
-  public HttpEntity<Object> download(@RequestBody DownloadEntityOptions downloadEntityOptions) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Download.POST")) {
-      LOG.debug("download");
-      String iri = downloadEntityOptions.getEntityIri();
-      String format = downloadEntityOptions.getFormat();
-      if (iri == null || iri.isEmpty() || format == null || format.isEmpty()) return null;
-      TTIriRef entity = entityService.getEntityReference(iri);
-      List<ComponentLayoutItem> configs = configManager.getConfig(CONFIG.DEFINITION, new TypeReference<>() {
-      });
-      String filename = entity.getName() + " " + LocalDate.now();
-      HttpHeaders headers = new HttpHeaders();
-      if ("excel".equals(format)) {
-        XlsHelper xls = entityService.getExcelDownload(iri, configs, downloadEntityOptions);
-
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-          xls.getWorkbook().write(outputStream);
-          xls.getWorkbook().close();
-          headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
-          headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".xlsx\"");
-          return new HttpEntity<>(outputStream.toByteArray(), headers);
-        }
-      } else {
-        DownloadDto json = entityService.getJsonDownload(iri, configs, downloadEntityOptions);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".json\"");
-        return new HttpEntity<>(json, headers);
-      }
-    }
-  }
-
   @GetMapping(value = "/public/parents")
   public List<EntityReferenceNode> getEntityParents(@RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Parents.GET")) {
@@ -259,14 +227,6 @@ public class EntityController {
       LOG.debug("updateEntity");
       String agentName = reqObjService.getRequestAgentName(request);
       return filerService.updateEntity(entity, agentName);
-    }
-  }
-
-  @GetMapping(value = "/public/graph")
-  public GraphDto getGraphData(@RequestParam(name = "iri") String iri) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Graph.GET")) {
-      LOG.debug("getGraphData");
-      return entityService.getGraphData(iri);
     }
   }
 

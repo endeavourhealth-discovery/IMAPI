@@ -210,6 +210,7 @@ public class SetExporter {
           .bucket(bucket)
           .key(filename)
           .contentLength((long) byteData.length)
+          .contentType("text/plain")
           .grantFullControl(bucket)
           .build();
 

@@ -5,6 +5,7 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -211,7 +212,7 @@ public class SetExporter {
           .key(filename)
           .contentLength((long) byteData.length)
           .contentType("text/plain")
-          .grantFullControl(bucket)
+          .acl(ObjectCannedACL.BUCKET_OWNER_FULL_CONTROL)
           .build();
 
         s3.putObject(por, RequestBody.fromInputStream(stream, byteData.length));

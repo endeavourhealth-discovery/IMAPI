@@ -194,7 +194,7 @@ public class SetExporter {
       LOG.debug("No IM1_PUBLISH config found, reverting to defaults");
     }
 
-    if (accessKey != null && !accessKey.isEmpty() && secretKey != null && !secretKey.isEmpty()) {
+    if (accessKey == null || accessKey.isEmpty() || secretKey == null || secretKey.isEmpty()) {
       throw new IllegalArgumentException("AccessKey or SecretKey cannot be empty");
     }
 

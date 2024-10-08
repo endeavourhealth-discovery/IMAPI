@@ -214,8 +214,6 @@ public class SetExporter {
           .build();
 
         s3.putObject(por, RequestBody.fromInputStream(stream, byteData.length));
-      } catch (S3Exception e) {
-        LOG.error(e.getMessage());
       }
   }
 }

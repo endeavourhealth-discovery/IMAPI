@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCAggregateGroup;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCAggregateReport;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
 public class EqdAuditToIMQ {
   public static final String POPULATION = "population";
@@ -30,7 +31,11 @@ public class EqdAuditToIMQ {
     if (tablePath.contains(" ")) {
       String[] paths = tablePath.split(" ");
       for (int i = 0; i < paths.length; i = i + 2) {
-        aReturn.addPath(new IriLD().setIri(paths[i].replace("^", "")));
+        ReturnProperty prop= new ReturnProperty();
+        aReturn.addProperty(prop);
+        prop.setIri(IM.NAMESPACE+paths[i].replace("^", ""));
+        aReturn= new Return();
+        prop.setReturn(aReturn);
       }
     }
     for (EQDOCAggregateGroup group : agg.getGroup()) {
@@ -41,7 +46,7 @@ public class EqdAuditToIMQ {
         for (int i = 0; i < pathMap.length - 1; i = i + 2) {
           ReturnProperty path = new ReturnProperty();
           aReturn.addProperty(path);
-          path.setIri(pathMap[i]);
+          path.setIri(IM.NAMESPACE+pathMap[i]);
           if (i < (pathMap.length - 2)) {
             Return node = new Return();
             path.setReturn(node);

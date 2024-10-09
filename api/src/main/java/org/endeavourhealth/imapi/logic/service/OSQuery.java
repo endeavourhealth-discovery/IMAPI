@@ -28,6 +28,7 @@ import java.net.http.HttpResponse;
 public class OSQuery {
   private static final Logger LOG = LoggerFactory.getLogger(OSQuery.class);
   private final IMQToOS converter = new IMQToOS();
+  private boolean ignoreInvalid;
 
   private static void processNodeResults(QueryRequest request, JsonNode root, CachedObjectMapper om, ArrayNode resultNodes) throws JsonProcessingException {
     for (JsonNode hit : root.get("hits").get("hits")) {
@@ -43,7 +44,6 @@ public class OSQuery {
   private static void processNodeResultReturn(QueryRequest request, ObjectNode osResult, ObjectNode resultNode) {
     if (null == request.getQuery().getReturn())
       return;
-
     for (Return select : request.getQuery().getReturn()) {
       processNodeResultReturnProperty(osResult, resultNode, select);
     }
@@ -73,6 +73,11 @@ public class OSQuery {
     return getNodeResults(request);
   }
 
+  public JsonNode imQuery(QueryRequest request,boolean ignoreInvalid) {
+    this.ignoreInvalid=ignoreInvalid;
+    return getNodeResults(request);
+  }
+
   public JsonNode getIMOSResults(QueryRequest request) throws QueryException, OpenSearchException {
     Query query = request.getQuery();
     JsonNode results;
@@ -99,6 +104,8 @@ public class OSQuery {
   }
 
   private JsonNode getOsResults(QueryRequest request, Query query) throws QueryException, OpenSearchException {
+    if (ignoreInvalid)
+      converter.setIgnoreInvalid(true);
     SearchSourceBuilder builder = converter.buildQuery(request, query, IMQToOS.QUERY_TYPE.AUTOCOMPLETE);
     if (builder == null)
       return null;
@@ -306,7 +313,7 @@ public class OSQuery {
         }
         request.addTiming("no results returned");
       }
-      return null;
+      return new ObjectMapper().createObjectNode();
     } catch (Exception e) {
       return new ObjectMapper().createObjectNode();
     }

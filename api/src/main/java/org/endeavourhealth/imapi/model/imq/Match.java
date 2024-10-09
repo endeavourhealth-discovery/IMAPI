@@ -15,8 +15,10 @@ public class Match extends IriLD {
 
   private Bool boolMatch;
   private Bool boolWhere;
+  private String inlineOperator;
   private List<Match> match;
   private boolean exclude;
+  private String includeIf;
   private Element graph;
   private List<Where> where;
   private String description;
@@ -32,6 +34,23 @@ public class Match extends IriLD {
   private List<IriLD> path;
   private String displayLabel;
 
+  public String getInlineOperator() {
+    return inlineOperator;
+  }
+
+  public Match setInlineOperator(String inlineOperator) {
+    this.inlineOperator = inlineOperator;
+    return this;
+  }
+
+  public String getIncludeIf() {
+    return includeIf;
+  }
+
+  public Match setIncludeIf(String includeIf) {
+    this.includeIf = includeIf;
+    return this;
+  }
 
   public String getDisplayLabel() {
     return displayLabel;

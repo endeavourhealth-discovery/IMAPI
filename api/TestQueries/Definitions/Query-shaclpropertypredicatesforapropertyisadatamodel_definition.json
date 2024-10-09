@@ -1,99 +1,72 @@
 {
-  "@context": {
-    "im": "http://endhealth.info/im#",
-    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "owl": "http://www.w3.org/2002/07/owl#",
-    "sh": "http://www.w3.org/ns/shacl#",
-    "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-    "sn": "http://snomed.info/sct#"
+  "@context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
   },
-  "argument": [
-    {
-      "parameter": "dataModel",
-      "valueIri": {
-        "@id": "im:Patient"
-      }
-    },
-    {
-      "parameter": "property",
-      "valueIri": {
-        "@id": "im:age"
-      }
+  "argument" : [ {
+    "parameter" : "dataModel",
+    "valueIri" : {
+      "@id" : "im:Patient"
     }
-  ],
-  "query": {
-    "name": "Query - shacl property predicates for a property is a data model",
-    "description": "Select the predicates and values and labels of the values for a given data mode and property",
-    "match": [
-      {
-        "instanceOf": [
-          {
-            "parameter": "$dataModel"
-          }
-        ],
-        "where": [
-          {
-            "@id": "sh:property",
-            "match": {
-              "where": [
-                {
-                  "@id": "sh:path",
-                  "is": [
-                    {
-                      "parameter": "$property"
-                    }
-                  ]
-                }
-              ],
-              "variable": "shaclProperty"
-            }
-          }
-        ]
-      }
-    ],
-    "return": [
-      {
-        "nodeRef": "shaclProperty",
-        "property": [
-          {
-            "@id": "sh:class",
-            "return": {
-              "property": [
-                {
-                  "@id": "rdfs:label"
-                }
-              ]
-            }
-          },
-          {
-            "@id": "sh:node",
-            "return": {
-              "property": [
-                {
-                  "@id": "rdfs:label"
-                }
-              ]
-            }
-          },
-          {
-            "@id": "sh:datatype",
-            "return": {
-              "property": [
-                {
-                  "@id": "rdfs:label"
-                }
-              ]
-            }
-          },
-          {
-            "@id": "sh:maxCount"
-          },
-          {
-            "@id": "sh:minCount"
-          }
-        ]
-      }
-    ]
+  }, {
+    "parameter" : "property",
+    "valueIri" : {
+      "@id" : "im:age"
+    }
+  } ],
+  "query" : {
+    "name" : "Query - shacl property predicates for a property is a data model",
+    "description" : "Select the predicates and values and labels of the values for a given data mode and property",
+    "match" : [ {
+      "instanceOf" : [ {
+        "parameter" : "$dataModel"
+      } ],
+      "where" : [ {
+        "@id" : "sh:property",
+        "match" : {
+          "where" : [ {
+            "@id" : "sh:path",
+            "is" : [ {
+              "parameter" : "$property"
+            } ]
+          } ],
+          "variable" : "shaclProperty"
+        }
+      } ]
+    } ],
+    "return" : [ {
+      "nodeRef" : "shaclProperty",
+      "property" : [ {
+        "@id" : "sh:class",
+        "return" : {
+          "property" : [ {
+            "@id" : "rdfs:label"
+          } ]
+        }
+      }, {
+        "@id" : "sh:node",
+        "return" : {
+          "property" : [ {
+            "@id" : "rdfs:label"
+          } ]
+        }
+      }, {
+        "@id" : "sh:datatype",
+        "return" : {
+          "property" : [ {
+            "@id" : "rdfs:label"
+          } ]
+        }
+      }, {
+        "@id" : "sh:maxCount"
+      }, {
+        "@id" : "sh:minCount"
+      } ]
+    } ]
   }
 }

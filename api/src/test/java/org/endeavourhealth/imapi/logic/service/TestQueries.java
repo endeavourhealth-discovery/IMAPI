@@ -134,26 +134,6 @@ public class TestQueries {
             .setIri(SHACL.MINCOUNT))));
   }
 
-  public static QueryRequest getAllowableQueries() {
-    return new QueryRequest()
-      .setTextSearch("Test for patients either aged between 18 and 65 or with diabetes with the most recent ")
-      .argument(a -> a
-        .setParameter("dataModelIri")
-        .setValueIri(TTIriRef.iri(IM.NAMESPACE + "Patient")))
-      .query(q -> q
-        .setName("Allowable queries for patient cohort")
-        .match(m -> m
-          .setTypeOf(IM.NAMESPACE + "CohortQuery")
-          .where(p -> p
-            .setIri(IM.RETURN_TYPE)
-            .is(in -> in
-              .setParameter("dataModelIri"))))
-        .return_(r -> r
-          .property(p -> p
-            .setIri(RDFS.LABEL))));
-
-
-  }
 
 
   public static QueryRequest getAllowableSubtypes() {
@@ -205,14 +185,10 @@ public class TestQueries {
       .query(q -> q
         .setName("Filter concept subtypes that are members of value sets")
         .match(m -> m
-          .match(m2 -> m2
-            .setBoolMatch(Bool.or)
-            .match(m1 -> m1
               .addInstanceOf(new Node().setIri(SNOMED.NAMESPACE + "57148006")
-                .setDescendantsOrSelfOf(true)))
-            .match(m1 -> m1
+                .setDescendantsOrSelfOf(true))
               .addInstanceOf(new Node().setIri(SNOMED.NAMESPACE + "11164009")
-                .setDescendantsOrSelfOf(true))))
+                .setDescendantsOrSelfOf(true))
           .where(w -> w
             .setIri(IM.HAS_MEMBER)
             .setInverse(true)

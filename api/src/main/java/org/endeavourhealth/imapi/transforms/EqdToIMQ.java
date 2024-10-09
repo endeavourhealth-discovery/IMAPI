@@ -89,7 +89,7 @@ public class EqdToIMQ {
       queryEntity.addIsContainedIn(new TTEntity((URN_UUID + eqReport.getFolder())).setName(eqReport.getName()));
 
     Query qry = new Query();
-
+    qry.setName(queryEntity.getName());
     if (eqReport.getPopulation() != null) {
       queryEntity.addType(iri(IM.COHORT_QUERY));
       new EqdPopToIMQ().convertPopulation(eqReport, qry, resources);
@@ -101,7 +101,6 @@ public class EqdToIMQ {
       new EqdAuditToIMQ().convertReport(eqReport, qry, resources);
     }
     flattenQuery(qry);
-    new QueryDescriptor().describeQuery(qry);
     queryEntity.setDefinition(qry);
     return queryEntity;
   }

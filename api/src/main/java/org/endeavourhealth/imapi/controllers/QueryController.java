@@ -106,4 +106,13 @@ public class QueryController {
       return queryService.describeQuery(query);
     }
   }
+
+  @PostMapping("/public/sql")
+  @Operation(summary = "get sql from imq")
+  public String getSQLFromIMQ(@RequestBody Query query) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
+      LOG.debug("getSQLFromIMQ");
+      return queryService.getSQLFromIMQ(query);
+    }
+  }
 }

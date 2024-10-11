@@ -59,4 +59,8 @@ public class QueryService {
     }
     return searchResponse;
   }
+
+  public String getSQLFromIMQ(Query query) {
+    return "empty SQL";
+  }
 }

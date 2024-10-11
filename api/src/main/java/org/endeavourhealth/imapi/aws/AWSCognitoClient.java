@@ -147,6 +147,17 @@ public class AWSCognitoClient {
     return awsUserToUser(result.user());
   }
 
+  public boolean isEmailRegistered(String email) {
+    if (null == email || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or empty.");
+    ListUsersRequest listUsersRequest = ListUsersRequest.builder()
+      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .attributesToGet("email")
+      .filter("\"email\"=\"" + email + "\"")
+      .build();
+    ListUsersResponse users = identityProvider.listUsers(listUsersRequest);
+    return !users.users().isEmpty();
+  }
+
   private String getKeysByValue(String value) {
     for (Map.Entry<String, String> entry : AWSCognitoClient.userCache.entrySet()) {
       if (Objects.equals(value, entry.getValue())) return entry.getKey();

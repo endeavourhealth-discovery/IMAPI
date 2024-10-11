@@ -147,6 +147,13 @@ public class AWSCognitoClient {
     return awsUserToUser(result.user());
   }
 
+  public void adminResetUserPassword(String username) {
+    AdminResetUserPasswordRequest request = AdminResetUserPasswordRequest.builder().userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .username(username)
+      .build();
+    identityProvider.adminResetUserPassword(request);
+  }
+
   public boolean isEmailRegistered(String email) {
     if (null == email || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or empty.");
     ListUsersRequest listUsersRequest = ListUsersRequest.builder()

@@ -89,4 +89,12 @@ public class AdminController {
       return awsCognitoClient.adminCreateUser(user);
     }
   }
+
+  @DeleteMapping(value = "cognito/user/resetPassword")
+  public void resetPassword(@RequestParam(name = "username") String username) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.user.resetPassword.DELETE")) {
+      LOG.debug("resetPassword");
+      awsCognitoClient.adminResetUserPassword(username);
+    }
+  }
 }

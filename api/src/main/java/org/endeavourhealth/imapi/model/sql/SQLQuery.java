@@ -11,10 +11,11 @@ public class SQLQuery {
 
   public SQLQuery() {}
 
-  public SQLQuery(String model, String variable) {
+  public SQLQuery create(String model, String variable) {
     aliasIndex = 0;
     SQLQuery result = new SQLQuery();
     result.initialize(model, variable);
+    return result;
   }
 
   private ArrayList<String> withs = new ArrayList<>();

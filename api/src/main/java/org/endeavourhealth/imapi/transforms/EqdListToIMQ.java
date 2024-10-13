@@ -44,7 +44,7 @@ public class EqdListToIMQ {
       String eqColumn = String.join("/", eqCol.getColumn());
       String eqULR = eqTable + "/" + eqColumn;
       String propertyPath = resources.getPath(eqULR);
-      convertColumn(select, propertyPath);
+      convertColumn(select, propertyPath,eqCol.getDisplayName());
     }
   }
 
@@ -62,18 +62,31 @@ public class EqdListToIMQ {
     }
     Match match = resources.convertCriteria(eqColGroup.getCriteria());
     subQuery.addMatch(match);
-    EQDOCListColumns eqCols = eqColGroup.getColumnar();
-    for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
-      String eqColumn = String.join("/", eqCol.getColumn());
-      String eqURL = eqTable + "/" + eqColumn;
-      String subPath = resources.getPath(eqURL);
-      convertColumn(aReturn, subPath);
+    if (eqColGroup.getColumnar()==null){
+      if (eqColGroup.getSummary()!=null){
+        if (eqColGroup.getSummary()==VocListGroupSummary.COUNT) {
+          aReturn.function(f -> f
+            .setFunction(Function.count));
+        }
+        else
+          throw new QueryException("unmapped summary function : "+ eqColGroup.getSummary().value());
+      }
+    }
+    else {
+      EQDOCListColumns eqCols = eqColGroup.getColumnar();
+      for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
+        String eqColumn = String.join("/", eqCol.getColumn());
+        String eqURL = eqTable + "/" + eqColumn;
+        String subPath = resources.getPath(eqURL);
+        convertColumn(aReturn, subPath, eqCol.getDisplayName());
+      }
     }
   }
 
-  private void convertColumn(Return aReturn, String subPath) {
+  private void convertColumn(Return aReturn, String subPath,String displayName) {
     ReturnProperty property = new ReturnProperty();
     aReturn.addProperty(property);
+    property.setAs(displayName);
     if (subPath.contains(" ")) {
       String[] elements = subPath.split(" ");
       for (int i = 0; i < elements.length; i = i + 2) {

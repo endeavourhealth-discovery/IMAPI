@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.aws.AWSCognitoClient;
 import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.model.admin.CognitoGroupRequest;
 import org.endeavourhealth.imapi.model.admin.User;
+import org.endeavourhealth.imapi.model.postRequestPrimatives.StringBody;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.slf4j.Logger;
@@ -75,10 +76,10 @@ public class AdminController {
   }
 
   @DeleteMapping(value = "cognito/user")
-  public void deleteUser(@RequestBody CognitoGroupRequest cognitoGroupRequest) throws IOException {
+  public void deleteUser(@RequestBody StringBody username) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.deleteUser.DELETE")) {
       LOG.debug("deleteUser");
-      awsCognitoClient.adminDeleteUser(cognitoGroupRequest.getUsername());
+      awsCognitoClient.adminDeleteUser(username.getValue());
     }
   }
 
@@ -91,10 +92,10 @@ public class AdminController {
   }
 
   @DeleteMapping(value = "cognito/user/resetPassword")
-  public void resetPassword(@RequestParam(name = "username") String username) throws IOException {
+  public void resetPassword(@RequestBody StringBody username) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.user.resetPassword.DELETE")) {
       LOG.debug("resetPassword");
-      awsCognitoClient.adminResetUserPassword(username);
+      awsCognitoClient.adminResetUserPassword(username.getValue());
     }
   }
 }

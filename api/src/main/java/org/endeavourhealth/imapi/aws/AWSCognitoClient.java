@@ -165,6 +165,15 @@ public class AWSCognitoClient {
     return !users.users().isEmpty();
   }
 
+  public void updateEmailVerified(String username, boolean emailVerified) {
+    AdminUpdateUserAttributesRequest request = AdminUpdateUserAttributesRequest.builder()
+      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .username(username)
+      .userAttributes(AttributeType.builder().name("email_verified").value(emailVerified ? "true" : "false").build())
+      .build();
+    identityProvider.adminUpdateUserAttributes(request);
+  }
+
   private String getKeysByValue(String value) {
     for (Map.Entry<String, String> entry : AWSCognitoClient.userCache.entrySet()) {
       if (Objects.equals(value, entry.getValue())) return entry.getKey();

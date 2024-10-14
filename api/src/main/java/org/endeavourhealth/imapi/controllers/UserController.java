@@ -195,4 +195,11 @@ public class UserController {
       return userService.getEditAccess(userId, iri);
     }
   }
+
+  @GetMapping(value = "valid")
+  public void isValidUser() throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.User.Valid.GET")) {
+      LOG.debug("isValidUser");
+    }
+  }
 }

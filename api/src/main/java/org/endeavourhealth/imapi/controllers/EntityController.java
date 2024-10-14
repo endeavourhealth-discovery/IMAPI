@@ -87,12 +87,7 @@ public class EntityController {
   public List<TTEntity> getPartialEntities(@RequestParam(name = "iris") Set<String> iris, @RequestParam(name = "predicates") Set<String> predicates) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Partials.GET")) {
       LOG.debug("getPartialEntities");
-      List<TTEntity> entities = new ArrayList<>();
-      for (String iri : iris) {
-        TTEntity entity = entityService.getBundle(iri, predicates).getEntity();
-        entities.add(entity);
-      }
-      return entities;
+      return entityService.getPartialEntities(iris, predicates);
     }
   }
 
@@ -338,5 +333,11 @@ public class EntityController {
     }
   }
 
-
+  @PostMapping(value = "/public/validatedEntity")
+  public List<ValidatedEntity> getValidatedEntitiesBySnomedCodes(@RequestBody List<String> codes) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ValidatedEntity.POST")) {
+      LOG.debug("getValidatedEntitiesBySnomedCodes");
+      return entityService.getValidatedEntitiesBySnomedCodes(codes);
+    }
+  }
 }

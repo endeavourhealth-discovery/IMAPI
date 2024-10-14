@@ -243,6 +243,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       commit();
 
     } catch (Exception e) {
+      rollback();
       throw new TTFilerException(e.getMessage());
     }
     updateSets(document);
@@ -291,6 +292,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       throw e;
 
     } catch (Exception e) {
+      rollback();
       throw new TTFilerException(e.getMessage());
     }
     updateSets(document);

@@ -27,30 +27,6 @@ public class Where extends PropertyRef implements Assignable{
   private PropertyRef relativeTo;
   private boolean isNotNull;
 
-  /**
-   * @deprecated No longer required as the display is made up of description - value label.
-   */
-  @Deprecated
-  private String displayLabel;
-
-
-  /**
-   * @deprecated No longer required as the display is made up of description - value label.
-   */
-  @Deprecated
-  public String getDisplayLabel() {
-    return displayLabel;
-  }
-
-
-  /**
-   * @deprecated No longer required as the display is made up of description - value label.
-   */
-  @Deprecated
-  public Where setDisplayLabel(String displayLabel) {
-    this.displayLabel = displayLabel;
-    return this;
-  }
 
   public Where() {
   }

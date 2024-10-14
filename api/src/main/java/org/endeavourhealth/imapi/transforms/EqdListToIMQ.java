@@ -68,12 +68,24 @@ public class EqdListToIMQ {
     }
     Match match = resources.convertCriteria(eqColGroup.getCriteria());
     subQuery.addMatch(match);
-    EQDOCListColumns eqCols = eqColGroup.getColumnar();
-    for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
-      String eqColumn = String.join("/", eqCol.getColumn());
-      String eqURL = eqTable + "/" + eqColumn;
-      String subPath = resources.getPath(eqURL);
-      convertColumn(aReturn, subPath,eqCol.getDisplayName());
+    if (eqColGroup.getColumnar()==null){
+      if (eqColGroup.getSummary()!=null){
+        if (eqColGroup.getSummary()==VocListGroupSummary.COUNT) {
+          aReturn.function(f -> f
+            .setFunction(Function.count));
+        }
+        else
+          throw new QueryException("unmapped summary function : "+ eqColGroup.getSummary().value());
+      }
+    }
+    else {
+      EQDOCListColumns eqCols = eqColGroup.getColumnar();
+      for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
+        String eqColumn = String.join("/", eqCol.getColumn());
+        String eqURL = eqTable + "/" + eqColumn;
+        String subPath = resources.getPath(eqURL);
+        convertColumn(aReturn, subPath, eqCol.getDisplayName());
+      }
     }
   }
 

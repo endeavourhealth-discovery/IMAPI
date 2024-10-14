@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
@@ -25,7 +24,6 @@ public class QueryService {
   public static final String ENTITIES = "entities";
   private final QueryRepository queryRepository = new QueryRepository();
   private final EntityRepository entityRepository = new EntityRepository();
-  private final EntityTripleRepository repo= new EntityTripleRepository();
 
   public Query labelQuery(Query query) {
     queryRepository.labelQuery(query);
@@ -33,7 +31,7 @@ public class QueryService {
   }
 
   public Query getQueryFromIri(String queryIri) throws JsonProcessingException {
-    TTEntity queryEntity = repo.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
+    TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null)
       return null;
     return queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);

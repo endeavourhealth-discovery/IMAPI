@@ -96,11 +96,16 @@ public class EqdToIMQ {
     } else if (eqReport.getListReport() != null) {
       queryEntity.addType(iri(IM.DATASET_QUERY));
       new EqdListToIMQ().convertReport(eqReport, qry, resources);
-    } else {
-      queryEntity.addType(iri(IM.DATASET_QUERY));
-      new EqdAuditToIMQ().convertReport(eqReport, qry, resources);
+    } else if (eqReport.getAuditReport()!=null){
+        queryEntity.addType(iri(IM.DATASET_QUERY));
+        new EqdAuditToIMQ().convertReport(eqReport, qry, resources);
     }
-    flattenQuery(qry);
+    else if (eqReport.getAggregateReport()!=null){
+      System.err.println("Aggregate reports not supported");
+    }
+    if (qry.getMatch()!=null) {
+      flattenQuery(qry);
+    }
     queryEntity.setDefinition(qry);
     return queryEntity;
   }
@@ -124,7 +129,7 @@ public class EqdToIMQ {
       if (topMatch.getMatch() == null) {
         flatMatches.add(topMatch);
       } else if (topMatch.getBoolMatch() != Bool.or) {
-        flatMatches.addAll(topMatch.getMatch());
+        flattenAnds(topMatch.getMatch(),flatMatches);
       } else {
         flatMatches.add(topMatch);
       }

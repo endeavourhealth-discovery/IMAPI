@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.transforms.Context;
@@ -16,7 +16,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class QueryDescriptor {
   private final EntityRepository entityRepository = new EntityRepository();
   private Map<String,TTEntity> iriContext;
-  private final EntityTripleRepository repo = new EntityTripleRepository();
+  private final EntityRepository repo = new EntityRepository();
 
   public Query describeQuery(String queryIri) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();

@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
@@ -1676,4 +1677,74 @@ public class EntityRepository {
       return sparql.evaluate();
     }
   }
+
+  public Map<String,TTEntity> getEntitiesWithPredicates(Set<String> iris, Set<String> predicates){
+    Map<String,TTEntity> result= new HashMap<>();
+    String entityIris= String.join(" ",iris.stream().map(i-> "<"+i+">").collect(Collectors.toSet()));
+    String predicateIris= String.join(" ",predicates.stream().map(i-> "<"+i+">").collect(Collectors.toSet()));
+    String sql= """
+      prefix rdfs: %s
+      select ?entity ?entityLabel ?predicate ?predicateLabel ?object ?objectLabel ?subPredicate ?subPredicateLabel ?subObject ?subObjectLabel
+      where {
+        VALUES ?entity {%s}
+        ?entity rdfs:label ?entityLabel.
+        optional {
+             VALUES ?predicate {%s}
+            ?entity ?predicate ?object.
+            ?predicate rdfs:label ?predicateLabel.
+           optional {
+                   ?object rdfs:label ?objectLabel.
+                  ?object ?subPredicate ?subObject.
+                  ?subPredicate rdfs:label ?subPredicateLabel.
+                  optional {
+                     ?subObject rdfs:label ?subObjectLabel.
+                     }
+                  }
+             }
+        }
+      """.formatted("<"+RDFS.NAMESPACE+">",entityIris,predicateIris);
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry= conn.prepareTupleQuery(sql);
+      try (TupleQueryResult rs= qry.evaluate()){
+        Map<String,TTNode> bnodeMap= new HashMap();
+        while (rs.hasNext()){
+          BindingSet bs= rs.next();
+          String iri= bs.getValue("entity").stringValue();
+          result.putIfAbsent(iri, new TTEntity());
+          TTEntity entity= result.get(iri).setIri(iri);
+          entity.setName(bs.getValue("entityLabel").stringValue());
+          if (bs.getValue("predicate")!=null) {
+            String predicate = bs.getValue("predicate").stringValue();
+            result.putIfAbsent(predicate, new TTEntity());
+            result.get(predicate).setName(bs.getValue("predicateLabel").stringValue());
+            Value object = bs.getValue("object");
+            if (object.isIRI()){
+              entity.addObject(TTIriRef.iri(predicate), TTIriRef.iri(object.stringValue()).setName(bs.getValue("objectLabel").stringValue()));
+            }
+            else if (object.isBNode()){
+              bnodeMap.putIfAbsent(object.stringValue(),new TTNode());
+              TTNode blank= bnodeMap.get(object.stringValue());
+              if (bs.getValue("subPredicate")!=null){
+                String subPredicate= bs.getValue("subPredicate").stringValue();
+                result.putIfAbsent(subPredicate,new TTEntity());
+                result.get(subPredicate).setName(bs.getValue("subPredicateLabel").stringValue());
+                Value subObject= bs.getValue("subObject");
+                if (subObject.isIRI()){
+                  blank.addObject(TTIriRef.iri(subPredicate), TTIriRef.iri(subObject.stringValue()).setName(bs.getValue("subObjectLabel").stringValue()));
+                }
+                else   blank.addObject(TTIriRef.iri(subPredicate),TTLiteral.literal(subObject.stringValue()));
+              }
+            }
+            else
+              entity.addObject(TTIriRef.iri(predicate),TTLiteral.literal(object.stringValue()));
+          }
+
+
+        }
+      }
+    }
+    return result;
+  }
+
+
 }

@@ -375,6 +375,11 @@ public class EqdResources {
     if (rTo != null && rFrom == null) {
       setCompareTo(pv, rTo);
     }
+    if (rv.getRelativeTo()!=null){
+      if (rv.getRelativeTo().equals("BASELINE")) {
+        pv.setRelativeTo(new PropertyRef().setParameter("$baselineDate"));
+      }
+    }
 
   }
 
@@ -415,9 +420,12 @@ public class EqdResources {
     if (relation == VocRelation.RELATIVE) {
       where.setRelativeTo(new PropertyRef().setParameter("$referenceDate"));
     }
-
-    where.setOperator(comp);
-    where.setValue(value);
+    if (comp!=null) {
+      where.setOperator(comp);
+    }
+    if (value!=null) {
+      where.setValue(value);
+    }
     if (units != null)
       where.setUnit(units);
   }

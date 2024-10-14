@@ -311,7 +311,16 @@ public class IMQToOS {
 
   private boolean addIsFilter(String property, Where where) {
     if (where.getIs() != null) {
-      Set<String> isList = where.getIs().stream().map(IriLD::getIri).collect(Collectors.toSet());
+      Set<String> isList = where.getIs().stream().map(is -> {
+        if (is.getIri() != null && !is.getIri().isEmpty()) return is.getIri();
+        else {
+          try {
+            return getIriFromAlias(is);
+          } catch (QueryException e) {
+            throw new RuntimeException(e);
+          }
+        }
+      }).collect(Collectors.toSet());
       addFilterWithId(property, isList);
       return true;
     }

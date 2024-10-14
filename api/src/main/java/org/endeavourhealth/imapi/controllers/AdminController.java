@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.controllers;
 
-import com.amazonaws.services.identitymanagement.model.RemoveUserFromGroupRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.aws.AWSCognitoClient;
 import org.endeavourhealth.imapi.aws.UserNotFoundException;

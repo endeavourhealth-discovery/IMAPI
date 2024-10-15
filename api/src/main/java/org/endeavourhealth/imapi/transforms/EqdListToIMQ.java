@@ -4,7 +4,6 @@ package org.endeavourhealth.imapi.transforms;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.transforms.eqd.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.IOException;
 
@@ -72,7 +71,7 @@ public class EqdListToIMQ {
       if (eqColGroup.getSummary()!=null){
         if (eqColGroup.getSummary()==VocListGroupSummary.COUNT) {
           aReturn.function(f -> f
-            .setFunction(Function.count));
+            .setName(Function.count));
         }
         else
           throw new QueryException("unmapped summary function : "+ eqColGroup.getSummary().value());

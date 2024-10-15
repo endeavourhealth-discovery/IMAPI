@@ -178,12 +178,8 @@ public class EqdResources {
       if (columnPath.contains(" ")) {
         String[] paths = columnPath.split(" ");
         for (int i = 0; i < paths.length; i = i + 2) {
-          Where subProperty = new Where();
-          match.addWhere(subProperty);
-          subProperty.setIri(columnPath.split(" ")[i]);
-          subProperty.setMatch(new Match());
-          match = subProperty.getMatch();
-          match.setTypeOf(new Node().setIri(columnPath.split(" ")[i + 1]));
+          match.addPath(new IriLD().setIri(paths[i]));
+          match.setTypeOf(new Node().setIri(paths[i + 1]));
         }
       }
     }
@@ -266,9 +262,9 @@ public class EqdResources {
         pv.setIs(values);
       } else {
         if (!notIn) {
-          pv.addIs(getInlineValues(vs));
+          setInlineValues(vs,pv,false);
         } else {
-          pv.addIs(getInlineValues(vs).setExclude(true));
+          setInlineValues(vs,pv,true);
         }
       }
     }
@@ -498,28 +494,24 @@ public class EqdResources {
   }
 
 
-  private Node getInlineValues(EQDOCValueSet vs) throws IOException {
+  private void setInlineValues(EQDOCValueSet vs,Where pv, boolean exclude) throws IOException {
     Set<Node> setContent = new HashSet<>();
     VocCodeSystemEx scheme = vs.getCodeSystem();
     String exclusions = "";
     if (vs.getClusterCode() != null && !vs.getClusterCode().isEmpty()) {
-      return new Node().setParameter(vs.getClusterCode().get(0));
+      pv.addIs(new Node().setParameter(vs.getClusterCode().get(0)));
     }
     for (EQDOCValueSetValue ev : vs.getValues()) {
       boolean evExclusion = processEQDOCValueSet(scheme, ev, setContent);
       if (evExclusion) exclusions = " (with exclusions)";
     }
-    Query query = new Query();
-    Match match = new Match();
-    match.setBoolMatch(Bool.or);
-    query.addMatch(match);
     String name = "";
     int i = 0;
     for (Node node : setContent) {
       i++;
-      Match member = new Match();
-      match.addMatch(member);
-      member.addInstanceOf(node);
+      if (exclude)
+        node.setExclude(true);
+      pv.addIs(node);
       if (node.getName() != null) {
         if (i == 3)
           name = name + " + more...";
@@ -529,20 +521,10 @@ public class EqdResources {
           name = getShortName(node.getName(), name);
         }
       }
-      node.setName(name);
     }
     if (vs.getDescription() != null)
       name = vs.getDescription();
-    ConceptSet set = new ConceptSet();
-    set.setIri(URN_UUID + vs.getId());
-    set.setName(name);
-    if (!memberOnly(query))
-      set.setDefinition(query);
-    else
-      setMemberOnlySet(set, query);
-    set.addUsedIn(TTIriRef.iri(URN_UUID + activeReport));
-    document.addConceptSet(set);
-    return new Node().setIri(set.getIri()).setName(name + exclusions);
+    pv.setValueLabel(name+exclusions);
   }
 
   private boolean processEQDOCValueSet(VocCodeSystemEx scheme, EQDOCValueSetValue ev, Set<Node> setContent) throws IOException {

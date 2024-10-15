@@ -33,6 +33,16 @@ public class Match extends IriLD {
   private Match then;
   private List<IriLD> path;
   private String displayLabel;
+  private boolean hasInlineSet;
+
+  public boolean isHasInlineSet() {
+    return hasInlineSet;
+  }
+
+  public Match setHasInlineSet(boolean hasInlineSet) {
+    this.hasInlineSet = hasInlineSet;
+    return this;
+  }
 
   public String getInlineOperator() {
     return inlineOperator;

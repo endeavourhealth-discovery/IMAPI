@@ -9,6 +9,16 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Node extends Element {
   private boolean exclude;
+  private String code;
+
+  public String getCode() {
+    return code;
+  }
+
+  public Node setCode(String code) {
+    this.code = code;
+    return this;
+  }
 
   public Node setQualifier(String qualifier) {
     super.setQualifier(qualifier);

@@ -27,7 +27,7 @@ public class EqdAuditToIMQ {
       if (eqReport.getAuditReport().getStandard() != null) {
         if (eqReport.getAuditReport().getStandard() == VocStandardAuditReportType.COUNTS) {
           aReturn.function(f -> f
-            .setFunction(Function.count));
+            .setName(Function.count));
         }
       }
       if (eqReport.getAuditReport().getCustomAggregate() != null) {

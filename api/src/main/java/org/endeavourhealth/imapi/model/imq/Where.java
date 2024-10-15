@@ -26,7 +26,16 @@ public class Where extends PropertyRef implements Assignable{
   private boolean isNull;
   private PropertyRef relativeTo;
   private boolean isNotNull;
+  private FunctionClause function;
 
+  public FunctionClause getFunction() {
+    return function;
+  }
+
+  public Where setFunction(FunctionClause function) {
+    this.function = function;
+    return this;
+  }
 
   public Where() {
   }

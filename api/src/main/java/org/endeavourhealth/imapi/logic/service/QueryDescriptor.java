@@ -88,7 +88,7 @@ public class QueryDescriptor {
       }
     }
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, Set.of(IM.PREPOSITION));
+      iriContext = repo.getEntitiesWithPredicates(iriSet, Set.of(IM.PREPOSITION,IM.CODE));
     }
     catch (Exception e)
     {
@@ -147,7 +147,6 @@ public class QueryDescriptor {
       }
     }
     if (where.getIs()!=null){
-      if (where.getValueLabel()==null)
         for (Node node:where.getIs())
           iriSet.add(node.getIri());
     }
@@ -280,7 +279,7 @@ public class QueryDescriptor {
 
 
 
-  private void describeWheres(Where where) {
+  private void describeWheres(Match parentMatch,Where where) {
     if (where.getBoolWhere() == null) {
       where.setBoolWhere(Bool.and);
     }
@@ -291,7 +290,7 @@ public class QueryDescriptor {
       if (index>0) {
         subWhere.setInlineOperator(operator.toString());
       }
-      describeWhere(subWhere);
+      describeWhere(parentMatch,subWhere);
     }
     if (where.getMatch()!=null) {
       describeMatch(where.getMatch());
@@ -309,7 +308,7 @@ public class QueryDescriptor {
     if (conceptWhere!=null){
       match.getWhere().remove(conceptWhere);
       match.getWhere().add(0,conceptWhere);
-      describeWhere(conceptWhere);
+      describeWhere(match,conceptWhere);
     }
     for (Where where : match.getWhere()) {
       index++;
@@ -317,7 +316,7 @@ public class QueryDescriptor {
         if (index > 0) {
           where.setInlineOperator(operator.toString());
         }
-        describeWhere(where);
+        describeWhere(match,where);
       }
     }
   }
@@ -390,13 +389,13 @@ public class QueryDescriptor {
     return null;
   }
 
-  private void describeWhere(Where where) {
+  private void describeWhere(Match parentMatch,Where where) {
     if (where.getWhere() != null) {
-      describeWheres(where);
+      describeWheres(parentMatch,where);
     }
     else {
       if (!where.getIri().equals(IM.NAMESPACE + "concept")) {
-        where.setDescription(getTermInContext(where,Context.PROPERTY));
+        where.setName(getTermInContext(where,Context.PROPERTY));
       }
       if (where.getRange() != null) {
         describeRangeWhere(where);
@@ -406,6 +405,7 @@ public class QueryDescriptor {
       }
       if (where.getIs() != null) {
         describeIsWhere(where);
+        parentMatch.setHasInlineSet(true);
       }
       if (where.getIsNull()) {
         where.setValueLabel("is not recorded");
@@ -435,12 +435,12 @@ public class QueryDescriptor {
             if (value != null) {
               qualifier = "within ";
               if (past && relativeTo)
-                relativity = " before";
+                relativity = " before ";
               if (!past && relativeTo)
-                relativity = " of";
+                relativity = " of ";
             }
             else
-              qualifier="after";
+              qualifier="after ";
         }
         else {
           if (!isRange)
@@ -454,7 +454,7 @@ public class QueryDescriptor {
             qualifier = "on or after";
           }
           if (past && relativeTo)
-            relativity = " before";
+            relativity = " before ";
         }
         else {
           if (!isRange) {
@@ -468,7 +468,7 @@ public class QueryDescriptor {
             qualifier = "before ";
           }
           if (past && relativeTo)
-            relativity = " before";
+            relativity = " before ";
         } else {
           if (!isRange) {
             qualifier = "under ";
@@ -482,7 +482,7 @@ public class QueryDescriptor {
             qualifier = "on or before ";
           }
           if (past && relativeTo)
-            relativity = " before";
+            relativity = " before ";
         } else {
           if (!isRange) {
             qualifier = "equal to or less than ";
@@ -577,7 +577,6 @@ public class QueryDescriptor {
   }
 
   private void describeIsWhere(Where where) {
-    if (where.getValueLabel() == null) {
       for (Node set : where.getIs()) {
         String type="";
         if (set.isExclude())
@@ -589,8 +588,12 @@ public class QueryDescriptor {
         String value=getTermInContext(set);
         set.setQualifier(type);
         set.setName(value);
+        if (iriContext.get(set.getIri())!=null) {
+          set.setCode(iriContext.get(set.getIri()).getCode());
+        }
 
       }
+      if (where.getValueLabel()==null){
       StringBuilder valueLabel= new StringBuilder();
       for (int i=0; i<where.getIs().size(); i++){
         if (i>1){
@@ -602,6 +605,7 @@ public class QueryDescriptor {
             valueLabel.append(", ");
         }
         Node set= where.getIs().get(i);
+
         valueLabel.append(set.getQualifier() != null ? set.getQualifier() + " " : "").append(set.getName());
       }
       where.setValueLabel(valueLabel.toString());

@@ -93,7 +93,7 @@ public class EqdListToIMQ {
     if (as!=null)
       property.setAs(as);
     aReturn.addProperty(property);
-    property.setAs(displayName);
+    property.setAs(as);
     if (subPath.contains(" ")) {
       String[] elements = subPath.split(" ");
       for (int i = 0; i < elements.length; i = i + 2) {

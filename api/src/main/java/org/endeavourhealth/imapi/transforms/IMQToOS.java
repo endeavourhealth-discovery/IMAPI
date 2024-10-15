@@ -2,8 +2,8 @@ package org.endeavourhealth.imapi.transforms;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.elasticsearch.common.unit.Fuzziness;
-import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.functionscore.ScriptScoreQueryBuilder;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -13,7 +13,6 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.*;
@@ -268,31 +267,38 @@ public class IMQToOS {
   private boolean addProperties(Match match) throws QueryException {
     if (match.getWhere() == null)
       return true;
+
     for (Where where : match.getWhere()) {
-      String w = where.getIri();
-      if (IM.HAS_SCHEME.equals(w)) {
-        if (!addIsFilter("scheme", where))
-          return false;
-      } else if (IM.HAS_MEMBER.equals(w) && where.isInverse()) {
-        if (!addIsFilter("memberOf", where))
-          return false;
-      } else if (IM.HAS_STATUS.equals(w)) {
-        if (!addIsFilter("status", where))
-          return false;
-      } else if (RDF.TYPE.equals(w)) {
-        if (!addIsFilter("entityType", where))
-          return false;
-      } else if (IM.BINDING.equals(w)) {
-        if (!addBinding(where))
-          return false;
-      } else if (IM.IS_A.equals(w)) {
-        if (!addIsFilter("isA", where))
-          return false;
-      } else {
-        return false;
+      if (where.getBoolWhere() != null && where.getWhere() != null && where.getWhere().size() > 0)
+        addBoolWhereProperty(where);
+      else {
+        return addProperty(where);
       }
     }
     return true;
+  }
+
+  private boolean addBoolWhereProperty(Where where) throws QueryException {
+    // TODO: Implement bool where clauses!
+  }
+
+  private boolean addProperty(Where where) throws QueryException {
+    String w = where.getIri();
+    if (IM.HAS_SCHEME.equals(w)) {
+      return addIsFilter("scheme", where);
+    } else if (IM.HAS_MEMBER.equals(w) && where.isInverse()) {
+      return addIsFilter("memberOf", where);
+    } else if (IM.HAS_STATUS.equals(w)) {
+      return addIsFilter("status", where);
+    } else if (RDF.TYPE.equals(w)) {
+      return addIsFilter("entityType", where);
+    } else if (IM.BINDING.equals(w)) {
+      return addBinding(where);
+    } else if (IM.IS_A.equals(w)) {
+      return addIsFilter("isA", where);
+    } else {
+      return false;
+    }
   }
 
   private boolean addIsFilter(String property, Where where) {

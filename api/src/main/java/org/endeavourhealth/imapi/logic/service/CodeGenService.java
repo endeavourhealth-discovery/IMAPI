@@ -21,6 +21,7 @@ import java.util.zip.ZipOutputStream;
 
 public class CodeGenService {
   private EntityService entityService = new EntityService();
+  private DataModelService dataModelService = new DataModelService();
   private CodeGenRepository codeGenRepository = new CodeGenRepository();
 
   public List<String> getCodeTemplateList() {
@@ -79,7 +80,7 @@ public class CodeGenService {
 
   private void addModelsToZip(String namespace, List<TTIriRef> models, CodeGenDto template, ZipOutputStream zos) throws IOException {
     for (TTIriRef model : models) {
-      List<DataModelProperty> properties = entityService.getDataModelProperties(model.getIri());
+      List<DataModelProperty> properties = dataModelService.getDataModelProperties(model.getIri());
       String code = generateCodeForModel(template, model, properties, namespace);
 
       zos.putNextEntry(new ZipEntry(codify(model.getName()) + template.getExtension()));

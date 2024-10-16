@@ -382,6 +382,11 @@ public class EqdResources {
     if (rTo != null && rFrom == null) {
       setCompareTo(pv, rTo);
     }
+    if (rv.getRelativeTo()!=null){
+      if (rv.getRelativeTo().equals("BASELINE")) {
+        pv.setRelativeTo(new PropertyRef().setParameter("$baselineDate"));
+      }
+    }
 
   }
 
@@ -391,13 +396,19 @@ public class EqdResources {
       comp = (Operator) vocabMap.get(rFrom.getOperator());
     else
       comp = Operator.eq;
-    String value = rFrom.getValue().getValue();
-    String units = null;
-    if (rFrom.getValue().getUnit() != null)
-      units = rFrom.getValue().getUnit().value();
-    VocRelation relation = VocRelation.ABSOLUTE;
-    if (rFrom.getValue().getRelation() != null && rFrom.getValue().getRelation() == VocRelation.RELATIVE) {
-      relation = VocRelation.RELATIVE;
+    String value=null;
+    String units=null;
+    VocRelation relation=null;
+    if (rFrom.getValue()!=null) {
+      value = rFrom.getValue().getValue();
+      units = null;
+      if (rFrom.getValue().getUnit() != null)
+        units = rFrom.getValue().getUnit().value();
+
+      relation = VocRelation.ABSOLUTE;
+      if (rFrom.getValue().getRelation() != null && rFrom.getValue().getRelation() == VocRelation.RELATIVE) {
+        relation = VocRelation.RELATIVE;
+      }
     }
     setCompare(where, comp, value, units, relation);
   }
@@ -417,9 +428,12 @@ public class EqdResources {
     if (relation == VocRelation.RELATIVE) {
       where.setRelativeTo(new PropertyRef().setParameter("$referenceDate"));
     }
-
-    where.setOperator(comp);
-    where.setValue(value);
+    if (comp!=null) {
+      where.setOperator(comp);
+    }
+    if (value!=null) {
+      where.setValue(value);
+    }
     if (units != null)
       where.setUnit(units);
   }
@@ -431,13 +445,18 @@ public class EqdResources {
       comp = (Operator) vocabMap.get(rTo.getOperator());
     else
       comp = Operator.eq;
-    String value = rTo.getValue().getValue();
-    String units = null;
-    if (rTo.getValue().getUnit() != null)
-      units = rTo.getValue().getUnit().value();
-    VocRelation relation = VocRelation.ABSOLUTE;
-    if (rTo.getValue().getRelation() != null && rTo.getValue().getRelation() == VocRelation.RELATIVE) {
-      relation = VocRelation.RELATIVE;
+    String value=null;
+    String units=null;
+    VocRelation relation=null;
+    if (rTo.getValue()!=null) {
+      value = rTo.getValue().getValue();
+      units = null;
+      if (rTo.getValue().getUnit() != null)
+        units = rTo.getValue().getUnit().value();
+      relation = VocRelation.ABSOLUTE;
+      if (rTo.getValue().getRelation() != null && rTo.getValue().getRelation() == VocRelation.RELATIVE) {
+        relation = VocRelation.RELATIVE;
+      }
     }
     setCompare(pv, comp, value, units, relation);
   }

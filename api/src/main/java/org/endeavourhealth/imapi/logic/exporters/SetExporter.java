@@ -1,18 +1,17 @@
 package org.endeavourhealth.imapi.logic.exporters;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.endeavourhealth.imapi.config.ConfigManager;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
-import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.AWSConfig;
 import org.endeavourhealth.imapi.model.iml.Concept;
@@ -39,9 +38,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class SetExporter {
   private static final Logger LOG = LoggerFactory.getLogger(SetExporter.class);
 
-  private EntityRepository2 entityRepository2 = new EntityRepository2();
+  private EntityRepository entityRepository = new EntityRepository();
   private SetRepository setRepository = new SetRepository();
-  private EntityTripleRepository trplRepository = new EntityTripleRepository();
 
   public void publishSetToIM1(String setIri) throws JsonProcessingException, QueryException {
     StringJoiner results = generateForIm1(setIri);
@@ -54,7 +52,7 @@ public class SetExporter {
     LOG.debug("Exporting set to IMv1");
 
     LOG.trace("Looking up set...");
-    String name = entityRepository2.getBundle(setIri, Set.of(RDFS.LABEL)).getEntity().getName();
+    String name = entityRepository.getBundle(setIri, Set.of(RDFS.LABEL)).getEntity().getName();
 
     Set<Concept> members = getExpandedSetMembers(setIri, true, true, true, List.of());
 
@@ -117,7 +115,7 @@ public class SetExporter {
 
   private Set<Concept> tryGetExpandedSetMembersByDefinition(String iri, boolean legacy, List<String> schemeIris) throws JsonProcessingException, QueryException {
 
-    TTEntity entity = trplRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION, RDFS.LABEL)).getEntity();
+    TTEntity entity = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION, RDFS.LABEL)).getEntity();
     if (null == entity)
       return Collections.emptySet();
 
@@ -197,31 +195,27 @@ public class SetExporter {
       LOG.debug("No IM1_PUBLISH config found, reverting to defaults");
     }
 
-    AmazonS3ClientBuilder s3Builder = AmazonS3ClientBuilder
-      .standard()
-      .withRegion(region);
-
-    if (accessKey != null && !accessKey.isEmpty() && secretKey != null && !secretKey.isEmpty())
-      s3Builder.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)));
-
-    final AmazonS3 s3 = s3Builder.build();
-    try {
-      Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-      SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH:mm:ss");
-      String filename = date.format(timestamp.getTime()) + "_valueset.tsv";
-
-      byte[] byteData = results.toString().getBytes();
-      InputStream stream = new ByteArrayInputStream(byteData);
-
-      ObjectMetadata meta = new ObjectMetadata();
-      meta.setContentLength(byteData.length);
-
-      PutObjectRequest por = new PutObjectRequest(bucket, filename, stream, meta)
-        .withCannedAcl(CannedAccessControlList.BucketOwnerFullControl);
-
-      s3.putObject(por);
-    } catch (AmazonServiceException e) {
-      LOG.error(e.getErrorMessage());
+    if (accessKey == null || accessKey.isEmpty() || secretKey == null || secretKey.isEmpty()) {
+      throw new IllegalArgumentException("AccessKey or SecretKey cannot be empty");
     }
+
+    try (S3Client s3 = S3Client.builder().region(Region.of(region)).credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey))).build()) {
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH:mm:ss");
+        String filename = date.format(timestamp.getTime()) + "_valueset.tsv";
+
+        byte[] byteData = results.toString().getBytes();
+        InputStream stream = new ByteArrayInputStream(byteData);
+
+        PutObjectRequest por = PutObjectRequest.builder()
+          .bucket(bucket)
+          .key(filename)
+          .contentLength((long) byteData.length)
+          .contentType("text/plain")
+          .acl(ObjectCannedACL.BUCKET_OWNER_FULL_CONTROL)
+          .build();
+
+        s3.putObject(por, RequestBody.fromInputStream(stream, byteData.length));
+      }
   }
 }

@@ -9,7 +9,6 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.FileRepository;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.filer.TTFilerException;
@@ -72,14 +71,14 @@ public class ImportMaps implements AutoCloseable {
     if (TTFilerFactory.isBulk())
       return fileRepo.getReferenceFromCoreTerm(term);
     else
-      return new EntityRepository2().getReferenceFromCoreTerm(term);
+      return new EntityRepository().getReferenceFromCoreTerm(term);
   }
 
   public Map<String, String> getCodeToIri() throws IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getCodeToIri();
     else
-      return new EntityRepository2().getCodeToIri();
+      return new EntityRepository().getCodeToIri();
   }
 
   public Set<String> getCodes(String scheme) throws IOException {
@@ -99,21 +98,21 @@ public class ImportMaps implements AutoCloseable {
     if (TTFilerFactory.isBulk())
       return fileRepo.getCoreFromCode(code, schemes);
     else
-      return new EntityRepository2().getCoreFromCode(code, schemes);
+      return new EntityRepository().getCoreFromCode(code, schemes);
   }
 
   public Map<String, Set<String>> getAllMatchedLegacy() throws IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getAllMatchedLegacy();
     else
-      return new EntityRepository2().getAllMatchedLegacy();
+      return new EntityRepository().getAllMatchedLegacy();
   }
 
   public Set<TTIriRef> getCoreFromLegacyTerm(String term, String scheme) throws IOException {
     if (TTFilerFactory.isBulk()) {
       return fileRepo.getCoreFromLegacyTerm(term, scheme);
     } else {
-      return new EntityRepository2().getCoreFromLegacyTerm(term, scheme);
+      return new EntityRepository().getCoreFromLegacyTerm(term, scheme);
     }
   }
 
@@ -129,7 +128,7 @@ public class ImportMaps implements AutoCloseable {
     if (TTFilerFactory.isBulk()) {
       return fileRepo.getCoreFromCodeId(codeId, List.of(scheme));
     } else {
-      return new EntityRepository2().getCoreFromCodeId(codeId, List.of(scheme));
+      return new EntityRepository().getCoreFromCodeId(codeId, List.of(scheme));
     }
   }
 
@@ -460,7 +459,7 @@ public class ImportMaps implements AutoCloseable {
     if (TTFilerFactory.isBulk()) {
       return fileRepo.getReferenceFromTermCode(originalCode, iri);
     } else
-      return new EntityRepository2().getReferenceFromTermCode(originalCode, iri);
+      return new EntityRepository().getReferenceFromTermCode(originalCode, iri);
   }
 
   @Override

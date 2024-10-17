@@ -9,5 +9,6 @@ public enum Context {
   ORDER_BY,
   MATCH,
   PATH,
+    LOWERCASE,
   UNITS
 }

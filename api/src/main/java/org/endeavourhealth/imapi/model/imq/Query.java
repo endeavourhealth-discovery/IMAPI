@@ -6,12 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"prefix", "iri", "name", "description", "activeOnly", "bool", "match", "return", "construct", "query", "groupBy", "orderBy"})

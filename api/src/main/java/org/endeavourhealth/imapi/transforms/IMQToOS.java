@@ -27,6 +27,16 @@ public class IMQToOS {
   private BoolQueryBuilder boolBuilder;
   private SearchSourceBuilder sourceBuilder;
   private Query query;
+  private boolean ignoreInvalid;
+
+  public boolean isIgnoreInvalid() {
+    return ignoreInvalid;
+  }
+
+  public IMQToOS setIgnoreInvalid(boolean ignoreInvalid) {
+    this.ignoreInvalid = ignoreInvalid;
+    return this;
+  }
 
   public SearchSourceBuilder buildQuery(QueryRequest imRequest, Query oneQuery, QUERY_TYPE type, Fuzziness fuzziness) throws QueryException {
     request = imRequest;
@@ -107,7 +117,7 @@ public class IMQToOS {
 
     String prefix = term.replaceAll("[ '()\\-_./]", "").toLowerCase();
     TermQueryBuilder tqac = new TermQueryBuilder("preferredName.keyword", term).caseInsensitive(true);
-    tqac.boost(2000000F);
+    tqac.boost(5000000F);
     boolBuilder.should(tqac);
     PrefixQueryBuilder pqb = new PrefixQueryBuilder("matchTerm", prefix);
     pqb.boost(1000000F);
@@ -136,10 +146,13 @@ public class IMQToOS {
     if (query.getMatch() == null)
       return true;
     for (Match match : query.getMatch()) {
-      if (!addMatch(match))
-        return false;
+      if (!addMatch(match)) {
+        if (ignoreInvalid)
+          return true;
+        else
+          return false;
+      }
     }
-
     return true;
   }
 
@@ -178,7 +191,7 @@ public class IMQToOS {
       "  else if (value <3000000) {usage = 7;}" +
       "  else {usage = 9;}" +
       "  }" +
-      "if (_score>2000000) {_score=10;} else if (_score>1000000) {_score=4;} else _score=0;_score+ usage;";
+      "if (_score>4000000) {_score=20;} else if (_score>1000000) {_score=4;} else _score=0;_score+ usage;";
   }
 
   private boolean addReturns() {
@@ -187,49 +200,50 @@ public class IMQToOS {
       return true;
     if (query.getReturn() != null) {
       for (Return ret : query.getReturn()) {
-        for (ReturnProperty prop : ret.getProperty()) {
-          if (prop.getIri() != null) {
-            switch (prop.getIri()) {
-              case RDFS.COMMENT:
-                sources.add("description");
-                break;
-              case RDFS.LABEL:
-                sources.add("name");
-                break;
-              case IM.CODE:
-                sources.add("code");
-                break;
-              case IM.HAS_STATUS:
-                sources.add(STATUS);
-                break;
-              case IM.ALTERNATIVE_CODE:
-                sources.add("alternativeCode");
-                break;
-              case IM.HAS_SCHEME:
-                sources.add(SCHEME);
-                break;
-              case RDF.TYPE:
-                sources.add("entityType");
-                break;
-              case IM.USAGE_TOTAL:
-                sources.add(USAGE_TOTAL);
-                break;
-              case IM.BINDING:
-                sources.add("binding");
-                break;
-              case IM.HAS_TERM_CODE:
-                sources.add("termCode");
-                break;
-              case RDFS.DOMAIN:
-                break;
-              default:
-                return false;
+        if (ret.getProperty() != null) {
+          for (ReturnProperty prop : ret.getProperty()) {
+            if (prop.getIri() != null) {
+              switch (prop.getIri()) {
+                case RDFS.COMMENT:
+                  sources.add("description");
+                  break;
+                case RDFS.LABEL:
+                  sources.add("name");
+                  break;
+                case IM.CODE:
+                  sources.add("code");
+                  break;
+                case IM.HAS_STATUS:
+                  sources.add(STATUS);
+                  break;
+                case IM.ALTERNATIVE_CODE:
+                  sources.add("alternativeCode");
+                  break;
+                case IM.HAS_SCHEME:
+                  sources.add(SCHEME);
+                  break;
+                case RDF.TYPE:
+                  sources.add("entityType");
+                  break;
+                case IM.USAGE_TOTAL:
+                  sources.add(USAGE_TOTAL);
+                  break;
+                case IM.BINDING:
+                  sources.add("binding");
+                  break;
+                case IM.HAS_TERM_CODE:
+                  sources.add("termCode");
+                  break;
+                case RDFS.DOMAIN:
+                  break;
+                default:
+                  return false;
+              }
             }
           }
         }
       }
     }
-
     String[] sourceArray = sources.toArray(String[]::new);
     sourceBuilder.fetchSource(sourceArray, null);
     return true;

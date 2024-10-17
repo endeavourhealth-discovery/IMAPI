@@ -455,6 +455,9 @@ public class Reasoner {
         if (shape.get(iri(IM.CONCEPT)) == null && superEntity.get(iri(IM.CONCEPT)) != null) {
           shape.set(iri(IM.CONCEPT), superEntity.get(iri(IM.CONCEPT)));
         }
+        if (shape.get(iri(SHACL.GROUP)) == null && superEntity.get(iri(SHACL.GROUP)) != null) {
+          shape.set(iri(SHACL.GROUP), superEntity.get(iri(SHACL.GROUP)));
+        }
       }
     }
   }

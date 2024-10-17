@@ -104,6 +104,7 @@ public class EqdToIMQ {
     }
     else if (eqReport.getAggregateReport()!=null){
       System.err.println("Aggregate reports not supported");
+      return null;
     }
     if (qry.getMatch()!=null) {
       flattenQuery(qry);

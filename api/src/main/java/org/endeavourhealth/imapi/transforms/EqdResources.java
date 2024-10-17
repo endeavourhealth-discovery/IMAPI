@@ -178,7 +178,14 @@ public class EqdResources {
       if (columnPath.contains(" ")) {
         String[] paths = columnPath.split(" ");
         for (int i = 0; i < paths.length; i = i + 2) {
-          match.addPath(new IriLD().setIri(paths[i]));
+          IriLD pathIri= new IriLD();
+          String path=paths[i];
+          if (path.startsWith("^")){
+            pathIri.setInverse(true);
+            path=path.substring(1);
+          }
+          pathIri.setIri(path);
+          match.addPath(pathIri);
           match.setTypeOf(new Node().setIri(paths[i + 1]));
         }
       }
@@ -279,7 +286,14 @@ public class EqdResources {
       return "";
     String[] paths= ((String) target).split(" ");
     for (int i=0; i<paths.length; i++){
-      paths[i]=paths[i].contains("rdfs") ?RDFS.NAMESPACE+paths[i].split(":")[1] : IM.NAMESPACE+paths[i];
+      String path=paths[i];
+      String inverse="";
+      if (path.startsWith("^")) {
+        inverse = "^";
+        path = path.substring(1);
+      }
+      path=inverse+(path.contains("rdfs") ?RDFS.NAMESPACE+path.split(":")[1] : IM.NAMESPACE+path);
+      paths[i]=path;
     }
     return String.join(" ",paths);
   }
@@ -345,11 +359,48 @@ public class EqdResources {
     String parent = getPath(eqCriterion.getTable() + "/" + eqRel.getParentColumn());
     String child = getPath(eqLinkedCriterion.getTable() + "/" + eqRel.getChildColumn());
     relationProperty
-      .setIri(child)
-      .setOperator((Operator) vocabMap.get(eqRel.getRangeValue().getRangeFrom().getOperator()))
-      .setValue(eqRel.getRangeValue().getRangeFrom().getValue().getValue())
-      .setUnit(eqRel.getRangeValue().getRangeFrom().getValue().getUnit().value())
-      .relativeTo(r -> r.setNodeRef(nodeRef).setIri(parent));
+      .setIri(child);
+    if (eqRel.getRangeValue()!=null) {
+      EQDOCRangeValue eqRange=eqRel.getRangeValue();
+      if (eqRange.getRangeFrom()!=null&&eqRange.getRangeTo()!=null){
+        Range range= new Range();
+        relationProperty.setRange(range);
+        Value from= new Value();
+        range.setFrom(from);
+        from.setOperator((Operator) vocabMap.get(eqRange.getRangeFrom().getOperator()))
+          .setValue(eqRange.getRangeFrom().getValue().getValue());
+        if (eqRange.getRangeFrom().getValue().getUnit()!=null) {
+          relationProperty.setUnit(eqRange.getRangeFrom().getValue().getUnit().value());
+        }
+        Value to= new Value();
+        range.setTo(to);
+        to.setOperator((Operator) vocabMap.get(eqRange.getRangeTo().getOperator()))
+          .setValue(eqRange.getRangeTo().getValue().getValue());
+        if (eqRange.getRangeTo().getValue().getUnit()!=null) {
+          to.setUnit(eqRange.getRangeTo().getValue().getUnit().value());
+        }
+      }
+      else if (eqRel.getRangeValue().getRangeFrom()!=null) {
+        relationProperty
+          .setOperator((Operator) vocabMap.get(eqRange.getRangeFrom().getOperator()))
+          .setValue(eqRange.getRangeFrom().getValue().getValue());
+        if (eqRange.getRangeFrom().getValue().getUnit()!=null) {
+          relationProperty.setUnit(eqRange.getRangeFrom().getValue().getUnit().value());
+        }
+      }
+      else {
+        relationProperty
+          .setOperator((Operator) vocabMap.get(eqRange.getRangeTo().getOperator()))
+          .setValue(eqRange.getRangeTo().getValue().getValue());
+        if (eqRange.getRangeTo().getValue().getUnit()!=null) {
+          relationProperty.setUnit(eqRange.getRangeTo().getValue().getUnit().value());
+        }
+      }
+    }
+    else {
+      relationProperty.setOperator(Operator.eq);
+    }
+    relationProperty.relativeTo(r -> r.setNodeRef(nodeRef).setIri(parent));
     if (linkMatch.getMatch() == null)
       linkMatch.addWhere(relationProperty);
     else
@@ -627,9 +678,21 @@ public class EqdResources {
       Object mapValue = dataMap.get(key);
       if (mapValue != null) {
         return getValueIriResult(mapValue);
-      } else
-        throw new IllegalArgumentException("unmapped emis internal code : " + key);
-    } else if (scheme == VocCodeSystemEx.SNOMED_CONCEPT || scheme.value().contains("SCT")) {
+      }
+      else  {
+        try {
+          // Try to parse the string as a UUID
+          UUID uuid = UUID.fromString(originalCode);
+          Node iri = new Node().setIri("urn:uuid:"+key).setName(originalTerm);
+        } catch (IllegalArgumentException e) {
+          // If parsing fails, it's not a valid UUID
+          throw new IllegalArgumentException("unmapped emis internal code : " + key);
+          }
+      }
+    }
+    else if (scheme != VocCodeSystemEx.SNOMED_CONCEPT && !scheme.value().contains("SCT")) {
+      throw new IllegalArgumentException("code scheme not recognised : " + scheme.value());
+    }
       List<String> schemes = new ArrayList<>();
       schemes.add(SNOMED.NAMESPACE);
       schemes.add(GRAPH.EMIS);
@@ -641,10 +704,8 @@ public class EqdResources {
       }
       if (snomed != null)
         return snomed.stream().map(e -> new Node().setIri(e.getIri()).setName(e.getName())).collect(Collectors.toSet());
-      else return Collections.emptySet();
-    } else
-      throw new IllegalArgumentException("code scheme not recognised : " + scheme.value());
-
+      else
+        return Collections.emptySet();
   }
 
   private Set<Node> getValueIriResult(Object mapValue) throws IOException {

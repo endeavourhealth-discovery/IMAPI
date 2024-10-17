@@ -21,6 +21,10 @@ public class DataModelService {
   private DataModelRepository dataModelRepository = new DataModelRepository();
   private EntityService entityService = new EntityService();
 
+  public List<TTIriRef> getDataModelsFromProperty(String propIri) {
+    return dataModelRepository.findDataModelsFromProperty(propIri);
+  }
+
   public String checkPropertyType(String iri) {
     return dataModelRepository.checkPropertyType(iri);
   }

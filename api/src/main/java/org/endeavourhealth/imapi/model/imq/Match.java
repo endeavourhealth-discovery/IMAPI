@@ -15,7 +15,6 @@ public class Match extends IriLD {
 
   private Bool boolMatch;
   private Bool boolWhere;
-  private String inlineOperator;
   private List<Match> match;
   private boolean exclude;
   private String includeIf;
@@ -44,14 +43,6 @@ public class Match extends IriLD {
     return this;
   }
 
-  public String getInlineOperator() {
-    return inlineOperator;
-  }
-
-  public Match setInlineOperator(String inlineOperator) {
-    this.inlineOperator = inlineOperator;
-    return this;
-  }
 
   public String getIncludeIf() {
     return includeIf;

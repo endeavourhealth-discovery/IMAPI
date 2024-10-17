@@ -18,7 +18,6 @@ public class Where extends PropertyRef implements Assignable{
   private Bool boolWhere;
   private List<Where> where;
   private Operator operator;
-  private String inlineOperator;
   private String value;
   private String unit;
   private String valueLabel;
@@ -48,9 +47,6 @@ public class Where extends PropertyRef implements Assignable{
     return new Where(iri);
   }
 
-  public String getInlineOperator() {
-    return inlineOperator;
-  }
 
   public Where setQualifier(String qualifier){
     super.setQualifier(qualifier);
@@ -62,10 +58,7 @@ public class Where extends PropertyRef implements Assignable{
     return this.valueLabel;
   }
 
-  public Where setInlineOperator(String inlineOperator) {
-    this.inlineOperator = inlineOperator;
-    return this;
-  }
+
 
   public Bool getBoolWhere() {
     return boolWhere;

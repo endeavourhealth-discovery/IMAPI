@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.transforms.Context;
@@ -225,17 +224,11 @@ public class QueryDescriptor {
 
 
   private void describeMatches(Match match) {
-    Bool operator= match.getBoolMatch();
-    if (operator==null)
-      operator= Bool.and;
-    int index=-1;
+   if (match.getBoolMatch()==null){
+     if (match.getMatch().size()>1)
+       match.setBoolMatch(Bool.and);
+    }
     for (Match subMatch : match.getMatch()) {
-      index++;
-      if (operator==Bool.or&&index==0)
-        subMatch.setInlineOperator("either");
-      if (index>0){
-        subMatch.setInlineOperator(operator.toString());
-      }
       describeMatch(subMatch);
 
     }
@@ -281,15 +274,10 @@ public class QueryDescriptor {
 
   private void describeWheres(Match parentMatch,Where where) {
     if (where.getBoolWhere() == null) {
-      where.setBoolWhere(Bool.and);
+      if (where.getWhere().size()>1)
+       where.setBoolWhere(Bool.and);
     }
-    Bool operator = where.getBoolWhere();
-    int index=-1;
     for (Where subWhere : where.getWhere()) {
-      index++;
-      if (index>0) {
-        subWhere.setInlineOperator(operator.toString());
-      }
       describeWhere(parentMatch,subWhere);
     }
     if (where.getMatch()!=null) {
@@ -302,8 +290,6 @@ public class QueryDescriptor {
   private void describeWheres(Match match) {
     if (match.getWhere().size()>1&& match.getBoolWhere() == null)
       match.setBoolWhere(Bool.and);
-    Bool operator = match.getBoolWhere();
-    int index=-1;
     Where conceptWhere= getConceptWhere(match);
     if (conceptWhere!=null){
       match.getWhere().remove(conceptWhere);
@@ -311,11 +297,7 @@ public class QueryDescriptor {
       describeWhere(match,conceptWhere);
     }
     for (Where where : match.getWhere()) {
-      index++;
       if (where != conceptWhere) {
-        if (index > 0) {
-          where.setInlineOperator(operator.toString());
-        }
         describeWhere(match,where);
       }
     }

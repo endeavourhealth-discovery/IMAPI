@@ -46,11 +46,11 @@ public class DataModelController {
     }
   }
 
-//  @GetMapping(value = "/public/dataModels")
-//  public List<TTIriRef> getDataModelsFromProperty(@RequestParam(name = "propIri") String propIri) {
-//    LOG.debug("getDataModelsFromProperty");
-//    return dataModelService.getDataModelsFromProperty(propIri);
-//  }
+  @GetMapping(value = "/public/dataModels")
+  public List<TTIriRef> getDataModelsFromProperty(@RequestParam(name = "propIri") String propIri) {
+    LOG.debug("getDataModelsFromProperty");
+    return dataModelService.getDataModelsFromProperty(propIri);
+  }
 
   @GetMapping(value = "public/checkPropertyType")
   public String checkPropertyType(@RequestParam(name = "propertyIri") String iri) throws IOException {

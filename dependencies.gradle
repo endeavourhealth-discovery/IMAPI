@@ -37,7 +37,7 @@ ext {
     springTestSecurity: '6.2.0',
     tomcatAnnotations : '6.0.53',
     validation        : '3.0.2',
-    woodstox          : '6.5.1',
+    woodstox          : '7.0.0',
     wsrs              : '3.1.0'
   ]
   libs = [

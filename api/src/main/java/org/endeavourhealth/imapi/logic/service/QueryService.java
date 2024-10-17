@@ -7,11 +7,17 @@ import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class QueryService {
@@ -61,6 +67,14 @@ public class QueryService {
   }
 
   public String getSQLFromIMQ(Query query) {
-    return "empty SQL";
+    return new IMQtoSQLConverter().IMQtoSQL(query);
+  }
+
+  public String getSQLFromIMQIri(String queryIri) throws JsonProcessingException {
+    TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
+    if (queryEntity.get(iri(IM.DEFINITION)) == null)
+      return null;
+    Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+    return getSQLFromIMQ(query);
   }
 }

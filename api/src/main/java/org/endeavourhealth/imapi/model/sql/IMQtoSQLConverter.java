@@ -1,6 +1,10 @@
 package org.endeavourhealth.imapi.model.sql;
 
-import org.endeavourhealth.imapi.model.imq.Query;
+import org.apache.commons.lang3.StringUtils;
+import org.endeavourhealth.imapi.model.imq.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class IMQtoSQLConverter {
 
@@ -16,351 +20,353 @@ public class IMQtoSQLConverter {
     try {
       SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null);
 
-      for (const match of definition.match) {
-      const subQry = convertMatchToQuery(qry, match);
-        qry.withs.push(...subQry.withs);
-        subQry.withs = [];
-        qry.withs.push(subQry.alias + " AS (" + subQry.toSql(2) + "\n)");
+      for (Match match: definition.getMatch()) {
+        SQLQuery subQry = convertMatchToQuery(qry, match);
+        qry.getWiths().addAll(subQry.getWiths());
+        subQry.setWiths(new ArrayList<>());
+        qry.getWiths().add(subQry.getAlias() + " AS (" + subQry.toSql(2) + "\n)");
 
-      const joiner = match.exclude ? "LEFT JOIN " : "JOIN ";
-        if (match.exclude) qry.wheres.push(subQry.alias + ".id IS NULL");
+      String joiner = match.isExclude() ? "LEFT JOIN " : "JOIN ";
+        if (match.isExclude()) qry.getWheres().add(subQry.getAlias() + ".id IS NULL");
 
-        if (qry.model == subQry.model) {
-          qry.joins.push(joiner + subQry.alias + " ON " + subQry.alias + ".id = " + qry.alias + ".id");
+        if (qry.getModel().equals(subQry.getModel())) {
+          qry.getJoins().add(joiner + subQry.getAlias() + " ON " + subQry.getAlias() + ".id = " + qry.getAlias() + ".id");
         } else {
-        const rel = subQry.getRelationshipTo(qry.model);
-          qry.joins.push(joiner + subQry.alias + " ON " + subQry.alias + "." + rel.fromField + " = " + qry.alias + "." + rel.toField);
+        Relationship rel = subQry.getRelationshipTo(qry.getModel());
+          qry.getJoins().add(joiner + subQry.getAlias() + " ON " + subQry.getAlias() + "." + rel.getFromField() + " = " + qry.getAlias() + "." + rel.getToField());
         }
       }
-      return qry.toSql();
-    } catch (e) {
-      if (e instanceof Error) return e.toString();
-      else return "Unknown Error";
+      return qry.toSql(2);
+    } catch (Exception e) {
+      return e.toString();
+//      else return "Unknown Error";
     }
   }
 
-  function convertMatchToQuery(parent: SqlQuery, match: Match): SqlQuery {
-  const qry = createMatchQuery(match, parent);
+  private SQLQuery convertMatchToQuery(SQLQuery parent, Match match) {
+    SQLQuery qry = createMatchQuery(match, parent);
 
     convertMatch(match, qry);
 
-    if (match.orderBy) {
-      wrapMatchPartition(qry, match.orderBy);
+    if (match.getOrderBy() != null) {
+      wrapMatchPartition(qry, match.getOrderBy());
     }
 
     return qry;
   }
 
-  function createMatchQuery(match: Match, qry: SqlQuery) {
-    if (match.typeOf?.["@id"] && match.typeOf["@id"] != qry.model) {
-      return qry.subQuery(match.typeOf["@id"], match.variable);
-    } else if (match.nodeRef && match.nodeRef != qry.model) {
-      return qry.subQuery(match.nodeRef, match.variable);
-    } else return qry.subQuery(qry.model, match.variable);
+  private SQLQuery createMatchQuery(Match match, SQLQuery qry) {
+    if (match.getTypeOf() != null && !match.getTypeOf().getIri().equals(qry.getModel())) {
+      return qry.subQuery(match.getTypeOf().getIri(), match.getVariable());
+    } else if (match.getNodeRef() != null && !match.getNodeRef().equals(qry.getModel())) {
+      return qry.subQuery(match.getNodeRef(), match.getVariable());
+    } else return qry.subQuery(qry.getModel(), match.getVariable());
   }
 
-  function convertMatch(match: Match, qry: SqlQuery) {
-    if (match.instanceOf) {
+  private void convertMatch(Match match, SQLQuery qry) {
+    if (match.getInstanceOf() != null) {
       convertMatchInstanceOf(qry, match);
-    } else if (match.boolMatch) {
-      if (match.match && match.match.length > 0) convertMatchBoolSubMatch(qry, match);
-      else if (match.where && match.where.length > 0) convertMatchProperties(qry, match);
+    } else if (match.getBoolMatch() != null) {
+      if (match.getMatch() != null && !match.getMatch().isEmpty()) convertMatchBoolSubMatch(qry, match);
+      else if (match.getWhere() != null && !match.getWhere().isEmpty()) convertMatchProperties(qry, match);
       else {
-        throw new Error("UNHANDLED BOOL MATCH PATTERN\n" + JSON.stringify(match, null, 2));
+        throw new Error("UNHANDLED BOOL MATCH PATTERN\n" + match);
       }
-    } else if (match.where && match.where.length > 0) {
+    } else if (match.getWhere() != null && !match.getWhere().isEmpty()) {
       convertMatchProperties(qry, match);
-    } else if (match.match && match.match.length > 0) {
+    } else if (match.getMatch() != null && !match.getMatch().isEmpty()) {
       // Assume bool match "AND"
-      match.boolMatch = Bool.and;
+      match.setBoolMatch(Bool.and);
       convertMatchBoolSubMatch(qry, match);
     } else {
-      throw new Error("UNHANDLED MATCH PATTERN\n" + JSON.stringify(match, null, 2));
+      throw new Error("UNHANDLED MATCH PATTERN\n" + match);
     }
   }
 
-  function wrapMatchPartition(qry: SqlQuery, order: OrderLimit) {
-    if (!order.property) throw new Error("ORDER MUST HAVE A FIELD SPECIFIED\n" + JSON.stringify(order, null, 2));
+  private void wrapMatchPartition(SQLQuery qry, OrderLimit order) {
+    if (order.getProperty() == null) throw new Error("ORDER MUST HAVE A FIELD SPECIFIED\n" + order);
 
-  const inner = qry.clone(qry.alias + "_inner");
+    SQLQuery inner = qry.clone(qry.getAlias() + "_inner");
 
-  const innerSql = qry.alias + "_inner AS (" + inner.toSql(2) + ")";
+    String innerSql = qry.getAlias() + "_inner AS (" + inner.toSql(2) + ")";
 
-  const partition = qry.subQuery(qry.alias + "_inner", qry.alias + "_part");
-  const partField = "patient";
+    SQLQuery partition = qry.subQuery(qry.getAlias() + "_inner", qry.getAlias() + "_part");
+    String partField = "patient";
 
-    let o = [];
+    ArrayList<String> o = new ArrayList<>();
 
-  const dir = order.property.direction?.toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
-    o.push(partition.getFieldName(order.property["@id"] as string) + " " + dir);
+    String dir = order.getProperty().getDirection().toString().toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
+    o.add(partition.getFieldName(order.getProperty().getIri(), null) + " " + dir);
 
-    partition.selects.push("*", "ROW_NUMBER() OVER (PARTITION BY " + partField + " ORDER BY " + o.join(", ") + ") AS rn");
+    partition.getSelects().add("*");
+    partition.getSelects().add("ROW_NUMBER() OVER (PARTITION BY " + partField + " ORDER BY " + StringUtils.join(o, ", ") + ") AS rn");
 
-    qry.initialize(qry.alias + "_part", qry.alias);
-    qry.withs.push(innerSql);
-    qry.withs.push(partition.alias + " AS (" + partition.toSql(2) + "\n)");
-    qry.wheres.push("rn = 1");
+    qry.initialize(qry.getAlias() + "_part", qry.getAlias());
+    qry.getWiths().add(innerSql);
+    qry.getWiths().add(partition.getAlias() + " AS (" + partition.toSql(2) + "\n)");
+    qry.getWheres().add("rn = 1");
   }
 
-  function convertMatchInstanceOf(qry: SqlQuery, match: Match) {
-    if (!match.instanceOf) throw new Error("MatchSet must have at least one element\n" + JSON.stringify(match, null, 2));
-  const rsltTbl = qry.alias + "_rslt";
-    qry.joins.push("JOIN query_result " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.alias + ".id");
-    qry.wheres.push(rsltTbl + ".iri = '" + match.instanceOf[0]["@id"] + "'");
+  private void convertMatchInstanceOf(SQLQuery qry, Match match) {
+    if (match.getInstanceOf() == null) throw new Error("MatchSet must have at least one element\n" + match);
+    String rsltTbl = qry.getAlias() + "_rslt";
+    qry.getJoins().add("JOIN query_result " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.getAlias() + ".id");
+    qry.getWheres().add(rsltTbl + ".iri = '" + match.getInstanceOf().get(0).getIri() + "'");
   }
 
-  function convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
-    if (!match.boolMatch || !match.match) {
-      throw new Error("INVALID MatchBoolSubMatch\n" + JSON.stringify(match, null, 2));
+  private void convertMatchBoolSubMatch(SQLQuery qry, Match match) {
+    if (match.getBoolMatch() == null || match.getMatch() == null) {
+      throw new Error("INVALID MatchBoolSubMatch\n" + match);
     }
 
-    qry.whereBool = match.boolWhere ? match.boolWhere.toUpperCase() : "AND";
+    qry.setWhereBool(match.getBoolWhere() != null ? match.getBoolWhere().toString().toUpperCase() : "AND");
 
     // TODO: Boolean "OR" should be a union (more performant)
-  const joiner = "OR" == match.boolWhere?.toUpperCase() ? "LEFT JOIN " : "JOIN ";
+    String joiner = "OR".equalsIgnoreCase(match.getBoolWhere().toString()) ? "LEFT JOIN " : "JOIN ";
 
-    for (const subMatch of match.match) {
-    const subQuery = convertMatchToQuery(qry, subMatch);
+    for (Match subMatch: match.getMatch()) {
+      SQLQuery subQuery = convertMatchToQuery(qry, subMatch);
 
-      qry.withs.push(...subQuery.withs);
+      qry.getWiths().addAll(subQuery.getWiths());
 
-      subQuery.withs = [];
-      qry.withs.push(subQuery.alias + " AS (" + subQuery.toSql(2) + "\n)");
+      subQuery.setWiths(new ArrayList<>());
+      qry.getWiths().add(subQuery.getAlias() + " AS (" + subQuery.toSql(2) + "\n)");
 
-      if (subQuery.model == qry.model) qry.joins.push(joiner + subQuery.alias + " ON " + subQuery.alias + ".id = " + qry.alias + ".id");
+      if (subQuery.getModel().equals(qry.getModel())) qry.getJoins().add(joiner + subQuery.getAlias() + " ON " + subQuery.getAlias() + ".id = " + qry.getAlias() + ".id");
       else {
-      const rel = subQuery.getRelationshipTo(qry.model);
-        qry.joins.push(joiner + subQuery.alias + " ON " + subQuery.alias + "." + rel.fromField + " = " + qry.alias + "." + rel.toField);
+      Relationship rel = subQuery.getRelationshipTo(qry.getModel());
+        qry.getJoins().add(joiner + subQuery.getAlias() + " ON " + subQuery.getAlias() + "." + rel.getFromField() + " = " + qry.getAlias() + "." + rel.getToField());
       }
 
-      if ("OR" == qry.whereBool) qry.wheres.push(subQuery.alias + ".id IS NOT NULL");
+      if ("OR".equals(qry.getWhereBool())) qry.getWheres().add(subQuery.getAlias() + ".id IS NOT NULL");
     }
   }
 
-  function convertMatchProperties(qry: SqlQuery, match: Match) {
-    if (!match.where) {
-      throw new Error("INVALID MatchProperty\n" + JSON.stringify(match, null, 2));
+  private void convertMatchProperties(SQLQuery qry, Match match) {
+    if (match.getWhere() == null || match.getWhere().isEmpty()) {
+      throw new Error("INVALID MatchProperty\n" + match);
     }
 
-    for (const property of match.where) {
+    for (Where property: match.getWhere()) {
       convertMatchProperty(qry, property);
     }
   }
 
-  function convertMatchProperty(qry: SqlQuery, property: Where) {
-    if (property.is) {
-      convertMatchPropertyIs(qry, property, property.is);
-    } else if (property.range) {
+  private void convertMatchProperty(SQLQuery qry, Where property) {
+    if (property.getIs() != null) {
+      convertMatchPropertyIs(qry, property, property.getIs());
+    } else if (property.getRange() != null) {
       convertMatchPropertyRange(qry, property);
-    } else if (property.match) {
+    } else if (property.getMatch() != null) {
       convertMatchPropertySubMatch(qry, property);
-    } else if (property.relativeTo) {
+    } else if (property.getRelativeTo() != null) {
       convertMatchPropertyRelative(qry, property);
-    } else if (property.value) {
+    } else if (property.getValue() != null) {
       convertMatchPropertyValue(qry, property);
-    } else if (property.boolWhere) {
+    } else if (property.getBoolWhere() != null) {
       convertMatchPropertyBool(qry, property);
-    } else if (property.isNull) {
+    } else if (property.getIsNull()) {
       convertMatchPropertyNull(qry, property);
     } else {
-      throw new Error("UNHANDLED PROPERTY PATTERN\n" + JSON.stringify(property, null, 2));
+      throw new Error("UNHANDLED PROPERTY PATTERN\n" + property);
     }
   }
 
-  function convertMatchPropertyIs(qry: SqlQuery, property: Where, list: any[], inverse = false) {
-    if (!list) {
-      throw new Error("INVALID MatchPropertyIs\n" + JSON.stringify(property, null, 2));
+  private void convertMatchPropertyIs(SQLQuery qry, Where property, List<Node> list) {
+    boolean inverse = false;
+    if (list == null) {
+      throw new Error("INVALID MatchPropertyIs\n" + property);
     }
 
-  const direct: string[] = [];
-  const ancestors: string[] = [];
-  const descendants: string[] = [];
-  const descendantsSelf: string[] = [];
+    ArrayList<String> direct = new ArrayList<>();
+    ArrayList<String> ancestors = new ArrayList<>();
+    ArrayList<String> descendants = new ArrayList<>();
+    ArrayList<String> descendantsSelf = new ArrayList<>();
 
-    for (const pIs of list) {
-      if (pIs["@id"]) {
-        if (pIs.ancestorsOf) ancestors.push(pIs["@id"]);
-        else if (pIs.descendantsOf) descendants.push(pIs["@id"]);
-        else if (pIs.descendantsOrSelfOf) descendantsSelf.push(pIs["@id"]);
-        else direct.push(pIs["@id"]);
+    for (Node pIs: list) {
+      if (pIs.getIri() != null) {
+        if (pIs.isAncestorsOf()) ancestors.add(pIs.getIri());
+        else if (pIs.isDescendantsOf()) descendants.add(pIs.getIri());
+        else if (pIs.isDescendantsOrSelfOf()) descendantsSelf.add(pIs.getIri());
+        else direct.add(pIs.getIri());
       } else {
-        throw new Error("UNHANDLED 'IN'/'NOT IN' ENTRY\n" + JSON.stringify(pIs, null, 2));
+        throw new Error("UNHANDLED 'IN'/'NOT IN' ENTRY\n" + pIs);
       }
     }
 
-    if (direct.length > 0) {
-      let where = qry.getFieldName(property["@id"]!);
+    if (!direct.isEmpty()) {
+      String where = qry.getFieldName(property.getIri(), null);
 
-      if (direct.length == 1) where += (inverse ? " <> '" : " = '") + direct[0] + "'\n";
-      else where += (inverse ? " NOT IN ('" : " IN ('") + direct.join("',\n'") + "')\n";
+      if (direct.size() == 1) where += (inverse ? " <> '" : " = '") + direct.get(0) + "'\n";
+      else where += (inverse ? " NOT IN ('" : " IN ('") + StringUtils.join(direct, "',\n'") + "')\n";
 
-      qry.wheres.push(where);
+      qry.getWheres().add(where);
     }
 
-  const tct = "tct_" + qry.joins.length;
-    if (descendants.length > 0) {
-      qry.joins.push("JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property["@id"]!));
-      qry.wheres.push(
-        descendants.length == 1 ? tct + ".iri = '" + descendants[0] + "'" : tct + ".iri IN ('" + descendants.join("',\n'") + "') AND " + tct + ".level > 0"
+    String tct = "tct_" + qry.getJoins().size();
+    if (!descendants.isEmpty()) {
+      qry.getJoins().add("JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null));
+      qry.getWheres().add(
+        descendants.size() == 1 ? tct + ".iri = '" + descendants.get(0) + "'" : tct + ".iri IN ('" + StringUtils.join(descendants, "',\n'") + "') AND " + tct + ".level > 0"
       );
-    } else if (descendantsSelf.length > 0) {
-      qry.joins.push("JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property["@id"]!));
-      qry.wheres.push(descendantsSelf.length == 1 ? tct + ".iri = '" + descendantsSelf[0] + "'" : tct + ".iri IN ('" + descendantsSelf.join("',\n'") + "')");
-    } else if (ancestors.length > 0) {
-      qry.joins.push("JOIN tct AS " + tct + " ON " + tct + ".iri = " + qry.getFieldName(property["@id"]!));
-      qry.wheres.push(
-        ancestors.length == 1 ? tct + ".child = '" + ancestors[0] + "'" : tct + ".child IN ('" + ancestors.join("',\n'") + "') AND " + tct + ".level > 0"
+    } else if (!descendantsSelf.isEmpty()) {
+      qry.getJoins().add("JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null));
+      qry.getWheres().add(descendantsSelf.size() == 1 ? tct + ".iri = '" + descendantsSelf.get(0) + "'" : tct + ".iri IN ('" + StringUtils.join(descendantsSelf, "',\n'") + "')");
+    } else if (!ancestors.isEmpty()) {
+      qry.getJoins().add("JOIN tct AS " + tct + " ON " + tct + ".iri = " + qry.getFieldName(property.getIri(), null));
+      qry.getWheres().add(
+        ancestors.size() == 1 ? tct + ".child = '" + ancestors.get(0) + "'" : tct + ".child IN ('" + StringUtils.join(ancestors, "',\n'") + "') AND " + tct + ".level > 0"
       );
     }
   }
 
-  function convertMatchPropertyRange(qry: SqlQuery, property: Where) {
-    if (!property.range) {
-      throw new Error("INVALID MatchPropertyRange\n" + JSON.stringify(property, null, 2));
+  private void convertMatchPropertyRange(SQLQuery qry, Where property) {
+    if (property.getRange() == null) {
+      throw new Error("INVALID MatchPropertyRange\n" + property);
     }
 
-  const fieldType = qry.getFieldType(property["@id"] as string);
+    String fieldType = qry.getFieldType(property.getIri(), null);
 
-    if ("date" == fieldType) {
-      if (property.range.from) qry.wheres.push(convertMatchPropertyDateRangeNode(qry.getFieldName(property["@id"] as string), property.range.from));
-      if (property.range.to) qry.wheres.push(convertMatchPropertyDateRangeNode(qry.getFieldName(property["@id"] as string), property.range.to));
-    } else if ("number" == fieldType) {
-      if (property.range.from) qry.wheres.push(convertMatchPropertyNumberRangeNode(qry.getFieldName(property["@id"] as string), property.range.from));
-      if (property.range.to) qry.wheres.push(convertMatchPropertyNumberRangeNode(qry.getFieldName(property["@id"] as string), property.range.to));
+    if ("date".equals(fieldType)) {
+      if (property.getRange().getFrom() != null) qry.getWheres().add(convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null), property.getRange().getFrom()));
+      if (property.getRange().getTo() != null) qry.getWheres().add(convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null), property.getRange().getTo()));
+    } else if ("number".equals(fieldType)) {
+      if (property.getRange().getFrom() != null) qry.getWheres().add(convertMatchPropertyNumberRangeNode(qry.getFieldName(property.getIri(), null), property.getRange().getFrom()));
+      if (property.getRange().getTo() != null) qry.getWheres().add(convertMatchPropertyNumberRangeNode(qry.getFieldName(property.getIri(), null), property.getRange().getTo()));
     } else {
-      throw new Error("UNHANDLED PROPERTY FIELD TYPE (" + fieldType + ")\n" + JSON.stringify(property, null, 2));
+      throw new Error("UNHANDLED PROPERTY FIELD TYPE (" + fieldType + ")\n" + property);
     }
   }
 
-  function convertMatchPropertyNumberRangeNode(fieldName: string, range: Assignable): string {
-    if (range.unit) return fieldName + " " + range.operator + " " + range.value + " -- CONVERT " + range.unit;
-    else return fieldName + " " + range.operator + " " + range.value;
+  private String convertMatchPropertyNumberRangeNode(String fieldName, Assignable range) {
+    if (range.getUnit() != null) return fieldName + " " + range.getOperator() + " " + range.getValue() + " -- CONVERT " + range.getUnit();
+    else return fieldName + " " + range.getOperator() + " " + range.getValue();
   }
 
-  function convertMatchPropertyDateRangeNode(fieldName: string, range: Assignable): string {
-    return "(now() - INTERVAL '" + range.value + (range.unit ? " " + range.unit : "") + "') " + range.operator + " " + fieldName;
+  private String convertMatchPropertyDateRangeNode(String fieldName, Assignable range) {
+    return "(now() - INTERVAL '" + range.getValue() + (range.getUnit() != null ? " " + range.getUnit() : "") + "') " + range.getOperator() + " " + fieldName;
   }
 
-  function convertMatchPropertySubMatch(qry: SqlQuery, property: Where) {
-    if (!property.match) {
-      throw new Error("INVALID MatchPropertySubMatch\n" + JSON.stringify(property, null, 2));
+  private void convertMatchPropertySubMatch(SQLQuery qry, Where property) {
+    if (property.getMatch() != null) {
+      throw new Error("INVALID MatchPropertySubMatch\n" + property);
     }
 
-    if (!property.match.variable) property.match.variable = qry.getAlias(qry.alias + "_sub");
+    if (property.getMatch().getVariable() == null) property.getMatch().setVariable(qry.getAlias(qry.getAlias() + "_sub"));
 
-  const subQuery = convertMatchToQuery(qry, property.match);
+    SQLQuery subQuery = convertMatchToQuery(qry, property.getMatch());
 
-    qry.withs.push(...subQuery.withs);
-    subQuery.withs = [];
-    qry.withs.push(subQuery.alias + " AS (" + subQuery.toSql(2) + "\n)");
+    qry.getWiths().addAll(subQuery.getWiths());
+    subQuery.setWiths(new ArrayList<>());
+    qry.getWiths().add(subQuery.getAlias() + " AS (" + subQuery.toSql(2) + "\n)");
 
-    if (qry.model == subQuery.model) qry.joins.push("JOIN " + subQuery.alias + " ON " + subQuery.alias + ".id = " + qry.alias + ".id");
+    if (qry.getModel().equals(subQuery.getModel())) qry.getJoins().add("JOIN " + subQuery.getAlias() + " ON " + subQuery.getAlias() + ".id = " + qry.getAlias() + ".id");
     else {
-    const rel = subQuery.getRelationshipTo(qry.model);
-      qry.joins.push("JOIN " + subQuery.alias + " ON " + subQuery.alias + "." + rel.fromField + " = " + qry.alias + "." + rel.toField);
+      Relationship rel = subQuery.getRelationshipTo(qry.getModel());
+      qry.getJoins().add("JOIN " + subQuery.getAlias() + " ON " + subQuery.getAlias() + "." + rel.getFromField() + " = " + qry.getAlias() + "." + rel.getToField());
     }
   }
 
-  function convertMatchPropertyInSet(qry: SqlQuery, property: Where) {
-    if (!property["@id"]) throw new Error("INVALID PROPERTY\n" + JSON.stringify(property, null, 2));
+  private void convertMatchPropertyInSet(SQLQuery qry, Where property) {
+    if (property.getIri() == null) throw new Error("INVALID PROPERTY\n" + property);
 
-    if (!property.is) {
-      throw new Error("INVALID MatchPropertyIn\n" + JSON.stringify(property, null, 2));
+    if (property.getIs() == null) {
+      throw new Error("INVALID MatchPropertyIn\n" + property);
     }
 
-  const inList = [];
+    ArrayList<String> inList = new ArrayList<>();
 
-    for (const pIn of property.is) {
-      if (pIn["@id"]) inList.push(pIn["@id"]);
+    for (Node pIn: property.getIs()) {
+      if (pIn.getIri() != null) inList.add(pIn.getIri());
       else {
-        throw new Error("UNHANDLED 'IN' ENTRY\n" + JSON.stringify(pIn, null, 2));
+        throw new Error("UNHANDLED 'IN' ENTRY\n" + pIn);
       }
     }
 
     // OPTIMIZATION
-  const mmbrTbl = qry.alias + "_mmbr";
+    String mmbrTbl = qry.getAlias() + "_mmbr";
 
-    qry.joins.push("JOIN set_member " + mmbrTbl + " ON " + mmbrTbl + ".member = " + qry.getFieldName(property["@id"]));
+    qry.getJoins().add("JOIN set_member " + mmbrTbl + " ON " + mmbrTbl + ".member = " + qry.getFieldName(property.getIri(), null));
 
-    if (inList.length == 1) qry.wheres.push(mmbrTbl + ".iri = '" + inList.join("',\n'") + "'");
-    else qry.wheres.push(mmbrTbl + ".iri IN ('" + inList.join("',\n'") + "')");
+    if (inList.size() == 1) qry.getWheres().add(mmbrTbl + ".iri = '" + StringUtils.join(inList, "',\n'") + "'");
+    else qry.getWheres().add(mmbrTbl + ".iri IN ('" + StringUtils.join(inList, "',\n'") + "')");
   }
 
-  function convertMatchPropertyRelative(qry: SqlQuery, property: Where) {
-    if (!property["@id"] || !property.relativeTo) {
-      throw new Error("INVALID MatchPropertyRelative\n" + JSON.stringify(property, null, 2));
+  private void convertMatchPropertyRelative(SQLQuery qry, Where property) {
+    if (property.getIri() == null || property.getRelativeTo() == null) {
+      throw new Error("INVALID MatchPropertyRelative\n" + property);
     }
 
-    if (property.relativeTo.parameter)
-      qry.wheres.push(
-        qry.getFieldName(property["@id"]) + " " + property.operator + " " + convertMatchPropertyRelativeTo(qry, property, property.relativeTo.parameter)
+    if (property.getRelativeTo().getParameter() == null) 
+      qry.getWheres().add(
+        qry.getFieldName(property.getIri(), null) + " " + property.getOperator() + " " + convertMatchPropertyRelativeTo(qry, property, property.getRelativeTo().getParameter())
       );
-    else if (property.relativeTo.nodeRef) {
+    else if (property.getRelativeTo().getNodeRef() != null) {
       // Include implied join on noderef
-      qry.joins.push("JOIN " + property.relativeTo.nodeRef + " ON " + property.relativeTo.nodeRef + ".id = " + qry.alias + ".id");
-      qry.wheres.push(
-        qry.getFieldName(property["@id"]) +
+      qry.getJoins().add("JOIN " + property.getRelativeTo().getNodeRef() + " ON " + property.getRelativeTo().getNodeRef() + ".id = " + qry.getAlias() + ".id");
+      qry.getWheres().add(
+        qry.getFieldName(property.getIri(), null) +
           " " +
-          property.operator +
+          property.getOperator() +
           " " +
-          convertMatchPropertyRelativeTo(qry, property, qry.getFieldName(property.relativeTo?.["@id"] as string, property.relativeTo.nodeRef))
+          convertMatchPropertyRelativeTo(qry, property, qry.getFieldName(property.getRelativeTo().getIri(), property.getRelativeTo().getNodeRef()))
     );
     } else {
-      throw new Error("UNHANDLED RELATIVE COMPARISON\n" + JSON.stringify(property, null, 2));
+      throw new Error("UNHANDLED RELATIVE COMPARISON\n" + property);
     }
   }
 
-  function convertMatchPropertyRelativeTo(qry: SqlQuery, property: Where, field: string) {
-  const fieldType = qry.getFieldType(property["@id"] as string);
-    if ("date" == fieldType)
-      if (property.value) return "(" + field + " + INTERVAL '" + property.value + " " + property.unit + "')";
+  private String convertMatchPropertyRelativeTo(SQLQuery qry, Where property, String field) {
+    String fieldType = qry.getFieldType(property.getIri(), null);
+    if ("date".equals(fieldType))
+      if (property.getValue() != null) return "(" + field + " + INTERVAL '" + property.getValue() + " " + property.getUnit() + "')";
       else return field;
     else {
-      throw new Error("UNHANDLED RELATIVE TYPE (" + fieldType + ")\n" + JSON.stringify(property, null, 2));
+      throw new Error("UNHANDLED RELATIVE TYPE (" + fieldType + ")\n" + property);
     }
   }
 
-  function convertMatchPropertyValue(qry: SqlQuery, property: Where) {
-    if (!property["@id"] || !property.value) {
-      throw new Error("INVALID MatchPropertyValue\n" + JSON.stringify(property, null, 2));
+  private void convertMatchPropertyValue(SQLQuery qry, Where property) {
+    if (property.getIri() == null || property.getValue() == null) {
+      throw new Error("INVALID MatchPropertyValue\n" + property);
     }
 
-    let where =
-      "date" == qry.getFieldType(property["@id"])
-        ? convertMatchPropertyDateRangeNode(qry.getFieldName(property["@id"]), property)
-        : qry.getFieldName(property["@id"]) + " " + property.operator + " " + property.value;
+    String where =
+      "date".equals(qry.getFieldType(property.getIri(), null))
+        ? convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null), (Assignable) property)
+        : qry.getFieldName(property.getIri(), null) + " " + property.getOperator() + " " + property.getValue();
 
-    if (property.unit) where += " -- CONVERT " + property.unit + "\n";
+    if (property.getUnit() != null) where += " -- CONVERT " + property.getUnit() + "\n";
 
     // TODO: TCT
-    if (property.ancestorsOf || property.descendantsOf || property.descendantsOrSelfOf) {
+    if (property.isAncestorsOf() || property.isDescendantsOf() || property.isDescendantsOrSelfOf()) {
       where += " -- TCT\n";
     }
 
-    qry.wheres.push(where);
+    qry.getWheres().add(where);
   }
 
-  function convertMatchPropertyBool(qry: SqlQuery, property: Where) {
-    if (!property.boolWhere) {
-      throw new Error("INVALID MatchPropertyBool\n" + JSON.stringify(property, null, 2));
+  private void convertMatchPropertyBool(SQLQuery qry, Where property) {
+    if (property.getBoolWhere() == null) {
+      throw new Error("INVALID MatchPropertyBool\n" + property);
     }
 
-    if (property.where) {
-    const subQuery = qry.subQuery(qry.model, qry.alias);
-      for (const p of property.where) {
+    if (property.getWhere() != null) {
+      SQLQuery subQuery = qry.subQuery(qry.getModel(), qry.getAlias());
+      for (Where p: property.getWhere()) {
         convertMatchProperty(subQuery, p);
       }
-      qry.wheres.push("(" + subQuery.wheres.join(" " + property.boolWhere?.toUpperCase() + " ") + ")");
+      qry.getWheres().add("(" + StringUtils.join(subQuery.getWheres(), " " + property.getBoolWhere().toString().toUpperCase() + " ") + ")");
     } else {
       throw new Error("Property BOOL should only contain property conditions");
     }
   }
 
-  function convertMatchPropertyNull(qry: SqlQuery, property: Where) {
-    if (!property["@id"]) {
-      throw new Error("INVALID MatchPropertyNull\n" + JSON.stringify(property, null, 2));
+  private void convertMatchPropertyNull(SQLQuery qry, Where property) {
+    if (property.getIri() == null) {
+      throw new Error("INVALID MatchPropertyNull\n" + property);
     }
 
-    qry.wheres.push(qry.getFieldName(property["@id"]) + " IS NULL");
+    qry.getWheres().add(qry.getFieldName(property.getIri(), null) + " IS NULL");
   }
 }

@@ -13,23 +13,10 @@ import java.util.HashMap;
 public class SQLQuery {
   private static Integer aliasIndex = 0;
 
-  public SQLQuery() {
-    initSQLTableMap();
-  }
-
-  private void initSQLTableMap() {
-    tableMap = new HashMap<>();
-    tableMap.put(IM.NAMESPACE + "Patient", getPatientTableMap());
-    tableMap.put(IM.NAMESPACE + "GPRegistration", getGPRegistrationTableMap());
-    tableMap.put(IM.NAMESPACE + "Observation", getObservationTableMap());
-    tableMap.put(IM.NAMESPACE + "Prescription", getPrescriptionTableMap());
-  }
-
-  public SQLQuery create(String model, String variable) {
-    initSQLTableMap();
+  public SQLQuery create(String model, String variable, HashMap<String, Table> tableMap) {
     aliasIndex = 0;
     SQLQuery result = new SQLQuery();
-    result.initialize(model, variable);
+    result.initialize(model, variable, tableMap);
     return result;
   }
 
@@ -42,15 +29,14 @@ public class SQLQuery {
   private String whereBool = "AND";
   private ArrayList<String> wheres = new ArrayList<>();
   private ArrayList<String> dependencies = new ArrayList<>();
-  private HashMap<String, Table> tableMap = new HashMap<>();
 
-  public SQLQuery subQuery(String model, String variable) {
+  public SQLQuery subQuery(String model, String variable, HashMap<String, Table> tableMap) {
     SQLQuery result = new SQLQuery();
-    result.initialize(model, variable);
+    result.initialize(model, variable, tableMap);
     return result;
   }
 
-  public void initialize(String model, String variable) {
+  public void initialize(String model, String variable, HashMap<String, Table> tableMap) {
     this.withs = new ArrayList<>();
     this.selects = new ArrayList<>();
     this.joins = new ArrayList<>();
@@ -59,10 +45,10 @@ public class SQLQuery {
     this.dependencies = new ArrayList<>();
 
     this.model = model;
-    this.map = this.getMap(model);
-    this.alias = variable == null ? getAlias(map.getTable()) : variable;
+    this.map = this.getMap(model, tableMap);
+    this.alias = variable != null ? variable : getAlias(map.getTable());
 
-    this.tableMap.put(this.alias, new Table(this.alias, null, this.map.getFields(), this.map.getRelationships()));
+    tableMap.put(this.alias, new Table(this.alias, null, this.map.getFields(), this.map.getRelationships()));
   }
 
   public String  toSql(Integer indent) {
@@ -121,22 +107,22 @@ public class SQLQuery {
     return sql;
   }
 
-  public String getFieldName(String field, String table) {
+  public String getFieldName(String field, String table, HashMap<String, Table> tableMap) {
     String alias = table != null ? table : this.alias;
-    String fieldName = getField(field, table).getField();
+    String fieldName = getField(field, table, tableMap).getField();
 
     if (fieldName.contains("{alias}")) return fieldName.replaceAll("\\{alias}", alias);
     else return alias + "." + fieldName;
   }
 
-  public String getFieldType(String field, String table) {
-    return getField(field, table).getType();
+  public String getFieldType(String field, String table, HashMap<String, Table> tableMap) {
+    return getField(field, table, tableMap).getType();
   }
 
-  private Field getField(String field, String table) {
+  private Field getField(String field, String table, HashMap<String, Table> tableMap) {
     Table map = table != null ? tableMap.get(table) : this.map;
 
-    if (map != null) throw new Error("Unknown table [" + table + "]");
+    if (map == null) throw new Error("Unknown table [" + table + "]");
 
     if (map.getFields().get(field) != null) return map.getFields().get(field);
 
@@ -157,10 +143,10 @@ public class SQLQuery {
     throw new Error("Unknown relationship from [" + this.model + "] to [" + targetModel + "]");
   }
 
-  public SQLQuery clone(String alias) {
+  public SQLQuery clone(String alias, HashMap<String, Table> tableMap) {
     String from = this.alias + ".";
     String to = alias + ".";
-    SQLQuery clone = this.subQuery(this.model, alias);
+    SQLQuery clone = this.subQuery(this.model, alias, tableMap);
     clone.withs.addAll(withs);
     clone.selects.addAll(selects.stream().map(j -> j.replaceAll(from, to)).toList());
     clone.joins.addAll(joins.stream().map(j -> j.replaceAll(from, to)).toList());
@@ -170,7 +156,7 @@ public class SQLQuery {
     return clone;
   }
 
-  private Table getMap(String model) {
+  private Table getMap(String model, HashMap<String, Table> tableMap) {
     Table map = tableMap.get(model);
 
     if (map == null) {
@@ -186,71 +172,6 @@ public class SQLQuery {
 
   public String getAlias(String tableName) {
     return tableName + SQLQuery.aliasIndex++;
-  }
-
-  private Table getPatientTableMap() {
-    String table = "patient";
-
-    String condition = null;
-
-    HashMap<String, Field> fields = new HashMap<>();
-    fields.put(IM.NAMESPACE + "age", new Field("date_of_birth","date"));
-    fields.put(IM.NAMESPACE + "dateOfBirth", new Field("date_of_birth","date"));
-
-    HashMap<String, Relationship> rels = new HashMap<>();
-
-    return new Table(table, condition, fields, rels);
-  }
-
-  private Table getGPRegistrationTableMap() {
-    String table = "event";
-
-    String condition = "{alias}.event_type = 'EpisodeOfCare'";
-
-    HashMap<String, Field> fields = new HashMap<>();
-    fields.put(IM.NAMESPACE + "concept", new Field("concept","iri"));
-    fields.put(IM.NAMESPACE + "gpPatientType", new Field("(({alias}.json ->> 'patientType')::VARCHAR)","iri"));
-    fields.put(IM.NAMESPACE + "gpRegisteredStatus", new Field("(({alias}.json ->> 'status')::VARCHAR)","iri"));
-    fields.put(IM.NAMESPACE + "gpGMSRegistrationDate", new Field("effective_date","date"));
-    fields.put(IM.NAMESPACE + "effectiveDate", new Field("effective_date","date"));
-    fields.put(IM.NAMESPACE + "endDate", new Field("(({alias}.json ->> 'endDate')::DATE)","date"));
-
-    HashMap<String, Relationship> rels = new HashMap<>();
-    rels.put(IM.NAMESPACE + "Patient", new Relationship("patient", "id"));
-
-    return new Table(table, condition, fields, rels);
-  }
-
-  private Table getPrescriptionTableMap() {
-    String table = "event";
-
-    String condition = "{alias}.event_type = 'Observation'";
-
-    HashMap<String, Field> fields = new HashMap<>();
-    fields.put(IM.NAMESPACE + "concept", new Field("concept","iri"));
-    fields.put(IM.NAMESPACE + "effectiveDate", new Field("effective_date","date"));
-    fields.put(IM.NAMESPACE + "numericValue", new Field("value","number"));
-    fields.put(IM.NAMESPACE + "ageAtEvent", new Field("age_at_event","age"));
-
-    HashMap<String, Relationship> rels = new HashMap<>();
-    rels.put(IM.NAMESPACE + "Patient", new Relationship("patient", "id"));
-
-    return new Table(table, condition, fields, rels);
-  }
-
-  private Table getObservationTableMap() {
-    String table = "event";
-
-    String condition = "{alias}.event_type = 'MedicationRequest'";
-
-    HashMap<String, Field> fields = new HashMap<>();
-    fields.put(IM.NAMESPACE + "concept", new Field("concept","iri"));
-    fields.put(IM.NAMESPACE + "effectiveDate", new Field("effective_date","date"));
-
-    HashMap<String, Relationship> rels = new HashMap<>();
-    rels.put(IM.NAMESPACE + "Patient", new Relationship("patient", "id"));
-
-    return new Table(table, condition, fields, rels);
   }
 }
 

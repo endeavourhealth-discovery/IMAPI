@@ -124,7 +124,7 @@ public class QueryController {
 
   @GetMapping("/public/sql")
   @Operation(summary = "get sql from imq iri")
-  public String getSQLFromIMQIri(@RequestParam String queryIri) throws IOException {
+  public String getSQLFromIMQIri(@RequestParam(name = "queryIri") String queryIri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       LOG.debug("getSQLFromIMQIri");
       return queryService.getSQLFromIMQIri(queryIri);

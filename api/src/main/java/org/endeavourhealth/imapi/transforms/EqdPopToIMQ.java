@@ -34,47 +34,65 @@ public class EqdPopToIMQ {
     }
 
 
-    Match lastOr = null;
+    Match topOr = null;
+    int group=0;
+    int size= eqReport.getPopulation().getCriteriaGroup().size();
     for (EQDOCCriteriaGroup eqGroup : eqReport.getPopulation().getCriteriaGroup()) {
-      lastOr = processCriteriaGroup(eqGroup, lastOr, query, activeReport);
-    }
-  }
-
-  private Match processCriteriaGroup(EQDOCCriteriaGroup eqGroup, Match match, Query query, String activeReport) throws QueryException, IOException, EQDException {
-    Match lastOr = match;
-    VocRuleAction ifTrue = eqGroup.getActionIfTrue();
-    VocRuleAction ifFalse = eqGroup.getActionIfFalse();
-    if (eqGroup.getDefinition().getParentPopulationGuid() != null)
-      throw new EQDException("parent population at definition level");
-    if (ifTrue == VocRuleAction.SELECT && ifFalse == VocRuleAction.NEXT) {
-      if (lastOr == null) {
-        lastOr = new Match();
-        query.addMatch(lastOr);
-        lastOr.setBoolMatch(Bool.or);
+      boolean must = false;
+      boolean select = false;
+      group++;
+      Match groupMatch = new Match();
+      VocRuleAction ifTrue = eqGroup.getActionIfTrue();
+      VocRuleAction ifFalse = eqGroup.getActionIfFalse();
+      if (eqGroup.getDefinition().getParentPopulationGuid() != null)
+        throw new EQDException("parent population at definition level");
+      if (ifTrue == VocRuleAction.SELECT && ifFalse == VocRuleAction.REJECT) {
+        must = true;
+        select = true;
       }
-      Match orGroup = new Match();
-      lastOr.addMatch(orGroup);
-      convertGroup(eqGroup, orGroup);
-    } else if (ifTrue == VocRuleAction.SELECT && ifFalse == VocRuleAction.REJECT ||
-      (ifTrue == VocRuleAction.NEXT && ifFalse == VocRuleAction.REJECT)) {
-      Match andGroup = new Match();
-      if (lastOr != null) {
-        lastOr.addMatch(andGroup);
+      else if (ifTrue == VocRuleAction.REJECT && ifFalse == VocRuleAction.SELECT) {
+        must = true;
+        select = true;
+        groupMatch.setExclude(true);
+      }
+      else if (ifTrue == VocRuleAction.SELECT && ifFalse == VocRuleAction.NEXT) {
+        select = true;
+      }else if (ifTrue == VocRuleAction.REJECT && ifFalse == VocRuleAction.NEXT) {
+        must = true;
+        groupMatch.setExclude(true);
+      } else if (ifTrue == VocRuleAction.NEXT && ifFalse == VocRuleAction.REJECT) {
+        must = true;
+      } else if (ifTrue == VocRuleAction.NEXT && ifFalse == VocRuleAction.SELECT) {
+        select = true;
+        groupMatch.setExclude(true);
       } else
-        query.addMatch(andGroup);
-      convertGroup(eqGroup, andGroup);
-    } else if (ifTrue == VocRuleAction.REJECT && ifFalse == VocRuleAction.SELECT ||
-      ifTrue == VocRuleAction.REJECT && ifFalse == VocRuleAction.NEXT) {
-      Match notGroup = new Match();
-      if (lastOr != null) {
-        lastOr.addMatch(notGroup);
-      } else
-        query.addMatch(notGroup);
-      notGroup.setExclude(true);
-      convertGroup(eqGroup, notGroup);
-    } else
-      throw new EQDException("unrecognised action rule combination : " + activeReport);
-    return lastOr;
+        throw new EQDException("unrecognised action rule combination : " + activeReport + " " + ifTrue.value() + " / " + ifFalse.value());
+      if (must & select) {
+        if (group == size) {
+          query.addMatch(groupMatch);
+        }
+        else
+          throw new EQDException(("Select reject rule should be the last rule? "+ activeReport));
+        }
+      else if (select){
+        if (topOr==null){
+          topOr= new Match();
+          topOr.setBoolMatch(Bool.or);
+          query.addMatch(topOr);
+        }
+        topOr.addMatch(groupMatch);
+      }
+      else if (must){
+        if (topOr!=null) {
+          topOr.addMatch(groupMatch);
+          topOr=null;
+        }
+        else
+          query.addMatch(groupMatch);
+      }
+      convertGroup(eqGroup, groupMatch);
+    }
+
   }
 
 

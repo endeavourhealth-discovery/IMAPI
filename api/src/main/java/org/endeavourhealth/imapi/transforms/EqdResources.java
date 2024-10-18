@@ -84,21 +84,7 @@ public class EqdResources {
     vocabMap.put(VocOrderDirection.ASC, "ASC");
   }
 
-  public TTIriRef getIri(String token) throws IOException {
-    if (token.equals("label"))
-      return iri(RDFS.LABEL).setName("label");
-    else {
-      if (!token.contains(":")) {
-        TTIriRef iri = TTIriRef.iri(IM.NAMESPACE + token);
-        iri.setName(importMaps.getCoreName(IM.NAMESPACE + token));
-        return iri;
-      } else {
-        TTIriRef iri = TTIriRef.iri(token);
-        iri.setName(importMaps.getCoreName(token));
-        return iri;
-      }
-    }
-  }
+
 
 
   public Match convertCriteria(EQDOCCriteria eqCriteria) throws IOException, QueryException, EQDException {
@@ -186,24 +172,27 @@ public class EqdResources {
       matches.add(match);
       pathMatchMap.put(fullPath, match);
       if (tablePath.contains(" ")) {
-        match.addPath(new IriLD().setIri(IM.NAMESPACE + tablePath.split(" ")[0].replace("^", "")));
-        match.setTypeOf(new Node().setIri(IM.NAMESPACE + tablePath.split(" ")[1]));
+        match.addPath(new IriLD().setIri(tablePath.split(" ")[0]));
+        match.setTypeOf(new Node().setIri(tablePath.split(" ")[1]));
       }
       if (columnPath.contains(" ")) {
         String[] paths = columnPath.split(" ");
         for (int i = 0; i < paths.length; i = i + 2) {
-          Where subProperty = new Where();
-          match.addWhere(subProperty);
-          subProperty.setIri(IM.NAMESPACE + columnPath.split(" ")[i]);
-          subProperty.setMatch(new Match());
-          match = subProperty.getMatch();
-          match.setTypeOf(new Node().setIri(IM.NAMESPACE + columnPath.split(" ")[i + 1]));
+          IriLD pathIri= new IriLD();
+          String path=paths[i];
+          if (path.startsWith("^")){
+            pathIri.setInverse(true);
+            path=path.substring(1);
+          }
+          pathIri.setIri(path);
+          match.addPath(pathIri);
+          match.setTypeOf(new Node().setIri(paths[i + 1]));
         }
       }
     }
     Where where = new Where();
     match.addWhere(where);
-    where.setIri(IM.NAMESPACE + property);
+    where.setIri(property);
     setProperty(cv, where);
     if (match.getWhere().size() > 1)
       match.setBoolWhere(Bool.and);
@@ -280,9 +269,9 @@ public class EqdResources {
         pv.setIs(values);
       } else {
         if (!notIn) {
-          pv.addIs(getInlineValues(vs));
+          setInlineValues(vs,pv,false);
         } else {
-          pv.addIs(getInlineValues(vs).setExclude(true));
+          setInlineValues(vs,pv,true);
         }
       }
     }
@@ -293,7 +282,20 @@ public class EqdResources {
     Object target = dataMap.get(eqdPath);
     if (target == null)
       throw new EQDException("unknown map : " + eqdPath);
-    return (String) target;
+    if (((String) target).equals(""))
+      return "";
+    String[] paths= ((String) target).split(" ");
+    for (int i=0; i<paths.length; i++){
+      String path=paths[i];
+      String inverse="";
+      if (path.startsWith("^")) {
+        inverse = "^";
+        path = path.substring(1);
+      }
+      path=inverse+(path.contains("rdfs") ?RDFS.NAMESPACE+path.split(":")[1] : IM.NAMESPACE+path);
+      paths[i]=path;
+    }
+    return String.join(" ",paths);
   }
 
 
@@ -303,6 +305,7 @@ public class EqdResources {
     if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
       Match testMatch = restrictionTest(eqCriterion);
       if (testMatch != null) {
+        testMatch.setPath(null);
         restricted.setThen(testMatch);
       }
 
@@ -356,11 +359,48 @@ public class EqdResources {
     String parent = getPath(eqCriterion.getTable() + "/" + eqRel.getParentColumn());
     String child = getPath(eqLinkedCriterion.getTable() + "/" + eqRel.getChildColumn());
     relationProperty
-      .setIri(child)
-      .setOperator((Operator) vocabMap.get(eqRel.getRangeValue().getRangeFrom().getOperator()))
-      .setValue(eqRel.getRangeValue().getRangeFrom().getValue().getValue())
-      .setUnit(eqRel.getRangeValue().getRangeFrom().getValue().getUnit().value())
-      .relativeTo(r -> r.setNodeRef(nodeRef).setIri(parent));
+      .setIri(child);
+    if (eqRel.getRangeValue()!=null) {
+      EQDOCRangeValue eqRange=eqRel.getRangeValue();
+      if (eqRange.getRangeFrom()!=null&&eqRange.getRangeTo()!=null){
+        Range range= new Range();
+        relationProperty.setRange(range);
+        Value from= new Value();
+        range.setFrom(from);
+        from.setOperator((Operator) vocabMap.get(eqRange.getRangeFrom().getOperator()))
+          .setValue(eqRange.getRangeFrom().getValue().getValue());
+        if (eqRange.getRangeFrom().getValue().getUnit()!=null) {
+          relationProperty.setUnit(eqRange.getRangeFrom().getValue().getUnit().value());
+        }
+        Value to= new Value();
+        range.setTo(to);
+        to.setOperator((Operator) vocabMap.get(eqRange.getRangeTo().getOperator()))
+          .setValue(eqRange.getRangeTo().getValue().getValue());
+        if (eqRange.getRangeTo().getValue().getUnit()!=null) {
+          to.setUnit(eqRange.getRangeTo().getValue().getUnit().value());
+        }
+      }
+      else if (eqRel.getRangeValue().getRangeFrom()!=null) {
+        relationProperty
+          .setOperator((Operator) vocabMap.get(eqRange.getRangeFrom().getOperator()))
+          .setValue(eqRange.getRangeFrom().getValue().getValue());
+        if (eqRange.getRangeFrom().getValue().getUnit()!=null) {
+          relationProperty.setUnit(eqRange.getRangeFrom().getValue().getUnit().value());
+        }
+      }
+      else {
+        relationProperty
+          .setOperator((Operator) vocabMap.get(eqRange.getRangeTo().getOperator()))
+          .setValue(eqRange.getRangeTo().getValue().getValue());
+        if (eqRange.getRangeTo().getValue().getUnit()!=null) {
+          relationProperty.setUnit(eqRange.getRangeTo().getValue().getUnit().value());
+        }
+      }
+    }
+    else {
+      relationProperty.setOperator(Operator.eq);
+    }
+    relationProperty.relativeTo(r -> r.setNodeRef(nodeRef).setIri(parent));
     if (linkMatch.getMatch() == null)
       linkMatch.addWhere(relationProperty);
     else
@@ -412,7 +452,6 @@ public class EqdResources {
     }
     setCompare(where, comp, value, units, relation);
   }
-
   private void setCompare(Where where, Value pv, Operator comp, String value, String units, VocRelation relation) {
     if (relation == VocRelation.RELATIVE) {
       where.setRelativeTo(new PropertyRef().setParameter("$referenceDate"));
@@ -514,28 +553,24 @@ public class EqdResources {
   }
 
 
-  private Node getInlineValues(EQDOCValueSet vs) throws IOException {
+  private void setInlineValues(EQDOCValueSet vs,Where pv, boolean exclude) throws IOException {
     Set<Node> setContent = new HashSet<>();
     VocCodeSystemEx scheme = vs.getCodeSystem();
     String exclusions = "";
     if (vs.getClusterCode() != null && !vs.getClusterCode().isEmpty()) {
-      return new Node().setParameter(vs.getClusterCode().get(0));
+      pv.addIs(new Node().setParameter(vs.getClusterCode().get(0)));
     }
     for (EQDOCValueSetValue ev : vs.getValues()) {
       boolean evExclusion = processEQDOCValueSet(scheme, ev, setContent);
       if (evExclusion) exclusions = " (with exclusions)";
     }
-    Query query = new Query();
-    Match match = new Match();
-    match.setBoolMatch(Bool.or);
-    query.addMatch(match);
     String name = "";
     int i = 0;
     for (Node node : setContent) {
       i++;
-      Match member = new Match();
-      match.addMatch(member);
-      member.addInstanceOf(node);
+      if (exclude)
+        node.setExclude(true);
+      pv.addIs(node);
       if (node.getName() != null) {
         if (i == 3)
           name = name + " + more...";
@@ -545,20 +580,10 @@ public class EqdResources {
           name = getShortName(node.getName(), name);
         }
       }
-      node.setName(name);
     }
     if (vs.getDescription() != null)
       name = vs.getDescription();
-    ConceptSet set = new ConceptSet();
-    set.setIri(URN_UUID + vs.getId());
-    set.setName(name);
-    if (!memberOnly(query))
-      set.setDefinition(query);
-    else
-      setMemberOnlySet(set, query);
-    set.addUsedIn(TTIriRef.iri(URN_UUID + activeReport));
-    document.addConceptSet(set);
-    return new Node().setIri(set.getIri()).setName(name + exclusions);
+    pv.setValueLabel(name+exclusions);
   }
 
   private boolean processEQDOCValueSet(VocCodeSystemEx scheme, EQDOCValueSetValue ev, Set<Node> setContent) throws IOException {
@@ -653,9 +678,21 @@ public class EqdResources {
       Object mapValue = dataMap.get(key);
       if (mapValue != null) {
         return getValueIriResult(mapValue);
-      } else
-        throw new IllegalArgumentException("unmapped emis internal code : " + key);
-    } else if (scheme == VocCodeSystemEx.SNOMED_CONCEPT || scheme.value().contains("SCT")) {
+      }
+      else  {
+        try {
+          // Try to parse the string as a UUID
+          UUID uuid = UUID.fromString(originalCode);
+          Node iri = new Node().setIri("urn:uuid:"+key).setName(originalTerm);
+        } catch (IllegalArgumentException e) {
+          // If parsing fails, it's not a valid UUID
+          throw new IllegalArgumentException("unmapped emis internal code : " + key);
+          }
+      }
+    }
+    else if (scheme != VocCodeSystemEx.SNOMED_CONCEPT && !scheme.value().contains("SCT")) {
+      throw new IllegalArgumentException("code scheme not recognised : " + scheme.value());
+    }
       List<String> schemes = new ArrayList<>();
       schemes.add(SNOMED.NAMESPACE);
       schemes.add(GRAPH.EMIS);
@@ -667,10 +704,8 @@ public class EqdResources {
       }
       if (snomed != null)
         return snomed.stream().map(e -> new Node().setIri(e.getIri()).setName(e.getName())).collect(Collectors.toSet());
-      else return Collections.emptySet();
-    } else
-      throw new IllegalArgumentException("code scheme not recognised : " + scheme.value());
-
+      else
+        return Collections.emptySet();
   }
 
   private Set<Node> getValueIriResult(Object mapValue) throws IOException {

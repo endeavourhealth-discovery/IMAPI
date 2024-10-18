@@ -918,6 +918,10 @@
         "value": "IM.NAMESPACE + \"valueObject\""
       },
       {
+        "name": "PREPOSITION",
+        "value": "IM.NAMESPACE + \"preposition\""
+      },
+      {
         "name": "VALUE_IRI",
         "value": "IM.NAMESPACE + \"valueIri\""
       },
@@ -2137,6 +2141,10 @@
   {
     "name": "GRAPH",
     "entries": [
+      {
+        "name": "SMARTLIFE",
+        "value": "\"http://smartlifehealth.info/smh#\""
+      },
       {
         "name": "DISCOVERY",
         "value": "\"http://endhealth.info/im#\""

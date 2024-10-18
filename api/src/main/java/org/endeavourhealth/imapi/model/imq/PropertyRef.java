@@ -1,9 +1,12 @@
 package org.endeavourhealth.imapi.model.imq;
 
 public class PropertyRef extends Node {
-  private boolean inverse;
   private String valueVariable;
 
+  public PropertyRef setIri(String iri){
+    super.setIri(iri);
+    return this;
+  }
 
   public PropertyRef setNodeRef(String nodeRef) {
     super.setNodeRef(nodeRef);
@@ -20,12 +23,8 @@ public class PropertyRef extends Node {
   }
 
 
-  public boolean isInverse() {
-    return inverse;
-  }
-
   public PropertyRef setInverse(boolean inverse) {
-    this.inverse = inverse;
+    super.setInverse(inverse);
     return this;
   }
 

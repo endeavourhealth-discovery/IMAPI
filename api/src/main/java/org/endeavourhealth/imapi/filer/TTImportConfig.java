@@ -9,6 +9,16 @@ public class TTImportConfig {
   private boolean skipdelete = false;
   private boolean skiplucene = false;
   private boolean skipBulk = false;
+  private String resourceFolder;
+
+  public String getResourceFolder() {
+    return resourceFolder;
+  }
+
+  public TTImportConfig setResourceFolder(String resourceFolder) {
+    this.resourceFolder = resourceFolder;
+    return this;
+  }
 
   public boolean isSkipBulk() {
     return skipBulk;

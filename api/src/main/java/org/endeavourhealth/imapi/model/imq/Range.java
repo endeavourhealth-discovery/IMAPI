@@ -8,12 +8,12 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"match", "from", "to"})
 public class Range {
-  private Assignable from;
-  private Assignable to;
+  private Value from;
+  private Value to;
 
 
   @JsonProperty(required = true)
-  public Assignable getFrom() {
+  public Value getFrom() {
     return from;
   }
 
@@ -23,7 +23,7 @@ public class Range {
   }
 
   @JsonProperty(required = true)
-  public Assignable getTo() {
+  public Value getTo() {
     return to;
   }
 

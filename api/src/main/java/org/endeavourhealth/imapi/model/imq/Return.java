@@ -16,49 +16,8 @@ public class Return {
   private List<ReturnProperty> property;
   private FunctionClause function;
   private String as;
-  private List<String> valueRef;
-  private List<IriLD> path;
-
-  public List<String> getValueRef() {
-    return valueRef;
-  }
-
-  public Return setValueRef(List<String> valueRef) {
-    this.valueRef = valueRef;
-    return this;
-  }
-
-  public List<IriLD> getPath() {
-    return path;
-  }
-
-  public Return setPath(List<IriLD> path) {
-    this.path = path;
-    return this;
-  }
-
-  public Return addPath(IriLD path) {
-    if (this.path == null) {
-      this.path = new ArrayList<>();
-    }
-    this.path.add(path);
-    return this;
-  }
-
-  public Return path(Consumer<IriLD> builder) {
-    IriLD path = new IriLD();
-    addPath(path);
-    builder.accept(path);
-    return this;
-  }
 
 
-  public Return addValueRef(String ref) {
-    if (this.valueRef == null)
-      this.valueRef = new ArrayList<>();
-    this.valueRef.add(ref);
-    return this;
-  }
 
 
   public String getAs() {

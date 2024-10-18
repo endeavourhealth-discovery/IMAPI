@@ -9,10 +9,41 @@ import java.util.Objects;
 
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-@JsonPropertyOrder({"iri", "name"})
+@JsonPropertyOrder({"iri", "qualifier","name","description"})
 public class IriLD {
   private String iri;
   private String name;
+  private String qualifier;
+  private String description;
+  private boolean inverse;
+
+  public boolean isInverse() {
+    return inverse;
+  }
+
+  public IriLD setInverse(boolean inverse) {
+    this.inverse = inverse;
+    return this;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public IriLD setDescription(String description) {
+    this.description = description;
+    return this;
+  }
+
+  public String getQualifier() {
+    return qualifier;
+  }
+
+  public IriLD setQualifier(String qualifier) {
+    this.qualifier = qualifier;
+    return this;
+  }
+
 
   @JsonProperty("@id")
   public String getIri() {

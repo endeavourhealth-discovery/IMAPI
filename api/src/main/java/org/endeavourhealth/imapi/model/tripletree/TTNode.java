@@ -184,4 +184,11 @@ public class TTNode implements TTValue, Serializable {
     return this;
   }
 
+  public TTNode removeObject(TTIriRef predicate) {
+    if (this.get(predicate) != null) {
+      this.predicateValues.remove(predicate);
+    }
+    return this;
+  }
+
 }

@@ -179,6 +179,12 @@ public class TTEntity extends TTNode implements Serializable {
     return this;
   }
 
+  @Override
+  public TTEntity removeObject(TTIriRef predicate) {
+    super.removeObject(predicate);
+    return this;
+  }
+
   public TTContext getContext() {
     return context;
   }

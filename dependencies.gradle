@@ -29,7 +29,7 @@ ext {
     owlApi            : '5.5.0',
     rdf4j             : '5.0.2',
     reactor           : '3.6.10',
-    servlet           : '6.0.0',
+    servlet           : '6.1.0',
     slf4j             : '2.0.9',
     spring            : '3.3.2',
     springContext     : '6.1.1',

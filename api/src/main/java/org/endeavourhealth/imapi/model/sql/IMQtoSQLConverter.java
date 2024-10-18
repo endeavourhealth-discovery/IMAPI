@@ -16,6 +16,7 @@ public class IMQtoSQLConverter {
     tableMap = new HashMap<>();
     tableMap.put(IM.NAMESPACE + "Patient", getPatientTableMap());
     tableMap.put(IM.NAMESPACE + "PatientDemographics", getPatientDemographicsTableMap());
+    tableMap.put(IM.NAMESPACE + "GPRegistrationEpisode", getGPRegistrationEpisodeTableMap());
     tableMap.put(IM.NAMESPACE + "GPRegistration", getGPRegistrationTableMap());
     tableMap.put(IM.NAMESPACE + "Observation", getObservationTableMap());
     tableMap.put(IM.NAMESPACE + "Prescription", getPrescriptionTableMap());
@@ -427,6 +428,25 @@ public class IMQtoSQLConverter {
   }
 
   private Table getGPRegistrationTableMap() {
+    String table = "event";
+
+    String condition = "{alias}.event_type = 'EpisodeOfCare'";
+
+    HashMap<String, Field> fields = new HashMap<>();
+    fields.put(IM.NAMESPACE + "concept", new Field("concept","iri"));
+    fields.put(IM.NAMESPACE + "gpPatientType", new Field("(({alias}.json ->> 'patientType')::VARCHAR)","iri"));
+    fields.put(IM.NAMESPACE + "gpRegisteredStatus", new Field("(({alias}.json ->> 'status')::VARCHAR)","iri"));
+    fields.put(IM.NAMESPACE + "gpGMSRegistrationDate", new Field("effective_date","date"));
+    fields.put(IM.NAMESPACE + "effectiveDate", new Field("effective_date","date"));
+    fields.put(IM.NAMESPACE + "endDate", new Field("(({alias}.json ->> 'endDate')::DATE)","date"));
+
+    HashMap<String, Relationship> rels = new HashMap<>();
+    rels.put(IM.NAMESPACE + "Patient", new Relationship("patient", "id"));
+
+    return new Table(table, condition, fields, rels);
+  }
+
+  private Table getGPRegistrationEpisodeTableMap() {
     String table = "event";
 
     String condition = "{alias}.event_type = 'EpisodeOfCare'";

@@ -20,13 +20,13 @@ public class TTBundleToTreeTest {
   public void buildsDetailsForEntityWithDefinition() throws JsonProcessingException {
     TTBundle bundle = mapper.readValue(TTBundleToTreeTestData.definitionEntityJson,TTBundle.class);
     List<TreeNode> expected = mapper.readValue(TTBundleToTreeTestData.definitionTreeJson,new TypeReference<List<TreeNode>>(){});
-    assertThat(ttBundleToTree.buildDetails(bundle,null)).isEqualTo(expected);
+    assertThat(ttBundleToTree.buildDetails(bundle,null)).usingRecursiveComparison().isEqualTo(expected);
   }
 
   @Test
   public void buildsDetailsForEntityWithMUltiplePredicates() throws JsonProcessingException {
     TTBundle bundle = mapper.readValue(TTBundleToTreeTestData.multiplePredicatesEntityJson, TTBundle.class);
-    List<TreeNode> treeNode = mapper.readValue(TTBundleToTreeTestData.multiplePredicatesEntityJson, new TypeReference<List<TreeNode>>(){});
+    List<TreeNode> treeNode = mapper.readValue(TTBundleToTreeTestData.multiplePredicatesTreeJson, new TypeReference<List<TreeNode>>(){});
     assertThat(ttBundleToTree.buildDetails(bundle, null)).isEqualTo(treeNode);
   }
 

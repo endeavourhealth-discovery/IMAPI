@@ -1,14 +1,21 @@
 package org.endeavourhealth.imapi.model.tree;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.json.TTNodeDeserializerV2;
+import org.endeavourhealth.imapi.json.TTNodeSerializerV2;
+import org.endeavourhealth.imapi.json.TreeNodeSerializer;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class TreeNode {
+@JsonSerialize(using = TreeNodeSerializer.class)
+@JsonDeserialize(using = TTNodeDeserializerV2.class)
+public class TreeNode implements Serializable {
   private String key;
   private String iri;
   private String label;

@@ -37,7 +37,7 @@ public class SHACL {
     public static final String TARGET_TYPE = SHACL.NAMESPACE + "targetType";
     public static final String TARGET = SHACL.NAMESPACE + "target";
     public static final String SPARQL_TARGET = SHACL.NAMESPACE + "SPARQLTarget";
-    public static final String FUNCTION = SHACL.NAMESPACE + "FunctionClause";
+    public static final String FUNCTION = SHACL.NAMESPACE + "Function";
     public static final String RETURN_TYPE = SHACL.NAMESPACE + "returnType";
     public static final String GROUP = SHACL.NAMESPACE + "group";
     public static final String NAME = SHACL.NAMESPACE + "name";

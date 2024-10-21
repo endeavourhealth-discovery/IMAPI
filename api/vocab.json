@@ -1574,7 +1574,7 @@
       },
       {
         "name": "FUNCTION",
-        "value": "SHACL.NAMESPACE + \"FunctionClause\""
+        "value": "SHACL.NAMESPACE + \"Function\""
       },
       {
         "name": "RETURN_TYPE",

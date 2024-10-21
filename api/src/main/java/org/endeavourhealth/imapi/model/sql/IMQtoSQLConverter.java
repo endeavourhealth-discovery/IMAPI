@@ -33,27 +33,31 @@ public class IMQtoSQLConverter {
 
     try {
       SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null, tableMap);
-
       for (Match match : definition.getMatch()) {
-        SQLQuery subQry = convertMatchToQuery(qry, match);
-        qry.getWiths().addAll(subQry.getWiths());
-        subQry.setWiths(new ArrayList<>());
-        qry.getWiths().add(subQry.getAlias() + " AS (" + subQry.toSql(2) + "\n)");
-
-        String joiner = match.isExclude() ? "LEFT JOIN " : "JOIN ";
-        if (match.isExclude()) qry.getWheres().add(subQry.getAlias() + ".id IS NULL");
-
-        if (qry.getModel().equals(subQry.getModel())) {
-          qry.getJoins().add(joiner + subQry.getAlias() + " ON " + subQry.getAlias() + ".id = " + qry.getAlias() + ".id");
-        } else {
-          Relationship rel = subQry.getRelationshipTo(qry.getModel());
-          qry.getJoins().add(joiner + subQry.getAlias() + " ON " + subQry.getAlias() + "." + rel.getFromField() + " = " + qry.getAlias() + "." + rel.getToField());
-        }
+        addIMQueryToSQLQueryRecursively(qry, match);
       }
+
       return qry.toSql(2);
     } catch (Exception e) {
       return e.toString();
 //      else return "Unknown Error";
+    }
+  }
+
+  private void addIMQueryToSQLQueryRecursively(SQLQuery qry, Match match) {
+    SQLQuery subQry = convertMatchToQuery(qry, match);
+    qry.getWiths().addAll(subQry.getWiths());
+    subQry.setWiths(new ArrayList<>());
+    qry.getWiths().add(subQry.getAlias() + " AS (" + subQry.toSql(2) + "\n)");
+
+    String joiner = match.isExclude() ? "LEFT JOIN " : "JOIN ";
+    if (match.isExclude()) qry.getWheres().add(subQry.getAlias() + ".id IS NULL");
+
+    if (qry.getModel().equals(subQry.getModel())) {
+      qry.getJoins().add(joiner + subQry.getAlias() + " ON " + subQry.getAlias() + ".id = " + qry.getAlias() + ".id");
+    } else {
+      Relationship rel = subQry.getRelationshipTo(qry.getModel());
+      qry.getJoins().add(joiner + subQry.getAlias() + " ON " + subQry.getAlias() + "." + rel.getFromField() + " = " + qry.getAlias() + "." + rel.getToField());
     }
   }
 
@@ -95,6 +99,8 @@ public class IMQtoSQLConverter {
     } else {
       throw new Error("UNHANDLED MATCH PATTERN\n" + match);
     }
+
+    if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen());
   }
 
   private void wrapMatchPartition(SQLQuery qry, OrderLimit order) {
@@ -224,17 +230,13 @@ public class IMQtoSQLConverter {
     String tct = "tct_" + qry.getJoins().size();
     if (!descendants.isEmpty()) {
       qry.getJoins().add("JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap));
-      qry.getWheres().add(
-        descendants.size() == 1 ? tct + ".iri = '" + descendants.get(0) + "'" : tct + ".iri IN ('" + StringUtils.join(descendants, "',\n'") + "') AND " + tct + ".level > 0"
-      );
+      qry.getWheres().add(descendants.size() == 1 ? tct + ".iri = '" + descendants.get(0) + "'" : tct + ".iri IN ('" + StringUtils.join(descendants, "',\n'") + "') AND " + tct + ".level > 0");
     } else if (!descendantsSelf.isEmpty()) {
       qry.getJoins().add("JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap));
       qry.getWheres().add(descendantsSelf.size() == 1 ? tct + ".iri = '" + descendantsSelf.get(0) + "'" : tct + ".iri IN ('" + StringUtils.join(descendantsSelf, "',\n'") + "')");
     } else if (!ancestors.isEmpty()) {
       qry.getJoins().add("JOIN tct AS " + tct + " ON " + tct + ".iri = " + qry.getFieldName(property.getIri(), null, tableMap));
-      qry.getWheres().add(
-        ancestors.size() == 1 ? tct + ".child = '" + ancestors.get(0) + "'" : tct + ".child IN ('" + StringUtils.join(ancestors, "',\n'") + "') AND " + tct + ".level > 0"
-      );
+      qry.getWheres().add(ancestors.size() == 1 ? tct + ".child = '" + ancestors.get(0) + "'" : tct + ".child IN ('" + StringUtils.join(ancestors, "',\n'") + "') AND " + tct + ".level > 0");
     }
   }
 
@@ -271,7 +273,7 @@ public class IMQtoSQLConverter {
   }
 
   private void convertMatchPropertySubMatch(SQLQuery qry, Where property) {
-    if (property.getMatch() != null) {
+    if (property.getMatch() == null) {
       throw new Error("INVALID MatchPropertySubMatch\n" + property);
     }
 
@@ -323,19 +325,11 @@ public class IMQtoSQLConverter {
     }
 
     if (property.getRelativeTo().getParameter() != null)
-      qry.getWheres().add(
-        qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator() + " " + convertMatchPropertyRelativeTo(qry, property, property.getRelativeTo().getParameter())
-      );
+      qry.getWheres().add(qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator() + " " + convertMatchPropertyRelativeTo(qry, property, property.getRelativeTo().getParameter()));
     else if (property.getRelativeTo().getNodeRef() != null) {
       // Include implied join on noderef
       qry.getJoins().add("JOIN " + property.getRelativeTo().getNodeRef() + " ON " + property.getRelativeTo().getNodeRef() + ".id = " + qry.getAlias() + ".id");
-      qry.getWheres().add(
-        qry.getFieldName(property.getIri(), null, tableMap) +
-          " " +
-          property.getOperator() +
-          " " +
-          convertMatchPropertyRelativeTo(qry, property, qry.getFieldName(property.getRelativeTo().getIri(), property.getRelativeTo().getNodeRef(), tableMap))
-      );
+      qry.getWheres().add(qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator() + " " + convertMatchPropertyRelativeTo(qry, property, qry.getFieldName(property.getRelativeTo().getIri(), property.getRelativeTo().getNodeRef(), tableMap)));
     } else {
       throw new Error("UNHANDLED RELATIVE COMPARISON\n" + property);
     }
@@ -344,9 +338,9 @@ public class IMQtoSQLConverter {
   private String convertMatchPropertyRelativeTo(SQLQuery qry, Where property, String field) {
     String fieldType = qry.getFieldType(property.getIri(), null, tableMap);
     if ("date".equals(fieldType))
-      if (property.getValue() != null)
+      if (property.getValue() != null) {
         return "(" + field + " + INTERVAL '" + property.getValue() + " " + property.getUnit() + "')";
-      else return field;
+      } else return field;
     else {
       throw new Error("UNHANDLED RELATIVE TYPE (" + fieldType + ")\n" + property);
     }
@@ -357,10 +351,7 @@ public class IMQtoSQLConverter {
       throw new Error("INVALID MatchPropertyValue\n" + property);
     }
 
-    String where =
-      "date".equals(qry.getFieldType(property.getIri(), null, tableMap))
-        ? convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), new Value().setValue(property.getValue()).setUnit(property.getUnit()).setOperator(property.getOperator()))
-        : qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator() + " " + property.getValue();
+    String where = "date".equals(qry.getFieldType(property.getIri(), null, tableMap)) ? convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), new Value().setValue(property.getValue()).setUnit(property.getUnit()).setOperator(property.getOperator())) : qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator() + " " + property.getValue();
 
     if (property.getUnit() != null) where += " -- CONVERT " + property.getUnit() + "\n";
 
@@ -404,8 +395,8 @@ public class IMQtoSQLConverter {
     String condition = null;
 
     HashMap<String, Field> fields = new HashMap<>();
-    fields.put(IM.NAMESPACE + "age", new Field("date_of_birth","date"));
-    fields.put(IM.NAMESPACE + "dateOfBirth", new Field("date_of_birth","date"));
+    fields.put(IM.NAMESPACE + "age", new Field("date_of_birth", "date"));
+    fields.put(IM.NAMESPACE + "dateOfBirth", new Field("date_of_birth", "date"));
 
     HashMap<String, Relationship> rels = new HashMap<>();
 
@@ -418,8 +409,8 @@ public class IMQtoSQLConverter {
     String condition = null;
 
     HashMap<String, Field> fields = new HashMap<>();
-    fields.put(IM.NAMESPACE + "age", new Field("date_of_birth","date"));
-    fields.put(IM.NAMESPACE + "dateOfBirth", new Field("date_of_birth","date"));
+    fields.put(IM.NAMESPACE + "age", new Field("date_of_birth", "date"));
+    fields.put(IM.NAMESPACE + "dateOfBirth", new Field("date_of_birth", "date"));
 
     HashMap<String, Relationship> rels = new HashMap<>();
     rels.put(IM.NAMESPACE + "Patient", new Relationship("patient", "id"));
@@ -433,12 +424,12 @@ public class IMQtoSQLConverter {
     String condition = "{alias}.event_type = 'EpisodeOfCare'";
 
     HashMap<String, Field> fields = new HashMap<>();
-    fields.put(IM.NAMESPACE + "concept", new Field("concept","iri"));
-    fields.put(IM.NAMESPACE + "gpPatientType", new Field("(({alias}.json ->> 'patientType')::VARCHAR)","iri"));
-    fields.put(IM.NAMESPACE + "gpRegisteredStatus", new Field("(({alias}.json ->> 'status')::VARCHAR)","iri"));
-    fields.put(IM.NAMESPACE + "gpGMSRegistrationDate", new Field("effective_date","date"));
-    fields.put(IM.NAMESPACE + "effectiveDate", new Field("effective_date","date"));
-    fields.put(IM.NAMESPACE + "endDate", new Field("(({alias}.json ->> 'endDate')::DATE)","date"));
+    fields.put(IM.NAMESPACE + "concept", new Field("concept", "iri"));
+    fields.put(IM.NAMESPACE + "gpPatientType", new Field("(({alias}.json ->> 'patientType')::VARCHAR)", "iri"));
+    fields.put(IM.NAMESPACE + "gpRegisteredStatus", new Field("(({alias}.json ->> 'status')::VARCHAR)", "iri"));
+    fields.put(IM.NAMESPACE + "gpGMSRegistrationDate", new Field("effective_date", "date"));
+    fields.put(IM.NAMESPACE + "effectiveDate", new Field("effective_date", "date"));
+    fields.put(IM.NAMESPACE + "endDate", new Field("(({alias}.json ->> 'endDate')::DATE)", "date"));
 
     HashMap<String, Relationship> rels = new HashMap<>();
     rels.put(IM.NAMESPACE + "Patient", new Relationship("patient", "id"));
@@ -452,12 +443,12 @@ public class IMQtoSQLConverter {
     String condition = "{alias}.event_type = 'EpisodeOfCare'";
 
     HashMap<String, Field> fields = new HashMap<>();
-    fields.put(IM.NAMESPACE + "concept", new Field("concept","iri"));
-    fields.put(IM.NAMESPACE + "gpPatientType", new Field("(({alias}.json ->> 'patientType')::VARCHAR)","iri"));
-    fields.put(IM.NAMESPACE + "gpRegisteredStatus", new Field("(({alias}.json ->> 'status')::VARCHAR)","iri"));
-    fields.put(IM.NAMESPACE + "gpGMSRegistrationDate", new Field("effective_date","date"));
-    fields.put(IM.NAMESPACE + "effectiveDate", new Field("effective_date","date"));
-    fields.put(IM.NAMESPACE + "endDate", new Field("(({alias}.json ->> 'endDate')::DATE)","date"));
+    fields.put(IM.NAMESPACE + "concept", new Field("concept", "iri"));
+    fields.put(IM.NAMESPACE + "gpPatientType", new Field("(({alias}.json ->> 'patientType')::VARCHAR)", "iri"));
+    fields.put(IM.NAMESPACE + "gpRegisteredStatus", new Field("(({alias}.json ->> 'status')::VARCHAR)", "iri"));
+    fields.put(IM.NAMESPACE + "gpGMSRegistrationDate", new Field("effective_date", "date"));
+    fields.put(IM.NAMESPACE + "effectiveDate", new Field("effective_date", "date"));
+    fields.put(IM.NAMESPACE + "endDate", new Field("(({alias}.json ->> 'endDate')::DATE)", "date"));
 
     HashMap<String, Relationship> rels = new HashMap<>();
     rels.put(IM.NAMESPACE + "Patient", new Relationship("patient", "id"));
@@ -471,10 +462,10 @@ public class IMQtoSQLConverter {
     String condition = "{alias}.event_type = 'Observation'";
 
     HashMap<String, Field> fields = new HashMap<>();
-    fields.put(IM.NAMESPACE + "concept", new Field("concept","iri"));
-    fields.put(IM.NAMESPACE + "effectiveDate", new Field("effective_date","date"));
-    fields.put(IM.NAMESPACE + "numericValue", new Field("value","number"));
-    fields.put(IM.NAMESPACE + "ageAtEvent", new Field("age_at_event","age"));
+    fields.put(IM.NAMESPACE + "concept", new Field("concept", "iri"));
+    fields.put(IM.NAMESPACE + "effectiveDate", new Field("effective_date", "date"));
+    fields.put(IM.NAMESPACE + "numericValue", new Field("value", "number"));
+    fields.put(IM.NAMESPACE + "ageAtEvent", new Field("age_at_event", "age"));
 
     HashMap<String, Relationship> rels = new HashMap<>();
     rels.put(IM.NAMESPACE + "Patient", new Relationship("patient", "id"));
@@ -488,8 +479,8 @@ public class IMQtoSQLConverter {
     String condition = "{alias}.event_type = 'MedicationRequest'";
 
     HashMap<String, Field> fields = new HashMap<>();
-    fields.put(IM.NAMESPACE + "concept", new Field("concept","iri"));
-    fields.put(IM.NAMESPACE + "effectiveDate", new Field("effective_date","date"));
+    fields.put(IM.NAMESPACE + "concept", new Field("concept", "iri"));
+    fields.put(IM.NAMESPACE + "effectiveDate", new Field("effective_date", "date"));
 
     HashMap<String, Relationship> rels = new HashMap<>();
     rels.put(IM.NAMESPACE + "Patient", new Relationship("patient", "id"));

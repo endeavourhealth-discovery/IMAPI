@@ -340,4 +340,12 @@ public class EntityController {
       return entityService.getValidatedEntitiesBySnomedCodes(codes);
     }
   }
+
+  @GetMapping(value = "/public/detailsDisplay")
+  public TTBundle getDetailsDisplay(@RequestParam(name = "iri") String iri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DetailsDisplay.GET")) {
+      LOG.debug("getDetailsDisplay");
+      return entityService.getDetailsDisplay(iri);
+    }
+  }
 }

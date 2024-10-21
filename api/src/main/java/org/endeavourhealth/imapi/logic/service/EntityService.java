@@ -420,5 +420,31 @@ public class EntityService {
     }
     return validatedEntity;
   }
+
+  private TTBundle getDetailsDisplay(String iri) {
+    Set<String> excludedPredicates = new HashSet<>(List.of(IM.CODE, RDFS.LABEL, IM.HAS_STATUS,RDFS.COMMENT));
+    Set<String> entityPredicates = getPredicates(iri);
+    TTBundle response;
+    if (entityPredicates.contains(IM.HAS_MEMBER)) {
+      response = getBundleByPredicateExclusions(iri, excludedPredicates);
+      excludedPredicates.add(IM.HAS_MEMBER);
+      Pageable<TTIriRef> partialAndCount = getPartialWithTotalCount(iri, IM.HAS_MEMBER, null,1, 10,false);
+      TTArray partialAsTTArray = new TTArray();
+      for (TTIriRef partial : partialAndCount.getResult()) {
+        partialAsTTArray.add(partial);
+      }
+      TTNode loadMoreNode = new TTNode()
+        .setIri(IM.LOAD_MORE)
+        .set(iri(RDFS.LABEL), "Load more")
+        .set(iri(IM.NAMESPACE + "totalCount"),partialAndCount.getTotalCount());
+      partialAsTTArray.add(loadMoreNode);
+      response.addPredicate(iri(IM.HAS_MEMBER));
+      response.getEntity().set(iri(IM.HAS_MEMBER), partialAsTTArray);
+    } else {
+      response = getBundleByPredicateExclusions(iri, excludedPredicates);
+    }
+    response.getEntity().removeObject(iri(RDF.TYPE));
+    return response;
+  }
 }
 

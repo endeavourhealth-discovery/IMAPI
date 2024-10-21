@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
@@ -24,10 +25,11 @@ public class QueryServiceTest {
 
   EntityService entityService = new EntityService();
 
-  public void getAllQueries() throws JsonProcessingException {
-
+  @Test
+  void testCohortQueriesToSQL() throws JsonProcessingException {
     List<TTIriRef> queries = entityService.getEntitiesByType(IM.COHORT_QUERY);
-    for (TTIriRef ref: queries){
+    System.out.println("Queries: " + queries.size());
+    for (TTIriRef ref : queries) {
       System.out.println("Testing " + ref.getName() + " " + ref.getIri());
       TTEntity entity = entityService.getBundle(ref.getIri(), Collections.singleton(IM.DEFINITION)).getEntity();
       Query query = entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
@@ -40,7 +42,7 @@ public class QueryServiceTest {
 //          Statement st = conn.createStatement();
 //          ResultSet rs = st.executeQuery(sqlExplain);
           System.out.println("OK");
-        } catch(Exception e) {
+        } catch (Exception e) {
           System.out.println("ERROR");
           System.out.println(sqlExplain);
           System.out.println(e.getMessage());

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Comparator.comparingInt;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -27,6 +28,7 @@ public class EntityService {
   private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
   private EntityRepository entityRepository = new EntityRepository();
   private ConfigManager configManager = new ConfigManager();
+  private SetService setService = new SetService();
 
   private static void filterOutSpecifiedPredicates(Set<String> excludePredicates, TTBundle bundle) {
     if (excludePredicates != null) {
@@ -47,6 +49,15 @@ public class EntityService {
     filterOutSpecifiedPredicates(excludePredicates, bundle);
     filterOutInactiveTermCodes(bundle);
     return bundle;
+  }
+
+  public List<TTEntity> getPartialEntities(Set<String> iris, Set<String> predicates) {
+    List<TTEntity> entities = new ArrayList<>();
+    for (String iri : iris) {
+      TTEntity entity = getBundle(iri, predicates).getEntity();
+      entities.add(entity);
+    }
+    return entities;
   }
 
   public TTIriRef getEntityReference(String iri) {
@@ -370,6 +381,44 @@ public class EntityService {
     if (null == iri) throw new IllegalArgumentException("Missing iri parameter");
 
     return entityRepository.getEntityReferenceNode(iri, schemeIris, inactive);
+  }
+
+  public List<ValidatedEntity> getValidatedEntitiesBySnomedCodes(List<String> codes) {
+    List<String> snomedCodes = codes.stream().map(code -> SNOMED.NAMESPACE + code).toList();
+    List<TTEntity> entities = getPartialEntities(new HashSet<>(snomedCodes), Stream.of(RDFS.LABEL,IM.CODE).collect(Collectors.toSet()));
+    List<TTIriRef> needed = setService.getDistillation(entities.stream().map(e -> iri(e.getIri())).toList());
+    List<ValidatedEntity> validatedEntities = new ArrayList<>();
+    for (TTEntity entity : entities) {
+      ValidatedEntity validatedEntity = validateEntity(entity,needed);
+      if (validatedEntities.stream().anyMatch(v -> v.getIri().equals(validatedEntity.getIri()))) {
+        validatedEntity.setCode("Duplicate");
+      }
+      validatedEntities.add(validateEntity(entity, needed));
+    }
+    return validatedEntities;
+  }
+
+  private ValidatedEntity validateEntity(TTEntity entity, List<TTIriRef> needed) {
+    ValidatedEntity validatedEntity = new ValidatedEntity();
+      validatedEntity
+        .setIri(entity.getIri())
+        .setName(entity.getName())
+        .setCode(entity.getCode());
+    boolean isInvalid = !entity.getIri().isEmpty() && !entity.getName().isEmpty() && !entity.getCode().isEmpty();
+    TTIriRef found = needed.stream().filter(n -> n.getIri().equals(validatedEntity.getIri())).findFirst().orElse(null);
+    if (isInvalid) {
+      validatedEntity.setValidationCode("Invalid");
+      validatedEntity.setValidationLabel("Not an entity");
+    } else if (null != found) {
+      needed.remove(found);
+      validatedEntity.setValidationCode("Valid");
+    } else {
+      validatedEntity.setValidationCode("Child");
+    }
+    if (validatedEntity.getCode().isEmpty() && !validatedEntity.getIri().isEmpty() && validatedEntity.getIri().contains("#")) {
+      validatedEntity.setCode(validatedEntity.getIri().split("#")[1]);
+    }
+    return validatedEntity;
   }
 }
 

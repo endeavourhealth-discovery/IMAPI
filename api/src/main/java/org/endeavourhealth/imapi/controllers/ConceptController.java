@@ -7,7 +7,10 @@ import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.ConceptContextMap;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.Pageable;
+import org.endeavourhealth.imapi.model.SuperiorPropertiesBoolFocusPagedRequest;
+import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -20,6 +23,7 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.zip.DataFormatException;
 
 @RestController
 @RequestMapping("api/concept")
@@ -67,15 +71,16 @@ public class ConceptController {
     }
   }
 
-  @GetMapping(value = "/public/superiorPropertiesBoolFocusPaged")
+  @PostMapping(value = "/public/superiorPropertiesBoolFocusPaged")
   @Operation(summary = "Get top level properties for an entity as a tree node", description = "Finds the highest parent (superior) properties for an entity and returns then in a tree node format for use in a hierarchy tree")
-  public Pageable<EntityReferenceNode> getSuperiorPropertiesBoolFocusPaged(@RequestParam(name = "conceptIris") List<String> conceptIris, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "inactive", required = false) boolean inactive) throws IOException {
+  public Pageable<EntityReferenceNode> getSuperiorPropertiesBoolFocusPaged(@RequestBody SuperiorPropertiesBoolFocusPagedRequest request) throws IOException, QueryException, DataFormatException, EclFormatException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SuperiorPropertiesBoolFocusPaged.GET")) {
       LOG.debug("getSuperiorPropertiesBoolFocusPaged");
-      if (null == page) page = 1;
-      if (null == size) size = EntityService.MAX_CHILDREN;
-      if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
-      return conceptService.getSuperiorPropertiesBoolFocusPaged(conceptIris, schemeIris, page, size, inactive);
+      if (request.getEcl().isEmpty()) throw new IllegalArgumentException("Ecl cannot be empty");
+      if (0 == request.getPage()) request.setPage(1);
+      if (0 == request.getSize()) request.setSize(EntityService.MAX_CHILDREN);
+      if (request.getSchemeFilters().isEmpty()) request.setSchemeFilters(new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE)));
+      return conceptService.getSuperiorPropertiesBoolFocusPaged(request);
     }
   }
 

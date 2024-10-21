@@ -1545,4 +1545,30 @@ public class EntityRepository {
       return sparql.evaluate();
     }
   }
+
+  public List<TTIriRef> findEntitiesByType(String typeIri) {
+    String sparqlString =
+    """
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX im: <http://endhealth.info/im#> 
+      select * where {
+          ?s rdf:type im:CohortQuery .
+          ?s rdfs:label ?name .  
+      }
+    """;
+    ArrayList<TTIriRef> iriRefs = new ArrayList<>();
+
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sparqlString);
+      qry.setBinding("c", iri(typeIri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          iriRefs.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
+        }
+      }
+    }
+    return iriRefs;
+  }
 }

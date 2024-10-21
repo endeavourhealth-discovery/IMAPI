@@ -338,5 +338,11 @@ public class EntityController {
     }
   }
 
-
+  @GetMapping(value = "/public/type/entities")
+  public List<TTIriRef> getEntitiesByType(@RequestParam(name = "iri") String typeIri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Predicates.GET")) {
+      LOG.debug("getEntitiesByType");
+      return entityService.getEntitiesByType(typeIri);
+    }
+  }
 }

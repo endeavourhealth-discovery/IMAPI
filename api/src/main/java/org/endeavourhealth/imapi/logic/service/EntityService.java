@@ -371,5 +371,9 @@ public class EntityService {
 
     return entityRepository.getEntityReferenceNode(iri, schemeIris, inactive);
   }
+
+  public List<TTIriRef> getEntitiesByType(String typeIri) {
+    return entityRepository.findEntitiesByType(typeIri);
+  }
 }
 

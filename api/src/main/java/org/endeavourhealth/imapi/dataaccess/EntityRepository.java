@@ -1545,4 +1545,38 @@ public class EntityRepository {
       return sparql.evaluate();
     }
   }
+
+  public Map<String, Set<String>> findBNFs(List<String> codes) {
+    Map<String, Set<String>> bnfMap = new HashMap<>();
+    StringJoiner iriLine = new StringJoiner(" ");
+    for (String code : codes) {
+      iri(SNOMED.NAMESPACE + code);
+      iriLine.add("<" + SNOMED.NAMESPACE + code + ">");
+    }
+
+    String sql = """
+      PREFIX bnf: <http://bnf.info/bnf#>
+      SELECT ?code ?name WHERE {
+          ?bnf rdfs:label ?name .
+          ?bnf im:scheme bnf: .
+          ?bnf im:roleGroup ?o .
+          ?o im:hasMemberParent ?s .
+          ?s im:code ?code .
+          VALUES ?s { %s }
+      }
+      """.formatted(iriLine.toString());
+
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String code = bs.getValue("code").stringValue();
+          if (!bnfMap.containsKey(code)) bnfMap.put(code, new HashSet<>());
+          bnfMap.get(code).add(bs.getValue("name").stringValue());
+        }
+      }
+    }
+    return bnfMap;
+  }
 }

@@ -455,5 +455,82 @@ public class EntityService {
     bundle.setEntity(entity);
     return bundle;
   }
+
+  public List<PropertyDisplay> getPropertiesDisplay(String iri) {
+    Set<String> predicates = new HashSet<>();
+    predicates.add(SHACL.PROPERTY);
+    TTEntity entity = getBundle(iri, predicates).getEntity();
+    List<PropertyDisplay> propertyList = new ArrayList<>();
+    TTArray ttProperties = entity.get(iri(SHACL.PROPERTY));
+    for (TTValue ttProperty : ttProperties.getElements()) {
+      int minCount = 0;
+      if (ttProperty.asNode().has(iri(SHACL.MINCOUNT))) {
+        minCount = ttProperty.asNode().get(iri(SHACL.MINCOUNT)).asLiteral().intValue();
+      }
+      int maxCount = 0;
+      if (ttProperty.asNode().has(iri(SHACL.MAXCOUNT))) {
+        maxCount = ttProperty.asNode().get(iri(SHACL.MAXCOUNT)).asLiteral().intValue();
+      }
+      String cardinality = minCount  + " : " + (maxCount == 0 ? "*" : maxCount);
+      if (ttProperty.asNode().has(iri(SHACL.OR))) {
+        handleOr(ttProperty, cardinality, propertyList);
+      } else {
+        handleNotOr(ttProperty,cardinality,propertyList);
+      }
+    }
+    return propertyList;
+  }
+
+  private void handleOr(TTValue ttProperty, String cardinality, List<PropertyDisplay> propertyList) {
+    PropertyDisplay propertyDisplay = new PropertyDisplay();
+    propertyDisplay.setOrder(ttProperty.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue());
+    propertyDisplay.setCardinality(cardinality);
+    propertyDisplay.setOr(true);
+    for (TTValue orProperty : ttProperty.asNode().get(iri(SHACL.OR)).getElements()) {
+      TTArray type;
+      if (orProperty.asNode().has(iri(SHACL.CLASS))) type = orProperty.asNode().get(iri(SHACL.CLASS));
+      else if (orProperty.asNode().has(iri(SHACL.NODE))) type = orProperty.asNode().get(iri(SHACL.NODE));
+      else if (orProperty.asNode().has(iri(SHACL.DATATYPE))) type = orProperty.asNode().get(iri(SHACL.DATATYPE));
+      else type = new TTArray();
+      String name = "";
+      if (orProperty.asNode().has(iri(SHACL.PATH))) {
+        name += orProperty.asNode().get(iri(SHACL.PATH)).get(0).asIriRef().getIri() + " (";
+        if (!type.isEmpty() && !type.get(0).asIriRef().getName().isEmpty()) name += type.get(0).asIriRef().getName();
+        else if (!type.isEmpty() && !type.get(0).asIriRef().getIri().isEmpty()) name += " (" + type.get(0).asIriRef().getIri().split("#")[1];
+        name += ")";
+        propertyDisplay.addProperty(iri(orProperty.asNode().get(iri(SHACL.PATH)).get(0).asIriRef().getIri(),name));
+        propertyDisplay.addType(type.get(0).asIriRef());
+      }
+      propertyList.add(propertyDisplay);
+    }
+  }
+
+  private void handleNotOr(TTValue ttProperty, String cardinality, List<PropertyDisplay> propertyList) {
+    TTArray type;
+    if (ttProperty.asNode().has(iri(SHACL.CLASS))) type = ttProperty.asNode().get(iri(SHACL.CLASS));
+    else if (ttProperty.asNode().has(iri(SHACL.NODE))) type = ttProperty.asNode().get(iri(SHACL.NODE));
+    else if (ttProperty.asNode().has(iri(SHACL.DATATYPE))) type = ttProperty.asNode().get(iri(SHACL.DATATYPE));
+    else type = new TTArray();
+    TTValue group = null;
+    if (ttProperty.asNode().has(iri(SHACL.GROUP))) {
+      group = ttProperty.asNode().get(iri(SHACL.GROUP)).get(0);
+    }
+    String name = "";
+    if (ttProperty.asNode().has(iri(SHACL.PATH))) {
+      name += ttProperty.asNode().get(iri(SHACL.PATH)).get(0).asIriRef().getName() + " (";
+      if (!type.isEmpty() && !type.get(0).asIriRef().getName().isEmpty()) name += type.get(0).asIriRef().getName();
+      else if (!type.isEmpty() && !type.get(0).asIriRef().getIri().isEmpty()) name += type.get(0).asIriRef().getIri();
+      name += ")";
+    }
+    PropertyDisplay propertyDisplay = new PropertyDisplay();
+    propertyDisplay.setOrder(ttProperty.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue());
+    propertyDisplay.addProperty(iri(ttProperty.asNode().get(iri(SHACL.PATH)).get(0).asIriRef().getIri(),name));
+    propertyDisplay.addType(type.get(0).asIriRef());
+    propertyDisplay.setCardinality(cardinality);
+    propertyDisplay.setOr(false);
+    if (null != group) propertyDisplay.setGroup(group.asIriRef());
+    propertyList.add(propertyDisplay);
+  }
 }
+
 

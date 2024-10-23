@@ -361,4 +361,12 @@ public class EntityController {
       return entityService.loadMoreDetailsDisplay(iri,predicate,pageIndex,pageSize);
     }
   }
+
+  @GetMapping(value = "/public/propertiesDisplay")
+  public List<PropertyDisplay> getPropertiesDisplay(@RequestParam(name = "iri") String iri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PropertiesDisplay.GET")) {
+      LOG.debug("getPropertiesDisplay");
+      return entityService.getPropertiesDisplay(iri);
+    }
+  }
 }

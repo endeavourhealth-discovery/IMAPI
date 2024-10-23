@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
+import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -67,7 +68,11 @@ public class QueryService {
   }
 
   public String getSQLFromIMQ(Query query) {
-    return new IMQtoSQLConverter().IMQtoSQL(query);
+    try {
+      return new IMQtoSQLConverter().IMQtoSQL(query);
+    } catch (SQLConversionException e) {
+      return e.getMessage();
+    }
   }
 
   public String getSQLFromIMQIri(String queryIri) throws JsonProcessingException {

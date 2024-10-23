@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.sql;
 
 import org.apache.commons.lang3.StringUtils;
+import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
@@ -22,13 +23,13 @@ public class IMQtoSQLConverter {
     tableMap.put(IM.NAMESPACE + "Prescription", getPrescriptionTableMap());
   }
 
-  public String IMQtoSQL(Query definition) {
+  public String IMQtoSQL(Query definition) throws SQLConversionException {
     if (definition.getTypeOf() == null) {
-      throw new Error("Query must have a main (model) type");
+      throw new SQLConversionException("Query must have a main (model) type");
     }
 
     if (definition.getMatch() == null) {
-      throw new Error("Query must have at least one match");
+      throw new SQLConversionException("Query must have at least one match");
     }
 
     try {
@@ -38,13 +39,13 @@ public class IMQtoSQLConverter {
       }
 
       return qry.toSql(2);
-    } catch (Exception e) {
-      return e.toString();
-//      else return "Unknown Error";
+    } catch (SQLConversionException e) {
+      if (e.getMessage() != null) return e.toString();
+      else return "Unknown SQLConversionException";
     }
   }
 
-  private void addIMQueryToSQLQueryRecursively(SQLQuery qry, Match match) {
+  private void addIMQueryToSQLQueryRecursively(SQLQuery qry, Match match) throws SQLConversionException {
     SQLQuery subQry = convertMatchToQuery(qry, match);
     qry.getWiths().addAll(subQry.getWiths());
     subQry.setWiths(new ArrayList<>());
@@ -61,7 +62,7 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private SQLQuery convertMatchToQuery(SQLQuery parent, Match match) {
+  private SQLQuery convertMatchToQuery(SQLQuery parent, Match match) throws SQLConversionException {
     SQLQuery qry = createMatchQuery(match, parent);
 
     convertMatch(match, qry);
@@ -81,14 +82,14 @@ public class IMQtoSQLConverter {
     } else return qry.subQuery(qry.getModel(), match.getVariable(), tableMap);
   }
 
-  private void convertMatch(Match match, SQLQuery qry) {
+  private void convertMatch(Match match, SQLQuery qry) throws SQLConversionException {
     if (match.getInstanceOf() != null) {
       convertMatchInstanceOf(qry, match);
     } else if (match.getBoolMatch() != null) {
       if (match.getMatch() != null && !match.getMatch().isEmpty()) convertMatchBoolSubMatch(qry, match);
       else if (match.getWhere() != null && !match.getWhere().isEmpty()) convertMatchProperties(qry, match);
       else {
-        throw new Error("UNHANDLED BOOL MATCH PATTERN\n" + match);
+        throw new SQLConversionException("UNHANDLED BOOL MATCH PATTERN\n" + match);
       }
     } else if (match.getWhere() != null && !match.getWhere().isEmpty()) {
       convertMatchProperties(qry, match);
@@ -97,14 +98,14 @@ public class IMQtoSQLConverter {
       match.setBoolMatch(Bool.and);
       convertMatchBoolSubMatch(qry, match);
     } else {
-      throw new Error("UNHANDLED MATCH PATTERN\n" + match);
+      throw new SQLConversionException("UNHANDLED MATCH PATTERN\n" + match);
     }
 
     if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen());
   }
 
-  private void wrapMatchPartition(SQLQuery qry, OrderLimit order) {
-    if (order.getProperty() == null) throw new Error("ORDER MUST HAVE A FIELD SPECIFIED\n" + order);
+  private void wrapMatchPartition(SQLQuery qry, OrderLimit order) throws SQLConversionException {
+    if (order.getProperty() == null) throw new SQLConversionException("ORDER MUST HAVE A FIELD SPECIFIED\n" + order);
 
     SQLQuery inner = qry.clone(qry.getAlias() + "_inner", tableMap);
 
@@ -127,16 +128,17 @@ public class IMQtoSQLConverter {
     qry.getWheres().add("rn = 1");
   }
 
-  private void convertMatchInstanceOf(SQLQuery qry, Match match) {
-    if (match.getInstanceOf() == null) throw new Error("MatchSet must have at least one element\n" + match);
+  private void convertMatchInstanceOf(SQLQuery qry, Match match) throws SQLConversionException {
+    if (match.getInstanceOf() == null)
+      throw new SQLConversionException("MatchSet must have at least one element\n" + match);
     String rsltTbl = qry.getAlias() + "_rslt";
     qry.getJoins().add("JOIN query_result " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.getAlias() + ".id");
     qry.getWheres().add(rsltTbl + ".iri = '" + match.getInstanceOf().get(0).getIri() + "'");
   }
 
-  private void convertMatchBoolSubMatch(SQLQuery qry, Match match) {
+  private void convertMatchBoolSubMatch(SQLQuery qry, Match match) throws SQLConversionException {
     if (match.getBoolMatch() == null || match.getMatch() == null) {
-      throw new Error("INVALID MatchBoolSubMatch\n" + match);
+      throw new SQLConversionException("INVALID MatchBoolSubMatch\n" + match);
     }
 
     qry.setWhereBool(match.getBoolWhere() != null ? match.getBoolWhere().toString().toUpperCase() : "AND");
@@ -166,9 +168,9 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private void convertMatchProperties(SQLQuery qry, Match match) {
+  private void convertMatchProperties(SQLQuery qry, Match match) throws SQLConversionException {
     if (match.getWhere() == null || match.getWhere().isEmpty()) {
-      throw new Error("INVALID MatchProperty\n" + match);
+      throw new SQLConversionException("INVALID MatchProperty\n" + match);
     }
 
     for (Where property : match.getWhere()) {
@@ -176,7 +178,7 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private void convertMatchProperty(SQLQuery qry, Where property) {
+  private void convertMatchProperty(SQLQuery qry, Where property) throws SQLConversionException {
     if (property.getIs() != null) {
       convertMatchPropertyIs(qry, property, property.getIs());
     } else if (property.getRange() != null) {
@@ -192,14 +194,14 @@ public class IMQtoSQLConverter {
     } else if (property.getIsNull()) {
       convertMatchPropertyNull(qry, property);
     } else {
-      throw new Error("UNHANDLED PROPERTY PATTERN\n" + property);
+      throw new SQLConversionException("UNHANDLED PROPERTY PATTERN\n" + property);
     }
   }
 
-  private void convertMatchPropertyIs(SQLQuery qry, Where property, List<Node> list) {
+  private void convertMatchPropertyIs(SQLQuery qry, Where property, List<Node> list) throws SQLConversionException {
     boolean inverse = false;
     if (list == null) {
-      throw new Error("INVALID MatchPropertyIs\n" + property);
+      throw new SQLConversionException("INVALID MatchPropertyIs\n" + property);
     }
 
     ArrayList<String> direct = new ArrayList<>();
@@ -214,7 +216,7 @@ public class IMQtoSQLConverter {
         else if (pIs.isDescendantsOrSelfOf()) descendantsSelf.add(pIs.getIri());
         else direct.add(pIs.getIri());
       } else {
-        throw new Error("UNHANDLED 'IN'/'NOT IN' ENTRY\n" + pIs);
+        throw new SQLConversionException("UNHANDLED 'IN'/'NOT IN' ENTRY\n" + pIs);
       }
     }
 
@@ -240,9 +242,9 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private void convertMatchPropertyRange(SQLQuery qry, Where property) {
+  private void convertMatchPropertyRange(SQLQuery qry, Where property) throws SQLConversionException {
     if (property.getRange() == null) {
-      throw new Error("INVALID MatchPropertyRange\n" + property);
+      throw new SQLConversionException("INVALID MatchPropertyRange\n" + property);
     }
 
     String fieldType = qry.getFieldType(property.getIri(), null, tableMap);
@@ -258,7 +260,7 @@ public class IMQtoSQLConverter {
       if (property.getRange().getTo() != null)
         qry.getWheres().add(convertMatchPropertyNumberRangeNode(qry.getFieldName(property.getIri(), null, tableMap), property.getRange().getTo()));
     } else {
-      throw new Error("UNHANDLED PROPERTY FIELD TYPE (" + fieldType + ")\n" + property);
+      throw new SQLConversionException("UNHANDLED PROPERTY FIELD TYPE (" + fieldType + ")\n" + property);
     }
   }
 
@@ -272,9 +274,9 @@ public class IMQtoSQLConverter {
     return "(now() - INTERVAL '" + range.getValue() + (range.getUnit() != null ? " " + range.getUnit() : "") + "') " + range.getOperator() + " " + fieldName;
   }
 
-  private void convertMatchPropertySubMatch(SQLQuery qry, Where property) {
+  private void convertMatchPropertySubMatch(SQLQuery qry, Where property) throws SQLConversionException {
     if (property.getMatch() == null) {
-      throw new Error("INVALID MatchPropertySubMatch\n" + property);
+      throw new SQLConversionException("INVALID MatchPropertySubMatch\n" + property);
     }
 
     if (property.getMatch().getVariable() == null)
@@ -294,11 +296,11 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private void convertMatchPropertyInSet(SQLQuery qry, Where property) {
-    if (property.getIri() == null) throw new Error("INVALID PROPERTY\n" + property);
+  private void convertMatchPropertyInSet(SQLQuery qry, Where property) throws SQLConversionException {
+    if (property.getIri() == null) throw new SQLConversionException("INVALID PROPERTY\n" + property);
 
     if (property.getIs() == null) {
-      throw new Error("INVALID MatchPropertyIn\n" + property);
+      throw new SQLConversionException("INVALID MatchPropertyIn\n" + property);
     }
 
     ArrayList<String> inList = new ArrayList<>();
@@ -306,7 +308,7 @@ public class IMQtoSQLConverter {
     for (Node pIn : property.getIs()) {
       if (pIn.getIri() != null) inList.add(pIn.getIri());
       else {
-        throw new Error("UNHANDLED 'IN' ENTRY\n" + pIn);
+        throw new SQLConversionException("UNHANDLED 'IN' ENTRY\n" + pIn);
       }
     }
 
@@ -319,9 +321,9 @@ public class IMQtoSQLConverter {
     else qry.getWheres().add(mmbrTbl + ".iri IN ('" + StringUtils.join(inList, "',\n'") + "')");
   }
 
-  private void convertMatchPropertyRelative(SQLQuery qry, Where property) {
+  private void convertMatchPropertyRelative(SQLQuery qry, Where property) throws SQLConversionException {
     if (property.getIri() == null || property.getRelativeTo() == null) {
-      throw new Error("INVALID MatchPropertyRelative\n" + property);
+      throw new SQLConversionException("INVALID MatchPropertyRelative\n" + property);
     }
 
     if (property.getRelativeTo().getParameter() != null)
@@ -331,24 +333,23 @@ public class IMQtoSQLConverter {
       qry.getJoins().add("JOIN " + property.getRelativeTo().getNodeRef() + " ON " + property.getRelativeTo().getNodeRef() + ".id = " + qry.getAlias() + ".id");
       qry.getWheres().add(qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator() + " " + convertMatchPropertyRelativeTo(qry, property, qry.getFieldName(property.getRelativeTo().getIri(), property.getRelativeTo().getNodeRef(), tableMap)));
     } else {
-      throw new Error("UNHANDLED RELATIVE COMPARISON\n" + property);
+      throw new SQLConversionException("UNHANDLED RELATIVE COMPARISON\n" + property);
     }
   }
 
-  private String convertMatchPropertyRelativeTo(SQLQuery qry, Where property, String field) {
+  private String convertMatchPropertyRelativeTo(SQLQuery qry, Where property, String field) throws SQLConversionException {
     String fieldType = qry.getFieldType(property.getIri(), null, tableMap);
-    if ("date".equals(fieldType))
-      if (property.getValue() != null) {
-        return "(" + field + " + INTERVAL '" + property.getValue() + " " + property.getUnit() + "')";
-      } else return field;
+    if ("date".equals(fieldType)) if (property.getValue() != null) {
+      return "(" + field + " + INTERVAL '" + property.getValue() + " " + property.getUnit() + "')";
+    } else return field;
     else {
-      throw new Error("UNHANDLED RELATIVE TYPE (" + fieldType + ")\n" + property);
+      throw new SQLConversionException("UNHANDLED RELATIVE TYPE (" + fieldType + ")\n" + property);
     }
   }
 
-  private void convertMatchPropertyValue(SQLQuery qry, Where property) {
+  private void convertMatchPropertyValue(SQLQuery qry, Where property) throws SQLConversionException {
     if (property.getIri() == null || property.getValue() == null) {
-      throw new Error("INVALID MatchPropertyValue\n" + property);
+      throw new SQLConversionException("INVALID MatchPropertyValue\n" + property);
     }
 
     String where = "date".equals(qry.getFieldType(property.getIri(), null, tableMap)) ? convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), new Value().setValue(property.getValue()).setUnit(property.getUnit()).setOperator(property.getOperator())) : qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator() + " " + property.getValue();
@@ -363,9 +364,9 @@ public class IMQtoSQLConverter {
     qry.getWheres().add(where);
   }
 
-  private void convertMatchPropertyBool(SQLQuery qry, Where property) {
+  private void convertMatchPropertyBool(SQLQuery qry, Where property) throws SQLConversionException {
     if (property.getBoolWhere() == null) {
-      throw new Error("INVALID MatchPropertyBool\n" + property);
+      throw new SQLConversionException("INVALID MatchPropertyBool\n" + property);
     }
 
     if (property.getWhere() != null) {
@@ -375,13 +376,13 @@ public class IMQtoSQLConverter {
       }
       qry.getWheres().add("(" + StringUtils.join(subQuery.getWheres(), " " + property.getBoolWhere().toString().toUpperCase() + " ") + ")");
     } else {
-      throw new Error("Property BOOL should only contain property conditions");
+      throw new SQLConversionException("Property BOOL should only contain property conditions");
     }
   }
 
-  private void convertMatchPropertyNull(SQLQuery qry, Where property) {
+  private void convertMatchPropertyNull(SQLQuery qry, Where property) throws SQLConversionException {
     if (property.getIri() == null) {
-      throw new Error("INVALID MatchPropertyNull\n" + property);
+      throw new SQLConversionException("INVALID MatchPropertyNull\n" + property);
     }
 
     qry.getWheres().add(qry.getFieldName(property.getIri(), null, tableMap) + " IS NULL");

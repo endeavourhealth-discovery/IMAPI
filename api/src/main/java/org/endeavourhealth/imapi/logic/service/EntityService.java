@@ -421,7 +421,7 @@ public class EntityService {
     return validatedEntity;
   }
 
-  private TTBundle getDetailsDisplay(String iri) {
+  public TTBundle getDetailsDisplay(String iri) {
     Set<String> excludedPredicates = new HashSet<>(List.of(IM.CODE, RDFS.LABEL, IM.HAS_STATUS,RDFS.COMMENT));
     Set<String> entityPredicates = getPredicates(iri);
     TTBundle response;
@@ -445,6 +445,15 @@ public class EntityService {
     }
     response.getEntity().removeObject(iri(RDF.TYPE));
     return response;
+  }
+
+  public TTBundle loadMoreDetailsDisplay(String iri, String predicate, int pageIndex, int pageSize) {
+    Pageable<TTIriRef> response = getPartialWithTotalCount(iri, predicate,null,pageIndex,pageSize,false);
+    TTEntity entity = new TTEntity();
+    entity.addObject(iri(predicate),response.getTotalCount());
+    TTBundle bundle = new TTBundle();
+    bundle.setEntity(entity);
+    return bundle;
   }
 }
 

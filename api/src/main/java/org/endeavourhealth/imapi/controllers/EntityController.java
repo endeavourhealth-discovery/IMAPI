@@ -348,4 +348,17 @@ public class EntityController {
       return entityService.getDetailsDisplay(iri);
     }
   }
+
+  @GetMapping(value = "/public/detailsDisplay/loadMore")
+  public TTBundle getDetailsDisplayLoadMore(
+    @RequestParam(name = "iri") String iri,
+    @RequestParam(name = "predicate") String predicate,
+    @RequestParam(name = "pageIndex") int pageIndex,
+    @RequestParam(name = "pageSize") int pageSize
+  ) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DetailsDisplay.LOADMORE.GET")) {
+      LOG.debug("getDetailsDisplayLoadMore");
+      return entityService.loadMoreDetailsDisplay(iri,predicate,pageIndex,pageSize);
+    }
+  }
 }

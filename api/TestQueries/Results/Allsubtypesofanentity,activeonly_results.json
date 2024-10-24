@@ -1,223 +1,168 @@
 {
-  "page": 1,
-  "count": 54,
-  "totalCount": 54,
-  "entities": [
-    {
-      "@id": "http://snomed.info/sct#417928002",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Abuse (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#213017001",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Sexual abuse (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#23776007",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Incestuous child concubinage (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#41358001",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Child concubinage (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#51347003",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Incest (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#95922009",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Child sex abuse (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#228143000",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Contact sexual abuse of child (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#70167006",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Non-incestuous child concubinage (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#418506006",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Physical abuse (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#418189009",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Child abuse (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#276849007",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Psychological abuse of adult (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#1279642005",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Psychological abuse (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#1285089009",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Abuse of elderly person (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#1285720003",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Financial abuse (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#242037000",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Child abandonment (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#242039002",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Abuse of partner (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#371772001",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Domestic abuse (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#242040000",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Physical abuse of elderly person (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#371778002",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Physical abuse of adult (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#242041001",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Emotional abuse of elderly person (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#371774000",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Emotional abuse of adult (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#242044009",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Abuse of disabled person (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#242045005",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Physical abuse of disabled person (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#242046006",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Sexual abuse of disabled person (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#242047002",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Emotional abuse of disabled person (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#371773006",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Emotional abuse (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#242048007",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Neglect of disabled person (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#12399091000119108",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Adult abuse (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#278707004",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Emotional deprivation of child (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#371775004",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Emotional abuse of child (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#361217003",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Intrafamilial sexual abuse (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#371779005",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Physical child abuse (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#404189009",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Domestic violence (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#406138006",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Domestic abuse of adult (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#430139008",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Abuse by relative of victim (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#432464008",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Abuse by unrelated caregiver (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#432527004",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Domestic sexual abuse of adult (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#720595008",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Domestic sexual abuse (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#444557007",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Sexual abuse of adult (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#433960002",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Abuse by sibling (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#698301002",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Non-domestic physical abuse of adult (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#720025009",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Domestic emotional abuse (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#720684005",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Domestic physical abuse (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#787209003",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Domestic physical abuse of adult (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#1162435001",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Abuse by cyberbullying (event)"
-    },
-    {
-      "@id": "http://snomed.info/sct#12399051000119103",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Elder sexual abuse (event)"
-    },
-    {
-      "@id": "http://endhealth.info/emis#959961000006115",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Harsh/excessive discipline"
-    },
-    {
-      "@id": "http://endhealth.info/emis#959981000006113",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Welts/bruises/burns/other injuries"
-    },
-    {
-      "@id": "http://endhealth.info/emis#960041000006116",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Attacked verbally"
-    },
-    {
-      "@id": "http://endhealth.info/emis#960061000006117",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Fearful/hypervigilant behaviour"
-    },
-    {
-      "@id": "http://endhealth.info/emis#960091000006113",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Violent environment"
-    },
-    {
-      "@id": "http://endhealth.info/emis#960111000006116",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Consistent negative messages"
-    },
-    {
-      "@id": "http://endhealth.info/emis#960121000006112",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Assaulted sexually"
-    },
-    {
-      "@id": "http://endhealth.info/emis#974381000006114",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Abuse NOS"
-    }
-  ]
+  "page" : 1,
+  "count" : 54,
+  "totalCount" : 54,
+  "entities" : [ {
+    "@id" : "http://snomed.info/sct#417928002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Abuse (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#213017001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Sexual abuse (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#23776007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Incestuous child concubinage (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#41358001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Child concubinage (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#51347003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Incest (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#95922009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Child sex abuse (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#228143000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Contact sexual abuse of child (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#70167006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Non-incestuous child concubinage (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#418506006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Physical abuse (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#418189009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Child abuse (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#276849007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Psychological abuse of adult (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#1279642005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Psychological abuse (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#1285089009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Abuse of elderly person (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#1285720003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Financial abuse (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#242037000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Child abandonment (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#242039002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Abuse of partner (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#371772001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Domestic abuse (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#242040000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Physical abuse of elderly person (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#371778002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Physical abuse of adult (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#242041001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Emotional abuse of elderly person (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#371774000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Emotional abuse of adult (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#242044009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Abuse of disabled person (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#242045005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Physical abuse of disabled person (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#242046006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Sexual abuse of disabled person (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#242047002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Emotional abuse of disabled person (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#371773006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Emotional abuse (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#242048007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Neglect of disabled person (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#12399091000119108",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Adult abuse (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#278707004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Emotional deprivation of child (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#371775004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Emotional abuse of child (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#361217003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Intrafamilial sexual abuse (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#371779005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Physical child abuse (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#404189009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Domestic violence (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#406138006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Domestic abuse of adult (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#430139008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Abuse by relative of victim (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#432464008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Abuse by unrelated caregiver (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#432527004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Domestic sexual abuse of adult (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#720595008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Domestic sexual abuse (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#444557007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Sexual abuse of adult (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#433960002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Abuse by sibling (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#698301002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Non-domestic physical abuse of adult (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#720025009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Domestic emotional abuse (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#720684005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Domestic physical abuse (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#787209003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Domestic physical abuse of adult (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#1162435001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Abuse by cyberbullying (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#12399051000119103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Elder sexual abuse (event)"
+  }, {
+    "@id" : "http://endhealth.info/emis#959961000006115",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Harsh/excessive discipline"
+  }, {
+    "@id" : "http://endhealth.info/emis#959981000006113",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Welts/bruises/burns/other injuries"
+  }, {
+    "@id" : "http://endhealth.info/emis#960041000006116",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Attacked verbally"
+  }, {
+    "@id" : "http://endhealth.info/emis#960061000006117",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Fearful/hypervigilant behaviour"
+  }, {
+    "@id" : "http://endhealth.info/emis#960091000006113",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Violent environment"
+  }, {
+    "@id" : "http://endhealth.info/emis#960111000006116",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Consistent negative messages"
+  }, {
+    "@id" : "http://endhealth.info/emis#960121000006112",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Assaulted sexually"
+  }, {
+    "@id" : "http://endhealth.info/emis#974381000006114",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Abuse NOS"
+  } ]
 }

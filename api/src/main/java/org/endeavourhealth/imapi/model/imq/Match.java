@@ -17,6 +17,7 @@ public class Match extends IriLD {
   private Bool boolWhere;
   private List<Match> match;
   private boolean exclude;
+  private String includeIf;
   private Element graph;
   private List<Where> where;
   private String description;
@@ -31,7 +32,26 @@ public class Match extends IriLD {
   private Match then;
   private List<IriLD> path;
   private String displayLabel;
+  private boolean hasInlineSet;
 
+  public boolean isHasInlineSet() {
+    return hasInlineSet;
+  }
+
+  public Match setHasInlineSet(boolean hasInlineSet) {
+    this.hasInlineSet = hasInlineSet;
+    return this;
+  }
+
+
+  public String getIncludeIf() {
+    return includeIf;
+  }
+
+  public Match setIncludeIf(String includeIf) {
+    this.includeIf = includeIf;
+    return this;
+  }
 
   public String getDisplayLabel() {
     return displayLabel;

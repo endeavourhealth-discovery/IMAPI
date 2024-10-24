@@ -410,5 +410,9 @@ public class EntityService {
   public Map<String, Set<String>> getBNFs(List<String> codes) {
     return entityRepository.findBNFs(codes);
   }
+
+  public Map<String, Set<String>> getSubclassPaths(List<String> codes) {
+    return entityRepository.findSubClassPaths(codes);
+  }
 }
 

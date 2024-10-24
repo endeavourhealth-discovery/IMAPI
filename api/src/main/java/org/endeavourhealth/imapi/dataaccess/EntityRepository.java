@@ -1579,4 +1579,36 @@ public class EntityRepository {
     }
     return bnfMap;
   }
+
+  public Map<String, Set<String>> findSubClassPaths(List<String> codes) {
+    Map<String, Set<String>> subClassPathMap = new HashMap<>();
+    StringJoiner iriLine = new StringJoiner(" ");
+    for (String code : codes) {
+      iri(SNOMED.NAMESPACE + code);
+      iriLine.add("<" + SNOMED.NAMESPACE + code + ">");
+    }
+
+    String sql = """
+      SELECT ?sCode ?subName ?subCode WHERE {
+          ?s (rdfs:subClassOf)+ ?sub .
+          ?s im:code ?sCode .
+          ?sub rdfs:label ?subName .
+          ?sub im:code ?subCode .
+          VALUES ?s { %s }
+      }
+      """.formatted(iriLine.toString());
+
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String code = bs.getValue("sCode").stringValue();
+          if (!subClassPathMap.containsKey(code)) subClassPathMap.put(code, new HashSet<>());
+          subClassPathMap.get(code).add(bs.getValue("subName").stringValue() + " | " + bs.getValue("subCode").stringValue());
+        }
+      }
+    }
+    return subClassPathMap;
+  }
 }

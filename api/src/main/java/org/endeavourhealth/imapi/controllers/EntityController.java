@@ -297,7 +297,7 @@ public class EntityController {
 
   @PostMapping("/public/multipleParentHierarchies")
   public Map<String, List<List<String>>> getMultipleSnomedParentHierarchies(@RequestBody List<String> descendantCodes) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.getMultipleParentHierarchies.GET")) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.getMultipleParentHierarchies.POST")) {
       LOG.debug("getMultipleParentHierarchies");
       return entityService.getMultipleSnomedParentHierarchies(descendantCodes);
     }
@@ -305,9 +305,17 @@ public class EntityController {
 
   @PostMapping("/public/multipleBNFs")
   public Map<String, Set<String>> getBNFs(@RequestBody List<String> codes) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.getBNFs.GET")) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.getBNFs.POST")) {
       LOG.debug("getBNFs");
       return entityService.getBNFs(codes);
+    }
+  }
+
+  @PostMapping("/public/multipleSubClassPaths")
+  public Map<String, Set<String>> getSubClassPaths(@RequestBody List<String> codes) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.getSubClassPaths.POST")) {
+      LOG.debug("getSubClassPaths");
+      return entityService.getSubclassPaths(codes);
     }
   }
 

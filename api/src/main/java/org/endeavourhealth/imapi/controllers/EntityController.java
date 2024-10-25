@@ -33,6 +33,8 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.validation.EntityValidationRequest;
+import org.endeavourhealth.imapi.model.validation.EntityValidationResponse;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -367,6 +369,14 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PropertiesDisplay.GET")) {
       LOG.debug("getPropertiesDisplay");
       return entityService.getPropertiesDisplay(iri);
+    }
+  }
+
+  @PostMapping(value = "/public/validate")
+  public EntityValidationResponse validateEntity(@RequestBody EntityValidationRequest request) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.validate.POST")) {
+      LOG.debug("validateEntity");
+      return entityService.validate(request);
     }
   }
 }

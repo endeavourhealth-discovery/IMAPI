@@ -2,14 +2,18 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.*;
+import org.endeavourhealth.imapi.logic.validator.EntityValidator;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.validation.EntityValidationRequest;
+import org.endeavourhealth.imapi.model.validation.EntityValidationResponse;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +33,7 @@ public class EntityService {
   private EntityRepository entityRepository = new EntityRepository();
   private ConfigManager configManager = new ConfigManager();
   private SetService setService = new SetService();
+  private EntityValidator validator = new EntityValidator();
 
   private static void filterOutSpecifiedPredicates(Set<String> excludePredicates, TTBundle bundle) {
     if (excludePredicates != null) {
@@ -530,6 +535,11 @@ public class EntityService {
     propertyDisplay.setOr(false);
     if (null != group) propertyDisplay.setGroup(group.asIriRef());
     propertyList.add(propertyDisplay);
+  }
+
+  public EntityValidationResponse validate(EntityValidationRequest request) throws ValidationException {
+    if (request.getValidationIri().isEmpty()) throw new IllegalArgumentException("Missing validation iri");
+    return validator.validate(request);
   }
 }
 

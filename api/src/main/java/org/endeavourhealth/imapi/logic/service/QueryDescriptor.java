@@ -393,7 +393,7 @@ public class QueryDescriptor {
         where.setValueLabel("is not recorded");
       }
       if (where.getIsNotNull()) {
-        where.setValueLabel("is not recorded");
+        where.setValueLabel("is recorded");
       }
       if (where.getMatch() != null) {
         describeMatch(where.getMatch());

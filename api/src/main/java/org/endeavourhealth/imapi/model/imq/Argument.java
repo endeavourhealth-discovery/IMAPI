@@ -19,36 +19,8 @@ public class Argument {
   private List<TTIriRef> valueIriList;
   private List<String> valueDataList;
   private Object valueObject;
-  private List<IriLD> valueWherePath;
-  private boolean whereUnits;
-  private List<IriLD> valueMatchPath;
 
-  public List<IriLD> getValueMatchPath() {
-    return valueMatchPath;
-  }
 
-  public Argument setValueMatchPath(List<IriLD> valueMatchPath) {
-    this.valueMatchPath = valueMatchPath;
-    return this;
-  }
-
-  public boolean isWhereUnits() {
-    return whereUnits;
-  }
-
-  public Argument setWhereUnits(boolean whereUnits) {
-    this.whereUnits = whereUnits;
-    return this;
-  }
-
-  public List<IriLD> getValueWherePath() {
-    return valueWherePath;
-  }
-
-  public Argument setValueWherePath(List<IriLD> valueWherePath) {
-    this.valueWherePath = valueWherePath;
-    return this;
-  }
 
   public List<TTIriRef> getValueIriList() {
     return valueIriList;

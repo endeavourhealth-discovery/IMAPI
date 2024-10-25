@@ -119,6 +119,9 @@ public class IMQToOS {
     TermQueryBuilder tqac = new TermQueryBuilder("preferredName.keyword", term).caseInsensitive(true);
     tqac.boost(5000000F);
     boolBuilder.should(tqac);
+    TermQueryBuilder tqac2 = new TermQueryBuilder("name.keyword", term).caseInsensitive(true);
+    tqac2.boost(5000000F);
+    boolBuilder.should(tqac2);
     PrefixQueryBuilder pqb = new PrefixQueryBuilder("matchTerm", prefix);
     pqb.boost(1000000F);
     boolBuilder.should(pqb);

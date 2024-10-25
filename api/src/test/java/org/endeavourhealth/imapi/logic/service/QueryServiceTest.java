@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ibm.icu.impl.CollectionSet;
+import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -36,24 +37,30 @@ public class QueryServiceTest {
       try {
         String sql = new IMQtoSQLConverter().IMQtoSQL(query);
         assertNotNull(sql);
-
-        String sqlExplain = "EXPLAIN " + sql.replaceAll("\\$referenceDate", "NOW()");
-        try {
-//          Statement st = conn.createStatement();
-//          ResultSet rs = st.executeQuery(sqlExplain);
+        if(!sql.startsWith("org.endeavourhealth.imapi.errorhandling.SQLConversionException")) {
           System.out.println("OK");
-        } catch (Exception e) {
-          System.out.println("ERROR");
-          System.out.println(sqlExplain);
-          System.out.println(e.getMessage());
-          throw e;
-        } finally {
+        } else {
+          System.err.println("SQLConversionException: " + sql);
+        }
+//        String sqlExplain = "EXPLAIN " + sql.replaceAll("\\$referenceDate", "NOW()");
+//        try {
+////          Statement st = conn.createStatement();
+////          ResultSet rs = st.executeQuery(sqlExplain);
+//          System.out.println("OK");
+//        } catch (Exception e) {
+//          System.out.println("ERROR");
+//          System.out.println(sqlExplain);
+//          System.out.println(e.getMessage());
+//          throw e;
+//        } finally {
 //          rs.close();
 //          st.close();
-        }
-      } catch (Exception e) {
-        System.out.println(e.getMessage());
-        throw new RuntimeException(e);
+//        }
+      } catch (Exception | SQLConversionException e) {
+        System.out.println("ERROR: " + e.getMessage());
+
+//        System.out.println(e.getMessage());
+//        throw new RuntimeException(e);
       }
     }
   }

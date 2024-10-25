@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.sql;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.HashMap;
 public class SQLQuery {
   private static Integer aliasIndex = 0;
 
-  public SQLQuery create(String model, String variable, HashMap<String, Table> tableMap) {
+  public SQLQuery create(String model, String variable, HashMap<String, Table> tableMap) throws SQLConversionException {
     aliasIndex = 0;
     SQLQuery result = new SQLQuery();
     result.initialize(model, variable, tableMap);
@@ -30,13 +31,13 @@ public class SQLQuery {
   private ArrayList<String> wheres = new ArrayList<>();
   private ArrayList<String> dependencies = new ArrayList<>();
 
-  public SQLQuery subQuery(String model, String variable, HashMap<String, Table> tableMap) {
+  public SQLQuery subQuery(String model, String variable, HashMap<String, Table> tableMap) throws SQLConversionException {
     SQLQuery result = new SQLQuery();
     result.initialize(model, variable, tableMap);
     return result;
   }
 
-  public void initialize(String model, String variable, HashMap<String, Table> tableMap) {
+  public void initialize(String model, String variable, HashMap<String, Table> tableMap) throws SQLConversionException {
     this.withs = new ArrayList<>();
     this.selects = new ArrayList<>();
     this.joins = new ArrayList<>();
@@ -107,7 +108,7 @@ public class SQLQuery {
     return sql;
   }
 
-  public String getFieldName(String field, String table, HashMap<String, Table> tableMap) {
+  public String getFieldName(String field, String table, HashMap<String, Table> tableMap) throws SQLConversionException {
     String alias = table != null ? table : this.alias;
     String fieldName = getField(field, table, tableMap).getField();
 
@@ -115,14 +116,14 @@ public class SQLQuery {
     else return alias + "." + fieldName;
   }
 
-  public String getFieldType(String field, String table, HashMap<String, Table> tableMap) {
+  public String getFieldType(String field, String table, HashMap<String, Table> tableMap) throws SQLConversionException {
     return getField(field, table, tableMap).getType();
   }
 
-  private Field getField(String field, String table, HashMap<String, Table> tableMap) {
+  private Field getField(String field, String table, HashMap<String, Table> tableMap) throws SQLConversionException {
     Table map = table != null ? tableMap.get(table) : this.map;
 
-    if (map == null) throw new Error("Unknown table [" + table + "]");
+    if (map == null) throw new SQLConversionException("Unknown table [" + table + "]");
 
     if (map.getFields().get(field) != null) return map.getFields().get(field);
 
@@ -137,13 +138,13 @@ public class SQLQuery {
     return returnField;
   }
 
-  public Relationship getRelationshipTo(String targetModel) {
+  public Relationship getRelationshipTo(String targetModel) throws SQLConversionException {
     if (map.getRelationships().get(targetModel) != null) return map.getRelationships().get(targetModel);
 
-    throw new Error("Unknown relationship from [" + this.model + "] to [" + targetModel + "]");
+    throw new SQLConversionException("Unknown relationship from [" + this.model + "] to [" + targetModel + "]");
   }
 
-  public SQLQuery clone(String alias, HashMap<String, Table> tableMap) {
+  public SQLQuery clone(String alias, HashMap<String, Table> tableMap) throws SQLConversionException {
     String from = this.alias + ".";
     String to = alias + ".";
     SQLQuery clone = this.subQuery(this.model, alias, tableMap);
@@ -156,7 +157,7 @@ public class SQLQuery {
     return clone;
   }
 
-  private Table getMap(String model, HashMap<String, Table> tableMap) {
+  private Table getMap(String model, HashMap<String, Table> tableMap) throws SQLConversionException {
     Table map = tableMap.get(model);
 
     if (map == null) {
@@ -166,7 +167,7 @@ public class SQLQuery {
     if (map != null) {
       return map;
     } else {
-      throw new Error("Unmapped table " + model);
+      throw new SQLConversionException("Unmapped table " + model);
     }
   }
 

@@ -74,7 +74,7 @@ public class IMQtoSQLConverter {
     return qry;
   }
 
-  private SQLQuery createMatchQuery(Match match, SQLQuery qry) {
+  private SQLQuery createMatchQuery(Match match, SQLQuery qry) throws SQLConversionException {
     if (match.getTypeOf() != null && !match.getTypeOf().getIri().equals(qry.getModel())) {
       return qry.subQuery(match.getTypeOf().getIri(), match.getVariable(), tableMap);
     } else if (match.getNodeRef() != null && !match.getNodeRef().equals(qry.getModel())) {

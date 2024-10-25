@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 
 public class Case {
   private List<When> when;
-  private ReturnProperty else_x;
+  private String else_;
 
   public List<When> getWhen() {
     return when;
@@ -35,19 +35,14 @@ public class Case {
   }
 
   @JsonProperty("else")
-  public ReturnProperty getElse() {
-    return else_x;
+  public String getElse() {
+    return this.else_;
   }
 
   @JsonProperty("else")
-  public Case setElse(ReturnProperty else_x) {
-    this.else_x = else_x;
+  public Case setElse(String else_) {
+    this.else_ = else_;
     return this;
   }
 
-  public Case else_x(Consumer<ReturnProperty> builder) {
-    this.else_x = new ReturnProperty();
-    builder.accept(this.else_x);
-    return this;
-  }
 }

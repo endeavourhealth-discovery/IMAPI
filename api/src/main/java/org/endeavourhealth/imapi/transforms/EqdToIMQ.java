@@ -54,7 +54,9 @@ public class EqdToIMQ {
         throw new EQDException("No report name");
       LOG.info(eqReport.getName());
       QueryEntity qry = convertReport(eqReport);
-      resources.getDocument().addQuery(qry);
+      if (qry!=null) {
+        resources.getDocument().addQuery(qry);
+      }
     }
   }
 
@@ -89,19 +91,24 @@ public class EqdToIMQ {
       queryEntity.addIsContainedIn(new TTEntity((URN_UUID + eqReport.getFolder())).setName(eqReport.getName()));
 
     Query qry = new Query();
-
+    qry.setName(queryEntity.getName());
     if (eqReport.getPopulation() != null) {
       queryEntity.addType(iri(IM.COHORT_QUERY));
       new EqdPopToIMQ().convertPopulation(eqReport, qry, resources);
     } else if (eqReport.getListReport() != null) {
       queryEntity.addType(iri(IM.DATASET_QUERY));
       new EqdListToIMQ().convertReport(eqReport, qry, resources);
-    } else {
-      queryEntity.addType(iri(IM.DATASET_QUERY));
-      new EqdAuditToIMQ().convertReport(eqReport, qry, resources);
+    } else if (eqReport.getAuditReport()!=null){
+        queryEntity.addType(iri(IM.DATASET_QUERY));
+        new EqdAuditToIMQ().convertReport(eqReport, qry, resources);
     }
-    flattenQuery(qry);
-    new QueryDescriptor().describeQuery(qry);
+    else if (eqReport.getAggregateReport()!=null){
+      System.err.println("Aggregate reports not supported");
+      return null;
+    }
+    if (qry.getMatch()!=null) {
+      flattenQuery(qry);
+    }
     queryEntity.setDefinition(qry);
     return queryEntity;
   }
@@ -114,6 +121,8 @@ public class EqdToIMQ {
     if (qry.getWhere() != null) {
       return;
     }
+    if (qry.getMatch()==null)
+      return;
     List<Match> flatMatches = new ArrayList<>();
     flattenAnds(qry.getMatch(), flatMatches);
     qry.setMatch(flatMatches);
@@ -125,7 +134,7 @@ public class EqdToIMQ {
       if (topMatch.getMatch() == null) {
         flatMatches.add(topMatch);
       } else if (topMatch.getBoolMatch() != Bool.or) {
-        flatMatches.addAll(topMatch.getMatch());
+        flattenAnds(topMatch.getMatch(),flatMatches);
       } else {
         flatMatches.add(topMatch);
       }

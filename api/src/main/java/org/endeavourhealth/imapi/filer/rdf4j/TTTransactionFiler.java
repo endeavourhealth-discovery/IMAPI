@@ -241,11 +241,9 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       LOG.info("Updating range inheritances");
       new RangeInheritor().inheritRanges(conn);
       commit();
-    } catch (TTFilerException e) {
-      rollback();
-      throw e;
 
     } catch (Exception e) {
+      rollback();
       throw new TTFilerException(e.getMessage());
     }
     updateSets(document);
@@ -294,6 +292,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       throw e;
 
     } catch (Exception e) {
+      rollback();
       throw new TTFilerException(e.getMessage());
     }
     updateSets(document);

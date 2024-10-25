@@ -9,19 +9,16 @@ import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 import java.util.zip.DataFormatException;
 
@@ -97,7 +94,7 @@ public class QueryController {
   @GetMapping(value = "/public/queryDisplay", produces = "application/json")
   public Query describeQuery(
     @RequestParam(name = "queryIri") String iri
-  ) throws IOException {
+  ) throws IOException,QueryException  {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       LOG.debug("getQueryDisplay");
       return queryService.describeQuery(iri);
@@ -106,7 +103,7 @@ public class QueryController {
 
   @PostMapping("/public/queryDisplayFromQuery")
   @Operation(summary = "get query view from imq as viewable object")
-  public Query describeQueryContent(@RequestBody Query query) throws IOException {
+  public Query describeQueryContent(@RequestBody Query query) throws IOException,QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
       LOG.debug("getQueryDisplay");
       return queryService.describeQuery(query);

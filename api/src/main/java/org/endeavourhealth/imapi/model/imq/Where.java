@@ -10,7 +10,7 @@ import java.util.function.Consumer;
   , "operator", "isNull", "value", "unit", "instanceOf", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends PropertyRef {
+public class Where extends PropertyRef implements Assignable{
   private String description;
   private Range range;
   private List<Node> is;
@@ -25,7 +25,16 @@ public class Where extends PropertyRef {
   private boolean isNull;
   private PropertyRef relativeTo;
   private boolean isNotNull;
-  private String displayLabel;
+  private FunctionClause function;
+
+  public FunctionClause getFunction() {
+    return function;
+  }
+
+  public Where setFunction(FunctionClause function) {
+    this.function = function;
+    return this;
+  }
 
   public Where() {
   }
@@ -38,14 +47,18 @@ public class Where extends PropertyRef {
     return new Where(iri);
   }
 
-  public String getDisplayLabel() {
-    return displayLabel;
-  }
 
-  public Where setDisplayLabel(String displayLabel) {
-    this.displayLabel = displayLabel;
+  public Where setQualifier(String qualifier){
+    super.setQualifier(qualifier);
     return this;
   }
+
+  @Override
+  public String getValueLabel() {
+    return this.valueLabel;
+  }
+
+
 
   public Bool getBoolWhere() {
     return boolWhere;
@@ -131,9 +144,6 @@ public class Where extends PropertyRef {
   }
 
 
-  public String getValueLabel() {
-    return valueLabel;
-  }
 
   public Where setValueLabel(String valueLabel) {
     this.valueLabel = valueLabel;

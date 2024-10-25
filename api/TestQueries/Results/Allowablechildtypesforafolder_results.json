@@ -1,19 +1,15 @@
 {
-  "page": 1,
-  "count": 1,
-  "totalCount": 1,
-  "entities": [
-    {
-      "@id": "http://www.w3.org/ns/shacl#NodeShape",
-      "http://www.w3.org/2000/01/rdf-schema#label": "Data model/Node shape ",
-      "http://www.w3.org/ns/shacl#property": [
-        {
-          "@bn": "genid-c31cdb645d004fb4a2cf73a0c150f4cc29-b943",
-          "http://www.w3.org/ns/shacl#path": {
-            "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
-          }
-        }
-      ]
-    }
-  ]
+  "page" : 1,
+  "count" : 1,
+  "totalCount" : 1,
+  "entities" : [ {
+    "@id" : "http://www.w3.org/ns/shacl#NodeShape",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Data model/Node shape ",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1895",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+      }
+    } ]
+  } ]
 }

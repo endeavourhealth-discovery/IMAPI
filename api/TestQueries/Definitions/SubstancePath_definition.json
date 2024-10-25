@@ -8,19 +8,13 @@
     "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "sn" : "http://snomed.info/sct#"
   },
-  "textSearch" : "chest pain",
-  "query" : {
-    "name" : "Search for concepts",
-    "activeOnly" : true,
-    "match" : [ {
-      "typeOf" : {
-        "@id" : "im:Concept"
-      }
-    } ],
-    "return" : [ {
-      "property" : [ {
-        "@id" : "rdfs:label"
-      } ]
-    } ]
+  "pathQuery" : {
+    "name" : "SubstancePath",
+    "source" : {
+      "@id" : "im:Patient"
+    },
+    "target" : {
+      "@id" : "sn:105590001"
+    }
   }
 }

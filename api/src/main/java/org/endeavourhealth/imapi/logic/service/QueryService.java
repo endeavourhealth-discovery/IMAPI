@@ -6,8 +6,12 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -31,11 +35,18 @@ public class QueryService {
     return query;
   }
 
-  public Query describeQuery(Query query) {
+  public Query getQueryFromIri(String queryIri) throws JsonProcessingException {
+    TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
+    if (queryEntity.get(iri(IM.DEFINITION)) == null)
+      return null;
+    return queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+  }
+
+  public Query describeQuery(Query query) throws QueryException {
     return new QueryDescriptor().describeQuery(query);
   }
 
-  public Query describeQuery(String queryIri) throws JsonProcessingException {
+  public Query describeQuery(String queryIri) throws JsonProcessingException, QueryException {
     return new QueryDescriptor().describeQuery(queryIri);
   }
 

@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.config.ConfigManager;
+import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
 import org.endeavourhealth.imapi.logic.service.GithubService;
 import org.endeavourhealth.imapi.model.config.Config;
+import org.endeavourhealth.imapi.model.customexceptions.ConfigException;
 import org.endeavourhealth.imapi.model.github.GithubRelease;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -31,7 +33,7 @@ public class GithubController {
   GithubService githubService = new GithubService();
 
   @GetMapping(value = "public/githubLatest")
-  public GithubRelease getLatestRelease() throws IOException {
+  public GithubRelease getLatestRelease() throws IOException, ConfigException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubLatest.GET")) {
       LOG.debug("getGithubLatest");
       return githubService.getGithubLatestRelease();

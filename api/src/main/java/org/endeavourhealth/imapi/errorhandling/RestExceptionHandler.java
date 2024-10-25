@@ -2,10 +2,7 @@ package org.endeavourhealth.imapi.errorhandling;
 
 import org.apache.catalina.connector.ClientAbortException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
-import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
-import org.endeavourhealth.imapi.model.customexceptions.ErrorCodes;
-import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.customexceptions.*;
 import org.endeavourhealth.imapi.model.eclBuilder.EclBuilderException;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.springframework.beans.TypeMismatchException;
@@ -139,6 +136,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(GeneralCustomException.class)
   protected ResponseEntity<Object> handleGeneralCustomException(GeneralCustomException ex) {
     ApiError error = new ApiError(ex.getStatus(), ex.getMessage(), ex, ErrorCodes.GENERAL_CUSTOM_EXCEPTION);
+    return buildResponseEntity(error);
+  }
+
+  @ExceptionHandler(ConfigException.class)
+  protected ResponseEntity<Object> handleConfigException(ConfigException ex) {
+    ApiError error = new ApiError(ex.getStatus(), ex.getMessage(), ex, ErrorCodes.CONFIG_EXCEPTION);
     return buildResponseEntity(error);
   }
 

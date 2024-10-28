@@ -74,21 +74,34 @@ public class ConfigManager {
     insert(iri, IM.HAS_CONFIG, config.getData());
   }
 
+  private String DELETE_INSERT_SPARQL = """
+    DELETE {
+      ?s ?p ?oAny
+    }
+    INSERT {
+      ?s ?p ?o
+    }
+    WHERE { ?s ?p ?oAny }
+    """;
+
   private String INSERT_SPARQL = """
-      DELETE {
-        ?s ?p ?oAny
-      }
-      INSERT {
-        ?s ?p ?o
-      }
-      WHERE { ?s ?p ?oAny }
-      """;
+    DELETE {
+      ?s ?p ?oAny
+    }
+    INSERT {
+      ?s ?p ?o
+    }
+    WHERE {}
+    """;
 
   private void insert(String subject, String predicate, String object) {
-    if (null == subject || subject.isEmpty() || null == predicate || predicate.isEmpty()) throw new IllegalArgumentException("Subject or Predicate cannot be null");
+    if (null == subject || subject.isEmpty() || null == predicate || predicate.isEmpty())
+      throw new IllegalArgumentException("Subject or Predicate cannot be null");
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
-        Update qry = prepareUpdateSparql(conn, INSERT_SPARQL);
+        String query = DELETE_INSERT_SPARQL;
+        if (null == getConfig(subject)) query = INSERT_SPARQL;
+        Update qry = prepareUpdateSparql(conn, query);
         qry.setBinding("s", Values.iri(subject));
         qry.setBinding("p", Values.iri(predicate));
         qry.setBinding("o", literal(object));

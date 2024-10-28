@@ -25,7 +25,7 @@ aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive
 
 # Build
 { #try
-    ./gradlew build &&
+    ./gradlew publish &&
     buildresult=0
 } || { #catch
     buildresult=1

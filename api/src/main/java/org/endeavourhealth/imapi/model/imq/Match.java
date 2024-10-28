@@ -33,6 +33,22 @@ public class Match extends IriLD {
   private List<IriLD> path;
   private String displayLabel;
   private boolean hasInlineSet;
+  private FunctionClause function;
+
+  public FunctionClause getFunction() {
+    return function;
+  }
+
+  public Match setFunction(FunctionClause function) {
+    this.function = function;
+    return this;
+  }
+  public Match function (Consumer < FunctionClause > builder) {
+      FunctionClause function = new FunctionClause();
+      this.function = function;
+      builder.accept(function);
+      return this;
+  }
 
   public boolean isHasInlineSet() {
     return hasInlineSet;

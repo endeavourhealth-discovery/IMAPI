@@ -28,6 +28,12 @@ public class Query extends Match {
   private boolean imQuery;
   private JsonNode parentResult;
 
+  public Query function (Consumer < FunctionClause > builder) {
+    FunctionClause function = new FunctionClause();
+    super.setFunction(function);
+    builder.accept(function);
+    return this;
+  }
   public JsonNode getParentResult() {
     return parentResult;
   }

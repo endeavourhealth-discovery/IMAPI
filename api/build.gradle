@@ -124,23 +124,6 @@ dependencies {
   annotationProcessor libs.lombok
 }
 
-publishing {
-  publications {
-    maven(MavenPublication) {
-      from(components.java)
-    }
-  }
-  repositories {
-    maven {
-      url = uri('https://artifactory.endhealth.co.uk/repository/maven-snapshots')
-      credentials {
-        username = MAVEN_USERNAME
-        password = MAVEN_PASSWORD
-      }
-    }
-  }
-}
-
 test {
   useJUnitPlatform()
 }

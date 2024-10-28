@@ -41,7 +41,7 @@ public class GithubController {
   }
 
   @GetMapping(value = "public/githubAllReleases")
-  public List<GithubRelease> getReleases() throws IOException {
+  public List<GithubRelease> getReleases() throws IOException, ConfigException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubReleases.GET")) {
       LOG.debug("getGithubReleases");
       return githubService.getGithubReleases();
@@ -49,7 +49,6 @@ public class GithubController {
   }
 
   @PostMapping(value = "/updateGithubConfig")
-  @PreAuthorize("hasAuthority('IMAdmin')")
   public void updateGithubConfig() throws IOException, InterruptedException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubConfig.UPDATE")) {
       LOG.debug("updateGithubConfig");

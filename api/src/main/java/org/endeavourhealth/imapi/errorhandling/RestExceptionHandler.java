@@ -141,7 +141,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(ConfigException.class)
   protected ResponseEntity<Object> handleConfigException(ConfigException ex) {
-    ApiError error = new ApiError(ex.getStatus(), ex.getMessage(), ex, ErrorCodes.CONFIG_EXCEPTION);
+    ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), ex, ErrorCodes.CONFIG_EXCEPTION);
     return buildResponseEntity(error);
   }
 

@@ -125,6 +125,11 @@ dependencies {
 }
 
 publishing {
+  publications {
+    maven(MavenPublication) {
+      from(components.java)
+    }
+  }
   repositories {
     maven {
       url = uri('https://artifactory.endhealth.co.uk/repository/maven-snapshots')

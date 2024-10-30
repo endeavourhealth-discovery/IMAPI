@@ -371,5 +371,22 @@ public class EntityService {
 
     return entityRepository.getEntityReferenceNode(iri, schemeIris, inactive);
   }
+
+  public Map<String, org.endeavourhealth.imapi.model.Namespace> getSchemesWithPrefixes() {
+    Map<String, org.endeavourhealth.imapi.model.Namespace> result = entityRepository.findAllSchemesWithPrefixes();
+    result.values().forEach(value -> value.setPrefix(getPrefixFromIri(value.getIri())));
+    return result;
+  }
+
+  private String getPrefixFromIri(String iri) {
+    int lastSlashIndex = iri.lastIndexOf('/');
+    int hashIndex = iri.lastIndexOf('#');
+     if (lastSlashIndex != -1 && hashIndex != -1 && hashIndex > lastSlashIndex) {
+      return iri.substring(lastSlashIndex + 1, hashIndex);
+    } else if (iri.equals(FHIR.DOMAIN)) {
+      return FHIR.PREFIX;
+    }
+    return iri;
+  }
 }
 

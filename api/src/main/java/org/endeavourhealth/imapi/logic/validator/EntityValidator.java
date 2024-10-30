@@ -22,9 +22,10 @@ import java.util.regex.Pattern;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EntityValidator {
-  EntityService entityService = new EntityService();
+  EntityService entityService;
 
-  public EntityValidationResponse validate(EntityValidationRequest request) throws ValidationException {
+  public EntityValidationResponse validate(EntityValidationRequest request, EntityService entityService) throws ValidationException {
+    this.entityService = entityService;
     return switch (request.getValidationIri()) {
       case VALIDATION.HAS_PARENT -> hasValidParents(request.getEntity());
       case VALIDATION.IS_DEFINITION -> isValidDefinition(request.getEntity());
@@ -72,21 +73,26 @@ public class EntityValidator {
     return response;
   }
 
-  private EntityValidationResponse isValidIri(TTEntity entity) throws ValidationException {
+  private EntityValidationResponse isValidIri(TTEntity entity) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false);
     response.setMessage("Entity IRI is invalid");
-    if (entity.getIri().isEmpty()) response.setMessage("Entity is missing iri");
-    if (!entity.getIri().contains("#")) response.setMessage("Entity IRI must contain #");
+    if (entity.getIri().isEmpty()) {
+      response.setMessage("Entity is missing iri");
+      return response;
+    } else if (!entity.getIri().contains("#")) {
+      response.setMessage("Entity IRI must contain #");
+      return response;
+    }
     String[] splits = entity.getIri().split("#");
     if (splits.length > 2)
       response.setMessage("Entity IRI contains invalid character # within identifier");
-    else if (!entity.getIri().matches("^http://[a-zA-Z]+\\.[a-zA-Z]+/[a-zA-Z]+#$"))
+    else if (!splits[0].matches("^http://[a-zA-Z]+\\.[a-zA-Z]+/[a-zA-Z]+$"))
       response.setMessage("Iri URL is invalid");
     else if (splits.length < 2) response.setMessage("Iri must contain a code");
-    else if (!URLEncoder.encode(splits[1], StandardCharsets.UTF_8).equals(splits[1])) {
-      String encodedCode = URLEncoder.encode(splits[1], StandardCharsets.UTF_8);
-      boolean hasInvalidCharacter = Pattern.matches("%[0-9a-zA-Z]{2}", encodedCode);
+    else if (!encodeUrlJS(splits[1]).equals(splits[1])) {
+      String encodedCode = encodeUrlJS(splits[1]);
+      boolean hasInvalidCharacter = Pattern.compile("%[0-9a-zA-Z]{2}").matcher(encodedCode).find();
       if (hasInvalidCharacter) response.setMessage("Iri code contains invalid characters");
     } else if (splits[1].startsWith("CSET_")) response.setMessage("Iri code missing after prefix: " + splits[1]);
     else {
@@ -94,6 +100,17 @@ public class EntityValidator {
       response.setMessage(null);
     }
     return response;
+  }
+
+  private String encodeUrlJS(String url) {
+    return URLEncoder
+      .encode(url, StandardCharsets.UTF_8)
+      .replace("+", "%20")
+      .replace("~", "%7E")
+      .replace("'", "%27")
+      .replace("(", "%28")
+      .replace(")", "%29")
+      .replace("!", "%21");
   }
 
   private EntityValidationResponse isValidTermCodes(TTEntity entity) {
@@ -153,7 +170,11 @@ public class EntityValidator {
   private boolean isValidIriOrIriList(TTArray list, int minLength, int maxLength) {
     if (null == list) return minLength == 0;
     if (list.size() < minLength || list.size() > maxLength) return false;
-    return list.getElements().stream().allMatch(item -> item.isIriRef() && !item.asIriRef().getIri().isEmpty());
+    return list.getElements().stream().allMatch(item -> {
+      if (item.isIriRef()) return !item.asIriRef().getIri().isEmpty();
+      else if (item.isNode()) return !item.asNode().getIri().isEmpty();
+      else return false;
+    });
   }
 
   private EntityValidationResponse isValidScheme(TTEntity entity) {

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.config.ConfigManager;
-import org.endeavourhealth.imapi.dataaccess.*;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.validator.EntityValidator;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
@@ -32,7 +32,6 @@ public class EntityService {
   private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
   private EntityRepository entityRepository = new EntityRepository();
   private ConfigManager configManager = new ConfigManager();
-  private SetService setService = new SetService();
   private EntityValidator validator = new EntityValidator();
 
   private static void filterOutSpecifiedPredicates(Set<String> excludePredicates, TTBundle bundle) {
@@ -42,6 +41,21 @@ public class EntityService {
       if (excludePredicates.contains(RDFS.LABEL)) {
         bundle.getEntity().set(iri(RDFS.LABEL), (TTValue) null);
       }
+    }
+  }
+
+  protected static void filterOutInactiveTermCodes(TTBundle bundle) {
+    if (bundle.getEntity().get(iri(IM.HAS_TERM_CODE)) != null) {
+      List<TTValue> termCodes = bundle.getEntity().get(iri(IM.HAS_TERM_CODE)).getElements();
+      TTArray activeTermCodes = new TTArray();
+      for (TTValue value : termCodes) {
+        if (value.asNode().get(iri(IM.HAS_STATUS)) != null) {
+          if (value.asNode().get(iri(IM.HAS_STATUS)) != null && "Active".equals(value.asNode().get(iri(IM.HAS_STATUS)).asIriRef().getName())) {
+            activeTermCodes.add(value);
+          }
+        } else activeTermCodes.add(value);
+      }
+      bundle.getEntity().set(iri(IM.HAS_TERM_CODE), activeTermCodes);
     }
   }
 
@@ -308,21 +322,6 @@ public class EntityService {
     return entityRepository.iriExists(iri);
   }
 
-  protected static void filterOutInactiveTermCodes(TTBundle bundle) {
-    if (bundle.getEntity().get(iri(IM.HAS_TERM_CODE)) != null) {
-      List<TTValue> termCodes = bundle.getEntity().get(iri(IM.HAS_TERM_CODE)).getElements();
-      TTArray activeTermCodes = new TTArray();
-      for (TTValue value : termCodes) {
-        if (value.asNode().get(iri(IM.HAS_STATUS)) != null) {
-          if (value.asNode().get(iri(IM.HAS_STATUS)) != null && "Active".equals(value.asNode().get(iri(IM.HAS_STATUS)).asIriRef().getName())) {
-            activeTermCodes.add(value);
-          }
-        } else activeTermCodes.add(value);
-      }
-      bundle.getEntity().set(iri(IM.HAS_TERM_CODE), activeTermCodes);
-    }
-  }
-
   public String getName(String iri) {
     return entityRepository.getEntityReferenceByIri(iri).getName();
   }
@@ -390,11 +389,12 @@ public class EntityService {
 
   public List<ValidatedEntity> getValidatedEntitiesBySnomedCodes(List<String> codes) {
     List<String> snomedCodes = codes.stream().map(code -> SNOMED.NAMESPACE + code).toList();
-    List<TTEntity> entities = getPartialEntities(new HashSet<>(snomedCodes), Stream.of(RDFS.LABEL,IM.CODE).collect(Collectors.toSet()));
+    List<TTEntity> entities = getPartialEntities(new HashSet<>(snomedCodes), Stream.of(RDFS.LABEL, IM.CODE).collect(Collectors.toSet()));
+    SetService setService = new SetService();
     List<TTIriRef> needed = setService.getDistillation(entities.stream().map(e -> iri(e.getIri())).toList());
     List<ValidatedEntity> validatedEntities = new ArrayList<>();
     for (TTEntity entity : entities) {
-      ValidatedEntity validatedEntity = validateEntity(entity,needed);
+      ValidatedEntity validatedEntity = validateEntity(entity, needed);
       if (validatedEntities.stream().anyMatch(v -> v.getIri().equals(validatedEntity.getIri()))) {
         validatedEntity.setCode("Duplicate");
       }
@@ -405,10 +405,10 @@ public class EntityService {
 
   private ValidatedEntity validateEntity(TTEntity entity, List<TTIriRef> needed) {
     ValidatedEntity validatedEntity = new ValidatedEntity();
-      validatedEntity
-        .setIri(entity.getIri())
-        .setName(entity.getName())
-        .setCode(entity.getCode());
+    validatedEntity
+      .setIri(entity.getIri())
+      .setName(entity.getName())
+      .setCode(entity.getCode());
     boolean isInvalid = !entity.getIri().isEmpty() && !entity.getName().isEmpty() && !entity.getCode().isEmpty();
     TTIriRef found = needed.stream().filter(n -> n.getIri().equals(validatedEntity.getIri())).findFirst().orElse(null);
     if (isInvalid) {
@@ -427,13 +427,13 @@ public class EntityService {
   }
 
   public TTBundle getDetailsDisplay(String iri) {
-    Set<String> excludedPredicates = new HashSet<>(List.of(IM.CODE, RDFS.LABEL, IM.HAS_STATUS,RDFS.COMMENT));
+    Set<String> excludedPredicates = new HashSet<>(List.of(IM.CODE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT));
     Set<String> entityPredicates = getPredicates(iri);
     TTBundle response;
     if (entityPredicates.contains(IM.HAS_MEMBER)) {
       response = getBundleByPredicateExclusions(iri, excludedPredicates);
       excludedPredicates.add(IM.HAS_MEMBER);
-      Pageable<TTIriRef> partialAndCount = getPartialWithTotalCount(iri, IM.HAS_MEMBER, null,1, 10,false);
+      Pageable<TTIriRef> partialAndCount = getPartialWithTotalCount(iri, IM.HAS_MEMBER, null, 1, 10, false);
       TTArray partialAsTTArray = new TTArray();
       for (TTIriRef partial : partialAndCount.getResult()) {
         partialAsTTArray.add(partial);
@@ -441,7 +441,7 @@ public class EntityService {
       TTNode loadMoreNode = new TTNode()
         .setIri(IM.LOAD_MORE)
         .set(iri(RDFS.LABEL), "Load more")
-        .set(iri(IM.NAMESPACE + "totalCount"),partialAndCount.getTotalCount());
+        .set(iri(IM.NAMESPACE + "totalCount"), partialAndCount.getTotalCount());
       partialAsTTArray.add(loadMoreNode);
       response.addPredicate(iri(IM.HAS_MEMBER));
       response.getEntity().set(iri(IM.HAS_MEMBER), partialAsTTArray);
@@ -453,9 +453,9 @@ public class EntityService {
   }
 
   public TTBundle loadMoreDetailsDisplay(String iri, String predicate, int pageIndex, int pageSize) {
-    Pageable<TTIriRef> response = getPartialWithTotalCount(iri, predicate,null,pageIndex,pageSize,false);
+    Pageable<TTIriRef> response = getPartialWithTotalCount(iri, predicate, null, pageIndex, pageSize, false);
     TTEntity entity = new TTEntity();
-    entity.addObject(iri(predicate),response.getTotalCount());
+    entity.addObject(iri(predicate), response.getTotalCount());
     TTBundle bundle = new TTBundle();
     bundle.setEntity(entity);
     return bundle;
@@ -476,11 +476,11 @@ public class EntityService {
       if (ttProperty.asNode().has(iri(SHACL.MAXCOUNT))) {
         maxCount = ttProperty.asNode().get(iri(SHACL.MAXCOUNT)).asLiteral().intValue();
       }
-      String cardinality = minCount  + " : " + (maxCount == 0 ? "*" : maxCount);
+      String cardinality = minCount + " : " + (maxCount == 0 ? "*" : maxCount);
       if (ttProperty.asNode().has(iri(SHACL.OR))) {
         handleOr(ttProperty, cardinality, propertyList);
       } else {
-        handleNotOr(ttProperty,cardinality,propertyList);
+        handleNotOr(ttProperty, cardinality, propertyList);
       }
     }
     return propertyList;
@@ -501,9 +501,10 @@ public class EntityService {
       if (orProperty.asNode().has(iri(SHACL.PATH))) {
         name += orProperty.asNode().get(iri(SHACL.PATH)).get(0).asIriRef().getIri() + " (";
         if (!type.isEmpty() && !type.get(0).asIriRef().getName().isEmpty()) name += type.get(0).asIriRef().getName();
-        else if (!type.isEmpty() && !type.get(0).asIriRef().getIri().isEmpty()) name += " (" + type.get(0).asIriRef().getIri().split("#")[1];
+        else if (!type.isEmpty() && !type.get(0).asIriRef().getIri().isEmpty())
+          name += " (" + type.get(0).asIriRef().getIri().split("#")[1];
         name += ")";
-        propertyDisplay.addProperty(iri(orProperty.asNode().get(iri(SHACL.PATH)).get(0).asIriRef().getIri(),name));
+        propertyDisplay.addProperty(iri(orProperty.asNode().get(iri(SHACL.PATH)).get(0).asIriRef().getIri(), name));
         propertyDisplay.addType(type.get(0).asIriRef());
       }
       propertyList.add(propertyDisplay);
@@ -529,7 +530,7 @@ public class EntityService {
     }
     PropertyDisplay propertyDisplay = new PropertyDisplay();
     propertyDisplay.setOrder(ttProperty.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue());
-    propertyDisplay.addProperty(iri(ttProperty.asNode().get(iri(SHACL.PATH)).get(0).asIriRef().getIri(),name));
+    propertyDisplay.addProperty(iri(ttProperty.asNode().get(iri(SHACL.PATH)).get(0).asIriRef().getIri(), name));
     propertyDisplay.addType(type.get(0).asIriRef());
     propertyDisplay.setCardinality(cardinality);
     propertyDisplay.setOr(false);
@@ -539,7 +540,7 @@ public class EntityService {
 
   public EntityValidationResponse validate(EntityValidationRequest request) throws ValidationException {
     if (request.getValidationIri().isEmpty()) throw new IllegalArgumentException("Missing validation iri");
-    return validator.validate(request);
+    return validator.validate(request, this);
   }
 }
 

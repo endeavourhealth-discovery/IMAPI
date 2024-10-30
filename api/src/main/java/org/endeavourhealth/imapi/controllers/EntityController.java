@@ -338,5 +338,11 @@ public class EntityController {
     }
   }
 
-
+  @GetMapping(value = "/public/schemes")
+  public Map<String, org.endeavourhealth.imapi.model.Namespace> getSchemesWithPrefixes() throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SchemesWithPrefixes.GET")) {
+      LOG.debug("getSchemesWithPrefixes");
+      return entityService.getSchemesWithPrefixes();
+    }
+  }
 }

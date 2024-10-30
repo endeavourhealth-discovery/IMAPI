@@ -42,7 +42,7 @@ public class UserController {
     }
   }
 
-  @PostMapping(value = "/preset", consumes = "application/x-www-form-urlencoded")
+  @PostMapping(value = "/preset", consumes = "text/plain")
   @ResponseStatus(HttpStatus.ACCEPTED)
   public void updateUserPreset(HttpServletRequest request, @RequestBody String preset) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
@@ -61,7 +61,7 @@ public class UserController {
     }
   }
 
-  @PostMapping(value = "/primaryColor", consumes = "application/x-www-form-urlencoded")
+  @PostMapping(value = "/primaryColor", consumes = "text/plain")
   @ResponseStatus(HttpStatus.ACCEPTED)
   public void updateUserPriaryColor(HttpServletRequest request, @RequestBody String color) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
@@ -80,7 +80,7 @@ public class UserController {
     }
   }
 
-  @PostMapping(value = "/surfaceColor", consumes = "application/x-www-form-urlencoded")
+  @PostMapping(value = "/surfaceColor", consumes = "text/plain")
   @ResponseStatus(HttpStatus.ACCEPTED)
   public void updateUserSurfaceColor(HttpServletRequest request, @RequestBody String color) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
@@ -118,7 +118,7 @@ public class UserController {
     }
   }
 
-  @PostMapping(value = "/scale", consumes = "application/x-www-form-urlencoded", produces = "application/json")
+  @PostMapping(value = "/scale", consumes = "text/plain", produces = "application/json")
   @ResponseStatus(HttpStatus.ACCEPTED)
   public void updateUserScale(HttpServletRequest request, @RequestBody String scale) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Scale.POST")) {

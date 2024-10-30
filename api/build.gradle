@@ -15,7 +15,9 @@ import cz.habarta.typescript.generator.JsonLibrary
 import cz.habarta.typescript.generator.OptionalProperties
 import cz.habarta.typescript.generator.TypeScriptFileType
 
-if (ENV != 'prod') {
+if (ENV == 'prod') {
+  tasks.named("build") { finalizedBy("publish") }
+} else {
   compileJava.dependsOn 'staticConstGenerator'
 }
 
@@ -125,6 +127,11 @@ dependencies {
 }
 
 publishing {
+  publications {
+    maven(MavenPublication) {
+      from(components.java)
+    }
+  }
   repositories {
     maven {
       url = uri('https://artifactory.endhealth.co.uk/repository/maven-snapshots')

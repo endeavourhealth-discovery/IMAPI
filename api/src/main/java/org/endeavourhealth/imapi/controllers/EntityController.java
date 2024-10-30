@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
@@ -366,6 +367,22 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.validate.POST")) {
       LOG.debug("validateEntity");
       return entityService.validate(request);
+    }
+  }
+
+  @GetMapping(value = "/public/type/entities")
+  public List<TTIriRef> getEntitiesByType(@RequestParam(name = "iri") String typeIri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Predicates.GET")) {
+      LOG.debug("getEntitiesByType");
+      return entityService.getEntitiesByType(typeIri);
+    }
+  }
+
+  @GetMapping(value = "/public/schemes")
+  public Map<String, Namespace> getSchemesWithPrefixes() throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SchemesWithPrefixes.GET")) {
+      LOG.debug("getSchemesWithPrefixes");
+      return entityService.getSchemesWithPrefixes();
     }
   }
 }

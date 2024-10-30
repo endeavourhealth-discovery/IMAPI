@@ -14,5 +14,9 @@ public interface Assignable {
   public String getUnit();
 
   public Assignable setUnit(String unit);
+  Assignable setQualifier(String qualifier);
+  String getQualifier();
+  String getValueLabel();
+  Assignable setValueLabel(String label);
 
 }

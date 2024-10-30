@@ -8,91 +8,189 @@ import org.endeavourhealth.imapi.transforms.Context;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class QueryDescriptor {
-  public static final String PATIENT = "Patient";
-  private final Map<String, String> contextTerms;
-  private final Map<String, String> nodeRefNames;
   private final EntityRepository entityRepository = new EntityRepository();
+  private Map<String, TTEntity> iriContext;
+  private final EntityRepository repo = new EntityRepository();
 
-  public QueryDescriptor() {
-    contextTerms = new HashMap<>();
-    nodeRefNames = new HashMap<>();
-    contextTerms.putAll(Map.of(
-      PATIENT + Context.SINGLE, PATIENT,
-      PATIENT + Context.PLURAL, "Patients",
-      IM.NAMESPACE + "Observation" + Context.TYPE, "",
-      IM.NAMESPACE + "observation" + Context.PATH, "",
-      IM.NAMESPACE + "concept" + Context.PROPERTY, "",
-      IM.NAMESPACE + "Prescription" + Context.TYPE, "Prescription for ",
-      "DATE" + Context.PLURAL, "",
-      "YEAR" + Context.PLURAL, "years",
-      "MONTH" + Context.PLURAL, "months",
-      "DAY" + Context.PLURAL, "days"));
-    contextTerms.putAll(Map.of(
-      "YEARS" + Context.PLURAL, "years",
-      "MONTHS" + Context.PLURAL, "months",
-      "DAYS" + Context.PLURAL, "days"));
-  }
-
-  public Query describeQuery(String queryIri) throws JsonProcessingException {
+  public Query describeQuery(String queryIri) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null)
       return null;
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
-    query.setName(queryEntity.getName());
     return describeQuery(query);
   }
 
-  public Query describeQuery(Query query) {
-
-    query.setDisplayLabel(query.getName());
-    if (query.getBoolMatch() == null)
-      query.setBoolMatch(Bool.and);
+  public Query describeQuery(Query query) throws QueryException {
+    setIriNames(query);
+    if (query.getTypeOf() != null) {
+      query.getTypeOf().setName(getTermInContext(query.getTypeOf(), Context.PLURAL));
+      query.getTypeOf().setDescription(" with the following features : ");
+    }
     if (query.getMatch() != null) {
-      for (Match match : query.getMatch()) {
-        describeMatch(match, MatchType.MATCH);
-      }
+      describeMatches(query);
+    }
+    if (query.getWhere() != null) {
+      describeWheres(query);
+    }
+    if (query.getQuery() != null) {
+      describeQueries(query);
+    }
+    if (query.getReturn() != null) {
+      describeReturns(query);
     }
     return query;
   }
 
-  public String getTermInContext(String source, Context context) {
-    if (contextTerms.get(source + context) != null) {
-      return contextTerms.get(source + context);
-    } else
-      return source;
+  private void describeReturns(Query query) {
+    for (Return ret : query.getReturn()) {
+      describeReturn(ret);
+    }
   }
 
-  private String getTermInContext(Node node, Context context) {
+  private void describeReturn(Return ret) {
+    if (ret.getProperty() != null) {
+      for (ReturnProperty prop : ret.getProperty()) {
+        if (prop.getIri() != null)
+          prop.setName(getTermInContext(prop.getIri()));
+        if (prop.getReturn() != null) {
+          describeReturn(prop.getReturn());
+        }
+      }
+    }
+
+
+  }
+
+
+  private void describeQueries(Query query) throws QueryException {
+    for (Query subQuery : query.getQuery()) {
+      describeQuery(subQuery);
+    }
+  }
+
+  private void setIriNames(Query query) throws QueryException {
+    Set<String> iriSet = new HashSet<>();
+    setIriSet(query, iriSet);
+    if (query.getQuery() != null) {
+      for (Query subQuery : query.getQuery()) {
+        setIriSet(subQuery, iriSet);
+      }
+    }
+    if (query.getReturn() != null) {
+      for (Return ret : query.getReturn()) {
+        setIriSet(ret, iriSet);
+      }
+    }
+    try {
+      iriContext = repo.getEntitiesWithPredicates(iriSet, Set.of(IM.PREPOSITION, IM.CODE));
+    } catch (Exception e) {
+      throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
+    }
+  }
+
+  private void setIriSet(Return ret, Set<String> iriSet) {
+    if (ret.getProperty() != null) {
+      for (ReturnProperty prop : ret.getProperty()) {
+        if (prop.getIri() != null)
+          iriSet.add(prop.getIri());
+        if (prop.getReturn() != null) {
+          setIriSet(prop.getReturn(), iriSet);
+        }
+      }
+    }
+  }
+
+
+  private void setIriSet(Match match, Set<String> iriSet) {
+    if (match.getTypeOf() != null) {
+      iriSet.add(match.getTypeOf().getIri());
+    }
+    if (match.getPath() != null) {
+      for (IriLD path : match.getPath()) {
+        iriSet.add(path.getIri());
+      }
+    }
+    if (match.getInstanceOf() != null) {
+      match.getInstanceOf().forEach(i -> iriSet.add(i.getIri()));
+    }
+    if (match.getMatch() != null) {
+      for (Match subMatch : match.getMatch()) {
+        setIriSet(subMatch, iriSet);
+      }
+    }
+    if (match.getThen() != null)
+      setIriSet(match.getThen(), iriSet);
+    if (match.getWhere() != null) {
+      for (Where where : match.getWhere()) {
+        setIriSet(where, iriSet);
+      }
+    }
+  }
+
+  private void setIriSet(Where where, Set<String> iriSet) {
+    if (where.getIri() != null) {
+      iriSet.add(where.getIri());
+    }
+    if (where.getMatch() != null) {
+      setIriSet(where.getMatch(), iriSet);
+    }
+    if (where.getWhere() != null) {
+      for (Where subWhere : where.getWhere()) {
+        setIriSet(subWhere, iriSet);
+      }
+    }
+    if (where.getIs() != null) {
+      for (Node node : where.getIs())
+        iriSet.add(node.getIri());
+    }
+  }
+
+
+  public String getTermInContext(String source, Context... contexts) {
+    if (source.equals(""))
+      return "";
+    StringBuilder term = new StringBuilder(source);
+    TTEntity entity = iriContext.get(source);
+    if (entity != null) {
+      term = new StringBuilder(entity.getName());
+    }
+    for (Context context : contexts) {
+      if (context == Context.PLURAL) {
+        if (entity != null) {
+          if (entity.get(iri(IM.NAMESPACE + "plural")) == null) {
+            if (!term.toString().toLowerCase().endsWith("s"))
+              term.append("s");
+          } else {
+            term = new StringBuilder(entity.get(iri(IM.NAMESPACE + "plural")).asLiteral().getValue());
+          }
+        } else if (!term.toString().toLowerCase().endsWith("s"))
+          term.append("s");
+      }
+      if (context == Context.LOWERCASE) {
+        term = new StringBuilder(term.toString().toLowerCase());
+      }
+    }
+    return term.toString();
+  }
+
+  private String getTermInContext(Node node, Context... context) {
     if (node.getParameter() != null) {
       return node.getParameter();
     }
     if (node.getName() != null) {
-      return getTermInContext(node.getName(), context);
+      return node.getName();
     }
     if (node.getIri() != null) {
-      if (contextTerms.get(node.getIri() + context) != null) {
-        return contextTerms.get(node.getIri() + context);
-      }
-      String name = entityRepository.getEntityPredicates(node.getIri(), Set.of(RDFS.LABEL)).getEntity().getName();
-      if (name == null)
-        name = node.getIri();
-      contextTerms.put(node.getIri() + context, name);
-      return name;
+      return getTermInContext(node.getIri(), context);
     } else if (node.getVariable() != null) {
       return node.getVariable();
     } else if (node.getNodeRef() != null) {
-      if (nodeRefNames.get(node.getNodeRef()) != null) {
-        return nodeRefNames.get(node.getNodeRef());
-      } else
-        return node.getNodeRef();
+      return node.getNodeRef();
     } else
       return "";
   }
@@ -103,343 +201,378 @@ public class QueryDescriptor {
       display = "is ";
     }
     if (ref.getName() != null) {
-      display = display + getTermInContext(ref.getName(), Context.PROPERTY);
+      display = display + ref.getName();
     } else if (ref.getIri() != null) {
-      display = processRefIri(display, ref);
+      display = getTermInContext(ref.getIri());
     } else if (ref.getParameter() != null) {
       display = ref.getParameter();
     }
-    if (ref.getNodeRef() != null) {
-      if (nodeRefNames.get(ref.getNodeRef()) != null) {
-        display = display + " of " + nodeRefNames.get(ref.getNodeRef());
-      } else
-        display = display + ref.getNodeRef();
-    }
     return display;
   }
 
-  private String processRefIri(String display, PropertyRef ref) {
-    if (contextTerms.get(ref.getIri() + Context.PROPERTY) != null) {
-      display = display + contextTerms.get(ref.getIri() + Context.PROPERTY);
-      if (ref.isInverse()) {
-        display = display + " of ";
-      }
-    } else {
-      String name = entityRepository.getEntityPredicates(ref.getIri(), Set.of(RDFS.LABEL)).getEntity().getName();
-      if (name == null)
-        name = ref.getIri();
-      contextTerms.put(ref.getIri() + Context.PROPERTY, name);
-      display = display + getTermInContext(name, Context.PROPERTY);
-    }
-    return display;
-  }
 
   public void describeThen(Match then) {
-    then.setDisplayLabel("then test if :");
-    if (then.getMatch() != null) {
-      describeMatches(then);
-    } else
-      describeMatch(then, MatchType.THEN);
+    then.setIncludeIf("then test if");
+    describeMatch(then);
   }
+
 
   private void describeMatches(Match match) {
-    for (Match nested : match.getMatch()) {
-      describeMatch(nested, MatchType.MATCH);
+    if (match.getBoolMatch() == null) {
+      if (match.getMatch().size() > 1)
+        match.setBoolMatch(Bool.and);
+    }
+    for (Match subMatch : match.getMatch()) {
+      describeMatch(subMatch);
+
     }
   }
 
-  public void describeMatch(Match match, MatchType matchType) {
-    StringBuilder display = new StringBuilder();
-    if (matchType == MatchType.THEN) {
-      display.append("Then test if :");
+
+  public void describeMatch(Match match) {
+    if (match.getName() == null) {
+      if (match.getDescription() != null) {
+        match.setName(match.getDescription());
+      }
     }
+    if (match.getPath() != null) {
+      describePath(match.getPath());
+    }
+    if (match.getOrderBy() != null) {
+      describeOrderBy(match.getOrderBy());
+    }
+    if (match.getTypeOf() != null) {
+      match.getTypeOf().setName(getTermInContext(match.getTypeOf(), Context.PLURAL));
+    }
+    if (match.getInstanceOf() != null) {
+      describeInstance(match.getInstanceOf());
+    }
+
     if (match.getMatch() != null) {
       describeMatches(match);
-    } else {
-      processMatchNoSubMatches(match, matchType, display);
-    }
-    if (!display.isEmpty())
-      match.setDisplayLabel(display.toString());
-  }
-
-  private void processMatchNoSubMatches(Match match, MatchType matchType, StringBuilder display) {
-    if (match.getOrderBy() != null) {
-      display.append(describeOrderBy(match.getOrderBy())).append(" ");
-    }
-    if (matchType != MatchType.WHERE_MATCH) {
-
-      if (match.getTypeOf() != null) {
-        display.append(getTermInContext(match.getTypeOf(), Context.TYPE));
-      }
-      if (match.getInstanceOf() != null) {
-        display.append("in the cohort :'").append(describeInstance(match.getInstanceOf())).append("'");
-      }
-    }
-
-    if (match.getVariable() != null) {
-      nodeRefNames.put(match.getVariable(), display.toString());
     }
     if (match.getWhere() != null) {
       describeWheres(match);
     }
-
     if (match.getThen() != null) {
       describeThen(match.getThen());
     }
+    if (match.getVariable() != null) {
+      match.setVariable(match.getVariable());
+    }
+
+
   }
 
-  private void describeWheres(Where where) {
+
+  private void describeWheres(Match parentMatch, Where where) {
     if (where.getBoolWhere() == null) {
-      where.setBoolWhere(Bool.and);
+      if (where.getWhere().size() > 1)
+        where.setBoolWhere(Bool.and);
     }
     for (Where subWhere : where.getWhere()) {
-      describeWhere(subWhere);
+      describeWhere(parentMatch, subWhere);
+    }
+    if (where.getMatch() != null) {
+      describeMatch(where.getMatch());
+
     }
 
   }
 
   private void describeWheres(Match match) {
-    if (match.getBoolWhere() == null)
+    if (match.getWhere().size() > 1 && match.getBoolWhere() == null)
       match.setBoolWhere(Bool.and);
+    Where conceptWhere = getConceptWhere(match);
+    if (conceptWhere != null) {
+      match.getWhere().remove(conceptWhere);
+      match.getWhere().add(0, conceptWhere);
+      describeWhere(match, conceptWhere);
+    }
     for (Where where : match.getWhere()) {
-      describeWhere(where);
-    }
-  }
-
-  private String describeInstance(List<Node> inSets) {
-    StringBuilder display = new StringBuilder();
-    if (inSets.size() > 1) {
-      display.append("either ");
-    }
-    boolean first = true;
-    for (Node set : inSets) {
-      if (!first)
-        display.append(" or ");
-      first = false;
-
-      if (set.getName() != null) {
-        display.append("'");
-        display.append(set.getName());
-        display.append("'");
-      } else {
-        display.append("'").append(getTermInContext(set, Context.TYPE)).append("'");
+      if (where != conceptWhere) {
+        describeWhere(match, where);
       }
     }
-    return display.toString();
   }
 
-  private String describeOrderBy(OrderLimit orderBy) {
+
+  private String getPreposition(IriLD node) {
+    if (node.getIri() != null) {
+      TTEntity entity = iriContext.get(node.getIri());
+      if (entity.get(iri(IM.PREPOSITION)) != null) {
+        return entity.get(iri(IM.PREPOSITION)).asLiteral().getValue();
+      } else return null;
+    } else return null;
+  }
+
+
+  private void describePath(List<IriLD> paths) {
+    for (IriLD path : paths) {
+      String label = getTermInContext(path.getIri(), Context.PLURAL);
+      String preposition = getPreposition(path);
+      path.setDescription(label + (preposition != null ? " " + preposition : ""));
+    }
+  }
+
+
+  private void describeInstance(List<Node> inSets) {
+    for (Node set : inSets) {
+      String qualifier = "";
+      if (set.isExclude()) {
+        qualifier = "but not ";
+      }
+      if (set.isMemberOf()) {
+        qualifier = qualifier + "in cohort:";
+      } else
+        qualifier = qualifier + "is a";
+      String label = getTermInContext(set);
+      set.setName(label);
+      set.setQualifier(qualifier);
+
+    }
+  }
+
+  private void describeOrderBy(OrderLimit orderBy) {
     String orderDisplay;
     String field = orderBy.getProperty().getIri();
     if (field.toLowerCase().contains("date")) {
       if (orderBy.getProperty().getDirection() == Order.descending)
-        orderDisplay = "latest ";
+        orderDisplay = "get latest ";
       else
-        orderDisplay = "earliest ";
+        orderDisplay = "get earliest ";
     } else {
       if (orderBy.getProperty().getDirection() == Order.descending)
-        orderDisplay = "maximum ";
+        orderDisplay = "get maximum ";
       else
-        orderDisplay = "minimum ";
+        orderDisplay = "get minimum ";
     }
     if (orderBy.getLimit() > 1)
       orderDisplay = orderDisplay + " " + orderBy.getLimit();
-    return orderDisplay;
+    orderBy.setDescription(orderDisplay);
   }
 
-  private void describeWhere(Where where) {
-    StringBuilder display = new StringBuilder();
+  private Where getConceptWhere(Match match) {
+    for (Where where : match.getWhere()) {
+      if (where.getIri() != null)
+        if (where.getIri().equals(IM.NAMESPACE + "concept"))
+          return where;
+    }
+    return null;
+  }
+
+  private void describeWhere(Match parentMatch, Where where) {
     if (where.getWhere() != null) {
-      describeWheres(where);
+      describeWheres(parentMatch, where);
     } else {
-      String propertyName = getTermInContext(where);
       if (!where.getIri().equals(IM.NAMESPACE + "concept")) {
-        display.append(propertyName.isEmpty() ? "" : propertyName + " ");
+        where.setName(getTermInContext(where, Context.PROPERTY));
       }
       if (where.getRange() != null) {
-        display.append(describeRangeProperty(where, where.getIri().toLowerCase().contains("date")));
-      } else if (where.getValue() != null || where.getRelativeTo() != null || where.getOperator() != null) {
-        describeValueWhere(display, where, where.getIri().toLowerCase().contains("date"));
-      } else if (where.getIs() != null) {
-        display.append(describeIsProperty(where));
-      } else if (where.getIsNull()) {
-        display.append("is not recorded");
-      } else if (where.getIsNotNull()) {
-        display.append("is recorded");
+        describeRangeWhere(where);
+      }
+      if (where.getValue() != null || where.getOperator() != null) {
+        describeValueWhere(where);
+      }
+      if (where.getIs() != null) {
+        describeIsWhere(where);
+        parentMatch.setHasInlineSet(true);
+      }
+      if (where.getIsNull()) {
+        where.setValueLabel("is not recorded");
+      }
+      if (where.getIsNotNull()) {
+        where.setValueLabel("is recorded");
       }
       if (where.getMatch() != null) {
-        describeMatch(where.getMatch(), MatchType.WHERE_MATCH);
+        describeMatch(where.getMatch());
       }
     }
-    where.setDisplayLabel(display.toString());
+
   }
 
-  private boolean hasRelativeTo(Where where) {
-    if (where.getRelativeTo() != null) {
-      return where.getRelativeTo().getParameter() == null || !where.getRelativeTo().getParameter().equals("$referenceDate");
+  private void describeValue(Assignable assignable, Operator operator, boolean date, String value, String units, boolean relativeTo, boolean isRange) {
+    String qualifier = null;
+    boolean inclusive = false;
+    boolean past = false;
+    if (value != null)
+      if (value.startsWith("-"))
+        past = true;
+    String relativity = null;
+    switch (operator) {
+      case gt:
+        if (date) {
+          if (!isRange)
+            if (value != null) {
+              qualifier = "within ";
+              if (past && relativeTo)
+                relativity = " before ";
+              if (!past && relativeTo)
+                relativity = " of ";
+            } else
+              qualifier = "after ";
+        } else {
+          if (!isRange)
+            qualifier = "greater than ";
+        }
+        break;
+      case gte:
+        inclusive = true;
+        if (date) {
+          if (!isRange) {
+            qualifier = "on or after";
+          }
+          if (past && relativeTo)
+            relativity = " before ";
+        } else {
+          if (!isRange) {
+            qualifier = "equal to or more than ";
+          }
+        }
+        break;
+      case lt:
+        if (date) {
+          if (!isRange) {
+            qualifier = "before ";
+          }
+          if (past && relativeTo)
+            relativity = " before ";
+        } else {
+          if (!isRange) {
+            qualifier = "under ";
+          }
+        }
+        break;
+      case lte:
+        inclusive = true;
+        if (date) {
+          if (!isRange) {
+            qualifier = "on or before ";
+          }
+          if (past && relativeTo)
+            relativity = " before ";
+        } else {
+          if (!isRange) {
+            qualifier = "equal to or less than ";
+          }
+        }
+        break;
+      case contains:
+        qualifier = "contains ";
+        break;
+      case start:
+        qualifier = "starts with ";
+        break;
+      case eq:
+        if (date)
+          if (!isRange) {
+            qualifier = "on";
+          }
+        break;
     }
-    return false;
+    if (qualifier != null) {
+      assignable.setQualifier(qualifier);
+    }
+    if (value != null) {
+      assignable.setValueLabel(value.replace("-", ""));
+      if (units != null) {
+        assignable.setValueLabel(assignable.getValueLabel() + " " + getTermInContext(units, Context.PLURAL, Context.LOWERCASE));
+      }
+    }
+    if (inclusive && qualifier == null) {
+      if (assignable.getValueLabel() != null) {
+        assignable.setValueLabel(assignable.getValueLabel() + " (inc.)");
+      }
+    }
+    if (relativity != null)
+      assignable.setValueLabel(assignable.getValueLabel() + relativity);
   }
 
-  private void describeValueWhere(StringBuilder display, Where where, boolean isDate) {
+
+  private void describeValueWhere(Where where) {
+    boolean date = false;
+    if (where.getIri() != null)
+      date = where.getIri().toLowerCase().contains("date");
     Operator operator = where.getOperator();
-    String value = where.getValue() != null ? where.getValue() + " " : "";
-    String units = where.getUnit() == null ? "" : getTermInContext(where.getUnit(), Context.PLURAL);
-    if (isDate) {
-      describeDateRangePart(display, where, operator, value, value.startsWith("-"), units);
-    } else {
-      describeValueWithOperator(display, operator, value);
-    }
-    if (hasRelativeTo(where)) {
-      describeRelativeTo(display, where.getRelativeTo());
-    }
+    describeValue(where, operator, date, where.getValue(), where.getUnit(), where.getRelativeTo() != null, false);
+    describeRelativeTo(where);
   }
 
-  private String describeRangeProperty(Where where, boolean isDate) {
-    StringBuilder display = new StringBuilder();
+
+  private void describeRangeWhere(Where where) {
+    boolean date = false;
+    if (where.getIri() != null) {
+      date = where.getIri().toLowerCase().contains("date");
+    }
     Range range = where.getRange();
     Assignable from = range.getFrom();
+    describeValue(from, from.getOperator(), date, from.getValue(), from.getUnit(), where.getRelativeTo() != null, true);
+    where.setQualifier("between " + (from.getQualifier() != null ? from.getQualifier() : ""));
+    where.setValueLabel(from.getValueLabel());
     Assignable to = range.getTo();
-    Operator fromOperator = from.getOperator() == null ? Operator.eq : from.getOperator();
-    Operator toOperator = to.getOperator() == null ? Operator.eq : to.getOperator();
-    String fromValue = from.getValue() == null ? "" : from.getValue() + " ";
-    String toValue = to.getValue() == null ? "" : to.getValue() + " ";
-    if (!isDate)
-      describeRange(display, where, fromOperator, fromValue, toOperator, toValue);
-    else
-      describeDateRange(display, where, fromOperator, fromValue, toOperator, toValue);
-    return display.toString();
-  }
-
-  private void describeRange(StringBuilder display, Where where, Operator fromOperator, String fromValue, Operator toOperator, String toValue) {
-    String units = where.getUnit() == null ? "" : getTermInContext(where.getUnit(), Context.PLURAL);
-    if (where.getRelativeTo() != null)
-      display.append("between ");
-    switch (fromOperator) {
-      case gt -> display.append("over ").append(fromValue);
-      case gte -> display.append("equal to or over ").append(fromValue);
-      case lt -> display.append("under ").append(fromValue);
-      case lte -> display.append("up to ").append(fromValue);
-      default -> display.append(fromValue);
-    }
-    display.append("to ");
-    describeValueWithOperator(display, toOperator, toValue);
-    display.append(units);
-    if (hasRelativeTo(where)) {
-      display.append("relative to");
-      display.append(getTermInContext(where.getRelativeTo())).append(" of ");
-      display.append(where.getRelativeTo().getNodeRef());
-    }
-  }
-
-  private void describeValueWithOperator(StringBuilder display, Operator toOperator, String toValue) {
-    switch (toOperator) {
-      case gt -> display.append("over ").append(toValue);//makes no sense
-      case gte -> display.append("equal to or more than ").append(toValue);  //makes no sense
-      case lt -> display.append("under ").append(toValue);
-      case lte -> display.append("equal to or less than ").append(toValue);
-      case contains -> display.append("contains ").append(toValue);
-      case start -> display.append("starts with ").append(toValue);
-      default -> display.append(toValue);
-    }
-  }
-
-  private void describeDateRange(StringBuilder display, Where where, Operator fromOperator, String fromValue, Operator toOperator, String toValue) {
-    boolean fromPast = false;
-    boolean toPast = false;
-    String units = where.getUnit() == null ? "" : getTermInContext(where.getUnit(), Context.PLURAL);
-    if (fromValue.startsWith("-")) {
-      fromPast = true;
-      fromValue = fromValue.replace("-", "");
-    }
-    if (toValue.startsWith("-")) {
-      toPast = true;
-      toValue = toValue.replace("-", "");
-    }
-    describeDateRangePart(display, where, fromOperator, fromValue, fromPast, units);
-    display.append("to ");
-    describeDateRangePart(display, where, toOperator, toValue, toPast, units);
-    if (hasRelativeTo(where)) {
-      describeRelativeTo(display, where.getRelativeTo());
-    }
-  }
-
-  private void describeDateRangePart(StringBuilder display, Where where, Operator toOperator, String toValue, boolean toPast, String units) {
-    if (toValue.matches(".d[-/].d[-/].ds")) {
-      switch (toOperator) {
-        case lt:
-          display.append("before ").append(toValue);
-          break;
-        case lte:
-          display.append("before or on ").append(toValue);
-          break;
-        default:
-          display.append(toValue);
-      }
-    } else {
-      processComplexDateRangePart(display, where, toOperator, toValue, toPast, units);
-    }
-  }
-
-  private void processComplexDateRangePart(StringBuilder display, Where where, Operator toOperator, String toValue, boolean toPast, String units) {
-    switch (toOperator) {
-      case gt -> display.append("after ");
-      case gte -> display.append("after or on ");
-      case lt -> display.append("before ");
-      case lte -> display.append("up to ");
-      default -> {
-        if (toPast) display.append("within the last ");
+    describeValue(to, to.getOperator(), date, to.getValue(), to.getUnit(), where.getRelativeTo() != null, true);
+    if (to.getValue() != null) {
+      if (from.getValueLabel() != null) {
+        where.setValueLabel(where.getValueLabel() + " and " + (to.getQualifier() != null ? to.getQualifier() + " " : "") +
+          to.getValueLabel());
       }
     }
-    display.append(toValue.replace("-", "")).append(units);
-    if (hasRelativeTo(where) && where.getValue() != null) {
-      if (toPast) display.append(" from ");
-      else display.append(" after ");
-    }
+    describeRelativeTo(where);
   }
 
-  private void describeRelativeTo(StringBuilder display, PropertyRef relativeTo) {
+
+  private void describeRelativeTo(Where where) {
+    PropertyRef relativeTo = where.getRelativeTo();
     if (relativeTo != null) {
-      String propertyName = getTermInContext(relativeTo);
+      String relation = null;
+      if (relativeTo.getIri() != null) {
+        String propertyName = getTermInContext(relativeTo);
+        relation = propertyName + " of ";
+      }
       if (relativeTo.getParameter() != null) {
-        display.append(relativeTo.getParameter());
-      } else {
-        display.append("the ").append(propertyName);
-
+        if (relativeTo.getParameter().toLowerCase().contains("referencedate")) {
+          relation = (relation != null ? relation : "") + "the reference date";
+        } else
+          relation = (relation != null ? relation : "") + relativeTo.getParameter();
       }
-
+      if (relation != null)
+        relativeTo.setQualifier(relation);
     }
   }
 
-  private String describeIsProperty(Where property) {
-    if (property.getValueLabel() != null) {
-      return "'" + property.getValueLabel() + "'";
-    }
-    StringBuilder display = new StringBuilder();
-    boolean first = true;
-    for (Node set : property.getIs()) {
-      if (!first)
-        display.append("or ");
-      first = false;
+  private void describeIsWhere(Where where) {
+    for (Node set : where.getIs()) {
+      String type = "";
       if (set.isExclude())
-        display.append(" exclude ");
+        type = "exclude";
       if (set.isMemberOf()) {
-        if (set.isExclude()) display.append(" from set ");
-        else display.append(" in set ");
+        if (set.isExclude()) type = type + " not ";
+        else type = "";
       }
-      if (set.getName() != null)
-        display.append("'").append(set.getName()).append("'");
-      else
-        display.append("'").append(getTermInContext(set, Context.VALUE)).append("'");
+      String value = getTermInContext(set);
+      set.setQualifier(type);
+      set.setName(value);
+      if (iriContext.get(set.getIri()) != null) {
+        set.setCode(iriContext.get(set.getIri()).getCode());
+      }
+
     }
-    return display.toString();
+    StringBuilder valueLabel = new StringBuilder();
+    for (int i = 0; i < where.getIs().size(); i++) {
+      if (i > 1) {
+        valueLabel.append(" ...+ more");
+        break;
+      } else {
+        if (i > 0)
+          valueLabel.append(", ");
+      }
+      Node set = where.getIs().get(i);
+
+      valueLabel.append(set.getQualifier() != null ? set.getQualifier() + " " : "").append(set.getName());
+
+      where.setValueLabel(valueLabel.toString());
+    }
   }
 
-
-  public enum MatchType {
-    MATCH,
-    THEN,
-    WHERE_MATCH
-  }
 
 }

@@ -67,14 +67,6 @@ allprojects {
       url = uri('https://artifactory.endhealth.co.uk/repository/maven-snapshots')
     }
   }
-
-  publishing {
-    publications {
-      maven(MavenPublication) {
-        from(components.java)
-      }
-    }
-  }
 }
 
 task myJavadocs(type: Javadoc) {

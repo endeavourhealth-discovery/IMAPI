@@ -203,6 +203,7 @@ public class IM {
     public static final String ENTITY_TYPE = IM.NAMESPACE + "entityType";
     public static final String VALUE_DATA = IM.NAMESPACE + "valueData";
     public static final String VALUE_OBJECT = IM.NAMESPACE + "valueObject";
+    public static final String PREPOSITION = IM.NAMESPACE + "preposition";
     public static final String VALUE_IRI = IM.NAMESPACE + "valueIri";
     public static final String VALUE_IRI_LIST = IM.NAMESPACE + "valueIriList";
     public static final String VALUE_DATA_LIST = IM.NAMESPACE + "valueDataList";

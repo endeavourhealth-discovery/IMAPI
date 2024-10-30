@@ -36,7 +36,7 @@ class SearchServiceTest {
 
  // @Test
   void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
-    output(TestQueries.getMembers());
+    output(TestQueries.getMembers());;
     output(TestQueries.AllowablePropertiesForCovid());
     output(TestQueries.getMembers());
     output(TestQueries.pathQuery());

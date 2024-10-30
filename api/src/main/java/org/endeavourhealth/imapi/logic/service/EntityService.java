@@ -372,6 +372,10 @@ public class EntityService {
     return entityRepository.getEntityReferenceNode(iri, schemeIris, inactive);
   }
 
+  public List<TTIriRef> getEntitiesByType(String typeIri) {
+    return entityRepository.findEntitiesByType(typeIri);
+  }
+
   public Map<String, org.endeavourhealth.imapi.model.Namespace> getSchemesWithPrefixes() {
     Map<String, org.endeavourhealth.imapi.model.Namespace> result = entityRepository.findAllSchemesWithPrefixes();
     result.values().forEach(value -> value.setPrefix(getPrefixFromIri(value.getIri())));

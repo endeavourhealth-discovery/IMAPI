@@ -1614,6 +1614,29 @@ public class EntityRepository {
   }
 
 
+
+  public List<TTIriRef> findEntitiesByType(String typeIri) {
+    String sparqlString =
+    """
+      select * where {
+          ?s rdf:type im:CohortQuery .
+          ?s rdfs:label ?name .
+      }
+    """;
+    ArrayList<TTIriRef> iriRefs = new ArrayList<>();
+
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sparqlString);
+      qry.setBinding("c", iri(typeIri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          iriRefs.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
+        }
+      }
+    }
+    return iriRefs;
+  }
   public Map<String, org.endeavourhealth.imapi.model.Namespace> findAllSchemesWithPrefixes() {
     Map<String, org.endeavourhealth.imapi.model.Namespace> result = new HashMap<>();
 

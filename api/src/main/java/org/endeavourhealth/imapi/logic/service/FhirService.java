@@ -39,14 +39,13 @@ public class FhirService {
 
   public String getFhirValueSet(String iri, boolean expanded) throws JsonProcessingException, QueryException {
     List<String> schemes = new ArrayList<>();
-    SetOptions setOptions = new SetOptions(iri, false, expanded, false, false, schemes);
+    SetOptions setOptions = new SetOptions(iri, true, expanded, false, true, schemes);
     SetExporterOptions exportOptions = new SetExporterOptions(setOptions, false, false);
     return setService.getFHIRSetExport(exportOptions);
   }
 
   public String eclToFhir(String data) throws DataFormatException, EclFormatException, QueryException {
     ValueSet result = new ValueSet();
-
     ValueSet.ValueSetExpansionComponent expansion = new ValueSet.ValueSetExpansionComponent();
     ValueSet.ConceptSetFilterComponent filter = new ValueSet.ConceptSetFilterComponent();
     ValueSet.ValueSetComposeComponent compose = new ValueSet.ValueSetComposeComponent();
@@ -66,7 +65,7 @@ public class FhirService {
     EclSearchRequest request = new EclSearchRequest();
     request.setEclQuery(eclQuery);
     request.setIncludeLegacy(false);
-    request.setSize(10000);
+    request.setSize(0);
     SearchResponse evaluated = eclService.eclSearch(request);
     if (!evaluated.getEntities().isEmpty()) {
       for (SearchResultSummary entity : evaluated.getEntities()) {

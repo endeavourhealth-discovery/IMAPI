@@ -112,18 +112,19 @@ public class SetService {
       valueSet.setName(result.getName());
       valueSet.setTitle(result.getName());
       valueSet.setDescription(result.getDescription());
-      if (null != result.getStatus()) {
+      if (null != result.getStatus())
         valueSet.setStatus(Enumerations.PublicationStatus.valueOf(result.getStatus().toUpperCase()));
-      }
       valueSet.setVersion(String.valueOf(result.getVersion()));
 
       TTEntity entityDefinition = new EntityRepository().getEntityPredicates(options.getSetIri(), Set.of(IM.DEFINITION)).getEntity();
-      filter.setValue(entityDefinition.get(iri(IM.DEFINITION)).asLiteral().getValue());
-      filters.add(filter);
-      includeConcept.setFilter(filters);
-      includes.add(includeConcept);
+      if (null != entityDefinition.get(iri(IM.DEFINITION))) {
+        filter.setValue(entityDefinition.get(iri(IM.DEFINITION)).asLiteral().getValue());
+        filters.add(filter);
+        includeConcept.setFilter(filters);
+        includes.add(includeConcept);
+      }
 
-      if (!result.getSubsets().isEmpty()) {
+      if (null != result.getSubsets() && !result.getSubsets().isEmpty()) {
         List<CanonicalType> subsetList = new ArrayList<>();
         ValueSet.ConceptSetComponent subsetConcept = new ValueSet.ConceptSetComponent();
         for (String s : result.getSubsets()) {
@@ -134,7 +135,7 @@ public class SetService {
         includes.add(subsetConcept);
       }
 
-      if (!result.getConcepts().isEmpty()) {
+      if (null != result.getConcepts() && !result.getConcepts().isEmpty()) {
         for (Concept c : result.getConcepts()) {
           ValueSet.ValueSetExpansionContainsComponent subContains = new ValueSet.ValueSetExpansionContainsComponent();
           subContains.setId(c.getCodeId());
@@ -145,7 +146,6 @@ public class SetService {
         }
       }
     }
-
     compose.setInclude(includes);
     valueSet.setCompose(compose);
     expansion.setContains(contains);
@@ -153,7 +153,6 @@ public class SetService {
 
     FhirContext ctx = FhirContext.forR4();
     IParser parser = ctx.newJsonParser();
-
     return parser.encodeResourceToString(valueSet);
   }
 

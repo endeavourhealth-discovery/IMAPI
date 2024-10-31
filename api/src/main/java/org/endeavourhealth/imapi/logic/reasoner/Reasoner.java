@@ -77,10 +77,14 @@ public class Reasoner {
       }
       simplifyDomains(c);
       reformChains(c);
-      if (c.isType(iri(OWL.OBJECT_PROPERTY)))
-        c.setType(new TTArray().add(iri(RDF.PROPERTY)));
-      if (c.isType(iri(OWL.DATATYPE_PROPERTY)))
-        c.setType(new TTArray().add(iri(RDF.PROPERTY)));
+      if (c.isType(iri(OWL.OBJECT_PROPERTY))) {
+        c.addType(iri(RDF.PROPERTY));
+        c.getType().remove(iri(OWL.OBJECT_PROPERTY));
+      }
+      if (c.isType(iri(OWL.DATATYPE_PROPERTY))) {
+        c.addType(iri(RDF.PROPERTY));
+        c.getType().remove(iri(OWL.DATATYPE_PROPERTY));
+      }
 
       c.getPredicateMap().remove(iri(OWL.EQUIVALENT_CLASS));
       c.getPredicateMap().remove(iri(OWL.PROPERTY_CHAIN));

@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.transforms;
+package org.endeavourhealth.imapi.dataaccess;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.elasticsearch.common.unit.Fuzziness;
@@ -7,7 +7,6 @@ import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.functionscore.ScriptScoreQueryBuilder;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.endeavourhealth.imapi.dataaccess.SparqlConverter;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -117,12 +116,15 @@ public class IMQToOS {
 
     String prefix = term.replaceAll("[ '()\\-_./]", "").toLowerCase();
     TermQueryBuilder tqac = new TermQueryBuilder("preferredName.keyword", term).caseInsensitive(true);
-    tqac.boost(5000000F);
+    tqac.boost(20000000F);
     boolBuilder.should(tqac);
-    TermQueryBuilder tqac2 = new TermQueryBuilder("name.keyword", term).caseInsensitive(true);
-    tqac2.boost(5000000F);
-    boolBuilder.should(tqac2);
-    PrefixQueryBuilder pqb = new PrefixQueryBuilder("matchTerm", prefix);
+    tqac = new TermQueryBuilder("name.keyword", term).caseInsensitive(true);
+    tqac.boost(20000000F);
+    boolBuilder.should(tqac);
+    tqac = new TermQueryBuilder("termCode.term.keyword", term).caseInsensitive(true);
+    tqac.boost(20000000F);
+    boolBuilder.should(tqac);
+    PrefixQueryBuilder pqb = new PrefixQueryBuilder("termCode.term", prefix);
     pqb.boost(1000000F);
     boolBuilder.should(pqb);
     MatchPhrasePrefixQueryBuilder mpt = new MatchPhrasePrefixQueryBuilder("termCode.term", term)
@@ -194,7 +196,7 @@ public class IMQToOS {
       "  else if (value <3000000) {usage = 7;}" +
       "  else {usage = 9;}" +
       "  }" +
-      "if (_score>4000000) {_score=20;} else if (_score>1000000) {_score=4;} else _score=0;_score+ usage;";
+      "if (_score>10000000) {_score=20;} else if (_score>1000000) {_score=4;} else _score=0;_score+ usage;";
   }
 
   private boolean addReturns() {

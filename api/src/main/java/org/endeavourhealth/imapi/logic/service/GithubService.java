@@ -1,9 +1,9 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.controllers.GithubController;
 import org.endeavourhealth.imapi.model.config.Config;
@@ -14,22 +14,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class GithubService {
   private static final Logger LOG = LoggerFactory.getLogger(GithubController.class.getName());
   ConfigManager configManager = new ConfigManager();
+
   public GithubRelease getGithubLatestRelease() throws JsonProcessingException {
     return configManager.getConfig(CONFIG.IMDIRECTORY_LATEST_RELEASE, new TypeReference<>() {
     });
@@ -71,6 +72,13 @@ public class GithubService {
     setGithubReleases(allReleases);
   }
 
+  @PostConstruct
+  private void updateGithubConfigOnStart() throws IOException, InterruptedException {
+    if ("production".equals(System.getenv("MODE"))) {
+      updateGithubConfig();
+    }
+  }
+
   private GithubRelease getLatestReleaseFromGithub(String owner, String repo) throws IOException, InterruptedException {
     HttpClient client = HttpClient.newBuilder()
       .followRedirects(HttpClient.Redirect.NORMAL)
@@ -107,7 +115,8 @@ public class GithubService {
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     ObjectMapper mapper = new ObjectMapper();
     List<GithubRelease> results = new ArrayList<>();
-    List<GithubDTO> githubDTOList = mapper.readValue(response.body(), new TypeReference<List<GithubDTO>>() {});
+    List<GithubDTO> githubDTOList = mapper.readValue(response.body(), new TypeReference<List<GithubDTO>>() {
+    });
     for (GithubDTO githubDTO : githubDTOList) {
       results.add(processGithubRelease(githubDTO));
     }

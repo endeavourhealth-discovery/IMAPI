@@ -8,14 +8,11 @@ import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.UserService;
 import org.endeavourhealth.imapi.model.dto.BooleanBody;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
-import org.endeavourhealth.imapi.model.dto.ScaleDto;
-import org.endeavourhealth.imapi.model.dto.ThemeDto;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
@@ -196,7 +193,7 @@ public class UserController {
     }
   }
 
-  @GetMapping(value = "valid")
+  @GetMapping(value = "/valid")
   public void isValidUser() throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Valid.GET")) {
       LOG.debug("isValidUser");

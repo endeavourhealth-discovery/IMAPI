@@ -1,19 +1,24 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.controllers.GithubController;
+import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
 import org.endeavourhealth.imapi.model.config.Config;
+import org.endeavourhealth.imapi.model.customexceptions.ConfigException;
 import org.endeavourhealth.imapi.model.github.GithubDTO;
 import org.endeavourhealth.imapi.model.github.GithubRelease;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -30,9 +35,13 @@ import java.util.*;
 public class GithubService {
   private static final Logger LOG = LoggerFactory.getLogger(GithubController.class.getName());
   ConfigManager configManager = new ConfigManager();
-  public GithubRelease getGithubLatestRelease() throws JsonProcessingException {
-    return configManager.getConfig(CONFIG.IMDIRECTORY_LATEST_RELEASE, new TypeReference<>() {
+
+  public GithubRelease getGithubLatestRelease() throws JsonProcessingException, ConfigException {
+    GithubRelease config = configManager.getConfig(CONFIG.IMDIRECTORY_LATEST_RELEASE, new TypeReference<>() {
     });
+    if (null == config)
+      throw new ConfigException("Github release config not found.");
+    return config;
   }
 
   private void setGithubLatest(GithubRelease githubRelease) throws JsonProcessingException {
@@ -45,9 +54,12 @@ public class GithubService {
     configManager.setConfig(CONFIG.IMDIRECTORY_LATEST_RELEASE, config);
   }
 
-  public List<GithubRelease> getGithubReleases() throws JsonProcessingException {
-    return configManager.getConfig(CONFIG.IMDIRECTORY_ALL_RELEASES, new TypeReference<>() {
+  public List<GithubRelease> getGithubReleases() throws JsonProcessingException, ConfigException {
+    List<GithubRelease> config = configManager.getConfig(CONFIG.IMDIRECTORY_ALL_RELEASES, new TypeReference<>() {
     });
+    if (null == config)
+      throw new ConfigException("Github release config not found.");
+    return config;
   }
 
   private void setGithubReleases(List<GithubRelease> githubReleases) throws JsonProcessingException {
@@ -107,7 +119,8 @@ public class GithubService {
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     ObjectMapper mapper = new ObjectMapper();
     List<GithubRelease> results = new ArrayList<>();
-    List<GithubDTO> githubDTOList = mapper.readValue(response.body(), new TypeReference<List<GithubDTO>>() {});
+    List<GithubDTO> githubDTOList = mapper.readValue(response.body(), new TypeReference<List<GithubDTO>>() {
+    });
     for (GithubDTO githubDTO : githubDTOList) {
       results.add(processGithubRelease(githubDTO));
     }

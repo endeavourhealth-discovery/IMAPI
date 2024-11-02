@@ -1727,4 +1727,42 @@ public class EntityRepository {
     }
     return subClassPathMap;
   }
+
+  public Map<String, Set<String>> findTargetRelatives(List<String> codes, List<String> targetCodes) {
+    Map<String, Set<String>> targetPathMap = new HashMap<>();
+    StringJoiner iriLine = new StringJoiner(" ");
+    StringJoiner targetCodeLine = new StringJoiner(" ");
+
+    for (String code : codes) {
+      iri(SNOMED.NAMESPACE + code);
+      iriLine.add("<" + SNOMED.NAMESPACE + code + ">");
+    }
+
+    for (String code : targetCodes) {
+      targetCodeLine.add("'" + code + "'");
+    }
+
+    String sql = """
+      SELECT ?sCode ?rCode WHERE {
+          ?s im:isA ?isA .
+          ?s im:code ?sCode .
+          ?isA im:code ?rCode .
+          VALUES ?s { %s }
+          VALUES ?rCode { %s }
+      }
+      """.formatted(iriLine.toString(), targetCodeLine.toString());
+
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String code = bs.getValue("sCode").stringValue();
+          if (!targetPathMap.containsKey(code)) targetPathMap.put(code, new HashSet<>());
+          targetPathMap.get(code).add(bs.getValue("rCode").stringValue());
+        }
+      }
+    }
+    return targetPathMap;
+  }
 }

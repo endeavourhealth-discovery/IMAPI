@@ -435,5 +435,9 @@ public class EntityService {
   public Map<String, Set<String>> getSubclassPaths(List<String> codes) {
     return entityRepository.findSubClassPaths(codes);
   }
+
+  public Map<String, Set<String>> getTargetRelatives(List<String> codes, List<String> targetCodes) {
+    return entityRepository.findTargetRelatives(codes, targetCodes);
+  }
 }
 

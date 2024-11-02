@@ -1,5 +1,9 @@
 package org.endeavourhealth.imapi.controllers;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -308,6 +312,20 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.getBNFs.POST")) {
       LOG.debug("getBNFs");
       return entityService.getBNFs(codes);
+    }
+  }
+
+  @PostMapping("/public/targetRelatives")
+  public Map<String, Set<String>> getTargetRelatives(@RequestBody JsonNode jsonNode) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.getChildrenADRs.POST")) {
+      LOG.debug("getChildrenADRs");
+      ObjectMapper mapper = new ObjectMapper();
+      ObjectReader reader = mapper.readerFor(new TypeReference<List<String>>() {
+      });
+
+      List<String> codes = reader.readValue(jsonNode.get("codes"));
+      List<String> targetCodes = reader.readValue(jsonNode.get("targetCodes"));
+      return entityService.getTargetRelatives(codes, targetCodes);
     }
   }
 

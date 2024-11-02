@@ -15,6 +15,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -33,22 +34,22 @@ class SearchServiceTest {
   private String succinctDefinitions;
   EntityService entityService = new EntityService();
 
-  //@Test
+ // @Test
   void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
+    output(TestQueries.getMembers());;
+    output(TestQueries.AllowablePropertiesForCovid());
+    output(TestQueries.getMembers());
     output(TestQueries.pathQuery());
-    /*
     output(TestQueries.getAllowableSubtypes());
     output(TestQueries.query2());
     //output(TestQueries.pathQueryAtenolol3());
 
-    output(TestQueries.getAllowableQueries());
 
     output(TestQueries.query6());
     output(TestQueries.dataModelPropertyRange());
     output(TestQueries.rangeSuggestion());
-    output(TestQueries.getMembers());
 
-    output(TestQueries.AllowablePropertiesForCovid());
+
     output(TestQueries.query1());
     output(TestQueries.query2());
     output(TestQueries.getShaclProperty());
@@ -67,7 +68,7 @@ class SearchServiceTest {
     output(TestQueries.getConcepts());
     output(TestQueries.query4());
 
-     */
+
 
 
   }

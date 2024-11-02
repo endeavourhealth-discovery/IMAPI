@@ -42,6 +42,7 @@ public class GithubAuthorDTO {
   private String type;
   @JsonIgnore
   private boolean site_admin;
-
+  @JsonIgnore
+  private String user_view_type;
 
 }

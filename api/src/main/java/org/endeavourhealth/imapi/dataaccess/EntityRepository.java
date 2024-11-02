@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
@@ -493,6 +494,7 @@ public class EntityRepository {
     }
     return result;
   }
+
 
   public static void getIriNames(RepositoryConnection conn, Set<TTIriRef> iris) {
 
@@ -1544,6 +1546,120 @@ public class EntityRepository {
       sparql.setBinding("subjectIri", iri(subjectIri));
       return sparql.evaluate();
     }
+  }
+
+  public Map<String, TTEntity> getEntitiesWithPredicates(Set<String> iris, Set<String> predicates) {
+    Map<String, TTEntity> result = new HashMap<>();
+    String entityIris = String.join(" ", iris.stream().map(i -> "<" + i + ">").collect(Collectors.toSet()));
+    String predicateIris = String.join(" ", predicates.stream().map(i -> "<" + i + ">").collect(Collectors.toSet()));
+    String sql = """
+      prefix rdfs: %s
+      select ?entity ?entityLabel ?predicate ?predicateLabel ?object ?objectLabel ?subPredicate ?subPredicateLabel ?subObject ?subObjectLabel
+      where {
+        VALUES ?entity {%s}
+        ?entity rdfs:label ?entityLabel.
+        optional {
+             VALUES ?predicate {%s}
+            ?entity ?predicate ?object.
+            ?predicate rdfs:label ?predicateLabel.
+           optional {
+                   ?object rdfs:label ?objectLabel.
+                  ?object ?subPredicate ?subObject.
+                  ?subPredicate rdfs:label ?subPredicateLabel.
+                  optional {
+                     ?subObject rdfs:label ?subObjectLabel.
+                     }
+                  }
+             }
+        }
+      """.formatted("<" + RDFS.NAMESPACE + ">", entityIris, predicateIris);
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = conn.prepareTupleQuery(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        Map<String, TTNode> bnodeMap = new HashMap();
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String iri = bs.getValue("entity").stringValue();
+          result.putIfAbsent(iri, new TTEntity());
+          TTEntity entity = result.get(iri).setIri(iri);
+          entity.setName(bs.getValue("entityLabel").stringValue());
+          if (bs.getValue("predicate") != null) {
+            String predicate = bs.getValue("predicate").stringValue();
+            result.putIfAbsent(predicate, new TTEntity());
+            result.get(predicate).setName(bs.getValue("predicateLabel").stringValue());
+            Value object = bs.getValue("object");
+            if (object.isIRI()) {
+              entity.addObject(TTIriRef.iri(predicate), TTIriRef.iri(object.stringValue()).setName(bs.getValue("objectLabel").stringValue()));
+            } else if (object.isBNode()) {
+              bnodeMap.putIfAbsent(object.stringValue(), new TTNode());
+              TTNode blank = bnodeMap.get(object.stringValue());
+              if (bs.getValue("subPredicate") != null) {
+                String subPredicate = bs.getValue("subPredicate").stringValue();
+                result.putIfAbsent(subPredicate, new TTEntity());
+                result.get(subPredicate).setName(bs.getValue("subPredicateLabel").stringValue());
+                Value subObject = bs.getValue("subObject");
+                if (subObject.isIRI()) {
+                  blank.addObject(TTIriRef.iri(subPredicate), TTIriRef.iri(subObject.stringValue()).setName(bs.getValue("subObjectLabel").stringValue()));
+                } else blank.addObject(TTIriRef.iri(subPredicate), TTLiteral.literal(subObject.stringValue()));
+              }
+            } else
+              entity.addObject(TTIriRef.iri(predicate), TTLiteral.literal(object.stringValue()));
+          }
+
+
+        }
+      }
+    }
+    return result;
+  }
+
+
+
+  public List<TTIriRef> findEntitiesByType(String typeIri) {
+    String sparqlString =
+    """
+      select * where {
+          ?s rdf:type im:CohortQuery .
+          ?s rdfs:label ?name .
+      }
+    """;
+    ArrayList<TTIriRef> iriRefs = new ArrayList<>();
+
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sparqlString);
+      qry.setBinding("c", iri(typeIri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          iriRefs.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
+        }
+      }
+    }
+    return iriRefs;
+  }
+  public Map<String, org.endeavourhealth.imapi.model.Namespace> findAllSchemesWithPrefixes() {
+    Map<String, org.endeavourhealth.imapi.model.Namespace> result = new HashMap<>();
+
+    String sql = """
+       select * where {
+           ?s im:isA <http://endhealth.info/im#Graph> .
+       	?s rdfs:label ?name .
+       }
+      """;
+
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sql);
+
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          result.put(bs.getValue("s").stringValue(), new org.endeavourhealth.imapi.model.Namespace().setIri(bs.getValue("s").stringValue()).setName(bs.getValue("name").stringValue())
+          );
+        }
+      }
+    }
+
+    return result;
   }
 
   public Map<String, Set<String>> findBNFs(List<String> codes) {

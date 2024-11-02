@@ -17,7 +17,6 @@ public class EntityDocument {
   String preferredName;
   String code;
   String alternativeCode;
-  Set<String> matchTerm;
   TTIriRef scheme;
   Set<TTIriRef> entityType = new HashSet<>();
   TTIriRef status;
@@ -62,22 +61,6 @@ public class EntityDocument {
 
   public EntityDocument setSubsumptionCount(Integer subsumptionCount) {
     this.subsumptionCount = subsumptionCount;
-    return this;
-  }
-
-  public Set<String> getMatchTerm() {
-    return matchTerm;
-  }
-
-  public EntityDocument setMatchTerm(Set<String> matchTerm) {
-    this.matchTerm = matchTerm;
-    return this;
-  }
-
-  public EntityDocument addMatchTerm(String term) {
-    if (this.matchTerm == null)
-      this.matchTerm = new HashSet<>();
-    this.matchTerm.add(term);
     return this;
   }
 

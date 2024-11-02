@@ -5,6 +5,10 @@ public class Namespace {
   private String prefix;
   private String name;
 
+  public Namespace() {
+
+  }
+
   public Namespace(String iri, String prefix, String name) {
     this.iri = iri;
     this.prefix = prefix;

@@ -17,6 +17,7 @@ public class Match extends IriLD {
   private Bool boolWhere;
   private List<Match> match;
   private boolean exclude;
+  private String includeIf;
   private Element graph;
   private List<Where> where;
   private String description;
@@ -31,7 +32,42 @@ public class Match extends IriLD {
   private Match then;
   private List<IriLD> path;
   private String displayLabel;
+  private boolean hasInlineSet;
+  private FunctionClause function;
 
+  public FunctionClause getFunction() {
+    return function;
+  }
+
+  public Match setFunction(FunctionClause function) {
+    this.function = function;
+    return this;
+  }
+  public Match function (Consumer < FunctionClause > builder) {
+      FunctionClause function = new FunctionClause();
+      this.function = function;
+      builder.accept(function);
+      return this;
+  }
+
+  public boolean isHasInlineSet() {
+    return hasInlineSet;
+  }
+
+  public Match setHasInlineSet(boolean hasInlineSet) {
+    this.hasInlineSet = hasInlineSet;
+    return this;
+  }
+
+
+  public String getIncludeIf() {
+    return includeIf;
+  }
+
+  public Match setIncludeIf(String includeIf) {
+    this.includeIf = includeIf;
+    return this;
+  }
 
   public String getDisplayLabel() {
     return displayLabel;

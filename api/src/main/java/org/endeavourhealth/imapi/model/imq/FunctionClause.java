@@ -1,14 +1,11 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 public class FunctionClause extends Value {
-  private Function function;
+  private Function name;
   private List<Argument> argument;
   private Range range;
 
@@ -28,12 +25,12 @@ public class FunctionClause extends Value {
     return this;
   }
 
-  public Function getFunction() {
-    return function;
+  public Function getName() {
+    return name;
   }
 
-  public FunctionClause setFunction(Function function) {
-    this.function = function;
+  public FunctionClause setName(Function name) {
+    this.name = name;
     return this;
   }
 

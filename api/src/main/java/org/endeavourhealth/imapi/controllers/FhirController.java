@@ -26,7 +26,7 @@ public class FhirController {
 
   @GetMapping(value = "/ValueSet", produces = "application/json")
   @Operation(summary = "Retrieves the specified value set")
-  public String getValueSet(@RequestParam(name = "iri") String iri) throws IOException, QueryException {
+  public String getValueSet(@RequestParam(name = "url") String iri) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Fhir.ValueSet.GET")) {
       return fhirService.getFhirValueSet(iri, false);
     }
@@ -34,7 +34,7 @@ public class FhirController {
 
   @GetMapping(value = "/ValueSet/$expand", produces = "application/json")
   @Operation(summary = "Retrieves the specified value set and expands any subsets & members")
-  public String getValueSetExpanded(@RequestParam(name = "iri") String iri) throws IOException, QueryException {
+  public String getValueSetExpanded(@RequestParam(name = "url") String iri) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Fhir.ValueSet.Expand.GET")) {
       return fhirService.getFhirValueSet(iri, true);
     }

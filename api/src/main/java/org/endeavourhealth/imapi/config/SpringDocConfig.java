@@ -10,6 +10,7 @@ public class SpringDocConfig {
   public GroupedOpenApi openApi() {
     return GroupedOpenApi.builder()
       .group("All")
+      .pathsToMatch("/api/**")
       .build();
   }
 

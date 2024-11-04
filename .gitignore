@@ -14,3 +14,4 @@ package-lock.json
 org.eclipse.jdt.core.prefs
 *.backup.json
 gradle.properties
+*.xml

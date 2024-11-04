@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.transforms.Context;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.*;
@@ -87,7 +88,7 @@ public class QueryDescriptor {
       }
     }
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, Set.of(IM.PREPOSITION, IM.CODE));
+      iriContext = repo.getEntitiesWithPredicates(iriSet, Set.of(IM.PREPOSITION, IM.CODE, RDF.TYPE));
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
@@ -542,20 +543,24 @@ public class QueryDescriptor {
 
   private void describeIsWhere(Where where) {
     for (Node set : where.getIs()) {
-      String type = "";
-      if (set.isExclude())
-        type = "exclude";
-      if (set.isMemberOf()) {
-        if (set.isExclude()) type = type + " not ";
-        else type = "";
-      }
-      String value = getTermInContext(set);
-      set.setQualifier(type);
-      set.setName(value);
-      if (iriContext.get(set.getIri()) != null) {
-        set.setCode(iriContext.get(set.getIri()).getCode());
+      if (iriContext.get(set.getIri())!=null) {
+        String modifier="";
+        TTEntity nodeEntity = (iriContext.get(set.getIri()));
+        set.setCode(nodeEntity.getCode());
+        if (nodeEntity.getType().get(0).asIriRef().getIri().contains("Set")) {
+          modifier = set.isExclude() ? "not in set : " : "in set :";
+        } else if (nodeEntity.getType().get(0).asIriRef().getIri().contains("Query"))
+          modifier = set.isExclude() ? "not in cohort : " : "in cohort : ";
+        else if (set.isExclude())
+          modifier = "exclude ";
+        set.setQualifier(modifier);
       }
 
+      String value=getTermInContext(set);
+      set.setName(value);
+      if (iriContext.get(set.getIri())!=null) {
+        set.setCode(iriContext.get(set.getIri()).getCode());
+      }
     }
     StringBuilder valueLabel = new StringBuilder();
     for (int i = 0; i < where.getIs().size(); i++) {

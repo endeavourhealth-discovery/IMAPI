@@ -7,6 +7,7 @@ import jakarta.annotation.PostConstruct;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.controllers.GithubController;
 import org.endeavourhealth.imapi.model.config.Config;
+import org.endeavourhealth.imapi.model.customexceptions.ConfigException;
 import org.endeavourhealth.imapi.model.github.GithubDTO;
 import org.endeavourhealth.imapi.model.github.GithubRelease;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
@@ -31,9 +32,12 @@ public class GithubService {
   private static final Logger LOG = LoggerFactory.getLogger(GithubController.class.getName());
   ConfigManager configManager = new ConfigManager();
 
-  public GithubRelease getGithubLatestRelease() throws JsonProcessingException {
-    return configManager.getConfig(CONFIG.IMDIRECTORY_LATEST_RELEASE, new TypeReference<>() {
+  public GithubRelease getGithubLatestRelease() throws JsonProcessingException, ConfigException {
+    GithubRelease config = configManager.getConfig(CONFIG.IMDIRECTORY_LATEST_RELEASE, new TypeReference<>() {
     });
+    if (null == config)
+      throw new ConfigException("Github release config not found.");
+    return config;
   }
 
   private void setGithubLatest(GithubRelease githubRelease) throws JsonProcessingException {
@@ -46,9 +50,12 @@ public class GithubService {
     configManager.setConfig(CONFIG.IMDIRECTORY_LATEST_RELEASE, config);
   }
 
-  public List<GithubRelease> getGithubReleases() throws JsonProcessingException {
-    return configManager.getConfig(CONFIG.IMDIRECTORY_ALL_RELEASES, new TypeReference<>() {
+  public List<GithubRelease> getGithubReleases() throws JsonProcessingException, ConfigException {
+    List<GithubRelease> config = configManager.getConfig(CONFIG.IMDIRECTORY_ALL_RELEASES, new TypeReference<>() {
     });
+    if (null == config)
+      throw new ConfigException("Github release config not found.");
+    return config;
   }
 
   private void setGithubReleases(List<GithubRelease> githubReleases) throws JsonProcessingException {

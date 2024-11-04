@@ -174,6 +174,29 @@ public class SetRepository {
               .as("legacyCodeId"))
             .property(s -> s
               .setIri(IM.IM_1_ID).as("legacyIm1Id"))));
+      aReturn
+        .property(p -> p
+          .setIri(IM.LOCAL_SUBCLASS_OF)
+          .setInverse(true)
+          .return_(n -> n
+            .as("legacy")
+            .property(s -> s
+              .setIri(RDFS.LABEL).as("legacyTerm"))
+            .property(s -> s
+              .setIri(IM.CODE).as("legacyCode"))
+            .property(s -> s
+              .setIri(IM.HAS_SCHEME)
+              .return_(n1 -> n1
+                .as(LEGACY_SCHEME)
+                .property(p1 -> p1
+                  .setIri(RDFS.LABEL).as("legacySchemeName"))))
+            .property(s -> s
+              .setIri(IM.NAMESPACE + "usageTotal").as("legacyUse"))
+            .property(s -> s
+              .setIri(IM.CODE_ID)
+              .as("legacyCodeId"))
+            .property(s -> s
+              .setIri(IM.IM_1_ID).as("legacyIm1Id"))));
     }
     return aReturn;
   }

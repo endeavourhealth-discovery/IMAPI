@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.client.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import lombok.Getter;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
@@ -20,9 +20,6 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,6 +35,8 @@ public class OpenSearchSender {
   private static final int BATCH_SIZE = 5000;
   private final Client client = ClientBuilder.newClient();
   private final ObjectMapper om = new ObjectMapper();
+
+  private final Map<String,Integer> preferredNameCount= new HashMap<>();
   // Env vars
   private final String osUrl = System.getenv("OPENSEARCH_URL");
   private final String osAuth = System.getenv("OPENSEARCH_AUTH");
@@ -46,42 +45,20 @@ public class OpenSearchSender {
   private final String index = System.getenv("OPENSEARCH_INDEX");
   private final HTTPRepository repo = new HTTPRepository(server, repoId);
   private WebTarget target;
-  @Getter
-  private String cache;
-
-  public OpenSearchSender setCache(String cache) {
-    this.cache = cache;
-    return this;
-  }
 
   public void execute(boolean update) throws IOException, InterruptedException {
     om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     checkEnvs();
     checkIndexExists();
-
-
     int maxId = 0;
-    if (!update)
-      maxId = getMaxDocument();
-
-    continueUpload(maxId);
-  }
-
-
-  private void continueUpload(int maxId) throws IOException, InterruptedException {
     target = client.target(osUrl).path("_bulk");
     Set<String> entityIris = new HashSet<>(2_000_000);
-    if (maxId > 0 && (cache != null)) {
-      getIriCache(entityIris);
-    } else {
-
       String sql = """
-        SELECT ?iri
+        SELECT ?iri ?name
         WHERE {
           ?iri rdfs:label ?name.
           FILTER(isIri(?iri))
         }
-        ORDER BY ?iri
         """;
       try (RepositoryConnection conn = repo.getConnection()) {
         LOG.info("Fetching entity iris  ...");
@@ -92,6 +69,7 @@ public class OpenSearchSender {
           while (qr.hasNext()) {
             BindingSet rs = qr.next();
             String iri = rs.getValue("iri").stringValue();
+            Value name= rs.getValue("name");
             // validate iri
             try {
               new URI(iri);
@@ -102,16 +80,16 @@ public class OpenSearchSender {
             if (++count % 50000 == 0)
               LOG.info("Loaded {}...", count);
             entityIris.add(iri);
+            if (name!=null){
+              String preferredName=name.stringValue().split(" \\(")[0];
+              preferredNameCount.putIfAbsent(preferredName,0);
+              preferredNameCount.put(preferredName,preferredNameCount.get(preferredName)+1);
+            }
           }
         }
       }
-    }
-    if (cache != null) {
-      saveIriCache(entityIris);
-    }
 
     LOG.info(" Found {} documents...", entityIris.size());
-
     int mapNumber = 0;
     Iterator<String> mapIterator = entityIris.iterator();
 
@@ -150,25 +128,6 @@ public class OpenSearchSender {
     }
   }
 
-  private void saveIriCache(Set<String> entityIris) throws IOException {
-    try (FileWriter wr = new FileWriter(cache)) {
-      for (String iri : entityIris) {
-        wr.write(iri + "\n");
-      }
-    }
-  }
-
-  private void getIriCache(Set<String> entityIris) {
-    try (BufferedReader reader = new BufferedReader(new FileReader(cache))) {
-      String line = reader.readLine();
-      while (line != null && !line.isEmpty()) {
-        entityIris.add(line);
-        line = reader.readLine();
-      }
-    } catch (IOException e) {
-      LOG.error(e.getMessage(), e);
-    }
-  }
 
   private void getEntityBatch(Map<String, EntityDocument> batch) {
     String inList = batch.keySet().stream().map(iri -> ("<" + iri + ">")).collect(Collectors.joining(" "));
@@ -202,8 +161,11 @@ public class OpenSearchSender {
           if (rs.getValue("preferredName") != null) {
             String preferred = rs.getValue("preferredName").stringValue();
             blob.setPreferredName(preferred);
-          } else if (name.contains(" (")) {
-            blob.setPreferredName(name.split(" \\(")[0]);
+            addTerm(blob,preferred,null,null);
+          } else if (name.contains(" (")&&preferredNameCount.get(name.split(" \\(")[0])<2) {
+            String preferred= name.split(" \\(")[0];
+            blob.setPreferredName(preferred);
+            addTerm(blob,preferred,null,null);
           } else
             blob.setPreferredName(name);
           if (rs.getValue("alternativeCode") != null) {
@@ -256,8 +218,7 @@ public class OpenSearchSender {
           lengthKey = getLengthKey(lengthKey);
 
           blob.setLength(lengthKey.length());
-          blob.addTermCode(name, null, null);
-          addMatchTerm(blob, name);
+          addTerm(blob, name,null,null);
         }
 
       } catch (Exception e) {
@@ -333,16 +294,7 @@ public class OpenSearchSender {
           if (rs.getValue("termCodeStatus") != null)
             status = iri(rs.getValue("termCodeStatus").stringValue());
           if (synonym != null) {
-            addMatchTerm(blob, synonym);
-            SearchTermCode tc = getTermCode(blob, synonym);
-            if (tc == null) {
-              blob.addTermCode(synonym, termCode, status);
-              addMatchTerm(blob, synonym);
-            } else {
-              if (termCode != null) {
-                tc.setCode(termCode);
-              }
-            }
+            addTerm(blob, synonym,termCode,status);
           } else if (termCode != null) {
             SearchTermCode tc = getTermCodeFromCode(blob, termCode);
             if (tc == null) {
@@ -499,11 +451,18 @@ public class OpenSearchSender {
   }
 
 
-  private void addMatchTerm(EntityDocument blob, String term) {
+  private void addTerm(EntityDocument blob, String term, String code, TTIriRef status ) {
+    SearchTermCode tc= getTermCode(blob,term);
+    if (tc==null){
+      blob.addTermCode(term,code,status);
+    }
     term = term.replaceAll("[ '()\\-_./,]", "").toLowerCase();
-    if (term.length() > 30)
-      term = term.substring(0, 30);
-    blob.addMatchTerm(term);
+    tc= getTermCode(blob,term);
+    if (tc==null) {
+      if (term.length() > 30)
+        term = term.substring(0, 30);
+      blob.addTermCode(term,code,status);
+    }
   }
 
   private SearchTermCode getTermCode(EntityDocument blob, String term) {
@@ -597,57 +556,35 @@ public class OpenSearchSender {
     if (tries == 5)
       throw new InterruptedException("Connectivity problem to open search");
   }
+  private void checkIndexExists() throws IOException{
 
-  private int getMaxDocument() throws IOException {
-    target = client.target(osUrl).path(index + "/_search");
-
-    try (Response response = target
-      .request()
-      .header("Authorization", "Basic " + osAuth)
-      .post(Entity.entity("""
-        {
-            "aggs" : {
-              "max_id" : {
-                "max" : {
-                  "field" : "id"
-                }
-              }
-            },
-            "size":0
-          }""", MediaType.APPLICATION_JSON))) {
-
-      if (response.getStatus() != 200) {
-        String responseData = response.readEntity(String.class);
-        if (responseData.contains("index_not_found_exception")) {
-          LOG.info("No documents, starting from zero");
-          return 0;
-        } else {
-          LOG.error(responseData);
-          throw new IllegalStateException("Error getting max document id from OpenSearch");
+    try (Client client = ClientBuilder.newClient()){
+    WebTarget target = client.target(osUrl).path(index);
+    boolean indexExists= false;
+    try (Response response = target.request().head()) {
+        if (response.getStatus() == 200) {
+          System.out.println("Index " + index + " exists.");
+          indexExists= true;
+        } else   if (response.getStatus() == 401) {
+          System.out.println("Index " + index + " does not exist. ");
         }
-      } else {
-        String responseData = response.readEntity(String.class);
-        JsonNode root = om.readTree(responseData);
-        int maxId = root.get("aggregations").get("max_id").get("value").asInt();
-        if (maxId > 0)
-          LOG.info("Continuing from {}", maxId);
-        return maxId;
+        else {
+          throw new IOException("problem checking index exists : "+ response.getStatus());
+        }
+    }
+    if (indexExists) {
+      try (Response response = target
+        .request()
+        .header("Authorization", "Basic " + osAuth)
+        .delete()) {
+        if (response.getStatus() == 200) {
+          System.out.println("Index deleted ");
+        } else {
+          throw new IOException("unable to delete index . status = " + response.getStatus());
+        }
       }
     }
-  }
-
-  private void checkIndexExists() {
-
-    target = client.target(osUrl).path(index);
-
-    try (Response response = target
-      .request()
-      .header("Authorization", "Basic " + osAuth)
-      .head()) {
-
-      if (response.getStatus() != 200) {
-        LOG.info("{} does not exist - creating index and default mappings", index);
-        target = client.target(osUrl).path(index);
+    LOG.info("creating index {} and default mappings", index);
         String settings = "{\"settings\": {\n" +
           "    \"analysis\": {\n" +
           "      \"filter\": {\n" +
@@ -681,11 +618,16 @@ public class OpenSearchSender {
                     "name" : {
                       "type": "text"
                     }
-                    }
-                  },
-                "matchTerm": {
-                    "type" : "text"
+                  }
                 },
+                "preferredName": {
+                "type" : "text",
+                "fields": {
+                "keyword": {
+                  "type" : "keyword"
+                         }
+                      }
+                 },
                 "entityType" : {
                   "properties" : {
                     "@id": {
@@ -751,6 +693,11 @@ public class OpenSearchSender {
                     },
                     "term" : {
                       "type" : "text",
+                       "fields" :{
+                               "keyword": {
+                               "type": "keyword"
+                                         }
+                            },
                       "analyzer": "autocomplete"
                     },
                     "status" : {
@@ -771,14 +718,18 @@ public class OpenSearchSender {
                             
           """;
 
-        try (Response createResponse = target
+        try (Response response = target
           .request()
           .header("Authorization", "Basic " + osAuth)
           .put(Entity.entity(mappings, MediaType.APPLICATION_JSON))) {
-          LOG.info("Index check {}", createResponse.getStatus());
+          if (response.getStatus() == 200) {
+            System.out.println("Index created and mappings applied ");
+          }
+          else {
+            throw new IOException("unable to create index = "+ response.getStatus());
+          }
         }
       }
-    }
   }
 
 

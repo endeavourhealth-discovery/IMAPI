@@ -29,7 +29,7 @@ public class SearchService {
   private static QueryRequest getHighestUseRequestFromQuery(QueryRequest queryRequest, ObjectMapper om, QueryRepository repo) throws JsonProcessingException, QueryException {
     QueryRequest highestUsageRequest = om.readValue(om.writeValueAsString(queryRequest), QueryRequest.class);
     repo.unpackQueryRequest(highestUsageRequest, om.createObjectNode());
-    highestUsageRequest.getQuery().addReturn(new Return().property(p->p.setIri(IM.USAGE_TOTAL).setValueRef(USAGE_TOTAL)));
+    highestUsageRequest.getQuery().addReturn(new Return().property(p -> p.setIri(IM.USAGE_TOTAL).setValueRef(USAGE_TOTAL)));
     OrderDirection od = new OrderDirection().setDirection(Order.descending);
     od.setValueVariable(USAGE_TOTAL);
     highestUsageRequest.getQuery().setOrderBy(new OrderLimit().setProperty(od));
@@ -51,26 +51,26 @@ public class SearchService {
     if (null != queryRequest.getTextSearch()) {
       OSQuery osq = new OSQuery();
       JsonNode osResult = osq.imQuery(queryRequest);
-      if (osResult.get("entities")!=null)
+      if (osResult.get("entities") != null)
         return osResult;
       else {
-        return queryOSIM(queryRequest,repo);
+        return queryOSIM(queryRequest, repo);
       }
     }
 
     return repo.queryIM(queryRequest, false);
   }
 
-  private JsonNode queryOSIM(QueryRequest queryRequest,QueryRepository repo) throws QueryException {
+  private JsonNode queryOSIM(QueryRequest queryRequest, QueryRepository repo) throws QueryException {
     OSQuery osq = new OSQuery();
-    JsonNode osResult = osq.imQuery(queryRequest,true);
-    if (osResult.get("entities")==null)
+    JsonNode osResult = osq.imQuery(queryRequest, true);
+    if (osResult.get("entities") == null)
       return osResult;
-    JsonNode imResult= repo.queryIM(queryRequest, false);
-    if (imResult.get("entities")==null){
+    JsonNode imResult = repo.queryIM(queryRequest, false);
+    if (imResult.get("entities") == null) {
       return imResult;
     }
-    ArrayNode commonResult= new ObjectMapper().createArrayNode();
+    ArrayNode commonResult = new ObjectMapper().createArrayNode();
     Set<String> imEntityIds = new HashSet<>();
     for (JsonNode entity : imResult.get("entities")) {
       JsonNode idNode = entity.get("@id");
@@ -86,10 +86,9 @@ public class SearchService {
       }
     }
     if
-    (!commonResult.isEmpty()){
-      return new ObjectMapper().createObjectNode().set("entities",commonResult);
-    }
-    else
+    (!commonResult.isEmpty()) {
+      return new ObjectMapper().createObjectNode().set("entities", commonResult);
+    } else
       return new ObjectMapper().createObjectNode();
   }
 
@@ -114,16 +113,19 @@ public class SearchService {
     repo.unpackQueryRequest(queryRequest, om.createObjectNode());
 
     if (null != queryRequest.getTextSearch()) {
-      return new OSQuery().openSearchQuery(queryRequest);
-    } else {
-      QueryRequest highestUsageRequest = getHighestUseRequestFromQuery(queryRequest, om, repo);
+      SearchResponse searchResponse = new OSQuery().openSearchQuery(queryRequest);
+      if (null != searchResponse) return searchResponse;
+      else return getSearchResponseFromQuery(queryRequest, om, repo);
+    } else return getSearchResponseFromQuery(queryRequest, om, repo);
+  }
 
-      JsonNode queryResults = repo.queryIM(queryRequest, false);
-      JsonNode highestUsageResults = repo.queryIM(highestUsageRequest, true);
+  public SearchResponse getSearchResponseFromQuery(QueryRequest queryRequest, ObjectMapper om, QueryRepository repo) throws JsonProcessingException, OpenSearchException, QueryException {
+    QueryRequest highestUsageRequest = getHighestUseRequestFromQuery(queryRequest, om, repo);
 
-      return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, highestUsageResults);
-    }
+    JsonNode queryResults = repo.queryIM(queryRequest, false);
+    JsonNode highestUsageResults = repo.queryIM(highestUsageRequest, true);
 
+    return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, highestUsageResults);
   }
 
   public void validateQueryRequest(QueryRequest queryRequest) throws QueryException {

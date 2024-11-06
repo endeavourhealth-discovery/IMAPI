@@ -2,14 +2,18 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.config.ConfigManager;
-import org.endeavourhealth.imapi.dataaccess.*;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.logic.validator.EntityValidator;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.validation.EntityValidationRequest;
+import org.endeavourhealth.imapi.model.validation.EntityValidationResponse;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Comparator.comparingInt;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -27,6 +32,7 @@ public class EntityService {
   private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
   private EntityRepository entityRepository = new EntityRepository();
   private ConfigManager configManager = new ConfigManager();
+  private EntityValidator validator = new EntityValidator();
 
   private static void filterOutSpecifiedPredicates(Set<String> excludePredicates, TTBundle bundle) {
     if (excludePredicates != null) {
@@ -35,6 +41,21 @@ public class EntityService {
       if (excludePredicates.contains(RDFS.LABEL)) {
         bundle.getEntity().set(iri(RDFS.LABEL), (TTValue) null);
       }
+    }
+  }
+
+  protected static void filterOutInactiveTermCodes(TTBundle bundle) {
+    if (bundle.getEntity().get(iri(IM.HAS_TERM_CODE)) != null) {
+      List<TTValue> termCodes = bundle.getEntity().get(iri(IM.HAS_TERM_CODE)).getElements();
+      TTArray activeTermCodes = new TTArray();
+      for (TTValue value : termCodes) {
+        if (value.asNode().get(iri(IM.HAS_STATUS)) != null) {
+          if (value.asNode().get(iri(IM.HAS_STATUS)) != null && "Active".equals(value.asNode().get(iri(IM.HAS_STATUS)).asIriRef().getName())) {
+            activeTermCodes.add(value);
+          }
+        } else activeTermCodes.add(value);
+      }
+      bundle.getEntity().set(iri(IM.HAS_TERM_CODE), activeTermCodes);
     }
   }
 
@@ -47,6 +68,15 @@ public class EntityService {
     filterOutSpecifiedPredicates(excludePredicates, bundle);
     filterOutInactiveTermCodes(bundle);
     return bundle;
+  }
+
+  public List<TTEntity> getPartialEntities(Set<String> iris, Set<String> predicates) {
+    List<TTEntity> entities = new ArrayList<>();
+    for (String iri : iris) {
+      TTEntity entity = getBundle(iri, predicates).getEntity();
+      entities.add(entity);
+    }
+    return entities;
   }
 
   public TTIriRef getEntityReference(String iri) {
@@ -292,21 +322,6 @@ public class EntityService {
     return entityRepository.iriExists(iri);
   }
 
-  protected static void filterOutInactiveTermCodes(TTBundle bundle) {
-    if (bundle.getEntity().get(iri(IM.HAS_TERM_CODE)) != null) {
-      List<TTValue> termCodes = bundle.getEntity().get(iri(IM.HAS_TERM_CODE)).getElements();
-      TTArray activeTermCodes = new TTArray();
-      for (TTValue value : termCodes) {
-        if (value.asNode().get(iri(IM.HAS_STATUS)) != null) {
-          if (value.asNode().get(iri(IM.HAS_STATUS)) != null && "Active".equals(value.asNode().get(iri(IM.HAS_STATUS)).asIriRef().getName())) {
-            activeTermCodes.add(value);
-          }
-        } else activeTermCodes.add(value);
-      }
-      bundle.getEntity().set(iri(IM.HAS_TERM_CODE), activeTermCodes);
-    }
-  }
-
   public String getName(String iri) {
     return entityRepository.getEntityReferenceByIri(iri).getName();
   }
@@ -372,6 +387,162 @@ public class EntityService {
     return entityRepository.getEntityReferenceNode(iri, schemeIris, inactive);
   }
 
+  public List<ValidatedEntity> getValidatedEntitiesBySnomedCodes(List<String> codes) {
+    List<String> snomedCodes = codes.stream().map(code -> SNOMED.NAMESPACE + code).toList();
+    List<TTEntity> entities = getPartialEntities(new HashSet<>(snomedCodes), Stream.of(RDFS.LABEL, IM.CODE).collect(Collectors.toSet()));
+    SetService setService = new SetService();
+    List<TTIriRef> needed = setService.getDistillation(entities.stream().map(e -> iri(e.getIri())).toList());
+    List<ValidatedEntity> validatedEntities = new ArrayList<>();
+    for (TTEntity entity : entities) {
+      ValidatedEntity validatedEntity = validateEntity(entity, needed);
+      if (validatedEntities.stream().anyMatch(v -> v.getIri().equals(validatedEntity.getIri()))) {
+        validatedEntity.setCode("Duplicate");
+      }
+      validatedEntities.add(validateEntity(entity, needed));
+    }
+    return validatedEntities;
+  }
+
+  private ValidatedEntity validateEntity(TTEntity entity, List<TTIriRef> needed) {
+    ValidatedEntity validatedEntity = new ValidatedEntity();
+    validatedEntity
+      .setIri(entity.getIri())
+      .setName(entity.getName())
+      .setCode(entity.getCode());
+    boolean isInvalid = !entity.getIri().isEmpty() && !entity.getName().isEmpty() && !entity.getCode().isEmpty();
+    TTIriRef found = needed.stream().filter(n -> n.getIri().equals(validatedEntity.getIri())).findFirst().orElse(null);
+    if (isInvalid) {
+      validatedEntity.setValidationCode("Invalid");
+      validatedEntity.setValidationLabel("Not an entity");
+    } else if (null != found) {
+      needed.remove(found);
+      validatedEntity.setValidationCode("Valid");
+    } else {
+      validatedEntity.setValidationCode("Child");
+    }
+    if (validatedEntity.getCode().isEmpty() && !validatedEntity.getIri().isEmpty() && validatedEntity.getIri().contains("#")) {
+      validatedEntity.setCode(validatedEntity.getIri().split("#")[1]);
+    }
+    return validatedEntity;
+  }
+
+  public TTBundle getDetailsDisplay(String iri) {
+    Set<String> excludedPredicates = new HashSet<>(List.of(IM.CODE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT));
+    Set<String> entityPredicates = getPredicates(iri);
+    TTBundle response;
+    if (entityPredicates.contains(IM.HAS_MEMBER)) {
+      response = getBundleByPredicateExclusions(iri, excludedPredicates);
+      excludedPredicates.add(IM.HAS_MEMBER);
+      Pageable<TTIriRef> partialAndCount = getPartialWithTotalCount(iri, IM.HAS_MEMBER, null, 1, 10, false);
+      TTArray partialAsTTArray = new TTArray();
+      for (TTIriRef partial : partialAndCount.getResult()) {
+        partialAsTTArray.add(partial);
+      }
+      TTNode loadMoreNode = new TTNode()
+        .setIri(IM.LOAD_MORE)
+        .set(iri(RDFS.LABEL), "Load more")
+        .set(iri(IM.NAMESPACE + "totalCount"), partialAndCount.getTotalCount());
+      partialAsTTArray.add(loadMoreNode);
+      response.addPredicate(iri(IM.HAS_MEMBER));
+      response.getEntity().set(iri(IM.HAS_MEMBER), partialAsTTArray);
+    } else {
+      response = getBundleByPredicateExclusions(iri, excludedPredicates);
+    }
+    response.getEntity().removeObject(iri(RDF.TYPE));
+    return response;
+  }
+
+  public TTBundle loadMoreDetailsDisplay(String iri, String predicate, int pageIndex, int pageSize) {
+    Pageable<TTIriRef> response = getPartialWithTotalCount(iri, predicate, null, pageIndex, pageSize, false);
+    TTEntity entity = new TTEntity();
+    entity.addObject(iri(predicate), response.getTotalCount());
+    TTBundle bundle = new TTBundle();
+    bundle.setEntity(entity);
+    return bundle;
+  }
+
+  public List<PropertyDisplay> getPropertiesDisplay(String iri) {
+    Set<String> predicates = new HashSet<>();
+    predicates.add(SHACL.PROPERTY);
+    TTEntity entity = getBundle(iri, predicates).getEntity();
+    List<PropertyDisplay> propertyList = new ArrayList<>();
+    TTArray ttProperties = entity.get(iri(SHACL.PROPERTY));
+    for (TTValue ttProperty : ttProperties.getElements()) {
+      int minCount = 0;
+      if (ttProperty.asNode().has(iri(SHACL.MINCOUNT))) {
+        minCount = ttProperty.asNode().get(iri(SHACL.MINCOUNT)).asLiteral().intValue();
+      }
+      int maxCount = 0;
+      if (ttProperty.asNode().has(iri(SHACL.MAXCOUNT))) {
+        maxCount = ttProperty.asNode().get(iri(SHACL.MAXCOUNT)).asLiteral().intValue();
+      }
+      String cardinality = minCount + " : " + (maxCount == 0 ? "*" : maxCount);
+      if (ttProperty.asNode().has(iri(SHACL.OR))) {
+        handleOr(ttProperty, cardinality, propertyList);
+      } else {
+        handleNotOr(ttProperty, cardinality, propertyList);
+      }
+    }
+    return propertyList;
+  }
+
+  private void handleOr(TTValue ttProperty, String cardinality, List<PropertyDisplay> propertyList) {
+    PropertyDisplay propertyDisplay = new PropertyDisplay();
+    propertyDisplay.setOrder(ttProperty.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue());
+    propertyDisplay.setCardinality(cardinality);
+    propertyDisplay.setOr(true);
+    for (TTValue orProperty : ttProperty.asNode().get(iri(SHACL.OR)).getElements()) {
+      TTArray type;
+      if (orProperty.asNode().has(iri(SHACL.CLASS))) type = orProperty.asNode().get(iri(SHACL.CLASS));
+      else if (orProperty.asNode().has(iri(SHACL.NODE))) type = orProperty.asNode().get(iri(SHACL.NODE));
+      else if (orProperty.asNode().has(iri(SHACL.DATATYPE))) type = orProperty.asNode().get(iri(SHACL.DATATYPE));
+      else type = new TTArray();
+      String name = "";
+      if (orProperty.asNode().has(iri(SHACL.PATH))) {
+        name += orProperty.asNode().get(iri(SHACL.PATH)).get(0).asIriRef().getIri() + " (";
+        if (!type.isEmpty() && !type.get(0).asIriRef().getName().isEmpty()) name += type.get(0).asIriRef().getName();
+        else if (!type.isEmpty() && !type.get(0).asIriRef().getIri().isEmpty())
+          name += " (" + type.get(0).asIriRef().getIri().split("#")[1];
+        name += ")";
+        propertyDisplay.addProperty(iri(orProperty.asNode().get(iri(SHACL.PATH)).get(0).asIriRef().getIri(), name));
+        propertyDisplay.addType(type.get(0).asIriRef());
+      }
+      propertyList.add(propertyDisplay);
+    }
+  }
+
+  private void handleNotOr(TTValue ttProperty, String cardinality, List<PropertyDisplay> propertyList) {
+    TTArray type;
+    if (ttProperty.asNode().has(iri(SHACL.CLASS))) type = ttProperty.asNode().get(iri(SHACL.CLASS));
+    else if (ttProperty.asNode().has(iri(SHACL.NODE))) type = ttProperty.asNode().get(iri(SHACL.NODE));
+    else if (ttProperty.asNode().has(iri(SHACL.DATATYPE))) type = ttProperty.asNode().get(iri(SHACL.DATATYPE));
+    else type = new TTArray();
+    TTValue group = null;
+    if (ttProperty.asNode().has(iri(SHACL.GROUP))) {
+      group = ttProperty.asNode().get(iri(SHACL.GROUP)).get(0);
+    }
+    String name = "";
+    if (ttProperty.asNode().has(iri(SHACL.PATH))) {
+      name += ttProperty.asNode().get(iri(SHACL.PATH)).get(0).asIriRef().getName() + " (";
+      if (!type.isEmpty() && !type.get(0).asIriRef().getName().isEmpty()) name += type.get(0).asIriRef().getName();
+      else if (!type.isEmpty() && !type.get(0).asIriRef().getIri().isEmpty()) name += type.get(0).asIriRef().getIri();
+      name += ")";
+    }
+    PropertyDisplay propertyDisplay = new PropertyDisplay();
+    propertyDisplay.setOrder(ttProperty.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue());
+    propertyDisplay.addProperty(iri(ttProperty.asNode().get(iri(SHACL.PATH)).get(0).asIriRef().getIri(), name));
+    propertyDisplay.addType(type.get(0).asIriRef());
+    propertyDisplay.setCardinality(cardinality);
+    propertyDisplay.setOr(false);
+    if (null != group) propertyDisplay.setGroup(group.asIriRef());
+    propertyList.add(propertyDisplay);
+  }
+
+  public EntityValidationResponse validate(EntityValidationRequest request) throws ValidationException {
+    if (request.getValidationIri().isEmpty()) throw new IllegalArgumentException("Missing validation iri");
+    return validator.validate(request, this);
+  }
+
   public List<TTIriRef> getEntitiesByType(String typeIri) {
     return entityRepository.findEntitiesByType(typeIri);
   }
@@ -385,7 +556,7 @@ public class EntityService {
   private String getPrefixFromIri(String iri) {
     int lastSlashIndex = iri.lastIndexOf('/');
     int hashIndex = iri.lastIndexOf('#');
-     if (lastSlashIndex != -1 && hashIndex != -1 && hashIndex > lastSlashIndex) {
+    if (lastSlashIndex != -1 && hashIndex != -1 && hashIndex > lastSlashIndex) {
       return iri.substring(lastSlashIndex + 1, hashIndex);
     } else if (iri.equals(FHIR.DOMAIN)) {
       return FHIR.PREFIX;
@@ -393,4 +564,5 @@ public class EntityService {
     return iri;
   }
 }
+
 

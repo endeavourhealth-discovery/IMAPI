@@ -1,42 +1,33 @@
 package org.endeavourhealth.imapi.controllers;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.xml.bind.ValidationException;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.endeavourhealth.imapi.config.ConfigManager;
-import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSearchExporter;
 import org.endeavourhealth.imapi.logic.exporters.SearchTextFileExporter;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.FilerService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
-import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.*;
-import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.dto.DownloadDto;
-import org.endeavourhealth.imapi.model.dto.GraphDto;
-import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
-import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.iml.SetContent;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.search.SearchTermCode;
-import org.endeavourhealth.imapi.model.set.SetOptions;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTBundle;
+import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.validation.EntityValidationRequest;
+import org.endeavourhealth.imapi.model.validation.EntityValidationResponse;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -48,10 +39,11 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.net.URISyntaxException;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
@@ -87,12 +79,7 @@ public class EntityController {
   public List<TTEntity> getPartialEntities(@RequestParam(name = "iris") Set<String> iris, @RequestParam(name = "predicates") Set<String> predicates) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Partials.GET")) {
       LOG.debug("getPartialEntities");
-      List<TTEntity> entities = new ArrayList<>();
-      for (String iri : iris) {
-        TTEntity entity = entityService.getBundle(iri, predicates).getEntity();
-        entities.add(entity);
-      }
-      return entities;
+      return entityService.getPartialEntities(iris, predicates);
     }
   }
 
@@ -338,14 +325,61 @@ public class EntityController {
     }
   }
 
+  @PostMapping(value = "/public/validatedEntity")
+  public List<ValidatedEntity> getValidatedEntitiesBySnomedCodes(@RequestBody List<String> codes) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ValidatedEntity.POST")) {
+      LOG.debug("getValidatedEntitiesBySnomedCodes");
+      return entityService.getValidatedEntitiesBySnomedCodes(codes);
+    }
+  }
+
+  @GetMapping(value = "/public/detailsDisplay")
+  public TTBundle getDetailsDisplay(@RequestParam(name = "iri") String iri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DetailsDisplay.GET")) {
+      LOG.debug("getDetailsDisplay");
+      return entityService.getDetailsDisplay(iri);
+    }
+  }
+
+  @GetMapping(value = "/public/detailsDisplay/loadMore")
+  public TTBundle getDetailsDisplayLoadMore(
+    @RequestParam(name = "iri") String iri,
+    @RequestParam(name = "predicate") String predicate,
+    @RequestParam(name = "pageIndex") int pageIndex,
+    @RequestParam(name = "pageSize") int pageSize
+  ) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DetailsDisplay.LOADMORE.GET")) {
+      LOG.debug("getDetailsDisplayLoadMore");
+      return entityService.loadMoreDetailsDisplay(iri, predicate, pageIndex, pageSize);
+    }
+  }
+
+  @GetMapping(value = "/public/propertiesDisplay")
+  public List<PropertyDisplay> getPropertiesDisplay(@RequestParam(name = "iri") String iri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PropertiesDisplay.GET")) {
+      LOG.debug("getPropertiesDisplay");
+      return entityService.getPropertiesDisplay(iri);
+    }
+  }
+
+  @PostMapping(value = "/public/validate")
+  public EntityValidationResponse validateEntity(@RequestBody EntityValidationRequest request) throws IOException, ValidationException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.validate.POST")) {
+      LOG.debug("validateEntity");
+      return entityService.validate(request);
+    }
+  }
+
   @GetMapping(value = "/public/type/entities")
   public List<TTIriRef> getEntitiesByType(@RequestParam(name = "iri") String typeIri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Predicates.GET")) {
       LOG.debug("getEntitiesByType");
       return entityService.getEntitiesByType(typeIri);
     }
-  }  @GetMapping(value = "/public/schemes")
-  public Map<String, org.endeavourhealth.imapi.model.Namespace> getSchemesWithPrefixes() throws IOException {
+  }
+
+  @GetMapping(value = "/public/schemes")
+  public Map<String, Namespace> getSchemesWithPrefixes() throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SchemesWithPrefixes.GET")) {
       LOG.debug("getSchemesWithPrefixes");
       return entityService.getSchemesWithPrefixes();

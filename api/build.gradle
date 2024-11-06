@@ -40,14 +40,14 @@ tasks {
       'org.endeavourhealth.imapi.model.workflow.**.*',
       'org.endeavourhealth.imapi.model.DownloadEntityOptions'
     ]
-    outputFile = '../../IMDirectory/im_library/src/interfaces/AutoGen.ts'
+    outputFile = '../../IMDirectory/src/interfaces/AutoGen.ts'
     outputKind = 'module'
     mapEnum = EnumMapping.asEnum
   }
   staticConstGenerator {
     inputJson = "vocab.json"
     javaOutputFolder = "src/main/java/org/endeavourhealth/imapi/vocabulary/"
-    typeScriptOutputFolder = "../../IMDirectory/im_library/src/vocabulary/"
+    typeScriptOutputFolder = "../../IMDirectory/src/vocabulary/"
   }
 }
 

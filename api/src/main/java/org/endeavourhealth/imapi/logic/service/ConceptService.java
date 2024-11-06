@@ -17,10 +17,12 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.DataFormatException;
@@ -31,10 +33,10 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class ConceptService {
 
-  private final EclService eclService = new EclService();
-  private final EntityService entityService = new EntityService();
-  private final EntityRepository entityRepository = new EntityRepository();
-  private final ConceptRepository conceptRepository = new ConceptRepository();
+  private EclService eclService = new EclService();
+  private EntityService entityService = new EntityService();
+  private EntityRepository entityRepository = new EntityRepository();
+  private ConceptRepository conceptRepository = new ConceptRepository();
 
   public List<SimpleMap> getMatchedFrom(String iri) {
     if (iri == null || iri.isEmpty()) return new ArrayList<>();

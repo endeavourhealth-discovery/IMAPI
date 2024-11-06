@@ -28,6 +28,7 @@ public class SecurityConfig {
     http
       .csrf(c -> c.disable())
       .authorizeHttpRequests(req -> req
+        .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
         .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()

@@ -2,18 +2,13 @@ package org.endeavourhealth.imapi.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.FhirService;
-import org.endeavourhealth.imapi.logic.service.FilerService;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.hl7.fhir.r4.model.ValueSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -23,7 +18,7 @@ import java.util.zip.DataFormatException;
 @RestController
 @RequestMapping("api/fhir/r4")
 @CrossOrigin(origins = "*")
-@Tag(name = "Entity Controller")
+@Tag(name = "FHIR Controller")
 @RequestScope
 public class FhirController {
   private static final Logger LOG = LoggerFactory.getLogger(FhirController.class);
@@ -31,7 +26,7 @@ public class FhirController {
 
   @GetMapping(value = "/ValueSet", produces = "application/json")
   @Operation(summary = "Retrieves the specified value set")
-  public String getValueSet(@RequestParam(name = "iri") String iri) throws IOException, QueryException {
+  public String getValueSet(@RequestParam(name = "url") String iri) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Fhir.ValueSet.GET")) {
       return fhirService.getFhirValueSet(iri, false);
     }
@@ -39,7 +34,7 @@ public class FhirController {
 
   @GetMapping(value = "/ValueSet/$expand", produces = "application/json")
   @Operation(summary = "Retrieves the specified value set and expands any subsets & members")
-  public String getValueSetExpanded(@RequestParam(name = "iri") String iri) throws IOException, QueryException {
+  public String getValueSetExpanded(@RequestParam(name = "url") String iri) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Fhir.ValueSet.Expand.GET")) {
       return fhirService.getFhirValueSet(iri, true);
     }

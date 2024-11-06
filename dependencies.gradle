@@ -27,7 +27,7 @@ ext {
     opensearchClient  : '2.11.1',
     opensearchJava    : '2.6.0',
     owlApi            : '5.5.0',
-    rdf4j             : '5.0.2',
+    rdf4j             : '4.3.13',
     reactor           : '3.6.10',
     servlet           : '6.0.0',
     slf4j             : '2.0.9',

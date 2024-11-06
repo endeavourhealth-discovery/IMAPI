@@ -77,6 +77,10 @@
       {
         "name": "MONITORING",
         "value": "CONFIG.NAMESPACE + \"monitoring\""
+      },
+      {
+        "name": "CORE_SCHEMES",
+        "value": "CONFIG.NAMESPACE + \"coreSchemes\""
       }
     ]
   },

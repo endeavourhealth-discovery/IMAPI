@@ -1,28 +1,21 @@
 package org.endeavourhealth.imapi.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
-import org.endeavourhealth.imapi.model.config.Config;
-import org.endeavourhealth.imapi.model.config.DashboardLayout;
 import org.endeavourhealth.imapi.model.config.FilterDefault;
-import org.endeavourhealth.imapi.model.github.GithubRelease;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("api/config")
@@ -64,6 +57,15 @@ public class ConfigController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.FilterDefaults.GET")) {
       LOG.debug("getFilterDefaults");
       return configManager.getConfig(CONFIG.FILTER_DEFAULTS, new TypeReference<>() {
+      });
+    }
+  }
+
+  @GetMapping(value = "/public/coreSchemes")
+  public List<String> getCoreSchemes() throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Config.CoreSchemes.GET")) {
+      LOG.debug("getCoreSchemes");
+      return configManager.getConfig(CONFIG.CORE_SCHEMES, new TypeReference<>() {
       });
     }
   }

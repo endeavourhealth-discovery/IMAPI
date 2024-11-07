@@ -1,26 +1,33 @@
 package org.endeavourhealth.imapi.model.sql;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class IMQtoSQLConverter {
+  private static Logger LOG = LoggerFactory.getLogger(IMQtoSQLConverter.class);
 
-  private HashMap<String, Table> tableMap = new HashMap<>();
+  private HashMap<String, Table> tableMap;
 
   public IMQtoSQLConverter() {
-    tableMap = new HashMap<>();
-    tableMap.put(IM.NAMESPACE + "Patient", getPatientTableMap());
-    tableMap.put(IM.NAMESPACE + "PatientDemographics", getPatientDemographicsTableMap());
-    tableMap.put(IM.NAMESPACE + "GPRegistrationEpisode", getGPRegistrationEpisodeTableMap());
-    tableMap.put(IM.NAMESPACE + "GPRegistration", getGPRegistrationTableMap());
-    tableMap.put(IM.NAMESPACE + "Observation", getObservationTableMap());
-    tableMap.put(IM.NAMESPACE + "Prescription", getPrescriptionTableMap());
+    try {
+      String text = Files.readString(Paths.get(getClass().getClassLoader().getResource("IMQtoSQL.json").toURI()));
+      tableMap = new ObjectMapper().readValue(text, new TypeReference<>() {
+      });
+    } catch (Exception e) {
+      LOG.error("Could not parse datamodel map!");
+      throw new RuntimeException(e);
+    }
   }
 
   public String IMQtoSQL(Query definition) throws SQLConversionException {
@@ -40,8 +47,8 @@ public class IMQtoSQLConverter {
 
       return qry.toSql(2);
     } catch (SQLConversionException e) {
-      if (e.getMessage() != null) return e.toString();
-      else return "Unknown SQLConversionException";
+      LOG.error("SQL Conversion Error!");
+      throw e;
     }
   }
 
@@ -54,12 +61,7 @@ public class IMQtoSQLConverter {
     String joiner = match.isExclude() ? "LEFT JOIN " : "JOIN ";
     if (match.isExclude()) qry.getWheres().add(subQry.getAlias() + ".id IS NULL");
 
-    if (qry.getModel().equals(subQry.getModel())) {
-      qry.getJoins().add(joiner + subQry.getAlias() + " ON " + subQry.getAlias() + ".id = " + qry.getAlias() + ".id");
-    } else {
-      Relationship rel = subQry.getRelationshipTo(qry.getModel());
-      qry.getJoins().add(joiner + subQry.getAlias() + " ON " + subQry.getAlias() + "." + rel.getFromField() + " = " + qry.getAlias() + "." + rel.getToField());
-    }
+    qry.getJoins().add(createJoin(qry, subQry, joiner));
   }
 
   private SQLQuery convertMatchToQuery(SQLQuery parent, Match match) throws SQLConversionException {
@@ -112,7 +114,10 @@ public class IMQtoSQLConverter {
     String innerSql = qry.getAlias() + "_inner AS (" + inner.toSql(2) + ")";
 
     SQLQuery partition = qry.subQuery(qry.getAlias() + "_inner", qry.getAlias() + "_part", tableMap);
-    String partField = "patient";
+
+    // TODO: Correct partition field
+    // String partField = "patient";
+    String partField = "((json ->> 'patient')::UUID)";
 
     ArrayList<String> o = new ArrayList<>();
 
@@ -157,14 +162,20 @@ public class IMQtoSQLConverter {
       subQuery.setWiths(new ArrayList<>());
       qry.getWiths().add(subQuery.getAlias() + " AS (" + subQuery.toSql(2) + "\n)");
 
-      if (subQuery.getModel().equals(qry.getModel()))
-        qry.getJoins().add(joiner + subQuery.getAlias() + " ON " + subQuery.getAlias() + ".id = " + qry.getAlias() + ".id");
-      else {
-        Relationship rel = subQuery.getRelationshipTo(qry.getModel());
-        qry.getJoins().add(joiner + subQuery.getAlias() + " ON " + subQuery.getAlias() + "." + rel.getFromField() + " = " + qry.getAlias() + "." + rel.getToField());
-      }
+      qry.getJoins().add(createJoin(qry, subQuery, joiner));
 
       if ("OR".equals(qry.getWhereBool())) qry.getWheres().add(subQuery.getAlias() + ".id IS NOT NULL");
+    }
+  }
+
+  private String createJoin(SQLQuery qry, SQLQuery subQry, String joiner) throws SQLConversionException {
+    if (qry.getModel().equals(subQry.getModel())) {
+      return (joiner + subQry.getAlias() + " ON " + subQry.getAlias() + ".id = " + qry.getAlias() + ".id");
+    } else {
+      Relationship rel = subQry.getRelationshipTo(qry.getModel());
+      String from = rel.getFromField().contains("{alias}") ? rel.getFromField().replace("{alias}", subQry.getAlias()) : subQry.getAlias() + "." + rel.getFromField();
+      String to = rel.getToField().contains("{alias}") ? rel.getToField().replace("{alias}", qry.getAlias()) : qry.getAlias() + "." + rel.getToField();
+      return (joiner + subQry.getAlias() + " ON " + from + " = " + to);
     }
   }
 
@@ -215,6 +226,8 @@ public class IMQtoSQLConverter {
         else if (pIs.isDescendantsOf()) descendants.add(pIs.getIri());
         else if (pIs.isDescendantsOrSelfOf()) descendantsSelf.add(pIs.getIri());
         else direct.add(pIs.getIri());
+      } else if (pIs.getParameter() != null) {
+        descendantsSelf.add(pIs.getIri());
       } else {
         throw new SQLConversionException("UNHANDLED 'IN'/'NOT IN' ENTRY\n" + pIs);
       }
@@ -266,12 +279,15 @@ public class IMQtoSQLConverter {
 
   private String convertMatchPropertyNumberRangeNode(String fieldName, Assignable range) {
     if (range.getUnit() != null)
-      return fieldName + " " + range.getOperator() + " " + range.getValue() + " -- CONVERT " + range.getUnit();
-    else return fieldName + " " + range.getOperator() + " " + range.getValue();
+      return fieldName + " " + range.getOperator().getValue() + " " + range.getValue() + " -- CONVERT " + range.getUnit();
+    else return fieldName + " " + range.getOperator().getValue() + " " + range.getValue();
   }
 
   private String convertMatchPropertyDateRangeNode(String fieldName, Assignable range) {
-    return "(now() - INTERVAL '" + range.getValue() + (range.getUnit() != null ? " " + range.getUnit() : "") + "') " + range.getOperator() + " " + fieldName;
+    if ("DATE".equals(range.getUnit()))
+      return "'" + range.getValue() + "' " + range.getOperator().getValue() + " " + fieldName;
+    else
+      return "(now() - INTERVAL '" + range.getValue() + (range.getUnit() != null ? " " + range.getUnit() : "") + "') " + range.getOperator().getValue() + " " + fieldName;
   }
 
   private void convertMatchPropertySubMatch(SQLQuery qry, Where property) throws SQLConversionException {
@@ -288,12 +304,7 @@ public class IMQtoSQLConverter {
     subQuery.setWiths(new ArrayList<>());
     qry.getWiths().add(subQuery.getAlias() + " AS (" + subQuery.toSql(2) + "\n)");
 
-    if (qry.getModel().equals(subQuery.getModel()))
-      qry.getJoins().add("JOIN " + subQuery.getAlias() + " ON " + subQuery.getAlias() + ".id = " + qry.getAlias() + ".id");
-    else {
-      Relationship rel = subQuery.getRelationshipTo(qry.getModel());
-      qry.getJoins().add("JOIN " + subQuery.getAlias() + " ON " + subQuery.getAlias() + "." + rel.getFromField() + " = " + qry.getAlias() + "." + rel.getToField());
-    }
+    qry.getJoins().add(createJoin(qry, subQuery, "JOIN"));
   }
 
   private void convertMatchPropertyInSet(SQLQuery qry, Where property) throws SQLConversionException {
@@ -327,11 +338,15 @@ public class IMQtoSQLConverter {
     }
 
     if (property.getRelativeTo().getParameter() != null)
-      qry.getWheres().add(qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator() + " " + convertMatchPropertyRelativeTo(qry, property, property.getRelativeTo().getParameter()));
+      qry.getWheres().add(qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + convertMatchPropertyRelativeTo(qry, property, property.getRelativeTo().getParameter()));
     else if (property.getRelativeTo().getNodeRef() != null) {
       // Include implied join on noderef
       qry.getJoins().add("JOIN " + property.getRelativeTo().getNodeRef() + " ON " + property.getRelativeTo().getNodeRef() + ".id = " + qry.getAlias() + ".id");
-      qry.getWheres().add(qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator() + " " + convertMatchPropertyRelativeTo(qry, property, qry.getFieldName(property.getRelativeTo().getIri(), property.getRelativeTo().getNodeRef(), tableMap)));
+      qry.getWheres()
+        .add(
+          qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " +
+            convertMatchPropertyRelativeTo(qry, property, qry.getFieldName(property.getRelativeTo().getIri(), property.getRelativeTo().getNodeRef(), tableMap))
+        );
     } else {
       throw new SQLConversionException("UNHANDLED RELATIVE COMPARISON\n" + property);
     }
@@ -352,7 +367,7 @@ public class IMQtoSQLConverter {
       throw new SQLConversionException("INVALID MatchPropertyValue\n" + property);
     }
 
-    String where = "date".equals(qry.getFieldType(property.getIri(), null, tableMap)) ? convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), new Value().setValue(property.getValue()).setUnit(property.getUnit()).setOperator(property.getOperator())) : qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator() + " " + property.getValue();
+    String where = "date".equals(qry.getFieldType(property.getIri(), null, tableMap)) ? convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), new Value().setValue(property.getValue()).setUnit(property.getUnit()).setOperator(property.getOperator())) : qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + property.getValue();
 
     if (property.getUnit() != null) where += " -- CONVERT " + property.getUnit() + "\n";
 
@@ -386,106 +401,5 @@ public class IMQtoSQLConverter {
     }
 
     qry.getWheres().add(qry.getFieldName(property.getIri(), null, tableMap) + " IS NULL");
-  }
-
-//  TODO: Move maps to db
-
-  private Table getPatientTableMap() {
-    String table = "patient";
-
-    String condition = null;
-
-    HashMap<String, Field> fields = new HashMap<>();
-    fields.put(IM.NAMESPACE + "age", new Field("date_of_birth", "date"));
-    fields.put(IM.NAMESPACE + "dateOfBirth", new Field("date_of_birth", "date"));
-
-    HashMap<String, Relationship> rels = new HashMap<>();
-
-    return new Table(table, condition, fields, rels);
-  }
-
-  private Table getPatientDemographicsTableMap() {
-    String table = "patient";
-
-    String condition = null;
-
-    HashMap<String, Field> fields = new HashMap<>();
-    fields.put(IM.NAMESPACE + "age", new Field("date_of_birth", "date"));
-    fields.put(IM.NAMESPACE + "dateOfBirth", new Field("date_of_birth", "date"));
-
-    HashMap<String, Relationship> rels = new HashMap<>();
-    rels.put(IM.NAMESPACE + "Patient", new Relationship("patient", "id"));
-
-    return new Table(table, condition, fields, rels);
-  }
-
-  private Table getGPRegistrationTableMap() {
-    String table = "event";
-
-    String condition = "{alias}.event_type = 'EpisodeOfCare'";
-
-    HashMap<String, Field> fields = new HashMap<>();
-    fields.put(IM.NAMESPACE + "concept", new Field("concept", "iri"));
-    fields.put(IM.NAMESPACE + "gpPatientType", new Field("(({alias}.json ->> 'patientType')::VARCHAR)", "iri"));
-    fields.put(IM.NAMESPACE + "gpRegisteredStatus", new Field("(({alias}.json ->> 'status')::VARCHAR)", "iri"));
-    fields.put(IM.NAMESPACE + "gpGMSRegistrationDate", new Field("effective_date", "date"));
-    fields.put(IM.NAMESPACE + "effectiveDate", new Field("effective_date", "date"));
-    fields.put(IM.NAMESPACE + "endDate", new Field("(({alias}.json ->> 'endDate')::DATE)", "date"));
-
-    HashMap<String, Relationship> rels = new HashMap<>();
-    rels.put(IM.NAMESPACE + "Patient", new Relationship("patient", "id"));
-
-    return new Table(table, condition, fields, rels);
-  }
-
-  private Table getGPRegistrationEpisodeTableMap() {
-    String table = "event";
-
-    String condition = "{alias}.event_type = 'EpisodeOfCare'";
-
-    HashMap<String, Field> fields = new HashMap<>();
-    fields.put(IM.NAMESPACE + "concept", new Field("concept", "iri"));
-    fields.put(IM.NAMESPACE + "gpPatientType", new Field("(({alias}.json ->> 'patientType')::VARCHAR)", "iri"));
-    fields.put(IM.NAMESPACE + "gpRegisteredStatus", new Field("(({alias}.json ->> 'status')::VARCHAR)", "iri"));
-    fields.put(IM.NAMESPACE + "gpGMSRegistrationDate", new Field("effective_date", "date"));
-    fields.put(IM.NAMESPACE + "effectiveDate", new Field("effective_date", "date"));
-    fields.put(IM.NAMESPACE + "endDate", new Field("(({alias}.json ->> 'endDate')::DATE)", "date"));
-
-    HashMap<String, Relationship> rels = new HashMap<>();
-    rels.put(IM.NAMESPACE + "Patient", new Relationship("patient", "id"));
-
-    return new Table(table, condition, fields, rels);
-  }
-
-  private Table getPrescriptionTableMap() {
-    String table = "event";
-
-    String condition = "{alias}.event_type = 'Observation'";
-
-    HashMap<String, Field> fields = new HashMap<>();
-    fields.put(IM.NAMESPACE + "concept", new Field("concept", "iri"));
-    fields.put(IM.NAMESPACE + "effectiveDate", new Field("effective_date", "date"));
-    fields.put(IM.NAMESPACE + "numericValue", new Field("value", "number"));
-    fields.put(IM.NAMESPACE + "ageAtEvent", new Field("age_at_event", "age"));
-
-    HashMap<String, Relationship> rels = new HashMap<>();
-    rels.put(IM.NAMESPACE + "Patient", new Relationship("patient", "id"));
-
-    return new Table(table, condition, fields, rels);
-  }
-
-  private Table getObservationTableMap() {
-    String table = "event";
-
-    String condition = "{alias}.event_type = 'MedicationRequest'";
-
-    HashMap<String, Field> fields = new HashMap<>();
-    fields.put(IM.NAMESPACE + "concept", new Field("concept", "iri"));
-    fields.put(IM.NAMESPACE + "effectiveDate", new Field("effective_date", "date"));
-
-    HashMap<String, Relationship> rels = new HashMap<>();
-    rels.put(IM.NAMESPACE + "Patient", new Relationship("patient", "id"));
-
-    return new Table(table, condition, fields, rels);
   }
 }

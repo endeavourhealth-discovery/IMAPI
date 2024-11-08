@@ -113,10 +113,14 @@ public class SearchService {
     repo.unpackQueryRequest(queryRequest, om.createObjectNode());
 
     if (null != queryRequest.getTextSearch()) {
-      SearchResponse searchResponse = new OSQuery().openSearchQuery(queryRequest);
-      if (null != searchResponse) return searchResponse;
-      else return getSearchResponseFromQuery(queryRequest, om, repo);
-    } else return getSearchResponseFromQuery(queryRequest, om, repo);
+      return new OSQuery().openSearchQuery(queryRequest);
+    } else {
+      QueryRequest highestUsageRequest = getHighestUseRequestFromQuery(queryRequest, om, repo);
+      JsonNode queryResults = repo.queryIM(queryRequest, false);
+      JsonNode highestUsageResults = repo.queryIM(highestUsageRequest, true);
+      return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, highestUsageResults);
+    }
+
   }
 
   public SearchResponse getSearchResponseFromQuery(QueryRequest queryRequest, ObjectMapper om, QueryRepository repo) throws JsonProcessingException, OpenSearchException, QueryException {

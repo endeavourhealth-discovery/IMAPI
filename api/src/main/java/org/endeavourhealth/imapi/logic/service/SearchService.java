@@ -120,16 +120,6 @@ public class SearchService {
       JsonNode highestUsageResults = repo.queryIM(highestUsageRequest, true);
       return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, highestUsageResults);
     }
-
-  }
-
-  public SearchResponse getSearchResponseFromQuery(QueryRequest queryRequest, ObjectMapper om, QueryRepository repo) throws JsonProcessingException, OpenSearchException, QueryException {
-    QueryRequest highestUsageRequest = getHighestUseRequestFromQuery(queryRequest, om, repo);
-
-    JsonNode queryResults = repo.queryIM(queryRequest, false);
-    JsonNode highestUsageResults = repo.queryIM(highestUsageRequest, true);
-
-    return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, highestUsageResults);
   }
 
   public void validateQueryRequest(QueryRequest queryRequest) throws QueryException {

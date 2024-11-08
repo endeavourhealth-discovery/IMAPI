@@ -315,6 +315,8 @@ public class IMQToOS {
       return addBinding(where, bool, boolBldr);
     } else if (IM.IS_A.equals(w)) {
       return addIsFilter("isA", where, bool, boolBldr);
+    } else if (IM.CONTENT_TYPE.equals(w)) {
+      return addIsFilter("contentType", where, bool, boolBldr);
     }
     return false;
   }
@@ -336,6 +338,12 @@ public class IMQToOS {
         }
       }).collect(Collectors.toSet());
       addFilterWithId(property, isList, bool, boolBldr);
+      return true;
+    } else if (where.getIsNull()) {
+      boolBldr.should(QueryBuilders.boolQuery().mustNot(QueryBuilders.existsQuery(property)));
+      return true;
+    } else if (where.getIsNotNull()) {
+      boolBldr.should(QueryBuilders.boolQuery().must(QueryBuilders.existsQuery(property)));
       return true;
     }
     return false;

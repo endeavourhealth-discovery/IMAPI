@@ -9,18 +9,18 @@ import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
-import org.endeavourhealth.imapi.model.ConceptContextMap;
-import org.endeavourhealth.imapi.model.Context;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
-import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,6 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.*;
-import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList;
 
 public class EntityRepository {
   static final String PARENT_PREDICATES = "rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf";
@@ -77,6 +76,47 @@ public class EntityRepository {
     }
     if (rs.hasBinding("usageTotal")) {
       entityDocument.setUsageTotal(((Literal) rs.getValue("usageTotal")).intValue());
+    }
+  }
+
+  public static void getIriNames(RepositoryConnection conn, Set<TTIriRef> iris) {
+
+    if (iris == null || iris.isEmpty()) return;
+
+    Set<String> toFetch = new HashSet<>();
+
+    iris.forEach(i -> {
+      String name = iriNameCache.get(i.getIri());
+      if (name != null) i.setName(name);
+      else toFetch.add("<" + i.getIri() + ">");
+    });
+
+    if (toFetch.isEmpty()) {
+      return;
+    }
+
+    String sql = """
+      SELECT ?iri ?label ?description
+      WHERE {
+        ?iri rdfs:label ?label.
+        Optional { ?iri rdfs:comment ?description }
+        filter (?iri in (%s))
+      }
+      """.formatted(String.join(",", toFetch));
+
+    TupleQuery qry = conn.prepareTupleQuery(sql);
+    try (TupleQueryResult rs = qry.evaluate()) {
+      while (rs.hasNext()) {
+        BindingSet bs = rs.next();
+        TTIriRef iri = TTIriRef.iri(bs.getValue("iri").stringValue());
+        iris.stream().filter(i -> i.equals(iri)).findFirst().ifPresent(i -> {
+          i.setName(bs.getValue("label").stringValue());
+          iriNameCache.put(i.getIri(), i.getName());
+          if (bs.getValue("description") != null) i.setDescription(bs.getValue("description").stringValue());
+        });
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 
@@ -493,48 +533,6 @@ public class EntityRepository {
       }
     }
     return result;
-  }
-
-
-  public static void getIriNames(RepositoryConnection conn, Set<TTIriRef> iris) {
-
-    if (iris == null || iris.isEmpty()) return;
-
-    Set<String> toFetch = new HashSet<>();
-
-    iris.forEach(i -> {
-      String name = iriNameCache.get(i.getIri());
-      if (name != null) i.setName(name);
-      else toFetch.add("<" + i.getIri() + ">");
-    });
-
-    if (toFetch.isEmpty()) {
-      return;
-    }
-
-    String sql = """
-      SELECT ?iri ?label ?description
-      WHERE {
-        ?iri rdfs:label ?label.
-        Optional { ?iri rdfs:comment ?description }
-        filter (?iri in (%s))
-      }
-      """.formatted(String.join(",", toFetch));
-
-    TupleQuery qry = conn.prepareTupleQuery(sql);
-    try (TupleQueryResult rs = qry.evaluate()) {
-      while (rs.hasNext()) {
-        BindingSet bs = rs.next();
-        TTIriRef iri = TTIriRef.iri(bs.getValue("iri").stringValue());
-        iris.stream().filter(i -> i.equals(iri)).findFirst().ifPresent(i -> {
-          i.setName(bs.getValue("label").stringValue());
-          iriNameCache.put(i.getIri(), i.getName());
-          if (bs.getValue("description") != null) i.setDescription(bs.getValue("description").stringValue());
-        });
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
   }
 
   /**
@@ -1614,15 +1612,14 @@ public class EntityRepository {
   }
 
 
-
   public List<TTIriRef> findEntitiesByType(String typeIri) {
     String sparqlString =
-    """
-      select * where {
-          ?s rdf:type im:CohortQuery .
-          ?s rdfs:label ?name .
-      }
-    """;
+      """
+          select * where {
+              ?s rdf:type im:CohortQuery .
+              ?s rdfs:label ?name .
+          }
+        """;
     ArrayList<TTIriRef> iriRefs = new ArrayList<>();
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
@@ -1637,6 +1634,7 @@ public class EntityRepository {
     }
     return iriRefs;
   }
+
   public Map<String, org.endeavourhealth.imapi.model.Namespace> findAllSchemesWithPrefixes() {
     Map<String, org.endeavourhealth.imapi.model.Namespace> result = new HashMap<>();
 
@@ -1660,5 +1658,30 @@ public class EntityRepository {
     }
 
     return result;
+  }
+
+  public Set<String> getByGraph(String graphIri) {
+    Set<String> results = new HashSet<>();
+    String sparql = """
+      SELECT DISTINCT ?s
+      WHERE {
+        GRAPH ?g {
+          ?s ?p ?o
+        }
+      }
+      """;
+
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sparql);
+      qry.setBinding("g", iri(graphIri));
+
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          results.add(bs.getValue("s").stringValue());
+        }
+      }
+    }
+    return results;
   }
 }

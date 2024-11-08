@@ -15,50 +15,6 @@
         "value": "\"cfg\""
       },
       {
-        "name": "DEFINITION",
-        "value": "CONFIG.NAMESPACE + \"definition\""
-      },
-      {
-        "name": "SUMMARY",
-        "value": "CONFIG.NAMESPACE + \"summary\""
-      },
-      {
-        "name": "FILTER_DEFAULTS",
-        "value": "CONFIG.NAMESPACE + \"filterDefaults\""
-      },
-      {
-        "name": "INFERRED_PREDICATES",
-        "value": "CONFIG.NAMESPACE + \"inferredPredicates\""
-      },
-      {
-        "name": "INFERRED_EXCLUDE_PREDICATES",
-        "value": "CONFIG.NAMESPACE + \"inferredExcludePredicates\""
-      },
-      {
-        "name": "CONCEPT_DASHBOARD",
-        "value": "CONFIG.NAMESPACE + \"conceptDashboard\""
-      },
-      {
-        "name": "DEFAULT_PREDICATE_NAMES",
-        "value": "CONFIG.NAMESPACE + \"defaultPredicateNames\""
-      },
-      {
-        "name": "XML_SCHEMA_DATA_TYPES",
-        "value": "CONFIG.NAMESPACE + \"xmlSchemaDataTypes\""
-      },
-      {
-        "name": "DEFAULT_PREFIXES",
-        "value": "CONFIG.NAMESPACE + \"defaultPrefixes\""
-      },
-      {
-        "name": "GRAPH_EXCLUDE_PREDICATES",
-        "value": "CONFIG.NAMESPACE + \"graphExcludePredicates\""
-      },
-      {
-        "name": "IM1_PUBLISH",
-        "value": "CONFIG.NAMESPACE + \"im1Publish\""
-      },
-      {
         "name": "IMDIRECTORY_LATEST_RELEASE",
         "value": "CONFIG.NAMESPACE + \"IMDirectoryLatestRelease\""
       },
@@ -67,20 +23,8 @@
         "value": "CONFIG.NAMESPACE + \"IMDirectoryAllReleases\""
       },
       {
-        "name": "IMPORT_DATA_LATEST_RELEASE",
-        "value": "CONFIG.NAMESPACE + \"ImportDataLatestRelease\""
-      },
-      {
-        "name": "IMPORT_DATA_ALL_RELEASES",
-        "value": "CONFIG.NAMESPACE + \"ImportDataAllReleases\""
-      },
-      {
         "name": "MONITORING",
         "value": "CONFIG.NAMESPACE + \"monitoring\""
-      },
-      {
-        "name": "CORE_SCHEMES",
-        "value": "CONFIG.NAMESPACE + \"coreSchemes\""
       }
     ]
   },
@@ -1036,6 +980,22 @@
       {
         "name": "HAS_INCREMENTAL_FROM",
         "value": "IM.NAMESPACE + \"hasIncrementalFrom\""
+      },
+      {
+        "name": "CORE_SCHEMES",
+        "value": "IM.NAMESPACE + \"coreSchemes\""
+      },
+      {
+        "name": "INFERRED_PREDICATES",
+        "value": "IM.NAMESPACE + \"inferredPredicates\""
+      },
+      {
+        "name": "INFERRED_EXCLUDE_PREDICATES",
+        "value": "IM.NAMESPACE + \"inferredExcludePredicates\""
+      },
+      {
+        "name": "GRAPH_EXCLUDE_PREDICATES",
+        "value": "IM.NAMESPACE + \"graphExcludePredicates\""
       }
     ]
   },

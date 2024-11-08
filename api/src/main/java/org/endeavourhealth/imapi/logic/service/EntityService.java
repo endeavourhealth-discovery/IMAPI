@@ -1,13 +1,11 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.validator.EntityValidator;
 import org.endeavourhealth.imapi.model.*;
-import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -132,8 +130,7 @@ public class EntityService {
     ArrayList<TTEntity> usageEntities = new ArrayList<>();
     if (iri == null || iri.isEmpty()) return Collections.emptyList();
 
-    List<String> xmlDataTypes = configManager.getConfig(CONFIG.XML_SCHEMA_DATA_TYPES, new TypeReference<>() {
-    });
+    Set<String> xmlDataTypes = entityRepository.getByGraph(XSD.NAMESPACE);
     if (xmlDataTypes != null && xmlDataTypes.contains(iri)) return Collections.emptyList();
 
     int rowNumber = 0;
@@ -153,20 +150,18 @@ public class EntityService {
   public Integer totalRecords(String iri) throws JsonProcessingException {
     if (iri == null || iri.isEmpty()) return 0;
 
-    List<String> xmlDataTypes = configManager.getConfig(CONFIG.XML_SCHEMA_DATA_TYPES, new TypeReference<>() {
-    });
+    Set<String> xmlDataTypes = entityRepository.getByGraph(XSD.NAMESPACE);
     if (xmlDataTypes != null && xmlDataTypes.contains(iri)) return 0;
 
     return entityRepository.getConceptUsagesCount(iri);
   }
 
-  public TTEntity getSummaryFromConfig(String iri, List<ComponentLayoutItem> configs) {
+  public TTEntity getSummaryFromConfig(String iri, List<String> configs) {
     if (iri == null || iri.isEmpty() || configs == null || configs.isEmpty()) {
       return new TTEntity();
     }
     List<String> excludedForSummary = Arrays.asList("None", RDFS.SUBCLASS_OF, "subtypes", IM.IS_CHILD_OF, IM.HAS_CHILDREN, "termCodes", "semanticProperties", "dataModelProperties");
-    List<ComponentLayoutItem> filteredConfigs = configs.stream().filter(config -> !excludedForSummary.contains(config.getPredicate())).toList();
-    List<String> predicates = filteredConfigs.stream().map(ComponentLayoutItem::getPredicate).toList();
+    List<String> predicates = configs.stream().filter(config -> !excludedForSummary.contains(config)).toList();
     return getBundle(iri, new HashSet<>(predicates)).getEntity();
   }
 
@@ -192,8 +187,8 @@ public class EntityService {
   public TTBundle getInferredBundle(String iri) {
     Set<String> predicates = null;
     try {
-      predicates = configManager.getConfig(CONFIG.INFERRED_EXCLUDE_PREDICATES, new TypeReference<>() {
-      });
+      List<TTIriRef> inferredExcludePredicates = getChildren(IM.INFERRED_EXCLUDE_PREDICATES, null, 0, 0, false);
+      predicates = inferredExcludePredicates.stream().map(TTIriRef::getIri).collect(Collectors.toSet());
       predicates.add(IM.HAS_MEMBER);
     } catch (Exception e) {
       LOG.warn("Error getting inferredPredicates config, reverting to default", e);
@@ -562,6 +557,10 @@ public class EntityService {
       return FHIR.PREFIX;
     }
     return iri;
+  }
+
+  public Set<String> getXmlSchemaDataTypes() {
+    return entityRepository.getByGraph(XSD.NAMESPACE);
   }
 }
 

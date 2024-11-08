@@ -385,4 +385,12 @@ public class EntityController {
       return entityService.getSchemesWithPrefixes();
     }
   }
+
+  @GetMapping(value = "/public/xmlSchemaDataTypes")
+  public Set<String> getXmlSchemaDataTypes() throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.XmlSchemaDataTypes.GET")) {
+      LOG.debug("getXmlSchemaDataTypes");
+      return entityService.getXmlSchemaDataTypes();
+    }
+  }
 }

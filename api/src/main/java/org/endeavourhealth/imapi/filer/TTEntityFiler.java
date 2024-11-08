@@ -9,7 +9,7 @@ import java.util.Set;
 public interface TTEntityFiler {
   void fileEntity(TTEntity entity, TTIriRef graph) throws TTFilerException;
 
-  void updateIsAs(String entity) throws TTFilerException;
+  void updateIsAs(TTEntity entity) throws TTFilerException;
 
   Set<String> getIsAs(String iri) throws TTFilerException;
 

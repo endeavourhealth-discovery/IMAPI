@@ -56,7 +56,7 @@ public class FilerService {
       entityFiler.fileEntity(entity, graph);
 
       if (entity.isType(iri(IM.CONCEPT)))
-        entityFiler.updateIsAs(entity.getIri());
+        entityFiler.updateIsAs(entity);
 
       if (entity.isType(iri(IM.VALUESET)))
         new SetExpander().expandSet(entity.getIri());

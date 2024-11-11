@@ -36,6 +36,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -173,8 +174,8 @@ public class SetController {
 
   @GetMapping(value = "/public/setDiff")
   public SetDiffObject getSetComparison(
-    @RequestParam(name = "setIriA") String setIriA,
-    @RequestParam(name = "setIriB") String setIriB
+    @RequestParam(name = "setIriA") Optional<String> setIriA,
+    @RequestParam(name = "setIriB") Optional<String> setIriB
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.SetDiff.GET")) {
       LOG.debug("getSetComparison");

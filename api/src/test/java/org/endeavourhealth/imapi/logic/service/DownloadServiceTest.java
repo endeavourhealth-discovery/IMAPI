@@ -6,7 +6,6 @@ import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.model.DownloadEntityOptions;
-import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
@@ -27,8 +26,10 @@ import java.util.List;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @RunWith(JUnitPlatform.class)
@@ -59,7 +60,7 @@ public class DownloadServiceTest {
 
   @Test
   void getJsonDownload_NullIri() {
-    List<ComponentLayoutItem> configs = new ArrayList<>();
+    List<String> configs = new ArrayList<>();
     DownloadEntityOptions params = new DownloadEntityOptions();
     DownloadDto actual = downloadService.getJsonDownload(null, configs, params);
     assertNull(actual);
@@ -67,7 +68,7 @@ public class DownloadServiceTest {
 
   @Test
   void getJsonDownload_EmptyIri() {
-    List<ComponentLayoutItem> configs = new ArrayList<>();
+    List<String> configs = new ArrayList<>();
     DownloadEntityOptions params = new DownloadEntityOptions();
     DownloadDto actual = downloadService.getJsonDownload("", configs, params);
     assertNull(actual);
@@ -75,8 +76,8 @@ public class DownloadServiceTest {
 
   @Test
   void getJsonDownload_OnlySummary() {
-    List<ComponentLayoutItem> configs = new ArrayList<>();
-    configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF));
+    List<String> configs = new ArrayList<>();
+    configs.add(IM.IS_CHILD_OF);
 
     TTEntity entity = new TTEntity("http://endhealth.info/im#25451000252115")
       .set(TTIriRef.iri(IM.IS_CHILD_OF), new TTArray()
@@ -93,8 +94,8 @@ public class DownloadServiceTest {
 
   @Test
   void getJsonDownload_All() {
-    List<ComponentLayoutItem> configs = new ArrayList<>();
-    configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF));
+    List<String> configs = new ArrayList<>();
+    configs.add(IM.IS_CHILD_OF);
 
     TTEntity entity = new TTEntity()
       .setIri("http://endhealth.info/im#myConcept")
@@ -124,7 +125,7 @@ public class DownloadServiceTest {
 
   @Test
   void getExcelDownload_NullIri() {
-    List<ComponentLayoutItem> configs = new ArrayList<>();
+    List<String> configs = new ArrayList<>();
     DownloadEntityOptions params = new DownloadEntityOptions();
     XlsHelper actual = downloadService.getExcelDownload(null, configs, params);
     assertNull(actual);
@@ -133,7 +134,7 @@ public class DownloadServiceTest {
 
   @Test
   void getExcelDownload_EmptyIri() {
-    List<ComponentLayoutItem> configs = new ArrayList<>();
+    List<String> configs = new ArrayList<>();
     DownloadEntityOptions params = new DownloadEntityOptions();
     XlsHelper actual = downloadService.getExcelDownload("", configs, params);
     assertNull(actual);
@@ -142,8 +143,8 @@ public class DownloadServiceTest {
 
   @Test
   void getExcelDownload_SummaryOnly() {
-    List<ComponentLayoutItem> configs = new ArrayList<>();
-    configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF));
+    List<String> configs = new ArrayList<>();
+    configs.add(IM.IS_CHILD_OF);
 
     DownloadEntityOptions params = new DownloadEntityOptions();
 
@@ -162,8 +163,8 @@ public class DownloadServiceTest {
 
   @Test
   void getExcelDownload_All() {
-    List<ComponentLayoutItem> configs = new ArrayList<>();
-    configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF));
+    List<String> configs = new ArrayList<>();
+    configs.add(IM.IS_CHILD_OF);
 
     DownloadEntityOptions params = new DownloadEntityOptions();
     params

@@ -3,24 +3,13 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.endeavourhealth.imapi.config.ConfigManager;
-import org.endeavourhealth.imapi.dataaccess.*;
-import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
-import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.DownloadEntityOptions;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.Namespace;
-import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
-import org.endeavourhealth.imapi.model.dto.DownloadDto;
-import org.endeavourhealth.imapi.model.dto.GraphDto;
-import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.search.SearchTermCode;
-import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +19,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.*;
@@ -373,14 +365,14 @@ class EntityModelServiceTest {
 
   @Test
   void getSummaryFromConfig_NullIri() {
-    List<ComponentLayoutItem> configs = new ArrayList<>();
+    List<String> configs = new ArrayList<>();
     TTEntity actual = entityService.getSummaryFromConfig(null, configs);
     assertNotNull(actual);
   }
 
   @Test
   void getSummaryFromConfig_EmptyIri() {
-    List<ComponentLayoutItem> configs = new ArrayList<>();
+    List<String> configs = new ArrayList<>();
     TTEntity actual = entityService.getSummaryFromConfig("", configs);
     assertNotNull(actual);
   }
@@ -393,8 +385,8 @@ class EntityModelServiceTest {
 
   @Test
   void getSummaryFromConfig_NotNullIri() {
-    List<ComponentLayoutItem> configs = new ArrayList<>();
-    configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF));
+    List<String> configs = new ArrayList<>();
+    configs.add(IM.IS_CHILD_OF);
 
     TTEntity entity = new TTEntity()
       .set(TTIriRef.iri(IM.IS_CHILD_OF), new TTArray()

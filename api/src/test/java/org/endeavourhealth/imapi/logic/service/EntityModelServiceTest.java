@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
@@ -23,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.*;
@@ -289,7 +290,7 @@ class EntityModelServiceTest {
   @Test
   void usages_XMLContainsIri() throws JsonProcessingException {
 
-    when(configManager.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://endhealth.info/im#25451000252115"));
+    when(entityRepository.getByGraph(any())).thenReturn(Stream.of("http://endhealth.info/im#25451000252115").collect(Collectors.toSet()));
 
     List<TTEntity> actual = entityService.usages("http://endhealth.info/im#25451000252115", 1, 10);
 
@@ -305,7 +306,7 @@ class EntityModelServiceTest {
   @Test
   void totalRecords_NotNullIri() throws JsonProcessingException {
     when(entityRepository.getConceptUsagesCount(any())).thenReturn(1000);
-    when(configManager.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://www.w3.org/2001/XMLSchema#string"));
+    when(entityRepository.getByGraph(any())).thenReturn(Stream.of("http://www.w3.org/2001/XMLSchema#string").collect(Collectors.toSet()));
 
     Integer actual = entityService.totalRecords("http://endhealth.info/im#25451000252115");
     assertEquals(1000, actual);
@@ -313,7 +314,7 @@ class EntityModelServiceTest {
 
   @Test
   void totalRecords_XMLIri() throws JsonProcessingException {
-    when(configManager.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://www.w3.org/2001/XMLSchema#string"));
+    when(entityRepository.getByGraph(any())).thenReturn(Stream.of("http://www.w3.org/2001/XMLSchema#string").collect(Collectors.toSet()));
 
     Integer actual = entityService.totalRecords("http://www.w3.org/2001/XMLSchema#string");
     assertEquals(0, actual);

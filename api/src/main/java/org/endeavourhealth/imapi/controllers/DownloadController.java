@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -45,7 +46,7 @@ public class DownloadController {
       String format = downloadEntityOptions.getFormat();
       if (iri == null || iri.isEmpty() || format == null || format.isEmpty()) return null;
       TTIriRef entity = entityService.getEntityReference(iri);
-      List<String> configs = List.of("http://endhealth.info/im#definition", "subtypes", "http://endhealth.info/im#isChildOf", "http://endhealth.info/im#hasChildren", "termCodes");
+      List<String> configs = List.of(IM.DEFINITION, "subtypes", IM.IS_CHILD_OF, IM.HAS_CHILDREN, "termCodes");
       String filename = entity.getName() + " " + LocalDate.now();
       HttpHeaders headers = new HttpHeaders();
       if ("excel".equals(format)) {

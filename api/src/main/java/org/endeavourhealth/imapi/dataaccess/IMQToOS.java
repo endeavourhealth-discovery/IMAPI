@@ -146,7 +146,7 @@ public class IMQToOS {
     if (query == null)
       return true;
     if (query.isActiveOnly()) {
-      addFilterWithId("status", Set.of(IM.ACTIVE));
+      addFilterWithId("status", Set.of(IM.ACTIVE), Bool.and, boolBuilder);
     }
     if (query.getMatch() == null)
       return true;
@@ -254,19 +254,21 @@ public class IMQToOS {
     return true;
   }
 
-  private void addFilterWithId(String property, Set<String> values) {
+  private void addFilterWithId(String property, Set<String> values, Bool bool, BoolQueryBuilder boolBldr) {
     TermsQueryBuilder tqr = new TermsQueryBuilder(property + ".@id", values);
-    boolBuilder.filter(tqr);
+    if (Bool.and == bool) boolBldr.filter(tqr);
+    else if (Bool.or == bool) boolBldr.should(tqr);
   }
 
-  private void addFilter(String property, Set<String> values) {
+  private void addFilter(String property, Set<String> values, Bool bool, BoolQueryBuilder boolBldr) {
     TermsQueryBuilder tqr = new TermsQueryBuilder(property, values);
-    boolBuilder.filter(tqr);
+    if (Bool.and == bool) boolBldr.filter(tqr);
+    else if (Bool.or == bool) boolBldr.should(tqr);
   }
 
   private boolean addMatch(Match match) throws QueryException {
     if (match.getTypeOf() != null) {
-      addFilterWithId("entityType", Set.of(getIriFromAlias(match.getTypeOf())));
+      addFilterWithId("entityType", Set.of(getIriFromAlias(match.getTypeOf())), Bool.and, boolBuilder);
     }
 
     if (match.getInstanceOf() != null) {
@@ -288,33 +290,42 @@ public class IMQToOS {
     if (match.getWhere() == null)
       return true;
     for (Where where : match.getWhere()) {
-      String w = where.getIri();
-      if (IM.HAS_SCHEME.equals(w)) {
-        if (!addIsFilter("scheme", where))
-          return false;
-      } else if (IM.HAS_MEMBER.equals(w) && where.isInverse()) {
-        if (!addIsFilter("memberOf", where))
-          return false;
-      } else if (IM.HAS_STATUS.equals(w)) {
-        if (!addIsFilter("status", where))
-          return false;
-      } else if (RDF.TYPE.equals(w)) {
-        if (!addIsFilter("entityType", where))
-          return false;
-      } else if (IM.BINDING.equals(w)) {
-        if (!addBinding(where))
-          return false;
-      } else if (IM.IS_A.equals(w)) {
-        if (!addIsFilter("isA", where))
-          return false;
-      } else {
+      if (isBooleanWhere(where)) {
+        BoolQueryBuilder nestedBool = new BoolQueryBuilder();
+        for (Where nestedWhere : where.getWhere())
+          if (!addProperty(nestedWhere, where.getBoolWhere(), nestedBool)) return false;
+        boolBuilder.filter(nestedBool);
+      } else if (!addProperty(where, Bool.and, boolBuilder))
         return false;
-      }
     }
     return true;
   }
 
-  private boolean addIsFilter(String property, Where where) {
+  private boolean addProperty(Where where, Bool bool, BoolQueryBuilder boolBldr) throws QueryException {
+    String w = where.getIri();
+    if (IM.HAS_SCHEME.equals(w)) {
+      return addIsFilter("scheme", where, bool, boolBldr);
+    } else if (IM.HAS_MEMBER.equals(w) && where.isInverse()) {
+      return addIsFilter("memberOf", where, bool, boolBldr);
+    } else if (IM.HAS_STATUS.equals(w)) {
+      return addIsFilter("status", where, bool, boolBldr);
+    } else if (RDF.TYPE.equals(w)) {
+      return addIsFilter("entityType", where, bool, boolBldr);
+    } else if (IM.BINDING.equals(w)) {
+      return addBinding(where, bool, boolBldr);
+    } else if (IM.IS_A.equals(w)) {
+      return addIsFilter("isA", where, bool, boolBldr);
+    } else if (IM.CONTENT_TYPE.equals(w)) {
+      return addIsFilter("contentType", where, bool, boolBldr);
+    }
+    return false;
+  }
+
+  private boolean isBooleanWhere(Where where) {
+    return where.getBoolWhere() != null && where.getWhere() != null && where.getMatch() == null && where.getIs() == null && where.getValue() == null;
+  }
+
+  private boolean addIsFilter(String property, Where where, Bool bool, BoolQueryBuilder boolBldr) {
     if (where.getIs() != null) {
       Set<String> isList = where.getIs().stream().map(is -> {
         if (is.getIri() != null && !is.getIri().isEmpty()) return is.getIri();
@@ -326,7 +337,13 @@ public class IMQToOS {
           }
         }
       }).collect(Collectors.toSet());
-      addFilterWithId(property, isList);
+      addFilterWithId(property, isList, bool, boolBldr);
+      return true;
+    } else if (where.getIsNull()) {
+      boolBldr.should(QueryBuilders.boolQuery().mustNot(QueryBuilders.existsQuery(property)));
+      return true;
+    } else if (where.getIsNotNull()) {
+      boolBldr.should(QueryBuilders.boolQuery().must(QueryBuilders.existsQuery(property)));
       return true;
     }
     return false;
@@ -341,7 +358,7 @@ public class IMQToOS {
     } else return node.getIri();
   }
 
-  private boolean addBinding(Where where) throws QueryException {
+  private boolean addBinding(Where where, Bool bool, BoolQueryBuilder boolBldr) throws QueryException {
     try {
       String path = null;
       String node = null;
@@ -355,7 +372,7 @@ public class IMQToOS {
       }
       if (path == null || node == null)
         throw new QueryException("Invalid binding in where clause. Should have match where path and match where node");
-      addFilter("binding", Set.of(path + " " + node));
+      addFilter("binding", Set.of(path + " " + node), bool, boolBldr);
       return true;
     } catch (Exception e) {
       throw new QueryException("Invalid binding in where clause. Should have match where path and match where node");
@@ -369,7 +386,7 @@ public class IMQToOS {
     }
     if (!instanceFilters.isEmpty()) {
       for (Map.Entry<String, Set<String>> entry : instanceFilters.entrySet()) {
-        addFilterWithId(entry.getKey(), entry.getValue());
+        addFilterWithId(entry.getKey(), entry.getValue(), Bool.and, boolBuilder);
       }
     }
   }

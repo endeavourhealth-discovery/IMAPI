@@ -211,17 +211,17 @@ public class SetService {
     }
   }
 
-  public SetDiffObject getSetComparison(String setIriA, String setIriB) throws QueryException, JsonProcessingException {
+  public SetDiffObject getSetComparison(Optional<String> setIriA, Optional<String> setIriB) throws QueryException, JsonProcessingException {
     if (setIriA.isEmpty() && setIriB.isEmpty()) {
       throw new IllegalArgumentException("One of SetIriA or SetIriB are required");
     }
     Set<Concept> membersA = null;
     Set<Concept> membersB = null;
-    if (!setIriA.isEmpty()) {
-      membersA = getFullyExpandedMembers(setIriA,false,false,null);
+    if (setIriA.isPresent() && !setIriA.get().isEmpty()) {
+      membersA = getFullyExpandedMembers(setIriA.get(),false,false,null);
     }
-    if (!setIriB.isEmpty()) {
-      membersB = getFullyExpandedMembers(setIriB,false,false,null);
+    if (setIriB.isPresent() && !setIriB.get().isEmpty()) {
+      membersB = getFullyExpandedMembers(setIriB.get(),false,false,null);
     }
     SetDiffObject setDiffObject = new SetDiffObject();
     Map<String, Concept> membersMap = new HashMap<>();

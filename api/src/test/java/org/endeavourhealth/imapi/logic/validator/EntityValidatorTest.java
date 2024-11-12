@@ -36,7 +36,7 @@ public class EntityValidatorTest {
       TTEntity actual = new TTEntity();
       actual.addObject(iri(IM.NAMESPACE + "foo"), iri(IM.QUERY, "Query"));
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.HAS_PARENT).setEntity(actual);
-      EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity is missing a parent. Add a parent to 'subClassOf' or 'isContainedIn'.");
+      EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity is missing a parent. Add a parent to 'Subset of', 'Subclass of' or 'Contained in'.");
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
@@ -45,7 +45,7 @@ public class EntityValidatorTest {
       TTEntity actual = new TTEntity();
       actual.addObject(iri(IM.IS_CONTAINED_IN), "foo");
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.HAS_PARENT).setEntity(actual);
-      EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity is missing a parent. Add a parent to 'subClassOf' or 'isContainedIn'.");
+      EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity is missing a parent. Add a parent to 'Subset of', 'Subclass of' or 'Contained in'.");
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
@@ -54,7 +54,7 @@ public class EntityValidatorTest {
       TTEntity actual = new TTEntity();
       actual.addObject(iri(IM.NAMESPACE + "foo"), "bar");
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.HAS_PARENT).setEntity(actual);
-      EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity is missing a parent. Add a parent to 'subClassOf' or 'isContainedIn'.");
+      EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity is missing a parent. Add a parent to 'Subset of', 'Subclass of' or 'Contained in'.");
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
   }

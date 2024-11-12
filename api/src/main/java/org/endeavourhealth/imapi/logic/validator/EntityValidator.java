@@ -42,7 +42,7 @@ public class EntityValidator {
   private EntityValidationResponse hasValidParents(TTEntity entity) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false);
-    response.setMessage("Entity is missing a parent. Add a parent to 'subClassOf' or 'isContainedIn'.");
+    response.setMessage("Entity is missing a parent. Add a parent to 'Subset of', 'Subclass of' or 'Contained in'.");
     if (hasParameterAndAllAreTTIriRefs(entity, RDFS.SUBCLASS_OF)) isValid(response);
     if (hasParameterAndAllAreTTIriRefs(entity, IM.IS_CONTAINED_IN)) isValid(response);
     if (hasParameterAndAllAreTTIriRefs(entity, IM.IS_SUBSET_OF)) isValid(response);
@@ -77,7 +77,7 @@ public class EntityValidator {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false);
     response.setMessage("Entity IRI is invalid");
-    if (entity.getIri().isEmpty()) {
+    if (entity.getIri() == null || entity.getIri().isEmpty()) {
       response.setMessage("Entity is missing iri");
       return response;
     } else if (!entity.getIri().contains("#")) {
@@ -94,7 +94,7 @@ public class EntityValidator {
       String encodedCode = encodeUrlJS(splits[1]);
       boolean hasInvalidCharacter = Pattern.compile("%[0-9a-zA-Z]{2}").matcher(encodedCode).find();
       if (hasInvalidCharacter) response.setMessage("Iri code contains invalid characters");
-    } else if (splits[1].startsWith("CSET_")) response.setMessage("Iri code missing after prefix: " + splits[1]);
+    } else if (splits[1].equals("CSET_")) response.setMessage("Iri code missing after prefix: " + splits[1]);
     else {
       response.setValid(true);
       response.setMessage(null);

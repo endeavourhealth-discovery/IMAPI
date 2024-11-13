@@ -109,8 +109,10 @@ public class IMQToOS {
     String term = request.getTextSearch();
     if (term.contains(":") && (!term.contains(" "))) {
       String namespace = EntityCache.getDefaultPrefixes().getNamespace(term.substring(0, term.indexOf(":")));
-      if (namespace != null)
-        term = namespace + term.split(":")[1];
+      if (namespace != null) {
+        String[] splits = term.split(":");
+        if (splits.length == 2) term = namespace + term.split(":")[1];
+      }
     }
     addCodesAndIri(term);
 

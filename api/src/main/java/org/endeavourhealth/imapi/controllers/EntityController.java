@@ -40,10 +40,7 @@ import org.springframework.web.context.annotation.RequestScope;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
@@ -75,10 +72,16 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/partials", produces = "application/json")
-  public List<TTEntity> getPartialEntities(@RequestParam(name = "iris") Set<String> iris, @RequestParam(name = "predicates") Set<String> predicates) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Partials.GET")) {
+  @PostMapping(value = "/public/partials")
+  public List<TTEntity> getPartialEntities(@RequestBody Map<String, Object> map) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Partials.POST")) {
       LOG.debug("getPartialEntities");
+      Set<String> iris = new HashSet<>();
+      Set<String> predicates = new HashSet<>();
+      if (!map.get("iris").toString().isEmpty())
+        iris = new HashSet<>(Arrays.asList(map.get("iris").toString().split(",")));
+      if (!map.get("predicates").toString().isEmpty())
+        predicates = new HashSet<>(Arrays.asList(map.get("predicates").toString().split(",")));
       return entityService.getPartialEntities(iris, predicates);
     }
   }

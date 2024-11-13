@@ -70,6 +70,10 @@ public class EntityService {
 
   public List<TTEntity> getPartialEntities(Set<String> iris, Set<String> predicates) {
     List<TTEntity> entities = new ArrayList<>();
+    if (iris.stream().anyMatch(str -> str == null || str.isEmpty())) {
+      throw new IllegalArgumentException("Iri list contains an empty or null string");
+    }
+
     for (String iri : iris) {
       TTEntity entity = getBundle(iri, predicates).getEntity();
       entities.add(entity);

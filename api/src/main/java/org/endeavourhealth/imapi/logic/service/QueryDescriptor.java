@@ -543,8 +543,8 @@ public class QueryDescriptor {
 
   private void describeIsWhere(Where where) {
     for (Node set : where.getIs()) {
-      if (iriContext.get(set.getIri())!=null) {
-        String modifier="";
+      if (iriContext.get(set.getIri()) != null) {
+        String modifier = "";
         TTEntity nodeEntity = (iriContext.get(set.getIri()));
         set.setCode(nodeEntity.getCode());
         if (nodeEntity.getType().get(0).asIriRef().getIri().contains("Set")) {
@@ -556,9 +556,9 @@ public class QueryDescriptor {
         set.setQualifier(modifier);
       }
 
-      String value=getTermInContext(set);
+      String value = getTermInContext(set);
       set.setName(value);
-      if (iriContext.get(set.getIri())!=null) {
+      if (iriContext.get(set.getIri()) != null) {
         set.setCode(iriContext.get(set.getIri()).getCode());
       }
     }
@@ -573,7 +573,9 @@ public class QueryDescriptor {
       }
       Node set = where.getIs().get(i);
 
-      valueLabel.append(set.getQualifier() != null ? set.getQualifier() + " " : "").append(set.getName());
+      if (where.isInverse()) {
+        valueLabel.append("Parent is a value in '").append(set.getName()).append("' -> '").append(where.getName()).append(" (property)'");
+      } else valueLabel.append(set.getQualifier() != null ? set.getQualifier() + " " : "").append(set.getName());
 
       where.setValueLabel(valueLabel.toString());
     }

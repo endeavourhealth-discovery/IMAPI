@@ -1587,7 +1587,9 @@ public class EntityRepository {
             result.get(predicate).setName(bs.getValue("predicateLabel").stringValue());
             Value object = bs.getValue("object");
             if (object.isIRI()) {
-              entity.addObject(TTIriRef.iri(predicate), TTIriRef.iri(object.stringValue()).setName(bs.getValue("objectLabel").stringValue()));
+              TTIriRef ttIriRef = TTIriRef.iri(object.stringValue());
+              if (null != bs.getValue("objectLabel")) ttIriRef.setName(bs.getValue("objectLabel").stringValue());
+              entity.addObject(TTIriRef.iri(predicate), ttIriRef);
             } else if (object.isBNode()) {
               bnodeMap.putIfAbsent(object.stringValue(), new TTNode());
               TTNode blank = bnodeMap.get(object.stringValue());
@@ -1603,8 +1605,6 @@ public class EntityRepository {
             } else
               entity.addObject(TTIriRef.iri(predicate), TTLiteral.literal(object.stringValue()));
           }
-
-
         }
       }
     }

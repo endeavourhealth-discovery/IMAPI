@@ -21,7 +21,6 @@ public class When {
     return this;
   }
 
-  @JsonProperty("case")
   public When case_(Consumer<Case> builder) {
     Case case_ = new Case();
     this.case_ = case_;

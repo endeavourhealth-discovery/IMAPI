@@ -466,20 +466,22 @@ public class EntityService {
     TTEntity entity = getBundle(iri, predicates).getEntity();
     List<PropertyDisplay> propertyList = new ArrayList<>();
     TTArray ttProperties = entity.get(iri(SHACL.PROPERTY));
-    for (TTValue ttProperty : ttProperties.getElements()) {
-      int minCount = 0;
-      if (ttProperty.asNode().has(iri(SHACL.MINCOUNT))) {
-        minCount = ttProperty.asNode().get(iri(SHACL.MINCOUNT)).asLiteral().intValue();
-      }
-      int maxCount = 0;
-      if (ttProperty.asNode().has(iri(SHACL.MAXCOUNT))) {
-        maxCount = ttProperty.asNode().get(iri(SHACL.MAXCOUNT)).asLiteral().intValue();
-      }
-      String cardinality = minCount + " : " + (maxCount == 0 ? "*" : maxCount);
-      if (ttProperty.asNode().has(iri(SHACL.OR))) {
-        handleOr(ttProperty, cardinality, propertyList);
-      } else {
-        handleNotOr(ttProperty, cardinality, propertyList);
+    if (null != ttProperties) {
+      for (TTValue ttProperty : ttProperties.getElements()) {
+        int minCount = 0;
+        if (ttProperty.asNode().has(iri(SHACL.MINCOUNT))) {
+          minCount = ttProperty.asNode().get(iri(SHACL.MINCOUNT)).asLiteral().intValue();
+        }
+        int maxCount = 0;
+        if (ttProperty.asNode().has(iri(SHACL.MAXCOUNT))) {
+          maxCount = ttProperty.asNode().get(iri(SHACL.MAXCOUNT)).asLiteral().intValue();
+        }
+        String cardinality = minCount + " : " + (maxCount == 0 ? "*" : maxCount);
+        if (ttProperty.asNode().has(iri(SHACL.OR))) {
+          handleOr(ttProperty, cardinality, propertyList);
+        } else {
+          handleNotOr(ttProperty, cardinality, propertyList);
+        }
       }
     }
     return propertyList;

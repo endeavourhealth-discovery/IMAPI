@@ -1,26 +1,33 @@
 package org.endeavourhealth.imapi.model.imq;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.function.Consumer;
 
 public class When {
   private Where where;
   private String then;
+  @JsonProperty("case")
   private Case case_;
 
+  @JsonProperty("case")
   public Case getCase_() {
     return case_;
   }
 
+  @JsonProperty("case")
   public When setCase_(Case case_) {
     this.case_ = case_;
     return this;
   }
-  public When case_ (Consumer < Case > builder) {
-      Case case_ = new Case();
-      this.case_ = case_;
-      builder.accept(case_);
-      return this;
-    }
+
+  @JsonProperty("case")
+  public When case_(Consumer<Case> builder) {
+    Case case_ = new Case();
+    this.case_ = case_;
+    builder.accept(case_);
+    return this;
+  }
 
   public String getThen() {
     return then;
@@ -45,9 +52,6 @@ public class When {
     builder.accept(this.where);
     return this;
   }
-
-
-
 
 
 }

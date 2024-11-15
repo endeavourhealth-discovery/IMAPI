@@ -25,6 +25,7 @@ public class ReturnProperty {
   private String as;
   private Return returx;
   private TTIriRef dataType;
+  @JsonProperty("case")
   private Case case_;
   private String description;
   private List<Match> match;
@@ -79,8 +80,8 @@ public class ReturnProperty {
   }
 
   @JsonProperty("case")
-  public ReturnProperty setCase(Case casex) {
-    this.case_ = casex;
+  public ReturnProperty setCase(Case case_) {
+    this.case_ = case_;
     return this;
   }
 

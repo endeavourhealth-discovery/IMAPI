@@ -4,6 +4,7 @@ import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
+import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
@@ -28,6 +29,13 @@ public class DataModelService {
   public List<TTIriRef> getProperties() {
     return dataModelRepository.getProperties();
   }
+
+
+  public NodeShape getDataModelDisplayProperties(String iri) {
+    return dataModelRepository.getDataModelDisplayProperties(iri);
+  }
+
+
 
   public TTEntity getDataModelPropertiesAndSubClasses(String iri, String parent) {
     TTEntity entity = entityRepository.getEntityPredicates(iri, Set.of(SHACL.PROPERTY)).getEntity();

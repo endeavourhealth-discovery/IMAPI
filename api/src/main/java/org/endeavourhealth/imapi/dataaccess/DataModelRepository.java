@@ -1,21 +1,19 @@
 package org.endeavourhealth.imapi.dataaccess;
 
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.iml.NodeShape;
+import org.endeavourhealth.imapi.model.iml.PropertyShape;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.XSD;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
@@ -96,135 +94,193 @@ public class DataModelRepository {
     return null;
   }
 
-  public TTEntity getDataModelProperties(String iri){
+  public NodeShape getDataModelDisplayProperties(String iri) {
+    NodeShape nodeShape = new NodeShape();
+    Map<String, PropertyShape> groups= new HashMap<>();
+    Map<String,PropertyShape> properties= new HashMap<>();
+    List<PropertyShape> propertyList= new ArrayList<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      String sql = """
+      String sql = getSubtypeSql();
+      TupleQuery qry = conn.prepareTupleQuery(sql);
+      qry.setBinding("entity", iri(iri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+          while (rs.hasNext()) {
+            BindingSet bs = rs.next();
+            if (bs.getValue("subdatamodel") != null) {
+              nodeShape.addSubType(TTIriRef.iri(bs.getValue("subdatamodel").stringValue())
+                .setName(bs.getValue("subdatamodelname").stringValue()));
+            }
+          }
+        }
+        sql = getPropertysql();
+        qry = conn.prepareTupleQuery(sql);
+        qry.setBinding("entity", iri(iri));
+        try (TupleQueryResult rs = qry.evaluate()) {
+          while (rs.hasNext()) {
+            BindingSet bs = rs.next();
+            PropertyShape group = null;
+            int offset = 0;
+            if (bs.getValue("path") != null) {
+              if (bs.getValue("group") != null) {
+                String groupIri = bs.getValue("group").stringValue();
+                if (groups.get(groupIri) == null) {
+                  group = new PropertyShape();
+                  groups.put(groupIri, group);
+                  propertyList.add(group);
+                  group.setGroup(TTIriRef.iri(bs.getValue("group").stringValue())
+                    .setName(bs.getValue("groupName").stringValue()));
+                  group.setOrder(Integer.parseInt(bs.getValue("groupOrder").stringValue()));
+                }
+                group = groups.get(groupIri);
+                offset = group.getOrder();
+              }
+              String propertyIri = bs.getValue("property").stringValue();
+              if (properties.get(propertyIri) == null) {
+                PropertyShape property = new PropertyShape();
+                properties.put(propertyIri, property);
+                if (group != null) {
+                  group.addProperty(property);
+                } else
+                  propertyList.add(property);
+              }
+              PropertyShape property = properties.get(propertyIri);
+              property.setPath(TTIriRef.iri(bs.getValue("path").stringValue())
+                .setName(bs.getValue("pathName").stringValue()));
+              property.setType(TTIriRef.iri(bs.getValue("pathType").stringValue()));
+              if (bs.getValue("class") != null) {
+                property.setClazz(TTIriRef.iri(bs.getValue("class").stringValue())
+                  .setName(bs.getValue("className").stringValue()));
+              } else if (bs.getValue("datatype") != null) {
+                property.setDatatype(TTIriRef.iri(bs.getValue("datatype").stringValue())
+                  .setName(bs.getValue("datatypeName").stringValue()));
+              } else if (bs.getValue("node") != null) {
+                property.addNode(TTIriRef.iri(bs.getValue("node").stringValue())
+                  .setName(bs.getValue("nodeName").stringValue()));
+              }
+              if (bs.getValue("order") != null) {
+                property.setOrder(offset + Integer.parseInt(bs.getValue("order").stringValue()));
+              }
+              if (bs.getValue("minCount") != null) {
+                property.setMinCount(Integer.parseInt(bs.getValue("minCount").stringValue()));
+              }
+              if (bs.getValue("minCount") != null) {
+                property.setMaxCount(Integer.parseInt(bs.getValue("minCount").stringValue()));
+              }
+              if (bs.getValue("comment") != null) {
+                property.setComment(bs.getValue("comment").stringValue());
+              }
+              if (bs.getValue("rangeType") != null) {
+                TTIriRef rangeType = TTIriRef.iri(bs.getValue("rangeType").stringValue());
+                rangeType.setName(bs.getValue("rangeTypeName").stringValue());
+                property.setRangeType(rangeType);
+              }
+              if (bs.getValue("hasValue") != null) {
+                Value hasValue = bs.getValue("hasValue");
+                if (hasValue.isIRI()) {
+                  property.setHasValue(TTIriRef.iri(hasValue.stringValue())
+                    .setName(bs.getValue("hasValueName").stringValue()));
+                  property.setHasValueType(TTIriRef.iri(RDFS.RESOURCE));
+                } else {
+                  property.setHasValue(hasValue.stringValue());
+                  property.setHasValueType(TTIriRef.iri(XSD.STRING));
+                }
+
+              }
+              if (bs.getValue("propertyDefinition") != null) {
+                property.setDefinition(bs.getValue("propertyDefinition").stringValue());
+              }
+            }
+          }
+          if (!propertyList.isEmpty()) {
+            propertyList.sort(Comparator.comparingInt(PropertyShape::getOrder));
+            nodeShape.setProperty(propertyList);
+          }
+
+        }
+      }
+    return nodeShape;
+  }
+
+
+  private String getSubtypeSql() {
+    return """
+      PREFIX im: <http://endhealth.info/im#>
+      PREFIX sh: <http://www.w3.org/ns/shacl#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      Select ?subdatamodel ?subdatamodelname
+      {
+      optional  {
+          ?subdatamodel rdfs:subClassOf ?entity.
+          ?subdatamodel rdfs:label ?subdatamodelname
+         }
+       }
+       """;
+  }
+
+
+
+  private String getPropertysql(){
+    return """
         PREFIX im: <http://endhealth.info/im#>
         PREFIX sh: <http://www.w3.org/ns/shacl#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        Select ?subdatamodel ?subdatamodelname ?property ?or ?order ?path ?pathname ?class ?classname ?datatype ?datatypename ?node ?nodename ?subtype ?suborder ?subtypename
+        Select ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType ?class ?className ?datatype ?datatypeName ?node ?nodeName  ?rangeType ?rangeTypeName ?hasValue ?hasValueName ?minCount ?maxCount ?comment ?propertyDefinition
         {
-        optional  { 
-            ?entity im:isAbstract true.
-             ?subdatamodel rdfs:subClassOf ?entity.
-             ?subdatamodel rdfs:label ?subdatamodelname
-                    }
-        optional {          
            ?entity sh:property ?property.
-           filter not exists {?entity im:isAbstract true}
+           optional {?property sh:group ?group.
+                     ?group rdfs:label ?groupName.
+                     optional {?group sh:order ?groupOrder}
+                     }
             optional {?property sh:order ?order.}
             optional {
                 ?property sh:path ?path.
-                ?path rdfs:label ?pathname.
-                optional {
-                   ?property sh:class ?class.
-                    ?class rdfs:label ?classname.
-                        }
-                optional {
-                    ?property sh:datatype ?datatype.
-                    ?datatype rdfs:label ?datatypename
-                        }
-                optional {
-                   ?property sh:node ?node.
-                   ?node rdfs:label ?nodename.
-                    optional {
-                           ?node im:isAbstract true.
-                              ?subtype rdfs:subClassOf ?node.
-                              ?subtype rdfs:label ?subtypename.
-                              optional {
-                                 ?subtype sh:order ?suborder
-                                       }
-                              }
-                          }
-                      }
-            optional {
-                ?property sh:or ?or.
-                ?or sh:path ?path.
-                ?path rdfs:label ?pathname.
-                optional {
-                   ?or sh:class ?class.
-                   ?class rdfs:label ?classname.
-                         }
-                optional {
-                       ?or sh:datatype ?datatype.
-                        ?datatype rdfs:label ?datatypename.
-                        }
-                optional {
-                    ?or sh:node ?node.
-                    ?node rdfs:label ?nodename.
-                    optional {
-                           ?node im:isAbstract true.
-                            ?subtype rdfs:subClassOf ?node.
-                            ?subtype rdfs:label ?subtypename.
-                            optional {
-                                 ?subtype sh:order ?suborder}
-                                     }
-                              }
-                        }
+                 ?path rdf:type ?pathType.
+                ?path rdfs:label ?pathName.
+                optional {?path im:definition ?propertyDefinition}
                 }
-        }
-        order by ?order ?property ?or ?suborder
+            optional {
+                ?property sh:minCount ?minCount.
+                }
+             optional {
+                ?property rdfs:comment ?comment.
+                }
+                
+            optional {
+                ?property sh:maxCount ?maxCount.
+                }
+            optional {
+                   ?property sh:class ?class.
+                    ?class rdfs:label ?className.
+                    ?class rdf:type ?rangeType.
+                    ?rangeType rdfs:label ?rangeTypeName.
+                     }
+            optional {
+                    ?property sh:datatype ?datatype.
+                    ?datatype rdfs:label ?datatypeName.
+                     ?datatype rdf:type ?rangeType.
+                    ?rangeType rdfs:label ?rangeTypeName.
+                        }
+           optional {
+                ?property sh:hasValue ?hasValue.
+                optional {?hasValue rdfs:label ?hasValueName}
+                }             
+             optional {
+                       ?property sh:group ?group.
+                        ?group rdfs:label ?groupName.
+                        ?group sh:order ?groupOrder.
+                        }
+             optional {
+                   ?property sh:node ?node.
+                   ?node rdfs:label ?nodeName.
+                    ?node rdf:type ?rangeType.
+                    ?rangeType rdfs:label ?rangeTypeName.
+                     }
+          }
+           
+        order by ?groupOrder ?order
         """;
-      TupleQuery qry = conn.prepareTupleQuery(sql);
-      qry.setBinding("entity",iri(iri));
-      TTEntity entity= new TTEntity();
-      Map<String, TTNode> ors= new HashMap<>();
-      Map<String,TTNode> properties= new HashMap<>();
-      try (TupleQueryResult rs = qry.evaluate()) {
-        while (rs.hasNext()) {
-          BindingSet bs = rs.next();
-          if (bs.getValue("subdatamodel") != null) {
-            entity.addObject(TTIriRef.iri(IM.HAS_SUBSET),TTIriRef.iri(bs.getValue("subdatamodel").stringValue())
-              .setName(bs.getValue("subdatamodelname").stringValue()));
-
-          }
-          else if (bs.getValue("property")!=null){
-            if (properties.get(bs.getValue("property").stringValue()) == null) {
-              properties.put(bs.getValue("property").stringValue(), new TTNode());
-              entity.addObject(TTIriRef.iri(SHACL.PROPERTY), properties.get(bs.getValue("property").stringValue()));
-            }
-            TTNode property = properties.get(bs.getValue("property").stringValue());
-            if (bs.getValue("order") != null) {
-              property.set(TTIriRef.iri(SHACL.ORDER), TTLiteral.literal(Integer.parseInt(bs.getValue("order").stringValue())));
-            }
-            if (bs.getValue("or") != null) {
-              if (ors.get(bs.getValue("or").stringValue()) == null) {
-                ors.put(bs.getValue("or").stringValue(), new TTNode());
-                property.addObject(TTIriRef.iri(SHACL.OR), ors.get(bs.getValue("or").stringValue()));
-              }
-              addPropertyPredicates(bs, ors.get(bs.getValue("or").stringValue()));
-            } else addPropertyPredicates(bs, property);
-          }
-        }
-      }
-      return entity;
-    }
   }
 
-  private void addPropertyPredicates(BindingSet bs, TTNode property) {
-    if (bs.getValue("path")!=null) {
-      property.set(TTIriRef.iri(SHACL.PATH), TTIriRef.iri(bs.getValue("path").stringValue())
-        .setName(bs.getValue("pathname").stringValue()));
-    }
-    if (bs.getValue("class")!=null){
-      property.set(TTIriRef.iri(SHACL.CLASS),TTIriRef.iri(bs.getValue("class").stringValue())
-        .setName(bs.getValue("classname").stringValue()));
-    }
-    else if (bs.getValue("datatype")!=null){
-      property.set(TTIriRef.iri(SHACL.DATATYPE),TTIriRef.iri(bs.getValue("datatype").stringValue())
-        .setName(bs.getValue("datatypename").stringValue()));
-    }
-    else if (bs.getValue("subtype")!=null){
-      property.addObject(TTIriRef.iri(SHACL.NODE),TTIriRef.iri(bs.getValue("subtype").stringValue())
-        .setName(bs.getValue("subtypename").stringValue()));
-    }
-    else if (bs.getValue("node")!=null){{
-      property.addObject(TTIriRef.iri(SHACL.NODE),TTIriRef.iri(bs.getValue("node").stringValue())
-        .setName(bs.getValue("nodename").stringValue()));
-    }
-    }
-
-  }
 
 
 

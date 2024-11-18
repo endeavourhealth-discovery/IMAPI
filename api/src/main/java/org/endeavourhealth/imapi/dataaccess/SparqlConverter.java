@@ -471,7 +471,7 @@ public class SparqlConverter {
   }
 
   private void processMatchIsMemberOf(StringBuilder whereQl, String subject,String object,String inList){
-    whereQl.append("?").append(subject).append(" ^").append("<").append(IM.HAS_MEMBER).append("> ").append(object).append("\n");
+    whereQl.append("?").append(subject).append(" ^").append("<").append(IM.HAS_MEMBER).append("> ").append("?").append(object).append("\n");
     whereQl.append("Values ").append("?").append(object).append(" {").append(inList).append(" }\n");
 
   }

@@ -484,7 +484,7 @@ public class SparqlConverter {
   private void processMatchIsDescendantsOf(StringBuilder whereQl, String subject, String object, String inList) {
     whereQl.append("?").append(subject).append(" im:isA ?").append(object).append(".\n");
     whereQl.append("Values ").append("?").append(object).append(" {").append(inList).append(" }\n");
-    whereQl.append("Filter (?").append(subject).append("not in ").append(inList.replace(" ",",")).append(")\n");
+    whereQl.append("Filter (?").append(subject).append("not in (").append(inList.replace(" ",",")).append("))\n");
   }
 
   private void processMatchIsAncestorOf(StringBuilder whereQl, String subject, String object, String inList) {

@@ -324,7 +324,7 @@ public class QueryDescriptor {
         qualifier = "but not ";
       }
       if (set.isMemberOf()) {
-        qualifier = qualifier + "in cohort:";
+        qualifier = qualifier + "in ";
       } else
         qualifier = qualifier + "is a";
       String label = getTermInContext(set);

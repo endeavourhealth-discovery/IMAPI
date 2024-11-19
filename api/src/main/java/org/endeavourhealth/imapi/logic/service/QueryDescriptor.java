@@ -225,7 +225,9 @@ public class QueryDescriptor {
     }
     for (Match subMatch : match.getMatch()) {
       describeMatch(subMatch);
-
+    }
+    if (match.getWhere()!=null){
+      describeWheres(match);
     }
   }
 

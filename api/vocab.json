@@ -1992,6 +1992,10 @@
         "value": "QUERY.NAMESPACE + \"GetDescendants\""
       },
       {
+        "name": "GET_SUBCLASSES",
+        "value": "QUERY.NAMESPACE + \"GetSubClasses\""
+      },
+      {
         "name": "GET_ANCESTORS",
         "value": "QUERY.NAMESPACE + \"GetAncestors\""
       },

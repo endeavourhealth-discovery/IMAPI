@@ -172,7 +172,7 @@ public class EntityValidator {
     if (list.size() < minLength || list.size() > maxLength) return false;
     return list.getElements().stream().allMatch(item -> {
       if (item.isIriRef()) return !item.asIriRef().getIri().isEmpty();
-      else if (item.isNode()) return !item.asNode().getIri().isEmpty();
+      else if (item.isNode() && null != item.asNode().getIri()) return !item.asNode().getIri().isEmpty();
       else return false;
     });
   }

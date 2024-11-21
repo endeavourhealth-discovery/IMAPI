@@ -460,7 +460,14 @@ public class EqdResources {
     pv.setOperator(comp);
     pv.setValue(value);
     if (units != null)
+      setUnitsOrArgument(where,units);
       where.setUnit(units);
+  }
+
+  private void setUnitsOrArgument(Where where, String units) {
+    if (where.getIri().contains("#age")){
+
+    }
   }
 
   private void setCompare(Where where, Operator comp, String value, String units, VocRelation relation) {

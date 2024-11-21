@@ -2,6 +2,8 @@ package org.endeavourhealth.imapi.model.imq;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.util.List;
+
 public interface Assignable {
   public Operator getOperator();
 
@@ -10,13 +12,13 @@ public interface Assignable {
   public String getValue();
 
   public Assignable setValue(String value);
-
-  public String getUnit();
-
-  public Assignable setUnit(String unit);
+  List<Argument> getArgument();
+  Assignable setArgument(List<Argument> arguments);
   Assignable setQualifier(String qualifier);
   String getQualifier();
   String getValueLabel();
   Assignable setValueLabel(String label);
+
+  String getUnit();
 
 }

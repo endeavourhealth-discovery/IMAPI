@@ -7,6 +7,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
+import org.endeavourhealth.imapi.model.iml.ParameterShape;
 import org.endeavourhealth.imapi.model.iml.PropertyShape;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -99,6 +100,7 @@ public class DataModelRepository {
     Map<String, PropertyShape> groups= new HashMap<>();
     Map<String,PropertyShape> properties= new HashMap<>();
     List<PropertyShape> propertyList= new ArrayList<>();
+    Map<String, ParameterShape> paramMap= new HashMap<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       String sql = getSubtypeSql();
       TupleQuery qry = conn.prepareTupleQuery(sql);
@@ -186,6 +188,26 @@ public class DataModelRepository {
                 }
 
               }
+              if (bs.getValue("parameter")!=null){
+                ParameterShape parameter=getParameter(property,bs.getValue("parameterName").stringValue());
+                if (parameter==null) {
+                  parameter = new ParameterShape();
+                  property.addParameter(parameter);
+                }
+                parameter.setLabel(bs.getValue("parameterName").stringValue());
+                parameter.setType(TTIriRef.iri(bs.getValue("parameterType").stringValue())
+                  .setName(bs.getValue("parameterTypeName").stringValue()));
+                if (bs.getValue("parameterSubtype")!=null) {
+                  if (parameter.getParameterSubType() == null) {
+                    parameter.addParameterSubType(TTIriRef.iri(bs.getValue("parameterSubtype").stringValue())
+                      .setName(bs.getValue("parameterSubtypeName").stringValue()));
+                  }
+                  else if (!parameter.getParameterSubType().contains(TTIriRef.iri(bs.getValue("parameterSubtype").stringValue()))) {
+                    parameter.addParameterSubType(TTIriRef.iri(bs.getValue("parameterSubtype").stringValue())
+                      .setName(bs.getValue("parameterSubtypeName").stringValue()));
+                  }
+                }
+              }
               if (bs.getValue("propertyDefinition") != null) {
                 property.setDefinition(bs.getValue("propertyDefinition").stringValue());
               }
@@ -200,6 +222,18 @@ public class DataModelRepository {
       }
     return nodeShape;
   }
+
+  private ParameterShape getParameter(PropertyShape property, String parameterName){
+    if (property.getParameter()==null)
+      return null;
+    for (ParameterShape param: property.getParameter()) {
+      if (param.getLabel().equals(parameterName)) {
+        return param;
+      }
+    }
+      return null;
+  }
+
 
 
   private String getSubtypeSql() {
@@ -224,7 +258,12 @@ public class DataModelRepository {
         PREFIX im: <http://endhealth.info/im#>
         PREFIX sh: <http://www.w3.org/ns/shacl#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        Select ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType ?class ?className ?datatype ?datatypeName ?node ?nodeName  ?rangeType ?rangeTypeName ?hasValue ?hasValueName ?minCount ?maxCount ?comment ?propertyDefinition
+        Select ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType 
+        ?class ?className ?datatype ?datatypeName ?node ?nodeName  
+        ?rangeType ?rangeTypeName ?hasValue ?hasValueName 
+        ?minCount ?maxCount
+        ?parameter ?parameterName ?parameterType ?parameterTypeName ?parameterSubtype ?parameterSubtypeName
+        ?comment ?propertyDefinition
         {
            ?entity sh:property ?property.
            optional {?property sh:group ?group.
@@ -237,6 +276,15 @@ public class DataModelRepository {
                  ?path rdf:type ?pathType.
                 ?path rdfs:label ?pathName.
                 optional {?path im:definition ?propertyDefinition}
+                optional {
+                   ?path im:parameter ?parameter.
+                   ?parameter rdfs:label ?parameterName.
+                   ?parameter sh:class ?parameterType.
+                   ?parameterType rdfs:label ?parameterTypeName.
+                   optional { ?parameterSubtype im:isA ?parameterType.
+                           ?parameterSubtype rdfs:label ?parameterSubtypeName
+                           }
+                      }
                 }
             optional {
                 ?property sh:minCount ?minCount.

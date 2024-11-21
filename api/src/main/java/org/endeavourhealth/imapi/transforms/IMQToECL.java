@@ -134,7 +134,7 @@ public class IMQToECL {
       boolean first= true;
       for (Node instance : match.getInstanceOf()) {
         if (!first){
-          ecl.append("OR");
+          ecl.append(" OR ");
         }
         first=false;
         addClass(instance, ecl, includeNames);
@@ -199,7 +199,7 @@ public class IMQToECL {
             boolean first = true;
             for (Node value : where.getIs()) {
               if (!first)
-                ecl.append("\n OR");
+                ecl.append("\n OR ");
               first = false;
               addProperty(where, ecl, includeNames);
               ecl.append(" = ");

@@ -60,6 +60,8 @@ public class PropertyShape{
   @Getter
   private List<Argument> argument;
   @Getter
+  private List<ParameterShape> parameter;
+  @Getter
   private String valueVariable;
   @Getter
   private TTIriRef valueIri;
@@ -83,6 +85,25 @@ public class PropertyShape{
   private String definition;
   @Getter
   private List<TTIriRef> type;
+
+  public PropertyShape setParameter(List<ParameterShape> parameter) {
+    this.parameter = parameter;
+    return this;
+  }
+  public PropertyShape addParameter (ParameterShape parameter){
+      if (this.parameter == null) {
+        this.parameter = new ArrayList<>();
+      }
+      this.parameter.add(parameter);
+      return this;
+    }
+  public PropertyShape parameter (Consumer < ParameterShape > builder) {
+      ParameterShape parameter = new ParameterShape();
+      addParameter(parameter);
+      builder.accept(parameter);
+      return this;
+    }
+
 
   public PropertyShape setGroup(TTIriRef group) {
     this.group = group;

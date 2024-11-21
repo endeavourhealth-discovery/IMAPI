@@ -18,7 +18,7 @@ public class FunctionService {
   public static final String ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY = "One or more arguments are missing parameter key";
   public static final String ENTITY_IRI = "entityIri";
   public static final String NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY = "No entity iri where in request body";
-  private final ConceptRepository conceptRepository = new ConceptRepository();
+  private final ConceptService conceptService = new ConceptService();
   private final EntityService entityService = new EntityService();
   private final UserService userService = new UserService();
 
@@ -26,7 +26,7 @@ public class FunctionService {
 
   public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws QueryException, TTFilerException, JsonProcessingException {
     return switch (iri) {
-      case IM_FUNCTION.SNOMED_CONCEPT_GENERATOR -> conceptRepository.createConcept(IM.NAMESPACE);
+      case IM_FUNCTION.SNOMED_CONCEPT_GENERATOR -> conceptService.createConcept(IM.NAMESPACE);
       case IM_FUNCTION.LOCAL_NAME_RETRIEVER -> getLocalName(arguments);
       case IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES -> getAdditionalAllowableTypes(arguments);
       case IM_FUNCTION.GET_LOGIC_OPTIONS -> getLogicOptions();
@@ -158,7 +158,7 @@ public class FunctionService {
       throw new IllegalArgumentException("Iri is not a valid scheme");
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       if (entityIri.equals(IM.NAMESPACE) || entityIri.equals(SNOMED.NAMESPACE)) {
-        return om.createObjectNode().put("code", conceptRepository.createConcept(IM.NAMESPACE).get("iri").get("@id").asText().split("#")[1]);
+        return om.createObjectNode().put("code", conceptService.createConcept(IM.NAMESPACE).get("iri").get("@id").asText().split("#")[1]);
       } else return om.createObjectNode().put("iri", "");
     }
   }

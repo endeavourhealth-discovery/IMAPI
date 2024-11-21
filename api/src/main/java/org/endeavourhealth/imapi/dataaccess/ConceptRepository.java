@@ -37,7 +37,8 @@ import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.getStrin
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList;
 
 public class ConceptRepository {
-  public ObjectNode createConcept(String namespace) throws QueryException, TTFilerException, JsonProcessingException {
+
+  public Integer getLastInrementalFrom() {
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       String sql = """
         select ?increment where {
@@ -49,21 +50,15 @@ public class ConceptRepository {
       qry.setBinding("hasIncrementalFrom", iri(IM.HAS_INCREMENTAL_FROM));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
-          Integer from = Integer.parseInt(rs.next().getValue("increment").stringValue());
-          updateIncrement(from);
-          String concept = SnomedConcept.createConcept(from, false);
-          try (CachedObjectMapper om = new CachedObjectMapper()) {
-            ObjectNode iri = om.createObjectNode();
-            iri.put("@id", namespace + concept);
-            return om.createObjectNode().set("iri", iri);
-          }
+          return Integer.parseInt(rs.next().getValue("increment").stringValue());
         }
       }
     }
-    return null;
+
+    return 0;
   }
 
-  private void updateIncrement(Integer from) throws QueryException, TTFilerException, JsonProcessingException {
+  public void updateIncrement(Integer from) throws QueryException, TTFilerException, JsonProcessingException {
     TTDocument document = new TTDocument()
       .setCrud(TTIriRef.iri(IM.UPDATE_PREDICATES))
       .setGraph(TTIriRef.iri(GRAPH.DISCOVERY))

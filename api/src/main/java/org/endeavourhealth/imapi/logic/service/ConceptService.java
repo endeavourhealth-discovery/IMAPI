@@ -1,7 +1,12 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
@@ -15,6 +20,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.transforms.SnomedConcept;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
@@ -127,4 +133,22 @@ public class ConceptService {
     }
   }
 
+  public ObjectNode createConcept(String namespace) throws QueryException, TTFilerException, JsonProcessingException {
+    Integer from = conceptRepository.getLastInrementalFrom();
+    if (from == 0) throw new RuntimeException("Could not get last incremental from.");;
+    String concept = SnomedConcept.createConcept(from, false);
+    boolean isValidIri = !entityService.iriExists(namespace + concept);
+    while (!isValidIri) {
+      from++;
+      concept = SnomedConcept.createConcept(from, false);
+      isValidIri = !entityService.iriExists(namespace + concept);
+    }
+
+    conceptRepository.updateIncrement(from);
+    try (CachedObjectMapper om = new CachedObjectMapper()) {
+      ObjectNode iri = om.createObjectNode();
+      iri.put("@id", namespace + concept);
+      return om.createObjectNode().set("iri", iri);
+    }
+  }
 }

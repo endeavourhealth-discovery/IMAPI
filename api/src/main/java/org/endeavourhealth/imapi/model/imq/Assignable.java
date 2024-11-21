@@ -21,4 +21,6 @@ public interface Assignable {
 
   String getUnit();
 
+  Assignable setUnit(String unit);
+
 }

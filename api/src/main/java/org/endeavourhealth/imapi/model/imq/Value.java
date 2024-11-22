@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.imq;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
@@ -82,6 +83,7 @@ public class Value implements Assignable{
   return this;
   }
 
+  @JsonIgnore
   public String getUnit(){
     if (this.argument!=null) {
       if (this.argument.get(0).getParameter().contains("unit")) {
@@ -93,6 +95,7 @@ public class Value implements Assignable{
     else return "";
   }
 
+  @JsonIgnore
   public Value setUnit(String unit){
     this.addArgument(new Argument()
       .setParameter("units")

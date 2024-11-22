@@ -35,9 +35,7 @@ public class DataModelController {
   public NodeShape getDataModelProperties(@RequestParam(name = "iri") String iri, @RequestParam(name = "parent", required = false) String parent) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
       LOG.debug("getDataModelProperties");
-     // TTEntity entity=dataModelService.getDataModelPropertiesAndSubClasses(iri, parent);
-      NodeShape shape= dataModelService.getDataModelDisplayProperties(iri);
-      return shape;
+      return dataModelService.getDataModelDisplayProperties(iri);
     }
   }
 
@@ -49,11 +47,11 @@ public class DataModelController {
     }
   }
 
-//  @GetMapping(value = "/public/dataModels")
-//  public List<TTIriRef> getDataModelsFromProperty(@RequestParam(name = "propIri") String propIri) {
-//    LOG.debug("getDataModelsFromProperty");
-//    return dataModelService.getDataModelsFromProperty(propIri);
-//  }
+  @GetMapping(value = "/public/dataModels")
+   public List<TTIriRef> getDataModelsFromProperty(@RequestParam(name = "propIri") String propIri) {
+      LOG.debug("getDataModelsFromProperty");
+      return dataModelService.getDataModelsFromProperty(propIri);
+  }
 
   @GetMapping(value = "public/checkPropertyType")
   public String checkPropertyType(@RequestParam(name = "propertyIri") String iri) throws IOException {

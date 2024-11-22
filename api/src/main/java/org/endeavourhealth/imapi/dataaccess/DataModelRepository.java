@@ -95,27 +95,33 @@ public class DataModelRepository {
     return null;
   }
 
-  public NodeShape getDataModelDisplayProperties(String iri) {
-    NodeShape nodeShape = new NodeShape();
-    Map<String, PropertyShape> groups= new HashMap<>();
-    Map<String,PropertyShape> properties= new HashMap<>();
-    List<PropertyShape> propertyList= new ArrayList<>();
-    Map<String, ParameterShape> paramMap= new HashMap<>();
+  public void addDataModelSubtypes(NodeShape dataModel){
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       String sql = getSubtypeSql();
       TupleQuery qry = conn.prepareTupleQuery(sql);
-      qry.setBinding("entity", iri(iri));
+      qry.setBinding("entity", iri(dataModel.getIri()));
       try (TupleQueryResult rs = qry.evaluate()) {
-          while (rs.hasNext()) {
-            BindingSet bs = rs.next();
-            if (bs.getValue("subdatamodel") != null) {
-              nodeShape.addSubType(TTIriRef.iri(bs.getValue("subdatamodel").stringValue())
-                .setName(bs.getValue("subdatamodelname").stringValue()));
-            }
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          if (bs.getValue("subdatamodel") != null) {
+            dataModel.addSubType(TTIriRef.iri(bs.getValue("subdatamodel").stringValue())
+              .setName(bs.getValue("subdatamodelname").stringValue()));
           }
         }
-        sql = getPropertysql();
-        qry = conn.prepareTupleQuery(sql);
+      }
+    }
+  }
+
+  public NodeShape getDataModelDisplayProperties(String iri) {
+    NodeShape nodeShape = new NodeShape();
+    nodeShape.setIri(iri);
+    addDataModelSubtypes(nodeShape);
+    Map<String, PropertyShape> groups= new HashMap<>();
+    Map<String,PropertyShape> properties= new HashMap<>();
+    List<PropertyShape> propertyList= new ArrayList<>();
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+        String sql = getPropertysql();
+        TupleQuery qry = conn.prepareTupleQuery(sql);
         qry.setBinding("entity", iri(iri));
         try (TupleQueryResult rs = qry.evaluate()) {
           while (rs.hasNext()) {
@@ -258,9 +264,9 @@ public class DataModelRepository {
         PREFIX im: <http://endhealth.info/im#>
         PREFIX sh: <http://www.w3.org/ns/shacl#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        Select ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType 
-        ?class ?className ?datatype ?datatypeName ?node ?nodeName  
-        ?rangeType ?rangeTypeName ?hasValue ?hasValueName 
+        Select ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType
+        ?class ?className ?datatype ?datatypeName ?node ?nodeName
+        ?rangeType ?rangeTypeName ?hasValue ?hasValueName
         ?minCount ?maxCount
         ?parameter ?parameterName ?parameterType ?parameterTypeName ?parameterSubtype ?parameterSubtypeName
         ?comment ?propertyDefinition
@@ -311,7 +317,7 @@ public class DataModelRepository {
            optional {
                 ?property sh:hasValue ?hasValue.
                 optional {?hasValue rdfs:label ?hasValueName}
-                }             
+                }
              optional {
                        ?property sh:group ?group.
                         ?group rdfs:label ?groupName.

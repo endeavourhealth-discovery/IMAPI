@@ -22,6 +22,11 @@ public class DataModelService {
   private DataModelRepository dataModelRepository = new DataModelRepository();
   private EntityService entityService = new EntityService();
 
+
+  public List<TTIriRef> getDataModelsFromProperty(String propIri) {
+    return dataModelRepository.findDataModelsFromProperty(propIri);
+  }
+
   public String checkPropertyType(String iri) {
     return dataModelRepository.checkPropertyType(iri);
   }
@@ -35,43 +40,6 @@ public class DataModelService {
     return dataModelRepository.getDataModelDisplayProperties(iri);
   }
 
-
-
-  public TTEntity getDataModelPropertiesAndSubClasses(String iri, String parent) {
-    TTEntity entity = entityRepository.getEntityPredicates(iri, Set.of(SHACL.PROPERTY)).getEntity();
-    List<TTValue> properties = new ArrayList<>();
-    if (entity.get(iri(SHACL.PROPERTY)) != null) {
-      for (TTValue property : entity.get(iri(SHACL.PROPERTY)).getElements()) {
-        if (property.asNode().get(iri(IM.INHERITED_FROM)) == null || parent == null)
-          properties.add(property);
-        else if (!property.asNode().get(iri(IM.INHERITED_FROM)).asIriRef().getIri().equals(parent))
-          properties.add(property);
-      }
-    }
-
-    List<EntityReferenceNode> children = entityService.getImmediateChildren(iri, null, null, null, false);
-    if (children != null && !children.isEmpty()) {
-      TTNode subclasses = new TTNode()
-        .set(iri(SHACL.ORDER), TTLiteral.literal(0))
-        .set(iri(SHACL.PATH), new TTIriRef().setIri(IM.NAMESPACE + "hasSubclasses").setName("has subtypes"));
-      for (EntityReferenceNode type : children) {
-        subclasses.addObject(iri(SHACL.NODE), new TTIriRef().setIri(type.getIri()).setName(type.getName()));
-      }
-      properties.add(subclasses);
-    }
-    if (!properties.isEmpty()) {
-      properties = properties
-        .stream().sorted(Comparator
-          .comparing(p -> p.asNode().get(iri(SHACL.ORDER)) == null ? 1 : p.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue())).toList();
-      TTArray ordered = new TTArray();
-      for (TTValue property : properties)
-        ordered.add(property);
-      entity.set(iri(SHACL.PROPERTY), ordered);
-      return entity;
-    } else {
-      return entity;
-    }
-  }
 
   public List<DataModelProperty> getDataModelProperties(String iri) {
     TTEntity entity = entityRepository.getBundle(iri, Set.of(SHACL.PROPERTY, RDFS.LABEL)).getEntity();

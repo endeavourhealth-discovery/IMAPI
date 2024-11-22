@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.Context;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -126,6 +127,7 @@ public class QueryDescriptor {
     }
     if (match.getThen() != null)
       setIriSet(match.getThen(), iriSet);
+
     if (match.getWhere() != null) {
       for (Where where : match.getWhere()) {
         setIriSet(where, iriSet);
@@ -149,6 +151,31 @@ public class QueryDescriptor {
       for (Node node : where.getIs())
         iriSet.add(node.getIri());
     }
+    setIriSet((Assignable) where,iriSet);
+    if (where.getRange()!=null){
+      if (where.getRange().getFrom()!=null){
+        setIriSet(where.getRange().getFrom(),iriSet);
+      }
+      if (where.getRange().getFrom()!=null){
+        setIriSet(where.getRange().getFrom(),iriSet);
+      }
+    }
+  }
+
+  private void setIriSet(Assignable assignable,Set<String> iriSet){
+    if (assignable.getArgument()!=null){
+      for (Argument argument:assignable.getArgument()){
+        if (argument.getValueIri()!=null){
+          iriSet.add(argument.getValueIri().getIri());
+        }
+        if (argument.getValueIriList()!=null){
+          for (TTIriRef iri:argument.getValueIriList()){
+            iriSet.add(iri.getIri());
+          }
+        }
+      }
+    }
+
   }
 
 
@@ -498,6 +525,9 @@ public class QueryDescriptor {
     for (Argument argument:arguments){
       if (argument.getValueData()!=null) {
         result.append(argument.getValueData()).append(" ");
+      }
+      else if (argument.getValueIri()!=null) {
+        result.append(argument.getValueIri().getName()).append(" ");
       }
     }
     return result.toString();

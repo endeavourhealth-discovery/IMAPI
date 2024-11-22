@@ -308,6 +308,7 @@ public class Where extends PropertyRef implements Assignable{
     return this;
   }
 
+  @JsonIgnore
   public String getUnit(){
     if (this.argument!=null) {
       if (this.argument.get(0).getParameter().contains("unit")) {
@@ -318,7 +319,7 @@ public class Where extends PropertyRef implements Assignable{
     }
     else return "";
   }
-
+  @JsonIgnore
   public Where setUnit(String unit){
     this.addArgument(new Argument()
       .setParameter("units")

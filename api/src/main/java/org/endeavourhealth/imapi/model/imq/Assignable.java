@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.imq;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public interface Assignable {
   public Operator getOperator();
@@ -22,5 +23,7 @@ public interface Assignable {
   String getUnit();
 
   Assignable setUnit(String unit);
+
+  Assignable argument(Consumer<Argument> builder);
 
 }

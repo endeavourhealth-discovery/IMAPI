@@ -14,10 +14,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"iri", "label", "comment", "name", "order", "minCount", "maxCount", "componentType", "path", "dataType", "class", "node",
+@JsonPropertyOrder({"iri", "label", "comment", "name", "order", "minCount", "maxCount", "componentType", "path", "datatype", "class", "node",
   "functionClause", "validation", "search", "select", "argument", "valueVariable", "isIri", "isTextValue", "isNumericValue", "forceIsValue", "builderChild", "showTitle"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class PropertyShape {
+public class PropertyShape{
+  @Getter
+  private TTIriRef group;
   @Getter
   private String label;
   @Getter
@@ -58,6 +60,8 @@ public class PropertyShape {
   @Getter
   private List<Argument> argument;
   @Getter
+  private List<ParameterShape> parameter;
+  @Getter
   private String valueVariable;
   @Getter
   private TTIriRef valueIri;
@@ -71,6 +75,85 @@ public class PropertyShape {
   private Boolean forceIsValue;
   @Getter
   private ArrayButtons arrayButtons;
+  @Getter
+  private Object hasValue;
+  @Getter
+  private TTIriRef hasValueType;
+  @Getter
+  private TTIriRef rangeType;
+  @Getter
+  private String definition;
+  @Getter
+  private List<TTIriRef> type;
+
+  public PropertyShape setParameter(List<ParameterShape> parameter) {
+    this.parameter = parameter;
+    return this;
+  }
+  public PropertyShape addParameter (ParameterShape parameter){
+      if (this.parameter == null) {
+        this.parameter = new ArrayList<>();
+      }
+      this.parameter.add(parameter);
+      return this;
+    }
+  public PropertyShape parameter (Consumer < ParameterShape > builder) {
+      ParameterShape parameter = new ParameterShape();
+      addParameter(parameter);
+      builder.accept(parameter);
+      return this;
+    }
+
+
+  public PropertyShape setGroup(TTIriRef group) {
+    this.group = group;
+    return this;
+  }
+
+
+  public PropertyShape setType(List<TTIriRef> type) {
+    this.type = type;
+    return this;
+  }
+  public PropertyShape addType (TTIriRef type){
+      if (this.type == null) {
+        this.type = new ArrayList<>();
+      }
+      this.type.add(type);
+      return this;
+    }
+  public PropertyShape type (Consumer < TTIriRef > builder) {
+      TTIriRef type = new TTIriRef();
+      addType(type);
+      builder.accept(type);
+      return this;
+    }
+
+
+  public PropertyShape setRangeType(TTIriRef rangeType) {
+    this.rangeType = rangeType;
+    return this;
+  }
+
+  public PropertyShape setHasValue(Object hasValue) {
+    this.hasValue = hasValue;
+    return this;
+  }
+
+  public PropertyShape setHasValueType(TTIriRef hasValueType) {
+    this.hasValueType = hasValueType;
+    return this;
+  }
+
+  public PropertyShape setDefinition(String definition) {
+    this.definition = definition;
+    return this;
+  }
+
+
+
+
+
 
   public PropertyShape setArrayButtons(ArrayButtons arrayButtons) {
     this.arrayButtons = arrayButtons;

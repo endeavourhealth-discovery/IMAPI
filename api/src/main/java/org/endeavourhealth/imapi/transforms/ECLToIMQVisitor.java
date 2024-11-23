@@ -110,6 +110,9 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
     if (match.getBoolMatch() != null) {
       query.setBoolMatch(match.getBoolMatch());
     }
+    if (match.getTypeOf() != null && match.getTypeOf().getIri().equals(IM.CONCEPT)) {
+      query.setTypeOf(match.getTypeOf());
+    }
   }
 
   @Override

@@ -1,9 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.model.DownloadEntityOptions;
-import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -27,7 +25,7 @@ public class DownloadService {
   private DataModelService dataModelService = new DataModelService();
   private ConceptService conceptService = new ConceptService();
 
-  public DownloadDto getJsonDownload(String iri, List<ComponentLayoutItem> configs, DownloadEntityOptions params) {
+  public DownloadDto getJsonDownload(String iri, List<String> configs, DownloadEntityOptions params) {
     if (iri == null || iri.isEmpty()) return null;
 
     DownloadDto downloadDto = new DownloadDto();
@@ -56,7 +54,7 @@ public class DownloadService {
     return downloadDto;
   }
 
-  public XlsHelper getExcelDownload(String iri, List<ComponentLayoutItem> configs, DownloadEntityOptions params) {
+  public XlsHelper getExcelDownload(String iri, List<String> configs, DownloadEntityOptions params) {
     if (iri == null || iri.isEmpty()) return null;
 
     XlsHelper xls = new XlsHelper();

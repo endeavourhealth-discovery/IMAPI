@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,14 +14,8 @@ import java.util.HashMap;
 @Getter
 @Setter
 public class SQLQuery {
+  private static Logger LOG = LoggerFactory.getLogger(SQLQuery.class);
   private static Integer aliasIndex = 0;
-
-  public SQLQuery create(String model, String variable, HashMap<String, Table> tableMap) throws SQLConversionException {
-    aliasIndex = 0;
-    SQLQuery result = new SQLQuery();
-    result.initialize(model, variable, tableMap);
-    return result;
-  }
 
   private ArrayList<String> withs = new ArrayList<>();
   private ArrayList<String> selects = new ArrayList<>();
@@ -30,6 +26,13 @@ public class SQLQuery {
   private String whereBool = "AND";
   private ArrayList<String> wheres = new ArrayList<>();
   private ArrayList<String> dependencies = new ArrayList<>();
+
+  public SQLQuery create(String model, String variable, HashMap<String, Table> tableMap) throws SQLConversionException {
+    aliasIndex = 0;
+    SQLQuery result = new SQLQuery();
+    result.initialize(model, variable, tableMap);
+    return result;
+  }
 
   public SQLQuery subQuery(String model, String variable, HashMap<String, Table> tableMap) throws SQLConversionException {
     SQLQuery result = new SQLQuery();
@@ -52,7 +55,7 @@ public class SQLQuery {
     tableMap.put(this.alias, new Table(this.alias, null, this.map.getFields(), this.map.getRelationships()));
   }
 
-  public String  toSql(Integer indent) {
+  public String toSql(Integer indent) {
     String sql = "";
     sql += this.generateWiths();
     sql += this.generateSelects();
@@ -67,7 +70,7 @@ public class SQLQuery {
 
     if (withs != null && !withs.isEmpty()) {
       sql += "WITH\n";
-      sql += StringUtils.join(withs,",\n");
+      sql += StringUtils.join(withs, ",\n");
     }
     return sql;
   }
@@ -90,7 +93,7 @@ public class SQLQuery {
 
   private String generateWheres() {
     String sql = "";
-    if (map.getCondition() != null || (wheres !=null && !wheres.isEmpty())) {
+    if (map.getCondition() != null || (wheres != null && !wheres.isEmpty())) {
       sql += "\nWHERE ";
 
       if (map.getCondition() != null) {
@@ -100,7 +103,7 @@ public class SQLQuery {
         }
       }
 
-      if (wheres !=null && !wheres.isEmpty()) {
+      if (wheres != null && !wheres.isEmpty()) {
         sql += StringUtils.join(wheres, "\n" + this.whereBool + " ");
         if (map.getCondition() != null) sql += ")\n";
       }
@@ -127,8 +130,7 @@ public class SQLQuery {
 
     if (map.getFields().get(field) != null) return map.getFields().get(field);
 
-    System.out.println("UNKNOWN FIELD [" + field + "]");
-//    console.log(JSON.stringify(map, null, 2));
+    LOG.error("UNKNOWN FIELD [{}] ON [{}] - assuming its a string with the same JSON field name", field, map.getTable());
 
     // Default to string field in JSON blob
     String fieldName = field.substring(field.indexOf("#") + 1);

@@ -232,4 +232,8 @@ public class IM {
     public static final String NUMERIC_VALUE = IM.NAMESPACE + "NumericValue";
     public static final String HEALTH_RECORDS = IM.NAMESPACE + "HealthRecords";
     public static final String HAS_INCREMENTAL_FROM = IM.NAMESPACE + "hasIncrementalFrom";
+    public static final String CORE_SCHEMES = IM.NAMESPACE + "coreSchemes";
+    public static final String INFERRED_PREDICATES = IM.NAMESPACE + "inferredPredicates";
+    public static final String INFERRED_EXCLUDE_PREDICATES = IM.NAMESPACE + "inferredExcludePredicates";
+    public static final String GRAPH_EXCLUDE_PREDICATES = IM.NAMESPACE + "graphExcludePredicates";
 }

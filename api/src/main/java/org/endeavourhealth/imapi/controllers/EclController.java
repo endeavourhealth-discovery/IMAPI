@@ -88,6 +88,7 @@ public class EclController {
   )
   public Query getQueryFromECL(@RequestBody String ecl) throws DataFormatException, IOException, EclFormatException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.QueryFromEcl.POST")) {
+      LOG.debug("getQueryFromEcl");
       return eclService.getQueryFromEcl(ecl);
     }
   }
@@ -98,6 +99,7 @@ public class EclController {
   )
   public BoolGroup getEclBuilderFromQuery(@RequestBody Query query) throws QueryException, EclBuilderException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclBuilderFromQuery.POST")) {
+      LOG.debug("getEclBuilderFromQuery");
       return eclService.getEclBuilderFromQuery(query);
     }
   }

@@ -10,8 +10,10 @@ import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.logic.exporters.SetTextFileExporter;
+import org.endeavourhealth.imapi.model.SetDiffObject;
 import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
 import org.endeavourhealth.imapi.model.iml.Concept;
+import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.iml.SetContent;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
@@ -27,10 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -210,6 +209,45 @@ public class SetService {
         filerService.updateEntity(subsetEntity, agentName);
       }
     }
+  }
+
+  public SetDiffObject getSetComparison(Optional<String> setIriA, Optional<String> setIriB) throws QueryException, JsonProcessingException {
+    if (setIriA.isEmpty() && setIriB.isEmpty()) {
+      throw new IllegalArgumentException("One of SetIriA or SetIriB are required");
+    }
+    Set<Concept> membersA = null;
+    Set<Concept> membersB = null;
+    if (setIriA.isPresent() && !setIriA.get().isEmpty()) {
+      membersA = getFullyExpandedMembers(setIriA.get(),false,false,null);
+    }
+    if (setIriB.isPresent() && !setIriB.get().isEmpty()) {
+      membersB = getFullyExpandedMembers(setIriB.get(),false,false,null);
+    }
+    SetDiffObject setDiffObject = new SetDiffObject();
+    Map<String, Concept> membersMap = new HashMap<>();
+    if (membersA != null) {
+      for (Concept concept : membersA) {
+        concept.setName(concept.getName() + " | " + concept.getCode());
+        membersMap.put(concept.getIri(), concept);
+      }
+    }
+    if (membersB != null) {
+      for (Concept concept : membersB) {
+        concept.setName(concept.getName() + " | " + concept.getCode());
+        if (membersMap.containsKey(concept.getIri())) {
+          setDiffObject.addSharedMember(concept);
+          membersMap.remove(concept.getIri());
+        } else {
+          setDiffObject.addMemberB(concept);
+        }
+      }
+    }
+    List<Concept> membersAList = new ArrayList<>(List.copyOf(membersMap.values()));
+    membersAList.sort(Comparator.comparing(Entity::getName));
+    setDiffObject.setMembersA(membersAList);
+    setDiffObject.getMembersB().sort(Comparator.comparing(Entity::getName));
+    setDiffObject.getSharedMembers().sort(Comparator.comparing(Entity::getName));
+    return setDiffObject;
   }
 }
 

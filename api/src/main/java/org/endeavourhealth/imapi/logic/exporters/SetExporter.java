@@ -1,30 +1,25 @@
 package org.endeavourhealth.imapi.logic.exporters;
 
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
-import software.amazon.awssdk.services.s3.model.S3Exception;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
-import org.endeavourhealth.imapi.model.AWSConfig;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -178,21 +173,21 @@ public class SetExporter {
     String accessKey = null;
     String secretKey = null;
 
-    try {
-      AWSConfig config = new ConfigManager().getConfig(CONFIG.IM1_PUBLISH, new TypeReference<AWSConfig>() {
-      });
-      if (config == null) {
-        LOG.debug("No IM1_PUBLISH config found, reverting to defaults");
-      } else {
-        bucket = config.getBucket();
-        region = config.getRegion();
-        if (null != config.getAccessKey())
-          accessKey = config.getAccessKey();
-        if (null != config.getSecretKey())
-          secretKey = config.getSecretKey();
-      }
-    } catch (JsonProcessingException e) {
-      LOG.debug("No IM1_PUBLISH config found, reverting to defaults");
+    String bucketEnv = System.getenv("IM1_PUBLISH_BUCKET");
+    String regionEnv = System.getenv("IM1_PUBLISH_REGION");
+    String accessKeyEnv = System.getenv("IM1_PUBLISH_ACCESS_KEY");
+    String secretKeyEnv = System.getenv("IM1_PUBLISH_SECRET_KEY");
+    if (bucketEnv != null) {
+      bucket = bucketEnv;
+    }
+    if (regionEnv != null) {
+      region = regionEnv;
+    }
+    if (accessKeyEnv != null) {
+      accessKey = accessKeyEnv;
+    }
+    if (secretKeyEnv != null) {
+      secretKey = secretKeyEnv;
     }
 
     if (accessKey == null || accessKey.isEmpty() || secretKey == null || secretKey.isEmpty()) {
@@ -200,22 +195,22 @@ public class SetExporter {
     }
 
     try (S3Client s3 = S3Client.builder().region(Region.of(region)).credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey))).build()) {
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH:mm:ss");
-        String filename = date.format(timestamp.getTime()) + "_valueset.tsv";
+      Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+      SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH:mm:ss");
+      String filename = date.format(timestamp.getTime()) + "_valueset.tsv";
 
-        byte[] byteData = results.toString().getBytes();
-        InputStream stream = new ByteArrayInputStream(byteData);
+      byte[] byteData = results.toString().getBytes();
+      InputStream stream = new ByteArrayInputStream(byteData);
 
-        PutObjectRequest por = PutObjectRequest.builder()
-          .bucket(bucket)
-          .key(filename)
-          .contentLength((long) byteData.length)
-          .contentType("text/plain")
-          .acl(ObjectCannedACL.BUCKET_OWNER_FULL_CONTROL)
-          .build();
+      PutObjectRequest por = PutObjectRequest.builder()
+        .bucket(bucket)
+        .key(filename)
+        .contentLength((long) byteData.length)
+        .contentType("text/plain")
+        .acl(ObjectCannedACL.BUCKET_OWNER_FULL_CONTROL)
+        .build();
 
-        s3.putObject(por, RequestBody.fromInputStream(stream, byteData.length));
-      }
+      s3.putObject(por, RequestBody.fromInputStream(stream, byteData.length));
+    }
   }
 }

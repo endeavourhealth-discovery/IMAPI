@@ -19,6 +19,7 @@ public enum ErrorCodes {
   GENERAL_CUSTOM_EXCEPTION("GeneralCustomException"),
   CONFIG_EXCEPTION("ConfigException"),
   DOWNLOAD_EXCEPTION("DownloadException"),
+  ILLEGAL_ARGUMENT_EXCEPTION("IllegalArgumentException"),
 
   ECL_BUILDER_EXCEPTION("EclBuilderException");
 

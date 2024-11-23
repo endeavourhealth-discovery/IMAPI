@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SetService;
+import org.endeavourhealth.imapi.model.SetDiffObject;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
@@ -35,6 +36,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -167,6 +169,17 @@ public class SetController {
       String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(set);
       headers.setContentType(MediaType.APPLICATION_JSON);
       return new HttpEntity<>(json, headers);
+    }
+  }
+
+  @GetMapping(value = "/public/setDiff")
+  public SetDiffObject getSetComparison(
+    @RequestParam(name = "setIriA") Optional<String> setIriA,
+    @RequestParam(name = "setIriB") Optional<String> setIriB
+  ) throws IOException, QueryException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Set.SetDiff.GET")) {
+      LOG.debug("getSetComparison");
+      return setService.getSetComparison(setIriA,setIriB);
     }
   }
 }

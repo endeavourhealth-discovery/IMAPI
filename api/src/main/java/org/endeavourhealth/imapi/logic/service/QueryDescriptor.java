@@ -527,7 +527,7 @@ public class QueryDescriptor {
         result.append(argument.getValueData()).append(" ");
       }
       else if (argument.getValueIri()!=null) {
-        result.append(argument.getValueIri().getName()).append(" ");
+        result.append(getTermInContext(argument.getValueIri().getIri(),Context.LOWERCASE));
       }
     }
     return result.toString();

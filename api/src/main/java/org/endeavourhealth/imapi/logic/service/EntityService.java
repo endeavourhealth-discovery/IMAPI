@@ -566,8 +566,54 @@ public class EntityService {
     return iri;
   }
 
-    public Set<String> getXmlSchemaDataTypes() {
+  public Set<String> getXmlSchemaDataTypes() {
     return entityRepository.getByGraph(XSD.NAMESPACE);
+  }
+
+  public List<List<TTIriRef>> getAllParentHierarchies(String ancestor, String descendant) {
+    List<List<TTIriRef>> paths = getParentHierarchies(descendant);
+    paths = paths.stream().filter(list -> indexOf(list, ancestor) != -1).collect(Collectors.toList());
+    paths.sort((a1, a2) -> {
+      return a2.size() - a1.size(); // biggest to smallest
+    });
+
+    List<List<TTIriRef>> filteredPaths = new ArrayList<>();
+    if (!paths.isEmpty()) {
+      filteredPaths = paths.stream().map(path -> {
+        int index = indexOf(path, ancestor);
+        return path.subList(0, index == path.size() ? index : index + 1);
+      }).toList();
+    }
+    return filteredPaths;
+  }
+
+  public Map<String, List<List<String>>> getMultipleSnomedParentHierarchies(List<String> descendantCodes) {
+    HashMap<String, List<List<String>>> returnMap = new HashMap<>();
+    for (String descendantCode : descendantCodes) {
+      List<List<TTIriRef>> refPaths = getAllParentHierarchies(SNOMED.NAMESPACE + "138875005", SNOMED.NAMESPACE + descendantCode);
+      List<List<String>> stringPath = refPaths.stream().map(path -> path.stream().map(ref -> {
+        String[] splits = ref.getIri().split("#");
+        if (splits.length == 2) {
+          String code = splits[1];
+          return ref.getName() + " | " + code;
+        }
+        return ref.getName();
+      }).toList()).toList();
+      returnMap.put(descendantCode, stringPath);
+    }
+    return returnMap;
+  }
+
+  public Map<String, Set<String>> getBNFs(List<String> codes) {
+    return entityRepository.findBNFs(codes);
+  }
+
+  public Map<String, Set<String>> getSubclassPaths(List<String> codes) {
+    return entityRepository.findSubClassPaths(codes);
+  }
+
+  public Map<String, Set<String>> getTargetRelatives(List<String> codes, List<String> targetCodes) {
+    return entityRepository.findTargetRelatives(codes, targetCodes);
   }
 }
 

@@ -218,7 +218,7 @@ public class EqdResources {
   }
 
 
-  private void setProperty(EQDOCColumnValue cv, Where pv) throws IOException {
+  private void setProperty(EQDOCColumnValue cv, Where pv) throws IOException, EQDException {
 
     VocColumnValueInNotIn in = cv.getInNotIn();
     boolean notIn = (in == VocColumnValueInNotIn.NOTIN);
@@ -408,7 +408,7 @@ public class EqdResources {
     return linked;
   }
 
-  private void setRangeValue(EQDOCRangeValue rv, Where pv) {
+  private void setRangeValue(EQDOCRangeValue rv, Where pv) throws EQDException {
 
     EQDOCRangeFrom rFrom = rv.getRangeFrom();
     EQDOCRangeTo rTo = rv.getRangeTo();
@@ -452,7 +452,7 @@ public class EqdResources {
     }
     setCompare(where, comp, value, units, relation);
   }
-  private void setCompare(Where where, Value pv, Operator comp, String value, String units, VocRelation relation) {
+  private void setCompare(Where where, Value pv, Operator comp, String value, String units, VocRelation relation) throws EQDException {
     if (relation == VocRelation.RELATIVE) {
       where.setRelativeTo(new PropertyRef().setParameter("$referenceDate"));
     }
@@ -460,7 +460,25 @@ public class EqdResources {
     pv.setOperator(comp);
     pv.setValue(value);
     if (units != null)
-      where.setUnit(units);
+      setUnitsOrArgument(where,units);
+  }
+
+  private void setUnitsOrArgument(Where where, String units) throws EQDException {
+    switch (units) {
+      case "YEAR": addArgument(where,"units",iri(IM.NAMESPACE+"years"));
+        break;
+      case "MONTH": addArgument(where,"units",iri(IM.NAMESPACE+"months"));
+      break;
+      case "DAY": addArgument(where,"units",iri(IM.NAMESPACE+"days"));
+      break;
+      default : throw new EQDException("unknown unit map: "+units);
+
+    }
+  }
+  private void addArgument(Assignable assignable, String parameter, TTIriRef value){
+    assignable.argument(a->a
+      .setParameter(parameter)
+      .setValueIri(value));
   }
 
   private void setCompare(Where where, Operator comp, String value, String units, VocRelation relation) {
@@ -501,7 +519,7 @@ public class EqdResources {
   }
 
 
-  private void setRangeCompare(Where where, EQDOCRangeFrom rFrom, EQDOCRangeTo rTo) {
+  private void setRangeCompare(Where where, EQDOCRangeFrom rFrom, EQDOCRangeTo rTo) throws EQDException {
     Range range = new Range();
     where.setRange(range);
     Value fromValue = new Value();

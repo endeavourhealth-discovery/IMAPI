@@ -1,17 +1,12 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.logic.reasoner.SetExpander;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SparqlConverter {
@@ -332,7 +327,7 @@ public class SparqlConverter {
       type(whereQl, match.getTypeOf(), subject);
     } else {
       if (match.getInstanceOf() != null) {
-        processMatchInstanceOf(match, whereQl, object, subject);
+        processMatchInstanceOf(match, whereQl, subject);
       }
     }
 
@@ -364,16 +359,11 @@ public class SparqlConverter {
     }
   }
 
-  private void processMatchInstanceOf(Match match, StringBuilder whereQl, String object, String subject) throws QueryException {
-    boolean first = true;
-    for (Node instance : match.getInstanceOf()) {
-      if (!match.getInstanceOf().isEmpty()) {
-        if (first)
-          whereQl.append("{");
-        else
-          whereQl.append("UNION {");
-        first = false;
-      }
+  private void processMatchInstanceOf(Match match, StringBuilder whereQl, String subject) throws QueryException {
+    if (match.getInstanceOf().size()==1) {
+      o++;
+      String object="instance"+o;
+      Node instance= match.getInstanceOf().get(0);
       String inList = iriFromAlias(instance);
       if (inList == null && match.getWhere() == null) {
         throw new QueryException("Match clause has instance of without an IRI,  and  without a where clause.");
@@ -382,92 +372,144 @@ public class SparqlConverter {
         object = instance.getNodeRef();
       }
       if (instance.isMemberOf()) {
-        processMatchIsMemberOf(whereQl, instance, subject);
+        processMatchIsMemberOf(whereQl, subject,object,inList);
       } else if (instance.isDescendantsOrSelfOf()) {
-        String result = processMatchIsDescendantsOrSelfOf(whereQl, subject, object, inList);
-        if (result != null) subject = result;
+         processMatchIsDescendantsOrSelfOf(whereQl, subject, object, inList);
       } else if (instance.isDescendantsOf()) {
-        String result = processMatchIsDescendantsOf(whereQl, subject, object, inList);
-        if (result != null) subject = result;
-
+          processMatchIsDescendantsOf(whereQl, subject, object, inList);
       } else if (instance.isAncestorsOf()) {
-        String result = processMatchIsAncestorOf(whereQl, subject, object, inList);
-        if (result != null) subject = result;
+        processMatchIsAncestorOf(whereQl, subject, object, inList);
       } else {
-        processMatchOther(whereQl, subject, inList);
+        processMatchEqual(whereQl, subject, inList);
 
       }
-      if (!match.getInstanceOf().isEmpty())
-        whereQl.append("}");
     }
-  }
-
-  private void processMatchIsMemberOf(StringBuilder whereQl, Node instance, String subject) throws QueryException {
-    try {
-      EntityRepository entityRepository = new EntityRepository();
-      if (Boolean.FALSE.equals(entityRepository.hasPredicates(instance.getIri(), Set.of(IM.HAS_MEMBER)))) {
-        new SetExpander().expandSet(instance.getIri());
+    else {
+      Map<Entail, List<String>> inTypes = new HashMap<>();
+      Map<Entail, List<String>> outTypes = new HashMap<>();
+      sortInstances(match.getInstanceOf(), inTypes, outTypes);
+      boolean first = true;
+      for (Map.Entry<Entail,List<String>> entry:inTypes.entrySet()){
+        o++;
+        String object="instance"+o;
+        Entail entail= entry.getKey();
+        List<String> in= entry.getValue();
+        String inList= String.join(" ", in);
+        if (first)
+          whereQl.append("{");
+        else
+          whereQl.append("UNION {");
+        first=false;
+        if (entail==Entail.descendantsOrSelfOf){
+          processMatchIsDescendantsOrSelfOf(whereQl,subject,object,inList);
+        }
+        else if (entail==Entail.descendantsOf){
+          processMatchIsDescendantsOf(whereQl,subject,object,inList);
+        }
+        else if (entail==Entail.ancestorsOf){
+          processMatchIsAncestorOf(whereQl,subject,object,inList);
+        }
+        else if (entail==Entail.memberOf){
+          processMatchIsMemberOf(whereQl,subject,object,inList);
+        }
+        else
+          processMatchEqual(whereQl,subject,inList);
+        whereQl.append("}\n");
       }
-    } catch (JsonProcessingException e) {
-      throw new QueryException(e.getMessage());
+      if (!outTypes.isEmpty()){
+        for (Map.Entry<Entail,List<String>> entry :outTypes.entrySet()){
+          o++;
+          String object="instance"+o;
+          Entail entail= entry.getKey();
+          List<String> out= entry.getValue();
+          String outList= String.join(" ", out);
+          if (entail==Entail.descendantsOrSelfOf){
+            whereQl.append("Filter not exists {");
+            processMatchIsDescendantsOrSelfOf(whereQl,subject,object,outList);
+            whereQl.append("}");
+          }
+          else if (entail==Entail.descendantsOf){
+            whereQl.append("Filter not exists {");
+            processMatchIsDescendantsOf(whereQl,subject,object,outList);
+            whereQl.append("}");
+          }
+          else if (entail==Entail.ancestorsOf){
+            whereQl.append("Filter not exists {");
+            processMatchIsAncestorOf(whereQl,subject,object,outList);
+            whereQl.append("}");
+          }
+          else if (entail==Entail.memberOf){
+            whereQl.append("Filter not exists {");
+            processMatchIsMemberOf(whereQl,subject,object,outList);
+            whereQl.append("}");
+          }
+          else
+            processMatchNotEqual(whereQl,subject,outList);
+        }
+
+      }
     }
-    whereQl.append("?").append(subject).append(" ^").append("<").append(IM.HAS_MEMBER).append("> ").append("<").append(instance.getIri()).append(">\n");
   }
 
-  private String processMatchIsDescendantsOrSelfOf(StringBuilder whereQl, String subject, String object, String inList) {
-    o++;
-    whereQl.append("?").append(subject).append(" im:isA ?").append(object).append(".\n");
-    if (inList != null) {
-      whereQl.append("Filter (?").append(object);
-      if (!inList.contains(","))
-        whereQl.append(" =").append(inList).append(")\n");
+  private void sortInstances(List<Node> instanceOf,Map<Entail,List<String>> inTypes,Map<Entail,List<String>> outTypes) throws QueryException {
+    for (Node instance:instanceOf){
+      Entail entail= Entail.equal;
+      if (instance.isMemberOf())
+        entail= Entail.memberOf;
+      else if (instance.isDescendantsOrSelfOf())
+        entail= Entail.descendantsOrSelfOf;
+      else if (instance.isDescendantsOf())
+        entail= Entail.descendantsOf;
+      else if (instance.isAncestorsOf())
+        entail= Entail.ancestorsOf;
+      if (instance.isExclude()){
+        outTypes.computeIfAbsent(entail, m -> new ArrayList<>()).add(iriFromAlias(instance));
+      }
       else
-        whereQl.append(" in (").append(inList).append("))\n");
-    } else {
-      return object;
-    }
-    return null;
+        inTypes.computeIfAbsent(entail, m -> new ArrayList<>()).add(iriFromAlias(instance));
+      }
   }
 
-  private String processMatchIsDescendantsOf(StringBuilder whereQl, String subject, String object, String inList) {
-    o++;
+  private void processMatchIsMemberOf(StringBuilder whereQl, String subject,String object,String inList){
+    whereQl.append("?").append(subject).append(" ^").append("<").append(IM.HAS_MEMBER).append("> ").append("?").append(object).append("\n");
+    whereQl.append("Values ").append("?").append(object).append(" {").append(inList).append(" }\n");
+
+  }
+
+  private void processMatchIsDescendantsOrSelfOf(StringBuilder whereQl, String subject, String object, String inList) {
     whereQl.append("?").append(subject).append(" im:isA ?").append(object).append(".\n");
-    if (inList != null) {
-      whereQl.append("Filter (?").append(object);
-      if (!inList.contains(","))
-        whereQl.append(" =").append(inList).append(")\n");
-      else
-        whereQl.append(" in (").append(inList).append("))\n");
-      whereQl.append("Filter (?").append(subject).append("!= ").append(inList).append(")\n");
-    } else {
-      return object;
-    }
-    return null;
+    whereQl.append("Values ").append("?").append(object).append(" {").append(inList).append(" }\n");
   }
 
-  private String processMatchIsAncestorOf(StringBuilder whereQl, String subject, String object, String inList) {
+  private void processMatchIsDescendantsOf(StringBuilder whereQl, String subject, String object, String inList) {
+    whereQl.append("?").append(subject).append(" im:isA ?").append(object).append(".\n");
+    whereQl.append("Values ").append("?").append(object).append(" {").append(inList).append(" }\n");
+    whereQl.append("Filter (?").append(subject).append("not in (").append(inList.replace(" ",",")).append("))\n");
+  }
+
+  private void processMatchIsAncestorOf(StringBuilder whereQl, String subject, String object, String inList) {
     o++;
-    whereQl.append("?").append(subject).append(" ^im:isA ?").append(object).append(".\n");
+    whereQl.append("?").append(subject).append(" ^im:isA ?").append("?").append(object).append(".\n");
+    whereQl.append("Values ").append("?").append(object).append(" {").append(inList).append(" }\n");
     whereQl.append("Filter (?").append(object);
-    if (inList != null) {
-      if (!inList.contains(","))
-        whereQl.append(" =").append(inList).append(")\n");
-      else
-        whereQl.append(" in (").append(inList).append("))\n");
-    } else {
-      return object;
-    }
-    return null;
   }
 
-  private void processMatchOther(StringBuilder whereQl, String subject, String inList) {
-    o++;
+  private void processMatchEqual(StringBuilder whereQl, String subject, String inList) {
     whereQl.append("?").append(subject).append(" rdf:type ?type.\n");
     whereQl.append("Filter (?").append(subject);
-    if (null != inList && !inList.contains(","))
+    if (!inList.contains(" "))
       whereQl.append(" =").append(inList).append(")\n");
     else
-      whereQl.append(" in (").append(inList).append("))\n");
+      whereQl.append(" in (").append(inList.replace(" ",",")).append("))\n");
+  }
+
+
+  private void processMatchNotEqual(StringBuilder whereQl, String subject, String outList) {
+   whereQl.append("Filter (?").append(subject);
+    if (!outList.contains(" "))
+      whereQl.append(" =").append(outList).append(")\n");
+    else
+      whereQl.append(" not in (").append(outList.replace(" ",",")).append("))\n");
   }
 
   private void type(StringBuilder whereQl, Node type, String subject) throws QueryException {

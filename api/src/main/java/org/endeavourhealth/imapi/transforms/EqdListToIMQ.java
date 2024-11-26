@@ -73,6 +73,13 @@ public class EqdListToIMQ {
           aReturn.function(f -> f
             .setName(Function.count));
         }
+        else if (eqColGroup.getSummary()==VocListGroupSummary.EXISTS) {
+          aReturn.property(p->p
+              .case_(c->c
+                .when(w->w
+                  .setExists(true)
+                  .setThen("Y"))));
+        }
         else
           throw new QueryException("unmapped summary function : "+ eqColGroup.getSummary().value());
       }

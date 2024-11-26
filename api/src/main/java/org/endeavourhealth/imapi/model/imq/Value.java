@@ -14,6 +14,16 @@ public class Value implements Assignable{
   private String qualifier;
   private String valueLabel;
   private List<Argument> argument;
+  private String valueParameter;
+
+  public String getValueParameter() {
+    return valueParameter;
+  }
+
+  public Value setValueParameter(String valueParameter) {
+    this.valueParameter = valueParameter;
+    return this;
+  }
 
   @Override
   public List<Argument> getArgument() {

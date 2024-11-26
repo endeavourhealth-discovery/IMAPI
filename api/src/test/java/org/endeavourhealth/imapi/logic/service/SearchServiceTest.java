@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.controllers.EntityController;
 import org.endeavourhealth.imapi.json.JsonLDMapper;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
+import org.endeavourhealth.imapi.logic.reasoner.SetExpander;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
@@ -119,11 +120,7 @@ class SearchServiceTest {
 
   //@Test
   public void setTest() throws DataFormatException, JsonProcessingException, QueryException {
-    TTEntity entity = entityService.getBundle(IM.NAMESPACE + "VSET_VitalSigns", null).getEntity();
-    String json = entity.get(iri(IM.DEFINITION)).asLiteral().getValue();
-    SetExporter exporter = new SetExporter();
-    Set<Concept> concepts = exporter.getExpandedSetMembers(IM.NAMESPACE + "VSET_VitalSigns", true, false, true, List.of());
-    System.out.println(concepts.size());
+    new SetExpander().expandSet("http://apiqcodes.org/qcodes#QCodeGroup_713");
   }
 }
 

@@ -26,4 +26,8 @@ public interface Assignable {
 
   Assignable argument(Consumer<Argument> builder);
 
+  Assignable setValueParameter(String parameter);
+
+  String getValueParameter();
+
 }

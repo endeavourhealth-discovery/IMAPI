@@ -29,6 +29,17 @@ public class Where extends PropertyRef implements Assignable{
   private FunctionClause function;
   private List<Argument> argument;
 
+  private String valueParameter;
+
+  public String getValueParameter() {
+    return valueParameter;
+  }
+
+  public Where setValueParameter(String valueParameter) {
+    this.valueParameter = valueParameter;
+    return this;
+  }
+
   public List<Argument> getArgument() {
     return argument;
   }

@@ -370,14 +370,14 @@ public class EqdResources {
         from.setOperator((Operator) vocabMap.get(eqRange.getRangeFrom().getOperator()))
           .setValue(eqRange.getRangeFrom().getValue().getValue());
         if (eqRange.getRangeFrom().getValue().getUnit()!=null) {
-          relationProperty.setUnit(eqRange.getRangeFrom().getValue().getUnit().value());
+          setUnitsOrArgument(relationProperty,eqRange.getRangeFrom().getValue().getUnit().value());
         }
         Value to= new Value();
         range.setTo(to);
         to.setOperator((Operator) vocabMap.get(eqRange.getRangeTo().getOperator()))
           .setValue(eqRange.getRangeTo().getValue().getValue());
         if (eqRange.getRangeTo().getValue().getUnit()!=null) {
-          to.setUnit(eqRange.getRangeTo().getValue().getUnit().value());
+          setUnitsOrArgument(to,eqRange.getRangeTo().getValue().getUnit().value());
         }
       }
       else if (eqRel.getRangeValue().getRangeFrom()!=null) {
@@ -385,7 +385,7 @@ public class EqdResources {
           .setOperator((Operator) vocabMap.get(eqRange.getRangeFrom().getOperator()))
           .setValue(eqRange.getRangeFrom().getValue().getValue());
         if (eqRange.getRangeFrom().getValue().getUnit()!=null) {
-          relationProperty.setUnit(eqRange.getRangeFrom().getValue().getUnit().value());
+          setUnitsOrArgument(relationProperty,eqRange.getRangeFrom().getValue().getUnit().value());
         }
       }
       else {
@@ -393,7 +393,7 @@ public class EqdResources {
           .setOperator((Operator) vocabMap.get(eqRange.getRangeTo().getOperator()))
           .setValue(eqRange.getRangeTo().getValue().getValue());
         if (eqRange.getRangeTo().getValue().getUnit()!=null) {
-          relationProperty.setUnit(eqRange.getRangeTo().getValue().getUnit().value());
+          setUnitsOrArgument(relationProperty,eqRange.getRangeTo().getValue().getUnit().value());
         }
       }
     }
@@ -420,7 +420,14 @@ public class EqdResources {
       }
     }
     if (rTo != null && rFrom == null) {
-      setCompareTo(pv, rTo);
+      if (rTo.getValue()!=null&& rTo.getValue().getValue()!=null &&rTo.getValue().getValue().equals("This")) {
+          if (rTo.getValue().getUnit()== VocValueUnit.FISCALYEAR){
+            setFiscalYear(pv, rTo);
+          }
+          else throw new EQDException("unknown units with 'This' value : " + rTo.getValue().getUnit());
+      }
+      else
+        setCompareTo(pv, rTo);
     }
     if (rv.getRelativeTo()!=null){
       if (rv.getRelativeTo().equals("BASELINE")) {
@@ -430,7 +437,19 @@ public class EqdResources {
 
   }
 
-  private void setCompareFrom(Where where, EQDOCRangeFrom rFrom) {
+  private void setFiscalYear(Where where, EQDOCRangeTo rTo) throws EQDException {
+    if (rTo.getOperator()==VocRangeToOperator.LT){
+      where.setValueParameter("$startOfFiscalYear");
+      where.setOperator(Operator.lt);
+    }
+    else if (rTo.getOperator()==VocRangeToOperator.LTEQ){
+      where.setValueParameter("$endOfFiscalYear");
+      where.setOperator(Operator.lte);
+    }
+    else throw new EQDException("Unknown fiscal year operator "+ rTo.getOperator().value());
+  }
+
+  private void setCompareFrom(Where where, EQDOCRangeFrom rFrom) throws EQDException {
     Operator comp;
     if (rFrom.getOperator() != null)
       comp = (Operator) vocabMap.get(rFrom.getOperator());
@@ -463,14 +482,16 @@ public class EqdResources {
       setUnitsOrArgument(where,units);
   }
 
-  private void setUnitsOrArgument(Where where, String units) throws EQDException {
+  private void setUnitsOrArgument(Assignable assignable, String units) throws EQDException {
     switch (units) {
-      case "YEAR": addArgument(where,"units",iri(IM.NAMESPACE+"years"));
+      case "YEAR": addArgument(assignable,"units",iri(IM.NAMESPACE+"years"));
         break;
-      case "MONTH": addArgument(where,"units",iri(IM.NAMESPACE+"months"));
+      case "MONTH": addArgument(assignable,"units",iri(IM.NAMESPACE+"months"));
       break;
-      case "DAY": addArgument(where,"units",iri(IM.NAMESPACE+"days"));
+      case "DAY": addArgument(assignable,"units",iri(IM.NAMESPACE+"days"));
       break;
+      case "DATE":
+        break;
       default : throw new EQDException("unknown unit map: "+units);
 
     }
@@ -481,7 +502,7 @@ public class EqdResources {
       .setValueIri(value));
   }
 
-  private void setCompare(Where where, Operator comp, String value, String units, VocRelation relation) {
+  private void setCompare(Where where, Operator comp, String value, String units, VocRelation relation) throws EQDException {
     if (relation == VocRelation.RELATIVE) {
       where.setRelativeTo(new PropertyRef().setParameter("$referenceDate"));
     }
@@ -492,11 +513,11 @@ public class EqdResources {
       where.setValue(value);
     }
     if (units != null)
-      where.setUnit(units);
+    setUnitsOrArgument(where,units);
   }
 
 
-  private void setCompareTo(Where pv, EQDOCRangeTo rTo) {
+  private void setCompareTo(Where pv, EQDOCRangeTo rTo) throws EQDException {
     Operator comp;
     if (rTo.getOperator() != null)
       comp = (Operator) vocabMap.get(rTo.getOperator());

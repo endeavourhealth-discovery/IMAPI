@@ -9,9 +9,7 @@ import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"iri", "label", "comment", "name", "order", "minCount", "maxCount", "componentType", "path", "datatype", "class", "node",
@@ -37,11 +35,11 @@ public class PropertyShape{
   private List<PropertyShape> property;
   private TTIriRef path;
   @Getter
-  private TTIriRef datatype;
+  private PropertyRange datatype;
   @Getter
-  private TTIriRef clazz;
+  private PropertyRange clazz;
   @Getter
-  private Set<TTIriRef> node;
+  private PropertyRange node;
   @Getter
   private TTIriRef isIri;
   @Getter
@@ -80,11 +78,11 @@ public class PropertyShape{
   @Getter
   private TTIriRef hasValueType;
   @Getter
-  private TTIriRef rangeType;
-  @Getter
   private String definition;
   @Getter
   private List<TTIriRef> type;
+
+
 
   public PropertyShape setParameter(List<ParameterShape> parameter) {
     this.parameter = parameter;
@@ -130,10 +128,6 @@ public class PropertyShape{
     }
 
 
-  public PropertyShape setRangeType(TTIriRef rangeType) {
-    this.rangeType = rangeType;
-    return this;
-  }
 
   public PropertyShape setHasValue(Object hasValue) {
     this.hasValue = hasValue;
@@ -272,28 +266,22 @@ public class PropertyShape{
   }
 
   @JsonSetter
-  public PropertyShape setDatatype(TTIriRef datatype) {
+  public PropertyShape setDatatype(PropertyRange datatype) {
     this.datatype = datatype;
     return this;
   }
 
   @JsonSetter
-  public PropertyShape setClazz(TTIriRef clazz) {
+  public PropertyShape setClazz(PropertyRange clazz) {
     this.clazz = clazz;
     return this;
   }
 
-  public PropertyShape setNode(Set<TTIriRef> node) {
+  public PropertyShape setNode(PropertyRange node) {
     this.node = node;
     return this;
   }
 
-  public PropertyShape addNode(TTIriRef node) {
-    if (this.node == null)
-      this.node = new HashSet<>();
-    this.node.add(node);
-    return this;
-  }
 
   @JsonSetter
   public PropertyShape setIsIri(TTIriRef isIri) {

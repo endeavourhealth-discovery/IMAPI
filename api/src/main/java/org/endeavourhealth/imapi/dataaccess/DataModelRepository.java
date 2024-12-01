@@ -6,6 +6,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.model.iml.PropertyRange;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.iml.ParameterShape;
 import org.endeavourhealth.imapi.model.iml.PropertyShape;
@@ -118,6 +119,8 @@ public class DataModelRepository {
     addDataModelSubtypes(nodeShape);
     Map<String, PropertyShape> groups= new HashMap<>();
     Map<String,PropertyShape> properties= new HashMap<>();
+    Map<String, PropertyRange> dataTypes =new HashMap<>();
+    Map<String, PropertyRange> qualifiers= new HashMap<>();
     List<PropertyShape> propertyList= new ArrayList<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
         String sql = getPropertysql();
@@ -156,14 +159,46 @@ public class DataModelRepository {
                 .setName(bs.getValue("pathName").stringValue()));
               property.addType(TTIriRef.iri(bs.getValue("pathType").stringValue()));
               if (bs.getValue("class") != null) {
-                property.setClazz(TTIriRef.iri(bs.getValue("class").stringValue())
-                  .setName(bs.getValue("className").stringValue()));
+                property.setClazz(new PropertyRange().setIri(bs.getValue("class").stringValue())
+                  .setName(bs.getValue("className").stringValue())
+                  .setType(TTIriRef.iri(bs.getValue("classType").stringValue())
+                    .setName(bs.getValue("classTypeName").stringValue())));
               } else if (bs.getValue("datatype") != null) {
-                property.setDatatype(TTIriRef.iri(bs.getValue("datatype").stringValue())
-                  .setName(bs.getValue("datatypeName").stringValue()));
+                PropertyRange datatype= dataTypes.get(propertyIri);
+                if (datatype==null){
+                  datatype= new PropertyRange();
+                  datatype.setIri(bs.getValue("datatype").stringValue())
+                    .setName(bs.getValue("datatypeName").stringValue())
+                    .setType(TTIriRef.iri(bs.getValue("datatypeType").stringValue())
+                      .setName(bs.getValue("datatypeTypeName").stringValue()));
+                  dataTypes.put(propertyIri,datatype);
+                  property.setDatatype(datatype);
+                  if (bs.getValue("pattern")!=null){
+                    datatype.setPattern(bs.getValue("pattern").stringValue());
+                  }
+                  if (bs.getValue("intervalUnit")!=null){
+                    datatype.setPattern(bs.getValue("intervalUnit").stringValue());
+                  }
+                }
+                if (bs.getValue("datatypeQualifier")!=null){
+                  PropertyRange qualifier= new PropertyRange();
+                  datatype.addQualifier(qualifier);
+                  qualifier
+                    .setIri(bs.getValue("datatypeQualifier").stringValue())
+                    .setName(bs.getValue("qualifierName").stringValue());
+                  if (bs.getValue("qualifierPattern")!=null){
+                    qualifier.setPattern(bs.getValue("qualifierPattern").stringValue());
+                  }
+                  if (bs.getValue("qualifierIntervalUnit")!=null){
+                    qualifier.setIntervalUnit(TTIriRef.iri(bs.getValue("qualifierIntervalUnit").stringValue()));
+                  }
+
+                }
               } else if (bs.getValue("node") != null) {
-                property.addNode(TTIriRef.iri(bs.getValue("node").stringValue())
-                  .setName(bs.getValue("nodeName").stringValue()));
+                property.setNode(new PropertyRange().setIri(bs.getValue("node").stringValue())
+                  .setName(bs.getValue("nodeName").stringValue())
+                  .setType(TTIriRef.iri(bs.getValue("nodeType").stringValue())
+                    .setName(bs.getValue("nodeTypeName").stringValue())));
               }
               if (bs.getValue("order") != null) {
                 property.setOrder(offset + Integer.parseInt(bs.getValue("order").stringValue()));
@@ -177,11 +212,7 @@ public class DataModelRepository {
               if (bs.getValue("comment") != null) {
                 property.setComment(bs.getValue("comment").stringValue());
               }
-              if (bs.getValue("rangeType") != null) {
-                TTIriRef rangeType = TTIriRef.iri(bs.getValue("rangeType").stringValue());
-                rangeType.setName(bs.getValue("rangeTypeName").stringValue());
-                property.setRangeType(rangeType);
-              }
+
               if (bs.getValue("hasValue") != null) {
                 Value hasValue = bs.getValue("hasValue");
                 if (hasValue.isIRI()) {
@@ -265,7 +296,11 @@ public class DataModelRepository {
         PREFIX sh: <http://www.w3.org/ns/shacl#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         Select ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType
-        ?class ?className ?datatype ?datatypeName ?node ?nodeName
+        ?class ?className ?classType ?classTypeName
+        ?datatype ?datatypeName ?datatypeType ?datatypeTypeName
+        ?pattern ?intervalUnit
+        ?datatypeQualifier ?qualifierOrder ?qualifierName ?qualifierPattern ?qualifierIntervalUnit
+        ?node ?nodeName ?nodeType ?nodeTypeName
         ?rangeType ?rangeTypeName ?hasValue ?hasValueName
         ?minCount ?maxCount
         ?parameter ?parameterName ?parameterType ?parameterTypeName ?parameterSubtype ?parameterSubtypeName
@@ -305,14 +340,22 @@ public class DataModelRepository {
             optional {
                    ?property sh:class ?class.
                     ?class rdfs:label ?className.
-                    ?class rdf:type ?rangeType.
-                    ?rangeType rdfs:label ?rangeTypeName.
+                    ?class rdf:type ?classType.
+                    ?classType rdfs:label ?classTypeName.
                      }
             optional {
                     ?property sh:datatype ?datatype.
                     ?datatype rdfs:label ?datatypeName.
-                     ?datatype rdf:type ?rangeType.
-                    ?rangeType rdfs:label ?rangeTypeName.
+                     ?datatype rdf:type ?datatypeType.
+                    ?datatypeType rdfs:label ?datatypeTypeName.
+                    optional { ?datatype im:intervalUnit ?intervalUnit.}
+                    optional { ?datatype sh:pattern ?pattern}
+                    optional {?datatype im:datatypeQualifier ?datatypeQualifier.
+                    ?datatypeQualifier rdfs:label ?qualifierName.
+                    optional {?datatypeQualifier sh:order ?qualifierOrder}
+                    optional { ?datatypeQualifier sh:pattern ?qualifierPattern}
+                    optional { ?datatypeQualifier im:intervalUnit ?qualifierIntervalUnit}
+                        }
                         }
            optional {
                 ?property sh:hasValue ?hasValue.
@@ -326,12 +369,12 @@ public class DataModelRepository {
              optional {
                    ?property sh:node ?node.
                    ?node rdfs:label ?nodeName.
-                    ?node rdf:type ?rangeType.
-                    ?rangeType rdfs:label ?rangeTypeName.
+                    ?node rdf:type ?nodeType.
+                    ?nodeType rdfs:label ?nodeTypeName.
                      }
           }
            
-        order by ?groupOrder ?order
+        order by ?groupOrder ?order ?qualifierOrder
         """;
   }
 

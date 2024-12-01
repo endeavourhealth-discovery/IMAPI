@@ -97,8 +97,6 @@ public class EqdListToIMQ {
 
   private void convertColumn(Return aReturn, String subPath,String as) {
     ReturnProperty property = new ReturnProperty();
-    if (as!=null)
-      property.setAs(as);
     aReturn.addProperty(property);
     property.setAs(as);
     if (subPath.contains(" ")) {
@@ -111,9 +109,13 @@ public class EqdListToIMQ {
           property.getReturn().addProperty(subProperty);
           property = subProperty;
         }
+        if (as!=null)
+          property.setAs(as);
       }
     } else {
       property.setIri(subPath);
+      if (as!=null)
+        property.setAs(as);
     }
   }
 

@@ -39,6 +39,7 @@ public class EqdResources {
   private ModelDocument document;
   private int counter = 0;
   private int setCounter = 0;
+  private String sourceContext;
 
 
   public EqdResources() {
@@ -152,10 +153,11 @@ public class EqdResources {
     return convertColumnValues(cvs, eqCriterion.getTable());
   }
 
-  private void convertPaths(List<Match> matches, Map<String, Match> pathMatchMap, String eqTable, EQDOCColumnValue cv) throws IOException, EQDException {
+  private String convertPaths(List<Match> matches, Map<String, Match> pathMatchMap, String eqTable, EQDOCColumnValue cv) throws IOException, EQDException {
     String tablePath = getPath(eqTable);
     String eqColumn = String.join("/", cv.getColumn());
     String eqURL = eqTable + "/" + eqColumn;
+    sourceContext= eqURL;
     String columnPath = getPath(eqURL);
     String property;
     if (columnPath.contains(" ")) {
@@ -196,6 +198,7 @@ public class EqdResources {
     setProperty(cv, where);
     if (match.getWhere().size() > 1)
       match.setBoolWhere(Bool.and);
+    return sourceContext;
 
   }
 
@@ -484,11 +487,11 @@ public class EqdResources {
 
   private void setUnitsOrArgument(Assignable assignable, String units) throws EQDException {
     switch (units) {
-      case "YEAR": addArgument(assignable,"units",iri(IM.NAMESPACE+"years"));
+      case "YEAR": assignable.setUnit(TTIriRef.iri(IM.NAMESPACE+"years"));
         break;
-      case "MONTH": addArgument(assignable,"units",iri(IM.NAMESPACE+"months"));
+      case "MONTH": assignable.setUnit(TTIriRef.iri(IM.NAMESPACE+"months"));
       break;
-      case "DAY": addArgument(assignable,"units",iri(IM.NAMESPACE+"days"));
+      case "DAY": assignable.setUnit(TTIriRef.iri(IM.NAMESPACE+"days"));
       break;
       case "DATE":
         break;
@@ -496,11 +499,7 @@ public class EqdResources {
 
     }
   }
-  private void addArgument(Assignable assignable, String parameter, TTIriRef value){
-    assignable.argument(a->a
-      .setParameter(parameter)
-      .setValueIri(value));
-  }
+
 
   private void setCompare(Where where, Operator comp, String value, String units, VocRelation relation) throws EQDException {
     if (relation == VocRelation.RELATIVE) {
@@ -581,7 +580,7 @@ public class EqdResources {
     List<Node> valueSet = new ArrayList<>();
     VocCodeSystemEx scheme = set.getCodeSystem();
     for (EQDOCExceptionValue ev : set.getValues()) {
-      Set<Node> values = getValue(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
+      Set<Node> values = getValueConcepts(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
       if (values != null) {
         valueSet.addAll(values.stream().map(v -> v.setExclude(true)).toList());
       } else
@@ -627,7 +626,7 @@ public class EqdResources {
 
   private boolean processEQDOCValueSet(VocCodeSystemEx scheme, EQDOCValueSetValue ev, Set<Node> setContent) throws IOException {
     boolean hasExclusions = false;
-    Set<Node> concepts = getValue(scheme, ev);
+    Set<Node> concepts = getValueConcepts(scheme, ev);
     if (concepts != null) {
       for (Node iri : concepts) {
         Node conRef = new Node().setIri(iri.getIri()).setName(iri.getName());
@@ -641,7 +640,7 @@ public class EqdResources {
       hasExclusions = true;
       for (EQDOCException exc : ev.getException()) {
         for (EQDOCExceptionValue val : exc.getValues()) {
-          Set<Node> exceptionValue = getValue(scheme, val);
+          Set<Node> exceptionValue = getValueConcepts(scheme, val);
           if (exceptionValue != null) {
             for (Node iri : exceptionValue) {
               Node conRef = new Node().setIri(iri.getIri()).setName(iri.getName());
@@ -701,19 +700,19 @@ public class EqdResources {
   }
 
 
-  private Set<Node> getValue(VocCodeSystemEx scheme, EQDOCExceptionValue ev) throws IOException {
-    return getValue(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
+  private Set<Node> getValueConcepts(VocCodeSystemEx scheme, EQDOCExceptionValue ev) throws IOException {
+    return getValueConcepts(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
   }
 
 
-  private Set<Node> getValue(VocCodeSystemEx scheme, EQDOCValueSetValue ev) throws IOException {
-    return getValue(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
+  private Set<Node> getValueConcepts(VocCodeSystemEx scheme, EQDOCValueSetValue ev) throws IOException {
+    return getValueConcepts(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
   }
 
-  private Set<Node> getValue(VocCodeSystemEx scheme, String originalCode,
-                             String originalTerm, String legacyCode) throws IOException {
+  private Set<Node> getValueConcepts(VocCodeSystemEx scheme, String originalCode,
+                                     String originalTerm, String legacyCode) throws IOException {
     if (scheme == VocCodeSystemEx.EMISINTERNAL) {
-      String key = "EMISINTERNAL/" + originalCode;
+      String key = sourceContext+"/EMISINTERNAL/" + originalCode;
       Object mapValue = dataMap.get(key);
       if (mapValue != null) {
         return getValueIriResult(mapValue);

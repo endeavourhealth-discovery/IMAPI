@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.logic.service.DataModelService;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SetService;
+import org.endeavourhealth.imapi.model.iml.DataModelSummary;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -58,6 +59,15 @@ public class DataModelController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.CheckPropertyType.GET")) {
       LOG.debug("checkPropertyType");
       return dataModelService.checkPropertyType(iri);
+    }
+  }
+
+
+  @GetMapping(value = "public/dataModelSummary")
+  public DataModelSummary getModelSummary(@RequestParam(name = "modelIri") String iri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.CheckPropertyType.GET")) {
+      LOG.debug("getModelSummary");
+      return dataModelService.getModelSummary(iri);
     }
   }
 }

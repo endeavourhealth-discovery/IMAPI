@@ -1043,10 +1043,6 @@
         "value": "IM_FUNCTION.NAMESPACE + \"GetUserEditableSchemes\""
       },
       {
-        "name": "GENERATE_IRI_CODE",
-        "value": "IM_FUNCTION.NAMESPACE + \"GenerateIriCode\""
-      },
-      {
         "name": "IS_TYPE",
         "value": "IM_FUNCTION.NAMESPACE + \"IsType\""
       },

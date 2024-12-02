@@ -3,10 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.iml.DataModelSummary;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
@@ -48,10 +45,6 @@ public class DataModelService {
     return getDataModelProperties(entity);
   }
 
-  public DataModelSummary getModelSummary(String iri) {
-    if (iri == null || iri.isEmpty()) return null;
-    return dataModelRepository.getDataModelSummary(iri);
-  }
 
   public List<DataModelProperty> getDataModelProperties(TTEntity entity) {
     List<DataModelProperty> properties = new ArrayList<>();

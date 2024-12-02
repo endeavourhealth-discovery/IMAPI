@@ -110,69 +110,6 @@ public class DataModelRepository {
     }
   }
 
-  public DataModelSummary getDataModelSummary(String iri){
-    String sql="""
-    PREFIX im: <http://endhealth.info/im#>
-    PREFIX sh: <http://www.w3.org/ns/shacl#>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    Select ?name ?status ?statusName ?scheme ?schemeName ?description ?type ?typeName ?intervalUnit ?intervalUnitName ?qualifier ?qualifierName
-    {
-           ?entity rdfs:label ?name.
-          optional { ?entity im:scheme ?scheme.
-          ?scheme rdfs:label ?schemeName}
-          optional { ?entity im:status ?status.
-              ?status rdfs:label ?statusName}
-          optional {?entity rdfs:comment ?description.}
-          optional {?entity rdf:type ?type.
-              ?type rdfs:label ?typeName}
-          optional {?entity im:intervalUnit ?intervals.
-              ?intervalUnit rdfs:subClassOf ?intervals.
-              ?intervalUnit rdfs:label ?intervalUnitName.
-              filter (?intervalUnit!= ?intervals)
-          }
-          optional {?entity im:datatypeQualifier ?qualifier.
-          ?qualifier rdfs:label ?qualifierName.}
-      }
-      """;
-    DataModelSummary result= new DataModelSummary();
-    result.setIri(iri);
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql);
-      qry.setBinding("entity", iri(iri));
-      try (TupleQueryResult rs = qry.evaluate()) {
-        while (rs.hasNext()) {
-          BindingSet bs = rs.next();
-          if (bs.hasBinding("name"))
-            result.setName(bs.getValue("name").stringValue());
-          if (bs.hasBinding("status"))
-            result.setStatus(TTIriRef.iri(bs.getValue("status").stringValue())
-              .setName(bs.getValue("statusName").stringValue()));
-          if (bs.hasBinding("scheme"))
-            result.setScheme(TTIriRef.iri(bs.getValue("scheme").stringValue())
-              .setName(bs.getValue("schemeName").stringValue()));
-          if (bs.hasBinding("scheme"))
-            result.setScheme(TTIriRef.iri(bs.getValue("scheme").stringValue())
-              .setName(bs.getValue("schemeName").stringValue()));
-          if (bs.hasBinding("type"))
-            result.addType(TTIriRef.iri(bs.getValue("type").stringValue())
-              .setName(bs.getValue("typeName").stringValue()));
-          if (bs.hasBinding("description"))
-            result.setDescription(bs.getValue("description").stringValue());
-          if (bs.hasBinding("intervalUnit"))
-            result.addIntervalUnit(TTIriRef.iri(bs.getValue("intervalUnit").stringValue())
-              .setName(bs.getValue("intervalUnitName").stringValue()));
-          if (bs.hasBinding("qualifier")){
-            TTIriRef qualifier= TTIriRef.iri(bs.getValue("qualifier").stringValue())
-              .setName(bs.getValue("qualifierName").stringValue());
-            if (result.getQualifier()==null||(!result.getQualifier().contains(qualifier))){
-              result.addQualifier(qualifier);
-            }
-          }
-        }
-      }
-    }
-    return result;
-}
 
 
 public NodeShape getDataModelDisplayProperties(String iri) {

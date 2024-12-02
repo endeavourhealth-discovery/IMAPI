@@ -2,15 +2,8 @@ package org.endeavourhealth.imapi.controllers;
 
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.endeavourhealth.imapi.config.ConfigManager;
-import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.logic.service.DataModelService;
-import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
-import org.endeavourhealth.imapi.logic.service.SetService;
-import org.endeavourhealth.imapi.model.iml.DataModelSummary;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -62,12 +55,4 @@ public class DataModelController {
     }
   }
 
-
-  @GetMapping(value = "public/dataModelSummary")
-  public DataModelSummary getModelSummary(@RequestParam(name = "modelIri") String iri) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.CheckPropertyType.GET")) {
-      LOG.debug("getModelSummary");
-      return dataModelService.getModelSummary(iri);
-    }
-  }
 }

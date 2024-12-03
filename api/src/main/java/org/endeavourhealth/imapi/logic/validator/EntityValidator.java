@@ -2,10 +2,7 @@ package org.endeavourhealth.imapi.logic.validator;
 
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.validation.EntityValidationRequest;
 import org.endeavourhealth.imapi.model.validation.EntityValidationResponse;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -130,20 +127,13 @@ public class EntityValidator {
   }
 
   private boolean isValidTermCode(TTValue value) {
-    boolean valid = false;
-    if (
-      value.asNode().has(iri(IM.CODE)) &&
-        value.asNode().has(iri(IM.HAS_STATUS)) &&
-        value.asNode().has(iri(RDFS.LABEL)) &&
-        value.asNode().get(iri(IM.CODE)) != null &&
-        value.asNode().get(iri(IM.HAS_STATUS)) != null &&
-        value.asNode().get(iri(RDFS.LABEL)) != null
-    ) {
-      if (value.asNode().get(iri(IM.HAS_STATUS)).size() == 1 && value.asNode().get(iri(IM.HAS_STATUS)).get(0) != null) {
-        valid = true;
-      }
-    }
-    return valid;
+
+    return value.asNode().has(iri(IM.CODE)) &&
+      value.asNode().has(iri(IM.HAS_STATUS)) &&
+      value.asNode().has(iri(RDFS.LABEL)) &&
+      !value.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue().isEmpty() &&
+      value.asNode().get(iri(IM.HAS_STATUS)).get(0).asIriRef() != null &&
+      !value.asNode().get(iri(RDFS.LABEL)).get(0).asLiteral().getValue().isEmpty() && value.asNode().get(iri(IM.HAS_STATUS)).size() == 1 && value.asNode().get(iri(IM.HAS_STATUS)).get(0).asIriRef() != null;
   }
 
   private EntityValidationResponse isValidProperties(TTEntity entity) {

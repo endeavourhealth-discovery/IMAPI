@@ -595,8 +595,8 @@ public class EqdResources {
     Set<Node> setContent = new HashSet<>();
     VocCodeSystemEx scheme = vs.getCodeSystem();
     String exclusions = "";
-    if (vs.getClusterCode() != null && !vs.getClusterCode().isEmpty()) {
-      pv.addIs(new Node().setParameter(vs.getClusterCode().get(0)));
+    if (vs.getDescription()!=null) {
+      pv.setValueLabel(vs.getDescription());
     }
     for (EQDOCValueSetValue ev : vs.getValues()) {
       boolean evExclusion = processEQDOCValueSet(scheme, ev, setContent);
@@ -740,8 +740,14 @@ public class EqdResources {
         if (snomed != null)
           valueMap.put(originalCode, snomed);
       }
-      if (snomed != null)
+      if (snomed != null) {
+        for (TTIriRef sn:snomed){
+          if (sn.getIri()==null){
+            System.out.println("null snomed");
+          }
+        }
         return snomed.stream().map(e -> new Node().setIri(e.getIri()).setName(e.getName())).collect(Collectors.toSet());
+      }
       else
         return Collections.emptySet();
   }

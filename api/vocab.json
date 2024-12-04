@@ -2110,6 +2110,10 @@
         "value": "\"http://smartlifehealth.info/smh#\""
       },
       {
+        "name": "QOF",
+        "value": "\"http://endhealth.info/qof#\""
+      },
+      {
         "name": "DISCOVERY",
         "value": "\"http://endhealth.info/im#\""
       },

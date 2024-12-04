@@ -6,9 +6,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.model.iml.NodeShape;
-import org.endeavourhealth.imapi.model.iml.ParameterShape;
-import org.endeavourhealth.imapi.model.iml.PropertyShape;
+import org.endeavourhealth.imapi.model.iml.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -112,138 +110,205 @@ public class DataModelRepository {
     }
   }
 
-  public NodeShape getDataModelDisplayProperties(String iri) {
-    NodeShape nodeShape = new NodeShape();
-    nodeShape.setIri(iri);
-    addDataModelSubtypes(nodeShape);
-    Map<String, PropertyShape> groups= new HashMap<>();
-    Map<String,PropertyShape> properties= new HashMap<>();
-    List<PropertyShape> propertyList= new ArrayList<>();
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-        String sql = getPropertysql();
-        TupleQuery qry = conn.prepareTupleQuery(sql);
-        qry.setBinding("entity", iri(iri));
-        try (TupleQueryResult rs = qry.evaluate()) {
-          while (rs.hasNext()) {
-            BindingSet bs = rs.next();
-            PropertyShape group = null;
-            int offset = 0;
-            if (bs.getValue("path") != null) {
-              if (bs.getValue("group") != null) {
-                String groupIri = bs.getValue("group").stringValue();
-                if (groups.get(groupIri) == null) {
-                  group = new PropertyShape();
-                  groups.put(groupIri, group);
-                  propertyList.add(group);
-                  group.setGroup(TTIriRef.iri(bs.getValue("group").stringValue())
-                    .setName(bs.getValue("groupName").stringValue()));
-                  group.setOrder(Integer.parseInt(bs.getValue("groupOrder").stringValue()));
-                }
-                group = groups.get(groupIri);
-                offset = group.getOrder();
-              }
-              String propertyIri = bs.getValue("property").stringValue();
-              if (properties.get(propertyIri) == null) {
-                PropertyShape property = new PropertyShape();
-                properties.put(propertyIri, property);
-                if (group != null) {
-                  group.addProperty(property);
-                } else
-                  propertyList.add(property);
-              }
-              PropertyShape property = properties.get(propertyIri);
-              property.setPath(TTIriRef.iri(bs.getValue("path").stringValue())
-                .setName(bs.getValue("pathName").stringValue()));
-              property.addType(TTIriRef.iri(bs.getValue("pathType").stringValue()));
-              if (bs.getValue("class") != null) {
-                property.setClazz(TTIriRef.iri(bs.getValue("class").stringValue())
-                  .setName(bs.getValue("className").stringValue()));
-              } else if (bs.getValue("datatype") != null) {
-                property.setDatatype(TTIriRef.iri(bs.getValue("datatype").stringValue())
-                  .setName(bs.getValue("datatypeName").stringValue()));
-              } else if (bs.getValue("node") != null) {
-                property.addNode(TTIriRef.iri(bs.getValue("node").stringValue())
-                  .setName(bs.getValue("nodeName").stringValue()));
-              }
-              if (bs.getValue("order") != null) {
-                property.setOrder(offset + Integer.parseInt(bs.getValue("order").stringValue()));
-              }
-              if (bs.getValue("minCount") != null) {
-                property.setMinCount(Integer.parseInt(bs.getValue("minCount").stringValue()));
-              }
-              if (bs.getValue("minCount") != null) {
-                property.setMaxCount(Integer.parseInt(bs.getValue("minCount").stringValue()));
-              }
-              if (bs.getValue("comment") != null) {
-                property.setComment(bs.getValue("comment").stringValue());
-              }
-              if (bs.getValue("rangeType") != null) {
-                TTIriRef rangeType = TTIriRef.iri(bs.getValue("rangeType").stringValue());
-                rangeType.setName(bs.getValue("rangeTypeName").stringValue());
-                property.setRangeType(rangeType);
-              }
-              if (bs.getValue("hasValue") != null) {
-                Value hasValue = bs.getValue("hasValue");
-                if (hasValue.isIRI()) {
-                  property.setHasValue(TTIriRef.iri(hasValue.stringValue())
-                    .setName(bs.getValue("hasValueName").stringValue()));
-                  property.setHasValueType(TTIriRef.iri(RDFS.RESOURCE));
-                } else {
-                  property.setHasValue(hasValue.stringValue());
-                  property.setHasValueType(TTIriRef.iri(XSD.STRING));
-                }
 
-              }
-              if (bs.getValue("parameter")!=null){
-                ParameterShape parameter=getParameter(property,bs.getValue("parameterName").stringValue());
-                if (parameter==null) {
-                  parameter = new ParameterShape();
-                  property.addParameter(parameter);
-                }
-                parameter.setLabel(bs.getValue("parameterName").stringValue());
-                parameter.setType(TTIriRef.iri(bs.getValue("parameterType").stringValue())
-                  .setName(bs.getValue("parameterTypeName").stringValue()));
-                if (bs.getValue("parameterSubtype")!=null) {
-                  if (parameter.getParameterSubType() == null) {
-                    parameter.addParameterSubType(TTIriRef.iri(bs.getValue("parameterSubtype").stringValue())
-                      .setName(bs.getValue("parameterSubtypeName").stringValue()));
-                  }
-                  else if (!parameter.getParameterSubType().contains(TTIriRef.iri(bs.getValue("parameterSubtype").stringValue()))) {
-                    parameter.addParameterSubType(TTIriRef.iri(bs.getValue("parameterSubtype").stringValue())
-                      .setName(bs.getValue("parameterSubtypeName").stringValue()));
-                  }
-                }
-              }
-              if (bs.getValue("propertyDefinition") != null) {
-                property.setDefinition(bs.getValue("propertyDefinition").stringValue());
-              }
-            }
-          }
-          if (!propertyList.isEmpty()) {
-            propertyList.sort(Comparator.comparingInt(PropertyShape::getOrder));
-            nodeShape.setProperty(propertyList);
-          }
+
+public NodeShape getDataModelDisplayProperties(String iri) {
+NodeShape nodeShape = new NodeShape();
+nodeShape.setIri(iri);
+addDataModelSubtypes(nodeShape);
+try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+  String sql = getPropertysql();
+  TupleQuery qry = conn.prepareTupleQuery(sql);
+  qry.setBinding("entity", iri(iri));
+  try (TupleQueryResult rs = qry.evaluate()) {
+    while (rs.hasNext()) {
+      BindingSet bs = rs.next();
+      PropertyShape group = null;
+      if (bs.getValue("path") != null) {
+        if (bs.getValue("group") != null) {
+          group = getGroupFromNode(bs, nodeShape);
 
         }
-      }
-    return nodeShape;
-  }
-
-  private ParameterShape getParameter(PropertyShape property, String parameterName){
-    if (property.getParameter()==null)
-      return null;
-    for (ParameterShape param: property.getParameter()) {
-      if (param.getLabel().equals(parameterName)) {
-        return param;
+        addProperty(nodeShape, group, bs);
       }
     }
-      return null;
+  }
+}
+return nodeShape;
+}
+
+private PropertyShape getPropertyFromNode(NodeShape node, String iri){
+if (node.getProperty()!=null) {
+  Optional<PropertyShape> found = node.getProperty().stream().filter(f -> f.getPath().getIri().equals(iri)).findFirst();
+  if (found.isPresent())
+    return found.get();
+}
+PropertyShape group= new PropertyShape();
+node.addProperty(group);
+group.setPath(TTIriRef.iri(iri));
+return group;
+}
+
+private PropertyShape getGroupFromNode(BindingSet bs, NodeShape nodeShape) {
+String groupIri = bs.getValue("group").stringValue();
+PropertyShape group= getPropertyFromNode(nodeShape,groupIri);
+group.setGroup(TTIriRef.iri(groupIri)
+  .setName(bs.getValue("groupName").stringValue()));
+group.setOrder(Integer.parseInt(bs.getValue("groupOrder").stringValue()));
+return group;
+}
+
+private PropertyShape getPropertyFromGroup(PropertyShape group, String iri) {
+if (group.getProperty()!=null) {
+  Optional<PropertyShape> found = group.getProperty().stream().filter(f -> f.getPath().getIri().equals(iri)).findFirst();
+  if (found.isPresent())
+    return found.get();
+}
+PropertyShape property= new PropertyShape();
+property.setPath(TTIriRef.iri(iri));
+group.addProperty(property);
+return property;
+
+}
+
+
+
+private void addProperty(NodeShape node, PropertyShape group,BindingSet bs){
+String propertyIri = bs.getValue("path").stringValue();
+PropertyShape property;
+if (group!=null)
+  property= getPropertyFromGroup(group,propertyIri);
+else
+  property= getPropertyFromNode(node,propertyIri);
+property.getPath()
+  .setName(bs.getValue("pathName").stringValue());
+property.addType(TTIriRef.iri(bs.getValue("pathType").stringValue()));
+if (bs.getValue("class") != null) {
+  property.setClazz(new PropertyRange().setIri(bs.getValue("class").stringValue())
+    .setName(bs.getValue("className").stringValue())
+    .setType(TTIriRef.iri(bs.getValue("classType").stringValue())
+      .setName(bs.getValue("classTypeName").stringValue())));
+}
+else if (bs.getValue("datatype") != null) {
+  PropertyRange datatype= property.getDatatype();
+  if (datatype==null){
+    datatype= new PropertyRange();
+    datatype.setIri(bs.getValue("datatype").stringValue())
+      .setName(bs.getValue("datatypeName").stringValue())
+      .setType(TTIriRef.iri(bs.getValue("datatypeType").stringValue())
+        .setName(bs.getValue("datatypeTypeName").stringValue()));
+    property.setDatatype(datatype);
+    if (bs.getValue("pattern")!=null){
+      datatype.setPattern(bs.getValue("pattern").stringValue());
+    }
+    if (bs.getValue("intervalUnit")!=null){
+      datatype.setPattern(bs.getValue("intervalUnit").stringValue());
+    }
+  }
+  if (bs.getValue("datatypeQualifier")!=null){
+    addDataTypeQualifier(datatype,bs);
+  }
+}
+else if (bs.getValue("node") != null) {
+  property.setNode(new PropertyRange().setIri(bs.getValue("node").stringValue())
+    .setName(bs.getValue("nodeName").stringValue())
+    .setType(TTIriRef.iri(bs.getValue("nodeType").stringValue())
+      .setName(bs.getValue("nodeTypeName").stringValue())));
+}
+if (bs.getValue("order") != null) {
+  property.setOrder(Integer.parseInt(bs.getValue("order").stringValue()));
+}
+if (bs.getValue("minCount") != null) {
+  property.setMinCount(Integer.parseInt(bs.getValue("minCount").stringValue()));
+}
+if (bs.getValue("minCount") != null) {
+  property.setMaxCount(Integer.parseInt(bs.getValue("minCount").stringValue()));
+}
+if (bs.getValue("comment") != null) {
+  property.setComment(bs.getValue("comment").stringValue());
+}
+
+if (bs.getValue("hasValue") != null) {
+  Value hasValue = bs.getValue("hasValue");
+  if (hasValue.isIRI()) {
+    property.setHasValue(TTIriRef.iri(hasValue.stringValue())
+      .setName(bs.getValue("hasValueName").stringValue()));
+    property.setHasValueType(TTIriRef.iri(RDFS.RESOURCE));
+  } else {
+    property.setHasValue(hasValue.stringValue());
+    property.setHasValueType(TTIriRef.iri(XSD.STRING));
   }
 
+}
+if (bs.getValue("parameter")!=null){
+  addParameter(property,bs);
+}
+if (bs.getValue("propertyDefinition") != null) {
+  property.setDefinition(bs.getValue("propertyDefinition").stringValue());
+}
+}
+private void addParameter(PropertyShape property, BindingSet bs){
+ParameterShape parameter=getParameterFromProperty(property,bs.getValue("parameterName").stringValue());
+parameter.setLabel(bs.getValue("parameterName").stringValue());
+parameter.setType(TTIriRef.iri(bs.getValue("parameterType").stringValue())
+  .setName(bs.getValue("parameterTypeName").stringValue()));
+if (bs.getValue("parameterSubtype")!=null) {
+  if (parameter.getParameterSubType() == null) {
+    parameter.addParameterSubType(TTIriRef.iri(bs.getValue("parameterSubtype").stringValue())
+      .setName(bs.getValue("parameterSubtypeName").stringValue()));
+  }
+  else if (!parameter.getParameterSubType().contains(TTIriRef.iri(bs.getValue("parameterSubtype").stringValue()))) {
+    parameter.addParameterSubType(TTIriRef.iri(bs.getValue("parameterSubtype").stringValue())
+      .setName(bs.getValue("parameterSubtypeName").stringValue()));
+  }
+}
+
+}
+
+private void addDataTypeQualifier(PropertyRange datatype, BindingSet bs) {
+String qualifierIri= bs.getValue("datatypeQualifier").stringValue();
+PropertyRange qualifier= getQualifierFromDataType(datatype,qualifierIri);
+qualifier
+  .setIri(bs.getValue("datatypeQualifier").stringValue())
+  .setName(bs.getValue("qualifierName").stringValue());
+if (bs.getValue("qualifierPattern")!=null){
+  qualifier.setPattern(bs.getValue("qualifierPattern").stringValue());
+}
+if (bs.getValue("qualifierIntervalUnit")!=null){
+  qualifier.setIntervalUnit(TTIriRef.iri(bs.getValue("qualifierIntervalUnit").stringValue()));
+}
+}
+
+private PropertyRange getQualifierFromDataType(PropertyRange datatype, String iri) {
+if (datatype.getQualifier()!=null){
+    Optional<PropertyRange> found = datatype.getQualifier().stream().filter(f -> f.getIri().equals(iri)).findFirst();
+    if (found.isPresent())
+      return found.get();
+  }
+  PropertyRange qualifier= new PropertyRange();
+  qualifier.setIri(iri);
+  datatype.addQualifier(qualifier);
+  return qualifier;
+}
 
 
-  private String getSubtypeSql() {
-    return """
+private ParameterShape getParameterFromProperty(PropertyShape property, String parameterName){
+if (property.getParameter()!=null) {
+  for (ParameterShape param : property.getParameter()) {
+    if (param.getLabel().equals(parameterName)) {
+      return param;
+    }
+  }
+}
+ParameterShape param= new ParameterShape();
+property.addParameter(param);
+return param;
+}
+
+
+
+private String getSubtypeSql() {
+return """
       PREFIX im: <http://endhealth.info/im#>
       PREFIX sh: <http://www.w3.org/ns/shacl#>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -265,7 +330,11 @@ public class DataModelRepository {
         PREFIX sh: <http://www.w3.org/ns/shacl#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         Select ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType
-        ?class ?className ?datatype ?datatypeName ?node ?nodeName
+        ?class ?className ?classType ?classTypeName
+        ?datatype ?datatypeName ?datatypeType ?datatypeTypeName
+        ?pattern ?intervalUnit ?intervalUnitName
+        ?datatypeQualifier ?qualifierOrder ?qualifierName ?qualifierPattern ?qualifierIntervalUnit ?qualifierIntervalUnitName
+        ?node ?nodeName ?nodeType ?nodeTypeName
         ?rangeType ?rangeTypeName ?hasValue ?hasValueName
         ?minCount ?maxCount
         ?parameter ?parameterName ?parameterType ?parameterTypeName ?parameterSubtype ?parameterSubtypeName
@@ -305,14 +374,24 @@ public class DataModelRepository {
             optional {
                    ?property sh:class ?class.
                     ?class rdfs:label ?className.
-                    ?class rdf:type ?rangeType.
-                    ?rangeType rdfs:label ?rangeTypeName.
+                    ?class rdf:type ?classType.
+                    ?classType rdfs:label ?classTypeName.
                      }
             optional {
                     ?property sh:datatype ?datatype.
                     ?datatype rdfs:label ?datatypeName.
-                     ?datatype rdf:type ?rangeType.
-                    ?rangeType rdfs:label ?rangeTypeName.
+                     ?datatype rdf:type ?datatypeType.
+                    ?datatypeType rdfs:label ?datatypeTypeName.
+                    optional { ?datatype im:intervalUnit ?intervalUnit.
+                    ?intervalUnit rdfs:label ?intervalUnitName}
+                    optional { ?datatype sh:pattern ?pattern}
+                    optional {?datatype im:datatypeQualifier ?datatypeQualifier.
+                    ?datatypeQualifier rdfs:label ?qualifierName.
+                    optional {?datatypeQualifier sh:order ?qualifierOrder}
+                    optional { ?datatypeQualifier sh:pattern ?qualifierPattern}
+                    optional { ?datatypeQualifier im:intervalUnit ?qualifierIntervalUnit.
+                    ?qualifierIntervalUnit rdfs:label ?qualifierIntervalUnitName}
+                        }
                         }
            optional {
                 ?property sh:hasValue ?hasValue.
@@ -326,12 +405,12 @@ public class DataModelRepository {
              optional {
                    ?property sh:node ?node.
                    ?node rdfs:label ?nodeName.
-                    ?node rdf:type ?rangeType.
-                    ?rangeType rdfs:label ?rangeTypeName.
+                    ?node rdf:type ?nodeType.
+                    ?nodeType rdfs:label ?nodeTypeName.
                      }
           }
            
-        order by ?groupOrder ?order
+        order by ?groupOrder ?order ?qualifierOrder
         """;
   }
 

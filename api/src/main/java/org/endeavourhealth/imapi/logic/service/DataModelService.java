@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.logic.service;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -45,6 +44,7 @@ public class DataModelService {
     TTEntity entity = entityRepository.getBundle(iri, Set.of(SHACL.PROPERTY, RDFS.LABEL)).getEntity();
     return getDataModelProperties(entity);
   }
+
 
   public List<DataModelProperty> getDataModelProperties(TTEntity entity) {
     List<DataModelProperty> properties = new ArrayList<>();

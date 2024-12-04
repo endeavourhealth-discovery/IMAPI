@@ -358,7 +358,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
       return iri(result);
     } catch (MalformedURLException | URISyntaxException e) {
-      throw new TTFilerException("Unable to encode iri", e);
+      throw new TTFilerException("Unable to encode iri: "+ iri, e);
     }
   }
 

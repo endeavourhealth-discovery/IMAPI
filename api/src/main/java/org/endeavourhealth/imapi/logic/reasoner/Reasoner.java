@@ -476,18 +476,11 @@ public class Reasoner {
     if (shape.get(iri(RDFS.SUBCLASS_OF)) != null) {
       processSuperClasses(properties, mergedProperties, shape);
       if (properties != null) {
-        if (!mergedProperties.isEmpty()){
-          int superCount= mergedProperties.size();
-          int childCount=0;
-          for (TTValue p:properties.getElements()){
-            childCount++;
-            int childOrder=superCount+1000;
-            if (p.asNode().get(iri(SHACL.ORDER))!=null){
-              childOrder=Integer.parseInt(p.asNode().get(iri(SHACL.ORDER)).asLiteral().getValue());
+        for (TTValue p:properties.getElements()) {
+            if (p.asNode().get(iri(SHACL.ORDER)) == null) {
+              p.asNode().set(iri(SHACL.ORDER), TTLiteral.literal(1000));
             }
-            p.asNode().set(iri(SHACL.ORDER),TTLiteral.literal(childOrder+ superCount));
           }
-        }
         mergedProperties.addAll(properties.getElements());
       }
       TTArray newValue = new TTArray();
@@ -499,15 +492,14 @@ public class Reasoner {
 
   public void mergeInheritedProperties(TTArray properties, List<TTValue> mergedProperties, TTValue superClass, TTEntity superEntity) {
     inheritProperties(superEntity);
-    if (superEntity.get(iri(SHACL.PROPERTY)) != null) {
+    if (superEntity.get(iri(SHACL.PROPERTY))!=null){
       for (TTValue superP : superEntity.get(iri(SHACL.PROPERTY)).getElements()) {
-        if (superP.asNode().get(iri(SHACL.PATH)) == null) {
-          TTNode inherited = copyNode(superP.asNode());
-          inherited.set(iri(IM.INHERITED_FROM), superClass);
-          mergedProperties.add(inherited);
-        } else {
+        if (superP.asNode().get(iri(SHACL.PATH)) != null) {
           if (!hasProperty(properties, superP.asNode().get(iri(SHACL.PATH)).asIriRef())
-          &&!hasPath(mergedProperties,superP.asNode().get(iri(SHACL.PATH)).asIriRef())) {
+            && !hasPath(mergedProperties, superP.asNode().get(iri(SHACL.PATH)).asIriRef())) {
+            if (superP.asNode().get(iri(SHACL.ORDER)) == null) {
+              superP.asNode().set(iri(SHACL.ORDER), TTLiteral.literal(1000));
+            }
             TTNode inherited = copyNode(superP.asNode());
             inherited.set(iri(IM.INHERITED_FROM), superClass);
             mergedProperties.add(inherited);

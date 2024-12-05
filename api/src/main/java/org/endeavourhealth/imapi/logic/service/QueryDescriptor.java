@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -18,13 +20,20 @@ public class QueryDescriptor {
   private final EntityRepository entityRepository = new EntityRepository();
   private Map<String, TTEntity> iriContext;
   private final EntityRepository repo = new EntityRepository();
+  private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
+
 
   public Query describeQuery(String queryIri) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null)
       return null;
+    String queryString= queryCache.get(queryIri);
+    if (queryString!=null)
+      return new ObjectMapper().readValue(queryString,Query.class);
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
-    return describeQuery(query);
+    query= describeQuery(query);
+    queryCache.put(queryIri,new ObjectMapper().writeValueAsString(query));
+    return query;
   }
 
   public Query describeQuery(Query query) throws QueryException {
@@ -45,6 +54,7 @@ public class QueryDescriptor {
     if (query.getReturn() != null) {
       describeReturns(query);
     }
+
     return query;
   }
 

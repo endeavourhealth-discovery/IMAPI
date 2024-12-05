@@ -6,6 +6,11 @@ public class IM {
     public static final String DOMAIN = "http://endhealth.info/";
     public static final String PREFIX = "im";
     public static final String NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
+    public static final String DESCENDANTS_OR_SELF_OF = IM.NAMESPACE + "DescendantsOrSelfOf";
+    public static final String DESCENDANTS_OF = IM.NAMESPACE + "DescendantsOf";
+    public static final String ANCESTORS_OF = IM.NAMESPACE + "ancestorsOf";
+    public static final String INCLUDE = IM.NAMESPACE + "include";
+    public static final String EXCLUDE = IM.NAMESPACE + "exclude";
     public static final String IRI = "@id";
     public static final String VALUE = "@value";
     public static final String TYPE = "@type";
@@ -21,6 +26,7 @@ public class IM {
     public static final String USAGE_STATS = IM.NAMESPACE + "usageStats";
     public static final String IN_TASK = IM.NAMESPACE + "inTask";
     public static final String DEFINITION = IM.NAMESPACE + "definition";
+    public static final String INSTANCE_OF = IM.NAMESPACE + "instanceOf";
     public static final String RETURN_TYPE = IM.NAMESPACE + "returnType";
     public static final String UPDATE_PROCEDURE = IM.NAMESPACE + "updateProcedure";
     public static final String INVERSE_PATH = IM.NAMESPACE + "inversePath";

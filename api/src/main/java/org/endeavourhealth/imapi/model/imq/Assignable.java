@@ -15,14 +15,16 @@ public interface Assignable {
   public Assignable setValue(String value);
 
   Assignable setQualifier(String qualifier);
+
   String getQualifier();
+
   String getValueLabel();
+
   Assignable setValueLabel(String label);
 
-  TTIriRef getUnit();
+  TTIriRef getIntervalUnit();
 
-  Assignable setUnit(TTIriRef unit);
-
+  Assignable setIntervalUnit(TTIriRef unit);
 
   Assignable setValueParameter(String parameter);
 

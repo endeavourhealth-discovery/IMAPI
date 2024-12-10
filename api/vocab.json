@@ -1020,6 +1020,50 @@
       {
         "name": "GRAPH_EXCLUDE_PREDICATES",
         "value": "IM.NAMESPACE + \"graphExcludePredicates\""
+      },
+      {
+        "name": "AGE",
+        "value": "IM.NAMESPACE + \"Age\""
+      },
+      {
+        "name": "DATE",
+        "value": "IM.NAMESPACE + \"Date\""
+      },
+      {
+        "name": "TIME",
+        "value": "IM.NAMESPACE + \"Time\""
+      },
+      {
+        "name": "INTERVAL_UNIT",
+        "value": "IM.NAMESPACE + \"intervalUnit\""
+      },
+      {
+        "name": "PARAMETER",
+        "value": "IM.NAMESPACE + \"parameter\""
+      },
+      {
+        "name": "YEARS",
+        "value": "IM.NAMESPACE + \"Years\""
+      },
+      {
+        "name": "MONTHS",
+        "value": "IM.NAMESPACE + \"Months\""
+      },
+      {
+        "name": "DAYS",
+        "value": "IM.NAMESPACE + \"Days\""
+      },
+      {
+        "name": "HOURS",
+        "value": "IM.NAMESPACE + \"Hours\""
+      },
+      {
+        "name": "MINUTES",
+        "value": "IM.NAMESPACE + \"Minutes\""
+      },
+      {
+        "name": "SECONDS",
+        "value": "IM.NAMESPACE + \"Seconds\""
       }
     ]
   },

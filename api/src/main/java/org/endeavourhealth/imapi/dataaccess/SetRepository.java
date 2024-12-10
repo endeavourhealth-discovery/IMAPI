@@ -687,4 +687,77 @@ public class SetRepository {
     }
   }
 
+  public Set<Concept> getExpansionFromInstances(String setIri) {
+    String sql= """
+      select distinct ?member
+      where {
+           Values ?set {%s}
+          {
+      	?set im:instanceOf ?instance.
+          ?instance im:include ?member.
+              values ?subsumption {im:descendantsOrSelfOf im:descendantsOf im:ancestorsOf}
+              filter not exists {?instance ?subsumption true}
+          }
+          union {
+              ?set im:instanceOf ?instance.
+              ?instance im:include ?parent.
+              ?instance im:descendantsOrSelfOf true.
+              ?member im:isA ?parent.
+          }
+          union {
+              ?set im:instanceOf ?instance.
+              ?instance im:include ?parent.
+              ?instance im:descendantsOf true.
+              ?member im:isA ?parent.
+              filter (?member!=?parent)
+          }
+          union {
+              ?set im:instanceOf ?instance.
+              ?instance im:include ?parent.
+              ?instance im:descendantsOf true.
+              ?parent im:isA ?member.
+          }
+          filter not exists {
+             ?member ^im:exclude ?instance2.
+             ?instance2 ^im:instanceOf ?set.
+              values ?subsumption {im:descendantsOrSelfOf im:descendantsOf im:ancestorsOf}
+              filter not exists {?instance2 ?subsumption true}
+          }
+          filter not exists {
+              ?member im:isA ?parent2.
+              ?parent2 ^im:exclude ?instance2.
+             ?instance2 ^im:instanceOf ?set.
+              ?instance2 im:descendantsOrSelfOf true.
+          }
+          filter not exists {
+              ?member im:isA ?parent2.
+              ?parent2 ^im:exclude ?instance2.
+             ?instance2 ^im:instanceOf ?set.
+              ?instance2 im:descendantsOf true.
+              filter (?member!= ?parent2)
+          }
+         filter not exists {
+             ?parent2 im:isA ?member.
+             ?parent2 ^im:exclude ?instance2.
+             ?instance2 ^im:instanceOf ?set.
+             ?instance2 im:ancestorsOf true.
+          }
+      }
+            
+      """.formatted("<"+setIri+">");
+    Set<Concept> expansion= new HashSet<>();
+      try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+        TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql.toString()));
+        try (TupleQueryResult rs = qry.evaluate()) {
+          while (rs.hasNext()) {
+            BindingSet bs= rs.next();
+            expansion.add(new Concept().setIri(bs.getValue("member").stringValue()));
+          }
+        }
+      }
+    return expansion;
+  }
+
+
 }
+

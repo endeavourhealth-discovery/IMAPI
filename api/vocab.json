@@ -79,11 +79,11 @@
       },
       {
         "name": "DESCENDANTS_OR_SELF_OF",
-        "value": "IM.NAMESPACE + \"DescendantsOrSelfOf\""
+        "value": "IM.NAMESPACE + \"descendantsOrSelfOf\""
       },
       {
         "name": "DESCENDANTS_OF",
-        "value": "IM.NAMESPACE + \"DescendantsOf\""
+        "value": "IM.NAMESPACE + \"descendantsOf\""
       },
       {
         "name": "ANCESTORS_OF",

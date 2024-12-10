@@ -42,13 +42,16 @@ public class SetExpander {
   public void expandSet(String iri) throws QueryException, JsonProcessingException {
     LOG.info("Updating members of {}", iri);
     TTBundle setDefinition = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION));
-    if (setDefinition.getEntity().get(iri(IM.DEFINITION)) == null)
-      return;
-    //get the expansion.
-
-    Set<Concept> members = setRepo.getSetExpansion(setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral()
-      .objectValue(Query.class), false, null, List.of(), null);
-    setRepo.updateMembers(iri, members);
+    if (setDefinition.getEntity().get(iri(IM.DEFINITION)) == null){
+      Set<Concept> members=setRepo.getExpansionFromInstances(iri); //might be an instance member definition
+      if (!members.isEmpty())
+        setRepo.updateMembers(iri, members);
+    }
+    else {
+      Set<Concept> members = setRepo.getSetExpansion(setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral()
+        .objectValue(Query.class), false, null, List.of(), null);
+      setRepo.updateMembers(iri, members);
+    }
   }
 }
 

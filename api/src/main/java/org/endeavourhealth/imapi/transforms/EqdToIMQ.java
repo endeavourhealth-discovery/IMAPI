@@ -31,9 +31,7 @@ public class EqdToIMQ {
   public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap) throws IOException, QueryException, EQDException {
 
       this.document= document;
-      this.resources=new EqdResources();
-      resources.setDataMap(dataMap);
-      resources.setDocument(document);
+      this.resources=new EqdResources(document,dataMap);
       addReportNames(eqd);
       convertFolders(eqd);
       convertReports(eqd);
@@ -81,24 +79,25 @@ public class EqdToIMQ {
 
 
   public TTEntity convertReport(EQDOCReport eqReport) throws IOException, QueryException, EQDException {
-
     resources.setActiveReport(eqReport.getId());
     resources.setActiveReportName(eqReport.getName());
     TTEntity queryEntity = new TTEntity();
     queryEntity.setIri(URN_UUID + eqReport.getId());
     queryEntity.setName(eqReport.getName());
     queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
-    if (eqReport.getFolder() != null)
-      queryEntity.addObject(iri(IM.IS_CONTAINED_IN),iri(URN_UUID + eqReport.getFolder()).setName(eqReport.getName()));
+    if (eqReport.getFolder() != null) {
+      queryEntity.addObject(iri(IM.IS_CONTAINED_IN), iri(URN_UUID + eqReport.getFolder()).setName(eqReport.getName()));
+    }
 
     Query qry = new Query();
+    qry.setIri(queryEntity.getIri());
     qry.setName(queryEntity.getName());
     if (eqReport.getPopulation() != null) {
       queryEntity.addType(iri(IM.COHORT_QUERY));
       new EqdPopToIMQ().convertPopulation(eqReport, qry, resources);
     } else if (eqReport.getListReport() != null) {
       queryEntity.addType(iri(IM.DATASET_QUERY));
-      new EqdListToIMQ().convertReport(eqReport, qry, resources);
+      new EqdListToIMQ().convertReport(eqReport, document,qry, resources);
     } else if (eqReport.getAuditReport()!=null){
         queryEntity.addType(iri(IM.DATASET_QUERY));
         new EqdAuditToIMQ().convertReport(eqReport, qry, resources);

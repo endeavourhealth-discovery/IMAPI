@@ -6,8 +6,8 @@ public class IM {
     public static final String DOMAIN = "http://endhealth.info/";
     public static final String PREFIX = "im";
     public static final String NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
-    public static final String DESCENDANTS_OR_SELF_OF = IM.NAMESPACE + "DescendantsOrSelfOf";
-    public static final String DESCENDANTS_OF = IM.NAMESPACE + "DescendantsOf";
+    public static final String DESCENDANTS_OR_SELF_OF = IM.NAMESPACE + "descendantsOrSelfOf";
+    public static final String DESCENDANTS_OF = IM.NAMESPACE + "descendantsOf";
     public static final String ANCESTORS_OF = IM.NAMESPACE + "ancestorsOf";
     public static final String INCLUDE = IM.NAMESPACE + "include";
     public static final String EXCLUDE = IM.NAMESPACE + "exclude";

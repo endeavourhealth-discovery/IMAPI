@@ -253,4 +253,5 @@ public class IM {
     public static final String HOURS = IM.NAMESPACE + "Hours";
     public static final String MINUTES = IM.NAMESPACE + "Minutes";
     public static final String SECONDS = IM.NAMESPACE + "Seconds";
+    public static final String DATATYPE_QUALIFIER = IM.NAMESPACE + "datatypeQualifier";
 }

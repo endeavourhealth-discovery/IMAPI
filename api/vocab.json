@@ -1064,7 +1064,12 @@
       {
         "name": "SECONDS",
         "value": "IM.NAMESPACE + \"Seconds\""
+      },
+      {
+        "name": "DATATYPE_QUALIFIER",
+        "value": "IM.NAMESPACE + \"datatypeQualifier\""
       }
+
     ]
   },
   {

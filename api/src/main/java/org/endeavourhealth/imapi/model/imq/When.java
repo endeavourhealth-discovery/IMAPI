@@ -9,6 +9,16 @@ public class When {
   private String then;
   @JsonProperty("case")
   private Case case_;
+  private boolean exists;
+
+  public boolean isExists() {
+    return exists;
+  }
+
+  public When setExists(boolean exists) {
+    this.exists = exists;
+    return this;
+  }
 
   @JsonProperty("case")
   public Case getCase_() {

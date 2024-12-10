@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.TransformService;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.iml.TransformRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -30,7 +31,7 @@ public class TransformController {
     summary = "Run transform of eqd to imq",
     description = "Runs a transform from an xml eqd query document to a set of target objects"
   )
-  public ModelDocument transformEqd(@RequestBody EnquiryDocument eqd) throws Exception {
+  public TTDocument transformEqd(@RequestBody EnquiryDocument eqd) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Transform.TransformEqd.GET")) {
       LOG.debug("run transform");
       return new TransformService().transformEqd(eqd);

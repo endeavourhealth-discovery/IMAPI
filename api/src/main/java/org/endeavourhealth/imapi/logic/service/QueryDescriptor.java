@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -18,13 +20,20 @@ public class QueryDescriptor {
   private final EntityRepository entityRepository = new EntityRepository();
   private Map<String, TTEntity> iriContext;
   private final EntityRepository repo = new EntityRepository();
+  private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
+
 
   public Query describeQuery(String queryIri) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null)
       return null;
+    String queryString= queryCache.get(queryIri);
+    if (queryString!=null)
+      return new ObjectMapper().readValue(queryString,Query.class);
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
-    return describeQuery(query);
+    query= describeQuery(query);
+    queryCache.put(queryIri,new ObjectMapper().writeValueAsString(query));
+    return query;
   }
 
   public Query describeQuery(Query query) throws QueryException {
@@ -45,6 +54,7 @@ public class QueryDescriptor {
     if (query.getReturn() != null) {
       describeReturns(query);
     }
+
     return query;
   }
 
@@ -118,6 +128,10 @@ public class QueryDescriptor {
       }
     }
     if (match.getInstanceOf() != null) {
+      for (Node node: match.getInstanceOf()){
+        if (node.getIri()==null)
+          System.out.println("null node");
+      }
       match.getInstanceOf().forEach(i -> iriSet.add(i.getIri()));
     }
     if (match.getMatch() != null) {
@@ -163,20 +177,11 @@ public class QueryDescriptor {
   }
 
   private void setIriSet(Assignable assignable,Set<String> iriSet){
-    if (assignable.getArgument()!=null){
-      for (Argument argument:assignable.getArgument()){
-        if (argument.getValueIri()!=null){
-          iriSet.add(argument.getValueIri().getIri());
-        }
-        if (argument.getValueIriList()!=null){
-          for (TTIriRef iri:argument.getValueIriList()){
-            iriSet.add(iri.getIri());
+    if (assignable.getUnit()!=null){
+            iriSet.add(assignable.getUnit().getIri());
           }
-        }
-      }
-    }
-
   }
+
 
 
   public String getTermInContext(String source, Context... contexts) {
@@ -421,7 +426,7 @@ public class QueryDescriptor {
 
   }
 
-  private void describeValue(Assignable assignable, Operator operator, boolean date, String value, List<Argument> argument, boolean relativeTo, boolean isRange) {
+  private void describeValue(Assignable assignable, Operator operator, boolean date, String value, TTIriRef unit, boolean relativeTo, boolean isRange) {
     String qualifier = null;
     boolean inclusive = false;
     boolean past = false;
@@ -506,8 +511,8 @@ public class QueryDescriptor {
     }
     if (value != null) {
       assignable.setValueLabel(value.replace("-", ""));
-      if (argument != null) {
-        assignable.setValueLabel(assignable.getValueLabel() + " " + getArgumentDisplay(argument));
+      if (unit != null) {
+        assignable.setValueLabel(assignable.getValueLabel() + " " + getTermInContext(unit.getIri(),Context.LOWERCASE));
       }
     }
     if (inclusive && qualifier == null) {
@@ -519,20 +524,7 @@ public class QueryDescriptor {
       assignable.setValueLabel(assignable.getValueLabel() + relativity);
   }
 
-  private String getArgumentDisplay(List<Argument> arguments) {
-    if (arguments==null)
-      return "";
-    StringBuilder result= new StringBuilder();
-    for (Argument argument:arguments){
-      if (argument.getValueData()!=null) {
-        result.append(argument.getValueData()).append(" ");
-      }
-      else if (argument.getValueIri()!=null) {
-        result.append(getTermInContext(argument.getValueIri().getIri(),Context.LOWERCASE));
-      }
-    }
-    return result.toString();
-  }
+
 
 
   private void describeValueWhere(Where where) {
@@ -540,7 +532,7 @@ public class QueryDescriptor {
     if (where.getIri() != null)
       date = where.getIri().toLowerCase().contains("date");
     Operator operator = where.getOperator();
-    describeValue(where, operator, date, where.getValue(), where.getArgument(), where.getRelativeTo() != null, false);
+    describeValue(where, operator, date, where.getValue(), where.getUnit(), where.getRelativeTo() != null, false);
     describeRelativeTo(where);
   }
 
@@ -552,11 +544,11 @@ public class QueryDescriptor {
     }
     Range range = where.getRange();
     Assignable from = range.getFrom();
-    describeValue(from, from.getOperator(), date, from.getValue(), from.getArgument(), where.getRelativeTo() != null, true);
+    describeValue(from, from.getOperator(), date, from.getValue(), from.getUnit(), where.getRelativeTo() != null, true);
     where.setQualifier("between " + (from.getQualifier() != null ? from.getQualifier() : ""));
     where.setValueLabel(from.getValueLabel());
     Assignable to = range.getTo();
-    describeValue(to, to.getOperator(), date, to.getValue(), to.getArgument(), where.getRelativeTo() != null, true);
+    describeValue(to, to.getOperator(), date, to.getValue(), to.getUnit(), where.getRelativeTo() != null, true);
     if (to.getValue() != null) {
       if (from.getValueLabel() != null) {
         where.setValueLabel(where.getValueLabel() + " and " + (to.getQualifier() != null ? to.getQualifier() + " " : "") +
@@ -587,42 +579,44 @@ public class QueryDescriptor {
   }
 
   private void describeIsWhere(Where where) {
-    for (Node set : where.getIs()) {
-      if (iriContext.get(set.getIri()) != null) {
-        String modifier = "";
-        TTEntity nodeEntity = (iriContext.get(set.getIri()));
-        set.setCode(nodeEntity.getCode());
-        if (nodeEntity.getType().get(0).asIriRef().getIri().contains("Set")) {
-          modifier = set.isExclude() ? "not in set : " : "in set :";
-        } else if (nodeEntity.getType().get(0).asIriRef().getIri().contains("Query"))
-          modifier = set.isExclude() ? "not in cohort : " : "in cohort : ";
-        else if (set.isExclude())
-          modifier = "exclude ";
-        set.setQualifier(modifier);
-      }
+    if (where.getValueLabel()==null) {
+      for (Node set : where.getIs()) {
+        if (iriContext.get(set.getIri()) != null) {
+          String modifier = "";
+          TTEntity nodeEntity = (iriContext.get(set.getIri()));
+          set.setCode(nodeEntity.getCode());
+          if (nodeEntity.getType().get(0).asIriRef().getIri().contains("Set")) {
+            modifier = set.isExclude() ? "not in set : " : "in set :";
+          } else if (nodeEntity.getType().get(0).asIriRef().getIri().contains("Query"))
+            modifier = set.isExclude() ? "not in cohort : " : "in cohort : ";
+          else if (set.isExclude())
+            modifier = "exclude ";
+          set.setQualifier(modifier);
+        }
 
-      String value = getTermInContext(set);
-      set.setName(value);
-      if (iriContext.get(set.getIri()) != null) {
-        set.setCode(iriContext.get(set.getIri()).getCode());
+        String value = getTermInContext(set);
+        set.setName(value);
+        if (iriContext.get(set.getIri()) != null) {
+          set.setCode(iriContext.get(set.getIri()).getCode());
+        }
       }
-    }
-    StringBuilder valueLabel = new StringBuilder();
-    for (int i = 0; i < where.getIs().size(); i++) {
-      if (i > 1) {
-        valueLabel.append(" ...+ more");
-        break;
-      } else {
-        if (i > 0)
-          valueLabel.append(", ");
+      StringBuilder valueLabel = new StringBuilder();
+      for (int i = 0; i < where.getIs().size(); i++) {
+        if (i > 1) {
+          valueLabel.append(" ...+ more");
+          break;
+        } else {
+          if (i > 0)
+            valueLabel.append(", ");
+        }
+        Node set = where.getIs().get(i);
+
+        if (where.isInverse()) {
+          valueLabel.append("Parent is a value in '").append(set.getName()).append("' -> '").append(where.getName()).append(" (property)'");
+        } else valueLabel.append(set.getQualifier() != null ? set.getQualifier() + " " : "").append(set.getName());
+
+        where.setValueLabel(valueLabel.toString());
       }
-      Node set = where.getIs().get(i);
-
-      if (where.isInverse()) {
-        valueLabel.append("Parent is a value in '").append(set.getName()).append("' -> '").append(where.getName()).append(" (property)'");
-      } else valueLabel.append(set.getQualifier() != null ? set.getQualifier() + " " : "").append(set.getName());
-
-      where.setValueLabel(valueLabel.toString());
     }
   }
 

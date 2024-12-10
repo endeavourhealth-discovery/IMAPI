@@ -132,23 +132,4 @@ public class ConceptService {
       );
     }
   }
-
-  public ObjectNode createConcept(String namespace) throws QueryException, TTFilerException, JsonProcessingException {
-    Integer from = conceptRepository.getLastInrementalFrom();
-    if (from == 0) throw new RuntimeException("Could not get last incremental from.");;
-    String concept = SnomedConcept.createConcept(from, false);
-    boolean isValidIri = !entityService.iriExists(namespace + concept);
-    while (!isValidIri) {
-      from++;
-      concept = SnomedConcept.createConcept(from, false);
-      isValidIri = !entityService.iriExists(namespace + concept);
-    }
-
-    conceptRepository.updateIncrement(from);
-    try (CachedObjectMapper om = new CachedObjectMapper()) {
-      ObjectNode iri = om.createObjectNode();
-      iri.put("@id", namespace + concept);
-      return om.createObjectNode().set("iri", iri);
-    }
-  }
 }

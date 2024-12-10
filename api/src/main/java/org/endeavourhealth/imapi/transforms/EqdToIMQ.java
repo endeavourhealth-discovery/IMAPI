@@ -5,7 +5,9 @@ import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
@@ -22,20 +24,19 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class EqdToIMQ {
   private static final Logger LOG = LoggerFactory.getLogger(EqdToIMQ.class);
   public static final String URN_UUID = "urn:uuid:";
-  private final EqdResources resources = new EqdResources();
+  private EqdResources resources;;
+  private TTDocument document;
 
 
-  public ModelDocument convertEQD(EnquiryDocument eqd, Properties dataMap,
+  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap) throws IOException, QueryException, EQDException {
 
-                                  Properties criteriaLabels) throws IOException, QueryException, EQDException {
-
+      this.document= document;
+      this.resources=new EqdResources();
       resources.setDataMap(dataMap);
-      resources.setDocument(new ModelDocument());
-      resources.setLabels(criteriaLabels);
+      resources.setDocument(document);
       addReportNames(eqd);
       convertFolders(eqd);
       convertReports(eqd);
-      return resources.getDocument();
   }
 
   private void addReportNames(EnquiryDocument eqd) {
@@ -53,9 +54,9 @@ public class EqdToIMQ {
       if (eqReport.getName() == null)
         throw new EQDException("No report name");
       LOG.info(eqReport.getName());
-      QueryEntity qry = convertReport(eqReport);
+      TTEntity qry = convertReport(eqReport);
       if (qry!=null) {
-        resources.getDocument().addQuery(qry);
+        document.addEntity(qry);
       }
     }
   }
@@ -69,26 +70,26 @@ public class EqdToIMQ {
         if (eqFolder.getName() == null)
           throw new EQDException("No folder name");
         String iri = URN_UUID + eqFolder.getId();
-        Entity folder = new Entity()
+        TTEntity folder = new TTEntity()
           .setIri(iri)
           .addType(iri(IM.FOLDER))
           .setName(eqFolder.getName());
-        resources.getDocument().addFolder(folder);
+        document.addEntity(folder);
       }
     }
   }
 
 
-  public QueryEntity convertReport(EQDOCReport eqReport) throws IOException, QueryException, EQDException {
+  public TTEntity convertReport(EQDOCReport eqReport) throws IOException, QueryException, EQDException {
 
     resources.setActiveReport(eqReport.getId());
     resources.setActiveReportName(eqReport.getName());
-    QueryEntity queryEntity = new QueryEntity();
+    TTEntity queryEntity = new TTEntity();
     queryEntity.setIri(URN_UUID + eqReport.getId());
     queryEntity.setName(eqReport.getName());
     queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
     if (eqReport.getFolder() != null)
-      queryEntity.addIsContainedIn(new TTEntity((URN_UUID + eqReport.getFolder())).setName(eqReport.getName()));
+      queryEntity.addObject(iri(IM.IS_CONTAINED_IN),iri(URN_UUID + eqReport.getFolder()).setName(eqReport.getName()));
 
     Query qry = new Query();
     qry.setName(queryEntity.getName());
@@ -109,7 +110,7 @@ public class EqdToIMQ {
     if (qry.getMatch()!=null) {
       flattenQuery(qry);
     }
-    queryEntity.setDefinition(qry);
+    queryEntity.set(iri(IM.DEFINITION), TTLiteral.literal(qry));
     return queryEntity;
   }
 

@@ -78,6 +78,26 @@
         "value": "IM.DOMAIN + IM.PREFIX + \"#\""
       },
       {
+        "name": "DESCENDANTS_OR_SELF_OF",
+        "value": "IM.NAMESPACE + \"DescendantsOrSelfOf\""
+      },
+      {
+        "name": "DESCENDANTS_OF",
+        "value": "IM.NAMESPACE + \"DescendantsOf\""
+      },
+      {
+        "name": "ANCESTORS_OF",
+        "value": "IM.NAMESPACE + \"ancestorsOf\""
+      },
+      {
+        "name": "INCLUDE",
+        "value": "IM.NAMESPACE + \"include\""
+      },
+      {
+        "name": "EXCLUDE",
+        "value": "IM.NAMESPACE + \"exclude\""
+      },
+      {
         "name": "IRI",
         "value": "\"@id\""
       },
@@ -136,6 +156,10 @@
       {
         "name": "DEFINITION",
         "value": "IM.NAMESPACE + \"definition\""
+      },
+      {
+        "name": "INSTANCE_OF",
+        "value": "IM.NAMESPACE + \"instanceOf\""
       },
       {
         "name": "RETURN_TYPE",
@@ -1041,10 +1065,6 @@
       {
         "name": "GET_USER_EDITABLE_SCHEMES",
         "value": "IM_FUNCTION.NAMESPACE + \"GetUserEditableSchemes\""
-      },
-      {
-        "name": "GENERATE_IRI_CODE",
-        "value": "IM_FUNCTION.NAMESPACE + \"GenerateIriCode\""
       },
       {
         "name": "IS_TYPE",
@@ -1987,10 +2007,7 @@
         "name": "ALLOWABLE_RANGE_SUGGESTIONS",
         "value": "QUERY.NAMESPACE + \"AllowableRangeSuggestions\""
       },
-      {
-        "name": "GET_DESCENDANTS",
-        "value": "QUERY.NAMESPACE + \"GetDescendants\""
-      },
+
       {
         "name": "GET_SUBCLASSES",
         "value": "QUERY.NAMESPACE + \"GetSubClasses\""
@@ -2112,6 +2129,10 @@
       {
         "name": "SMARTLIFE",
         "value": "\"http://smartlifehealth.info/smh#\""
+      },
+      {
+        "name": "QOF",
+        "value": "\"http://endhealth.info/qof#\""
       },
       {
         "name": "DISCOVERY",

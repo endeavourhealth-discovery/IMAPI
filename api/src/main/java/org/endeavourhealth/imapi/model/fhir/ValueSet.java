@@ -24,6 +24,16 @@ public class ValueSet {
     private Compose compose;
     private String date;
      private boolean immutable;
+     private String copyright;
+
+  public String getCopyright() {
+    return copyright;
+  }
+
+  public ValueSet setCopyright(String copyright) {
+    this.copyright = copyright;
+    return this;
+  }
 
   public boolean isImmutable() {
     return immutable;

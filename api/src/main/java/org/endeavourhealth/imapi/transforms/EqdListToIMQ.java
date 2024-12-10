@@ -73,6 +73,13 @@ public class EqdListToIMQ {
           aReturn.function(f -> f
             .setName(Function.count));
         }
+        else if (eqColGroup.getSummary()==VocListGroupSummary.EXISTS) {
+          aReturn.property(p->p
+              .case_(c->c
+                .when(w->w
+                  .setExists(true)
+                  .setThen("Y"))));
+        }
         else
           throw new QueryException("unmapped summary function : "+ eqColGroup.getSummary().value());
       }
@@ -90,8 +97,6 @@ public class EqdListToIMQ {
 
   private void convertColumn(Return aReturn, String subPath,String as) {
     ReturnProperty property = new ReturnProperty();
-    if (as!=null)
-      property.setAs(as);
     aReturn.addProperty(property);
     property.setAs(as);
     if (subPath.contains(" ")) {
@@ -104,9 +109,13 @@ public class EqdListToIMQ {
           property.getReturn().addProperty(subProperty);
           property = subProperty;
         }
+        if (as!=null)
+          property.setAs(as);
       }
     } else {
       property.setIri(subPath);
+      if (as!=null)
+        property.setAs(as);
     }
   }
 

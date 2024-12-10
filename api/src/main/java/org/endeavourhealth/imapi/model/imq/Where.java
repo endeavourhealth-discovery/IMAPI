@@ -27,30 +27,18 @@ public class Where extends PropertyRef implements Assignable{
   private PropertyRef relativeTo;
   private boolean isNotNull;
   private FunctionClause function;
-  private List<Argument> argument;
+  private TTIriRef unit;
 
-  public List<Argument> getArgument() {
-    return argument;
+  private String valueParameter;
+
+  public String getValueParameter() {
+    return valueParameter;
   }
 
-  public Where setArgument(List<Argument> argument) {
-    this.argument = argument;
+  public Where setValueParameter(String valueParameter) {
+    this.valueParameter = valueParameter;
     return this;
   }
-  public Where addArgument (Argument argument){
-      if (this.argument == null) {
-        this.argument = new ArrayList<>();
-      }
-      this.argument.add(argument);
-      return this;
-    }
-
-    public Where argument (Consumer < Argument > builder) {
-      Argument argument = new Argument();
-      addArgument(argument);
-      builder.accept(argument);
-      return this;
-    }
 
 
   public FunctionClause getFunction() {
@@ -308,24 +296,17 @@ public class Where extends PropertyRef implements Assignable{
     return this;
   }
 
-  @JsonIgnore
-  public String getUnit(){
-    if (this.argument!=null) {
-      if (this.argument.get(0).getParameter().contains("unit")) {
-        String timeUnit = argument.get(0).getValueIri().getIri();
-        return timeUnit.substring(timeUnit.lastIndexOf("#") + 1);
-      }
-      else return "";
-    }
-    else return "";
-  }
-  @JsonIgnore
-  public Where setUnit(String unit){
-    this.addArgument(new Argument()
-      .setParameter("units")
-      .setValueIri(TTIriRef.iri(IM.NAMESPACE+unit).setName(unit)));
+  @Override
+  public Where setUnit(TTIriRef unit) {
+    this.unit= unit;
     return this;
   }
+
+  public TTIriRef getUnit(){
+    return this.unit;
+  }
+
+
 
 
 }

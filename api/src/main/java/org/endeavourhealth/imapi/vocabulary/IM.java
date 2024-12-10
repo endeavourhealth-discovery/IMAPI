@@ -242,4 +242,16 @@ public class IM {
     public static final String INFERRED_PREDICATES = IM.NAMESPACE + "inferredPredicates";
     public static final String INFERRED_EXCLUDE_PREDICATES = IM.NAMESPACE + "inferredExcludePredicates";
     public static final String GRAPH_EXCLUDE_PREDICATES = IM.NAMESPACE + "graphExcludePredicates";
+    public static final String AGE = IM.NAMESPACE + "Age";
+    public static final String DATE = IM.NAMESPACE + "Date";
+    public static final String TIME = IM.NAMESPACE + "Time";
+    public static final String INTERVAL_UNIT = IM.NAMESPACE + "intervalUnit";
+    public static final String PARAMETER = IM.NAMESPACE + "parameter";
+    public static final String YEARS = IM.NAMESPACE + "Years";
+    public static final String MONTHS = IM.NAMESPACE + "Months";
+    public static final String DAYS = IM.NAMESPACE + "Days";
+    public static final String HOURS = IM.NAMESPACE + "Hours";
+    public static final String MINUTES = IM.NAMESPACE + "Minutes";
+    public static final String SECONDS = IM.NAMESPACE + "Seconds";
+    public static final String DATATYPE_QUALIFIER = IM.NAMESPACE + "datatypeQualifier";
 }

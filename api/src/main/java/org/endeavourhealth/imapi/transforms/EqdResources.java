@@ -1,13 +1,13 @@
 package org.endeavourhealth.imapi.transforms;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.logic.exporters.ImportMaps;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
-import org.endeavourhealth.imapi.model.iml.ConceptSet;
-import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -30,20 +30,42 @@ public class EqdResources {
   private final Map<String, Set<TTIriRef>> valueMap = new HashMap<>();
   @Getter
   Map<String, String> reportNames = new HashMap<>();
-  private Properties dataMap;
-  private Properties labels;
+  private final Properties dataMap;
   private String activeReport;
   @Getter
   private String activeReportName;
   @Getter
-  private ModelDocument document;
+  private String activeFolder;
+  @Getter
+  private TTDocument document;
+  private TTIriRef columnGroup;
   private int counter = 0;
   private int setCounter = 0;
+  private String sourceContext;
+  private boolean isTestSet;
 
+  public TTIriRef getColumnGroup() {
+    return columnGroup;
+  }
 
-  public EqdResources() {
+  public EqdResources setColumnGroup(TTIriRef columnGroup) {
+    this.columnGroup = columnGroup;
+    return this;
+  }
+
+  public EqdResources(TTDocument document, Properties dataMap) {
+    this.dataMap= dataMap;
+    this.document= document;
     setVocabMaps();
   }
+
+
+
+  public EqdResources setActiveFolder(String activeFolder) {
+    this.activeFolder = activeFolder;
+    return this;
+  }
+
 
   public EqdResources setReportNames(Map<String, String> reportNames) {
     this.reportNames = reportNames;
@@ -55,7 +77,7 @@ public class EqdResources {
     return this;
   }
 
-  public EqdResources setDocument(ModelDocument document) {
+  public EqdResources setDocument(TTDocument document) {
     this.document = document;
     return this;
   }
@@ -65,15 +87,7 @@ public class EqdResources {
     return this;
   }
 
-  public EqdResources setDataMap(Properties dataMap) {
-    this.dataMap = dataMap;
-    return this;
-  }
 
-  public EqdResources setLabels(Properties labels) {
-    this.labels = labels;
-    return this;
-  }
 
   private void setVocabMaps() {
     vocabMap.put(VocRangeFromOperator.GTEQ, Operator.gte);
@@ -83,8 +97,6 @@ public class EqdResources {
     vocabMap.put(VocOrderDirection.DESC, "DESC");
     vocabMap.put(VocOrderDirection.ASC, "ASC");
   }
-
-
 
 
   public Match convertCriteria(EQDOCCriteria eqCriteria) throws IOException, QueryException, EQDException {
@@ -156,6 +168,7 @@ public class EqdResources {
     String tablePath = getPath(eqTable);
     String eqColumn = String.join("/", cv.getColumn());
     String eqURL = eqTable + "/" + eqColumn;
+    sourceContext = eqURL;
     String columnPath = getPath(eqURL);
     String property;
     if (columnPath.contains(" ")) {
@@ -178,11 +191,11 @@ public class EqdResources {
       if (columnPath.contains(" ")) {
         String[] paths = columnPath.split(" ");
         for (int i = 0; i < paths.length; i = i + 2) {
-          IriLD pathIri= new IriLD();
-          String path=paths[i];
-          if (path.startsWith("^")){
+          IriLD pathIri = new IriLD();
+          String path = paths[i];
+          if (path.startsWith("^")) {
             pathIri.setInverse(true);
-            path=path.substring(1);
+            path = path.substring(1);
           }
           pathIri.setIri(path);
           match.addPath(pathIri);
@@ -223,26 +236,21 @@ public class EqdResources {
     VocColumnValueInNotIn in = cv.getInNotIn();
     boolean notIn = (in == VocColumnValueInNotIn.NOTIN);
     if (!cv.getValueSet().isEmpty()) {
-      setPropertyValueSetSetters(cv, pv, notIn);
+      setPropertyValueSets(cv, pv, notIn);
     } else if (!CollectionUtils.isEmpty(cv.getLibraryItem())) {
       String valueLabel = "";
       for (String vset : cv.getLibraryItem()) {
+        setCounter++;
         String vsetName;
-        if (labels.get(vset) != null) {
-          vsetName = (String) labels.get(vset);
-        } else {
-          setCounter++;
-          vsetName = "Library set " + setCounter;
+        if (columnGroup!=null) {
+          vsetName = "Library set " + setCounter + " used for " + columnGroup.getName();
+        }
+        else {
+          vsetName="Library set used in "+ activeReportName;
         }
         valueLabel = valueLabel + (valueLabel.isEmpty() ? "" : ", ") + vsetName;
         Node iri = new Node().setIri(URN_UUID + vset);
         iri.setMemberOf(true);
-        if (vsetName != null)
-          iri.setName(vsetName);
-        else {
-          setCounter++;
-          iri.setName("Library set " + setCounter);
-        }
         if (!notIn)
           pv.addIs(iri);
         else {
@@ -256,11 +264,8 @@ public class EqdResources {
     }
   }
 
-  private void setPropertyValueSetSetters(EQDOCColumnValue cv, Where pv, boolean notIn) throws IOException {
+  private void setPropertyValueSets(EQDOCColumnValue cv, Where pv, boolean notIn) throws IOException {
     for (EQDOCValueSet vs : cv.getValueSet()) {
-      if (vs.getId() != null && labels.get(vs.getId()) != null) {
-        pv.setValueLabel(labels.get(vs.getId()).toString());
-      }
       if (vs.getAllValues() != null) {
         List<Node> values = getExceptionSet(vs.getAllValues());
         for (Node node : values) {
@@ -269,9 +274,10 @@ public class EqdResources {
         pv.setIs(values);
       } else {
         if (!notIn) {
-          setInlineValues(vs,pv,false);
+          setInlineValues(vs, pv);
         } else {
-          setInlineValues(vs,pv,true);
+          pv.setExclude(true);
+          setInlineValues(vs, pv);
         }
       }
     }
@@ -282,31 +288,34 @@ public class EqdResources {
     Object target = dataMap.get(eqdPath);
     if (target == null)
       throw new EQDException("unknown map : " + eqdPath);
-    if (((String) target).equals(""))
+    if (target.equals(""))
       return "";
-    String[] paths= ((String) target).split(" ");
-    for (int i=0; i<paths.length; i++){
-      String path=paths[i];
-      String inverse="";
+    String[] paths = ((String) target).split(" ");
+    for (int i = 0; i < paths.length; i++) {
+      String path = paths[i];
+      String inverse = "";
       if (path.startsWith("^")) {
         inverse = "^";
         path = path.substring(1);
       }
-      path=inverse+(path.contains("rdfs") ?RDFS.NAMESPACE+path.split(":")[1] : IM.NAMESPACE+path);
-      paths[i]=path;
+      path = inverse + (path.contains("rdfs") ? RDFS.NAMESPACE + path.split(":")[1] : IM.NAMESPACE + path);
+      paths[i] = path;
     }
-    return String.join(" ",paths);
+    return String.join(" ", paths);
   }
 
 
   private Match convertRestrictionCriterion(EQDOCCriterion eqCriterion) throws IOException, QueryException, EQDException {
     Match restricted = convertColumns(eqCriterion);
     setRestriction(eqCriterion, restricted);
+    isTestSet=false;
     if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
+      isTestSet= true;
       Match testMatch = restrictionTest(eqCriterion);
       if (testMatch != null) {
         testMatch.setPath(null);
         restricted.setThen(testMatch);
+        isTestSet=false;
       }
 
     }
@@ -360,44 +369,41 @@ public class EqdResources {
     String child = getPath(eqLinkedCriterion.getTable() + "/" + eqRel.getChildColumn());
     relationProperty
       .setIri(child);
-    if (eqRel.getRangeValue()!=null) {
-      EQDOCRangeValue eqRange=eqRel.getRangeValue();
-      if (eqRange.getRangeFrom()!=null&&eqRange.getRangeTo()!=null){
-        Range range= new Range();
+    if (eqRel.getRangeValue() != null) {
+      EQDOCRangeValue eqRange = eqRel.getRangeValue();
+      if (eqRange.getRangeFrom() != null && eqRange.getRangeTo() != null) {
+        Range range = new Range();
         relationProperty.setRange(range);
-        Value from= new Value();
+        Value from = new Value();
         range.setFrom(from);
         from.setOperator((Operator) vocabMap.get(eqRange.getRangeFrom().getOperator()))
           .setValue(eqRange.getRangeFrom().getValue().getValue());
-        if (eqRange.getRangeFrom().getValue().getUnit()!=null) {
-          setUnitsOrArgument(relationProperty,eqRange.getRangeFrom().getValue().getUnit().value());
+        if (eqRange.getRangeFrom().getValue().getUnit() != null) {
+          setUnitsOrArgument(relationProperty, eqRange.getRangeFrom().getValue().getUnit().value());
         }
-        Value to= new Value();
+        Value to = new Value();
         range.setTo(to);
         to.setOperator((Operator) vocabMap.get(eqRange.getRangeTo().getOperator()))
           .setValue(eqRange.getRangeTo().getValue().getValue());
-        if (eqRange.getRangeTo().getValue().getUnit()!=null) {
-          setUnitsOrArgument(to,eqRange.getRangeTo().getValue().getUnit().value());
+        if (eqRange.getRangeTo().getValue().getUnit() != null) {
+          setUnitsOrArgument(to, eqRange.getRangeTo().getValue().getUnit().value());
         }
-      }
-      else if (eqRel.getRangeValue().getRangeFrom()!=null) {
+      } else if (eqRel.getRangeValue().getRangeFrom() != null) {
         relationProperty
           .setOperator((Operator) vocabMap.get(eqRange.getRangeFrom().getOperator()))
           .setValue(eqRange.getRangeFrom().getValue().getValue());
-        if (eqRange.getRangeFrom().getValue().getUnit()!=null) {
-          setUnitsOrArgument(relationProperty,eqRange.getRangeFrom().getValue().getUnit().value());
+        if (eqRange.getRangeFrom().getValue().getUnit() != null) {
+          setUnitsOrArgument(relationProperty, eqRange.getRangeFrom().getValue().getUnit().value());
         }
-      }
-      else {
+      } else {
         relationProperty
           .setOperator((Operator) vocabMap.get(eqRange.getRangeTo().getOperator()))
           .setValue(eqRange.getRangeTo().getValue().getValue());
-        if (eqRange.getRangeTo().getValue().getUnit()!=null) {
-          setUnitsOrArgument(relationProperty,eqRange.getRangeTo().getValue().getUnit().value());
+        if (eqRange.getRangeTo().getValue().getUnit() != null) {
+          setUnitsOrArgument(relationProperty, eqRange.getRangeTo().getValue().getUnit().value());
         }
       }
-    }
-    else {
+    } else {
       relationProperty.setOperator(Operator.eq);
     }
     relationProperty.relativeTo(r -> r.setNodeRef(nodeRef).setIri(parent));
@@ -420,16 +426,14 @@ public class EqdResources {
       }
     }
     if (rTo != null && rFrom == null) {
-      if (rTo.getValue()!=null&& rTo.getValue().getValue()!=null &&rTo.getValue().getValue().equals("This")) {
-          if (rTo.getValue().getUnit()== VocValueUnit.FISCALYEAR){
-            setFiscalYear(pv, rTo);
-          }
-          else throw new EQDException("unknown units with 'This' value : " + rTo.getValue().getUnit());
-      }
-      else
+      if (rTo.getValue() != null && rTo.getValue().getValue() != null && rTo.getValue().getValue().equals("This")) {
+        if (rTo.getValue().getUnit() == VocValueUnit.FISCALYEAR) {
+          setFiscalYear(pv, rTo);
+        } else throw new EQDException("unknown units with 'This' value : " + rTo.getValue().getUnit());
+      } else
         setCompareTo(pv, rTo);
     }
-    if (rv.getRelativeTo()!=null){
+    if (rv.getRelativeTo() != null) {
       if (rv.getRelativeTo().equals("BASELINE")) {
         pv.setRelativeTo(new PropertyRef().setParameter("$baselineDate"));
       }
@@ -438,15 +442,13 @@ public class EqdResources {
   }
 
   private void setFiscalYear(Where where, EQDOCRangeTo rTo) throws EQDException {
-    if (rTo.getOperator()==VocRangeToOperator.LT){
+    if (rTo.getOperator() == VocRangeToOperator.LT) {
       where.setValueParameter("$startOfFiscalYear");
       where.setOperator(Operator.lt);
-    }
-    else if (rTo.getOperator()==VocRangeToOperator.LTEQ){
+    } else if (rTo.getOperator() == VocRangeToOperator.LTEQ) {
       where.setValueParameter("$endOfFiscalYear");
       where.setOperator(Operator.lte);
-    }
-    else throw new EQDException("Unknown fiscal year operator "+ rTo.getOperator().value());
+    } else throw new EQDException("Unknown fiscal year operator " + rTo.getOperator().value());
   }
 
   private void setCompareFrom(Where where, EQDOCRangeFrom rFrom) throws EQDException {
@@ -455,12 +457,11 @@ public class EqdResources {
       comp = (Operator) vocabMap.get(rFrom.getOperator());
     else
       comp = Operator.eq;
-    String value=null;
-    String units=null;
-    VocRelation relation=null;
-    if (rFrom.getValue()!=null) {
+    String value = null;
+    String units = null;
+    VocRelation relation = null;
+    if (rFrom.getValue() != null) {
       value = rFrom.getValue().getValue();
-      units = null;
       if (rFrom.getValue().getUnit() != null)
         units = rFrom.getValue().getUnit().value();
 
@@ -471,6 +472,7 @@ public class EqdResources {
     }
     setCompare(where, comp, value, units, relation);
   }
+
   private void setCompare(Where where, Value pv, Operator comp, String value, String units, VocRelation relation) throws EQDException {
     if (relation == VocRelation.RELATIVE) {
       where.setRelativeTo(new PropertyRef().setParameter("$referenceDate"));
@@ -479,41 +481,41 @@ public class EqdResources {
     pv.setOperator(comp);
     pv.setValue(value);
     if (units != null)
-      setUnitsOrArgument(where,units);
+      setUnitsOrArgument(where, units);
   }
 
   private void setUnitsOrArgument(Assignable assignable, String units) throws EQDException {
     switch (units) {
-      case "YEAR": addArgument(assignable,"units",iri(IM.NAMESPACE+"years"));
+      case "YEAR":
+        assignable.setIntervalUnit(TTIriRef.iri(IM.NAMESPACE + "years"));
         break;
-      case "MONTH": addArgument(assignable,"units",iri(IM.NAMESPACE+"months"));
-      break;
-      case "DAY": addArgument(assignable,"units",iri(IM.NAMESPACE+"days"));
-      break;
+      case "MONTH":
+        assignable.setIntervalUnit(TTIriRef.iri(IM.NAMESPACE + "months"));
+        break;
+      case "DAY":
+        assignable.setIntervalUnit(TTIriRef.iri(IM.NAMESPACE + "days"));
+        break;
       case "DATE":
         break;
-      default : throw new EQDException("unknown unit map: "+units);
+      default:
+        throw new EQDException("unknown unit map: " + units);
 
     }
   }
-  private void addArgument(Assignable assignable, String parameter, TTIriRef value){
-    assignable.argument(a->a
-      .setParameter(parameter)
-      .setValueIri(value));
-  }
+
 
   private void setCompare(Where where, Operator comp, String value, String units, VocRelation relation) throws EQDException {
     if (relation == VocRelation.RELATIVE) {
       where.setRelativeTo(new PropertyRef().setParameter("$referenceDate"));
     }
-    if (comp!=null) {
+    if (comp != null) {
       where.setOperator(comp);
     }
-    if (value!=null) {
+    if (value != null) {
       where.setValue(value);
     }
     if (units != null)
-    setUnitsOrArgument(where,units);
+      setUnitsOrArgument(where, units);
   }
 
 
@@ -523,12 +525,11 @@ public class EqdResources {
       comp = (Operator) vocabMap.get(rTo.getOperator());
     else
       comp = Operator.eq;
-    String value=null;
-    String units=null;
-    VocRelation relation=null;
-    if (rTo.getValue()!=null) {
+    String value = null;
+    String units = null;
+    VocRelation relation = null;
+    if (rTo.getValue() != null) {
       value = rTo.getValue().getValue();
-      units = null;
       if (rTo.getValue().getUnit() != null)
         units = rTo.getValue().getUnit().value();
       relation = VocRelation.ABSOLUTE;
@@ -581,7 +582,7 @@ public class EqdResources {
     List<Node> valueSet = new ArrayList<>();
     VocCodeSystemEx scheme = set.getCodeSystem();
     for (EQDOCExceptionValue ev : set.getValues()) {
-      Set<Node> values = getValue(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
+      Set<Node> values = getValueConcepts(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
       if (values != null) {
         valueSet.addAll(values.stream().map(v -> v.setExclude(true)).toList());
       } else
@@ -591,100 +592,124 @@ public class EqdResources {
     return valueSet;
   }
 
-
-  private void setInlineValues(EQDOCValueSet vs,Where pv, boolean exclude) throws IOException {
-    Set<Node> setContent = new HashSet<>();
-    VocCodeSystemEx scheme = vs.getCodeSystem();
-    String exclusions = "";
-    if (vs.getClusterCode() != null && !vs.getClusterCode().isEmpty()) {
-      pv.addIs(new Node().setParameter(vs.getClusterCode().get(0)));
-    }
-    for (EQDOCValueSetValue ev : vs.getValues()) {
-      boolean evExclusion = processEQDOCValueSet(scheme, ev, setContent);
-      if (evExclusion) exclusions = " (with exclusions)";
-    }
-    String name = "";
-    int i = 0;
-    for (Node node : setContent) {
-      i++;
-      if (exclude)
-        node.setExclude(true);
-      pv.addIs(node);
-      if (node.getName() != null) {
-        if (i == 3)
-          name = name + " + more...";
-        else if (i == 1)
-          name = getShortName(node.getName(), null);
-        else if (i == 2) {
-          name = getShortName(node.getName(), name);
+  private TTIriRef getClusterSet(EQDOCValueSet vs) throws IOException {
+    if (vs.getCodeSystem() == VocCodeSystemEx.SNOMED_CONCEPT) {
+      if (vs.getDescription() != null) {
+        if (vs.getClusterCode().contains("FlattenedCodeList")) {
+          return importMaps.getReferenceFromCoreTerm(vs.getDescription());
         }
       }
     }
-    if (vs.getDescription() != null)
-      name = vs.getDescription();
-    pv.setValueLabel(name+exclusions);
+    return null;
   }
 
-  private boolean processEQDOCValueSet(VocCodeSystemEx scheme, EQDOCValueSetValue ev, Set<Node> setContent) throws IOException {
-    boolean hasExclusions = false;
-    Set<Node> concepts = getValue(scheme, ev);
+
+  private void setInlineValues(EQDOCValueSet vs, Where pv) throws IOException {
+    VocCodeSystemEx scheme = vs.getCodeSystem();
+    if (vs.getDescription() != null) {
+      pv.setValueLabel(vs.getDescription());
+    }
+    TTIriRef cluster = getClusterSet(vs);
+    if (cluster != null) {
+      pv.addIs(new Node().setIri(cluster.getIri()).setName(cluster.getName())
+        .setMemberOf(true));
+      return;
+    }
+    Set<Node> setContent = new HashSet<>();
+    for (EQDOCValueSetValue ev : vs.getValues()) {
+      Set<Node> setMembers = processEQDOCValueSet(scheme, ev);
+      if (!setMembers.isEmpty()) {
+        setContent.addAll(setMembers);
+      }
+    }
+    if (setContent.size() > 3) {
+      TTIriRef valueSet = iri(createValueSet(vs, setContent).getIri());
+      pv.addIs(new Node().setIri(valueSet.getIri()).setName(valueSet.getName())
+        .setMemberOf(true));
+    } else {
+      String name = "";
+      String exclusions = "";
+      for (Node node : setContent) {
+        if (node.isExclude())
+          exclusions = " (exclusions)";
+        pv.addIs(node);
+        if (node.getName() != null)
+          name = name.equals("") ? getShortName(node.getName(), null) : name + ", " + getShortName(node.getName(), null);
+
+      }
+      if (vs.getDescription() != null)
+        name = vs.getDescription();
+      pv.setValueLabel(name + exclusions);
+    }
+  }
+
+  private TTEntity createValueSet(EQDOCValueSet vs, Set<Node> setContent){
+      String name = vs.getDescription();
+      if (name == null) {
+        name = "Unnamed set used ";
+      }
+      if (isTestSet)
+        name = name + "in test ";
+      if (columnGroup != null) {
+        name = name + "for " + columnGroup.getName();
+      } else
+        name = name + " in " + activeReportName;
+      TTEntity valueSet = new TTEntity()
+        .setIri(URN_UUID + vs.getId())
+        .setName(name)
+        .addType(iri(IM.CONCEPT_SET));
+      if (columnGroup!=null){
+        valueSet.addObject(iri(IM.USED_IN),iri(columnGroup.getIri()));
+      }
+      else
+        valueSet.addObject(iri(IM.USED_IN), iri(URN_UUID + activeReport));
+      for (Node node : setContent) {
+        TTNode instance = new TTNode();
+        if (!node.isExclude()) {
+          instance.set(iri(IM.INCLUDE), node.getIri());
+        } else
+          instance.set(iri(IM.EXCLUDE), iri(node.getIri()));
+        if (node.isAncestorsOf())
+          instance.set(iri(IM.ANCESTORS_OF), TTLiteral.literal(true));
+        if (node.isDescendantsOf())
+          instance.set(iri(IM.DESCENDANTS_OF), TTLiteral.literal(true));
+        if (node.isDescendantsOrSelfOf())
+          instance.set(iri(IM.DESCENDANTS_OR_SELF_OF), TTLiteral.literal(true));
+        valueSet.addObject(iri(IM.INSTANCE_OF), instance);
+      }
+      document.addEntity(valueSet);
+    return valueSet;
+  }
+
+  private Set<Node> processEQDOCValueSet(VocCodeSystemEx scheme, EQDOCValueSetValue ev) throws IOException {
+    Set<Node> setMembers = new HashSet<>();
+    Set<Node> concepts = getValueConcepts(scheme, ev);
     if (concepts != null) {
       for (Node iri : concepts) {
         Node conRef = new Node().setIri(iri.getIri()).setName(iri.getName());
         if (ev.isIncludeChildren())
           conRef.setDescendantsOrSelfOf(true);
-        setContent.add(conRef);
+        setMembers.add(conRef);
       }
     } else
       LOG.error("Missing {} {}", ev.getValue(), ev.getDisplayName());
     if (!ev.getException().isEmpty()) {
-      hasExclusions = true;
       for (EQDOCException exc : ev.getException()) {
         for (EQDOCExceptionValue val : exc.getValues()) {
-          Set<Node> exceptionValue = getValue(scheme, val);
+          Set<Node> exceptionValue = getValueConcepts(scheme, val);
           if (exceptionValue != null) {
             for (Node iri : exceptionValue) {
               Node conRef = new Node().setIri(iri.getIri()).setName(iri.getName());
               if (val.isIncludeChildren())
                 conRef.setDescendantsOrSelfOf(true);
               conRef.setExclude(true);
-              setContent.add(conRef);
+              setMembers.add(conRef);
             }
           }
         }
       }
     }
-    return hasExclusions;
-  }
-
-  private void setMemberOnlySet(ConceptSet set, Match match) {
-    if (match.getInstanceOf() != null) {
-      for (Node node : match.getInstanceOf()) {
-        set.addHasMember(iri(node.getIri()));
-      }
-      if (match.getMatch() != null) {
-        for (Match subMatch : match.getMatch()) {
-          setMemberOnlySet(set, subMatch);
-        }
-      }
-    }
-
-  }
-
-  private boolean memberOnly(Match match) {
-    if (match.getInstanceOf() != null) {
-      for (Node node : match.getInstanceOf()) {
-        if (node.isDescendantsOrSelfOf())
-          return false;
-      }
-    }
-    if (match.getMatch() != null) {
-      for (Match subMatch : match.getMatch()) {
-        if (!memberOnly(subMatch))
-          return false;
-      }
-    }
-    return true;
+    return setMembers;
   }
 
 
@@ -701,50 +726,53 @@ public class EqdResources {
   }
 
 
-  private Set<Node> getValue(VocCodeSystemEx scheme, EQDOCExceptionValue ev) throws IOException {
-    return getValue(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
+  private Set<Node> getValueConcepts(VocCodeSystemEx scheme, EQDOCExceptionValue ev) throws IOException {
+    return getValueConcepts(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
   }
 
 
-  private Set<Node> getValue(VocCodeSystemEx scheme, EQDOCValueSetValue ev) throws IOException {
-    return getValue(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
+  private Set<Node> getValueConcepts(VocCodeSystemEx scheme, EQDOCValueSetValue ev) throws IOException {
+    return getValueConcepts(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
   }
 
-  private Set<Node> getValue(VocCodeSystemEx scheme, String originalCode,
-                             String originalTerm, String legacyCode) throws IOException {
+  private Set<Node> getValueConcepts(VocCodeSystemEx scheme, String originalCode,
+                                     String originalTerm, String legacyCode) throws IOException {
     if (scheme == VocCodeSystemEx.EMISINTERNAL) {
-      String key = "EMISINTERNAL/" + originalCode;
+      String key = sourceContext + "/EMISINTERNAL/" + originalCode;
       Object mapValue = dataMap.get(key);
       if (mapValue != null) {
         return getValueIriResult(mapValue);
-      }
-      else  {
+      } else {
         try {
           // Try to parse the string as a UUID
           UUID uuid = UUID.fromString(originalCode);
-          Node iri = new Node().setIri("urn:uuid:"+key).setName(originalTerm);
+          Node iri = new Node().setIri("urn:uuid:" + key).setName(originalTerm);
         } catch (IllegalArgumentException e) {
           // If parsing fails, it's not a valid UUID
           throw new IllegalArgumentException("unmapped emis internal code : " + key);
-          }
+        }
       }
-    }
-    else if (scheme != VocCodeSystemEx.SNOMED_CONCEPT && !scheme.value().contains("SCT")) {
+    } else if (scheme != VocCodeSystemEx.SNOMED_CONCEPT && !scheme.value().contains("SCT")) {
       throw new IllegalArgumentException("code scheme not recognised : " + scheme.value());
     }
-      List<String> schemes = new ArrayList<>();
-      schemes.add(SNOMED.NAMESPACE);
-      schemes.add(GRAPH.EMIS);
-      Set<TTIriRef> snomed = valueMap.get(originalCode);
-      if (snomed == null) {
-        snomed = setValueSnomedChecks(originalCode, originalTerm, legacyCode, schemes);
-        if (snomed != null)
-          valueMap.put(originalCode, snomed);
-      }
+    List<String> schemes = new ArrayList<>();
+    schemes.add(SNOMED.NAMESPACE);
+    schemes.add(GRAPH.EMIS);
+    Set<TTIriRef> snomed = valueMap.get(originalCode);
+    if (snomed == null) {
+      snomed = setValueSnomedChecks(originalCode, originalTerm, legacyCode, schemes);
       if (snomed != null)
-        return snomed.stream().map(e -> new Node().setIri(e.getIri()).setName(e.getName())).collect(Collectors.toSet());
-      else
-        return Collections.emptySet();
+        valueMap.put(originalCode, snomed);
+    }
+    if (snomed != null) {
+      for (TTIriRef sn : snomed) {
+        if (sn.getIri() == null) {
+          System.out.println("null snomed");
+        }
+      }
+      return snomed.stream().map(e -> new Node().setIri(e.getIri()).setName(e.getName())).collect(Collectors.toSet());
+    } else
+      return Collections.emptySet();
   }
 
   private Set<Node> getValueIriResult(Object mapValue) throws IOException {

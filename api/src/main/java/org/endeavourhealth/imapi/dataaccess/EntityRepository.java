@@ -236,9 +236,10 @@ public class EntityRepository {
 
   public SearchResultSummary getEntitySummaryByIri(String iri) {
     SearchResultSummary result = new SearchResultSummary();
+    result.setIri(iri);
 
     String sql = """
-      SELECT ?sname ?scode ?sstatus ?sstatusname ?sdescription ?g ?gname ?sscheme ?sschemename
+      SELECT ?sname ?type ?typeName ?scode ?sstatus ?sstatusname ?sdescription ?g ?gname ?sscheme ?sschemename ?intervalUnit ?intervalUnitName ?qualifier ?qualifierName
       WHERE {
         GRAPH ?g {
           ?s rdfs:label ?sname .
@@ -246,8 +247,17 @@ public class EntityRepository {
         OPTIONAL { ?s im:code ?scode . }
         OPTIONAL { ?s im:status ?sstatus . ?sstatus rdfs:label ?sstatusname . }
         OPTIONAL { ?s im:scheme ?sscheme . ?sscheme rdfs:label ?sschemename . }
+           OPTIONAL { ?s rdf:type ?type .
+               ?type rdfs:label ?typeName . }
         OPTIONAL { ?s rdfs:comment ?sdescription } .
         OPTIONAL { ?g rdfs:label ?gname } .
+        OPTIONAL {?s im:intervalUnit ?intervals.
+              ?intervalUnit rdfs:subClassOf ?intervals.
+              ?intervalUnit rdfs:label ?intervalUnitName.
+              filter (?intervalUnit!= ?intervals)
+          }
+        OPTIONAL {?s im:datatypeQualifier ?qualifier.
+          ?qualifier rdfs:label ?qualifierName.}
       }
       """;
 
@@ -255,15 +265,34 @@ public class EntityRepository {
       TupleQuery qry = prepareSparql(conn, sql);
       qry.setBinding("s", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
-        if (rs.hasNext()) {
-          Set<TTIriRef> types = getTypesByIri(iri);
+        while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          result.setIri(iri).setName(bs.getValue("sname").stringValue()).setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue()).setEntityType(types).setStatus(new TTIriRef(bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue())).setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
+          if (result.getName()==null) {
+            result.setIri(iri).setName(bs.getValue("sname").stringValue())
+              .setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue())
+              .setStatus(new TTIriRef(bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()))
+              .setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
+          }
+          if (bs.hasBinding("type")){
+            result.addEntityType(TTIriRef.iri(bs.getValue("type").stringValue())
+              .setName(bs.getValue("typeName").stringValue()));
+          }
 
           if (bs.hasBinding("sscheme")) {
             result.setScheme(new TTIriRef(bs.getValue("sscheme").stringValue(), (bs.getValue("sschemename") == null ? "" : bs.getValue("sschemename").stringValue())));
           } else {
             result.setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())));
+          }
+          if (bs.hasBinding("intervalUnit")) {
+            result.addIntervalUnit(TTIriRef.iri(bs.getValue("intervalUnit").stringValue())
+              .setName(bs.getValue("intervalUnitName").stringValue()));
+          }
+          if (bs.hasBinding("qualifier")) {
+            TTIriRef qualifier = TTIriRef.iri(bs.getValue("qualifier").stringValue())
+              .setName(bs.getValue("qualifierName").stringValue());
+            if (result.getQualifier() == null || (!result.getQualifier().contains(qualifier))) {
+              result.addQualifier(qualifier);
+            }
           }
         }
       }
@@ -1533,18 +1562,19 @@ public class EntityRepository {
   }
 
   public Boolean hasPredicates(String subjectIri, Set<String> predicateIris) {
+    String predicates= String.join(" ",predicateIris.stream().map(iri-> "<"+ iri+">").collect(Collectors.toSet()));
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      StringJoiner stringQuery = new StringJoiner(System.lineSeparator()).add("ASK {");
-      for (String predicateIri : predicateIris) {
-        stringQuery.add("?subjectIri <" + iri(predicateIri) + "> ?o .");
-      }
-      stringQuery.add("}");
-
-      BooleanQuery sparql = conn.prepareBooleanQuery(String.valueOf(stringQuery));
-      sparql.setBinding("subjectIri", iri(subjectIri));
+      String sql= """
+        ASK {
+        Values ?predicates {%s}
+        %s ?predicates ?value.
+        }
+        """.formatted(predicates,"<"+ subjectIri+">");
+      BooleanQuery sparql = conn.prepareBooleanQuery(String.valueOf(sql));
       return sparql.evaluate();
     }
   }
+
 
   public Map<String, TTEntity> getEntitiesWithPredicates(Set<String> iris, Set<String> predicates) {
     Map<String, TTEntity> result = new HashMap<>();

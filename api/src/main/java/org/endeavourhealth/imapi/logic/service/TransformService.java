@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.iml.TransformRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.map.MapObject;
+import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
@@ -28,22 +29,19 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @PropertySource("classpath:eqdmap.properties")
 public class TransformService {
 
-  public ModelDocument transformEqd(EnquiryDocument eqDoc) throws IOException, QueryException, EQDException {
+  public TTDocument transformEqd(EnquiryDocument eqDoc) throws IOException, QueryException, EQDException {
     Properties dataMap = new Properties();
-    Properties criteriaLabels = new Properties();
 
     File file = ResourceUtils.getFile("classpath:eqdmap.properties");
     try (InputStream in = new FileInputStream(file)) {
       dataMap.load(in);
-      file = ResourceUtils.getFile("classpath:criterialabels.properties");
     }
-    try (InputStream in = new FileInputStream(file)) {
-      criteriaLabels.load(in);
-    }
+
+    TTDocument document= new TTDocument();
 
     EqdToIMQ converter = new EqdToIMQ();
-    return converter.convertEQD(eqDoc, dataMap, criteriaLabels);
-
+    converter.convertEQD(document,eqDoc,dataMap);
+    return document;
 
   }
 

@@ -3,14 +3,19 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.transforms.eqd.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.IOException;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EqdListToIMQ {
   private EqdResources resources;
 
-  public void convertReport(EQDOCReport eqReport, Query query, EqdResources resources) throws IOException, QueryException, EQDException {
+  public void convertReport(EQDOCReport eqReport, TTDocument document,Query query, EqdResources resources) throws IOException, QueryException, EQDException {
     this.resources = resources;
     String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
     query.match(f -> f
@@ -19,20 +24,29 @@ public class EqdListToIMQ {
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
       EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();
       Query subQuery = new Query();
+      subQuery.setIri("urn:uuid:"+ eqColGroup.getId());
+      TTEntity columnGroup= new TTEntity()
+        .setIri(subQuery.getIri())
+          .setName(eqColGroup.getDisplayName()+" in "+ eqReport.getName())
+            .addType(iri(IM.FIELD_GROUP));
+      columnGroup.addObject(iri(IM.USED_IN),iri(query.getIri()));
       query.addQuery(subQuery);
-      convertListGroup(eqColGroup, subQuery);
+      document.addEntity(columnGroup);
+      convertListGroup(eqColGroup, subQuery,query.getName());
     }
   }
 
 
-  private void convertListGroup(EQDOCListColumnGroup eqColGroup, Query subQuery) throws IOException, QueryException, EQDException {
+  private void convertListGroup(EQDOCListColumnGroup eqColGroup, Query subQuery,String reportName) throws IOException, QueryException, EQDException {
     String eqTable = eqColGroup.getLogicalTableName();
     subQuery.setName(eqColGroup.getDisplayName());
+    resources.setColumnGroup(iri(subQuery.getIri()).setName(subQuery.getName()+" in "+reportName));
     if (eqColGroup.getCriteria() == null) {
       convertPatientColumns(eqColGroup, eqTable, subQuery);
     } else {
       convertEventColumns(eqColGroup, eqTable, subQuery);
     }
+    resources.setColumnGroup(null);
   }
 
   private void convertPatientColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws EQDException {
@@ -97,8 +111,6 @@ public class EqdListToIMQ {
 
   private void convertColumn(Return aReturn, String subPath,String as) {
     ReturnProperty property = new ReturnProperty();
-    if (as!=null)
-      property.setAs(as);
     aReturn.addProperty(property);
     property.setAs(as);
     if (subPath.contains(" ")) {
@@ -111,9 +123,13 @@ public class EqdListToIMQ {
           property.getReturn().addProperty(subProperty);
           property = subProperty;
         }
+        if (as!=null)
+          property.setAs(as);
       }
     } else {
       property.setIri(subPath);
+      if (as!=null)
+        property.setAs(as);
     }
   }
 

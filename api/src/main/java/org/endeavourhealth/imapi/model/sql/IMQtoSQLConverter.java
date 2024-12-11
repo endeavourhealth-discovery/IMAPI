@@ -278,16 +278,16 @@ public class IMQtoSQLConverter {
   }
 
   private String convertMatchPropertyNumberRangeNode(String fieldName, Assignable range) {
-    if (range.getUnit() != null)
-      return fieldName + " " + range.getOperator().getValue() + " " + range.getValue() + " -- CONVERT " + range.getUnit();
+    if (range.getIntervalUnit() != null)
+      return fieldName + " " + range.getOperator().getValue() + " " + range.getValue() + " -- CONVERT " + range.getIntervalUnit();
     else return fieldName + " " + range.getOperator().getValue() + " " + range.getValue();
   }
 
   private String convertMatchPropertyDateRangeNode(String fieldName, Assignable range) {
-    if ("DATE".equals(range.getUnit()))
+    if ("DATE".equals(range.getIntervalUnit()))
       return "'" + range.getValue() + "' " + range.getOperator().getValue() + " " + fieldName;
     else
-      return "(now() - INTERVAL '" + range.getValue() + (range.getUnit() != null ? " " + range.getUnit() : "") + "') " + range.getOperator().getValue() + " " + fieldName;
+      return "(now() - INTERVAL '" + range.getValue() + (range.getIntervalUnit() != null ? " " + range.getIntervalUnit() : "") + "') " + range.getOperator().getValue() + " " + fieldName;
   }
 
   private void convertMatchPropertySubMatch(SQLQuery qry, Where property) throws SQLConversionException {
@@ -355,7 +355,7 @@ public class IMQtoSQLConverter {
   private String convertMatchPropertyRelativeTo(SQLQuery qry, Where property, String field) throws SQLConversionException {
     String fieldType = qry.getFieldType(property.getIri(), null, tableMap);
     if ("date".equals(fieldType)) if (property.getValue() != null) {
-      return "(" + field + " + INTERVAL '" + property.getValue() + " " + property.getUnit() + "')";
+      return "(" + field + " + INTERVAL '" + property.getValue() + " " + property.getIntervalUnit() + "')";
     } else return field;
     else {
       throw new SQLConversionException("UNHANDLED RELATIVE TYPE (" + fieldType + ")\n" + property);
@@ -367,9 +367,9 @@ public class IMQtoSQLConverter {
       throw new SQLConversionException("INVALID MatchPropertyValue\n" + property);
     }
 
-    String where = "date".equals(qry.getFieldType(property.getIri(), null, tableMap)) ? convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), new Value().setValue(property.getValue()).setUnit(property.getUnit()).setOperator(property.getOperator())) : qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + property.getValue();
+    String where = "date".equals(qry.getFieldType(property.getIri(), null, tableMap)) ? convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), new Value().setValue(property.getValue()).setIntervalUnit(property.getIntervalUnit()).setOperator(property.getOperator())) : qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + property.getValue();
 
-    if (property.getUnit() != null) where += " -- CONVERT " + property.getUnit() + "\n";
+    if (property.getIntervalUnit() != null) where += " -- CONVERT " + property.getIntervalUnit() + "\n";
 
     // TODO: TCT
     if (property.isAncestorsOf() || property.isDescendantsOf() || property.isDescendantsOrSelfOf()) {

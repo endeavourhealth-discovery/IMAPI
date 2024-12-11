@@ -13,18 +13,18 @@ public interface Assignable {
   public String getValue();
 
   public Assignable setValue(String value);
-  List<Argument> getArgument();
-  Assignable setArgument(List<Argument> arguments);
+
   Assignable setQualifier(String qualifier);
+
   String getQualifier();
+
   String getValueLabel();
+
   Assignable setValueLabel(String label);
 
-  String getUnit();
+  TTIriRef getIntervalUnit();
 
-  Assignable setUnit(String unit);
-
-  Assignable argument(Consumer<Argument> builder);
+  Assignable setIntervalUnit(TTIriRef unit);
 
   Assignable setValueParameter(String parameter);
 

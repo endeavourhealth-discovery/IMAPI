@@ -3,8 +3,11 @@ package org.endeavourhealth.imapi.model.search;
 import com.fasterxml.jackson.annotation.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -32,6 +35,55 @@ public class SearchResultSummary {
   private Set<String> key;
   private Set<TTIriRef> isA = new HashSet<>();
   Set<SearchTermCode> termCode = new HashSet<>();
+  Set<TTIriRef> intervalUnit;
+  List<TTIriRef> qualifier;
+
+  public Set<TTIriRef> getIntervalUnit() {
+    return intervalUnit;
+  }
+
+  public SearchResultSummary setIntervalUnit(Set<TTIriRef> intervalUnit) {
+    this.intervalUnit = intervalUnit;
+    return this;
+  }
+  public SearchResultSummary addIntervalUnit (TTIriRef intervalUnit){
+      if (this.intervalUnit == null) {
+        this.intervalUnit = new HashSet<>();
+      }
+      this.intervalUnit.add(intervalUnit);
+      return this;
+    }
+  public SearchResultSummary intervalUnit (Consumer< TTIriRef > builder) {
+      TTIriRef intervalUnit = new TTIriRef();
+      addIntervalUnit(intervalUnit);
+      builder.accept(intervalUnit);
+      return this;
+    }
+
+
+  public List<TTIriRef> getQualifier() {
+    return qualifier;
+  }
+
+  public SearchResultSummary setQualifier(List<TTIriRef> qualifier) {
+    this.qualifier = qualifier;
+    return this;
+  }
+  public SearchResultSummary addQualifier (TTIriRef qualifier){
+      if (this.qualifier == null) {
+        this.qualifier = new ArrayList<>();
+      }
+      this.qualifier.add(qualifier);
+      return this;
+    }
+
+  public SearchResultSummary qualifier (Consumer < TTIriRef > builder) {
+      TTIriRef qualifier = new TTIriRef();
+      addQualifier(qualifier);
+      builder.accept(qualifier);
+      return this;
+    }
+
 
   public String getPreferredName() {
     return preferredName;

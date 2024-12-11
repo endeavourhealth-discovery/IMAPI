@@ -13,7 +13,6 @@ public class IM_FUNCTION {
     public static final String IM1_SCHEME_OPTIONS = IM_FUNCTION.NAMESPACE + "IM1SchemeOptions";
     public static final String SCHEME_FROM_IRI = IM_FUNCTION.NAMESPACE + "SchemeFromIri";
     public static final String GET_USER_EDITABLE_SCHEMES = IM_FUNCTION.NAMESPACE + "GetUserEditableSchemes";
-    public static final String GENERATE_IRI_CODE = IM_FUNCTION.NAMESPACE + "GenerateIriCode";
     public static final String IS_TYPE = IM_FUNCTION.NAMESPACE + "IsType";
     public static final String ALLOWABLE_PROPERTIES = IM_FUNCTION.NAMESPACE + "AllowableProperties";
     public static final String ALLOWABLE_RANGES = IM_FUNCTION.NAMESPACE + "AllowableRanges";

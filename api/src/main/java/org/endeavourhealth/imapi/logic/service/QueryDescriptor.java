@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -18,13 +20,20 @@ public class QueryDescriptor {
   private final EntityRepository entityRepository = new EntityRepository();
   private Map<String, TTEntity> iriContext;
   private final EntityRepository repo = new EntityRepository();
+  private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
+
 
   public Query describeQuery(String queryIri) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null)
       return null;
+    String queryString = queryCache.get(queryIri);
+    if (queryString != null)
+      return new ObjectMapper().readValue(queryString, Query.class);
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
-    return describeQuery(query);
+    query = describeQuery(query);
+    queryCache.put(queryIri, new ObjectMapper().writeValueAsString(query));
+    return query;
   }
 
   public Query describeQuery(Query query) throws QueryException {
@@ -45,6 +54,7 @@ public class QueryDescriptor {
     if (query.getReturn() != null) {
       describeReturns(query);
     }
+
     return query;
   }
 
@@ -118,6 +128,10 @@ public class QueryDescriptor {
       }
     }
     if (match.getInstanceOf() != null) {
+      for (Node node : match.getInstanceOf()) {
+        if (node.getIri() == null)
+          System.out.println("null node");
+      }
       match.getInstanceOf().forEach(i -> iriSet.add(i.getIri()));
     }
     if (match.getMatch() != null) {
@@ -151,31 +165,21 @@ public class QueryDescriptor {
       for (Node node : where.getIs())
         iriSet.add(node.getIri());
     }
-    setIriSet((Assignable) where,iriSet);
-    if (where.getRange()!=null){
-      if (where.getRange().getFrom()!=null){
-        setIriSet(where.getRange().getFrom(),iriSet);
+    setIriSet((Assignable) where, iriSet);
+    if (where.getRange() != null) {
+      if (where.getRange().getFrom() != null) {
+        setIriSet(where.getRange().getFrom(), iriSet);
       }
-      if (where.getRange().getFrom()!=null){
-        setIriSet(where.getRange().getFrom(),iriSet);
+      if (where.getRange().getFrom() != null) {
+        setIriSet(where.getRange().getFrom(), iriSet);
       }
     }
   }
 
-  private void setIriSet(Assignable assignable,Set<String> iriSet){
-    if (assignable.getArgument()!=null){
-      for (Argument argument:assignable.getArgument()){
-        if (argument.getValueIri()!=null){
-          iriSet.add(argument.getValueIri().getIri());
-        }
-        if (argument.getValueIriList()!=null){
-          for (TTIriRef iri:argument.getValueIriList()){
-            iriSet.add(iri.getIri());
-          }
-        }
-      }
+  private void setIriSet(Assignable assignable, Set<String> iriSet) {
+    if (assignable.getIntervalUnit() != null) {
+      iriSet.add(assignable.getIntervalUnit().getIri());
     }
-
   }
 
 
@@ -253,7 +257,7 @@ public class QueryDescriptor {
     for (Match subMatch : match.getMatch()) {
       describeMatch(subMatch);
     }
-    if (match.getWhere()!=null){
+    if (match.getWhere() != null) {
       describeWheres(match);
     }
   }
@@ -421,7 +425,7 @@ public class QueryDescriptor {
 
   }
 
-  private void describeValue(Assignable assignable, Operator operator, boolean date, String value, List<Argument> argument, boolean relativeTo, boolean isRange) {
+  private void describeValue(Assignable assignable, Operator operator, boolean date, String value, TTIriRef unit, boolean relativeTo, boolean isRange) {
     String qualifier = null;
     boolean inclusive = false;
     boolean past = false;
@@ -506,8 +510,8 @@ public class QueryDescriptor {
     }
     if (value != null) {
       assignable.setValueLabel(value.replace("-", ""));
-      if (argument != null) {
-        assignable.setValueLabel(assignable.getValueLabel() + " " + getArgumentDisplay(argument));
+      if (unit != null) {
+        assignable.setValueLabel(assignable.getValueLabel() + " " + getTermInContext(unit.getIri(), Context.LOWERCASE));
       }
     }
     if (inclusive && qualifier == null) {
@@ -519,28 +523,13 @@ public class QueryDescriptor {
       assignable.setValueLabel(assignable.getValueLabel() + relativity);
   }
 
-  private String getArgumentDisplay(List<Argument> arguments) {
-    if (arguments==null)
-      return "";
-    StringBuilder result= new StringBuilder();
-    for (Argument argument:arguments){
-      if (argument.getValueData()!=null) {
-        result.append(argument.getValueData()).append(" ");
-      }
-      else if (argument.getValueIri()!=null) {
-        result.append(getTermInContext(argument.getValueIri().getIri(),Context.LOWERCASE));
-      }
-    }
-    return result.toString();
-  }
-
 
   private void describeValueWhere(Where where) {
     boolean date = false;
     if (where.getIri() != null)
       date = where.getIri().toLowerCase().contains("date");
     Operator operator = where.getOperator();
-    describeValue(where, operator, date, where.getValue(), where.getArgument(), where.getRelativeTo() != null, false);
+    describeValue(where, operator, date, where.getValue(), where.getIntervalUnit(), where.getRelativeTo() != null, false);
     describeRelativeTo(where);
   }
 
@@ -552,11 +541,11 @@ public class QueryDescriptor {
     }
     Range range = where.getRange();
     Assignable from = range.getFrom();
-    describeValue(from, from.getOperator(), date, from.getValue(), from.getArgument(), where.getRelativeTo() != null, true);
+    describeValue(from, from.getOperator(), date, from.getValue(), from.getIntervalUnit(), where.getRelativeTo() != null, true);
     where.setQualifier("between " + (from.getQualifier() != null ? from.getQualifier() : ""));
     where.setValueLabel(from.getValueLabel());
     Assignable to = range.getTo();
-    describeValue(to, to.getOperator(), date, to.getValue(), to.getArgument(), where.getRelativeTo() != null, true);
+    describeValue(to, to.getOperator(), date, to.getValue(), to.getIntervalUnit(), where.getRelativeTo() != null, true);
     if (to.getValue() != null) {
       if (from.getValueLabel() != null) {
         where.setValueLabel(where.getValueLabel() + " and " + (to.getQualifier() != null ? to.getQualifier() + " " : "") +
@@ -625,6 +614,6 @@ public class QueryDescriptor {
       where.setValueLabel(valueLabel.toString());
     }
   }
-
-
 }
+
+

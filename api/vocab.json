@@ -78,6 +78,26 @@
         "value": "IM.DOMAIN + IM.PREFIX + \"#\""
       },
       {
+        "name": "DESCENDANTS_OR_SELF_OF",
+        "value": "IM.NAMESPACE + \"descendantsOrSelfOf\""
+      },
+      {
+        "name": "DESCENDANTS_OF",
+        "value": "IM.NAMESPACE + \"descendantsOf\""
+      },
+      {
+        "name": "ANCESTORS_OF",
+        "value": "IM.NAMESPACE + \"ancestorsOf\""
+      },
+      {
+        "name": "INCLUDE",
+        "value": "IM.NAMESPACE + \"include\""
+      },
+      {
+        "name": "EXCLUDE",
+        "value": "IM.NAMESPACE + \"exclude\""
+      },
+      {
         "name": "IRI",
         "value": "\"@id\""
       },
@@ -136,6 +156,10 @@
       {
         "name": "DEFINITION",
         "value": "IM.NAMESPACE + \"definition\""
+      },
+      {
+        "name": "INSTANCE_OF",
+        "value": "IM.NAMESPACE + \"instanceOf\""
       },
       {
         "name": "RETURN_TYPE",
@@ -996,7 +1020,56 @@
       {
         "name": "GRAPH_EXCLUDE_PREDICATES",
         "value": "IM.NAMESPACE + \"graphExcludePredicates\""
+      },
+      {
+        "name": "AGE",
+        "value": "IM.NAMESPACE + \"Age\""
+      },
+      {
+        "name": "DATE",
+        "value": "IM.NAMESPACE + \"Date\""
+      },
+      {
+        "name": "TIME",
+        "value": "IM.NAMESPACE + \"Time\""
+      },
+      {
+        "name": "INTERVAL_UNIT",
+        "value": "IM.NAMESPACE + \"intervalUnit\""
+      },
+      {
+        "name": "PARAMETER",
+        "value": "IM.NAMESPACE + \"parameter\""
+      },
+      {
+        "name": "YEARS",
+        "value": "IM.NAMESPACE + \"Years\""
+      },
+      {
+        "name": "MONTHS",
+        "value": "IM.NAMESPACE + \"Months\""
+      },
+      {
+        "name": "DAYS",
+        "value": "IM.NAMESPACE + \"Days\""
+      },
+      {
+        "name": "HOURS",
+        "value": "IM.NAMESPACE + \"Hours\""
+      },
+      {
+        "name": "MINUTES",
+        "value": "IM.NAMESPACE + \"Minutes\""
+      },
+      {
+        "name": "SECONDS",
+        "value": "IM.NAMESPACE + \"Seconds\""
+      },
+      {
+        "name": "DATATYPE_QUALIFIER",
+        "value": "IM.NAMESPACE + \"datatypeQualifier\""
       }
+
     ]
   },
   {
@@ -1041,10 +1114,6 @@
       {
         "name": "GET_USER_EDITABLE_SCHEMES",
         "value": "IM_FUNCTION.NAMESPACE + \"GetUserEditableSchemes\""
-      },
-      {
-        "name": "GENERATE_IRI_CODE",
-        "value": "IM_FUNCTION.NAMESPACE + \"GenerateIriCode\""
       },
       {
         "name": "IS_TYPE",
@@ -1995,10 +2064,7 @@
         "name": "ALLOWABLE_RANGE_SUGGESTIONS",
         "value": "QUERY.NAMESPACE + \"AllowableRangeSuggestions\""
       },
-      {
-        "name": "GET_DESCENDANTS",
-        "value": "QUERY.NAMESPACE + \"GetDescendants\""
-      },
+
       {
         "name": "GET_SUBCLASSES",
         "value": "QUERY.NAMESPACE + \"GetSubClasses\""
@@ -2120,6 +2186,10 @@
       {
         "name": "SMARTLIFE",
         "value": "\"http://smartlifehealth.info/smh#\""
+      },
+      {
+        "name": "QOF",
+        "value": "\"http://endhealth.info/qof#\""
       },
       {
         "name": "DISCOVERY",

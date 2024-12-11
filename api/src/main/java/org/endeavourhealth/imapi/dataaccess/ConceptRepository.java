@@ -38,39 +38,6 @@ import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueLis
 
 public class ConceptRepository {
 
-  public Integer getLastInrementalFrom() {
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      String sql = """
-        select ?increment where {
-          ?snomedGenerator ?hasIncrementalFrom ?increment
-        }
-        """;
-      TupleQuery qry = conn.prepareTupleQuery(sql);
-      qry.setBinding("snomedGenerator", iri(IM_FUNCTION.SNOMED_CONCEPT_GENERATOR));
-      qry.setBinding("hasIncrementalFrom", iri(IM.HAS_INCREMENTAL_FROM));
-      try (TupleQueryResult rs = qry.evaluate()) {
-        if (rs.hasNext()) {
-          return Integer.parseInt(rs.next().getValue("increment").stringValue());
-        }
-      }
-    }
-
-    return 0;
-  }
-
-  public void updateIncrement(Integer from) throws QueryException, TTFilerException, JsonProcessingException {
-    TTDocument document = new TTDocument()
-      .setCrud(TTIriRef.iri(IM.UPDATE_PREDICATES))
-      .setGraph(TTIriRef.iri(GRAPH.DISCOVERY))
-      .addEntity(new TTEntity()
-        .setCrud(TTIriRef.iri(IM.UPDATE_PREDICATES))
-        .setIri(IM_FUNCTION.SNOMED_CONCEPT_GENERATOR)
-        .set(TTIriRef.iri(IM.HAS_INCREMENTAL_FROM), TTLiteral.literal(from + 1)));
-    try (TTTransactionFiler filer = new TTTransactionFiler()) {
-      filer.fileDocument(document);
-    }
-  }
-
   public List<SimpleMap> getMatchedFrom(String iri, List<String> schemeIris) {
     List<SimpleMap> simpleMaps = new ArrayList<>();
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""

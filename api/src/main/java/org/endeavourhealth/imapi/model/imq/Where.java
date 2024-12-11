@@ -8,11 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range"
-  , "operator", "isNull", "value", "unit", "instanceOf", "relativeTo", "anyRoleGroup"})
+@JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "instanceOf", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends PropertyRef implements Assignable{
+public class Where extends PropertyRef implements Assignable {
   private String description;
   private Range range;
   private List<Node> is;
@@ -27,7 +26,7 @@ public class Where extends PropertyRef implements Assignable{
   private PropertyRef relativeTo;
   private boolean isNotNull;
   private FunctionClause function;
-  private List<Argument> argument;
+  private TTIriRef intervalUnit;
 
   private String valueParameter;
 
@@ -39,29 +38,6 @@ public class Where extends PropertyRef implements Assignable{
     this.valueParameter = valueParameter;
     return this;
   }
-
-  public List<Argument> getArgument() {
-    return argument;
-  }
-
-  public Where setArgument(List<Argument> argument) {
-    this.argument = argument;
-    return this;
-  }
-  public Where addArgument (Argument argument){
-      if (this.argument == null) {
-        this.argument = new ArrayList<>();
-      }
-      this.argument.add(argument);
-      return this;
-    }
-
-    public Where argument (Consumer < Argument > builder) {
-      Argument argument = new Argument();
-      addArgument(argument);
-      builder.accept(argument);
-      return this;
-    }
 
 
   public FunctionClause getFunction() {
@@ -85,7 +61,7 @@ public class Where extends PropertyRef implements Assignable{
   }
 
 
-  public Where setQualifier(String qualifier){
+  public Where setQualifier(String qualifier) {
     super.setQualifier(qualifier);
     return this;
   }
@@ -94,7 +70,6 @@ public class Where extends PropertyRef implements Assignable{
   public String getValueLabel() {
     return this.valueLabel;
   }
-
 
 
   public Bool getBoolWhere() {
@@ -135,8 +110,7 @@ public class Where extends PropertyRef implements Assignable{
   }
 
   public Where addWhere(Where prop) {
-    if (this.where == null)
-      this.where = new ArrayList<>();
+    if (this.where == null) this.where = new ArrayList<>();
     this.where.add(prop);
     return this;
   }
@@ -179,7 +153,6 @@ public class Where extends PropertyRef implements Assignable{
     super.setAncestorsOf(entailment);
     return this;
   }
-
 
 
   public Where setValueLabel(String valueLabel) {
@@ -240,8 +213,7 @@ public class Where extends PropertyRef implements Assignable{
 
 
   public Where addIs(Node isItem) {
-    if (this.is == null)
-      this.is = new ArrayList<>();
+    if (this.is == null) this.is = new ArrayList<>();
     this.is.add(isItem);
     return this;
   }
@@ -259,8 +231,7 @@ public class Where extends PropertyRef implements Assignable{
   }
 
   public Where addIs(String isIri) {
-    if (this.is == null)
-      this.is = new ArrayList<>();
+    if (this.is == null) this.is = new ArrayList<>();
     this.is.add(new Node().setIri(isIri));
     return this;
   }
@@ -303,7 +274,6 @@ public class Where extends PropertyRef implements Assignable{
   }
 
 
-
   public Range getRange() {
     return range;
   }
@@ -319,24 +289,14 @@ public class Where extends PropertyRef implements Assignable{
     return this;
   }
 
-  @JsonIgnore
-  public String getUnit(){
-    if (this.argument!=null) {
-      if (this.argument.get(0).getParameter().contains("unit")) {
-        String timeUnit = argument.get(0).getValueIri().getIri();
-        return timeUnit.substring(timeUnit.lastIndexOf("#") + 1);
-      }
-      else return "";
-    }
-    else return "";
-  }
-  @JsonIgnore
-  public Where setUnit(String unit){
-    this.addArgument(new Argument()
-      .setParameter("units")
-      .setValueIri(TTIriRef.iri(IM.NAMESPACE+unit).setName(unit)));
+  @Override
+  public Where setIntervalUnit(TTIriRef intervalUnit) {
+    this.intervalUnit = intervalUnit;
     return this;
   }
 
+  public TTIriRef getIntervalUnit() {
+    return this.intervalUnit;
+  }
 
 }

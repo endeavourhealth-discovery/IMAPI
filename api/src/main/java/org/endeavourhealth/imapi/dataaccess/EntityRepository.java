@@ -1562,18 +1562,19 @@ public class EntityRepository {
   }
 
   public Boolean hasPredicates(String subjectIri, Set<String> predicateIris) {
+    String predicates= String.join(" ",predicateIris.stream().map(iri-> "<"+ iri+">").collect(Collectors.toSet()));
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      StringJoiner stringQuery = new StringJoiner(System.lineSeparator()).add("ASK {");
-      for (String predicateIri : predicateIris) {
-        stringQuery.add("?subjectIri <" + iri(predicateIri) + "> ?o .");
-      }
-      stringQuery.add("}");
-
-      BooleanQuery sparql = conn.prepareBooleanQuery(String.valueOf(stringQuery));
-      sparql.setBinding("subjectIri", iri(subjectIri));
+      String sql= """
+        ASK {
+        Values ?predicates {%s}
+        %s ?predicates ?value.
+        }
+        """.formatted(predicates,"<"+ subjectIri+">");
+      BooleanQuery sparql = conn.prepareBooleanQuery(String.valueOf(sql));
       return sparql.evaluate();
     }
   }
+
 
   public Map<String, TTEntity> getEntitiesWithPredicates(Set<String> iris, Set<String> predicates) {
     Map<String, TTEntity> result = new HashMap<>();

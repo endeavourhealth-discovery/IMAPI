@@ -401,7 +401,6 @@ public class SetRepository {
         WHERE {
           ?iri rdf:type ?type.
           FILTER (?type in (im:ValueSet, im:ConceptSet))
-          ?iri im:definition ?d.
         }
         """;
 

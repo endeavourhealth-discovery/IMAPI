@@ -1924,6 +1924,10 @@
       {
         "name": "SUBSET_BUILDER",
         "value": "COMPONENT.NAMESPACE + \"subsetBuilder\""
+      },
+      {
+        "name": "DATASET_BUILDER",
+        "value": "COMPONENT.NAMESPACE + \"datasetQueryBuilder\""
       }
     ]
   },
@@ -1965,6 +1969,10 @@
       {
         "name": "PROPERTY_SHAPE",
         "value": "EDITOR.NAMESPACE + \"PropertyShape\""
+      },
+      {
+        "name": "DATASET_QUERY_SHAPE",
+        "value": "EDITOR.NAMESPACE + \"DatasetQueryShape\""
       }
     ]
   },

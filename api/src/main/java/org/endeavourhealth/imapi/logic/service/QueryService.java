@@ -9,11 +9,10 @@ import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
+import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
@@ -76,6 +75,13 @@ public class QueryService {
       } else searchResponse.setHighestUsage(0);
     }
     return searchResponse;
+  }
+
+  public TTIriRef getReturnType(String iri) {
+    Set<String> predicates = new HashSet<>();
+    predicates.add(IM.RETURN_TYPE);
+    TTBundle result = entityRepository.getBundle(iri, predicates);
+    return result.getEntity().get(iri(IM.RETURN_TYPE)).asIriRef();
   }
 
   public String getSQLFromIMQ(Query query) {

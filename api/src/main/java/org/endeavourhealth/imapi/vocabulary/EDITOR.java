@@ -12,4 +12,5 @@ public class EDITOR {
     public static final String DATA_MODEL_SHAPE = EDITOR.NAMESPACE + "DataModelShape";
     public static final String COHORT_QUERY_SHAPE = EDITOR.NAMESPACE + "CohortQueryShape";
     public static final String PROPERTY_SHAPE = EDITOR.NAMESPACE + "PropertyShape";
+    public static final String DATASET_QUERY_SHAPE = EDITOR.NAMESPACE + "DatasetQueryShape";
 }

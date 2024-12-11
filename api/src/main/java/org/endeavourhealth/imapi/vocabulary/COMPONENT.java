@@ -30,4 +30,5 @@ public class COMPONENT {
     public static final String IRI_BUILDER = COMPONENT.NAMESPACE + "iriBuilder";
     public static final String AUTOCOMPLETE_SEARCH_BAR_WRAPPER = COMPONENT.NAMESPACE + "autocompleteSearchBarWrapper";
     public static final String SUBSET_BUILDER = COMPONENT.NAMESPACE + "subsetBuilder";
+    public static final String DATASET_BUILDER = COMPONENT.NAMESPACE + "datasetQueryBuilder";
 }

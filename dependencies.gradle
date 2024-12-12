@@ -33,7 +33,7 @@ ext {
     servlet           : '6.0.0',
     slf4j             : '2.0.9',
     spring            : '3.3.2',
-    springContext     : '6.1.1',
+    springContext     : '6.2.1',
     springdoc         : '2.3.0',
     springTestSecurity: '6.2.0',
     tomcatAnnotations : '6.0.53',

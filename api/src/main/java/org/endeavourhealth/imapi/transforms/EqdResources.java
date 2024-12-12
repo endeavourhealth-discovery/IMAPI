@@ -665,17 +665,18 @@ public class EqdResources {
         valueSet.addObject(iri(IM.USED_IN), iri(URN_UUID + activeReport));
       for (Node node : setContent) {
         TTNode instance = new TTNode();
+        valueSet.addObject(iri(IM.ENTAILED_MEMBER), instance);
+        instance.set(IM.INSTANCE_OF,TTIriRef.iri(node.getIri()));
         if (!node.isExclude()) {
-          instance.set(iri(IM.INCLUDE), node.getIri());
-        } else
-          instance.set(iri(IM.EXCLUDE), iri(node.getIri()));
+          instance.set(IM.EXCLUDE,TTLiteral.literal(true));
+        }
         if (node.isAncestorsOf())
-          instance.set(iri(IM.ANCESTORS_OF), TTLiteral.literal(true));
+          instance.set(IM.ENTAILMENT, iri(IM.ANCESTORS_OF));
         if (node.isDescendantsOf())
-          instance.set(iri(IM.DESCENDANTS_OF), TTLiteral.literal(true));
+          instance.set(IM.ENTAILMENT,iri(IM.DESCENDANTS_OF));
         if (node.isDescendantsOrSelfOf())
-          instance.set(iri(IM.DESCENDANTS_OR_SELF_OF), TTLiteral.literal(true));
-        valueSet.addObject(iri(IM.INSTANCE_OF), instance);
+          instance.set(IM.ENTAILMENT,iri(IM.DESCENDANTS_OR_SELF_OF));
+
       }
       document.addEntity(valueSet);
     return valueSet;

@@ -38,7 +38,7 @@ public class SetExpander {
     LOG.info("Updating members of {}", iri);
     TTBundle setDefinition = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION));
     if (setDefinition.getEntity().get(iri(IM.DEFINITION)) == null){
-      Set<Concept> members=setRepo.getExpansionFromInstances(iri); //might be an instance member definition
+      Set<Concept> members=setRepo.getExpansionFromEntailedMembers(iri); //might be an instance member definition
       if (!members.isEmpty())
         setRepo.updateMembers(iri, members);
     }

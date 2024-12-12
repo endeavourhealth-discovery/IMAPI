@@ -79,19 +79,23 @@
       },
       {
         "name": "DESCENDANTS_OR_SELF_OF",
-        "value": "IM.NAMESPACE + \"descendantsOrSelfOf\""
+        "value": "IM.NAMESPACE + \"DescendantsOrSelfOf\""
       },
       {
         "name": "DESCENDANTS_OF",
-        "value": "IM.NAMESPACE + \"descendantsOf\""
+        "value": "IM.NAMESPACE + \"DescendantsOf\""
       },
       {
         "name": "ANCESTORS_OF",
-        "value": "IM.NAMESPACE + \"ancestorsOf\""
+        "value": "IM.NAMESPACE + \"DncestorsOf\""
       },
       {
-        "name": "INCLUDE",
-        "value": "IM.NAMESPACE + \"include\""
+        "name": "ENTAILED_MEMBER",
+        "value": "IM.NAMESPACE + \"entailedMember\""
+      },
+      {
+        "name": "ENTAILMENT",
+        "value": "IM.NAMESPACE + \"entailment\""
       },
       {
         "name": "EXCLUDE",

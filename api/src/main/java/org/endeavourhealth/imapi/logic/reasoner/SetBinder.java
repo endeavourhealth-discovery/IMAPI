@@ -61,7 +61,7 @@ public class SetBinder {
   }
 
   public Set<TTNode> bindSet(String iri) {
-    Set<Concept> members = setRepository.getSomeMembers(iri, 10);
+    Set<Concept> members = setRepository.getSomeMembers(iri, 100);
     if (!members.isEmpty()) {
       Set<String> memberIris = members.stream().map(Entity::getIri).collect(Collectors.toSet());
       Set<TTNode> dataModels = setRepository.getBindingsForConcept(memberIris);

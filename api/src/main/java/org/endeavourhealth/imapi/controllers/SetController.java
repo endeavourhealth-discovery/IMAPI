@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
@@ -66,16 +65,16 @@ public class SetController {
     }
   }
 
-  @GetMapping(value = "/public/memberInstances")
+  @GetMapping(value = "/public/entailedMembers")
   public Pageable<Node> get(@RequestParam(name = "iri") String iri, @RequestParam(name = "page", required = false) Integer page,
                             @RequestParam(name = "size", required = false) Integer size) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Set.MemberInstances.GET")) {
-      LOG.debug("getMemberInstances");
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Set.EntailedMembers.GET")) {
+      LOG.debug("getEntailedMembers");
       if (page == null && size == null) {
         page = 1;
         size = 10;
       }
-      return setService.getMemberInstances(iri, page, size);
+      return setService.getEntailedMembers(iri, page, size);
     }
   }
 

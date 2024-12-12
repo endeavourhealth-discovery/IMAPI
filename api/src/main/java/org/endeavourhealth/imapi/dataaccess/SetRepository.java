@@ -649,12 +649,13 @@ public class SetRepository {
 
 
 
-    public Pageable<Node> getMemberInstances(String iri,Integer rowNumber,Integer pageSize){
+    public Pageable<Node> getEntailedMembers(String iri,Integer rowNumber,Integer pageSize){
       Pageable<Node> result= new Pageable<>();
+      result.setTotalCount(0);
       String sql= """
         Select (count(distinct ?instance) as count
         where {
-        %s im:instanceOf ?instance
+        %s im:entailedMember ?instance
         """.formatted("<"+iri+">");
       try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
         TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql.toString()));

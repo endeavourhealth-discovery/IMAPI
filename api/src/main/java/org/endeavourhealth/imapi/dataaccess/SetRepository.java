@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
@@ -9,11 +8,10 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTBundle;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -22,9 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
 
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -37,7 +33,7 @@ public class SetRepository {
   public static final String LEGACY_SCHEME = "legacyScheme";
   public static final String CONCEPT = "concept";
   private static final Logger LOG = LoggerFactory.getLogger(SetRepository.class);
-  private EntityRepository entityRepository = new EntityRepository();
+  private final EntityRepository entityRepository = new EntityRepository();
 
   /**
    * Returns an expanded set members match an iml set definition. If already expanded then returns members
@@ -46,8 +42,8 @@ public class SetRepository {
    * @param imQuery       im query conforming to ecl language constraints
    * @param includeLegacy to include legacy concepts linked by matchedTo to core concept
    * @return a Set of concepts with matchedFrom legacy concepts and list of im1 ids
-   * @throws JsonProcessingException if json definitino invalid
-   * @throws DataFormatException     if query definition invalid
+   * @throws QueryException if json definitino invalid
+
    */
   public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
     //add scheme filter
@@ -626,41 +622,6 @@ public class SetRepository {
   }
 
 
-  public Set<TTEntity> getAllConceptSets(TTIriRef type) {
-    Set<TTEntity> result = new HashSet<>();
-    String sql = """
-      SELECT ?s
-      WHERE {
-        ?s rdf:type ?o
-      }
-      """;
-
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql);
-      qry.setBinding("o", Values.iri(type.getIri()));
-      try (TupleQueryResult rs = qry.evaluate()) {
-        while (rs.hasNext()) {
-          BindingSet bs = rs.next();
-          String iri = bs.getValue("s").stringValue();
-          TTEntity set = getSetDefinition(iri);
-          if (set.get(iri(IM.DEFINITION)) != null)
-            result.add(set);
-        }
-      }
-    }
-    return result;
-  }
-
-  public TTEntity getSetDefinition(String setIri) {
-    Set<String> predicates = new HashSet<>();
-    predicates.add(IM.DEFINITION);
-    predicates.add(IM.IS_CONTAINED_IN);
-    predicates.add(RDFS.LABEL);
-
-    TTBundle entityPredicates = entityRepository.getEntityPredicates(setIri, predicates);
-    return entityPredicates.getEntity();
-  }
-
   public Set<String> getDistillation(String iris) {
     Set<String> isas = new HashSet<>();
 
@@ -686,67 +647,113 @@ public class SetRepository {
     }
   }
 
-  public Set<Concept> getExpansionFromInstances(String setIri) {
+
+
+    public Pageable<Node> getMemberInstances(String iri,Integer rowNumber,Integer pageSize){
+      Pageable<Node> result= new Pageable<>();
+      String sql= """
+        Select (count(distinct ?instance) as count
+        where {
+        %s im:instanceOf ?instance
+        """.formatted("<"+iri+">");
+      try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+        TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql.toString()));
+        try (TupleQueryResult rsCount = qry.evaluate()) {
+          BindingSet bsCount = rsCount.next();
+          result.setTotalCount(((Literal) bsCount.getValue("count")).intValue());
+        }
+      }
+      sql= """
+      Select ?instance ?entailment ?name  ?exclude
+      where {
+      %s im:entailedMember ?entailed.
+      ?entailed im:instanceOf ?instance.
+      ?instance rdfs:label ?name.
+      optional {?entailed im:exclude ?exclude.}
+      optional {?entailed im:entailment ?entailment}
+      }
+      limit %s
+      offset %s
+      """.formatted("<"+iri+">",pageSize,rowNumber);
+   List<Node> resultSet= new ArrayList<>();
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          Node node = new Node();
+          node.setIri(bs.getValue("instance").stringValue())
+            .setName(bs.getValue("name").stringValue());
+          if (bs.getValue("entailment") != null) {
+            String entailment = bs.getValue("entailment").stringValue();
+            switch (entailment) {
+              case IM.DESCENDANTS_OR_SELF_OF -> node.setDescendantsOrSelfOf(true);
+              case IM.DESCENDANTS_OF -> node.setDescendantsOf(true);
+              case IM.ANCESTORS_OF -> node.setAncestorsOf(true);
+            }
+            if (bs.getValue("exclude") != null) {
+              node.setExclude(true);
+            }
+            resultSet.add(node);
+          }
+        }
+        result.setResult(resultSet);
+      }
+    }
+    return result;
+  }
+
+  public Set<Concept> getExpansionFromEntailedMembers(String setIri) {
     String sql= """
       select distinct ?member
       where {
            Values ?set {%s}
+           ?set im:entailedMember ?entailed.
           {
-      	?set im:instanceOf ?instance.
-          ?instance im:include ?member.
-              values ?subsumption {im:descendantsOrSelfOf im:descendantsOf im:ancestorsOf}
-              filter not exists {?instance ?subsumption true}
+      	  ?entailed im:instanceOf ?member.
+          filter not exists {?entailed im:entailment ?entailment}
           }
           union {
-              ?set im:instanceOf ?instance.
-              ?instance im:include ?parent.
-              ?instance im:descendantsOrSelfOf true.
-              ?member im:isA ?parent.
+          ?entailed im:instanceOf ?parent.
+          ?entailed im:entailment im:DescendantsOrSelfOf.
+          ?member im:isA ?parent.
           }
           union {
-              ?set im:instanceOf ?instance.
-              ?instance im:include ?parent.
-              ?instance im:descendantsOf true.
-              ?member im:isA ?parent.
-              filter (?member!=?parent)
+           ?entailed im:instanceOf ?parent.
+           ?entailed im:entailment im:DescendantsOf.
+           ?member im:isA ?parent.
+           filter (?member!=?parent)
           }
-          union {
-              ?set im:instanceOf ?instance.
-              ?instance im:include ?parent.
-              ?instance im:descendantsOf true.
-              ?parent im:isA ?member.
-          }
-          filter not exists {
-             ?member ^im:exclude ?instance2.
-             ?instance2 ^im:instanceOf ?set.
-              values ?subsumption {im:descendantsOrSelfOf im:descendantsOf im:ancestorsOf}
-              filter not exists {?instance2 ?subsumption true}
+           union {
+           ?entailed im:instanceOf ?child.
+           ?entailed im:entailment im:AncestorsOf.
+           ?child im:isA ?member.
           }
           filter not exists {
               ?member im:isA ?parent2.
-              ?parent2 ^im:exclude ?instance2.
-             ?instance2 ^im:instanceOf ?set.
-              ?instance2 im:descendantsOrSelfOf true.
+              ?parent2 ^im:instanceOf ?entailment2.
+              ?entailment2 im:entailment im:DescendantsOrSelfOf.
+              ?entailment2 im:exclude true.
           }
           filter not exists {
-              ?member im:isA ?parent2.
-              ?parent2 ^im:exclude ?instance2.
-             ?instance2 ^im:instanceOf ?set.
-              ?instance2 im:descendantsOf true.
-              filter (?member!= ?parent2)
+               ?member im:isA ?parent2.
+               filter (?member!=?parent2)
+              ?parent2 ^im:instanceOf ?entailment2.
+              ?entailment2 im:entailment im:DescendantsOf.
+              ?entailment2 im:exclude true.
           }
          filter not exists {
-             ?parent2 im:isA ?member.
-             ?parent2 ^im:exclude ?instance2.
-             ?instance2 ^im:instanceOf ?set.
-             ?instance2 im:ancestorsOf true.
+              ?parent2 im:isA ?member.
+              ?parent2 ^im:instanceOf ?entailment2.
+              ?entailment2 im:entailment im:AncestorsOf.
+              ?entailment2 im:exclude true.
           }
       }
             
       """.formatted("<"+setIri+">");
     Set<Concept> expansion= new HashSet<>();
       try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-        TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql.toString()));
+        TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
         try (TupleQueryResult rs = qry.evaluate()) {
           while (rs.hasNext()) {
             BindingSet bs= rs.next();

@@ -1320,7 +1320,8 @@ public class EntityRepository {
     return result;
   }
 
-  public Pageable<TTIriRef> findPartialWithTotalCount(String parentIri, String predicateIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+
+    public Pageable<TTIriRef> findPartialWithTotalCount(String parentIri, String predicateIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
     List<TTIriRef> children = new ArrayList<>();
     Pageable<TTIriRef> result = new Pageable<>();
 
@@ -1330,7 +1331,10 @@ public class EntityRepository {
     }
     sqlCount.add("}");
 
-    StringJoiner sql = new StringJoiner(System.lineSeparator()).add("SELECT ?p ?pname ").add("WHERE {").add("  ?c ?pr ?p .").add("?p rdfs:label ?pname .");
+    StringJoiner sql = new StringJoiner(System.lineSeparator())
+      .add("SELECT ?p ?pname ")
+      .add("WHERE {").add("  ?c ?pr ?p .")
+      .add("?p rdfs:label ?pname .");
     if (schemeIris != null && !schemeIris.isEmpty()) {
       sql.add(valueList("g", schemeIris));
     }

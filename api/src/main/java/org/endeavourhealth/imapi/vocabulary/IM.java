@@ -235,7 +235,7 @@ public class IM {
     public static final String VALUE_TEMPLATE = IM.NAMESPACE + "valueTemplate";
     public static final String DEFAULT_VALUE = IM.NAMESPACE + "defaultValue";
     public static final String LOAD_MORE = IM.NAMESPACE + "loadMore";
-    public static final String DATA_MODEL_CONCEPT = IM.NAMESPACE + "concept";
+    public static final String DATA_MODEL_PROPERTY_CONCEPT = IM.NAMESPACE + "concept";
     public static final String NUMERIC_VALUE = IM.NAMESPACE + "NumericValue";
     public static final String HEALTH_RECORDS = IM.NAMESPACE + "HealthRecords";
     public static final String HAS_INCREMENTAL_FROM = IM.NAMESPACE + "hasIncrementalFrom";

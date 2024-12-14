@@ -8,11 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range"
-  , "operator", "isNull", "value", "unit", "instanceOf", "relativeTo", "anyRoleGroup"})
+@JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "instanceOf", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends PropertyRef implements Assignable{
+public class Where extends PropertyRef implements Assignable {
   private String description;
   private Range range;
   private List<Node> is;
@@ -27,7 +26,7 @@ public class Where extends PropertyRef implements Assignable{
   private PropertyRef relativeTo;
   private boolean isNotNull;
   private FunctionClause function;
-  private TTIriRef unit;
+  private TTIriRef intervalUnit;
 
   private String valueParameter;
 
@@ -62,7 +61,7 @@ public class Where extends PropertyRef implements Assignable{
   }
 
 
-  public Where setQualifier(String qualifier){
+  public Where setQualifier(String qualifier) {
     super.setQualifier(qualifier);
     return this;
   }
@@ -71,7 +70,6 @@ public class Where extends PropertyRef implements Assignable{
   public String getValueLabel() {
     return this.valueLabel;
   }
-
 
 
   public Bool getBoolWhere() {
@@ -112,8 +110,7 @@ public class Where extends PropertyRef implements Assignable{
   }
 
   public Where addWhere(Where prop) {
-    if (this.where == null)
-      this.where = new ArrayList<>();
+    if (this.where == null) this.where = new ArrayList<>();
     this.where.add(prop);
     return this;
   }
@@ -156,7 +153,6 @@ public class Where extends PropertyRef implements Assignable{
     super.setAncestorsOf(entailment);
     return this;
   }
-
 
 
   public Where setValueLabel(String valueLabel) {
@@ -217,8 +213,7 @@ public class Where extends PropertyRef implements Assignable{
 
 
   public Where addIs(Node isItem) {
-    if (this.is == null)
-      this.is = new ArrayList<>();
+    if (this.is == null) this.is = new ArrayList<>();
     this.is.add(isItem);
     return this;
   }
@@ -236,8 +231,7 @@ public class Where extends PropertyRef implements Assignable{
   }
 
   public Where addIs(String isIri) {
-    if (this.is == null)
-      this.is = new ArrayList<>();
+    if (this.is == null) this.is = new ArrayList<>();
     this.is.add(new Node().setIri(isIri));
     return this;
   }
@@ -280,7 +274,6 @@ public class Where extends PropertyRef implements Assignable{
   }
 
 
-
   public Range getRange() {
     return range;
   }
@@ -297,16 +290,13 @@ public class Where extends PropertyRef implements Assignable{
   }
 
   @Override
-  public Where setUnit(TTIriRef unit) {
-    this.unit= unit;
+  public Where setIntervalUnit(TTIriRef intervalUnit) {
+    this.intervalUnit = intervalUnit;
     return this;
   }
 
-  public TTIriRef getUnit(){
-    return this.unit;
+  public TTIriRef getIntervalUnit() {
+    return this.intervalUnit;
   }
-
-
-
 
 }

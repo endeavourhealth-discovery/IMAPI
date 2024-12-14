@@ -2,14 +2,13 @@ package org.endeavourhealth.imapi.model.imq;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-public class Value implements Assignable{
+public class Value implements Assignable {
   private Operator operator;
   private String value;
   private String qualifier;
   private String valueLabel;
   private String valueParameter;
-  private TTIriRef unit;
-
+  private TTIriRef intervalUnit;
 
   public String getValueParameter() {
     return valueParameter;
@@ -41,7 +40,6 @@ public class Value implements Assignable{
   }
 
 
-
   public String getQualifier() {
     return this.qualifier;
   }
@@ -54,27 +52,25 @@ public class Value implements Assignable{
 
   @Override
   public Assignable setValueLabel(String label) {
-    this.valueLabel=label;
+    this.valueLabel = label;
     return this;
   }
 
   public Value setQualifier(String qualifier) {
-    this.qualifier=qualifier;
-  return this;
-  }
-
-  @Override
-  public TTIriRef getUnit() {
-    return this.unit;
-  }
-
-
-  @Override
-  public Assignable setUnit(TTIriRef unit) {
-    this.unit= unit;
+    this.qualifier = qualifier;
     return this;
   }
 
+  @Override
+  public TTIriRef getIntervalUnit() {
+    return this.intervalUnit;
+  }
+
+  @Override
+  public Assignable setIntervalUnit(TTIriRef intervalUnit) {
+    this.intervalUnit = intervalUnit;
+    return this;
+  }
 
 
 }

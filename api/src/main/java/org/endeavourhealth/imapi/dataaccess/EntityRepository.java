@@ -1320,7 +1320,8 @@ public class EntityRepository {
     return result;
   }
 
-  public Pageable<TTIriRef> findPartialWithTotalCount(String parentIri, String predicateIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+
+    public Pageable<TTIriRef> findPartialWithTotalCount(String parentIri, String predicateIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
     List<TTIriRef> children = new ArrayList<>();
     Pageable<TTIriRef> result = new Pageable<>();
 
@@ -1330,7 +1331,10 @@ public class EntityRepository {
     }
     sqlCount.add("}");
 
-    StringJoiner sql = new StringJoiner(System.lineSeparator()).add("SELECT ?p ?pname ").add("WHERE {").add("  ?c ?pr ?p .").add("?p rdfs:label ?pname .");
+    StringJoiner sql = new StringJoiner(System.lineSeparator())
+      .add("SELECT ?p ?pname ")
+      .add("WHERE {").add("  ?c ?pr ?p .")
+      .add("?p rdfs:label ?pname .");
     if (schemeIris != null && !schemeIris.isEmpty()) {
       sql.add(valueList("g", schemeIris));
     }
@@ -1562,18 +1566,19 @@ public class EntityRepository {
   }
 
   public Boolean hasPredicates(String subjectIri, Set<String> predicateIris) {
+    String predicates= String.join(" ",predicateIris.stream().map(iri-> "<"+ iri+">").collect(Collectors.toSet()));
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      StringJoiner stringQuery = new StringJoiner(System.lineSeparator()).add("ASK {");
-      for (String predicateIri : predicateIris) {
-        stringQuery.add("?subjectIri <" + iri(predicateIri) + "> ?o .");
-      }
-      stringQuery.add("}");
-
-      BooleanQuery sparql = conn.prepareBooleanQuery(String.valueOf(stringQuery));
-      sparql.setBinding("subjectIri", iri(subjectIri));
+      String sql= """
+        ASK {
+        Values ?predicates {%s}
+        %s ?predicates ?value.
+        }
+        """.formatted(predicates,"<"+ subjectIri+">");
+      BooleanQuery sparql = conn.prepareBooleanQuery(String.valueOf(sql));
       return sparql.evaluate();
     }
   }
+
 
   public Map<String, TTEntity> getEntitiesWithPredicates(Set<String> iris, Set<String> predicates) {
     Map<String, TTEntity> result = new HashMap<>();

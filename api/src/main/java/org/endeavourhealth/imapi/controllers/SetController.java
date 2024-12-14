@@ -6,18 +6,19 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SetService;
+import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.SetDiffObject;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.SetContent;
+import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
@@ -61,6 +62,19 @@ public class SetController {
   public void publish(@RequestParam(name = "iri") String iri) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Publish.GET")) {
       setExporter.publishSetToIM1(iri);
+    }
+  }
+
+  @GetMapping(value = "/public/entailedMembers")
+  public Pageable<Node> get(@RequestParam(name = "iri") String iri, @RequestParam(name = "page", required = false) Integer page,
+                            @RequestParam(name = "size", required = false) Integer size) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Set.EntailedMembers.GET")) {
+      LOG.debug("getEntailedMembers");
+      if (page == null && size == null) {
+        page = 1;
+        size = 10;
+      }
+      return setService.getEntailedMembers(iri, page, size);
     }
   }
 

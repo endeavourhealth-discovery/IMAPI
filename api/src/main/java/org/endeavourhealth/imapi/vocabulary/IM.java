@@ -8,8 +8,9 @@ public class IM {
     public static final String NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
     public static final String DESCENDANTS_OR_SELF_OF = IM.NAMESPACE + "DescendantsOrSelfOf";
     public static final String DESCENDANTS_OF = IM.NAMESPACE + "DescendantsOf";
-    public static final String ANCESTORS_OF = IM.NAMESPACE + "ancestorsOf";
-    public static final String INCLUDE = IM.NAMESPACE + "include";
+    public static final String ANCESTORS_OF = IM.NAMESPACE + "DncestorsOf";
+    public static final String ENTAILED_MEMBER = IM.NAMESPACE + "entailedMember";
+    public static final String ENTAILMENT = IM.NAMESPACE + "entailment";
     public static final String EXCLUDE = IM.NAMESPACE + "exclude";
     public static final String IRI = "@id";
     public static final String VALUE = "@value";
@@ -234,7 +235,7 @@ public class IM {
     public static final String VALUE_TEMPLATE = IM.NAMESPACE + "valueTemplate";
     public static final String DEFAULT_VALUE = IM.NAMESPACE + "defaultValue";
     public static final String LOAD_MORE = IM.NAMESPACE + "loadMore";
-    public static final String DATA_MODEL_CONCEPT = IM.NAMESPACE + "concept";
+    public static final String DATA_MODEL_PROPERTY_CONCEPT = IM.NAMESPACE + "concept";
     public static final String NUMERIC_VALUE = IM.NAMESPACE + "NumericValue";
     public static final String HEALTH_RECORDS = IM.NAMESPACE + "HealthRecords";
     public static final String HAS_INCREMENTAL_FROM = IM.NAMESPACE + "hasIncrementalFrom";
@@ -242,4 +243,16 @@ public class IM {
     public static final String INFERRED_PREDICATES = IM.NAMESPACE + "inferredPredicates";
     public static final String INFERRED_EXCLUDE_PREDICATES = IM.NAMESPACE + "inferredExcludePredicates";
     public static final String GRAPH_EXCLUDE_PREDICATES = IM.NAMESPACE + "graphExcludePredicates";
+    public static final String AGE = IM.NAMESPACE + "Age";
+    public static final String DATE = IM.NAMESPACE + "Date";
+    public static final String TIME = IM.NAMESPACE + "Time";
+    public static final String INTERVAL_UNIT = IM.NAMESPACE + "intervalUnit";
+    public static final String PARAMETER = IM.NAMESPACE + "parameter";
+    public static final String YEARS = IM.NAMESPACE + "Years";
+    public static final String MONTHS = IM.NAMESPACE + "Months";
+    public static final String DAYS = IM.NAMESPACE + "Days";
+    public static final String HOURS = IM.NAMESPACE + "Hours";
+    public static final String MINUTES = IM.NAMESPACE + "Minutes";
+    public static final String SECONDS = IM.NAMESPACE + "Seconds";
+    public static final String DATATYPE_QUALIFIER = IM.NAMESPACE + "datatypeQualifier";
 }

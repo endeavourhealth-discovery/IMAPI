@@ -57,6 +57,22 @@ public class SetRepository {
     return result;
   }
 
+  public Set<Concept> getMembersFromDefinition(Query imQuery) throws QueryException {
+    Set<Concept> result = new HashSet<>();
+    QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
+    String sql = new SparqlConverter(newRequest).getSelectSparql(null);
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = conn.prepareTupleQuery(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          result.add(new Concept().setIri(bs.getValue(ENTITY).stringValue()));
+        }
+      }
+    }
+    return result;
+  }
+
   private Set<Concept> getReplacedExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
     Query replaced = new Query();
     replaced.addMatch(imQuery);
@@ -649,14 +665,25 @@ public class SetRepository {
 
 
 
-    public Pageable<Node> getEntailedMembers(String iri,Integer rowNumber,Integer pageSize){
-      Pageable<Node> result= new Pageable<>();
-      result.setTotalCount(0);
-      String sql= """
-        Select (count(distinct ?instance) as count
+    public Pageable<Node> getMembers(String iri,boolean entailed,Integer rowNumber,Integer pageSize) {
+
+      if (entailed) {
+        Pageable<Node> result = getMemberWithPredicate(iri, IM.ENTAILED_MEMBER, rowNumber, pageSize);
+        if (result.getTotalCount()>0)
+          return result;
+      }
+      return getMemberWithPredicate(iri, IM.HAS_MEMBER, rowNumber, pageSize);
+    }
+
+  private Pageable<Node> getMemberWithPredicate(String iri, String predicate, Integer rowNumber, Integer pageSize) {
+    Pageable<Node> result = new Pageable<>();
+    result.setTotalCount(0);
+  String sql= """
+        Select (count(distinct ?instance) as ?count)
         where {
-        %s im:entailedMember ?instance
-        """.formatted("<"+iri+">");
+        %s %s ?instance
+        }
+        """.formatted("<"+iri+">","<"+ predicate+">");
       try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
         TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql.toString()));
         try (TupleQueryResult rsCount = qry.evaluate()) {
@@ -664,18 +691,33 @@ public class SetRepository {
           result.setTotalCount(((Literal) bsCount.getValue("count")).intValue());
         }
       }
-      sql= """
-      Select ?instance ?entailment ?name  ?exclude
-      where {
-      %s im:entailedMember ?entailed.
-      ?entailed im:instanceOf ?instance.
-      ?instance rdfs:label ?name.
-      optional {?entailed im:exclude ?exclude.}
-      optional {?entailed im:entailment ?entailment}
+      if (result.getTotalCount()==0)
+        return result;
+      if (predicate.equals(IM.ENTAILED_MEMBER)) {
+        sql = """
+          Select ?member ?entailment ?name  ?exclude
+          where {
+          %s im:entailedMember ?instance.
+          ?instance im:instanceOf ?member.
+          ?member rdfs:label ?name.
+          optional {?instance im:exclude ?exclude.}
+          optional {?instance im:entailment ?entailment}
+          }
+          limit %s
+          offset %s
+          """.formatted("<" + iri + ">",pageSize, rowNumber);
       }
-      limit %s
-      offset %s
-      """.formatted("<"+iri+">",pageSize,rowNumber);
+      else {
+      sql = """
+          Select ?member ?name
+          where {
+          %s im:hasMember ?member.
+          ?member rdfs:label ?name.
+          }
+          limit %s
+          offset %s
+          """.formatted("<" + iri + ">",pageSize, rowNumber);
+    }
    List<Node> resultSet= new ArrayList<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
@@ -683,7 +725,8 @@ public class SetRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           Node node = new Node();
-          node.setIri(bs.getValue("instance").stringValue())
+          resultSet.add(node);
+          node.setIri(bs.getValue("member").stringValue())
             .setName(bs.getValue("name").stringValue());
           if (bs.getValue("entailment") != null) {
             String entailment = bs.getValue("entailment").stringValue();
@@ -695,7 +738,6 @@ public class SetRepository {
             if (bs.getValue("exclude") != null) {
               node.setExclude(true);
             }
-            resultSet.add(node);
           }
         }
         result.setResult(resultSet);

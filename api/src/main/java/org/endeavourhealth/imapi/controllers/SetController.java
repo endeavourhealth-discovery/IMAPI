@@ -65,8 +65,10 @@ public class SetController {
     }
   }
 
-  @GetMapping(value = "/public/entailedMembers")
-  public Pageable<Node> get(@RequestParam(name = "iri") String iri, @RequestParam(name = "page", required = false) Integer page,
+  @GetMapping(value = "/public/members")
+  public Pageable<Node> get(@RequestParam(name = "iri") String iri,
+                            @RequestParam(name="entailments", required= false) boolean entailments,
+                            @RequestParam(name = "page", required = false) Integer page,
                             @RequestParam(name = "size", required = false) Integer size) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.EntailedMembers.GET")) {
       LOG.debug("getEntailedMembers");
@@ -74,7 +76,7 @@ public class SetController {
         page = 1;
         size = 10;
       }
-      return setService.getEntailedMembers(iri, page, size);
+      return setService.getMembers(iri, entailments,page, size);
     }
   }
 

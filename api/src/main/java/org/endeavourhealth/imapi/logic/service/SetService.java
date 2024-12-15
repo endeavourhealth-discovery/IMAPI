@@ -49,8 +49,8 @@ public class SetService {
   private EntityRepository entityRepository = new EntityRepository();
   private FilerService filerService = new FilerService();
 
-  public Pageable<Node> getEntailedMembers(String iri, Integer rowNumber, Integer pageSize){
-    return setRepository.getEntailedMembers(iri,rowNumber,pageSize);
+  public Pageable<Node> getMembers(String iri, boolean entailments,Integer rowNumber, Integer pageSize){
+    return setRepository.getMembers(iri,entailments,rowNumber,pageSize);
   }
 
   public String getTSVSetExport(SetExporterOptions options) throws QueryException, JsonProcessingException {

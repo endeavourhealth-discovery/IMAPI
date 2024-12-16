@@ -31,7 +31,7 @@ public class SecurityConfig {
       .authorizeHttpRequests(req -> {
         req
           .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll();
-        if (!Optional.ofNullable(System.getenv("HOSTING_MODE")).orElse("").equals("development")) {
+        if (Optional.ofNullable(System.getenv("HOSTING_MODE")).orElse("").equals("production")) {
           req.requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll();
         }

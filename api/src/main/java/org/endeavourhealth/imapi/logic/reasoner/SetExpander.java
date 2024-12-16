@@ -27,7 +27,7 @@ public class SetExpander {
     Set<String> sets = setRepo.getSets();
     //for each set get their definition
     for (String iri : sets) {
-      if (entityRepository.hasPredicates(iri, Set.of(IM.INSTANCE_OF, IM.DEFINITION))) {
+      if (entityRepository.hasPredicates(iri, Set.of(IM.ENTAILED_MEMBER, IM.DEFINITION))) {
         expandSet(iri);
       }
     }
@@ -35,16 +35,18 @@ public class SetExpander {
 
 
   public void expandSet(String iri) throws QueryException, JsonProcessingException {
-    LOG.info("Updating members of {}", iri);
     TTBundle setDefinition = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION));
-    if (setDefinition.getEntity().get(iri(IM.DEFINITION)) == null){
-      Set<Concept> members=setRepo.getExpansionFromEntailedMembers(iri); //might be an instance member definition
-      if (!members.isEmpty())
+    if (setDefinition.getEntity().get(iri(IM.DEFINITION)) == null) {
+      Set<Concept> members = setRepo.getExpansionFromEntailedMembers(iri); //might be an instance member definition
+      if (!members.isEmpty()) {
+        LOG.info("Expanding "+ iri);
         setRepo.updateMembers(iri, members);
+      }
     }
     else {
-      Set<Concept> members = setRepo.getSetExpansion(setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral()
-        .objectValue(Query.class), false, null, List.of(), null);
+      LOG.info("Expanding "+ iri);
+      Set<Concept> members = setRepo.getMembersFromDefinition(setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral()
+        .objectValue(Query.class));
       setRepo.updateMembers(iri, members);
     }
   }

@@ -994,7 +994,7 @@
         "value": "IM.NAMESPACE + \"loadMore\""
       },
       {
-        "name": "DATA_MODEL_CONCEPT",
+        "name": "DATA_MODEL_PROPERTY_CONCEPT",
         "value": "IM.NAMESPACE + \"concept\""
       },
       {

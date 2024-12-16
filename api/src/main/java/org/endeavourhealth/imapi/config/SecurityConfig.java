@@ -18,6 +18,7 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -27,16 +28,20 @@ public class SecurityConfig {
   protected SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
     http
       .csrf(c -> c.disable())
-      .authorizeHttpRequests(req -> req
-        .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
-        .requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
-        .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
-        .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
-        .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll()
-        .requestMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
-        .requestMatchers(HttpMethod.GET, "/v3/**").permitAll()
-        .anyRequest().authenticated()
-      )
+      .authorizeHttpRequests(req -> {
+        req
+          .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll();
+        if (Optional.ofNullable(System.getenv("HOSTING_MODE")).orElse("").equals("production")) {
+          req.requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll();
+        }
+        req
+          .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
+          .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll()
+          .requestMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
+          .requestMatchers(HttpMethod.GET, "/v3/**").permitAll()
+          .anyRequest().authenticated();
+      })
       .exceptionHandling(ex -> ex
         .accessDeniedHandler(accessDeniedHandler())
         .authenticationEntryPoint(authenticationEntryPoint())
@@ -55,7 +60,7 @@ public class SecurityConfig {
     StrictHttpFirewall firewall = new StrictHttpFirewall();
     firewall.setAllowUrlEncodedSlash(true);
     firewall.setAllowUrlEncodedDoubleSlash(true);
-    firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST", "DELETE","PUT"));
+    firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST", "DELETE", "PUT"));
     return firewall;
   }
 

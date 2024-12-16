@@ -8,6 +8,7 @@ public class IM {
     public static final String NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
     public static final String DESCENDANTS_OR_SELF_OF = IM.NAMESPACE + "DescendantsOrSelfOf";
     public static final String DESCENDANTS_OF = IM.NAMESPACE + "DescendantsOf";
+    public static final String FULLY_SPECIFIED_NAME = IM.NAMESPACE + "fullySpecifiedName";
     public static final String ANCESTORS_OF = IM.NAMESPACE + "DncestorsOf";
     public static final String ENTAILED_MEMBER = IM.NAMESPACE + "entailedMember";
     public static final String ENTAILMENT = IM.NAMESPACE + "entailment";

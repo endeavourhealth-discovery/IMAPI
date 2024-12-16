@@ -72,6 +72,9 @@ public class EqdToIMQ {
           .setIri(iri)
           .addType(iri(IM.FOLDER))
           .setName(eqFolder.getName());
+        if (eqFolder.getParentFolder()!=null){
+          folder.addObject(iri(IM.IS_CONTAINED_IN),iri(URN_UUID+eqFolder.getParentFolder()));
+        }
         document.addEntity(folder);
       }
     }

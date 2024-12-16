@@ -86,6 +86,10 @@
         "value": "IM.NAMESPACE + \"DescendantsOf\""
       },
       {
+        "name": "FULLY_SPECIFIED_NAME",
+        "value": "IM.NAMESPACE + \"fullySpecifiedName\""
+      },
+      {
         "name": "ANCESTORS_OF",
         "value": "IM.NAMESPACE + \"DncestorsOf\""
       },

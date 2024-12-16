@@ -189,7 +189,7 @@ if (bs.getValue("class") != null) {
     .setType(TTIriRef.iri(bs.getValue("classType").stringValue())
       .setName(bs.getValue("classTypeName").stringValue())));
 }
-else if (bs.getValue("datatype") != null) {
+if (bs.getValue("datatype") != null) {
   PropertyRange datatype= property.getDatatype();
   if (datatype==null){
     datatype= new PropertyRange();
@@ -203,6 +203,14 @@ else if (bs.getValue("datatype") != null) {
     }
     if (bs.getValue("intervalUnit")!=null){
       datatype.setPattern(bs.getValue("intervalUnit").stringValue());
+    }
+    if (bs.getValue("units")!=null){
+      datatype.setUnits(TTIriRef.iri(bs.getValue("units").stringValue())
+        .setName(bs.getValue("unitsName").stringValue()));
+    }
+    if (bs.getValue("operator")!=null){
+      datatype.setOperator(TTIriRef.iri(bs.getValue("operator").stringValue())
+        .setName(bs.getValue("operatorName").stringValue()));
     }
   }
   if (bs.getValue("datatypeQualifier")!=null){
@@ -338,7 +346,7 @@ return """
         ?rangeType ?rangeTypeName ?hasValue ?hasValueName
         ?minCount ?maxCount
         ?parameter ?parameterName ?parameterType ?parameterTypeName ?parameterSubtype ?parameterSubtypeName
-        ?comment ?propertyDefinition
+        ?comment ?propertyDefinition ?units ?unitsName ?operator ?operatorName
         {
            ?entity sh:property ?property.
            optional {?property sh:group ?group.
@@ -385,6 +393,10 @@ return """
                     optional { ?datatype im:intervalUnit ?intervalUnit.
                     ?intervalUnit rdfs:label ?intervalUnitName}
                     optional { ?datatype sh:pattern ?pattern}
+                    optional {?datatype im:units ?units.
+                    ?units rdfs:label ?unitsName}
+                    optional {?datatype im:operator ?operator.
+                               ?operator rdfs:label ?operatorName}
                     optional {?datatype im:datatypeQualifier ?datatypeQualifier.
                     ?datatypeQualifier rdfs:label ?qualifierName.
                     optional {?datatypeQualifier sh:order ?qualifierOrder}

@@ -114,13 +114,33 @@ public class EqdResources {
 
 
   private Match convertCriterion(EQDOCCriterion eqCriterion) throws IOException, QueryException, EQDException {
-
+    if (eqCriterion.getBaseCriteriaGroup().size()>0){
+      return convertBaseCriteriaGroup(eqCriterion);
+    }
     if (eqCriterion.getLinkedCriterion() != null) {
       return convertLinkedCriterion(eqCriterion);
     } else {
       return convertStandardCriterion(eqCriterion);
     }
 
+  }
+
+  private Match convertBaseCriteriaGroup(EQDOCCriterion eqCriterion) throws QueryException, EQDException, IOException {
+    Match baseMatch= new Match();
+    baseMatch.setBoolMatch(Bool.and);
+    for (EQDOCBaseCriteriaGroup baseGroup:eqCriterion.getBaseCriteriaGroup()) {
+      Match baseGroupMatch = new Match();
+      baseMatch.addMatch(baseGroupMatch);
+      VocMemberOperator memberOp = baseGroup.getDefinition().getMemberOperator();
+      if (memberOp == VocMemberOperator.AND) {
+        baseGroupMatch.setBoolMatch(Bool.and);
+      } else
+        baseGroupMatch.setBoolMatch(Bool.or);
+      for (EQDOCCriteria eqCriteria : baseGroup.getDefinition().getCriteria()) {
+        baseGroupMatch.addMatch(convertCriteria(eqCriteria));
+      }
+    }
+    return baseMatch;
   }
 
 
@@ -487,13 +507,13 @@ public class EqdResources {
   private void setUnitsOrArgument(Assignable assignable, String units) throws EQDException {
     switch (units) {
       case "YEAR":
-        assignable.setIntervalUnit(TTIriRef.iri(IM.NAMESPACE + "years"));
+        assignable.setIntervalUnit(TTIriRef.iri(IM.NAMESPACE + "Years"));
         break;
       case "MONTH":
-        assignable.setIntervalUnit(TTIriRef.iri(IM.NAMESPACE + "months"));
+        assignable.setIntervalUnit(TTIriRef.iri(IM.NAMESPACE + "Months"));
         break;
       case "DAY":
-        assignable.setIntervalUnit(TTIriRef.iri(IM.NAMESPACE + "days"));
+        assignable.setIntervalUnit(TTIriRef.iri(IM.NAMESPACE + "Days"));
         break;
       case "DATE":
         break;

@@ -173,6 +173,7 @@ public class QueryDescriptor {
       if (where.getRange().getFrom() != null) {
         setIriSet(where.getRange().getFrom(), iriSet);
       }
+
     }
   }
 

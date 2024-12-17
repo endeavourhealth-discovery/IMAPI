@@ -201,8 +201,8 @@ if (bs.getValue("datatype") != null) {
     if (bs.getValue("pattern")!=null){
       datatype.setPattern(bs.getValue("pattern").stringValue());
     }
-    if (bs.getValue("intervalUnit")!=null){
-      datatype.setPattern(bs.getValue("intervalUnit").stringValue());
+    if (bs.getValue("isRelativeValue")!=null){
+      datatype.setRelativeValue("true".equalsIgnoreCase(bs.getValue("isRelativeValue").stringValue()));
     }
     if (bs.getValue("units")!=null){
       datatype.setUnits(TTIriRef.iri(bs.getValue("units").stringValue())
@@ -346,7 +346,7 @@ return """
         ?rangeType ?rangeTypeName ?hasValue ?hasValueName
         ?minCount ?maxCount
         ?parameter ?parameterName ?parameterType ?parameterTypeName ?parameterSubtype ?parameterSubtypeName
-        ?comment ?propertyDefinition ?units ?unitsName ?operator ?operatorName
+        ?comment ?propertyDefinition ?units ?unitsName ?operator ?operatorName ?isRelativeValue
         {
            ?entity sh:property ?property.
            optional {?property sh:group ?group.
@@ -395,13 +395,15 @@ return """
                     optional { ?datatype sh:pattern ?pattern}
                     optional {?datatype im:units ?units.
                     ?units rdfs:label ?unitsName}
+                    optional {?datatype im:isRelativeValue ?isRelativeValue}
                     optional {?datatype im:operator ?operator.
                                ?operator rdfs:label ?operatorName}
                     optional {?datatype im:datatypeQualifier ?datatypeQualifier.
                     ?datatypeQualifier rdfs:label ?qualifierName.
                     optional {?datatypeQualifier sh:order ?qualifierOrder}
                     optional { ?datatypeQualifier sh:pattern ?qualifierPattern}
-                    optional { ?datatypeQualifier im:intervalUnit ?qualifierIntervalUnit.
+                       optional {?datatypeQualifier im:isRelativeValue ?isRelativeValue}
+                    optional { ?datatypeQualifier im:units ?qualifierIntervalUnit.
                     ?qualifierIntervalUnit rdfs:label ?qualifierIntervalUnitName}
                         }
                         }

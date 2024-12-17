@@ -2,9 +2,6 @@ package org.endeavourhealth.imapi.model.imq;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.util.List;
-import java.util.function.Consumer;
-
 public interface Assignable {
   public Operator getOperator();
 
@@ -22,9 +19,9 @@ public interface Assignable {
 
   Assignable setValueLabel(String label);
 
-  TTIriRef getIntervalUnit();
+  TTIriRef getUnit();
 
-  Assignable setIntervalUnit(TTIriRef unit);
+  Assignable setUnit(TTIriRef unit);
 
   Assignable setValueParameter(String parameter);
 

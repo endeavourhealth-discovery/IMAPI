@@ -8,7 +8,7 @@ public class Value implements Assignable {
   private String qualifier;
   private String valueLabel;
   private String valueParameter;
-  private TTIriRef intervalUnit;
+  private TTIriRef unit;
 
   public String getValueParameter() {
     return valueParameter;
@@ -62,13 +62,13 @@ public class Value implements Assignable {
   }
 
   @Override
-  public TTIriRef getIntervalUnit() {
-    return this.intervalUnit;
+  public TTIriRef getUnit() {
+    return this.unit;
   }
 
   @Override
-  public Assignable setIntervalUnit(TTIriRef intervalUnit) {
-    this.intervalUnit = intervalUnit;
+  public Assignable setUnit(TTIriRef intervalUnit) {
+    this.unit = intervalUnit;
     return this;
   }
 

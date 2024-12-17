@@ -1,7 +1,5 @@
 package org.endeavourhealth.imapi.transforms;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.logic.exporters.ImportMaps;
@@ -263,10 +261,10 @@ public class EqdResources {
         setCounter++;
         String vsetName;
         if (columnGroup!=null) {
-          vsetName = "Library set " + setCounter + " used for " + columnGroup.getName();
+          vsetName = "Unnamed library set " + setCounter + " used for " + columnGroup.getName();
         }
         else {
-          vsetName="Library set used in "+ activeReportName;
+          vsetName="Unnamed library set used in "+ activeReportName;
         }
         valueLabel = valueLabel + (valueLabel.isEmpty() ? "" : ", ") + vsetName;
         Node iri = new Node().setIri(URN_UUID + vset);
@@ -278,6 +276,7 @@ public class EqdResources {
           pv.addIs(iri);
         }
         pv.setValueLabel(valueLabel);
+        createValueSet(iri.getIri(),vsetName);
       }
     } else if (cv.getRangeValue() != null) {
       setRangeValue(cv.getRangeValue(), pv);
@@ -507,13 +506,13 @@ public class EqdResources {
   private void setUnitsOrArgument(Assignable assignable, String units) throws EQDException {
     switch (units) {
       case "YEAR":
-        assignable.setIntervalUnit(TTIriRef.iri(IM.NAMESPACE + "Years"));
+        assignable.setUnit(TTIriRef.iri(IM.NAMESPACE + "Years"));
         break;
       case "MONTH":
-        assignable.setIntervalUnit(TTIriRef.iri(IM.NAMESPACE + "Months"));
+        assignable.setUnit(TTIriRef.iri(IM.NAMESPACE + "Months"));
         break;
       case "DAY":
-        assignable.setIntervalUnit(TTIriRef.iri(IM.NAMESPACE + "Days"));
+        assignable.setUnit(TTIriRef.iri(IM.NAMESPACE + "Days"));
         break;
       case "DATE":
         break;
@@ -662,6 +661,22 @@ public class EqdResources {
       pv.setValueLabel(name + exclusions);
     }
   }
+
+
+  private TTEntity createValueSet(String iri, String name){
+    TTEntity valueSet = new TTEntity()
+      .setIri(iri)
+      .setName(name)
+      .addType(iri(IM.CONCEPT_SET));
+    if (columnGroup!=null){
+      valueSet.addObject(iri(IM.USED_IN),iri(columnGroup.getIri()));
+    }
+    else
+      valueSet.addObject(iri(IM.USED_IN), iri(URN_UUID + activeReport));
+    document.addEntity(valueSet);
+    return valueSet;
+  }
+
 
   private TTEntity createValueSet(EQDOCValueSet vs, Set<Node> setContent){
       String name = vs.getDescription();

@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,7 @@ public class Where extends PropertyRef implements Assignable {
   private PropertyRef relativeTo;
   private boolean isNotNull;
   private FunctionClause function;
-  private TTIriRef intervalUnit;
+  private TTIriRef unit;
 
   private String valueParameter;
 
@@ -290,13 +289,13 @@ public class Where extends PropertyRef implements Assignable {
   }
 
   @Override
-  public Where setIntervalUnit(TTIriRef intervalUnit) {
-    this.intervalUnit = intervalUnit;
+  public Where setUnit(TTIriRef intervalUnit) {
+    this.unit = intervalUnit;
     return this;
   }
 
-  public TTIriRef getIntervalUnit() {
-    return this.intervalUnit;
+  public TTIriRef getUnit() {
+    return this.unit;
   }
 
 }

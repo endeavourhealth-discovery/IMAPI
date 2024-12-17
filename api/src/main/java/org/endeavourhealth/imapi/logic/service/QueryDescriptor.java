@@ -178,8 +178,8 @@ public class QueryDescriptor {
   }
 
   private void setIriSet(Assignable assignable, Set<String> iriSet) {
-    if (assignable.getIntervalUnit() != null) {
-      iriSet.add(assignable.getIntervalUnit().getIri());
+    if (assignable.getUnit() != null) {
+      iriSet.add(assignable.getUnit().getIri());
     }
   }
 
@@ -530,7 +530,7 @@ public class QueryDescriptor {
     if (where.getIri() != null)
       date = where.getIri().toLowerCase().contains("date");
     Operator operator = where.getOperator();
-    describeValue(where, operator, date, where.getValue(), where.getIntervalUnit(), where.getRelativeTo() != null, false);
+    describeValue(where, operator, date, where.getValue(), where.getUnit(), where.getRelativeTo() != null, false);
     describeRelativeTo(where);
   }
 
@@ -542,11 +542,11 @@ public class QueryDescriptor {
     }
     Range range = where.getRange();
     Assignable from = range.getFrom();
-    describeValue(from, from.getOperator(), date, from.getValue(), from.getIntervalUnit(), where.getRelativeTo() != null, true);
+    describeValue(from, from.getOperator(), date, from.getValue(), from.getUnit(), where.getRelativeTo() != null, true);
     where.setQualifier("between " + (from.getQualifier() != null ? from.getQualifier() : ""));
     where.setValueLabel(from.getValueLabel());
     Assignable to = range.getTo();
-    describeValue(to, to.getOperator(), date, to.getValue(), to.getIntervalUnit(), where.getRelativeTo() != null, true);
+    describeValue(to, to.getOperator(), date, to.getValue(), to.getUnit(), where.getRelativeTo() != null, true);
     if (to.getValue() != null) {
       if (from.getValueLabel() != null) {
         where.setValueLabel(where.getValueLabel() + " and " + (to.getQualifier() != null ? to.getQualifier() + " " : "") +

@@ -19,7 +19,7 @@ ext {
     jackson           : '2.16.0',
     jersey            : '3.1.9',
     junit             : '5.10.1',
-    junitRunner       : '1.10.1',
+    junitRunner       : '1.11.4',
     logback           : '1.4.14',
     lombok            : '1.18.30',
     mockito           : '5.14.2',

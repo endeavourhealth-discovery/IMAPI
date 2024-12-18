@@ -441,7 +441,7 @@ public class EntityRepository {
             SearchTermCode tc = getTermCode(entityDocument, synonym);
             if (tc == null) {
               entityDocument.addTermCode(synonym, termCode, status);
-              addKey(entityDocument, synonym);
+              addKey(synonym);
             } else if (termCode != null) {
               tc.setCode(termCode);
             }
@@ -483,7 +483,7 @@ public class EntityRepository {
     return null;
   }
 
-  private void addKey(EntityDocument blob, String term) {
+  private void addKey(String term) {
     term = term.replaceAll("[ '()\\-_./,]", "").toLowerCase();
     if (term.length() > 30) term = term.substring(0, 30);
   }
@@ -1168,18 +1168,18 @@ public class EntityRepository {
   }
 
   public List<EntityReferenceNode> getEntityReferenceNodes(Set<String> stringIris, List<String> schemeIris, boolean inactive) {
-    List<EntityReferenceNode> nodes = new ArrayList<>();
     StringJoiner iriLine = new StringJoiner(" ");
     for (String stringIri : stringIris) {
       iri(stringIri);
       iriLine.add("<" + stringIri + ">");
     }
-    Map<String, Set<TTIriRef>> iriToTypesMap = getTypesByIris(stringIris);
-
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
       SELECT ?s ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren
       WHERE {
-        GRAPH ?g { ?s rdfs:label ?name } .
+        GRAPH ?g { ?s rdfs:label ?name.
+         ?s rdf:type ?typeIri.
+         graph im:{
+         ?typeIri rdfs:label ?typeName.}} 
         VALUES ?s { %s }
         OPTIONAL { ?s sh:order ?order . }
         BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
@@ -1196,27 +1196,28 @@ public class EntityRepository {
 
     sql.add("}");
 
+    Map<String, EntityReferenceNode> iriMap= new HashMap<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = prepareSparql(conn, sql.toString());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String iri = bs.getValue("s").stringValue();
-          EntityReferenceNode result = new EntityReferenceNode(iri).setType(new TTArray());
-          Set<TTIriRef> types = iriToTypesMap.get(iri);
-          for (TTIriRef type : types) {
-            result.getType().add(type);
+          EntityReferenceNode refNode= iriMap.get(iri);
+          if (refNode==null){
+            refNode= new EntityReferenceNode(iri).setType(new TTArray());
+            iriMap.put(iri,refNode);
           }
-          if (bs.hasBinding("order")) result.setOrderNumber(((Literal) bs.getValue("order")).intValue());
-          else result.setOrderNumber(Integer.MAX_VALUE);
+          refNode.getType().add(TTIriRef.iri(bs.getValue("typeIri").stringValue())
+              .setName(bs.getValue("typeName").stringValue()));
+          if (bs.hasBinding("order")) refNode.setOrderNumber(((Literal) bs.getValue("order")).intValue());
+          else refNode.setOrderNumber(Integer.MAX_VALUE);
+          refNode.setHasChildren(((Literal) bs.getValue("hasChildren")).booleanValue()).setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue()).setName(bs.getValue("name").stringValue());
 
-          result.setHasChildren(((Literal) bs.getValue("hasChildren")).booleanValue()).setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue()).setName(bs.getValue("name").stringValue());
-          nodes.add(result);
         }
       }
     }
-
-    return nodes;
+    return new ArrayList<>(new ArrayList<>(iriMap.values()));
   }
 
   public EntityReferenceNode getEntityReferenceNode(String iri, List<String> schemeIris, boolean inactive) {

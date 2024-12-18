@@ -26,6 +26,7 @@ public class EqdToIMQ {
   public static final String URN_UUID = "urn:uuid:";
   private EqdResources resources;;
   private TTDocument document;
+  public static Set<String> gmsPatients= new HashSet<>();
 
 
   public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap) throws IOException, QueryException, EQDException {
@@ -97,7 +98,7 @@ public class EqdToIMQ {
     qry.setName(queryEntity.getName());
     if (eqReport.getPopulation() != null) {
       queryEntity.addType(iri(IM.COHORT_QUERY));
-      new EqdPopToIMQ().convertPopulation(eqReport, qry, resources);
+      qry= new EqdPopToIMQ().convertPopulation(eqReport, qry, resources);
     } else if (eqReport.getListReport() != null) {
       queryEntity.addType(iri(IM.DATASET_QUERY));
       new EqdListToIMQ().convertReport(eqReport, document,qry, resources);
@@ -109,6 +110,8 @@ public class EqdToIMQ {
       System.err.println("Aggregate reports not supported");
       return null;
     }
+    if (qry==null)
+      return null;
     if (qry.getMatch()!=null) {
       flattenQuery(qry);
     }

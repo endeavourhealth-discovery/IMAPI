@@ -12,7 +12,7 @@ public class EqdPopToIMQ {
   private EqdResources resources;
 
 
-  public void convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws IOException, QueryException, EQDException {
+  public Query convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws IOException, QueryException, EQDException {
     String activeReport = eqReport.getId();
     this.resources = resources;
     query.setTypeOf(IM.NAMESPACE + "Patient");
@@ -24,13 +24,24 @@ public class EqdPopToIMQ {
       rootMatch
         .addInstanceOf(new Node().setIri(IM.NAMESPACE + "Q_RegisteredGMS").setMemberOf(true))
         .setName("Registered with GP for GMS services on the reference date");
+      if (eqReport.getPopulation().getCriteriaGroup().size()==0){
+        EqdToIMQ.gmsPatients.add(activeReport);
+        return null;
+      }
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
       String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
       Match rootMatch = new Match();
       query.addMatch(rootMatch);
-      rootMatch
-        .addInstanceOf(new Node().setIri("urn:uuid:" + id).setMemberOf(true))
-        .setName("in the population " + resources.reportNames.get(id));
+      if (EqdToIMQ.gmsPatients.contains(id)){
+        rootMatch
+         .addInstanceOf(new Node().setIri(IM.NAMESPACE + "Q_RegisteredGMS").setMemberOf(true))
+          .setName("Registered with GP for GMS services on the reference date");
+      }
+      else {
+        rootMatch
+          .addInstanceOf(new Node().setIri("urn:uuid:" + id).setMemberOf(true))
+          .setName("in the population " + resources.reportNames.get(id));
+      }
     }
 
 
@@ -92,6 +103,7 @@ public class EqdPopToIMQ {
       }
       convertGroup(eqGroup, groupMatch);
     }
+    return query;
 
   }
 

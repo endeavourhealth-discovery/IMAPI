@@ -58,6 +58,23 @@ public class EqdToIMQ {
         document.addEntity(qry);
       }
     }
+    for (TTEntity report:document.getEntities()){
+      if (report.get(IM.DEFINITION)!=null){
+        Query query= report.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+        if (query.getMatch()!=null){
+          if (query.getMatch().get(0).getInstanceOf()!=null){
+            if (gmsPatients.contains(query.getMatch().get(0).getInstanceOf().get(0).getIri())){
+              List<Node> base= new ArrayList<>();
+              base.add(new Node().setIri(IM.NAMESPACE + "Q_RegisteredGMS").setMemberOf(true)
+                .setName("Registered with GP for GMS services on the reference date"));
+              query.getMatch().get(0)
+                .setInstanceOf(base);
+              report.set(IM.DEFINITION,TTLiteral.literal(query));
+            }
+          }
+        }
+      }
+    }
   }
 
   private void convertFolders(EnquiryDocument eqd) throws EQDException {

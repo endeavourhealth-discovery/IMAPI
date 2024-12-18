@@ -86,6 +86,10 @@
         "value": "IM.NAMESPACE + \"DescendantsOf\""
       },
       {
+        "name": "IS_RELATIVE_VALUE",
+        "value": "IM.NAMESPACE + \"isRelativeValue\""
+      },
+      {
         "name": "FULLY_SPECIFIED_NAME",
         "value": "IM.NAMESPACE + \"fullySpecifiedName\""
       },

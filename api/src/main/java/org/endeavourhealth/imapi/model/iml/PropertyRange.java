@@ -25,6 +25,13 @@ public class PropertyRange extends TTIriRef{
   private TTIriRef units;
   @Getter
   private TTIriRef operator;
+  @Getter
+  private boolean isRelativeValue;
+
+  public PropertyRange setRelativeValue(boolean relativeValue) {
+    isRelativeValue = relativeValue;
+    return this;
+  }
 
   public PropertyRange setUnits(TTIriRef units) {
     this.units = units;

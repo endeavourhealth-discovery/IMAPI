@@ -33,136 +33,41 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class SetExporter {
   private static final Logger LOG = LoggerFactory.getLogger(SetExporter.class);
 
-  private EntityRepository entityRepository = new EntityRepository();
-  private SetRepository setRepository = new SetRepository();
-
-  public void publishSetToIM1(String setIri) throws JsonProcessingException, QueryException {
-    StringJoiner results = generateForIm1(setIri);
-
+  public void publishSetToIM1(String setIri, String name, Set<Concept> members) throws JsonProcessingException, QueryException {
+    StringJoiner results = generateForIm1(setIri, name, members);
     pushToS3(results);
     LOG.trace("Done");
   }
 
-  public StringJoiner generateForIm1(String setIri) throws QueryException, JsonProcessingException {
+  public StringJoiner generateForIm1(String setIri, String name, Set<Concept> members) throws QueryException, JsonProcessingException {
     LOG.debug("Exporting set to IMv1");
-
-    LOG.trace("Looking up set...");
-    String name = entityRepository.getBundle(setIri, Set.of(RDFS.LABEL)).getEntity().getName();
-
-    Set<Concept> members = getExpandedSetMembers(setIri, true, true, true, List.of());
-
     return generateIMV1TSV(setIri, name, members);
-  }
-
-  public Set<TTIriRef> getSubsetIrisWithNames(String iri) {
-    Set<TTIriRef> subsets = setRepository.getSubsetIrisWithNames(iri);
-    return new HashSet<>(subsets);
-  }
-
-  public Set<Concept> getExpandedSetMembers(String iri, boolean core, boolean legacy, boolean subsets, List<String> schemes) throws QueryException, JsonProcessingException {
-    if (!(core || legacy || subsets))
-      return new HashSet<>();
-
-    Set<Concept> result = null;
-
-    if (core || legacy) {
-      result = tryGetExpandedSetMembersByDefinition(iri, legacy, schemes);
-
-      // If nothing found from definition, try to get direct members
-      if (null == result || result.isEmpty())
-        result = setRepository.getSetMembers(iri, legacy, schemes);
-
-      // If nothing found from members, try to get descendants
-      if (null == result || result.isEmpty()) {
-        Query descendantsOf = new Query()
-          .match(f -> f
-            .instanceOf(n -> n.setIri(iri)
-              .setDescendantsOrSelfOf(true)));
-        result = setRepository.getSetExpansion(descendantsOf, legacy, null, schemes);
-      }
-    }
-
-    if (null == result)
-      result = new HashSet<>();
-
-    if (subsets) {
-      expandSubsets(iri, core, legacy, schemes, result);
-    }
-
-    return result;
-  }
-
-  private void expandSubsets(String iri, boolean core, boolean legacy, List<String> schemes, Set<Concept> result) throws QueryException, JsonProcessingException {
-    LOG.trace("Expanding subsets for {}...", iri);
-    Set<TTIriRef> subSetIris = getSubsetIrisWithNames(iri);
-    LOG.trace("Found {} subsets...", subSetIris.size());
-    for (TTIriRef subset : subSetIris) {
-      Set<Concept> subsetMembers = getExpandedSetMembers(subset.getIri(), core, legacy, true, schemes);
-      if (null != subsetMembers && !subsetMembers.isEmpty()) {
-        subsetMembers.forEach(ss -> ss.addIsContainedIn(
-          new TTEntity(subset.getIri())
-            .setName(subset.getName())
-        ));
-        result.addAll(subsetMembers);
-      }
-    }
-  }
-
-  private Set<Concept> tryGetExpandedSetMembersByDefinition(String iri, boolean legacy, List<String> schemeIris) throws JsonProcessingException, QueryException {
-
-    TTEntity entity = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION, RDFS.LABEL)).getEntity();
-    if (null == entity)
-      return Collections.emptySet();
-
-    String name = entity.has(iri(RDFS.LABEL)) ? entity.getName() : "";
-
-    Query definition = entity.has(iri(IM.DEFINITION)) ? entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class) : null;
-    if (null == definition)
-      return Collections.emptySet();
-
-    Set<Concept> result = setRepository.getSetExpansion(definition, legacy, null, schemeIris);
-
-    if (null != result && !result.isEmpty()) {
-      LOG.trace("Found {} results", result.size());
-      result.forEach(se -> se.addIsContainedIn(new TTEntity(iri).setName(name)));
-    }
-
-
-    return result;
   }
 
   private StringJoiner generateIMV1TSV(String setIri, String name, Set<Concept> members) {
     LOG.trace("Generating output...");
-
-    Set<String> im1Ids = new HashSet<>();
-
     StringJoiner results = new StringJoiner(System.lineSeparator());
     results.add("vsId\tvsName\tmemberDbid");
 
     for (Concept member : members) {
-      generateTSVAddResults(setIri, name, im1Ids, results, member);
+      generateTSVAddResults(setIri, name, member.getIm1Id(), results, member);
       if (member.getMatchedFrom() != null) {
         for (Concept legacy : member.getMatchedFrom()) {
-          generateTSVAddResults(setIri, name, im1Ids, results, legacy);
+          generateTSVAddResults(setIri, name, member.getIm1Id(), results, legacy);
         }
       }
     }
     return results;
   }
 
-  private void generateTSVAddResults(String setIri, String name, Set<String> im1Ids, StringJoiner results, Concept member) {
+  private void generateTSVAddResults(String setIri, String name, String im1Id, StringJoiner results, Concept member) {
     if (member.getIm1Id() != null) {
-      for (String im1Id : member.getIm1Id()) {
-        if (!im1Ids.contains(im1Id)) {
-          results.add(
-            new StringJoiner("\t")
-              .add(setIri)
-              .add(name)
-              .add(im1Id)
-              .toString());
-          im1Ids.add(im1Id);
-        }
-      }
+      results.add(
+        new StringJoiner("\t")
+          .add(setIri)
+          .add(name)
+          .add(im1Id)
+          .toString());
     }
   }
 

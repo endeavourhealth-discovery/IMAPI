@@ -1046,6 +1046,10 @@
         "value": "IM.NAMESPACE + \"Time\""
       },
       {
+        "name": "INTERVAL_UNIT",
+        "value": "IM.NAMESPACE + \"intervalUnit\""
+      },
+      {
         "name": "UNIT",
         "value": "IM.NAMESPACE + \"unit\""
       },

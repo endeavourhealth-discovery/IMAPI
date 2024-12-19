@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "instanceOf", "relativeTo", "anyRoleGroup"})
+@JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "unit", "instanceOf", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
 public class Where extends PropertyRef implements Assignable {
@@ -289,8 +289,8 @@ public class Where extends PropertyRef implements Assignable {
   }
 
   @Override
-  public Where setUnit(TTIriRef intervalUnit) {
-    this.unit = intervalUnit;
+  public Where setUnit(TTIriRef unit) {
+    this.unit = unit;
     return this;
   }
 

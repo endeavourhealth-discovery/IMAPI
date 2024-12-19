@@ -248,7 +248,7 @@ public class IM {
     public static final String AGE = IM.NAMESPACE + "Age";
     public static final String DATE = IM.NAMESPACE + "Date";
     public static final String TIME = IM.NAMESPACE + "Time";
-    public static final String INTERVAL_UNIT = IM.NAMESPACE + "intervalUnit";
+    public static final String UNIT = IM.NAMESPACE + "unit";
     public static final String PARAMETER = IM.NAMESPACE + "parameter";
     public static final String YEARS = IM.NAMESPACE + "Years";
     public static final String MONTHS = IM.NAMESPACE + "Months";

@@ -1046,8 +1046,8 @@
         "value": "IM.NAMESPACE + \"Time\""
       },
       {
-        "name": "INTERVAL_UNIT",
-        "value": "IM.NAMESPACE + \"intervalUnit\""
+        "name": "UNIT",
+        "value": "IM.NAMESPACE + \"unit\""
       },
       {
         "name": "PARAMETER",
@@ -1081,7 +1081,6 @@
         "name": "DATATYPE_QUALIFIER",
         "value": "IM.NAMESPACE + \"datatypeQualifier\""
       }
-
     ]
   },
   {
@@ -2068,7 +2067,6 @@
         "name": "ALLOWABLE_RANGE_SUGGESTIONS",
         "value": "QUERY.NAMESPACE + \"AllowableRangeSuggestions\""
       },
-
       {
         "name": "GET_SUBCLASSES",
         "value": "QUERY.NAMESPACE + \"GetSubClasses\""

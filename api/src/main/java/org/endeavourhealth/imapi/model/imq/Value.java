@@ -67,8 +67,8 @@ public class Value implements Assignable {
   }
 
   @Override
-  public Assignable setUnit(TTIriRef intervalUnit) {
-    this.unit = intervalUnit;
+  public Assignable setUnit(TTIriRef unit) {
+    this.unit = unit;
     return this;
   }
 

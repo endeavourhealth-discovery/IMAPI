@@ -35,30 +35,32 @@ public class SearchResultSummary {
   private Set<String> key;
   private Set<TTIriRef> isA = new HashSet<>();
   Set<SearchTermCode> termCode = new HashSet<>();
-  Set<TTIriRef> intervalUnit;
+  Set<TTIriRef> unit;
   List<TTIriRef> qualifier;
 
-  public Set<TTIriRef> getIntervalUnit() {
-    return intervalUnit;
+  public Set<TTIriRef> getUnit() {
+    return unit;
   }
 
-  public SearchResultSummary setIntervalUnit(Set<TTIriRef> intervalUnit) {
-    this.intervalUnit = intervalUnit;
+  public SearchResultSummary setUnit(Set<TTIriRef> unit) {
+    this.unit = unit;
     return this;
   }
-  public SearchResultSummary addIntervalUnit (TTIriRef intervalUnit){
-      if (this.intervalUnit == null) {
-        this.intervalUnit = new HashSet<>();
-      }
-      this.intervalUnit.add(intervalUnit);
-      return this;
+
+  public SearchResultSummary addUnit(TTIriRef unit) {
+    if (this.unit == null) {
+      this.unit = new HashSet<>();
     }
-  public SearchResultSummary intervalUnit (Consumer< TTIriRef > builder) {
-      TTIriRef intervalUnit = new TTIriRef();
-      addIntervalUnit(intervalUnit);
-      builder.accept(intervalUnit);
-      return this;
-    }
+    this.unit.add(unit);
+    return this;
+  }
+
+  public SearchResultSummary unit(Consumer<TTIriRef> builder) {
+    TTIriRef unit = new TTIriRef();
+    addUnit(unit);
+    builder.accept(unit);
+    return this;
+  }
 
 
   public List<TTIriRef> getQualifier() {
@@ -69,20 +71,21 @@ public class SearchResultSummary {
     this.qualifier = qualifier;
     return this;
   }
-  public SearchResultSummary addQualifier (TTIriRef qualifier){
-      if (this.qualifier == null) {
-        this.qualifier = new ArrayList<>();
-      }
-      this.qualifier.add(qualifier);
-      return this;
-    }
 
-  public SearchResultSummary qualifier (Consumer < TTIriRef > builder) {
-      TTIriRef qualifier = new TTIriRef();
-      addQualifier(qualifier);
-      builder.accept(qualifier);
-      return this;
+  public SearchResultSummary addQualifier(TTIriRef qualifier) {
+    if (this.qualifier == null) {
+      this.qualifier = new ArrayList<>();
     }
+    this.qualifier.add(qualifier);
+    return this;
+  }
+
+  public SearchResultSummary qualifier(Consumer<TTIriRef> builder) {
+    TTIriRef qualifier = new TTIriRef();
+    addQualifier(qualifier);
+    builder.accept(qualifier);
+    return this;
+  }
 
 
   public String getPreferredName() {

@@ -239,7 +239,7 @@ public class EntityRepository {
     result.setIri(iri);
 
     String sql = """
-      SELECT ?sname ?type ?typeName ?scode ?sstatus ?sstatusname ?sdescription ?g ?gname ?sscheme ?sschemename ?intervalUnit ?intervalUnitName ?qualifier ?qualifierName
+      SELECT ?sname ?type ?typeName ?scode ?sstatus ?sstatusname ?sdescription ?g ?gname ?sscheme ?sschemename ?unit ?unitName ?qualifier ?qualifierName
       WHERE {
         GRAPH ?g {
           ?s rdfs:label ?sname .
@@ -251,10 +251,10 @@ public class EntityRepository {
                ?type rdfs:label ?typeName . }
         OPTIONAL { ?s rdfs:comment ?sdescription } .
         OPTIONAL { ?g rdfs:label ?gname } .
-        OPTIONAL {?s im:intervalUnit ?intervals.
-              ?intervalUnit rdfs:subClassOf ?intervals.
-              ?intervalUnit rdfs:label ?intervalUnitName.
-              filter (?intervalUnit!= ?intervals)
+        OPTIONAL {?s im:unit ?intervals.
+              ?unit rdfs:subClassOf ?intervals.
+              ?unit rdfs:label ?unitName.
+              filter (?unit!= ?intervals)
           }
         OPTIONAL {?s im:datatypeQualifier ?qualifier.
           ?qualifier rdfs:label ?qualifierName.}
@@ -267,13 +267,13 @@ public class EntityRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          if (result.getName()==null) {
+          if (result.getName() == null) {
             result.setIri(iri).setName(bs.getValue("sname").stringValue())
               .setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue())
               .setStatus(new TTIriRef(bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()))
               .setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
           }
-          if (bs.hasBinding("type")){
+          if (bs.hasBinding("type")) {
             result.addEntityType(TTIriRef.iri(bs.getValue("type").stringValue())
               .setName(bs.getValue("typeName").stringValue()));
           }
@@ -283,9 +283,9 @@ public class EntityRepository {
           } else {
             result.setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())));
           }
-          if (bs.hasBinding("intervalUnit")) {
-            result.addIntervalUnit(TTIriRef.iri(bs.getValue("intervalUnit").stringValue())
-              .setName(bs.getValue("intervalUnitName").stringValue()));
+          if (bs.hasBinding("unit")) {
+            result.addUnit(TTIriRef.iri(bs.getValue("unit").stringValue())
+              .setName(bs.getValue("unitName").stringValue()));
           }
           if (bs.hasBinding("qualifier")) {
             TTIriRef qualifier = TTIriRef.iri(bs.getValue("qualifier").stringValue())
@@ -1196,20 +1196,20 @@ public class EntityRepository {
 
     sql.add("}");
 
-    Map<String, EntityReferenceNode> iriMap= new HashMap<>();
+    Map<String, EntityReferenceNode> iriMap = new HashMap<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = prepareSparql(conn, sql.toString());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String iri = bs.getValue("s").stringValue();
-          EntityReferenceNode refNode= iriMap.get(iri);
-          if (refNode==null){
-            refNode= new EntityReferenceNode(iri).setType(new TTArray());
-            iriMap.put(iri,refNode);
+          EntityReferenceNode refNode = iriMap.get(iri);
+          if (refNode == null) {
+            refNode = new EntityReferenceNode(iri).setType(new TTArray());
+            iriMap.put(iri, refNode);
           }
           refNode.getType().add(TTIriRef.iri(bs.getValue("typeIri").stringValue())
-              .setName(bs.getValue("typeName").stringValue()));
+            .setName(bs.getValue("typeName").stringValue()));
           if (bs.hasBinding("order")) refNode.setOrderNumber(((Literal) bs.getValue("order")).intValue());
           else refNode.setOrderNumber(Integer.MAX_VALUE);
           refNode.setHasChildren(((Literal) bs.getValue("hasChildren")).booleanValue()).setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue()).setName(bs.getValue("name").stringValue());
@@ -1322,7 +1322,7 @@ public class EntityRepository {
   }
 
 
-    public Pageable<TTIriRef> findPartialWithTotalCount(String parentIri, String predicateIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+  public Pageable<TTIriRef> findPartialWithTotalCount(String parentIri, String predicateIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
     List<TTIriRef> children = new ArrayList<>();
     Pageable<TTIriRef> result = new Pageable<>();
 
@@ -1567,14 +1567,14 @@ public class EntityRepository {
   }
 
   public Boolean hasPredicates(String subjectIri, Set<String> predicateIris) {
-    String predicates= String.join(" ",predicateIris.stream().map(iri-> "<"+ iri+">").collect(Collectors.toSet()));
+    String predicates = String.join(" ", predicateIris.stream().map(iri -> "<" + iri + ">").collect(Collectors.toSet()));
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      String sql= """
+      String sql = """
         ASK {
         Values ?predicates {%s}
         %s ?predicates ?value.
         }
-        """.formatted(predicates,"<"+ subjectIri+">");
+        """.formatted(predicates, "<" + subjectIri + ">");
       BooleanQuery sparql = conn.prepareBooleanQuery(String.valueOf(sql));
       return sparql.evaluate();
     }

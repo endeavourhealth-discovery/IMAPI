@@ -172,6 +172,12 @@ public class SetService {
   }
 
   public byte[] getSetExport(String format, boolean includeIM1id, SetOptions options) throws IOException, QueryException, GeneralCustomException {
+    if (null == options.getSetIri() || options.getSetIri().isEmpty())
+      throw new IllegalArgumentException("Iri needs to be set.");
+
+    if (null == format || format.isEmpty())
+      throw new IllegalArgumentException("File type format needs to be set.");
+
     TTEntity setEntity = entityRepository.getBundle(options.getSetIri(), Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
 
     if (options.includeDefinition()) {
@@ -183,7 +189,6 @@ public class SetService {
     LinkedHashSet<Concept> concepts = getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes()).stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
     if (concepts.isEmpty())
       throw new GeneralCustomException("Set does not have members.", HttpStatus.INTERNAL_SERVER_ERROR);
-
 
     switch (format) {
       case "xlsx":
@@ -201,7 +206,7 @@ public class SetService {
       case "FHIR":
         return getFHIRSetExport(options).getBytes();
       default:
-        throw new GeneralCustomException("Unrecognised file type.", HttpStatus.BAD_REQUEST);
+        throw new IllegalArgumentException("Unrecognised file type.");
     }
   }
 

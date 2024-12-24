@@ -1719,4 +1719,53 @@ public class EntityRepository {
     }
     return results;
   }
+
+  public List<TTIriRef> findInvertedIsas(String iri) {
+    String sparqlString =
+      """
+          select * where {
+              ?s im:isA ?iri .
+              ?s rdfs:label ?name .
+          }
+        """;
+    ArrayList<TTIriRef> iriRefs = new ArrayList<>();
+
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sparqlString);
+      qry.setBinding("iri", iri(iri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          iriRefs.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
+        }
+      }
+    }
+    return iriRefs;
+  }
+
+  public List<String> findOperatorOptions(String iri) {
+    List<String> options = new ArrayList<>();
+
+    String sparqlString =
+      """
+          select * where {
+              ?s sh:in ?o .
+          }
+        """;
+
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sparqlString);
+      qry.setBinding("s", iri(iri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          if(null != bs.getValue("o")) {
+            String[] splits = bs.getValue("o").stringValue().split(" ");
+            options = Arrays.stream(splits).toList();
+          }
+        }
+      }
+    }
+    return options;
+  }
 }

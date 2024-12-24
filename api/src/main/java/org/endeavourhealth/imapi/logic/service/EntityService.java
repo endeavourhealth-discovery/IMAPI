@@ -29,7 +29,6 @@ public class EntityService {
   public static final int MAX_CHILDREN = 200;
   private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
   private EntityRepository entityRepository = new EntityRepository();
-  private ConfigManager configManager = new ConfigManager();
   private EntityValidator validator = new EntityValidator();
 
   private static void filterOutSpecifiedPredicates(Set<String> excludePredicates, TTBundle bundle) {
@@ -563,6 +562,15 @@ public class EntityService {
       return FHIR.PREFIX;
     }
     return iri;
+  }
+
+  public List<TTIriRef> getIsas(String iri) {
+    return entityRepository.findInvertedIsas(iri);
+  }
+
+
+  public List<String> getOperatorOptions(String iri) {
+    return entityRepository.findOperatorOptions(iri);
   }
 
   public Set<String> getXmlSchemaDataTypes() {

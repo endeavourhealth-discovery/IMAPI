@@ -101,10 +101,18 @@ public class DataModelService {
 
   public UIProperty getUIPropertyForQB(String dmIri, String propIri) {
     UIProperty uiProp = dataModelRepository.findUIPropertyForQB(dmIri, propIri);
-    if (null != uiProp.getIntervalUnitIri())
-      uiProp.setIntervalUnitOptions(entityService.getIsas(uiProp.getIntervalUnitIri()));
-    if (null != uiProp.getUnitIri()) uiProp.setUnitOptions(entityService.getIsas(uiProp.getUnitIri()));
-    if (null != uiProp.getOperatorIri()) uiProp.setOperatorOptions(entityService.getOperatorOptions(uiProp.getOperatorIri()));
+    if (null != uiProp.getIntervalUnitIri()) {
+      List<TTIriRef> isas = entityService.getIsas(uiProp.getIntervalUnitIri());
+      List<TTIriRef> intervalUnitOptions = isas.stream().filter(unit -> !unit.getIri().equals(uiProp.getIntervalUnitIri())).toList();
+      uiProp.setIntervalUnitOptions(intervalUnitOptions);
+    }
+    if (null != uiProp.getUnitIri()) {
+      List<TTIriRef> isas = entityService.getIsas(uiProp.getUnitIri());
+      List<TTIriRef> unitOptions = isas.stream().filter(unit -> !unit.getIri().equals(uiProp.getUnitIri())).toList();
+      uiProp.setUnitOptions(unitOptions);
+    }
+    if (null != uiProp.getOperatorIri())
+      uiProp.setOperatorOptions(entityService.getOperatorOptions(uiProp.getOperatorIri()));
     return uiProp;
   }
 }

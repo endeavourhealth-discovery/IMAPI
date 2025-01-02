@@ -4,11 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +47,7 @@ public class SetExporter {
     LOG.trace("Looking up set...");
     String name = entityRepository.getBundle(setIri, Set.of(RDFS.LABEL)).getEntity().getName();
 
-    Set<Concept> members = getExpandedSetMembers(setIri, true, true, true, List.of());
+    Set<Concept> members = getExpansionFromIri(setIri, true, true, true, List.of());
 
     return generateIMV1TSV(setIri, name, members);
   }
@@ -59,14 +57,14 @@ public class SetExporter {
     return new HashSet<>(subsets);
   }
 
-  public Set<Concept> getExpandedSetMembers(String iri, boolean core, boolean legacy, boolean subsets, List<String> schemes) throws QueryException, JsonProcessingException {
+  public Set<Concept> getExpansionFromIri(String iri, boolean core, boolean legacy, boolean subsets, List<String> schemes) throws QueryException, JsonProcessingException {
     if (!(core || legacy || subsets))
       return new HashSet<>();
 
     Set<Concept> result = null;
 
     if (core || legacy) {
-        result = setRepository.getSetMembers(iri, legacy, schemes);
+        result = setRepository.getExpansionFromIri(iri, legacy, schemes);
 
     }
 
@@ -85,7 +83,7 @@ public class SetExporter {
     Set<TTIriRef> subSetIris = getSubsetIrisWithNames(iri);
     LOG.trace("Found {} subsets...", subSetIris.size());
     for (TTIriRef subset : subSetIris) {
-      Set<Concept> subsetMembers = getExpandedSetMembers(subset.getIri(), core, legacy, true, schemes);
+      Set<Concept> subsetMembers = getExpansionFromIri(subset.getIri(), core, legacy, true, schemes);
       if (null != subsetMembers && !subsetMembers.isEmpty()) {
         subsetMembers.forEach(ss -> ss.addIsContainedIn(
           new TTEntity(subset.getIri())

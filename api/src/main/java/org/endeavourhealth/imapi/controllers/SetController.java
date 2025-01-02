@@ -123,7 +123,14 @@ public class SetController {
   }
 
   @GetMapping("/public/setExport")
-  public HttpEntity<Object> getSetExport(@RequestParam(name = "iri") String iri, @RequestParam(name = "definition", defaultValue = "false") boolean definition, @RequestParam(name = "core", defaultValue = "false") boolean core, @RequestParam(name = "legacy", defaultValue = "false") boolean legacy, @RequestParam(name = "includeSubsets", defaultValue = "false") boolean subsets, @RequestParam(name = "ownRow", defaultValue = "false") boolean ownRow, @RequestParam(name = "im1id", defaultValue = "false") boolean im1id, @RequestParam(name = "format") String format, @RequestParam(name = "schemes", defaultValue = "") List<String> schemes) throws DownloadException, IOException {
+  public HttpEntity<Object> getSetExport(@RequestParam(name = "iri") String iri, @RequestParam(name = "definition", defaultValue = "false") boolean definition,
+                                         @RequestParam(name = "core", defaultValue = "false") boolean core,
+                                         @RequestParam(name = "legacy", defaultValue = "false") boolean legacy,
+                                         @RequestParam(name = "includeSubsets", defaultValue = "false") boolean subsets,
+                                         @RequestParam(name = "ownRow", defaultValue = "false") boolean ownRow,
+                                         @RequestParam(name = "im1id", defaultValue = "false") boolean im1id,
+                                         @RequestParam(name = "format") String format,
+                                         @RequestParam(name = "schemes", defaultValue = "") List<String> schemes) throws DownloadException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SetExport.GET")) {
       LOG.debug("getSetExport");
       HttpHeaders headers = new HttpHeaders();

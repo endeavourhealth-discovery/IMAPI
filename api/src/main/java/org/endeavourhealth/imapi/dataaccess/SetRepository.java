@@ -583,12 +583,21 @@ public class SetRepository {
   }
 
 
-  public Set<Concept> getSetMembers(String setIri, boolean includeLegacy, List<String> schemes) {
+  public Set<Concept> getExpansionFromIri(String setIri, boolean includeLegacy, List<String> schemes) {
     StringJoiner spql = new StringJoiner(System.lineSeparator())
       .add("""
-        SELECT *
+        SELECT distinct ?entity ?term ?code ?scheme ?schemeName ?status ?statusName ?im1Id ?use ?codeId
+        ?alternativeCode ?legacy ?legacyTerm ?legacyCode ?legacyScheme ?legacySchemeName
+        ?legacyIm1Id ?legacyUse ?legacyCodeId
         WHERE {
+          Values ?setIri{%s}
+           {
           ?setIri im:hasMember ?entity .
+          }
+          union {
+            ?setIri im:hasMember ?member.
+            ?entity im:subsumedBy ?member.
+          }
           ?entity rdfs:label ?term;
           im:code ?code;
           im:scheme ?scheme.
@@ -598,15 +607,16 @@ public class SetRepository {
           OPTIONAL { ?entity im:usageTotal ?use . }
           OPTIONAL { ?entity im:codeId ?codeId . }
           OPTIONAL { ?entity im:alternativeCode ?alternativeCode.}
-        """);
+  
+        """.formatted("<"+setIri+">"));
 
     if (includeLegacy) {
       spql.add("""
         OPTIONAL {
-          ?legacy im:matchedTo ?entity;
-          rdfs:label ?legacyTerm;
-          im:code ?legacyCode;
-          im:scheme ?legacyScheme.
+          ?legacy im:matchedTo ?entity.
+          ?legacy rdfs:label ?legacyTerm.
+          ?legacy im:code ?legacyCode.
+          ?legacy im:scheme ?legacyScheme.
         """);
 
       if (!schemes.isEmpty()) {
@@ -627,7 +637,8 @@ public class SetRepository {
     spql.add("}  ");
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(spql.toString()));
+      String sql= addSparqlPrefixes(spql.toString());
+      TupleQuery qry = conn.prepareTupleQuery(sql);
       qry.setBinding("setIri", Values.iri(setIri));
       return getCoreLegacyCodesForSparql(qry, includeLegacy, List.of());
     }

@@ -93,7 +93,7 @@ public class SetService {
     if (options.includeCore() || options.includeLegacy() || options.includeSubsets()) {
       LOG.trace("Expanding...");
       result.setConcepts(setExporter
-        .getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes())
+        .getExpansionFromIri(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes())
       );
     }
 
@@ -167,7 +167,7 @@ public class SetService {
   public Set<Concept> getFullyExpandedMembers(String iri, boolean includeLegacy, boolean includeSubset,
                                               List<String> schemes) throws QueryException, JsonProcessingException {
     SetExporter setExporter = new SetExporter();
-    return setExporter.getExpandedSetMembers(iri, true, includeLegacy, includeSubset, schemes);
+    return setExporter.getExpansionFromIri(iri, true, includeLegacy, includeSubset, schemes);
   }
 
   public Set<TTIriRef> getSubsets(String iri) {

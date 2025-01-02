@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.DataModelProperty;
+import org.endeavourhealth.imapi.model.dto.UIProperty;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -20,7 +21,6 @@ public class DataModelService {
   private EntityRepository entityRepository = new EntityRepository();
   private DataModelRepository dataModelRepository = new DataModelRepository();
   private EntityService entityService = new EntityService();
-
 
   public List<TTIriRef> getDataModelsFromProperty(String propIri) {
     return dataModelRepository.findDataModelsFromProperty(propIri);
@@ -97,5 +97,22 @@ public class DataModelService {
     pv.setOrder(property.asNode().has(iri(SHACL.ORDER)) ? property.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue() : 0);
 
     return pv;
+  }
+
+  public UIProperty getUIPropertyForQB(String dmIri, String propIri) {
+    UIProperty uiProp = dataModelRepository.findUIPropertyForQB(dmIri, propIri);
+    if (null != uiProp.getIntervalUnitIri()) {
+      List<TTIriRef> isas = entityService.getIsas(uiProp.getIntervalUnitIri());
+      List<TTIriRef> intervalUnitOptions = isas.stream().filter(unit -> !unit.getIri().equals(uiProp.getIntervalUnitIri())).toList();
+      uiProp.setIntervalUnitOptions(intervalUnitOptions);
+    }
+    if (null != uiProp.getUnitIri()) {
+      List<TTIriRef> isas = entityService.getIsas(uiProp.getUnitIri());
+      List<TTIriRef> unitOptions = isas.stream().filter(unit -> !unit.getIri().equals(uiProp.getUnitIri())).toList();
+      uiProp.setUnitOptions(unitOptions);
+    }
+    if (null != uiProp.getOperatorIri())
+      uiProp.setOperatorOptions(entityService.getOperatorOptions(uiProp.getOperatorIri()));
+    return uiProp;
   }
 }

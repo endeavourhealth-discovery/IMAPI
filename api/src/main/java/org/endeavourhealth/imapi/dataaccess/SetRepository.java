@@ -45,12 +45,12 @@ public class SetRepository {
    * @throws QueryException if json definitino invalid
 
    */
-  public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
+  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
     //add scheme filter
-    return getSetExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, null);
+    return getSetExpansionFromQuery(imQuery, includeLegacy, statusFilter, schemeFilter, null);
   }
 
-  public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
+  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
     Set<Concept> result = getActiveExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
     Set<Concept> result2 = getReplacedExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
     result.addAll(result2);
@@ -85,7 +85,7 @@ public class SetRepository {
     }
     Return aReturn = setReturn(imQuery, includeLegacy);
     aReturn.setNodeRef(ENTITY);
-    replaced.addReturn(aReturn);
+    replaced.setReturn(aReturn);
     replaced.match(m -> m
       .setBoolMatch(Bool.or)
       .match(m1 -> m1
@@ -101,7 +101,7 @@ public class SetRepository {
       .match(m1 -> m1
         .setVariable(ENTITY)
         .where(p -> p
-          .setIri(IM.USUALLY_SUBSUMED_BY)
+          .setIri(IM.MAY_BE_SUBSUMED_BY)
           .addIs(new Node().setNodeRef(ACTIVE_ENTITY)))));
     return getExpansion(replaced, includeLegacy, statusFilter, schemeFilter, page);
 
@@ -109,7 +109,7 @@ public class SetRepository {
 
   private Set<Concept> getActiveExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
     Return aReturn = setReturn(imQuery, includeLegacy);
-    imQuery.addReturn(aReturn);
+    imQuery.setReturn(aReturn);
     return getExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
   }
 
@@ -127,7 +127,7 @@ public class SetRepository {
 
   private Return setReturn(Query imQuery, boolean includeLegacy) {
     Return aReturn = new Return();
-    imQuery.addReturn(aReturn);
+    imQuery.setReturn(aReturn);
     aReturn
       .property(s -> s
         .setIri(RDFS.LABEL).as("term"))

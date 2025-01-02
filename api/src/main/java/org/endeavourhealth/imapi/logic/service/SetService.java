@@ -49,7 +49,7 @@ public class SetService {
   private EntityRepository entityRepository = new EntityRepository();
   private FilerService filerService = new FilerService();
 
-  public Pageable<Node> getMembers(String iri, boolean entailments,Integer rowNumber, Integer pageSize){
+  public Pageable<Node> getDirectOrEntailedMembersFromIri(String iri, boolean entailments, Integer rowNumber, Integer pageSize){
     return setRepository.getMembers(iri,entailments,rowNumber,pageSize);
   }
 
@@ -164,7 +164,8 @@ public class SetService {
     return parser.encodeResourceToString(valueSet);
   }
 
-  public Set<Concept> getFullyExpandedMembers(String iri, boolean includeLegacy, boolean includeSubset, List<String> schemes) throws QueryException, JsonProcessingException {
+  public Set<Concept> getFullyExpandedMembers(String iri, boolean includeLegacy, boolean includeSubset,
+                                              List<String> schemes) throws QueryException, JsonProcessingException {
     SetExporter setExporter = new SetExporter();
     return setExporter.getExpandedSetMembers(iri, true, includeLegacy, includeSubset, schemes);
   }
@@ -219,6 +220,8 @@ public class SetService {
       }
     }
   }
+
+
 
   public SetDiffObject getSetComparison(Optional<String> setIriA, Optional<String> setIriB) throws QueryException, JsonProcessingException {
     if (setIriA.isEmpty() && setIriB.isEmpty()) {

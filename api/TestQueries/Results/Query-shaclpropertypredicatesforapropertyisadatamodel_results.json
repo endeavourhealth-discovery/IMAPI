@@ -3,10 +3,10 @@
   "count" : 1,
   "totalCount" : 1,
   "entities" : [ {
-    "@bn" : "b10af1aaec8c466982f7f3d87f14f1b134",
+    "@bn" : "85cdf38c471140f38d8f9aba0f08014e54",
     "http://www.w3.org/ns/shacl#datatype" : [ {
-      "@id" : "http://endhealth.info/im#NumericValue",
-      "http://www.w3.org/2000/01/rdf-schema#label" : "Numeric value"
+      "@id" : "http://endhealth.info/im#Age",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Age (data type)"
     } ],
     "http://www.w3.org/ns/shacl#maxCount" : "1"
   } ]

@@ -66,20 +66,8 @@ public class SetExporter {
     Set<Concept> result = null;
 
     if (core || legacy) {
-      result = tryGetExpandedSetMembersByDefinition(iri, legacy, schemes);
-
-      // If nothing found from definition, try to get direct members
-      if (null == result || result.isEmpty())
         result = setRepository.getSetMembers(iri, legacy, schemes);
 
-      // If nothing found from members, try to get descendants
-      if (null == result || result.isEmpty()) {
-        Query descendantsOf = new Query()
-          .match(f -> f
-            .instanceOf(n -> n.setIri(iri)
-              .setDescendantsOrSelfOf(true)));
-        result = setRepository.getSetExpansion(descendantsOf, legacy, null, schemes);
-      }
     }
 
     if (null == result)
@@ -108,28 +96,6 @@ public class SetExporter {
     }
   }
 
-  private Set<Concept> tryGetExpandedSetMembersByDefinition(String iri, boolean legacy, List<String> schemeIris) throws JsonProcessingException, QueryException {
-
-    TTEntity entity = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION, RDFS.LABEL)).getEntity();
-    if (null == entity)
-      return Collections.emptySet();
-
-    String name = entity.has(iri(RDFS.LABEL)) ? entity.getName() : "";
-
-    Query definition = entity.has(iri(IM.DEFINITION)) ? entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class) : null;
-    if (null == definition)
-      return Collections.emptySet();
-
-    Set<Concept> result = setRepository.getSetExpansion(definition, legacy, null, schemeIris);
-
-    if (null != result && !result.isEmpty()) {
-      LOG.trace("Found {} results", result.size());
-      result.forEach(se -> se.addIsContainedIn(new TTEntity(iri).setName(name)));
-    }
-
-
-    return result;
-  }
 
   private StringJoiner generateIMV1TSV(String setIri, String name, Set<Concept> members) {
     LOG.trace("Generating output...");

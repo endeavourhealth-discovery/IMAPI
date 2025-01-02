@@ -30,10 +30,7 @@ public class QueryService {
   private final QueryRepository queryRepository = new QueryRepository();
   private final EntityRepository entityRepository = new EntityRepository();
 
-  public Query labelQuery(Query query) {
-    queryRepository.labelQuery(query);
-    return query;
-  }
+
 
   public Query getQueryFromIri(String queryIri) throws JsonProcessingException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();

@@ -63,7 +63,7 @@ public class ExcelSetExporterTest {
   void getSetExport_NotNullIriWithDefinition() throws JsonProcessingException, QueryException {
     when(entityRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(mockDefinition()));
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity().setName("Test")));
-    when(setRepository.getSetExpansion(any(), anyBoolean(), any(), anyList())).thenReturn(new HashSet<>());
+    when(setRepository.getSetExpansionFromQuery(any(), anyBoolean(), any(), anyList())).thenReturn(new HashSet<>());
     when(setRepository.getSubsetIrisWithNames(anyString())).thenReturn(new HashSet<>());
     ReflectionTestUtils.setField(excelSetExporter, "setExporter", setExporter);
     SetOptions setOptions = new SetOptions("http://endhealth.info/im#25451000252115", true, true,

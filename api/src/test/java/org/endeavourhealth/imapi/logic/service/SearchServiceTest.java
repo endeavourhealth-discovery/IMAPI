@@ -3,28 +3,20 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.controllers.EntityController;
 import org.endeavourhealth.imapi.json.JsonLDMapper;
-import org.endeavourhealth.imapi.logic.exporters.SetExporter;
-import org.endeavourhealth.imapi.logic.reasoner.SetExpander;
+import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.transforms.TTManager;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
@@ -35,13 +27,16 @@ class SearchServiceTest {
   private String succinctDefinitions;
   EntityService entityService = new EntityService();
 
- // @Test
+ //@Test
   void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
+   output(TestQueries.getAllowableSubtypes());
+   output(TestQueries.subtypesParameterised());
+   output(TestQueries.getAllowableProperties());
     output(TestQueries.getMembers());;
     output(TestQueries.AllowablePropertiesForCovid());
     output(TestQueries.getMembers());
     output(TestQueries.pathQuery());
-    output(TestQueries.getAllowableSubtypes());
+
     output(TestQueries.query2());
     //output(TestQueries.pathQueryAtenolol3());
 
@@ -58,8 +53,8 @@ class SearchServiceTest {
     output(TestQueries.deleteSets());
 
 
-    output(TestQueries.getAllowableProperties());
-    output(TestQueries.subtypesParameterised());
+
+
     output(TestQueries.substanceTextSearch());
     output(TestQueries.rangeTextSearch());
     output(TestQueries.getAllowableRanges());
@@ -120,7 +115,7 @@ class SearchServiceTest {
 
   //@Test
   public void setTest() throws DataFormatException, JsonProcessingException, QueryException {
-    new SetExpander().expandSet("http://apiqcodes.org/qcodes#QCodeGroup_713");
+    new SetMemberGenerator().generateMembers("http://apiqcodes.org/qcodes#QCodeGroup_713");
   }
 }
 

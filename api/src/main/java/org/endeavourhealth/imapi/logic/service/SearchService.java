@@ -29,7 +29,7 @@ public class SearchService {
   private static QueryRequest getHighestUseRequestFromQuery(QueryRequest queryRequest, ObjectMapper om, QueryRepository repo) throws JsonProcessingException, QueryException {
     QueryRequest highestUsageRequest = om.readValue(om.writeValueAsString(queryRequest), QueryRequest.class);
     repo.unpackQueryRequest(highestUsageRequest, om.createObjectNode());
-    highestUsageRequest.getQuery().addReturn(new Return().property(p -> p.setIri(IM.USAGE_TOTAL).setValueRef(USAGE_TOTAL)));
+    highestUsageRequest.getQuery().setReturn(new Return().property(p -> p.setIri(IM.USAGE_TOTAL).setValueRef(USAGE_TOTAL)));
     OrderDirection od = new OrderDirection().setDirection(Order.descending);
     od.setValueVariable(USAGE_TOTAL);
     highestUsageRequest.getQuery().setOrderBy(new OrderLimit().setProperty(od));

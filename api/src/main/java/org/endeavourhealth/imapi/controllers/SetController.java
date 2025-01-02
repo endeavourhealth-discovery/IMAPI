@@ -76,7 +76,7 @@ public class SetController {
         page = 1;
         size = 10;
       }
-      return setService.getMembers(iri, entailments,page, size);
+      return setService.getDirectOrEntailedMembersFromIri(iri, entailments,page, size);
     }
   }
 

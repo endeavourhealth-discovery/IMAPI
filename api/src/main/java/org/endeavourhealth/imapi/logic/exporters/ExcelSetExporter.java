@@ -116,6 +116,7 @@ public class ExcelSetExporter {
    * @return work book
    */
   public XSSFWorkbook getSetAsExcel(SetExporterOptions options) throws JsonProcessingException, QueryException {
+
     TTEntity entity = entityRepository.getEntityPredicates(options.getSetIri(), Set.of(IM.DEFINITION)).getEntity();
     if (entity.getIri() == null || entity.getIri().isEmpty())
       return workbook;

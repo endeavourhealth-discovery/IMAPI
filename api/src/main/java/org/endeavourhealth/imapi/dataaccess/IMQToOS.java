@@ -206,7 +206,7 @@ public class IMQToOS {
     if (query == null)
       return true;
     if (query.getReturn() != null) {
-      for (Return ret : query.getReturn()) {
+      Return ret = query.getReturn();
         if (ret.getProperty() != null) {
           for (ReturnProperty prop : ret.getProperty()) {
             if (prop.getIri() != null) {
@@ -249,7 +249,6 @@ public class IMQToOS {
             }
           }
         }
-      }
     }
     String[] sourceArray = sources.toArray(String[]::new);
     sourceBuilder.fetchSource(sourceArray, null);

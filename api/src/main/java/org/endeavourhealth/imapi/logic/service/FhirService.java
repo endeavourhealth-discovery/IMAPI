@@ -39,7 +39,7 @@ public class FhirService {
 
   public String getFhirValueSet(String iri, boolean expanded) throws JsonProcessingException, QueryException {
     List<String> schemes = new ArrayList<>();
-    SetOptions setOptions = new SetOptions(iri, true, expanded, false, true, schemes);
+    SetOptions setOptions = new SetOptions(iri, true, expanded, false, true, schemes,null);
     SetExporterOptions exportOptions = new SetExporterOptions(setOptions, false, false);
     return setService.getFHIRSetExport(exportOptions);
   }

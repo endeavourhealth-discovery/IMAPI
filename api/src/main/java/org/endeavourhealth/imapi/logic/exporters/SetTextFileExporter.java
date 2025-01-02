@@ -101,7 +101,8 @@ public class SetTextFileExporter {
     }
 
     if (options.includeCore() || options.includeLegacy()) {
-      Set<Concept> members = setExporter.getExpansionFromIri(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes())
+      Set<Concept> members = setExporter.getExpansionFromIri(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(),
+          options.getSchemes(),options.getSubsumptions())
         .stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
 
       if (options.includeSubsets()) {

@@ -26,6 +26,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -36,6 +37,7 @@ import org.springframework.web.context.annotation.RequestScope;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -98,13 +100,6 @@ public class SetController {
     }
   }
 
-  @GetMapping("/public/expandedMembers")
-  public Set<Concept> getFullyExpandedMembers(@RequestParam(name = "iri") String iri, @RequestParam(name = "legacy", required = false) boolean legacy, @RequestParam(name = "includeSubsets", required = false) boolean includeSubsets, @RequestParam(name = "schemes", required = false) List<String> schemes) throws QueryException, IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ExpandedMembers.GET")) {
-      LOG.debug("getFullyExpandedMembers");
-      return setService.getFullyExpandedMembers(iri, legacy, includeSubsets, schemes);
-    }
-  }
 
   @GetMapping("/public/subsets")
   public Set<TTIriRef> getSubsets(@RequestParam(name = "iri") String iri) throws IOException {
@@ -130,14 +125,18 @@ public class SetController {
                                          @RequestParam(name = "ownRow", defaultValue = "false") boolean ownRow,
                                          @RequestParam(name = "im1id", defaultValue = "false") boolean im1id,
                                          @RequestParam(name = "format") String format,
+                                         @RequestParam(name = "subsumptions", required=false) List<String> subsumptions,
                                          @RequestParam(name = "schemes", defaultValue = "") List<String> schemes) throws DownloadException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SetExport.GET")) {
       LOG.debug("getSetExport");
+      if (subsumptions==null){
+        subsumptions= List.of(IM.SUBSUMED_BY);
+      }
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
       headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"");
 
-      SetOptions setOptions = new SetOptions(iri, definition, core, legacy, subsets, schemes);
+      SetOptions setOptions = new SetOptions(iri, definition, core, legacy, subsets, schemes,subsumptions);
       SetExporterOptions exportOptions = new SetExporterOptions(setOptions, ownRow, im1id);
 
       try {

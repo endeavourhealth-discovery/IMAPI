@@ -583,21 +583,30 @@ public class SetRepository {
   }
 
 
-  public Set<Concept> getExpansionFromIri(String setIri, boolean includeLegacy, List<String> schemes) {
+  public Set<Concept> getExpansionFromIri(String setIri, boolean includeLegacy, List<String> schemes,
+                                          List<String> subsumptions) {
+
     StringJoiner spql = new StringJoiner(System.lineSeparator())
       .add("""
         SELECT distinct ?entity ?term ?code ?scheme ?schemeName ?status ?statusName ?im1Id ?use ?codeId
         ?alternativeCode ?legacy ?legacyTerm ?legacyCode ?legacyScheme ?legacySchemeName
         ?legacyIm1Id ?legacyUse ?legacyCodeId
         WHERE {
-          Values ?setIri{%s}
-           {
-          ?setIri im:hasMember ?entity .
-          }
-          union {
-            ?setIri im:hasMember ?member.
-            ?entity im:subsumedBy ?member.
-          }
+            Values ?setIri{%s}
+            {
+                    ?setIri im:hasMember ?entity .
+            }
+          """.formatted("<"+setIri+">"));
+    if (subsumptions!=null) {
+          spql.add("""
+            union {
+              ?setIri im:hasMember ?member.
+              ?entity ?subsumption ?member.
+              Values ?subsumption {%s}
+            }
+            """.formatted(String.join(" ", subsumptions.stream().map(s -> "<" + s + ">").collect(Collectors.toList()))));
+    }
+    spql.add("""
           ?entity rdfs:label ?term;
           im:code ?code;
           im:scheme ?scheme.
@@ -608,8 +617,7 @@ public class SetRepository {
           OPTIONAL { ?entity im:codeId ?codeId . }
           OPTIONAL { ?entity im:alternativeCode ?alternativeCode.}
   
-        """.formatted("<"+setIri+">"));
-
+        """);
     if (includeLegacy) {
       spql.add("""
         OPTIONAL {

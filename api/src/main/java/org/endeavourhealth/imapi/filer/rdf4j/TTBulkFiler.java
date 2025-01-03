@@ -211,10 +211,8 @@ public class TTBulkFiler implements TTDocumentFiler {
 
         transformAndWriteQuads(converter, entity, entityGraph);
 
-        if (counter++ % 100_000 == 0)
-          LOG.info("Written {} entities for {}", counter, document.getGraph().getIri());
       }
-      LOG.debug("{} entities written to file", counter);
+      LOG.debug("{} entities written to file for {}", counter,document.getGraph().getIri());
       LOG.info("Finished - total of {} statements,  {}", statementCount, new Date());
     } catch (Exception e) {
       throw new TTFilerException(e.getMessage());

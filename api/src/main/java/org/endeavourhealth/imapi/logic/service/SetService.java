@@ -54,6 +54,19 @@ public class SetService {
 
   public Pageable<Node> getMembers(String iri, boolean entailments, Integer rowNumber, Integer pageSize) {
     return setRepository.getMembers(iri, entailments, rowNumber, pageSize);
+    }
+  public Pageable<Node> getDirectOrEntailedMembersFromIri(String iri, boolean entailments, Integer rowNumber, Integer pageSize){
+    return setRepository.getMembers(iri,entailments,rowNumber,pageSize);
+  }
+
+  public String getTSVSetExport(SetExporterOptions options) throws QueryException, JsonProcessingException {
+    return setTextFileExporter.getSetFile(options, "\t");
+
+  }
+
+  public String getCSVSetExport(SetExporterOptions options) throws QueryException, JsonProcessingException {
+    return setTextFileExporter.getSetFile(options, ",");
+
   }
 
   public SetContent getSetContent(SetOptions options) throws QueryException, JsonProcessingException {
@@ -277,6 +290,8 @@ public class SetService {
       }
     }
   }
+
+
 
   public SetDiffObject getSetComparison(Optional<String> setIriA, Optional<String> setIriB) throws QueryException, JsonProcessingException {
     if (setIriA.isEmpty() && setIriB.isEmpty()) {

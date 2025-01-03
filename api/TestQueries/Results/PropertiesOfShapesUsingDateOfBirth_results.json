@@ -1,47 +1,33 @@
 {
   "page" : 1,
-  "count" : 109,
-  "totalCount" : 109,
+  "count" : 116,
+  "totalCount" : 116,
   "entities" : [ {
-    "@id" : "http://endhealth.info/im#PersonDemographics",
+    "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f798c579031b46028f4fd15c144500d4416",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e33",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#statedGender"
+        "@id" : "http://endhealth.info/im#provenance"
       },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#class" : {
-        "@id" : "http://hl7.org/fhir/ValueSet/administrative-gender"
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#Provenance"
       }
     } ]
   }, {
-    "@id" : "http://endhealth.info/im#PersonDemographics",
+    "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f798c579031b46028f4fd15c144500d4417",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e34",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#dateOfBirth"
+        "@id" : "http://endhealth.info/im#component"
       },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://endhealth.info/im#DateTime"
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#RecordEntry"
       }
     } ]
   }, {
-    "@id" : "http://endhealth.info/im#PersonDemographics",
+    "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f798c579031b46028f4fd15c144500d4418",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#age"
-      },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://endhealth.info/im#NumericValue"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#PersonDemographics",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f798c579031b46028f4fd15c144500d4419",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e35",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#title"
       },
@@ -51,9 +37,9 @@
       }
     } ]
   }, {
-    "@id" : "http://endhealth.info/im#PersonDemographics",
+    "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f798c579031b46028f4fd15c144500d4420",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e36",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#familyName"
       },
@@ -63,9 +49,9 @@
       }
     } ]
   }, {
-    "@id" : "http://endhealth.info/im#PersonDemographics",
+    "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f798c579031b46028f4fd15c144500d4421",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e37",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#callingName"
       },
@@ -75,9 +61,9 @@
       }
     } ]
   }, {
-    "@id" : "http://endhealth.info/im#PersonDemographics",
+    "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f798c579031b46028f4fd15c144500d4422",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e38",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#forenames"
       },
@@ -87,111 +73,21 @@
       }
     } ]
   }, {
-    "@id" : "http://endhealth.info/im#PersonDemographics",
+    "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f798c579031b46028f4fd15c144500d4423",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e39",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#ethnicity"
-      },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#class" : {
-        "@id" : "http://endhealth.info/im#VSET_Ethnicity"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#PersonDemographics",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f798c579031b46028f4fd15c144500d4424",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#communicationLanguage"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#CommunicationLanguage"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#PersonDemographics",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f798c579031b46028f4fd15c144500d4425",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#telephoneNumber"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#TelephoneNumber"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#PersonDemographics",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f798c579031b46028f4fd15c144500d4426",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#email"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#Email"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#PersonDemographics",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f798c579031b46028f4fd15c144500d4427",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#deathIndicator"
+        "@id" : "http://endhealth.info/im#fullName"
       },
       "http://www.w3.org/ns/shacl#maxCount" : "1",
       "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://www.w3.org/2001/XMLSchema#boolean"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#PersonDemographics",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f798c579031b46028f4fd15c144500d4428",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#dateOfDeath"
-      },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://endhealth.info/im#DateTime"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#PersonDemographics",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f798c579031b46028f4fd15c144500d4429",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#provenance"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#Provenance"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#PersonDemographics",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f798c579031b46028f4fd15c144500d4430",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#contact"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
         "@id" : "http://www.w3.org/2001/XMLSchema#string"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#PersonDemographics",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f798c579031b46028f4fd15c144500d4431",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#person"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#Person"
       }
     } ]
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b128",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e40",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#statedGender"
       },
@@ -203,18 +99,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b129",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#mobileTelephoneNumber"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#MobileTelephoneNumber"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#Patient",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b130",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e41",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#homeTelephoneNumber"
       },
@@ -225,30 +110,29 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b131",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e42",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#dateOfBirth"
-      },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://endhealth.info/im#DateTime"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#Patient",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b132",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#samePersonAs"
+        "@id" : "http://endhealth.info/im#telephoneNumber"
       },
       "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#Person"
+        "@id" : "http://endhealth.info/im#TelephoneNumber"
       }
     } ]
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b133",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e43",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#mobileTelephoneNumber"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#MobileTelephoneNumber"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e44",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#workTelephoneNumber"
       },
@@ -259,101 +143,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b134",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#age"
-      },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://endhealth.info/im#NumericValue"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#Patient",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b135",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#title"
-      },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://www.w3.org/2001/XMLSchema#string"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#Patient",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b136",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#familyName"
-      },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://www.w3.org/2001/XMLSchema#string"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#Patient",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b137",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#callingName"
-      },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://www.w3.org/2001/XMLSchema#string"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#Patient",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b138",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#forenames"
-      },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://www.w3.org/2001/XMLSchema#string"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#Patient",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b139",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#ethnicity"
-      },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#class" : {
-        "@id" : "http://endhealth.info/im#VSET_Ethnicity"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#Patient",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b140",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#communicationLanguage"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#CommunicationLanguage"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#Patient",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b141",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#address"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#Address"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#Patient",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b142",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e45",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#email"
       },
@@ -364,9 +154,21 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b143",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e46",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#nhsNumber"
+        "@id" : "http://endhealth.info/im#dateOfBirth"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://endhealth.info/im#Date"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e47",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#odsCode"
       },
       "http://www.w3.org/ns/shacl#maxCount" : "1",
       "http://www.w3.org/ns/shacl#datatype" : {
@@ -376,7 +178,19 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b144",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e48",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#timeOfBirth"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://endhealth.info/im#Time"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e49",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#deathIndicator"
       },
@@ -388,7 +202,144 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b145",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e50",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#ethnicity"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#class" : {
+        "@id" : "http://endhealth.info/im#VSET_Ethnicity"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e51",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#communicationLanguage"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#CommunicationLanguage"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e52",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#dateOfDeath"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://endhealth.info/im#Date"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e53",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#timeOfDeath"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://endhealth.info/im#Time"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e54",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#age"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://endhealth.info/im#Age"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e55",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#pseudonymisedId"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e56",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#samePersonAs"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#Person"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e57",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#placeOfResidenceAtEvent"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#Address"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e58",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#address"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#Address"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e59",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#homeAddress"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#Address"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e60",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#workAddress"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#Address"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e61",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#temporaryAddress"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#Address"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e62",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#pdsSensitive"
       },
@@ -400,41 +351,19 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b146",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e63",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#dateOfDeath"
+        "@id" : "http://endhealth.info/im#nhsNumber"
       },
       "http://www.w3.org/ns/shacl#maxCount" : "1",
       "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://endhealth.info/im#DateTime"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#Patient",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b147",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#provenance"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#Provenance"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#Patient",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b148",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#contact"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
         "@id" : "http://www.w3.org/2001/XMLSchema#string"
       }
     } ]
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b149",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e64",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#hospitalInpatientStay"
       },
@@ -445,7 +374,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b150",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e65",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#appointment"
       },
@@ -456,7 +385,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b151",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e66",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#carePlan"
       },
@@ -467,7 +396,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b152",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e67",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#condition"
       },
@@ -478,7 +407,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b153",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e68",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#accidentAndEmergencyEncounter"
       },
@@ -489,7 +418,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b154",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e69",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#allergyIntoleranceAndAdverseReaction"
       },
@@ -500,7 +429,18 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b155",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e70",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#event"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#EncounterEvent"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e71",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#familyHistory"
       },
@@ -511,7 +451,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b156",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e72",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#serviceRequest"
       },
@@ -522,18 +462,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b157",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#referralOut"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#ReferralOut"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#Patient",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b158",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e73",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#testRequest"
       },
@@ -544,7 +473,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b159",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e74",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#immunisation"
       },
@@ -555,7 +484,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b160",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e75",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#hospitalOutpatientEncounter"
       },
@@ -566,7 +495,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b161",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e76",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#encounter"
       },
@@ -577,7 +506,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b162",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e77",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#consultation"
       },
@@ -588,7 +517,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b163",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e78",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#administrationNote"
       },
@@ -599,7 +528,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b164",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e79",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#criticalCareEncounter"
       },
@@ -610,7 +539,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b165",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e80",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#medicationStatement"
       },
@@ -621,7 +550,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b166",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e81",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#medicationAuthorisation"
       },
@@ -632,7 +561,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b167",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e82",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#prescription"
       },
@@ -643,7 +572,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b168",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e83",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#hospitalDischarge"
       },
@@ -654,7 +583,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b169",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e84",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#textNote"
       },
@@ -665,7 +594,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b170",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e85",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#observation"
       },
@@ -676,7 +605,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b171",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e86",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#investigation"
       },
@@ -687,29 +616,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b172",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#numericMeasurement"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#NumericMeasurement"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#Patient",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b173",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#qualitativeMeasurement"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#QualitativeMeasurement"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#Patient",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b174",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e87",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#hospitalAdmission"
       },
@@ -720,7 +627,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b175",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e88",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#procedure"
       },
@@ -731,7 +638,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b176",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e89",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#promptResponse"
       },
@@ -742,7 +649,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b177",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e90",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#diagnosticReport"
       },
@@ -753,7 +660,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b178",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e91",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#episodeOfCare"
       },
@@ -764,98 +671,95 @@
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b179",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e92",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#gpRegistration"
+        "@id" : "http://endhealth.info/im#gpRegistrationEpisodes"
       },
       "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#GPRegistrationEpisode"
+        "@id" : "http://endhealth.info/im#EpisodeOfCare"
       }
     } ]
   }, {
     "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b180",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e93",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#currentGPRegistration"
+        "@id" : "http://endhealth.info/im#gpRegistrationAtEvent"
       },
       "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#GPRegistrationEpisode"
+        "@id" : "http://endhealth.info/im#EpisodeOfCare"
       }
     } ]
   }, {
-    "@id" : "http://endhealth.info/im#Person",
+    "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1465",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e94",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#statedGender"
+        "@id" : "http://endhealth.info/im#gmsRegistrationStatus"
       },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
       "http://www.w3.org/ns/shacl#class" : {
-        "@id" : "http://hl7.org/fhir/ValueSet/administrative-gender"
+        "@id" : "http://endhealth.info/im#CaseloadStatus"
       }
     } ]
   }, {
-    "@id" : "http://endhealth.info/im#Person",
+    "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1466",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e95",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#mobileTelephoneNumber"
+        "@id" : "http://endhealth.info/im#gmsRegistrationStatusAtEvent"
+      },
+      "http://www.w3.org/ns/shacl#class" : {
+        "@id" : "http://endhealth.info/im#CaseloadStatus"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e96",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#gmsRegisteredPractice"
       },
       "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#MobileTelephoneNumber"
+        "@id" : "http://endhealth.info/im#Organisation"
       }
     } ]
   }, {
-    "@id" : "http://endhealth.info/im#Person",
+    "@id" : "http://endhealth.info/im#Patient",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1467",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e97",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#homeTelephoneNumber"
+        "@id" : "http://endhealth.info/im#gpRegistrationAdminStatus"
       },
       "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#HomeTelephoneNumber"
+        "@id" : "http://endhealth.info/im#GPRegistrationAdminStatus"
       }
     } ]
   }, {
     "@id" : "http://endhealth.info/im#Person",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1468",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e594",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#dateOfBirth"
-      },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://endhealth.info/im#DateTime"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#Person",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1469",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#workTelephoneNumber"
+        "@id" : "http://endhealth.info/im#provenance"
       },
       "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#WorkTelephoneNumber"
+        "@id" : "http://endhealth.info/im#Provenance"
       }
     } ]
   }, {
     "@id" : "http://endhealth.info/im#Person",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1470",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e595",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#age"
+        "@id" : "http://endhealth.info/im#component"
       },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://endhealth.info/im#NumericValue"
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#RecordEntry"
       }
     } ]
   }, {
     "@id" : "http://endhealth.info/im#Person",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1471",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e596",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#title"
       },
@@ -867,7 +771,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Person",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1472",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e597",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#familyName"
       },
@@ -879,7 +783,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Person",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1473",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e598",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#callingName"
       },
@@ -891,7 +795,7 @@
   }, {
     "@id" : "http://endhealth.info/im#Person",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1474",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e599",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#forenames"
       },
@@ -903,30 +807,75 @@
   }, {
     "@id" : "http://endhealth.info/im#Person",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1475",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e600",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#ethnicity"
+        "@id" : "http://endhealth.info/im#fullName"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Person",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e601",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#statedGender"
       },
       "http://www.w3.org/ns/shacl#maxCount" : "1",
       "http://www.w3.org/ns/shacl#class" : {
-        "@id" : "http://endhealth.info/im#VSET_Ethnicity"
+        "@id" : "http://hl7.org/fhir/ValueSet/administrative-gender"
       }
     } ]
   }, {
     "@id" : "http://endhealth.info/im#Person",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1476",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e602",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#communicationLanguage"
+        "@id" : "http://endhealth.info/im#homeTelephoneNumber"
       },
       "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#CommunicationLanguage"
+        "@id" : "http://endhealth.info/im#HomeTelephoneNumber"
       }
     } ]
   }, {
     "@id" : "http://endhealth.info/im#Person",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1477",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e603",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#telephoneNumber"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#TelephoneNumber"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Person",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e604",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#mobileTelephoneNumber"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#MobileTelephoneNumber"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Person",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e605",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#workTelephoneNumber"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#WorkTelephoneNumber"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Person",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e606",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#email"
       },
@@ -937,7 +886,43 @@
   }, {
     "@id" : "http://endhealth.info/im#Person",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1478",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e607",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#dateOfBirth"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://endhealth.info/im#Date"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Person",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e608",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#odsCode"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Person",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e609",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#timeOfBirth"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://endhealth.info/im#Time"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Person",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e610",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#deathIndicator"
       },
@@ -949,19 +934,66 @@
   }, {
     "@id" : "http://endhealth.info/im#Person",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1479",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e611",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#dateOfDeath"
+        "@id" : "http://endhealth.info/im#ethnicity"
       },
       "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://endhealth.info/im#DateTime"
+      "http://www.w3.org/ns/shacl#class" : {
+        "@id" : "http://endhealth.info/im#VSET_Ethnicity"
       }
     } ]
   }, {
     "@id" : "http://endhealth.info/im#Person",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1480",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e612",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#communicationLanguage"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#CommunicationLanguage"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Person",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e613",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#dateOfDeath"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://endhealth.info/im#Date"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Person",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e614",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#timeOfDeath"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://endhealth.info/im#Time"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Person",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e615",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#age"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://endhealth.info/im#Age"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#PersonInRole",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e616",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#provenance"
       },
@@ -970,89 +1002,20 @@
       }
     } ]
   }, {
-    "@id" : "http://endhealth.info/im#Person",
+    "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1481",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e617",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#contact"
+        "@id" : "http://endhealth.info/im#component"
       },
       "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+        "@id" : "http://endhealth.info/im#RecordEntry"
       }
     } ]
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1482",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#statedGender"
-      },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#class" : {
-        "@id" : "http://hl7.org/fhir/ValueSet/administrative-gender"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#PersonInRole",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1483",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#mobileTelephoneNumber"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#MobileTelephoneNumber"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#PersonInRole",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1484",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#homeTelephoneNumber"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#HomeTelephoneNumber"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#PersonInRole",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1485",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#dateOfBirth"
-      },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://endhealth.info/im#DateTime"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#PersonInRole",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1486",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#workTelephoneNumber"
-      },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#WorkTelephoneNumber"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#PersonInRole",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1487",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#age"
-      },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://endhealth.info/im#NumericValue"
-      }
-    } ]
-  }, {
-    "@id" : "http://endhealth.info/im#PersonInRole",
-    "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1488",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e618",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#title"
       },
@@ -1064,7 +1027,7 @@
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1489",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e619",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#familyName"
       },
@@ -1076,7 +1039,7 @@
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1490",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e620",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#callingName"
       },
@@ -1088,7 +1051,7 @@
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1491",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e621",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#forenames"
       },
@@ -1100,30 +1063,75 @@
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1492",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e622",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#ethnicity"
+        "@id" : "http://endhealth.info/im#fullName"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#PersonInRole",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e623",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#statedGender"
       },
       "http://www.w3.org/ns/shacl#maxCount" : "1",
       "http://www.w3.org/ns/shacl#class" : {
-        "@id" : "http://endhealth.info/im#VSET_Ethnicity"
+        "@id" : "http://hl7.org/fhir/ValueSet/administrative-gender"
       }
     } ]
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1493",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e624",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#communicationLanguage"
+        "@id" : "http://endhealth.info/im#homeTelephoneNumber"
       },
       "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#CommunicationLanguage"
+        "@id" : "http://endhealth.info/im#HomeTelephoneNumber"
       }
     } ]
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1494",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e625",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#telephoneNumber"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#TelephoneNumber"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#PersonInRole",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e626",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#mobileTelephoneNumber"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#MobileTelephoneNumber"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#PersonInRole",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e627",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#workTelephoneNumber"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#WorkTelephoneNumber"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#PersonInRole",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e628",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#email"
       },
@@ -1134,7 +1142,43 @@
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1495",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e629",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#dateOfBirth"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://endhealth.info/im#Date"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#PersonInRole",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e630",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#odsCode"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#PersonInRole",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e631",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#timeOfBirth"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://endhealth.info/im#Time"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#PersonInRole",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e632",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#deathIndicator"
       },
@@ -1146,41 +1190,66 @@
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1496",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e633",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#ethnicity"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#class" : {
+        "@id" : "http://endhealth.info/im#VSET_Ethnicity"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#PersonInRole",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e634",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#communicationLanguage"
+      },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#CommunicationLanguage"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#PersonInRole",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e635",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#dateOfDeath"
       },
       "http://www.w3.org/ns/shacl#maxCount" : "1",
       "http://www.w3.org/ns/shacl#datatype" : {
-        "@id" : "http://endhealth.info/im#DateTime"
+        "@id" : "http://endhealth.info/im#Date"
       }
     } ]
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1497",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e636",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#provenance"
+        "@id" : "http://endhealth.info/im#timeOfDeath"
       },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://endhealth.info/im#Provenance"
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://endhealth.info/im#Time"
       }
     } ]
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1498",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e637",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#contact"
+        "@id" : "http://endhealth.info/im#age"
       },
-      "http://www.w3.org/ns/shacl#node" : {
-        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://endhealth.info/im#Age"
       }
     } ]
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1499",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e638",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#samePersonAs"
       },
@@ -1191,19 +1260,19 @@
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1500",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e639",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#contractPeriod"
       },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#class" : {
-        "@id" : "http://endhealth.info/im#VSET_Unspecified"
-      }
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#Event"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1"
     } ]
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1501",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e640",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#roleType"
       },
@@ -1215,19 +1284,19 @@
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1502",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e641",
       "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#serviceOrOrganisation"
+        "@id" : "http://endhealth.info/im#organisation"
       },
-      "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#class" : {
-        "@id" : "http://endhealth.info/im#VSET_Unspecified"
-      }
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#Organisation"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1"
     } ]
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1503",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e642",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#speciality"
       },
@@ -1239,13 +1308,25 @@
   }, {
     "@id" : "http://endhealth.info/im#PersonInRole",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "b10af1aaec8c466982f7f3d87f14f1b1504",
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e643",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#workAddress"
       },
+      "http://www.w3.org/ns/shacl#node" : {
+        "@id" : "http://endhealth.info/im#Address"
+      },
+      "http://www.w3.org/ns/shacl#maxCount" : "1"
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#PersonInRole",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "85cdf38c471140f38d8f9aba0f08014e644",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#mnemonic"
+      },
       "http://www.w3.org/ns/shacl#maxCount" : "1",
-      "http://www.w3.org/ns/shacl#class" : {
-        "@id" : "http://endhealth.info/im#VSET_Unspecified"
+      "http://www.w3.org/ns/shacl#datatype" : {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
       }
     } ]
   } ]

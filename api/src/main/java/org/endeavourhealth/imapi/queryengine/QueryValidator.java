@@ -47,12 +47,11 @@ public class QueryValidator {
 
   private void processReturn(Query query, String mainEntity) throws QueryException {
     if (query.getReturn() != null) {
-      for (Return aReturn : query.getReturn()) {
+      Return aReturn = query.getReturn();
         if (aReturn.getNodeRef() == null) {
           aReturn.setNodeRef(mainEntity);
         }
         validateReturn(aReturn);
-      }
     }
   }
 

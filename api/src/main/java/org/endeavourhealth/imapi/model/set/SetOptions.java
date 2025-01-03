@@ -14,15 +14,21 @@ public class SetOptions {
   @Getter
   private List<String> schemes;
   private boolean includeIM1id;
+  @Getter
+  private List<String> subsumptions;
 
-  public SetOptions(String setIri, boolean includeDefinition, boolean includeCore, boolean includeLegacy, boolean includeSubsets, List<String> schemes) {
+  public SetOptions(String setIri, boolean includeDefinition, boolean includeCore, boolean includeLegacy, boolean includeSubsets, List<String> schemes,
+                    List<String> subsumptions) {
     this.setIri = setIri;
     this.includeDefinition = includeDefinition;
     this.includeCore = includeCore;
     this.includeLegacy = includeLegacy;
     this.includeSubsets = includeSubsets;
     this.schemes = schemes;
+    this.subsumptions= subsumptions;
+
   }
+
 
   public boolean includeDefinition() {
     return includeDefinition;

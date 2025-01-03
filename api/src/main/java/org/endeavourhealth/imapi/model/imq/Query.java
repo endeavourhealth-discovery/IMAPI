@@ -22,7 +22,7 @@ public class Query extends Match {
   private List<Match> match;
   private OrderLimit orderBy;
   private List<PropertyRef> groupBy;
-  private List<Return> returx;
+  private Return returx;
   private String iri;
   private String name;
   private boolean imQuery;
@@ -95,26 +95,20 @@ public class Query extends Match {
 
 
   @JsonProperty("return")
-  public List<Return> getReturn() {
+  public Return getReturn() {
     return returx;
   }
 
-  public Query setReturn(List<Return> returx) {
+  public Query setReturn(Return returx) {
     this.returx = returx;
     return this;
   }
 
-  public Query addReturn(Return aReturn) {
-    if (this.returx == null)
-      this.returx = new ArrayList<>();
-    this.returx.add(aReturn);
-    return this;
-  }
+
 
   public Query return_(Consumer<Return> builder) {
-    Return ret = new Return();
-    addReturn(ret);
-    builder.accept(ret);
+    this.returx= new Return();
+    builder.accept(this.returx);
     return this;
   }
 

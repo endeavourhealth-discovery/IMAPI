@@ -31,7 +31,7 @@
         "@id" : "sh:property"
       } ]
     } ],
-    "return" : [ {
+    "return" : {
       "property" : [ {
         "@id" : "sh:property",
         "return" : {
@@ -50,6 +50,6 @@
           } ]
         }
       } ]
-    } ]
+    }
   }
 }

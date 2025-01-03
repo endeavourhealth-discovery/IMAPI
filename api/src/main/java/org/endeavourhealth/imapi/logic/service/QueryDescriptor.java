@@ -52,17 +52,13 @@ public class QueryDescriptor {
       describeQueries(query);
     }
     if (query.getReturn() != null) {
-      describeReturns(query);
+      describeReturn(query.getReturn());
     }
 
     return query;
   }
 
-  private void describeReturns(Query query) {
-    for (Return ret : query.getReturn()) {
-      describeReturn(ret);
-    }
-  }
+
 
   private void describeReturn(Return ret) {
     if (ret.getProperty() != null) {
@@ -94,9 +90,7 @@ public class QueryDescriptor {
       }
     }
     if (query.getReturn() != null) {
-      for (Return ret : query.getReturn()) {
-        setIriSet(ret, iriSet);
-      }
+        setIriSet(query.getReturn(), iriSet);
     }
     try {
       iriContext = repo.getEntitiesWithPredicates(iriSet, Set.of(IM.PREPOSITION, IM.CODE, RDF.TYPE));
@@ -346,7 +340,7 @@ public class QueryDescriptor {
     for (IriLD path : paths) {
       String label = getTermInContext(path.getIri(), Context.PLURAL);
       String preposition = getPreposition(path);
-      path.setDescription(label + (preposition != null ? " " + preposition : ""));
+      path.setName(label + (preposition != null ? " " + preposition : ""));
     }
   }
 

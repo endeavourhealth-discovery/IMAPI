@@ -2,6 +2,16 @@ package org.endeavourhealth.imapi.model.imq;
 
 public class PropertyRef extends Node {
   private String valueVariable;
+  private String propertyRef;
+
+  public String getPropertyRef() {
+    return propertyRef;
+  }
+
+  public PropertyRef setPropertyRef(String propertyRef) {
+    this.propertyRef = propertyRef;
+    return this;
+  }
 
   public PropertyRef setIri(String iri){
     super.setIri(iri);

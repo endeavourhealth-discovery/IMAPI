@@ -80,16 +80,7 @@ public class QueryController {
     }
   }
 
-  @PostMapping(value = "/public/labelQuery")
-  @Operation(
-    summary = "Add labels to query",
-    description = "Add names to iri's within a query"
-  )
-  public Query labelQuery(@RequestBody Query query) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.LabelQuery.POST")) {
-      return queryService.labelQuery(query);
-    }
-  }
+
 
   @GetMapping(value = "/public/queryDisplay", produces = "application/json")
   public Query describeQuery(

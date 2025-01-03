@@ -6,7 +6,7 @@ import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
-import org.endeavourhealth.imapi.logic.reasoner.SetExpander;
+import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
 import org.endeavourhealth.imapi.model.imq.QueryException;
@@ -59,7 +59,7 @@ public class FilerService {
         entityFiler.updateIsAs(entity);
 
       if (entity.isType(iri(IM.VALUESET)))
-        new SetExpander().expandSet(entity.getIri());
+        new SetMemberGenerator().generateMembers(entity.getIri());
 
 
       ProvAgent agent = fileProvAgent(entity, agentName);

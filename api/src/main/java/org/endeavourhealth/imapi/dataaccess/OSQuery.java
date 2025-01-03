@@ -42,9 +42,8 @@ public class OSQuery {
   private static void processNodeResultReturn(QueryRequest request, ObjectNode osResult, ObjectNode resultNode) {
     if (null == request.getQuery().getReturn())
       return;
-    for (Return select : request.getQuery().getReturn()) {
-      processNodeResultReturnProperty(osResult, resultNode, select);
-    }
+    Return select = request.getQuery().getReturn();
+    processNodeResultReturnProperty(osResult, resultNode, select);
   }
 
   private static void processNodeResultReturnProperty(ObjectNode osResult, ObjectNode resultNode, Return select) {

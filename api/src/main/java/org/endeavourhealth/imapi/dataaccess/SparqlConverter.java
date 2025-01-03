@@ -172,9 +172,8 @@ public class SparqlConverter {
     match(whereQl, mainEntity, query);
 
     if (Boolean.TRUE.equals(!countOnly && includeReturns) && null != query.getReturn()) {
-      for (Return aReturn : query.getReturn()) {
-        convertReturn(sparql, whereQl, aReturn);
-      }
+      Return aReturn =query.getReturn();
+      convertReturn(sparql, whereQl, aReturn);
     }
 
     o++;
@@ -300,8 +299,20 @@ public class SparqlConverter {
       subject = match.getNodeRef();
     else
       subject = parent;
+
     if (match.getGraph() != null) {
       whereQl.append(" graph ").append(iriFromAlias(match.getGraph())).append(" {");
+    }
+    if (match.getEntailement()!=null){
+      switch (match.getEntailement()){
+        case descendantsOrSelfOf :
+          o++;
+          whereQl.append("?").append(subject).append(" <").append(IM.IS_A).append("> ?").append(subject+o).append(".\n");
+          subject= subject+o;
+          break;
+        default :
+          throw new QueryException("Match entailment "+ match.getEntailement().toString()+" is not yet supported");
+      }
     }
     if (match.getMatch() != null) {
       if ((match.getBoolMatch() != null && match.getBoolMatch() == Bool.or)) {
@@ -364,10 +375,7 @@ public class SparqlConverter {
       o++;
       String object="instance"+o;
       Node instance= match.getInstanceOf().get(0);
-      String inList = iriFromAlias(instance);
-      if (inList == null && match.getWhere() == null) {
-        throw new QueryException("Match clause has instance of without an IRI,  and  without a where clause.");
-      }
+      String inList = iriFromAlias(instance).replace(","," ");
       if (instance.getNodeRef() != null) {
         object = instance.getNodeRef();
       }

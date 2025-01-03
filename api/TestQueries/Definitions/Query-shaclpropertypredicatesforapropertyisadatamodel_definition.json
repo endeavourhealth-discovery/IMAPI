@@ -39,7 +39,7 @@
         }
       } ]
     } ],
-    "return" : [ {
+    "return" : {
       "nodeRef" : "shaclProperty",
       "property" : [ {
         "@id" : "sh:class",
@@ -67,6 +67,6 @@
       }, {
         "@id" : "sh:minCount"
       } ]
-    } ]
+    }
   }
 }

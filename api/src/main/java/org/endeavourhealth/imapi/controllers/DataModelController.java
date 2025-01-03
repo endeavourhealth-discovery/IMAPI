@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.controllers;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.DataModelService;
+import org.endeavourhealth.imapi.model.dto.UIProperty;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
@@ -52,6 +53,14 @@ public class DataModelController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.CheckPropertyType.GET")) {
       LOG.debug("checkPropertyType");
       return dataModelService.checkPropertyType(iri);
+    }
+  }
+
+  @GetMapping(value = "public/UIPropertyForQB")
+  public UIProperty getUIPropertyForQB(@RequestParam(name = "dmIri") String dmIri, @RequestParam(name = "propIri") String propIri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.GetUIPropertyForQB.GET")) {
+      LOG.debug("getUIPropertyForQB");
+      return dataModelService.getUIPropertyForQB(dmIri, propIri);
     }
   }
 

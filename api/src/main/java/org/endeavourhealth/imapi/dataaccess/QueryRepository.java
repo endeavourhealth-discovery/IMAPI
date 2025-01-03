@@ -202,11 +202,10 @@ public class QueryRepository {
     try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
-        for (Return aReturn : query.getReturn()) {
+        Return aReturn = query.getReturn();
           Map<String, ObjectNode> nodeMap = new HashMap<>();
           bindReturn(bs, aReturn, entities, nodeMap);
         }
-      }
     }
     return result;
   }
@@ -398,9 +397,10 @@ public class QueryRepository {
         gatherFromLabels(match, ttIris, iris);
       }
     }
-    if (query.getReturn() != null)
-      for (Return select : query.getReturn())
-        gatherReturnLabels(select, ttIris, iris);
+    if (query.getReturn() != null) {
+      Return select = query.getReturn();
+      gatherReturnLabels(select, ttIris, iris);
+    }
     if (query.getQuery() != null)
       for (Query subQuery : query.getQuery())
         gatherQueryLabels(subQuery, ttIris, iris);
@@ -466,9 +466,10 @@ public class QueryRepository {
         setMatchLabels(match, iriLabels);
       }
     }
-    if (query.getReturn() != null)
-      for (Return select : query.getReturn())
-        setReturnLabels(select, iriLabels);
+    if (query.getReturn() != null){
+      Return select = query.getReturn();
+      setReturnLabels(select, iriLabels);
+    }
     if (query.getQuery() != null)
       for (Query subQuery : query.getQuery())
         setQueryLabels(subQuery, iriLabels);

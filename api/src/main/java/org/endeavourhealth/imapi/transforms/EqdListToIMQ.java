@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
@@ -30,9 +31,10 @@ public class EqdListToIMQ {
           .setName(eqColGroup.getDisplayName()+" in "+ eqReport.getName())
             .addType(iri(IM.FIELD_GROUP));
       columnGroup.addObject(iri(IM.USED_IN),iri(query.getIri()));
-      query.addQuery(subQuery);
-      document.addEntity(columnGroup);
+      query.addQuery(new Query().setIri(subQuery.getIri()).setName(eqColGroup.getDisplayName()));
       convertListGroup(eqColGroup, subQuery,query.getName());
+      columnGroup.set((IM.DEFINITION), TTLiteral.literal(subQuery));
+      document.addEntity(columnGroup);
     }
   }
 
@@ -52,35 +54,31 @@ public class EqdListToIMQ {
   private void convertPatientColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws EQDException {
     EQDOCListColumns eqCols = eqColGroup.getColumnar();
     Return select = new Return();
-    subQuery.addReturn(select);
+    subQuery.setReturn(select);
     for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
       String eqColumn = String.join("/", eqCol.getColumn());
-      if (!eqColumn.equals("PATIENT")) {
         String eqULR = eqTable + "/" + eqColumn;
         String propertyPath = resources.getPath(eqULR);
         convertColumn(select, propertyPath,eqCol.getDisplayName());
-      }
     }
   }
 
 
   private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws IOException, QueryException, EQDException {
-    Return aReturn = new Return();
-    subQuery.addReturn(aReturn);
-
-    String tablePath = resources.getPath(eqTable);
-    if (tablePath.contains(" ")) {
-      String[] paths = tablePath.split(" ");
-      for (int i = 0; i < paths.length; i = i + 2) {
-        ReturnProperty path= new ReturnProperty();
-        aReturn.addProperty(path);
-        path.setIri(paths[i].replace("^", ""));
-        aReturn=new Return();
-        path.setReturn(aReturn);
-      }
+    if (eqColGroup.getCriteria()!=null) {
+      Match match = resources.convertCriteria(eqColGroup.getCriteria());
+      subQuery.addMatch(match);
     }
-    Match match = resources.convertCriteria(eqColGroup.getCriteria());
-    subQuery.addMatch(match);
+    Return aReturn = new Return();
+    subQuery.setReturn(aReturn);
+    String tablePath = resources.getPath(eqTable);
+      String[] paths = tablePath.split(" ");
+      for (int i = 0; i < paths.length; i ++) {
+        ReturnProperty property= new ReturnProperty().setIri(paths[i].replace("^", ""));
+        aReturn.addProperty(property);
+        aReturn = property.setReturn(new Return()).getReturn();
+      }
+
     if (eqColGroup.getColumnar()==null){
       if (eqColGroup.getSummary()!=null){
         if (eqColGroup.getSummary()==VocListGroupSummary.COUNT) {
@@ -88,11 +86,14 @@ public class EqdListToIMQ {
             .setName(Function.count));
         }
         else if (eqColGroup.getSummary()==VocListGroupSummary.EXISTS) {
-          aReturn.property(p->p
+          aReturn
+            .property(p->p
+              .as(eqColGroup.getDisplayName())
               .case_(c->c
                 .when(w->w
                   .setExists(true)
-                  .setThen("Y"))));
+                  .setThen("Y"))
+                .setElse("N")));
         }
         else
           throw new QueryException("unmapped summary function : "+ eqColGroup.getSummary().value());
@@ -110,27 +111,20 @@ public class EqdListToIMQ {
   }
 
   private void convertColumn(Return aReturn, String subPath,String as) {
-    ReturnProperty property = new ReturnProperty();
-    aReturn.addProperty(property);
-    property.setAs(as);
-    if (subPath.contains(" ")) {
       String[] elements = subPath.split(" ");
-      for (int i = 0; i < elements.length; i = i + 2) {
-        property.setIri(elements[i]);
-        if (i < (elements.length - 2)) {
-          property.setReturn(new Return());
-          ReturnProperty subProperty = new ReturnProperty();
-          property.getReturn().addProperty(subProperty);
-          property = subProperty;
-        }
+      for (int i = 0; i < elements.length-1; i ++) {
+        ReturnProperty path = new ReturnProperty();
+        path.setIri(elements[i]);
+        aReturn.addProperty(path);
+        aReturn = new Return();
+        path.setReturn(aReturn);
+      }
+      ReturnProperty property= new ReturnProperty();
+      aReturn.addProperty(property);
+      property
+        .setIri(elements[elements.length-1]);
         if (as!=null)
           property.setAs(as);
-      }
-    } else {
-      property.setIri(subPath);
-      if (as!=null)
-        property.setAs(as);
-    }
   }
 
 }

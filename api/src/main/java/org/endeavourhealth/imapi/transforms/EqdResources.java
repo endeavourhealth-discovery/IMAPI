@@ -206,9 +206,8 @@ public class EqdResources {
         match.addPath(new IriLD().setIri(tablePath.split(" ")[0]));
         match.setTypeOf(new Node().setIri(tablePath.split(" ")[1]));
       }
-      if (columnPath.contains(" ")) {
         String[] paths = columnPath.split(" ");
-        for (int i = 0; i < paths.length; i = i + 2) {
+        for (int i = 0; i < paths.length-1; i ++) {
           IriLD pathIri = new IriLD();
           String path = paths[i];
           if (path.startsWith("^")) {
@@ -217,10 +216,8 @@ public class EqdResources {
           }
           pathIri.setIri(path);
           match.addPath(pathIri);
-          match.setTypeOf(new Node().setIri(paths[i + 1]));
         }
       }
-    }
     Where where = new Where();
     match.addWhere(where);
     where.setIri(property);
@@ -317,7 +314,7 @@ public class EqdResources {
         inverse = "^";
         path = path.substring(1);
       }
-      path = inverse + (path.contains("rdfs") ? RDFS.NAMESPACE + path.split(":")[1] : IM.NAMESPACE + path);
+      path = inverse + (path.startsWith("http") ?path : IM.NAMESPACE + path);
       paths[i] = path;
     }
     return String.join(" ", paths);
@@ -366,7 +363,7 @@ public class EqdResources {
       .setProperty(new OrderDirection()
         .setIri(orderBy)
         .setDirection(direction))
-      .setLimit(1));
+      .setLimit(restrict.getColumnOrder().getRecordCount()));
   }
 
 

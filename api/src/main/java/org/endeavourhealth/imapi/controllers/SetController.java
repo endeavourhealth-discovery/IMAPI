@@ -1,13 +1,11 @@
 package org.endeavourhealth.imapi.controllers;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SetService;
@@ -15,13 +13,10 @@ import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.SetDiffObject;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
 import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.iml.SetContent;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.set.SetOptions;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
@@ -34,7 +29,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -63,15 +57,12 @@ public class SetController {
   @PreAuthorize("hasAuthority('IM1_PUBLISH')")
   public void publish(@RequestParam(name = "iri") String iri) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Publish.GET")) {
-      setExporter.publishSetToIM1(iri);
+      setService.publishSetToIM1(iri);
     }
   }
 
   @GetMapping(value = "/public/members")
-  public Pageable<Node> get(@RequestParam(name = "iri") String iri,
-                            @RequestParam(name="entailments", required= false) boolean entailments,
-                            @RequestParam(name = "page", required = false) Integer page,
-                            @RequestParam(name = "size", required = false) Integer size) throws IOException {
+  public Pageable<Node> get(@RequestParam(name = "iri") String iri, @RequestParam(name = "entailments", required = false) boolean entailments, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.EntailedMembers.GET")) {
       LOG.debug("getEntailedMembers");
       if (page == null && size == null) {
@@ -92,7 +83,8 @@ public class SetController {
       headers.setContentType(new MediaType("application", "force-download"));
       headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".txt\"");
       try {
-        String result = setExporter.generateForIm1(iri).toString();
+        Set<Concept> members = setService.getExpandedSetMembers(iri, true, true, true, List.of());
+        String result = setExporter.generateForIm1(iri, entity.getName(), members).toString();
         return new HttpEntity<>(result, headers);
       } catch (QueryException | JsonProcessingException e) {
         throw new DownloadException(("Failed to generate export."));
@@ -137,38 +129,25 @@ public class SetController {
       headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"");
 
       SetOptions setOptions = new SetOptions(iri, definition, core, legacy, subsets, schemes,subsumptions);
-      SetExporterOptions exportOptions = new SetExporterOptions(setOptions, ownRow, im1id);
 
       try {
-        if ("xlsx".equals(format)) {
-          XSSFWorkbook workbook = setService.getSetExport(exportOptions);
-          try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            workbook.write(outputStream);
-            workbook.close();
-            return new HttpEntity<>(outputStream.toByteArray(), headers);
-          } catch (IOException e) {
-            throw new DownloadException("Failed to write to excel document");
-          }
-        } else if ("csv".equals(format)) {
-          String result = setService.getCSVSetExport(exportOptions);
-          return new HttpEntity<>(result, headers);
-        } else if ("tsv".equals(format)) {
-          String result = setService.getTSVSetExport(exportOptions);
-          return new HttpEntity<>(result, headers);
-        } else if ("object".equals(format)) {
-          SetContent result = setService.getSetContent(setOptions);
-          return getSetHttpEntity(headers, result);
-        } else if ("FHIR".equals(format)) {
-          String result = setService.getFHIRSetExport(exportOptions);
-          return new HttpEntity<>(result, headers);
-        } else {
-          return null;
-        }
+        byte[] setExport = setService.getSetExport(format, im1id, setOptions);
+        return new HttpEntity<>(setExport, headers);
       } catch (IOException e) {
-        throw new DownloadException("Failed to write to excel document.");
+        throw new DownloadException("Failed to write to document.");
       } catch (QueryException e) {
         throw new DownloadException("Failed to get set details for download.");
+      } catch (GeneralCustomException e) {
+        throw new RuntimeException(e);
       }
+    }
+  }
+
+  @GetMapping(value = "/public/setDiff")
+  public SetDiffObject getSetComparison(@RequestParam(name = "setIriA") Optional<String> setIriA, @RequestParam(name = "setIriB") Optional<String> setIriB) throws IOException, QueryException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Set.SetDiff.GET")) {
+      LOG.debug("getSetComparison");
+      return setService.getSetComparison(setIriA, setIriB);
     }
   }
 
@@ -179,29 +158,6 @@ public class SetController {
       LOG.debug("updateSubsetsFromSuper");
       String agentName = reqObjService.getRequestAgentName(request);
       setService.updateSubsetsFromSuper(agentName, entity);
-    }
-  }
-
-  private HttpEntity<Object> getSetHttpEntity(HttpHeaders headers, SetContent set) throws JsonProcessingException {
-
-    try (CachedObjectMapper objectMapper = new CachedObjectMapper()) {
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-      String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(set);
-      headers.setContentType(MediaType.APPLICATION_JSON);
-      return new HttpEntity<>(json, headers);
-    }
-  }
-
-  @GetMapping(value = "/public/setDiff")
-  public SetDiffObject getSetComparison(
-    @RequestParam(name = "setIriA") Optional<String> setIriA,
-    @RequestParam(name = "setIriB") Optional<String> setIriB
-  ) throws IOException, QueryException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Set.SetDiff.GET")) {
-      LOG.debug("getSetComparison");
-      return setService.getSetComparison(setIriA,setIriB);
     }
   }
 }

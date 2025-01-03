@@ -17,10 +17,10 @@
         "@id" : "im:Concept"
       }
     } ],
-    "return" : [ {
+    "return" : {
       "property" : [ {
         "@id" : "rdfs:label"
       } ]
-    } ]
+    }
   }
 }

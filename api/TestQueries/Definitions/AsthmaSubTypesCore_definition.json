@@ -16,12 +16,12 @@
         "descendantsOrSelfOf" : true
       } ]
     } ],
-    "return" : [ {
+    "return" : {
       "property" : [ {
         "@id" : "rdfs:label"
       }, {
         "@id" : "im:code"
       } ]
-    } ]
+    }
   }
 }

@@ -49,7 +49,7 @@ public class SetService {
   private EntityRepository entityRepository = new EntityRepository();
   private FilerService filerService = new FilerService();
 
-  public Pageable<Node> getMembers(String iri, boolean entailments,Integer rowNumber, Integer pageSize){
+  public Pageable<Node> getDirectOrEntailedMembersFromIri(String iri, boolean entailments, Integer rowNumber, Integer pageSize){
     return setRepository.getMembers(iri,entailments,rowNumber,pageSize);
   }
 
@@ -93,8 +93,9 @@ public class SetService {
     if (options.includeCore() || options.includeLegacy() || options.includeSubsets()) {
       LOG.trace("Expanding...");
       result.setConcepts(setExporter
-        .getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes())
-      );
+        .getExpansionFromIri(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes(),
+          options.getSubsumptions()));
+
     }
 
     return result;
@@ -164,9 +165,10 @@ public class SetService {
     return parser.encodeResourceToString(valueSet);
   }
 
-  public Set<Concept> getFullyExpandedMembers(String iri, boolean includeLegacy, boolean includeSubset, List<String> schemes) throws QueryException, JsonProcessingException {
+  public Set<Concept> getFullyExpandedMembers(String iri, boolean includeLegacy, boolean includeSubset,
+                                              List<String> schemes) throws QueryException, JsonProcessingException {
     SetExporter setExporter = new SetExporter();
-    return setExporter.getExpandedSetMembers(iri, true, includeLegacy, includeSubset, schemes);
+    return setExporter.getExpansionFromIri(iri, true, includeLegacy, includeSubset, schemes,null);
   }
 
   public Set<TTIriRef> getSubsets(String iri) {
@@ -219,6 +221,8 @@ public class SetService {
       }
     }
   }
+
+
 
   public SetDiffObject getSetComparison(Optional<String> setIriA, Optional<String> setIriB) throws QueryException, JsonProcessingException {
     if (setIriA.isEmpty() && setIriB.isEmpty()) {

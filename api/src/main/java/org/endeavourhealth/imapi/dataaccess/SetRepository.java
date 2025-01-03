@@ -45,12 +45,12 @@ public class SetRepository {
    * @throws QueryException if json definitino invalid
 
    */
-  public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
+  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
     //add scheme filter
-    return getSetExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, null);
+    return getSetExpansionFromQuery(imQuery, includeLegacy, statusFilter, schemeFilter, null);
   }
 
-  public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
+  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
     Set<Concept> result = getActiveExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
     Set<Concept> result2 = getReplacedExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
     result.addAll(result2);
@@ -85,7 +85,7 @@ public class SetRepository {
     }
     Return aReturn = setReturn(imQuery, includeLegacy);
     aReturn.setNodeRef(ENTITY);
-    replaced.addReturn(aReturn);
+    replaced.setReturn(aReturn);
     replaced.match(m -> m
       .setBoolMatch(Bool.or)
       .match(m1 -> m1
@@ -101,7 +101,7 @@ public class SetRepository {
       .match(m1 -> m1
         .setVariable(ENTITY)
         .where(p -> p
-          .setIri(IM.USUALLY_SUBSUMED_BY)
+          .setIri(IM.MAY_BE_SUBSUMED_BY)
           .addIs(new Node().setNodeRef(ACTIVE_ENTITY)))));
     return getExpansion(replaced, includeLegacy, statusFilter, schemeFilter, page);
 
@@ -109,7 +109,7 @@ public class SetRepository {
 
   private Set<Concept> getActiveExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
     Return aReturn = setReturn(imQuery, includeLegacy);
-    imQuery.addReturn(aReturn);
+    imQuery.setReturn(aReturn);
     return getExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
   }
 
@@ -127,7 +127,7 @@ public class SetRepository {
 
   private Return setReturn(Query imQuery, boolean includeLegacy) {
     Return aReturn = new Return();
-    imQuery.addReturn(aReturn);
+    imQuery.setReturn(aReturn);
     aReturn
       .property(s -> s
         .setIri(RDFS.LABEL).as("term"))
@@ -583,12 +583,30 @@ public class SetRepository {
   }
 
 
-  public Set<Concept> getSetMembers(String setIri, boolean includeLegacy, List<String> schemes) {
+  public Set<Concept> getExpansionFromIri(String setIri, boolean includeLegacy, List<String> schemes,
+                                          List<String> subsumptions) {
+
     StringJoiner spql = new StringJoiner(System.lineSeparator())
       .add("""
-        SELECT *
+        SELECT distinct ?entity ?term ?code ?scheme ?schemeName ?status ?statusName ?im1Id ?use ?codeId
+        ?alternativeCode ?legacy ?legacyTerm ?legacyCode ?legacyScheme ?legacySchemeName
+        ?legacyIm1Id ?legacyUse ?legacyCodeId
         WHERE {
-          ?setIri im:hasMember ?entity .
+            Values ?setIri{%s}
+            {
+                    ?setIri im:hasMember ?entity .
+            }
+          """.formatted("<"+setIri+">"));
+    if (subsumptions!=null) {
+          spql.add("""
+            union {
+              ?setIri im:hasMember ?member.
+              ?entity ?subsumption ?member.
+              Values ?subsumption {%s}
+            }
+            """.formatted(String.join(" ", subsumptions.stream().map(s -> "<" + s + ">").collect(Collectors.toList()))));
+    }
+    spql.add("""
           ?entity rdfs:label ?term;
           im:code ?code;
           im:scheme ?scheme.
@@ -598,15 +616,15 @@ public class SetRepository {
           OPTIONAL { ?entity im:usageTotal ?use . }
           OPTIONAL { ?entity im:codeId ?codeId . }
           OPTIONAL { ?entity im:alternativeCode ?alternativeCode.}
+  
         """);
-
     if (includeLegacy) {
       spql.add("""
         OPTIONAL {
-          ?legacy im:matchedTo ?entity;
-          rdfs:label ?legacyTerm;
-          im:code ?legacyCode;
-          im:scheme ?legacyScheme.
+          ?legacy im:matchedTo ?entity.
+          ?legacy rdfs:label ?legacyTerm.
+          ?legacy im:code ?legacyCode.
+          ?legacy im:scheme ?legacyScheme.
         """);
 
       if (!schemes.isEmpty()) {
@@ -627,7 +645,8 @@ public class SetRepository {
     spql.add("}  ");
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(spql.toString()));
+      String sql= addSparqlPrefixes(spql.toString());
+      TupleQuery qry = conn.prepareTupleQuery(sql);
       qry.setBinding("setIri", Values.iri(setIri));
       return getCoreLegacyCodesForSparql(qry, includeLegacy, List.of());
     }

@@ -116,6 +116,7 @@ public class ExcelSetExporter {
    * @return work book
    */
   public XSSFWorkbook getSetAsExcel(SetExporterOptions options) throws JsonProcessingException, QueryException {
+
     TTEntity entity = entityRepository.getEntityPredicates(options.getSetIri(), Set.of(IM.DEFINITION)).getEntity();
     if (entity.getIri() == null || entity.getIri().isEmpty())
       return workbook;
@@ -128,7 +129,9 @@ public class ExcelSetExporter {
     }
 
     if (options.includeCore() || options.includeLegacy()) {
-      Set<Concept> members = setExporter.getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes()).stream()
+      Set<Concept> members = setExporter.getExpansionFromIri(options.getSetIri(), options.includeCore(),
+          options.includeLegacy(), options.includeSubsets(), options.getSchemes(),
+          options.getSubsumptions()).stream()
         .sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
 
       if (options.includeSubsets()) {

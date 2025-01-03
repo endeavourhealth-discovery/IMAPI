@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"name", "description", "exclude", "nodeRef", "boolMatch", "boolWhere", "iri", "typeOf", "instanceOf", "where", "match"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends IriLD {
+public class Match extends IriLD{
 
   private Bool boolMatch;
   private Bool boolWhere;
@@ -34,6 +34,16 @@ public class Match extends IriLD {
   private String displayLabel;
   private boolean hasInlineSet;
   private FunctionClause function;
+  private Entail entailement;
+
+  public Entail getEntailement() {
+    return entailement;
+  }
+
+  public Match setEntailement(Entail entailement) {
+    this.entailement = entailement;
+    return this;
+  }
 
   public FunctionClause getFunction() {
     return function;

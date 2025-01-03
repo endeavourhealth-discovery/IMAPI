@@ -338,16 +338,12 @@
         "value": "IM.NAMESPACE + \"subsumedBy\""
       },
       {
-        "name": "USUALLY_SUBSUMED_BY",
-        "value": "IM.NAMESPACE + \"usuallySubsumedBy\""
+        "name": "MAY_BE_SUBSUMED_BY",
+        "value": "IM.NAMESPACE + \"mayBeSubsumedBy\""
       },
       {
         "name": "APPROXIMATE_SUBSUMED_BY",
         "value": "IM.NAMESPACE + \"approximateSubsumedBy\""
-      },
-      {
-        "name": "MULTIPLE_SUBSUMED_BY",
-        "value": "IM.NAMESPACE + \"multipleSubsumedBy\""
       },
       {
         "name": "LOCAL_SUBCLASS_OF",
@@ -2187,6 +2183,10 @@
   {
     "name": "GRAPH",
     "entries": [
+      {
+        "name": "FHIR",
+        "value": "\"http://hl7.org/fhir/\""
+      },
       {
         "name": "SMARTLIFE",
         "value": "\"http://smartlifehealth.info/smh#\""

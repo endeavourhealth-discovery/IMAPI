@@ -3,6 +3,22 @@
   "count" : 115,
   "totalCount" : 115,
   "entities" : [ {
+    "@id" : "http://snomed.info/sct#195967001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Asthma (disorder)",
+    "http://endhealth.info/im#code" : "195967001"
+  }, {
+    "@id" : "http://snomed.info/sct#389145006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Allergic asthma (disorder)",
+    "http://endhealth.info/im#code" : "389145006"
+  }, {
+    "@id" : "http://snomed.info/sct#423889005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Non-immunoglobulin E mediated allergic asthma (disorder)",
+    "http://endhealth.info/im#code" : "423889005"
+  }, {
+    "@id" : "http://snomed.info/sct#424643009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Immunoglobulin E-mediated allergic asthma (disorder)",
+    "http://endhealth.info/im#code" : "424643009"
+  }, {
     "@id" : "http://snomed.info/sct#11641008",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Millers' asthma (disorder)",
     "http://endhealth.info/im#code" : "11641008"
@@ -31,13 +47,21 @@
     "http://www.w3.org/2000/01/rdf-schema#label" : "Meat-wrappers' asthma (disorder)",
     "http://endhealth.info/im#code" : "19849005"
   }, {
+    "@id" : "http://snomed.info/sct#281239006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Exacerbation of asthma (disorder)",
+    "http://endhealth.info/im#code" : "281239006"
+  }, {
+    "@id" : "http://snomed.info/sct#762521001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Exacerbation of allergic asthma (disorder)",
+    "http://endhealth.info/im#code" : "762521001"
+  }, {
+    "@id" : "http://snomed.info/sct#782520007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Exacerbation of allergic asthma due to infection (disorder)",
+    "http://endhealth.info/im#code" : "782520007"
+  }, {
     "@id" : "http://snomed.info/sct#31387002",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Exercise-induced asthma (disorder)",
     "http://endhealth.info/im#code" : "31387002"
-  }, {
-    "@id" : "http://snomed.info/sct#195967001",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Asthma (disorder)",
-    "http://endhealth.info/im#code" : "195967001"
   }, {
     "@id" : "http://snomed.info/sct#34015007",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Bakers' asthma (disorder)",
@@ -47,13 +71,25 @@
     "http://www.w3.org/2000/01/rdf-schema#label" : "Detergent asthma (disorder)",
     "http://endhealth.info/im#code" : "41553006"
   }, {
+    "@id" : "http://snomed.info/sct#418395004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Tea-makers' asthma (disorder)",
+    "http://endhealth.info/im#code" : "418395004"
+  }, {
     "@id" : "http://snomed.info/sct#56968009",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Asthma caused by wood dust (disorder)",
     "http://endhealth.info/im#code" : "56968009"
   }, {
-    "@id" : "http://snomed.info/sct#389145006",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Allergic asthma (disorder)",
-    "http://endhealth.info/im#code" : "389145006"
+    "@id" : "http://snomed.info/sct#708090002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Acute severe exacerbation of asthma (disorder)",
+    "http://endhealth.info/im#code" : "708090002"
+  }, {
+    "@id" : "http://snomed.info/sct#708094006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Acute exacerbation of intrinsic asthma (disorder)",
+    "http://endhealth.info/im#code" : "708094006"
+  }, {
+    "@id" : "http://snomed.info/sct#708096008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Acute severe exacerbation of intrinsic asthma (disorder)",
+    "http://endhealth.info/im#code" : "708096008"
   }, {
     "@id" : "http://snomed.info/sct#59786004",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Weavers' cough (disorder)",
@@ -63,9 +99,25 @@
     "http://www.w3.org/2000/01/rdf-schema#label" : "Allergic asthma without status asthmaticus (disorder)",
     "http://endhealth.info/im#code" : "63088003"
   }, {
-    "@id" : "http://snomed.info/sct#424643009",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Immunoglobulin E-mediated allergic asthma (disorder)",
-    "http://endhealth.info/im#code" : "424643009"
+    "@id" : "http://snomed.info/sct#233683003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hay fever with asthma (disorder)",
+    "http://endhealth.info/im#code" : "233683003"
+  }, {
+    "@id" : "http://snomed.info/sct#445427006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Seasonal asthma (disorder)",
+    "http://endhealth.info/im#code" : "445427006"
+  }, {
+    "@id" : "http://snomed.info/sct#708093000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Acute exacerbation of immunoglobulin E-mediated allergic asthma (disorder)",
+    "http://endhealth.info/im#code" : "708093000"
+  }, {
+    "@id" : "http://snomed.info/sct#708095007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Acute severe exacerbation of immunoglobin E-mediated allergic asthma (disorder)",
+    "http://endhealth.info/im#code" : "708095007"
+  }, {
+    "@id" : "http://snomed.info/sct#782513000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Acute severe exacerbation of allergic asthma (disorder)",
+    "http://endhealth.info/im#code" : "782513000"
   }, {
     "@id" : "http://snomed.info/sct#92807009",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Chemical-induced asthma (disorder)",
@@ -99,13 +151,13 @@
     "http://www.w3.org/2000/01/rdf-schema#label" : "Late onset asthma (disorder)",
     "http://endhealth.info/im#code" : "233679003"
   }, {
-    "@id" : "http://snomed.info/sct#233683003",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hay fever with asthma (disorder)",
-    "http://endhealth.info/im#code" : "233683003"
+    "@id" : "http://snomed.info/sct#407674008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Aspirin-induced asthma (disorder)",
+    "http://endhealth.info/im#code" : "407674008"
   }, {
-    "@id" : "http://snomed.info/sct#445427006",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Seasonal asthma (disorder)",
-    "http://endhealth.info/im#code" : "445427006"
+    "@id" : "http://snomed.info/sct#10692681000119108",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Aspirin exacerbated respiratory disease (disorder)",
+    "http://endhealth.info/im#code" : "10692681000119108"
   }, {
     "@id" : "http://snomed.info/sct#233687002",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Colophony asthma (disorder)",
@@ -118,10 +170,6 @@
     "@id" : "http://snomed.info/sct#233691007",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Asthmatic pulmonary eosinophilia (disorder)",
     "http://endhealth.info/im#code" : "233691007"
-  }, {
-    "@id" : "http://snomed.info/sct#281239006",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Exacerbation of asthma (disorder)",
-    "http://endhealth.info/im#code" : "281239006"
   }, {
     "@id" : "http://snomed.info/sct#370218001",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Mild asthma (disorder)",
@@ -151,21 +199,9 @@
     "http://www.w3.org/2000/01/rdf-schema#label" : "Isocyanate induced asthma (disorder)",
     "http://endhealth.info/im#code" : "404808000"
   }, {
-    "@id" : "http://snomed.info/sct#407674008",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Aspirin-induced asthma (disorder)",
-    "http://endhealth.info/im#code" : "407674008"
-  }, {
     "@id" : "http://snomed.info/sct#409663006",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Cough variant asthma (disorder)",
     "http://endhealth.info/im#code" : "409663006"
-  }, {
-    "@id" : "http://snomed.info/sct#418395004",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Tea-makers' asthma (disorder)",
-    "http://endhealth.info/im#code" : "418395004"
-  }, {
-    "@id" : "http://snomed.info/sct#423889005",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Non-immunoglobulin E mediated allergic asthma (disorder)",
-    "http://endhealth.info/im#code" : "423889005"
   }, {
     "@id" : "http://snomed.info/sct#425969006",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Exacerbation of intermittent asthma (disorder)",
@@ -187,13 +223,21 @@
     "http://www.w3.org/2000/01/rdf-schema#label" : "Moderate persistent asthma (disorder)",
     "http://endhealth.info/im#code" : "427295004"
   }, {
+    "@id" : "http://snomed.info/sct#707445000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Exacerbation of mild persistent asthma (disorder)",
+    "http://endhealth.info/im#code" : "707445000"
+  }, {
+    "@id" : "http://snomed.info/sct#707446004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Exacerbation of moderate persistent asthma (disorder)",
+    "http://endhealth.info/im#code" : "707446004"
+  }, {
+    "@id" : "http://snomed.info/sct#707447008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Exacerbation of severe persistent asthma (disorder)",
+    "http://endhealth.info/im#code" : "707447008"
+  }, {
     "@id" : "http://snomed.info/sct#427679007",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Mild intermittent asthma (disorder)",
     "http://endhealth.info/im#code" : "427679007"
-  }, {
-    "@id" : "http://snomed.info/sct#10692681000119108",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Aspirin exacerbated respiratory disease (disorder)",
-    "http://endhealth.info/im#code" : "10692681000119108"
   }, {
     "@id" : "http://snomed.info/sct#442025000",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Acute exacerbation of chronic asthmatic bronchitis (disorder)",
@@ -211,18 +255,6 @@
     "http://www.w3.org/2000/01/rdf-schema#label" : "Uncomplicated asthma (disorder)",
     "http://endhealth.info/im#code" : "707444001"
   }, {
-    "@id" : "http://snomed.info/sct#707445000",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Exacerbation of mild persistent asthma (disorder)",
-    "http://endhealth.info/im#code" : "707445000"
-  }, {
-    "@id" : "http://snomed.info/sct#707446004",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Exacerbation of moderate persistent asthma (disorder)",
-    "http://endhealth.info/im#code" : "707446004"
-  }, {
-    "@id" : "http://snomed.info/sct#707447008",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Exacerbation of severe persistent asthma (disorder)",
-    "http://endhealth.info/im#code" : "707447008"
-  }, {
     "@id" : "http://snomed.info/sct#707511009",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Uncomplicated mild persistent asthma (disorder)",
     "http://endhealth.info/im#code" : "707511009"
@@ -239,10 +271,6 @@
     "http://www.w3.org/2000/01/rdf-schema#label" : "Acute severe exacerbation of severe persistent asthma (disorder)",
     "http://endhealth.info/im#code" : "707979007"
   }, {
-    "@id" : "http://snomed.info/sct#708090002",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Acute severe exacerbation of asthma (disorder)",
-    "http://endhealth.info/im#code" : "708090002"
-  }, {
     "@id" : "http://snomed.info/sct#707980005",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Acute severe exacerbation of moderate persistent asthma (disorder)",
     "http://endhealth.info/im#code" : "707980005"
@@ -250,30 +278,6 @@
     "@id" : "http://snomed.info/sct#707981009",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Acute severe exacerbation of mild persistent asthma (disorder)",
     "http://endhealth.info/im#code" : "707981009"
-  }, {
-    "@id" : "http://snomed.info/sct#708093000",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Acute exacerbation of immunoglobulin E-mediated allergic asthma (disorder)",
-    "http://endhealth.info/im#code" : "708093000"
-  }, {
-    "@id" : "http://snomed.info/sct#762521001",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Exacerbation of allergic asthma (disorder)",
-    "http://endhealth.info/im#code" : "762521001"
-  }, {
-    "@id" : "http://snomed.info/sct#708094006",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Acute exacerbation of intrinsic asthma (disorder)",
-    "http://endhealth.info/im#code" : "708094006"
-  }, {
-    "@id" : "http://snomed.info/sct#708095007",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Acute severe exacerbation of immunoglobin E-mediated allergic asthma (disorder)",
-    "http://endhealth.info/im#code" : "708095007"
-  }, {
-    "@id" : "http://snomed.info/sct#782513000",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Acute severe exacerbation of allergic asthma (disorder)",
-    "http://endhealth.info/im#code" : "782513000"
-  }, {
-    "@id" : "http://snomed.info/sct#708096008",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Acute severe exacerbation of intrinsic asthma (disorder)",
-    "http://endhealth.info/im#code" : "708096008"
   }, {
     "@id" : "http://snomed.info/sct#733858005",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Acute severe refractory exacerbation of asthma (disorder)",
@@ -294,10 +298,6 @@
     "@id" : "http://snomed.info/sct#735589002",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Uncomplicated non-allergic asthma (disorder)",
     "http://endhealth.info/im#code" : "735589002"
-  }, {
-    "@id" : "http://snomed.info/sct#782520007",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Exacerbation of allergic asthma due to infection (disorder)",
-    "http://endhealth.info/im#code" : "782520007"
   }, {
     "@id" : "http://snomed.info/sct#786836003",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Near fatal asthma (disorder)",
@@ -322,6 +322,10 @@
     "@id" : "http://snomed.info/sct#1751000119100",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Acute exacerbation of chronic obstructive airways disease with asthma (disorder)",
     "http://endhealth.info/im#code" : "1751000119100"
+  }, {
+    "@id" : "http://snomed.info/sct#10692761000119107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Asthma-chronic obstructive pulmonary disease overlap syndrome (disorder)",
+    "http://endhealth.info/im#code" : "10692761000119107"
   }, {
     "@id" : "http://snomed.info/sct#72301000119103",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Asthma in pregnancy (disorder)",
@@ -426,10 +430,6 @@
     "@id" : "http://snomed.info/sct#10692721000119102",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Chronic obstructive asthma co-occurrent with acute exacerbation of asthma (disorder)",
     "http://endhealth.info/im#code" : "10692721000119102"
-  }, {
-    "@id" : "http://snomed.info/sct#10692761000119107",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Asthma-chronic obstructive pulmonary disease overlap syndrome (disorder)",
-    "http://endhealth.info/im#code" : "10692761000119107"
   }, {
     "@id" : "http://snomed.info/sct#10742121000119104",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Asthma in mother complicating childbirth (disorder)",

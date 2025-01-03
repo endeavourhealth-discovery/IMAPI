@@ -9,7 +9,8 @@ public class SetExporterOptions extends SetOptions {
   private boolean im1id;
 
   public SetExporterOptions(SetOptions options, boolean ownRow, boolean im1id) {
-    super(options.getSetIri(), options.includeDefinition(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes());
+    super(options.getSetIri(), options.includeDefinition(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes(),
+      options.getSubsumptions());
     this.ownRow = ownRow;
     this.im1id = im1id;
   }

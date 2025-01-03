@@ -26,12 +26,12 @@
         } ]
       } ]
     } ],
-    "return" : [ {
+    "return" : {
       "property" : [ {
         "@id" : "im:code"
       }, {
         "@id" : "rdfs:label"
       } ]
-    } ]
+    }
   }
 }

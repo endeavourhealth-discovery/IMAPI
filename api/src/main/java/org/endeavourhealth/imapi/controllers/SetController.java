@@ -129,7 +129,6 @@ public class SetController {
       headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"");
 
       SetOptions setOptions = new SetOptions(iri, definition, core, legacy, subsets, schemes,subsumptions);
-      SetExporterOptions exportOptions = new SetExporterOptions(setOptions, ownRow, im1id);
 
       try {
         byte[] setExport = setService.getSetExport(format, im1id, setOptions);

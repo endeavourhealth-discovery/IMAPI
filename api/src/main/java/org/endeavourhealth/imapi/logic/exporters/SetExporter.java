@@ -39,58 +39,8 @@ public class SetExporter {
 
   public StringJoiner generateForIm1(String setIri, String name, Set<Concept> members) throws QueryException, JsonProcessingException {
     LOG.debug("Exporting set to IMv1");
-
-    LOG.trace("Looking up set...");
-    String name = entityRepository.getBundle(setIri, Set.of(RDFS.LABEL)).getEntity().getName();
-
-    Set<Concept> members = getExpansionFromIri(setIri, true, true, true, List.of(),null);
-
     return generateIMV1TSV(setIri, name, members);
   }
-
-  public Set<TTIriRef> getSubsetIrisWithNames(String iri) {
-    Set<TTIriRef> subsets = setRepository.getSubsetIrisWithNames(iri);
-    return new HashSet<>(subsets);
-  }
-
-  public Set<Concept> getExpansionFromIri(String iri, boolean core, boolean legacy, boolean subsets, List<String> schemes,
-                                          List<String> subsumptions) throws QueryException, JsonProcessingException {
-    if (!(core || legacy || subsets))
-      return new HashSet<>();
-
-    Set<Concept> result = null;
-
-    if (core || legacy) {
-        result = setRepository.getExpansionFromIri(iri, legacy, schemes,subsumptions);
-
-    }
-
-    if (null == result)
-      result = new HashSet<>();
-
-    if (subsets) {
-      expandSubsets(iri, core, legacy, schemes,subsumptions, result);
-    }
-
-    return result;
-  }
-
-  private void expandSubsets(String iri, boolean core, boolean legacy, List<String> schemes, List<String> subsumptions,Set<Concept> result) throws QueryException, JsonProcessingException {
-    LOG.trace("Expanding subsets for {}...", iri);
-    Set<TTIriRef> subSetIris = getSubsetIrisWithNames(iri);
-    LOG.trace("Found {} subsets...", subSetIris.size());
-    for (TTIriRef subset : subSetIris) {
-      Set<Concept> subsetMembers = getExpansionFromIri(subset.getIri(), core, legacy, true, schemes,subsumptions);
-      if (null != subsetMembers && !subsetMembers.isEmpty()) {
-        subsetMembers.forEach(ss -> ss.addIsContainedIn(
-          new TTEntity(subset.getIri())
-            .setName(subset.getName())
-        ));
-        result.addAll(subsetMembers);
-      }
-    }
-  }
-
 
   private StringJoiner generateIMV1TSV(String setIri, String name, Set<Concept> members) {
     LOG.trace("Generating output...");

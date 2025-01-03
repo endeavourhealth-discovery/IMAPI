@@ -59,16 +59,6 @@ public class SetService {
     return setRepository.getMembers(iri,entailments,rowNumber,pageSize);
   }
 
-  public String getTSVSetExport(SetExporterOptions options) throws QueryException, JsonProcessingException {
-    return setTextFileExporter.getSetFile(options, "\t");
-
-  }
-
-  public String getCSVSetExport(SetExporterOptions options) throws QueryException, JsonProcessingException {
-    return setTextFileExporter.getSetFile(options, ",");
-
-  }
-
   public SetContent getSetContent(SetOptions options) throws QueryException, JsonProcessingException {
     SetContent result = new SetContent();
 
@@ -229,7 +219,7 @@ public class SetService {
     Set<Concept> result = null;
 
     if (core || legacy) {
-      result = setRepository.getSetMembers(iri, legacy, schemes);
+      result = setRepository.getExpansionFromIri(iri, legacy, schemes, new ArrayList<>());
     }
 
     if (null == result) result = new HashSet<>();

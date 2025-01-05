@@ -699,7 +699,7 @@ public class EqdResources {
         TTNode instance = new TTNode();
         valueSet.addObject(iri(IM.ENTAILED_MEMBER), instance);
         instance.set(IM.INSTANCE_OF,TTIriRef.iri(node.getIri()));
-        if (!node.isExclude()) {
+        if (node.isExclude()) {
           instance.set(IM.EXCLUDE,TTLiteral.literal(true));
         }
         if (node.isAncestorsOf())

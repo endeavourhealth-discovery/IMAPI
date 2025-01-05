@@ -672,6 +672,7 @@ public class SetRepository {
         optional {?instance im:exclude ?exclude.}
         optional {?instance im:entailment ?entailment}
         }
+        order by ?exclude
         limit %s
         offset %s
         """.formatted("<" + iri + ">", pageSize, offset);
@@ -682,6 +683,7 @@ public class SetRepository {
         %s im:hasMember ?member.
         ?member rdfs:label ?name.
         }
+        order by ?exclude
         limit %s
         offset %s
         """.formatted("<" + iri + ">", pageSize, offset);

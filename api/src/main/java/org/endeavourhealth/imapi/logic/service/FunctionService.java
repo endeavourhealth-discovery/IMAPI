@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
-import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
@@ -18,13 +17,12 @@ public class FunctionService {
   public static final String ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY = "One or more arguments are missing parameter key";
   public static final String ENTITY_IRI = "entityIri";
   public static final String NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY = "No entity iri where in request body";
-  private final ConceptService conceptService = new ConceptService();
   private final EntityService entityService = new EntityService();
   private final UserService userService = new UserService();
 
   private final RequestObjectService requestObjectService = new RequestObjectService();
 
-  public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws QueryException, TTFilerException, JsonProcessingException {
+  public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws JsonProcessingException {
     return switch (iri) {
       case IM_FUNCTION.LOCAL_NAME_RETRIEVER -> getLocalName(arguments);
       case IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES -> getAdditionalAllowableTypes(arguments);

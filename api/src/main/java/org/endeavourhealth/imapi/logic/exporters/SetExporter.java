@@ -1,13 +1,8 @@
 package org.endeavourhealth.imapi.logic.exporters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.dataaccess.SetRepository;
+
 import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -25,19 +20,17 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 @Component
 public class SetExporter {
   private static final Logger LOG = LoggerFactory.getLogger(SetExporter.class);
 
-  public void publishSetToIM1(String setIri, String name, Set<Concept> members) throws JsonProcessingException, QueryException {
+  public void publishSetToIM1(String setIri, String name, Set<Concept> members) throws JsonProcessingException {
     StringJoiner results = generateForIm1(setIri, name, members);
     pushToS3(results);
     LOG.trace("Done");
   }
 
-  public StringJoiner generateForIm1(String setIri, String name, Set<Concept> members) throws QueryException, JsonProcessingException {
+  public StringJoiner generateForIm1(String setIri, String name, Set<Concept> members) throws JsonProcessingException {
     LOG.debug("Exporting set to IMv1");
     return generateIMV1TSV(setIri, name, members);
   }

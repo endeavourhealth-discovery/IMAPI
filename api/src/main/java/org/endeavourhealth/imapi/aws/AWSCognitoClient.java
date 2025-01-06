@@ -16,6 +16,8 @@ import java.util.Objects;
 public class AWSCognitoClient {
   private static final Map<String, String> userCache = new HashMap<>();
   private final CognitoIdentityProviderClient identityProvider;
+  private static final String COGNITO_USER_POOL = System.getenv("COGNITO_USER_POOL");
+  private static final String COGNITO_REGION = System.getenv("COGNITO_REGION");
 
   public AWSCognitoClient() {
     this.identityProvider = createCognitoClient();
@@ -25,7 +27,7 @@ public class AWSCognitoClient {
     AwsBasicCredentials credentials = AwsBasicCredentials.create(System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_SECRET_ACCESS_KEY"));
     AwsCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(credentials);
     return CognitoIdentityProviderClient.builder()
-      .region(Region.of(System.getenv("COGNITO_REGION")))
+      .region(Region.of(COGNITO_REGION))
       .credentialsProvider(credentialsProvider)
       .build();
   }
@@ -34,7 +36,7 @@ public class AWSCognitoClient {
     String username = userCache.get(id);
     if (null != username) return username;
     ListUsersRequest usersRequest = ListUsersRequest.builder()
-      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .userPoolId(COGNITO_USER_POOL)
       .attributesToGet("sub").filter("sub = \"" + id + "\"")
       .build();
     ListUsersResponse result = identityProvider.listUsers(usersRequest);
@@ -56,13 +58,13 @@ public class AWSCognitoClient {
   public User adminGetUser(String username) throws UserNotFoundException {
     try {
       AdminGetUserRequest request = AdminGetUserRequest.builder()
-        .userPoolId(System.getenv("COGNITO_USER_POOL"))
+        .userPoolId(COGNITO_USER_POOL)
         .username(username)
         .build();
       AdminGetUserResponse result = identityProvider.adminGetUser(request);
       User user = awsUserToUser(result);
       AdminListGroupsForUserRequest adminListGroupsForUserRequest = AdminListGroupsForUserRequest.builder()
-        .userPoolId(System.getenv("COGNITO_USER_POOL"))
+        .userPoolId(COGNITO_USER_POOL)
         .username(username)
         .build();
       AdminListGroupsForUserResponse adminListGroupsForUserResult = identityProvider.adminListGroupsForUser(adminListGroupsForUserRequest);
@@ -75,7 +77,7 @@ public class AWSCognitoClient {
 
   public void adminAddUserToGroup(String username, String group) {
     AdminAddUserToGroupRequest adminAddUserToGroupRequest = AdminAddUserToGroupRequest.builder()
-      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .userPoolId(COGNITO_USER_POOL)
       .username(username)
       .groupName(group)
       .build();
@@ -84,7 +86,7 @@ public class AWSCognitoClient {
 
   public void adminRemoveUserFromGroup(String username, String group) {
     AdminRemoveUserFromGroupRequest adminRemoveUserFromGroupRequest = AdminRemoveUserFromGroupRequest.builder()
-      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .userPoolId(COGNITO_USER_POOL)
       .username(username).groupName(group)
       .build();
     identityProvider.adminRemoveUserFromGroup(adminRemoveUserFromGroupRequest);
@@ -93,7 +95,7 @@ public class AWSCognitoClient {
   public void adminDeleteUser(String username) {
     AdminDeleteUserRequest adminDeleteUserRequest = AdminDeleteUserRequest.builder()
       .username(username)
-      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .userPoolId(COGNITO_USER_POOL)
       .build();
     identityProvider.adminDeleteUser(adminDeleteUserRequest);
   }
@@ -101,7 +103,7 @@ public class AWSCognitoClient {
   private AdminGetUserResponse adminGetUserByUsername(String username) throws UserNotFoundException {
     try {
       AdminGetUserRequest adminGetUserRequest = AdminGetUserRequest.builder()
-        .userPoolId(System.getenv("COGNITO_USER_POOL"))
+        .userPoolId(COGNITO_USER_POOL)
         .username(username)
         .build();
       return identityProvider.adminGetUser(adminGetUserRequest);
@@ -112,7 +114,7 @@ public class AWSCognitoClient {
 
   public List<String> adminListUsers() {
     ListUsersRequest listUsersRequest = ListUsersRequest.builder()
-      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .userPoolId(COGNITO_USER_POOL)
       .build();
     ListUsersResponse listUsersResult = identityProvider.listUsers(listUsersRequest);
     return listUsersResult.users().stream().map(UserType::username).sorted().toList();
@@ -120,7 +122,7 @@ public class AWSCognitoClient {
 
   public List<String> adminListGroups() {
     ListGroupsRequest listGroupsRequest = ListGroupsRequest.builder()
-      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .userPoolId(COGNITO_USER_POOL)
       .build();
     ListGroupsResponse listGroupsResult = identityProvider.listGroups(listGroupsRequest);
     return listGroupsResult.groups().stream().map(GroupType::groupName).sorted().toList();
@@ -128,7 +130,7 @@ public class AWSCognitoClient {
 
   public List<String> adminListUsersInGroup(String groupName) {
     ListUsersInGroupRequest listUsersInGroupRequest = ListUsersInGroupRequest.builder()
-      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .userPoolId(COGNITO_USER_POOL)
       .groupName(groupName)
       .build();
     ListUsersInGroupResponse listUsersInGroupResult = identityProvider.listUsersInGroup(listUsersInGroupRequest);
@@ -136,7 +138,7 @@ public class AWSCognitoClient {
   }
 
   public User adminCreateUser(User user) {
-    AdminCreateUserRequest adminCreateUserRequest = AdminCreateUserRequest.builder().userPoolId(System.getenv("COGNITO_USER_POOL"))
+    AdminCreateUserRequest adminCreateUserRequest = AdminCreateUserRequest.builder().userPoolId(COGNITO_USER_POOL)
       .username(user.getUsername())
       .userAttributes(AttributeType.builder().name("email").value(user.getEmail()).build())
       .userAttributes(AttributeType.builder().name("custom:forename").value(user.getFirstName()).build())
@@ -148,7 +150,7 @@ public class AWSCognitoClient {
   }
 
   public void adminResetUserPassword(String username) {
-    AdminResetUserPasswordRequest request = AdminResetUserPasswordRequest.builder().userPoolId(System.getenv("COGNITO_USER_POOL"))
+    AdminResetUserPasswordRequest request = AdminResetUserPasswordRequest.builder().userPoolId(COGNITO_USER_POOL)
       .username(username)
       .build();
     identityProvider.adminResetUserPassword(request);
@@ -157,7 +159,7 @@ public class AWSCognitoClient {
   public boolean isEmailRegistered(String email) {
     if (null == email || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or empty.");
     ListUsersRequest listUsersRequest = ListUsersRequest.builder()
-      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .userPoolId(COGNITO_USER_POOL)
       .attributesToGet("email")
       .filter("\"email\"=\"" + email + "\"")
       .build();
@@ -167,7 +169,7 @@ public class AWSCognitoClient {
 
   public void updateEmailVerified(String username, boolean emailVerified) {
     AdminUpdateUserAttributesRequest request = AdminUpdateUserAttributesRequest.builder()
-      .userPoolId(System.getenv("COGNITO_USER_POOL"))
+      .userPoolId(COGNITO_USER_POOL)
       .username(username)
       .userAttributes(AttributeType.builder().name("email_verified").value(emailVerified ? "true" : "false").build())
       .build();

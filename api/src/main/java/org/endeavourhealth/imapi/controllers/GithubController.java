@@ -1,21 +1,13 @@
 package org.endeavourhealth.imapi.controllers;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.endeavourhealth.imapi.config.ConfigManager;
-import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
 import org.endeavourhealth.imapi.logic.service.GithubService;
-import org.endeavourhealth.imapi.model.config.Config;
 import org.endeavourhealth.imapi.model.customexceptions.ConfigException;
 import org.endeavourhealth.imapi.model.github.GithubRelease;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 

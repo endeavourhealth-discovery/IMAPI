@@ -64,7 +64,7 @@ public class EclService {
     return new IMQToECL().getECLFromQuery(query, includeNames);
   }
 
-  public Query getQueryFromEcl(String ecl) throws DataFormatException, EclFormatException {
+  public Query getQueryFromEcl(String ecl) throws EclFormatException {
     return new ECLToIMQ().getQueryFromECL(ecl);
   }
 

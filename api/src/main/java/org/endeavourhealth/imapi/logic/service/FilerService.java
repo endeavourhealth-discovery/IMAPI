@@ -36,7 +36,7 @@ public class FilerService {
   private final OpenSearchService openSearchService = new OpenSearchService();
   private final UserService userService = new UserService();
 
-  public void fileDocument(TTDocument document, String agentName, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
+  public void fileDocument(TTDocument document, String agentName, String taskId) {
     new Thread(() -> {
       try {
         documentFiler.fileDocument(document, taskId);
@@ -73,7 +73,7 @@ public class FilerService {
     }
   }
 
-  public void writeDelta(TTEntity entity, ProvActivity activity, TTEntity provUsedEntity) throws Exception {
+  public void writeDelta(TTEntity entity, ProvActivity activity, TTEntity provUsedEntity) throws JsonProcessingException {
     TTDocument document = new TTDocument();
     document.addEntity(entity);
     document.addEntity(activity);
@@ -148,7 +148,7 @@ public class FilerService {
   }
 
   public void isValid(TTEntity entity, String mode) throws TTFilerException, JsonProcessingException {
-    ArrayList<String> errorMessages = new ArrayList();
+    ArrayList<String> errorMessages = new ArrayList<>();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       if (Boolean.TRUE.equals(!isValidIri(entity))) errorMessages.add("Missing iri.");
       if ("Create".equals(mode) && entityService.iriExists(entity.getIri())) errorMessages.add("Iri already exists.");
@@ -186,21 +186,15 @@ public class FilerService {
   }
 
   private static Boolean hasParents(TTEntity entity) {
-    if (null == entity.get(iri(IM.IS_A)) && null == entity.get(iri(IM.IS_CONTAINED_IN)) && null == entity.get(iri(RDFS.SUBCLASS_OF)) && null == entity.get(iri(IM.IS_SUBSET_OF)))
-      return false;
-    if (null != entity.get(iri(IM.IS_A)) && !entity.get(iri(IM.IS_A)).isEmpty()) {
-      if (!entity.get(iri(IM.IS_A)).getElements().stream().allMatch(TTValue::isIriRef)) return false;
-    }
-    if (null != entity.get(iri(IM.IS_CONTAINED_IN)) && !entity.get(iri(IM.IS_CONTAINED_IN)).isEmpty()) {
-      if (!entity.get(iri(IM.IS_CONTAINED_IN)).getElements().stream().allMatch(TTValue::isIriRef)) return false;
-    }
-    if (null != entity.get(iri(RDFS.SUBCLASS_OF)) && !entity.get(iri(RDFS.SUBCLASS_OF)).isEmpty()) {
-      if (!entity.get(iri(RDFS.SUBCLASS_OF)).getElements().stream().allMatch(TTValue::isIriRef)) return false;
-    }
-    if (null != entity.get(iri(IM.IS_SUBSET_OF)) && !entity.get(iri(IM.IS_SUBSET_OF)).isEmpty()) {
-      if (!entity.get(iri(IM.IS_SUBSET_OF)).getElements().stream().allMatch(TTValue::isIriRef)) return false;
+    String[] parentPredicateArray = new String[]{IM.IS_A, IM.IS_CONTAINED_IN, RDFS.SUBCLASS_OF, IM.IS_SUBSET_OF};
+    for (String parentPredicate : parentPredicateArray) {
+      if (!hasParentPredicateAndIsValidIriRefList(entity, iri(parentPredicate))) return false;
     }
     return true;
+  }
+
+  private static Boolean hasParentPredicateAndIsValidIriRefList(TTEntity entity, TTIriRef predicate) {
+    return !(null != entity.get(predicate) && !entity.get(predicate).isEmpty() && (!entity.get(predicate).getElements().stream().allMatch(TTValue::isIriRef)));
   }
 
   public Boolean userCanFile(String agentId, TTIriRef iriRef) throws JsonProcessingException {

@@ -1,8 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.xml.bind.ValidationException;
-import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.validator.EntityValidator;
 import org.endeavourhealth.imapi.model.*;
@@ -129,7 +127,7 @@ public class EntityService {
     return entityRepository.findAncestorsByType(iri, RDFS.SUBCLASS_OF, candidates).stream().sorted(Comparator.comparing(TTIriRef::getName)).toList();
   }
 
-  public List<TTEntity> usages(String iri, Integer pageIndex, Integer pageSize) throws JsonProcessingException {
+  public List<TTEntity> usages(String iri, Integer pageIndex, Integer pageSize) {
     ArrayList<TTEntity> usageEntities = new ArrayList<>();
     if (iri == null || iri.isEmpty()) return Collections.emptyList();
 
@@ -150,7 +148,7 @@ public class EntityService {
     return usageEntities;
   }
 
-  public Integer totalRecords(String iri) throws JsonProcessingException {
+  public Integer totalRecords(String iri) {
     if (iri == null || iri.isEmpty()) return 0;
 
     Set<String> xmlDataTypes = entityRepository.getByGraph(XSD.NAMESPACE);
@@ -291,9 +289,9 @@ public class EntityService {
     List<List<TTIriRef>> paths = getParentHierarchies(descendant);
     paths = paths.stream().filter(list -> indexOf(list, ancestor) != -1).collect(Collectors.toList());
 
-    paths.sort((a1, a2) -> {
-      return a2.size() - a1.size(); // biggest to smallest
-    });
+    paths.sort((a1, a2) ->
+      a2.size() - a1.size() // biggest to smallest
+    );
 
     if (!paths.isEmpty()) {
       shortestPath = paths.get(paths.size() - 1);
@@ -465,24 +463,25 @@ public class EntityService {
     TTEntity entity = getBundle(iri, predicates).getEntity();
     List<PropertyDisplay> propertyList = new ArrayList<>();
     TTArray ttProperties = entity.get(iri(SHACL.PROPERTY));
-    if (null != ttProperties) {
-      for (TTValue ttProperty : ttProperties.getElements()) {
-        int minCount = 0;
-        if (ttProperty.asNode().has(iri(SHACL.MINCOUNT))) {
-          minCount = ttProperty.asNode().get(iri(SHACL.MINCOUNT)).asLiteral().intValue();
-        }
-        int maxCount = 0;
-        if (ttProperty.asNode().has(iri(SHACL.MAXCOUNT))) {
-          maxCount = ttProperty.asNode().get(iri(SHACL.MAXCOUNT)).asLiteral().intValue();
-        }
-        String cardinality = minCount + " : " + (maxCount == 0 ? "*" : maxCount);
-        if (ttProperty.asNode().has(iri(SHACL.OR))) {
-          handleOr(ttProperty, cardinality, propertyList);
-        } else {
-          handleNotOr(ttProperty, cardinality, propertyList);
-        }
+    if (null == ttProperties) return propertyList;
+
+    for (TTValue ttProperty : ttProperties.getElements()) {
+      int minCount = 0;
+      if (ttProperty.asNode().has(iri(SHACL.MINCOUNT))) {
+        minCount = ttProperty.asNode().get(iri(SHACL.MINCOUNT)).asLiteral().intValue();
+      }
+      int maxCount = 0;
+      if (ttProperty.asNode().has(iri(SHACL.MAXCOUNT))) {
+        maxCount = ttProperty.asNode().get(iri(SHACL.MAXCOUNT)).asLiteral().intValue();
+      }
+      String cardinality = minCount + " : " + (maxCount == 0 ? "*" : maxCount);
+      if (ttProperty.asNode().has(iri(SHACL.OR))) {
+        handleOr(ttProperty, cardinality, propertyList);
+      } else {
+        handleNotOr(ttProperty, cardinality, propertyList);
       }
     }
+
     return propertyList;
   }
 

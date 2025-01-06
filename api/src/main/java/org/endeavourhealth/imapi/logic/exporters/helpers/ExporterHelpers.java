@@ -12,7 +12,8 @@ public class ExporterHelpers {
   }
 
   public static String getIsExtension(Concept concept) {
-    return concept.getScheme() != null ? (concept.getScheme().getIri().contains("sct#") ? "N" : "Y") : "null";
+    if (concept.getScheme() == null) return "null";
+    return concept.getScheme().getIri().contains("sct#") ? "N" : "Y";
   }
 
   public static String getSubSet(Concept concept) {

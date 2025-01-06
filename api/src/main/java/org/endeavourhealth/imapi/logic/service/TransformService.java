@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
-import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.iml.TransformRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.map.MapObject;

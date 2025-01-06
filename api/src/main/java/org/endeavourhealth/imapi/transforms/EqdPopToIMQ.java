@@ -24,7 +24,7 @@ public class EqdPopToIMQ {
       rootMatch
         .addInstanceOf(new Node().setIri(IM.NAMESPACE + "Q_RegisteredGMS").setMemberOf(true))
         .setName("Registered with GP for GMS services on the reference date");
-      if (eqReport.getPopulation().getCriteriaGroup().size()==0){
+      if (eqReport.getPopulation().getCriteriaGroup().isEmpty()){
         EqdToIMQ.gmsPatients.add(activeReport);
         EqdToIMQ.gmsPatients.add("urn:uuid:"+ activeReport);
         return null;
@@ -79,7 +79,7 @@ public class EqdPopToIMQ {
         groupMatch.setExclude(true);
       } else
         throw new EQDException("unrecognised action rule combination : " + activeReport + " " + ifTrue.value() + " / " + ifFalse.value());
-      if (must & select) {
+      if (must && select) {
         if (group == size) {
           query.addMatch(groupMatch);
         }

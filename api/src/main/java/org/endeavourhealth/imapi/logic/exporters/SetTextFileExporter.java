@@ -1,26 +1,18 @@
 package org.endeavourhealth.imapi.logic.exporters;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
 import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.set.SetOptions;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.transforms.IMQToECL;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.logic.exporters.helpers.ExporterHelpers.*;
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class SetTextFileExporter {
   public static final String IM_1_ID = "im1id";
@@ -33,7 +25,7 @@ public class SetTextFileExporter {
     results.add(headerLine);
   }
 
-  public byte[] generateFile(String fileType, Set<Concept> members, String setName, boolean includeIM1id, boolean includeSubsets) throws IOException {
+  public byte[] generateFile(String fileType, Set<Concept> members, String setName, boolean includeIM1id, boolean includeSubsets) throws IOException, GeneralCustomException {
     LOG.trace("Generating output...");
     switch (fileType) {
       case "tsv" -> {
@@ -46,8 +38,10 @@ public class SetTextFileExporter {
         String fileContent = getTextFile("\t", members, setName, includeIM1id, includeSubsets);
         return getExcel(fileContent);
       }
+      default -> {
+        return new byte[0];
+      }
     }
-    return null;
   }
 
   private String getTextFile(String del, Set<Concept> members, String setName, boolean includeIM1id, boolean includeSubsets) {
@@ -65,7 +59,7 @@ public class SetTextFileExporter {
     return results.toString();
   }
 
-  private byte[] getExcel(String csvString) throws IOException {
+  private byte[] getExcel(String csvString) throws IOException, GeneralCustomException {
     try (Workbook workbook = new XSSFWorkbook()) {
       Sheet sheet = workbook.createSheet("Sheet1");
       String[] lines = csvString.split("\n");
@@ -94,7 +88,7 @@ public class SetTextFileExporter {
         workbook.close();
         return outputStream.toByteArray();
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new GeneralCustomException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
   }

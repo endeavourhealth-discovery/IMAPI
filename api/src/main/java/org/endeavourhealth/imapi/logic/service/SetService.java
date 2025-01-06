@@ -54,9 +54,10 @@ public class SetService {
 
   public Pageable<Node> getMembers(String iri, boolean entailments, Integer rowNumber, Integer pageSize) {
     return setRepository.getMembers(iri, entailments, rowNumber, pageSize);
-    }
-  public Pageable<Node> getDirectOrEntailedMembersFromIri(String iri, boolean entailments, Integer pageNumber, Integer pageSize){
-    return setRepository.getMembers(iri,entailments,pageNumber,pageSize);
+  }
+
+  public Pageable<Node> getDirectOrEntailedMembersFromIri(String iri, boolean entailments, Integer pageNumber, Integer pageSize) {
+    return setRepository.getMembers(iri, entailments, pageNumber, pageSize);
   }
 
   public SetContent getSetContent(SetOptions options) throws QueryException, JsonProcessingException {
@@ -194,9 +195,7 @@ public class SetService {
       throw new GeneralCustomException("Set does not have members.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     switch (format) {
-      case "xlsx":
-      case "csv":
-      case "tsv":
+      case "xlsx", "csv", "tsv":
         return setTextFileExporter.generateFile(format, concepts, setEntity.getName(), includeIM1id, options.includeSubsets());
       case "object":
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
@@ -280,7 +279,6 @@ public class SetService {
       }
     }
   }
-
 
 
   public SetDiffObject getSetComparison(Optional<String> setIriA, Optional<String> setIriB) throws QueryException, JsonProcessingException {

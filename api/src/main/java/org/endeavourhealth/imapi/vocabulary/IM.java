@@ -30,6 +30,7 @@ public class IM {
     public static final String IN_TASK = IM.NAMESPACE + "inTask";
     public static final String DEFINITION = IM.NAMESPACE + "definition";
     public static final String INSTANCE_OF = IM.NAMESPACE + "instanceOf";
+    public static final String TYPE_OF = IM.NAMESPACE + "typeOf";
     public static final String RETURN_TYPE = IM.NAMESPACE + "returnType";
     public static final String UPDATE_PROCEDURE = IM.NAMESPACE + "updateProcedure";
     public static final String INVERSE_PATH = IM.NAMESPACE + "inversePath";

@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
@@ -28,7 +29,6 @@ public class QueryService {
   public static final String ENTITIES = "entities";
   private final QueryRepository queryRepository = new QueryRepository();
   private final EntityRepository entityRepository = new EntityRepository();
-
 
 
   public Query getQueryFromIri(String queryIri) throws JsonProcessingException {
@@ -74,11 +74,16 @@ public class QueryService {
     return searchResponse;
   }
 
-  public TTIriRef getReturnType(String iri) {
+  public TTIriRef getReturnType(String iri) throws JsonProcessingException {
     Set<String> predicates = new HashSet<>();
-    predicates.add(IM.RETURN_TYPE);
+    predicates.add(IM.DEFINITION);
     TTBundle result = entityRepository.getBundle(iri, predicates);
-    return result.getEntity().get(iri(IM.RETURN_TYPE)).asIriRef();
+    String definition = result.getEntity().get(iri(IM.DEFINITION)).asLiteral().getValue();
+    ObjectMapper om = new ObjectMapper();
+    Query definitionQuery = om.readValue(definition, Query.class);
+    String returnTypeIri = definitionQuery.getTypeOf().getIri();
+    String returnTypeName = entityRepository.getBundle(returnTypeIri, new HashSet<>(List.of(RDFS.LABEL))).getEntity().getName();
+    return iri(returnTypeIri, returnTypeName);
   }
 
   public String getSQLFromIMQ(Query query) {

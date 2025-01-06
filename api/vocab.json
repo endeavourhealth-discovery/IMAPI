@@ -174,6 +174,10 @@
         "value": "IM.NAMESPACE + \"instanceOf\""
       },
       {
+        "name": "TYPE_OF",
+        "value": "IM.NAMESPACE + \"typeOf\""
+      },
+      {
         "name": "RETURN_TYPE",
         "value": "IM.NAMESPACE + \"returnType\""
       },
@@ -1077,7 +1081,6 @@
         "name": "DATATYPE_QUALIFIER",
         "value": "IM.NAMESPACE + \"datatypeQualifier\""
       }
-
     ]
   },
   {
@@ -2072,7 +2075,6 @@
         "name": "ALLOWABLE_RANGE_SUGGESTIONS",
         "value": "QUERY.NAMESPACE + \"AllowableRangeSuggestions\""
       },
-
       {
         "name": "GET_SUBCLASSES",
         "value": "QUERY.NAMESPACE + \"GetSubClasses\""

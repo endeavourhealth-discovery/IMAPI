@@ -26,6 +26,7 @@ public class DownloadService {
   private ConceptService conceptService = new ConceptService();
 
   public DownloadDto getJsonDownload(String iri, List<String> configs, DownloadEntityOptions params) {
+    LOG.info("getJsonDownload {}", iri);
     if (iri == null || iri.isEmpty()) return null;
 
     DownloadDto downloadDto = new DownloadDto();
@@ -55,6 +56,7 @@ public class DownloadService {
   }
 
   public XlsHelper getExcelDownload(String iri, List<String> configs, DownloadEntityOptions params) {
+    LOG.info("getExcelDownload {}", iri);
     if (iri == null || iri.isEmpty()) return null;
 
     XlsHelper xls = new XlsHelper();

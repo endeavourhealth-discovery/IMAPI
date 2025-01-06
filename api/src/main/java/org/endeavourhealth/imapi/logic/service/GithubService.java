@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import org.endeavourhealth.imapi.config.ConfigManager;
-import org.endeavourhealth.imapi.controllers.GithubController;
 import org.endeavourhealth.imapi.model.config.Config;
 import org.endeavourhealth.imapi.model.customexceptions.ConfigException;
 import org.endeavourhealth.imapi.model.github.GithubDTO;
@@ -29,7 +28,7 @@ import java.util.List;
 
 @Component
 public class GithubService {
-  private static final Logger LOG = LoggerFactory.getLogger(GithubController.class.getName());
+  private static final Logger LOG = LoggerFactory.getLogger(GithubService.class.getName());
   ConfigManager configManager = new ConfigManager();
 
   public GithubRelease getGithubLatestRelease() throws JsonProcessingException, ConfigException {
@@ -130,7 +129,7 @@ public class GithubService {
     return results;
   }
 
-  private List<String> processReleaseNotes(String releaseNotes) throws JsonProcessingException {
+  private List<String> processReleaseNotes(String releaseNotes) {
     String[] lines = releaseNotes.split(System.lineSeparator());
     return Arrays.asList(lines);
   }
@@ -142,7 +141,7 @@ public class GithubService {
     return dateTime.format(formatterOutput);
   }
 
-  private GithubRelease processGithubRelease(GithubDTO githubDTO) throws IOException {
+  private GithubRelease processGithubRelease(GithubDTO githubDTO) {
     return new GithubRelease()
       .setVersion(githubDTO.getTag_name())
       .setTitle(githubDTO.getName())

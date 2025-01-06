@@ -1,9 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.logic.service.QueryDescriptor;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
-import org.endeavourhealth.imapi.model.iml.Entity;
-import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -24,7 +21,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class EqdToIMQ {
   private static final Logger LOG = LoggerFactory.getLogger(EqdToIMQ.class);
   public static final String URN_UUID = "urn:uuid:";
-  private EqdResources resources;;
+  private EqdResources resources;
   private TTDocument document;
   public static Set<String> gmsPatients= new HashSet<>();
 

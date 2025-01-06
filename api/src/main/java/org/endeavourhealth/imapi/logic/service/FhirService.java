@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.zip.DataFormatException;
 
 public class FhirService {
-  private static final Logger LOG = LoggerFactory.getLogger(FhirController.class.getName());
+  private static final Logger LOG = LoggerFactory.getLogger(FhirService.class.getName());
   ConfigManager configManager = new ConfigManager();
   SetService setService = new SetService();
   EclService eclService = new EclService();

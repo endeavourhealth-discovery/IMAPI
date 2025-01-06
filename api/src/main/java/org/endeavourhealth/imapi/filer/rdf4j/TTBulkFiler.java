@@ -110,8 +110,10 @@ public class TTBulkFiler implements TTDocumentFiler {
           }
         }
       }
-    } catch (IOException | InterruptedException e) {
-      if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+    } catch (IOException e) {
+      throw new TTFilerException(e.getMessage());
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       throw new TTFilerException(e.getMessage());
     }
   }
@@ -212,7 +214,7 @@ public class TTBulkFiler implements TTDocumentFiler {
         transformAndWriteQuads(converter, entity, entityGraph);
 
       }
-      LOG.debug("{} entities written to file for {}", counter,document.getGraph().getIri());
+      LOG.debug("{} entities written to file for {}", counter, document.getGraph().getIri());
       LOG.info("Finished - total of {} statements,  {}", statementCount, new Date());
     } catch (Exception e) {
       throw new TTFilerException(e.getMessage());

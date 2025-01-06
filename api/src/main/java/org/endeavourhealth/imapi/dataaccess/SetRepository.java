@@ -635,16 +635,16 @@ public class SetRepository {
   }
 
 
-  public Pageable<Node> getMembers(String iri, boolean entailed, Integer rowNumber, Integer pageSize) {
+  public Pageable<Node> getMembers(String iri, boolean entailed, Integer pageNumber, Integer pageSize) {
 
     if (entailed) {
-      Pageable<Node> result = getMemberWithPredicate(iri, IM.ENTAILED_MEMBER, rowNumber, pageSize);
+      Pageable<Node> result = getMemberWithPredicate(iri, IM.ENTAILED_MEMBER, pageNumber, pageSize);
       if (result.getTotalCount() > 0) return result;
     }
-    return getMemberWithPredicate(iri, IM.HAS_MEMBER, rowNumber, pageSize);
+    return getMemberWithPredicate(iri, IM.HAS_MEMBER, pageNumber, pageSize);
   }
 
-  private Pageable<Node> getMemberWithPredicate(String iri, String predicate, Integer rowNumber, Integer pageSize) {
+  private Pageable<Node> getMemberWithPredicate(String iri, String predicate, Integer pageNumber, Integer pageSize) {
     Pageable<Node> result = new Pageable<>();
     result.setTotalCount(0);
     String sql = """
@@ -660,6 +660,7 @@ public class SetRepository {
         result.setTotalCount(((Literal) bsCount.getValue("count")).intValue());
       }
     }
+    String offset= Integer.toString((pageNumber-1)*pageSize);
     if (result.getTotalCount() == 0) return result;
     if (predicate.equals(IM.ENTAILED_MEMBER)) {
       sql = """
@@ -671,9 +672,10 @@ public class SetRepository {
         optional {?instance im:exclude ?exclude.}
         optional {?instance im:entailment ?entailment}
         }
+        order by ?exclude
         limit %s
         offset %s
-        """.formatted("<" + iri + ">", pageSize, rowNumber);
+        """.formatted("<" + iri + ">", pageSize, offset);
     } else {
       sql = """
         Select ?member ?name
@@ -681,9 +683,10 @@ public class SetRepository {
         %s im:hasMember ?member.
         ?member rdfs:label ?name.
         }
+        order by ?exclude
         limit %s
         offset %s
-        """.formatted("<" + iri + ">", pageSize, rowNumber);
+        """.formatted("<" + iri + ">", pageSize, offset);
     }
     List<Node> resultSet = new ArrayList<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {

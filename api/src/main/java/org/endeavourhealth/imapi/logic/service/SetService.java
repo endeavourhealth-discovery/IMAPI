@@ -56,8 +56,8 @@ public class SetService {
     return setRepository.getMembers(iri, entailments, rowNumber, pageSize);
   }
 
-  public Pageable<Node> getDirectOrEntailedMembersFromIri(String iri, boolean entailments, Integer rowNumber, Integer pageSize) {
-    return setRepository.getMembers(iri, entailments, rowNumber, pageSize);
+  public Pageable<Node> getDirectOrEntailedMembersFromIri(String iri, boolean entailments, Integer pageNumber, Integer pageSize) {
+    return setRepository.getMembers(iri, entailments, pageNumber, pageSize);
   }
 
   public SetContent getSetContent(SetOptions options) throws QueryException, JsonProcessingException {

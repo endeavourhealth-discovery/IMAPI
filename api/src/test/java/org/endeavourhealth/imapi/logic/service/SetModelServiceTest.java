@@ -1,11 +1,18 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
-import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
+import org.endeavourhealth.imapi.model.imq.Bool;
+import org.endeavourhealth.imapi.model.imq.Node;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.set.SetOptions;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
@@ -19,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
@@ -35,16 +43,20 @@ public class SetModelServiceTest {
 
   @Test
   void getSetExport_NullIri() {
-    SetOptions setOptions = new SetOptions(null, false, true, true, true, List.of());
-    SetExporterOptions options = new SetExporterOptions(setOptions, true, false);
-    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(options));
+    SetOptions setOptions = new SetOptions(null, false, true, true, true, List.of(), List.of());
+    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions));
   }
 
   @Test
   void getSetExport_EmptyIri() {
-    SetOptions setOptions = new SetOptions(null, false, true, true, true, List.of());
-    SetExporterOptions options = new SetExporterOptions(setOptions, true, false);
-    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(options));
+    SetOptions setOptions = new SetOptions("", false, true, true, true, List.of(), List.of());
+    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions));
+  }
+
+  @Test
+  void getSetExport_EmptyFormat() {
+    SetOptions setOptions = new SetOptions("", false, true, true, true, List.of(), List.of());
+    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions));
   }
 
   @Test

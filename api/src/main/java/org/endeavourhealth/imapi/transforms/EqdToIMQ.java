@@ -26,6 +26,7 @@ public class EqdToIMQ {
   public static final String URN_UUID = "urn:uuid:";
   private EqdResources resources;;
   private TTDocument document;
+  public static Set<String> gmsPatients= new HashSet<>();
 
 
   public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap) throws IOException, QueryException, EQDException {
@@ -57,6 +58,23 @@ public class EqdToIMQ {
         document.addEntity(qry);
       }
     }
+    for (TTEntity report:document.getEntities()){
+      if (report.get(IM.DEFINITION)!=null){
+        Query query= report.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+        if (query.getMatch()!=null){
+          if (query.getMatch().get(0).getInstanceOf()!=null){
+            if (gmsPatients.contains(query.getMatch().get(0).getInstanceOf().get(0).getIri())){
+              List<Node> base= new ArrayList<>();
+              base.add(new Node().setIri(IM.NAMESPACE + "Q_RegisteredGMS").setMemberOf(true)
+                .setName("Registered with GP for GMS services on the reference date"));
+              query.getMatch().get(0)
+                .setInstanceOf(base);
+              report.set(IM.DEFINITION,TTLiteral.literal(query));
+            }
+          }
+        }
+      }
+    }
   }
 
   private void convertFolders(EnquiryDocument eqd) throws EQDException {
@@ -72,6 +90,9 @@ public class EqdToIMQ {
           .setIri(iri)
           .addType(iri(IM.FOLDER))
           .setName(eqFolder.getName());
+        if (eqFolder.getParentFolder()!=null){
+          folder.addObject(iri(IM.IS_CONTAINED_IN),iri(URN_UUID+eqFolder.getParentFolder()));
+        }
         document.addEntity(folder);
       }
     }
@@ -94,7 +115,7 @@ public class EqdToIMQ {
     qry.setName(queryEntity.getName());
     if (eqReport.getPopulation() != null) {
       queryEntity.addType(iri(IM.COHORT_QUERY));
-      new EqdPopToIMQ().convertPopulation(eqReport, qry, resources);
+      qry= new EqdPopToIMQ().convertPopulation(eqReport, qry, resources);
     } else if (eqReport.getListReport() != null) {
       queryEntity.addType(iri(IM.DATASET_QUERY));
       new EqdListToIMQ().convertReport(eqReport, document,qry, resources);
@@ -106,6 +127,8 @@ public class EqdToIMQ {
       System.err.println("Aggregate reports not supported");
       return null;
     }
+    if (qry==null)
+      return null;
     if (qry.getMatch()!=null) {
       flattenQuery(qry);
     }

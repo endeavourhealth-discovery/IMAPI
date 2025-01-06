@@ -43,11 +43,11 @@
         } ]
       } ]
     } ],
-    "return" : [ {
+    "return" : {
       "nodeRef" : "range",
       "property" : [ {
         "@id" : "rdfs:label"
       } ]
-    } ]
+    }
   }
 }

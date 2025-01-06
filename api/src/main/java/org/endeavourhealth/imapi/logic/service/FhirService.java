@@ -3,33 +3,22 @@ package org.endeavourhealth.imapi.logic.service;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.controllers.FhirController;
-import org.endeavourhealth.imapi.controllers.GithubController;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
-import org.endeavourhealth.imapi.model.exporters.SetExporterOptions;
-import org.endeavourhealth.imapi.model.github.GithubRelease;
-import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 import org.endeavourhealth.imapi.model.set.SetOptions;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.CONFIG;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.hl7.fhir.r4.model.ValueSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.zip.DataFormatException;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class FhirService {
   private static final Logger LOG = LoggerFactory.getLogger(FhirController.class.getName());
@@ -39,9 +28,8 @@ public class FhirService {
 
   public String getFhirValueSet(String iri, boolean expanded) throws JsonProcessingException, QueryException {
     List<String> schemes = new ArrayList<>();
-    SetOptions setOptions = new SetOptions(iri, true, expanded, false, true, schemes);
-    SetExporterOptions exportOptions = new SetExporterOptions(setOptions, false, false);
-    return setService.getFHIRSetExport(exportOptions);
+    SetOptions setOptions = new SetOptions(iri, true, expanded, false, true, schemes, new ArrayList<>());
+    return setService.getFHIRSetExport(setOptions);
   }
 
   public String eclToFhir(String data) throws DataFormatException, EclFormatException, QueryException {

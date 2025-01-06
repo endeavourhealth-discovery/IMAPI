@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.dataaccess;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
@@ -72,10 +72,10 @@ public class CodeGenRepository {
           try (CachedObjectMapper om = new CachedObjectMapper()) {
             switch (bs.getValue("p").stringValue()) {
               case (CODE_TEMPLATE.DATATYPE_MAP) -> {
-                ArrayNode map = (ArrayNode) om.readTree(bs.getValue("o").stringValue());
-                for (Iterator<JsonNode> it = map.elements(); it.hasNext(); ) {
-                  JsonNode ele = it.next();
-                  result.getDatatypeMap().put(ele.get("code").asText(), ele.get("replace").asText());
+                ObjectNode map = (ObjectNode) om.readTree(bs.getValue("o").stringValue());
+                for (Iterator<Map.Entry<String, JsonNode>> it = map.fields(); it.hasNext(); ) {
+                  Map.Entry<String, JsonNode> ele = it.next();
+                  result.getDatatypeMap().put(ele.getKey(), ele.getValue().textValue());
                 }
               }
               case (CODE_TEMPLATE.WRAPPER) -> result.setCollectionWrapper(bs.getValue("o").stringValue());
@@ -120,21 +120,25 @@ public class CodeGenRepository {
       }
       """;
     try (RepositoryConnection conn2 = ConnectionManager.getConfigConnection()) {
-      Update qry2 = prepareUpdateSparql(conn2, insertSparql);
-      qry2.setBinding("iri", iri(CODE_TEMPLATE.NAMESPACE + name));
-      qry2.setBinding("label", iri(RDFS.LABEL));
-      qry2.setBinding("name", literal(name));
-      qry2.setBinding("extensionType", iri(CODE_TEMPLATE.EXTENSION));
-      qry2.setBinding("extension", literal(extension));
-      qry2.setBinding("type", iri(RDF.TYPE));
-      qry2.setBinding("typeIri", iri(IM.CODE_TEMPLATE));
-      qry2.setBinding("definition", iri(IM.DEFINITION));
-      qry2.setBinding("template", literal(template));
-      qry2.setBinding("typeMap", iri(CODE_TEMPLATE.DATATYPE_MAP));
-      qry2.setBinding("datatypeMap", literal(dataTypeMap));
-      qry2.setBinding("wrapperType", iri(CODE_TEMPLATE.WRAPPER));
-      qry2.setBinding("wrapper", literal(wrapper));
-      qry2.execute();
+      try (CachedObjectMapper om = new CachedObjectMapper()) {
+        Update qry2 = prepareUpdateSparql(conn2, insertSparql);
+        qry2.setBinding("iri", iri(CODE_TEMPLATE.NAMESPACE + name));
+        qry2.setBinding("label", iri(RDFS.LABEL));
+        qry2.setBinding("name", literal(name));
+        qry2.setBinding("extensionType", iri(CODE_TEMPLATE.EXTENSION));
+        qry2.setBinding("extension", literal(extension));
+        qry2.setBinding("type", iri(RDF.TYPE));
+        qry2.setBinding("typeIri", iri(IM.CODE_TEMPLATE));
+        qry2.setBinding("definition", iri(IM.DEFINITION));
+        qry2.setBinding("template", literal(template));
+        qry2.setBinding("typeMap", iri(CODE_TEMPLATE.DATATYPE_MAP));
+        qry2.setBinding("datatypeMap", literal(om.writeValueAsString(dataTypeMap)));
+        qry2.setBinding("wrapperType", iri(CODE_TEMPLATE.WRAPPER));
+        qry2.setBinding("wrapper", literal(wrapper));
+        qry2.execute();
+      } catch (JsonProcessingException err) {
+        LOG.error("Error updating codeTemplate", err);
+      }
     }
   }
 }

@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.iml;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
+import org.endeavourhealth.imapi.model.imq.Operator;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -20,6 +21,27 @@ public class PropertyRange extends TTIriRef{
   private TTIriRef intervalUnit;
   @Getter
   private List<PropertyRange> qualifier;
+  @Getter
+  private TTIriRef units;
+  @Getter
+  private TTIriRef operator;
+  @Getter
+  private boolean isRelativeValue;
+
+  public PropertyRange setRelativeValue(boolean relativeValue) {
+    isRelativeValue = relativeValue;
+    return this;
+  }
+
+  public PropertyRange setUnits(TTIriRef units) {
+    this.units = units;
+    return this;
+  }
+
+  public PropertyRange setOperator(TTIriRef operator) {
+    this.operator = operator;
+    return this;
+  }
 
   public PropertyRange setType(TTIriRef type) {
     this.type = type;

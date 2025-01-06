@@ -58,11 +58,11 @@
         }
       } ]
     } ],
-    "return" : [ {
+    "return" : {
       "nodeRef" : "propType",
       "property" : [ {
         "@id" : "rdfs:label"
       } ]
-    } ]
+    }
   }
 }

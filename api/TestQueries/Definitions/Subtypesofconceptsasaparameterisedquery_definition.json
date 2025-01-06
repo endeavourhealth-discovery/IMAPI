@@ -25,11 +25,11 @@
       } ],
       "variable" : "c"
     } ],
-    "return" : [ {
+    "return" : {
       "nodeRef" : "c",
       "property" : [ {
         "@id" : "rdfs:label"
       } ]
-    } ]
+    }
   }
 }

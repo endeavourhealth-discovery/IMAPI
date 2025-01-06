@@ -1,7 +1,5 @@
 package org.endeavourhealth.imapi.transforms;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.logic.exporters.ImportMaps;
@@ -114,13 +112,33 @@ public class EqdResources {
 
 
   private Match convertCriterion(EQDOCCriterion eqCriterion) throws IOException, QueryException, EQDException {
-
+    if (eqCriterion.getBaseCriteriaGroup().size()>0){
+      return convertBaseCriteriaGroup(eqCriterion);
+    }
     if (eqCriterion.getLinkedCriterion() != null) {
       return convertLinkedCriterion(eqCriterion);
     } else {
       return convertStandardCriterion(eqCriterion);
     }
 
+  }
+
+  private Match convertBaseCriteriaGroup(EQDOCCriterion eqCriterion) throws QueryException, EQDException, IOException {
+    Match baseMatch= new Match();
+    baseMatch.setBoolMatch(Bool.and);
+    for (EQDOCBaseCriteriaGroup baseGroup:eqCriterion.getBaseCriteriaGroup()) {
+      Match baseGroupMatch = new Match();
+      baseMatch.addMatch(baseGroupMatch);
+      VocMemberOperator memberOp = baseGroup.getDefinition().getMemberOperator();
+      if (memberOp == VocMemberOperator.AND) {
+        baseGroupMatch.setBoolMatch(Bool.and);
+      } else
+        baseGroupMatch.setBoolMatch(Bool.or);
+      for (EQDOCCriteria eqCriteria : baseGroup.getDefinition().getCriteria()) {
+        baseGroupMatch.addMatch(convertCriteria(eqCriteria));
+      }
+    }
+    return baseMatch;
   }
 
 
@@ -188,9 +206,8 @@ public class EqdResources {
         match.addPath(new IriLD().setIri(tablePath.split(" ")[0]));
         match.setTypeOf(new Node().setIri(tablePath.split(" ")[1]));
       }
-      if (columnPath.contains(" ")) {
         String[] paths = columnPath.split(" ");
-        for (int i = 0; i < paths.length; i = i + 2) {
+        for (int i = 0; i < paths.length-1; i ++) {
           IriLD pathIri = new IriLD();
           String path = paths[i];
           if (path.startsWith("^")) {
@@ -199,10 +216,8 @@ public class EqdResources {
           }
           pathIri.setIri(path);
           match.addPath(pathIri);
-          match.setTypeOf(new Node().setIri(paths[i + 1]));
         }
       }
-    }
     Where where = new Where();
     match.addWhere(where);
     where.setIri(property);
@@ -243,10 +258,10 @@ public class EqdResources {
         setCounter++;
         String vsetName;
         if (columnGroup!=null) {
-          vsetName = "Library set " + setCounter + " used for " + columnGroup.getName();
+          vsetName = "Unnamed library set " + setCounter + " used for " + columnGroup.getName();
         }
         else {
-          vsetName="Library set used in "+ activeReportName;
+          vsetName="Unnamed library set used in "+ activeReportName;
         }
         valueLabel = valueLabel + (valueLabel.isEmpty() ? "" : ", ") + vsetName;
         Node iri = new Node().setIri(URN_UUID + vset);
@@ -258,6 +273,7 @@ public class EqdResources {
           pv.addIs(iri);
         }
         pv.setValueLabel(valueLabel);
+        createValueSet(iri.getIri(),vsetName);
       }
     } else if (cv.getRangeValue() != null) {
       setRangeValue(cv.getRangeValue(), pv);
@@ -298,7 +314,7 @@ public class EqdResources {
         inverse = "^";
         path = path.substring(1);
       }
-      path = inverse + (path.contains("rdfs") ? RDFS.NAMESPACE + path.split(":")[1] : IM.NAMESPACE + path);
+      path = inverse + (path.startsWith("http") ?path : IM.NAMESPACE + path);
       paths[i] = path;
     }
     return String.join(" ", paths);
@@ -347,7 +363,7 @@ public class EqdResources {
       .setProperty(new OrderDirection()
         .setIri(orderBy)
         .setDirection(direction))
-      .setLimit(1));
+      .setLimit(restrict.getColumnOrder().getRecordCount()));
   }
 
 
@@ -487,13 +503,13 @@ public class EqdResources {
   private void setUnitsOrArgument(Assignable assignable, String units) throws EQDException {
     switch (units) {
       case "YEAR":
-        assignable.setIntervalUnit(TTIriRef.iri(IM.NAMESPACE + "years"));
+        assignable.setUnit(TTIriRef.iri(IM.NAMESPACE + "Years"));
         break;
       case "MONTH":
-        assignable.setIntervalUnit(TTIriRef.iri(IM.NAMESPACE + "months"));
+        assignable.setUnit(TTIriRef.iri(IM.NAMESPACE + "Months"));
         break;
       case "DAY":
-        assignable.setIntervalUnit(TTIriRef.iri(IM.NAMESPACE + "days"));
+        assignable.setUnit(TTIriRef.iri(IM.NAMESPACE + "Days"));
         break;
       case "DATE":
         break;
@@ -643,6 +659,22 @@ public class EqdResources {
     }
   }
 
+
+  private TTEntity createValueSet(String iri, String name){
+    TTEntity valueSet = new TTEntity()
+      .setIri(iri)
+      .setName(name)
+      .addType(iri(IM.CONCEPT_SET));
+    if (columnGroup!=null){
+      valueSet.addObject(iri(IM.USED_IN),iri(columnGroup.getIri()));
+    }
+    else
+      valueSet.addObject(iri(IM.USED_IN), iri(URN_UUID + activeReport));
+    document.addEntity(valueSet);
+    return valueSet;
+  }
+
+
   private TTEntity createValueSet(EQDOCValueSet vs, Set<Node> setContent){
       String name = vs.getDescription();
       if (name == null) {
@@ -667,7 +699,7 @@ public class EqdResources {
         TTNode instance = new TTNode();
         valueSet.addObject(iri(IM.ENTAILED_MEMBER), instance);
         instance.set(IM.INSTANCE_OF,TTIriRef.iri(node.getIri()));
-        if (!node.isExclude()) {
+        if (node.isExclude()) {
           instance.set(IM.EXCLUDE,TTLiteral.literal(true));
         }
         if (node.isAncestorsOf())

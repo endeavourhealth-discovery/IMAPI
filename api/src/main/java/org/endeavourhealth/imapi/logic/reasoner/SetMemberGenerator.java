@@ -11,30 +11,29 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
-public class SetExpander {
-  private static final Logger LOG = LoggerFactory.getLogger(SetExpander.class);
+public class SetMemberGenerator {
+  private static final Logger LOG = LoggerFactory.getLogger(SetMemberGenerator.class);
   private final EntityRepository entityRepository = new EntityRepository();
   private final SetRepository setRepo = new SetRepository();
 
-  public void expandAllSets() throws JsonProcessingException, QueryException {
+  public void generateAllSetMembers() throws JsonProcessingException, QueryException {
     LOG.info("Getting value sets....");
     //First get the list of sets that dont have members already expanded
     Set<String> sets = setRepo.getSets();
     //for each set get their definition
     for (String iri : sets) {
       if (entityRepository.hasPredicates(iri, Set.of(IM.ENTAILED_MEMBER, IM.DEFINITION))) {
-        expandSet(iri);
+        generateMembers(iri);
       }
     }
   }
 
 
-  public void expandSet(String iri) throws QueryException, JsonProcessingException {
+  public void generateMembers(String iri) throws QueryException, JsonProcessingException {
     TTBundle setDefinition = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION));
     if (setDefinition.getEntity().get(iri(IM.DEFINITION)) == null) {
       Set<Concept> members = setRepo.getExpansionFromEntailedMembers(iri); //might be an instance member definition

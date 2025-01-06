@@ -8,6 +8,8 @@ public class IM {
     public static final String NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
     public static final String DESCENDANTS_OR_SELF_OF = IM.NAMESPACE + "DescendantsOrSelfOf";
     public static final String DESCENDANTS_OF = IM.NAMESPACE + "DescendantsOf";
+    public static final String IS_RELATIVE_VALUE = IM.NAMESPACE + "isRelativeValue";
+    public static final String FULLY_SPECIFIED_NAME = IM.NAMESPACE + "fullySpecifiedName";
     public static final String ANCESTORS_OF = IM.NAMESPACE + "DncestorsOf";
     public static final String ENTAILED_MEMBER = IM.NAMESPACE + "entailedMember";
     public static final String ENTAILMENT = IM.NAMESPACE + "entailment";
@@ -69,9 +71,8 @@ public class IM {
     public static final String IS_CHILD_OF = IM.NAMESPACE + "isChildOf";
     public static final String PREVIOUS_ENTITY_OF = IM.NAMESPACE + "previousEntityOf";
     public static final String SUBSUMED_BY = IM.NAMESPACE + "subsumedBy";
-    public static final String USUALLY_SUBSUMED_BY = IM.NAMESPACE + "usuallySubsumedBy";
+    public static final String MAY_BE_SUBSUMED_BY = IM.NAMESPACE + "mayBeSubsumedBy";
     public static final String APPROXIMATE_SUBSUMED_BY = IM.NAMESPACE + "approximateSubsumedBy";
-    public static final String MULTIPLE_SUBSUMED_BY = IM.NAMESPACE + "multipleSubsumedBy";
     public static final String LOCAL_SUBCLASS_OF = IM.NAMESPACE + "localSubClassOf";
     public static final String HAS_CONFIG = IM.NAMESPACE + "hasConfig";
     public static final String PROPERTY_GROUP = IM.NAMESPACE + "propertyGroup";

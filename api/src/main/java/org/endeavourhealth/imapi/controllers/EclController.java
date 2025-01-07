@@ -80,13 +80,12 @@ public class EclController {
     }
   }
 
-
   @PostMapping(value = "/public/queryFromEcl", consumes = "text/plain", produces = "application/json")
   @Operation(
     summary = "Get IMQ query from ecl",
     description = "Map ecl test to an IM query object"
   )
-  public Query getQueryFromECL(@RequestBody String ecl) throws DataFormatException, IOException, EclFormatException {
+  public Query getQueryFromECL(@RequestBody String ecl) throws IOException, EclFormatException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.QueryFromEcl.POST")) {
       LOG.debug("getQueryFromEcl");
       return eclService.getQueryFromEcl(ecl);

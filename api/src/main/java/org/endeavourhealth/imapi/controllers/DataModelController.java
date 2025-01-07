@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.controllers;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.DataModelService;
+import org.endeavourhealth.imapi.model.PropertyDisplay;
 import org.endeavourhealth.imapi.model.dto.UIProperty;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -34,11 +35,19 @@ public class DataModelController {
     }
   }
 
-  @GetMapping("/public/properties")
-  public List<TTIriRef> getProperties() throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Properties.GET")) {
-      LOG.debug("getProperties");
-      return dataModelService.getProperties();
+  @GetMapping(value = "/public/propertiesDisplay")
+  public List<PropertyDisplay> getPropertiesDisplay(@RequestParam(name = "iri") String iri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PropertiesDisplay.GET")) {
+      LOG.debug("getPropertiesDisplay");
+      return dataModelService.getPropertiesDisplay(iri);
+    }
+  }
+
+  @GetMapping(value = "public/UIPropertyForQB")
+  public UIProperty getUIPropertyForQB(@RequestParam(name = "dmIri") String dmIri, @RequestParam(name = "propIri") String propIri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.GetUIPropertyForQB.GET")) {
+      LOG.debug("getUIPropertyForQB");
+      return dataModelService.getUIPropertyForQB(dmIri, propIri);
     }
   }
 
@@ -55,13 +64,4 @@ public class DataModelController {
       return dataModelService.checkPropertyType(iri);
     }
   }
-
-  @GetMapping(value = "public/UIPropertyForQB")
-  public UIProperty getUIPropertyForQB(@RequestParam(name = "dmIri") String dmIri, @RequestParam(name = "propIri") String propIri) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.GetUIPropertyForQB.GET")) {
-      LOG.debug("getUIPropertyForQB");
-      return dataModelService.getUIPropertyForQB(dmIri, propIri);
-    }
-  }
-
 }

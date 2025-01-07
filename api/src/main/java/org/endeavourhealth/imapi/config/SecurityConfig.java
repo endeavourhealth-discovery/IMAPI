@@ -31,16 +31,17 @@ public class SecurityConfig {
       .csrf(AbstractHttpConfigurer::disable)
       .authorizeHttpRequests(req -> {
         if (EnvHelper.isPublicMode()) {
-          req.requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll();
-          req.requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll();
+          req.requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/v3/**").permitAll();
         }
 
         req.requestMatchers(HttpMethod.GET, "/api/status/public/**").permitAll()
-          .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
-          .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
-          .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll()
-          .requestMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
-          .requestMatchers(HttpMethod.GET, "/v3/**").permitAll()
+          .requestMatchers(HttpMethod.GET, "/api/cognito/public/config").permitAll()
           .anyRequest().authenticated();
 
       })

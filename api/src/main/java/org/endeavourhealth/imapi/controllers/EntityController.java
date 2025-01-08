@@ -7,12 +7,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSearchExporter;
 import org.endeavourhealth.imapi.logic.exporters.SearchTextFileExporter;
-import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.logic.service.FilerService;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
+import org.endeavourhealth.imapi.logic.service.*;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -57,7 +56,9 @@ public class EntityController {
   private static final String FORCE_DOWNLOAD = "force-download";
   private static final String APPLICATION = "application";
   private final EntityService entityService = new EntityService();
+  private final GraphDtoService graphDtoService = new GraphDtoService();
   private final RequestObjectService reqObjService = new RequestObjectService();
+  private final ProvService provService = new ProvService();
   private final FilerService filerService;
 
   public EntityController(FilerService filerService) {
@@ -86,7 +87,6 @@ public class EntityController {
     }
   }
 
-
   @GetMapping(value = "/fullEntity", produces = "application/json")
   public TTEntity getFullEntity(@RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
@@ -100,14 +100,6 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PartialBundle.GET")) {
       LOG.debug("getPartialEntityBundle");
       return entityService.getBundle(iri, predicates);
-    }
-  }
-
-  @GetMapping(value = "/public/inferredBundle", produces = "application/json")
-  public TTBundle getInferredBundle(@RequestParam(name = "iri") String iri) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.InferredBundle.GET")) {
-      LOG.debug("getInferredBundle");
-      return entityService.getInferredBundle(iri);
     }
   }
 
@@ -280,14 +272,6 @@ public class EntityController {
     }
   }
 
-  @PostMapping("/public/getNames")
-  public Set<TTIriRef> getNames(@RequestBody Set<String> iris) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.GetNames.GET")) {
-      LOG.debug("getNames");
-      return entityService.getNames(iris);
-    }
-  }
-
   @GetMapping("/public/shortestParentHierarchy")
   public List<TTIriRef> getShortestPathBetweenNodes(@RequestParam(name = "ancestor") String ancestor, @RequestParam(name = "descendant") String descendant) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ShortestParentHierarchy.GET")) {
@@ -357,14 +341,6 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/propertiesDisplay")
-  public List<PropertyDisplay> getPropertiesDisplay(@RequestParam(name = "iri") String iri) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PropertiesDisplay.GET")) {
-      LOG.debug("getPropertiesDisplay");
-      return entityService.getPropertiesDisplay(iri);
-    }
-  }
-
   @PostMapping(value = "/public/validate")
   public EntityValidationResponse validateEntity(@RequestBody EntityValidationRequest request) throws IOException, ValidationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.validate.POST")) {
@@ -394,6 +370,22 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.XmlSchemaDataTypes.GET")) {
       LOG.debug("getXmlSchemaDataTypes");
       return entityService.getXmlSchemaDataTypes();
+    }
+  }
+
+  @GetMapping(value = "/public/graph")
+  public GraphDto getGraphData(@RequestParam(name = "iri") String iri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Graph.Graph.GET")) {
+      LOG.debug("getGraphData");
+      return graphDtoService.getGraphData(iri);
+    }
+  }
+
+  @GetMapping("/public/history")
+  public List<TTEntity> getProvHistory(@RequestParam(name = "iri") String iri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Prov.History.GET")) {
+      LOG.debug("getProvHistory");
+      return provService.getProvHistory(iri);
     }
   }
 }

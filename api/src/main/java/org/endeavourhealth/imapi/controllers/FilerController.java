@@ -53,7 +53,7 @@ public class FilerController {
 
   @PostMapping("file/document")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-  public ResponseEntity fileDocument(@RequestBody TTDocument document, HttpServletRequest request) throws Exception {
+  public ResponseEntity<Map<String, String>> fileDocument(@RequestBody TTDocument document, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Document.POST")) {
       LOG.debug("fileDocument");
       String agentName = reqObjService.getRequestAgentName(request);
@@ -84,7 +84,7 @@ public class FilerController {
 
   @PostMapping("file/entity")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-  public ResponseEntity fileEntity(@RequestBody TTEntity entity, @RequestParam(name = "graph") String graph, @RequestParam(name = "crud") String crud, HttpServletRequest request) throws TTFilerException, IOException {
+  public ResponseEntity<Void> fileEntity(@RequestBody TTEntity entity, @RequestParam(name = "graph") String graph, @RequestParam(name = "crud") String crud, HttpServletRequest request) throws TTFilerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Entity.POST")) {
       LOG.debug("fileEntity");
       String agentName = reqObjService.getRequestAgentName(request);
@@ -108,7 +108,7 @@ public class FilerController {
 
   @PostMapping("folder/move")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-  public ResponseEntity moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, HttpServletRequest request) throws Exception {
+  public ResponseEntity<ProblemDetailResponse> moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Move.POST")) {
       LOG.debug("moveFolder");
 
@@ -153,7 +153,7 @@ public class FilerController {
 
   @PostMapping("folder/add")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-  public ResponseEntity addToFolder(
+  public ResponseEntity<ProblemDetailResponse> addToFolder(
     @RequestParam(name = "entity") String entityIri,
     @RequestParam(name = "folder") String folderIri,
     HttpServletRequest request) throws Exception {

@@ -28,8 +28,8 @@ public class CognitoController {
   @GetMapping(value = "/public/config", produces = "application/json")
   public String getConfig() {
     String region = Optional.ofNullable(System.getenv("COGNITO_REGION")).orElse("eu-west-2");
-    String identity_pool = Optional.ofNullable(System.getenv("COGNITO_IDENTITY_POOL")).orElse("a9f46df7-f27e-4cc5-827b-d573ecf20667");
-    String user_pool = Optional.ofNullable(System.getenv("COGNITO_USER_POOL")).orElse("Vt5ScFwss");
+    String identity_pool = Optional.ofNullable(System.getenv("COGNITO_IDENTITY_POOL")).orElse("eu-west-2:a9f46df7-f27e-4cc5-827b-d573ecf20667");
+    String user_pool = Optional.ofNullable(System.getenv("COGNITO_USER_POOL")).orElse("eu-west-2_Vt5ScFwss");
     String web_client = Optional.ofNullable(System.getenv("COGNITO_WEB_CLIENT")).orElse("57ihu3fqv3tidnj99dc5uicrgl");
 
     return """
@@ -59,9 +59,9 @@ public class CognitoController {
       }
       """.formatted(
       region,
-      region + ":" + identity_pool,
+      identity_pool,
       region,
-      region + "_" + user_pool,
+      user_pool,
       web_client
     );
   }

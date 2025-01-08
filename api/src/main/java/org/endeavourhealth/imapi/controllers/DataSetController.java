@@ -19,11 +19,13 @@ public class DataSetController {
   private static final Logger LOG = LoggerFactory.getLogger(DataSetController.class);
   private DatasetService datasetService = new DatasetService();
 
-  @GetMapping("/public/searchAllowableDataMetProperties")
-  public SearchResponse searchAllowableDatamodelProperties(@RequestParam(name = "datamodelIri") String datamodelIri, @RequestParam(name = "searchTerm") String searchTerm) throws Exception {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.dataset.searchAllowableDataMetProperties.POST")) {
-      LOG.debug("searchAllowableDataMetProperties");
-      return datasetService.searchAllowableDatamodelProperties(datamodelIri, searchTerm);
+  @GetMapping("/public/searchAllowableDataModelProperties")
+  public SearchResponse searchAllowableDatamodelProperties(@RequestParam(name = "datamodelIri") String datamodelIri, @RequestParam(name = "searchTerm") String searchTerm, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size) throws Exception {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.dataset.searchAllowableDataModelProperties.POST")) {
+      LOG.debug("searchAllowableDataModelProperties");
+      if (null == page) page = 1;
+      if (null == size) size = 10;
+      return datasetService.searchAllowableDatamodelProperties(datamodelIri, searchTerm, page, size);
     }
   }
 }

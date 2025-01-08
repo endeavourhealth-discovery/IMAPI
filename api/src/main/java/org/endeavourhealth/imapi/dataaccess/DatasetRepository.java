@@ -15,8 +15,10 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 
 public class DatasetRepository {
-  public List<TTIriRef> searchAllowableDatamodelProperties(String datamodelIri, String searchTerm) throws Exception {
-
+  public List<TTIriRef> searchAllowableDatamodelProperties(String datamodelIri, String searchTerm, int page, int size) throws Exception {
+    if (page == 0) page = 1;
+    if (size == 0) size = 10;
+    int rowNumber = (page - 1) * size;
     List<TTIriRef> results = new ArrayList<>();
 
     String spql = """
@@ -26,12 +28,16 @@ public class DatasetRepository {
         ?propertyPath rdfs:label ?propertyLabel .
         filter contains(?propertyLabel, ?searchTerm)
       }
-      """;
+      LIMIT %s
+      OFFSET %s
+      """.formatted(size, rowNumber);
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = prepareSparql(conn, spql);
       qry.setBinding("dataModel", iri(datamodelIri));
       qry.setBinding("searchTerm", literal(searchTerm));
+      qry.setBinding("size", literal(size));
+      qry.setBinding("rowNumber", literal(rowNumber));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bindingSet = rs.next();

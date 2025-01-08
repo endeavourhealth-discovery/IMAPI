@@ -14,8 +14,8 @@ public class DatasetService {
   private DatasetRepository datasetRepository = new DatasetRepository();
   private EntityService entityService = new EntityService();
 
-  public SearchResponse searchAllowableDatamodelProperties(String datasetIri, String searchTerm) throws Exception {
-    List<TTIriRef> results = datasetRepository.searchAllowableDatamodelProperties(datasetIri, searchTerm);
+  public SearchResponse searchAllowableDatamodelProperties(String datasetIri, String searchTerm, int page, int size) throws Exception {
+    List<TTIriRef> results = datasetRepository.searchAllowableDatamodelProperties(datasetIri, searchTerm, page, size);
     List<SearchResultSummary> resultsAsSummaries = new ArrayList<>();
     for (TTIriRef result : results) {
       resultsAsSummaries.add(entityService.getSummary(result.getIri()));

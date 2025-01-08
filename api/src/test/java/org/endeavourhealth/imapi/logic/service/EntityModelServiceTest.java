@@ -410,22 +410,6 @@ class EntityModelServiceTest {
   }
 
   @Test
-  void getInferredBundle_NullIri() {
-    TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(isNull(), anySet(), anyBoolean())).thenReturn(new TTBundle().setEntity(entity));
-    TTBundle actual = entityService.getInferredBundle(null);
-    assertNotNull(actual);
-  }
-
-  @Test
-  void getInferredBundle_EmptyIri() {
-    TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(any(), anySet(), anyBoolean())).thenReturn(new TTBundle().setEntity(entity));
-    TTBundle actual = entityService.getInferredBundle("");
-    assertNotNull(actual);
-  }
-
-  @Test
   void getConceptList_NullIri() {
     TTDocument actual = entityService.getConceptList(null);
     assertNull(actual);

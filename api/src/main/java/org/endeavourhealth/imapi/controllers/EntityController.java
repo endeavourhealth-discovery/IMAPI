@@ -58,7 +58,7 @@ public class EntityController {
   private final EntityService entityService = new EntityService();
   private final GraphDtoService graphDtoService = new GraphDtoService();
   private final RequestObjectService reqObjService = new RequestObjectService();
-  ProvService provService = new ProvService();
+  private final ProvService provService = new ProvService();
   private final FilerService filerService;
 
   public EntityController(FilerService filerService) {

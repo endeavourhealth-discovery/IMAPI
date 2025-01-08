@@ -38,4 +38,12 @@ public class StatusController {
       return ResponseEntity.ok(EnvHelper.isPublicMode());
     }
   }
+
+  @GetMapping("/public/isDevMode")
+  public ResponseEntity<Boolean> isDevMode() throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Status.isDevMode.GET")) {
+      LOG.debug("isDevMode");
+      return ResponseEntity.ok(EnvHelper.isDevMode());
+    }
+  }
 }

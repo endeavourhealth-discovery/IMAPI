@@ -8,6 +8,6 @@ public class EnvHelper {
   }
 
   public static boolean isDevMode() {
-    return Optional.ofNullable(System.getenv("MODE")).orElse("").equals("development");
+    return !Optional.ofNullable(System.getenv("MODE")).orElse("").equals("production");
   }
 }

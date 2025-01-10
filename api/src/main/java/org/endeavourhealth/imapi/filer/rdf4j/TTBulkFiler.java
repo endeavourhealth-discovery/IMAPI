@@ -198,6 +198,7 @@ public class TTBulkFiler implements TTDocumentFiler {
       TTToNQuad converter = new TTToNQuad();
       LOG.info("Writing out graph data for {}", graph);
       for (TTEntity entity : document.getEntities()) {
+        counter++;
         String entityGraph = entity.getGraph() != null ? entity.getGraph().getIri() : graph;
         if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > getPrivacyLevel()))
           continue;
@@ -212,6 +213,9 @@ public class TTBulkFiler implements TTDocumentFiler {
         setStatusAndScheme(entity);
 
         transformAndWriteQuads(converter, entity, entityGraph);
+        if (counter %99999==0){
+          LOG.info(counter + "entities from "+ document.getGraph().getIri()+" written");
+        }
 
       }
       LOG.debug("{} entities written to file for {}", counter, document.getGraph().getIri());

@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
+import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
@@ -701,23 +702,27 @@ public class EntityRepository {
    * @param code the code or description id or term code
    * @return iri and name of entity
    */
-  public Set<TTIriRef> getCoreFromCode(String code, List<String> schemes) {
-    StringJoiner sql = new StringJoiner(System.lineSeparator()).add("SELECT ?concept ?label");
+  public Set<Entity> getCoreFromCode(String code, List<String> schemes) {
+    StringJoiner sql = new StringJoiner(System.lineSeparator()).add("SELECT ?concept ?label ?type");
     for (String scheme : schemes) {
       sql.add("FROM <" + scheme + ">");
     }
     sql.add("""
       WHERE {
+        values ?codeProperty {im:code im:codeId im:alternativeCode}
         {
-          ?concept im:code ?code.
+          ?concept ?codeProperty ?code.
           filter (isIri(?concept))
           ?concept rdfs:label ?label.
+          ?concept im:scheme ?scheme.
+          filter (?scheme in(sn:,im:))
         }
         UNION {
           ?concept im:hasTermCode ?node.
           ?node im:code ?code.
-          filter not exists { ?concept im:matchedTo ?core}
-          ?concept rdfs:label ?label
+          ?concept rdfs:label ?label.
+           ?concept im:scheme ?scheme.
+          filter (?scheme in(sn:,im:))
         }
         UNION {
           ?legacy im:hasTermCode ?node.
@@ -726,10 +731,11 @@ public class EntityRepository {
           ?concept rdfs:label ?label.
         }
         UNION {
-          ?legacy im:codeId ?code.
+          ?legacy ?codeProperty ?code.
           ?legacy im:matchedTo ?concept.
           ?concept rdfs:label ?label.
         }
+        ?concept rdf:type ?type.
       }
       """);
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
@@ -739,31 +745,6 @@ public class EntityRepository {
     }
   }
 
-  /**
-   * Returns an entity iri and name from a code or a term code
-   *
-   * @param codeId the code or description id or term code
-   * @return iri and name of entity
-   */
-  public Set<TTIriRef> getCoreFromCodeId(String codeId, List<String> schemes) {
-    StringJoiner sql = new StringJoiner(System.lineSeparator()).add("SELECT ?concept ?label");
-    for (String scheme : schemes) {
-      sql.add("FROM <" + scheme + ">");
-    }
-    sql.add("""
-      WHERE {
-        ?legacy im:codeId ?codeId.
-        ?legacy im:matchedTo ?concept.
-        ?concept rdfs:label ?label.
-      }
-      """);
-
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql.toString()));
-      qry.setBinding("codeId", Values.literal(codeId));
-      return getConceptRefsFromResult(qry);
-    }
-  }
 
   /**
    * Returns a core entity iri and name from a legacy term
@@ -772,16 +753,17 @@ public class EntityRepository {
    * @param scheme the legacy scheme of the term
    * @return iri and name of entity
    */
-  public Set<TTIriRef> getCoreFromLegacyTerm(String term, String scheme) {
+  public Set<Entity> getCoreFromLegacyTerm(String term, String scheme) {
     String sql = """
-      SELECT ?concept ?label
+      SELECT ?concept ?label ?type
       WHERE {
         GRAPH ?scheme {
           ?legacy rdfs:label ?term.
           ?legacy im:matchedTo ?concept.
         }
         {
-          ?concept rdfs:label ?label
+          ?concept rdfs:label ?label.
+          ?concept rdf:type ?type.
         }
       }
       """;
@@ -800,16 +782,17 @@ public class EntityRepository {
    * @param scheme the scheme of the term
    * @return set of iris and name of entity
    */
-  public Set<TTIriRef> getReferenceFromTermCode(String code, String scheme) {
+  public Set<Entity> getReferenceFromTermCode(String code, String scheme) {
     String sql = """
-      SELECT ?concept ?label
+      SELECT ?concept ?label ?type
       WHERE {
         GRAPH ?scheme {
           ?tc im:code ?code.
           ?concept im:hasTermCode ?tc.
         }
         {
-          ?concept rdfs:label ?label
+          ?concept rdfs:label ?label.
+            ?concept rdf:type ?type.
         }
       }
       """;
@@ -917,15 +900,21 @@ public class EntityRepository {
     return concept;
   }
 
-  private Set<TTIriRef> getConceptRefsFromResult(TupleQuery qry) {
-    Set<TTIriRef> results = null;
+  private Set<Entity> getConceptRefsFromResult(TupleQuery qry) {
+    Set<Entity> results = null;
+    Set<String> iris= new HashSet<>();
     try (TupleQueryResult gs = qry.evaluate()) {
       while (gs.hasNext()) {
         BindingSet bs = gs.next();
         if (results == null) results = new HashSet<>();
-        TTIriRef concept = TTIriRef.iri(bs.getValue("concept").stringValue());
-        if (bs.getValue("label") != null) concept.setName(bs.getValue("label").stringValue());
-        results.add(concept);
+        String iri= bs.getValue("concept").stringValue();
+        if (!iris.contains(iri)) {
+          iris.add(iri);
+          Entity concept = new Entity().setIri(iri);
+          concept.addType(TTIriRef.iri(bs.getValue("type").stringValue()));
+          if (bs.getValue("label") != null) concept.setName(bs.getValue("label").stringValue());
+          results.add(concept);
+        }
 
       }
     }
@@ -1113,6 +1102,9 @@ public class EntityRepository {
           ?s shacl:property ?prop .
           ?prop shacl:path ?propIri .
           FILTER(?propIri = ?o)
+        }
+        UNION {
+        ?o im:usedIn ?s.
         }
         ?s rdfs:label ?name .
         ?s im:status ?status .

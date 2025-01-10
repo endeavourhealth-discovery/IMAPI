@@ -26,7 +26,7 @@ public class EqdPopToIMQ {
         .setName("Registered with GP for GMS services on the reference date");
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()){
         EqdToIMQ.gmsPatients.add(activeReport);
-        EqdToIMQ.gmsPatients.add("urn:uuid:"+ activeReport);
+        EqdToIMQ.gmsPatients.add(resources.getNamespace()+"Query_"+activeReport);
         return null;
       }
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {

@@ -20,16 +20,30 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EqdToIMQ {
   private static final Logger LOG = LoggerFactory.getLogger(EqdToIMQ.class);
-  public static final String URN_UUID = "urn:uuid:";
-  private EqdResources resources;
+  private String namespace;
+  private EqdResources resources;;
   private TTDocument document;
   public static Set<String> gmsPatients= new HashSet<>();
+  public static Map<String,TTEntity> setContentToEntity = new HashMap<>();
+  public static Map<String,TTEntity> setIriToEntity = new HashMap<>();
+  public static Integer setNumber;
 
+  public static Integer getSetNumber() {
+    return setNumber;
+  }
+
+  public static void incrementSetNumber() {
+    if (setNumber==null)
+      setNumber=1;
+    else
+      setNumber++;
+  }
 
   public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap) throws IOException, QueryException, EQDException {
 
       this.document= document;
       this.resources=new EqdResources(document,dataMap);
+      this.namespace= document.getGraph().getIri();
       addReportNames(eqd);
       convertFolders(eqd);
       convertReports(eqd);
@@ -82,13 +96,13 @@ public class EqdToIMQ {
           throw new EQDException("No folder id");
         if (eqFolder.getName() == null)
           throw new EQDException("No folder name");
-        String iri = URN_UUID + eqFolder.getId();
+        String iri = namespace + "Folder_"+ eqFolder.getId();
         TTEntity folder = new TTEntity()
           .setIri(iri)
           .addType(iri(IM.FOLDER))
           .setName(eqFolder.getName());
         if (eqFolder.getParentFolder()!=null){
-          folder.addObject(iri(IM.IS_CONTAINED_IN),iri(URN_UUID+eqFolder.getParentFolder()));
+          folder.addObject(iri(IM.IS_CONTAINED_IN),iri(namespace +"Folder_"+eqFolder.getParentFolder()));
         }
         document.addEntity(folder);
       }
@@ -100,11 +114,11 @@ public class EqdToIMQ {
     resources.setActiveReport(eqReport.getId());
     resources.setActiveReportName(eqReport.getName());
     TTEntity queryEntity = new TTEntity();
-    queryEntity.setIri(URN_UUID + eqReport.getId());
+    queryEntity.setIri(namespace + "Query_"+ eqReport.getId());
     queryEntity.setName(eqReport.getName());
     queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
     if (eqReport.getFolder() != null) {
-      queryEntity.addObject(iri(IM.IS_CONTAINED_IN), iri(URN_UUID + eqReport.getFolder()).setName(eqReport.getName()));
+      queryEntity.addObject(iri(IM.IS_CONTAINED_IN), iri(namespace + "Folder_" + eqReport.getFolder()).setName(eqReport.getName()));
     }
 
     Query qry = new Query();

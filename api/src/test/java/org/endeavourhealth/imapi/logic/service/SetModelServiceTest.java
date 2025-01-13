@@ -1,22 +1,10 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.config.ConfigManager;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
-import org.endeavourhealth.imapi.model.imq.Bool;
-import org.endeavourhealth.imapi.model.imq.Node;
-import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.set.SetOptions;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.platform.runner.JUnitPlatform;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,13 +14,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@RunWith(JUnitPlatform.class)
 public class SetModelServiceTest {
 
   @InjectMocks

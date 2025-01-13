@@ -377,7 +377,7 @@ public class QueryDescriptor {
         describeValueWhere(where);
       }
       if (where.getIs() != null) {
-        describeIsWhere(where);
+        describeWhereIs(where);
         parentMatch.setHasInlineSet(true);
       }
       if (where.getIsNull()) {
@@ -424,7 +424,7 @@ public class QueryDescriptor {
           if (!isRange) {
             qualifier = "equal to or more than ";
             if (relativeTo&&value!=null)
-              relativity="on ";
+              relativity=" on ";
           }
         }
         break;
@@ -465,7 +465,7 @@ public class QueryDescriptor {
         break;
       case eq:
         if (date) if (!isRange) {
-          qualifier = "on";
+          qualifier = " on ";
         }
         break;
     }
@@ -528,20 +528,25 @@ public class QueryDescriptor {
       if (relativeTo.getParameter() != null) {
         if (relativeTo.getParameter().toLowerCase().contains("referencedate")) {
           relation = (relation != null ? relation : "") + "the reference date";
-        } else relation = (relation != null ? relation : "") + relativeTo.getParameter();
+        }
+        else if (relativeTo.getParameter().toLowerCase().contains("baselinedate")) {
+          relation = (relation != null ? relation : "") + "the achievement date";
+        }
+
+        else relation = (relation != null ? relation : "") + relativeTo.getParameter();
       }
       if (relation != null) relativeTo.setQualifier(relation);
     }
   }
 
-  private void describeIsWhere(Where where) {
+  private void describeWhereIs(Where where) {
     for (Node set : where.getIs()) {
       if (iriContext.get(set.getIri()) != null) {
         String modifier = "";
         TTEntity nodeEntity = (iriContext.get(set.getIri()));
         set.setCode(nodeEntity.getCode());
         if (nodeEntity.getType().get(0).asIriRef().getIri().contains("Set")) {
-          modifier = set.isExclude() ? "not in set : " : "in set :";
+          modifier = set.isExclude() ? " but not  : " : "";
         } else if (nodeEntity.getType().get(0).asIriRef().getIri().contains("Query"))
           modifier = set.isExclude() ? "not in cohort : " : "in cohort : ";
         else if (set.isExclude()) modifier = "exclude ";

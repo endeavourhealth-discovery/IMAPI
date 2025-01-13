@@ -409,6 +409,8 @@ public class QueryDescriptor {
           } else qualifier = "after ";
         } else {
           if (!isRange) qualifier = "greater than ";
+          if (relativeTo&& value!=null)
+            relativity=" on ";
         }
         break;
       case gte:
@@ -421,6 +423,8 @@ public class QueryDescriptor {
         } else {
           if (!isRange) {
             qualifier = "equal to or more than ";
+            if (relativeTo&&value!=null)
+              relativity="on ";
           }
         }
         break;
@@ -433,6 +437,8 @@ public class QueryDescriptor {
         } else {
           if (!isRange) {
             qualifier = "under ";
+            if (relativeTo&&value!=null)
+              relativity=" on ";
           }
         }
         break;
@@ -446,6 +452,8 @@ public class QueryDescriptor {
         } else {
           if (!isRange) {
             qualifier = "equal to or less than ";
+            if (relativeTo&&value!=null)
+              relativity=" on ";
           }
         }
         break;

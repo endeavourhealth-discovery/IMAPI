@@ -197,25 +197,13 @@ public class EqdResources {
     String eqURL = eqTable + "/" + eqColumn;
     sourceContext = eqURL;
     String columnPath = getPath(eqURL);
-    String property;
-    if (columnPath.contains(" ")) {
-      property = columnPath.substring(columnPath.lastIndexOf(" ") + 1);
-      columnPath = columnPath.substring(0, columnPath.lastIndexOf(" "));
-    } else {
-      property = columnPath;
-      columnPath = "";
-    }
     String fullPath = (tablePath + " " + columnPath).trim();
-    Match match = pathMatchMap.get(fullPath);
+    Match match = fullPath.contains(" ") ?pathMatchMap.get(fullPath.substring(0, fullPath.lastIndexOf(" "))): pathMatchMap.get("");
     if (match == null) {
       match = new Match();
       matches.add(match);
-      pathMatchMap.put(fullPath, match);
-      if (tablePath.contains(" ")) {
-        match.addPath(new IriLD().setIri(tablePath.split(" ")[0]));
-        match.setTypeOf(new Node().setIri(tablePath.split(" ")[1]));
-      }
-      String[] paths = columnPath.split(" ");
+      pathMatchMap.put(fullPath.contains(" ")? fullPath.substring(0,fullPath.lastIndexOf(" ")): "", match);
+      String[] paths = fullPath.split(" ");
       for (int i = 0; i < paths.length - 1; i++) {
         IriLD pathIri = new IriLD();
         String path = paths[i];
@@ -226,6 +214,12 @@ public class EqdResources {
         pathIri.setIri(path);
         match.addPath(pathIri);
       }
+    }
+    String property;
+    if (columnPath.contains(" ")) {
+      property = columnPath.substring(columnPath.lastIndexOf(" ") + 1);
+    } else {
+      property = columnPath;
     }
     Where where = new Where();
     match.addWhere(where);

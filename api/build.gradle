@@ -112,11 +112,12 @@ dependencies {
 
   testImplementation libs.cucumber
   testImplementation libs.cucumberJunit
-  testImplementation libs.junitRunner
-  testImplementation libs.junitVintage
+  testImplementation libs.junit
+  testImplementation libs.junitSuite
   testImplementation libs.mockito
   testImplementation libs.springTest
   testImplementation libs.springTestSecurity
+  testImplementation libs.systemStubs
 
   providedCompile libs.springTomcat
 

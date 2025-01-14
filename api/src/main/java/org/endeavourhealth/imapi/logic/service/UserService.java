@@ -8,9 +8,11 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.USER;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class UserService {
@@ -59,7 +61,16 @@ public class UserService {
   }
 
   public List<RecentActivityItemDto> getUserMRU(String userId) throws JsonProcessingException {
-    return userRepository.getUserMRU(userId);
+    List<RecentActivityItemDto> mru = userRepository.getUserMRU(userId);
+    boolean hasNoneExistingIris = mru.stream()
+      .anyMatch(mruDto -> !entityService.iriExists(mruDto.getIri()));
+    if (hasNoneExistingIris) {
+      List<RecentActivityItemDto> updatedMRUs = mru.stream()
+        .filter(mruDto -> entityService.iriExists(mruDto.getIri())).toList();
+      updateUserMRU(userId, updatedMRUs);
+      return userRepository.getUserMRU(userId);
+    }
+    return mru;
   }
 
   public void updateUserMRU(String userId, List<RecentActivityItemDto> mru) throws JsonProcessingException {
@@ -67,7 +78,16 @@ public class UserService {
   }
 
   public List<String> getUserFavourites(String userId) throws JsonProcessingException {
-    return userRepository.getUserFavourites(userId);
+    List<String> favourites = userRepository.getUserFavourites(userId);
+    boolean hasNoneExistingIris = favourites.stream()
+      .anyMatch(favouriteIri -> !entityService.iriExists(favouriteIri));
+    if (hasNoneExistingIris) {
+      List<String> updatedFavourites = favourites.stream()
+        .filter(entityService::iriExists).toList();
+      updateUserFavourites(userId, updatedFavourites);
+      return userRepository.getUserFavourites(userId);
+    }
+    return favourites;
   }
 
   public void updateUserFavourites(String userId, List<String> favourites) throws JsonProcessingException {

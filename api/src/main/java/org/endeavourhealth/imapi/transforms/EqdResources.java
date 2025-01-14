@@ -258,12 +258,7 @@ public class EqdResources {
       String valueLabel = "";
       for (String vset : cv.getLibraryItem()) {
         setCounter++;
-        String vsetName;
-        if (columnGroup != null) {
-          vsetName = "Unnamed library set " + setCounter + " used for " + columnGroup.getName();
-        } else {
-          vsetName = "Unnamed library set used in " + activeReportName;
-        }
+        String vsetName= "Unnamed library set " + setCounter ;
         valueLabel = valueLabel + (valueLabel.isEmpty() ? "" : ", ") + vsetName;
         Node iri = new Node().setIri(namespace + "CSET_"+vset);
         iri.setMemberOf(true);
@@ -273,7 +268,7 @@ public class EqdResources {
           pv.addIs(iri);
         }
         pv.setValueLabel(valueLabel);
-        createValueSet(iri.getIri(), vsetName);
+        createLibraryValueSet(iri.getIri(), vsetName);
       }
     } else if (cv.getRangeValue() != null) {
       setRangeValue(cv.getRangeValue(), pv);
@@ -786,7 +781,7 @@ public class EqdResources {
   }
 
 
-  private TTEntity createValueSet(String iri, String name){
+  private TTEntity createLibraryValueSet(String iri, String name){
     TTEntity valueSet = new TTEntity()
       .setIri(iri)
       .setName(name)
@@ -796,42 +791,30 @@ public class EqdResources {
     return valueSet;
   }
 
-  private void updateSetName(TTEntity setName,String usedIn){
-    if (!setName.getName().contains(usedIn)){
-      if (setName.getName().split(",").length>2){
-        setName.setName("Set used in multiple places");
-      }
-      else {
-        setName.setName(setName.getName()+", "+ usedIn);
-      }
+  private void updateSetName(TTEntity setName,String thisName) {
+    String currentName = setName.getName();
+    if (!currentName.contains(thisName)) {
+      setName.setName(currentName.split(" (set)")[0]+" ... (set");
     }
   }
 
 
-  private TTEntity createValueSet(EQDOCValueSet vs, Set<Node> setContent) throws JsonProcessingException {
 
+  private TTEntity createValueSet(EQDOCValueSet vs, Set<Node> setContent) throws JsonProcessingException {
+    String description= vs.getDescription();
+    String name=description==null ? "unnamed set": description;
     String entailedMembers= new ObjectMapper().writeValueAsString(setContent);
     TTEntity duplicate= setContentToEntity.get(entailedMembers);
     if (duplicate!=null) {
       addUsedIn(duplicate);
       if (columnGroup!=null){
-        updateSetName(duplicate,columnGroup.getName());
+        updateSetName(duplicate,name);
       }
       else {
-        updateSetName(duplicate,activeReportName);
+        updateSetName(duplicate,name);
       }
       return duplicate;
     }
-    String name = vs.getDescription();
-    if (name == null) {
-      name = "Set used ";
-    }
-    if (isTestSet)
-      name = name + "in test ";
-    if (columnGroup != null) {
-      name = name + "for " + columnGroup.getName();
-    } else
-      name = name + " in " + activeReportName;
     TTEntity valueSet = new TTEntity()
       .setIri(namespace + "CSET_"+ vs.getId())
       .setName(name)

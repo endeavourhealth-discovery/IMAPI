@@ -367,9 +367,7 @@ public class QueryDescriptor {
     if (where.getWhere() != null) {
       describeWheres(parentMatch, where);
     } else {
-      if (!where.getIri().equals(IM.NAMESPACE + "concept")) {
-        where.setName(getTermInContext(where, Context.PROPERTY));
-      }
+      where.setName(getTermInContext(where, Context.PROPERTY));
       if (where.getRange() != null) {
         describeRangeWhere(where);
       }
@@ -546,7 +544,7 @@ public class QueryDescriptor {
         TTEntity nodeEntity = (iriContext.get(set.getIri()));
         set.setCode(nodeEntity.getCode());
         if (nodeEntity.getType().get(0).asIriRef().getIri().contains("Set")) {
-          modifier = set.isExclude() ? " but not  : " : "";
+          modifier = set.isExclude() ? " but not  in : " : " in ";
         } else if (nodeEntity.getType().get(0).asIriRef().getIri().contains("Query"))
           modifier = set.isExclude() ? "not in cohort : " : "in cohort : ";
         else if (set.isExclude()) modifier = "exclude ";
@@ -565,7 +563,7 @@ public class QueryDescriptor {
         valueLabel.append(" ...+ more");
         break;
       } else {
-        if (i > 0) valueLabel.append(", ");
+        if (i > 0) valueLabel.append(", or ");
       }
       Node set = where.getIs().get(i);
 

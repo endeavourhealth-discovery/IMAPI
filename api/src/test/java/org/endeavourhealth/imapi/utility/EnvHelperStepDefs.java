@@ -27,15 +27,9 @@ public class EnvHelperStepDefs {
     environmentVariables.remove("HOSTING_MODE");
   }
 
-  @Given("the environment variable \"HOSTING_MODE\" is set to \"public\"")
-  public void hostingModePublic() {
-    environmentVariables.set("HOSTING_MODE", "public");
-    assert EnvHelper.isPublicMode();
-  }
-
-  @Given("the environment variable \"HOSTING_MODE\" is set to anything except \"public\"")
-  public void hostingModePrivate() {
-    environmentVariables.set("HOSTING_MODE", "private");
+  @Given("the environment variable \"HOSTING_MODE\" is set to {string}")
+  public void hostingModePublic(String mode) {
+    environmentVariables.set("HOSTING_MODE", mode);
   }
 
   @Then("the server runs in \"private\" mode")

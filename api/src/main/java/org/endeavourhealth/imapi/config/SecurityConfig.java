@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -25,26 +26,13 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
+
+
   @Bean
   protected SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
     http
       .csrf(AbstractHttpConfigurer::disable)
-      .authorizeHttpRequests(req -> {
-        if (EnvHelper.isPublicMode()) {
-          req.requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
-            .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
-            .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
-            .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll()
-            .requestMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
-            .requestMatchers(HttpMethod.GET, "/v3/**").permitAll();
-        }
-
-        req.requestMatchers(HttpMethod.GET, "/api/status/public/**").permitAll()
-          .requestMatchers(HttpMethod.GET, "/api/cognito/public/config").permitAll()
-          .anyRequest().authenticated();
-
-      })
+      .authorizeHttpRequests(this::setRequestPermissions)
       .exceptionHandling(ex -> ex
         .accessDeniedHandler(accessDeniedHandler())
         .authenticationEntryPoint(authenticationEntryPoint())
@@ -57,6 +45,22 @@ public class SecurityConfig {
   @Bean
   public WebSecurityCustomizer webSecurityCustomizer() {
     return web -> web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
+  }
+
+  protected void setRequestPermissions(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry req) {
+    if (EnvHelper.isPublicMode()) {
+      req.requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/v3/**").permitAll();
+    }
+
+    req.requestMatchers(HttpMethod.GET, "/api/status/public/**").permitAll()
+      .requestMatchers(HttpMethod.GET, "/api/cognito/public/config").permitAll()
+      .anyRequest().authenticated();
   }
 
   private HttpFirewall allowUrlEncodedSlashHttpFirewall() {

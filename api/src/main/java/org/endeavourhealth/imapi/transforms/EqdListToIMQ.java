@@ -20,12 +20,12 @@ public class EqdListToIMQ {
     this.resources = resources;
     String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
     query.match(f -> f
-      .addInstanceOf(new Node().setIri(resources.getNamespace() + "Query_"+id).setMemberOf(true))
+      .addInstanceOf(new Node().setIri(resources.getNamespace() +id).setMemberOf(true))
       .setName(resources.reportNames.get(id)));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
       EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();
       Query subQuery = new Query();
-      subQuery.setIri(resources.getNamespace()+ "Query_"+eqColGroup.getId());
+      subQuery.setIri(resources.getNamespace() + eqColGroup.getId());
       TTEntity columnGroup= new TTEntity()
         .setIri(subQuery.getIri())
           .setName(eqColGroup.getDisplayName()+" in "+ eqReport.getName())

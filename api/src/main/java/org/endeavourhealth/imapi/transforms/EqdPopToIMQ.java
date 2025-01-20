@@ -26,7 +26,7 @@ public class EqdPopToIMQ {
         .setName("Registered with GP for GMS services on the reference date");
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()){
         EqdToIMQ.gmsPatients.add(activeReport);
-        EqdToIMQ.gmsPatients.add(resources.getNamespace()+"Query_"+activeReport);
+        EqdToIMQ.gmsPatients.add(resources.getNamespace()+  activeReport);
         return null;
       }
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
@@ -40,7 +40,7 @@ public class EqdPopToIMQ {
       }
       else {
         rootMatch
-          .addInstanceOf(new Node().setIri("urn:uuid:" + id).setMemberOf(true))
+          .addInstanceOf(new Node().setIri(resources.getNamespace() + id).setMemberOf(true))
           .setName("in the population " + resources.reportNames.get(id));
       }
     }
@@ -81,7 +81,12 @@ public class EqdPopToIMQ {
         throw new EQDException("unrecognised action rule combination : " + activeReport + " " + ifTrue.value() + " / " + ifFalse.value());
       if (must && select) {
         if (group == size) {
-          query.addMatch(groupMatch);
+          if (topOr!=null){
+            topOr.addMatch(groupMatch);
+            topOr=null;
+          }
+          else
+            query.addMatch(groupMatch);
         }
         else
           throw new EQDException(("Select reject rule should be the last rule? "+ activeReport));

@@ -113,7 +113,7 @@ public class EqdResources {
       EQDOCSearchIdentifier search = eqCriteria.getPopulationCriterion();
       Match match = new Match();
       match
-        .addInstanceOf(new Node().setIri(namespace+ "Match_"+search.getReportGuid()).setMemberOf(true))
+        .addInstanceOf(new Node().setIri(namespace+search.getReportGuid()).setMemberOf(true))
         .setName("in the cohort " + reportNames.get(search.getReportGuid()));
       return match;
     } else {
@@ -154,7 +154,7 @@ public class EqdResources {
 
   private Match setMatchId(EQDOCCriterion eqCriterion, Match match) {
     if (eqCriterion.getId() != null) {
-      match.setIri(namespace + "Match_"+eqCriterion.getId());
+      match.setIri(namespace + eqCriterion.getId());
     }
     if (match.getWhere() != null && match.getWhere().size() > 1) {
       match.setBoolWhere(Bool.and);
@@ -260,7 +260,7 @@ public class EqdResources {
         setCounter++;
         String vsetName= "Unnamed library set " + setCounter ;
         valueLabel = valueLabel + (valueLabel.isEmpty() ? "" : ", ") + vsetName;
-        Node iri = new Node().setIri(namespace + "CSET_"+vset);
+        Node iri = new Node().setIri(namespace + vset);
         iri.setMemberOf(true);
         if (!notIn) pv.addIs(iri);
         else {
@@ -776,7 +776,7 @@ public class EqdResources {
       set.addObject(iri(IM.USED_IN),iri(columnGroup.getIri()));
     }
     else
-      set.addObject(iri(IM.USED_IN), iri(namespace +"Query_"+ activeReport));
+      set.addObject(iri(IM.USED_IN), iri(namespace +activeReport));
 
   }
 
@@ -816,14 +816,14 @@ public class EqdResources {
       return duplicate;
     }
     TTEntity valueSet = new TTEntity()
-      .setIri(namespace + "CSET_"+ vs.getId())
+      .setIri(namespace + vs.getId())
       .setName(name)
       .addType(iri(IM.CONCEPT_SET));
     if (columnGroup!=null){
       valueSet.addObject(iri(IM.USED_IN),iri(columnGroup.getIri()));
     }
     else
-      valueSet.addObject(iri(IM.USED_IN), iri(namespace + "Query_"+ activeReport));
+      valueSet.addObject(iri(IM.USED_IN), iri(namespace + activeReport));
     for (Node node : setContent) {
       TTNode instance = new TTNode();
       valueSet.addObject(iri(IM.ENTAILED_MEMBER), instance);

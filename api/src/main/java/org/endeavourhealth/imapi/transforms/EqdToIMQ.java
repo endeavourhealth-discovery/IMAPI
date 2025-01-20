@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
+
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
@@ -9,6 +10,7 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +29,18 @@ public class EqdToIMQ {
   public static Map<String,TTEntity> setContentToEntity = new HashMap<>();
   public static Map<String,TTEntity> setIriToEntity = new HashMap<>();
   public static Integer setNumber;
-
   public static Integer getSetNumber() {
     return setNumber;
+  }
+  private String singleEntity;
+
+  public String getSingleEntity() {
+    return singleEntity;
+  }
+
+  public EqdToIMQ setSingleEntity(String singleEntity) {
+    this.singleEntity = singleEntity;
+    return this;
   }
 
   public static void incrementSetNumber() {
@@ -61,6 +72,9 @@ public class EqdToIMQ {
     for (EQDOCReport eqReport : Objects.requireNonNull(eqd.getReport())) {
       if (eqReport.getId() == null)
         throw new EQDException("No report id");
+      if (singleEntity!=null)
+        if (!eqReport.getId().equals(singleEntity))
+          continue;
       if (eqReport.getName() == null)
         throw new EQDException("No report name");
       LOG.info(eqReport.getName());
@@ -69,18 +83,20 @@ public class EqdToIMQ {
         document.addEntity(qry);
       }
     }
-    for (TTEntity report:document.getEntities()){
-      if (report.get(IM.DEFINITION)!=null){
-        Query query= report.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
-        if (query.getMatch()!=null){
-          if (query.getMatch().get(0).getInstanceOf()!=null){
-            if (gmsPatients.contains(query.getMatch().get(0).getInstanceOf().get(0).getIri())){
-              List<Node> base= new ArrayList<>();
-              base.add(new Node().setIri(IM.NAMESPACE + "Q_RegisteredGMS").setMemberOf(true)
-                .setName("Registered with GP for GMS services on the reference date"));
-              query.getMatch().get(0)
-                .setInstanceOf(base);
-              report.set(IM.DEFINITION,TTLiteral.literal(query));
+    if (document.getEntities()!=null) {
+      for (TTEntity report : document.getEntities()) {
+        if (report.get(IM.DEFINITION) != null) {
+          Query query = report.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+          if (query.getMatch() != null) {
+            if (query.getMatch().get(0).getInstanceOf() != null) {
+              if (gmsPatients.contains(query.getMatch().get(0).getInstanceOf().get(0).getIri())) {
+                List<Node> base = new ArrayList<>();
+                base.add(new Node().setIri(IM.NAMESPACE + "Q_RegisteredGMS").setMemberOf(true)
+                  .setName("Registered with GP for GMS services on the reference date"));
+                query.getMatch().get(0)
+                  .setInstanceOf(base);
+                report.set(IM.DEFINITION, TTLiteral.literal(query));
+              }
             }
           }
         }
@@ -94,15 +110,18 @@ public class EqdToIMQ {
       for (EQDOCFolder eqFolder : eqFolders) {
         if (eqFolder.getId() == null)
           throw new EQDException("No folder id");
+        if (singleEntity!=null)
+          if (!eqFolder.getId().equals(singleEntity))
+            continue;
         if (eqFolder.getName() == null)
           throw new EQDException("No folder name");
-        String iri = namespace + "Folder_"+ eqFolder.getId();
+        String iri = namespace + eqFolder.getId();
         TTEntity folder = new TTEntity()
           .setIri(iri)
           .addType(iri(IM.FOLDER))
           .setName(eqFolder.getName());
         if (eqFolder.getParentFolder()!=null){
-          folder.addObject(iri(IM.IS_CONTAINED_IN),iri(namespace +"Folder_"+eqFolder.getParentFolder()));
+          folder.addObject(iri(IM.IS_CONTAINED_IN),iri(namespace +eqFolder.getParentFolder()));
         }
         document.addEntity(folder);
       }
@@ -114,11 +133,11 @@ public class EqdToIMQ {
     resources.setActiveReport(eqReport.getId());
     resources.setActiveReportName(eqReport.getName());
     TTEntity queryEntity = new TTEntity();
-    queryEntity.setIri(namespace + "Query_"+ eqReport.getId());
+    queryEntity.setIri(namespace + eqReport.getId());
     queryEntity.setName(eqReport.getName());
     queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
     if (eqReport.getFolder() != null) {
-      queryEntity.addObject(iri(IM.IS_CONTAINED_IN), iri(namespace + "Folder_" + eqReport.getFolder()).setName(eqReport.getName()));
+      queryEntity.addObject(iri(IM.IS_CONTAINED_IN), iri(namespace + eqReport.getFolder()).setName(eqReport.getName()));
     }
 
     Query qry = new Query();
@@ -143,14 +162,14 @@ public class EqdToIMQ {
     if (qry.getMatch()!=null) {
       flattenQuery(qry);
     }
-    queryEntity.set(iri(IM.DEFINITION), TTLiteral.literal(qry));
+
     return queryEntity;
   }
 
 
   private void flattenQuery(Query qry) {
     if (qry.getBoolMatch() == Bool.or) {
-      return;
+      flattenOrs(qry);
     }
     if (qry.getWhere() != null) {
       return;
@@ -167,13 +186,27 @@ public class EqdToIMQ {
       //Top level match, no nested match
       if (topMatch.getMatch() == null) {
         flatMatches.add(topMatch);
-      } else if (topMatch.getBoolMatch() != Bool.or) {
+      }
+      else if (topMatch.getBoolMatch() != Bool.or) {
         flattenAnds(topMatch.getMatch(),flatMatches);
-      } else {
+      }
+      else {
         flatMatches.add(topMatch);
+        flattenOrs(topMatch);
       }
     }
 
+  }
+
+  private void flattenOrs(Match topMatch) {
+    for (Match match:topMatch.getMatch()){
+      if (match.getMatch()!=null)
+        if (match.getBoolMatch().equals(Bool.and)){
+          List<Match> subFlatMatches = new ArrayList<>();
+          flattenAnds(match.getMatch(), subFlatMatches);
+          match.setMatch(subFlatMatches);
+        }
+    }
   }
 
 

@@ -10,7 +10,6 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,7 @@ public class EqdToIMQ {
   private EqdResources resources;;
   private TTDocument document;
   public static Set<String> gmsPatients= new HashSet<>();
-  public static Map<String,TTEntity> setContentToEntity = new HashMap<>();
+  public static Map<String,TTEntity> definitionToEntity = new HashMap<>();
   public static Map<String,TTEntity> setIriToEntity = new HashMap<>();
   public static Integer setNumber;
   public static Integer getSetNumber() {
@@ -162,7 +161,7 @@ public class EqdToIMQ {
     if (qry.getMatch()!=null) {
       flattenQuery(qry);
     }
-
+    queryEntity.set(iri(IM.DEFINITION),TTLiteral.literal(qry));
     return queryEntity;
   }
 
@@ -195,6 +194,7 @@ public class EqdToIMQ {
         flattenOrs(topMatch);
       }
     }
+
 
   }
 

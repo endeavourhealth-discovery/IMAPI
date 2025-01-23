@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.logic.exporters.ImportMaps;
+import org.endeavourhealth.imapi.logic.service.QueryDescriptor;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.imq.*;
@@ -124,7 +125,16 @@ public class EqdResources {
 
   private Match convertCriterion(EQDOCCriterion eqCriterion) throws IOException, QueryException, EQDException {
     if (!eqCriterion.getBaseCriteriaGroup().isEmpty()) {
-      return convertBaseCriteriaGroup(eqCriterion);
+      Match hasBase= new Match();
+      hasBase.setBoolMatch(Bool.and);
+      hasBase.addMatch(convertBaseCriteriaGroup(eqCriterion));
+      if (eqCriterion.getLinkedCriterion() != null) {
+        hasBase.addMatch(convertLinkedCriterion(eqCriterion));
+      }
+      else {
+        hasBase.addMatch(convertStandardCriterion(eqCriterion));
+      }
+      return hasBase;
     }
     if (eqCriterion.getLinkedCriterion() != null) {
       return convertLinkedCriterion(eqCriterion);
@@ -135,11 +145,13 @@ public class EqdResources {
   }
 
   private Match convertBaseCriteriaGroup(EQDOCCriterion eqCriterion) throws QueryException, EQDException, IOException {
-    Match baseMatch = new Match();
-    baseMatch.setBoolMatch(Bool.and);
+    int baseCounter=counter;
+    counter=0;
+    Match baseGroups = new Match();
+    baseGroups.setBoolMatch(Bool.and);
     for (EQDOCBaseCriteriaGroup baseGroup : eqCriterion.getBaseCriteriaGroup()) {
       Match baseGroupMatch = new Match();
-      baseMatch.addMatch(baseGroupMatch);
+      baseGroups.addMatch(baseGroupMatch);
       VocMemberOperator memberOp = baseGroup.getDefinition().getMemberOperator();
       if (memberOp == VocMemberOperator.AND) {
         baseGroupMatch.setBoolMatch(Bool.and);
@@ -147,8 +159,35 @@ public class EqdResources {
       for (EQDOCCriteria eqCriteria : baseGroup.getDefinition().getCriteria()) {
         baseGroupMatch.addMatch(convertCriteria(eqCriteria));
       }
+      for (int i=0; i<baseGroupMatch.getMatch().size()-1; i++){
+        if (baseGroupMatch.getMatch().get(i).getMatch()!=null){
+          if (baseGroupMatch.getMatch().get(i).getBoolMatch()==null){
+            System.err.println("Missing match bool in "+i+" match from base criteria in "+activeReportName+" : "+ activeReport);
+          }
+
+        }
+      }
     }
-    return baseMatch;
+    counter= baseCounter;
+    Query baseQuery = new Query()
+      .setTypeOf(IM.NAMESPACE+"Patient")
+      .addMatch(baseGroups);
+    String baseName=new QueryDescriptor().getQuerySummary(baseQuery);
+    String baseContent= new ObjectMapper().writeValueAsString(baseQuery);
+    TTEntity baseEntity= definitionToEntity.get(baseContent);
+    if (baseEntity==null){
+      baseEntity= new TTEntity()
+        .setIri(namespace+UUID.randomUUID())
+        .setName(baseName)
+        .addType(iri(IM.COHORT_QUERY))
+        .set(iri(IM.DEFINITION),TTLiteral.literal(baseQuery));
+      definitionToEntity.put(baseContent,baseEntity);
+      document.addEntity(baseEntity);
+    }
+    Match baseReference= new Match();
+    baseReference.setName(baseName);
+    baseReference.addInstanceOf(new Node().setIri(baseEntity.getIri()).setMemberOf(true));
+    return baseReference;
   }
 
 
@@ -367,11 +406,20 @@ public class EqdResources {
     EQDOCCriterion eqLinkedCriterion = eqLinked.getCriterion();
     Match linkMatch = convertCriterion(eqLinkedCriterion);
     linked.addMatch(linkMatch);
-    Where relationProperty = new Where();
+    Where relationWhere = new Where();
+    Where relationProperty= relationWhere;
     EQDOCRelationship eqRel = eqLinked.getRelationship();
     String parent = getPath(eqCriterion.getTable() + "/" + eqRel.getParentColumn());
     String child = getPath(eqLinkedCriterion.getTable() + "/" + eqRel.getChildColumn());
-    relationProperty.setIri(child);
+    for (int i=0; i<child.split(" ").length-1; i++){
+      relationProperty.setIri(child.split(" ")[i]);
+      Match relationMatch= new Match();
+      relationProperty.setMatch(relationMatch);
+      Where relationSubWhere= new Where();
+      relationMatch.addWhere(relationSubWhere);
+      relationProperty= relationSubWhere;
+    }
+    relationProperty.setIri(child.substring(child.lastIndexOf(" ")+1));
     if (eqRel.getRangeValue() != null) {
       EQDOCRangeValue eqRange = eqRel.getRangeValue();
       if (eqRange.getRangeFrom() != null && eqRange.getRangeTo() != null) {
@@ -404,8 +452,8 @@ public class EqdResources {
       relationProperty.setOperator(Operator.eq);
     }
     relationProperty.relativeTo(r -> r.setNodeRef(nodeRef).setIri(parent));
-    if (linkMatch.getMatch() == null) linkMatch.addWhere(relationProperty);
-    else linkMatch.getMatch().get(0).addWhere(relationProperty);
+    if (linkMatch.getMatch() == null) linkMatch.addWhere(relationWhere);
+    else linkMatch.getMatch().get(0).addWhere(relationWhere);
     return linked;
   }
 
@@ -772,10 +820,10 @@ public class EqdResources {
   }
 
   private void addUsedIn(TTEntity set){
-    if (columnGroup!=null){
-      set.addObject(iri(IM.USED_IN),iri(columnGroup.getIri()));
-    }
-    else
+    //if (columnGroup!=null){
+      //set.addObject(iri(IM.USED_IN),iri(columnGroup.getIri()));
+    //}
+    //else
       set.addObject(iri(IM.USED_IN), iri(namespace +activeReport));
 
   }
@@ -804,7 +852,7 @@ public class EqdResources {
     String description= vs.getDescription();
     String name=description==null ? "unnamed set": description;
     String entailedMembers= new ObjectMapper().writeValueAsString(setContent);
-    TTEntity duplicate= setContentToEntity.get(entailedMembers);
+    TTEntity duplicate= definitionToEntity.get(entailedMembers);
     if (duplicate!=null) {
       addUsedIn(duplicate);
       if (columnGroup!=null){
@@ -839,7 +887,7 @@ public class EqdResources {
         instance.set(IM.ENTAILMENT,iri(IM.DESCENDANTS_OR_SELF_OF));
 
     }
-    setContentToEntity.put(entailedMembers,valueSet);
+    definitionToEntity.put(entailedMembers,valueSet);
     document.addEntity(valueSet);
     return valueSet;
   }

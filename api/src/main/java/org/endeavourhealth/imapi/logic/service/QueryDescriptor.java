@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -21,23 +22,32 @@ public class QueryDescriptor {
   private Map<String, TTEntity> iriContext;
   private final EntityRepository repo = new EntityRepository();
   private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
+  private StringBuilder summary;
 
-
+  public String getQuerySummary(Query query) throws QueryException {
+    summary= new StringBuilder();
+    describeQuery(query);
+    return summary.toString();
+  }
   public Query describeQuery(String queryIri) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
     String queryString = queryCache.get(queryIri);
     if (queryString != null) return new ObjectMapper().readValue(queryString, Query.class);
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+    summary= new StringBuilder();
     query = describeQuery(query);
     queryCache.put(queryIri, new ObjectMapper().writeValueAsString(query));
     return query;
   }
 
+
   public Query describeQuery(Query query) throws QueryException {
     setIriNames(query);
     if (query.getTypeOf() != null) {
-      query.getTypeOf().setName(getTermInContext(query.getTypeOf(), Context.PLURAL));
+      String typeName= getTermInContext(query.getTypeOf(), Context.PLURAL);
+      query.getTypeOf().setName(typeName);
+      summary.append(getTermInContext(query.getTypeOf(), Context.SINGLE)).append(" with : ");
       query.getTypeOf().setDescription(" with the following features : ");
     }
     if (query.getMatch() != null) {
@@ -232,11 +242,17 @@ public class QueryDescriptor {
     if (match.getBoolMatch() == null) {
       if (match.getMatch().size() > 1) match.setBoolMatch(Bool.and);
     }
+    int index=0;
     for (Match subMatch : match.getMatch()) {
+      if (index>0){
+        summary.append(", ").append(match.getBoolMatch()!=null ?match.getBoolMatch() : "and").append(" ");
+      }
       describeMatch(subMatch);
+      index++;
     }
     if (match.getWhere() != null) {
       describeWheres(match);
+      summary.append(", ").append(match.getBoolWhere()).append(" ");
     }
   }
 
@@ -247,11 +263,14 @@ public class QueryDescriptor {
         match.setName(match.getDescription());
       }
     }
-    if (match.getPath() != null) {
-      describePath(match.getPath());
+    if (match.isExclude()){
+      summary.append(" NOT ");
     }
     if (match.getOrderBy() != null) {
       describeOrderBy(match.getOrderBy());
+    }
+    if (match.getPath() != null) {
+      describePath(match.getPath());
     }
     if (match.getTypeOf() != null) {
       match.getTypeOf().setName(getTermInContext(match.getTypeOf(), Context.PLURAL));
@@ -278,11 +297,22 @@ public class QueryDescriptor {
 
 
   private void describeWheres(Match parentMatch, Where where) {
+    int index=0;
     if (where.getBoolWhere() == null) {
       if (where.getWhere().size() > 1) where.setBoolWhere(Bool.and);
     }
+    summary.append("( ");
     for (Where subWhere : where.getWhere()) {
+      if (index==0&&where.getBoolWhere()==Bool.or)
+        summary.append(" either ");
+      else if(index == 1 && where.getWhere()==null && where.getBoolWhere()==Bool.and)
+        summary.append(" with ");
+      else if (index > 1 && where.getWhere()==null && where.getBoolWhere()==Bool.and)
+        summary.append(",and");
+      else if(where.getBoolWhere()==Bool.or)
+        summary.append(", or");
       describeWhere(parentMatch, subWhere);
+      summary.append(" )");
     }
     if (where.getMatch() != null) {
       describeMatch(where.getMatch());
@@ -292,6 +322,7 @@ public class QueryDescriptor {
   }
 
   private void describeWheres(Match match) {
+    int index=0;
     if (match.getWhere().size() > 1 && match.getBoolWhere() == null) match.setBoolWhere(Bool.and);
     Where conceptWhere = getConceptWhere(match);
     if (conceptWhere != null) {
@@ -301,7 +332,16 @@ public class QueryDescriptor {
     }
     for (Where where : match.getWhere()) {
       if (where != conceptWhere) {
+        if (index==0&&match.getBoolWhere()==Bool.or)
+          summary.append("either ");
+        else if(index == 1 && where.getWhere()==null && match.getBoolWhere()==Bool.and)
+          summary.append(" with ");
+        else if (index > 1 && where.getWhere()==null && match.getBoolWhere()==Bool.and)
+           summary.append(",and");
+        else if(match.getBoolWhere()==Bool.or)
+          summary.append(", or");
         describeWhere(match, where);
+       index++;
       }
     }
   }
@@ -322,6 +362,7 @@ public class QueryDescriptor {
       String label = getTermInContext(path.getIri(), Context.PLURAL);
       String preposition = getPreposition(path);
       path.setName(label + (preposition != null ? " " + preposition : ""));
+      summary.append(path.getName()).append(" ");
     }
   }
 
@@ -340,6 +381,8 @@ public class QueryDescriptor {
       set.setQualifier(qualifier);
 
     }
+    summary.append(String.join(",or",inSets.stream().map(set->set.getQualifier()+" "+ set.getName()).collect(Collectors.toSet())))
+      .append(". ");
   }
 
   private void describeOrderBy(OrderLimit orderBy) {
@@ -352,8 +395,10 @@ public class QueryDescriptor {
       if (orderBy.getProperty().getDirection() == Order.descending) orderDisplay = "get maximum ";
       else orderDisplay = "get minimum ";
     }
-    if (orderBy.getLimit() > 1) orderDisplay = orderDisplay + " " + orderBy.getLimit();
+    if (orderBy.getLimit() > 1)
+      orderDisplay = orderDisplay + " " + orderBy.getLimit();
     orderBy.setDescription(orderDisplay);
+    summary.append(orderBy.getDescription());
   }
 
   private Where getConceptWhere(Match match) {
@@ -386,6 +431,18 @@ public class QueryDescriptor {
       }
       if (where.getMatch() != null) {
         describeMatch(where.getMatch());
+      }
+      if (where.getQualifier()!=null){
+        summary.append(where.getQualifier()).append(" ");
+      }
+      if (where.getValueLabel()!=null){
+        summary.append(where.getValueLabel()).append(" ");
+      }
+      if (where.getRelativeTo()!=null){
+        if (where.getRelativeTo().getQualifier()!=null)
+            summary.append(where.getRelativeTo().getQualifier()).append(" ");
+        if (where.getNodeRef()!=null)
+          summary.append(where.getRelativeTo().getNodeRef()).append(" ");
       }
     }
 

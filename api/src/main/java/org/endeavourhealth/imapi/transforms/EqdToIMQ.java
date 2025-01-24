@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.transforms;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
@@ -166,7 +168,7 @@ public class EqdToIMQ {
   }
 
 
-  private void flattenQuery(Query qry) {
+  public static  void flattenQuery(Query qry) throws JsonProcessingException {
     if (qry.getBoolMatch() == Bool.or) {
       flattenOrs(qry);
     }
@@ -180,13 +182,16 @@ public class EqdToIMQ {
     qry.setMatch(flatMatches);
   }
 
-  private void flattenAnds(List<Match> topMatches, List<Match> flatMatches) {
+  private static void flattenAnds(List<Match> topMatches, List<Match> flatMatches) throws JsonProcessingException {
     for (Match topMatch : topMatches) {
       //Top level match, no nested match
       if (topMatch.getMatch() == null) {
         flatMatches.add(topMatch);
       }
       else if (topMatch.getBoolMatch() != Bool.or) {
+        if (topMatch.getVariable()!=null|| topMatch.getOrderBy()!=null){
+          System.err.println("Match errors");
+        }
         flattenAnds(topMatch.getMatch(),flatMatches);
       }
       else {
@@ -194,11 +199,25 @@ public class EqdToIMQ {
         flattenOrs(topMatch);
       }
     }
-
+    ObjectMapper om= new ObjectMapper();
+    Map<String,Match> duplicateDefinition= new HashMap<>();
+    Set<Match> duplicateMatches= new HashSet<>();
+    for (Match match:flatMatches){
+      String definition = om.writeValueAsString(match);
+      if (duplicateDefinition.get(definition)!=null){
+        duplicateMatches.add(match);
+      }
+      duplicateDefinition.put(definition,match);
+    }
+    if (!duplicateMatches.isEmpty()){
+      for (Match match:duplicateMatches){
+        flatMatches.remove(match);
+      }
+    }
 
   }
 
-  private void flattenOrs(Match topMatch) {
+  private static void flattenOrs(Match topMatch) throws JsonProcessingException {
     for (Match match:topMatch.getMatch()){
       if (match.getMatch()!=null)
         if (match.getBoolMatch().equals(Bool.and)){

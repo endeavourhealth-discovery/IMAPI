@@ -46,6 +46,7 @@ public class EqdResources {
   private int setCounter = 0;
   private String sourceContext;
   private boolean isTestSet;
+  private String linkTarget;
 
   public TTIriRef getColumnGroup() {
     return columnGroup;
@@ -127,9 +128,12 @@ public class EqdResources {
     if (!eqCriterion.getBaseCriteriaGroup().isEmpty()) {
       Match hasBase= new Match();
       hasBase.setBoolMatch(Bool.and);
-      hasBase.addMatch(convertBaseCriteriaGroup(eqCriterion));
+      Match baseMatch= convertBaseCriteriaGroup(eqCriterion);
+      hasBase.addMatch(baseMatch);
       if (eqCriterion.getLinkedCriterion() != null) {
+        linkTarget= baseMatch.getVariable();
         hasBase.addMatch(convertLinkedCriterion(eqCriterion));
+        linkTarget= null;
       }
       else {
         hasBase.addMatch(convertStandardCriterion(eqCriterion));
@@ -168,16 +172,26 @@ public class EqdResources {
         }
       }
     }
-    counter= baseCounter;
     Query baseQuery = new Query()
       .setTypeOf(IM.NAMESPACE+"Patient")
       .addMatch(baseGroups);
-    String baseName=new QueryDescriptor().getQuerySummary(baseQuery);
+    flattenQuery(baseQuery);
+    Match lastMatch= baseQuery.getMatch().get(baseQuery.getMatch().size()-1);
+    counter++;
+    lastMatch.setVariable("Event"+counter);
+    baseQuery.setVariable("BaseLine_Entry_"+ counter);
+    String baseName= "Have entries : "+ baseQuery.getVariable();
+    counter= baseCounter;
+    //String baseName=new QueryDescriptor().getQuerySummary(baseQuery);
     String baseContent= new ObjectMapper().writeValueAsString(baseQuery);
     TTEntity baseEntity= definitionToEntity.get(baseContent);
     if (baseEntity==null){
+      baseQuery.return_(r-> r
+        .setNodeRef(lastMatch.getVariable())
+        .property(p ->p
+          .setIri(IM.NAMESPACE+"effectiveDate")));
       baseEntity= new TTEntity()
-        .setIri(namespace+UUID.randomUUID())
+        .setIri(namespace+baseQuery.getVariable()+"_"+activeReport)
         .setName(baseName)
         .addType(iri(IM.COHORT_QUERY))
         .set(iri(IM.DEFINITION),TTLiteral.literal(baseQuery));
@@ -187,6 +201,7 @@ public class EqdResources {
     Match baseReference= new Match();
     baseReference.setName(baseName);
     baseReference.addInstanceOf(new Node().setIri(baseEntity.getIri()).setMemberOf(true));
+    baseReference.setVariable(baseQuery.getVariable());
     return baseReference;
   }
 
@@ -199,7 +214,6 @@ public class EqdResources {
       match.setBoolWhere(Bool.and);
     }
 
-    if (eqCriterion.getDescription() != null) match.setName(eqCriterion.getDescription());
     return match;
   }
 
@@ -396,16 +410,23 @@ public class EqdResources {
 
   private Match convertLinkedCriterion(EQDOCCriterion eqCriterion) throws IOException, QueryException, EQDException {
     counter++;
-    String nodeRef = "match_" + counter;
+    String nodeRef= linkTarget!=null ?linkTarget: "match_" + counter;
     Match linked = new Match();
-    linked.setBoolMatch(Bool.and);
-    Match topMatch = convertStandardCriterion(eqCriterion);
-    topMatch.setVariable(nodeRef);
-    linked.addMatch(topMatch);
+    if (eqCriterion.getFilterAttribute().getColumnValue()!=null) {
+      linked.setBoolMatch(Bool.and);
+      Match topMatch = convertStandardCriterion(eqCriterion);
+      topMatch.setVariable(nodeRef);
+      linked.addMatch(topMatch);
+    }
     EQDOCLinkedCriterion eqLinked = eqCriterion.getLinkedCriterion();
     EQDOCCriterion eqLinkedCriterion = eqLinked.getCriterion();
     Match linkMatch = convertCriterion(eqLinkedCriterion);
-    linked.addMatch(linkMatch);
+    if (eqCriterion.getFilterAttribute().getColumnValue()!=null) {
+      linked.addMatch(linkMatch);
+    }
+    else {
+      linked= linkMatch;
+    }
     Where relationWhere = new Where();
     Where relationProperty= relationWhere;
     EQDOCRelationship eqRel = eqLinked.getRelationship();

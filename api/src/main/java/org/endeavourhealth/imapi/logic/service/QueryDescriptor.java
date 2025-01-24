@@ -268,6 +268,9 @@ public class QueryDescriptor {
     if (match.isExclude()) {
       summary.append(" NOT ");
     }
+    if (match.getVariable()!=null){
+      summary.append("\""+ match.getVariable()+"\" - defined as :");
+    }
     if (match.getOrderBy() != null) {
       describeOrderBy(match.getOrderBy());
     }
@@ -440,10 +443,10 @@ public class QueryDescriptor {
       if (where.getValueLabel() != null) {
         summary.append(where.getValueLabel()).append(" ");
       }
-      if (where.getRelativeTo() != null) {
-        if (where.getRelativeTo().getQualifier() != null)
-          summary.append(where.getRelativeTo().getQualifier()).append(" ");
-        if (where.getNodeRef() != null)
+      if (where.getRelativeTo()!=null){
+        if (where.getRelativeTo().getQualifier()!=null)
+            summary.append(where.getRelativeTo().getQualifier()).append(" ");
+        if (where.getRelativeTo().getNodeRef()!=null)
           summary.append(where.getRelativeTo().getNodeRef()).append(" ");
       }
     }

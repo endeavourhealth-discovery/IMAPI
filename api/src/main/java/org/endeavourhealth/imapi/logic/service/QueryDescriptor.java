@@ -25,17 +25,18 @@ public class QueryDescriptor {
   private StringBuilder summary;
 
   public String getQuerySummary(Query query) throws QueryException {
-    summary= new StringBuilder();
+    summary = new StringBuilder();
     describeQuery(query);
     return summary.toString();
   }
+
   public Query describeQuery(String queryIri) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
     String queryString = queryCache.get(queryIri);
     if (queryString != null) return new ObjectMapper().readValue(queryString, Query.class);
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
-    summary= new StringBuilder();
+    summary = new StringBuilder();
     query = describeQuery(query);
     queryCache.put(queryIri, new ObjectMapper().writeValueAsString(query));
     return query;
@@ -43,9 +44,10 @@ public class QueryDescriptor {
 
 
   public Query describeQuery(Query query) throws QueryException {
+    summary = new StringBuilder();
     setIriNames(query);
     if (query.getTypeOf() != null) {
-      String typeName= getTermInContext(query.getTypeOf(), Context.PLURAL);
+      String typeName = getTermInContext(query.getTypeOf(), Context.PLURAL);
       query.getTypeOf().setName(typeName);
       summary.append(getTermInContext(query.getTypeOf(), Context.SINGLE)).append(" with : ");
       query.getTypeOf().setDescription(" with the following features : ");
@@ -242,10 +244,10 @@ public class QueryDescriptor {
     if (match.getBoolMatch() == null) {
       if (match.getMatch().size() > 1) match.setBoolMatch(Bool.and);
     }
-    int index=0;
+    int index = 0;
     for (Match subMatch : match.getMatch()) {
-      if (index>0){
-        summary.append(", ").append(match.getBoolMatch()!=null ?match.getBoolMatch() : "and").append(" ");
+      if (index > 0) {
+        summary.append(", ").append(match.getBoolMatch() != null ? match.getBoolMatch() : "and").append(" ");
       }
       describeMatch(subMatch);
       index++;
@@ -263,7 +265,7 @@ public class QueryDescriptor {
         match.setName(match.getDescription());
       }
     }
-    if (match.isExclude()){
+    if (match.isExclude()) {
       summary.append(" NOT ");
     }
     if (match.getOrderBy() != null) {
@@ -297,19 +299,19 @@ public class QueryDescriptor {
 
 
   private void describeWheres(Match parentMatch, Where where) {
-    int index=0;
+    int index = 0;
     if (where.getBoolWhere() == null) {
       if (where.getWhere().size() > 1) where.setBoolWhere(Bool.and);
     }
     summary.append("( ");
     for (Where subWhere : where.getWhere()) {
-      if (index==0&&where.getBoolWhere()==Bool.or)
+      if (index == 0 && where.getBoolWhere() == Bool.or)
         summary.append(" either ");
-      else if(index == 1 && where.getWhere()==null && where.getBoolWhere()==Bool.and)
+      else if (index == 1 && where.getWhere() == null && where.getBoolWhere() == Bool.and)
         summary.append(" with ");
-      else if (index > 1 && where.getWhere()==null && where.getBoolWhere()==Bool.and)
+      else if (index > 1 && where.getWhere() == null && where.getBoolWhere() == Bool.and)
         summary.append(",and");
-      else if(where.getBoolWhere()==Bool.or)
+      else if (where.getBoolWhere() == Bool.or)
         summary.append(", or");
       describeWhere(parentMatch, subWhere);
       summary.append(" )");
@@ -322,7 +324,7 @@ public class QueryDescriptor {
   }
 
   private void describeWheres(Match match) {
-    int index=0;
+    int index = 0;
     if (match.getWhere().size() > 1 && match.getBoolWhere() == null) match.setBoolWhere(Bool.and);
     Where conceptWhere = getConceptWhere(match);
     if (conceptWhere != null) {
@@ -332,16 +334,16 @@ public class QueryDescriptor {
     }
     for (Where where : match.getWhere()) {
       if (where != conceptWhere) {
-        if (index==0&&match.getBoolWhere()==Bool.or)
+        if (index == 0 && match.getBoolWhere() == Bool.or)
           summary.append("either ");
-        else if(index == 1 && where.getWhere()==null && match.getBoolWhere()==Bool.and)
+        else if (index == 1 && where.getWhere() == null && match.getBoolWhere() == Bool.and)
           summary.append(" with ");
-        else if (index > 1 && where.getWhere()==null && match.getBoolWhere()==Bool.and)
-           summary.append(",and");
-        else if(match.getBoolWhere()==Bool.or)
+        else if (index > 1 && where.getWhere() == null && match.getBoolWhere() == Bool.and)
+          summary.append(",and");
+        else if (match.getBoolWhere() == Bool.or)
           summary.append(", or");
         describeWhere(match, where);
-       index++;
+        index++;
       }
     }
   }
@@ -381,7 +383,7 @@ public class QueryDescriptor {
       set.setQualifier(qualifier);
 
     }
-    summary.append(String.join(",or",inSets.stream().map(set->set.getQualifier()+" "+ set.getName()).collect(Collectors.toSet())))
+    summary.append(String.join(",or", inSets.stream().map(set -> set.getQualifier() + " " + set.getName()).collect(Collectors.toSet())))
       .append(". ");
   }
 
@@ -432,16 +434,16 @@ public class QueryDescriptor {
       if (where.getMatch() != null) {
         describeMatch(where.getMatch());
       }
-      if (where.getQualifier()!=null){
+      if (where.getQualifier() != null) {
         summary.append(where.getQualifier()).append(" ");
       }
-      if (where.getValueLabel()!=null){
+      if (where.getValueLabel() != null) {
         summary.append(where.getValueLabel()).append(" ");
       }
-      if (where.getRelativeTo()!=null){
-        if (where.getRelativeTo().getQualifier()!=null)
-            summary.append(where.getRelativeTo().getQualifier()).append(" ");
-        if (where.getNodeRef()!=null)
+      if (where.getRelativeTo() != null) {
+        if (where.getRelativeTo().getQualifier() != null)
+          summary.append(where.getRelativeTo().getQualifier()).append(" ");
+        if (where.getNodeRef() != null)
           summary.append(where.getRelativeTo().getNodeRef()).append(" ");
       }
     }
@@ -464,8 +466,8 @@ public class QueryDescriptor {
           } else qualifier = "after ";
         } else {
           if (!isRange) qualifier = "greater than ";
-          if (relativeTo&& value!=null)
-            relativity=" on ";
+          if (relativeTo && value != null)
+            relativity = " on ";
         }
         break;
       case gte:
@@ -478,8 +480,8 @@ public class QueryDescriptor {
         } else {
           if (!isRange) {
             qualifier = "equal to or more than ";
-            if (relativeTo&&value!=null)
-              relativity=" on ";
+            if (relativeTo && value != null)
+              relativity = " on ";
           }
         }
         break;
@@ -492,8 +494,8 @@ public class QueryDescriptor {
         } else {
           if (!isRange) {
             qualifier = "under ";
-            if (relativeTo&&value!=null)
-              relativity=" on ";
+            if (relativeTo && value != null)
+              relativity = " on ";
           }
         }
         break;
@@ -507,8 +509,8 @@ public class QueryDescriptor {
         } else {
           if (!isRange) {
             qualifier = "equal to or less than ";
-            if (relativeTo&&value!=null)
-              relativity=" on ";
+            if (relativeTo && value != null)
+              relativity = " on ";
           }
         }
         break;
@@ -583,12 +585,9 @@ public class QueryDescriptor {
       if (relativeTo.getParameter() != null) {
         if (relativeTo.getParameter().toLowerCase().contains("referencedate")) {
           relation = (relation != null ? relation : "") + "the reference date";
-        }
-        else if (relativeTo.getParameter().toLowerCase().contains("baselinedate")) {
+        } else if (relativeTo.getParameter().toLowerCase().contains("baselinedate")) {
           relation = (relation != null ? relation : "") + "the achievement date";
-        }
-
-        else relation = (relation != null ? relation : "") + relativeTo.getParameter();
+        } else relation = (relation != null ? relation : "") + relativeTo.getParameter();
       }
       if (relation != null) relativeTo.setQualifier(relation);
     }

@@ -3,7 +3,8 @@ package org.endeavourhealth.imapi.transforms;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.eclBuilder.EclType;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
@@ -71,19 +72,18 @@ public class IMQToECL {
     if (matchType == null)
       return;
     if (matchType == EclType.simple) {
-     matchInstanceOf(match,ecl,includeNames);
+      matchInstanceOf(match, ecl, includeNames);
     } else if (matchType == EclType.refined) {
       if (match.getInstanceOf() != null) {
         if (match.getInstanceOf().size() > 1) {
           ecl.append("(");
         }
         matchInstanceOf(match, ecl, includeNames);
-      }
-      else
+      } else
         ecl.append("*");
       addRefinementsToMatch(match, ecl, includeNames);
-      if (match.getInstanceOf()!=null)
-        if (match.getInstanceOf().size()>1)
+      if (match.getInstanceOf() != null)
+        if (match.getInstanceOf().size() > 1)
           ecl.append(")");
       ecl.append("\n");
     } else if (matchType == EclType.compound || matchType == EclType.compoundRefined) {
@@ -113,30 +113,33 @@ public class IMQToECL {
       }
       ecl.append("\n");
     } else {
-      boolean first = true;
-      ecl.append("(");
       for (Match subMatch : match.getMatch()) {
         if (subMatch.isExclude()) {
-          ecl.append(")");
           ecl.append(" MINUS ");
         }
+        if (subMatch.getMatch().size() > 1) {
+          ecl.append("(");
+        }
         match(subMatch, ecl, includeNames);
+        if (subMatch.getMatch().size() > 1) {
+          ecl.append(")");
+        }
         ecl.append("\n");
       }
     }
   }
-  private void matchInstanceOf(Match match,StringBuilder ecl, boolean includeNames){
+
+  private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames) {
     if (match.getInstanceOf().size() == 1) {
       addClass(match.getInstanceOf().get(0), ecl, includeNames);
-    }
-    else {
+    } else {
       ecl.append("(");
-      boolean first= true;
+      boolean first = true;
       for (Node instance : match.getInstanceOf()) {
-        if (!first){
+        if (!first) {
           ecl.append(" OR ");
         }
-        first=false;
+        first = false;
         addClass(instance, ecl, includeNames);
         ecl.append("\n");
       }
@@ -193,9 +196,9 @@ public class IMQToECL {
         ecl.append("}");
       } else {
         if (null == where.getWhere()) {
-          if (null == where.getIs()&&null==where.getMatch())
+          if (null == where.getIs() && null == where.getMatch())
             throw new QueryException("Where clause must contain a value or sub match clause");
-          if (where.getIs()!=null) {
+          if (where.getIs() != null) {
             boolean first = true;
             for (Node value : where.getIs()) {
               if (!first)
@@ -205,15 +208,13 @@ public class IMQToECL {
               ecl.append(" = ");
               addClass(value, ecl, includeNames);
             }
-          }
-          else {
-          addProperty(where, ecl, includeNames);
-          ecl.append(" = (");
+          } else {
+            addProperty(where, ecl, includeNames);
+            ecl.append(" = (");
             match(where.getMatch(), ecl, includeNames);
             ecl.append(")");
           }
-        }
-        else {
+        } else {
           ecl.append("(");
           addRefinementsToWhere(where, ecl, includeNames);
           ecl.append(")");

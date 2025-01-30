@@ -213,8 +213,8 @@ public class TTBulkFiler implements TTDocumentFiler {
         setStatusAndScheme(entity);
 
         transformAndWriteQuads(converter, entity, entityGraph);
-        if (counter %99999==0){
-          LOG.info(counter + "entities from "+ document.getGraph().getIri()+" written");
+        if (counter % 100000 == 0) {
+          LOG.info("{} entities from {} written", counter, document.getGraph().getIri());
         }
 
       }

@@ -8,11 +8,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
+import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,7 @@ public class OSQuery {
   private static final Logger LOG = LoggerFactory.getLogger(OSQuery.class);
   private final IMQToOS converter = new IMQToOS();
   private boolean ignoreInvalid;
+  private EntityService entityService = new EntityService();
 
   private static void processNodeResults(QueryRequest request, JsonNode root, CachedObjectMapper om, ArrayNode resultNodes) throws JsonProcessingException {
     for (JsonNode hit : root.get("hits").get("hits")) {
@@ -70,8 +73,8 @@ public class OSQuery {
     return getNodeResults(request);
   }
 
-  public JsonNode imQuery(QueryRequest request,boolean ignoreInvalid) {
-    this.ignoreInvalid=ignoreInvalid;
+  public JsonNode imQuery(QueryRequest request, boolean ignoreInvalid) {
+    this.ignoreInvalid = ignoreInvalid;
     return getNodeResults(request);
   }
 
@@ -264,7 +267,9 @@ public class OSQuery {
 
       if (root == null)
         return null;
-
+      if (root.has("entities")) {
+        return processIMQueryResponse(root, request);
+      }
       try (CachedObjectMapper resultMapper = new CachedObjectMapper()) {
         searchResults.setHighestUsage(0);
         searchResults.setCount(0);
@@ -291,6 +296,35 @@ public class OSQuery {
       }
     } catch (JsonProcessingException e) {
       throw new OpenSearchException("Could not parse OpenSearch response", e);
+    }
+  }
+
+  private SearchResponse processIMQueryResponse(JsonNode root, QueryRequest request) throws OpenSearchException, JsonProcessingException {
+    try (CachedObjectMapper resultMapper = new CachedObjectMapper()) {
+      SearchResponse searchResults = new SearchResponse();
+      searchResults.setHighestUsage(0);
+      searchResults.setCount(0);
+      for (JsonNode hit : root.get("entities")) {
+        TTEntity entity = resultMapper.treeToValue(hit, TTEntity.class);
+        SearchResultSummary summary = entityService.getSummary(entity.getIri());
+        searchResults.addEntity(summary);
+        if (summary.getUsageTotal() != null && summary.getUsageTotal() > searchResults.getHighestUsage())
+          searchResults.setHighestUsage(summary.getUsageTotal());
+        summary.setMatch(summary.getName());
+        if (summary.getPreferredName() != null) {
+          summary.setName(summary.getPreferredName());
+          summary.setMatch(summary.getName());
+        }
+        summary.setTermCode(null);
+      }
+      Integer totalCount = resultMapper.treeToValue(root.get("totalCount"), Integer.class);
+      if (null != totalCount) searchResults.setCount(totalCount);
+      if (request.getPage() != null) {
+        searchResults.setPage(request.getPage().getPageNumber());
+      }
+      request.addTiming("Results List built");
+      searchResults.setTerm(request.getTextSearch());
+      return searchResults;
     }
   }
 

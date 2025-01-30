@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi;
 
 import io.cucumber.java.Before;
+import io.cucumber.java.ParameterType;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,6 +11,11 @@ import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 @ExtendWith(SystemStubsExtension.class)
 public class CommonStepDefs {
+
+  @ParameterType(value = "true|True|TRUE|false|False|FALSE")
+  public Boolean bool(String value) {
+    return Boolean.valueOf(value);
+  }
 
   @SystemStub
   public static EnvironmentVariables environmentVariables;

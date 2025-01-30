@@ -5,10 +5,10 @@ chmod +x ./gradlew
 mkdir badges
 
 # Artifact
-artifact='IMAPI'
+artifact=$1
 
 # Version
-version='1.0.0'
+version=$2
 
 # Update badges pre-build
 echo "https://img.shields.io/badge/Build-In_progress-orange.svg"

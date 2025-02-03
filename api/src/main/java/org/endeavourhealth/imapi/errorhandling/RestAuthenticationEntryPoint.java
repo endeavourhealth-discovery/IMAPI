@@ -16,7 +16,7 @@ import java.util.Optional;
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
   @Override
   public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException ex) throws IOException, ServletException {
-    if (Optional.ofNullable(System.getenv("HOSTING_MODE")).orElse("").equals("production")) {
+    if (Optional.ofNullable(System.getenv("HOSTING_MODE")).orElse("").equals("private")) {
       httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
       try (OutputStream out = httpServletResponse.getOutputStream()) {
         out.write("Authentication failed".getBytes(StandardCharsets.UTF_8));

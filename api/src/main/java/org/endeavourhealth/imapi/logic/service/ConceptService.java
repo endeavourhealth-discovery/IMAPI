@@ -19,7 +19,10 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.DataFormatException;
@@ -65,9 +68,7 @@ public class ConceptService {
       processTerm(term, termsSummary);
     }
     return termsSummary.stream()
-      .sorted(Comparator.<SearchTermCode, String>
-          comparing(ts -> ts.getStatus() == null ? null : ts.getStatus().getIri(), Comparator.nullsLast(Comparator.naturalOrder()))
-        .thenComparing(ts -> ts.getTerm().isEmpty() ? null : ts.getTerm(), Comparator.nullsLast(Comparator.naturalOrder())))
+      .sorted(SearchTermCode::compareTo)
       .toList();
   }
 

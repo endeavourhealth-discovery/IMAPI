@@ -41,6 +41,8 @@ public class ConceptServiceStepDefs {
     termsArray
       .add(new TTNode().set(RDFS.LABEL, literal("Type 2 diabetes")).set(IM.CODE, literal(197761014)).set(IM.HAS_STATUS, iri(IM.INACTIVE)))
       .add(new TTNode().set(RDFS.LABEL, literal("T2DM - diabetes mellitus type 2")).set(IM.CODE, literal(4571144010L)).set(IM.HAS_STATUS, iri(IM.ACTIVE)))
+      .add(new TTNode().set(RDFS.LABEL, literal("")).set(IM.CODE, literal(12345)).set(IM.HAS_STATUS, iri(IM.INACTIVE)))
+      .add(new TTNode().set(RDFS.LABEL, literal("")).set(IM.CODE, literal(67890)).set(IM.HAS_STATUS, iri(IM.ACTIVE)))
       .add(new TTNode().set(RDFS.LABEL, literal("Diabetes mellitus type 2")).set(IM.CODE, literal(197763012)).set(IM.HAS_STATUS, iri(IM.INACTIVE)))
       .add(new TTNode().set(RDFS.LABEL, literal("Diabetes mellitus type II")).set(IM.CODE, literal(73465010)).set(IM.HAS_STATUS, iri(IM.ACTIVE)));
 
@@ -68,18 +70,21 @@ public class ConceptServiceStepDefs {
   @Then("they should all be received in status, then alphabetic, order")
   public void statusAlphabeticOrder() {
     assertFalse(entityTermCodes.isEmpty());
-    assertEquals(4, entityTermCodes.size());
+    assertEquals(6, entityTermCodes.size());
     assertEquals("Diabetes mellitus type II", entityTermCodes.get(0).getTerm());
     assertEquals("T2DM - diabetes mellitus type 2", entityTermCodes.get(1).getTerm());
-    assertEquals("Diabetes mellitus type 2", entityTermCodes.get(2).getTerm());
-    assertEquals("Type 2 diabetes", entityTermCodes.get(3).getTerm());
+    assertEquals("", entityTermCodes.get(2).getTerm());
+    assertEquals("Diabetes mellitus type 2", entityTermCodes.get(3).getTerm());
+    assertEquals("Type 2 diabetes", entityTermCodes.get(4).getTerm());
+    assertEquals("", entityTermCodes.get(5).getTerm());
   }
 
-  @Then("2 should be received in alphabetic, order")
+  @Then("3 should be received in alphabetic, order")
   public void alphabeticOrder() {
     assertFalse(entityTermCodes.isEmpty());
-    assertEquals(2, entityTermCodes.size());
+    assertEquals(3, entityTermCodes.size());
     assertEquals("Diabetes mellitus type II", entityTermCodes.get(0).getTerm());
     assertEquals("T2DM - diabetes mellitus type 2", entityTermCodes.get(1).getTerm());
+    assertEquals("", entityTermCodes.get(2).getTerm());
   }
 }

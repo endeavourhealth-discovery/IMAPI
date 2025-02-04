@@ -66,8 +66,8 @@ public class ConceptService {
     }
     return termsSummary.stream()
       .sorted(Comparator.<SearchTermCode, String>
-          comparing(ts -> ts.getStatus().getIri())
-        .thenComparing(SearchTermCode::getTerm))
+          comparing(ts -> ts.getStatus() == null ? null : ts.getStatus().getIri(), Comparator.nullsLast(Comparator.naturalOrder()))
+        .thenComparing(ts -> ts.getTerm().isEmpty() ? null : ts.getTerm(), Comparator.nullsLast(Comparator.naturalOrder())))
       .toList();
   }
 

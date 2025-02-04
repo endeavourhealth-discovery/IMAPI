@@ -19,10 +19,7 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.DataFormatException;
@@ -67,7 +64,11 @@ public class ConceptService {
     for (TTValue term : terms.getElements()) {
       processTerm(term, termsSummary);
     }
-    return termsSummary;
+    return termsSummary.stream()
+      .sorted(Comparator.<SearchTermCode, String>
+          comparing(ts -> ts.getStatus().getIri())
+        .thenComparing(SearchTermCode::getTerm))
+      .toList();
   }
 
   public Pageable<EntityReferenceNode> getSuperiorPropertiesPaged(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {

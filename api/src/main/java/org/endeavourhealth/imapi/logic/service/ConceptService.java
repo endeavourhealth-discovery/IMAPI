@@ -67,7 +67,9 @@ public class ConceptService {
     for (TTValue term : terms.getElements()) {
       processTerm(term, termsSummary);
     }
-    return termsSummary;
+    return termsSummary.stream()
+      .sorted(SearchTermCode::compareTo)
+      .toList();
   }
 
   public Pageable<EntityReferenceNode> getSuperiorPropertiesPaged(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {

@@ -3,7 +3,10 @@ package org.endeavourhealth.imapi.logic.service;
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.validator.EntityValidator;
-import org.endeavourhealth.imapi.model.*;
+import org.endeavourhealth.imapi.model.EntityReferenceNode;
+import org.endeavourhealth.imapi.model.Namespace;
+import org.endeavourhealth.imapi.model.Pageable;
+import org.endeavourhealth.imapi.model.ValidatedEntity;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -45,7 +48,7 @@ public class EntityService {
       TTArray activeTermCodes = new TTArray();
       for (TTValue value : termCodes) {
         if (value.asNode().get(iri(IM.HAS_STATUS)) != null) {
-          if (value.asNode().get(iri(IM.HAS_STATUS)) != null && "Active".equals(value.asNode().get(iri(IM.HAS_STATUS)).asIriRef().getName())) {
+          if (value.asNode().get(iri(IM.HAS_STATUS)) != null && IM.ACTIVE.equals(value.asNode().get(iri(IM.HAS_STATUS)).asIriRef().getIri())) {
             activeTermCodes.add(value);
           }
         } else activeTermCodes.add(value);

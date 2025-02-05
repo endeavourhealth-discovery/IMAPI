@@ -81,7 +81,7 @@ public class IMQToECL {
         matchInstanceOf(match, ecl, includeNames);
       } else
         ecl.append("*");
-      addRefinementsToMatch(match, ecl, includeNames);
+      addRefinementsToMatch(match, ecl, includeNames, false);
       if (match.getInstanceOf() != null)
         if (match.getInstanceOf().size() > 1)
           ecl.append(")");
@@ -109,7 +109,7 @@ public class IMQToECL {
       }
       if (matchType == EclType.compoundRefined) {
         ecl.append(")");
-        addRefinementsToMatch(match, ecl, includeNames);
+        addRefinementsToMatch(match, ecl, includeNames, false);
       }
       ecl.append("\n");
     } else {
@@ -148,8 +148,8 @@ public class IMQToECL {
   }
 
 
-  private void addRefinementsToMatch(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
-    ecl.append(": ");
+  private void addRefinementsToMatch(Match match, StringBuilder ecl, boolean includeNames, boolean ignoreColon) throws QueryException {
+    if (!ignoreColon) ecl.append(": ");
     boolean first = true;
     for (Where where : match.getWhere()) {
       if (!first) {
@@ -158,7 +158,7 @@ public class IMQToECL {
       first = false;
       if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)) {
         ecl.append(" { ");
-        addRefinementsToMatch(where.getMatch(), ecl, includeNames);
+        addRefinementsToMatch(where.getMatch(), ecl, includeNames, true);
         ecl.append("}");
       } else {
         addRefined(where, ecl, includeNames);
@@ -169,7 +169,7 @@ public class IMQToECL {
   private void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames) throws QueryException {
     if (null != property.getIri() && property.getIri().equals(IM.ROLE_GROUP)) {
       ecl.append(" { ");
-      addRefinementsToMatch(property.getMatch(), ecl, includeNames);
+      addRefinementsToMatch(property.getMatch(), ecl, includeNames, true);
       ecl.append("}");
     } else {
       boolean first = true;
@@ -192,7 +192,7 @@ public class IMQToECL {
     try {
       if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)) {
         ecl.append(" { ");
-        addRefinementsToMatch(where.getMatch(), ecl, includeNames);
+        addRefinementsToMatch(where.getMatch(), ecl, includeNames, true);
         ecl.append("}");
       } else {
         if (null == where.getWhere()) {

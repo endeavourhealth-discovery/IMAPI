@@ -188,7 +188,8 @@ public class DataModelService {
       name += ")";
     }
     PropertyDisplay propertyDisplay = new PropertyDisplay();
-    propertyDisplay.setOrder(ttProperty.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue());
+    if (ttProperty.asNode().get(iri(SHACL.ORDER)) != null)
+      propertyDisplay.setOrder(ttProperty.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue());
     propertyDisplay.addProperty(iri(ttProperty.asNode().get(iri(SHACL.PATH)).get(0).asIriRef().getIri(), name));
     propertyDisplay.addType(type.get(0).asIriRef());
     propertyDisplay.setCardinality(cardinality);

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.filer.TTFilerException;
@@ -53,6 +54,7 @@ public class FilerController {
 
   @PostMapping("file/document")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  @Operation(summary = "Files a document and returns the task ID.")
   public ResponseEntity<Map<String, String>> fileDocument(@RequestBody TTDocument document, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Document.POST")) {
       LOG.debug("fileDocument");
@@ -75,6 +77,7 @@ public class FilerController {
   }
 
   @GetMapping("file/document/{taskId}")
+  @Operation(summary = "Retrieves the progress of a document file operation.")
   public ResponseEntity<Map<String, Integer>> getProgress(@PathVariable("taskId") String taskId) {
     Integer progress = filerService.getTaskProgress(taskId);
     Map<String, Integer> response = new HashMap<>();
@@ -84,6 +87,7 @@ public class FilerController {
 
   @PostMapping("file/entity")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  @Operation(summary = "Files an entity with specified graph and CRUD operation.")
   public ResponseEntity<Void> fileEntity(@RequestBody TTEntity entity, @RequestParam(name = "graph") String graph, @RequestParam(name = "crud") String crud, HttpServletRequest request) throws TTFilerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Entity.POST")) {
       LOG.debug("fileEntity");
@@ -108,6 +112,7 @@ public class FilerController {
 
   @PostMapping("folder/move")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  @Operation(summary = "Moves an entity from one folder to another.")
   public ResponseEntity<ProblemDetailResponse> moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Move.POST")) {
       LOG.debug("moveFolder");
@@ -153,6 +158,7 @@ public class FilerController {
 
   @PostMapping("folder/add")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  @Operation(summary = "Adds an entity to a specified folder.")
   public ResponseEntity<ProblemDetailResponse> addToFolder(
     @RequestParam(name = "entity") String entityIri,
     @RequestParam(name = "folder") String folderIri,
@@ -184,6 +190,7 @@ public class FilerController {
 
   @PostMapping("folder/create")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  @Operation(summary = "Creates a new folder within a specified container.")
   public String createFolder(
     @RequestParam(name = "container") String container,
     @RequestParam(name = "name") String name,
@@ -241,6 +248,7 @@ public class FilerController {
 
   @GetMapping("deltas/download")
   @PreAuthorize("hasAuthority('IMAdmin')")
+  @Operation(summary = "Downloads deltas as a zip file.")
   public HttpEntity<Object> downloadDeltas() throws NullPointerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Deltas.Download.GET")) {
       LOG.debug("downloadDeltas");

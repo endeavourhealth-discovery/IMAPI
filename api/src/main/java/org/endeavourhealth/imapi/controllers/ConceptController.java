@@ -36,6 +36,7 @@ public class ConceptController {
   private final ConceptService conceptService = new ConceptService();
 
   @GetMapping(value = "/public/matchedFrom", produces = "application/json")
+  @Operation(summary = "Get matched terms from the specified entity", description = "Retrieves terms that are matched from the given entity IRI for further processing or analysis.")
   public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MatchedFrom.GET")) {
       LOG.debug("getMatchedFrom");
@@ -44,6 +45,7 @@ public class ConceptController {
   }
 
   @GetMapping(value = "/public/matchedTo", produces = "application/json")
+  @Operation(summary = "Get matched terms to the specified entity", description = "Retrieves terms that are matched to the given entity IRI for further processing or analysis.")
   public Collection<SimpleMap> getMatchedTo(@RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MatchedTo.GET")) {
       LOG.debug("getMatchedTo");
@@ -52,6 +54,7 @@ public class ConceptController {
   }
 
   @GetMapping("/public/termCode")
+  @Operation(summary = "Retrieve term codes for the specified entity", description = "Gets a list of term codes associated with the given entity IRI, including the option to include inactive codes.")
   public List<SearchTermCode> getTermCodes(@RequestParam(name = "iri") String iri, @RequestParam(name = "includeInactive") Optional<Boolean> includeInactive) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.TermCode.GET")) {
       LOG.debug("getTermCodes");
@@ -79,7 +82,8 @@ public class ConceptController {
       if (request.getEcl().isEmpty()) throw new IllegalArgumentException("Ecl cannot be empty");
       if (0 == request.getPage()) request.setPage(1);
       if (0 == request.getSize()) request.setSize(EntityService.MAX_CHILDREN);
-      if (request.getSchemeFilters().isEmpty()) request.setSchemeFilters(new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE)));
+      if (request.getSchemeFilters().isEmpty())
+        request.setSchemeFilters(new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE)));
       return conceptService.getSuperiorPropertiesBoolFocusPaged(request);
     }
   }
@@ -97,6 +101,7 @@ public class ConceptController {
   }
 
   @GetMapping(value = "/public/conceptContextMaps")
+  @Operation(summary = "Get concept context maps for the specified entity", description = "Retrieves mappings to various contexts for the given entity IRI, which can be used for contextual analysis.")
   public List<ConceptContextMap> getConceptContextMaps(@RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ConceptContextMaps.GET")) {
       LOG.debug("getConceptContextMaps");

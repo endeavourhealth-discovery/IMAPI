@@ -9,12 +9,12 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.FileRepository;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.filer.rdf4j.TTBulkFiler;
+import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.GRAPH;
@@ -29,9 +29,9 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 
 public class ImportMaps implements AutoCloseable {
-  private FileRepository fileRepo = new FileRepository(TTBulkFiler.getDataPath());
-  private ValueFactory valueFactory = new ValidatingValueFactory(SimpleValueFactory.getInstance());
-  private Map<String, String> cachedNames = new HashMap<>();
+  private final FileRepository fileRepo = new FileRepository(TTBulkFiler.getDataPath());
+  private final ValueFactory valueFactory = new ValidatingValueFactory(SimpleValueFactory.getInstance());
+  private final Map<String, String> cachedNames = new HashMap<>();
 
 
   /**
@@ -72,14 +72,14 @@ public class ImportMaps implements AutoCloseable {
     if (TTFilerFactory.isBulk())
       return fileRepo.getReferenceFromCoreTerm(term);
     else
-      return new EntityRepository2().getReferenceFromCoreTerm(term);
+      return new EntityRepository().getReferenceFromCoreTerm(term);
   }
 
   public Map<String, String> getCodeToIri() throws IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getCodeToIri();
     else
-      return new EntityRepository2().getCodeToIri();
+      return new EntityRepository().getCodeToIri();
   }
 
   public Set<String> getCodes(String scheme) throws IOException {
@@ -95,43 +95,23 @@ public class ImportMaps implements AutoCloseable {
     return codes;
   }
 
-  public Set<TTIriRef> getCoreFromCode(String code, List<String> schemes) {
-    if (TTFilerFactory.isBulk())
-      return fileRepo.getCoreFromCode(code, schemes);
-    else
-      return new EntityRepository2().getCoreFromCode(code, schemes);
+  public Set<Entity> getCoreFromCode(String code, List<String> schemes) {
+      return new EntityRepository().getCoreFromCode(code, schemes);
   }
 
   public Map<String, Set<String>> getAllMatchedLegacy() throws IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getAllMatchedLegacy();
     else
-      return new EntityRepository2().getAllMatchedLegacy();
+      return new EntityRepository().getAllMatchedLegacy();
   }
 
-  public Set<TTIriRef> getCoreFromLegacyTerm(String term, String scheme) throws IOException {
-    if (TTFilerFactory.isBulk()) {
-      return fileRepo.getCoreFromLegacyTerm(term, scheme);
-    } else {
-      return new EntityRepository2().getCoreFromLegacyTerm(term, scheme);
-    }
+  public Set<Entity> getCoreFromLegacyTerm(String term, String scheme) throws IOException {
+      return new EntityRepository().getCoreFromLegacyTerm(term, scheme);
+
   }
 
-  /**
-   * Gets the matched core concept from an emis code ide
-   *
-   * @param codeId the emis code id
-   * @param scheme the scheme
-   * @return the set of core entities
-   * @throws IOException
-   */
-  public Set<TTIriRef> getCoreFromCodeId(String codeId, String scheme) throws IOException {
-    if (TTFilerFactory.isBulk()) {
-      return fileRepo.getCoreFromCodeId(codeId, List.of(scheme));
-    } else {
-      return new EntityRepository2().getCoreFromCodeId(codeId, List.of(scheme));
-    }
-  }
+
 
 
   /**
@@ -456,11 +436,8 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  public Set<TTIriRef> getLegacyFromTermCode(String originalCode, String iri) throws IOException {
-    if (TTFilerFactory.isBulk()) {
-      return fileRepo.getReferenceFromTermCode(originalCode, iri);
-    } else
-      return new EntityRepository2().getReferenceFromTermCode(originalCode, iri);
+  public Set<Entity> getLegacyFromTermCode(String originalCode, String iri) throws IOException {
+    return new EntityRepository().getReferenceFromTermCode(originalCode, iri);
   }
 
   @Override

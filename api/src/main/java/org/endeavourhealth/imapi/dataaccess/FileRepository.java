@@ -2,6 +2,8 @@ package org.endeavourhealth.imapi.dataaccess;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.endeavourhealth.imapi.model.iml.Entity;
+import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -116,19 +118,7 @@ public class FileRepository {
   }
 
 
-  public Set<TTIriRef> getReferenceFromTermCode(String code, String scheme) throws IOException {
 
-    if (termCodes.get(scheme) == null) {
-      fetchTermCodes(scheme);
-    }
-    String concept = termCodes.get(scheme).get(code);
-    if (concept != null) {
-      Set<TTIriRef> concepts = new HashSet<>();
-      concepts.add(TTIriRef.iri(concept));
-      return concepts;
-    } else
-      return Collections.emptySet();
-  }
 
   public Map<String, Set<String>> getAllMatchedLegacy() throws IOException {
     Map<String, Set<String>> legacyMap = new HashMap<>();

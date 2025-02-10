@@ -6,6 +6,14 @@ public class IM {
     public static final String DOMAIN = "http://endhealth.info/";
     public static final String PREFIX = "im";
     public static final String NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
+    public static final String DESCENDANTS_OR_SELF_OF = IM.NAMESPACE + "DescendantsOrSelfOf";
+    public static final String DESCENDANTS_OF = IM.NAMESPACE + "DescendantsOf";
+    public static final String IS_RELATIVE_VALUE = IM.NAMESPACE + "isRelativeValue";
+    public static final String FULLY_SPECIFIED_NAME = IM.NAMESPACE + "fullySpecifiedName";
+    public static final String ANCESTORS_OF = IM.NAMESPACE + "DncestorsOf";
+    public static final String ENTAILED_MEMBER = IM.NAMESPACE + "entailedMember";
+    public static final String ENTAILMENT = IM.NAMESPACE + "entailment";
+    public static final String EXCLUDE = IM.NAMESPACE + "exclude";
     public static final String IRI = "@id";
     public static final String VALUE = "@value";
     public static final String TYPE = "@type";
@@ -21,6 +29,7 @@ public class IM {
     public static final String USAGE_STATS = IM.NAMESPACE + "usageStats";
     public static final String IN_TASK = IM.NAMESPACE + "inTask";
     public static final String DEFINITION = IM.NAMESPACE + "definition";
+    public static final String INSTANCE_OF = IM.NAMESPACE + "instanceOf";
     public static final String RETURN_TYPE = IM.NAMESPACE + "returnType";
     public static final String UPDATE_PROCEDURE = IM.NAMESPACE + "updateProcedure";
     public static final String INVERSE_PATH = IM.NAMESPACE + "inversePath";
@@ -62,9 +71,8 @@ public class IM {
     public static final String IS_CHILD_OF = IM.NAMESPACE + "isChildOf";
     public static final String PREVIOUS_ENTITY_OF = IM.NAMESPACE + "previousEntityOf";
     public static final String SUBSUMED_BY = IM.NAMESPACE + "subsumedBy";
-    public static final String USUALLY_SUBSUMED_BY = IM.NAMESPACE + "usuallySubsumedBy";
+    public static final String MAY_BE_SUBSUMED_BY = IM.NAMESPACE + "mayBeSubsumedBy";
     public static final String APPROXIMATE_SUBSUMED_BY = IM.NAMESPACE + "approximateSubsumedBy";
-    public static final String MULTIPLE_SUBSUMED_BY = IM.NAMESPACE + "multipleSubsumedBy";
     public static final String LOCAL_SUBCLASS_OF = IM.NAMESPACE + "localSubClassOf";
     public static final String HAS_CONFIG = IM.NAMESPACE + "hasConfig";
     public static final String PROPERTY_GROUP = IM.NAMESPACE + "propertyGroup";
@@ -203,6 +211,7 @@ public class IM {
     public static final String ENTITY_TYPE = IM.NAMESPACE + "entityType";
     public static final String VALUE_DATA = IM.NAMESPACE + "valueData";
     public static final String VALUE_OBJECT = IM.NAMESPACE + "valueObject";
+    public static final String PREPOSITION = IM.NAMESPACE + "preposition";
     public static final String VALUE_IRI = IM.NAMESPACE + "valueIri";
     public static final String VALUE_IRI_LIST = IM.NAMESPACE + "valueIriList";
     public static final String VALUE_DATA_LIST = IM.NAMESPACE + "valueDataList";
@@ -227,8 +236,24 @@ public class IM {
     public static final String VALUE_TEMPLATE = IM.NAMESPACE + "valueTemplate";
     public static final String DEFAULT_VALUE = IM.NAMESPACE + "defaultValue";
     public static final String LOAD_MORE = IM.NAMESPACE + "loadMore";
-    public static final String DATA_MODEL_CONCEPT = IM.NAMESPACE + "concept";
+    public static final String DATA_MODEL_PROPERTY_CONCEPT = IM.NAMESPACE + "concept";
     public static final String NUMERIC_VALUE = IM.NAMESPACE + "NumericValue";
     public static final String HEALTH_RECORDS = IM.NAMESPACE + "HealthRecords";
     public static final String HAS_INCREMENTAL_FROM = IM.NAMESPACE + "hasIncrementalFrom";
+    public static final String CORE_SCHEMES = IM.NAMESPACE + "coreSchemes";
+    public static final String INFERRED_PREDICATES = IM.NAMESPACE + "inferredPredicates";
+    public static final String INFERRED_EXCLUDE_PREDICATES = IM.NAMESPACE + "inferredExcludePredicates";
+    public static final String GRAPH_EXCLUDE_PREDICATES = IM.NAMESPACE + "graphExcludePredicates";
+    public static final String AGE = IM.NAMESPACE + "Age";
+    public static final String DATE = IM.NAMESPACE + "Date";
+    public static final String TIME = IM.NAMESPACE + "Time";
+    public static final String INTERVAL_UNIT = IM.NAMESPACE + "intervalUnit";
+    public static final String PARAMETER = IM.NAMESPACE + "parameter";
+    public static final String YEARS = IM.NAMESPACE + "Years";
+    public static final String MONTHS = IM.NAMESPACE + "Months";
+    public static final String DAYS = IM.NAMESPACE + "Days";
+    public static final String HOURS = IM.NAMESPACE + "Hours";
+    public static final String MINUTES = IM.NAMESPACE + "Minutes";
+    public static final String SECONDS = IM.NAMESPACE + "Seconds";
+    public static final String DATATYPE_QUALIFIER = IM.NAMESPACE + "datatypeQualifier";
 }

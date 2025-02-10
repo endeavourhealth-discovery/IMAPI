@@ -3,6 +3,9 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class GRAPH {
+    public static final String FHIR = "http://hl7.org/fhir/";
+    public static final String SMARTLIFE = "http://smartlifehealth.info/smh#";
+    public static final String QOF = "http://endhealth.info/qof#";
     public static final String DISCOVERY = "http://endhealth.info/im#";
     public static final String BNF = "http://endhealth.info/bnf#";
     public static final String ICD10 = "http://endhealth.info/icd10#";

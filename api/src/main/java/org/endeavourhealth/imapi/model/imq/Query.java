@@ -6,12 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"prefix", "iri", "name", "description", "activeOnly", "bool", "match", "return", "construct", "query", "groupBy", "orderBy"})
@@ -24,12 +22,18 @@ public class Query extends Match {
   private List<Match> match;
   private OrderLimit orderBy;
   private List<PropertyRef> groupBy;
-  private List<Return> returx;
+  private Return returx;
   private String iri;
   private String name;
   private boolean imQuery;
   private JsonNode parentResult;
 
+  public Query function (Consumer < FunctionClause > builder) {
+    FunctionClause function = new FunctionClause();
+    super.setFunction(function);
+    builder.accept(function);
+    return this;
+  }
   public JsonNode getParentResult() {
     return parentResult;
   }
@@ -91,26 +95,20 @@ public class Query extends Match {
 
 
   @JsonProperty("return")
-  public List<Return> getReturn() {
+  public Return getReturn() {
     return returx;
   }
 
-  public Query setReturn(List<Return> returx) {
+  public Query setReturn(Return returx) {
     this.returx = returx;
     return this;
   }
 
-  public Query addReturn(Return aReturn) {
-    if (this.returx == null)
-      this.returx = new ArrayList<>();
-    this.returx.add(aReturn);
-    return this;
-  }
+
 
   public Query return_(Consumer<Return> builder) {
-    Return ret = new Return();
-    addReturn(ret);
-    builder.accept(ret);
+    this.returx= new Return();
+    builder.accept(this.returx);
     return this;
   }
 

@@ -1,70 +1,53 @@
 {
-  "@context": {
-    "im": "http://endhealth.info/im#",
-    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "owl": "http://www.w3.org/2002/07/owl#",
-    "sh": "http://www.w3.org/ns/shacl#",
-    "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-    "sn": "http://snomed.info/sct#"
+  "@context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
   },
-  "argument": [
-    {
-      "parameter": "this",
-      "valueIri": {
-        "@id": "im:recordOwner"
-      }
+  "argument" : [ {
+    "parameter" : "this",
+    "valueIri" : {
+      "@id" : "im:recordOwner"
     }
-  ],
-  "query": {
-    "name": "Suggested range for a property",
-    "description": "get node, class or datatype values (ranges)  of property objects that have 4this as their path",
-    "match": [
-      {
-        "where": [
-          {
-            "@id": "sh:path",
-            "is": [
-              {
-                "parameter": "this"
-              }
-            ]
-          },
-          {
-            "boolWhere": "or",
-            "where": [
-              {
-                "@id": "sh:node",
-                "match": {
-                  "variable": "range"
-                }
-              },
-              {
-                "@id": "sh:class",
-                "match": {
-                  "variable": "range"
-                }
-              },
-              {
-                "@id": "sh:datatype",
-                "match": {
-                  "variable": "range"
-                }
-              }
-            ]
+  } ],
+  "query" : {
+    "name" : "Suggested range for a property",
+    "description" : "get node, class or datatype values (ranges)  of property objects that have 4this as their path",
+    "match" : [ {
+      "where" : [ {
+        "@id" : "sh:path",
+        "is" : [ {
+          "parameter" : "this"
+        } ]
+      }, {
+        "boolWhere" : "or",
+        "where" : [ {
+          "@id" : "sh:node",
+          "match" : {
+            "variable" : "range"
           }
-        ]
-      }
-    ],
-    "return": [
-      {
-        "nodeRef": "range",
-        "property": [
-          {
-            "@id": "rdfs:label"
+        }, {
+          "@id" : "sh:class",
+          "match" : {
+            "variable" : "range"
           }
-        ]
-      }
-    ]
+        }, {
+          "@id" : "sh:datatype",
+          "match" : {
+            "variable" : "range"
+          }
+        } ]
+      } ]
+    } ],
+    "return" : {
+      "nodeRef" : "range",
+      "property" : [ {
+        "@id" : "rdfs:label"
+      } ]
+    }
   }
 }

@@ -3,12 +3,38 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 
-@JsonPropertyOrder({"parameter", "iri", "type", "set", "variable", "name"})
+@JsonPropertyOrder({"parameter", "iri", "type", "set", "variable", "qualifier","name"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Node extends Element {
   private boolean exclude;
+  private String code;
+  private String type;
+
+  public String getType() {
+    return type;
+  }
+
+  public Node setType(String type) {
+    this.type = type;
+    return this;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public Node setCode(String code) {
+    this.code = code;
+    return this;
+  }
+
+  public Node setQualifier(String qualifier) {
+    super.setQualifier(qualifier);
+    return this;
+  }
 
   public boolean isExclude() {
     return exclude;

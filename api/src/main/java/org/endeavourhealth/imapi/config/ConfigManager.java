@@ -23,6 +23,7 @@ import java.util.StringJoiner;
 
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareUpdateSparql;
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Configuration
@@ -42,18 +43,15 @@ public class ConfigManager {
   }
 
   public Config getConfig(String config) {
-    // NOTE - DON'T USE PREFIXES OR 'prepareSparql' HERE
-    //        OR CYCLIC LOOP FETCHING DEFAULT PREFIXES
-    StringJoiner sql = new StringJoiner(System.lineSeparator())
-      .add("SELECT ?name ?data WHERE {")
-      .add("    GRAPH <http://endhealth.info/config#> {")
-      .add("      ?s ?label   ?name ;")
-      .add("         ?config  ?data .")
-      .add("    }")
-      .add("}");
+    String sql = """
+      SELECT ?name ?data WHERE {
+        ?s ?label   ?name ;
+        ?config  ?data .
+      }
+      """;
 
     try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
       qry.setBinding("s", Values.iri(config));
       qry.setBinding("label", Values.iri(RDFS.LABEL));
       qry.setBinding("config", Values.iri(IM.HAS_CONFIG));
@@ -76,16 +74,34 @@ public class ConfigManager {
     insert(iri, IM.HAS_CONFIG, config.getData());
   }
 
-  private String getSparqlInsert() {
-    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("INSERT {").add("  ?s ?p ?o ").add("}").add("WHERE { SELECT ?s ?p ?o {} }");
-    return sparql.toString();
-  }
+  private String DELETE_INSERT_SPARQL = """
+    DELETE {
+      ?s ?p ?oAny
+    }
+    INSERT {
+      ?s ?p ?o
+    }
+    WHERE { ?s ?p ?oAny }
+    """;
+
+  private String INSERT_SPARQL = """
+    DELETE {
+      ?s ?p ?oAny
+    }
+    INSERT {
+      ?s ?p ?o
+    }
+    WHERE {}
+    """;
 
   private void insert(String subject, String predicate, String object) {
+    if (null == subject || subject.isEmpty() || null == predicate || predicate.isEmpty())
+      throw new IllegalArgumentException("Subject or Predicate cannot be null");
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      String sparql = getSparqlInsert();
-      try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-        Update qry = prepareUpdateSparql(conn, sparql);
+      try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
+        String query = DELETE_INSERT_SPARQL;
+        if (null == getConfig(subject)) query = INSERT_SPARQL;
+        Update qry = prepareUpdateSparql(conn, query);
         qry.setBinding("s", Values.iri(subject));
         qry.setBinding("p", Values.iri(predicate));
         qry.setBinding("o", literal(object));

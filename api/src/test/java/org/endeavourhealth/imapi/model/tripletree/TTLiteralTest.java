@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TTLiteralTest {
+  EntityService entityService = new EntityService();
+
   private final TTEntity testObject = (TTEntity) new TTEntity("http://endhealth.co.uk/im#objectTest")
     .setGraph(iri("http://endhealth.co.uk/im#Rich"))
     .set(TTIriRef.iri(RDFS.LABEL), "Test object")
@@ -52,7 +54,7 @@ class TTLiteralTest {
 
   // @Test
   void loadTest() throws JsonProcessingException {
-    TTBundle bundle = new EntityService().getFullEntity("http://endhealth.co.uk/im#objectTest");
+    TTBundle bundle = entityService.getBundle("http://endhealth.co.uk/im#objectTest", null);
     TTArray preds = bundle.getEntity().get(TTIriRef.iri(IM.QUERY));
     assertEquals(1, preds.size());
 

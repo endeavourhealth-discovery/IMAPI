@@ -12,6 +12,8 @@ import org.endeavourhealth.imapi.json.TTNodeSerializerV2;
 import java.io.Serializable;
 import java.util.*;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 @JsonSerialize(using = TTNodeSerializerV2.class)
 @JsonDeserialize(using = TTNodeDeserializerV2.class)
 public class TTNode implements TTValue, Serializable {
@@ -41,7 +43,7 @@ public class TTNode implements TTValue, Serializable {
   @JsonIgnore
   public TTNode set(TTIriRef predicate, String value) {
     if (value.startsWith("http:"))
-      this.set(predicate, TTIriRef.iri(value));
+      this.set(predicate, iri(value));
     else
       this.set(predicate, TTLiteral.literal(value));
     return this;
@@ -69,6 +71,22 @@ public class TTNode implements TTValue, Serializable {
   public TTNode set(TTIriRef predicate, TTArray value) {
     predicateValues.put(predicate, value);
     return this;
+  }
+  @JsonIgnore
+  public TTNode set(String predicate, TTValue value){
+    this.set(iri(predicate),value);
+    return this;
+  }
+
+  @JsonIgnore
+  public TTNode set(String predicate, boolean value){
+    this.set(iri(predicate),value);
+    return this;
+  }
+
+  @JsonIgnore
+  public TTArray get(String predicate) {
+    return predicateValues.get(iri(predicate));
   }
 
   @JsonGetter
@@ -142,7 +160,7 @@ public class TTNode implements TTValue, Serializable {
 
   public TTNode addObject(TTIriRef predicate, String value) {
     if (value.startsWith("http:"))
-      this.addObject(predicate, TTIriRef.iri(value));
+      this.addObject(predicate, iri(value));
     else
       this.addObject(predicate, TTLiteral.literal(value));
     return this;
@@ -181,6 +199,13 @@ public class TTNode implements TTValue, Serializable {
 
   public TTNode addObject(TTIriRef predicate, Long value) {
     this.addObject(predicate, TTLiteral.literal(value));
+    return this;
+  }
+
+  public TTNode removeObject(TTIriRef predicate) {
+    if (this.get(predicate) != null) {
+      this.predicateValues.remove(predicate);
+    }
     return this;
   }
 

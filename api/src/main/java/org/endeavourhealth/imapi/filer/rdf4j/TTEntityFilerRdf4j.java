@@ -80,27 +80,66 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   public void fileEntity(TTEntity entity, TTIriRef graph) throws TTFilerException {
 
     if (entity.get(TTIriRef.iri(RDFS.LABEL)) != null) {
-      if (entity.get(TTIriRef.iri(IM.HAS_STATUS)) == null)
-        entity.set(TTIriRef.iri(IM.HAS_STATUS), IM.ACTIVE);
-      if (entity.get(TTIriRef.iri(IM.HAS_SCHEME)) == null)
-        entity.set(TTIriRef.iri(IM.HAS_SCHEME), graph);
+      if (entity.get(TTIriRef.iri(IM.HAS_STATUS)) == null) entity.set(TTIriRef.iri(IM.HAS_STATUS), IM.ACTIVE);
+      if (entity.get(TTIriRef.iri(IM.HAS_SCHEME)) == null) entity.set(TTIriRef.iri(IM.HAS_SCHEME), graph);
     }
-    if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_PREDICATES)))
-      updatePredicates(entity, graph);
-    else if (entity.getCrud().equals(TTIriRef.iri(IM.ADD_QUADS)))
-      addQuads(entity, graph);
-    else if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_ALL)))
-      replacePredicates(entity, graph);
-    else if (entity.getCrud().equals(TTIriRef.iri(IM.DELETE_ALL)))
-      deleteTriples(entity, graph);
-    else
-      throw new TTFilerException("Entity " + entity.getIri() + " has no crud assigned");
+    if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_PREDICATES))) updatePredicates(entity, graph);
+    else if (entity.getCrud().equals(TTIriRef.iri(IM.ADD_QUADS))) addQuads(entity, graph);
+    else if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_ALL))) replacePredicates(entity, graph);
+    else if (entity.getCrud().equals(TTIriRef.iri(IM.DELETE_ALL))) deleteTriples(entity, graph);
+    else throw new TTFilerException("Entity " + entity.getIri() + " has no crud assigned");
 
   }
 
   @Override
-  public void updateIsAs(String entity) {
-    throw new UnsupportedOperationException("TTEntityFilerRdf4j does not support updateIsAs");
+  public void updateIsAs(TTEntity entity) {
+    Set<String> isAs = new HashSet<>();
+    if (entity.has(new TTIriRef(IM.IS_CHILD_OF)))
+      entity.get(new TTIriRef(IM.IS_CHILD_OF)).stream().forEach(childOf -> isAs.add(childOf.asIriRef().getIri()));
+
+    if (entity.has(new TTIriRef(RDFS.SUBCLASS_OF)))
+      entity.get(new TTIriRef(RDFS.SUBCLASS_OF)).stream().forEach(childOf -> isAs.add(childOf.asIriRef().getIri()));
+
+    deleteAscendantIsas(entity.getIri());
+    if (!isAs.isEmpty()) saveAscendantIsas(entity.getIri(), isAs);
+  }
+
+  public void saveAscendantIsas(String entityIri, Set<String> isAs) {
+    StringJoiner iriLine = new StringJoiner(" ");
+    for (String stringIri : isAs) {
+      iri(stringIri);
+      iriLine.add("<" + stringIri + ">");
+    }
+
+    String sql = """
+      PREFIX im: <http://endhealth.info/im#>
+      INSERT {
+        ?entity im:isA ?ancestor.
+      }
+      WHERE {
+        VALUES ?ancestor { %s }
+      }
+      """.formatted(iriLine.toString());
+
+    Update saveIsas = conn.prepareUpdate(sql);
+    saveIsas.setBinding("entity", iri(entityIri));
+    saveIsas.execute();
+  }
+
+  public void deleteAscendantIsas(String entity) {
+    LOG.info("Deleting ascendant isas");
+    String deleteSql = """
+      PREFIX im: <http://endhealth.info/im#>
+      DELETE {
+           ?entity im:isA ?anyAncestor.
+       }
+       WHERE {
+           ?entity im:isA ?anyAncestor.
+       }
+      """;
+    Update deleteIsas = conn.prepareUpdate(deleteSql);
+    deleteIsas.setBinding("entity", iri(entity));
+    deleteIsas.execute();
   }
 
   public void deleteIsas(Set<String> entities) {
@@ -160,11 +199,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   public Set<String> getIsAs(String superClass) {
     Set<String> isAs = new HashSet<>();
     StringJoiner getIsas = new StringJoiner("\n");
-    getIsas
-      .add("Select distinct ?ancestor")
-      .add("Where {")
-      .add("<" + superClass + "> <" + IM.IS_A + "> ?ancestor")
-      .add("filter (?ancestor not in (" + blockers + "))}");
+    getIsas.add("Select distinct ?ancestor").add("Where {").add("<" + superClass + "> <" + IM.IS_A + "> ?ancestor").add("filter (?ancestor not in (" + blockers + "))}");
     TupleQuery qry = conn.prepareTupleQuery(getIsas.toString());
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
@@ -180,8 +215,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     int count = 0;
     for (Map.Entry<String, Set<String>> child : isAs.entrySet()) {
       count++;
-      StringJoiner addSql = new StringJoiner("\n")
-        .add("INSERT DATA {");
+      StringJoiner addSql = new StringJoiner("\n").add("INSERT DATA {");
       for (String ancestor : isAs.get(child.getKey())) {
         addSql.add("<" + child.getKey() + "> <" + IM.IS_A + "> <" + ancestor + ">.");
       }
@@ -233,8 +267,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     for (Map.Entry<TTIriRef, TTArray> po : predicates.entrySet()) {
       String predicateIri = po.getKey().getIri();
       i++;
-      if (i > 1)
-        predList.append(", ");
+      if (i > 1) predList.append(", ");
       predList.append("<").append(predicateIri).append(">");
     }
     String spq = """
@@ -292,9 +325,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   private void addTriple(ModelBuilder builder, Resource subject, IRI predicate, TTValue value) throws TTFilerException {
     if (value.isLiteral()) {
       if (null != value.asLiteral().getValue())
-        builder.add(subject, predicate, value.asLiteral().getType() == null
-          ? literal(value.asLiteral().getValue())
-          : literal(value.asLiteral().getValue(), toIri(value.asLiteral().getType().getIri())));
+        builder.add(subject, predicate, value.asLiteral().getType() == null ? literal(value.asLiteral().getValue()) : literal(value.asLiteral().getValue(), toIri(value.asLiteral().getType().getIri())));
     } else if (value.isIriRef()) {
       builder.add(subject, predicate, toIri(value.asIriRef().getIri()));
     } else if (value.isNode()) {
@@ -323,26 +354,22 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
       String result = uri.toASCIIString();
 
 
-      if (!iri.equals(result))
-        LOG.trace("Encoded iri [{}] => [{}]", iri, result);
+      if (!iri.equals(result)) LOG.trace("Encoded iri [{}] => [{}]", iri, result);
 
       return iri(result);
     } catch (MalformedURLException | URISyntaxException e) {
-      throw new TTFilerException("Unable to encode iri", e);
+      throw new TTFilerException("Unable to encode iri: "+ iri, e);
     }
   }
 
   public String expand(String iri) throws TTFilerException {
-    if (prefixMap == null)
-      return iri;
+    if (prefixMap == null) return iri;
     try {
       int colonPos = iri.indexOf(":");
       String prefix = iri.substring(0, colonPos);
       String path = prefixMap.get(prefix);
-      if (path == null)
-        return iri;
-      else
-        return path + iri.substring(colonPos + 1);
+      if (path == null) return iri;
+      else return path + iri.substring(colonPos + 1);
     } catch (StringIndexOutOfBoundsException e) {
       LOG.debug("invalid iri [{}]", iri);
       throw new TTFilerException("Invalid iri format (" + iri + ")");

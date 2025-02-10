@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.transforms;
 import org.endeavourhealth.imapi.model.eclBuilder.*;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -78,6 +79,9 @@ public class IMQToECLBuilder {
     if (null != match.getInstanceOf()) {
       concept.setConstraintOperator(getOperator(match.getInstanceOf().get(0)));
       concept.setConceptSingle(new ConceptReference(match.getInstanceOf().get(0).getIri()));
+    } else if (null != match.getTypeOf() && match.getTypeOf().getIri().equals(IM.CONCEPT)) {
+      concept.setConstraintOperator("<<");
+      concept.setConceptSingle(new ConceptReference(SNOMED.ANY));
     } else if (null != match.getMatch()) {
       BoolGroup boolGroup = new BoolGroup();
       if (null != match.getBoolMatch()) boolGroup.setConjunction(match.getBoolMatch());

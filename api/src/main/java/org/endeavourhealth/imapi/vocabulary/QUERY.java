@@ -7,7 +7,7 @@ public class QUERY {
     public static final String NAMESPACE = QUERY.DOMAIN + "Query_";
     public static final String ALLOWABLE_RANGES = QUERY.NAMESPACE + "AllowableRanges";
     public static final String ALLOWABLE_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "AllowableRangeSuggestions";
-    public static final String GET_DESCENDANTS = QUERY.NAMESPACE + "GetDescendants";
+    public static final String GET_SUBCLASSES = QUERY.NAMESPACE + "GetSubClasses";
     public static final String GET_ANCESTORS = QUERY.NAMESPACE + "GetAncestors";
     public static final String SEARCH_CONTAINED_IN = QUERY.NAMESPACE + "SearchContainedIn";
     public static final String ALLOWABLE_CHILD_TYPES = QUERY.NAMESPACE + "AllowableChildTypes";

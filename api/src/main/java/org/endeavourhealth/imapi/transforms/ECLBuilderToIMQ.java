@@ -41,6 +41,9 @@ public class ECLBuilderToIMQ {
     if (builderComponent.isBoolGroup()) {
       processBoolGroup(builderComponent.asBoolGroup(), match);
     }
+    if (builderComponent.isRefinement()) {
+      processRefinement(builderComponent.asRefinement(), match, false);
+    }
   }
 
   private void processConcept(ExpressionConstraint expressionConstraint, Match match) throws EclBuilderException {

@@ -1,12 +1,11 @@
 package org.endeavourhealth.imapi.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.logic.service.FilerService;
-import org.endeavourhealth.imapi.logic.service.SearchService;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
+import org.endeavourhealth.imapi.logic.service.*;
 import org.endeavourhealth.imapi.model.ProblemDetailResponse;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
@@ -16,9 +15,9 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -27,17 +26,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.server.ResponseStatusException;
 
-
-import jakarta.servlet.http.HttpServletRequest;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -55,29 +50,51 @@ public class FilerController {
   private final FilerService filerService = new FilerService();
   private final EntityService entityService = new EntityService();
   private final RequestObjectService reqObjService = new RequestObjectService();
-
   private final SearchService searchService = new SearchService();
 
   @PostMapping("file/document")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-  public ResponseEntity fileDocument(@RequestBody TTDocument document, @RequestParam(name = "withoutTransaction", required = false) boolean withoutTransaction, HttpServletRequest request) throws Exception {
+  @Operation(summary = "Files a document and returns the task ID.")
+  public ResponseEntity<Map<String, String>> fileDocument(@RequestBody TTDocument document, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Document.POST")) {
       LOG.debug("fileDocument");
       String agentName = reqObjService.getRequestAgentName(request);
-      filerService.fileDocument(document, agentName);
-      return ResponseEntity.ok().build();
+      String taskId = UUID.randomUUID().toString();
+      Map<String, String> response = new HashMap<>();
+
+      String agentId = reqObjService.getRequestAgentId(request);
+      if(!filerService.userCanFile(agentId, document.getGraph())) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+      try {
+        filerService.fileDocument(document, agentName, taskId);
+        response.put("taskId", taskId);
+      } catch (Exception e) {
+        Integer taskProgress = filerService.getTaskProgress(taskId);
+        response.put("progress", taskProgress == null ? "NONE" : String.valueOf(taskProgress));
+      }
+      return ResponseEntity.ok(response);
     }
+  }
+
+  @GetMapping("file/document/{taskId}")
+  @Operation(summary = "Retrieves the progress of a document file operation.")
+  public ResponseEntity<Map<String, Integer>> getProgress(@PathVariable("taskId") String taskId) {
+    Integer progress = filerService.getTaskProgress(taskId);
+    Map<String, Integer> response = new HashMap<>();
+    response.put("progress", progress);
+    return ResponseEntity.ok(response);
   }
 
   @PostMapping("file/entity")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-  public void fileEntity(@RequestBody TTEntity entity, @RequestParam(name = "graph") String graph, @RequestParam(name = "crud") String crud, HttpServletRequest request) throws TTFilerException, IOException {
+  @Operation(summary = "Files an entity with specified graph and CRUD operation.")
+  public ResponseEntity<Void> fileEntity(@RequestBody TTEntity entity, @RequestParam(name = "graph") String graph, @RequestParam(name = "crud") String crud, HttpServletRequest request) throws TTFilerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Entity.POST")) {
       LOG.debug("fileEntity");
       String agentName = reqObjService.getRequestAgentName(request);
       TTEntity usedEntity = null;
       if (entityService.iriExists(entity.getIri())) {
-        usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
+        usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
         entity.setVersion(usedEntity.getVersion() + 1);
       }
 
@@ -85,13 +102,18 @@ public class FilerController {
 
       if (crud != null && !crud.isEmpty()) entity.setCrud(iri(crud));
 
+      String agentId = reqObjService.getRequestAgentId(request);
+      if(!filerService.userCanFile(agentId, new TTIriRef(graph))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
       filerService.fileEntity(entity, entity.getGraph(), agentName, usedEntity);
+      return ResponseEntity.ok().build();
     }
   }
 
   @PostMapping("folder/move")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-  public ResponseEntity moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, HttpServletRequest request) throws Exception {
+  @Operation(summary = "Moves an entity from one folder to another.")
+  public ResponseEntity<ProblemDetailResponse> moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Move.POST")) {
       LOG.debug("moveFolder");
 
@@ -121,7 +143,7 @@ public class FilerController {
       if (entityService.isLinked(newFolderIri, iri(IM.IS_CONTAINED_IN), oldFolderIri)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Target folder is a descendant of the Entity");
       }
-      TTEntity usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
+      TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
 
       folders.remove(iri(oldFolderIri));
       folders.add(iri(newFolderIri));
@@ -136,7 +158,8 @@ public class FilerController {
 
   @PostMapping("folder/add")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-  public ResponseEntity addToFolder(
+  @Operation(summary = "Adds an entity to a specified folder.")
+  public ResponseEntity<ProblemDetailResponse> addToFolder(
     @RequestParam(name = "entity") String entityIri,
     @RequestParam(name = "folder") String folderIri,
     HttpServletRequest request) throws Exception {
@@ -157,7 +180,7 @@ public class FilerController {
       folders.add(iri(folderIri));
 
       String agentName = reqObjService.getRequestAgentName(request);
-      TTEntity usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
+      TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
       filerService.fileEntity(entity, iri(GRAPH.DISCOVERY), agentName, usedEntity);
 
@@ -167,6 +190,7 @@ public class FilerController {
 
   @PostMapping("folder/create")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  @Operation(summary = "Creates a new folder within a specified container.")
   public String createFolder(
     @RequestParam(name = "container") String container,
     @RequestParam(name = "name") String name,
@@ -224,6 +248,7 @@ public class FilerController {
 
   @GetMapping("deltas/download")
   @PreAuthorize("hasAuthority('IMAdmin')")
+  @Operation(summary = "Downloads deltas as a zip file.")
   public HttpEntity<Object> downloadDeltas() throws NullPointerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Deltas.Download.GET")) {
       LOG.debug("downloadDeltas");

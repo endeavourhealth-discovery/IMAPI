@@ -2,12 +2,15 @@ package org.endeavourhealth.imapi.config;
 
 import org.endeavourhealth.imapi.errorhandling.RestAccessDeniedHandler;
 import org.endeavourhealth.imapi.errorhandling.RestAuthenticationEntryPoint;
+import org.endeavourhealth.imapi.utility.EnvHelper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -23,19 +26,13 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
+
+
   @Bean
   protected SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
     http
-      .csrf(c -> c.disable())
-      .authorizeHttpRequests(req -> req
-        .requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
-        .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
-        .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
-        .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll()
-        .requestMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
-        .requestMatchers(HttpMethod.GET, "/v3/**").permitAll()
-        .anyRequest().authenticated()
-      )
+      .csrf(AbstractHttpConfigurer::disable)
+      .authorizeHttpRequests(this::setRequestPermissions)
       .exceptionHandling(ex -> ex
         .accessDeniedHandler(accessDeniedHandler())
         .authenticationEntryPoint(authenticationEntryPoint())
@@ -50,11 +47,27 @@ public class SecurityConfig {
     return web -> web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
   }
 
+  protected void setRequestPermissions(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry req) {
+    if (EnvHelper.isPublicMode()) {
+      req.requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/v3/**").permitAll();
+    }
+
+    req.requestMatchers(HttpMethod.GET, "/api/status/public/**").permitAll()
+      .requestMatchers(HttpMethod.GET, "/api/cognito/public/config").permitAll()
+      .anyRequest().authenticated();
+  }
+
   private HttpFirewall allowUrlEncodedSlashHttpFirewall() {
     StrictHttpFirewall firewall = new StrictHttpFirewall();
     firewall.setAllowUrlEncodedSlash(true);
     firewall.setAllowUrlEncodedDoubleSlash(true);
-    firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST", "DELETE"));
+    firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST", "DELETE", "PUT"));
     return firewall;
   }
 

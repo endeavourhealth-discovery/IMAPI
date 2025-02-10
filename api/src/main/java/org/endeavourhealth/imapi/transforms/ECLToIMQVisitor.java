@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.parser.imecl.IMECLBaseVisitor;
@@ -34,7 +34,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
     Set<TTIriRef> toName = getToNameIris();
 
     if (!toName.isEmpty()) {
-      Map<String, String> nameMap = new EntityRepository2().getNameMap(toName);
+      Map<String, String> nameMap = new EntityRepository().getNameMap(toName);
       for (Node node : nodes) {
         if (node.getName() == null && node.getIri() != null)
           node.setName(nameMap.get(node.getIri()));
@@ -109,6 +109,9 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
       query.setWhere(match.getWhere());
     if (match.getBoolMatch() != null) {
       query.setBoolMatch(match.getBoolMatch());
+    }
+    if (match.getTypeOf() != null && match.getTypeOf().getIri().equals(IM.CONCEPT)) {
+      query.setTypeOf(match.getTypeOf());
     }
   }
 

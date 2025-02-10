@@ -15,7 +15,9 @@ import cz.habarta.typescript.generator.JsonLibrary
 import cz.habarta.typescript.generator.OptionalProperties
 import cz.habarta.typescript.generator.TypeScriptFileType
 
-if (ENV != 'prod') {
+if (ENV == 'prod') {
+  tasks.named("build") { finalizedBy("publish") }
+} else {
   compileJava.dependsOn 'staticConstGenerator'
 }
 
@@ -38,14 +40,14 @@ tasks {
       'org.endeavourhealth.imapi.model.workflow.**.*',
       'org.endeavourhealth.imapi.model.DownloadEntityOptions'
     ]
-    outputFile = '../../IMDirectory/im_library/src/interfaces/AutoGen.ts'
+    outputFile = '../../IMDirectory/src/interfaces/AutoGen.ts'
     outputKind = 'module'
     mapEnum = EnumMapping.asEnum
   }
   staticConstGenerator {
     inputJson = "vocab.json"
     javaOutputFolder = "src/main/java/org/endeavourhealth/imapi/vocabulary/"
-    typeScriptOutputFolder = "../../IMDirectory/im_library/src/vocabulary/"
+    typeScriptOutputFolder = "../../IMDirectory/src/vocabulary/"
   }
 }
 
@@ -69,7 +71,7 @@ dependencies {
   implementation libs.apacheText
   implementation libs.assertJ
   implementation libs.awsCognitoIDP
-  implementation libs.awsSDK
+  implementation libs.awsSDKBOM
   implementation libs.awsSDKCore
   implementation libs.awsS3
   implementation libs.dropwizard
@@ -85,6 +87,7 @@ dependencies {
   implementation libs.jerseyInject
   implementation libs.owlApi
   implementation libs.openLlet
+  implementation libs.postgres
   implementation libs.reactorCore
   implementation libs.rdf4jCommon
   implementation libs.rdf4jQuery
@@ -109,11 +112,12 @@ dependencies {
 
   testImplementation libs.cucumber
   testImplementation libs.cucumberJunit
-  testImplementation libs.junitRunner
-  testImplementation libs.junitVintage
+  testImplementation libs.junit
+  testImplementation libs.junitSuite
   testImplementation libs.mockito
   testImplementation libs.springTest
   testImplementation libs.springTestSecurity
+  testImplementation libs.systemStubs
 
   providedCompile libs.springTomcat
 
@@ -125,6 +129,11 @@ dependencies {
 }
 
 publishing {
+  publications {
+    maven(MavenPublication) {
+      from(components.java)
+    }
+  }
   repositories {
     maven {
       url = uri('https://artifactory.endhealth.co.uk/repository/maven-snapshots')

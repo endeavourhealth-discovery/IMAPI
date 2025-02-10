@@ -77,10 +77,14 @@ public class Reasoner {
       }
       simplifyDomains(c);
       reformChains(c);
-      if (c.isType(iri(OWL.OBJECT_PROPERTY)))
-        c.setType(new TTArray().add(iri(RDF.PROPERTY)));
-      if (c.isType(iri(OWL.DATATYPE_PROPERTY)))
-        c.setType(new TTArray().add(iri(RDF.PROPERTY)));
+      if (c.isType(iri(OWL.OBJECT_PROPERTY))) {
+        c.addType(iri(RDF.PROPERTY));
+        c.getType().remove(iri(OWL.OBJECT_PROPERTY));
+      }
+      if (c.isType(iri(OWL.DATATYPE_PROPERTY))) {
+        c.addType(iri(RDF.PROPERTY));
+        c.getType().remove(iri(OWL.DATATYPE_PROPERTY));
+      }
 
       c.getPredicateMap().remove(iri(OWL.EQUIVALENT_CLASS));
       c.getPredicateMap().remove(iri(OWL.PROPERTY_CHAIN));
@@ -455,6 +459,9 @@ public class Reasoner {
         if (shape.get(iri(IM.CONCEPT)) == null && superEntity.get(iri(IM.CONCEPT)) != null) {
           shape.set(iri(IM.CONCEPT), superEntity.get(iri(IM.CONCEPT)));
         }
+        if (shape.get(iri(SHACL.GROUP)) == null && superEntity.get(iri(SHACL.GROUP)) != null) {
+          shape.set(iri(SHACL.GROUP), superEntity.get(iri(SHACL.GROUP)));
+        }
       }
     }
   }
@@ -469,16 +476,13 @@ public class Reasoner {
     if (shape.get(iri(RDFS.SUBCLASS_OF)) != null) {
       processSuperClasses(properties, mergedProperties, shape);
       if (properties != null) {
+        for (TTValue p:properties.getElements()) {
+            if (p.asNode().get(iri(SHACL.ORDER)) == null) {
+              p.asNode().set(iri(SHACL.ORDER), TTLiteral.literal(1000));
+            }
+          }
         mergedProperties.addAll(properties.getElements());
       }
-      int newOrder = 1000;
-      for (TTValue property : mergedProperties) {
-        newOrder++;
-        if (property.asNode().get(iri(SHACL.ORDER)) == null) {
-          property.asNode().set(iri(SHACL.ORDER), TTLiteral.literal(newOrder));
-        }
-      }
-      mergedProperties.sort(Comparator.comparingInt(p -> ((TTNode) p).get(iri(SHACL.ORDER)).asLiteral().intValue()));
       TTArray newValue = new TTArray();
       mergedProperties.forEach(newValue::add);
       shape.set(iri(SHACL.PROPERTY), newValue);
@@ -488,14 +492,14 @@ public class Reasoner {
 
   public void mergeInheritedProperties(TTArray properties, List<TTValue> mergedProperties, TTValue superClass, TTEntity superEntity) {
     inheritProperties(superEntity);
-    if (superEntity.get(iri(SHACL.PROPERTY)) != null) {
+    if (superEntity.get(iri(SHACL.PROPERTY))!=null){
       for (TTValue superP : superEntity.get(iri(SHACL.PROPERTY)).getElements()) {
-        if (superP.asNode().get(iri(SHACL.PATH)) == null) {
-          TTNode inherited = copyNode(superP.asNode());
-          inherited.set(iri(IM.INHERITED_FROM), superClass);
-          mergedProperties.add(inherited);
-        } else {
-          if (!hasProperty(properties, superP.asNode().get(iri(SHACL.PATH)).asIriRef())) {
+        if (superP.asNode().get(iri(SHACL.PATH)) != null) {
+          if (!hasProperty(properties, superP.asNode().get(iri(SHACL.PATH)).asIriRef())
+            && !hasPath(mergedProperties, superP.asNode().get(iri(SHACL.PATH)).asIriRef())) {
+            if (superP.asNode().get(iri(SHACL.ORDER)) == null) {
+              superP.asNode().set(iri(SHACL.ORDER), TTLiteral.literal(1000));
+            }
             TTNode inherited = copyNode(superP.asNode());
             inherited.set(iri(IM.INHERITED_FROM), superClass);
             mergedProperties.add(inherited);
@@ -503,6 +507,18 @@ public class Reasoner {
         }
       }
     }
+  }
+
+  private boolean hasPath(List<TTValue> mergedProperties, TTIriRef iri) {
+    if (mergedProperties.isEmpty()){
+      return false;
+    }
+    for (TTValue p:mergedProperties){
+      if (p.asNode().get(iri(SHACL.PATH)).asIriRef().equals(iri)){
+        return true;
+      }
+    }
+    return false;
   }
 
 }

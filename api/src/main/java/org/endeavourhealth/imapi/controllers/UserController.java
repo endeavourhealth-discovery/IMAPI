@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
@@ -8,14 +9,11 @@ import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.UserService;
 import org.endeavourhealth.imapi.model.dto.BooleanBody;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
-import org.endeavourhealth.imapi.model.dto.ScaleDto;
-import org.endeavourhealth.imapi.model.dto.ThemeDto;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
@@ -26,13 +24,14 @@ import java.util.List;
 @RestController
 @RequestMapping("api/user")
 @CrossOrigin(origins = "*")
-@Tag(name = "UserController")
+@Tag(name = "UserController", description = "Controller for managing user preferences, accessibility features, and other user details.")
 @RequestScope
 public class UserController {
   private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
   private final UserService userService = new UserService();
   private final RequestObjectService requestObjectService = new RequestObjectService();
 
+  @Operation(summary = "Get user preset", description = "Fetches the user preset configuration based on the request.")
   @GetMapping(value = "/preset")
   public String getUserPreset(HttpServletRequest request) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
@@ -42,7 +41,8 @@ public class UserController {
     }
   }
 
-  @PostMapping(value = "/preset", consumes = "application/x-www-form-urlencoded")
+  @Operation(summary = "Update user preset", description = "Updates the user preset configuration.")
+  @PostMapping(value = "/preset", consumes = "text/plain")
   @ResponseStatus(HttpStatus.ACCEPTED)
   public void updateUserPreset(HttpServletRequest request, @RequestBody String preset) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
@@ -52,6 +52,7 @@ public class UserController {
     }
   }
 
+  @Operation(summary = "Get user primary color", description = "Fetches the primary color configuration for the user.")
   @GetMapping(value = "/primaryColor")
   public String getUserPrimaryColor(HttpServletRequest request) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
@@ -61,7 +62,8 @@ public class UserController {
     }
   }
 
-  @PostMapping(value = "/primaryColor", consumes = "application/x-www-form-urlencoded")
+  @Operation(summary = "Update user primary color", description = "Updates the primary color configuration for the user.")
+  @PostMapping(value = "/primaryColor", consumes = "text/plain")
   @ResponseStatus(HttpStatus.ACCEPTED)
   public void updateUserPriaryColor(HttpServletRequest request, @RequestBody String color) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
@@ -80,7 +82,7 @@ public class UserController {
     }
   }
 
-  @PostMapping(value = "/surfaceColor", consumes = "application/x-www-form-urlencoded")
+  @PostMapping(value = "/surfaceColor", consumes = "text/plain")
   @ResponseStatus(HttpStatus.ACCEPTED)
   public void updateUserSurfaceColor(HttpServletRequest request, @RequestBody String color) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
@@ -118,7 +120,7 @@ public class UserController {
     }
   }
 
-  @PostMapping(value = "/scale", consumes = "application/x-www-form-urlencoded", produces = "application/json")
+  @PostMapping(value = "/scale", consumes = "text/plain", produces = "application/json")
   @ResponseStatus(HttpStatus.ACCEPTED)
   public void updateUserScale(HttpServletRequest request, @RequestBody String scale) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Scale.POST")) {
@@ -175,6 +177,7 @@ public class UserController {
     }
   }
 
+  @Operation(summary = "Update user organisations", description = "Updates the list of organisations for a user. Requires admin authority.")
   @PostMapping(value = "/organisations", produces = "application/json")
   @ResponseStatus(HttpStatus.ACCEPTED)
   @PreAuthorize("hasAuthority('IMAdmin')")
@@ -193,6 +196,13 @@ public class UserController {
       LOG.debug(("getEditAccess"));
       String userId = requestObjectService.getRequestAgentId(request);
       return userService.getEditAccess(userId, iri);
+    }
+  }
+
+  @PostMapping(value = "/valid")
+  public void isValidUser() throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.User.Valid.GET")) {
+      LOG.debug("isValidUser");
     }
   }
 }

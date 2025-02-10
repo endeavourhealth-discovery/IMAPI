@@ -5,8 +5,19 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 public class Value implements Assignable {
   private Operator operator;
   private String value;
-  private String unit;
+  private String qualifier;
+  private String valueLabel;
+  private String valueParameter;
+  private TTIriRef unit;
 
+  public String getValueParameter() {
+    return valueParameter;
+  }
+
+  public Value setValueParameter(String valueParameter) {
+    this.valueParameter = valueParameter;
+    return this;
+  }
 
   public Operator getOperator() {
     return operator;
@@ -28,12 +39,38 @@ public class Value implements Assignable {
     return this;
   }
 
-  public String getUnit() {
-    return unit;
+
+  public String getQualifier() {
+    return this.qualifier;
   }
 
-  public Value setUnit(String unit) {
-    this.unit = unit;
+  @Override
+  public String getValueLabel() {
+    return this.valueLabel;
+  }
+
+
+  @Override
+  public Assignable setValueLabel(String label) {
+    this.valueLabel = label;
     return this;
   }
+
+  public Value setQualifier(String qualifier) {
+    this.qualifier = qualifier;
+    return this;
+  }
+
+  @Override
+  public TTIriRef getUnit() {
+    return this.unit;
+  }
+
+  @Override
+  public Assignable setUnit(TTIriRef intervalUnit) {
+    this.unit = intervalUnit;
+    return this;
+  }
+
+
 }

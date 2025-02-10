@@ -3,7 +3,8 @@ package org.endeavourhealth.imapi.transforms;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.eclBuilder.EclType;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
@@ -71,13 +72,19 @@ public class IMQToECL {
     if (matchType == null)
       return;
     if (matchType == EclType.simple) {
-      addClass(match.getInstanceOf().get(0), ecl, includeNames);
+      matchInstanceOf(match, ecl, includeNames);
     } else if (matchType == EclType.refined) {
-      if (match.getInstanceOf() != null)
-        addClass(match.getInstanceOf().get(0), ecl, includeNames);
-      else
+      if (match.getInstanceOf() != null) {
+        if (match.getInstanceOf().size() > 1) {
+          ecl.append("(");
+        }
+        matchInstanceOf(match, ecl, includeNames);
+      } else
         ecl.append("*");
-      addRefinementsToMatch(match, ecl, includeNames);
+      addRefinementsToMatch(match, ecl, includeNames, false);
+      if (match.getInstanceOf() != null)
+        if (match.getInstanceOf().size() > 1)
+          ecl.append(")");
       ecl.append("\n");
     } else if (matchType == EclType.compound || matchType == EclType.compoundRefined) {
       if (matchType == EclType.compoundRefined)
@@ -85,7 +92,7 @@ public class IMQToECL {
       boolean first = true;
       for (Match subMatch : match.getMatch()) {
         EclType subMatchType = getEclType(subMatch);
-        boolean bracket = (match.getMatch().size() > 1 && subMatchType == EclType.refined) ? true : false;
+        boolean bracket = match.getMatch().size() > 1 && subMatchType == EclType.refined;
         if (!first) {
           ecl.append("\n");
           if (match.getBoolMatch() == Bool.or) {
@@ -102,26 +109,47 @@ public class IMQToECL {
       }
       if (matchType == EclType.compoundRefined) {
         ecl.append(")");
-        addRefinementsToMatch(match, ecl, includeNames);
+        addRefinementsToMatch(match, ecl, includeNames, false);
       }
       ecl.append("\n");
     } else {
-      boolean first = true;
-      ecl.append("(");
       for (Match subMatch : match.getMatch()) {
         if (subMatch.isExclude()) {
-          ecl.append(")");
           ecl.append(" MINUS ");
         }
+        if (subMatch.getMatch().size() > 1) {
+          ecl.append("(");
+        }
         match(subMatch, ecl, includeNames);
+        if (subMatch.getMatch().size() > 1) {
+          ecl.append(")");
+        }
         ecl.append("\n");
       }
     }
   }
 
+  private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames) {
+    if (match.getInstanceOf().size() == 1) {
+      addClass(match.getInstanceOf().get(0), ecl, includeNames);
+    } else {
+      ecl.append("(");
+      boolean first = true;
+      for (Node instance : match.getInstanceOf()) {
+        if (!first) {
+          ecl.append(" OR ");
+        }
+        first = false;
+        addClass(instance, ecl, includeNames);
+        ecl.append("\n");
+      }
+      ecl.append(")");
+    }
+  }
 
-  private void addRefinementsToMatch(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
-    ecl.append(": ");
+
+  private void addRefinementsToMatch(Match match, StringBuilder ecl, boolean includeNames, boolean ignoreColon) throws QueryException {
+    if (!ignoreColon) ecl.append(": ");
     boolean first = true;
     for (Where where : match.getWhere()) {
       if (!first) {
@@ -130,7 +158,7 @@ public class IMQToECL {
       first = false;
       if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)) {
         ecl.append(" { ");
-        addRefinementsToMatch(where.getMatch(), ecl, includeNames);
+        addRefinementsToMatch(where.getMatch(), ecl, includeNames, true);
         ecl.append("}");
       } else {
         addRefined(where, ecl, includeNames);
@@ -141,7 +169,7 @@ public class IMQToECL {
   private void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames) throws QueryException {
     if (null != property.getIri() && property.getIri().equals(IM.ROLE_GROUP)) {
       ecl.append(" { ");
-      addRefinementsToMatch(property.getMatch(), ecl, includeNames);
+      addRefinementsToMatch(property.getMatch(), ecl, includeNames, true);
       ecl.append("}");
     } else {
       boolean first = true;
@@ -164,20 +192,27 @@ public class IMQToECL {
     try {
       if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)) {
         ecl.append(" { ");
-        addRefinementsToMatch(where.getMatch(), ecl, includeNames);
+        addRefinementsToMatch(where.getMatch(), ecl, includeNames, true);
         ecl.append("}");
       } else {
         if (null == where.getWhere()) {
-          addProperty(where, ecl, includeNames);
-          if (where.getMatch() != null) {
+          if (null == where.getIs() && null == where.getMatch())
+            throw new QueryException("Where clause must contain a value or sub match clause");
+          if (where.getIs() != null) {
+            boolean first = true;
+            for (Node value : where.getIs()) {
+              if (!first)
+                ecl.append("\n OR ");
+              first = false;
+              addProperty(where, ecl, includeNames);
+              ecl.append(" = ");
+              addClass(value, ecl, includeNames);
+            }
+          } else {
+            addProperty(where, ecl, includeNames);
             ecl.append(" = (");
             match(where.getMatch(), ecl, includeNames);
             ecl.append(")");
-          } else {
-            ecl.append(" = ");
-            if (null == where.getIs()) throw new QueryException("Where clause must contain 'instanceOf' value");
-            Node value = where.getIs().get(0);
-            addClass(value, ecl, includeNames);
           }
         } else {
           ecl.append("(");

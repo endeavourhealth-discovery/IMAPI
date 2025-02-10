@@ -3,18 +3,37 @@ package org.endeavourhealth.imapi.model.iml;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Concept extends Entity {
 
   private String code;
-  private Set<String> im1Id;
+  private String im1Id;
   private Set<TTIriRef> subClassOf;
   private Set<Concept> matchedFrom;
   private Integer usage;
   private String codeId;
   private String alternativeCode;
+  private Set<TTIriRef> subsumedBy;
+
+  public Set<TTIriRef> getSubsumedBy() {
+    return subsumedBy;
+  }
+
+  public Concept setSubsumedBy(Set<TTIriRef> subsumedBy) {
+    this.subsumedBy = subsumedBy;
+    return this;
+  }
+
+  public Concept addSubsumedBy(TTIriRef subsumedBy) {
+    if (this.subsumedBy == null)
+      this.subsumedBy = new HashSet<>();
+    this.subsumedBy.add(subsumedBy);
+    return this;
+  }
 
   public String getAlternativeCode() {
     return alternativeCode;
@@ -91,22 +110,6 @@ public class Concept extends Entity {
     return this;
   }
 
-  public Set<String> getIm1Id() {
-    return im1Id;
-  }
-
-  public Concept setIm1Id(Set<String> im1Id) {
-    this.im1Id = im1Id;
-    return this;
-  }
-
-  public Concept addIm1Id(String im1Id) {
-    if (this.im1Id == null)
-      this.im1Id = new HashSet<>();
-    this.im1Id.add(im1Id);
-    return this;
-  }
-
   public Set<Concept> getMatchedFrom() {
     return matchedFrom;
   }
@@ -121,5 +124,13 @@ public class Concept extends Entity {
       this.matchedFrom = new HashSet<>();
     this.matchedFrom.add(legacy);
     return this;
+  }
+
+  public String getIm1Id() {
+    return im1Id;
+  }
+
+  public void setIm1Id(String im1Id) {
+    this.im1Id = im1Id;
   }
 }

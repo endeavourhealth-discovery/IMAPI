@@ -36,7 +36,7 @@ public class EclService {
   }
 
   public Set<Concept> evaluateECLQuery(EclSearchRequest request) throws QueryException {
-    return setRepository.getSetExpansion(request.getEclQuery(), request.isIncludeLegacy(), request.getStatusFilter(), List.of(), new Page().setPageNumber(request.getPage()).setPageSize(request.getSize()));
+    return setRepository.getSetExpansionFromQuery(request.getEclQuery(), request.isIncludeLegacy(), request.getStatusFilter(), List.of(), new Page().setPageNumber(request.getPage()).setPageSize(request.getSize()));
   }
 
   public SearchResponse eclSearch(EclSearchRequest request) throws QueryException {
@@ -64,7 +64,7 @@ public class EclService {
     return new IMQToECL().getECLFromQuery(query, includeNames);
   }
 
-  public Query getQueryFromEcl(String ecl) throws DataFormatException, EclFormatException {
+  public Query getQueryFromEcl(String ecl) throws EclFormatException {
     return new ECLToIMQ().getQueryFromECL(ecl);
   }
 

@@ -17,7 +17,9 @@ public enum ErrorCodes {
   TT_FILER_EXCEPTION("TTFilerException"),
   QUERY_EXCEPTION("QueryException"),
   GENERAL_CUSTOM_EXCEPTION("GeneralCustomException"),
+  CONFIG_EXCEPTION("ConfigException"),
   DOWNLOAD_EXCEPTION("DownloadException"),
+  ILLEGAL_ARGUMENT_EXCEPTION("IllegalArgumentException"),
 
   ECL_BUILDER_EXCEPTION("EclBuilderException");
 

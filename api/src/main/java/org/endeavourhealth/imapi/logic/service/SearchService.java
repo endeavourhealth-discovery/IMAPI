@@ -3,7 +3,9 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.endeavourhealth.imapi.dataaccess.OSQuery;
 import org.endeavourhealth.imapi.dataaccess.PathRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
@@ -11,6 +13,9 @@ import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.vocabulary.IM;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Methods for searching open search / elastic repositories
@@ -24,11 +29,7 @@ public class SearchService {
   private static QueryRequest getHighestUseRequestFromQuery(QueryRequest queryRequest, ObjectMapper om, QueryRepository repo) throws JsonProcessingException, QueryException {
     QueryRequest highestUsageRequest = om.readValue(om.writeValueAsString(queryRequest), QueryRequest.class);
     repo.unpackQueryRequest(highestUsageRequest, om.createObjectNode());
-    if (null != highestUsageRequest.getQuery().getReturn()) {
-      highestUsageRequest.getQuery().getReturn().get(0).addProperty(new ReturnProperty().setIri(IM.USAGE_TOTAL).setValueRef(USAGE_TOTAL));
-    } else {
-      highestUsageRequest.getQuery().addReturn(new Return().addProperty(new ReturnProperty().setIri(IM.USAGE_TOTAL).setValueRef(USAGE_TOTAL)));
-    }
+    highestUsageRequest.getQuery().setReturn(new Return().property(p -> p.setIri(IM.USAGE_TOTAL).setValueRef(USAGE_TOTAL)));
     OrderDirection od = new OrderDirection().setDirection(Order.descending);
     od.setValueVariable(USAGE_TOTAL);
     highestUsageRequest.getQuery().setOrderBy(new OrderLimit().setProperty(od));
@@ -50,11 +51,45 @@ public class SearchService {
     if (null != queryRequest.getTextSearch()) {
       OSQuery osq = new OSQuery();
       JsonNode osResult = osq.imQuery(queryRequest);
-      if (osResult != null)
+      if (osResult.get("entities") != null)
         return osResult;
+      else {
+        return queryOSIM(queryRequest, repo);
+      }
     }
 
     return repo.queryIM(queryRequest, false);
+  }
+
+  private JsonNode queryOSIM(QueryRequest queryRequest, QueryRepository repo) throws QueryException {
+    OSQuery osq = new OSQuery();
+    JsonNode osResult = osq.imQuery(queryRequest, true);
+    if (osResult.get("entities") == null)
+      return osResult;
+    JsonNode imResult = repo.queryIM(queryRequest, false);
+    if (imResult.get("entities") == null) {
+      return imResult;
+    }
+    ArrayNode commonResult = new ObjectMapper().createArrayNode();
+    Set<String> imEntityIds = new HashSet<>();
+    for (JsonNode entity : imResult.get("entities")) {
+      JsonNode idNode = entity.get("@id");
+      if (idNode != null && idNode.isTextual()) {
+        imEntityIds.add(idNode.asText());
+      }
+    }
+    // Check if each @id in the second JSON's entities exists in the first JSON's @id set
+    for (JsonNode entity : osResult.get("entities")) {
+      JsonNode idNode = entity.get("@id");
+      if (idNode == null || !idNode.isTextual() || imEntityIds.contains(idNode.asText())) {
+        commonResult.add(entity);
+      }
+    }
+    if
+    (!commonResult.isEmpty()) {
+      return new ObjectMapper().createObjectNode().set("entities", commonResult);
+    } else
+      return new ObjectMapper().createObjectNode();
   }
 
   public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
@@ -81,13 +116,10 @@ public class SearchService {
       return new OSQuery().openSearchQuery(queryRequest);
     } else {
       QueryRequest highestUsageRequest = getHighestUseRequestFromQuery(queryRequest, om, repo);
-
       JsonNode queryResults = repo.queryIM(queryRequest, false);
       JsonNode highestUsageResults = repo.queryIM(highestUsageRequest, true);
-
       return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, highestUsageResults);
     }
-
   }
 
   public void validateQueryRequest(QueryRequest queryRequest) throws QueryException {

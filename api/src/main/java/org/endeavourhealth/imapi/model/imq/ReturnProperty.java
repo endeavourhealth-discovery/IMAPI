@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 public class ReturnProperty {
   private String iri;
   private String nodeRef;
+  private String name;
   private String propertyRef;
   private String value;
   private String valueRef;
@@ -24,10 +25,20 @@ public class ReturnProperty {
   private String as;
   private Return returx;
   private TTIriRef dataType;
-  private Case casex;
+  @JsonProperty("case")
+  private Case case_;
   private String description;
   private List<Match> match;
   private Bool boolMatch;
+
+  public String getName() {
+    return name;
+  }
+
+  public ReturnProperty setName(String name) {
+    this.name = name;
+    return this;
+  }
 
   public List<Match> getMatch() {
     return match;
@@ -65,12 +76,12 @@ public class ReturnProperty {
 
   @JsonProperty("case")
   public Case getCase() {
-    return casex;
+    return case_;
   }
 
   @JsonProperty("case")
-  public ReturnProperty setCase(Case casex) {
-    this.casex = casex;
+  public ReturnProperty setCase(Case case_) {
+    this.case_ = case_;
     return this;
   }
 

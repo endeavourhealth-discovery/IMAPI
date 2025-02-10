@@ -15,64 +15,12 @@
         "value": "\"cfg\""
       },
       {
-        "name": "DEFINITION",
-        "value": "CONFIG.NAMESPACE + \"definition\""
-      },
-      {
-        "name": "SUMMARY",
-        "value": "CONFIG.NAMESPACE + \"summary\""
-      },
-      {
-        "name": "FILTER_DEFAULTS",
-        "value": "CONFIG.NAMESPACE + \"filterDefaults\""
-      },
-      {
-        "name": "INFERRED_PREDICATES",
-        "value": "CONFIG.NAMESPACE + \"inferredPredicates\""
-      },
-      {
-        "name": "INFERRED_EXCLUDE_PREDICATES",
-        "value": "CONFIG.NAMESPACE + \"inferredExcludePredicates\""
-      },
-      {
-        "name": "CONCEPT_DASHBOARD",
-        "value": "CONFIG.NAMESPACE + \"conceptDashboard\""
-      },
-      {
-        "name": "DEFAULT_PREDICATE_NAMES",
-        "value": "CONFIG.NAMESPACE + \"defaultPredicateNames\""
-      },
-      {
-        "name": "XML_SCHEMA_DATA_TYPES",
-        "value": "CONFIG.NAMESPACE + \"xmlSchemaDataTypes\""
-      },
-      {
-        "name": "DEFAULT_PREFIXES",
-        "value": "CONFIG.NAMESPACE + \"defaultPrefixes\""
-      },
-      {
-        "name": "GRAPH_EXCLUDE_PREDICATES",
-        "value": "CONFIG.NAMESPACE + \"graphExcludePredicates\""
-      },
-      {
-        "name": "IM1_PUBLISH",
-        "value": "CONFIG.NAMESPACE + \"im1Publish\""
-      },
-      {
         "name": "IMDIRECTORY_LATEST_RELEASE",
         "value": "CONFIG.NAMESPACE + \"IMDirectoryLatestRelease\""
       },
       {
         "name": "IMDIRECTORY_ALL_RELEASES",
         "value": "CONFIG.NAMESPACE + \"IMDirectoryAllReleases\""
-      },
-      {
-        "name": "IMPORT_DATA_LATEST_RELEASE",
-        "value": "CONFIG.NAMESPACE + \"ImportDataLatestRelease\""
-      },
-      {
-        "name": "IMPORT_DATA_ALL_RELEASES",
-        "value": "CONFIG.NAMESPACE + \"ImportDataAllReleases\""
       },
       {
         "name": "MONITORING",
@@ -128,6 +76,38 @@
       {
         "name": "NAMESPACE",
         "value": "IM.DOMAIN + IM.PREFIX + \"#\""
+      },
+      {
+        "name": "DESCENDANTS_OR_SELF_OF",
+        "value": "IM.NAMESPACE + \"DescendantsOrSelfOf\""
+      },
+      {
+        "name": "DESCENDANTS_OF",
+        "value": "IM.NAMESPACE + \"DescendantsOf\""
+      },
+      {
+        "name": "IS_RELATIVE_VALUE",
+        "value": "IM.NAMESPACE + \"isRelativeValue\""
+      },
+      {
+        "name": "FULLY_SPECIFIED_NAME",
+        "value": "IM.NAMESPACE + \"fullySpecifiedName\""
+      },
+      {
+        "name": "ANCESTORS_OF",
+        "value": "IM.NAMESPACE + \"DncestorsOf\""
+      },
+      {
+        "name": "ENTAILED_MEMBER",
+        "value": "IM.NAMESPACE + \"entailedMember\""
+      },
+      {
+        "name": "ENTAILMENT",
+        "value": "IM.NAMESPACE + \"entailment\""
+      },
+      {
+        "name": "EXCLUDE",
+        "value": "IM.NAMESPACE + \"exclude\""
       },
       {
         "name": "IRI",
@@ -188,6 +168,10 @@
       {
         "name": "DEFINITION",
         "value": "IM.NAMESPACE + \"definition\""
+      },
+      {
+        "name": "INSTANCE_OF",
+        "value": "IM.NAMESPACE + \"instanceOf\""
       },
       {
         "name": "RETURN_TYPE",
@@ -354,16 +338,12 @@
         "value": "IM.NAMESPACE + \"subsumedBy\""
       },
       {
-        "name": "USUALLY_SUBSUMED_BY",
-        "value": "IM.NAMESPACE + \"usuallySubsumedBy\""
+        "name": "MAY_BE_SUBSUMED_BY",
+        "value": "IM.NAMESPACE + \"mayBeSubsumedBy\""
       },
       {
         "name": "APPROXIMATE_SUBSUMED_BY",
         "value": "IM.NAMESPACE + \"approximateSubsumedBy\""
-      },
-      {
-        "name": "MULTIPLE_SUBSUMED_BY",
-        "value": "IM.NAMESPACE + \"multipleSubsumedBy\""
       },
       {
         "name": "LOCAL_SUBCLASS_OF",
@@ -918,6 +898,10 @@
         "value": "IM.NAMESPACE + \"valueObject\""
       },
       {
+        "name": "PREPOSITION",
+        "value": "IM.NAMESPACE + \"preposition\""
+      },
+      {
         "name": "VALUE_IRI",
         "value": "IM.NAMESPACE + \"valueIri\""
       },
@@ -1014,7 +998,7 @@
         "value": "IM.NAMESPACE + \"loadMore\""
       },
       {
-        "name": "DATA_MODEL_CONCEPT",
+        "name": "DATA_MODEL_PROPERTY_CONCEPT",
         "value": "IM.NAMESPACE + \"concept\""
       },
       {
@@ -1028,7 +1012,72 @@
       {
         "name": "HAS_INCREMENTAL_FROM",
         "value": "IM.NAMESPACE + \"hasIncrementalFrom\""
+      },
+      {
+        "name": "CORE_SCHEMES",
+        "value": "IM.NAMESPACE + \"coreSchemes\""
+      },
+      {
+        "name": "INFERRED_PREDICATES",
+        "value": "IM.NAMESPACE + \"inferredPredicates\""
+      },
+      {
+        "name": "INFERRED_EXCLUDE_PREDICATES",
+        "value": "IM.NAMESPACE + \"inferredExcludePredicates\""
+      },
+      {
+        "name": "GRAPH_EXCLUDE_PREDICATES",
+        "value": "IM.NAMESPACE + \"graphExcludePredicates\""
+      },
+      {
+        "name": "AGE",
+        "value": "IM.NAMESPACE + \"Age\""
+      },
+      {
+        "name": "DATE",
+        "value": "IM.NAMESPACE + \"Date\""
+      },
+      {
+        "name": "TIME",
+        "value": "IM.NAMESPACE + \"Time\""
+      },
+      {
+        "name": "INTERVAL_UNIT",
+        "value": "IM.NAMESPACE + \"intervalUnit\""
+      },
+      {
+        "name": "PARAMETER",
+        "value": "IM.NAMESPACE + \"parameter\""
+      },
+      {
+        "name": "YEARS",
+        "value": "IM.NAMESPACE + \"Years\""
+      },
+      {
+        "name": "MONTHS",
+        "value": "IM.NAMESPACE + \"Months\""
+      },
+      {
+        "name": "DAYS",
+        "value": "IM.NAMESPACE + \"Days\""
+      },
+      {
+        "name": "HOURS",
+        "value": "IM.NAMESPACE + \"Hours\""
+      },
+      {
+        "name": "MINUTES",
+        "value": "IM.NAMESPACE + \"Minutes\""
+      },
+      {
+        "name": "SECONDS",
+        "value": "IM.NAMESPACE + \"Seconds\""
+      },
+      {
+        "name": "DATATYPE_QUALIFIER",
+        "value": "IM.NAMESPACE + \"datatypeQualifier\""
       }
+
     ]
   },
   {
@@ -1073,10 +1122,6 @@
       {
         "name": "GET_USER_EDITABLE_SCHEMES",
         "value": "IM_FUNCTION.NAMESPACE + \"GetUserEditableSchemes\""
-      },
-      {
-        "name": "GENERATE_IRI_CODE",
-        "value": "IM_FUNCTION.NAMESPACE + \"GenerateIriCode\""
       },
       {
         "name": "IS_TYPE",
@@ -1570,7 +1615,7 @@
       },
       {
         "name": "FUNCTION",
-        "value": "SHACL.NAMESPACE + \"FunctionClause\""
+        "value": "SHACL.NAMESPACE + \"Function\""
       },
       {
         "name": "RETURN_TYPE",
@@ -2019,9 +2064,10 @@
         "name": "ALLOWABLE_RANGE_SUGGESTIONS",
         "value": "QUERY.NAMESPACE + \"AllowableRangeSuggestions\""
       },
+
       {
-        "name": "GET_DESCENDANTS",
-        "value": "QUERY.NAMESPACE + \"GetDescendants\""
+        "name": "GET_SUBCLASSES",
+        "value": "QUERY.NAMESPACE + \"GetSubClasses\""
       },
       {
         "name": "GET_ANCESTORS",
@@ -2137,6 +2183,18 @@
   {
     "name": "GRAPH",
     "entries": [
+      {
+        "name": "FHIR",
+        "value": "\"http://hl7.org/fhir/\""
+      },
+      {
+        "name": "SMARTLIFE",
+        "value": "\"http://smartlifehealth.info/smh#\""
+      },
+      {
+        "name": "QOF",
+        "value": "\"http://endhealth.info/qof#\""
+      },
       {
         "name": "DISCOVERY",
         "value": "\"http://endhealth.info/im#\""

@@ -1,16 +1,16 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.*;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range"
-  , "operator", "isNull", "value", "unit", "instanceOf", "relativeTo", "anyRoleGroup"})
+@JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "instanceOf", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends PropertyRef {
+public class Where extends PropertyRef implements Assignable {
   private String description;
   private Range range;
   private List<Node> is;
@@ -19,13 +19,34 @@ public class Where extends PropertyRef {
   private List<Where> where;
   private Operator operator;
   private String value;
-  private String unit;
   private String valueLabel;
   private boolean anyRoleGroup;
   private boolean isNull;
   private PropertyRef relativeTo;
   private boolean isNotNull;
-  private String displayLabel;
+  private FunctionClause function;
+  private TTIriRef unit;
+
+  private String valueParameter;
+
+  public String getValueParameter() {
+    return valueParameter;
+  }
+
+  public Where setValueParameter(String valueParameter) {
+    this.valueParameter = valueParameter;
+    return this;
+  }
+
+
+  public FunctionClause getFunction() {
+    return function;
+  }
+
+  public Where setFunction(FunctionClause function) {
+    this.function = function;
+    return this;
+  }
 
   public Where() {
   }
@@ -38,14 +59,17 @@ public class Where extends PropertyRef {
     return new Where(iri);
   }
 
-  public String getDisplayLabel() {
-    return displayLabel;
-  }
 
-  public Where setDisplayLabel(String displayLabel) {
-    this.displayLabel = displayLabel;
+  public Where setQualifier(String qualifier) {
+    super.setQualifier(qualifier);
     return this;
   }
+
+  @Override
+  public String getValueLabel() {
+    return this.valueLabel;
+  }
+
 
   public Bool getBoolWhere() {
     return boolWhere;
@@ -85,8 +109,7 @@ public class Where extends PropertyRef {
   }
 
   public Where addWhere(Where prop) {
-    if (this.where == null)
-      this.where = new ArrayList<>();
+    if (this.where == null) this.where = new ArrayList<>();
     this.where.add(prop);
     return this;
   }
@@ -130,10 +153,6 @@ public class Where extends PropertyRef {
     return this;
   }
 
-
-  public String getValueLabel() {
-    return valueLabel;
-  }
 
   public Where setValueLabel(String valueLabel) {
     this.valueLabel = valueLabel;
@@ -193,8 +212,7 @@ public class Where extends PropertyRef {
 
 
   public Where addIs(Node isItem) {
-    if (this.is == null)
-      this.is = new ArrayList<>();
+    if (this.is == null) this.is = new ArrayList<>();
     this.is.add(isItem);
     return this;
   }
@@ -212,8 +230,7 @@ public class Where extends PropertyRef {
   }
 
   public Where addIs(String isIri) {
-    if (this.is == null)
-      this.is = new ArrayList<>();
+    if (this.is == null) this.is = new ArrayList<>();
     this.is.add(new Node().setIri(isIri));
     return this;
   }
@@ -255,14 +272,6 @@ public class Where extends PropertyRef {
     return this;
   }
 
-  public String getUnit() {
-    return this.unit;
-  }
-
-  public Where setUnit(String unit) {
-    this.unit = unit;
-    return this;
-  }
 
   public Range getRange() {
     return range;
@@ -279,5 +288,14 @@ public class Where extends PropertyRef {
     return this;
   }
 
+  @Override
+  public Where setUnit(TTIriRef intervalUnit) {
+    this.unit = intervalUnit;
+    return this;
+  }
+
+  public TTIriRef getUnit() {
+    return this.unit;
+  }
 
 }

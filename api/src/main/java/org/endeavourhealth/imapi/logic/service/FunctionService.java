@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
-import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
@@ -18,15 +17,13 @@ public class FunctionService {
   public static final String ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY = "One or more arguments are missing parameter key";
   public static final String ENTITY_IRI = "entityIri";
   public static final String NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY = "No entity iri where in request body";
-  private final ConceptRepository conceptRepository = new ConceptRepository();
   private final EntityService entityService = new EntityService();
   private final UserService userService = new UserService();
 
   private final RequestObjectService requestObjectService = new RequestObjectService();
 
-  public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws QueryException, TTFilerException, JsonProcessingException {
+  public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws JsonProcessingException {
     return switch (iri) {
-      case IM_FUNCTION.SNOMED_CONCEPT_GENERATOR -> conceptRepository.createConcept(IM.NAMESPACE);
       case IM_FUNCTION.LOCAL_NAME_RETRIEVER -> getLocalName(arguments);
       case IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES -> getAdditionalAllowableTypes(arguments);
       case IM_FUNCTION.GET_LOGIC_OPTIONS -> getLogicOptions();
@@ -34,7 +31,6 @@ public class FunctionService {
       case IM_FUNCTION.IM1_SCHEME_OPTIONS -> getIM1SchemeOptions();
       case IM_FUNCTION.SCHEME_FROM_IRI -> getSchemeFromIri(arguments);
       case IM_FUNCTION.GET_USER_EDITABLE_SCHEMES -> getUserEditableSchemes(request);
-      case IM_FUNCTION.GENERATE_IRI_CODE -> generateIriCode(arguments);
       default -> throw new IllegalArgumentException("No such function: " + iri);
     };
   }
@@ -138,28 +134,6 @@ public class FunctionService {
     List<String> results = entityService.getIM1SchemeOptions();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.stringArrayToTree(results);
-    }
-  }
-
-  private JsonNode generateIriCode(List<Argument> arguments) throws QueryException, TTFilerException, JsonProcessingException {
-    if (null == arguments)
-      throw new IllegalArgumentException("No arguments, send array of json where/value pairs in request body");
-    String entityIri = null;
-    for (Argument arg : arguments) {
-      if (null == arg.getParameter())
-        throw new IllegalArgumentException(ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY);
-      if ("scheme".equals(arg.getParameter())) entityIri = arg.getValueIri().getIri();
-    }
-    if (null == entityIri)
-      throw new IllegalArgumentException("No scheme parameter in request body");
-    List<EntityReferenceNode> schemes = entityService.getImmediateChildren(IM.GRAPH, null, 1, 200, false);
-    String finalEntityIri2 = entityIri;
-    if (schemes.stream().noneMatch(s -> s.getIri().equals(finalEntityIri2)))
-      throw new IllegalArgumentException("Iri is not a valid scheme");
-    try (CachedObjectMapper om = new CachedObjectMapper()) {
-      if (entityIri.equals(IM.NAMESPACE) || entityIri.equals(SNOMED.NAMESPACE)) {
-        return om.createObjectNode().put("code", conceptRepository.createConcept(IM.NAMESPACE).get("iri").get("@id").asText().split("#")[1]);
-      } else return om.createObjectNode().put("iri", "");
     }
   }
 }

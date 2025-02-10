@@ -110,8 +110,10 @@ public class TTBulkFiler implements TTDocumentFiler {
           }
         }
       }
-    } catch (IOException | InterruptedException e) {
-      if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+    } catch (IOException e) {
+      throw new TTFilerException(e.getMessage());
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       throw new TTFilerException(e.getMessage());
     }
   }
@@ -196,6 +198,7 @@ public class TTBulkFiler implements TTDocumentFiler {
       TTToNQuad converter = new TTToNQuad();
       LOG.info("Writing out graph data for {}", graph);
       for (TTEntity entity : document.getEntities()) {
+        counter++;
         String entityGraph = entity.getGraph() != null ? entity.getGraph().getIri() : graph;
         if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > getPrivacyLevel()))
           continue;
@@ -210,11 +213,12 @@ public class TTBulkFiler implements TTDocumentFiler {
         setStatusAndScheme(entity);
 
         transformAndWriteQuads(converter, entity, entityGraph);
+        if (counter % 100000 == 0) {
+          LOG.info("{} entities from {} written", counter, document.getGraph().getIri());
+        }
 
-        if (counter++ % 100_000 == 0)
-          LOG.info("Written {} entities for {}", counter, document.getGraph().getIri());
       }
-      LOG.debug("{} entities written to file", counter);
+      LOG.debug("{} entities written to file for {}", counter, document.getGraph().getIri());
       LOG.info("Finished - total of {} statements,  {}", statementCount, new Date());
     } catch (Exception e) {
       throw new TTFilerException(e.getMessage());

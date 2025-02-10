@@ -18,6 +18,18 @@ public class GithubRelease {
   String author;
   String url;
 
+  public GithubRelease(String version, String title, String createdDate, String publishedDate, List<String> releaseNotes, String author, String url) {
+    this.version = version;
+    this.title = title;
+    this.createdDate = createdDate;
+    this.publishedDate = publishedDate;
+    this.releaseNotes = releaseNotes;
+    this.author = author;
+    this.url = url;
+  }
+
+  public GithubRelease() {}
+
   public GithubRelease setVersion(String version) {
     this.version = version;
     return this;

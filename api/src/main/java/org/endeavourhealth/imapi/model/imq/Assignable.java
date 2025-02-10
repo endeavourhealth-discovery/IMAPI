@@ -11,8 +11,20 @@ public interface Assignable {
 
   public Assignable setValue(String value);
 
-  public String getUnit();
+  Assignable setQualifier(String qualifier);
 
-  public Assignable setUnit(String unit);
+  String getQualifier();
+
+  String getValueLabel();
+
+  Assignable setValueLabel(String label);
+
+  TTIriRef getUnit();
+
+  Assignable setUnit(TTIriRef unit);
+
+  Assignable setValueParameter(String parameter);
+
+  String getValueParameter();
 
 }

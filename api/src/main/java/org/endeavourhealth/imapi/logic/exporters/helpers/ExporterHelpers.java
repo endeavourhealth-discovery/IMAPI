@@ -8,30 +8,31 @@ public class ExporterHelpers {
   }
 
   public static String getUsage(Concept concept) {
-    return concept.getUsage() == null ? "" : concept.getUsage().toString();
+    return concept.getUsage() != null ? concept.getUsage().toString() : "null";
   }
 
   public static String getIsExtension(Concept concept) {
+    if (concept.getScheme() == null) return "null";
     return concept.getScheme().getIri().contains("sct#") ? "N" : "Y";
   }
 
   public static String getSubSet(Concept concept) {
-    return concept.getIsContainedIn() != null ? concept.getIsContainedIn().iterator().next().getName() : "";
+    return concept.getIsContainedIn() != null ? concept.getIsContainedIn().iterator().next().getName() : "null";
   }
 
   public static String getSubsetIri(Concept concept) {
-    return concept.getIsContainedIn() != null ? concept.getIsContainedIn().iterator().next().getIri() : "";
+    return concept.getIsContainedIn() != null ? concept.getIsContainedIn().iterator().next().getIri() : "null";
   }
 
   public static String setSubsetVersion(Concept concept) {
-    return concept.getIsContainedIn() != null ? String.valueOf(concept.getIsContainedIn().iterator().next().getVersion()) : "";
+    return concept.getIsContainedIn() != null ? String.valueOf(concept.getIsContainedIn().iterator().next().getVersion()) : "null";
   }
 
   public static String getCode(Concept concept) {
-    return concept.getAlternativeCode() == null ? concept.getCode() : concept.getAlternativeCode();
+    return concept.getAlternativeCode() != null ? concept.getAlternativeCode() : "null";
   }
 
   public static String getStatus(Concept concept) {
-    return concept.getStatus() != null ? concept.getStatus().getName() : null;
+    return concept.getStatus() != null ? concept.getStatus().getName() : "null";
   }
 }

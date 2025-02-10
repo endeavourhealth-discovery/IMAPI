@@ -13,15 +13,22 @@ public class SetOptions {
   private boolean includeSubsets;
   @Getter
   private List<String> schemes;
+  private boolean includeIM1id;
+  @Getter
+  private List<String> subsumptions;
 
-  public SetOptions(String setIri, boolean includeDefinition, boolean includeCore, boolean includeLegacy, boolean includeSubsets, List<String> schemes) {
+  public SetOptions(String setIri, boolean includeDefinition, boolean includeCore, boolean includeLegacy, boolean includeSubsets, List<String> schemes,
+                    List<String> subsumptions) {
     this.setIri = setIri;
     this.includeDefinition = includeDefinition;
     this.includeCore = includeCore;
     this.includeLegacy = includeLegacy;
     this.includeSubsets = includeSubsets;
     this.schemes = schemes;
+    this.subsumptions= subsumptions;
+
   }
+
 
   public boolean includeDefinition() {
     return includeDefinition;
@@ -66,6 +73,15 @@ public class SetOptions {
 
   public SetOptions setSchemes(List<String> schemes) {
     this.schemes = schemes;
+    return this;
+  }
+
+  public boolean isIncludeIM1id() {
+    return includeIM1id;
+  }
+
+  public SetOptions setIncludeIM1id(boolean includeIM1id) {
+    this.includeIM1id = includeIM1id;
     return this;
   }
 }

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
@@ -23,13 +24,14 @@ import java.util.List;
 @RestController
 @RequestMapping("api/user")
 @CrossOrigin(origins = "*")
-@Tag(name = "UserController")
+@Tag(name = "UserController", description = "Controller for managing user preferences, accessibility features, and other user details.")
 @RequestScope
 public class UserController {
   private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
   private final UserService userService = new UserService();
   private final RequestObjectService requestObjectService = new RequestObjectService();
 
+  @Operation(summary = "Get user preset", description = "Fetches the user preset configuration based on the request.")
   @GetMapping(value = "/preset")
   public String getUserPreset(HttpServletRequest request) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
@@ -39,6 +41,7 @@ public class UserController {
     }
   }
 
+  @Operation(summary = "Update user preset", description = "Updates the user preset configuration.")
   @PostMapping(value = "/preset", consumes = "text/plain")
   @ResponseStatus(HttpStatus.ACCEPTED)
   public void updateUserPreset(HttpServletRequest request, @RequestBody String preset) throws IOException {
@@ -49,6 +52,7 @@ public class UserController {
     }
   }
 
+  @Operation(summary = "Get user primary color", description = "Fetches the primary color configuration for the user.")
   @GetMapping(value = "/primaryColor")
   public String getUserPrimaryColor(HttpServletRequest request) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
@@ -58,6 +62,7 @@ public class UserController {
     }
   }
 
+  @Operation(summary = "Update user primary color", description = "Updates the primary color configuration for the user.")
   @PostMapping(value = "/primaryColor", consumes = "text/plain")
   @ResponseStatus(HttpStatus.ACCEPTED)
   public void updateUserPriaryColor(HttpServletRequest request, @RequestBody String color) throws IOException {
@@ -172,6 +177,7 @@ public class UserController {
     }
   }
 
+  @Operation(summary = "Update user organisations", description = "Updates the list of organisations for a user. Requires admin authority.")
   @PostMapping(value = "/organisations", produces = "application/json")
   @ResponseStatus(HttpStatus.ACCEPTED)
   @PreAuthorize("hasAuthority('IMAdmin')")

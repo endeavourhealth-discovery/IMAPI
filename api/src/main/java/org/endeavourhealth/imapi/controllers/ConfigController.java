@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.controllers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
@@ -30,10 +29,6 @@ public class ConfigController {
   ConfigManager configManager;
 
   @GetMapping(value = "public/monitoring")
-  @Operation(
-    summary = "Retrieve monitoring configuration",
-    description = "Fetches monitoring configuration details from the config manager"
-  )
   public String getMonitoring() throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.Monitoring.GET")) {
       LOG.debug("getMonitoring");

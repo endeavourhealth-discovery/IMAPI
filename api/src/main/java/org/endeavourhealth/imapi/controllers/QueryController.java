@@ -27,7 +27,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @RestController
 @RequestMapping("api/query")
 @CrossOrigin(origins = "*")
-@Tag(name = "Query APIs", description = "APIs for querying the Information Model")
+@Tag(name = "QueryController")
 @RequestScope
 public class QueryController {
   private static final Logger LOG = LoggerFactory.getLogger(QueryController.class);
@@ -81,14 +81,11 @@ public class QueryController {
   }
 
 
+
   @GetMapping(value = "/public/queryDisplay", produces = "application/json")
-  @Operation(
-    summary = "Describe a query",
-    description = "Retrieves the details of a query based on the given query IRI."
-  )
   public Query describeQuery(
     @RequestParam(name = "queryIri") String iri
-  ) throws IOException, QueryException {
+  ) throws IOException,QueryException  {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       LOG.debug("getQueryDisplay");
       return queryService.describeQuery(iri);
@@ -96,11 +93,8 @@ public class QueryController {
   }
 
   @PostMapping("/public/queryDisplayFromQuery")
-  @Operation(
-    summary = "Describe query content",
-    description = "Returns a query view, transforming an IMQ query into a viewable object."
-  )
-  public Query describeQueryContent(@RequestBody Query query) throws IOException, QueryException {
+  @Operation(summary = "get query view from imq as viewable object")
+  public Query describeQueryContent(@RequestBody Query query) throws IOException,QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
       LOG.debug("getQueryDisplay");
       return queryService.describeQuery(query);
@@ -108,10 +102,7 @@ public class QueryController {
   }
 
   @PostMapping("/public/sql")
-  @Operation(
-    summary = "Generate SQL",
-    description = "Generates SQL from the provided IMQ query."
-  )
+  @Operation(summary = "get sql from imq")
   public String getSQLFromIMQ(@RequestBody Query query) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQ.POST")) {
       LOG.debug("getSQLFromIMQ");
@@ -120,10 +111,7 @@ public class QueryController {
   }
 
   @GetMapping("/public/sql")
-  @Operation(
-    summary = "Generate SQL from IRI",
-    description = "Generates SQL from the given IMQ query IRI."
-  )
+  @Operation(summary = "get sql from imq iri")
   public String getSQLFromIMQIri(@RequestParam(name = "queryIri") String queryIri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       LOG.debug("getSQLFromIMQIri");

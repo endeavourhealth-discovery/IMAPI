@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.controllers;
 
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.aws.AWSCognitoClient;
@@ -27,10 +26,6 @@ public class CognitoController {
   private final RequestObjectService requestObjectService = new RequestObjectService();
 
   @GetMapping(value = "/public/config", produces = "application/json")
-  @Operation(
-    summary = "Get Cognito Configuration",
-    description = "Retrieves configuration details for AWS Cognito, including regions, identity pool, user pool, and web client."
-  )
   public String getConfig() {
     String region = Optional.ofNullable(System.getenv("COGNITO_REGION")).orElse("eu-west-2");
     String identity_pool = Optional.ofNullable(System.getenv("COGNITO_IDENTITY_POOL")).orElse("eu-west-2:a9f46df7-f27e-4cc5-827b-d573ecf20667");
@@ -43,7 +38,7 @@ public class CognitoController {
           "aws_cognito_identity_pool_id": "%s",
           "aws_cognito_region": "%s",
           "aws_user_pools_id": "%s",
-          "aws_cognito_web_client_id": "%s",
+          "aws_user_pools_web_client_id": "%s",
           "oauth": {},
           "aws_cognito_username_attributes": [],
           "aws_cognito_social_providers": [],
@@ -72,10 +67,6 @@ public class CognitoController {
   }
 
   @GetMapping(value = "/public/isEmailRegistered")
-  @Operation(
-    summary = "Check Email Registration",
-    description = "Checks if the provided email address is already registered in AWS Cognito."
-  )
   public boolean isEmailRegistered(@RequestParam("email") String email) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.COGNITO.isEmailRegistered.GET")) {
       LOG.debug("isEmailRegistered");
@@ -83,11 +74,7 @@ public class CognitoController {
     }
   }
 
-  @PostMapping(value = "/updateEmailVerified", produces = "application/json", consumes = "application/json")
-  @Operation(
-    summary = "Update Email Verification Status",
-    description = "Updates the email verification status for the specified user in AWS Cognito."
-  )
+  @PostMapping(value = "/updateEmailVerified")
   public void updateEmailVerified(HttpServletRequest httpServletRequest, @RequestBody BooleanBody verified) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.COGNITO.updateEmailVerified.POST")) {
       LOG.debug("updateEmailVerified");

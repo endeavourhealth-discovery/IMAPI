@@ -43,7 +43,7 @@ public class CognitoController {
           "aws_cognito_identity_pool_id": "%s",
           "aws_cognito_region": "%s",
           "aws_user_pools_id": "%s",
-          "aws_cognito_web_client_id": "%s",
+          "aws_user_pools_web_client_id": "%s",
           "oauth": {},
           "aws_cognito_username_attributes": [],
           "aws_cognito_social_providers": [],

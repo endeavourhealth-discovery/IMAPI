@@ -226,7 +226,7 @@ public class IMQToECL {
   }
 
 
-  private void addProperty(PropertyRef exp, StringBuilder ecl, boolean includeName) {
+  private void addProperty(Where exp, StringBuilder ecl, boolean includeName) {
     if (exp.isInverse())
       ecl.append(" R ");
     addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName());

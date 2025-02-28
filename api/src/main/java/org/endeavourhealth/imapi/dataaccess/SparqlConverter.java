@@ -303,15 +303,15 @@ public class SparqlConverter {
     if (match.getGraph() != null) {
       whereQl.append(" graph ").append(iriFromAlias(match.getGraph())).append(" {");
     }
-    if (match.getEntailement()!=null){
-      switch (match.getEntailement()){
+    if (match.getEntailment()!=null){
+      switch (match.getEntailment()){
         case descendantsOrSelfOf :
           o++;
           whereQl.append("?").append(subject).append(" <").append(IM.IS_A).append("> ?").append(subject+o).append(".\n");
           subject= subject+o;
           break;
         default :
-          throw new QueryException("Match entailment "+ match.getEntailement().toString()+" is not yet supported");
+          throw new QueryException("Match entailment "+ match.getEntailment().toString()+" is not yet supported");
       }
     }
     if (match.getMatch() != null) {
@@ -774,9 +774,9 @@ public class SparqlConverter {
   private void orderGroupLimit(StringBuilder selectQl, Query clause, boolean countOnly, boolean highestUsage) throws QueryException {
     if (null != clause.getGroupBy()) {
       selectQl.append("Group by ");
-      for (PropertyRef property : clause.getGroupBy()) {
-        if (property.getVariable() != null) {
-          selectQl.append(" ?").append(property.getVariable());
+      for (GroupBy property : clause.getGroupBy()) {
+        if (property.getPropertyRef() != null) {
+          selectQl.append(" ?").append(property.getPropertyRef());
         }
       }
     }

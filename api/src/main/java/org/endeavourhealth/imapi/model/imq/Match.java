@@ -1,17 +1,14 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import com.fasterxml.jackson.annotation.*;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-
-@JsonPropertyOrder({"name", "description", "exclude", "nodeRef", "boolMatch", "boolWhere", "iri", "typeOf", "instanceOf", "where", "match"})
+@JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "exclude", "nodeRef", "header","preface","boolMatch", "boolWhere", "iri", "typeOf", "instanceOf", "where", "match"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends IriLD{
+public class Match extends IriLD implements GraphNode {
 
   private Bool boolMatch;
   private Bool boolWhere;
@@ -29,19 +26,159 @@ public class Match extends IriLD{
   private Node typeOf;
   private String variable;
   private String name;
-  private Match then;
-  private List<IriLD> path;
+  private Path path;
   private String displayLabel;
   private boolean hasInlineSet;
   private FunctionClause function;
-  private Entail entailement;
+  private Entail entailment;
+  private Return returx;
+  private RuleAction ifTrue;
+  private RuleAction ifFalse;
+  private boolean hasRules;
+  @Getter
+  private boolean hasLinked;
+  @Getter
+  private boolean union;
+  @Getter
+  private boolean rule;
+  @Getter
+  private boolean hasTest;
+  @Getter
+  private boolean test;
+  @Getter
+  private String header;
+  @Getter
+  private String preface;
 
-  public Entail getEntailement() {
-    return entailement;
+
+  public Match setReturx(Return returx) {
+    this.returx = returx;
+    return this;
   }
 
-  public Match setEntailement(Entail entailement) {
-    this.entailement = entailement;
+  @JsonGetter
+  public boolean hasRules(){
+    return hasRules;
+  }
+
+
+
+
+  public Match setHeader(String header) {
+    this.header = header;
+    return this;
+  }
+
+  public Match setPreface(String preface) {
+    this.preface = preface;
+    return this;
+  }
+
+  public Match setHasRules(boolean hasRules) {
+    this.hasRules = hasRules;
+    return this;
+  }
+
+  public Match setHasLinked(boolean hasLinked) {
+    this.hasLinked = hasLinked;
+    return this;
+  }
+
+
+  public Match setIsUnion(boolean union) {
+    this.union = union;
+    return this;
+  }
+
+
+  @JsonSetter
+  public Match setIsRule(boolean rule) {
+    this.rule = rule;
+    return this;
+  }
+
+  public Match setHasTest(boolean hasTest) {
+    this.hasTest = hasTest;
+    return this;
+  }
+
+
+  @JsonSetter
+  public Match setIsTest(boolean test) {
+    this.test = test;
+    return this;
+  }
+
+
+
+
+  @Getter
+  private List<IriLD> isSubsetOf;
+  @Getter
+  private Match then;
+
+
+  public Match setIsSubsetOf(List<IriLD> isSubsetOf) {
+    this.isSubsetOf = isSubsetOf;
+    return this;
+  }
+  public Match addIsSubsetOf (IriLD isSubsetOf){
+      if (this.isSubsetOf == null) {
+        this.isSubsetOf = new ArrayList<>();
+      }
+      this.isSubsetOf.add(isSubsetOf);
+      return this;
+  }
+  public Match isSubsetOf (Consumer < IriLD > builder) {
+      IriLD isSubsetOf = new IriLD();
+      addIsSubsetOf(isSubsetOf);
+      builder.accept(isSubsetOf);
+      return this;
+  }
+
+
+  public RuleAction getIfTrue() {
+    return ifTrue;
+  }
+
+  public Match setIfTrue(RuleAction ifTrue) {
+    this.ifTrue = ifTrue;
+    return this;
+  }
+
+  public RuleAction getIfFalse() {
+    return ifFalse;
+  }
+
+  public Match setIfFalse(RuleAction ifFalse) {
+    this.ifFalse = ifFalse;
+    return this;
+  }
+
+
+  @JsonGetter
+  public Return getReturn() {
+    return returx;
+  }
+
+  @JsonSetter
+  public Match setReturn(Return returx) {
+    this.returx = returx;
+    return this;
+  }
+
+  public Match return_(Consumer<Return> builder) {
+    this.returx = new Return();
+    builder.accept(this.returx);
+    return this;
+  }
+
+  public Entail getEntailment() {
+    return entailment;
+  }
+
+  public Match setEntailment(Entail entailment) {
+    this.entailment = entailment;
     return this;
   }
 
@@ -53,11 +190,12 @@ public class Match extends IriLD{
     this.function = function;
     return this;
   }
-  public Match function (Consumer < FunctionClause > builder) {
-      FunctionClause function = new FunctionClause();
-      this.function = function;
-      builder.accept(function);
-      return this;
+
+  public Match function(Consumer<FunctionClause> builder) {
+    FunctionClause function = new FunctionClause();
+    this.function = function;
+    builder.accept(function);
+    return this;
   }
 
   public boolean isHasInlineSet() {
@@ -106,44 +244,24 @@ public class Match extends IriLD{
     return this;
   }
 
-  public Match getThen() {
-    return then;
-  }
-
-  public Match setThen(Match then) {
-    this.then = then;
-    return this;
-  }
-
-  public List<IriLD> getPath() {
+  @Override
+  public Path getPath() {
     return path;
   }
 
-  public Match setPath(List<IriLD> path) {
+  @Override
+  public Match setPath(Path path) {
     this.path = path;
     return this;
   }
 
-  public Match addPath(IriLD path) {
-    if (this.path == null)
-      this.path = new ArrayList();
-    this.path.add(path);
+  @Override
+  public Match path(Consumer<Path> builder) {
+    this.path = new Path();
+    builder.accept(this.path);
     return this;
   }
 
-  public Match path(Consumer<IriLD> builder) {
-    IriLD path = new IriLD();
-    addPath(path);
-    builder.accept(path);
-    return this;
-  }
-
-  public Match then(Consumer<Match> builder) {
-    Match match = new Match();
-    setThen(match);
-    builder.accept(match);
-    return this;
-  }
 
   @Override
   public Match setIri(String iri) {
@@ -340,4 +458,6 @@ public class Match extends IriLD{
     builder.accept(prop);
     return this;
   }
+
+
 }

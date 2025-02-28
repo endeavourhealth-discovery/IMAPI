@@ -18,6 +18,8 @@ public class EqdListToIMQ {
 
   public void convertReport(EQDOCReport eqReport, TTDocument document,Query query, EqdResources resources) throws IOException, QueryException, EQDException {
     this.resources = resources;
+    this.resources.setQueryType(QueryType.LIST);
+
     String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
     query.match(f -> f
       .addInstanceOf(new Node().setIri(resources.getNamespace() +id).setMemberOf(true))

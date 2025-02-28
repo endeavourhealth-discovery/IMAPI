@@ -69,11 +69,11 @@ public class OSQuery {
     return getStandardResults(request);
   }
 
-  public JsonNode imQuery(QueryRequest request) {
+  public JsonNode imQuery(QueryRequest request) throws OpenSearchException {
     return getNodeResults(request);
   }
 
-  public JsonNode imQuery(QueryRequest request, boolean ignoreInvalid) {
+  public JsonNode imQuery(QueryRequest request, boolean ignoreInvalid) throws OpenSearchException {
     this.ignoreInvalid = ignoreInvalid;
     return getNodeResults(request);
   }
@@ -328,7 +328,7 @@ public class OSQuery {
     }
   }
 
-  private JsonNode getNodeResults(QueryRequest request) {
+  private JsonNode getNodeResults(QueryRequest request) throws OpenSearchException {
     try {
       JsonNode root = getIMOSResults(request);
       if (root == null)
@@ -346,7 +346,7 @@ public class OSQuery {
       }
       return new ObjectMapper().createObjectNode();
     } catch (Exception e) {
-      return new ObjectMapper().createObjectNode();
+      throw new OpenSearchException(e.getMessage(),e);
     }
   }
 }

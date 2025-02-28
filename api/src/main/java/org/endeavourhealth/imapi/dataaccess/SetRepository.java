@@ -78,7 +78,7 @@ public class SetRepository {
 
   private Set<Concept> getReplacedExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
     Query replaced = new Query();
-    replaced.addMatch(imQuery);
+    replaced.setMatch(imQuery.getMatch());
     replaced.setVariable(ACTIVE_ENTITY);
     replaced.getMatch().get(0).setVariable(ACTIVE_ENTITY);
     if (replaced.getMatch().get(0).getMatch() != null) {

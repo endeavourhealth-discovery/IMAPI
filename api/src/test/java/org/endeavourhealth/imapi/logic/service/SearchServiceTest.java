@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.transforms.TTManager;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,6 +30,7 @@ class SearchServiceTest {
 
  //@Test
   void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
+   output(TestQueries.getMembers());
    output(TestQueries.getAllowableSubtypes());
    output(TestQueries.subtypesParameterised());
    output(TestQueries.getAllowableProperties());

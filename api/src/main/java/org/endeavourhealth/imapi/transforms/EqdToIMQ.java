@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.transforms;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
@@ -12,9 +12,9 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import java.io.IOException;
 import java.util.*;
@@ -51,11 +51,12 @@ public class EqdToIMQ {
       setNumber++;
   }
 
-  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap) throws IOException, QueryException, EQDException {
+  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap,Properties criteriaMaps) throws IOException, QueryException, EQDException {
 
       this.document= document;
       this.resources=new EqdResources(document,dataMap);
       this.namespace= document.getGraph().getIri();
+      this.resources.setCriteriaMaps(criteriaMaps);
       addReportNames(eqd);
       convertFolders(eqd);
       convertReports(eqd);
@@ -88,16 +89,16 @@ public class EqdToIMQ {
       for (TTEntity report : document.getEntities()) {
         if (report.get(IM.DEFINITION) != null) {
           Query query = report.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
-          if (query.getMatch() != null) {
-            if (query.getMatch().get(0).getInstanceOf() != null) {
-              if (gmsPatients.contains(query.getMatch().get(0).getInstanceOf().get(0).getIri())) {
-                List<Node> base = new ArrayList<>();
-                base.add(new Node().setIri(IM.NAMESPACE + "Q_RegisteredGMS").setMemberOf(true)
-                  .setName("Registered with GP for GMS services on the reference date"));
-                query.getMatch().get(0)
-                  .setInstanceOf(base);
-                report.set(IM.DEFINITION, TTLiteral.literal(query));
-              }
+          if (query.getQuery() != null) {
+            if (query.getMatch()!=null)
+              if (query.getIsSubsetOf() != null) {
+                if (gmsPatients.contains(query.getIsSubsetOf().get(0).getIri())) {
+                  List<IriLD> base = new ArrayList<>();
+                  base.add(new IriLD().setIri(IM.NAMESPACE + "Q_RegisteredGMS")
+                    .setName("Registered with GP for GMS services on the reference date"));
+                  query.setIsSubsetOf(base);
+                  report.set(IM.DEFINITION, TTLiteral.literal(query));
+                }
             }
           }
         }
@@ -129,12 +130,17 @@ public class EqdToIMQ {
     }
   }
 
+  public static  String getId(EQDOCReport report){
+    return report.getId();
+  }
+
 
   public TTEntity convertReport(EQDOCReport eqReport) throws IOException, QueryException, EQDException {
     resources.setActiveReport(eqReport.getId());
     resources.setActiveReportName(eqReport.getName());
+    String id= getId(eqReport);
     TTEntity queryEntity = new TTEntity();
-    queryEntity.setIri(namespace + eqReport.getId());
+    queryEntity.setIri(namespace + id);
     queryEntity.setName(eqReport.getName());
     queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
     if (eqReport.getFolder() != null) {
@@ -160,73 +166,17 @@ public class EqdToIMQ {
     }
     if (qry==null)
       return null;
-    if (qry.getMatch()!=null) {
-      flattenQuery(qry);
-    }
+    new LogicOptimizer().resolveLogic(qry, DisplayMode.ORIGINAL);
     queryEntity.set(iri(IM.DEFINITION),TTLiteral.literal(qry));
+
     return queryEntity;
   }
 
 
-  public static  void flattenQuery(Query qry) throws JsonProcessingException {
-    if (qry.getBoolMatch() == Bool.or) {
-      flattenOrs(qry);
-    }
-    if (qry.getWhere() != null) {
-      return;
-    }
-    if (qry.getMatch()==null)
-      return;
-    List<Match> flatMatches = new ArrayList<>();
-    flattenAnds(qry.getMatch(), flatMatches);
-    qry.setMatch(flatMatches);
-  }
 
-  private static void flattenAnds(List<Match> topMatches, List<Match> flatMatches) throws JsonProcessingException {
-    for (Match topMatch : topMatches) {
-      //Top level match, no nested match
-      if (topMatch.getMatch() == null) {
-        flatMatches.add(topMatch);
-      }
-      else if (topMatch.getBoolMatch() != Bool.or) {
-        if (topMatch.getVariable()!=null|| topMatch.getOrderBy()!=null){
-          System.err.println("Match errors");
-        }
-        flattenAnds(topMatch.getMatch(),flatMatches);
-      }
-      else {
-        flatMatches.add(topMatch);
-        flattenOrs(topMatch);
-      }
-    }
-    ObjectMapper om= new ObjectMapper();
-    Map<String,Match> duplicateDefinition= new HashMap<>();
-    Set<Match> duplicateMatches= new HashSet<>();
-    for (Match match:flatMatches){
-      String definition = om.writeValueAsString(match);
-      if (duplicateDefinition.get(definition)!=null){
-        duplicateMatches.add(match);
-      }
-      duplicateDefinition.put(definition,match);
-    }
-    if (!duplicateMatches.isEmpty()){
-      for (Match match:duplicateMatches){
-        flatMatches.remove(match);
-      }
-    }
 
-  }
 
-  private static void flattenOrs(Match topMatch) throws JsonProcessingException {
-    for (Match match:topMatch.getMatch()){
-      if (match.getMatch()!=null)
-        if (match.getBoolMatch().equals(Bool.and)){
-          List<Match> subFlatMatches = new ArrayList<>();
-          flattenAnds(match.getMatch(), subFlatMatches);
-          match.setMatch(subFlatMatches);
-        }
-    }
-  }
+
 
 
 }

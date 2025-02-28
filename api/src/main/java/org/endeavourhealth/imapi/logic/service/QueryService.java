@@ -38,12 +38,12 @@ public class QueryService {
     return queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
   }
 
-  public Query describeQuery(Query query) throws QueryException {
-    return new QueryDescriptor().describeQuery(query);
+  public Query describeQuery(Query query,DisplayMode displayMode) throws QueryException, JsonProcessingException {
+    return new QueryDescriptor().describeQuery(query,displayMode);
   }
 
-  public Query describeQuery(String queryIri) throws JsonProcessingException, QueryException {
-    return new QueryDescriptor().describeQuery(queryIri);
+  public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
+    return new QueryDescriptor().describeQuery(queryIri,displayMode);
   }
 
   public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults, JsonNode highestUsageResults) {

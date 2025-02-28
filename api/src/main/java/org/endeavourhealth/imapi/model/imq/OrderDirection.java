@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.imq;
 
-public class OrderDirection extends PropertyRef {
+public class OrderDirection extends RelativeTo {
   private Order direction;
 
   public Order getDirection() {

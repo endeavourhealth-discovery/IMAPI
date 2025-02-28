@@ -103,7 +103,6 @@ public class IMQtoSQLConverter {
       throw new SQLConversionException("UNHANDLED MATCH PATTERN\n" + match);
     }
 
-    if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen());
   }
 
   private void wrapMatchPartition(SQLQuery qry, OrderLimit order) throws SQLConversionException {
@@ -194,8 +193,6 @@ public class IMQtoSQLConverter {
       convertMatchPropertyIs(qry, property, property.getIs());
     } else if (property.getRange() != null) {
       convertMatchPropertyRange(qry, property);
-    } else if (property.getMatch() != null) {
-      convertMatchPropertySubMatch(qry, property);
     } else if (property.getRelativeTo() != null) {
       convertMatchPropertyRelative(qry, property);
     } else if (property.getValue() != null) {
@@ -290,22 +287,6 @@ public class IMQtoSQLConverter {
       return "(now() - INTERVAL '" + range.getValue() + (range.getUnit() != null ? " " + range.getUnit() : "") + "') " + range.getOperator().getValue() + " " + fieldName;
   }
 
-  private void convertMatchPropertySubMatch(SQLQuery qry, Where property) throws SQLConversionException {
-    if (property.getMatch() == null) {
-      throw new SQLConversionException("INVALID MatchPropertySubMatch\n" + property);
-    }
-
-    if (property.getMatch().getVariable() == null)
-      property.getMatch().setVariable(qry.getAlias(qry.getAlias() + "_sub"));
-
-    SQLQuery subQuery = convertMatchToQuery(qry, property.getMatch());
-
-    qry.getWiths().addAll(subQuery.getWiths());
-    subQuery.setWiths(new ArrayList<>());
-    qry.getWiths().add(subQuery.getAlias() + " AS (" + subQuery.toSql(2) + "\n)");
-
-    qry.getJoins().add(createJoin(qry, subQuery, "JOIN"));
-  }
 
   private void convertMatchPropertyInSet(SQLQuery qry, Where property) throws SQLConversionException {
     if (property.getIri() == null) throw new SQLConversionException("INVALID PROPERTY\n" + property);

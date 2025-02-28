@@ -4,14 +4,46 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.springframework.security.core.parameters.P;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 
 @JsonPropertyOrder({"parameter", "iri", "type", "set", "variable", "qualifier","name"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Node extends Element {
+public class Node extends Element implements GraphNode{
   private boolean exclude;
   private String code;
   private String type;
+  private Path path;
+  private boolean inverse;
+
+  public boolean isInverse() {
+    return inverse;
+  }
+
+  public Node setInverse(boolean inverse) {
+    this.inverse = inverse;
+    return this;
+  }
+
+  public Path getPath() {
+    return path;
+  }
+
+  public Node setPath(Path path) {
+    this.path = path;
+    return this;
+  }
+
+  public Node path (Consumer< Path > builder) {
+    this.path= new Path();
+    builder.accept(this.path);
+    return this;
+  }
+
 
   public String getType() {
     return type;

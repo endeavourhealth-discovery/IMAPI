@@ -12,6 +12,7 @@ public class EqdAuditToIMQ {
   public static final String POPULATION = "population_";
 
   public void convertReport(EQDOCReport eqReport, Query query, EqdResources resources) throws EQDException {
+    resources.setQueryType(QueryType.AGGREGATE_REPORT);
     for (String popId : eqReport.getAuditReport().getPopulation()) {
       Query popQuery= new Query();
       query.addQuery(popQuery);
@@ -47,7 +48,7 @@ public class EqdAuditToIMQ {
             populationReturn.addProperty(new ReturnProperty()
               .as(eqColumn)
               .setIri(pathMap[pathMap.length-1]));
-            popQuery.addGroupBy(new PropertyRef().setPropertyRef(eqColumn));
+            popQuery.addGroupBy(new GroupBy().setPropertyRef(eqColumn));
               }
             }
           }

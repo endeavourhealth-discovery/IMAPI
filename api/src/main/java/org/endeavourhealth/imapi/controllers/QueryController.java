@@ -40,7 +40,7 @@ public class QueryController {
     summary = "Query IM",
     description = "Runs a generic query on IM"
   )
-  public JsonNode queryIM(@RequestBody QueryRequest queryRequest) throws IOException, QueryException {
+  public JsonNode queryIM(@RequestBody QueryRequest queryRequest) throws IOException, QueryException,OpenSearchException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIM.POST")) {
       LOG.debug("queryIM");
       return searchService.queryIM(queryRequest);
@@ -87,11 +87,12 @@ public class QueryController {
     description = "Retrieves the details of a query based on the given query IRI."
   )
   public Query describeQuery(
-    @RequestParam(name = "queryIri") String iri
-  ) throws IOException, QueryException {
+    @RequestParam(name = "queryIri") String iri,
+    @RequestParam(name ="displayMode",defaultValue = "ORIGINAL") DisplayMode displayMode)
+    throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       LOG.debug("getQueryDisplay");
-      return queryService.describeQuery(iri);
+      return queryService.describeQuery(iri,displayMode);
     }
   }
 
@@ -103,7 +104,7 @@ public class QueryController {
   public Query describeQueryContent(@RequestBody Query query) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
       LOG.debug("getQueryDisplay");
-      return queryService.describeQuery(query);
+      return queryService.describeQuery(query,DisplayMode.ORIGINAL);
     }
   }
 

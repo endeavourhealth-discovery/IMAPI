@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.model.imq;
 
-public class PropertyRef extends Node {
+import com.fasterxml.jackson.annotation.JsonFilter;
+
+public class RelativeTo extends Node {
   private String valueVariable;
   private String propertyRef;
 
@@ -8,17 +10,17 @@ public class PropertyRef extends Node {
     return propertyRef;
   }
 
-  public PropertyRef setPropertyRef(String propertyRef) {
+  public RelativeTo setPropertyRef(String propertyRef) {
     this.propertyRef = propertyRef;
     return this;
   }
 
-  public PropertyRef setIri(String iri){
+  public RelativeTo setIri(String iri){
     super.setIri(iri);
     return this;
   }
 
-  public PropertyRef setNodeRef(String nodeRef) {
+  public RelativeTo setNodeRef(String nodeRef) {
     super.setNodeRef(nodeRef);
     return this;
   }
@@ -27,24 +29,24 @@ public class PropertyRef extends Node {
     return valueVariable;
   }
 
-  public PropertyRef setValueVariable(String valueVariable) {
+  public RelativeTo setValueVariable(String valueVariable) {
     this.valueVariable = valueVariable;
     return this;
   }
 
 
-  public PropertyRef setInverse(boolean inverse) {
+  public RelativeTo setInverse(boolean inverse) {
     super.setInverse(inverse);
     return this;
   }
 
-  public PropertyRef setParameter(String parameter) {
+  public RelativeTo setParameter(String parameter) {
     super.setParameter(parameter);
     return this;
   }
 
 
-  public PropertyRef setVariable(String variable) {
+  public RelativeTo setVariable(String variable) {
     super.setVariable(variable);
     return this;
   }

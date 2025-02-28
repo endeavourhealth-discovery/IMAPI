@@ -21,12 +21,12 @@
       } ],
       "where" : [ {
         "@id" : "im:hasMember",
-        "inverse" : true,
         "is" : [ {
           "@id" : "im:VSET_Conditions"
         }, {
           "@id" : "im:VSET_ASD"
-        } ]
+        } ],
+        "inverse" : true
       } ]
     } ]
   }

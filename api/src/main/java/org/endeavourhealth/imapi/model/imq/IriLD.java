@@ -15,16 +15,9 @@ public class IriLD {
   private String name;
   private String qualifier;
   private String description;
-  private boolean inverse;
 
-  public boolean isInverse() {
-    return inverse;
-  }
 
-  public IriLD setInverse(boolean inverse) {
-    this.inverse = inverse;
-    return this;
-  }
+
 
   public String getDescription() {
     return description;

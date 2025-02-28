@@ -10,10 +10,11 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "instanceOf", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends PropertyRef implements Assignable {
+public class Where extends Element implements Assignable {
   private String description;
   private Range range;
   private List<Node> is;
+  private boolean not;
   private Match match;
   private Bool boolWhere;
   private List<Where> where;
@@ -22,12 +23,23 @@ public class Where extends PropertyRef implements Assignable {
   private String valueLabel;
   private boolean anyRoleGroup;
   private boolean isNull;
-  private PropertyRef relativeTo;
+  private RelativeTo relativeTo;
   private boolean isNotNull;
   private FunctionClause function;
   private TTIriRef unit;
-
+  private boolean inverse;
   private String valueParameter;
+  private String valueVariable;
+
+
+  public boolean isNot() {
+    return not;
+  }
+
+  public Where setNot(boolean not) {
+    this.not = not;
+    return this;
+  }
 
   public String getValueParameter() {
     return valueParameter;
@@ -121,8 +133,12 @@ public class Where extends PropertyRef implements Assignable {
     return this;
   }
 
+  public String getValueVariable() {
+    return valueVariable;
+  }
+
   public Where setValueVariable(String valueVariable) {
-    super.setValueVariable(valueVariable);
+    this.valueVariable= valueVariable;
     return this;
   }
 
@@ -224,8 +240,12 @@ public class Where extends PropertyRef implements Assignable {
     return this;
   }
 
+  public boolean isInverse() {
+    return inverse;
+  }
+
   public Where setInverse(boolean inverse) {
-    super.setInverse(inverse);
+    this.inverse= inverse;
     return this;
   }
 
@@ -249,17 +269,17 @@ public class Where extends PropertyRef implements Assignable {
     return this;
   }
 
-  public PropertyRef getRelativeTo() {
+  public RelativeTo getRelativeTo() {
     return this.relativeTo;
   }
 
-  public Where setRelativeTo(PropertyRef relativeTo) {
+  public Where setRelativeTo(RelativeTo relativeTo) {
     this.relativeTo = relativeTo;
     return this;
   }
 
-  public Where relativeTo(Consumer<PropertyRef> builder) {
-    builder.accept(setRelativeTo(new PropertyRef()).getRelativeTo());
+  public Where relativeTo(Consumer<RelativeTo> builder) {
+    builder.accept(setRelativeTo(new RelativeTo()).getRelativeTo());
     return this;
   }
 

@@ -14,8 +14,6 @@ public class OrderLimit {
   private OrderDirection property;
   private int limit;
   private String description;
-  private PropertyRef partitionBy;
-
   public OrderDirection getProperty() {
     return property;
   }
@@ -25,15 +23,6 @@ public class OrderLimit {
     return this;
   }
 
-
-  public PropertyRef getPartitionBy() {
-    return partitionBy;
-  }
-
-  public OrderLimit setPartitionBy(PropertyRef partitionBy) {
-    this.partitionBy = partitionBy;
-    return this;
-  }
 
   public String getDescription() {
     return description;

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.Getter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 
 import java.util.ArrayList;
@@ -21,12 +23,20 @@ public class Query extends Match {
   private List<Query> query;
   private List<Match> match;
   private OrderLimit orderBy;
-  private List<PropertyRef> groupBy;
+  private List<GroupBy> groupBy;
   private Return returx;
   private String iri;
   private String name;
   private boolean imQuery;
   private JsonNode parentResult;
+  @Getter
+  private TTIriRef persistentIri;
+
+  public Query setPersistentIri(TTIriRef persistentIri) {
+    this.persistentIri = persistentIri;
+    return this;
+  }
+
 
   public Query function (Consumer < FunctionClause > builder) {
     FunctionClause function = new FunctionClause();
@@ -64,6 +74,11 @@ public class Query extends Match {
 
   public Query setPrefixes(Prefixes prefixes) {
     this.prefixes = prefixes;
+    return this;
+  }
+
+  public Query isSubsetOf(Consumer<IriLD> builder) {
+    super.isSubsetOf(builder);
     return this;
   }
 
@@ -174,24 +189,24 @@ public class Query extends Match {
   }
 
 
-  public List<PropertyRef> getGroupBy() {
+  public List<GroupBy> getGroupBy() {
     return groupBy;
   }
 
-  public Query setGroupBy(List<PropertyRef> groupBy) {
+  public Query setGroupBy(List<GroupBy> groupBy) {
     this.groupBy = groupBy;
     return this;
   }
 
-  public Query addGroupBy(PropertyRef group) {
+  public Query addGroupBy(GroupBy group) {
     if (this.groupBy == null)
       this.groupBy = new ArrayList<>();
     this.groupBy.add(group);
     return this;
   }
 
-  public Query groupBy(Consumer<PropertyRef> builder) {
-    PropertyRef group = new PropertyRef();
+  public Query groupBy(Consumer<GroupBy> builder) {
+    GroupBy group = new GroupBy();
     addGroupBy(group);
     builder.accept(group);
     return this;

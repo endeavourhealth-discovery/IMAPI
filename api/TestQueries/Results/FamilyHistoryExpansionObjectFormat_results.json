@@ -3045,42 +3045,6 @@
       "http://endhealth.info/im#code" : "12F.."
     } ]
   }, {
-    "@id" : "http://snomed.info/sct#297244007",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of urological disorder (situation)",
-    "http://endhealth.info/im#code" : "297244007",
-    "http://endhealth.info/im#matchedTo" : [ {
-      "@id" : "http://endhealth.info/emis#5838081000006113",
-      "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of urological disorder (emis code id)",
-      "http://endhealth.info/im#code" : "297244007"
-    } ]
-  }, {
-    "@id" : "http://snomed.info/sct#297244007",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of urological disorder (situation)",
-    "http://endhealth.info/im#code" : "297244007",
-    "http://endhealth.info/im#matchedTo" : [ {
-      "@id" : "http://endhealth.info/tpp#Xa6al",
-      "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of urological disorder",
-      "http://endhealth.info/im#code" : "Xa6al"
-    } ]
-  }, {
-    "@id" : "http://snomed.info/sct#297244007",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of urological disorder (situation)",
-    "http://endhealth.info/im#code" : "297244007",
-    "http://endhealth.info/im#matchedTo" : [ {
-      "@id" : "http://endhealth.info/icd10#Z841",
-      "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of disorders of kidney and ureter",
-      "http://endhealth.info/im#code" : "Z84.1"
-    } ]
-  }, {
-    "@id" : "http://snomed.info/sct#297244007",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of urological disorder (situation)",
-    "http://endhealth.info/im#code" : "297244007",
-    "http://endhealth.info/im#matchedTo" : [ {
-      "@id" : "http://endhealth.info/icd10#Z842",
-      "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of other diseases of the genitourinary system",
-      "http://endhealth.info/im#code" : "Z84.2"
-    } ]
-  }, {
     "@id" : "http://snomed.info/sct#275937001",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of malignant neoplasm (situation)",
     "http://endhealth.info/im#code" : "275937001",
@@ -3421,6 +3385,42 @@
       "@id" : "http://endhealth.info/vis#ZVu62",
       "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Family history/malignant neoplasm/other organs or systems",
       "http://endhealth.info/im#code" : "ZVu62"
+    } ]
+  }, {
+    "@id" : "http://snomed.info/sct#297244007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of urological disorder (situation)",
+    "http://endhealth.info/im#code" : "297244007",
+    "http://endhealth.info/im#matchedTo" : [ {
+      "@id" : "http://endhealth.info/emis#5838081000006113",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of urological disorder (emis code id)",
+      "http://endhealth.info/im#code" : "297244007"
+    } ]
+  }, {
+    "@id" : "http://snomed.info/sct#297244007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of urological disorder (situation)",
+    "http://endhealth.info/im#code" : "297244007",
+    "http://endhealth.info/im#matchedTo" : [ {
+      "@id" : "http://endhealth.info/tpp#Xa6al",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of urological disorder",
+      "http://endhealth.info/im#code" : "Xa6al"
+    } ]
+  }, {
+    "@id" : "http://snomed.info/sct#297244007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of urological disorder (situation)",
+    "http://endhealth.info/im#code" : "297244007",
+    "http://endhealth.info/im#matchedTo" : [ {
+      "@id" : "http://endhealth.info/icd10#Z841",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of disorders of kidney and ureter",
+      "http://endhealth.info/im#code" : "Z84.1"
+    } ]
+  }, {
+    "@id" : "http://snomed.info/sct#297244007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of urological disorder (situation)",
+    "http://endhealth.info/im#code" : "297244007",
+    "http://endhealth.info/im#matchedTo" : [ {
+      "@id" : "http://endhealth.info/icd10#Z842",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of other diseases of the genitourinary system",
+      "http://endhealth.info/im#code" : "Z84.2"
     } ]
   }, {
     "@id" : "http://snomed.info/sct#788921007",

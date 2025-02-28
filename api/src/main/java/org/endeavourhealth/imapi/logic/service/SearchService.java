@@ -44,7 +44,7 @@ public class SearchService {
    * @return a generic JSONDocument containing the results in a format defined by the select statement and including predicate map
    * @throws QueryException if query format is invalid
    */
-  public JsonNode queryIM(QueryRequest queryRequest) throws QueryException {
+  public JsonNode queryIM(QueryRequest queryRequest) throws QueryException, OpenSearchException {
     ObjectNode result = new ObjectMapper().createObjectNode();
     QueryRepository repo = new QueryRepository();
     repo.unpackQueryRequest(queryRequest, result);
@@ -61,7 +61,7 @@ public class SearchService {
     return repo.queryIM(queryRequest, false);
   }
 
-  private JsonNode queryOSIM(QueryRequest queryRequest, QueryRepository repo) throws QueryException {
+  private JsonNode queryOSIM(QueryRequest queryRequest, QueryRepository repo) throws QueryException, OpenSearchException {
     OSQuery osq = new OSQuery();
     JsonNode osResult = osq.imQuery(queryRequest, true);
     if (osResult.get("entities") == null)

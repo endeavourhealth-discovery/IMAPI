@@ -117,11 +117,11 @@ public class IMQToECL {
         if (subMatch.isExclude()) {
           ecl.append(" MINUS ");
         }
-        if (subMatch.getMatch().size() > 1) {
+        if (null != subMatch.getMatch() && subMatch.getMatch().size() > 1) {
           ecl.append("(");
         }
         match(subMatch, ecl, includeNames);
-        if (subMatch.getMatch().size() > 1) {
+        if (null != subMatch.getMatch() && subMatch.getMatch().size() > 1) {
           ecl.append(")");
         }
         ecl.append("\n");
@@ -157,7 +157,7 @@ public class IMQToECL {
       }
       first = false;
       if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)) {
-        ecl.append(" { ");
+        ecl.append("{");
         addRefinementsToMatch(where.getMatch(), ecl, includeNames, true);
         ecl.append("}");
       } else {
@@ -168,7 +168,7 @@ public class IMQToECL {
 
   private void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames) throws QueryException {
     if (null != property.getIri() && property.getIri().equals(IM.ROLE_GROUP)) {
-      ecl.append(" { ");
+      ecl.append("{");
       addRefinementsToMatch(property.getMatch(), ecl, includeNames, true);
       ecl.append("}");
     } else {
@@ -191,7 +191,7 @@ public class IMQToECL {
   private void addRefined(Where where, StringBuilder ecl, Boolean includeNames) throws QueryException {
     try {
       if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)) {
-        ecl.append(" { ");
+        ecl.append("{");
         addRefinementsToMatch(where.getMatch(), ecl, includeNames, true);
         ecl.append("}");
       } else {

@@ -3,26 +3,23 @@ package org.endeavourhealth.imapi.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.logic.service.QueryService;
+import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.concurrent.TimeoutException;
 import java.util.zip.DataFormatException;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @RestController
 @RequestMapping("api/query")
@@ -32,6 +29,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class QueryController {
   private static final Logger LOG = LoggerFactory.getLogger(QueryController.class);
 
+  private final RequestObjectService requestObjectService = new RequestObjectService();
+
   private final SearchService searchService = new SearchService();
   private final QueryService queryService = new QueryService();
 
@@ -40,7 +39,7 @@ public class QueryController {
     summary = "Query IM",
     description = "Runs a generic query on IM"
   )
-  public JsonNode queryIM(@RequestBody QueryRequest queryRequest) throws IOException, QueryException,OpenSearchException {
+  public JsonNode queryIM(@RequestBody QueryRequest queryRequest) throws IOException, QueryException, OpenSearchException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIM.POST")) {
       LOG.debug("queryIM");
       return searchService.queryIM(queryRequest);
@@ -88,11 +87,11 @@ public class QueryController {
   )
   public Query describeQuery(
     @RequestParam(name = "queryIri") String iri,
-    @RequestParam(name ="displayMode",defaultValue = "ORIGINAL") DisplayMode displayMode)
+    @RequestParam(name = "displayMode", defaultValue = "ORIGINAL") DisplayMode displayMode)
     throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       LOG.debug("getQueryDisplay");
-      return queryService.describeQuery(iri,displayMode);
+      return queryService.describeQuery(iri, displayMode);
     }
   }
 
@@ -104,7 +103,7 @@ public class QueryController {
   public Query describeQueryContent(@RequestBody Query query) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
       LOG.debug("getQueryDisplay");
-      return queryService.describeQuery(query,DisplayMode.ORIGINAL);
+      return queryService.describeQuery(query, DisplayMode.ORIGINAL);
     }
   }
 
@@ -129,6 +128,20 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       LOG.debug("getSQLFromIMQIri");
       return queryService.getSQLFromIMQIri(queryIri);
+    }
+  }
+
+  @PostMapping("/public/addToQueue")
+  @Operation(
+    summary = "Add query to execution queue",
+    description = "Transforms query to SQL and adds it to the execution queue"
+  )
+  public void addToQueue(HttpServletRequest request, @RequestBody Query query) throws IOException, TimeoutException, InterruptedException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.AddToQueue.POST")) {
+      LOG.debug("addToQueue");
+//      String userId = requestObjectService.getRequestAgentName(request);
+//      String sql = queryService.getSQLFromIMQ(query);
+      queryService.addToExecutionQueue("userId", "sql");
     }
   }
 }

@@ -89,6 +89,7 @@ dependencies {
   implementation libs.openLlet
   implementation libs.postgres
   implementation libs.reactorCore
+  implementation libs.rabbitmqAmqpClient
   implementation libs.rdf4jCommon
   implementation libs.rdf4jQuery
   implementation libs.rdf4jIterator
@@ -97,6 +98,7 @@ dependencies {
   implementation libs.rdf4jRepoSail
   implementation libs.rdf4jSailNative
   implementation libs.slf4j
+  implementation libs.springAmqp
   implementation libs.springContext
   implementation libs.springDataJpa
   implementation libs.springOauthServer

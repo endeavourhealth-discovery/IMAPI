@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
-import java.util.concurrent.TimeoutException;
 import java.util.zip.DataFormatException;
 
 @RestController
@@ -112,7 +112,7 @@ public class QueryController {
     summary = "Generate SQL",
     description = "Generates SQL from the provided IMQ query."
   )
-  public String getSQLFromIMQ(@RequestBody Query query) throws IOException {
+  public String getSQLFromIMQ(@RequestBody Query query) throws IOException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQ.POST")) {
       LOG.debug("getSQLFromIMQ");
       return queryService.getSQLFromIMQ(query);
@@ -124,7 +124,7 @@ public class QueryController {
     summary = "Generate SQL from IRI",
     description = "Generates SQL from the given IMQ query IRI."
   )
-  public String getSQLFromIMQIri(@RequestParam(name = "queryIri") String queryIri) throws IOException {
+  public String getSQLFromIMQIri(@RequestParam(name = "queryIri") String queryIri) throws IOException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       LOG.debug("getSQLFromIMQIri");
       return queryService.getSQLFromIMQIri(queryIri);
@@ -136,12 +136,16 @@ public class QueryController {
     summary = "Add query to execution queue",
     description = "Transforms query to SQL and adds it to the execution queue"
   )
-  public void addToQueue(HttpServletRequest request, @RequestBody Query query) throws IOException, TimeoutException, InterruptedException {
+  public void addToQueue(HttpServletRequest request, @RequestBody Query query) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.AddToQueue.POST")) {
       LOG.debug("addToQueue");
-//      String userId = requestObjectService.getRequestAgentName(request);
-//      String sql = queryService.getSQLFromIMQ(query);
-      queryService.addToExecutionQueue("userId", "sql");
+      try {
+        String userId = requestObjectService.getRequestAgentName(request);
+        queryService.getSQLFromIMQ(query);
+        queryService.addToExecutionQueue(userId, query);
+      } catch (SQLConversionException e) {
+        throw new QueryException(e.getMessage());
+      }
     }
   }
 }

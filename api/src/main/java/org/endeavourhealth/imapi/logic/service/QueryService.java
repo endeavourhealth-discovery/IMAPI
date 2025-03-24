@@ -73,15 +73,11 @@ public class QueryService {
     return searchResponse;
   }
 
-  public String getSQLFromIMQ(Query query) {
-    try {
-      return new IMQtoSQLConverter().IMQtoSQL(query);
-    } catch (SQLConversionException e) {
-      return e.getMessage();
-    }
+  public String getSQLFromIMQ(Query query) throws SQLConversionException {
+    return new IMQtoSQLConverter().IMQtoSQL(query);
   }
 
-  public String getSQLFromIMQIri(String queryIri) throws JsonProcessingException {
+  public String getSQLFromIMQIri(String queryIri) throws JsonProcessingException, SQLConversionException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null)
       return null;
@@ -89,9 +85,9 @@ public class QueryService {
     return getSQLFromIMQ(query);
   }
 
-  public void addToExecutionQueue(String userId, String sql) throws IOException, TimeoutException, InterruptedException {
+  public void addToExecutionQueue(String userId, Query query) throws Exception {
     if (null == connectionManager) connectionManager = new ConnectionManager();
-    connectionManager.publishToQueue(userId, sql);
+    connectionManager.publishToQueue(userId, query.toString());
   }
 
   public void executeQuery(String sql) throws IOException, TimeoutException {

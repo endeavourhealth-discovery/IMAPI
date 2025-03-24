@@ -77,11 +77,20 @@ public class IMQtoSQLConverter {
   }
 
   private SQLQuery createMatchQuery(Match match, SQLQuery qry) throws SQLConversionException {
+    String variable = getVariableFromMatch(match);
     if (match.getTypeOf() != null && !match.getTypeOf().getIri().equals(qry.getModel())) {
-      return qry.subQuery(match.getTypeOf().getIri(), match.getVariable(), tableMap);
+      return qry.subQuery(match.getTypeOf().getIri(), variable, tableMap);
     } else if (match.getNodeRef() != null && !match.getNodeRef().equals(qry.getModel())) {
-      return qry.subQuery(match.getNodeRef(), match.getVariable(), tableMap);
-    } else return qry.subQuery(qry.getModel(), match.getVariable(), tableMap);
+      return qry.subQuery(match.getNodeRef(), variable, tableMap);
+    } else return qry.subQuery(qry.getModel(), variable, tableMap);
+  }
+
+  private String getVariableFromMatch(Match match) {
+    if (match.getVariable() != null) {
+      return match.getVariable();
+    } else if (match.getReturn() != null && match.getReturn().getAs() != null) {
+      return match.getReturn().getAs();
+    } else return null;
   }
 
   private void convertMatch(Match match, SQLQuery qry) throws SQLConversionException {

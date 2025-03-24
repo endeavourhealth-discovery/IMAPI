@@ -14,7 +14,7 @@ import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class}, scanBasePackages = "org.endeavourhealth.imapi")
+@SpringBootApplication(scanBasePackages = "org.endeavourhealth.imapi")
 @Configuration
 @EntityScan("org.endeavourhealth.imapi")
 public class ImApiSpringApplication extends SpringBootServletInitializer {

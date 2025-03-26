@@ -21,7 +21,8 @@ public class IMQtoSQLConverter {
 
   public IMQtoSQLConverter() {
     try {
-      String text = Files.readString(Paths.get(getClass().getClassLoader().getResource("IMQtoSQL.json").toURI()));
+      // POSTGRES String text = Files.readString(Paths.get(getClass().getClassLoader().getResource("IMQtoSQL.json").toURI()));
+      String text = Files.readString(Paths.get(getClass().getClassLoader().getResource("IMQtoMYSQL.json").toURI()));
       tableMap = new ObjectMapper().readValue(text, new TypeReference<>() {
       });
     } catch (Exception e) {
@@ -125,7 +126,9 @@ public class IMQtoSQLConverter {
 
     // TODO: Correct partition field
     // String partField = "patient";
-    String partField = "((json ->> 'patient')::UUID)";
+    // POSTGRES String partField = "((json ->> 'patient')::UUID)";
+    String partField = "patient_id";
+
 
     ArrayList<String> o = new ArrayList<>();
 
@@ -250,13 +253,16 @@ public class IMQtoSQLConverter {
 
     String tct = "tct_" + qry.getJoins().size();
     if (!descendants.isEmpty()) {
-      qry.getJoins().add("JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap));
+      // POSTGRES qry.getJoins().add("JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap));
+      qry.getJoins().add("JOIN concept_tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap));
       qry.getWheres().add(descendants.size() == 1 ? tct + ".iri = '" + descendants.get(0) + "'" : tct + ".iri IN ('" + StringUtils.join(descendants, "',\n'") + "') AND " + tct + ".level > 0");
     } else if (!descendantsSelf.isEmpty()) {
-      qry.getJoins().add("JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap));
+      // POSTGRES qry.getJoins().add("JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap));
+      qry.getJoins().add("JOIN concept_tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap));
       qry.getWheres().add(descendantsSelf.size() == 1 ? tct + ".iri = '" + descendantsSelf.get(0) + "'" : tct + ".iri IN ('" + StringUtils.join(descendantsSelf, "',\n'") + "')");
     } else if (!ancestors.isEmpty()) {
-      qry.getJoins().add("JOIN tct AS " + tct + " ON " + tct + ".iri = " + qry.getFieldName(property.getIri(), null, tableMap));
+      // POSTGRES qry.getJoins().add("JOIN tct AS " + tct + " ON " + tct + ".iri = " + qry.getFieldName(property.getIri(), null, tableMap));
+      qry.getJoins().add("JOIN concept_tct AS " + tct + " ON " + tct + ".iri = " + qry.getFieldName(property.getIri(), null, tableMap));
       qry.getWheres().add(ancestors.size() == 1 ? tct + ".child = '" + ancestors.get(0) + "'" : tct + ".child IN ('" + StringUtils.join(ancestors, "',\n'") + "') AND " + tct + ".level > 0");
     }
   }
@@ -290,10 +296,11 @@ public class IMQtoSQLConverter {
   }
 
   private String convertMatchPropertyDateRangeNode(String fieldName, Assignable range) {
-    if ("DATE".equals(range.getUnit()))
+    if (range.getUnit() != null && "DATE".equals(range.getUnit().getName()))
       return "'" + range.getValue() + "' " + range.getOperator().getValue() + " " + fieldName;
     else
-      return "(now() - INTERVAL '" + range.getValue() + (range.getUnit() != null ? " " + range.getUnit() : "") + "') " + range.getOperator().getValue() + " " + fieldName;
+      // POSTGRES return "(now() - INTERVAL '" + range.getValue() + (range.getUnit() != null ? " " + range.getUnit().getName() : "") + "') " + range.getOperator().getValue() + " " + fieldName;
+      return "DATE_SUB(NOW(), INTERVAL " + range.getValue() + (range.getUnit() != null ? " " + range.getUnit().getName() : "") + ") " + range.getOperator().getValue() + " " + fieldName;
   }
 
 
@@ -345,7 +352,7 @@ public class IMQtoSQLConverter {
   private String convertMatchPropertyRelativeTo(SQLQuery qry, Where property, String field) throws SQLConversionException {
     String fieldType = qry.getFieldType(property.getIri(), null, tableMap);
     if ("date".equals(fieldType)) if (property.getValue() != null) {
-      return "(" + field + " + INTERVAL '" + property.getValue() + " " + property.getUnit() + "')";
+      return "(" + field + " + INTERVAL " + property.getValue() + " " + property.getUnit().getName() + ")";
     } else return field;
     else {
       throw new SQLConversionException("UNHANDLED RELATIVE TYPE (" + fieldType + ")\n" + property);

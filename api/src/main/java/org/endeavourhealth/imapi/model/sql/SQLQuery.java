@@ -125,7 +125,7 @@ public class SQLQuery {
 
   private Field getField(String field, String table, HashMap<String, Table> tableMap) throws SQLConversionException {
     Table map = table != null ? tableMap.get(table) : this.map;
-
+    LOG.info("{}", tableMap);
     if (map == null) throw new SQLConversionException("Unknown table [" + table + "]");
 
     if (map.getFields().get(field) != null) return map.getFields().get(field);
@@ -135,7 +135,8 @@ public class SQLQuery {
     // Default to string field in JSON blob
     String fieldName = field.substring(field.indexOf("#") + 1);
     Field returnField = new Field();
-    returnField.setField("(({alias}.json ->> '" + fieldName + "')::VARCHAR)");
+    // POSTGRES returnField.setField("(({alias}.json ->> '" + fieldName + "')::VARCHAR)");
+    returnField.setField("{alias}." + fieldName);
     returnField.setType("string");
     return returnField;
   }

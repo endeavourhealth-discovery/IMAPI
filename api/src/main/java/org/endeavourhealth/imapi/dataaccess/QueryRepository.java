@@ -203,9 +203,9 @@ public class QueryRepository {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
         Return aReturn = query.getReturn();
-          Map<String, ObjectNode> nodeMap = new HashMap<>();
-          bindReturn(bs, aReturn, entities, nodeMap);
-        }
+        Map<String, ObjectNode> nodeMap = new HashMap<>();
+        bindReturn(bs, aReturn, entities, nodeMap);
+      }
     }
     return result;
   }
@@ -423,11 +423,30 @@ public class QueryRepository {
     if (where.getId() != null)
       addToIriList(where.getId(), ttIris, iris);
 
+    if (where.getUnit() != null)
+      addToIriList(where.getUnit().getIri(), ttIris, iris);
+
     if (where.getIs() != null)
       for (Element in : where.getIs())
         addToIriList(in.getIri(), ttIris, iris);
     if (where.getMatch() != null)
       gatherFromLabels(where.getMatch(), ttIris, iris);
+    if (where.getRange() != null)
+      gatherRangeLabels(where.getRange(), ttIris, iris);
+  }
+
+  private void gatherRangeLabels(Range range, List<TTIriRef> ttIris, Map<String, String> iris) {
+    if (range.getFrom() != null) {
+      gatherValueLabels(range.getFrom(), ttIris, iris);
+    }
+    if (range.getTo() != null) {
+      gatherValueLabels(range.getTo(), ttIris, iris);
+    }
+  }
+
+  private void gatherValueLabels(org.endeavourhealth.imapi.model.imq.Value value, List<TTIriRef> ttIris, Map<String, String> iris) {
+    if (value.getUnit() != null)
+      addToIriList(value.getUnit().getIri(), ttIris, iris);
   }
 
   private void gatherFromLabels(Match match, List<TTIriRef> ttIris, Map<String, String> iris) {
@@ -466,7 +485,7 @@ public class QueryRepository {
         setMatchLabels(match, iriLabels);
       }
     }
-    if (query.getReturn() != null){
+    if (query.getReturn() != null) {
       Return select = query.getReturn();
       setReturnLabels(select, iriLabels);
     }
@@ -507,12 +526,27 @@ public class QueryRepository {
   private void setWhereLabels(Where where, Map<String, String> iris) {
     if (where.getId() != null)
       where.setName(iris.get(where.getId()));
+    if (where.getUnit() != null)
+      where.getUnit().setName(iris.get(where.getUnit().getIri()));
     if (where.getIs() != null)
       for (Element in : where.getIs())
         in.setName(iris.get(in.getIri()));
-    if (where.getMatch() != null) {
+    if (where.getMatch() != null)
       setMatchLabels(where.getMatch(), iris);
-    }
+    if (where.getRange() != null)
+      setRangeLabels(where.getRange(), iris);
+  }
+
+  private void setRangeLabels(Range range, Map<String, String> iris) {
+    if (range.getTo() != null)
+      setValueLabels(range.getTo(), iris);
+    if (range.getFrom() != null)
+      setValueLabels(range.getFrom(), iris);
+  }
+
+  private void setValueLabels(org.endeavourhealth.imapi.model.imq.Value value, Map<String, String> iris) {
+    if (value.getUnit() != null)
+      value.getUnit().setName(iris.get(value.getUnit().getIri()));
   }
 
   private void setReturnLabels(Return select, Map<String, String> iris) {

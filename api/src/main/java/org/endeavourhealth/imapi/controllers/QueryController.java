@@ -91,7 +91,7 @@ public class QueryController {
     @RequestParam(name ="displayMode",defaultValue = "ORIGINAL") DisplayMode displayMode)
     throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
-      LOG.debug("getQueryDisplay");
+      LOG.debug("describeQuery");
       return queryService.describeQuery(iri,displayMode);
     }
   }

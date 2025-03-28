@@ -298,9 +298,10 @@ public class IMQtoSQLConverter {
   private String convertMatchPropertyDateRangeNode(String fieldName, Assignable range) {
     if (range.getUnit() != null && "DATE".equals(range.getUnit().getName()))
       return "'" + range.getValue() + "' " + range.getOperator().getValue() + " " + fieldName;
-    else
+    else {
       // POSTGRES return "(now() - INTERVAL '" + range.getValue() + (range.getUnit() != null ? " " + range.getUnit().getName() : "") + "') " + range.getOperator().getValue() + " " + fieldName;
       return "DATE_SUB(NOW(), INTERVAL " + range.getValue() + (range.getUnit() != null ? " " + range.getUnit().getName() : "") + ") " + range.getOperator().getValue() + " " + fieldName;
+    }
   }
 
 

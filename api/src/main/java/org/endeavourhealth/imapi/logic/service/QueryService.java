@@ -7,20 +7,21 @@ import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.DisplayMode;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
 import org.endeavourhealth.imapi.rabbitmq.ConnectionManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -29,6 +30,7 @@ public class QueryService {
   public static final String ENTITIES = "entities";
   private final EntityRepository entityRepository = new EntityRepository();
   private ConnectionManager connectionManager;
+  private MYSQLConnectionManager mySQLConnectionManager;
 
   public Query getQueryFromIri(String queryIri) throws JsonProcessingException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
@@ -85,13 +87,14 @@ public class QueryService {
     return getSQLFromIMQ(query);
   }
 
-  public void addToExecutionQueue(String userId, Query query) throws Exception {
+  public void addToExecutionQueue(String userId, QueryRequest queryRequest) throws Exception {
     if (null == connectionManager) connectionManager = new ConnectionManager();
-    connectionManager.publishToQueue(userId, query.toString());
+    connectionManager.publishToQueue(userId, queryRequest.toString());
   }
 
-  public void executeQuery(String sql) throws IOException, TimeoutException {
-    System.out.println("Executing query: " + sql);
-    // TODO
+  public void executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException {
+    System.out.println("Executing query: " + queryRequest.getQuery().toString());
+    String sql = getSQLFromIMQ(queryRequest.getQuery());
+    mySQLConnectionManager.executeQuery(sql);
   }
 }

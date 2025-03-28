@@ -136,13 +136,13 @@ public class QueryController {
     summary = "Add query to execution queue",
     description = "Transforms query to SQL and adds it to the execution queue"
   )
-  public void addToQueue(HttpServletRequest request, @RequestBody Query query) throws Exception {
+  public void addToQueue(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.AddToQueue.POST")) {
       LOG.debug("addToQueue");
       try {
         String userId = requestObjectService.getRequestAgentName(request);
-        queryService.getSQLFromIMQ(query);
-        queryService.addToExecutionQueue(userId, query);
+        queryService.getSQLFromIMQ(queryRequest.getQuery());
+        queryService.addToExecutionQueue(userId, queryRequest);
       } catch (SQLConversionException e) {
         throw new QueryException(e.getMessage());
       }

@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.rabbitmq;
 
+import org.endeavourhealth.imapi.postgress.PostgresService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,8 @@ public class QueryConsumer implements ApplicationListener<ContextRefreshedEvent>
 
   @Autowired
   private ConnectionManager connectionManager = new ConnectionManager();
+  @Autowired
+  private PostgresService postgresService;
 
   public QueryConsumer() throws IOException, TimeoutException {
   }
@@ -23,7 +26,7 @@ public class QueryConsumer implements ApplicationListener<ContextRefreshedEvent>
   @Override
   public void onApplicationEvent(ContextRefreshedEvent event) {
     try {
-      connectionManager.createConsumerChannel();
+      connectionManager.createConsumerChannel(postgresService);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

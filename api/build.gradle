@@ -85,6 +85,7 @@ dependencies {
   implementation libs.hapiFHIRR4
   implementation libs.jerseyClient
   implementation libs.jerseyInject
+  implementation libs.mysql
   implementation libs.owlApi
   implementation libs.openLlet
   implementation libs.postgres

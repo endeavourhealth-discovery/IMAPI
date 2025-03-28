@@ -4,8 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DeliverCallback;
+import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.service.QueryService;
-import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.postgress.DBEntry;
 import org.endeavourhealth.imapi.postgress.PostgresService;
 import org.endeavourhealth.imapi.postgress.QueryExecutorStatus;
@@ -16,6 +17,7 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.Connection;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -29,9 +31,10 @@ public class ConnectionManager {
   private CachingConnectionFactory connectionFactory;
   private Connection connection;
   private Logger LOG = LoggerFactory.getLogger(ConnectionManager.class);
-  private PostgresService postgresService;
   private ObjectMapper om = new ObjectMapper();
   private QueryService queryService = new QueryService();
+  @Autowired
+  private PostgresService postgresService;
 
   public ConnectionManager() throws IOException, TimeoutException {
     connectionFactory = new CachingConnectionFactory();
@@ -65,7 +68,7 @@ public class ConnectionManager {
     admin.declareExchange(topicExchange);
   }
 
-  public void createConsumerChannel() throws IOException {
+  public void createConsumerChannel(PostgresService postgresService) throws IOException {
     createExchange();
     Channel channel = getConnection().createChannel(false);
     channel.exchangeDeclare(EXCHANGE_NAME, "topic", true);
@@ -80,12 +83,11 @@ public class ConnectionManager {
       entry.setStatus(QueryExecutorStatus.RUNNING);
       postgresService.update(entry);
       try {
-        Query query = om.readValue(message, Query.class);
-        String sql = queryService.getSQLFromIMQ(query);
-        // TODO run query
+        QueryRequest queryRequest = om.readValue(message, QueryRequest.class);
+        queryService.executeQuery(queryRequest);
         entry.setStatus(QueryExecutorStatus.COMPLETED);
         postgresService.update(entry);
-      } catch (Throwable e) {
+      } catch (Exception | SQLConversionException e) {
         entry.setStatus(QueryExecutorStatus.ERRORED);
         postgresService.update(entry);
       }

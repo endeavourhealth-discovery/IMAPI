@@ -35,22 +35,22 @@ public class SearchResultSummary {
   private Set<String> key;
   private Set<TTIriRef> isA = new HashSet<>();
   Set<SearchTermCode> termCode = new HashSet<>();
-  Set<TTIriRef> intervalUnit;
+  Set<TTIriRef> unit;
   List<TTIriRef> qualifier;
 
-  public Set<TTIriRef> getIntervalUnit() {
-    return intervalUnit;
+  public Set<TTIriRef> getUnit() {
+    return unit;
   }
 
-  public SearchResultSummary setIntervalUnit(Set<TTIriRef> intervalUnit) {
-    this.intervalUnit = intervalUnit;
+  public SearchResultSummary setUnit(Set<TTIriRef> unit) {
+    this.unit = unit;
     return this;
   }
   public SearchResultSummary addIntervalUnit (TTIriRef intervalUnit){
-      if (this.intervalUnit == null) {
-        this.intervalUnit = new HashSet<>();
+      if (this.unit == null) {
+        this.unit = new HashSet<>();
       }
-      this.intervalUnit.add(intervalUnit);
+      this.unit.add(intervalUnit);
       return this;
     }
   public SearchResultSummary intervalUnit (Consumer< TTIriRef > builder) {

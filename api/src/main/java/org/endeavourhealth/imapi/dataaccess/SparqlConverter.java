@@ -170,6 +170,11 @@ public class SparqlConverter {
       whereQl.append("?").append(mainEntity).append(" rdf:type ").append(iriFromString(query.getTypeOf().getIri())).append(".\n");
     }
     match(whereQl, mainEntity, query);
+    if (query.getWhere() != null) {
+      for (Where where : query.getWhere()) {
+        where(whereQl, mainEntity, where, null);
+      }
+    }
 
     if (Boolean.TRUE.equals(!countOnly && includeReturns) && null != query.getReturn()) {
       Return aReturn =query.getReturn();
@@ -314,8 +319,14 @@ public class SparqlConverter {
           throw new QueryException("Match entailment "+ match.getEntailment().toString()+" is not yet supported");
       }
     }
+    if (match.getPath()!=null){
+      String inverse= match.getPath().isInverse()?"^":"";
+      whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromAlias(match.getPath())).append(" ?").append(subject).append(o).append(".\n");
+      String pathSubject= subject+o;
+      where(whereQl,pathSubject,match.getPath().getWhere(),null);
+    }
     if (match.getMatch() != null) {
-      if ((match.getBoolMatch() != null && match.getBoolMatch() == Bool.or)) {
+      if ((match.getBool() != null && match.getBool() == Bool.or)) {
         for (int i = 0; i < match.getMatch().size(); i++) {
           if (i == 0)
             whereQl.append("{ \n");
@@ -342,7 +353,7 @@ public class SparqlConverter {
       }
     }
 
-    processMatchWhere(whereQl, subject, match.getWhere(), match.getBoolWhere());
+    processMatchWhere(whereQl, subject, match.getWhere(), match.getBool());
     if (match.getGraph() != null) {
       whereQl.append("}");
     }
@@ -543,6 +554,13 @@ public class SparqlConverter {
    * @param where   the where clause
    */
   private void where(StringBuilder whereQl, String subject, Where where, String parentVariable) throws QueryException {
+    if (where.getPath()!=null){
+      String inverse= where.getPath().isInverse()?"^":"";
+      whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromAlias(where.getPath())).append(" ?").append(subject).append(o).append(".\n");
+      String pathSubject= subject+o;
+      where(whereQl,pathSubject,where.getPath().getWhere(),null);
+      return;
+    }
     String propertyVariable = where.getVariable() != null ? where.getVariable() : parentVariable;
     if (where.isAnyRoleGroup() && !where.isInverse()) {
       whereQl.append("?").append(subject).append(" im:roleGroup ").append("?roleGroup").append(o).append(".\n");
@@ -596,7 +614,7 @@ public class SparqlConverter {
         match(whereQl, object, where.getMatch());
       }
     }
-    processMatchWhere(whereQl, subject, where.getWhere(), where.getBoolWhere());
+    processMatchWhere(whereQl, subject, where.getWhere(), where.getBool());
   }
 
   private void processWhereIsDescendantsOrSelfOf(StringBuilder whereQl, String inverse, String subject, String object, String property, Where where) {

@@ -148,13 +148,13 @@ public class EqdResources {
       Match boolMatch= new Match();
       if (memberOp==null)
         memberOp= VocMemberOperator.OR;
-      if (memberOp == VocMemberOperator.OR) boolMatch.setBoolMatch(Bool.or);
+      if (memberOp == VocMemberOperator.OR) boolMatch.setBool(Bool.or);
       for (EQDOCCriteria eqCriteria : groupCriteria) {
         boolMatch.addMatch(convertCriteria(eqCriteria));
       }
-      if (boolMatch.getBoolMatch()==null)
+      if (boolMatch.getBool()==null)
         if (boolMatch.getMatch().size()>1)
-          boolMatch.setBoolMatch(Bool.and);
+          boolMatch.setBool(Bool.and);
       return boolMatch;
     }
     else {
@@ -174,8 +174,9 @@ public class EqdResources {
   public Match getPopulationQuery(EQDOCCriteria eqCriteria){
     EQDOCSearchIdentifier search = eqCriteria.getPopulationCriterion();
     Match match = new Match();
-    match.addInstanceOf(new Node().setIri(namespace+search.getReportGuid()).setMemberOf(true))
-      .setName(reportNames.get(search.getReportGuid()));
+    match.addInstanceOf(new Node().setIri(namespace+search.getReportGuid())
+      .setName(reportNames.get(search.getReportGuid()))
+      .setMemberOf(true));
     return match;
   }
 
@@ -238,7 +239,7 @@ public class EqdResources {
       standardMatch.setDescription(eqCriterion.getDescription());
       return standardMatch;
     }
-    matchHolder= new Match().setHasLinked(true).setBoolMatch(Bool.and);
+    matchHolder= new Match().setHasLinked(true).setBool(Bool.and);
     if (baseMatch!=null)
       matchHolder.addMatch(baseMatch);
     if (standardMatch!=null)
@@ -307,20 +308,20 @@ public class EqdResources {
 
 
 
-  private Match setMatchId(EQDOCCriterion eqCriterion, int index, Match match) {
-    if (eqCriterion.getId() != null&&match.getIri()==null) {
-      if (index==0) match.setIri(namespace + eqCriterion.getId());
-      else match.setIri(namespace+index+ eqCriterion.getId());
+  private Match setMatchId(String eqId, int index, Match match) {
+    if (eqId != null&&match.getIri()==null) {
+      if (index==0) match.setIri(namespace + eqId);
+      else match.setIri(namespace+index+ eqId);
     }
     if (match.getWhere() != null && match.getWhere().size() > 1) {
-      match.setBoolWhere(Bool.and);
+      match.setBool(Bool.and);
     }
     return match;
   }
 
 
   private Match convertStandardCriterion(EQDOCCriterion eqCriterion,String nodeRef) throws IOException, QueryException, EQDException {
-    Match match = convertColumns(eqCriterion);
+    Match match = convertCriteriaColumns(eqCriterion);
     if (eqCriterion.getFilterAttribute().getRestriction()!=null) {
       if (match == null)
         match = new Match();
@@ -333,15 +334,19 @@ public class EqdResources {
     return match;
   }
 
-  private Match convertColumns(EQDOCCriterion eqCriterion) throws IOException, EQDException {
-    if (eqCriterion.getFilterAttribute().getColumnValue().size()==0)
+  private Match convertCriteriaColumns(EQDOCCriterion eqCriterion) throws IOException, EQDException {
+    if (eqCriterion.getFilterAttribute().getColumnValue().size() == 0)
       return null;
+    return convertColumns(eqCriterion.getTable(), eqCriterion.isNegation(), eqCriterion.getId(),eqCriterion.getFilterAttribute().getColumnValue());
+  }
+
+  private Match convertColumns(String table, boolean negation,String eqId,List<EQDOCColumnValue> columns) throws EQDException, IOException {
+  int index=0;
     Match match = new Match();
-    int index=0;
-    for (EQDOCColumnValue cv : eqCriterion.getFilterAttribute().getColumnValue()) {
+    for (EQDOCColumnValue cv : columns) {
       if (!ignoreColumn(cv)) {
         index++;
-        convertColumn(eqCriterion, cv, match, index);
+        convertColumn(table, negation,eqId,cv, match, index);
       }
     }
     return match;
@@ -360,60 +365,42 @@ public class EqdResources {
     return false;
   }
 
-  private void convertColumn(EQDOCCriterion eqCriterion, EQDOCColumnValue cv, Match match,int index) throws EQDException, IOException {
-    String tablePath = getPath(eqCriterion.getTable());
+  private void convertColumn(String table, boolean negation, String eqId,EQDOCColumnValue cv, Match match,int index) throws EQDException, IOException {
+    String tablePath = getPath(table);
     String eqColumn = String.join("/", cv.getColumn());
-    String eqURL = eqCriterion.getTable() + "/" + eqColumn;
+    String eqURL = table + "/" + eqColumn;
     sourceContext= eqURL;
     String columnPath = getPath(eqURL);
-    String fullPath= (tablePath+" "+ columnPath).trim();
-    GraphNode thisNode= getPathNode(match,fullPath);
-    if (eqCriterion.isNegation()) {
+    String[] fullPath= (tablePath+" "+ columnPath).trim().split(" ");
+    Where where = getPathWhere(match,fullPath);
+    if (negation) {
       match.setExclude(true);
     }
-    setMatchId(eqCriterion, index,match);
+    setMatchId(eqId, index,match);
     String property;
     if (columnPath.contains(" ")) property = columnPath.substring(columnPath.lastIndexOf(" ") + 1);
     else property = columnPath;
-    Where where = new Where();
-    if (thisNode.getVariable()!=null) where.setNodeRef(thisNode.getVariable());
+
     match.addWhere(where);
     where.setIri(property);
     convertColumnValue(cv, where);
-    if (match.getWhere().size() > 1) match.setBoolWhere(Bool.and);
+    if (match.getWhere().size() > 1) match.setBool(Bool.and);
   }
 
-  private GraphNode getPathNode(Match match, String fullPath) {
-    String[] paths = fullPath.split(" ");
-    GraphNode thisNode= match;
-    for (int i = 0; i < paths.length - 1; i++) {
-      Path path = new Path();
-      String pathIri = paths[i];
-      if (pathIri.startsWith("^")) {
-        path.setInverse(true);
-        pathIri = pathIri.substring(1);
-      }
-      path.setIri(pathIri);
-      Node nextNode = findNodeFromPath(thisNode, pathIri);
-      if (nextNode == null) {
-        thisNode.setPath(path);
-        path.setNode(new Node());
-        thisNode = path.getNode();
-      }
-      else thisNode = nextNode;
-      if (thisNode.getVariable()==null){
-        thisNode.setVariable(path.getIri().substring(path.getIri().lastIndexOf("#")+1));
-      }
+  private Where getPathWhere(Match match,String[] paths) {
+    Where where = new Where();
+    for (int i=0;i<paths.length-1;i=i+2) {
+      String path = paths[i];
+      boolean inverse = path.startsWith("^");
+      String pathIri = path.replaceFirst("^", "");
+      where.setPath(new Path().setIri(pathIri).setInverse(inverse));
+      where.getPath().setWhere(new Where());
+      where= where.getPath().getWhere();
+      where.setTypeOf(new Node().setIri(paths[i+1]));
     }
-    return thisNode;
+    return where;
   }
 
-  private Node findNodeFromPath(GraphNode node, String pathIri) {
-    if (node.getPath()==null) return null;
-    Path path= node.getPath();
-    if (path.getIri().equals(pathIri)) return path.getNode();
-    return findNodeFromPath(path.getNode(),pathIri);
-  }
 
 
   private void convertColumnValue(EQDOCColumnValue cv, Where pv) throws IOException, EQDException {
@@ -487,15 +474,8 @@ public class EqdResources {
 
 
   private Match convertTestCriterion(EQDOCCriterion eqCriterion) throws QueryException, EQDException, IOException {
-    Match testMatch= new Match();
     EQDOCTestAttribute testAtt = eqCriterion.getFilterAttribute().getRestriction().getTestAttribute();
-    int index=0;
-    for (EQDOCColumnValue cv:testAtt.getColumnValue()){
-       index++;
-       convertColumn(eqCriterion,cv,testMatch,index);
-    }
-    testMatch.setPath(null);
-    return testMatch;
+    return convertColumns(eqCriterion.getTable(), eqCriterion.isNegation(), null,testAtt.getColumnValue());
   }
 
   private void setRestriction(EQDOCCriterion eqCriterion, Match restricted) throws EQDException {
@@ -517,13 +497,12 @@ public class EqdResources {
   private Match convertLinkedCriterion(EQDOCCriterion eqCriterion,String nodeRef) throws IOException, QueryException, EQDException {
     EQDOCCriterion eqLinkedCriterion= eqCriterion.getLinkedCriterion().getCriterion();
     Match match= convertCriterion(eqLinkedCriterion);
-
+    match.setReturn(null);
     Where relationProperty = new Where();
     match.addWhere(relationProperty);
     EQDOCRelationship eqRelationship = eqCriterion.getLinkedCriterion().getRelationship();
     String child = getPath(eqLinkedCriterion.getTable() + "/" + eqRelationship.getChildColumn());
-    GraphNode thisNode= getPathNode(match,child);
-    relationProperty.setNodeRef(thisNode.getVariable());
+    relationProperty.setNodeRef(nodeRef);
     relationProperty.setIri(child.substring(child.lastIndexOf(" ")+1));
     String parentProperty;
     if (eqRelationship.getParentColumn().contains("DATE"))

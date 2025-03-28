@@ -45,7 +45,7 @@ public class LogicOptimizer {
           if (topOr!=null) topOr.addMatch(subMatch);
           else {
             topOr= new Match();
-            topOr.setBoolMatch(Bool.or);
+            topOr.setBool(Bool.or);
             newMatches.add(topOr);
             topOr.addMatch(subMatch);
           }
@@ -68,7 +68,7 @@ public class LogicOptimizer {
           }
           else {
             topOr= new Match();
-            topOr.setBoolMatch(Bool.or);
+            topOr.setBool(Bool.or);
             newMatches.add(topOr);
             topOr.addMatch(subMatch);
           }
@@ -78,7 +78,7 @@ public class LogicOptimizer {
           if (topOr!=null) topOr.addMatch(subMatch);
           else {
             topOr= new Match();
-            topOr.setBoolMatch(Bool.or);
+            topOr.setBool(Bool.or);
             newMatches.add(topOr);
             topOr.addMatch(subMatch);
           }
@@ -89,11 +89,11 @@ public class LogicOptimizer {
       }
     }
     if (newMatches.size()==1){
-      match.setBoolMatch(newMatches.get(0).getBoolMatch());
+      match.setBool(newMatches.get(0).getBool());
       match.setMatch(newMatches.get(0).getMatch());
-      if (match.getBoolMatch()==null&&match.getMatch().size()>1 ) match.setBoolMatch(Bool.and);
+      if (match.getBool()==null&&match.getMatch().size()>1 ) match.setBool(Bool.and);
       }
-    else match.setBoolMatch(Bool.and);
+    else match.setBool(Bool.and);
   }
 
   private void optimiseMatch(Match match) throws JsonProcessingException {
@@ -103,7 +103,7 @@ public class LogicOptimizer {
   private void optimizeAndMatches(Match match) throws JsonProcessingException {
     commonMatches = new HashSet<>();
     if (match.getMatch() == null) return;
-    if (match.getBoolMatch() == Bool.and && match.getWhere() == null && match.getMatch().size() > 1) {
+    if (match.getBool() == Bool.and && match.getWhere() == null && match.getMatch().size() > 1) {
       List<Match> matches = match.getMatch();
       List<Match> ands = new ArrayList<>();
       getCommonAnds(matches,commonMatches,ands);
@@ -130,16 +130,16 @@ public class LogicOptimizer {
   private void optimizeOrMatches(Match match) throws JsonProcessingException {
     commonMatches = new HashSet<>();
     if (match.getMatch() == null) return;
-    if (match.getBoolMatch() == Bool.or && match.getWhere() == null && match.getMatch().size() > 1) {
+    if (match.getBool() == Bool.or && match.getWhere() == null && match.getMatch().size() > 1) {
       List<Match> matches = match.getMatch();
       List<Match> ands = new ArrayList<>();
       List<Match> ors = new ArrayList<>();
       getCommonAnds(matches,commonMatches,ands);
       if (commonMatches.isEmpty()) return;
       for (Match orMatch:matches) {
-        if (orMatch.getBoolMatch() == Bool.and) {
+        if (orMatch.getBool() == Bool.and) {
           Match newOr = new Match();
-          newOr.setBoolMatch(Bool.and);
+          newOr.setBool(Bool.and);
           ors.add(newOr);
           for (Match andMatch : orMatch.getMatch()) {
             String content = LogicComparer.serializeMatchLogic(andMatch);
@@ -150,12 +150,12 @@ public class LogicOptimizer {
         }
       }
       if (!ands.isEmpty()) {
-        match.setBoolMatch(Bool.and);
+        match.setBool(Bool.and);
         match.setMatch(ands);
         if (!ors.isEmpty()) {
           Match topOr = new Match();
           match.addMatch(topOr);
-          topOr.setBoolMatch(Bool.or);
+          topOr.setBool(Bool.or);
           topOr.setMatch(ors);
         }
       }
@@ -173,7 +173,7 @@ public class LogicOptimizer {
 
   private void getCommonAnds(List<Match> matches, Set<String> commonMatches, List<Match> ands) throws JsonProcessingException {
     Match first=matches.get(0);
-    if (first.getBoolMatch() == Bool.and) {
+    if (first.getBool() == Bool.and&&first.getMatch()!=null) {
       for (int q = 0; q < first.getMatch().size(); q++) {
         Match candidate = first.getMatch().get(q);
         String content = LogicComparer.serializeMatchLogic(candidate);
@@ -194,7 +194,7 @@ public class LogicOptimizer {
   private boolean isCommon(List<Match> matches, String content,int index) throws JsonProcessingException {
     if (index>matches.size()-1) return true;
     Match next = matches.get(index);
-    if (next.getBoolMatch() == Bool.and) {
+    if (next.getBool() == Bool.and&&next.getMatch()!=null) {
         for (int q = 0; q < next.getMatch().size(); q++) {
           Match candidate = next.getMatch().get(q);
           String testContent= LogicComparer.serializeMatchLogic(candidate);
@@ -211,7 +211,7 @@ public class LogicOptimizer {
 
   public static  void flattenMatch(Match match){
     if (match.isUnion()) return;
-    if (match.getBoolMatch() == Bool.or) {
+    if (match.getBool() == Bool.or) {
       flattenOrs(match);
     }
 
@@ -239,7 +239,7 @@ public class LogicOptimizer {
         else if (topMatch.isUnion()){
           flatMatches.add(topMatch);
         }
-        else if (topMatch.getBoolMatch() != Bool.or) {
+        else if (topMatch.getBool() != Bool.or) {
           flattenAnds(topMatch.getMatch(),flatMatches);
         }
         else {
@@ -254,7 +254,7 @@ public class LogicOptimizer {
       List<Match> newOrs = new ArrayList<>();
       for (Match match : topMatch.getMatch()) {
         if (match.getMatch() != null) {
-          if (match.getBoolMatch().equals(Bool.and)) {
+          if (match.getBool().equals(Bool.and)) {
             List<Match> subFlatMatches = new ArrayList<>();
             flattenAnds(match.getMatch(), subFlatMatches);
             if (subFlatMatches.size() == 1) {
@@ -273,7 +273,7 @@ public class LogicOptimizer {
   public void createRules(Query query) {
     List<Match> newMatches = new ArrayList<>();
     if (query.getMatch() == null) return;
-    if (query.getBoolMatch()==Bool.or){
+    if (query.getBool()==Bool.or){
       addOrsAsRules(newMatches, query);
     }
     else {

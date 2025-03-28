@@ -96,7 +96,7 @@ public class IMQtoSQLConverter {
   private void convertMatch(Match match, SQLQuery qry) throws SQLConversionException {
     if (match.getInstanceOf() != null) {
       convertMatchInstanceOf(qry, match);
-    } else if (match.getBoolMatch() != null) {
+    } else if (match.getBool() != null) {
       if (match.getMatch() != null && !match.getMatch().isEmpty()) convertMatchBoolSubMatch(qry, match);
       else if (match.getWhere() != null && !match.getWhere().isEmpty()) convertMatchProperties(qry, match);
       else {
@@ -106,7 +106,7 @@ public class IMQtoSQLConverter {
       convertMatchProperties(qry, match);
     } else if (match.getMatch() != null && !match.getMatch().isEmpty()) {
       // Assume bool match "AND"
-      match.setBoolMatch(Bool.and);
+      match.setBool(Bool.and);
       convertMatchBoolSubMatch(qry, match);
     } else {
       throw new SQLConversionException("UNHANDLED MATCH PATTERN\n" + match);
@@ -150,16 +150,16 @@ public class IMQtoSQLConverter {
   }
 
   private void convertMatchBoolSubMatch(SQLQuery qry, Match match) throws SQLConversionException {
-    if (match.getBoolMatch() == null || match.getMatch() == null) {
+    if (match.getBool() == null || match.getMatch() == null) {
       throw new SQLConversionException("INVALID MatchBoolSubMatch\n" + match);
     }
 
-    qry.setWhereBool(match.getBoolWhere() != null ? match.getBoolWhere().toString().toUpperCase() : "AND");
+    qry.setWhereBool(match.getBool() != null ? match.getBool().toString().toUpperCase() : "AND");
 
     // TODO: Boolean "OR" should be a union (more performant)
     String joiner = "JOIN ";
-    if (match.getBoolWhere() != null) {
-      joiner = "OR".equalsIgnoreCase(match.getBoolWhere().toString()) ? "LEFT JOIN " : "JOIN ";
+    if (match.getBool() != null) {
+      joiner = "OR".equalsIgnoreCase(match.getBool().toString()) ? "LEFT JOIN " : "JOIN ";
     }
 
     for (Match subMatch : match.getMatch()) {
@@ -206,7 +206,7 @@ public class IMQtoSQLConverter {
       convertMatchPropertyRelative(qry, property);
     } else if (property.getValue() != null) {
       convertMatchPropertyValue(qry, property);
-    } else if (property.getBoolWhere() != null) {
+    } else if (property.getBool() != null) {
       convertMatchPropertyBool(qry, property);
     } else if (property.getIsNull()) {
       convertMatchPropertyNull(qry, property);
@@ -370,7 +370,7 @@ public class IMQtoSQLConverter {
   }
 
   private void convertMatchPropertyBool(SQLQuery qry, Where property) throws SQLConversionException {
-    if (property.getBoolWhere() == null) {
+    if (property.getBool() == null) {
       throw new SQLConversionException("INVALID MatchPropertyBool\n" + property);
     }
 
@@ -379,7 +379,7 @@ public class IMQtoSQLConverter {
       for (Where p : property.getWhere()) {
         convertMatchProperty(subQuery, p);
       }
-      qry.getWheres().add("(" + StringUtils.join(subQuery.getWheres(), " " + property.getBoolWhere().toString().toUpperCase() + " ") + ")");
+      qry.getWheres().add("(" + StringUtils.join(subQuery.getWheres(), " " + property.getBool().toString().toUpperCase() + " ") + ")");
     } else {
       throw new SQLConversionException("Property BOOL should only contain property conditions");
     }

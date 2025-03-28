@@ -110,8 +110,7 @@ public class PathRepository {
           String pathIri = bs.getValue("path").stringValue();
           pathVariable = pathIri.substring(pathIri.lastIndexOf("#") + 1);
           match.setPath(new Path().setIri(pathIri)
-            .setName(bs.getValue("pathLabel").stringValue())
-            .setNode(new Node().setVariable(pathVariable)));
+            .setName(bs.getValue("pathLabel").stringValue()));
         }
         if (bs.getValue("where") != null) {
           match.addWhere(new Where()

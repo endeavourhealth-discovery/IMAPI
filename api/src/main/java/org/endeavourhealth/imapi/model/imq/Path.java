@@ -1,28 +1,29 @@
 package org.endeavourhealth.imapi.model.imq;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import lombok.Getter;
+
 import java.util.function.Consumer;
 
 public class Path extends Element{
-  private Node node;
+  @Getter
   private boolean inverse;
-  public boolean isInverse() {
-    return inverse;
-  }
+  @Getter
+  private  Where where;
 
-  public Node getNode() {
-    return node;
-  }
-
-  public Path setNode(Node node) {
-    this.node = node;
+  @JsonSetter
+  public Path setWhere(Where where) {
+    this.where = where;
     return this;
   }
 
-  public Path node(Consumer<Node> builder){
-    this.node = new Node();
-    builder.accept(this.node);
+  public Path where(Consumer<Where> where) {
+    this.where = new Where();
+    where.accept(this.where);
     return this;
   }
+
+
 
   public Path setInverse(boolean inverse) {
     this.inverse= inverse;

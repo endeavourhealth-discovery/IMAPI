@@ -109,6 +109,7 @@ public class EclController {
     description = "Converts ECL builder component objects into an IM Query"
   )
   public Query getQueryFromEclBuilder(@RequestBody BoolGroup boolGroup) throws IOException, EclBuilderException {
+    LOG.debug("getQueryFromEclBuilder");
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.QueryFromEclBuilder.POST")) {
       return eclService.getQueryFromEclBuilder(boolGroup);
     }

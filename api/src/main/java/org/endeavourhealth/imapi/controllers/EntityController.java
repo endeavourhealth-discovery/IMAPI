@@ -137,14 +137,19 @@ public class EntityController {
 
   @GetMapping(value = "/public/childrenPaged")
   @Operation(summary = "Get entity children with paging", description = "Fetches immediate children of the specified entity with pagination and total count")
-  public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(@RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size) throws IOException {
+  public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(@RequestParam(name = "iri") String iri,
+                                                                            @RequestParam(name = "schemeIris",
+                                                                              required = false) List<String> schemeIris,
+                                                                            @RequestParam(name = "page", required = false) Integer page,
+                                                                            @RequestParam(name = "size", required = false) Integer size,
+                                                                            @RequestParam(name="typeFilter", required= false) List<String> typeFilter) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ChildrenPaged.GET")) {
-      LOG.debug("getEntityChildrenPagedWithTotalCount");
+      LOG.debug("getEntityChildrenPagedWithTotalCount"+((typeFilter!=null) ? "entity types= "+typeFilter: ""));
       if (page == null && size == null) {
         page = 1;
         size = 10;
       }
-      return entityService.getEntityChildrenPagedWithTotalCount(iri, schemeIris, page, size, false);
+      return entityService.getEntityChildrenPagedWithTotalCount(iri, schemeIris, page, size, false,typeFilter);
     }
   }
 

@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
@@ -30,13 +29,13 @@ public class TestQueries {
           .setIri("http://www.w3.org/ns/shacl#property")
           .match(m1 -> m1
             .setVariable("shaclProperty")
-            .setBoolWhere(Bool.and)
+            .setBool(Bool.and)
             .where(p2 -> p2
               .setIri(SHACL.PATH)
               .is(in -> in
                 .setParameter("myProperty")))
             .where(p2 -> p2
-              .setBoolWhere(Bool.or)
+              .setBool(Bool.or)
               .where(p3 -> p3
                 .setIri(SHACL.CLASS)
                 .match(m3 -> m3
@@ -78,7 +77,7 @@ public class TestQueries {
             .setIri(SHACL.PATH)
             .addIs(new Node().setParameter("this")))
           .where(w -> w
-            .setBoolWhere(Bool.or)
+            .setBool(Bool.or)
             .where(p -> p
               .setIri(SHACL.NODE)
               .match(n -> n
@@ -401,7 +400,7 @@ public class TestQueries {
       .return_(r -> r
         .property(s -> s.setIri(RDFS.LABEL)))
       .match(rf -> rf
-        .setBoolMatch(Bool.and)
+        .setBool(Bool.and)
         .match(f -> f
           .addInstanceOf(new Node().setIri(SNOMED.NAMESPACE + "763158003").setDescendantsOrSelfOf(true))
           .where(a1 -> a1

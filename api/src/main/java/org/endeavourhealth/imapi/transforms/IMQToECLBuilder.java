@@ -23,7 +23,7 @@ public class IMQToECLBuilder {
     } else if (matchType == EclType.refined) {
       boolGroup.addItem(createConcept(match));
     } else if (matchType == EclType.compound || matchType == EclType.exclusion) {
-      if (null != match.getBoolMatch()) boolGroup.setConjunction(match.getBoolMatch());
+      if (null != match.getBool()) boolGroup.setConjunction(match.getBool());
       for (Match subMatch : match.getMatch()) {
         if (null != subMatch.getMatch()) {
           BoolGroup subBool = createBoolGroup(subMatch, false);
@@ -44,7 +44,7 @@ public class IMQToECLBuilder {
 
   private BoolGroup createRefinementBoolGroup(Where where) throws EclBuilderException {
     BoolGroup boolGroup = new BoolGroup();
-    if (null != where.getBoolWhere()) boolGroup.setConjunction(where.getBoolWhere());
+    if (null != where.getBool()) boolGroup.setConjunction(where.getBool());
     for (Where subWhere : where.getWhere()) {
       if (null != subWhere.getIs()) {
         boolGroup.addItem(createRefinement(subWhere));
@@ -60,7 +60,7 @@ public class IMQToECLBuilder {
 
   private BoolGroup createRefinementBoolGroup(Match match) throws EclBuilderException {
     BoolGroup boolGroup = new BoolGroup();
-    if (null != match.getBoolMatch()) boolGroup.setConjunction(match.getBoolMatch());
+    if (null != match.getBool()) boolGroup.setConjunction(match.getBool());
     for (Where where : match.getWhere()) {
       if (null != where.getIs()) {
         boolGroup.addItem(createRefinement(where));
@@ -84,9 +84,9 @@ public class IMQToECLBuilder {
       concept.setConceptSingle(new ConceptReference(SNOMED.ANY));
     } else if (null != match.getMatch()) {
       BoolGroup boolGroup = new BoolGroup();
-      if (null != match.getBoolMatch()) boolGroup.setConjunction(match.getBoolMatch());
+      if (null != match.getBool()) boolGroup.setConjunction(match.getBool());
       for (Match subMatch : match.getMatch()) {
-        if (null != subMatch.getBoolMatch()) {
+        if (null != subMatch.getBool()) {
           boolGroup.addItem(createBoolGroup(subMatch, false));
         } else if (null != subMatch.getInstanceOf()) {
           boolGroup.addItem(createConcept(subMatch));
@@ -95,8 +95,8 @@ public class IMQToECLBuilder {
       concept.setConceptBool(boolGroup);
     }
     if (null != match.getWhere()) {
-      if (null != match.getBoolWhere()) {
-        concept.setConjunction(match.getBoolWhere());
+      if (null != match.getBool()) {
+        concept.setConjunction(match.getBool());
       }
       for (Where where : match.getWhere()) {
         if (null != where.getIs()) {

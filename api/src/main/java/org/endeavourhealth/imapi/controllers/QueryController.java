@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
+import org.endeavourhealth.imapi.model.EntityReferenceNode;
+import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import java.util.zip.DataFormatException;
 
@@ -101,12 +104,30 @@ public class QueryController {
     summary = "Describe query content",
     description = "Returns a query view, transforming an IMQ query into a viewable object."
   )
-  public Query describeQueryContent(@RequestBody Query query) throws IOException, QueryException {
+  public Query describeQueryContent(
+    @RequestBody Query query,
+    @RequestParam(value = "displayMode", required = false, defaultValue = "ORIGINAL") DisplayMode displayMode
+  ) throws IOException, QueryException {
+
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
-      LOG.debug("getQueryDisplay");
-      return queryService.describeQuery(query,DisplayMode.ORIGINAL);
+      LOG.debug("getQueryDisplayFromQuery with displayMode: {}", displayMode);
+      return queryService.describeQuery(query, displayMode);
     }
   }
+
+  @PostMapping("/public/matchDisplayFromMatch")
+  @Operation(
+    summary = "Describe query content",
+    description = "Returns a query view, transforming an IMQ query into a viewable object."
+  )
+  public Match describeMatchContent(
+    @RequestBody Match match) throws IOException, QueryException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
+      LOG.debug("getMatchDisplayFromMatch");
+      return queryService.describeMatch(match);
+    }
+  }
+
 
   @PostMapping("/public/sql")
   @Operation(
@@ -129,6 +150,16 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       LOG.debug("getSQLFromIMQIri");
       return queryService.getSQLFromIMQIri(queryIri);
+    }
+  }
+
+
+  @GetMapping(value = "/public/defaultQuery")
+  @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")
+  public Query getDefaultQuery()throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DefaultQuery.GET")) {
+      LOG.debug("getDefaultCohort");
+      return queryService.getDefaultQuery();
     }
   }
 }

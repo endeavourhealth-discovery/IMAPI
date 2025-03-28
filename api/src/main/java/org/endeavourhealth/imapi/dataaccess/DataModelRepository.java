@@ -122,6 +122,7 @@ public class DataModelRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
+          nodeShape.setName(bs.getValue("entityName").stringValue());
           PropertyShape group = null;
           if (bs.getValue("path") != null) {
             if (bs.getValue("group") != null) {
@@ -174,7 +175,6 @@ public class DataModelRepository {
     if (group != null) property = getPropertyFromGroup(group, propertyIri);
     else property = getPropertyFromNode(node, propertyIri);
     property.getPath().setName(bs.getValue("pathName").stringValue());
-    property.addType(TTIriRef.iri(bs.getValue("pathType").stringValue()));
     if (bs.getValue("class") != null) {
       property.setClazz(new PropertyRange().setIri(bs.getValue("class").stringValue()).setName(bs.getValue("className").stringValue()).setType(TTIriRef.iri(bs.getValue("classType").stringValue()).setName(bs.getValue("classTypeName").stringValue())));
     }
@@ -215,6 +215,7 @@ public class DataModelRepository {
     if (bs.getValue("comment") != null) {
       property.setComment(bs.getValue("comment").stringValue());
     }
+
 
     if (bs.getValue("hasValue") != null) {
       Value hasValue = bs.getValue("hasValue");
@@ -308,7 +309,7 @@ public class DataModelRepository {
       PREFIX im: <http://endhealth.info/im#>
       PREFIX sh: <http://www.w3.org/ns/shacl#>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      Select ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType
+      Select ?entityName ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType
       ?class ?className ?classType ?classTypeName
       ?datatype ?datatypeName ?datatypeType ?datatypeTypeName
       ?pattern ?intervalUnit ?intervalUnitName
@@ -320,6 +321,7 @@ public class DataModelRepository {
       ?comment ?propertyDefinition ?units ?unitsName ?operator ?operatorName ?isRelativeValue
       {
          ?entity sh:property ?property.
+         ?entity rdfs:label ?entityName.
          optional {?property sh:group ?group.
                    ?group rdfs:label ?groupName.
                    optional {?group sh:order ?groupOrder}

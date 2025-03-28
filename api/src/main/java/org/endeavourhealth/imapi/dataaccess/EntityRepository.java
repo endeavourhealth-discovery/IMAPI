@@ -18,10 +18,8 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.endeavourhealth.imapi.vocabulary.*;
+import org.jcodings.util.ArrayReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -163,6 +161,57 @@ public class EntityRepository {
       }
     }
     return result;
+  }
+
+
+  public List<TTEntity> getEntitiesByType(String type,Integer offset,Integer limit,String... predicates) {
+    Map<String,TTEntity> entities= new HashMap<>();
+    String predicateList= Arrays.stream(predicates).map(p->"<"+p+">").collect(Collectors.joining(" "));
+    String sql= """
+      ?entity ?predicate ?object ?predicate2 ?object2
+      select *
+      where {
+      values ?predicate {%s}
+      ?entity <%s> <%s>.
+      ?entity ?predicate ?object.
+      optional {?object ?predicate2 ?object2.
+      filter (isBlank(?object2)}
+      }
+      order by ?object
+      offset %s limit %s
+      """.formatted(predicateList,RDF.TYPE,type,RDFS.LABEL,offset,limit);
+
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String iri = bs.getValue("entity").stringValue();
+          entities.putIfAbsent(iri, new TTEntity().setIri(iri));
+          TTEntity entity = entities.get(iri);
+          Value object= bs.getValue("folder");
+          if (object.isIRI()){
+            entity.addObject(TTIriRef.iri(bs.getValue("predicate").stringValue()),TTIriRef.iri(object.stringValue()));
+          }
+          else if (object.isBNode()){
+            if (entity.get(TTIriRef.iri(bs.getValue("predicate").stringValue()))==null){
+              entity.set(TTIriRef.iri(bs.getValue("predicate").stringValue()),new TTNode());
+            }
+            Value object2= bs.getValue("object2");
+            if (object2.isIRI()){
+              entity.get(TTIriRef.iri(bs.getValue("predicate").stringValue()))
+                .asNode().addObject(TTIriRef.iri(bs.getValue("predicate2").stringValue()),TTIriRef.iri(object2.stringValue()));
+            }
+            else entity.get(TTIriRef.iri(bs.getValue("predicate").stringValue()))
+              .asNode().addObject(TTIriRef.iri(bs.getValue("predicate2").stringValue()),TTLiteral.literal(object2.stringValue()));
+          }
+          else {
+            entity.addObject(TTIriRef.iri(bs.getValue("predicate").stringValue()),TTLiteral.literal(object.stringValue()));
+          }
+        }
+      }
+    }
+    return entities.values().stream().collect(Collectors.toList());
   }
 
   public Map<String, Set<TTIriRef>> getTypesByIris(Set<String> stringIris) {
@@ -1264,7 +1313,9 @@ public class EntityRepository {
     return result;
   }
 
-  public Pageable<TTIriRef> findImmediateChildrenPagedByIriWithTotalCount(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+  public Pageable<TTIriRef> findImmediateChildrenPagedByIriWithTotalCount(String parentIri, List<String> schemeIris, Integer rowNumber,
+                                                                          Integer pageSize, boolean inactive,
+                                                                          List<String> entityTypes) {
     List<TTIriRef> children = new ArrayList<>();
     Pageable<TTIriRef> result = new Pageable<>();
 
@@ -1282,6 +1333,10 @@ public class EntityRepository {
     }
     if (!inactive) {
       sql.add("  OPTIONAL { ?c im:status ?s}").add("  FILTER (?s != im:Inactive) .");
+    }
+    if (entityTypes != null && !entityTypes.isEmpty()) {
+      entityTypes.add(IM.FOLDER);
+      sql.add("?c rdf:type ?typeIri .").add(valueList("typeIri", entityTypes));
     }
     sql.add("}");
     sql.add("ORDER BY ?cname");
@@ -1759,5 +1814,38 @@ public class EntityRepository {
       }
     }
     return options;
+  }
+
+  public List<TTEntity> getFolderChildren(String iri, String... predicates) {
+    Map<String,TTEntity> entities = new HashMap<>();
+    String predicateList = Arrays.stream(predicates).map(p -> "<" + p + ">").collect(Collectors.joining(" "));
+    String sql= """
+      select ?entity ?predicate ?order ?object where {
+      values ?predicate {%s}
+      ?entity <%s> <%s>.
+      ?entity ?predicate ?object.
+      optional {?entity <%s> ?order}
+     
+      }
+      """.formatted(predicateList,IM.IS_CONTAINED_IN,iri, SHACL.ORDER);
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          entities.putIfAbsent(bs.getValue("entity").stringValue(), new TTEntity());
+          TTEntity entity = entities.get(bs.getValue("entity").stringValue());
+          entity.setIri(bs.getValue("entity").stringValue());
+          Value object = bs.getValue("object");
+          TTValue ttValue = object.isIRI() ? TTIriRef.iri(object.stringValue()) : TTLiteral.literal(object.stringValue());
+          entity.addObject(TTIriRef.iri(bs.getValue("predicate").stringValue()), ttValue);
+        }
+      }
+    }
+    return entities.values().stream()
+      .sorted(Comparator.comparingInt(entity ->
+        entity.get(TTIriRef.iri(SHACL.ORDER)).asLiteral().intValue()
+      ))
+      .collect(Collectors.toList());
   }
 }

@@ -8,12 +8,6 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.junit.jupiter.api.Test;
 
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-
 class ObjectComparerTest {
 
 @Test
@@ -22,13 +16,13 @@ public void compare() throws IllegalAccessException, JsonProcessingException {
   Match match1 = new Match()
     .setIri(IM.NAMESPACE + "123")
     .setName("match")
-    .where(w->w.setBoolWhere(Bool.and)
+    .where(w->w.setBool(Bool.and)
       .where(w1->w1.setIri(IM.NAMESPACE+"abc")
         .relativeTo(r->r.setNodeRef("ssss").setIri(IM.NAMESPACE+"x"))));
   Match match2 = new Match()
     .setIri(IM.NAMESPACE + "124")
     .setName("match")
-    .where(w->w.setBoolWhere(Bool.and)
+    .where(w->w.setBool(Bool.and)
       .where(w1->w1.setIri(IM.NAMESPACE+"abc")
         .setValueVariable("1234")
         .relativeTo(r->r.setNodeRef("ttt").setIri(IM.NAMESPACE+"y"))));

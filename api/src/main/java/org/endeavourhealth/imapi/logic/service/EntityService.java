@@ -86,14 +86,25 @@ public class EntityService {
     return entityRepository.getEntityReferenceByIri(iri);
   }
 
-  public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+
+
+  public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(String iri, List<String> schemeIris, Integer page,
+                                                                            Integer size, boolean inactive,
+                                                                            List<String> entityTypes) {
     if (iri == null || iri.isEmpty()) return null;
 
     int rowNumber = 0;
     if (page != null && size != null) rowNumber = (page - 1) * size;
 
-    Pageable<TTIriRef> childrenAndTotalCount = entityRepository.findImmediateChildrenPagedByIriWithTotalCount(iri, schemeIris, rowNumber, size, inactive);
+    Pageable<TTIriRef> childrenAndTotalCount = entityRepository.findImmediateChildrenPagedByIriWithTotalCount(iri, schemeIris, rowNumber, size, inactive,entityTypes);
     return iriRefPageableToEntityReferenceNodePageable(childrenAndTotalCount, schemeIris, inactive);
+  }
+
+
+
+
+  public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+    return getEntityChildrenPagedWithTotalCount(iri,schemeIris,page,size,inactive,null);
   }
 
   public Pageable<TTIriRef> getPartialWithTotalCount(String iri, String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
@@ -104,6 +115,7 @@ public class EntityService {
 
     return entityRepository.findPartialWithTotalCount(iri, predicateList, schemeIris, rowNumber, size, inactive);
   }
+
 
   public List<EntityReferenceNode> getImmediateParents(String iri, List<String> schemeIris, Integer pageIndex, Integer pageSize, boolean inactive) {
 
@@ -479,6 +491,10 @@ public class EntityService {
 
   public Set<String> getXmlSchemaDataTypes() {
     return entityRepository.getByGraph(XSD.NAMESPACE);
+  }
+
+  public List<TTEntity> getEntitiesByType(String type,Integer offset, Integer limit,String... predicates){
+    return entityRepository.getEntitiesByType(type,offset,limit,predicates);
   }
 }
 

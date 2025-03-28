@@ -23,6 +23,7 @@ public class QueryDescriptor {
   private final EntityRepository entityRepository = new EntityRepository();
   private Map<String, TTEntity> iriContext;
   private final EntityRepository repo = new EntityRepository();
+  private String namespace = IM.NAMESPACE;
   private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
   private final QueryRepository queryRepository = new QueryRepository();
 
@@ -31,17 +32,32 @@ public class QueryDescriptor {
     if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
     //String queryString = queryCache.get(queryIri);
     //if (queryString != null) return new ObjectMapper().readValue(queryString, Query.class);
+    namespace = queryIri.substring(queryIri.lastIndexOf("#") + 1);
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
     query = describeQuery(query, displayMode);
     queryCache.put(queryIri, new ObjectMapper().writeValueAsString(query));
     return query;
   }
 
+  public Match describeSingleMatch(Match match) throws QueryException {
+    setIriNames(match);
+    describeMatch(match);
+    return match;
+  }
+
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
     queryRepository.labelQuery(query);
-    if (!query.hasRules() && query.getBoolMatch() == null)
-      query.setBoolMatch(Bool.and);
+
+    if (query.getIri() == null)
+      query.setIri(namespace + UUID.randomUUID());
+    if (!query.hasRules()) {
+      if (query.getBool() == null && query.getMatch() != null) query.setBool(Bool.and);
+    }
+
     setIriNames(query);
+    if (query.getInstanceOf() != null) {
+      describeInstance(query.getInstanceOf());
+    }
     if (query.getTypeOf() != null) {
       String typeName = getTermInContext(query.getTypeOf().getIri(), Context.PLURAL);
       query.getTypeOf().setName(typeName);
@@ -84,7 +100,7 @@ public class QueryDescriptor {
       }
     }
   }
-  
+
   private void describeQueries(Query query) throws QueryException, JsonProcessingException {
     for (Query subQuery : query.getQuery()) {
       describeQuery(subQuery, DisplayMode.ORIGINAL);
@@ -130,14 +146,6 @@ public class QueryDescriptor {
     }
   }
 
-  private void setIriSet(GraphNode node, Set<String> iriSet) {
-    if (node.getPath() != null) {
-      iriSet.add(node.getPath().getIri());
-      if (node.getPath().getNode() != null) {
-        setIriSet(node.getPath().getNode(), iriSet);
-      }
-    }
-  }
 
   private void setIriSet(Match match, Set<String> iriSet) {
 
@@ -145,7 +153,7 @@ public class QueryDescriptor {
       iriSet.add(match.getTypeOf().getIri());
     }
     if (match.getPath() != null) {
-      setIriSet((GraphNode) match, iriSet);
+      setIriSet(match.getPath(), iriSet);
     }
     if (match.getInstanceOf() != null) {
       match.getInstanceOf().forEach(i -> iriSet.add(i.getIri()));
@@ -166,23 +174,11 @@ public class QueryDescriptor {
     }
   }
 
-  private void setIriSet(Query query, Set<String> iriSet) {
-    if (query.getIsSubsetOf() != null) {
-      for (IriLD parent : query.getIsSubsetOf()) {
-        iriSet.add(parent.getIri());
-      }
+  private void setIriSet(Path path, Set<String> iriSet) {
+    if (path.getIri() != null) {
+      iriSet.add(path.getIri());
     }
-    if (query.getTypeOf() != null) {
-      iriSet.add(query.getTypeOf().getIri());
-    }
-    if (query.getMatch() != null) {
-      for (Match subMatch : query.getMatch()) {
-        setIriSet(subMatch, iriSet);
-      }
-    }
-    if (query.getReturn() != null) {
-      setIriSet(query.getReturn(), iriSet);
-    }
+    if (path.getWhere() != null) setIriSet(path.getWhere(), iriSet);
   }
 
   private void setIriSet(Where where, Set<String> iriSet) {
@@ -271,23 +267,30 @@ public class QueryDescriptor {
   private void describeMatches(Match match) {
     int index = 0;
     for (Match subMatch : match.getMatch()) {
+      if (subMatch.getTypeOf() == null) subMatch.setTypeOf(match.getTypeOf());
       describeMatch(subMatch);
       index++;
     }
     if (match.getWhere() != null) {
-      describeWheres(match);
+      if (match.getWhere().size() > 1 && match.getBool() == null) match.setBool(Bool.and);
+      describeWheres(match.getWhere());
     }
   }
 
   private void describeMatches(Query query) {
     int index = 0;
     for (Match subMatch : query.getMatch()) {
+      if (subMatch.getTypeOf() == null) {
+        subMatch.setTypeOf(query.getTypeOf());
+      }
       describeMatch(subMatch);
       index++;
     }
   }
 
   public void describeMatch(Match match) {
+    if (match.getIri() == null)
+      match.setIri(namespace + UUID.randomUUID());
     if (match.getOrderBy() != null) {
       describeOrderBy(match.getOrderBy());
     }
@@ -319,8 +322,9 @@ public class QueryDescriptor {
     if (match.getMatch() != null) {
       describeMatches(match);
     }
+
     if (match.getWhere() != null) {
-      describeWheres(match);
+      describeWheres(match.getWhere());
     }
   }
 
@@ -350,27 +354,17 @@ public class QueryDescriptor {
     return header.toString();
   }
 
-  private void describeWheres(Match parentMatch, Where where) {
-    int index = 0;
-    if (where.getBoolWhere() == null) {
-      if (where.getWhere().size() > 1) where.setBoolWhere(Bool.and);
-    }
-    for (Where subWhere : where.getWhere()) {
-      describeWhere(parentMatch, subWhere);
-    }
-  }
-
-  private void describeWheres(Match match) {
-    if (match.getWhere().size() > 1 && match.getBoolWhere() == null) match.setBoolWhere(Bool.and);
-    Where conceptWhere = getConceptWhere(match);
+  private void describeWheres(List<Where> wheres) {
+    Where conceptWhere = getConceptWhere(wheres);
     if (conceptWhere != null) {
-      match.getWhere().remove(conceptWhere);
-      match.getWhere().add(0, conceptWhere);
-      describeWhere(match, conceptWhere);
+      wheres.remove(conceptWhere);
+      wheres.add(0, conceptWhere);
+      describeWhere(conceptWhere);
     }
-    for (Where where : match.getWhere()) {
+    for (Where where : wheres) {
       if (where != conceptWhere) {
-        describeWhere(match, where);
+        describeWhere(where);
+
       }
     }
   }
@@ -388,7 +382,9 @@ public class QueryDescriptor {
     String label = getTermInContext(path.getIri(), Context.PLURAL);
     String preposition = getPreposition(path);
     path.setName(label + (preposition != null ? " " + preposition : ""));
-    if (path.getNode() != null && path.getNode().getPath() != null) describePath(path.getNode().getPath());
+    if (path.getWhere() != null) {
+      describeWhere(path.getWhere());
+    }
   }
 
   private void describeInstance(List<Node> inSets) {
@@ -421,16 +417,17 @@ public class QueryDescriptor {
     orderBy.setDescription(orderDisplay);
   }
 
-  private Where getConceptWhere(Match match) {
-    for (Where where : match.getWhere()) {
+  private Where getConceptWhere(List<Where> wheres) {
+    for (Where where : wheres) {
       if (where.getIri() != null) if (where.getIri().equals(IM.NAMESPACE + "concept")) return where;
     }
     return null;
   }
 
-  private void describeWhere(Match parentMatch, Where where) {
+  private void describeWhere(Where where) {
     if (where.getWhere() != null) {
-      describeWheres(parentMatch, where);
+      if (where.getBool() == null) where.setBool(Bool.and);
+      describeWheres(where.getWhere());
     } else {
       where.setName(getTermInContext(where, Context.PROPERTY));
       if (where.getRange() != null) {
@@ -441,7 +438,6 @@ public class QueryDescriptor {
       }
       if (where.getIs() != null) {
         describeWhereIs(where);
-        parentMatch.setHasInlineSet(true);
       }
       if (where.getIsNull()) {
         where.setValueLabel("is not recorded");
@@ -462,10 +458,14 @@ public class QueryDescriptor {
       case gt:
         if (date) {
           if (!isRange) if (value != null) {
-            qualifier = "within ";
-            if (past && relativeTo) relativity = " before ";
-            if (!past && relativeTo) relativity = " of ";
-          } else qualifier = "after ";
+            if (value.equals("0")) {
+              qualifier = "after ";
+            } else {
+              qualifier = "is within ";
+              if (past && relativeTo) relativity = " before ";
+              if (!past && relativeTo) relativity = " of ";
+            }
+          }
         } else {
           if (!isRange) qualifier = "greater than ";
           if (relativeTo && value != null)

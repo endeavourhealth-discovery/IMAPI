@@ -42,7 +42,7 @@ public class FHIRToIM {
         match.addInstanceOf(new Node().setIri(member)
           .setDescendantsOrSelfOf(true));
       } else {
-        match.setBoolMatch(Bool.or);
+        match.setBool(Bool.or);
         for (Include value : include) {
           Match memberMatch = new Match();
           match.addMatch(memberMatch);

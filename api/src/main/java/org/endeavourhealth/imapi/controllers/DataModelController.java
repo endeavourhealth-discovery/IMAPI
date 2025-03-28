@@ -34,11 +34,10 @@ public class DataModelController {
   )
   @GetMapping("/public/dataModelProperties")
   public NodeShape getDataModelProperties(
-    @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri,
-    @Parameter(description = "Optional parent for context") @RequestParam(name = "parent", required = false) String parent
+    @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
-      LOG.debug("getDataModelProperties");
+      LOG.debug("getDataModelProperties for "+ iri);
       return dataModelService.getDataModelDisplayProperties(iri);
     }
   }

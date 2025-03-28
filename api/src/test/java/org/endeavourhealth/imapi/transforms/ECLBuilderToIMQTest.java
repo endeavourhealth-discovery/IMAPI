@@ -27,7 +27,7 @@ public class ECLBuilderToIMQTest {
   @Test
   public void convertsSimpleAndDescendants() throws QueryException, EclBuilderException {
     Match match = new Match();
-    match.setBoolMatch(Bool.and);
+    match.setBool(Bool.and);
     Match subMatch1 = new Match().addInstanceOf(new Node("http://snomed.info/sct#298705000").setDescendantsOf(true));
     Match subMatch2 = new Match().addInstanceOf(new Node("http://snomed.info/sct#301366005").setDescendantsOf(true));
     match.addMatch(subMatch1).addMatch(subMatch2);
@@ -55,7 +55,7 @@ public class ECLBuilderToIMQTest {
   @Test
   public void orRefinement() throws QueryException, EclBuilderException {
     Match match = new Match().addInstanceOf(new Node("http://snomed.info/sct#763158003").setDescendantsOrSelfOf(true));
-    match.setBoolWhere(Bool.or);
+    match.setBool(Bool.or);
     Where where1 = new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#698090000").setDescendantsOrSelfOf(true)).setAnyRoleGroup(true);
     Where where2 = new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#442031002").setDescendantsOrSelfOf(true)).setAnyRoleGroup(true);
     match.addWhere(where1).addWhere(where2);
@@ -71,14 +71,14 @@ public class ECLBuilderToIMQTest {
 
   @Test
   public void orGroupMinusOrGroup() throws QueryException, EclBuilderException {
-    Match match = new Match().setBoolMatch(Bool.and);
+    Match match = new Match().setBool(Bool.and);
     Match subMatch1 = new Match()
-      .setBoolMatch(Bool.or)
+      .setBool(Bool.or)
       .addMatch(new Match().addInstanceOf(new Node("http://snomed.info/sct#386725007").setDescendantsOrSelfOf(true)))
       .addMatch(new Match().addInstanceOf(new Node("http://snomed.info/sct#431314004").setDescendantsOrSelfOf(true)));
     Match subMatch2 = new Match()
       .setExclude(true)
-      .setBoolMatch(Bool.or)
+      .setBool(Bool.or)
       .addMatch(new Match().addInstanceOf(new Node("http://snomed.info/sct#838441000000103").setDescendantsOrSelfOf(true)))
       .addMatch(new Match().addInstanceOf(new Node("http://snomed.info/sct#838451000000100").setDescendantsOrSelfOf(true)));
     match.addMatch(subMatch1).addMatch(subMatch2);
@@ -98,7 +98,7 @@ public class ECLBuilderToIMQTest {
 
   @Test
   public void focusGroupWithRefinement() throws QueryException, EclBuilderException {
-    Match match = new Match().setBoolMatch(Bool.or);
+    Match match = new Match().setBool(Bool.or);
     Match subMatch1 = new Match().addInstanceOf(new Node("http://snomed.info/sct#91936005").setDescendantsOrSelfOf(true));
     Match subMatch2 = new Match().addInstanceOf(new Node("http://snomed.info/sct#294532003").setDescendantsOrSelfOf(true));
     Where where = new Where().setAnyRoleGroup(true).setDescendantsOrSelfOf(true).setIri("http://snomed.info/sct#246075003").addIs(new Node("http://snomed.info/sct#771577000").setDescendantsOrSelfOf(true));
@@ -122,7 +122,7 @@ public class ECLBuilderToIMQTest {
 
   @Test
   public void focusGroupWithRefinementAttributeGroup() throws QueryException, EclBuilderException {
-    Match match = new Match().setBoolMatch(Bool.and);
+    Match match = new Match().setBool(Bool.and);
     Match subMatch1 = new Match().addInstanceOf(new Node("http://snomed.info/sct#298705000").setDescendantsOrSelfOf(true));
     Match subMatch2 = new Match().addInstanceOf(new Node("http://snomed.info/sct#301366005").setDescendantsOrSelfOf(true));
     Where where = new Where()
@@ -152,13 +152,13 @@ public class ECLBuilderToIMQTest {
 
   @Test
   public void focusGroupWithMultipleRefinementGroups() throws QueryException, EclBuilderException {
-    Match match = new Match().setBoolMatch(Bool.or);
+    Match match = new Match().setBool(Bool.or);
     Match subMatch1 = new Match().addInstanceOf(new Node("http://snomed.info/sct#10363801000001108").setDescendantsOrSelfOf(true));
     Match subMatch2 = new Match().addInstanceOf(new Node("http://snomed.info/sct#10363901000001102").setDescendantsOrSelfOf(true));
     Where attributeGroup = new Where()
       .setIri(IM.ROLE_GROUP)
       .setMatch(new Match()
-        .setBoolWhere(Bool.or)
+        .setBool(Bool.or)
         .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116601002").setDescendantsOrSelfOf(true)))
         .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#396458002").setDescendantsOrSelfOf(true)))
         .addWhere(new Where().setIri("http://snomed.info/sct#127489000").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116571008").setDescendantsOrSelfOf(true)))
@@ -175,12 +175,12 @@ public class ECLBuilderToIMQTest {
         .addWhere(new Where().setIri("http://snomed.info/sct#10363001000001101").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#116593003").setDescendantsOrSelfOf(true)))
       );
     Where refinementGroup = new Where()
-      .setBoolWhere(Bool.or)
+      .setBool(Bool.or)
       .addWhere(new Where().setIri("http://snomed.info/sct#411116001").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#385268001").setDescendantsOrSelfOf(true)))
       .addWhere(new Where().setIri("http://snomed.info/sct#13088501000001100").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#21000001106").setDescendantsOrSelfOf(true)))
       .addWhere(new Where().setIri("http://snomed.info/sct#13088401000001104").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#26643006").setDescendantsOrSelfOf(true)))
       .addWhere(new Where().setIri("http://snomed.info/sct#10362901000001105").setDescendantsOrSelfOf(true).addIs(new Node("http://snomed.info/sct#385268001").setDescendantsOrSelfOf(true)));
-    Where where = new Where().setBoolWhere(Bool.and).addWhere(attributeGroup).addWhere(refinementGroup);
+    Where where = new Where().setBool(Bool.and).addWhere(attributeGroup).addWhere(refinementGroup);
     match.addMatch(subMatch1).addMatch(subMatch2);
     match.addWhere(where);
     BoolGroup rootBool = new BoolGroup();

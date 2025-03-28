@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.*;
+import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -13,10 +14,12 @@ import java.util.function.Consumer;
 public class Where extends Element implements Assignable {
   private String description;
   private Range range;
+  @Getter
+  private Node typeOf;
   private List<Node> is;
   private boolean not;
   private Match match;
-  private Bool boolWhere;
+  private Bool bool;
   private List<Where> where;
   private Operator operator;
   private String value;
@@ -27,9 +30,41 @@ public class Where extends Element implements Assignable {
   private boolean isNotNull;
   private FunctionClause function;
   private TTIriRef unit;
-  private boolean inverse;
   private String valueParameter;
   private String valueVariable;
+  @Getter
+  private Path path;
+  @Getter
+  private boolean inverse;
+
+  @JsonSetter
+  public Where setTypeOf(Node typeOf) {
+    this.typeOf = typeOf;
+    return this;
+  }
+
+
+  public Where setTypeOf(String type) {
+    this.typeOf = new Node().setIri(type);
+    return this;
+  }
+
+  public Where setInverse(boolean inverse) {
+    this.inverse = inverse;
+    return this;
+  }
+
+  @JsonSetter
+  public Where setPath(Path path) {
+    this.path = path;
+    return this;
+  }
+
+  public Where path(Consumer<Path> builder) {
+    this.path = new Path();
+    builder.accept(this.path);
+    return this;
+  }
 
 
   public boolean isNot() {
@@ -83,12 +118,12 @@ public class Where extends Element implements Assignable {
   }
 
 
-  public Bool getBoolWhere() {
-    return boolWhere;
+  public Bool getBool() {
+    return bool;
   }
 
-  public Where setBoolWhere(Bool boolWhere) {
-    this.boolWhere = boolWhere;
+  public Where setBool(Bool bool) {
+    this.bool = bool;
     return this;
   }
 
@@ -240,14 +275,6 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  public boolean isInverse() {
-    return inverse;
-  }
-
-  public Where setInverse(boolean inverse) {
-    this.inverse= inverse;
-    return this;
-  }
 
   public Where addIs(String isIri) {
     if (this.is == null) this.is = new ArrayList<>();

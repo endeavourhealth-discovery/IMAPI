@@ -91,20 +91,21 @@ public class EqdToIMQ {
           Query query = report.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
           if (query.getQuery() != null) {
             if (query.getMatch()!=null)
-              if (query.getIsSubsetOf() != null) {
-                if (gmsPatients.contains(query.getIsSubsetOf().get(0).getIri())) {
-                  List<IriLD> base = new ArrayList<>();
-                  base.add(new IriLD().setIri(IM.NAMESPACE + "Q_RegisteredGMS")
-                    .setName("Registered with GP for GMS services on the reference date"));
-                  query.setIsSubsetOf(base);
-                  report.set(IM.DEFINITION, TTLiteral.literal(query));
+              if (query.getInstanceOf() != null) {
+                for (Node node : query.getInstanceOf()) {
+                  if (gmsPatients.contains(node.getIri())) {
+                    node.setIri(IM.NAMESPACE + "Q_RegisteredGMS")
+                      .setName("Registered with GP for GMS services on the reference date");
+                  }
                 }
+                report.set(IM.DEFINITION, TTLiteral.literal(query));
+              }
             }
           }
         }
       }
-    }
   }
+
 
   private void convertFolders(EnquiryDocument eqd) throws EQDException {
     List<EQDOCFolder> eqFolders = eqd.getReportFolder();

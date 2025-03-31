@@ -17,10 +17,11 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.Connection;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
@@ -33,8 +34,7 @@ public class ConnectionManager {
   private Logger LOG = LoggerFactory.getLogger(ConnectionManager.class);
   private ObjectMapper om = new ObjectMapper();
   private QueryService queryService = new QueryService();
-  @Autowired
-  private PostgresService postgresService;
+  private PostgresService postgresService = new PostgresService();
 
   public ConnectionManager() throws IOException, TimeoutException {
     connectionFactory = new CachingConnectionFactory();
@@ -79,9 +79,18 @@ public class ConnectionManager {
       String id = delivery.getProperties().getMessageId();
       UUID uuid = UUID.fromString(id);
       LOG.info("Received a message: {}", message);
-      DBEntry entry = postgresService.getById(uuid);
+      DBEntry entry;
+      try {
+        entry = postgresService.getById(uuid);
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
       entry.setStatus(QueryExecutorStatus.RUNNING);
-      postgresService.update(entry);
+      try {
+        postgresService.update(entry);
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
       try {
         QueryRequest queryRequest = om.readValue(message, QueryRequest.class);
         queryService.executeQuery(queryRequest);
@@ -89,7 +98,11 @@ public class ConnectionManager {
         postgresService.update(entry);
       } catch (Exception | SQLConversionException e) {
         entry.setStatus(QueryExecutorStatus.ERRORED);
-        postgresService.update(entry);
+        try {
+          postgresService.update(entry);
+        } catch (SQLException ex) {
+          throw new RuntimeException(ex);
+        }
       }
     };
     LOG.info("Waiting for query executor messages...");
@@ -107,11 +120,12 @@ public class ConnectionManager {
       .build();
     channel.basicPublish(EXCHANGE_NAME, "query.execute." + userId, properties, message.getBytes());
     channel.waitForConfirmsOrDie(5_000);
-    DBEntry entry = new DBEntry();
-    entry.setId(id);
-    entry.setQueryIri(message);
-    entry.setStatus(QueryExecutorStatus.QUEUED);
-    entry.setUserId(userId);
+    DBEntry entry = new DBEntry()
+      .setId(id)
+      .setQueryIri(message)
+      .setStatus(QueryExecutorStatus.QUEUED)
+      .setUserId(userId)
+      .setQueuedAt(LocalDateTime.now());
     postgresService.create(entry);
   }
 }

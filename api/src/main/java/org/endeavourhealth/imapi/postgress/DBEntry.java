@@ -1,20 +1,14 @@
 package org.endeavourhealth.imapi.postgress;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @NoArgsConstructor
-@AllArgsConstructor
-@Data
-@Entity
-@Table(name = "query_queue")
+@Getter
 public class DBEntry {
-  @Id
   private UUID id;
   private String queryIri;
   private String queryName;
@@ -24,12 +18,61 @@ public class DBEntry {
   private int pid;
   private LocalDateTime finishedAt;
   private LocalDateTime killedAt;
-  @Enumerated(EnumType.STRING)
   private QueryExecutorStatus status;
   private String queryResult;
 
-  @PrePersist
-  public void prePersist() {
-    queuedAt = LocalDateTime.now();
+  public DBEntry setId(UUID id) {
+    this.id = id;
+    return this;
+  }
+
+  public DBEntry setQueryIri(String queryIri) {
+    this.queryIri = queryIri;
+    return this;
+  }
+
+  public DBEntry setQueryName(String queryName) {
+    this.queryName = queryName;
+    return this;
+  }
+
+  public DBEntry setUserId(String userId) {
+    this.userId = userId;
+    return this;
+  }
+
+  public DBEntry setQueuedAt(LocalDateTime queuedAt) {
+    this.queuedAt = queuedAt;
+    return this;
+  }
+
+  public DBEntry setStartedAt(LocalDateTime startedAt) {
+    this.startedAt = startedAt;
+    return this;
+  }
+
+  public DBEntry setPid(int pid) {
+    this.pid = pid;
+    return this;
+  }
+
+  public DBEntry setFinishedAt(LocalDateTime finishedAt) {
+    this.finishedAt = finishedAt;
+    return this;
+  }
+
+  public DBEntry setKilledAt(LocalDateTime killedAt) {
+    this.killedAt = killedAt;
+    return this;
+  }
+
+  public DBEntry setStatus(QueryExecutorStatus status) {
+    this.status = status;
+    return this;
+  }
+
+  public DBEntry setQueryResult(String queryResult) {
+    this.queryResult = queryResult;
+    return this;
   }
 }

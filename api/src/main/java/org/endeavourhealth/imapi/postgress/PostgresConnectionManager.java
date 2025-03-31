@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.postgress;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.Properties;
@@ -16,7 +17,7 @@ public class PostgresConnectionManager {
     throw new IllegalStateException("Utility class");
   }
 
-  public static Connection getConnection() throws SQLException {
+  private static Connection getConnection() throws SQLException {
     if (connection != null) {
       return connection;
     }
@@ -27,5 +28,9 @@ public class PostgresConnectionManager {
       connection = conn;
       return connection;
     }
+  }
+
+  public static PreparedStatement prepareStatement(String sql) throws SQLException {
+    return getConnection().prepareStatement(sql);
   }
 }

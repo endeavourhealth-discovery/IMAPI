@@ -1,30 +1,116 @@
 package org.endeavourhealth.imapi.postgress;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-@Repository
-public interface PostgresRepository extends JpaRepository<DBEntry, UUID> {
-  @Query(
-    value = "SELECT * FROM query_queue WHERE user_id = quote_literal(?1)",
-    nativeQuery = true
-  )
-  List<DBEntry> findAllByUserId(String userId);
+public class PostgresRepository {
+  public PostgresRepository() {
+    throw new IllegalStateException("Utility class");
+  }
 
-  @Query(
-    value = "SELECT * FROM query_queue WHERE status = quote_literal(?1)",
-    nativeQuery = true
-  )
-  List<DBEntry> findAllByStatus(@Param("status") QueryExecutorStatus status);
+  public DBEntry save(DBEntry entry) throws SQLException {
+    String sql = """
+      INSERT INTO
+        query_queue(id, query_iri, query_name, user_id, queued_at, started_at, pid, finished_at, killed_at, status)
+        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)
+        ON CONFLICT(id)
+          DO UPDATE SET (query_iri, query_name, user_id, queued_at, started_at, pid, finished_at, killed_at, status) = (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9);
+      """;
+    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement(sql)) {
+      ps.setString(1, entry.getId().toString());
+      ps.setString(2, entry.getQueryIri());
+      ps.setString(3, entry.getQueryName());
+      ps.setString(4, entry.getUserId());
+      ps.setString(5, entry.getQueuedAt().toString());
+      ps.setString(6, entry.getStartedAt().toString());
+      ps.setInt(7, entry.getPid());
+      ps.setString(8, entry.getFinishedAt().toString());
+      ps.setString(9, entry.getKilledAt().toString());
+      ps.setString(10, entry.getStatus().toString());
+      ps.executeUpdate();
+      return entry;
+    }
+  }
 
-  @Query(
-    value = "SELECT * FROM query_queue WHERE user_id = quote_literal(?1) AND status = quote_literal(?2)",
-    nativeQuery = true
-  )
-  List<DBEntry> findAllByUserIdAndStatus(@Param("userId") String userId, @Param("status") QueryExecutorStatus status);
+  public Optional<DBEntry> findById(UUID id) throws SQLException {
+    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement("SELECT * FROM query_queue WHERE id = ?")) {
+      ps.setString(1, id.toString());
+      try (ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+          return Optional.of(resultSetToDBEntry(rs));
+        } else {
+          return Optional.empty();
+        }
+      }
+    }
+  }
+
+  public void deleteById(UUID id) throws SQLException {
+    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement("DELETE FROM query_queue WHERE id = ?")) {
+      ps.setString(1, id.toString());
+      ps.executeUpdate();
+    }
+  }
+
+  public List<DBEntry> findAllByUserId(String userId) throws SQLException {
+    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement("SELECT * FROM query_queue WHERE user_id = quote_literal(?1)")) {
+      ps.setString(1, userId);
+      try (ResultSet rs = ps.executeQuery()) {
+        List<DBEntry> list = new ArrayList<>();
+        while (rs.next()) {
+          DBEntry entry = resultSetToDBEntry(rs);
+          list.add(entry);
+        }
+        return list;
+      }
+    }
+  }
+
+  public List<DBEntry> findAllByStatus(QueryExecutorStatus status) throws SQLException {
+    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement("SELECT * FROM query_queue WHERE status = quote_literal(?1)")) {
+      ps.setString(1, status.toString());
+      try (ResultSet rs = ps.executeQuery()) {
+        List<DBEntry> list = new ArrayList<>();
+        while (rs.next()) {
+          DBEntry entry = resultSetToDBEntry(rs);
+          list.add(entry);
+        }
+        return list;
+      }
+    }
+  }
+
+  public List<DBEntry> findAllByUserIdAndStatus(String userId, QueryExecutorStatus status) throws SQLException {
+    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement("SELECT * FROM query_queue WHERE user_id = quote_literal(?1) AND status = quote_literal(?2)")) {
+      ps.setString(1, status.toString());
+      try (ResultSet rs = ps.executeQuery()) {
+        List<DBEntry> list = new ArrayList<>();
+        while (rs.next()) {
+          DBEntry entry = resultSetToDBEntry(rs);
+          list.add(entry);
+        }
+        return list;
+      }
+    }
+  }
+
+  private DBEntry resultSetToDBEntry(ResultSet rs) throws SQLException {
+    DBEntry entry = new DBEntry();
+    entry.setId(UUID.fromString(rs.getString("id")));
+    entry.setUserId(rs.getString("user_id"));
+    entry.setStatus(QueryExecutorStatus.valueOf(rs.getString("status")));
+    entry.setQueuedAt(LocalDateTime.parse(rs.getString("queued_at")));
+    if (null != rs.getString("started_at")) entry.setStartedAt(LocalDateTime.parse(rs.getString("started_at")));
+    if (null != rs.getString("finished_at")) entry.setFinishedAt(LocalDateTime.parse(rs.getString("finished_at")));
+    if (null != rs.getString("killed_at")) entry.setKilledAt(LocalDateTime.parse(rs.getString("killed_at")));
+    entry.setQueryIri(rs.getString("query_iri"));
+    entry.setQueryName(rs.getString("query_name"));
+    return entry;
+  }
 }

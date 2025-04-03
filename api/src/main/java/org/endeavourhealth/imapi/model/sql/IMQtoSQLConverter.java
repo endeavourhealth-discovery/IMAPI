@@ -109,10 +109,11 @@ public class IMQtoSQLConverter {
       // Assume bool match "AND"
       match.setBool(Bool.and);
       convertMatchBoolSubMatch(qry, match);
+    } else if (match.getPath() != null && match.getPath().getWhere() != null) {
+      convertMatchProperties(qry, match);
     } else {
       throw new SQLConversionException("UNHANDLED MATCH PATTERN\n" + match);
     }
-
   }
 
   private void wrapMatchPartition(SQLQuery qry, OrderLimit order) throws SQLConversionException {
@@ -191,12 +192,14 @@ public class IMQtoSQLConverter {
   }
 
   private void convertMatchProperties(SQLQuery qry, Match match) throws SQLConversionException {
-    if (match.getWhere() == null || match.getWhere().isEmpty()) {
-      throw new SQLConversionException("INVALID MatchProperty\n" + match);
+    if (match.getWhere() != null && !match.getWhere().isEmpty()) {
+      for (Where property : match.getWhere()) {
+        convertMatchProperty(qry, property);
+      }
     }
 
-    for (Where property : match.getWhere()) {
-      convertMatchProperty(qry, property);
+    if (match.getPath() != null && match.getPath().getWhere() != null) {
+      convertMatchProperty(qry, match.getPath().getWhere());
     }
   }
 

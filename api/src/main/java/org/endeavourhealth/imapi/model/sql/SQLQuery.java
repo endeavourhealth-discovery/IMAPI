@@ -126,7 +126,7 @@ public class SQLQuery {
   private Field getField(String field, String table, HashMap<String, Table> tableMap) throws SQLConversionException {
     Table map = table != null ? tableMap.get(table) : this.map;
     LOG.info("{}", tableMap);
-    if (map == null) throw new SQLConversionException("Unknown table [" + table + "]");
+    if (map == null) throw new SQLConversionException("SQL Conversion Error: Unknown table [" + table + "]");
 
     if (map.getFields().get(field) != null) return map.getFields().get(field);
 
@@ -144,7 +144,7 @@ public class SQLQuery {
   public Relationship getRelationshipTo(String targetModel) throws SQLConversionException {
     if (map.getRelationships().get(targetModel) != null) return map.getRelationships().get(targetModel);
 
-    throw new SQLConversionException("Unknown relationship from [" + this.model + "] to [" + targetModel + "]");
+    throw new SQLConversionException("SQL Conversion Error: Unknown relationship from [" + this.model + "] to [" + targetModel + "]");
   }
 
   public SQLQuery clone(String alias, HashMap<String, Table> tableMap) throws SQLConversionException {

@@ -40,7 +40,8 @@ ext {
     tomcatAnnotations : '6.0.53',
     validation        : '3.0.2',
     woodstox          : '7.0.0',
-    wsrs              : '3.1.0'
+    wsrs              : '3.1.0',
+    mysqlConncetor    : '9.2.0'
   ]
   libs = [
     imGrammar         : "org.endeavourhealth.informationManager:Grammar:1.0-SNAPSHOT",
@@ -102,6 +103,7 @@ ext {
     tomcatAnnotations : "org.apache.tomcat:annotations-api:$versions.tomcatAnnotations",
     validation        : "jakarta.validation:jakarta.validation-api:$versions.validation",
     woodstox          : "com.fasterxml.woodstox:woodstox-core:$versions.woodstox",
-    wsrs              : "jakarta.ws.rs:jakarta.ws.rs-api:$versions.wsrs"
+    wsrs              : "jakarta.ws.rs:jakarta.ws.rs-api:$versions.wsrs",
+    mysqlConncetor    : "com.mysql:mysql-connector-j:$versions.mysqlConncetor"
   ]
 }

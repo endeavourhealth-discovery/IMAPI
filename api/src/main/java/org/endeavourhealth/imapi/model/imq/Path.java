@@ -5,11 +5,11 @@ import lombok.Getter;
 
 import java.util.function.Consumer;
 
-public class Path extends Element{
+public class Path extends Element {
   @Getter
   private boolean inverse;
   @Getter
-  private  Where where;
+  private Where where;
 
   @JsonSetter
   public Path setWhere(Where where) {
@@ -24,9 +24,8 @@ public class Path extends Element{
   }
 
 
-
   public Path setInverse(boolean inverse) {
-    this.inverse= inverse;
+    this.inverse = inverse;
     return this;
   }
 

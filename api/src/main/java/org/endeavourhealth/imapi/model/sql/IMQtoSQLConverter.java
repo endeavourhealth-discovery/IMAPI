@@ -83,6 +83,8 @@ public class IMQtoSQLConverter {
       return qry.subQuery(match.getTypeOf().getIri(), variable, tableMap);
     } else if (match.getNodeRef() != null && !match.getNodeRef().equals(qry.getModel())) {
       return qry.subQuery(match.getNodeRef(), variable, tableMap);
+    } else if (match.getPath() != null) {
+      return qry.subQuery(match.getPath().getIri(), variable, tableMap);
     } else return qry.subQuery(qry.getModel(), variable, tableMap);
   }
 
@@ -110,14 +112,30 @@ public class IMQtoSQLConverter {
       match.setBool(Bool.and);
       convertMatchBoolSubMatch(qry, match);
     } else if (match.getPath() != null && match.getPath().getWhere() != null) {
-      convertMatchProperties(qry, match);
+      convertPath(match.getPath(), qry);
     } else {
       throw new SQLConversionException("SQL Conversion Error: UNHANDLED MATCH PATTERN\n" + match);
     }
   }
 
+  private void convertPath(Path path, SQLQuery qry) throws SQLConversionException {
+    if (path.getWhere() != null) {
+      convertPathProperty(qry, path);
+    } else {
+      throw new SQLConversionException("SQL Conversion Error: UNHANDLED PATH PATTERN\n" + path);
+    }
+  }
+
+  private void convertPathProperty(SQLQuery qry, Path path) throws SQLConversionException {
+    if (path.getWhere() != null) {
+      Where property = path.getWhere();
+      convertMatchProperty(qry, property);
+    }
+  }
+
   private void wrapMatchPartition(SQLQuery qry, OrderLimit order) throws SQLConversionException {
-    if (order.getProperty() == null) throw new SQLConversionException("SQL Conversion Error: ORDER MUST HAVE A FIELD SPECIFIED\n" + order);
+    if (order.getProperty() == null)
+      throw new SQLConversionException("SQL Conversion Error: ORDER MUST HAVE A FIELD SPECIFIED\n" + order);
 
     SQLQuery inner = qry.clone(qry.getAlias() + "_inner", tableMap);
 
@@ -309,7 +327,8 @@ public class IMQtoSQLConverter {
 
 
   private void convertMatchPropertyInSet(SQLQuery qry, Where property) throws SQLConversionException {
-    if (property.getIri() == null) throw new SQLConversionException("SQL Conversion Error: INVALID PROPERTY\n" + property);
+    if (property.getIri() == null)
+      throw new SQLConversionException("SQL Conversion Error: INVALID PROPERTY\n" + property);
 
     if (property.getIs() == null) {
       throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyIn\n" + property);

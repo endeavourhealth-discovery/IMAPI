@@ -6,7 +6,8 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-@JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "exclude", "nodeRef", "header","preface","boolMatch", "boolWhere", "iri", "typeOf", "instanceOf", "where", "match"})
+
+@JsonPropertyOrder({"ifTrue", "ifFalse", "name", "description", "exclude", "nodeRef", "header", "preface", "boolMatch", "boolWhere", "iri", "typeOf", "instanceOf", "where", "match"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends IriLD implements GraphNode {
 
@@ -64,7 +65,7 @@ public class Match extends IriLD implements GraphNode {
   }
 
   @JsonGetter
-  public boolean hasRules(){
+  public boolean hasRules() {
     return hasRules;
   }
 

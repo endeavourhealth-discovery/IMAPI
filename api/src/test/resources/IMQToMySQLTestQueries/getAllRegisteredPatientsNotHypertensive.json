@@ -1,0 +1,39 @@
+{
+  "@id": "http://endhealth.info/im#Q_TestQuery",
+  "name": "Get all registered patients that are not hypertensive",
+  "bool": "and",
+  "match": [
+    {
+      "name": "not on hypertension register",
+      "description": "is registered on the hypertensives register",
+      "exclude": true,
+      "@id": "http://endhealth.info/im#04cbc2dc-5f6d-4252-a9fe-6ca6a6ac99fe",
+      "typeOf": {
+        "@id": "http://endhealth.info/im#Patient",
+        "name": "Patients",
+        "description": " with the following features : "
+      },
+      "instanceOf": [
+        {
+          "@id": "http://endhealth.info/im#Q_Hypertensives",
+          "qualifier": "in ",
+          "name": "Hypertensives",
+          "memberOf": true
+        }
+      ]
+    }
+  ],
+  "instanceOf": [
+    {
+      "@id": "http://endhealth.info/im#Q_RegisteredGMS",
+      "qualifier": "in ",
+      "name": "Registered for GMS services on reference date",
+      "memberOf": true
+    }
+  ],
+  "typeOf": {
+    "@id": "http://endhealth.info/im#Patient",
+    "name": "Patients",
+    "description": " with the following features : "
+  }
+}

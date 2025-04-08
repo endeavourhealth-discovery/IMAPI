@@ -11,3 +11,22 @@ Feature: IMQ to MySQL
     When I convert to MySQL
     Then MySQL should not contain error
     And MySQL is valid SQL
+
+  Scenario: Get all registered patients that are not hypertensive query
+    Given a valid IMQ "IMQToMySQLTestQueries\getAllRegisteredPatientsNotHypertensive.json"
+    When I convert to MySQL
+    Then MySQL should not contain error
+    And MySQL is valid SQL
+
+  Scenario: Get all registered patients that are not hypertensive query
+    Given a valid IMQ "IMQToMySQLTestQueries\getAllPatientsWithHighBP.json"
+    When I convert to MySQL
+    Then MySQL should not contain error
+    And MySQL is valid SQL
+
+  Scenario: Test query
+    Given a valid IMQ "IMQToMySQLTestQueries\testQuery.json"
+    When I convert to MySQL
+    Then MySQL should not contain error
+    And MySQL is valid SQL
+

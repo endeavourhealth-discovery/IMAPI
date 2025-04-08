@@ -1,0 +1,393 @@
+{
+  "@id": "http://endhealth.info/im#Q_TestQuery",
+  "name": "Patients 65-70, or diabetes or prediabetes that need invitations for blood pressure measuring",
+  "description": "Test for patients either aged between 65 and 70 or with diabetes with the most recent systolic in the last 12 months either home >130 or office >140, not followed by a screening invite, excluding hypertensives",
+  "bool": "and",
+  "match": [
+    {
+      "name": "Patients 65-70, or diabetes or prediabetes",
+      "description": "Patients with an age between 65 and 70, or on the diabetic register, or have prediabetes",
+      "@id": "http://endhealth.info/im#38e163e1-51e3-4416-8acf-d51b1592d1ae",
+      "typeOf": {
+        "@id": "http://endhealth.info/im#Patient",
+        "name": "Patients",
+        "description": " with the following features : "
+      },
+      "match": [
+        {
+          "name": "aged between 65 and 70",
+          "@id": "http://endhealth.info/im#ea4884a3-0664-4588-a171-1eae9c20155c",
+          "typeOf": {
+            "@id": "http://endhealth.info/im#Patient",
+            "name": "Patients",
+            "description": " with the following features : "
+          },
+          "where": [
+            {
+              "@id": "http://endhealth.info/im#age",
+              "name": "age",
+              "range": {
+                "from": {
+                  "operator": ">=",
+                  "value": "65",
+                  "unit": {
+                    "name": "Years",
+                    "@id": "http://endhealth.info/im#Years"
+                  }
+                },
+                "to": {
+                  "operator": "<",
+                  "value": "70",
+                  "unit": {
+                    "name": "Years",
+                    "@id": "http://endhealth.info/im#Years"
+                  }
+                }
+              },
+              "qualifier": "between 65 years (inc.) below 70 years"
+            }
+          ]
+        },
+        {
+          "@id": "http://endhealth.info/im#4abd7cea-5a27-45f2-993f-61d98b0e67d9",
+          "typeOf": {
+            "@id": "http://endhealth.info/im#Patient",
+            "name": "Patients",
+            "description": " with the following features : "
+          },
+          "match": [
+            {
+              "preface": "Select the latest date",
+              "@id": "http://endhealth.info/im#M_UnresolvedDiabetes",
+              "typeOf": {
+                "@id": "http://endhealth.info/im#Patient",
+                "name": "Patients",
+                "description": " with the following features : "
+              },
+              "orderBy": {
+                "property": {
+                  "@id": "http://endhealth.info/im#effectiveDate",
+                  "name": "date (effective date) ",
+                  "direction": "descending"
+                },
+                "description": "latest "
+              },
+              "path": {
+                "@id": "http://endhealth.info/im#observation",
+                "name": "observations of",
+                "where": {
+                  "@id": "http://endhealth.info/im#concept",
+                  "name": "concept",
+                  "typeOf": {
+                    "@id": "http://endhealth.info/im#Observation"
+                  },
+                  "is": [
+                    {
+                      "@id": "http://snomed.info/sct#999004691000230108",
+                      "qualifier": " in ",
+                      "name": "DM_COD Diabetes diagnoses (NHS GP value set)",
+                      "memberOf": true,
+                      "code": "999004691000230108"
+                    },
+                    {
+                      "@id": "http://snomed.info/sct#999003371000230102",
+                      "qualifier": " in ",
+                      "name": "Diabetes resolved (NHS GP value set)",
+                      "memberOf": true,
+                      "code": "999003371000230102"
+                    }
+                  ],
+                  "valueLabel": " in DM_COD Diabetes diagnoses (NHS GP value set), or in Diabetes resolved (NHS GP value set)"
+                }
+              },
+              "hasTest": true,
+              "return": {
+                "property": [
+                  {
+                    "@id": "http://endhealth.info/im#effectiveDate",
+                    "name": "date (effective date) "
+                  }
+                ],
+                "as": "latestDiabetesOrResolved"
+              }
+            },
+            {
+              "nodeRef": "latestDiabetesOrResolved",
+              "@id": "http://endhealth.info/im#a065df10-9a2f-4ea9-8eb6-69f11e9d53d2",
+              "typeOf": {
+                "@id": "http://endhealth.info/im#Patient",
+                "name": "Patients",
+                "description": " with the following features : "
+              },
+              "where": [
+                {
+                  "@id": "http://endhealth.info/im#concept",
+                  "name": "concept",
+                  "is": [
+                    {
+                      "@id": "http://snomed.info/sct#999004691000230108",
+                      "qualifier": " in ",
+                      "name": "Diabetes mellitus codes",
+                      "code": "999004691000230108"
+                    }
+                  ],
+                  "valueLabel": " in Diabetes mellitus codes"
+                }
+              ],
+              "test": true
+            }
+          ],
+          "bool": "and"
+        },
+        {
+          "name": "has pre-diabetes",
+          "@id": "http://endhealth.info/im#4edd5417-ee67-432e-8792-bd6c5fd60a71",
+          "typeOf": {
+            "@id": "http://endhealth.info/im#Patient",
+            "name": "Patients",
+            "description": " with the following features : "
+          },
+          "path": {
+            "@id": "http://endhealth.info/im#observation",
+            "name": "observations of",
+            "where": {
+              "@id": "http://endhealth.info/im#concept",
+              "name": "concept",
+              "typeOf": {
+                "@id": "http://endhealth.info/im#Observation"
+              },
+              "is": [
+                {
+                  "@id": "http://snomed.info/sct#714628002",
+                  "name": "Prediabetes (finding)",
+                  "descendantsOf": true,
+                  "code": "714628002"
+                }
+              ],
+              "valueLabel": " Prediabetes (finding)"
+            }
+          }
+        }
+      ],
+      "bool": "or"
+    },
+    {
+      "name": "Have high blood pressure in the last year",
+      "description": "Latest systolic within 12 months of the reference date, is either an office systolic >140 or a home systolic >130",
+      "preface": "Select the latest ",
+      "@id": "http://endhealth.info/im#5296d0a5-902e-4a62-aeb6-1a3c3d85ad72",
+      "typeOf": {
+        "@id": "http://endhealth.info/im#Patient",
+        "name": "Patients",
+        "description": " with the following features : "
+      },
+      "orderBy": {
+        "property": {
+          "@id": "http://endhealth.info/im#effectiveDate",
+          "name": "date (effective date) ",
+          "direction": "descending"
+        },
+        "limit": 1,
+        "description": "latest "
+      },
+      "path": {
+        "@id": "http://endhealth.info/im#observation",
+        "name": "observations of",
+        "where": {
+          "bool": "and",
+          "typeOf": {
+            "@id": "http://endhealth.info/im#Observation"
+          },
+          "where": [
+            {
+              "@id": "http://endhealth.info/im#concept",
+              "name": "concept",
+              "is": [
+                {
+                  "@id": "http://snomed.info/sct#271649006",
+                  "name": "Systolic blood pressure",
+                  "descendantsOrSelfOf": true,
+                  "code": "271649006"
+                },
+                {
+                  "@id": "http://endhealth.info/emis#1994021000006115",
+                  "name": "Home systolic blood pressure",
+                  "descendantsOrSelfOf": true,
+                  "code": "1994021000006104"
+                }
+              ],
+              "valueLabel": " Systolic blood pressure, or Home systolic blood pressure"
+            },
+            {
+              "@id": "http://endhealth.info/im#effectiveDate",
+              "name": "date (effective date) ",
+              "operator": ">=",
+              "value": "-12",
+              "relativeTo": {
+                "parameter": "$referenceDate",
+                "qualifier": "the reference date"
+              },
+              "qualifier": "on or after",
+              "valueLabel": "12 months before ",
+              "unit": {
+                "@id": "http://endhealth.info/im#Months"
+              }
+            }
+          ]
+        }
+      },
+      "return": {
+        "nodeRef": "observation",
+        "as": "latestBP"
+      }
+    },
+    {
+      "nodeRef": "latestBP",
+      "preface": "Select the ",
+      "@id": "http://endhealth.info/im#c5396d1d-c932-4c35-8a3f-c3a78bc8b355",
+      "typeOf": {
+        "@id": "http://endhealth.info/im#Patient",
+        "name": "Patients",
+        "description": " with the following features : "
+      },
+      "where": [
+        {
+          "bool": "and",
+          "where": [
+            {
+              "@id": "http://endhealth.info/im#concept",
+              "name": "concept",
+              "is": [
+                {
+                  "@id": "http://snomed.info/sct#271649006",
+                  "name": "Systolic blood pressure",
+                  "descendantsOrSelfOf": true,
+                  "code": "271649006"
+                }
+              ],
+              "valueLabel": " Systolic blood pressure"
+            },
+            {
+              "@id": "http://endhealth.info/im#value",
+              "name": "value",
+              "operator": ">",
+              "value": "140",
+              "qualifier": "greater than ",
+              "valueLabel": "140"
+            }
+          ]
+        },
+        {
+          "bool": "and",
+          "where": [
+            {
+              "@id": "http://endhealth.info/im#concept",
+              "name": "concept",
+              "is": [
+                {
+                  "@id": "http://endhealth.info/emis#1994021000006115",
+                  "name": "Home systolic blood pressure",
+                  "descendantsOrSelfOf": true,
+                  "code": "1994021000006104"
+                }
+              ],
+              "valueLabel": " Home systolic blood pressure"
+            },
+            {
+              "@id": "http://endhealth.info/im#value",
+              "name": "value",
+              "operator": ">",
+              "value": "130",
+              "qualifier": "greater than ",
+              "valueLabel": "130"
+            }
+          ]
+        }
+      ],
+      "bool": "or",
+      "return": {
+        "as": "highBPReading"
+      }
+    },
+    {
+      "name": "Not invited for screening since high BP reading",
+      "description": "invited for screening with an effective date after then effective date of the high BP reading",
+      "exclude": true,
+      "@id": "http://endhealth.info/im#dfd83f09-a2c6-4466-8898-487960dafb01",
+      "typeOf": {
+        "@id": "http://endhealth.info/im#Patient",
+        "name": "Patients",
+        "description": " with the following features : "
+      },
+      "bool": "and",
+      "path": {
+        "@id": "http://endhealth.info/im#observation",
+        "name": "observations of",
+        "where": {
+          "bool": "and",
+          "typeOf": {
+            "@id": "http://endhealth.info/im#Observation"
+          },
+          "where": [
+            {
+              "@id": "http://endhealth.info/im#concept",
+              "name": "concept",
+              "is": [
+                {
+                  "@id": "http://snomed.info/sct#310422005",
+                  "name": "invited for screening",
+                  "memberOf": true,
+                  "code": "310422005"
+                }
+              ],
+              "valueLabel": " invited for screening"
+            },
+            {
+              "@id": "http://endhealth.info/im#effectiveDate",
+              "name": "date (effective date) ",
+              "operator": ">=",
+              "relativeTo": {
+                "@id": "http://endhealth.info/im#effectiveDate",
+                "qualifier": "date (effective date) of ",
+                "nodeRef": "highBPReading"
+              },
+              "qualifier": "on or after"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "not on hypertension register",
+      "description": "is registered on the hypertensives register",
+      "exclude": true,
+      "@id": "http://endhealth.info/im#04cbc2dc-5f6d-4252-a9fe-6ca6a6ac99fe",
+      "typeOf": {
+        "@id": "http://endhealth.info/im#Patient",
+        "name": "Patients",
+        "description": " with the following features : "
+      },
+      "instanceOf": [
+        {
+          "@id": "http://endhealth.info/im#Q_Hypertensives",
+          "qualifier": "in ",
+          "name": "Hypertensives",
+          "memberOf": true
+        }
+      ]
+    }
+  ],
+  "instanceOf": [
+    {
+      "@id": "http://endhealth.info/im#Q_RegisteredGMS",
+      "qualifier": "in ",
+      "name": "Registered for GMS services on reference date",
+      "memberOf": true
+    }
+  ],
+  "typeOf": {
+    "@id": "http://endhealth.info/im#Patient",
+    "name": "Patients",
+    "description": " with the following features : "
+  }
+}

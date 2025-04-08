@@ -24,7 +24,7 @@
       "http://endhealth.info/im#Patient": {"fromField": "{alias}.patient_id", "toField": "id"}
     }
   },
-  "http://endhealth.info/im#Observation": {
+  "http://endhealth.info/im#observation": {
     "table": "observation",
     "fields": {
       "http://endhealth.info/im#concept": {"field": "{alias}.core_concept_id", "type": "iri"},

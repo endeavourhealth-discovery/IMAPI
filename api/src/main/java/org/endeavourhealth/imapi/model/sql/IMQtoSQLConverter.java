@@ -17,14 +17,13 @@ import java.util.List;
 public class IMQtoSQLConverter {
   private static Logger LOG = LoggerFactory.getLogger(IMQtoSQLConverter.class);
 
-  private HashMap<String, Table> tableMap;
+  private TableMap tableMap;
 
   public IMQtoSQLConverter() {
     try {
       // POSTGRES String text = Files.readString(Paths.get(getClass().getClassLoader().getResource("IMQtoSQL.json").toURI()));
       String text = Files.readString(Paths.get(getClass().getClassLoader().getResource("IMQtoMYSQL.json").toURI()));
-      tableMap = new ObjectMapper().readValue(text, new TypeReference<>() {
-      });
+      tableMap = new ObjectMapper().readValue(text, TableMap.class);
     } catch (Exception e) {
       LOG.error("Could not parse datamodel map!");
       throw new RuntimeException(e);

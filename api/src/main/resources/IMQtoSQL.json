@@ -1,79 +1,115 @@
 {
-  "http://endhealth.info/im#Patient": {
-    "table": "patient",
-    "fields": {
-      "http://endhealth.info/im#age": {"field": "(({alias}.json ->> 'dateOfBirth')::DATE)", "type": "date"},
-      "http://endhealth.info/im#dateOfBirth": {"field": "(({alias}.json ->> 'dateOfBirth')::DATE)", "type": "date"}
+  "properties": {
+    "http://endhealth.info/im#patient": {
+      "dataModel": "http://endhealth.info/im#Patient"
     },
-    "relationships": {
-      "http://endhealth.info/im#Observation": {"fromField": "id", "toField": "(({alias}.json ->> 'patient')::UUID)"}
+    "http://endhealth.info/im#observation": {
+      "dataModel": "http://endhealth.info/im#Observation"
+    },
+    "http://endhealth.info/im#gPRegistration": {
+      "dataModel": "http://endhealth.info/im#GPRegistration"
+    },
+    "http://endhealth.info/im#prescription": {
+      "dataModel": "http://endhealth.info/im#Prescription"
+    },
+    "http://endhealth.info/im#medicationRequest": {
+      "dataModel": "http://endhealth.info/im#MedicationRequest"
+    },
+    "http://endhealth.info/im#episodeOfCare": {
+      "dataModel": "http://endhealth.info/im#EpisodeOfCare"
     }
   },
-  "http://endhealth.info/im#GPRegistration": {
-    "table": "event",
-    "condition": "(({alias}.json ->> 'event_type')::VARCHAR) = 'EpisodeOfCare'",
-    "fields": {
-      "http://endhealth.info/im#concept": {"field": "(({alias}.json ->> 'concept')::VARCHAR)", "type": "iri"},
-      "http://endhealth.info/im#gpPatientType": {"field": "(({alias}.json ->> 'patientType')::VARCHAR)", "type": "iri"},
-      "http://endhealth.info/im#gpRegisteredStatus": {"field": "(({alias}.json ->> 'status')::VARCHAR)", "type": "iri"},
-      "http://endhealth.info/im#gpGMSRegistrationDate": {
-        "field": "(({alias}.json ->> 'effectiveDate')::DATE)", "type": "date"
+  "dataModels": {
+    "http://endhealth.info/im#Patient": {
+      "table": "patient",
+      "fields": {
+        "http://endhealth.info/im#age": {"field": "(({alias}.json ->> 'dateOfBirth')::DATE)", "type": "date"},
+        "http://endhealth.info/im#dateOfBirth": {"field": "(({alias}.json ->> 'dateOfBirth')::DATE)", "type": "date"}
       },
-      "http://endhealth.info/im#effectiveDate": {"field": "(({alias}.json ->> 'effectiveDate')::DATE)", "type": "date"},
-      "http://endhealth.info/im#endDate": {"field": "(({alias}.json ->> 'endDate')::DATE)", "type": "date"}
+      "relationships": {
+        "http://endhealth.info/im#Observation": {"fromField": "id", "toField": "(({alias}.json ->> 'patient')::UUID)"}
+      }
     },
-    "relationships": {
-      "http://endhealth.info/im#Patient": {"fromField": "(({alias}.json ->> 'patient')::UUID)", "toField": "id"}
-    }
-  },
-  "http://endhealth.info/im#Observation": {
-    "table": "event",
-    "condition": "(({alias}.json ->> 'event_type')::VARCHAR) = 'Observation'",
-    "fields": {
-      "http://endhealth.info/im#concept": {"field": "(({alias}.json ->> 'concept')::VARCHAR)", "type": "iri"},
-      "http://endhealth.info/im#effectiveDate": {"field": "(({alias}.json ->> 'effectiveDate')::DATE)", "type": "date"},
-      "http://endhealth.info/im#value": {"field": "(({alias}.json ->> 'value')::NUMERIC)", "type": "number"},
-      "http://endhealth.info/im#ageAtEvent": {"field": "(({alias}.json ->> 'ageAtEvent')::NUMERIC)", "type": "age"}
-    },
-    "relationships": {
-      "http://endhealth.info/im#Patient": {"fromField": "(({alias}.json ->> 'patient')::UUID)", "toField": "id"}
-    }
-  },
-  "http://endhealth.info/im#Prescription": {
-    "table": "event",
-    "condition": "(({alias}.json ->> 'event_type')::VARCHAR) = 'MedicationRequest'",
-    "fields": {
-      "http://endhealth.info/im#concept": {"field": "(({alias}.json ->> 'concept')::VARCHAR)", "type": "iri"},
-      "http://endhealth.info/im#effectiveDate": {"field": "(({alias}.json ->> 'effectiveDate')::DATE)", "type": "date"}
-    },
-    "relationships": {
-      "http://endhealth.info/im#Patient": {"fromField": "(({alias}.json ->> 'patient')::UUID)", "toField": "id"}
-    }
-  },
-  "http://endhealth.info/im#MedicationRequest": {
-    "table": "event",
-    "condition": "(({alias}.json ->> 'event_type')::VARCHAR) = 'MedicationRequest'",
-    "fields": {
-      "http://endhealth.info/im#concept": {"field": "(({alias}.json ->> 'concept')::VARCHAR)", "type": "iri"},
-      "http://endhealth.info/im#effectiveDate": {"field": "(({alias}.json ->> 'effectiveDate')::DATE)", "type": "date"}
-    },
-    "relationships": {
-      "http://endhealth.info/im#Patient": {"fromField": "(({alias}.json ->> 'patient')::UUID)", "toField": "id"}
-    }
-  },
-  "http://endhealth.info/im#EpisodeOfCare": {
-    "table": "event",
-    "condition": "(({alias}.json ->> 'event_type')::VARCHAR) = 'EpisodeOfCare'",
-    "fields": {
-      "http://endhealth.info/im#concept": {"field": "(({alias}.json ->> 'concept')::VARCHAR)", "type": "iri"},
-      "http://endhealth.info/im#gpPatientType": {
-        "field": "(({alias}.json ->> 'gpPatientType')::VARCHAR)", "type": "iri"
+    "http://endhealth.info/im#GPRegistration": {
+      "table": "event",
+      "condition": "(({alias}.json ->> 'event_type')::VARCHAR) = 'EpisodeOfCare'",
+      "fields": {
+        "http://endhealth.info/im#concept": {"field": "(({alias}.json ->> 'concept')::VARCHAR)", "type": "iri"},
+        "http://endhealth.info/im#gpPatientType": {
+          "field": "(({alias}.json ->> 'patientType')::VARCHAR)", "type": "iri"
+        },
+        "http://endhealth.info/im#gpRegisteredStatus": {
+          "field": "(({alias}.json ->> 'status')::VARCHAR)", "type": "iri"
+        },
+        "http://endhealth.info/im#gpGMSRegistrationDate": {
+          "field": "(({alias}.json ->> 'effectiveDate')::DATE)", "type": "date"
+        },
+        "http://endhealth.info/im#effectiveDate": {
+          "field": "(({alias}.json ->> 'effectiveDate')::DATE)", "type": "date"
+        },
+        "http://endhealth.info/im#endDate": {"field": "(({alias}.json ->> 'endDate')::DATE)", "type": "date"}
       },
-      "http://endhealth.info/im#effectiveDate": {"field": "(({alias}.json ->> 'effectiveDate')::DATE)", "type": "date"},
-      "http://endhealth.info/im#endDate": {"field": "(({alias}.json ->> 'endDate')::DATE)", "type": "date"}
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "(({alias}.json ->> 'patient')::UUID)", "toField": "id"}
+      }
     },
-    "relationships": {
-      "http://endhealth.info/im#Patient": {"fromField": "(({alias}.json ->> 'patient')::UUID)", "toField": "id"}
+    "http://endhealth.info/im#Observation": {
+      "table": "event",
+      "condition": "(({alias}.json ->> 'event_type')::VARCHAR) = 'Observation'",
+      "fields": {
+        "http://endhealth.info/im#concept": {"field": "(({alias}.json ->> 'concept')::VARCHAR)", "type": "iri"},
+        "http://endhealth.info/im#effectiveDate": {
+          "field": "(({alias}.json ->> 'effectiveDate')::DATE)", "type": "date"
+        },
+        "http://endhealth.info/im#value": {"field": "(({alias}.json ->> 'value')::NUMERIC)", "type": "number"},
+        "http://endhealth.info/im#ageAtEvent": {"field": "(({alias}.json ->> 'ageAtEvent')::NUMERIC)", "type": "age"}
+      },
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "(({alias}.json ->> 'patient')::UUID)", "toField": "id"}
+      }
+    },
+    "http://endhealth.info/im#Prescription": {
+      "table": "event",
+      "condition": "(({alias}.json ->> 'event_type')::VARCHAR) = 'MedicationRequest'",
+      "fields": {
+        "http://endhealth.info/im#concept": {"field": "(({alias}.json ->> 'concept')::VARCHAR)", "type": "iri"},
+        "http://endhealth.info/im#effectiveDate": {
+          "field": "(({alias}.json ->> 'effectiveDate')::DATE)", "type": "date"
+        }
+      },
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "(({alias}.json ->> 'patient')::UUID)", "toField": "id"}
+      }
+    },
+    "http://endhealth.info/im#MedicationRequest": {
+      "table": "event",
+      "condition": "(({alias}.json ->> 'event_type')::VARCHAR) = 'MedicationRequest'",
+      "fields": {
+        "http://endhealth.info/im#concept": {"field": "(({alias}.json ->> 'concept')::VARCHAR)", "type": "iri"},
+        "http://endhealth.info/im#effectiveDate": {
+          "field": "(({alias}.json ->> 'effectiveDate')::DATE)", "type": "date"
+        }
+      },
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "(({alias}.json ->> 'patient')::UUID)", "toField": "id"}
+      }
+    },
+    "http://endhealth.info/im#EpisodeOfCare": {
+      "table": "event",
+      "condition": "(({alias}.json ->> 'event_type')::VARCHAR) = 'EpisodeOfCare'",
+      "fields": {
+        "http://endhealth.info/im#concept": {"field": "(({alias}.json ->> 'concept')::VARCHAR)", "type": "iri"},
+        "http://endhealth.info/im#gpPatientType": {
+          "field": "(({alias}.json ->> 'gpPatientType')::VARCHAR)", "type": "iri"
+        },
+        "http://endhealth.info/im#effectiveDate": {
+          "field": "(({alias}.json ->> 'effectiveDate')::DATE)", "type": "date"
+        },
+        "http://endhealth.info/im#endDate": {"field": "(({alias}.json ->> 'endDate')::DATE)", "type": "date"}
+      },
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "(({alias}.json ->> 'patient')::UUID)", "toField": "id"}
+      }
     }
   }
 }

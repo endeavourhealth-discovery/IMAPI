@@ -32,7 +32,7 @@ public class IMQtoSQLConverterTest {
 
     // Prepare
     ObjectMapper om = new ObjectMapper();
-    IMQtoSQLConverter imq2sql = new IMQtoSQLConverter();
+    IMQtoSQLConverter imq2sql = new IMQtoSQLConverter(null);
     try {
       Class.forName("org.postgresql.Driver");
     } catch (ClassNotFoundException e) {

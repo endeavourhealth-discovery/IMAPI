@@ -29,9 +29,9 @@ public class QueryServiceTest {
       TTEntity entity = entityService.getBundle(ref.getIri(), Collections.singleton(IM.DEFINITION)).getEntity();
       Query query = entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       try {
-        String sql = new IMQtoSQLConverter().IMQtoSQL(query);
+        String sql = new IMQtoSQLConverter(null).IMQtoSQL(query);
         assertNotNull(sql);
-        if(!sql.startsWith("org.endeavourhealth.imapi.errorhandling.SQLConversionException")) {
+        if (!sql.startsWith("org.endeavourhealth.imapi.errorhandling.SQLConversionException")) {
           System.out.println("OK");
         } else {
           System.err.println("SQLConversionException: " + sql);

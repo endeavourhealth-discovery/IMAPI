@@ -76,20 +76,20 @@ public class QueryService {
     return searchResponse;
   }
 
-  public String getSQLFromIMQ(Query query) {
+  public String getSQLFromIMQ(Query query, String lang) {
     try {
-      return new IMQtoSQLConverter().IMQtoSQL(query);
+      return new IMQtoSQLConverter(lang).IMQtoSQL(query);
     } catch (SQLConversionException e) {
       return e.getMessage();
     }
   }
 
-  public String getSQLFromIMQIri(String queryIri) throws JsonProcessingException {
+  public String getSQLFromIMQIri(String queryIri, String lang) throws JsonProcessingException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null)
       return null;
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
-    return getSQLFromIMQ(query);
+    return getSQLFromIMQ(query, lang);
   }
 
   public Query getDefaultQuery() throws JsonProcessingException {

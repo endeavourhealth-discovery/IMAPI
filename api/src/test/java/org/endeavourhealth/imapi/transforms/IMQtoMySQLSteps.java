@@ -21,7 +21,7 @@ public class IMQtoMySQLSteps {
   private Query query;
   private String mysql;
   private final ObjectMapper objectMapper = new ObjectMapper();
-  private final IMQtoSQLConverter imqtoSQLConverter = new IMQtoSQLConverter();
+  private final IMQtoSQLConverter imqtoSQLConverter = new IMQtoSQLConverter(null);
 
   private static final String URL = "jdbc:mysql://localhost:3306/compass?useSSL=false&allowPublicKeyRetrieval=true";
   private static final String USER = "root";

@@ -18,16 +18,22 @@ public class IMQtoSQLConverter {
   private static Logger LOG = LoggerFactory.getLogger(IMQtoSQLConverter.class);
 
   private TableMap tableMap;
+  private String lang;
 
-  public IMQtoSQLConverter() {
+  public IMQtoSQLConverter(String lang) {
+    this.lang = lang != null ? lang : "MYSQL";
     try {
-      // POSTGRES String text = Files.readString(Paths.get(getClass().getClassLoader().getResource("IMQtoSQL.json").toURI()));
-      String text = Files.readString(Paths.get(getClass().getClassLoader().getResource("IMQtoMYSQL.json").toURI()));
+      String resourcePath = isPostgreSQL() ? "IMQtoSQL.json" : "IMQtoMYSQL.json";
+      String text = Files.readString(Paths.get(getClass().getClassLoader().getResource(resourcePath).toURI()));
       tableMap = new ObjectMapper().readValue(text, TableMap.class);
     } catch (Exception e) {
       LOG.error("Could not parse datamodel map!");
       throw new RuntimeException(e);
     }
+  }
+
+  private boolean isPostgreSQL() {
+    return this.lang.equals("POSTGRESQL");
   }
 
   public String IMQtoSQL(Query definition) throws SQLConversionException {
@@ -143,9 +149,7 @@ public class IMQtoSQLConverter {
     SQLQuery partition = qry.subQuery(qry.getAlias() + "_inner", qry.getAlias() + "_part", tableMap);
 
     // TODO: Correct partition field
-    // String partField = "patient";
-    // POSTGRES String partField = "((json ->> 'patient')::UUID)";
-    String partField = "patient_id";
+    String partField = isPostgreSQL() ? "((json ->> 'patient')::UUID)" : "patient_id";
 
 
     ArrayList<String> o = new ArrayList<>();
@@ -273,16 +277,22 @@ public class IMQtoSQLConverter {
 
     String tct = "tct_" + qry.getJoins().size();
     if (!descendants.isEmpty()) {
-      // POSTGRES qry.getJoins().add("JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap));
-      qry.getJoins().add("JOIN concept_tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap));
+      String join = isPostgreSQL()
+        ? "JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap)
+        : "JOIN concept_tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap);
+      qry.getJoins().add(join);
       qry.getWheres().add(descendants.size() == 1 ? tct + ".iri = '" + descendants.get(0) + "'" : tct + ".iri IN ('" + StringUtils.join(descendants, "',\n'") + "') AND " + tct + ".level > 0");
     } else if (!descendantsSelf.isEmpty()) {
-      // POSTGRES qry.getJoins().add("JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap));
-      qry.getJoins().add("JOIN concept_tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap));
+      String join = isPostgreSQL()
+        ? "JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap)
+        : "JOIN concept_tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap);
+      qry.getJoins().add(join);
       qry.getWheres().add(descendantsSelf.size() == 1 ? tct + ".iri = '" + descendantsSelf.get(0) + "'" : tct + ".iri IN ('" + StringUtils.join(descendantsSelf, "',\n'") + "')");
     } else if (!ancestors.isEmpty()) {
-      // POSTGRES qry.getJoins().add("JOIN tct AS " + tct + " ON " + tct + ".iri = " + qry.getFieldName(property.getIri(), null, tableMap));
-      qry.getJoins().add("JOIN concept_tct AS " + tct + " ON " + tct + ".iri = " + qry.getFieldName(property.getIri(), null, tableMap));
+      String join = isPostgreSQL()
+        ? "JOIN tct AS " + tct + " ON " + tct + ".iri = " + qry.getFieldName(property.getIri(), null, tableMap)
+        : "JOIN concept_tct AS " + tct + " ON " + tct + ".iri = " + qry.getFieldName(property.getIri(), null, tableMap);
+      qry.getJoins().add(join);
       qry.getWheres().add(ancestors.size() == 1 ? tct + ".child = '" + ancestors.get(0) + "'" : tct + ".child IN ('" + StringUtils.join(ancestors, "',\n'") + "') AND " + tct + ".level > 0");
     }
   }
@@ -319,8 +329,10 @@ public class IMQtoSQLConverter {
     if (range.getUnit() != null && "DATE".equals(range.getUnit().getName()))
       return "'" + range.getValue() + "' " + range.getOperator().getValue() + " " + fieldName;
     else {
-      // POSTGRES return "(now() - INTERVAL '" + range.getValue() + (range.getUnit() != null ? " " + range.getUnit().getName() : "") + "') " + range.getOperator().getValue() + " " + fieldName;
-      return "DATE_SUB(NOW(), INTERVAL " + range.getValue() + (range.getUnit() != null ? " " + range.getUnit().getName() : "") + ") " + range.getOperator().getValue() + " " + fieldName;
+      String returnString = isPostgreSQL()
+        ? "(now() - INTERVAL '" + range.getValue() + (range.getUnit() != null ? " " + range.getUnit().getName() : "") + "') " + range.getOperator().getValue() + " " + fieldName
+        : "DATE_SUB(NOW(), INTERVAL " + range.getValue() + (range.getUnit() != null ? " " + range.getUnit().getName() : "") + ") " + range.getOperator().getValue() + " " + fieldName;
+      return returnString;
     }
   }
 

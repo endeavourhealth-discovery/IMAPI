@@ -43,7 +43,7 @@ public class QueryController {
     summary = "Query IM",
     description = "Runs a generic query on IM"
   )
-  public JsonNode queryIM(@RequestBody QueryRequest queryRequest) throws IOException, QueryException,OpenSearchException {
+  public JsonNode queryIM(@RequestBody QueryRequest queryRequest) throws IOException, QueryException, OpenSearchException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIM.POST")) {
       LOG.debug("queryIM");
       return searchService.queryIM(queryRequest);
@@ -91,11 +91,11 @@ public class QueryController {
   )
   public Query describeQuery(
     @RequestParam(name = "queryIri") String iri,
-    @RequestParam(name ="displayMode",defaultValue = "ORIGINAL") DisplayMode displayMode)
+    @RequestParam(name = "displayMode", defaultValue = "ORIGINAL") DisplayMode displayMode)
     throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       LOG.debug("describeQuery");
-      return queryService.describeQuery(iri,displayMode);
+      return queryService.describeQuery(iri, displayMode);
     }
   }
 
@@ -134,10 +134,10 @@ public class QueryController {
     summary = "Generate SQL",
     description = "Generates SQL from the provided IMQ query."
   )
-  public String getSQLFromIMQ(@RequestBody Query query) throws IOException {
+  public String getSQLFromIMQ(@RequestBody Query query, @RequestParam(name = "lang", defaultValue = "MYSQL") String lang) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQ.POST")) {
       LOG.debug("getSQLFromIMQ");
-      return queryService.getSQLFromIMQ(query);
+      return queryService.getSQLFromIMQ(query, lang);
     }
   }
 
@@ -146,17 +146,17 @@ public class QueryController {
     summary = "Generate SQL from IRI",
     description = "Generates SQL from the given IMQ query IRI."
   )
-  public String getSQLFromIMQIri(@RequestParam(name = "queryIri") String queryIri) throws IOException {
+  public String getSQLFromIMQIri(@RequestParam(name = "queryIri") String queryIri, @RequestParam(name = "lang", defaultValue = "MYSQL") String lang) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       LOG.debug("getSQLFromIMQIri");
-      return queryService.getSQLFromIMQIri(queryIri);
+      return queryService.getSQLFromIMQIri(queryIri, lang);
     }
   }
 
 
   @GetMapping(value = "/public/defaultQuery")
   @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")
-  public Query getDefaultQuery()throws IOException {
+  public Query getDefaultQuery() throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DefaultQuery.GET")) {
       LOG.debug("getDefaultCohort");
       return queryService.getDefaultQuery();

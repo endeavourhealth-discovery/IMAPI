@@ -7,7 +7,7 @@ import com.rabbitmq.client.DeliverCallback;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
-import org.endeavourhealth.imapi.postgress.DBEntry;
+import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.postgress.PostgresService;
 import org.endeavourhealth.imapi.postgress.QueryExecutorStatus;
 import org.slf4j.Logger;
@@ -68,6 +68,10 @@ public class ConnectionManager {
     admin.declareExchange(topicExchange);
   }
 
+  public void createDeadLetterExchange() {
+
+  }
+
   public void createConsumerChannel(PostgresService postgresService) throws IOException {
     createExchange();
     Channel channel = getConnection().createChannel(false);
@@ -82,6 +86,11 @@ public class ConnectionManager {
       DBEntry entry;
       try {
         entry = postgresService.getById(uuid);
+//        Skip if cancelled. RabbitMQ has no remove functionality while queued
+        if (entry.getStatus().equals(QueryExecutorStatus.CANCELLED)) {
+          channel.basicReject(delivery.getEnvelope().getDeliveryTag(), false);
+          return;
+        }
       } catch (SQLException e) {
         throw new RuntimeException(e);
       }
@@ -110,21 +119,24 @@ public class ConnectionManager {
     });
   }
 
-  public void publishToQueue(String userId, String message) throws Exception {
+  public void publishToQueue(String userId, String userName, QueryRequest message) throws Exception {
     Channel channel = getPublisherChannel(userId);
-    LOG.info("Publishing to queue: {}", message);
+    LOG.info("Publishing to queue: {}", message.getQuery().getIri());
     UUID id = UUID.randomUUID();
     AMQP.BasicProperties.Builder propertiesBuilder = new AMQP.BasicProperties().builder();
     AMQP.BasicProperties properties = propertiesBuilder
       .messageId(id.toString())
       .build();
-    channel.basicPublish(EXCHANGE_NAME, "query.execute." + userId, properties, message.getBytes());
+    channel.basicPublish(EXCHANGE_NAME, "query.execute." + userId, properties, message.toString().getBytes());
     channel.waitForConfirmsOrDie(5_000);
     DBEntry entry = new DBEntry()
       .setId(id)
-      .setQueryIri(message)
+      .setQueryRequest(message)
+      .setQueryIri(message.getQuery().getIri())
+      .setQueryName(message.getQuery().getName())
       .setStatus(QueryExecutorStatus.QUEUED)
       .setUserId(userId)
+      .setUserName(userName)
       .setQueuedAt(LocalDateTime.now());
     postgresService.create(entry);
   }

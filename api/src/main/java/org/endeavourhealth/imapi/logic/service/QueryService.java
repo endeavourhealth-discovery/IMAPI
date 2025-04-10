@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.DisplayMode;
@@ -26,6 +27,7 @@ import java.util.Set;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
+@Slf4j
 public class QueryService {
   public static final String ENTITIES = "entities";
   private final EntityRepository entityRepository = new EntityRepository();
@@ -87,14 +89,18 @@ public class QueryService {
     return getSQLFromIMQ(query);
   }
 
-  public void addToExecutionQueue(String userId, QueryRequest queryRequest) throws Exception {
+  public void addToExecutionQueue(String userId, String userName, QueryRequest queryRequest) throws Exception {
     if (null == connectionManager) connectionManager = new ConnectionManager();
-    connectionManager.publishToQueue(userId, queryRequest.toString());
+    connectionManager.publishToQueue(userId, userName, queryRequest);
   }
 
   public void executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException {
-    System.out.println("Executing query: " + queryRequest.getQuery().toString());
+    log.info("Executing query: {}", queryRequest.getQuery().toString());
     String sql = getSQLFromIMQ(queryRequest.getQuery());
     mySQLConnectionManager.executeQuery(sql);
+  }
+
+  public void killActiveQuery() throws SQLException {
+    mySQLConnectionManager.killCurrentQuery();
   }
 }

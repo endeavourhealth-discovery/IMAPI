@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.postgress;
 
+import org.endeavourhealth.imapi.model.postgres.DBEntry;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,7 +16,7 @@ public class PostgresRepository {
     throw new IllegalStateException("Utility class");
   }
 
-  public DBEntry save(DBEntry entry) throws SQLException {
+  public static DBEntry save(DBEntry entry) throws SQLException {
     String sql = """
       INSERT INTO
         query_queue(id, query_iri, query_name, user_id, queued_at, started_at, pid, finished_at, killed_at, status)
@@ -38,7 +40,7 @@ public class PostgresRepository {
     }
   }
 
-  public Optional<DBEntry> findById(UUID id) throws SQLException {
+  public static Optional<DBEntry> findById(UUID id) throws SQLException {
     try (PreparedStatement ps = PostgresConnectionManager.prepareStatement("SELECT * FROM query_queue WHERE id = ?")) {
       ps.setString(1, id.toString());
       try (ResultSet rs = ps.executeQuery()) {
@@ -51,14 +53,14 @@ public class PostgresRepository {
     }
   }
 
-  public void deleteById(UUID id) throws SQLException {
+  public static void deleteById(UUID id) throws SQLException {
     try (PreparedStatement ps = PostgresConnectionManager.prepareStatement("DELETE FROM query_queue WHERE id = ?")) {
       ps.setString(1, id.toString());
       ps.executeUpdate();
     }
   }
 
-  public List<DBEntry> findAllByUserId(String userId) throws SQLException {
+  public static List<DBEntry> findAllByUserId(String userId) throws SQLException {
     try (PreparedStatement ps = PostgresConnectionManager.prepareStatement("SELECT * FROM query_queue WHERE user_id = quote_literal(?1)")) {
       ps.setString(1, userId);
       try (ResultSet rs = ps.executeQuery()) {
@@ -72,7 +74,7 @@ public class PostgresRepository {
     }
   }
 
-  public List<DBEntry> findAllByStatus(QueryExecutorStatus status) throws SQLException {
+  public static List<DBEntry> findAllByStatus(QueryExecutorStatus status) throws SQLException {
     try (PreparedStatement ps = PostgresConnectionManager.prepareStatement("SELECT * FROM query_queue WHERE status = quote_literal(?1)")) {
       ps.setString(1, status.toString());
       try (ResultSet rs = ps.executeQuery()) {
@@ -86,7 +88,7 @@ public class PostgresRepository {
     }
   }
 
-  public List<DBEntry> findAllByUserIdAndStatus(String userId, QueryExecutorStatus status) throws SQLException {
+  public static List<DBEntry> findAllByUserIdAndStatus(String userId, QueryExecutorStatus status) throws SQLException {
     try (PreparedStatement ps = PostgresConnectionManager.prepareStatement("SELECT * FROM query_queue WHERE user_id = quote_literal(?1) AND status = quote_literal(?2)")) {
       ps.setString(1, status.toString());
       try (ResultSet rs = ps.executeQuery()) {
@@ -100,10 +102,11 @@ public class PostgresRepository {
     }
   }
 
-  private DBEntry resultSetToDBEntry(ResultSet rs) throws SQLException {
+  private static DBEntry resultSetToDBEntry(ResultSet rs) throws SQLException {
     DBEntry entry = new DBEntry();
     entry.setId(UUID.fromString(rs.getString("id")));
     entry.setUserId(rs.getString("user_id"));
+    entry.setUserName(rs.getString("user_name"));
     entry.setStatus(QueryExecutorStatus.valueOf(rs.getString("status")));
     entry.setQueuedAt(LocalDateTime.parse(rs.getString("queued_at")));
     if (null != rs.getString("started_at")) entry.setStartedAt(LocalDateTime.parse(rs.getString("started_at")));

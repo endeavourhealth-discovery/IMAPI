@@ -1,7 +1,9 @@
-package org.endeavourhealth.imapi.postgress;
+package org.endeavourhealth.imapi.model.postgres;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.endeavourhealth.imapi.model.imq.QueryRequest;
+import org.endeavourhealth.imapi.postgress.QueryExecutorStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -12,7 +14,9 @@ public class DBEntry {
   private UUID id;
   private String queryIri;
   private String queryName;
+  private QueryRequest queryRequest;
   private String userId;
+  private String userName;
   private LocalDateTime queuedAt;
   private LocalDateTime startedAt;
   private int pid;
@@ -36,8 +40,18 @@ public class DBEntry {
     return this;
   }
 
+  public DBEntry setQueryRequest(QueryRequest queryRequest) {
+    this.queryRequest = queryRequest;
+    return this;
+  }
+
   public DBEntry setUserId(String userId) {
     this.userId = userId;
+    return this;
+  }
+
+  public DBEntry setUserName(String userName) {
+    this.userName = userName;
     return this;
   }
 

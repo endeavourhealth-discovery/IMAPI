@@ -17,8 +17,8 @@ public class QueryConsumer implements ApplicationListener<ContextRefreshedEvent>
 
   @Autowired
   private ConnectionManager connectionManager = new ConnectionManager();
-  @Autowired
-  private PostgresService postgresService;
+
+  private PostgresService postgresService = new PostgresService();
 
   public QueryConsumer() throws IOException, TimeoutException {
   }

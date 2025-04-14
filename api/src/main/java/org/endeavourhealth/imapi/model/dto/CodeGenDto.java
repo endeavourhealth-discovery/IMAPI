@@ -11,6 +11,7 @@ public class CodeGenDto {
   private String collectionWrapper;
   private Map<String, String> datatypeMap = new HashMap<>();
   private String template;
+  private Boolean complexTypes = false;
 
   public CodeGenDto() {
   }
@@ -65,6 +66,15 @@ public class CodeGenDto {
 
   public CodeGenDto setTemplate(String template) {
     this.template = template;
+    return this;
+  }
+
+  public Boolean getComplexTypes() {
+    return complexTypes;
+  }
+
+  public CodeGenDto setComplexTypes(Boolean complexTypes) {
+    this.complexTypes = complexTypes;
     return this;
   }
 

@@ -32,8 +32,8 @@ public class CodeGenService {
     return codeGenRepository.getCodeTemplate(name);
   }
 
-  public void updateCodeTemplate(String name, String extension, String wrapper, Map<String, String> dataTypeMap, String template) {
-    codeGenRepository.updateCodeTemplate(name, extension, wrapper, dataTypeMap, template);
+  public void updateCodeTemplate(String name, String extension, String wrapper, Map<String, String> dataTypeMap, String template, Boolean complexTypes) {
+    codeGenRepository.updateCodeTemplate(name, extension, wrapper, dataTypeMap, template, complexTypes);
   }
 
   public HttpEntity<Object> generateCode(String iri, String templateName, String namespace) {

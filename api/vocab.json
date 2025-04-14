@@ -1077,7 +1077,6 @@
         "name": "DATATYPE_QUALIFIER",
         "value": "IM.NAMESPACE + \"datatypeQualifier\""
       }
-
     ]
   },
   {
@@ -2064,7 +2063,6 @@
         "name": "ALLOWABLE_RANGE_SUGGESTIONS",
         "value": "QUERY.NAMESPACE + \"AllowableRangeSuggestions\""
       },
-
       {
         "name": "GET_SUBCLASSES",
         "value": "QUERY.NAMESPACE + \"GetSubClasses\""
@@ -2335,6 +2333,10 @@
       {
         "name": "EXTENSION",
         "value": "CODE_TEMPLATE.NAMESPACE + \"extension\""
+      },
+      {
+        "name": "INCLUDE_COMPLEX_TYPES",
+        "value": "CODE_TEMPLATE.NAMESPACE + \"includeComplexTypes\""
       }
     ]
   }

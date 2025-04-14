@@ -9,4 +9,5 @@ public class CODE_TEMPLATE {
     public static final String WRAPPER = CODE_TEMPLATE.NAMESPACE + "wrapper";
     public static final String DATATYPE_MAP = CODE_TEMPLATE.NAMESPACE + "datatypeMap";
     public static final String EXTENSION = CODE_TEMPLATE.NAMESPACE + "extension";
+    public static final String INCLUDE_COMPLEX_TYPES = CODE_TEMPLATE.NAMESPACE + "includeComplexTypes";
 }

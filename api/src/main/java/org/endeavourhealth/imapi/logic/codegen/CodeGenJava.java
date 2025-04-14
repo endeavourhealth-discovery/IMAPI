@@ -58,7 +58,7 @@ public class CodeGenJava {
       PREFIX im: <http://endhealth.info/im#>
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       PREFIX shacl: <http://www.w3.org/ns/shacl#>
-            
+      
       SELECT ?iri
       WHERE {
         ?iri (im:isContainedIn|rdfs:subClassOf)* im:HealthDataModel ;
@@ -100,7 +100,7 @@ public class CodeGenJava {
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       PREFIX shacl: <http://www.w3.org/ns/shacl#>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            
+      
       SELECT ?iri ?model ?comment ?propname ?type ?typeName ?dm ?min ?max ?propcomment ?order
       WHERE {
         ?iri shacl:property ?prop .
@@ -109,9 +109,9 @@ public class CodeGenJava {
         ?prop shacl:path ?propIri .
         ?propIri rdfs:label ?propname .
         OPTIONAL { ?prop shacl:order ?order }
-        OPTIONAL { ?prop shacl:class ?type }
+        # OPTIONAL { ?prop shacl:class ?type }
         OPTIONAL { ?prop shacl:datatype ?type }
-        OPTIONAL { ?prop shacl:node ?type }
+        # OPTIONAL { ?prop shacl:node ?type }
         OPTIONAL { ?type rdfs:label ?typeName }
         OPTIONAL { ?prop rdfs:comment ?propcomment }
         OPTIONAL { ?prop shacl:maxCount ?max }
@@ -199,11 +199,11 @@ public class CodeGenJava {
 
       os.write("""
         package org.endeavourhealth.imapi.logic.codegen;
-                
+        
         import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-                
+        
         import java.util.UUID;
-                
+        
         /**
         * Represents %s.
         """.formatted(modelNameSeparated));
@@ -213,8 +213,8 @@ public class CodeGenJava {
       os.write("""
         */
         public class %s extends IMDMBase<%s> {
-                
-                
+        
+        
           /**
           * %s constructor with identifier
           */
@@ -233,8 +233,8 @@ public class CodeGenJava {
         String propertyTypeName = getDataType(property.getDataType(), property.isModel(), false);
 
         os.write("""
-                      
-                      
+          
+          
             /**
             * Gets the %s of this %s
           """.formatted(propertyName, modelNameSeparated));
@@ -247,7 +247,7 @@ public class CodeGenJava {
               public %s get%s() {
                 return getProperty("%s");
               }
-                      
+            
               /**
               * Changes the %s of this %s
               * @param %s The new %s to set
@@ -277,7 +277,7 @@ public class CodeGenJava {
         );
         if (isArray) {
           os.write("""
-                          
+              
                 /**
                 * Adds the given %s to this %s
                 * @param %s The %s to add

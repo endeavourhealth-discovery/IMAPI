@@ -1,15 +1,13 @@
 package org.endeavourhealth.imapi.postgress;
 
+import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class PostgresRepository {
   public PostgresRepository() {
@@ -60,44 +58,103 @@ public class PostgresRepository {
     }
   }
 
-  public static List<DBEntry> findAllByUserId(String userId) throws SQLException {
-    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement("SELECT * FROM query_queue WHERE user_id = quote_literal(?1)")) {
+  public static Pageable<DBEntry> findAllByUserId(String userId, int page, int size) throws SQLException {
+    StringJoiner stringJoiner = new StringJoiner("");
+    stringJoiner.add("SELECT * FROM query_queue WHERE user_id = quote_literal(?1)");
+    stringJoiner.add("ORDER BY id DESC");
+    if (page != 0 && size != 0) stringJoiner.add(" LIMIT " + size + " OFFSET " + (page - 1) * size);
+    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement(stringJoiner.toString())) {
       ps.setString(1, userId);
       try (ResultSet rs = ps.executeQuery()) {
+        Pageable<DBEntry> pageable = new Pageable<>();
         List<DBEntry> list = new ArrayList<>();
         while (rs.next()) {
           DBEntry entry = resultSetToDBEntry(rs);
           list.add(entry);
         }
-        return list;
+        pageable.setResult(list);
+        pageable.setCurrentPage(page);
+        pageable.setPageSize(size);
+        return pageable;
       }
     }
   }
 
-  public static List<DBEntry> findAllByStatus(QueryExecutorStatus status) throws SQLException {
-    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement("SELECT * FROM query_queue WHERE status = quote_literal(?1)")) {
+  public static int getTotalCountByUserId(String userId) throws SQLException {
+    String sql = "SELECT COUNT(query_iri) AS total FROM query_queue WHERE user_id = quote_literal(?1)";
+    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement(sql)) {
+      ps.setString(1, userId);
+      try (ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+          return rs.getInt("total");
+        }
+        return 0;
+      }
+    }
+  }
+
+  public static Pageable<DBEntry> findAllByStatus(QueryExecutorStatus status, int page, int size) throws SQLException {
+    StringJoiner stringJoiner = new StringJoiner("");
+    stringJoiner.add("SELECT * FROM query_queue WHERE status = ?1");
+    if (page != 0 && size != 0) stringJoiner.add(" LIMIT " + size + " OFFSET " + (page - 1) * size);
+    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement(stringJoiner.toString())) {
       ps.setString(1, status.toString());
       try (ResultSet rs = ps.executeQuery()) {
+        Pageable<DBEntry> pageable = new Pageable<>();
         List<DBEntry> list = new ArrayList<>();
         while (rs.next()) {
           DBEntry entry = resultSetToDBEntry(rs);
           list.add(entry);
         }
-        return list;
+        pageable.setResult(list);
+        pageable.setCurrentPage(page);
+        pageable.setPageSize(size);
+        return pageable;
       }
     }
   }
 
-  public static List<DBEntry> findAllByUserIdAndStatus(String userId, QueryExecutorStatus status) throws SQLException {
+  public static int getTotalCountByStatus(QueryExecutorStatus status) throws SQLException {
+    String sql = "SELECT COUNT(query_iri) AS total FROM query_queue WHERE status = quote_literal(?1)";
+    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement(sql)) {
+      ps.setString(1, status.toString());
+      try (ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+          return rs.getInt("total");
+        }
+        return 0;
+      }
+    }
+  }
+
+  public static Pageable<DBEntry> findAllByUserIdAndStatus(String userId, QueryExecutorStatus status, int page, int size) throws SQLException {
     try (PreparedStatement ps = PostgresConnectionManager.prepareStatement("SELECT * FROM query_queue WHERE user_id = quote_literal(?1) AND status = quote_literal(?2)")) {
       ps.setString(1, status.toString());
       try (ResultSet rs = ps.executeQuery()) {
+        Pageable<DBEntry> pageable = new Pageable<>();
         List<DBEntry> list = new ArrayList<>();
         while (rs.next()) {
           DBEntry entry = resultSetToDBEntry(rs);
           list.add(entry);
         }
-        return list;
+        pageable.setResult(list);
+        pageable.setCurrentPage(page);
+        pageable.setPageSize(size);
+        return pageable;
+      }
+    }
+  }
+
+  public static int getTotalCountByUserIdAndStatus(String userId, QueryExecutorStatus status) throws SQLException {
+    String sql = "SELECT COUNT(query_iri) AS total FROM query_queue WHERE user_id = quote_literal(?1) AND status = quote_literal(?2)";
+    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement(sql)) {
+      ps.setString(1, userId);
+      ps.setString(2, status.toString());
+      try (ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+          return rs.getInt("total");
+        }
+        return 0;
       }
     }
   }

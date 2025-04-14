@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
+import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
@@ -24,7 +25,6 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.UUID;
 import java.util.zip.DataFormatException;
 
@@ -162,11 +162,11 @@ public class QueryController {
   @Operation(
     summary = "Get the query queue items and status for a user"
   )
-  public List<DBEntry> userQueryQueue(HttpServletRequest request) throws IOException, SQLConversionException, SQLException {
+  public Pageable<DBEntry> userQueryQueue(HttpServletRequest request, @PathVariable(name = "page") int page, @PathVariable(name = "size") int size) throws IOException, SQLConversionException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.UserQueryQueue.GET")) {
       LOG.debug("getUserQueryQueue");
       String userId = requestObjectService.getRequestAgentId(request);
-      return postgresService.getAllByUserId(userId);
+      return postgresService.getAllByUserId(userId, page, size);
     }
   }
 
@@ -174,11 +174,23 @@ public class QueryController {
   @Operation(
     summary = "Get query queue items by user id and status"
   )
-  public List<DBEntry> userQueryQueueByStatus(HttpServletRequest request, @RequestParam(name = "status") QueryExecutorStatus status) throws IOException, SQLConversionException, SQLException {
+  public Pageable<DBEntry> userQueryQueueByStatus(HttpServletRequest request, @RequestParam(name = "status") QueryExecutorStatus status, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLConversionException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.UserQueryQueueByStatus.GET")) {
       LOG.debug("getUserQueryQueueByStatus");
       String userId = requestObjectService.getRequestAgentId(request);
-      return postgresService.findAllByUserIdAndStatus(userId, status);
+      return postgresService.findAllByUserIdAndStatus(userId, status, page, size);
+    }
+  }
+
+  @GetMapping("/queryQueueByStatus")
+  @Operation(
+    summary = "get query queue items by status as admin"
+  )
+  @PreAuthorize("hasAuthority('IMAdmin')")
+  public Pageable<DBEntry> queryQueueByStatus(HttpServletRequest request, @RequestParam(name = "status") QueryExecutorStatus status, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLConversionException, SQLException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryQueueByStatus.GET")) {
+      LOG.debug("getQueryQueueByStatus");
+      return postgresService.findAllByStatus(status, page, size);
     }
   }
 

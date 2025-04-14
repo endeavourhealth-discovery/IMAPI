@@ -2,26 +2,35 @@ package org.endeavourhealth.imapi.postgress;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @NoArgsConstructor
 @Slf4j
 public class PostgresService {
-  public List<DBEntry> getAllByUserId(String userId) throws SQLException {
-    return PostgresRepository.findAllByUserId(userId);
+  public Pageable<DBEntry> getAllByUserId(String userId, int page, int size) throws SQLException {
+    Pageable<DBEntry> results = PostgresRepository.findAllByUserId(userId, page, size);
+    int totalCount = PostgresRepository.getTotalCountByUserId(userId);
+    results.setTotalCount(totalCount);
+    return results;
   }
 
-  public List<DBEntry> findAllByStatus(QueryExecutorStatus status) throws SQLException {
-    return PostgresRepository.findAllByStatus(status);
+  public Pageable<DBEntry> findAllByStatus(QueryExecutorStatus status, int page, int size) throws SQLException {
+    Pageable<DBEntry> results = PostgresRepository.findAllByStatus(status, page, size);
+    int totalCount = PostgresRepository.getTotalCountByStatus(status);
+    results.setTotalCount(totalCount);
+    return results;
   }
 
-  public List<DBEntry> findAllByUserIdAndStatus(String userId, QueryExecutorStatus status) throws SQLException {
-    return PostgresRepository.findAllByUserIdAndStatus(userId, status);
+  public Pageable<DBEntry> findAllByUserIdAndStatus(String userId, QueryExecutorStatus status, int page, int size) throws SQLException {
+    Pageable<DBEntry> results = PostgresRepository.findAllByUserIdAndStatus(userId, status, page, size);
+    int totalCount = PostgresRepository.getTotalCountByUserIdAndStatus(userId, status);
+    results.setTotalCount(totalCount);
+    return results;
   }
 
   public DBEntry getById(UUID id) throws SQLException {

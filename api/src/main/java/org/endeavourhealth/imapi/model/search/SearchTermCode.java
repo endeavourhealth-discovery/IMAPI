@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.search;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import software.amazon.awssdk.annotations.NotNull;
 
 import java.util.Comparator;
 import java.util.Objects;
@@ -51,10 +52,11 @@ public class SearchTermCode implements Comparable<SearchTermCode> {
   }
 
   @Override
+  @NotNull
   public int compareTo(SearchTermCode o) {
     return Comparator.<SearchTermCode, String>
         comparing(ts -> ts.getStatus() == null ? null : ts.getStatus().getIri(), Comparator.nullsLast(Comparator.naturalOrder()))
-      .thenComparing(ts -> ts.getTerm().isEmpty() ? null : ts.getTerm(), Comparator.nullsLast(Comparator.naturalOrder()))
+      .thenComparing(ts -> (ts.getTerm() == null || ts.getTerm().isEmpty()) ? null : ts.getTerm(), Comparator.nullsLast(Comparator.naturalOrder()))
       .compare(this, o);
   }
 }

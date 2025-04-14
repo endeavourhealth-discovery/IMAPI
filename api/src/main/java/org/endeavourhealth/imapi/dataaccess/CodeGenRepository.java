@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.dataaccess;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
@@ -82,6 +83,8 @@ public class CodeGenRepository {
               case (CODE_TEMPLATE.EXTENSION) -> result.setExtension(bs.getValue("o").stringValue());
               case (RDFS.LABEL) -> result.setName(bs.getValue("o").stringValue());
               case (IM.DEFINITION) -> result.setTemplate(bs.getValue("o").stringValue());
+              case (CODE_TEMPLATE.INCLUDE_COMPLEX_TYPES) ->
+                result.setComplexTypes(((Literal) bs.getValue("o")).booleanValue());
               default -> {
                 break;
               }
@@ -95,7 +98,10 @@ public class CodeGenRepository {
     return result;
   }
 
-  public void updateCodeTemplate(String name, String extension, String wrapper, Map<String, String> dataTypeMap, String template) {
+  public void updateCodeTemplate(String name, String extension, String wrapper, Map<String, String> dataTypeMap, String template, Boolean complexTypes) {
+    if (null == complexTypes)
+      complexTypes = false;
+
     String deleteSparql = """
       DELETE WHERE {
         ?s ?p ?o
@@ -114,6 +120,7 @@ public class CodeGenRepository {
         ?iri ?definition ?template .
         ?iri ?typeMap ?datatypeMap .
         ?iri ?wrapperType ?wrapper .
+        ?iri ?includeComplex ?complexTypes .
       }
       WHERE {
         SELECT ?iri ?label ?extension {}
@@ -135,6 +142,8 @@ public class CodeGenRepository {
         qry2.setBinding("datatypeMap", literal(om.writeValueAsString(dataTypeMap)));
         qry2.setBinding("wrapperType", iri(CODE_TEMPLATE.WRAPPER));
         qry2.setBinding("wrapper", literal(wrapper));
+        qry2.setBinding("includeComplex", iri(CODE_TEMPLATE.INCLUDE_COMPLEX_TYPES));
+        qry2.setBinding("complexTypes", literal(complexTypes));
         qry2.execute();
       } catch (JsonProcessingException err) {
         LOG.error("Error updating codeTemplate", err);

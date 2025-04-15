@@ -84,7 +84,9 @@ public class CodeGenService {
     for (TTIriRef model : models) {
       String code = generateCodeForModel(template, model, namespace);
 
-      zos.putNextEntry(new ZipEntry(codify(model.getName()) + template.getExtension()));
+      ZipEntry entry = new ZipEntry(codify(CaseUtils.toCamelCase(model.getName(), true)) + template.getExtension());
+
+      zos.putNextEntry(entry);
       zos.write(code.getBytes());
       zos.closeEntry();
     }

@@ -17,7 +17,7 @@ ext {
     h2                : '2.3.232',
     hapiFHIRR4        : '7.4.0',
     jackson           : '2.18.0',
-    jersey            : '3.1.9',
+    jersey            : '3.1.10',
     junit             : '5.10.1',
     junitSuite        : '1.11.4',
     logback           : '1.4.14',

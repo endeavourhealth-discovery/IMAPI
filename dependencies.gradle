@@ -11,7 +11,7 @@ ext {
     awsSDKBOM         : '2.28.13',
     awsSDKCore        : '2.28.13',
     cucumber          : '7.20.1',
-    dropwizard        : '4.2.28',
+    dropwizard        : '4.2.30',
     elasticSearch     : '8.14.0',
     factPlusPlus      : '1.6.5',
     h2                : '2.3.232',

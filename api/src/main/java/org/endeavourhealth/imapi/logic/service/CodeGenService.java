@@ -36,26 +36,28 @@ public class CodeGenService {
     codeGenRepository.updateCodeTemplate(name, extension, wrapper, dataTypeMap, template, complexTypes);
   }
 
-  public HttpEntity<Object> generateCode(String iri, String templateName, String namespace) {
-    CodeGenDto template = codeGenRepository.getCodeTemplate(templateName);
-    List<TTIriRef> models = getModelAndDependencies(iri);
-
-    HttpEntity<Object> headers = createModelCodeZip(namespace, models, template);
-    if (headers != null) return headers;
-
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to generate code");
+  public String generateCodeForModel(String modelIri, CodeGenDto template, String namespace) {
+    TTIriRef model = getModelSummary(modelIri);
+    return generateCodeForModel(template, model, namespace);
   }
 
-  private List<TTIriRef> getModelAndDependencies(String iri) {
-    return getModelAndDependencies(iri, new ArrayList<>());
+  public HttpEntity<Object> generateCode(String iri, String templateName, String namespace) {
+    CodeGenDto template = codeGenRepository.getCodeTemplate(templateName);
+    List<TTIriRef> models = getModelAndDependencies(iri, new ArrayList<>());
+
+    return createModelCodeZip(namespace, models, template);
+  }
+
+  private TTIriRef getModelSummary(String iri) {
+    SearchResultSummary summary = entityService.getSummary(iri);
+    return new TTIriRef(summary.getIri(), summary.getName()).setDescription(summary.getDescription());
   }
 
   private List<TTIriRef> getModelAndDependencies(String iri, List<TTIriRef> models) {
     if (models.stream().anyMatch(m -> m.getIri().equals(iri)))
       return models;
 
-    SearchResultSummary summary = entityService.getSummary(iri);
-    models.add(new TTIriRef(summary.getIri(), summary.getName()).setDescription(summary.getDescription()));
+    models.add(getModelSummary(iri));
 
     for (EntityReferenceNode child : entityService.getImmediateChildren(iri, null, null, null, false)) {
       getModelAndDependencies(child.getIri(), models);
@@ -80,15 +82,20 @@ public class CodeGenService {
 
   private void addModelsToZip(String namespace, List<TTIriRef> models, CodeGenDto template, ZipOutputStream zos) throws IOException {
     for (TTIriRef model : models) {
-      List<DataModelProperty> properties = dataModelService.getDataModelProperties(model.getIri());
-      String code = generateCodeForModel(template, model, properties, namespace);
+      String code = generateCodeForModel(template, model, namespace);
 
-      zos.putNextEntry(new ZipEntry(codify(model.getName()) + template.getExtension()));
+      ZipEntry entry = new ZipEntry(codify(CaseUtils.toCamelCase(model.getName(), true)) + template.getExtension());
+
+      zos.putNextEntry(entry);
       zos.write(code.getBytes());
       zos.closeEntry();
     }
   }
 
+  protected String generateCodeForModel(CodeGenDto template, TTIriRef model, String namespace) {
+    List<DataModelProperty> properties = dataModelService.getDataModelProperties(model.getIri(), template.getComplexTypes());
+    return generateCodeForModel(template, model, properties, namespace);
+  }
 
   protected String generateCodeForModel(CodeGenDto template, TTIriRef model, List<DataModelProperty> properties, String namespace) {
     StringBuilder code = new StringBuilder();
@@ -116,11 +123,20 @@ public class CodeGenService {
 
     int ps_s = template.indexOf(propertyTemp);
     int ps_l = propertyTemp.length();
-    int pe_s = template.indexOf(propertyTempEnd);
+    if ("\n".equals(template.substring(ps_s + ps_l, ps_s + ps_l + 1)))
+      ps_l++;
+
+    int pe_s = template.indexOf(propertyTempEnd, ps_s);
     int pe_l = propertyTempEnd.length();
+    if (template.length() > pe_s + pe_l && "\n".equals(template.substring(pe_s + pe_l, pe_s + pe_l + 1)))
+      pe_l++;
+
     int as_s = template.indexOf(arrayTemp);
     int as_l = arrayTemp.length();
-    int ae_s = template.indexOf(arrayTempEnd);
+    if (as_s > 0 && "\n".equals(template.substring(as_s + as_l, as_s + as_l + 1)))
+      as_l++;
+
+    int ae_s = template.indexOf(arrayTempEnd, as_s);
 
     String header = template.substring(0, ps_s);
     String footer = template.substring(pe_s + pe_l);
@@ -184,10 +200,8 @@ public class CodeGenService {
       .replace("${" + codify(name) + "}", codify(value))
       .replace("${" + name.toLowerCase() + "}", value.toLowerCase())
       .replace("${" + codify(name.toLowerCase()) + "}", codify(value.toLowerCase()))
-      .replace("${" + toCamelCase(name) + "}", toCamelCase(value))
-      .replace("${" + codify(toCamelCase(name)) + "}", codify(toCamelCase(value)))
-      .replace("${" + toTitleCase(name) + "}", toTitleCase(value))
-      .replace("${" + codify(toTitleCase(name)) + "}", codify(toTitleCase(value)));
+      .replace("${" + toCamelCase(name) + "}", codify(toCamelCase(value)))
+      .replace("${" + toTitleCase(name) + "}", codify(toTitleCase(value)));
   }
 
   private String replace(String template, String name, String value) {

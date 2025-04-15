@@ -72,4 +72,18 @@ public class CodeGenController {
       return codeGenService.generateCode(iri, templateName, namespace);
     }
   }
+
+  @Operation(summary = "Generate code preview", description = "Generate code based on the provided IRI, template name, and namespace.")
+  @PostMapping(value = "/public/generateCodePreview", produces = "text/plain")
+  public String generateCodePreview(HttpServletRequest request,
+                                    @Parameter(description = "The IRI for which to generate code") @RequestParam(name = "iri", required = false) String iri,
+                                    @Parameter(description = "The namespace to use for generating code") @RequestParam("namespace") String namespace,
+                                    @Parameter(description = "The template data to use") @RequestBody CodeGenDto template
+  ) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.GenerateCode.GET")) {
+      LOG.debug("GenerateCodePreview");
+
+      return codeGenService.generateCodeForModel(iri, template, namespace);
+    }
+  }
 }

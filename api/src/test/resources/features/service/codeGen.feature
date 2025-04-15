@@ -35,13 +35,9 @@ Feature: Code is generated
     // Represents TestModel - This is a test model
 
     OBJECT Testmodel :
-
       VAR string firstProperty
-
       VAR string[] secondProperty
-
       VAR string[] thirdProperty
-
       VAR string fourthProperty
 
     """
@@ -100,6 +96,7 @@ Feature: Code is generated
         ${propertyName} = value;
         return this;
       }
+
     <template #array>
       /**
       * Adds the given ${PROPERTY NAME} to this ${MODEL NAME}
@@ -118,6 +115,7 @@ Feature: Code is generated
 
         return this;
       }
+
     </template #array>
     </template #property>
     }
@@ -138,7 +136,6 @@ Feature: Code is generated
     */
 
     public class Testmodel {
-
       private String firstProperty;
 
       /**

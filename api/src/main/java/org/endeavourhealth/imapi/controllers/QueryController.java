@@ -3,37 +3,27 @@ package org.endeavourhealth.imapi.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Set;
 import java.util.zip.DataFormatException;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @RestController
 @RequestMapping("api/query")
 @CrossOrigin(origins = "*")
 @Tag(name = "Query APIs", description = "APIs for querying the Information Model")
 @RequestScope
+@Slf4j
 public class QueryController {
-  private static final Logger LOG = LoggerFactory.getLogger(QueryController.class);
 
   private final SearchService searchService = new SearchService();
   private final QueryService queryService = new QueryService();
@@ -43,9 +33,9 @@ public class QueryController {
     summary = "Query IM",
     description = "Runs a generic query on IM"
   )
-  public JsonNode queryIM(@RequestBody QueryRequest queryRequest) throws IOException, QueryException,OpenSearchException {
+  public JsonNode queryIM(@RequestBody QueryRequest queryRequest) throws IOException, QueryException, OpenSearchException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIM.POST")) {
-      LOG.debug("queryIM");
+      log.debug("queryIM");
       return searchService.queryIM(queryRequest);
     }
   }
@@ -54,7 +44,7 @@ public class QueryController {
   @Operation(summary = "Check if an iri is within a query's results")
   public Boolean askQueryIM(@RequestBody QueryRequest queryRequest) throws QueryException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.AskQueryIM.POST")) {
-      LOG.debug("askQueryIM");
+      log.debug("askQueryIM");
       return searchService.askQueryIM(queryRequest);
     }
   }
@@ -66,7 +56,7 @@ public class QueryController {
   )
   public SearchResponse queryIMSearch(@RequestBody QueryRequest queryRequest) throws IOException, OpenSearchException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIMSearch.POST")) {
-      LOG.debug("queryIMSearch");
+      log.debug("queryIMSearch");
       return searchService.queryIMSearch(queryRequest);
     }
   }
@@ -78,7 +68,7 @@ public class QueryController {
   )
   public PathDocument pathQuery(@RequestBody PathQuery pathQuery) throws DataFormatException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.PathQuery.POST")) {
-      LOG.debug("pathQuery");
+      log.debug("pathQuery");
       return searchService.pathQuery(pathQuery);
     }
   }
@@ -91,11 +81,11 @@ public class QueryController {
   )
   public Query describeQuery(
     @RequestParam(name = "queryIri") String iri,
-    @RequestParam(name ="displayMode",defaultValue = "ORIGINAL") DisplayMode displayMode)
+    @RequestParam(name = "displayMode", defaultValue = "ORIGINAL") DisplayMode displayMode)
     throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
-      LOG.debug("getQueryDisplay");
-      return queryService.describeQuery(iri,displayMode);
+      log.debug("getQueryDisplay");
+      return queryService.describeQuery(iri, displayMode);
     }
   }
 
@@ -110,7 +100,7 @@ public class QueryController {
   ) throws IOException, QueryException {
 
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
-      LOG.debug("getQueryDisplayFromQuery with displayMode: {}", displayMode);
+      log.debug("getQueryDisplayFromQuery with displayMode: {}", displayMode);
       return queryService.describeQuery(query, displayMode);
     }
   }
@@ -123,7 +113,7 @@ public class QueryController {
   public Match describeMatchContent(
     @RequestBody Match match) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
-      LOG.debug("getMatchDisplayFromMatch");
+      log.debug("getMatchDisplayFromMatch");
       return queryService.describeMatch(match);
     }
   }
@@ -136,7 +126,7 @@ public class QueryController {
   )
   public String getSQLFromIMQ(@RequestBody Query query) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQ.POST")) {
-      LOG.debug("getSQLFromIMQ");
+      log.debug("getSQLFromIMQ");
       return queryService.getSQLFromIMQ(query);
     }
   }
@@ -148,7 +138,7 @@ public class QueryController {
   )
   public String getSQLFromIMQIri(@RequestParam(name = "queryIri") String queryIri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
-      LOG.debug("getSQLFromIMQIri");
+      log.debug("getSQLFromIMQIri");
       return queryService.getSQLFromIMQIri(queryIri);
     }
   }
@@ -156,9 +146,9 @@ public class QueryController {
 
   @GetMapping(value = "/public/defaultQuery")
   @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")
-  public Query getDefaultQuery()throws IOException {
+  public Query getDefaultQuery() throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DefaultQuery.GET")) {
-      LOG.debug("getDefaultCohort");
+      log.debug("getDefaultCohort");
       return queryService.getDefaultQuery();
     }
   }

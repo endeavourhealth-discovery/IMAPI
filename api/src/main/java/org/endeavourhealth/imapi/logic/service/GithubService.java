@@ -4,14 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.model.config.Config;
 import org.endeavourhealth.imapi.model.customexceptions.ConfigException;
 import org.endeavourhealth.imapi.model.github.GithubDTO;
 import org.endeavourhealth.imapi.model.github.GithubRelease;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -26,9 +25,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @Component
 public class GithubService {
-  private static final Logger LOG = LoggerFactory.getLogger(GithubService.class.getName());
   ConfigManager configManager = new ConfigManager();
 
   public GithubRelease getGithubLatestRelease() throws JsonProcessingException, ConfigException {
@@ -69,7 +68,7 @@ public class GithubService {
 
   @Scheduled(cron = "0 0 0 * * *")
   public void updateGithubConfig() throws IOException, InterruptedException {
-    LOG.info("updating github config");
+    log.info("updating github config");
     String owner = "endeavourhealth-discovery";
     String repo = "IMDirectory";
     GithubRelease latestRelease = getLatestReleaseFromGithub(owner, repo);

@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.logic.codegen;
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
@@ -11,8 +12,6 @@ import org.endeavourhealth.imapi.model.codegen.DataModel;
 import org.endeavourhealth.imapi.model.codegen.DataModelProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.XSD;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -24,8 +23,8 @@ import java.util.zip.ZipOutputStream;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+@Slf4j
 public class CodeGenJava {
-  private static final Logger LOG = LoggerFactory.getLogger(CodeGenJava.class);
   private final Queue<String> iris = new PriorityQueue<>();
   private final HashMap<String, DataModel> models = new HashMap<>();
   private HTTPRepository repo;
@@ -38,7 +37,7 @@ public class CodeGenJava {
   }
 
   private void connectToDatabase() {
-    LOG.debug("connecting to database");
+    log.debug("connecting to database");
 
     String server = System.getenv("GRAPH_SERVER") != null
       ? System.getenv("GRAPH_SERVER")
@@ -52,7 +51,7 @@ public class CodeGenJava {
   }
 
   private void getModelList() {
-    LOG.debug("getting model list");
+    log.debug("getting model list");
 
     String sql = """
       PREFIX im: <http://endhealth.info/im#>
@@ -72,7 +71,7 @@ public class CodeGenJava {
         while (result.hasNext()) {
           BindingSet bindSet = result.next();
           String iri = bindSet.getValue("iri").stringValue();
-          LOG.trace("iri [{}]", iri);
+          log.trace("iri [{}]", iri);
           iris.add(iri);
         }
       }
@@ -80,7 +79,7 @@ public class CodeGenJava {
   }
 
   private void getDataModelRecursively() {
-    LOG.debug("getting models");
+    log.debug("getting models");
 
     while (!iris.isEmpty()) {
       String iri = iris.remove();
@@ -91,7 +90,7 @@ public class CodeGenJava {
   }
 
   private DataModel getDataModel(String iri) {
-    LOG.debug("get data model [{}]", iri);
+    log.debug("get data model [{}]", iri);
 
     DataModel model = new DataModel().setIri(iri);
 
@@ -154,7 +153,7 @@ public class CodeGenJava {
               : null);
 
           model.addProperty(property);
-          LOG.trace("iri [{}]", iri);
+          log.trace("iri [{}]", iri);
         }
       }
     }
@@ -162,7 +161,7 @@ public class CodeGenJava {
   }
 
   private void addMissingModelToQueue(DataModel model) {
-    LOG.debug("add missing model to queue");
+    log.debug("add missing model to queue");
 
     for (DataModelProperty prop : model.getProperties()) {
       if (prop.isModel() && !iris.contains(prop.getDataType().getIri())
@@ -174,7 +173,7 @@ public class CodeGenJava {
   }
 
   private void generateJavaCode(ZipOutputStream zs) throws IOException {
-    LOG.debug("generating code");
+    log.debug("generating code");
 
     for (DataModel model : models.values()) {
       String modelName = capitalise(model.getName());
@@ -375,7 +374,7 @@ public class CodeGenJava {
     } else if ("http://endhealth.info/im#DateTime".equals(dataType.getIri())) {
       dataTypeName = "PartialDateTime";
     } else {
-      LOG.error("Unknown data type [{} - {}], defaulting to String", dataType.getIri(), dataType.getName());
+      log.error("Unknown data type [{} - {}], defaulting to String", dataType.getIri(), dataType.getName());
       dataTypeName = "String /* UNKNOWN " + capitalise(dataType.getName()) + "*/";
     }
     if (isArray)

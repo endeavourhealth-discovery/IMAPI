@@ -2,11 +2,10 @@ package org.endeavourhealth.imapi.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.XSD;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -19,8 +18,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 /**
  * DeSerializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument Deserializer
  */
+@Slf4j
 public class TTNodeDeserializer {
-  private static final Logger LOG = LoggerFactory.getLogger(TTNodeDeserializer.class);
 
   private final TTContext context;
 
@@ -104,7 +103,7 @@ public class TTNodeDeserializer {
     } else if (node.isArray()) {
       throw new IOException("Failed to deserialize node array");
     } else {
-      LOG.warn("TTNode deserializer - Unhandled node type, reverting to String");
+      log.warn("TTNode deserializer - Unhandled node type, reverting to String");
       return TTLiteral.literal(node.asText());
     }
   }

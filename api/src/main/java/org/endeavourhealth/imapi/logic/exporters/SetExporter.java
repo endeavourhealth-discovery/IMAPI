@@ -1,10 +1,8 @@
 package org.endeavourhealth.imapi.logic.exporters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.iml.Concept;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -18,25 +16,26 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Set;
+import java.util.StringJoiner;
 
+@Slf4j
 @Component
 public class SetExporter {
-  private static final Logger LOG = LoggerFactory.getLogger(SetExporter.class);
 
   public void publishSetToIM1(String setIri, String name, Set<Concept> members) throws JsonProcessingException {
     StringJoiner results = generateForIm1(setIri, name, members);
     pushToS3(results);
-    LOG.trace("Done");
+    log.trace("Done");
   }
 
   public StringJoiner generateForIm1(String setIri, String name, Set<Concept> members) throws JsonProcessingException {
-    LOG.debug("Exporting set to IMv1");
+    log.debug("Exporting set to IMv1");
     return generateIMV1TSV(setIri, name, members);
   }
 
   private StringJoiner generateIMV1TSV(String setIri, String name, Set<Concept> members) {
-    LOG.trace("Generating output...");
+    log.trace("Generating output...");
     StringJoiner results = new StringJoiner(System.lineSeparator());
     results.add("vsId\tvsName\tmemberDbid");
 
@@ -63,7 +62,7 @@ public class SetExporter {
   }
 
   private void pushToS3(StringJoiner results) {
-    LOG.trace("Publishing to S3...");
+    log.trace("Publishing to S3...");
     String bucket = "im-inbound-dev";
     String region = "eu-west-2";
     String accessKey = null;

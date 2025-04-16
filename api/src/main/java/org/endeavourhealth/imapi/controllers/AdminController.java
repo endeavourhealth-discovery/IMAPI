@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.aws.AWSCognitoClient;
 import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.model.admin.CognitoGroupRequest;
@@ -10,8 +11,6 @@ import org.endeavourhealth.imapi.model.admin.User;
 import org.endeavourhealth.imapi.model.postRequestPrimatives.StringBody;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
@@ -24,16 +23,16 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 @Tag(name = "AdminController")
 @RequestScope
+@Slf4j
 @PreAuthorize("hasAuthority('IMAdmin')")
 public class AdminController {
-  private static final Logger LOG = LoggerFactory.getLogger(AdminController.class);
   AWSCognitoClient awsCognitoClient = new AWSCognitoClient();
 
   @Operation(summary = "List Cognito users", description = "Retrieve a list of all Cognito users.")
   @GetMapping(value = "/cognito/users")
   public List<String> listUsers() throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.users.GET")) {
-      LOG.debug("getUsers");
+      log.debug("getUsers");
       return awsCognitoClient.adminListUsers();
     }
   }
@@ -42,7 +41,7 @@ public class AdminController {
   @GetMapping(value = "/cognito/user")
   public User getUser(@Parameter(description = "The username of the Cognito user to retrieve.") @RequestParam(name = "username") String username) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.User.get")) {
-      LOG.debug("getUser");
+      log.debug("getUser");
       return awsCognitoClient.adminGetUser(username);
     }
   }
@@ -51,7 +50,7 @@ public class AdminController {
   @GetMapping(value = "/cognito/groups")
   public List<String> listGroups() throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.groups.GET")) {
-      LOG.debug("getGroups");
+      log.debug("getGroups");
       return awsCognitoClient.adminListGroups();
     }
   }
@@ -60,7 +59,7 @@ public class AdminController {
   @GetMapping(value = "/cognito/group/users")
   public List<String> listUsersInGroup(@Parameter(description = "The name of the Cognito group.") @RequestParam("group") String group) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.usersInGroup.GET")) {
-      LOG.debug("getUsersInGroup");
+      log.debug("getUsersInGroup");
       return awsCognitoClient.adminListUsersInGroup(group);
     }
   }
@@ -69,7 +68,7 @@ public class AdminController {
   @PostMapping(value = "/cognito/group/user")
   public void addUserToGroup(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The request payload containing the username and group name.") @RequestBody CognitoGroupRequest cognitoGroupRequest) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.addUserToGroup.POST")) {
-      LOG.debug("addUserToGroup");
+      log.debug("addUserToGroup");
       awsCognitoClient.adminAddUserToGroup(cognitoGroupRequest.getUsername(), cognitoGroupRequest.getGroupName());
     }
   }
@@ -78,7 +77,7 @@ public class AdminController {
   @DeleteMapping(value = "/cognito/group/user")
   public void removeUserFromGroup(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The request payload containing the username and group name.") @RequestBody CognitoGroupRequest cognitoGroupRequest) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.removeUserFromGroup.DELETE")) {
-      LOG.debug("removeUserFromGroup");
+      log.debug("removeUserFromGroup");
       awsCognitoClient.adminRemoveUserFromGroup(cognitoGroupRequest.getUsername(), cognitoGroupRequest.getGroupName());
     }
   }
@@ -87,7 +86,7 @@ public class AdminController {
   @DeleteMapping(value = "cognito/user")
   public void deleteUser(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The request payload containing the username.") @RequestBody StringBody username) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.deleteUser.DELETE")) {
-      LOG.debug("deleteUser");
+      log.debug("deleteUser");
       awsCognitoClient.adminDeleteUser(username.getValue());
     }
   }
@@ -96,7 +95,7 @@ public class AdminController {
   @PostMapping(value = "cognito/user")
   public User createUser(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The user details to create.") @RequestBody User user) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Cognito.createUser.POST")) {
-      LOG.debug("createUser");
+      log.debug("createUser");
       return awsCognitoClient.adminCreateUser(user);
     }
   }
@@ -105,7 +104,7 @@ public class AdminController {
   @DeleteMapping(value = "cognito/user/resetPassword")
   public void resetPassword(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The username for which to reset the password.") @RequestBody StringBody username) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.user.resetPassword.DELETE")) {
-      LOG.debug("resetPassword");
+      log.debug("resetPassword");
       awsCognitoClient.adminResetUserPassword(username.getValue());
     }
   }

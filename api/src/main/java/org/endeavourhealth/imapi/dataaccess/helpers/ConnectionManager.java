@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.dataaccess.helpers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
@@ -8,16 +9,14 @@ import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
 
+@Slf4j
 public class ConnectionManager {
-  private static final Logger LOG = LoggerFactory.getLogger(ConnectionManager.class);
   private static final Map<String, Repository> repos = new HashMap<>();
   private static final String DEFAULT_PREFIXES = """
     PREFIX bc: <http://endhealth.info/bc#>
@@ -100,7 +99,7 @@ public class ConnectionManager {
   private static synchronized Repository getRepository(String repoId) {
     Repository repo = repos.get(repoId);
     if (repo == null) {
-      LOG.debug("Connecting to repository [{}]", repoId);
+      log.debug("Connecting to repository [{}]", repoId);
       String type = System.getenv("GRAPH_TYPE");
       if (type == null || type.isEmpty())
         type = "http";
@@ -128,7 +127,7 @@ public class ConnectionManager {
     String server = System.getenv("GRAPH_SERVER");
     if (server == null || server.isEmpty()) {
       server = "http://localhost:7200/";
-      LOG.warn("GRAPH_SERVER not set, defaulting to '{}'", server);
+      log.warn("GRAPH_SERVER not set, defaulting to '{}'", server);
     }
 
     HTTPRepository repo = new HTTPRepository(server, repoId);
@@ -146,13 +145,13 @@ public class ConnectionManager {
     String server = System.getenv("GRAPH_SERVER");
     if (server == null || server.isEmpty()) {
       server = "C:\\rdf4j\\";
-      LOG.warn("GRAPH_FILENAME not set, defaulting to '{}'", server);
+      log.warn("GRAPH_FILENAME not set, defaulting to '{}'", server);
     }
 
     String indexes = System.getenv("GRAPH_INDEXES");
     if (indexes == null || indexes.isEmpty()) {
       indexes = "spoc,posc,opsc";
-      LOG.warn("GRAPH_INDEXES not set, defaulting to '{}'", indexes);
+      log.warn("GRAPH_INDEXES not set, defaulting to '{}'", indexes);
     }
 
     return new SailRepository(new NativeStore(new File(server + repoId), indexes));
@@ -162,13 +161,13 @@ public class ConnectionManager {
     String query = System.getenv("GRAPH_QUERY");
     if (query == null || query.isEmpty()) {
       query = "cluster-cwwwbkhdusnw.eu-west-2.neptune.amazonaws.com";
-      LOG.warn("GRAPH_QUERY not set, defaulting to '{}'", query);
+      log.warn("GRAPH_QUERY not set, defaulting to '{}'", query);
     }
 
     String update = System.getenv("GRAPH_UPDATE");
     if (update == null || update.isEmpty()) {
       update = "cluster-ro-cwwwbkhdusnw.eu-west-2.neptune.amazonaws.com";
-      LOG.warn("GRAPH_UPDATE not set, defaulting to '{}'", update);
+      log.warn("GRAPH_UPDATE not set, defaulting to '{}'", update);
     }
 
     return new SPARQLRepository(repoId + "." + query, repoId + "." + update);

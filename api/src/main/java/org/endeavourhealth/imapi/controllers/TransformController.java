@@ -2,15 +2,13 @@ package org.endeavourhealth.imapi.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.TransformService;
-import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.iml.TransformRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -21,8 +19,8 @@ import java.util.Set;
 @CrossOrigin(origins = "*")
 @Tag(name = "TransformController")
 @RequestScope
+@Slf4j
 public class TransformController {
-  private static final Logger LOG = LoggerFactory.getLogger(TransformController.class);
   private final TransformService transformService = new TransformService();
 
 
@@ -33,7 +31,7 @@ public class TransformController {
   )
   public TTDocument transformEqd(@RequestBody EnquiryDocument eqd) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Transform.TransformEqd.GET")) {
-      LOG.debug("run transform");
+      log.debug("run transform");
       return new TransformService().transformEqd(eqd);
     }
   }
@@ -45,7 +43,7 @@ public class TransformController {
   )
   public Set<Object> run(@RequestBody TransformRequest transformRequest) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Transform.Run.POST")) {
-      LOG.debug("run transform");
+      log.debug("run transform");
       return transformService.runTransform(transformRequest);
     }
   }

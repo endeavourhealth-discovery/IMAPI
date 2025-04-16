@@ -4,12 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.CodeGenService;
 import org.endeavourhealth.imapi.model.dto.CodeGenDto;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -23,15 +22,15 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 @Tag(name = "CodeGenController")
 @RequestScope
+@Slf4j
 public class CodeGenController {
-  private static final Logger LOG = LoggerFactory.getLogger(CodeGenController.class);
   private final CodeGenService codeGenService = new CodeGenService();
 
   @Operation(summary = "Get a list of code templates", description = "Retrieve a list of available code templates.")
   @GetMapping(value = "/public/codeTemplates", produces = "application/json")
   public List<String> getCodeTemplateList(HttpServletRequest request) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.CodeTemplates.GET")) {
-      LOG.debug("getCodeTemplateList");
+      log.debug("getCodeTemplateList");
       return codeGenService.getCodeTemplateList();
     }
   }
@@ -41,7 +40,7 @@ public class CodeGenController {
   public CodeGenDto getCodeTemplate(HttpServletRequest request,
                                     @Parameter(description = "The name of the code template to retrieve") @RequestParam("templateName") String templateName) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.CodeTemplate.GET")) {
-      LOG.debug("getCodeTemplate");
+      log.debug("getCodeTemplate");
       return codeGenService.getCodeTemplate(templateName);
     }
   }
@@ -52,7 +51,7 @@ public class CodeGenController {
   public void updateCodeTemplate(HttpServletRequest request,
                                  @Parameter(description = "The CodeGenDto object containing the details of the code template to update") @RequestBody CodeGenDto codeGenDto) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.CodeTemplate.POST")) {
-      LOG.debug("updateCodeTemplate");
+      log.debug("updateCodeTemplate");
       codeGenService.updateCodeTemplate(codeGenDto.getName(), codeGenDto.getExtension(), codeGenDto.getCollectionWrapper(), codeGenDto.getDatatypeMap(), codeGenDto.getTemplate(), codeGenDto.getComplexTypes());
     }
   }
@@ -64,7 +63,7 @@ public class CodeGenController {
                                          @Parameter(description = "The name of the template to use for generating code") @RequestParam("template") String templateName,
                                          @Parameter(description = "The namespace to use for generating code") @RequestParam("namespace") String namespace) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.GenerateCode.GET")) {
-      LOG.debug("GenerateCode");
+      log.debug("GenerateCode");
 
       if (iri == null || iri.isEmpty())
         iri = "http://endhealth.info/im#PatientRecordEntry";
@@ -81,7 +80,7 @@ public class CodeGenController {
                                     @Parameter(description = "The template data to use") @RequestBody CodeGenDto template
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.GenerateCode.GET")) {
-      LOG.debug("GenerateCodePreview");
+      log.debug("GenerateCodePreview");
 
       return codeGenService.generateCodeForModel(iri, template, namespace);
     }

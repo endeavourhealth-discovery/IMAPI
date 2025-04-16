@@ -127,7 +127,7 @@ public class QueryController {
   public String getSQLFromIMQ(@RequestBody Query query, @RequestParam(name = "lang", defaultValue = "MYSQL") String lang) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQ.POST")) {
       log.debug("getSQLFromIMQ");
-      return queryService.getSQLFromIMQ(query);
+      return queryService.getSQLFromIMQ(query, lang);
     }
   }
 
@@ -139,7 +139,7 @@ public class QueryController {
   public String getSQLFromIMQIri(@RequestParam(name = "queryIri") String queryIri, @RequestParam(name = "lang", defaultValue = "MYSQL") String lang) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getSQLFromIMQIri");
-      return queryService.getSQLFromIMQIri(queryIri);
+      return queryService.getSQLFromIMQIri(queryIri, lang);
     }
   }
 

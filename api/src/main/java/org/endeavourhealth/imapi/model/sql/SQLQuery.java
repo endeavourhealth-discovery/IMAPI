@@ -124,7 +124,7 @@ public class SQLQuery {
 
   private Field getField(String field, String table, TableMap tableMap) throws SQLConversionException {
     Table map = table != null ? tableMap.getTable(table) : this.map;
-    LOG.info("{}", tableMap);
+    log.info("{}", tableMap);
     if (map == null) throw new SQLConversionException("SQL Conversion Error: Unknown table [" + table + "]");
 
     if (map.getFields().get(field) != null) return map.getFields().get(field);

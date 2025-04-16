@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.apache.commons.text.CaseUtils;
+import org.apache.commons.text.WordUtils;
 import org.endeavourhealth.imapi.dataaccess.CodeGenRepository;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
@@ -84,7 +85,7 @@ public class CodeGenService {
     for (TTIriRef model : models) {
       String code = generateCodeForModel(template, model, namespace);
 
-      ZipEntry entry = new ZipEntry(codify(CaseUtils.toCamelCase(model.getName(), true)) + template.getExtension());
+      ZipEntry entry = new ZipEntry(clean(CaseUtils.toCamelCase(model.getName(), true)) + template.getExtension());
 
       zos.putNextEntry(entry);
       zos.write(code.getBytes());
@@ -167,7 +168,7 @@ public class CodeGenService {
   private String replaceTokens(CodeGenDto template, String subTemplate, String namespace, TTIriRef model, DataModelProperty prop) {
     String result = subTemplate;
 
-    if (namespace != null) result = replaceVariants(result, "NAMESPACE", namespace);
+    if (namespace != null) result = replaceVariants(result, "NAME SPACE", namespace);
 
     if (model.hasName()) result = replaceVariants(result, "MODEL NAME", model.getName());
 
@@ -175,66 +176,94 @@ public class CodeGenService {
 
     if (prop != null && prop.hasProperty() && prop.getProperty().hasName() && prop.hasType()) {
       if (prop.hasType() && template.getDataType(prop.getType().getIri()) != null) {
-        String basePropertyType = template.getDataType(prop.getType().getIri());
-        String propertyType =
-          prop.isArray() && template.hasCollectionWrapper() ? replace(template.getCollectionWrapper(), "BASE DATA TYPE", basePropertyType) : basePropertyType;
-
-        result = replace(result, "BASE DATA TYPE", basePropertyType);
-        result = replace(result, "DATA TYPE", propertyType);
+        result = replaceTypedPropertyTokens(template, prop, result);
+      } else if (prop.isArray() && template.hasCollectionWrapper()) {
+        result = replaceArrayPropertyTokens(template, prop, result);
       } else {
-        String basePropertyType = prop.getType().hasName() ? prop.getType().getName() : "!!UNKNOWN!!";
-        String propertyType = prop.isArray() && template.hasCollectionWrapper() ? replaceVariants(template.getCollectionWrapper(), "BASE DATA TYPE", basePropertyType) : basePropertyType;
-
-        result = replaceVariants(result, "BASE DATA TYPE", basePropertyType);
-        result = replaceVariants(result, "DATA TYPE", propertyType);
+        result = replaceRemainingPropertyTokens(prop, result);
       }
+
       result = replaceVariants(result, "PROPERTY NAME", prop.getProperty().getName());
     }
 
     return result;
   }
 
+  private String replaceRemainingPropertyTokens(DataModelProperty prop, String result) {
+    String basePropertyType = prop.getType().hasName() ? prop.getType().getName() : "!!UNKNOWN!!";
+    result = replaceVariants(result, "DATA TYPE", basePropertyType);
+    return result;
+  }
+
+  private String replaceArrayPropertyTokens(CodeGenDto template, DataModelProperty prop, String result) {
+    String basePropertyType = prop.getType().hasName() ? prop.getType().getName() : "!!UNKNOWN!!";
+    String cw = template.getCollectionWrapper();
+    String cwType = cw.substring(cw.indexOf("${"), cw.indexOf("}") + 1);
+    String placeholder = replaceVariants(template.getCollectionWrapper(), "BASE DATA TYPE", "${basedatatypeplaceholder}");
+    result = replaceVariants(result, "DATA TYPE", placeholder);
+    result = result.replace("${basedatatypeplaceholder}", cwType);
+    result = replaceVariants(result, "BASE DATA TYPE", basePropertyType);
+    return result;
+  }
+
+  private String replaceTypedPropertyTokens(CodeGenDto template, DataModelProperty prop, String result) {
+    String basePropertyType = template.getDataType(prop.getType().getIri());
+    String propertyType =
+      prop.isArray() && template.hasCollectionWrapper() ? replace(template.getCollectionWrapper(), "BASE DATA TYPE", basePropertyType) : basePropertyType;
+
+    result = replace(result, "BASE DATA TYPE", basePropertyType);
+    result = replace(result, "DATA TYPE", propertyType);
+    return result;
+  }
+
   private String replaceVariants(String template, String name, String value) {
     return template
-      .replace("${" + name + "}", value)
-      .replace("${" + codify(name) + "}", codify(value))
-      .replace("${" + name.toLowerCase() + "}", value.toLowerCase())
-      .replace("${" + codify(name.toLowerCase()) + "}", codify(value.toLowerCase()))
-      .replace("${" + toCamelCase(name) + "}", codify(toCamelCase(value)))
-      .replace("${" + toTitleCase(name) + "}", codify(toTitleCase(value)));
+      .replace("${" + name + "}", value)                                                // Unaltered
+      .replace("${" + toTitleCase(name) + "}", toTitleCase(value))                      // Title Case
+      .replace("${" + toCamelCase(name) + "}", toCamelCase(value))                      // camel Case
+      .replace("${" + name.toLowerCase() + "}", value.toLowerCase())                    // lower case
+      .replace("${" + clean(codify(name)) + "}", clean(codify(value)))                                // Codified
+      .replace("${" + clean(toTitleCase(codify(name))) + "}", clean(toTitleCase(codify(value))))      // TitleCase (codified)
+      .replace("${" + clean(toCamelCase(codify(name))) + "}", clean(toCamelCase(codify(value))))      // camelCase (codified)
+      .replace("${" + clean(codify(name).toLowerCase()) + "}", clean(codify(value).toLowerCase()));   // lowercase (codified)
   }
 
   private String replace(String template, String name, String value) {
     return template
       .replace("${" + name + "}", value)
-      .replace("${" + codify(name) + "}", value)
+      .replace("${" + clean(name) + "}", value)
       .replace("${" + name.toLowerCase() + "}", value)
-      .replace("${" + codify(name.toLowerCase()) + "}", value)
+      .replace("${" + clean(name.toLowerCase()) + "}", value)
       .replace("${" + toCamelCase(name) + "}", value)
-      .replace("${" + codify(toCamelCase(name)) + "}", value)
+      .replace("${" + clean(toCamelCase(name)) + "}", value)
       .replace("${" + toTitleCase(name) + "}", value)
-      .replace("${" + codify(toTitleCase(name)) + "}", value);
+      .replace("${" + clean(toTitleCase(name)) + "}", value);
+  }
+
+  private String clean(String name) {
+    return name.replace(" ", "");
   }
 
   private String codify(String name) {
     return name
-      .replace(" ", "")
-      .replace("-", "")
-      .replace(".", "")
-      .replace(",", "")
-      .replace("#", "")
-      .replace("'", "")
-      .replace("(", "")
-      .replace(")", "")
-      .replace("\"", "")
-      .replace("/", "");
+      .replace("-", " ")
+      .replace(".", " ")
+      .replace(",", " ")
+      .replace("#", " ")
+      .replace("'", " ")
+      .replace("(", " ")
+      .replace(")", " ")
+      .replace("\"", " ")
+      .replace("/", " ");
   }
 
   private String toCamelCase(String str) {
-    return CaseUtils.toCamelCase(str, false, ' ');
+    str = toTitleCase(str);
+    str = str.substring(0, 1).toLowerCase() + str.substring(1);
+    return str;
   }
 
   private String toTitleCase(String str) {
-    return CaseUtils.toCamelCase(str, true, ' ');
+    return WordUtils.capitalizeFully(str);
   }
 }

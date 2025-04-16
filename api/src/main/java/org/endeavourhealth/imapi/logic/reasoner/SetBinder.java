@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -10,8 +11,6 @@ import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -20,18 +19,18 @@ import java.util.stream.Collectors;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 
+@Slf4j
 public class SetBinder {
-  private static final Logger LOG = LoggerFactory.getLogger(SetBinder.class);
   private final SetRepository setRepository = new SetRepository();
 
   public void bindSets() {
-    LOG.info("Getting value sets....");
+    log.info("Getting value sets....");
     Set<String> sets = getSets();
     int count = 0;
     for (String iri : sets) {
       count++;
       if (count % 100 == 0) {
-        LOG.info("{} sets bound", count);
+        log.info("{} sets bound", count);
       }
       bindSet(iri);
     }

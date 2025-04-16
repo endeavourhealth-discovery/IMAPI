@@ -1,10 +1,10 @@
 package org.endeavourhealth.imapi.model.codegen;
 
 public class CodeGenTemplate {
-  private String header;
-  private String footer;
-  private String property;
-  private String collectionProperty;
+  private String header = "";
+  private String footer = "";
+  private String property = "";
+  private String collectionProperty = "";
 
   public String getHeader() {
     return header;

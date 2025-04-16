@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
@@ -19,8 +20,6 @@ import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.*;
 import java.nio.charset.StandardCharsets;
@@ -28,8 +27,8 @@ import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.*;
 
+@Slf4j
 public class TTEntityFilerRdf4j implements TTEntityFiler {
-  private static final Logger LOG = LoggerFactory.getLogger(TTEntityFilerRdf4j.class);
   private static final ValueFactory valueFactory = new ValidatingValueFactory(SimpleValueFactory.getInstance());
   private final Map<String, String> prefixMap;
   private final Update deleteTriples;
@@ -127,7 +126,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   }
 
   public void deleteAscendantIsas(String entity) {
-    LOG.info("Deleting ascendant isas");
+    log.info("Deleting ascendant isas");
     String deleteSql = """
       PREFIX im: <http://endhealth.info/im#>
       DELETE {
@@ -143,7 +142,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   }
 
   public void deleteIsas(Set<String> entities) {
-    LOG.info("Deleting descendant and ascendant isas");
+    log.info("Deleting descendant and ascendant isas");
     for (String entity : entities) {
       String deleteSql = """
         DELETE {
@@ -223,7 +222,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
       Update addIsAs = conn.prepareUpdate(addSql.toString());
       addIsAs.execute();
       if (count % 100 == 0) {
-        LOG.info("isas added for {} entities", count);
+        log.info("isas added for {} entities", count);
       }
     }
   }
@@ -354,11 +353,11 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
       String result = uri.toASCIIString();
 
 
-      if (!iri.equals(result)) LOG.trace("Encoded iri [{}] => [{}]", iri, result);
+      if (!iri.equals(result)) log.trace("Encoded iri [{}] => [{}]", iri, result);
 
       return iri(result);
     } catch (MalformedURLException | URISyntaxException e) {
-      throw new TTFilerException("Unable to encode iri: "+ iri, e);
+      throw new TTFilerException("Unable to encode iri: " + iri, e);
     }
   }
 
@@ -371,7 +370,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
       if (path == null) return iri;
       else return path + iri.substring(colonPos + 1);
     } catch (StringIndexOutOfBoundsException e) {
-      LOG.debug("invalid iri [{}]", iri);
+      log.debug("invalid iri [{}]", iri);
       throw new TTFilerException("Invalid iri format (" + iri + ")");
     }
   }

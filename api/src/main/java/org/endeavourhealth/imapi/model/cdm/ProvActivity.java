@@ -1,11 +1,10 @@
 package org.endeavourhealth.imapi.model.cdm;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.GRAPH;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.List;
 
@@ -14,8 +13,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 /**
  * Class which sets and gets Provenance activity entry
  */
+@Slf4j
 public class ProvActivity extends Entry {
-  private static final Logger LOG = LoggerFactory.getLogger(ProvActivity.class);
 
   public ProvActivity() {
     this.addType(iri(IM.PROVENANCE_ACTIVITY));
@@ -25,7 +24,7 @@ public class ProvActivity extends Entry {
   @Override
   @JsonSetter
   public ProvActivity setGraph(TTIriRef graph) {
-    LOG.error("Attempt to set graph on provenance");
+    log.error("Attempt to set graph on provenance");
     return this;
   }
 

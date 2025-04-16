@@ -2,11 +2,10 @@ package org.endeavourhealth.imapi.model.sql;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -14,8 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Slf4j
 public class IMQtoSQLConverter {
-  private static Logger LOG = LoggerFactory.getLogger(IMQtoSQLConverter.class);
 
   private TableMap tableMap;
   private String lang;
@@ -27,7 +26,7 @@ public class IMQtoSQLConverter {
       String text = Files.readString(Paths.get(getClass().getClassLoader().getResource(resourcePath).toURI()));
       tableMap = new ObjectMapper().readValue(text, TableMap.class);
     } catch (Exception e) {
-      LOG.error("Could not parse datamodel map!");
+      log.error("Could not parse datamodel map!");
       throw new RuntimeException(e);
     }
   }
@@ -53,7 +52,7 @@ public class IMQtoSQLConverter {
 
       return qry.toSql(2);
     } catch (SQLConversionException e) {
-      LOG.error("SQL Conversion Error!");
+      log.error("SQL Conversion Error!");
       throw e;
     }
   }

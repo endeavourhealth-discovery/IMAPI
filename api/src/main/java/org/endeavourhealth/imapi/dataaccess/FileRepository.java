@@ -2,13 +2,10 @@ package org.endeavourhealth.imapi.dataaccess;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.endeavourhealth.imapi.model.iml.Entity;
-import org.endeavourhealth.imapi.model.imq.Node;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -21,9 +18,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 public class FileRepository {
 
-  private static final Logger LOG = LoggerFactory.getLogger(FileRepository.class);
 
   private final Map<String, Map<String, Set<String>>> codeCoreMap = new HashMap<>();
   private final Map<String, Map<String, Set<String>>> termCoreMap = new HashMap<>();
@@ -81,7 +78,7 @@ public class FileRepository {
           parents.add(parent);
         }
         if (count.get() % 1_000_000 == 0)
-          LOG.info("{} relationships collected", count);
+          log.info("{} relationships collected", count);
       });
     }
   }
@@ -118,8 +115,6 @@ public class FileRepository {
   }
 
 
-
-
   public Map<String, Set<String>> getAllMatchedLegacy() throws IOException {
     Map<String, Set<String>> legacyMap = new HashMap<>();
     String fileName = getFile("LegacyCore");
@@ -129,9 +124,9 @@ public class FileRepository {
         String[] fields = line.split("\t");
         String legacy = fields[0];
         if (fields.length < 2) {
-          LOG.info("invalid line {}", line);
+          log.info("invalid line {}", line);
           String x = reader.readLine();
-          LOG.info(x);
+          log.info(x);
           line = String.join("", line, x);
           fields = line.split("\t");
         }
@@ -160,7 +155,7 @@ public class FileRepository {
       }
       return Collections.emptySet();
     } catch (Exception e) {
-      LOG.error("unable to retrieve core from code : {}", e.getMessage());
+      log.error("unable to retrieve core from code : {}", e.getMessage());
       return Collections.emptySet();
     }
   }

@@ -5,14 +5,12 @@ import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
 import com.codahale.metrics.jvm.*;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.model.config.Metrics;
 import org.endeavourhealth.imapi.model.config.MetricsConsole;
 import org.endeavourhealth.imapi.model.config.MetricsGraphite;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,8 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Slf4j
 public class MetricsHelper {
-  private static final Logger LOG = LoggerFactory.getLogger(MetricsHelper.class);
 
   //report metrics to graphite every minute
   private static final int GRAPHITE_REPORT_FREQUENCY = 1;
@@ -35,8 +33,28 @@ public class MetricsHelper {
 
   private final Map<String, AtomicInteger> eventMap = new ConcurrentHashMap<>();
 
-  private static final class InstanceHolder {
-    private static final MetricsHelper instance = new MetricsHelper();
+  private MetricsHelper() {
+    ConfigManager configManager = new ConfigManager();
+    this.registry = new MetricRegistry();
+
+    try {
+      Metrics config = configManager.getConfig(CONFIG.MONITORING, new TypeReference<>() {
+      });
+      if (config != null) {
+
+        //set any console logging config
+        initConsoleLogging(config);
+
+        //set any graphite logging config
+        initGraphiteLogging(config);
+
+      } else {
+        log.info("No metrics config record found");
+      }
+
+    } catch (Exception ex) {
+      log.error("Error loading graphite config record", ex);
+    }
   }
 
   private static MetricsHelper instance() {
@@ -63,27 +81,11 @@ public class MetricsHelper {
     return instance().recordCounterImpl(metric);
   }
 
-  private MetricsHelper() {
-    ConfigManager configManager = new ConfigManager();
-    this.registry = new MetricRegistry();
-
-    try {
-      Metrics config = configManager.getConfig(CONFIG.MONITORING, new TypeReference<>() {
-      });
-      if (config != null) {
-
-        //set any console logging config
-        initConsoleLogging(config);
-
-        //set any graphite logging config
-        initGraphiteLogging(config);
-
-      } else {
-        LOG.info("No metrics config record found");
-      }
-
-    } catch (Exception ex) {
-      LOG.error("Error loading graphite config record", ex);
+  private static String getHostName() throws IOException {
+    Runtime r = Runtime.getRuntime();
+    Process p = r.exec("hostname");
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+      return br.readLine();
     }
   }
 
@@ -98,7 +100,7 @@ public class MetricsHelper {
         .convertDurationsTo(TimeUnit.MILLISECONDS)
         .build();
       reporter.start(frequency, TimeUnit.SECONDS);
-      LOG.info("Console metrics reporter started");
+      log.info("Console metrics reporter started");
     }
   }
 
@@ -130,7 +132,7 @@ public class MetricsHelper {
       //send metrics every minute
       reporter.start(GRAPHITE_REPORT_FREQUENCY, GRAPHITE_REPORT_UNITS);
 
-      LOG.info("Graphite metrics reporter started [{}]", prefix);
+      log.info("Graphite metrics reporter started [{}]", prefix);
     }
   }
 
@@ -150,14 +152,6 @@ public class MetricsHelper {
         registry.register("heartbeat", gauge);
     }
 */
-
-  private static String getHostName() throws IOException {
-    Runtime r = Runtime.getRuntime();
-    Process p = r.exec("hostname");
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-      return br.readLine();
-    }
-  }
 
   private void recordValueImpl(String metric, long value) {
     Histogram histogram = registry.histogram(metric);
@@ -193,6 +187,9 @@ public class MetricsHelper {
     return registry.counter(metric);
   }
 
+  private static final class InstanceHolder {
+    private static final MetricsHelper instance = new MetricsHelper();
+  }
 
   /**
    * Gauge for logging discrete events that happen over time. As the recordEvent(..)

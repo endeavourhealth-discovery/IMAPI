@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
@@ -16,8 +17,6 @@ import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,8 +24,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+@Slf4j
 public class OSQuery {
-  private static final Logger LOG = LoggerFactory.getLogger(OSQuery.class);
   private final IMQToOS converter = new IMQToOS();
   private boolean ignoreInvalid;
   private EntityService entityService = new EntityService();
@@ -251,7 +250,7 @@ public class OSQuery {
     }
 
     if (299 < response.statusCode()) {
-      LOG.debug("Open search request failed with code: {}", response.statusCode());
+      log.debug("Open search request failed with code: {}", response.statusCode());
       throw new OpenSearchException("Search request failed. Error =. " + response.body());
     }
     return response;
@@ -346,7 +345,7 @@ public class OSQuery {
       }
       return new ObjectMapper().createObjectNode();
     } catch (Exception e) {
-      throw new OpenSearchException(e.getMessage(),e);
+      throw new OpenSearchException(e.getMessage(), e);
     }
   }
 }

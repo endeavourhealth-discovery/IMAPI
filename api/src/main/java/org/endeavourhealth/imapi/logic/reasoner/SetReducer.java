@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
@@ -10,8 +11,6 @@ import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.naming.directory.InvalidAttributesException;
 import java.util.StringJoiner;
@@ -19,8 +18,8 @@ import java.util.StringJoiner;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+@Slf4j
 public class SetReducer {
-  private static final Logger LOG = LoggerFactory.getLogger(SetReducer.class);
 
 
   /**
@@ -63,7 +62,7 @@ public class SetReducer {
         }
         set.getPredicateMap().remove(iri(IM.HAS_MEMBER));
         int newSize = set.get(iri(IM.DEFINITION)).asNode().get(iri(SHACL.OR)).size();
-        LOG.info("for set {} original size = {} new size {} removed {} members", set.getIri(), originalSize, newSize, (originalSize - newSize));
+        log.info("for set {} original size = {} new size {} removed {} members", set.getIri(), originalSize, newSize, (originalSize - newSize));
       }
     }
     return set;

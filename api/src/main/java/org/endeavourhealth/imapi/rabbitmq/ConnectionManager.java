@@ -38,11 +38,11 @@ public class ConnectionManager {
 
   public ConnectionManager() throws IOException, TimeoutException {
     connectionFactory = new CachingConnectionFactory();
-    connectionFactory.setHost(System.getenv("SPRING_RABBITMQ_HOST"));
+    connectionFactory.setHost(System.getenv("RABBITMQ_HOST"));
     connectionFactory.setPort(5672);
-    connectionFactory.setVirtualHost(System.getenv("SPRING_RABBITMQ_VIRTUALHOST"));
-    connectionFactory.setUsername(System.getenv("SPRING_RABBITMQ_USERNAME"));
-    connectionFactory.setPassword(System.getenv("SPRING_RABBITMQ_PASSWORD"));
+    connectionFactory.setVirtualHost(System.getenv("RABBITMQ_VIRTUALHOST"));
+    connectionFactory.setUsername(System.getenv("RABBITMQ_USERNAME"));
+    connectionFactory.setPassword(System.getenv("RABBITMQ_PASSWORD"));
     connection = connectionFactory.createConnection();
   }
 

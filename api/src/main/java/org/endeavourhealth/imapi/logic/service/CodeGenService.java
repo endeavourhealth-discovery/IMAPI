@@ -123,6 +123,9 @@ public class CodeGenService {
     String arrayTempEnd = "</template #array>";
 
     int ps_s = template.indexOf(propertyTemp);
+    if (ps_s < 0)
+      return new CodeGenTemplate();
+
     int ps_l = propertyTemp.length();
     if ("\n".equals(template.substring(ps_s + ps_l, ps_s + ps_l + 1)))
       ps_l++;
@@ -196,13 +199,20 @@ public class CodeGenService {
   }
 
   private String replaceArrayPropertyTokens(CodeGenDto template, DataModelProperty prop, String result) {
-    String basePropertyType = prop.getType().hasName() ? prop.getType().getName() : "!!UNKNOWN!!";
-    String cw = template.getCollectionWrapper();
-    String cwType = cw.substring(cw.indexOf("${"), cw.indexOf("}") + 1);
-    String placeholder = replaceVariants(template.getCollectionWrapper(), "BASE DATA TYPE", "${basedatatypeplaceholder}");
-    result = replaceVariants(result, "DATA TYPE", placeholder);
-    result = result.replace("${basedatatypeplaceholder}", cwType);
-    result = replaceVariants(result, "BASE DATA TYPE", basePropertyType);
+    if (!template.hasCollectionWrapper())
+      return result;
+
+    if (!template.getCollectionWrapper().contains("${"))
+      result = replaceVariants(result, "DATA TYPE", template.getCollectionWrapper());
+    else {
+      String basePropertyType = prop.getType().hasName() ? prop.getType().getName() : "!!UNKNOWN!!";
+      String cw = template.getCollectionWrapper();
+      String cwType = cw.substring(cw.indexOf("${"), cw.indexOf("}") + 1);
+      String placeholder = replaceVariants(template.getCollectionWrapper(), "BASE DATA TYPE", "${basedatatypeplaceholder}");
+      result = replaceVariants(result, "DATA TYPE", placeholder);
+      result = result.replace("${basedatatypeplaceholder}", cwType);
+      result = replaceVariants(result, "BASE DATA TYPE", basePropertyType);
+    }
     return result;
   }
 

@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.apache.commons.text.CaseUtils;
 import org.apache.commons.text.WordUtils;
 import org.endeavourhealth.imapi.dataaccess.CodeGenRepository;
 import org.endeavourhealth.imapi.model.DataModelProperty;
@@ -85,7 +84,7 @@ public class CodeGenService {
     for (TTIriRef model : models) {
       String code = generateCodeForModel(template, model, namespace);
 
-      ZipEntry entry = new ZipEntry(clean(CaseUtils.toCamelCase(model.getName(), true)) + template.getExtension());
+      ZipEntry entry = new ZipEntry(clean(toTitleCase(codify(model.getName()))) + template.getExtension());
 
       zos.putNextEntry(entry);
       zos.write(code.getBytes());

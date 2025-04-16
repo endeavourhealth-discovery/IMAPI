@@ -16,7 +16,7 @@ Feature: Code is generated
     """
     And a template of
     """
-    package ${NAMESPACE};
+    package ${NAME SPACE};
 
     // Represents ${MODEL NAME} - ${MODEL COMMENT}
 
@@ -65,7 +65,7 @@ Feature: Code is generated
     """
     And a template of
     """
-    package ${NAMESPACE};
+    package ${NAME SPACE};
 
     import java.util.ArrayList;
     import java.util.List;

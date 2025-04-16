@@ -4,8 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.logic.service.*;
+import org.endeavourhealth.imapi.logic.service.EntityService;
+import org.endeavourhealth.imapi.logic.service.FilerService;
+import org.endeavourhealth.imapi.logic.service.RequestObjectService;
+import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.ProblemDetailResponse;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
@@ -18,8 +22,6 @@ import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -44,8 +46,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @CrossOrigin(origins = "*")
 @Tag(name = "FilerController")
 @RequestScope
+@Slf4j
 public class FilerController {
-  private static final Logger LOG = LoggerFactory.getLogger(FilerController.class);
 
   private final FilerService filerService = new FilerService();
   private final EntityService entityService = new EntityService();
@@ -57,13 +59,14 @@ public class FilerController {
   @Operation(summary = "Files a document and returns the task ID.")
   public ResponseEntity<Map<String, String>> fileDocument(@RequestBody TTDocument document, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Document.POST")) {
-      LOG.debug("fileDocument");
+      log.debug("fileDocument");
       String agentName = reqObjService.getRequestAgentName(request);
       String taskId = UUID.randomUUID().toString();
       Map<String, String> response = new HashMap<>();
 
       String agentId = reqObjService.getRequestAgentId(request);
-      if(!filerService.userCanFile(agentId, document.getGraph())) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      if (!filerService.userCanFile(agentId, document.getGraph()))
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
       try {
         filerService.fileDocument(document, agentName, taskId);
@@ -90,7 +93,7 @@ public class FilerController {
   @Operation(summary = "Files an entity with specified graph and CRUD operation.")
   public ResponseEntity<Void> fileEntity(@RequestBody TTEntity entity, @RequestParam(name = "graph") String graph, @RequestParam(name = "crud") String crud, HttpServletRequest request) throws TTFilerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Entity.POST")) {
-      LOG.debug("fileEntity");
+      log.debug("fileEntity");
       String agentName = reqObjService.getRequestAgentName(request);
       TTEntity usedEntity = null;
       if (entityService.iriExists(entity.getIri())) {
@@ -103,7 +106,8 @@ public class FilerController {
       if (crud != null && !crud.isEmpty()) entity.setCrud(iri(crud));
 
       String agentId = reqObjService.getRequestAgentId(request);
-      if(!filerService.userCanFile(agentId, new TTIriRef(graph))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      if (!filerService.userCanFile(agentId, new TTIriRef(graph)))
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
       filerService.fileEntity(entity, entity.getGraph(), agentName, usedEntity);
       return ResponseEntity.ok().build();
@@ -115,7 +119,7 @@ public class FilerController {
   @Operation(summary = "Moves an entity from one folder to another.")
   public ResponseEntity<ProblemDetailResponse> moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Move.POST")) {
-      LOG.debug("moveFolder");
+      log.debug("moveFolder");
 
 
       if (!entityService.iriExists(entityIri) || !entityService.iriExists(oldFolderIri) || !entityService.iriExists(newFolderIri)) {
@@ -164,7 +168,7 @@ public class FilerController {
     @RequestParam(name = "folder") String folderIri,
     HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Add.POST")) {
-      LOG.debug("addToFolder");
+      log.debug("addToFolder");
 
       if (!entityService.iriExists(entityIri) || !entityService.iriExists(folderIri)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot add to folder", "One of the IRIs does not exist");
@@ -196,20 +200,20 @@ public class FilerController {
     @RequestParam(name = "name") String name,
     HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Create.POST")) {
-      LOG.debug("createFolder");
+      log.debug("createFolder");
 
       if (name.isBlank()) {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, name is null");
       }
 
       if (!entityService.iriExists(container)) {
-        LOG.error("Cannot create, container does not exist");
+        log.error("Cannot create, container does not exist");
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, container does not exist");
       }
 
       String iri = IM.NAMESPACE + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8.toString());
       if (entityService.iriExists(iri)) {
-        LOG.error("Entity with that name already exists");
+        log.error("Entity with that name already exists");
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity with that name already exists");
       }
 
@@ -251,7 +255,7 @@ public class FilerController {
   @Operation(summary = "Downloads deltas as a zip file.")
   public HttpEntity<Object> downloadDeltas() throws NullPointerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Deltas.Download.GET")) {
-      LOG.debug("downloadDeltas");
+      log.debug("downloadDeltas");
       HttpHeaders headers = new HttpHeaders();
 
       // Collect files into Zip
@@ -276,7 +280,7 @@ public class FilerController {
             return new HttpEntity<>(baos.toByteArray(), headers);
           }
         } catch (NullPointerException e) {
-          LOG.error("Unable to find environment variable path for delta download.");
+          log.error("Unable to find environment variable path for delta download.");
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to find environment variable path for delta download.");
       }

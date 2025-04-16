@@ -2,11 +2,10 @@ package org.endeavourhealth.imapi.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.utility.EnvHelper;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,14 +20,14 @@ import java.io.IOException;
 @CrossOrigin(origins = "*")
 @Tag(name = "StatusController")
 @RequestScope
+@Slf4j
 public class StatusController {
-  private static final Logger LOG = LoggerFactory.getLogger(StatusController.class);
 
   @Operation(summary = "Check the health status of the application")
   @GetMapping("/public/healthCheck")
   public ResponseEntity<String> healthCheck() throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Status.HealthCheck.GET")) {
-      LOG.debug("healthCheck");
+      log.debug("healthCheck");
       return ResponseEntity.ok("OK");
     }
   }
@@ -37,7 +36,7 @@ public class StatusController {
   @GetMapping("/public/isPublicMode")
   public ResponseEntity<Boolean> isPublicMode() throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Status.isPublicMode.GET")) {
-      LOG.debug("isPublicMode");
+      log.debug("isPublicMode");
       return ResponseEntity.ok(EnvHelper.isPublicMode());
     }
   }
@@ -46,7 +45,7 @@ public class StatusController {
   @GetMapping("/public/isDevMode")
   public ResponseEntity<Boolean> isDevMode() throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Status.isDevMode.GET")) {
-      LOG.debug("isDevMode");
+      log.debug("isDevMode");
       return ResponseEntity.ok(EnvHelper.isDevMode());
     }
   }

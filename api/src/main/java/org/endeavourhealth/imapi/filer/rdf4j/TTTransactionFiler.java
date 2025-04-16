@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -22,8 +23,6 @@ import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,8 +36,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
  * Methods may be called via CRUD instructions or file entities that contain the CRUD instructions.
  * <p>All entities must have a graph and a crud transaction</p>
  */
+@Slf4j
 public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
-  private static final Logger LOG = LoggerFactory.getLogger(TTTransactionFiler.class);
   private static final String TTLOG = "TTLog-";
   private static Integer filingProgress = null;
   protected TTEntityFiler conceptFiler;
@@ -57,13 +56,13 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
    */
   public TTTransactionFiler() {
     this(System.getenv("DELTA_PATH"));
-    LOG.info("Connecting");
+    log.info("Connecting");
     conn = ConnectionManager.getIMConnection();
 
-    LOG.info("Initializing");
+    log.info("Initializing");
     conceptFiler = new TTEntityFilerRdf4j(conn, prefixMap);
     instanceFiler = conceptFiler;   // Concepts & Instances filed in the same way
-    LOG.info("Done");
+    log.info("Done");
   }
 
   /**
@@ -132,7 +131,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   public void fileDeltas(String deltaPath) throws IOException, QueryException, TTFilerException {
     this.logPath = deltaPath;
     Map<Integer, String> transactionLogs = new HashMap<>();
-    LOG.debug("Filing deltas from [{}]", logPath);
+    log.debug("Filing deltas from [{}]", logPath);
     File directory = new File(logPath);
     for (File file : Objects.requireNonNull(directory.listFiles())) {
       if (!file.isDirectory()) {
@@ -145,7 +144,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
     try (TTManager ttManager = new TTManager()) {
       for (Integer logNumber : transactionLogs.keySet().stream().sorted().toList()) {
-        LOG.info("Filing TTLog-{}.json", logNumber);
+        log.info("Filing TTLog-{}.json", logNumber);
         ttManager.loadDocument(new File(transactionLogs.get(logNumber)));
         fileDocument(ttManager.getDocument());
       }
@@ -179,9 +178,9 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
 
   @Override
   public void close() {
-    LOG.info("Disconnecting");
+    log.info("Disconnecting");
     conn.close();
-    LOG.info("Disconnected");
+    log.info("Disconnected");
   }
 
   @Override
@@ -217,7 +216,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   private void fileAsDocument(TTDocument document) throws TTFilerException, JsonProcessingException, QueryException {
     try {
       startTransaction();
-      LOG.info("Filing entities.... ");
+      log.info("Filing entities.... ");
       int i = 0;
       entitiesFiled = new HashSet<>();
       for (TTEntity entity : document.getEntities()) {
@@ -232,13 +231,13 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
         entitiesFiled.add(entity.getIri());
         i++;
         if (i % 100 == 0)
-          LOG.info("Filed {}  entities in transaction from {} in graph {}", i, document.getEntities().size(), entityGraph.getIri());
+          log.info("Filed {}  entities in transaction from {} in graph {}", i, document.getEntities().size(), entityGraph.getIri());
 
       }
       if (logPath != null)
         writeLog(document);
       updateTct(document);
-      LOG.info("Updating range inheritances");
+      log.info("Updating range inheritances");
       new RangeInheritor().inheritRanges(conn);
       commit();
 
@@ -260,7 +259,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     filingProgress = 0;
     try {
       startTransaction();
-      LOG.info("Filing entities.... ");
+      log.info("Filing entities.... ");
       int i = 0;
       int totalEntities = document.getEntities().size();
       entitiesFiled = new HashSet<>();
@@ -278,13 +277,13 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
         entitiesFiled.add(entity.getIri());
 
         if (i % 100 == 0)
-          LOG.info("Filed {}  entities in transaction from {} in graph {}", i, document.getEntities().size(), entityGraph.getIri());
+          log.info("Filed {}  entities in transaction from {} in graph {}", i, document.getEntities().size(), entityGraph.getIri());
 
       }
       if (logPath != null)
         writeLog(document);
       updateTct(document);
-      LOG.info("Updating range inheritances");
+      log.info("Updating range inheritances");
       new RangeInheritor().inheritRanges(conn);
       commit();
     } catch (TTFilerException e) {
@@ -309,9 +308,9 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   public void updateSets(TTDocument document) throws QueryException, JsonProcessingException {
     for (TTEntity entity : document.getEntities()) {
       if (entity.isType(iri(IM.CONCEPT_SET)) || entity.isType(iri(IM.VALUESET))) {
-        LOG.info("Expanding set {}", entity.getIri());
+        log.info("Expanding set {}", entity.getIri());
         new SetMemberGenerator().generateMembers(entity.getIri());
-        LOG.info("Binding set {}", entity.getIri());
+        log.info("Binding set {}", entity.getIri());
         new SetBinder().bindSet(entity.getIri());
       }
     }
@@ -322,8 +321,8 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     done = new HashSet<>();
     manager = new TTManager();
     manager.setDocument(document).createIndex();
-    LOG.info("Generating isas.... ");
-    LOG.info("Collecting known descendants");
+    log.info("Generating isas.... ");
+    log.info("Collecting known descendants");
     Set<TTEntity> descendants = conceptFiler.getDescendants(entitiesFiled);
     Set<TTEntity> toClose = new HashSet<>(document.getEntities());
     toClose.addAll(descendants);
@@ -389,7 +388,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
 
 
   public void writeLog(TTDocument document) throws JsonProcessingException {
-    LOG.debug("Writing transaction to [{}]", logPath);
+    log.debug("Writing transaction to [{}]", logPath);
     File directory = new File(logPath);
     int logNumber = 0;
     for (File file : Objects.requireNonNull(directory.listFiles()))
@@ -410,7 +409,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   }
 
   public void fileEntities(TTDocument document) throws TTFilerException {
-    LOG.info("Filing entities.... ");
+    log.info("Filing entities.... ");
 
     TTIriRef defaultGraph = document.getGraph() != null ? document.getGraph() : iri(GRAPH.DISCOVERY);
 
@@ -426,7 +425,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
           fileEntity(entity, entityGraph);
           i++;
           if (i % 10000 == 0) {
-            LOG.info("Filed {} entities from {} in graph {}", i, document.getEntities().size(), document.getGraph().getIri());
+            log.info("Filed {} entities from {} in graph {}", i, document.getEntities().size(), document.getGraph().getIri());
             commit();
             startTransaction();
           }

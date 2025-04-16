@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import openllet.owlapi.OpenlletReasoner;
 import openllet.owlapi.OpenlletReasonerFactory;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -11,8 +12,6 @@ import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.reasoner.NodeSet;
 import org.semanticweb.owlapi.reasoner.OWLReasonerConfiguration;
 import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl;
 
 import java.util.*;
@@ -24,8 +23,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
  * Classifies an ontology using an owl reasoner, generating ISA relationships from a Discovery ontology document.
  * Generates inferred role groups (Snomed pattern) from the existential quntifiers and propogates them to subclasses
  */
+@Slf4j
 public class Reasoner {
-  private static final Logger LOG = LoggerFactory.getLogger(Reasoner.class);
   private TTDocument inferred;
   @Getter
   private HashMap<String, TTEntity> entityMap;
@@ -120,7 +119,7 @@ public class Reasoner {
       } else if (oldDomain.isNode() && oldDomain.asNode().get(iri(OWL.UNION_OF)) != null) {
         for (TTValue subDomain : oldDomain.asNode().get(iri(OWL.UNION_OF)).iterator()) {
           if (!subDomain.isIriRef()) {
-            LOG.debug("Sub domains and ranges must be iris");
+            log.debug("Sub domains and ranges must be iris");
           } else {
             newDomains.add(subDomain);
           }
@@ -172,7 +171,7 @@ public class Reasoner {
       } else if (expression.asNode().get(iri(OWL.ON_PROPERTY)) != null) {
         addRole(node, expression.asNode());
       } else
-        LOG.debug("Only one level of nesting supported. ");
+        log.debug("Only one level of nesting supported. ");
     } else
       throw new IllegalArgumentException("Unrecognised owl expression format");
   }
@@ -476,11 +475,11 @@ public class Reasoner {
     if (shape.get(iri(RDFS.SUBCLASS_OF)) != null) {
       processSuperClasses(properties, mergedProperties, shape);
       if (properties != null) {
-        for (TTValue p:properties.getElements()) {
-            if (p.asNode().get(iri(SHACL.ORDER)) == null) {
-              p.asNode().set(iri(SHACL.ORDER), TTLiteral.literal(1000));
-            }
+        for (TTValue p : properties.getElements()) {
+          if (p.asNode().get(iri(SHACL.ORDER)) == null) {
+            p.asNode().set(iri(SHACL.ORDER), TTLiteral.literal(1000));
           }
+        }
         mergedProperties.addAll(properties.getElements());
       }
       TTArray newValue = new TTArray();
@@ -492,7 +491,7 @@ public class Reasoner {
 
   public void mergeInheritedProperties(TTArray properties, List<TTValue> mergedProperties, TTValue superClass, TTEntity superEntity) {
     inheritProperties(superEntity);
-    if (superEntity.get(iri(SHACL.PROPERTY))!=null){
+    if (superEntity.get(iri(SHACL.PROPERTY)) != null) {
       for (TTValue superP : superEntity.get(iri(SHACL.PROPERTY)).getElements()) {
         if (superP.asNode().get(iri(SHACL.PATH)) != null) {
           if (!hasProperty(properties, superP.asNode().get(iri(SHACL.PATH)).asIriRef())
@@ -510,11 +509,11 @@ public class Reasoner {
   }
 
   private boolean hasPath(List<TTValue> mergedProperties, TTIriRef iri) {
-    if (mergedProperties.isEmpty()){
+    if (mergedProperties.isEmpty()) {
       return false;
     }
-    for (TTValue p:mergedProperties){
-      if (p.asNode().get(iri(SHACL.PATH)).asIriRef().equals(iri)){
+    for (TTValue p : mergedProperties) {
+      if (p.asNode().get(iri(SHACL.PATH)).asIriRef().equals(iri)) {
         return true;
       }
     }

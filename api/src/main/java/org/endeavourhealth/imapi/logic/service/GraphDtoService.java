@@ -8,8 +8,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -18,12 +16,11 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class GraphDtoService {
-  private static final Logger LOG = LoggerFactory.getLogger(GraphDtoService.class);
   private EntityService entityService = new EntityService();
   private DataModelService dataModelService = new DataModelService();
 
   public GraphDto getGraphData(String iri) {
-    if(null == iri || iri.isEmpty()) return new GraphDto();
+    if (null == iri || iri.isEmpty()) return new GraphDto();
 
     TTEntity entity = entityService.getBundle(iri, Set.of(RDFS.SUBCLASS_OF, RDFS.LABEL)).getEntity();
 

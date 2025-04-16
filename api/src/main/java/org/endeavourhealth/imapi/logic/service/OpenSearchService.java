@@ -7,21 +7,20 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class OpenSearchService {
   public static final String AUTHORIZATION = "Authorization";
   public static final String BASIC = "Basic ";
   public static final String ERROR_CALLING_OPEN_SEARCH = "Error calling OpenSearch";
-  private static final Logger LOG = LoggerFactory.getLogger(OpenSearchService.class);
   private final Client client = ClientBuilder.newClient();
   private final String osUrl = System.getenv("OPENSEARCH_URL");
   private final String osAuth = System.getenv("OPENSEARCH_AUTH");
@@ -51,7 +50,7 @@ public class OpenSearchService {
 
       if (response.getStatus() != 200) {
         String responseData = response.readEntity(String.class);
-        LOG.error(responseData);
+        log.error(responseData);
         throw new OpenSearchException(ERROR_CALLING_OPEN_SEARCH);
       }
 
@@ -73,7 +72,7 @@ public class OpenSearchService {
   }
 
   public void fileDocument(EntityDocument entityDocument) throws OpenSearchException {
-    LOG.debug("Loading OS document");
+    log.debug("Loading OS document");
     EntityDocument osDoc = getOSDocument(entityDocument.getIri());
     if (osDoc == null)
       addOSDocument(entityDocument);
@@ -89,7 +88,7 @@ public class OpenSearchService {
   }
 
   public void updateOSDocument(EntityDocument entityDocument) throws OpenSearchException {
-    LOG.debug("Sending OS document");
+    log.debug("Sending OS document");
     WebTarget target = client.target(osUrl).path(index + "/_doc/" + entityDocument.getId());
 
     try (CachedObjectMapper om = new CachedObjectMapper()) {
@@ -103,17 +102,17 @@ public class OpenSearchService {
 
       if (response.getStatus() != 200 && response.getStatus() != 201) {
         String responseData = response.readEntity(String.class);
-        LOG.error(responseData);
+        log.error(responseData);
         throw new IllegalStateException(ERROR_CALLING_OPEN_SEARCH);
       }
     } catch (Exception e) {
       throw new OpenSearchException("Error sending document to OpenSearch", e);
     }
-    LOG.debug("OS document sent");
+    log.debug("OS document sent");
   }
 
   private int getMaxDocument() throws OpenSearchException {
-    LOG.debug("Fetching next OS Document ID");
+    log.debug("Fetching next OS Document ID");
     WebTarget target = client.target(osUrl).path(index + "/_search");
 
     String json = """
@@ -137,10 +136,10 @@ public class OpenSearchService {
     if (response.getStatus() != 200) {
       String responseData = response.readEntity(String.class);
       if (responseData.contains("index_not_found_exception")) {
-        LOG.info("Index not found, starting from zero");
+        log.info("Index not found, starting from zero");
         return 0;
       } else {
-        LOG.error(responseData);
+        log.error(responseData);
         throw new OpenSearchException(ERROR_CALLING_OPEN_SEARCH);
       }
     } else {
@@ -149,7 +148,7 @@ public class OpenSearchService {
         JsonNode root = om.readTree(responseData);
         int maxId = root.get("aggregations").get("max_id").get("value").asInt();
         if (maxId > 0)
-          LOG.info("Max document ID {}", maxId);
+          log.info("Max document ID {}", maxId);
         return maxId;
       } catch (Exception e) {
         throw new OpenSearchException("Error getting max document id from Opensearch", e);

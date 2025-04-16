@@ -2,19 +2,18 @@ package org.endeavourhealth.imapi.model.sql;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 @Getter
 @Setter
+@Slf4j
 public class SQLQuery {
-  private static Logger LOG = LoggerFactory.getLogger(SQLQuery.class);
   private static Integer aliasIndex = 0;
 
   private ArrayList<String> withs = new ArrayList<>();
@@ -130,7 +129,7 @@ public class SQLQuery {
 
     if (map.getFields().get(field) != null) return map.getFields().get(field);
 
-    LOG.error("UNKNOWN FIELD [{}] ON [{}] - assuming its a string with the same JSON field name", field, map.getTable());
+    log.error("UNKNOWN FIELD [{}] ON [{}] - assuming its a string with the same JSON field name", field, map.getTable());
 
     // Default to string field in JSON blob
     String fieldName = field.substring(field.indexOf("#") + 1);

@@ -17,12 +17,12 @@
           "@id" : "http://endhealth.info/bc#"
         } ]
       }, {
+        "@id" : "im:sourceRegex",
+        "nodeRef" : "Concept"
+      } ],
+      "path" : [ {
         "@id" : "im:Concept",
-        "match" : {
-          "where" : [ {
-            "@id" : "im:sourceRegex"
-          } ]
-        },
+        "variable" : "Concept",
         "inverse" : true
       } ]
     } ],

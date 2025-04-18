@@ -127,9 +127,10 @@ public class IMQtoSQLConverter {
     String partField = "((json ->> 'patient')::UUID)";
 
     ArrayList<String> o = new ArrayList<>();
-
-    String dir = order.getProperty().getDirection().toString().toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
-    o.add(partition.getFieldName(order.getProperty().getIri(), null, tableMap) + " " + dir);
+    for (OrderDirection property:order.getProperty()) {
+      String dir = property.getDirection().toString().toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
+      o.add(partition.getFieldName(property.getIri(), null, tableMap) + " " + dir);
+    }
 
     partition.getSelects().add("*");
     partition.getSelects().add("ROW_NUMBER() OVER (PARTITION BY " + partField + " ORDER BY " + StringUtils.join(o, ", ") + ") AS rn");

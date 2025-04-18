@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.logic.exporters.SetTextFileExporter;
+import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.SetDiffObject;
 import org.endeavourhealth.imapi.model.iml.Concept;
@@ -190,8 +191,14 @@ public class SetService {
     }
 
     LinkedHashSet<Concept> concepts = getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes()).stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
-    if (concepts.isEmpty())
-      throw new GeneralCustomException("Set does not have members.", HttpStatus.INTERNAL_SERVER_ERROR);
+   if (concepts.isEmpty()){
+     if (setEntity.get(iri(IM.DEFINITION))!=null){
+       new SetMemberGenerator().generateMembers(options.getSetIri());
+       concepts = getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes()).stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
+
+     }
+   }
+     // throw new GeneralCustomException("Set does not have members.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     switch (format) {
       case "xlsx", "csv", "tsv":

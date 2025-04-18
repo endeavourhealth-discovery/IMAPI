@@ -16,19 +16,15 @@
         "@id" : "sh:NodeShape"
       },
       "where" : [ {
+        "@id" : "sh:path",
+        "nodeRef" : "shaclProperty",
+        "is" : [ {
+          "@id" : "im:dateOfBirth"
+        } ]
+      } ],
+      "path" : [ {
         "@id" : "sh:property",
-        "match" : {
-          "where" : [ {
-            "@id" : "sh:path",
-            "is" : [ {
-              "@id" : "im:dateOfBirth"
-            } ]
-          } ]
-        }
-      } ]
-    }, {
-      "where" : [ {
-        "@id" : "sh:property"
+        "variable" : "shaclProperty"
       } ]
     } ],
     "return" : {

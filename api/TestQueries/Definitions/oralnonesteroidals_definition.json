@@ -11,7 +11,7 @@
   "query" : {
     "name" : "oral none steroidals",
     "match" : [ {
-      "boolMatch" : "and",
+      "bool" : "and",
       "match" : [ {
         "instanceOf" : [ {
           "@id" : "sn:763158003",

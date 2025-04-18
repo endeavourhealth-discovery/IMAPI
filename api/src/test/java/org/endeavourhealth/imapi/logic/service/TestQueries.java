@@ -25,33 +25,33 @@ public class TestQueries {
       .match(m -> m
         .addInstanceOf(new Node()
           .setParameter("myDataModel"))
-        .where(p -> p
+        .path(p -> p
           .setIri("http://www.w3.org/ns/shacl#property")
-          .match(m1 -> m1
-            .setVariable("shaclProperty")
-            .setBool(Bool.and)
+            .setVariable("shaclProperty"))
+        .setBool(Bool.and)
             .where(p2 -> p2
+              .setNodeRef("shaclProperty")
               .setIri(SHACL.PATH)
               .is(in -> in
                 .setParameter("myProperty")))
             .where(p2 -> p2
               .setBool(Bool.or)
               .where(p3 -> p3
+                .setNodeRef("shaclProperty")
                 .setIri(SHACL.CLASS)
-                .match(m3 -> m3
-                  .setVariable("propType")))
+                  .setValueVariable("propType"))
               .where(p3 -> p3
+                .setNodeRef("shaclProperty")
                 .setIri(SHACL.NODE)
-                .match(m3 -> m3
-                  .setVariable("propType")))
+                  .setValueVariable("propType"))
               .where(p3 -> p3
+                .setNodeRef("shaclProperty")
                 .setIri(SHACL.DATATYPE)
-                .match(m3 -> m3
-                  .setVariable("propType")))))))
+                  .setValueVariable("propType")))
       .return_(r -> r
-        .setNodeRef("propType")
         .property(p -> p
-          .setIri(RDFS.LABEL)));
+          .setValueRef("propType")
+          .setIri(RDFS.LABEL))));
     return new QueryRequest()
       .setQuery(query)
       .argument(a -> a
@@ -69,29 +69,8 @@ public class TestQueries {
       .addArgument(new Argument()
         .setParameter("this")
         .setValueIri(TTIriRef.iri(IM.NAMESPACE + "recordOwner")))
-      .query(q -> q
-        .setName("Suggested range for a property")
-        .setDescription("get node, class or datatype values (ranges)  of property objects that have 4this as their path")
-        .match(m -> m
-          .where(w -> w
-            .setIri(SHACL.PATH)
-            .addIs(new Node().setParameter("this")))
-          .where(w -> w
-            .setBool(Bool.or)
-            .where(p -> p
-              .setIri(SHACL.NODE)
-              .match(n -> n
-                .setVariable("range")))
-            .where(p -> p
-              .setIri(SHACL.CLASS)
-              .match(n -> n
-                .setVariable("range")))
-            .where(p -> p
-              .setIri(SHACL.DATATYPE)
-              .match(n -> n
-                .setVariable("range")))))
-        .return_(s -> s.setNodeRef("range")
-          .property(p -> p.setIri(RDFS.LABEL))));
+      .query(q->q.setIri(IM.NAMESPACE + "Query_ObjectPropertyRangeSuggestions"));
+
   }
 
   public static QueryRequest getShaclProperty() {
@@ -99,20 +78,20 @@ public class TestQueries {
       .argument(a -> a.setParameter("dataModel").setValueIri(TTIriRef.iri(IM.NAMESPACE + "Patient")))
       .argument(a -> a.setParameter("property").setValueIri(TTIriRef.iri(IM.NAMESPACE + "age")))
       .query(q -> q
-        .setName("Query - shacl property predicates for a property is a data model")
+        .setName("Shacl property predicates for a property is a data model")
         .setDescription("Select the predicates and values and labels of the values for a given data mode and property")
         .match(m -> m
           .addInstanceOf(new Node()
             .setParameter("$dataModel"))
-          .where(p -> p
+          .path(p -> p
             .setIri(SHACL.PROPERTY)
-            .match(n -> n
-              .setVariable("shaclProperty")
+              .setVariable("shaclProperty"))
               .where(w -> w
+                .setNodeRef("shaclProperty")
                 .setIri(SHACL.PATH)
-                .is(in -> in.setParameter("$property"))))))
+                .is(in -> in.setParameter("$property"))))
         .return_(s -> s
-          .setNodeRef("shaclProperty")
+          .setPropertyRef("shaclProperty")
           .property(p -> p
             .setIri(SHACL.CLASS)
             .return_(n -> n
@@ -140,7 +119,7 @@ public class TestQueries {
     qr.setContext(TTManager.createBasicContext());
     qr.addArgument(new Argument()
       .setParameter("this")
-      .setValueIri(TTIriRef.iri(IM.NAMESPACE + "Concept")));
+      .setValueIri(TTIriRef.iri(IM.NAMESPACE + "IMQueries")));
     Query query = new Query()
       .setName("Allowable child types for a folder")
       .setIri(IM.NAMESPACE + "Query_AllowableChildTypes");
@@ -254,7 +233,7 @@ public class TestQueries {
     return new QueryRequest().setQuery(query);
   }
 
-  public static QueryRequest query2() {
+  public static QueryRequest shapesWithDateOFBirth() {
 
     Query query = new Query()
       .setName("PropertiesOfShapesUsingDateOfBirth")
@@ -262,15 +241,13 @@ public class TestQueries {
     query
       .match(f -> f
         .setTypeOf(SHACL.NODESHAPE)
-        .where(p -> p
+        .path(p -> p
           .setIri(SHACL.PROPERTY)
-          .match(w1 -> w1
+          .setVariable("shaclProperty"))
             .where(p1 -> p1
+              .setNodeRef("shaclProperty")
               .setIri(SHACL.PATH)
-              .addIs(IM.NAMESPACE + "dateOfBirth")))))
-      .match(m -> m
-        .where(p -> p
-          .setIri(SHACL.PROPERTY)))
+              .addIs(IM.NAMESPACE + "dateOfBirth")))
       .return_(s -> s
         .property(p -> p
           .setIri(SHACL.PROPERTY)
@@ -362,36 +339,6 @@ public class TestQueries {
         .property(s -> s.setIri(RDFS.LABEL)));
     qr.setQuery(query);
     return qr;
-  }
-
-  public static QueryRequest query6() {
-    Query query = new Query()
-      .setName("Some Barts cerner codes with context including a regex");
-    query
-      .return_(r -> r
-        .property(s -> s.setIri(RDFS.LABEL))
-        .property(s -> s.setIri(IM.CODE))
-        .property(s -> s
-          .setIri(IM.CONCEPT)
-          .setInverse(true)
-          .return_(n -> n
-            .property(s1 -> s1.setIri(IM.SOURCE_VALUE))
-            .property(s1 -> s1.setIri(IM.SOURCE_REGEX))
-            .property(s1 -> s1.setIri(IM.SOURCE_SYSTEM))
-            .property(s1 -> s1.setIri(IM.SOURCE_TABLE))
-            .property(s1 -> s1.setIri(IM.SOURCE_FIELD)))))
-      .match(f -> f
-        .where(p -> p
-          .setIri(IM.HAS_SCHEME)
-          .is(i -> i
-            .setIri(GRAPH.BARTS_CERNER)))
-        .where(p -> p
-          .setIri(IM.CONCEPT)
-          .setInverse(true)
-          .match(m1 -> m1
-            .where(w1 -> w1
-              .setIri(IM.SOURCE_REGEX)))));
-    return new QueryRequest().setQuery(query);
   }
 
   public static QueryRequest oralNsaids() {

@@ -145,18 +145,17 @@ public class ECLBuilderToIMQ {
 
   private Where createAttributeGroup(BoolGroup boolGroup) throws EclBuilderException {
     Where attributeGroup = new Where();
+    attributeGroup.setIsRoleGroup(true);
     attributeGroup.setIri(IM.ROLE_GROUP);
-    Match attributeMatch = new Match();
     if (boolGroup.getItems().size() > 1 && null != boolGroup.getConjunction()) {
-      attributeMatch.setBool(boolGroup.getConjunction());
+      attributeGroup.setBool(boolGroup.getConjunction());
     }
     for (BuilderComponent subBuilderComponent : boolGroup.getItems()) {
       if (subBuilderComponent.isRefinement())
-        processRefinement(subBuilderComponent.asRefinement(), attributeMatch, true);
+        processRefinement(subBuilderComponent.asRefinement(), attributeGroup);
       else if (subBuilderComponent.isBoolGroup())
-        processRefinementBoolGroup(subBuilderComponent.asBoolGroup(), attributeMatch);
+        processRefinementBoolGroup(subBuilderComponent.asBoolGroup(), attributeGroup);
     }
-    attributeGroup.setMatch(attributeMatch);
     return attributeGroup;
   }
 

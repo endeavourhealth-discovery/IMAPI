@@ -1102,7 +1102,7 @@
     "http://www.w3.org/2000/01/rdf-schema#label" : "Hemorrhagic disorder due to hyperheparinemia (disorder)"
   }, {
     "@id" : "http://snomed.info/sct#40158001",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Papillon-Lefèvre syndrome (disorder)"
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Papillon-LefÃ¨vre syndrome (disorder)"
   }, {
     "@id" : "http://snomed.info/sct#5430006",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Megaloblastic anemia due to total parenteral nutrition (disorder)"
@@ -2827,7 +2827,7 @@
     "http://www.w3.org/2000/01/rdf-schema#label" : "Hereditary congenital hypomelanotic and hypermelanotic cutaneous macules, growth retardation, intellectual disability syndrome (disorder)"
   }, {
     "@id" : "http://snomed.info/sct#111499002",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Déjérine-Sottas disease (disorder)"
+    "http://www.w3.org/2000/01/rdf-schema#label" : "DÃ©jÃ©rine-Sottas disease (disorder)"
   }, {
     "@id" : "http://snomed.info/sct#1256080008",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of nail due to psoriasis (disorder)"

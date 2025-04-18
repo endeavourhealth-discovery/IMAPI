@@ -1,0 +1,11 @@
+{
+  "page" : 1,
+  "count" : 1,
+  "totalCount" : 1,
+  "entities" : [ {
+    "@bn" : "fb3db35be1604ee29241a8856dc784c0956",
+    "http://www.w3.org/2000/01/rdf-schema#label" : {
+      "@id" : "http://endhealth.info/im#Organisation"
+    }
+  } ]
+}

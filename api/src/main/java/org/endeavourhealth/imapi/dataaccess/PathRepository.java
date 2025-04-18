@@ -109,8 +109,8 @@ public class PathRepository {
         if (bs.getValue("path") != null) {
           String pathIri = bs.getValue("path").stringValue();
           pathVariable = pathIri.substring(pathIri.lastIndexOf("#") + 1);
-          match.setPath(new Path().setIri(pathIri)
-            .setName(bs.getValue("pathLabel").stringValue()));
+          Path pathMatch = new Path().setIri(pathIri).setName(bs.getValue("pathLabel").stringValue());
+          match.addPath(pathMatch);
         }
         if (bs.getValue("where") != null) {
           match.addWhere(new Where()

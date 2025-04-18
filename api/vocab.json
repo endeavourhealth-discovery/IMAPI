@@ -70,6 +70,10 @@
         "value": "\"http://endhealth.info/\""
       },
       {
+        "name": "HAS_SUBTYPES",
+        "value" : "IM.DOMAIN+\"hasSubtypes\""
+      },
+      {
         "name": "PREFIX",
         "value": "\"im\""
       },
@@ -2199,7 +2203,7 @@
       },
       {
         "name": "BNF",
-        "value": "\"http://endhealth.info/bnf#\""
+        "value": "\"http://bnf.info/bnf#\""
       },
       {
         "name": "ICD10",

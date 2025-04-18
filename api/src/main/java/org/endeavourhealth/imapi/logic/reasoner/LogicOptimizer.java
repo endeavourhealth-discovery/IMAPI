@@ -26,7 +26,9 @@ public class LogicOptimizer {
     if (!match.hasRules()) return;
     List<Match> newMatches= new ArrayList<>();
     Match topOr=null;
+    Match topOrAnd=null;
     for (Match subMatch: match.getMatch()) {
+      if (!subMatch.isRule()) continue;
       RuleAction ifTrue= subMatch.getIfTrue();
       RuleAction ifFalse= subMatch.getIfFalse();
       subMatch.setIsRule(false);
@@ -84,7 +86,18 @@ public class LogicOptimizer {
           }
           break;
         case "NEXT_REJECT":
-          newMatches.add(subMatch);
+          if (topOr!=null) {
+            if (topOrAnd!=null){
+              topOrAnd.addMatch(subMatch);
+            } else {
+              topOrAnd= new Match();
+              topOrAnd.setBool(Bool.and);
+              topOr.addMatch(topOrAnd);
+              topOrAnd.addMatch(subMatch);
+            }
+          } else {
+            newMatches.add(subMatch);
+          }
           break;
       }
     }

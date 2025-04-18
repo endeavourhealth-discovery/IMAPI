@@ -6,9 +6,9 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-@JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "exclude", "nodeRef", "header","preface","boolMatch", "boolWhere", "iri", "typeOf", "instanceOf", "where", "match"})
+@JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "exclude", "nodeRef", "header","preface","bool", "iri", "typeOf", "instanceOf", "where", "match","step"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends IriLD implements GraphNode {
+public class Match extends IriLD{
 
   @Getter
   private Bool bool;
@@ -29,8 +29,11 @@ public class Match extends IriLD implements GraphNode {
   @Getter
   private String variable;
   @Getter
+  String parameter;
+  @Getter
   private String name;
-  private Path path;
+  @Getter
+  private List<Path> path;
   private String displayLabel;
   @Getter
   private FunctionClause function;
@@ -41,21 +44,57 @@ public class Match extends IriLD implements GraphNode {
   private RuleAction ifTrue;
   @Getter
   private RuleAction ifFalse;
+  @Getter
+  private boolean baseRule;
   private boolean hasRules;
   @Getter
   private boolean hasLinked;
   @Getter
   private boolean union;
-  @Getter
   private boolean rule;
-  @Getter
-  private boolean hasTest;
-  @Getter
-  private boolean test;
   @Getter
   private String header;
   @Getter
   private String preface;
+  private boolean inverse;
+  @Getter
+  private Match then;
+
+  public Match setThen(Match then) {
+    this.then = then;
+    return this;
+  }
+
+  public Match then(Consumer<Match> builder) {
+    Match then = new Match();
+    setThen(then);
+    builder.accept(then);
+    return this;
+  }
+
+  public boolean isRule() {
+    return rule;
+  }
+
+  public Match setBaseRule(boolean baseRule) {
+    this.baseRule = baseRule;
+    return this;
+  }
+  public Match setParameter(String parameter) {
+    this.parameter = parameter;
+    return this;
+  }
+  public Match setInverse(boolean inverse) {
+    this.inverse = inverse;
+    return this;
+  }
+  public boolean isInverse() {
+    return inverse;
+  }
+
+  public String getIncludeIf() {
+    return includeIf;
+  }
 
 
   public Match setReturx(Return returx) {
@@ -102,17 +141,7 @@ public class Match extends IriLD implements GraphNode {
     return this;
   }
 
-  public Match setHasTest(boolean hasTest) {
-    this.hasTest = hasTest;
-    return this;
-  }
 
-
-  @JsonSetter
-  public Match setIsTest(boolean test) {
-    this.test = test;
-    return this;
-  }
 
   public Match setIfTrue(RuleAction ifTrue) {
     this.ifTrue = ifTrue;
@@ -166,21 +195,23 @@ public class Match extends IriLD implements GraphNode {
   }
 
 
-  @Override
-  public Path getPath() {
-    return path;
-  }
-
-  @Override
-  public Match setPath(Path path) {
+  public Match setPath(List<Path> path) {
     this.path = path;
     return this;
   }
 
-  @Override
+  public Match addPath(Path path) {
+    if (this.path == null) {
+      this.path = new ArrayList<>();
+    }
+    this.path.add(path);
+    return this;
+  }
+
   public Match path(Consumer<Path> builder) {
-    this.path = new Path();
-    builder.accept(this.path);
+    Path path = new Path();
+    this.addPath(path);
+    builder.accept(path);
     return this;
   }
 

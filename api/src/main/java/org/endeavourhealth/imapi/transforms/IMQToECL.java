@@ -156,9 +156,9 @@ public class IMQToECL {
         ecl.append("\n AND ");
       }
       first = false;
-      if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)) {
+      if (where.isRoleGroup() ||(null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP))) {
         ecl.append("{");
-        addRefinementsToMatch(where.getMatch(), ecl, includeNames, true);
+        addRefinementsToWhere(where, ecl, includeNames);
         ecl.append("}");
       } else {
         addRefined(where, ecl, includeNames);
@@ -167,11 +167,6 @@ public class IMQToECL {
   }
 
   private void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames) throws QueryException {
-    if (null != property.getIri() && property.getIri().equals(IM.ROLE_GROUP)) {
-      ecl.append("{");
-      addRefinementsToMatch(property.getMatch(), ecl, includeNames, true);
-      ecl.append("}");
-    } else {
       boolean first = true;
       for (Where subProperty : property.getWhere()) {
         if (!first) {
@@ -184,35 +179,27 @@ public class IMQToECL {
         first = false;
         addRefined(subProperty, ecl, includeNames);
       }
-    }
   }
 
 
   private void addRefined(Where where, StringBuilder ecl, Boolean includeNames) throws QueryException {
     try {
-      if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)) {
+      if (where.isRoleGroup()||(null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP))) {
         ecl.append("{");
-        addRefinementsToMatch(where.getMatch(), ecl, includeNames, true);
+        addRefinementsToWhere(where, ecl, includeNames);
         ecl.append("}");
       } else {
         if (null == where.getWhere()) {
-          if (null == where.getIs() && null == where.getMatch())
+          if (null == where.getIs())
             throw new QueryException("Where clause must contain a value or sub match clause");
-          if (where.getIs() != null) {
-            boolean first = true;
-            for (Node value : where.getIs()) {
-              if (!first)
-                ecl.append("\n OR ");
-              first = false;
-              addProperty(where, ecl, includeNames);
-              ecl.append(" = ");
-              addClass(value, ecl, includeNames);
-            }
-          } else {
+          boolean first = true;
+          for (Node value : where.getIs()) {
+            if (!first)
+              ecl.append("\n OR ");
+            first = false;
             addProperty(where, ecl, includeNames);
-            ecl.append(" = (");
-            match(where.getMatch(), ecl, includeNames);
-            ecl.append(")");
+            ecl.append(" = ");
+            addClass(value, ecl, includeNames);
           }
         } else {
           ecl.append("(");

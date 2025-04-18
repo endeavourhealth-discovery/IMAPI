@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.model.imq;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -19,12 +18,11 @@ import java.util.function.Consumer;
 public class Query extends Match {
   private Prefixes prefixes;
   private String description;
+  @Getter
   private boolean activeOnly;
-  private List<Query> query;
+  private List<Query> dataSet;
   private List<Match> match;
-  private OrderLimit orderBy;
   private List<GroupBy> groupBy;
-  private Return returx;
   private String iri;
   private String name;
   private boolean imQuery;
@@ -85,6 +83,15 @@ public class Query extends Match {
     super.setVariable(variable);
     return this;
   }
+  public Query setBaseRule(boolean baseRule) {
+    super.setBaseRule(baseRule);
+    return this;
+  }
+
+  public Query setHasRules(boolean hasRules) {
+    super.setHasRules(hasRules);
+    return this;
+  }
 
   public Prefixes getPrefixes() {
     return prefixes;
@@ -120,21 +127,15 @@ public class Query extends Match {
   }
 
 
-  @JsonProperty("return")
-  public Return getReturn() {
-    return returx;
-  }
-
   public Query setReturn(Return returx) {
-    this.returx = returx;
+    super.setReturn(returx);
     return this;
   }
 
 
 
   public Query return_(Consumer<Return> builder) {
-    this.returx= new Return();
-    builder.accept(this.returx);
+    super.return_(builder);
     return this;
   }
 
@@ -190,12 +191,14 @@ public class Query extends Match {
     return this;
   }
 
-  public OrderLimit getOrderBy() {
-    return orderBy;
-  }
 
   public Query setOrderBy(OrderLimit orderBy) {
-    this.orderBy = orderBy;
+    super.setOrderBy(orderBy);
+    return this;
+  }
+
+  public Query orderBy(Consumer<OrderLimit> builder) {
+    super.orderBy(builder);
     return this;
   }
 
@@ -223,34 +226,30 @@ public class Query extends Match {
     return this;
   }
 
-  public List<Query> getQuery() {
-    return query;
+  public List<Query> getDataSet() {
+    return dataSet;
   }
 
   @JsonSetter
-  public Query setQuery(List<Query> query) {
-    this.query = query;
+  public Query setDataSet(List<Query> dataSet) {
+    this.dataSet = dataSet;
     return this;
   }
 
-  public Query addQuery(Query query) {
-    if (this.query == null)
-      this.query = new ArrayList<>();
-    this.query.add(query);
+  public Query addDataSet(Query query) {
+    if (this.dataSet == null)
+      this.dataSet = new ArrayList<>();
+    this.dataSet.add(query);
     return this;
   }
 
-  public Query query(Consumer<Query> builder) {
+  public Query dataSet(Consumer<Query> builder) {
     Query query = new Query();
-    addQuery(query);
+    addDataSet(query);
     builder.accept(query);
     return this;
   }
 
-
-  public boolean isActiveOnly() {
-    return activeOnly;
-  }
 
   public Query setActiveOnly(boolean activeOnly) {
     this.activeOnly = activeOnly;

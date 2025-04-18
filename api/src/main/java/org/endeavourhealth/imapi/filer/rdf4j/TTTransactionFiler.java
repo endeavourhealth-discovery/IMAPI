@@ -220,6 +220,9 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       int i = 0;
       entitiesFiled = new HashSet<>();
       for (TTEntity entity : document.getEntities()) {
+        if (entity.getIri().equals("http://endhealth.info/emis#29711000033114")){
+          System.out.println("here");
+        }
         setEntityCrudOperation(document, entity);
 
         TTIriRef entityGraph = processGraphs(document, entity);

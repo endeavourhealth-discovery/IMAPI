@@ -3,6 +3,6 @@
   "count" : 1,
   "totalCount" : 1,
   "entities" : [ {
-    "@id" : "http://endhealth.info/im#Observation"
+    "@id" : "http://endhealth.info/im#Patient"
   } ]
 }

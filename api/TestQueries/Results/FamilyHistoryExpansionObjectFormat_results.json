@@ -1,7 +1,7 @@
 {
   "page" : 1,
-  "count" : 3093,
-  "totalCount" : 3093,
+  "count" : 3094,
+  "totalCount" : 3094,
   "entities" : [ {
     "@id" : "http://snomed.info/sct#160303001",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of diabetes mellitus (situation)",
@@ -9892,6 +9892,15 @@
       "@id" : "http://endhealth.info/icd10#Z827",
       "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of congenital malformations, deformations and chromosomal abnormalities",
       "http://endhealth.info/im#code" : "Z82.7"
+    } ]
+  }, {
+    "@id" : "http://snomed.info/sct#597941000005106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of congenital malformation (situation)",
+    "http://endhealth.info/im#code" : "597941000005106",
+    "http://endhealth.info/im#matchedTo" : [ {
+      "@id" : "http://endhealth.info/emis#15664811000006118",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of congenital malformation (emis code id)",
+      "http://endhealth.info/im#code" : "597941000005106"
     } ]
   }, {
     "@id" : "http://snomed.info/sct#597941000005106",
@@ -21181,16 +21190,16 @@
     } ]
   }, {
     "@id" : "http://snomed.info/sct#430041006",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of M�ni�re disease (situation)",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of Ménière disease (situation)",
     "http://endhealth.info/im#code" : "430041006",
     "http://endhealth.info/im#matchedTo" : [ {
       "@id" : "http://endhealth.info/emis#7113391000006118",
-      "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of M�ni�re disease (emis code id)",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of Mï¿½niï¿½re disease (emis code id)",
       "http://endhealth.info/im#code" : "430041006"
     } ]
   }, {
     "@id" : "http://snomed.info/sct#430041006",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of M�ni�re disease (situation)",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of Ménière disease (situation)",
     "http://endhealth.info/im#code" : "430041006",
     "http://endhealth.info/im#matchedTo" : [ {
       "@id" : "http://endhealth.info/emis#7113401000006116",
@@ -21199,7 +21208,7 @@
     } ]
   }, {
     "@id" : "http://snomed.info/sct#430041006",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of M�ni�re disease (situation)",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of Ménière disease (situation)",
     "http://endhealth.info/im#code" : "430041006",
     "http://endhealth.info/im#matchedTo" : [ {
       "@id" : "http://endhealth.info/icd10#Z835",
@@ -26284,16 +26293,16 @@
     } ]
   }, {
     "@id" : "http://snomed.info/sct#138751000119109",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of Muir-Torr� syndrome (situation)",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of Muir-Torré syndrome (situation)",
     "http://endhealth.info/im#code" : "138751000119109",
     "http://endhealth.info/im#matchedTo" : [ {
       "@id" : "http://endhealth.info/emis#8043571000006115",
-      "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of Muir-Torré syndrome (emis code id)",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of Muir-TorrÃ© syndrome (emis code id)",
       "http://endhealth.info/im#code" : "138751000119109"
     } ]
   }, {
     "@id" : "http://snomed.info/sct#138751000119109",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of Muir-Torr� syndrome (situation)",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of Muir-Torré syndrome (situation)",
     "http://endhealth.info/im#code" : "138751000119109",
     "http://endhealth.info/im#matchedTo" : [ {
       "@id" : "http://endhealth.info/icd10#Z840",

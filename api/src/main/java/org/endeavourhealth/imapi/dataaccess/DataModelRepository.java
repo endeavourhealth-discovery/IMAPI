@@ -212,6 +212,11 @@ public class DataModelRepository {
     if (bs.getValue("minCount") != null) {
       property.setMaxCount(Integer.parseInt(bs.getValue("minCount").stringValue()));
     }
+    if (bs.getValue("orderable") != null) {
+      property.setOrderable(true);
+      property.setAscending(bs.getValue("ascending").stringValue());
+      property.setDescending(bs.getValue("descending").stringValue());
+    }
     if (bs.getValue("comment") != null) {
       property.setComment(bs.getValue("comment").stringValue());
     }
@@ -319,6 +324,7 @@ public class DataModelRepository {
       ?minCount ?maxCount
       ?parameter ?parameterName ?parameterType ?parameterTypeName ?parameterSubtype ?parameterSubtypeName
       ?comment ?propertyDefinition ?units ?unitsName ?operator ?operatorName ?isRelativeValue
+      ?orderable ?ascending ?descending
       {
          ?entity sh:property ?property.
          ?entity rdfs:label ?entityName.
@@ -327,6 +333,9 @@ public class DataModelRepository {
                    optional {?group sh:order ?groupOrder}
                    }
           optional {?property sh:order ?order.}
+            optional {?property im:orderable ?orderable.
+            ?orderable im:ascending ?ascending.
+            ?orderable im:descending ?descending.}
           optional {
               ?property sh:path ?path.
                ?path rdf:type ?pathType.

@@ -46,14 +46,14 @@ public class IMQToECLBuilder {
     BoolGroup boolGroup = new BoolGroup();
     if (null != where.getBool()) boolGroup.setConjunction(where.getBool());
     for (Where subWhere : where.getWhere()) {
-      if (null != subWhere.getIs()) {
-        boolGroup.addItem(createRefinement(subWhere));
-      } else if (null != subWhere.getWhere()) boolGroup.addItem(createRefinementBoolGroup(subWhere));
-      else if (subWhere.getIri().equals(IM.ROLE_GROUP) && null != subWhere.getMatch()) {
-        BoolGroup attributeGroup = createRefinementBoolGroup(subWhere.getMatch());
+      if (subWhere.getIri()!=null&& subWhere.getIri().equals(IM.ROLE_GROUP) && null != subWhere.getWhere()) {
+        BoolGroup attributeGroup = createRefinementBoolGroup(subWhere);
         attributeGroup.setAttributeGroup(true);
         boolGroup.addItem(attributeGroup);
       }
+      else if (null != subWhere.getIs()) {
+        boolGroup.addItem(createRefinement(subWhere));
+      } else if (null != subWhere.getWhere()) boolGroup.addItem(createRefinementBoolGroup(subWhere));
     }
     return boolGroup;
   }
@@ -65,8 +65,8 @@ public class IMQToECLBuilder {
       if (null != where.getIs()) {
         boolGroup.addItem(createRefinement(where));
       } else if (null != where.getWhere()) boolGroup.addItem(createRefinementBoolGroup(where));
-      else if (where.getIri().equals(IM.ROLE_GROUP) && null != where.getMatch()) {
-        BoolGroup attributeGroup = createRefinementBoolGroup(where.getMatch());
+      else if (where.getIri().equals(IM.ROLE_GROUP) && null != where.getWhere()) {
+        BoolGroup attributeGroup = createRefinementBoolGroup(where);
         attributeGroup.setAttributeGroup(true);
         boolGroup.addItem(attributeGroup);
       }
@@ -99,14 +99,14 @@ public class IMQToECLBuilder {
         concept.setConjunction(match.getBool());
       }
       for (Where where : match.getWhere()) {
-        if (null != where.getIs()) {
-          concept.addRefinementItem(createRefinement(where));
-        } else if (null != where.getWhere()) concept.addRefinementItem(createRefinementBoolGroup(where));
-        else if (where.getIri().equals(IM.ROLE_GROUP) && null != where.getMatch()) {
-          BoolGroup attributeGroup = createRefinementBoolGroup(where.getMatch());
+        if (where.getIri()!=null&& where.getIri().equals(IM.ROLE_GROUP) && null != where.getWhere()) {
+          BoolGroup attributeGroup = createRefinementBoolGroup(where);
           attributeGroup.setAttributeGroup(true);
           concept.addRefinementItem(attributeGroup);
         }
+        else if (null != where.getIs()) {
+          concept.addRefinementItem(createRefinement(where));
+        } else if (null != where.getWhere()) concept.addRefinementItem(createRefinementBoolGroup(where));
       }
     }
     return concept;

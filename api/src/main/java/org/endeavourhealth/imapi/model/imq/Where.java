@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -12,19 +13,21 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
 public class Where extends Element implements Assignable {
+  @Getter
   private String description;
   private Range range;
   @Getter
   private Node typeOf;
+  @Getter
   private List<Node> is;
   private boolean not;
-  private Match match;
   private Bool bool;
   private List<Where> where;
   private Operator operator;
   private String value;
   private String valueLabel;
   private boolean anyRoleGroup;
+  private boolean isRoleGroup;
   private boolean isNull;
   private RelativeTo relativeTo;
   private boolean isNotNull;
@@ -33,9 +36,16 @@ public class Where extends Element implements Assignable {
   private String valueParameter;
   private String valueVariable;
   @Getter
-  private Path path;
-  @Getter
   private boolean inverse;
+
+  public boolean isRoleGroup() {
+    return isRoleGroup;
+  }
+  @JsonSetter
+  public Where setIsRoleGroup(boolean roleGroup) {
+    isRoleGroup = roleGroup;
+    return this;
+  }
 
   @JsonSetter
   public Where setTypeOf(Node typeOf) {
@@ -54,17 +64,6 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  @JsonSetter
-  public Where setPath(Path path) {
-    this.path = path;
-    return this;
-  }
-
-  public Where path(Consumer<Path> builder) {
-    this.path = new Path();
-    builder.accept(this.path);
-    return this;
-  }
 
 
   public boolean isNot() {
@@ -220,21 +219,6 @@ public class Where extends Element implements Assignable {
   }
 
 
-  public Match getMatch() {
-    return match;
-  }
-
-  @JsonSetter
-  public Where setMatch(Match match) {
-    this.match = match;
-    return this;
-  }
-
-
-  public Where match(Consumer<Match> builder) {
-    builder.accept(setMatch(new Match()).getMatch());
-    return this;
-  }
 
 
   public Where setName(String name) {
@@ -242,17 +226,9 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  public String getDescription() {
-    return description;
-  }
-
   public Where setDescription(String description) {
     this.description = description;
     return this;
-  }
-
-  public List<Node> getIs() {
-    return is;
   }
 
   @JsonSetter

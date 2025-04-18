@@ -15,7 +15,7 @@ public class EqdAuditToIMQ {
     resources.setQueryType(QueryType.AGGREGATE_REPORT);
     for (String popId : eqReport.getAuditReport().getPopulation()) {
       Query popQuery= new Query();
-      query.addQuery(popQuery);
+      query.addDataSet(popQuery);
       popQuery
         .match(f -> f
           .setVariable(POPULATION)
@@ -36,7 +36,7 @@ public class EqdAuditToIMQ {
         for (EQDOCAggregateGroup group : agg.getGroup()) {
           for (String eqColumn : group.getGroupingColumn()) {
             String eqURL = eqTable + "/" + eqColumn;
-            String pathString = resources.getPath(eqURL);
+            String pathString = resources.getIMPath(eqURL);
             String[] pathMap = pathString.split(" ");
             for (int i = 0; i < pathMap.length-1; i++) {
               ReturnProperty property = new ReturnProperty();

@@ -288,6 +288,15 @@ public class IMQToOS {
   }
 
   private boolean addProperties(Match match) throws QueryException {
+    if (match.getPath()!=null){
+      for (Path pathMatch : match.getPath()) {
+        String w = pathMatch.getIri();
+        if (IM.BINDING.equals(w)) {
+          return addBinding(match,pathMatch, match.getBool(), boolBuilder);
+        }
+
+      }
+    }
     if (match.getWhere() == null)
       return true;
     for (Where where : match.getWhere()) {
@@ -314,8 +323,6 @@ public class IMQToOS {
       return addIsFilter("status", where, bool, boolBldr);
     } else if (RDF.TYPE.equals(w)) {
       return addIsFilter("entityType", where, bool, boolBldr);
-    } else if (IM.BINDING.equals(w)) {
-      return addBinding(where, bool, boolBldr);
     } else if (IM.IS_A.equals(w)) {
       return addIsFilter("isA", where, bool, boolBldr);
     } else if (IM.CONTENT_TYPE.equals(w)) {
@@ -325,7 +332,7 @@ public class IMQToOS {
   }
 
   private boolean isBooleanWhere(Where where) {
-    return where.getBool() != null && where.getWhere() != null && where.getMatch() == null && where.getIs() == null && where.getValue() == null;
+    return where.getBool() != null && where.getWhere() != null  && where.getIs() == null && where.getValue() == null;
   }
 
   private boolean addIsFilter(String property, Where where, Bool bool, BoolQueryBuilder boolBldr) {
@@ -361,11 +368,10 @@ public class IMQToOS {
     } else return node.getIri();
   }
 
-  private boolean addBinding(Where where, Bool bool, BoolQueryBuilder boolBldr) throws QueryException {
+  private boolean addBinding(Match match,Path pathMath, Bool bool, BoolQueryBuilder boolBldr) throws QueryException {
     try {
-      String path = null;
       String node = null;
-      Match match = where.getMatch();
+      String path=null;
       for (Where binding : match.getWhere()) {
         if (binding.getIri().equals(SHACL.PATH)) {
           path = getIriFromAlias(binding.getIs().get(0));

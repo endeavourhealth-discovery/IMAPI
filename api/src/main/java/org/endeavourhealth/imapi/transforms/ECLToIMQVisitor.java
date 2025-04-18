@@ -551,14 +551,13 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
   @Override
   public Object visitEclattributegroup(IMECLParser.EclattributegroupContext ctx) {
     Where where = new Where();
+    where.setIsRoleGroup(true);
     where.setIri(IM.ROLE_GROUP);
-    Match match = new Match();
-    where.setMatch(match);
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
         if (result instanceof Where asWhere) {
-          match.addWhere(asWhere);
+          where.addWhere(asWhere);
         }
       }
     }

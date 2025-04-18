@@ -8,12 +8,13 @@
     "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "sn" : "http://snomed.info/sct#"
   },
-  "pathQuery" : {
-    "source" : {
-      "@id" : "im:Patient"
-    },
-    "target" : {
-      "@id" : "sn:44054006"
+  "argument" : [ {
+    "parameter" : "this",
+    "valueIri" : {
+      "@id" : "im:recordOwner"
     }
+  } ],
+  "query" : {
+    "@id" : "im:Query_ObjectPropertyRangeSuggestions"
   }
 }

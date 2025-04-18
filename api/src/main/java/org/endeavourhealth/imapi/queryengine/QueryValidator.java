@@ -17,6 +17,9 @@ public class QueryValidator {
     if (query.getMatch() == null && null == query.getInstanceOf())
       throw new QueryException("Query must have match clause or instanceOf");
     mainEntity = query.getVariable();
+    if (mainEntity == null) {
+      mainEntity= query.getParameter();
+    }
     if (mainEntity == null && null != query.getMatch()) {
       mainEntity = query.getMatch().get(0).getVariable();
     }
@@ -38,8 +41,13 @@ public class QueryValidator {
   private void processMatches(Query query, String mainEntity) throws QueryException {
     if (null != query.getMatch()) {
       for (Match match : query.getMatch()) {
-        if (match.getVariable() == null && match.getNodeRef() == null)
+        if (match.getVariable()!=null){
+          variables.put(match.getVariable(), VarType.NODE);
+        } else if (match.getParameter()!=null){
+          variables.put(match.getParameter(), VarType.NODE);
+        }else if (match.getNodeRef()==null){
           match.setVariable(mainEntity);
+        }
         validateMatch(match);
       }
     }
@@ -48,48 +56,43 @@ public class QueryValidator {
   private void processReturn(Query query, String mainEntity) throws QueryException {
     if (query.getReturn() != null) {
       Return aReturn = query.getReturn();
-        if (aReturn.getNodeRef() == null) {
-          aReturn.setNodeRef(mainEntity);
-        }
-        validateReturn(aReturn);
+      if (aReturn.getNodeRef() == null&&aReturn.getAs()==null)
+        aReturn.setNodeRef(mainEntity);
+      validateReturn(aReturn);
     }
   }
 
   private void validateReturn(Return aReturn) throws QueryException {
-    if (aReturn.getNodeRef() != null && variables.get(aReturn.getNodeRef()) == null)
-      throw new QueryException("return_ clause uses an unbound node reference variable (" + aReturn.getNodeRef() + ") Should it be a propertyRef?");
+    if (aReturn.getNodeRef() != null) {
+      if (variables.get(aReturn.getNodeRef()) == null)
+        throw new QueryException("return_ clause uses an unbound node reference variable (" + aReturn.getNodeRef() + ") Should it be a propertyRef?");
+    }
+    if (aReturn.getValueRef()!=null){
+      if (variables.get(aReturn.getValueRef())==null)
+        throw new QueryException("return_ clause uses an unbound value reference variable (" + aReturn.getValueRef() + ") should it be a node ref?");
+    }
+    if (aReturn.getPropertyRef()!=null){
+      if (variables.get(aReturn.getPropertyRef())==null)
+        throw new QueryException("return_ clause uses an unbound property reference variable (" + aReturn.getPropertyRef() + ") should it be a node ref?");
+    }
 
 
     if (aReturn.getProperty() != null) {
       for (ReturnProperty property : aReturn.getProperty()) {
-        validateReturnProperty(aReturn.getNodeRef(), property);
+        validateReturnProperty(property);
 
       }
     }
   }
 
 
-  private void validateReturnProperty(String subject, ReturnProperty path) throws QueryException {
+  private void validateReturnProperty(ReturnProperty path) throws QueryException {
     if (path.getPropertyRef() != null && variables.get(path.getPropertyRef()) == null)
       throw new QueryException("return_ clause uses an unbound where reference variable (" + path.getPropertyRef() + ") should it be a node ref?");
-
+    if (path.getValueRef()!=null && variables.get(path.getValueRef())==null)
+      throw new QueryException("return_ clause uses an unbound value reference variable (" + path.getValueRef() + ") should it be a property  ref?");
     if (path.getReturn() != null) {
-      if (pathMap.get(subject) != null) {
-        Set<String> nodeVariables = pathMap.get(subject).get(path.getPropertyRef() + "\t" + path.getIri());
-        if (path.getReturn().getNodeRef() != null && !nodeVariables.contains(path.getReturn().getNodeRef())) {
-          throw new QueryException("return_ path/node variable '" + path.getReturn().getNodeRef() +
-            "' must match a match path/node variable");
-        }
-
-      }
       validateReturn(path.getReturn());
-    } else {
-      if (propertyMap.get(subject) != null) {
-        String valueVariable = propertyMap.get(subject).get(path.getIri());
-        if (valueVariable != null) {
-          path.setValueRef(valueVariable);
-        }
-      }
     }
   }
 
@@ -97,6 +100,14 @@ public class QueryValidator {
   private void validateMatch(Match match) throws QueryException {
     if (match.getVariable() != null) {
       variables.put(match.getVariable(), VarType.NODE);
+    }
+    if (match.getParameter()!=null){
+      variables.put(match.getParameter(), VarType.NODE);
+    }
+    if (match.getPath()!=null){
+      for (Path pathMatch : match.getPath()){
+        validatePath(pathMatch);
+      }
     }
     if (match.getNodeRef() != null && variables.get(match.getNodeRef()) == null)
       throw new QueryException("match clause contains a node reference that has not been declared as a variable");
@@ -112,6 +123,19 @@ public class QueryValidator {
       }
     }
 
+  }
+
+  private void validatePath(Path path){
+    if (path.getVariable()==null){
+      o++;
+      path.setVariable("path" + o);
+    }
+    variables.put(path.getVariable(), VarType.PATH);
+    if (path.getPath()!=null){
+      for (Path subPath : path.getPath()){
+        validatePath(subPath);
+      }
+    }
   }
 
 
@@ -136,12 +160,6 @@ public class QueryValidator {
     if (where.getWhere() != null) {
       for (Where property : where.getWhere())
         validateWhere(property, subject);
-    }
-    if (where.getMatch() != null) {
-      if (where.getMatch().getVariable() == null) {
-        where.getMatch().setVariable(object);
-      }
-      validateMatch(where.getMatch());
     }
 
   }

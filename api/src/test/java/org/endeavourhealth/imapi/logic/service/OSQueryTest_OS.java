@@ -114,10 +114,9 @@ class OSQueryTest_OS {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
-        .query(q -> q
           .match(m -> m
             .instanceOf(n -> n.setIri("http://endhealth.info/im#VSET_ASD")
-              .setMemberOf(true)))));
+              .setMemberOf(true))));
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(0, results.getEntities().size());

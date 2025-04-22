@@ -39,9 +39,11 @@ public class DataModelService {
   }
 
 
-  public NodeShape getDataModelDisplayProperties(String iri) {
-    return dataModelRepository.getDataModelDisplayProperties(iri);
+  public NodeShape getDataModelDisplayProperties(String iri,boolean pathsOnly) {
+    return dataModelRepository.getDataModelDisplayProperties(iri,pathsOnly);
   }
+
+
 
   public List<DataModelProperty> getDataModelProperties(String iri) {
     return getDataModelProperties(iri, true);

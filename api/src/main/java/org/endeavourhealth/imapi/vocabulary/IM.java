@@ -7,11 +7,13 @@ public class IM {
     public static final String HAS_SUBTYPES = IM.DOMAIN+"hasSubtypes";
     public static final String PREFIX = "im";
     public static final String NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
+    public static final String HAS_VALUESET = IM.NAMESPACE + "hasValueSet";
+    public static final String VALUE_SET = IM.NAMESPACE + "ValueSet";
     public static final String DESCENDANTS_OR_SELF_OF = IM.NAMESPACE + "DescendantsOrSelfOf";
     public static final String DESCENDANTS_OF = IM.NAMESPACE + "DescendantsOf";
     public static final String IS_RELATIVE_VALUE = IM.NAMESPACE + "isRelativeValue";
     public static final String FULLY_SPECIFIED_NAME = IM.NAMESPACE + "fullySpecifiedName";
-    public static final String ANCESTORS_OF = IM.NAMESPACE + "DncestorsOf";
+    public static final String ANCESTORS_OF = IM.NAMESPACE + "AncestorsOf";
     public static final String ENTAILED_MEMBER = IM.NAMESPACE + "entailedMember";
     public static final String ENTAILMENT = IM.NAMESPACE + "entailment";
     public static final String EXCLUDE = IM.NAMESPACE + "exclude";
@@ -203,7 +205,6 @@ public class IM {
     public static final String CONCEPT_SCHEMES = IM.NAMESPACE + "ontologyConceptSchemes";
     public static final String CONCEPT_STATUS = IM.NAMESPACE + "ontologyConceptStatus";
     public static final String HAS_VALUE = IM.NAMESPACE + "hasValue";
-    public static final String VALUE_SET = IM.NAMESPACE + "ValueSet";
     public static final String DATAMODEL_ENTITY = IM.NAMESPACE + "DataModelEntity";
     public static final String DATAMODEL_OBJECTPROPERTY = IM.NAMESPACE + "dataModelObjectProperty";
     public static final String DATAMODEL_DATAPROPERTY = IM.NAMESPACE + "dataModelDataProperty";

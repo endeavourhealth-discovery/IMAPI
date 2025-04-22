@@ -82,6 +82,14 @@
         "value": "IM.DOMAIN + IM.PREFIX + \"#\""
       },
       {
+        "name": "HAS_VALUESET",
+        "value": "IM.NAMESPACE + \"hasValueSet\""
+      },
+      {
+        "name": "VALUE_SET",
+        "value": "IM.NAMESPACE + \"ValueSet\""
+      },
+      {
         "name": "DESCENDANTS_OR_SELF_OF",
         "value": "IM.NAMESPACE + \"DescendantsOrSelfOf\""
       },
@@ -99,7 +107,7 @@
       },
       {
         "name": "ANCESTORS_OF",
-        "value": "IM.NAMESPACE + \"DncestorsOf\""
+        "value": "IM.NAMESPACE + \"AncestorsOf\""
       },
       {
         "name": "ENTAILED_MEMBER",
@@ -113,6 +121,7 @@
         "name": "EXCLUDE",
         "value": "IM.NAMESPACE + \"exclude\""
       },
+
       {
         "name": "IRI",
         "value": "\"@id\""
@@ -865,10 +874,7 @@
         "name": "HAS_VALUE",
         "value": "IM.NAMESPACE + \"hasValue\""
       },
-      {
-        "name": "VALUE_SET",
-        "value": "IM.NAMESPACE + \"ValueSet\""
-      },
+
       {
         "name": "DATAMODEL_ENTITY",
         "value": "IM.NAMESPACE + \"DataModelEntity\""
@@ -1904,6 +1910,10 @@
       {
         "name": "NAMESPACE",
         "value": "COMPONENT.DOMAIN + \"Component_\""
+      },
+      {
+        "name": "TAB_LAYOUT",
+        "value": "COMPONENT.NAMESPACE + \"TabLayout\""
       },
       {
         "name": "TEXT_DISPLAY",

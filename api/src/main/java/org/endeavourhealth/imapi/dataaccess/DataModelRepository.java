@@ -111,12 +111,14 @@ public class DataModelRepository {
   }
 
 
-  public NodeShape getDataModelDisplayProperties(String iri) {
+
+
+  public NodeShape getDataModelDisplayProperties(String iri,boolean pathsOnly) {
     NodeShape nodeShape = new NodeShape();
     nodeShape.setIri(iri);
     addDataModelSubtypes(nodeShape);
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      String sql = getPropertysql();
+      String sql = pathsOnly ?getPathSql(): getPropertySql();
       TupleQuery qry = conn.prepareTupleQuery(sql);
       qry.setBinding("entity", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -309,7 +311,7 @@ public class DataModelRepository {
   }
 
 
-  private String getPropertysql() {
+  private String getPropertySql() {
     return """
       PREFIX im: <http://endhealth.info/im#>
       PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -410,6 +412,30 @@ public class DataModelRepository {
       """;
   }
 
+
+  private String getPathSql() {
+    return """
+      PREFIX im: <http://endhealth.info/im#>
+      PREFIX sh: <http://www.w3.org/ns/shacl#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      Select ?entityName ?property ?order ?path ?pathName ?pathType
+      ?node ?nodeName ?nodeType ?nodeTypeName
+      {
+         ?entity sh:property ?property.
+         ?entity rdfs:label ?entityName.
+         ?property sh:node ?node.
+          ?node rdfs:label ?nodeName.
+          ?node rdf:type ?nodeType.
+          ?nodeType rdfs:label ?nodeTypeName.
+          ?property sh:path ?path.
+          ?path rdf:type ?pathType.
+          ?path rdfs:label ?pathName.
+           OPTIONAL {?property sh:order ?order.}
+      }
+      
+      order by ?order
+      """;
+  }
 
   public UIProperty findUIPropertyForQB(String dmIri, String propIri) {
     UIProperty uiProp = new UIProperty();

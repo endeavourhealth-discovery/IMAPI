@@ -1693,7 +1693,7 @@ public class EntityRepository {
     String sparqlString =
       """
           select * where {
-              ?s rdf:type im:CohortQuery .
+              ?s rdf:type ?c .
               ?s rdfs:label ?name .
           }
         """;

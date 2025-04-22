@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.eclBuilder.BoolGroup;
@@ -12,8 +13,6 @@ import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -25,8 +24,8 @@ import java.util.UnknownFormatConversionException;
 @CrossOrigin(origins = "*")
 @Tag(name = "Ecl Controller", description = "Controller to handle ECL-related requests")
 @RequestScope
+@Slf4j
 public class EclController {
-  private static final Logger LOG = LoggerFactory.getLogger(EclController.class);
 
   private final EclService eclService = new EclService();
 
@@ -37,7 +36,7 @@ public class EclController {
   )
   public String getEcl(@RequestBody Query inferred) throws QueryException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("ECL.Ecl.POST")) {
-      LOG.debug("getEcl");
+      log.debug("getEcl");
       return eclService.getEcl(inferred);
     }
   }
@@ -86,7 +85,7 @@ public class EclController {
   )
   public Query getQueryFromECL(@RequestBody String ecl) throws IOException, EclFormatException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.QueryFromEcl.POST")) {
-      LOG.debug("getQueryFromEcl");
+      log.debug("getQueryFromEcl");
       return eclService.getQueryFromEcl(ecl);
     }
   }
@@ -98,7 +97,7 @@ public class EclController {
   )
   public BoolGroup getEclBuilderFromQuery(@RequestBody Query query) throws QueryException, EclBuilderException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclBuilderFromQuery.POST")) {
-      LOG.debug("getEclBuilderFromQuery");
+      log.debug("getEclBuilderFromQuery");
       return eclService.getEclBuilderFromQuery(query);
     }
   }
@@ -109,7 +108,7 @@ public class EclController {
     description = "Converts ECL builder component objects into an IM Query"
   )
   public Query getQueryFromEclBuilder(@RequestBody BoolGroup boolGroup) throws IOException, EclBuilderException {
-    LOG.debug("getQueryFromEclBuilder");
+    log.debug("getQueryFromEclBuilder");
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.QueryFromEclBuilder.POST")) {
       return eclService.getQueryFromEclBuilder(boolGroup);
     }

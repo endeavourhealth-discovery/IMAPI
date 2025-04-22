@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.dataaccess;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
@@ -16,8 +17,6 @@ import org.endeavourhealth.imapi.vocabulary.CODE_TEMPLATE;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,8 +28,8 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareUpdateSparql;
 
+@Slf4j
 public class CodeGenRepository {
-  private static final Logger LOG = LoggerFactory.getLogger(CodeGenRepository.class);
 
   public List<String> getCodeTemplateList() {
     List<String> result = new ArrayList<>();
@@ -90,7 +89,7 @@ public class CodeGenRepository {
               }
             }
           } catch (JsonProcessingException e) {
-            LOG.error("Unable to parse codeTemplate", e);
+            log.error("Unable to parse codeTemplate", e);
           }
         }
       }
@@ -146,7 +145,7 @@ public class CodeGenRepository {
         qry2.setBinding("complexTypes", literal(complexTypes));
         qry2.execute();
       } catch (JsonProcessingException err) {
-        LOG.error("Error updating codeTemplate", err);
+        log.error("Error updating codeTemplate", err);
       }
     }
   }

@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
@@ -11,28 +12,39 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.config.Config;
-import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.USER;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.StringJoiner;
 
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareUpdateSparql;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+@Slf4j
 @Configuration
 public class ConfigManager {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ConfigManager.class);
+  private String DELETE_INSERT_SPARQL = """
+    DELETE {
+      ?s ?p ?oAny
+    }
+    INSERT {
+      ?s ?p ?o
+    }
+    WHERE { ?s ?p ?oAny }
+    """;
+  private String INSERT_SPARQL = """
+    DELETE {
+      ?s ?p ?oAny
+    }
+    INSERT {
+      ?s ?p ?o
+    }
+    WHERE {}
+    """;
 
   public <T> T getConfig(String iri, TypeReference<T> resultType) throws JsonProcessingException {
-    LOG.debug("getConfig<TypeReference>");
+    log.debug("getConfig<TypeReference>");
 
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       Config config = getConfig(iri);
@@ -73,26 +85,6 @@ public class ConfigManager {
     insert(iri, RDFS.COMMENT, config.getComment());
     insert(iri, IM.HAS_CONFIG, config.getData());
   }
-
-  private String DELETE_INSERT_SPARQL = """
-    DELETE {
-      ?s ?p ?oAny
-    }
-    INSERT {
-      ?s ?p ?o
-    }
-    WHERE { ?s ?p ?oAny }
-    """;
-
-  private String INSERT_SPARQL = """
-    DELETE {
-      ?s ?p ?oAny
-    }
-    INSERT {
-      ?s ?p ?o
-    }
-    WHERE {}
-    """;
 
   private void insert(String subject, String predicate, String object) {
     if (null == subject || subject.isEmpty() || null == predicate || predicate.isEmpty())

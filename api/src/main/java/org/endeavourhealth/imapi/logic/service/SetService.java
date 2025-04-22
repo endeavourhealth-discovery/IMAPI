@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
@@ -28,8 +29,6 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.Enumerations;
 import org.hl7.fhir.r4.model.ValueSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -42,9 +41,9 @@ import java.util.stream.Collectors;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 
+@Slf4j
 @Component
 public class SetService {
-  private static final Logger LOG = LoggerFactory.getLogger(SetService.class);
 
   private final SetTextFileExporter setTextFileExporter = new SetTextFileExporter();
   private SetRepository setRepository = new SetRepository();
@@ -63,7 +62,7 @@ public class SetService {
   public SetContent getSetContent(SetOptions options) throws QueryException, JsonProcessingException {
     SetContent result = new SetContent();
 
-    LOG.trace("Fetching metadata for {}...", options.getSetIri());
+    log.trace("Fetching metadata for {}...", options.getSetIri());
     TTEntity entity = new EntityRepository().getEntityPredicates(options.getSetIri(), Set.of(RDFS.LABEL, RDFS.COMMENT, IM.HAS_STATUS, IM.VERSION, IM.DEFINITION)).getEntity();
 
     if (null != entity) {
@@ -78,12 +77,12 @@ public class SetService {
     }
 
     if (options.includeSubsets()) {
-      LOG.trace("Fetching subsets...");
+      log.trace("Fetching subsets...");
       result.setSubsets(setRepository.getSubsetIrisWithNames(options.getSetIri()).stream().map(TTIriRef::getIri).collect(Collectors.toSet()));
     }
 
     if (options.includeCore() || options.includeLegacy() || options.includeSubsets()) {
-      LOG.trace("Expanding...");
+      log.trace("Expanding...");
       result.setConcepts(getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes()));
     }
 
@@ -91,7 +90,7 @@ public class SetService {
   }
 
   public String getFHIRSetExport(SetOptions options) throws QueryException, JsonProcessingException {
-    LOG.debug("Exporting set to FHIR ValueSet");
+    log.debug("Exporting set to FHIR ValueSet");
     SetContent result = getSetContent(options);
 
     ValueSet valueSet = new ValueSet();
@@ -196,7 +195,7 @@ public class SetService {
 
     switch (format) {
       case "xlsx", "csv", "tsv":
-        return setTextFileExporter.generateFile(format, concepts, setEntity.getName(), includeIM1id, options.includeSubsets(),options.includeLegacy());
+        return setTextFileExporter.generateFile(format, concepts, setEntity.getName(), includeIM1id, options.includeSubsets(), options.includeLegacy());
       case "object":
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
           SetContent result = getSetContent(options);
@@ -233,9 +232,9 @@ public class SetService {
 
 
   private void expandSubsets(String iri, boolean core, boolean legacy, List<String> schemes, Set<Concept> result) throws QueryException, JsonProcessingException {
-    LOG.trace("Expanding subsets for {}...", iri);
+    log.trace("Expanding subsets for {}...", iri);
     Set<TTIriRef> subSetIris = setRepository.getSubsetIrisWithNames(iri);
-    LOG.trace("Found {} subsets...", subSetIris.size());
+    log.trace("Found {} subsets...", subSetIris.size());
     for (TTIriRef subset : subSetIris) {
       Set<Concept> subsetMembers = getExpandedSetMembers(subset.getIri(), core, legacy, true, schemes);
       if (null != subsetMembers && !subsetMembers.isEmpty()) {
@@ -321,7 +320,7 @@ public class SetService {
   }
 
   public void publishSetToIM1(String iri) throws QueryException, JsonProcessingException {
-    LOG.trace("Looking up set...");
+    log.trace("Looking up set...");
     String name = entityRepository.getBundle(iri, Set.of(RDFS.LABEL)).getEntity().getName();
     Set<Concept> members = getExpandedSetMembers(iri, true, true, true, List.of());
     setExporter.publishSetToIM1(iri, name, members);

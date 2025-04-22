@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.exporters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
@@ -13,20 +14,18 @@ import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 
+@Slf4j
 public class SearchTextFileExporter {
-  private static final Logger LOG = LoggerFactory.getLogger(SearchTextFileExporter.class);
   private SearchService searchService = new SearchService();
   private EclService eclService = new EclService();
 
   public String getSearchFile(DownloadByQueryOptions downloadByQueryOptions) throws OpenSearchException, JsonProcessingException, QueryException, DownloadException {
-    LOG.debug("Exporting search results to {}", downloadByQueryOptions.getFormat());
+    log.debug("Exporting search results to {}", downloadByQueryOptions.getFormat());
     SearchResponse searchResponse = null;
     if (null != downloadByQueryOptions.getQueryRequest()) {
       QueryRequest queryRequest = downloadByQueryOptions.getQueryRequest();
@@ -45,7 +44,7 @@ public class SearchTextFileExporter {
   }
 
   private String generateFile(List<SearchResultSummary> entities, DownloadByQueryOptions downloadByQueryOptions) throws DownloadException {
-    LOG.trace("Generating output...");
+    log.trace("Generating output...");
     StringJoiner results = new StringJoiner(System.lineSeparator());
     addHeader(downloadByQueryOptions, results);
     for (SearchResultSummary entity : entities) {

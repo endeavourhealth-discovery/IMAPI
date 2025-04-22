@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.dataaccess;
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.*;
@@ -30,9 +31,9 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.*;
 
+@Slf4j
 public class EntityRepository {
   static final String PARENT_PREDICATES = "rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf";
-  private static final Logger LOG = LoggerFactory.getLogger(EntityRepository.class);
   private static final String IM_PREFIX = "PREFIX im: <" + IM.NAMESPACE + ">";
   private static final String RDFS_PREFIX = "PREFIX rdfs: <" + RDFS.NAMESPACE + ">";
   private static final String RDF_PREFIX = "PREFIX rdf: <" + RDF.NAMESPACE + ">";
@@ -1475,14 +1476,14 @@ public class EntityRepository {
       TupleQuery qry = prepareSparql(conn, sql.toString());
       qry.setBinding("c", iri(childIri));
 
-      LOG.debug(EXECUTING);
+      log.debug(EXECUTING);
       try (TupleQueryResult rs = qry.evaluate()) {
-        LOG.debug(RETRIEVING);
+        log.debug(RETRIEVING);
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           result.add(new TTIriRef(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue()));
         }
-        LOG.debug("Finished ({} rows)", result.size());
+        log.debug("Finished ({} rows)", result.size());
       }
     }
     return result;
@@ -1597,9 +1598,9 @@ public class EntityRepository {
       TupleQuery qry = prepareSparql(conn, sql);
       qry.setBinding("c", iri(iri));
 
-      LOG.debug(EXECUTING);
+      log.debug(EXECUTING);
       try (TupleQueryResult rs = qry.evaluate()) {
-        LOG.debug(RETRIEVING);
+        log.debug(RETRIEVING);
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
           return new TTIriRef(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue());

@@ -2,9 +2,11 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
+import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.imq.DisplayMode;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
@@ -20,9 +22,7 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -33,6 +33,9 @@ public class QueryService {
   private final EntityRepository entityRepository = new EntityRepository();
   private ConnectionManager connectionManager;
   private MYSQLConnectionManager mySQLConnectionManager;
+  private ObjectMapper objectMapper = new ObjectMapper();
+
+  private Map<Integer, List<String>> queryResultsMap = new HashMap<>();
 
   public Query getQueryFromIri(String queryIri) throws JsonProcessingException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
@@ -97,7 +100,39 @@ public class QueryService {
   public void executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException {
     log.info("Executing query: {}", queryRequest.getQuery().toString());
     String sql = getSQLFromIMQ(queryRequest.getQuery());
-    mySQLConnectionManager.executeQuery(sql);
+    List<String> results = mySQLConnectionManager.executeQuery(sql);
+    QueryRequest queryRequestCopy = cloneQueryRequestWithoutPage(queryRequest);
+    queryResultsMap.put(Objects.hash(queryRequestCopy), results);
+  }
+
+  public List<String> getQueryResults(QueryRequest queryRequest) throws SQLConversionException, SQLException {
+    QueryRequest queryRequestCopy = cloneQueryRequestWithoutPage(queryRequest);
+    return queryResultsMap.get(Objects.hash(queryRequestCopy));
+  }
+
+  private QueryRequest cloneQueryRequestWithoutPage(QueryRequest queryRequest) {
+    QueryRequest queryRequestCopy = objectMapper.convertValue(queryRequest, QueryRequest.class);
+    queryRequestCopy.setPage(null);
+    return queryRequestCopy;
+  }
+
+  public Pageable<String> getQueryResultsPaged(QueryRequest queryRequest) throws SQLConversionException, SQLException {
+    QueryRequest queryRequestCopy = cloneQueryRequestWithoutPage(queryRequest);
+    List<String> results = queryResultsMap.get(Objects.hash(queryRequestCopy));
+    if (results == null) return null;
+    if (queryRequest.getPage().getPageNumber() > 0 && queryRequest.getPage().getPageSize() > 0) {
+      Pageable<String> pageable = new Pageable<>();
+      pageable.setPageSize(queryRequest.getPage().getPageSize());
+      pageable.setCurrentPage(queryRequest.getPage().getPageNumber());
+      if (queryRequest.getPage().getPageSize() < results.size()) {
+        List<String> subList = results.subList((queryRequest.getPage().getPageNumber() - 1) * queryRequest.getPage().getPageSize(), queryRequest.getPage().getPageSize());
+        pageable.setResult(subList);
+      } else {
+        pageable.setResult(results);
+      }
+      return pageable;
+    }
+    throw new IllegalArgumentException("Page number and page size are required");
   }
 
   public void killActiveQuery() throws SQLException {

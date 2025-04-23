@@ -25,6 +25,7 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
 import java.util.zip.DataFormatException;
 
@@ -250,6 +251,28 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.KillActiveQuery.POST")) {
       LOG.debug("killActiveQuery");
       queryService.killActiveQuery();
+    }
+  }
+
+  @PostMapping("/getQueryResults")
+  @Operation(
+    summary = "Get query results using a hash of the query request"
+  )
+  public List<String> getQueryResults(@RequestBody QueryRequest queryRequest) throws IOException, SQLException, SQLConversionException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQueryResults.GET")) {
+      LOG.debug("getQueryResults");
+      return queryService.getQueryResults(queryRequest);
+    }
+  }
+
+  @PostMapping("/getQueryResultsPaged")
+  @Operation(
+    summary = "Get paged query results using a hash of the query request"
+  )
+  public Pageable<String> getQueryResultsPaged(@RequestBody QueryRequest queryRequest) throws IOException, SQLException, SQLConversionException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQueryResults.GET")) {
+      LOG.debug("getQueryResultsPaged");
+      return queryService.getQueryResultsPaged(queryRequest);
     }
   }
 }

@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Set;
-import java.util.zip.DataFormatException;
 
 @Component
 public class EclService {

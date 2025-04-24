@@ -78,9 +78,9 @@ public class SetRepository {
     Query replaced = new Query();
     replaced.setMatch(imQuery.getMatch());
     replaced.setVariable(ACTIVE_ENTITY);
-    replaced.getMatch().get(0).setVariable(ACTIVE_ENTITY);
-    if (replaced.getMatch().get(0).getMatch() != null) {
-      for (Match match : replaced.getMatch().get(0).getMatch()) {
+    replaced.getMatch().getFirst().setVariable(ACTIVE_ENTITY);
+    if (replaced.getMatch().getFirst().getMatch() != null) {
+      for (Match match : replaced.getMatch().getFirst().getMatch()) {
         match.setVariable(ACTIVE_ENTITY);
       }
     }
@@ -553,7 +553,7 @@ public class SetRepository {
           ?entity ?subsumption ?member.
           Values ?subsumption {%s}
         }
-        """.formatted(String.join(" ", subsumptions.stream().map(s -> "<" + s + ">").collect(Collectors.toList()))));
+        """.formatted(subsumptions.stream().map(s -> "<" + s + ">").collect(Collectors.joining(" "))));
     }
     spql.add("""
         ?entity rdfs:label ?term;

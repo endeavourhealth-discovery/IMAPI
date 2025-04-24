@@ -89,8 +89,8 @@ public class LogicOptimizer {
       }
     }
     if (newMatches.size()==1){
-      match.setBool(newMatches.get(0).getBool());
-      match.setMatch(newMatches.get(0).getMatch());
+      match.setBool(newMatches.getFirst().getBool());
+      match.setMatch(newMatches.getFirst().getMatch());
       if (match.getBool()==null&&match.getMatch().size()>1 ) match.setBool(Bool.and);
       }
     else match.setBool(Bool.and);
@@ -172,7 +172,7 @@ public class LogicOptimizer {
 
 
   private void getCommonAnds(List<Match> matches, Set<String> commonMatches, List<Match> ands) throws JsonProcessingException {
-    Match first=matches.get(0);
+    Match first=matches.getFirst();
     if (first.getBool() == Bool.and&&first.getMatch()!=null) {
       for (int q = 0; q < first.getMatch().size(); q++) {
         Match candidate = first.getMatch().get(q);
@@ -258,7 +258,7 @@ public class LogicOptimizer {
             List<Match> subFlatMatches = new ArrayList<>();
             flattenAnds(match.getMatch(), subFlatMatches);
             if (subFlatMatches.size() == 1) {
-              newOrs.add(subFlatMatches.get(0));
+              newOrs.add(subFlatMatches.getFirst());
             } else {
               match.setMatch(subFlatMatches);
               newOrs.add(match);
@@ -288,7 +288,7 @@ public class LogicOptimizer {
           match.setExclude(false);
         }
       }
-      Match lastMatch = query.getMatch().get(query.getMatch().size() - 1);
+      Match lastMatch = query.getMatch().getLast();
       if (!lastMatch.isExclude()) {
         lastMatch.setIfTrue(RuleAction.SELECT);
         lastMatch.setIfFalse(RuleAction.REJECT);
@@ -309,7 +309,7 @@ public class LogicOptimizer {
       subMatch.setIfFalse(RuleAction.NEXT);
       newMatches.add(subMatch);
     }
-    Match lastMatch = match.getMatch().get(match.getMatch().size() - 1);
+    Match lastMatch = match.getMatch().getLast();
     lastMatch.setIfTrue(RuleAction.SELECT);
     lastMatch.setIfFalse(RuleAction.REJECT);
   }

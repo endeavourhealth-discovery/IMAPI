@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class ExpressionConstraintDeserializer extends StdDeserializer<ExpressionConstraint> {
-  private ObjectMapper mapper = new ObjectMapper();
+  private final ObjectMapper mapper = new ObjectMapper();
 
   public ExpressionConstraintDeserializer() {
     this(null);

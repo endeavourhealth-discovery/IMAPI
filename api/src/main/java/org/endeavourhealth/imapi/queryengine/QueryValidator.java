@@ -18,13 +18,13 @@ public class QueryValidator {
       throw new QueryException("Query must have match clause or instanceOf");
     mainEntity = query.getVariable();
     if (mainEntity == null && null != query.getMatch()) {
-      mainEntity = query.getMatch().get(0).getVariable();
+      mainEntity = query.getMatch().getFirst().getVariable();
     }
     if (mainEntity == null)
       mainEntity = "entity";
     processMatches(query, mainEntity);
     if (null != query.getInstanceOf()) {
-      query.getInstanceOf().get(0).setVariable(mainEntity);
+      query.getInstanceOf().getFirst().setVariable(mainEntity);
       variables.put(mainEntity, VarType.NODE);
     }
 

@@ -122,10 +122,10 @@ public class SparqlConverter {
     StringBuilder selectQl = new StringBuilder();
     addPrefixes(selectQl);
     if (countOnly) {
-      if (null != query.getMatch() && null != query.getMatch().get(0).getVariable())
-        mainEntity = query.getMatch().get(0).getVariable();
+      if (null != query.getMatch() && null != query.getMatch().getFirst().getVariable())
+        mainEntity = query.getMatch().getFirst().getVariable();
       if (null != query.getInstanceOf() && null != query.getInstanceOf().get(0).getVariable())
-        mainEntity = query.getInstanceOf().get(0).getVariable();
+        mainEntity = query.getInstanceOf().getFirst().getVariable();
       selectQl.append("SELECT (count (distinct ?").append(mainEntity).append(") as ?count)");
     } else {
       selectQl.append("SELECT ");
@@ -159,10 +159,10 @@ public class SparqlConverter {
     if (query.getVariable() != null) {
       mainEntity = query.getVariable();
     } else {
-      if (null != query.getMatch() && null != query.getMatch().get(0).getVariable())
-        mainEntity = query.getMatch().get(0).getVariable();
-      if (null != query.getInstanceOf() && null != query.getInstanceOf().get(0).getVariable())
-        mainEntity = query.getInstanceOf().get(0).getVariable();
+      if (null != query.getMatch() && null != query.getMatch().getFirst().getVariable())
+        mainEntity = query.getMatch().getFirst().getVariable();
+      if (null != query.getInstanceOf() && null != query.getInstanceOf().getFirst().getVariable())
+        mainEntity = query.getInstanceOf().getFirst().getVariable();
     }
     StringBuilder whereQl = new StringBuilder();
     whereQl.append("WHERE {");
@@ -176,7 +176,7 @@ public class SparqlConverter {
       }
     }
 
-    if (Boolean.TRUE.equals(!countOnly && includeReturns) && null != query.getReturn()) {
+    if (!countOnly && includeReturns && null != query.getReturn()) {
       Return aReturn =query.getReturn();
       convertReturn(sparql, whereQl, aReturn);
     }
@@ -218,8 +218,8 @@ public class SparqlConverter {
     selectQl.append("SELECT ");
     selectQl.append("(COUNT(distinct ?entity");
     mainEntity = "entity";
-    if (null != query.getMatch() && query.getMatch().get(0).getVariable() != null)
-      mainEntity = query.getMatch().get(0).getVariable();
+    if (null != query.getMatch() && query.getMatch().getFirst().getVariable() != null)
+      mainEntity = query.getMatch().getFirst().getVariable();
     selectQl.append(") as ?cnt) ");
     StringBuilder whereQl = new StringBuilder();
     whereQl.append("WHERE {");
@@ -268,7 +268,7 @@ public class SparqlConverter {
   }
 
   private String escape(String text) {
-    return text.replaceAll("[(\\-){}^\"\\/~\\\\]", " ").replaceAll("\\s+", " ").trim();
+    return text.replaceAll("[(\\-){}^\"/~\\\\]", " ").replaceAll("\\s+", " ").trim();
   }
 
   private void textSearch(StringBuilder whereQl) {
@@ -312,7 +312,7 @@ public class SparqlConverter {
       switch (match.getEntailment()){
         case descendantsOrSelfOf :
           o++;
-          whereQl.append("?").append(subject).append(" <").append(IM.IS_A).append("> ?").append(subject+o).append(".\n");
+          whereQl.append("?").append(subject).append(" <").append(IM.IS_A).append("> ?").append(subject).append(o).append(".\n");
           subject= subject+o;
           break;
         default :
@@ -385,7 +385,7 @@ public class SparqlConverter {
     if (match.getInstanceOf().size()==1) {
       o++;
       String object="instance"+o;
-      Node instance= match.getInstanceOf().get(0);
+      Node instance= match.getInstanceOf().getFirst();
       String inList = iriFromAlias(instance).replace(","," ");
       if (instance.getNodeRef() != null) {
         object = instance.getNodeRef();
@@ -585,8 +585,8 @@ public class SparqlConverter {
         o++;
         object = "o" + o;
       }
-      if (where.getIs() != null && where.getIs().get(0).getVariable() != null) {
-        object = where.getIs().get(0).getVariable();
+      if (where.getIs() != null && where.getIs().getFirst().getVariable() != null) {
+        object = where.getIs().getFirst().getVariable();
       }
 
       if (where.getIsNull()) {

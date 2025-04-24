@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
-import jakarta.mail.MessagingException;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.query.*;
@@ -9,7 +8,6 @@ import org.eclipse.rdf4j.repository.RepositoryException;
 import org.endeavourhealth.imapi.aws.AWSCognitoClient;
 import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.logic.service.EmailService;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.model.workflow.BugReport;
 import org.endeavourhealth.imapi.model.workflow.EntityApproval;
@@ -35,7 +33,7 @@ import static org.eclipse.rdf4j.model.util.Values.bnode;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.*;
 
 public class TaskFilerRdf4j {
-    private RepositoryConnection conn;
+    private final RepositoryConnection conn;
 //    private EmailService emailService = new EmailService(
 //        System.getenv("EMAILER_HOST"),
 //        Integer.parseInt(System.getenv("EMAILER_PORT")),

@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class BoolGroupDeserializer extends StdDeserializer<BoolGroup> {
-  private ObjectMapper mapper = new ObjectMapper();
+  private final ObjectMapper mapper = new ObjectMapper();
 
   public BoolGroupDeserializer() {
     this(null);

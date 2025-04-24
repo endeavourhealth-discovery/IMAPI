@@ -38,27 +38,17 @@ public class PartialDateTimeDeserializer extends StdDeserializer<PartialDateTime
 
   private Object getNodeValue(JsonNode value, JsonParser p, DeserializationContext ctxt) throws IOException {
 
-    switch (value.getNodeType()) {
-      case ARRAY:
-        return getArrayNode((ArrayNode) value, p, ctxt);
-      case BINARY:
-        return value.binaryValue();
-      case BOOLEAN:
-        return value.booleanValue();
-      case MISSING:
-        throw new UnsupportedOperationException("Missing nodes unsupported");
-      case NULL:
-        return null;
-      case NUMBER:
-        return getNumberNode(value);
-      case OBJECT:
-        return ctxt.readValue(value.traverse(p.getCodec()), IMDMBase.class);
-      case POJO:
-        throw new UnsupportedOperationException("POJO nodes unsupported");
-      case STRING:
-        return value.textValue();
-    }
-    return null;
+    return switch (value.getNodeType()) {
+      case ARRAY -> getArrayNode((ArrayNode) value, p, ctxt);
+      case BINARY -> value.binaryValue();
+      case BOOLEAN -> value.booleanValue();
+      case MISSING -> throw new UnsupportedOperationException("Missing nodes unsupported");
+      case NULL -> null;
+      case NUMBER -> getNumberNode(value);
+      case OBJECT -> ctxt.readValue(value.traverse(p.getCodec()), IMDMBase.class);
+      case POJO -> throw new UnsupportedOperationException("POJO nodes unsupported");
+      case STRING -> value.textValue();
+    };
   }
 
   private List<Object> getArrayNode(ArrayNode value, JsonParser p, DeserializationContext ctxt) throws IOException {

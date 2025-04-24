@@ -94,7 +94,7 @@ public class PathRepository {
                 ?recordProperty ^sh:property ?source.
               }
       }
-      group by ?path ?pathLabel ?where ?whereLabel ?target  ?targetName    
+      group by ?path ?pathLabel ?where ?whereLabel ?target  ?targetName
       """;
     //The logic is to look for a target as a record types, properties, value sets or concepts linked to the source.
     TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
@@ -119,7 +119,7 @@ public class PathRepository {
             .addIs(new Node().setIri(target).setName(bs.getValue("targetName").stringValue())
               .setDescendantsOrSelfOf(true)));
           if (pathVariable != null && match.getWhere() != null)
-            match.getWhere().get(0).setNodeRef(pathVariable);
+            match.getWhere().getFirst().setNodeRef(pathVariable);
         }
       }
     }

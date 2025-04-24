@@ -15,4 +15,3 @@ org.eclipse.jdt.core.prefs
 *.backup.json
 gradle.properties
 *.xml
-api/src/main/resources/application.properties

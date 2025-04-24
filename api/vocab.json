@@ -1076,6 +1076,38 @@
       {
         "name": "DATATYPE_QUALIFIER",
         "value": "IM.NAMESPACE + \"datatypeQualifier\""
+      },
+      {
+        "name": "TYPE_FILTER_OPTIONS",
+        "value": "IM.NAMESPACE + \"TypeFilterOptions\""
+      },
+      {
+        "name": "SORT_FIELD_FILTER_OPTIONS",
+        "value": "IM.NAMESPACE + \"SortFieldFilterOptions\""
+      },
+      {
+        "name": "SORT_DIRECTION_FILTER_OPTIONS",
+        "value": "IM.NAMESPACE + \"SortDirectionFilterOptions\""
+      },
+      {
+        "name": "SCHEME_FILTER_DEFAULTS",
+        "value": "IM.NAMESPACE + \"SchemeFilterDefaultOptions\""
+      },
+      {
+        "name": "STATUS_FILTER_DEFAULTS",
+        "value": "IM.NAMESPACE + \"StatusFilterDefaultOptions\""
+      },
+      {
+        "name": "TYPE_FILTER_DEFAULTS",
+        "value": "IM.NAMESPACE + \"TypeFilterDefaultOptions\""
+      },
+      {
+        "name": "SORT_FIELD_FILTER_DEFAULTS",
+        "value": "IM.NAMESPACE + \"SortFieldFilterDefaultOptions\""
+      },
+      {
+        "name": "SORT_DIRECTION_FILTER_DEFAULTS",
+        "value": "IM.NAMESPACE + \"SortDirectionFilterDefaultOptions\""
       }
     ]
   },

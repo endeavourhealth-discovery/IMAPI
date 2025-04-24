@@ -256,4 +256,12 @@ public class IM {
     public static final String MINUTES = IM.NAMESPACE + "Minutes";
     public static final String SECONDS = IM.NAMESPACE + "Seconds";
     public static final String DATATYPE_QUALIFIER = IM.NAMESPACE + "datatypeQualifier";
+    public static final String TYPE_FILTER_OPTIONS = IM.NAMESPACE + "TypeFilterOptions";
+    public static final String SORT_FIELD_FILTER_OPTIONS = IM.NAMESPACE + "SortFieldFilterOptions";
+    public static final String SORT_DIRECTION_FILTER_OPTIONS = IM.NAMESPACE + "SortDirectionFilterOptions";
+    public static final String SCHEME_FILTER_DEFAULTS = IM.NAMESPACE + "SchemeFilterDefaultOptions";
+    public static final String STATUS_FILTER_DEFAULTS = IM.NAMESPACE + "StatusFilterDefaultOptions";
+    public static final String TYPE_FILTER_DEFAULTS = IM.NAMESPACE + "TypeFilterDefaultOptions";
+    public static final String SORT_FIELD_FILTER_DEFAULTS = IM.NAMESPACE + "SortFieldFilterDefaultOptions";
+    public static final String SORT_DIRECTION_FILTER_DEFAULTS = IM.NAMESPACE + "SortDirectionFilterDefaultOptions";
 }

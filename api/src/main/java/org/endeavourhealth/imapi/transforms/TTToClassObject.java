@@ -31,7 +31,7 @@ public class TTToClassObject {
     return result;
   }
 
-  private void processNode(TTNode node, Object obj, Class<?> classType) throws InstantiationException, IllegalAccessException, JsonProcessingException {
+  private void processNode(TTNode node, Object obj, Class<?> classType) throws InstantiationException, IllegalAccessException, JsonProcessingException, InvocationTargetException, NoSuchMethodException {
     List<Field> fields = getAllFields(classType);
     Map<String, Field> fieldMap = getFieldNames(fields);
     for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
@@ -54,7 +54,7 @@ public class TTToClassObject {
     }
   }
 
-  private void processNodeParameterizedType(Object obj, Map.Entry<TTIriRef, TTArray> entry, String fieldName, ParameterizedType pt) throws InstantiationException, IllegalAccessException, JsonProcessingException {
+  private void processNodeParameterizedType(Object obj, Map.Entry<TTIriRef, TTArray> entry, String fieldName, ParameterizedType pt) throws InstantiationException, IllegalAccessException, JsonProcessingException, NoSuchMethodException, InvocationTargetException {
     if (1 != pt.getActualTypeArguments().length) {
       return;
     }
@@ -69,7 +69,7 @@ public class TTToClassObject {
       if (value.isNode()) {
         if (listClazz == null)
           throw new InstantiationException("unable to converted entity due to class mismatch");
-        Object listItem = listClazz.newInstance();
+        Object listItem = listClazz.getDeclaredConstructor().newInstance();
         list.add(listItem);
         processNode(value.asNode(), listItem, listClazz);
       } else if (value.isIriRef()) {
@@ -83,7 +83,7 @@ public class TTToClassObject {
     }
   }
 
-  private void processNodeOtherType(Object obj, Map.Entry<TTIriRef, TTArray> entry, String fieldName, Type type) throws InstantiationException, IllegalAccessException, JsonProcessingException {
+  private void processNodeOtherType(Object obj, Map.Entry<TTIriRef, TTArray> entry, String fieldName, Type type) throws InstantiationException, IllegalAccessException, JsonProcessingException, InvocationTargetException, NoSuchMethodException {
     Class<?> clazz = null;
     if (type instanceof Class) {
       clazz = (Class<?>) type;

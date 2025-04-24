@@ -6,7 +6,10 @@ import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.PropertyDisplay;
 import org.endeavourhealth.imapi.model.dto.UIProperty;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -40,30 +43,37 @@ public class DataModelService {
     return dataModelRepository.getDataModelDisplayProperties(iri);
   }
 
-
   public List<DataModelProperty> getDataModelProperties(String iri) {
-    TTEntity entity = entityRepository.getBundle(iri, Set.of(SHACL.PROPERTY, RDFS.LABEL)).getEntity();
-    return getDataModelProperties(entity);
+    return getDataModelProperties(iri, true);
   }
 
 
+  public List<DataModelProperty> getDataModelProperties(String iri, Boolean includeComplexTypes) {
+    TTEntity entity = entityRepository.getBundle(iri, Set.of(SHACL.PROPERTY, RDFS.LABEL)).getEntity();
+    return getDataModelProperties(entity, includeComplexTypes);
+  }
+
   public List<DataModelProperty> getDataModelProperties(TTEntity entity) {
+    return getDataModelProperties(entity, true);
+  }
+
+  public List<DataModelProperty> getDataModelProperties(TTEntity entity, Boolean includeComplexTypes) {
     List<DataModelProperty> properties = new ArrayList<>();
     if (entity == null)
       return Collections.emptyList();
     if (entity.has(iri(SHACL.PROPERTY))) {
-      getDataModelPropertyGroups(entity, properties);
+      getDataModelPropertyGroups(entity, properties, includeComplexTypes);
     }
     return properties.stream().sorted(Comparator.comparing(DataModelProperty::getOrder)).toList();
   }
 
-  private void getDataModelPropertyGroups(TTEntity entity, List<DataModelProperty> properties) {
+  private void getDataModelPropertyGroups(TTEntity entity, List<DataModelProperty> properties, Boolean includeComplexTypes) {
     for (TTValue propertyGroup : entity.get(iri(SHACL.PROPERTY)).iterator()) {
       if (propertyGroup.isNode()) {
         TTIriRef inheritedFrom = propertyGroup.asNode().has(iri(IM.INHERITED_FROM))
           ? propertyGroup.asNode().get(iri(IM.INHERITED_FROM)).asIriRef()
           : null;
-        if (propertyGroup.asNode().has(iri(SHACL.PATH))) {
+        if (propertyGroup.asNode().has(iri(SHACL.PATH)) && (propertyGroup.asNode().has(iri(SHACL.DATATYPE)) || includeComplexTypes)) {
           getDataModelShaclProperties(properties, propertyGroup, inheritedFrom);
         }
       }

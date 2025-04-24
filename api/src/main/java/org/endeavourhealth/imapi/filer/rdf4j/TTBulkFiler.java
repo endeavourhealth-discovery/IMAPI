@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SystemUtils;
 import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
@@ -8,8 +9,6 @@ import org.endeavourhealth.imapi.transforms.TTToNQuad;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -23,8 +22,8 @@ import java.util.Set;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+@Slf4j
 public class TTBulkFiler implements TTDocumentFiler {
-  private static final Logger LOG = LoggerFactory.getLogger(TTBulkFiler.class);
   private static final Set<String> specialChildren = new HashSet<>(List.of(SNOMED.NAMESPACE + "92381000000106"));
   private static String dataPath;
   private static String configTTl;
@@ -60,7 +59,7 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   public static void createRepository() throws TTFilerException {
-    LOG.info("Fast import of {} quad data", new Date());
+    log.info("Fast import of {} quad data", new Date());
     String pathDelimiter = "/";
     try {
       String config = configTTl;
@@ -75,7 +74,7 @@ public class TTBulkFiler implements TTDocumentFiler {
           + data + " " + data + "\\BulkImport*.nq";
       String startCommand = SystemUtils.OS_NAME.contains("Windows") ? "cmd /c " : "bash ";
 
-      LOG.info("Executing command [{}{}]", startCommand, command);
+      log.info("Executing command [{}{}]", startCommand, command);
 
       Process process = Runtime.getRuntime()
         .exec(startCommand + command,
@@ -85,7 +84,7 @@ public class TTBulkFiler implements TTDocumentFiler {
 
       String line = r.readLine();
       while (line != null) {
-        LOG.info(line);
+        log.info(line);
         line = r.readLine();
       }
 
@@ -93,7 +92,7 @@ public class TTBulkFiler implements TTDocumentFiler {
       line = e.readLine();
       while (line != null) {
         error = true;
-        LOG.error(line);
+        log.error(line);
         line = e.readLine();
       }
 
@@ -196,7 +195,7 @@ public class TTBulkFiler implements TTDocumentFiler {
 
       int counter = 0;
       TTToNQuad converter = new TTToNQuad();
-      LOG.info("Writing out graph data for {}", graph);
+      log.info("Writing out graph data for {}", graph);
       for (TTEntity entity : document.getEntities()) {
         counter++;
         String entityGraph = entity.getGraph() != null ? entity.getGraph().getIri() : graph;
@@ -214,12 +213,12 @@ public class TTBulkFiler implements TTDocumentFiler {
 
         transformAndWriteQuads(converter, entity, entityGraph);
         if (counter % 100000 == 0) {
-          LOG.info("{} entities from {} written", counter, document.getGraph().getIri());
+          log.info("{} entities from {} written", counter, document.getGraph().getIri());
         }
 
       }
-      LOG.debug("{} entities written to file for {}", counter, document.getGraph().getIri());
-      LOG.info("Finished - total of {} statements,  {}", statementCount, new Date());
+      log.debug("{} entities written to file for {}", counter, document.getGraph().getIri());
+      log.info("Finished - total of {} statements,  {}", statementCount, new Date());
     } catch (Exception e) {
       throw new TTFilerException(e.getMessage());
     } finally {
@@ -263,7 +262,7 @@ public class TTBulkFiler implements TTDocumentFiler {
       codeIds.close();
       coreIris.close();
     } catch (IOException e) {
-      LOG.warn("Failed to close one or more file writers");
+      log.warn("Failed to close one or more file writers");
     }
   }
 

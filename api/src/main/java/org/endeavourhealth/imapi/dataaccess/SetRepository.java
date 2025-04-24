@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.dataaccess;
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
@@ -15,8 +16,6 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.vocabulary.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,6 +23,7 @@ import java.util.stream.Collectors;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+@Slf4j
 public class SetRepository {
   public static final String ACTIVE_ENTITY = "activeEntity";
   public static final String ENTITY = "entity";
@@ -35,7 +35,6 @@ public class SetRepository {
   public static final String LEGACY_STATUS_NAME = "legacyStatusName";
 
   public static final String CONCEPT = "concept";
-  private static final Logger LOG = LoggerFactory.getLogger(SetRepository.class);
   private final EntityRepository entityRepository = new EntityRepository();
 
   /**
@@ -46,7 +45,6 @@ public class SetRepository {
    * @param includeLegacy to include legacy concepts linked by matchedTo to core concept
    * @return a Set of concepts with matchedFrom legacy concepts and list of im1 ids
    * @throws QueryException if json definitino invalid
-
    */
   public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
     //add scheme filter
@@ -90,7 +88,7 @@ public class SetRepository {
     aReturn.setNodeRef(ENTITY);
     replaced.setReturn(aReturn);
     replaced.match(m -> m
-      .setBoolMatch(Bool.or)
+      .setBool(Bool.or)
       .match(m1 -> m1
         .setVariable(ENTITY)
         .where(p -> p
@@ -209,7 +207,7 @@ public class SetRepository {
             TTIriRef subset = new TTIriRef(subsetIri, subsetName);
             result.add(subset);
           } catch (IllegalArgumentException ignored) {
-            LOG.warn("Invalid subset iri [{}] for set [{}]", subsetIri, iri);
+            log.warn("Invalid subset iri [{}] for set [{}]", subsetIri, iri);
           }
         }
       }
@@ -547,28 +545,28 @@ public class SetRepository {
             {
                     ?setIri im:hasMember ?entity .
             }
-          """.formatted("<"+setIri+">"));
-    if (subsumptions!=null) {
-          spql.add("""
-            union {
-              ?setIri im:hasMember ?member.
-              ?entity ?subsumption ?member.
-              Values ?subsumption {%s}
-            }
-            """.formatted(String.join(" ", subsumptions.stream().map(s -> "<" + s + ">").collect(Collectors.toList()))));
+        """.formatted("<" + setIri + ">"));
+    if (subsumptions != null) {
+      spql.add("""
+        union {
+          ?setIri im:hasMember ?member.
+          ?entity ?subsumption ?member.
+          Values ?subsumption {%s}
+        }
+        """.formatted(String.join(" ", subsumptions.stream().map(s -> "<" + s + ">").collect(Collectors.toList()))));
     }
     spql.add("""
-          ?entity rdfs:label ?term;
-          im:code ?code;
-          im:scheme ?scheme.
-          ?scheme rdfs:label ?schemeName .
-          OPTIONAL { ?entity im:status ?status . ?status rdfs:label ?statusName . }
-          OPTIONAL { ?entity im:im1Id ?im1Id . }
-          OPTIONAL { ?entity im:usageTotal ?use . }
-          OPTIONAL { ?entity im:codeId ?codeId . }
-          OPTIONAL { ?entity im:alternativeCode ?alternativeCode.}
-  
-        """);
+        ?entity rdfs:label ?term;
+        im:code ?code;
+        im:scheme ?scheme.
+        ?scheme rdfs:label ?schemeName .
+        OPTIONAL { ?entity im:status ?status . ?status rdfs:label ?statusName . }
+        OPTIONAL { ?entity im:im1Id ?im1Id . }
+        OPTIONAL { ?entity im:usageTotal ?use . }
+        OPTIONAL { ?entity im:codeId ?codeId . }
+        OPTIONAL { ?entity im:alternativeCode ?alternativeCode.}
+      
+      """);
     if (includeLegacy) {
       spql.add("""
         OPTIONAL {
@@ -597,7 +595,7 @@ public class SetRepository {
     spql.add("}  ");
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      String sql= addSparqlPrefixes(spql.toString());
+      String sql = addSparqlPrefixes(spql.toString());
       TupleQuery qry = conn.prepareTupleQuery(sql);
       qry.setBinding("setIri", Values.iri(setIri));
       return getCoreLegacyCodesForSparql(qry, includeLegacy, List.of());
@@ -660,7 +658,7 @@ public class SetRepository {
         result.setTotalCount(((Literal) bsCount.getValue("count")).intValue());
       }
     }
-    String offset= Integer.toString((pageNumber-1)*pageSize);
+    String offset = Integer.toString((pageNumber - 1) * pageSize);
     if (result.getTotalCount() == 0) return result;
     if (predicate.equals(IM.ENTAILED_MEMBER)) {
       sql = """

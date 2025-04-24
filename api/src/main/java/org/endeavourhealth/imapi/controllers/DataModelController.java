@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.DataModelService;
 import org.endeavourhealth.imapi.model.PropertyDisplay;
 import org.endeavourhealth.imapi.model.dto.UIProperty;
@@ -10,8 +11,6 @@ import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -23,9 +22,9 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 @Tag(name = "Data model Controller")
 @RequestScope
+@Slf4j
 public class DataModelController {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DataModelController.class);
   private final DataModelService dataModelService = new DataModelService();
 
   @Operation(
@@ -34,11 +33,10 @@ public class DataModelController {
   )
   @GetMapping("/public/dataModelProperties")
   public NodeShape getDataModelProperties(
-    @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri,
-    @Parameter(description = "Optional parent for context") @RequestParam(name = "parent", required = false) String parent
+    @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
-      LOG.debug("getDataModelProperties");
+      log.debug("getDataModelProperties for " + iri);
       return dataModelService.getDataModelDisplayProperties(iri);
     }
   }
@@ -52,7 +50,7 @@ public class DataModelController {
     @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PropertiesDisplay.GET")) {
-      LOG.debug("getPropertiesDisplay");
+      log.debug("getPropertiesDisplay");
       return dataModelService.getPropertiesDisplay(iri);
     }
   }
@@ -67,7 +65,7 @@ public class DataModelController {
     @Parameter(description = "IRI of the property") @RequestParam(name = "propIri") String propIri
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.GetUIPropertyForQB.GET")) {
-      LOG.debug("getUIPropertyForQB");
+      log.debug("getUIPropertyForQB");
       return dataModelService.getUIPropertyForQB(dmIri, propIri);
     }
   }
@@ -80,7 +78,7 @@ public class DataModelController {
   public List<TTIriRef> getDataModelsFromProperty(
     @Parameter(description = "IRI of the property") @RequestParam(name = "propIri") String propIri
   ) {
-    LOG.debug("getDataModelsFromProperty");
+    log.debug("getDataModelsFromProperty");
     return dataModelService.getDataModelsFromProperty(propIri);
   }
 
@@ -93,7 +91,7 @@ public class DataModelController {
     @Parameter(description = "IRI of the property") @RequestParam(name = "propertyIri") String iri
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.CheckPropertyType.GET")) {
-      LOG.debug("checkPropertyType");
+      log.debug("checkPropertyType");
       return dataModelService.checkPropertyType(iri);
     }
   }

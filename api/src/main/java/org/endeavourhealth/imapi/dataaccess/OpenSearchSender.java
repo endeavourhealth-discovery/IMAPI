@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.client.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
@@ -17,8 +18,6 @@ import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -30,13 +29,13 @@ import java.util.stream.Collectors;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+@Slf4j
 public class OpenSearchSender {
-  private static final Logger LOG = LoggerFactory.getLogger(OpenSearchSender.class);
   private static final int BATCH_SIZE = 5000;
   private final Client client = ClientBuilder.newClient();
   private final ObjectMapper om = new ObjectMapper();
 
-  private final Map<String,Integer> preferredNameCount= new HashMap<>();
+  private final Map<String, Integer> preferredNameCount = new HashMap<>();
   // Env vars
   private final String osUrl = System.getenv("OPENSEARCH_URL");
   private final String osAuth = System.getenv("OPENSEARCH_AUTH");
@@ -53,43 +52,43 @@ public class OpenSearchSender {
     int maxId = 0;
     target = client.target(osUrl).path("_bulk");
     Set<String> entityIris = new HashSet<>(2_000_000);
-      String sql = """
-        SELECT ?iri ?name
-        WHERE {
-          ?iri rdfs:label ?name.
-          FILTER(isIri(?iri))
-        }
-        """;
-      try (RepositoryConnection conn = repo.getConnection()) {
-        LOG.info("Fetching entity iris  ...");
-        TupleQuery tupleQuery = conn.prepareTupleQuery(addSparqlPrefixes(sql));
+    String sql = """
+      SELECT ?iri ?name
+      WHERE {
+        ?iri rdfs:label ?name.
+        FILTER(isIri(?iri))
+      }
+      """;
+    try (RepositoryConnection conn = repo.getConnection()) {
+      log.info("Fetching entity iris  ...");
+      TupleQuery tupleQuery = conn.prepareTupleQuery(addSparqlPrefixes(sql));
 
-        int count = 0;
-        try (TupleQueryResult qr = tupleQuery.evaluate()) {
-          while (qr.hasNext()) {
-            BindingSet rs = qr.next();
-            String iri = rs.getValue("iri").stringValue();
-            Value name= rs.getValue("name");
-            // validate iri
-            try {
-              new URI(iri);
-            } catch (URISyntaxException e) {
-              LOG.error("Invalid IRI [{}]", iri);
-              System.exit(-1);
-            }
-            if (++count % 50000 == 0)
-              LOG.info("Loaded {}...", count);
-            entityIris.add(iri);
-            if (name!=null){
-              String preferredName=name.stringValue().split(" \\(")[0];
-              preferredNameCount.putIfAbsent(preferredName,0);
-              preferredNameCount.put(preferredName,preferredNameCount.get(preferredName)+1);
-            }
+      int count = 0;
+      try (TupleQueryResult qr = tupleQuery.evaluate()) {
+        while (qr.hasNext()) {
+          BindingSet rs = qr.next();
+          String iri = rs.getValue("iri").stringValue();
+          Value name = rs.getValue("name");
+          // validate iri
+          try {
+            new URI(iri);
+          } catch (URISyntaxException e) {
+            log.error("Invalid IRI [{}]", iri);
+            System.exit(-1);
+          }
+          if (++count % 50000 == 0)
+            log.info("Loaded {}...", count);
+          entityIris.add(iri);
+          if (name != null) {
+            String preferredName = name.stringValue().split(" \\(")[0];
+            preferredNameCount.putIfAbsent(preferredName, 0);
+            preferredNameCount.put(preferredName, preferredNameCount.get(preferredName) + 1);
           }
         }
       }
+    }
 
-    LOG.info(" Found {} documents...", entityIris.size());
+    log.info(" Found {} documents...", entityIris.size());
     int mapNumber = 0;
     Iterator<String> mapIterator = entityIris.iterator();
 
@@ -113,7 +112,7 @@ public class OpenSearchSender {
 
       // Send every 5000
       if (batch.size() == BATCH_SIZE) {
-        LOG.info(" Processing batch up to entity number {}... ", mapNumber);
+        log.info(" Processing batch up to entity number {}... ", mapNumber);
         getEntityBatch(batch);
         index(batch);
         batch.clear();
@@ -122,7 +121,7 @@ public class OpenSearchSender {
 
     // Handle remaining / last partial batch
     if (!batch.isEmpty()) {
-      LOG.info(" Processing final batch up to entity number {}...", mapNumber);
+      log.info(" Processing final batch up to entity number {}...", mapNumber);
       getEntityBatch(batch);
       index(batch);
     }
@@ -161,11 +160,11 @@ public class OpenSearchSender {
           if (rs.getValue("preferredName") != null) {
             String preferred = rs.getValue("preferredName").stringValue();
             blob.setPreferredName(preferred);
-            addTerm(blob,preferred,null,null);
-          } else if (name.contains(" (")&&preferredNameCount.get(name.split(" \\(")[0])<2) {
-            String preferred= name.split(" \\(")[0];
+            addTerm(blob, preferred, null, null);
+          } else if (name.contains(" (") && preferredNameCount.get(name.split(" \\(")[0]) < 2) {
+            String preferred = name.split(" \\(")[0];
             blob.setPreferredName(preferred);
-            addTerm(blob,preferred,null,null);
+            addTerm(blob, preferred, null, null);
           } else
             blob.setPreferredName(name);
           if (rs.getValue("alternativeCode") != null) {
@@ -218,11 +217,11 @@ public class OpenSearchSender {
           lengthKey = getLengthKey(lengthKey);
 
           blob.setLength(lengthKey.length());
-          addTerm(blob, name,null,null);
+          addTerm(blob, name, null, null);
         }
 
       } catch (Exception e) {
-        LOG.error("Bad Query \n{}", sql, e);
+        log.error("Bad Query \n{}", sql, e);
         System.exit(-1);
       }
     }
@@ -294,7 +293,7 @@ public class OpenSearchSender {
           if (rs.getValue("termCodeStatus") != null)
             status = iri(rs.getValue("termCodeStatus").stringValue());
           if (synonym != null) {
-            addTerm(blob, synonym,termCode,status);
+            addTerm(blob, synonym, termCode, status);
           } else if (termCode != null) {
             SearchTermCode tc = getTermCodeFromCode(blob, termCode);
             if (tc == null) {
@@ -451,17 +450,17 @@ public class OpenSearchSender {
   }
 
 
-  private void addTerm(EntityDocument blob, String term, String code, TTIriRef status ) {
-    SearchTermCode tc= getTermCode(blob,term);
-    if (tc==null){
-      blob.addTermCode(term,code,status);
+  private void addTerm(EntityDocument blob, String term, String code, TTIriRef status) {
+    SearchTermCode tc = getTermCode(blob, term);
+    if (tc == null) {
+      blob.addTermCode(term, code, status);
     }
     term = term.replaceAll("[ '()\\-_./,]", "").toLowerCase();
-    tc= getTermCode(blob,term);
-    if (tc==null) {
+    tc = getTermCode(blob, term);
+    if (tc == null) {
       if (term.length() > 30)
         term = term.substring(0, 30);
-      blob.addTermCode(term,code,status);
+      blob.addTermCode(term, code, status);
     }
   }
 
@@ -484,7 +483,7 @@ public class OpenSearchSender {
     for (String env : Arrays.asList("OPENSEARCH_AUTH", "OPENSEARCH_URL", "OPENSEARCH_INDEX", "GRAPH_SERVER", "GRAPH_REPO")) {
       String envData = System.getenv(env);
       if (envData == null || envData.isEmpty()) {
-        LOG.error("Environment variable {} not set", env);
+        log.error("Environment variable {} not set", env);
         missingEnvs = true;
       }
     }
@@ -514,25 +513,25 @@ public class OpenSearchSender {
       try {
         tries++;
         do {
-          LOG.info("Sending batch to Open search ...");
+          log.info("Sending batch to Open search ...");
           retry = false;
           try (Response response = req.post(entity)) {
 
             if (response.getStatus() == 429) {
               retry = true;
-              LOG.error("Queue full, retrying in {}s", retrySleep);
+              log.error("Queue full, retrying in {}s", retrySleep);
               TimeUnit.SECONDS.sleep(retrySleep);
 
               if (retrySleep < 60)
                 retrySleep = retrySleep * 2;
             } else if (response.getStatus() == 403) {
               String responseData = response.readEntity(String.class);
-              LOG.error(responseData);
-              LOG.error("Potentially out of disk space");
+              log.error(responseData);
+              log.error("Potentially out of disk space");
               throw new IllegalStateException("Potential disk full");
             } else if (response.getStatus() != 200 /*&& response.getStatus() != 201*/) {
               String responseData = response.readEntity(String.class);
-              LOG.error(responseData);
+              log.error(responseData);
               throw new IllegalStateException("Error posting to OpenSearch");
             } else {
               retrySleep = 5;
@@ -540,196 +539,195 @@ public class OpenSearchSender {
               String responseData = response.readEntity(String.class);
               JsonNode responseJson = om.readTree(responseData);
               if (responseJson.has("errors") && responseJson.get("errors").asBoolean()) {
-                LOG.error(responseData);
+                log.error(responseData);
                 throw new IllegalStateException("Error in batch");
               }
             }
           }
         } while (retry);
-        LOG.info("Done.");
+        log.info("Done.");
         done = true;
       } catch (Exception e) {
-        LOG.error(e.getMessage());
+        log.error(e.getMessage());
         e.printStackTrace();
       }
     }
     if (tries == 5)
       throw new InterruptedException("Connectivity problem to open search");
   }
-  private void checkIndexExists() throws IOException{
 
-    try (Client client = ClientBuilder.newClient()){
-    WebTarget target = client.target(osUrl).path(index);
-    boolean indexExists= false;
-    try (Response response = target.request().head()) {
+  private void checkIndexExists() throws IOException {
+
+    try (Client client = ClientBuilder.newClient()) {
+      WebTarget target = client.target(osUrl).path(index);
+      boolean indexExists = false;
+      try (Response response = target.request().head()) {
         if (response.getStatus() == 200) {
           System.out.println("Index " + index + " exists.");
-          indexExists= true;
-        } else   if (response.getStatus() == 401) {
+          indexExists = true;
+        } else if (response.getStatus() == 401) {
           System.out.println("Index " + index + " does not exist. ");
-        }
-        else {
-          throw new IOException("problem checking index exists : "+ response.getStatus());
-        }
-    }
-    if (indexExists) {
-      try (Response response = target
-        .request()
-        .header("Authorization", "Basic " + osAuth)
-        .delete()) {
-        if (response.getStatus() == 200) {
-          System.out.println("Index deleted ");
         } else {
-          throw new IOException("unable to delete index . status = " + response.getStatus());
+          throw new IOException("problem checking index exists : " + response.getStatus());
         }
       }
-    }
-    LOG.info("creating index {} and default mappings", index);
-        String settings = "{\"settings\": {\n" +
-          "    \"analysis\": {\n" +
-          "      \"filter\": {\n" +
-          "        \"edge_ngram_filter\": {\n" +
-          "          \"type\": \"edge_ngram\",\n" +
-          "          \"min_gram\": 1,\n" +
-          "          \"max_gram\": 20\n" +
-          "        }\n" +
-          "      },\n" +
-          "      \"analyzer\": {\n" +
-          "        \"autocomplete\": {\n" +
-          "          \"type\": \"custom\",\n" +
-          "          \"tokenizer\": \"standard\",\n" +
-          "          \"filter\": [\n" +
-          "            \"lowercase\",\n" +
-          "            \"edge_ngram_filter\"\n" +
-          "          ]\n" +
-          "        }\n" +
-          "      }\n" +
-          "    }\n" +
-          "  },";
-        String mappings = settings + """
-                            
-            "mappings": {
-              "properties": {
-                "scheme": {
-                  "properties": {
-                    "@id": {
-                    "type": "keyword"
-                      },
-                    "name" : {
-                      "type": "text"
-                    }
-                  }
-                },
-                "preferredName": {
-                "type" : "text",
-                "fields": {
-                "keyword": {
-                  "type" : "keyword"
-                         }
-                      }
-                 },
-                "entityType" : {
-                  "properties" : {
-                    "@id": {
-                      "type": "keyword"
+      if (indexExists) {
+        try (Response response = target
+          .request()
+          .header("Authorization", "Basic " + osAuth)
+          .delete()) {
+          if (response.getStatus() == 200) {
+            System.out.println("Index deleted ");
+          } else {
+            throw new IOException("unable to delete index . status = " + response.getStatus());
+          }
+        }
+      }
+      log.info("creating index {} and default mappings", index);
+      String settings = "{\"settings\": {\n" +
+        "    \"analysis\": {\n" +
+        "      \"filter\": {\n" +
+        "        \"edge_ngram_filter\": {\n" +
+        "          \"type\": \"edge_ngram\",\n" +
+        "          \"min_gram\": 1,\n" +
+        "          \"max_gram\": 20\n" +
+        "        }\n" +
+        "      },\n" +
+        "      \"analyzer\": {\n" +
+        "        \"autocomplete\": {\n" +
+        "          \"type\": \"custom\",\n" +
+        "          \"tokenizer\": \"standard\",\n" +
+        "          \"filter\": [\n" +
+        "            \"lowercase\",\n" +
+        "            \"edge_ngram_filter\"\n" +
+        "          ]\n" +
+        "        }\n" +
+        "      }\n" +
+        "    }\n" +
+        "  },";
+      String mappings = settings + """
+        
+          "mappings": {
+            "properties": {
+              "scheme": {
+                "properties": {
+                  "@id": {
+                  "type": "keyword"
                     },
-                    "name" : {
-                      "type" : "text"
-                    }
+                  "name" : {
+                    "type": "text"
                   }
-                },
-                "status": {
-                  "properties" : {
-                    "@id": {
-                      "type": "keyword"
-                    },
-                    "name" : {
-                      "type" : "text"
+                }
+              },
+              "preferredName": {
+              "type" : "text",
+              "fields": {
+              "keyword": {
+                "type" : "keyword"
+                       }
                     }
-                  }
-                },
-                "isA": {
-                  "properties" : {
-                    "@id": {
-                      "type": "keyword"
-                    },
-                    "name" : {
-                      "type" : "text"
-                    }
-                  }
-                },
-                "usageTotal": {
-                  "type" : "integer"
-                },
-                "memberOf": {
-                  "properties" : {
+               },
+              "entityType" : {
+                "properties" : {
                   "@id": {
                     "type": "keyword"
                   },
                   "name" : {
                     "type" : "text"
                   }
+                }
+              },
+              "status": {
+                "properties" : {
+                  "@id": {
+                    "type": "keyword"
+                  },
+                  "name" : {
+                    "type" : "text"
                   }
-                },
-                "code": {
+                }
+              },
+              "isA": {
+                "properties" : {
+                  "@id": {
+                    "type": "keyword"
+                  },
+                  "name" : {
+                    "type" : "text"
+                  }
+                }
+              },
+              "usageTotal": {
+                "type" : "integer"
+              },
+              "memberOf": {
+                "properties" : {
+                "@id": {
                   "type": "keyword"
                 },
-                "iri": {
-                  "type": "keyword"
-                },
-                "subsumptionCount" : {
-                  "type" : "integer"
-                },
-                "length" : {
-                  "type" : "integer"
-                },
-                "binding": {
-                  "type": "keyword"
-                },
-                "termCode" : {
-                  "properties" : {
-                    "code" : {
-                      "type" : "text"
-                    },
-                    "term" : {
-                      "type" : "text",
-                       "fields" :{
-                               "keyword": {
-                               "type": "keyword"
-                                         }
-                            },
-                      "analyzer": "autocomplete"
-                    },
-                    "status" : {
-                        "properties" : {
-                          "@id" : {
-                            "type" : "keyword"
+                "name" : {
+                  "type" : "text"
+                }
+                }
+              },
+              "code": {
+                "type": "keyword"
+              },
+              "iri": {
+                "type": "keyword"
+              },
+              "subsumptionCount" : {
+                "type" : "integer"
+              },
+              "length" : {
+                "type" : "integer"
+              },
+              "binding": {
+                "type": "keyword"
+              },
+              "termCode" : {
+                "properties" : {
+                  "code" : {
+                    "type" : "text"
+                  },
+                  "term" : {
+                    "type" : "text",
+                     "fields" :{
+                             "keyword": {
+                             "type": "keyword"
+                                       }
                           },
-                          "name" : {
-                            "type" : "text"
-                          }
+                    "analyzer": "autocomplete"
+                  },
+                  "status" : {
+                      "properties" : {
+                        "@id" : {
+                          "type" : "keyword"
+                        },
+                        "name" : {
+                          "type" : "text"
                         }
                       }
-                  }
+                    }
                 }
               }
             }
           }
-                            
-          """;
+        }
+        
+        """;
 
-        try (Response response = target
-          .request()
-          .header("Authorization", "Basic " + osAuth)
-          .put(Entity.entity(mappings, MediaType.APPLICATION_JSON))) {
-          if (response.getStatus() == 200) {
-            System.out.println("Index created and mappings applied ");
-          }
-          else {
-            throw new IOException("unable to create index = "+ response.getStatus());
-          }
+      try (Response response = target
+        .request()
+        .header("Authorization", "Basic " + osAuth)
+        .put(Entity.entity(mappings, MediaType.APPLICATION_JSON))) {
+        if (response.getStatus() == 200) {
+          System.out.println("Index created and mappings applied ");
+        } else {
+          throw new IOException("unable to create index = " + response.getStatus());
         }
       }
+    }
   }
 
 

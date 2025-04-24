@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.transforms;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -10,8 +11,6 @@ import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -23,9 +22,9 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
  * Various utility functions to support triple tree entities and documents.
  * Create document creates a document with default common prefixes.
  */
+@Slf4j
 public class TTManager implements AutoCloseable {
   private static final TTIriRef[] jsonPredicates = {iri(IM.HAS_MAP)};
-  private static final Logger LOG = LoggerFactory.getLogger(TTManager.class);
   private Map<String, TTEntity> entityMap;
   private Map<String, TTEntity> nameMap;
   private TTDocument document;
@@ -77,7 +76,7 @@ public class TTManager implements AutoCloseable {
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile, StandardCharsets.UTF_8))) {
       writer.write(outputString);
     } catch (Exception e) {
-      LOG.error(e.getMessage());
+      log.error(e.getMessage());
     }
   }
 
@@ -463,7 +462,7 @@ public class TTManager implements AutoCloseable {
       try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile, StandardCharsets.UTF_8))) {
         writer.write(json);
       } catch (Exception e) {
-        LOG.error(e.getMessage());
+        log.error(e.getMessage());
       }
     }
   }
@@ -484,7 +483,7 @@ public class TTManager implements AutoCloseable {
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
       writer.write(ttl);
     } catch (Exception e) {
-      LOG.error(e.getMessage());
+      log.error(e.getMessage());
     }
 
   }

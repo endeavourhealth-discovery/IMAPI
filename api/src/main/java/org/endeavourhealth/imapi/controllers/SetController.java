@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
@@ -22,8 +23,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -42,9 +41,9 @@ import java.util.Set;
 @CrossOrigin(origins = "*")
 @Tag(name = "SetController")
 @RequestScope
+@Slf4j
 public class SetController {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SetController.class);
   private static final String ATTACHMENT = "attachment;filename=\"";
   private static final String FORCE_DOWNLOAD = "force-download";
   private static final String APPLICATION = "application";
@@ -66,7 +65,7 @@ public class SetController {
   @Operation(summary = "Get entailed members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")
   public Pageable<Node> get(@RequestParam(name = "iri") String iri, @RequestParam(name = "entailments", required = false) boolean entailments, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.EntailedMembers.GET")) {
-      LOG.debug("getEntailedMembers");
+      log.debug("getEntailedMembers");
       if (page == null && size == null) {
         page = 1;
         size = 10;
@@ -99,7 +98,7 @@ public class SetController {
   @Operation(summary = "Get subsets of entity", description = "Fetches all subsets for the given IRI.")
   public Set<TTIriRef> getSubsets(@RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Subsets.GET")) {
-      LOG.debug("getSubsets");
+      log.debug("getSubsets");
       return setService.getSubsets(iri);
     }
   }
@@ -108,7 +107,7 @@ public class SetController {
   @Operation(summary = "Get semantic distillation", description = "Performs a semantic distillation process for the given list of concepts.")
   public List<TTIriRef> getDistillation(@RequestBody List<TTIriRef> conceptList) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Distillation.POST")) {
-      LOG.debug("getDistillation");
+      log.debug("getDistillation");
       return setService.getDistillation(conceptList);
     }
   }
@@ -131,7 +130,7 @@ public class SetController {
     @RequestParam(name = "schemes", defaultValue = "") List<String> schemes
   ) throws DownloadException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SetExport.GET")) {
-      LOG.debug("getSetExport");
+      log.debug("getSetExport");
       if (subsumptions == null) {
         subsumptions = List.of(IM.SUBSUMED_BY);
       }
@@ -158,7 +157,7 @@ public class SetController {
   @Operation(summary = "Compare two sets", description = "Compares two sets identified by the provided IRIs and returns their differences.")
   public SetDiffObject getSetComparison(@RequestParam(name = "setIriA") Optional<String> setIriA, @RequestParam(name = "setIriB") Optional<String> setIriB) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.SetDiff.GET")) {
-      LOG.debug("getSetComparison");
+      log.debug("getSetComparison");
       return setService.getSetComparison(setIriA, setIriB);
     }
   }
@@ -168,7 +167,7 @@ public class SetController {
   @PreAuthorize("hasAuthority('edit') or hasAuthority('create')")
   public void updateSubsetsFromSuper(@RequestBody TTEntity entity, HttpServletRequest request) throws IOException, TTFilerException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UpdateSubsetsFromSuper.POST")) {
-      LOG.debug("updateSubsetsFromSuper");
+      log.debug("updateSubsetsFromSuper");
       String agentName = reqObjService.getRequestAgentName(request);
       setService.updateSubsetsFromSuper(agentName, entity);
     }

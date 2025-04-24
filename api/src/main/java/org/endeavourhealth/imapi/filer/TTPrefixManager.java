@@ -1,13 +1,13 @@
 package org.endeavourhealth.imapi.filer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class TTPrefixManager {
-  private static final Logger LOG = LoggerFactory.getLogger(TTPrefixManager.class);
   Map<String, String> prefixMap = new HashMap<>();
 
   public String expand(String iri) {
@@ -22,7 +22,7 @@ public class TTPrefixManager {
       else
         return path + iri.substring(colonPos + 1);
     } catch (StringIndexOutOfBoundsException e) {
-      LOG.error("invalid iri: {}", iri);
+      log.error("invalid iri: {}", iri);
       return null;
     }
   }

@@ -54,7 +54,7 @@ public class SearchTermCode implements Comparable<SearchTermCode> {
   public int compareTo(SearchTermCode o) {
     return Comparator.<SearchTermCode, String>
         comparing(ts -> ts.getStatus() == null ? null : ts.getStatus().getIri(), Comparator.nullsLast(Comparator.naturalOrder()))
-      .thenComparing(ts -> ts.getTerm().isEmpty() ? null : ts.getTerm(), Comparator.nullsLast(Comparator.naturalOrder()))
+      .thenComparing(ts -> (ts.getTerm() == null || ts.getTerm().isEmpty()) ? null : ts.getTerm(), Comparator.nullsLast(Comparator.naturalOrder()))
       .compare(this, o);
   }
 }

@@ -1,11 +1,13 @@
 package org.endeavourhealth.imapi.logic.exporters;
 
-import org.apache.poi.ss.usermodel.*;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
 import org.endeavourhealth.imapi.model.iml.Concept;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
 import java.io.ByteArrayOutputStream;
@@ -15,29 +17,29 @@ import java.util.stream.Stream;
 
 import static org.endeavourhealth.imapi.logic.exporters.helpers.ExporterHelpers.*;
 
+@Slf4j
 public class SetTextFileExporter {
   public static final String IM_1_ID = "im1id";
-  private static final Logger LOG = LoggerFactory.getLogger(SetTextFileExporter.class);
 
-  private static void addHeader(boolean includeIM1id, boolean includeSubsets, boolean includeLegacy,StringJoiner results, String del) {
+  private static void addHeader(boolean includeIM1id, boolean includeSubsets, boolean includeLegacy, StringJoiner results, String del) {
     String headerLine = "code" + del + "term" + del + "status" + del + "scheme" + del + "usage" + del + "extension" + del + "set";
     if (includeSubsets) headerLine += del + "subset" + del + "subsetIri" + del + "subsetVersion";
     if (includeIM1id) headerLine += del + IM_1_ID;
-    if (includeLegacy) headerLine += del + "legacyCode"+del+"legacyTerm"+del+"legacyScheme"+del+"codeId";
+    if (includeLegacy) headerLine += del + "legacyCode" + del + "legacyTerm" + del + "legacyScheme" + del + "codeId";
     results.add(headerLine);
   }
 
   public byte[] generateFile(String fileType, Set<Concept> members, String setName, boolean includeIM1id, boolean includeSubsets, boolean includeLegacy) throws IOException, GeneralCustomException {
-    LOG.trace("Generating output...");
+    log.trace("Generating output...");
     switch (fileType) {
       case "tsv" -> {
-        return getTextFile("\t", members, setName, includeIM1id, includeSubsets,includeLegacy).getBytes();
+        return getTextFile("\t", members, setName, includeIM1id, includeSubsets, includeLegacy).getBytes();
       }
       case "csv" -> {
-        return getTextFile(",", members, setName, includeIM1id, includeSubsets,includeLegacy).getBytes();
+        return getTextFile(",", members, setName, includeIM1id, includeSubsets, includeLegacy).getBytes();
       }
       case "xlsx" -> {
-        String fileContent = getTextFile("\t", members, setName, includeIM1id, includeSubsets,includeLegacy);
+        String fileContent = getTextFile("\t", members, setName, includeIM1id, includeSubsets, includeLegacy);
         return getExcel(fileContent);
       }
       default -> {
@@ -46,11 +48,11 @@ public class SetTextFileExporter {
     }
   }
 
-  private String getTextFile(String del, Set<Concept> members, String setName, boolean includeIM1id, boolean includeSubsets,boolean includeLegacy) {
+  private String getTextFile(String del, Set<Concept> members, String setName, boolean includeIM1id, boolean includeSubsets, boolean includeLegacy) {
     StringJoiner results = new StringJoiner(System.lineSeparator());
     addHeader(includeIM1id, includeSubsets, includeLegacy, results, del);
     for (Concept member : members) {
-      addConcept(results, member, setName, includeIM1id, includeSubsets, includeLegacy,del);
+      addConcept(results, member, setName, includeIM1id, includeSubsets, includeLegacy, del);
 
     }
     return results.toString();
@@ -108,15 +110,15 @@ public class SetTextFileExporter {
     ArrayList<String> values = new ArrayList<>(List.of(valueArray));
     if (includeSubsets) values.addAll(List.of(subSet, subsetIri, subsetVersion));
     if (includeIM1id) values.add(member.getIm1Id());
-    if (member.getMatchedFrom()==null){
+    if (member.getMatchedFrom() == null) {
       addLineData(del, results, values.toArray(new String[0]));
       return;
     }
-    for (Concept matchedFrom : member.getMatchedFrom()){
-        String[] legacyArray= addLegacy(results, matchedFrom,del);
-        List<String> combined = new ArrayList<>(values);
-        combined.addAll(Stream.of(legacyArray).toList());
-        addLineData(del, results, combined.toArray(new String[0]));
+    for (Concept matchedFrom : member.getMatchedFrom()) {
+      String[] legacyArray = addLegacy(results, matchedFrom, del);
+      List<String> combined = new ArrayList<>(values);
+      combined.addAll(Stream.of(legacyArray).toList());
+      addLineData(del, results, combined.toArray(new String[0]));
     }
 
   }
@@ -124,13 +126,13 @@ public class SetTextFileExporter {
   private String[] addLegacy(StringJoiner results, Concept legacyMember, String del) {
 
     String[] valueArray = {legacyMember.getCode(), legacyMember.getName(), legacyMember.getScheme().getIri(),
-    legacyMember.getCodeId()};
+      legacyMember.getCodeId()};
     for (int i = 0; i < valueArray.length; i++) {
       if (valueArray[i] == null) {
         valueArray[i] = "";
       }
     }
-   return valueArray;
+    return valueArray;
   }
 
   private void addLineData(String del, StringJoiner results, String... values) {

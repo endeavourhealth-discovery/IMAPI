@@ -95,7 +95,7 @@ public class IMQToECL {
         boolean bracket = match.getMatch().size() > 1 && subMatchType == EclType.refined;
         if (!first) {
           ecl.append("\n");
-          if (match.getBoolMatch() == Bool.or) {
+          if (match.getBool() == Bool.or) {
             ecl.append(" OR ");
           } else
             ecl.append(" AND ");
@@ -176,7 +176,7 @@ public class IMQToECL {
       for (Where subProperty : property.getWhere()) {
         if (!first) {
           ecl.append("\n");
-          if (property.getBoolWhere() == Bool.or) {
+          if (property.getBool() == Bool.or) {
             ecl.append(" OR ");
           } else
             ecl.append(" , ");

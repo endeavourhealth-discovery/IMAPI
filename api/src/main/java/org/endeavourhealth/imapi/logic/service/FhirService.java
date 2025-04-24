@@ -4,7 +4,6 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.config.ConfigManager;
-import org.endeavourhealth.imapi.controllers.FhirController;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
@@ -13,15 +12,12 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.hl7.fhir.r4.model.ValueSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.DataFormatException;
 
 public class FhirService {
-  private static final Logger LOG = LoggerFactory.getLogger(FhirService.class.getName());
   ConfigManager configManager = new ConfigManager();
   SetService setService = new SetService();
   EclService eclService = new EclService();

@@ -5,15 +5,14 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
+@Slf4j
 public class EmailService {
-  private static final Logger LOG = LoggerFactory.getLogger(EmailService.class);
   private final Properties prop;
   private String username;
   private String password;
@@ -45,7 +44,7 @@ public class EmailService {
     multipart.addBodyPart(mimeBodyPart);
     message.setContent(multipart);
     if ("production".equals(System.getenv("MODE"))) Transport.send(message);
-    else LOG.info("Email sent");
+    else log.info("Email sent");
   }
 
   public void sendMailWithAttachment(String subject, String content, File attachment) throws MessagingException, IOException {
@@ -60,7 +59,7 @@ public class EmailService {
     multipart.addBodyPart(attachmentBodyPart);
     message.setContent(multipart);
     if ("production".equals(System.getenv("MODE"))) Transport.send(message);
-    else LOG.info("Email with attachment sent");
+    else log.info("Email with attachment sent");
   }
 
   private Session setupSession() {

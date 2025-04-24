@@ -79,9 +79,6 @@ public class PropertyShape{
   private TTIriRef hasValueType;
   @Getter
   private String definition;
-  @Getter
-  private List<TTIriRef> type;
-
 
 
   public PropertyShape setParameter(List<ParameterShape> parameter) {
@@ -109,23 +106,7 @@ public class PropertyShape{
   }
 
 
-  public PropertyShape setType(List<TTIriRef> type) {
-    this.type = type;
-    return this;
-  }
-  public PropertyShape addType (TTIriRef type){
-      if (this.type == null) {
-        this.type = new ArrayList<>();
-      }
-      this.type.add(type);
-      return this;
-    }
-  public PropertyShape type (Consumer < TTIriRef > builder) {
-      TTIriRef type = new TTIriRef();
-      addType(type);
-      builder.accept(type);
-      return this;
-    }
+
 
 
 

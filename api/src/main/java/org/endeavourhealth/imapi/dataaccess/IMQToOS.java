@@ -294,7 +294,7 @@ public class IMQToOS {
       if (isBooleanWhere(where)) {
         BoolQueryBuilder nestedBool = new BoolQueryBuilder();
         for (Where nestedWhere : where.getWhere())
-          if (!addProperty(nestedWhere, where.getBoolWhere(), nestedBool)) return false;
+          if (!addProperty(nestedWhere, where.getBool(), nestedBool)) return false;
         boolBuilder.filter(nestedBool);
       } else if (!addProperty(where, Bool.and, boolBuilder))
         return false;
@@ -306,8 +306,10 @@ public class IMQToOS {
     String w = where.getIri();
     if (IM.HAS_SCHEME.equals(w)) {
       return addIsFilter("scheme", where, bool, boolBldr);
-    } else if (IM.HAS_MEMBER.equals(w) && where.isInverse()) {
+    } else if (IM.IS_MEMBER_OF.equals(w)) {
       return addIsFilter("memberOf", where, bool, boolBldr);
+    }else if (IM.HAS_MEMBER.equals(w)&&where.isInverse()) {
+        return addIsFilter("memberOf", where, bool, boolBldr);
     } else if (IM.HAS_STATUS.equals(w)) {
       return addIsFilter("status", where, bool, boolBldr);
     } else if (RDF.TYPE.equals(w)) {
@@ -323,7 +325,7 @@ public class IMQToOS {
   }
 
   private boolean isBooleanWhere(Where where) {
-    return where.getBoolWhere() != null && where.getWhere() != null && where.getMatch() == null && where.getIs() == null && where.getValue() == null;
+    return where.getBool() != null && where.getWhere() != null && where.getMatch() == null && where.getIs() == null && where.getValue() == null;
   }
 
   private boolean addIsFilter(String property, Where where, Bool bool, BoolQueryBuilder boolBldr) {

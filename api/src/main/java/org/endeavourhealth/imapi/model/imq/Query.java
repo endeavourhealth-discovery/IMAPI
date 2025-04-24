@@ -32,6 +32,24 @@ public class Query extends Match {
   @Getter
   private TTIriRef persistentIri;
 
+  public Query addInstanceOf(Node instanceOf){
+    super.addInstanceOf(instanceOf);
+    return this;
+  }
+
+  public Query instanceOf(Consumer<Node> builder){
+    Node node = new Node();
+    super.addInstanceOf(node);
+    builder.accept(node);
+    return this;
+  }
+
+  public Query setInstanceOf(List<Node> instanceOf){
+    super.setInstanceOf(instanceOf);
+    return this;
+  }
+
+
   public Query setPersistentIri(TTIriRef persistentIri) {
     this.persistentIri = persistentIri;
     return this;
@@ -77,10 +95,7 @@ public class Query extends Match {
     return this;
   }
 
-  public Query isSubsetOf(Consumer<IriLD> builder) {
-    super.isSubsetOf(builder);
-    return this;
-  }
+
 
   public Query addPrefix(String prefix, String namespace) {
     Prefix newPrefix = new Prefix().setPrefix(prefix).setNamespace(namespace);
@@ -92,15 +107,11 @@ public class Query extends Match {
   }
 
 
-  public Query setBoolMatch(Bool boolMatch) {
-    super.setBoolMatch(boolMatch);
+  public Query setBool(Bool bool) {
+    super.setBool(bool);
     return this;
   }
 
-  public Query setBoolWhere(Bool boolWhere) {
-    super.setBoolWhere(boolWhere);
-    return this;
-  }
 
 
   public Query setTypeOf(String type) {

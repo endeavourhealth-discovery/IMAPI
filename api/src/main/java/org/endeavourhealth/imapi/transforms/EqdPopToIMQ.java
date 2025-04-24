@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
@@ -24,8 +25,8 @@ public class EqdPopToIMQ {
     query.setTypeOf(new Node().setIri(IM.NAMESPACE + "Patient"));
 
     if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
-      query.addIsSubsetOf(
-        new IriLD().setIri(IM.NAMESPACE + "Q_RegisteredGMS")
+      query.addInstanceOf(
+        new Node().setIri(IM.NAMESPACE + "Q_RegisteredGMS")
         .setName("Registered with GP for GMS services on the reference date"));
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()){
         EqdToIMQ.gmsPatients.add(activeReport);
@@ -35,13 +36,15 @@ public class EqdPopToIMQ {
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
       String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
       if (EqdToIMQ.gmsPatients.contains(id)){
-        query.addIsSubsetOf(
-         new IriLD().setIri(IM.NAMESPACE + "Q_RegisteredGMS")
-          .setName("Registered with GP for GMS services on the reference date"));
+        query.addInstanceOf(
+         new Node().setIri(IM.NAMESPACE + "Q_RegisteredGMS")
+          .setName("Registered with GP for GMS services on the reference date")
+           .setMemberOf(true));
       }
       else {
-        query.addIsSubsetOf(new IriLD().setIri(resources.getNamespace() + id)
-          .setName(resources.reportNames.get(id)));
+        query.addInstanceOf(new Node().setIri(resources.getNamespace() + id)
+          .setName(resources.reportNames.get(id))
+          .setMemberOf(true));
       }
     }
     query.setHasRules(true);

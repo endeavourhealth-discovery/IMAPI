@@ -10,8 +10,8 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends IriLD implements GraphNode {
 
-  private Bool boolMatch;
-  private Bool boolWhere;
+  @Getter
+  private Bool bool;
   private List<Match> match;
   private boolean exclude;
   private String includeIf;
@@ -22,17 +22,24 @@ public class Match extends IriLD implements GraphNode {
   private String nodeRef;
   private boolean optional;
   private FunctionClause aggregate;
+  @Getter
   private List<Node> instanceOf;
+  @Getter
   private Node typeOf;
+  @Getter
   private String variable;
+  @Getter
   private String name;
   private Path path;
   private String displayLabel;
-  private boolean hasInlineSet;
+  @Getter
   private FunctionClause function;
+  @Getter
   private Entail entailment;
   private Return returx;
+  @Getter
   private RuleAction ifTrue;
+  @Getter
   private RuleAction ifFalse;
   private boolean hasRules;
   @Getter
@@ -60,8 +67,6 @@ public class Match extends IriLD implements GraphNode {
   public boolean hasRules(){
     return hasRules;
   }
-
-
 
 
   public Match setHeader(String header) {
@@ -109,45 +114,9 @@ public class Match extends IriLD implements GraphNode {
     return this;
   }
 
-
-
-
-  @Getter
-  private List<IriLD> isSubsetOf;
-  @Getter
-  private Match then;
-
-
-  public Match setIsSubsetOf(List<IriLD> isSubsetOf) {
-    this.isSubsetOf = isSubsetOf;
-    return this;
-  }
-  public Match addIsSubsetOf (IriLD isSubsetOf){
-      if (this.isSubsetOf == null) {
-        this.isSubsetOf = new ArrayList<>();
-      }
-      this.isSubsetOf.add(isSubsetOf);
-      return this;
-  }
-  public Match isSubsetOf (Consumer < IriLD > builder) {
-      IriLD isSubsetOf = new IriLD();
-      addIsSubsetOf(isSubsetOf);
-      builder.accept(isSubsetOf);
-      return this;
-  }
-
-
-  public RuleAction getIfTrue() {
-    return ifTrue;
-  }
-
   public Match setIfTrue(RuleAction ifTrue) {
     this.ifTrue = ifTrue;
     return this;
-  }
-
-  public RuleAction getIfFalse() {
-    return ifFalse;
   }
 
   public Match setIfFalse(RuleAction ifFalse) {
@@ -173,17 +142,9 @@ public class Match extends IriLD implements GraphNode {
     return this;
   }
 
-  public Entail getEntailment() {
-    return entailment;
-  }
-
   public Match setEntailment(Entail entailment) {
     this.entailment = entailment;
     return this;
-  }
-
-  public FunctionClause getFunction() {
-    return function;
   }
 
   public Match setFunction(FunctionClause function) {
@@ -198,51 +159,12 @@ public class Match extends IriLD implements GraphNode {
     return this;
   }
 
-  public boolean isHasInlineSet() {
-    return hasInlineSet;
-  }
 
-  public Match setHasInlineSet(boolean hasInlineSet) {
-    this.hasInlineSet = hasInlineSet;
+  public Match setBool(Bool bool) {
+    this.bool = bool;
     return this;
   }
 
-
-  public String getIncludeIf() {
-    return includeIf;
-  }
-
-  public Match setIncludeIf(String includeIf) {
-    this.includeIf = includeIf;
-    return this;
-  }
-
-  public String getDisplayLabel() {
-    return displayLabel;
-  }
-
-  public Match setDisplayLabel(String displayLabel) {
-    this.displayLabel = displayLabel;
-    return this;
-  }
-
-  public Bool getBoolMatch() {
-    return boolMatch;
-  }
-
-  public Match setBoolMatch(Bool boolMatch) {
-    this.boolMatch = boolMatch;
-    return this;
-  }
-
-  public Bool getBoolWhere() {
-    return boolWhere;
-  }
-
-  public Match setBoolWhere(Bool boolWhere) {
-    this.boolWhere = boolWhere;
-    return this;
-  }
 
   @Override
   public Path getPath() {
@@ -269,21 +191,9 @@ public class Match extends IriLD implements GraphNode {
     return this;
   }
 
-  public String getVariable() {
-    return variable;
-  }
-
   public Match setVariable(String variable) {
     this.variable = variable;
     return this;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public List<Node> getInstanceOf() {
-    return instanceOf;
   }
 
   public Match setInstanceOf(List<Node> instanceOf) {
@@ -304,10 +214,6 @@ public class Match extends IriLD implements GraphNode {
     addInstanceOf(node);
     builder.accept(node);
     return this;
-  }
-
-  public Node getTypeOf() {
-    return typeOf;
   }
 
   @JsonSetter

@@ -4,12 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.FunctionService;
 import org.endeavourhealth.imapi.model.iml.FunctionRequest;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -18,8 +17,8 @@ import org.springframework.web.context.annotation.RequestScope;
 @CrossOrigin(origins = "*")
 @Tag(name = "FunctionController")
 @RequestScope
+@Slf4j
 public class FunctionController {
-  private static final Logger LOG = LoggerFactory.getLogger(FunctionController.class);
 
   @PostMapping("/public/callFunction")
   @Operation(
@@ -28,7 +27,7 @@ public class FunctionController {
   )
   public JsonNode callFunction(HttpServletRequest request, @RequestBody FunctionRequest function) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Function.CallFunction.POST")) {
-      LOG.debug("callFunction");
+      log.debug("callFunction");
       return new FunctionService().callFunction(request, function.getFunctionIri(), function.getArguments());
     }
   }

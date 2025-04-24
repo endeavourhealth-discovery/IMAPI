@@ -2,11 +2,10 @@ package org.endeavourhealth.imapi.model.sql;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -14,8 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Slf4j
 public class IMQtoSQLConverter {
-  private static Logger LOG = LoggerFactory.getLogger(IMQtoSQLConverter.class);
 
   private HashMap<String, Table> tableMap;
 
@@ -25,7 +24,7 @@ public class IMQtoSQLConverter {
       tableMap = new ObjectMapper().readValue(text, new TypeReference<>() {
       });
     } catch (Exception e) {
-      LOG.error("Could not parse datamodel map!");
+      log.error("Could not parse datamodel map!");
       throw new RuntimeException(e);
     }
   }
@@ -47,7 +46,7 @@ public class IMQtoSQLConverter {
 
       return qry.toSql(2);
     } catch (SQLConversionException e) {
-      LOG.error("SQL Conversion Error!");
+      log.error("SQL Conversion Error!");
       throw e;
     }
   }
@@ -77,17 +76,26 @@ public class IMQtoSQLConverter {
   }
 
   private SQLQuery createMatchQuery(Match match, SQLQuery qry) throws SQLConversionException {
+    String variable = getVariableFromMatch(match);
     if (match.getTypeOf() != null && !match.getTypeOf().getIri().equals(qry.getModel())) {
-      return qry.subQuery(match.getTypeOf().getIri(), match.getVariable(), tableMap);
+      return qry.subQuery(match.getTypeOf().getIri(), variable, tableMap);
     } else if (match.getNodeRef() != null && !match.getNodeRef().equals(qry.getModel())) {
-      return qry.subQuery(match.getNodeRef(), match.getVariable(), tableMap);
-    } else return qry.subQuery(qry.getModel(), match.getVariable(), tableMap);
+      return qry.subQuery(match.getNodeRef(), variable, tableMap);
+    } else return qry.subQuery(qry.getModel(), variable, tableMap);
+  }
+
+  private String getVariableFromMatch(Match match) {
+    if (match.getVariable() != null) {
+      return match.getVariable();
+    } else if (match.getReturn() != null && match.getReturn().getAs() != null) {
+      return match.getReturn().getAs();
+    } else return null;
   }
 
   private void convertMatch(Match match, SQLQuery qry) throws SQLConversionException {
     if (match.getInstanceOf() != null) {
       convertMatchInstanceOf(qry, match);
-    } else if (match.getBoolMatch() != null) {
+    } else if (match.getBool() != null) {
       if (match.getMatch() != null && !match.getMatch().isEmpty()) convertMatchBoolSubMatch(qry, match);
       else if (match.getWhere() != null && !match.getWhere().isEmpty()) convertMatchProperties(qry, match);
       else {
@@ -97,7 +105,7 @@ public class IMQtoSQLConverter {
       convertMatchProperties(qry, match);
     } else if (match.getMatch() != null && !match.getMatch().isEmpty()) {
       // Assume bool match "AND"
-      match.setBoolMatch(Bool.and);
+      match.setBool(Bool.and);
       convertMatchBoolSubMatch(qry, match);
     } else {
       throw new SQLConversionException("UNHANDLED MATCH PATTERN\n" + match);
@@ -141,16 +149,16 @@ public class IMQtoSQLConverter {
   }
 
   private void convertMatchBoolSubMatch(SQLQuery qry, Match match) throws SQLConversionException {
-    if (match.getBoolMatch() == null || match.getMatch() == null) {
+    if (match.getBool() == null || match.getMatch() == null) {
       throw new SQLConversionException("INVALID MatchBoolSubMatch\n" + match);
     }
 
-    qry.setWhereBool(match.getBoolWhere() != null ? match.getBoolWhere().toString().toUpperCase() : "AND");
+    qry.setWhereBool(match.getBool() != null ? match.getBool().toString().toUpperCase() : "AND");
 
     // TODO: Boolean "OR" should be a union (more performant)
     String joiner = "JOIN ";
-    if (match.getBoolWhere() != null) {
-      joiner = "OR".equalsIgnoreCase(match.getBoolWhere().toString()) ? "LEFT JOIN " : "JOIN ";
+    if (match.getBool() != null) {
+      joiner = "OR".equalsIgnoreCase(match.getBool().toString()) ? "LEFT JOIN " : "JOIN ";
     }
 
     for (Match subMatch : match.getMatch()) {
@@ -197,7 +205,7 @@ public class IMQtoSQLConverter {
       convertMatchPropertyRelative(qry, property);
     } else if (property.getValue() != null) {
       convertMatchPropertyValue(qry, property);
-    } else if (property.getBoolWhere() != null) {
+    } else if (property.getBool() != null) {
       convertMatchPropertyBool(qry, property);
     } else if (property.getIsNull()) {
       convertMatchPropertyNull(qry, property);
@@ -361,7 +369,7 @@ public class IMQtoSQLConverter {
   }
 
   private void convertMatchPropertyBool(SQLQuery qry, Where property) throws SQLConversionException {
-    if (property.getBoolWhere() == null) {
+    if (property.getBool() == null) {
       throw new SQLConversionException("INVALID MatchPropertyBool\n" + property);
     }
 
@@ -370,7 +378,7 @@ public class IMQtoSQLConverter {
       for (Where p : property.getWhere()) {
         convertMatchProperty(subQuery, p);
       }
-      qry.getWheres().add("(" + StringUtils.join(subQuery.getWheres(), " " + property.getBoolWhere().toString().toUpperCase() + " ") + ")");
+      qry.getWheres().add("(" + StringUtils.join(subQuery.getWheres(), " " + property.getBool().toString().toUpperCase() + " ") + ")");
     } else {
       throw new SQLConversionException("Property BOOL should only contain property conditions");
     }

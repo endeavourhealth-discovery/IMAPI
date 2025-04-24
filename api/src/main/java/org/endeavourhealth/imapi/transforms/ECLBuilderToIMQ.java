@@ -16,7 +16,7 @@ public class ECLBuilderToIMQ {
     Match match = new Match();
     if (null != boolGroup.getItems()) {
       if (null != boolGroup.getConjunction() && boolGroup.getItems().size() > 1)
-        match.setBoolMatch(boolGroup.getConjunction());
+        match.setBool(boolGroup.getConjunction());
       if (boolGroup.getItems().size() == 1) {
         if (boolGroup.getItems().get(0).isConcept()) {
           processConcept(boolGroup.getItems().get(0).asConcept(), match);
@@ -52,7 +52,7 @@ public class ECLBuilderToIMQ {
       setOperator(node, expressionConstraint.getConstraintOperator());
       match.addInstanceOf(node);
     } else if (null != expressionConstraint.getConceptBool()) {
-      match.setBoolMatch(expressionConstraint.getConceptBool().getConjunction());
+      match.setBool(expressionConstraint.getConceptBool().getConjunction());
       for (BuilderComponent builderComponent : expressionConstraint.getConceptBool().getItems()) {
         Match subMatch = new Match();
         if (builderComponent.isConcept()) {
@@ -70,7 +70,7 @@ public class ECLBuilderToIMQ {
 
   private void processConceptRefinementItems(ExpressionConstraint expressionConstraint, Match match) throws EclBuilderException {
     if (expressionConstraint.getRefinementItems().size() > 1)
-      match.setBoolWhere(expressionConstraint.getConjunction());
+      match.setBool(expressionConstraint.getConjunction());
     for (BuilderComponent builderComponent : expressionConstraint.getRefinementItems()) {
       if (builderComponent.isRefinement()) {
         processRefinement(builderComponent.asRefinement(), match, false);
@@ -117,7 +117,7 @@ public class ECLBuilderToIMQ {
   private void processBoolGroup(BoolGroup boolGroup, Match match) throws EclBuilderException {
     Match subMatch = new Match();
     if (null != boolGroup.getConjunction() && boolGroup.getItems().size() > 1) {
-      subMatch.setBoolMatch(boolGroup.getConjunction());
+      subMatch.setBool(boolGroup.getConjunction());
     }
     if (null != boolGroup.getExclude()) subMatch.setExclude(boolGroup.getExclude());
     for (BuilderComponent subBuilderComponent : boolGroup.getItems()) {
@@ -148,7 +148,7 @@ public class ECLBuilderToIMQ {
     attributeGroup.setIri(IM.ROLE_GROUP);
     Match attributeMatch = new Match();
     if (boolGroup.getItems().size() > 1 && null != boolGroup.getConjunction()) {
-      attributeMatch.setBoolWhere(boolGroup.getConjunction());
+      attributeMatch.setBool(boolGroup.getConjunction());
     }
     for (BuilderComponent subBuilderComponent : boolGroup.getItems()) {
       if (subBuilderComponent.isRefinement())
@@ -163,7 +163,7 @@ public class ECLBuilderToIMQ {
   private Where createSubWhere(BoolGroup boolGroup) throws EclBuilderException {
     Where subWhere = new Where();
     if (null != boolGroup.getConjunction() && boolGroup.getItems().size() > 1) {
-      subWhere.setBoolWhere(boolGroup.getConjunction());
+      subWhere.setBool(boolGroup.getConjunction());
     }
     for (BuilderComponent subBuilderComponent : boolGroup.getItems()) {
       if (subBuilderComponent.isRefinement()) processRefinement(subBuilderComponent.asRefinement(), subWhere);

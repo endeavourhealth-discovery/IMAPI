@@ -2,13 +2,12 @@ package org.endeavourhealth.imapi.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.GithubService;
 import org.endeavourhealth.imapi.model.customexceptions.ConfigException;
 import org.endeavourhealth.imapi.model.github.GithubRelease;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -20,8 +19,8 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 @Tag(name = "GithubController")
 @RequestScope
+@Slf4j
 public class GithubController {
-  private static final Logger LOG = LoggerFactory.getLogger(GithubController.class.getName());
 
   GithubService githubService = new GithubService();
 
@@ -29,7 +28,7 @@ public class GithubController {
   @GetMapping(value = "public/githubLatest")
   public GithubRelease getLatestRelease() throws IOException, ConfigException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubLatest.GET")) {
-      LOG.debug("getGithubLatest");
+      log.debug("getGithubLatest");
       return githubService.getGithubLatestRelease();
     }
   }
@@ -38,7 +37,7 @@ public class GithubController {
   @GetMapping(value = "public/githubAllReleases")
   public List<GithubRelease> getReleases() throws IOException, ConfigException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubReleases.GET")) {
-      LOG.debug("getGithubReleases");
+      log.debug("getGithubReleases");
       return githubService.getGithubReleases();
     }
   }
@@ -47,7 +46,7 @@ public class GithubController {
   @PostMapping(value = "/updateGithubConfig")
   public void updateGithubConfig() throws IOException, InterruptedException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubConfig.UPDATE")) {
-      LOG.debug("updateGithubConfig");
+      log.debug("updateGithubConfig");
       githubService.updateGithubConfig();
     }
   }

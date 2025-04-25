@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.dataaccess.ProvRepository;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
+import org.endeavourhealth.imapi.model.dto.FilterOptionsDto;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
@@ -83,5 +84,4 @@ public class ProvService {
   public List<TTEntity> getProvHistory(String iri) {
     return provRepository.getProvHistory(iri);
   }
-
 }

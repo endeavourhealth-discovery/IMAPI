@@ -16,6 +16,7 @@ import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.ValidatedEntity;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.dto.FilterOptionsDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
@@ -425,6 +426,22 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Prov.History.GET")) {
       log.debug("getProvHistory");
       return provService.getProvHistory(iri);
+    }
+  }
+
+  @GetMapping("/public/filterOptions")
+  public FilterOptionsDto getFilterOptions() throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.History.GET")) {
+      log.debug("getFilterOptions");
+      return entityService.getFilterOptions();
+    }
+  }
+
+  @GetMapping("/public/filterDefaults")
+  public FilterOptionsDto getFilterDefaults() throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.History.GET")) {
+      log.debug("getFilterDefaults");
+      return entityService.getFilterDefaults();
     }
   }
 }

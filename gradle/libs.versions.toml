@@ -37,7 +37,7 @@ springdoc = "2.3.0"
 springTestSecurity = "6.2.0"
 systemStubs = "2.1.7"
 tomcatAnnotations = "6.0.53"
-validation = "3.0.2"
+validation = "3.1.1"
 woodstox = "7.0.0"
 wsrs = "3.1.0"
 

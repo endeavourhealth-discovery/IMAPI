@@ -11,7 +11,7 @@ repositories {
 }
 
 val SONAR_LOGIN = System.getenv("SONAR_LOGIN") ?: "null"
-println("Sonar = [SONAR_LOGIN]")
+println("Sonar = [$SONAR_LOGIN]")
 
 sonar.properties {
   property("sonar.gradle.skipCompile", true)
@@ -28,7 +28,7 @@ sonar.properties {
 }
 
 val ENV = System.getenv("ENV") ?: "dev"
-println("Build environment = [ENV]")
+println("Build environment = [$ENV]")
 if (ENV == "prod") {
   tasks.build { finalizedBy("sonar") }
   tasks.build { finalizedBy("publish") }

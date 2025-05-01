@@ -3,6 +3,7 @@ plugins {
   id("org.sonarqube") version "4.4.1.3373"
   id("java-library")
   id("java")
+  id("maven-publish")
 }
 
 repositories {

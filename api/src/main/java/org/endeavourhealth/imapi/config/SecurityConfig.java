@@ -74,7 +74,10 @@ public class SecurityConfig {
     JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
     jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
         List<String> list = jwt.getClaimAsStringList("cognito:groups");
-        return list.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        if (list != null && !list.isEmpty())
+          return list.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        else
+          return null;
       }
     );
     return jwtAuthenticationConverter;

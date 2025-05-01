@@ -71,7 +71,7 @@ public class CodeGenService {
     } catch (IOException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to create zip:" + e.getMessage());
     }
-    String filename = models.get(0).getName() + " " + LocalDate.now();
+    String filename = models.getFirst().getName() + " " + LocalDate.now();
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(new MediaType("application", "force-download"));
     headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".txt\"");

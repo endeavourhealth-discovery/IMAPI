@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -13,6 +15,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 @JsonSerialize(using = TTEntitySerializer.class)
 @JsonDeserialize(using = TTEntityDeserializer.class)
@@ -20,6 +23,19 @@ public class TTEntity extends TTNode implements Serializable {
   private TTContext context = new TTContext();
   private TTIriRef crud;
   private TTIriRef graph;
+
+  // Add this for dynamic properties
+  private Map<String, Object> additionalProperties;
+
+  @JsonAnyGetter
+  public Map<String, Object> getAdditionalProperties() {
+    return additionalProperties;
+  }
+
+  @JsonAnySetter
+  public void setAdditionalProperty(String key, Object value) {
+    this.additionalProperties.put(key, value);
+  }
 
   public TTEntity() {
   }

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.Pageable;
+import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -100,10 +101,15 @@ public class QueryService {
     connectionManager.publishToQueue(userId, userName, queryRequest);
   }
 
-  public void executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException {
+  public List<String> executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException {
     log.info("Executing query: {}", queryRequest.getQuery().toString());
     String sql = getSQLFromIMQ(queryRequest.getQuery());
     List<String> results = mySQLConnectionManager.executeQuery(sql);
+    storeQueryResults(queryRequest, results);
+    return results;
+  }
+
+  public void storeQueryResults(QueryRequest queryRequest, List<String> results) {
     QueryRequest queryRequestCopy = cloneQueryRequestWithoutPage(queryRequest);
     queryResultsMap.put(Objects.hash(queryRequestCopy), results);
   }
@@ -182,5 +188,13 @@ public class QueryService {
     return null;
   }
 
-
+  public List<String> testRunQuery(Query query) throws SQLException, SQLConversionException {
+    QueryRequest queryRequest = new QueryRequest();
+    Page page = new Page();
+    page.setPageNumber(1);
+    page.setPageSize(10);
+    queryRequest.setPage(page);
+    queryRequest.setQuery(query);
+    return executeQuery(queryRequest);
+  }
 }

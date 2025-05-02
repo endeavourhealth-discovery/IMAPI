@@ -41,6 +41,11 @@ validation = "3.0.2"
 woodstox = "7.0.0"
 wsrs = "3.1.0"
 
+# Plugins
+typescriptGenerator = "3.2.1263"
+staticConstGenerator = "1.2-SNAPSHOT"
+sonarqube = "4.4.1.3373"
+
 [libraries]
 # Implementation
 im-grammar = { module = "org.endeavourhealth.informationManager:Grammar", version = "1.0-SNAPSHOT" }
@@ -105,6 +110,11 @@ junit-suite = { module = "org.junit.platform:junit-platform-suite", version.ref 
 mockito = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
 spring-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring" }
 spring-test-security = { module = "org.springframework.security:spring-security-test", version.ref = "springTestSecurity" }
+
+[plugins]
+typescript-generator = { id = "cz.habarta.typescript-generator", version.ref = "typescriptGenerator" }
+static-const-generator = { id = "org.endeavourhealth.plugins.StaticConstGenerator", version.ref = "staticConstGenerator" }
+sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
 
 [bundles]
 #Implementation

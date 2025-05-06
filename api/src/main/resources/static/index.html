@@ -2,10 +2,10 @@
 <html>
   <head>
     <title>Scalar API Reference</title>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1" />
+      content="width=device-width, initial-scale=1"
+      name="viewport"/>
   </head>
 
   <body>
@@ -18,19 +18,19 @@
     <script>
       Scalar.createApiReference('#app', {
         // The URL of the OpenAPI/Swagger document
-        url: 'https://dev.endhealth.co.uk/imapi/v3/api-docs/All',
+        url: './v3/api-docs/All',
         // Avoid CORS issues
         proxyUrl: 'https://proxy.scalar.com',
-		  servers: [
-			{
-			  url: 'https://dev.endhealth.co.uk/imapi',
-			  description: 'Development',
-			},
-						{
-			  url: 'https://im.endeavourhealth.net/imapi',
-			  description: 'Production',
-			},
-		  ]
+        servers: [
+          {
+            url: 'https://dev.endhealth.co.uk/imapi',
+            description: 'Development',
+          },
+          {
+            url: 'https://im.endeavourhealth.net/imapi',
+            description: 'Production',
+          },
+        ]
       })
     </script>
   </body>

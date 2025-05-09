@@ -99,7 +99,7 @@ public class SearchRequest {
 
   @Schema(name = "field selections",
     description = "list of fields or property paths from search result summary to return ",
-    example = "name, iri, entityType.@id")
+    example = "name, iri, entityType.iri")
   public List<String> getSelect() {
     return select;
   }

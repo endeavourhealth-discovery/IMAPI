@@ -44,7 +44,7 @@ public class TTNodeSerializer {
     simpleProperties = (Boolean) prov.getAttribute(TTNodeSerializer.SIMPLE_PROPERTIES);
     simpleProperties = (simpleProperties != null && simpleProperties);
     if ((!(node instanceof TTEntity)) && node.getIri() != null)
-      gen.writeStringField("@id", prefix(node.getIri()));
+      gen.writeStringField("iri", prefix(node.getIri()));
     serializePredicates(node, gen);
   }
 
@@ -109,7 +109,7 @@ public class TTNodeSerializer {
     if (value.isIriRef()) {
       TTIriRef ref = value.asIriRef();
       gen.writeStartObject();
-      gen.writeStringField("@id", prefix(ref.getIri()));
+      gen.writeStringField("iri", prefix(ref.getIri()));
       if (ref.getName() != null && !ref.getName().isEmpty())
         gen.writeStringField("name", ref.getName());
       gen.writeEndObject();
@@ -136,8 +136,8 @@ public class TTNodeSerializer {
         gen.writeNumber(literal.longValue());
       else if (XSD.PATTERN.equals(literal.getType().getIri())) {
         gen.writeStartObject();
-        gen.writeStringField("@value", literal.getValue());
-        gen.writeStringField("@type", prefix(literal.getType().getIri()));
+        gen.writeStringField("value", literal.getValue());
+        gen.writeStringField("type", prefix(literal.getType().getIri()));
         gen.writeEndObject();
       } else
         throw new IOException("Unhandled literal type [" + literal.getType().getIri() + "]");
@@ -156,7 +156,7 @@ public class TTNodeSerializer {
 
   public void serializeContexts(List<TTPrefix> prefixes, JsonGenerator gen) throws IOException {
     if (usePrefixes && prefixes != null && !prefixes.isEmpty()) {
-      gen.writeFieldName("@context");
+      gen.writeFieldName("context");
       gen.writeStartObject();
 
       for (TTPrefix prefix : prefixes) {
@@ -165,8 +165,8 @@ public class TTNodeSerializer {
       }
       gen.writeFieldName("entities");
       gen.writeStartObject();
-      gen.writeStringField("@id", "http://envhealth.info/im#entities");
-      gen.writeStringField("@container", "@set");
+      gen.writeStringField("iri", "http://envhealth.info/im#entities");
+      gen.writeStringField("container", "set");
       gen.writeEndObject();
 
       gen.writeEndObject();

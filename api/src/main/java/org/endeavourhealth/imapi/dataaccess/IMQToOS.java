@@ -207,48 +207,48 @@ public class IMQToOS {
       return true;
     if (query.getReturn() != null) {
       Return ret = query.getReturn();
-        if (ret.getProperty() != null) {
-          for (ReturnProperty prop : ret.getProperty()) {
-            if (prop.getIri() != null) {
-              switch (prop.getIri()) {
-                case RDFS.COMMENT:
-                  sources.add("description");
-                  break;
-                case RDFS.LABEL:
-                  sources.add("name");
-                  break;
-                case IM.CODE:
-                  sources.add("code");
-                  break;
-                case IM.HAS_STATUS:
-                  sources.add(STATUS);
-                  break;
-                case IM.ALTERNATIVE_CODE:
-                  sources.add("alternativeCode");
-                  break;
-                case IM.HAS_SCHEME:
-                  sources.add(SCHEME);
-                  break;
-                case RDF.TYPE:
-                  sources.add("entityType");
-                  break;
-                case IM.USAGE_TOTAL:
-                  sources.add(USAGE_TOTAL);
-                  break;
-                case IM.BINDING:
-                  sources.add("binding");
-                  break;
-                case IM.HAS_TERM_CODE:
-                  sources.add("termCode");
-                  break;
-                case RDFS.DOMAIN:
-                  break;
-                default:
-                  return false;
-              }
+      if (ret.getProperty() != null) {
+        for (ReturnProperty prop : ret.getProperty()) {
+          if (prop.getIri() != null) {
+            switch (prop.getIri()) {
+              case RDFS.COMMENT:
+                sources.add("description");
+                break;
+              case RDFS.LABEL:
+                sources.add("name");
+                break;
+              case IM.CODE:
+                sources.add("code");
+                break;
+              case IM.HAS_STATUS:
+                sources.add(STATUS);
+                break;
+              case IM.ALTERNATIVE_CODE:
+                sources.add("alternativeCode");
+                break;
+              case IM.HAS_SCHEME:
+                sources.add(SCHEME);
+                break;
+              case RDF.TYPE:
+                sources.add("entityType");
+                break;
+              case IM.USAGE_TOTAL:
+                sources.add(USAGE_TOTAL);
+                break;
+              case IM.BINDING:
+                sources.add("binding");
+                break;
+              case IM.HAS_TERM_CODE:
+                sources.add("termCode");
+                break;
+              case RDFS.DOMAIN:
+                break;
+              default:
+                return false;
             }
           }
         }
+      }
     }
     String[] sourceArray = sources.toArray(String[]::new);
     sourceBuilder.fetchSource(sourceArray, null);
@@ -256,7 +256,7 @@ public class IMQToOS {
   }
 
   private void addFilterWithId(String property, Set<String> values, Bool bool, BoolQueryBuilder boolBldr) {
-    TermsQueryBuilder tqr = new TermsQueryBuilder(property + ".@id", values);
+    TermsQueryBuilder tqr = new TermsQueryBuilder(property + ".iri", values);
     if (Bool.and == bool) boolBldr.filter(tqr);
     else if (Bool.or == bool) boolBldr.should(tqr);
   }
@@ -308,8 +308,8 @@ public class IMQToOS {
       return addIsFilter("scheme", where, bool, boolBldr);
     } else if (IM.IS_MEMBER_OF.equals(w)) {
       return addIsFilter("memberOf", where, bool, boolBldr);
-    }else if (IM.HAS_MEMBER.equals(w)&&where.isInverse()) {
-        return addIsFilter("memberOf", where, bool, boolBldr);
+    } else if (IM.HAS_MEMBER.equals(w) && where.isInverse()) {
+      return addIsFilter("memberOf", where, bool, boolBldr);
     } else if (IM.HAS_STATUS.equals(w)) {
       return addIsFilter("status", where, bool, boolBldr);
     } else if (RDF.TYPE.equals(w)) {
@@ -422,7 +422,7 @@ public class IMQToOS {
       if (parentResult.get("entities") != null) {
         for (Iterator<JsonNode> it = parentResult.get("entities").elements(); it.hasNext(); ) {
           JsonNode element = it.next();
-          addToInstanceFilters(type, element.get("@id").asText(), instanceFilters);
+          addToInstanceFilters(type, element.get("iri").asText(), instanceFilters);
         }
 
         return;

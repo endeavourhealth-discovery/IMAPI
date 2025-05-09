@@ -12,7 +12,7 @@ public class TTToObjectNode {
   public static ObjectNode getAsObjectNode(TTEntity entity) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       ObjectNode objectNode = om.createObjectNode();
-      objectNode.put("@id", entity.getIri());
+      objectNode.put("iri", entity.getIri());
       processNode(entity, objectNode);
       return objectNode;
     }
@@ -32,7 +32,7 @@ public class TTToObjectNode {
           objectNode.set(getShort(entry.getKey().getIri()), subNode);
         } else if (entry.getValue().isIriRef()) {
           ObjectNode iriNode = om.createObjectNode();
-          iriNode.put("@id", entry.getValue().asIriRef().getIri());
+          iriNode.put("iri", entry.getValue().asIriRef().getIri());
           objectNode.set(getShort(entry.getKey().getIri()), iriNode);
         } else if (entry.getValue().isLiteral()) {
           if (entry.getValue().asLiteral().getValue().charAt(0) == '{') {
@@ -56,7 +56,7 @@ public class TTToObjectNode {
               arrayNode.add(subNode);
             } else if (element.isIriRef()) {
               ObjectNode iriNode = om.createObjectNode();
-              iriNode.put("@id", element.asIriRef().getIri());
+              iriNode.put("iri", element.asIriRef().getIri());
               arrayNode.add(iriNode);
             }
           }

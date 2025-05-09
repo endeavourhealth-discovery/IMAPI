@@ -28,10 +28,10 @@ public class TTEntitySerializer extends StdSerializer<TTEntity> {
 
     gen.writeStartObject();
     helper.serializeContexts(entity.getPrefixes(), gen);
-    gen.writeStringField("@id", helper.prefix(entity.getIri()));
+    gen.writeStringField("iri", helper.prefix(entity.getIri()));
 
     if (entity.getGraph() != null) {
-      outputIri(gen, "@graph", entity.getGraph(), helper);
+      outputIri(gen, "graph", entity.getGraph(), helper);
     }
     if (entity.getCrud() != null) {
       outputIri(gen, "crud", entity.getCrud(), helper);
@@ -44,7 +44,7 @@ public class TTEntitySerializer extends StdSerializer<TTEntity> {
   private static void outputIri(JsonGenerator gen, String fieldName, TTIriRef ref, TTContextHelper helper) throws IOException {
     gen.writeFieldName(fieldName);
     gen.writeStartObject();
-    gen.writeStringField("@id", helper.prefix(ref.getIri()));
+    gen.writeStringField("iri", helper.prefix(ref.getIri()));
     if (ref.getName() != null && !ref.getName().isEmpty())
       gen.writeStringField("name", ref.getName());
     gen.writeEndObject();

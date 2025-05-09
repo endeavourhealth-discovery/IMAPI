@@ -611,7 +611,7 @@ public class OpenSearchSender {
             "properties": {
               "scheme": {
                 "properties": {
-                  "@id": {
+                  "iri": {
                   "type": "keyword"
                     },
                   "name" : {
@@ -629,7 +629,7 @@ public class OpenSearchSender {
                },
               "entityType" : {
                 "properties" : {
-                  "@id": {
+                  "iri": {
                     "type": "keyword"
                   },
                   "name" : {
@@ -639,7 +639,7 @@ public class OpenSearchSender {
               },
               "status": {
                 "properties" : {
-                  "@id": {
+                  "iri": {
                     "type": "keyword"
                   },
                   "name" : {
@@ -649,7 +649,7 @@ public class OpenSearchSender {
               },
               "isA": {
                 "properties" : {
-                  "@id": {
+                  "iri": {
                     "type": "keyword"
                   },
                   "name" : {
@@ -662,7 +662,7 @@ public class OpenSearchSender {
               },
               "memberOf": {
                 "properties" : {
-                "@id": {
+                "iri": {
                   "type": "keyword"
                 },
                 "name" : {
@@ -701,7 +701,7 @@ public class OpenSearchSender {
                   },
                   "status" : {
                       "properties" : {
-                        "@id" : {
+                        "iri" : {
                           "type" : "keyword"
                         },
                         "name" : {

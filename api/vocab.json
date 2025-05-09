@@ -111,15 +111,15 @@
       },
       {
         "name": "IRI",
-        "value": "\"@id\""
+        "value": "\"iri\""
       },
       {
         "name": "VALUE",
-        "value": "\"@value\""
+        "value": "\"value\""
       },
       {
         "name": "TYPE",
-        "value": "\"@type\""
+        "value": "\"type\""
       },
       {
         "name": "id",

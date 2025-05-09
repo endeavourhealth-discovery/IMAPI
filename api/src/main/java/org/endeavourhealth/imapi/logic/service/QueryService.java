@@ -56,7 +56,7 @@ public class QueryService {
       if (entities.isArray()) {
         Set<String> iris = new HashSet<>();
         for (JsonNode entity : queryResults.get(ENTITIES)) {
-          iris.add(entity.get("@id").asText());
+          iris.add(entity.get("iri").asText());
         }
         List<SearchResultSummary> summaries = entityRepository.getEntitySummariesByIris(iris);
         searchResponse.setEntities(summaries);

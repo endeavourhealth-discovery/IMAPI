@@ -142,7 +142,7 @@ public class QueryRepository {
     Query unpackedQuery = unpackQuery(queryRequest.getQuery(), queryRequest);
     queryRequest.setQuery(unpackedQuery);
     if (null != queryRequest.getContext() && null != result)
-      result.set("@context", mapper.convertValue(queryRequest.getContext(), JsonNode.class));
+      result.set("context", mapper.convertValue(queryRequest.getContext(), JsonNode.class));
   }
 
   public void unpackQueryRequest(QueryRequest queryRequest) throws QueryException {
@@ -186,7 +186,7 @@ public class QueryRepository {
         String error = "Query request arguments require parameter name :'" + parameterName + "' ";
         if (parameterType.equals(TTIriRef.iri(IM.NAMESPACE + "IriRef"))) {
           if (arg.getValueIri() == null)
-            throw new QueryException(error + " to have a valueIri :{@id : http....}");
+            throw new QueryException(error + " to have a valueIri :{iri : http....}");
         } else if (arg.getValueData() == null) {
           throw new QueryException(error + " to have valueData where with string value");
         }
@@ -203,9 +203,9 @@ public class QueryRepository {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
         Return aReturn = query.getReturn();
-          Map<String, ObjectNode> nodeMap = new HashMap<>();
-          bindReturn(bs, aReturn, entities, nodeMap);
-        }
+        Map<String, ObjectNode> nodeMap = new HashMap<>();
+        bindReturn(bs, aReturn, entities, nodeMap);
+      }
     }
     return result;
   }
@@ -248,9 +248,9 @@ public class QueryRepository {
         entities.add(node);
         nodeMap.put(value.stringValue(), node);
         if (value.isIRI())
-          node.put("@id", value.stringValue());
+          node.put("iri", value.stringValue());
         else
-          node.put("@bn", value.stringValue());
+          node.put("bn", value.stringValue());
       }
       bindNode(bs, aReturn, node);
     }
@@ -277,7 +277,7 @@ public class QueryRepository {
       if (object.isIRI()) {
         ObjectNode iriNode = mapper.createObjectNode();
         node.set(predicate, iriNode);
-        iriNode.put("@id", nodeValue);
+        iriNode.put("iri", nodeValue);
       } else if (object.isBNode()) {
         node.put(predicate, nodeValue);
       } else
@@ -320,9 +320,9 @@ public class QueryRepository {
           valueNode = mapper.createObjectNode();
           arrayNode.add(valueNode);
           if (nodeValue.isIRI())
-            valueNode.put("@id", nodeValue.stringValue());
+            valueNode.put("iri", nodeValue.stringValue());
           else
-            valueNode.put("@bn", nodeValue.stringValue());
+            valueNode.put("bn", nodeValue.stringValue());
         }
         bindNode(bs, returnNode, valueNode);
       }
@@ -331,9 +331,9 @@ public class QueryRepository {
 
   private ObjectNode getValueNode(ArrayNode arrayNode, String nodeId) {
     for (JsonNode entry : arrayNode) {
-      if (entry.get("@id").textValue().equals(nodeId))
+      if (entry.get("iri").textValue().equals(nodeId))
         return (ObjectNode) entry;
-      if (entry.get("@bn").textValue().equals(nodeId))
+      if (entry.get("bn").textValue().equals(nodeId))
         return (ObjectNode) entry;
     }
     return null;
@@ -466,7 +466,7 @@ public class QueryRepository {
         setMatchLabels(match, iriLabels);
       }
     }
-    if (query.getReturn() != null){
+    if (query.getReturn() != null) {
       Return select = query.getReturn();
       setReturnLabels(select, iriLabels);
     }

@@ -41,8 +41,8 @@ public class TTLiteralSerializer extends StdSerializer<TTLiteral> {
         gen.writeNumber(literal.longValue());
       else if (XSD.PATTERN.equals(literal.getType().getIri())) {
         gen.writeStartObject();
-        gen.writeStringField("@value", literal.getValue());
-        gen.writeStringField("@type", usePrefixes
+        gen.writeStringField("value", literal.getValue());
+        gen.writeStringField("type", usePrefixes
           ? helper.prefix(literal.getType().getIri())
           : literal.getType().getIri()
         );

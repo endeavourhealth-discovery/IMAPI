@@ -32,7 +32,7 @@ public class TTNodeDeserializer {
 
 
   public void populatePrefixesFromJson(JsonNode document, List<TTPrefix> prefixes) {
-    JsonNode contextNode = document.get("@context");
+    JsonNode contextNode = document.get("context");
     if (contextNode != null) {
       Iterator<Map.Entry<String, JsonNode>> fields = contextNode.fields();
       while (fields.hasNext()) {
@@ -53,9 +53,9 @@ public class TTNodeDeserializer {
     while (iterator.hasNext()) {
       Map.Entry<String, JsonNode> field = iterator.next();
       String key = field.getKey();
-      if (!"@context".equals(key)) {
+      if (!"context".equals(key)) {
         JsonNode value = field.getValue();
-        if ("@id".equals(key))
+        if ("iri".equals(key))
           result.setIri(expand(value.textValue()));
         else if (value.isArray()) {
           result.set(iri(expand(key)), getArrayNodeAsTripleTreeArray((ArrayNode) value));

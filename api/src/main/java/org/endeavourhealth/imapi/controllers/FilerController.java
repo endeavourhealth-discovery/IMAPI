@@ -238,7 +238,7 @@ public class FilerController {
       TTArray contentTypes = new TTArray();
       for (JsonNode j : results.get("entities")) {
         TTIriRef contentType = new TTIriRef();
-        contentType.setIri(j.get("@id").asText());
+        contentType.setIri(j.get("iri").asText());
         contentType.setName(j.get(RDFS.LABEL).asText());
         contentTypes.add(contentType);
       }

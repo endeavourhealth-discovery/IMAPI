@@ -44,7 +44,7 @@ public class TTContextHelper {
 
   public void serializeContexts(List<TTPrefix> prefixes, JsonGenerator gen) throws IOException {
     if (usePrefixes && prefixes != null && !prefixes.isEmpty()) {
-      gen.writeFieldName("@context");
+      gen.writeFieldName("context");
       gen.writeStartObject();
 
       for (TTPrefix prefix : prefixes) {
@@ -53,15 +53,15 @@ public class TTContextHelper {
       }
       gen.writeFieldName("entities");
       gen.writeStartObject();
-      gen.writeStringField("@id", "http://envhealth.info/im#entities");
-      gen.writeStringField("@container", "@set");
+      gen.writeStringField("id", "http://envhealth.info/im#entities");
+      gen.writeStringField("container", "set");
       gen.writeEndObject();
       gen.writeEndObject();
     }
   }
 
   public void deserializeContexts(JsonNode document, List<TTPrefix> prefixes) {
-    JsonNode contextNode = document.get("@context");
+    JsonNode contextNode = document.get("context");
     if (contextNode != null) {
       Iterator<Map.Entry<String, JsonNode>> fields = contextNode.fields();
       while (fields.hasNext()) {

@@ -48,10 +48,10 @@ public class QueryValidator {
   private void processReturn(Query query, String mainEntity) throws QueryException {
     if (query.getReturn() != null) {
       Return aReturn = query.getReturn();
-        if (aReturn.getNodeRef() == null) {
-          aReturn.setNodeRef(mainEntity);
-        }
-        validateReturn(aReturn);
+      if (aReturn.getNodeRef() == null) {
+        aReturn.setNodeRef(mainEntity);
+      }
+      validateReturn(aReturn);
     }
   }
 
@@ -119,7 +119,7 @@ public class QueryValidator {
     if (where.getVariable() != null)
       variables.put(where.getVariable(), VarType.PATH);
     if (where.getIri() == null && where.getParameter() == null && where.getWhere() == null)
-      throw new QueryException("Where clause has no where iri  (set @id to where iri) ir a parameter");
+      throw new QueryException("Where clause has no where iri  (set iri to where iri) ir a parameter");
     if (where.getNodeRef() != null && !variables.containsKey(where.getNodeRef()))
       throw new QueryException("Where clause variable '" + where.getNodeRef() + "' has not been declared in a match path");
 

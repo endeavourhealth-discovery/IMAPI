@@ -9,7 +9,7 @@ public class SchemeId implements MatchPhraseId {
     this.id = id;
   }
 
-  @JsonProperty("scheme.@id")
+  @JsonProperty("scheme.iri")
   public String getId() {
     return id;
   }

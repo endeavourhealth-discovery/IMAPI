@@ -173,11 +173,10 @@ public class Where extends Element implements Assignable {
   }
 
   public Where setValueVariable(String valueVariable) {
-    this.valueVariable= valueVariable;
+    this.valueVariable = valueVariable;
     return this;
   }
 
-  @JsonProperty("@id")
   public String getId() {
     return super.getIri();
   }

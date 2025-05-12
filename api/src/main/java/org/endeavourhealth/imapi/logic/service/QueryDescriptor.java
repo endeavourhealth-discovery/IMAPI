@@ -47,24 +47,14 @@ public class QueryDescriptor {
 
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
     setIriNames(query);
-    if (!query.hasRules()){
-      if (query.getBool()==null&&query.getMatch()!=null) query.setBool(Bool.and);
+    if (displayMode==DisplayMode.RULES&& query.getRule()==null){
+      new LogicOptimizer().createRules(query);
+    } else if (displayMode==DisplayMode.LOGICAL&&query.getRule()!=null){
+      new LogicOptimizer().resolveLogic(query,DisplayMode.LOGICAL);
     }
     describeMatch(query);
-
-
     if (query.getGroupBy()!=null){
       describeGroupBys(query.getGroupBy());
-    }
-
-    if (displayMode== DisplayMode.LOGICAL) {
-      if (query.hasRules()) {
-        new LogicOptimizer().resolveLogic(query, displayMode);
-      }
-    }
-    else if (displayMode==DisplayMode.RULES){
-      if (!query.hasRules())
-        new LogicOptimizer().createRules(query);
     }
     if (query.getDataSet()==null){
       Query dataSet= new Query();
@@ -164,16 +154,29 @@ public class QueryDescriptor {
     if (match.getThen() != null) {
       setIriSet(match.getThen(), iriSet);
     }
-    if (match.getMatch() != null) {
-      for (Match subMatch : match.getMatch()) {
+    if (match.getRule() != null) {
+      for (Match subMatch : match.getRule()) {
+        setIriSet(subMatch, iriSet);
+      }
+    }
+    if (match.getOr() != null) {
+      for (Match subMatch : match.getOr()) {
+        setIriSet(subMatch, iriSet);
+      }
+    }
+    if (match.getAnd() != null) {
+      for (Match subMatch : match.getAnd()) {
+        setIriSet(subMatch, iriSet);
+      }
+    }
+    if (match.getNot() != null) {
+      for (Match subMatch : match.getNot()) {
         setIriSet(subMatch, iriSet);
       }
     }
 
     if (match.getWhere() != null) {
-      for (Where where : match.getWhere()) {
-        setIriSet(where, iriSet);
-      }
+        setIriSet(match.getWhere(), iriSet);
     }
     if (match.getReturn()!=null){
       setIriSet( match.getReturn(),iriSet);
@@ -185,8 +188,13 @@ public class QueryDescriptor {
     if (where.getIri() != null) {
       iriSet.add(where.getIri());
     }
-    if (where.getWhere() != null) {
-      for (Where subWhere : where.getWhere()) {
+    if (where.getAnd() != null) {
+      for (Where subWhere : where.getAnd()) {
+        setIriSet(subWhere, iriSet);
+      }
+    }
+    if (where.getOr() != null) {
+      for (Where subWhere : where.getOr()) {
         setIriSet(subWhere, iriSet);
       }
     }
@@ -276,39 +284,14 @@ public class QueryDescriptor {
 
 
 
-  private void describeMatches(Match match) {
-    if (match.getBool() == null) match.setBool(Bool.and);
-    for (Match subMatch : match.getMatch()) {
-      if (subMatch.getTypeOf()==null) subMatch.setTypeOf(match.getTypeOf());
-      describeMatch(subMatch);
-    }
-    if (match.getWhere() != null) {
-      if (match.getWhere().size() > 1 && match.getBool() == null) match.setBool(Bool.and);
-      describeWheres(match.getWhere());
-    }
-  }
-
-
-
 
   public void describeMatch(Match match) {
-    if (match.getIfTrue()!=null){
-      match.setIsRule(true);
-    }
     if (match.getOrderBy()!=null){
       describeOrderBy(match.getOrderBy());
     }
 
     if (match.getReturn() != null) {
       describeReturn(match.getReturn());
-    }
-    if (match.isUnion()){
-      match.setHeader(getUnionHeader(match));
-    }
-    else if (match.getReturn()!=null){
-      if (match.getMatch()==null||match.getWhere()!=null) {
-        match.setPreface(getPreface(match));
-      }
     }
     if (match.getName() == null) {
       if (match.getDescription() != null) {
@@ -325,10 +308,25 @@ public class QueryDescriptor {
     if (match.getThen() != null) {
       describeMatch(match.getThen());
     }
-
-
-    if (match.getMatch() != null) {
-      describeMatches(match);
+    if (match.getRule() != null) {
+      for (Match subMatch : match.getRule()) {
+        describeMatch(subMatch);
+      }
+    }
+    if (match.getOr() != null) {
+      for (Match subMatch : match.getOr()) {
+        describeMatch(subMatch);
+      }
+    }
+    if (match.getAnd() != null) {
+      for (Match subMatch : match.getAnd()) {
+        describeMatch(subMatch);
+      }
+    }
+    if (match.getNot() != null) {
+      for (Match subMatch : match.getNot()) {
+        describeMatch(subMatch);
+      }
     }
     if (match.getPath() != null) {
       for (Path path : match.getPath()) {
@@ -337,7 +335,7 @@ public class QueryDescriptor {
     }
 
     if (match.getWhere() != null) {
-      describeWheres(match.getWhere());
+      describeWhere(match.getWhere());
     }
 
   }
@@ -452,17 +450,20 @@ public class QueryDescriptor {
 
 
   private void describeWhere(Where where) {
-    if (where.getWhere() != null) {
-      if (where.getBool() == null) where.setBool(Bool.and);
-      describeWheres(where.getWhere());
-    } else {
+    if (where.getAnd() != null) {
+      describeWheres(where.getAnd());
+    }
+    if (where.getOr() != null) {
+      describeWheres(where.getOr());
+    }
+    else if (where.getAnd() == null && where.getOr() == null) {
       where.setName(getTermInContext(where, Context.PROPERTY));
       if (where.getRange() != null) {
         describeRangeWhere(where);
       }
       if (where.getValue() != null || where.getOperator() != null) {
         describeValueWhere(where);
-        where.setQualifier("is "+ where.getQualifier());
+        where.setQualifier("is " + where.getQualifier());
       }
       if (where.getIs() != null) {
         describeWhereIs(where);
@@ -474,13 +475,13 @@ public class QueryDescriptor {
         where.setValueLabel("is recorded");
       }
     }
-
   }
 
   private void describeValue(Assignable assignable, Operator operator, boolean date, String value, TTIriRef unit, boolean relativeTo, boolean isRange) {
     String qualifier = null;
     boolean inclusive = false;
     boolean past = false;
+    assignable.setValueLabel("");
     if (value != null) if (value.startsWith("-")) past = true;
     String relativity = null;
     if (null != operator) switch (operator) {
@@ -696,7 +697,7 @@ public class QueryDescriptor {
       String relation = null;
       if (relativeTo.getIri() != null) {
         String propertyName = getTermInContext(relativeTo);
-        relation = " the "+ propertyName + " of ";
+        relation = propertyName + " of ";
       }
       if (relativeTo.getParameter() != null) {
         if (relativeTo.getParameter().toLowerCase().contains("referencedate")) {

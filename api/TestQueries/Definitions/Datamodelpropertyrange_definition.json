@@ -22,20 +22,24 @@
   "query" : {
     "name" : "Data model property range",
     "description" : "get node, class or datatype value (range)  of property objects for specific data model and property",
-    "match" : [ {
-      "bool" : "and",
-      "instanceOf" : [ {
-        "parameter" : "myDataModel"
-      } ],
-      "where" : [ {
+    "instanceOf" : [ {
+      "parameter" : "myDataModel"
+    } ],
+    "return" : {
+      "property" : [ {
+        "@id" : "rdfs:label",
+        "valueRef" : "propType"
+      } ]
+    },
+    "where" : {
+      "and" : [ {
         "@id" : "sh:path",
         "nodeRef" : "shaclProperty",
         "is" : [ {
           "parameter" : "myProperty"
         } ]
       }, {
-        "bool" : "or",
-        "where" : [ {
+        "or" : [ {
           "@id" : "sh:class",
           "nodeRef" : "shaclProperty",
           "valueVariable" : "propType"
@@ -48,17 +52,11 @@
           "nodeRef" : "shaclProperty",
           "valueVariable" : "propType"
         } ]
-      } ],
-      "path" : [ {
-        "@id" : "sh:property",
-        "variable" : "shaclProperty"
-      } ],
-      "return" : {
-        "property" : [ {
-          "@id" : "rdfs:label",
-          "valueRef" : "propType"
-        } ]
-      }
+      } ]
+    },
+    "path" : [ {
+      "@id" : "sh:property",
+      "variable" : "shaclProperty"
     } ]
   }
 }

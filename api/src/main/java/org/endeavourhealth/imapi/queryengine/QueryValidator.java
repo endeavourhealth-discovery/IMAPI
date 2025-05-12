@@ -2,9 +2,7 @@ package org.endeavourhealth.imapi.queryengine;
 
 import org.endeavourhealth.imapi.model.imq.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class QueryValidator {
   private final Map<String, VarType> variables = new HashMap<>();
@@ -13,18 +11,15 @@ public class QueryValidator {
   private int o = 0;
 
   public void validateQuery(Query query) throws QueryException {
-    String mainEntity;
-    if (query.getMatch() == null && null == query.getInstanceOf()&&null== query.getWhere())
+    String mainEntity="entity";
+    if (query.getVariable()!=null){
+      mainEntity=query.getVariable();
+    }
+    if (query.getAnd() == null &&query.getOr()==null && null == query.getInstanceOf()&&null== query.getWhere())
       throw new QueryException("Query must have match clause or instanceOf or where clause");
-    mainEntity = query.getVariable();
     if (mainEntity == null) {
       mainEntity= query.getParameter();
     }
-    if (mainEntity == null && null != query.getMatch()) {
-      mainEntity = query.getMatch().get(0).getVariable();
-    }
-    if (mainEntity == null)
-      mainEntity = "entity";
     variables.put(mainEntity, VarType.NODE);
     processMatches(query, mainEntity);
     if (null != query.getInstanceOf()) {
@@ -35,9 +30,7 @@ public class QueryValidator {
       if (query.getVariable()==null){
         query.setVariable(mainEntity);
       }
-        for (Where where : query.getWhere()) {
-          validateWhere(where, query.getVariable());
-      }
+      validateWhere(query.getWhere(), query.getVariable());
     }
 
     if (query.getReturn() == null) {
@@ -47,17 +40,41 @@ public class QueryValidator {
     processReturn(query, mainEntity);
   }
 
-  private void processMatches(Query query, String mainEntity) throws QueryException {
-    if (null != query.getMatch()) {
-      for (Match match : query.getMatch()) {
-        if (match.getVariable()!=null){
-          variables.put(match.getVariable(), VarType.NODE);
-        } else if (match.getParameter()!=null){
-          variables.put(match.getParameter(), VarType.NODE);
-        }else if (match.getNodeRef()==null){
-          match.setVariable(mainEntity);
+  private void processMatches(Match boolMatch, String mainEntity) throws QueryException {
+    processMatch(mainEntity, boolMatch);
+    validateMatch(boolMatch);
+    for (List<Match> matches : Arrays.asList(boolMatch.getAnd(),boolMatch.getOr(),boolMatch.getNot())) {
+      if (matches != null) {
+        for (Match match : matches) {
+          processMatch(mainEntity, match);
+          validateMatch(match);
         }
-        validateMatch(match);
+      }
+    }
+  }
+
+  private void processMatch(String mainEntity, Match match) {
+    if (match.getVariable() != null) {
+      variables.put(match.getVariable(), VarType.NODE);
+    } else if (match.getParameter() != null) {
+      variables.put(match.getParameter(), VarType.NODE);
+    } else if (match.getNodeRef() == null) {
+      match.setVariable(mainEntity);
+    }
+    if (match.getPath()!=null){
+      for (Path pathMatch : match.getPath()){
+        processPath(pathMatch);
+      }
+    }
+  }
+
+  private void processPath(Path pathMatch) {
+    if (pathMatch.getVariable()!=null){
+      variables.put(pathMatch.getVariable(), VarType.PATH);
+    }
+    if (pathMatch.getPath()!=null){
+      for (Path subPath : pathMatch.getPath()){
+        processPath(subPath);
       }
     }
   }
@@ -120,17 +137,16 @@ public class QueryValidator {
     }
     if (match.getNodeRef() != null && variables.get(match.getNodeRef()) == null)
       throw new QueryException("match clause contains a node reference that has not been declared as a variable");
-
-    if (match.getMatch() != null) {
-      for (Match subMatch : match.getMatch()) {
-        validateMatch(subMatch);
+    for (List<Match> matches:Arrays.asList(match.getAnd(),match.getOr())) {
+      if (matches != null) {
+        for (Match subMatch : matches) {
+          validateMatch(subMatch);
+        }
       }
     }
     if (match.getWhere() != null) {
-      for (Where where : match.getWhere()) {
-        validateWhere(where, match.getVariable());
+        validateWhere(match.getWhere(), match.getVariable());
       }
-    }
 
   }
 
@@ -151,7 +167,7 @@ public class QueryValidator {
   private void validateWhere(Where where, String subject) throws QueryException {
     if (where.getVariable() != null)
       variables.put(where.getVariable(), VarType.PATH);
-    if (where.getIri() == null && where.getParameter() == null && where.getWhere() == null)
+    if (where.getIri() == null && where.getParameter() == null && where.getAnd() == null&&where.getOr()==null)
       throw new QueryException("Where clause has no where iri  (set @id to where iri) ir a parameter");
     if (where.getNodeRef() != null && !variables.containsKey(where.getNodeRef()))
       throw new QueryException("Where clause variable '" + where.getNodeRef() + "' has not been declared in a match path");
@@ -166,11 +182,13 @@ public class QueryValidator {
     }
     propertyMap.computeIfAbsent(subject, s -> new HashMap<>())
       .put(where.getIri(), object);
-    if (where.getWhere() != null) {
-      for (Where property : where.getWhere())
-        validateWhere(property, subject);
+    for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
+      if (wheres != null) {
+        for (Where property : wheres) {
+          validateWhere(property, subject);
+        }
+      }
     }
-
   }
 
 }

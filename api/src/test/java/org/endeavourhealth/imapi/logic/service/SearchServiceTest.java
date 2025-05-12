@@ -30,7 +30,8 @@ class SearchServiceTest {
 
 //@Test
   void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
-   output(TestQueries.shapesWithDateOFBirth());
+  output(TestQueries.dataModelPropertyRange());
+  output(TestQueries.shapesWithDateOFBirth());
    output(TestQueries.getAllowableSubtypes());
    output(TestQueries.AllowablePropertiesForCovid());
    output(TestQueries.getAllowableProperties());
@@ -46,7 +47,7 @@ class SearchServiceTest {
 
     //output(TestQueries.pathQueryAtenolol3());
 
-    output(TestQueries.dataModelPropertyRange());
+
     output(TestQueries.rangeSuggestion());
 
 

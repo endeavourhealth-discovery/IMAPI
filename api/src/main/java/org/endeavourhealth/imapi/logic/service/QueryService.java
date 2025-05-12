@@ -100,11 +100,10 @@ public class QueryService {
     };
     TTEntity cohort = findFirstQuery(children);
     Query defaultQuery= new Query();
-    defaultQuery.setMatch(new ArrayList<>());
     if (cohort!=null) {
       Query cohortQuery = cohort.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       defaultQuery.setTypeOf(cohortQuery.getTypeOf());
-      defaultQuery.addInstanceOf(new Node().setIri(cohort.getIri()));
+      defaultQuery.addInstanceOf(new Node().setIri(cohort.getIri()).setMemberOf(true));
       return defaultQuery;
     }  else return null;
   }

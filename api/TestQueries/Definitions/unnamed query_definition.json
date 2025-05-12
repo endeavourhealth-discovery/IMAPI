@@ -8,13 +8,18 @@
     "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "sn" : "http://snomed.info/sct#"
   },
+  "textSearch" : "thia",
   "argument" : [ {
     "parameter" : "this",
-    "valueIri" : {
-      "@id" : "im:recordOwner"
-    }
+    "valueIriList" : [ {
+      "@id" : "sn:105590001"
+    } ]
   } ],
   "query" : {
-    "@id" : "im:Query_ObjectPropertyRangeSuggestions"
-  }
+    "instanceOf" : [ {
+      "parameter" : "this",
+      "descendantsOrSelfOf" : true
+    } ]
+  },
+  "name" : "substances starting with 'thia'"
 }

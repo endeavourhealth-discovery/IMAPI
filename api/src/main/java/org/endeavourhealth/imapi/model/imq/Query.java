@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"prefix", "iri", "name", "description", "activeOnly", "bool", "match", "return", "construct", "query", "groupBy", "orderBy"})
+@JsonPropertyOrder({"prefix", "iri", "name", "description", "activeOnly", "typeOf","instanceOf","and","or","not","return", "construct", "query", "groupBy", "orderBy"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends Match {
   private Prefixes prefixes;
@@ -21,7 +21,6 @@ public class Query extends Match {
   @Getter
   private boolean activeOnly;
   private List<Query> dataSet;
-  private List<Match> match;
   private List<GroupBy> groupBy;
   private String iri;
   private String name;
@@ -29,6 +28,47 @@ public class Query extends Match {
   private JsonNode parentResult;
   @Getter
   private TTIriRef persistentIri;
+
+  public Query setRule(List<Match>rule){
+    super.setRule(rule);
+    return this;
+  }
+  public Query addRule(Match rule){
+    super.addRule(rule);
+    return this;
+  }
+
+  public Query setAnd(List<Match> and){
+    super.setAnd(and);
+    return this;
+  }
+  public Query addAnd(Match and){
+    super.addAnd(and);
+    return this;
+  }
+  public Query and(Consumer<Match> builder){
+    Match match = new Match();
+    addAnd(match);
+    builder.accept(match);
+    return this;
+  }
+
+  public Query setNot(List<Match> not){
+    super.setNot(not);
+    return this;
+  }
+
+  public Query addNot(Match not){
+    super.addNot(not);
+    return this;
+  }
+
+  public Query not(Consumer<Match> builder){
+    Match match = new Match();
+    addNot(match);
+    builder.accept(match);
+    return this;
+  }
 
   public Query addInstanceOf(Node instanceOf){
     super.addInstanceOf(instanceOf);
@@ -44,6 +84,57 @@ public class Query extends Match {
 
   public Query setInstanceOf(List<Node> instanceOf){
     super.setInstanceOf(instanceOf);
+    return this;
+  }
+
+  public Query setOr(List<Match> or){
+    super.setOr(or);
+    return this;
+  }
+
+  public Query addOr(Match or){
+    super.addOr(or);
+    return this;
+  }
+  public Query or(Consumer<Match> builder){
+    Match match = new Match();
+    addOr(match);
+    builder.accept(match);
+    return this;
+  }
+
+  public Query dataset(Consumer<Query> builder){
+    Query query = new Query();
+    addDataSet(query);
+    builder.accept(query);
+    return this;
+  }
+
+
+  public Query setPath(List<Path> path){
+    super.setPath(path);
+    return this;
+  }
+
+  public Query addPath(Path path){
+    super.addPath(path);
+    return this;
+  }
+
+  public Query path(Consumer<Path> builder){
+    Path path = new Path();
+    addPath(path);
+    builder.accept(path);
+    return this;
+  }
+
+  public Query setWhere(Where where) {
+    super.setWhere(where);
+    return this;
+  }
+
+  public Query where(Consumer<Where> builder) {
+    super.where(builder);
     return this;
   }
 
@@ -88,11 +179,6 @@ public class Query extends Match {
     return this;
   }
 
-  public Query setHasRules(boolean hasRules) {
-    super.setHasRules(hasRules);
-    return this;
-  }
-
   public Prefixes getPrefixes() {
     return prefixes;
   }
@@ -101,7 +187,6 @@ public class Query extends Match {
     this.prefixes = prefixes;
     return this;
   }
-
 
 
   public Query addPrefix(String prefix, String namespace) {
@@ -113,11 +198,6 @@ public class Query extends Match {
     return this;
   }
 
-
-  public Query setBool(Bool bool) {
-    super.setBool(bool);
-    return this;
-  }
 
 
 
@@ -136,30 +216,6 @@ public class Query extends Match {
 
   public Query return_(Consumer<Return> builder) {
     super.return_(builder);
-    return this;
-  }
-
-
-  public List<Match> getMatch() {
-    return match;
-  }
-
-  public Query setMatch(List<Match> from) {
-    this.match = from;
-    return this;
-  }
-
-  public Query addMatch(Match match) {
-    if (this.match == null)
-      this.match = new ArrayList<>();
-    this.match.add(match);
-    return this;
-  }
-
-  public Query match(Consumer<Match> builder) {
-    Match match = new Match();
-    addMatch(match);
-    builder.accept(match);
     return this;
   }
 

@@ -1,6 +1,6 @@
 {
   "match" : [ {
-    "where" : [ {
+    "where" : {
       "@id" : "http://endhealth.info/im#concept",
       "name" : "concept",
       "nodeRef" : "condition",
@@ -9,13 +9,13 @@
         "name" : "Diabetes mellitus type 2 (disorder)",
         "descendantsOrSelfOf" : true
       } ]
-    } ],
+    },
     "path" : [ {
       "@id" : "http://endhealth.info/im#condition",
       "name" : "condition"
     } ]
   }, {
-    "where" : [ {
+    "where" : {
       "@id" : "http://endhealth.info/im#concept",
       "name" : "concept",
       "nodeRef" : "observation",
@@ -24,13 +24,13 @@
         "name" : "Diabetes mellitus type 2 (disorder)",
         "descendantsOrSelfOf" : true
       } ]
-    } ],
+    },
     "path" : [ {
       "@id" : "http://endhealth.info/im#observation",
       "name" : "observation"
     } ]
   }, {
-    "where" : [ {
+    "where" : {
       "@id" : "http://endhealth.info/im#concept",
       "name" : "concept",
       "nodeRef" : "investigation",
@@ -39,7 +39,7 @@
         "name" : "Diabetes mellitus type 2 (disorder)",
         "descendantsOrSelfOf" : true
       } ]
-    } ],
+    },
     "path" : [ {
       "@id" : "http://endhealth.info/im#investigation",
       "name" : "investigation (test header)"

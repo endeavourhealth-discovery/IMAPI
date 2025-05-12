@@ -10,12 +10,9 @@ public class LogicOptimizer {
 
   public void resolveLogic(Match match, DisplayMode displayMode) throws JsonProcessingException {
     if (displayMode== DisplayMode.LOGICAL) {
-      if (match.hasRules()){
-        getLogicFromRules(match);
-        match.setHasRules(false);
+      getLogicFromRules(match);
         flattenMatch(match);
         optimiseMatch(match);
-      }
     }
     else {
       optimiseMatch(match);
@@ -23,90 +20,53 @@ public class LogicOptimizer {
   }
 
   private void getLogicFromRules(Match match) {
-    if (!match.hasRules()) return;
-    List<Match> newMatches= new ArrayList<>();
+    if (match.getRule()==null) return;
     Match topOr=null;
-    Match topOrAnd=null;
-    for (Match subMatch: match.getMatch()) {
-      if (!subMatch.isRule()) continue;
+    for (Match subMatch: match.getRule()) {
       RuleAction ifTrue= subMatch.getIfTrue();
       RuleAction ifFalse= subMatch.getIfFalse();
-      subMatch.setIsRule(false);
       if (ifTrue == ifFalse) {
         throw new IllegalArgumentException("ifTrue and ifFalse cannot be the same");
       }
       switch (ifTrue + "_" + ifFalse) {
         case "SELECT_REJECT":
           if (topOr!=null) {
-            topOr.addMatch(subMatch);
+            topOr.addOr(subMatch);
             topOr=null;
           }
-          else newMatches.add(subMatch);
+          else match.addAnd(subMatch);
           break;
         case "SELECT_NEXT":
-          if (topOr!=null) topOr.addMatch(subMatch);
+          if (topOr!=null) topOr.addOr(subMatch);
           else {
             topOr= new Match();
-            topOr.setBool(Bool.or);
-            newMatches.add(topOr);
-            topOr.addMatch(subMatch);
+            match.addAnd(topOr);;
+            topOr.addOr(subMatch);
           }
           break;
         case "REJECT_SELECT":
-          subMatch.setExclude(true);
-            if (topOr!=null) {
-              topOr.addMatch(subMatch);
-              topOr=null;
-            }
-            else{
-              newMatches.add(subMatch);
-            }
+         match.addNot(subMatch);
           break;
         case "REJECT_NEXT":
-          subMatch.setExclude(true);
+          match.addNot(subMatch);
+          break;
+        case "NEXT_SELECT":
           if (topOr!=null) {
-            topOr.addMatch(subMatch);
+            topOr.addNot(subMatch);
             topOr=null;
           }
           else {
             topOr= new Match();
-            topOr.setBool(Bool.or);
-            newMatches.add(topOr);
-            topOr.addMatch(subMatch);
-          }
-          break;
-        case "NEXT_SELECT":
-          subMatch.setExclude(true);
-          if (topOr!=null) topOr.addMatch(subMatch);
-          else {
-            topOr= new Match();
-            topOr.setBool(Bool.or);
-            newMatches.add(topOr);
-            topOr.addMatch(subMatch);
+            match.addAnd(topOr);
+            topOr.addNot(subMatch);
           }
           break;
         case "NEXT_REJECT":
-          if (topOr!=null) {
-            if (topOrAnd!=null){
-              topOrAnd.addMatch(subMatch);
-            } else {
-              topOrAnd= new Match();
-              topOrAnd.setBool(Bool.and);
-              topOr.addMatch(topOrAnd);
-              topOrAnd.addMatch(subMatch);
-            }
-          } else {
-            newMatches.add(subMatch);
-          }
+          match.addAnd(subMatch);
           break;
       }
     }
-    if (newMatches.size()==1){
-      match.setBool(newMatches.get(0).getBool());
-      match.setMatch(newMatches.get(0).getMatch());
-      if (match.getBool()==null&&match.getMatch().size()>1 ) match.setBool(Bool.and);
-      }
-    else match.setBool(Bool.and);
+    match.setRule(null);
   }
 
   private void optimiseMatch(Match match) throws JsonProcessingException {
@@ -115,25 +75,27 @@ public class LogicOptimizer {
   }
   private void optimizeAndMatches(Match match) throws JsonProcessingException {
     commonMatches = new HashSet<>();
-    if (match.getMatch() == null) return;
-    if (match.getBool() == Bool.and && match.getWhere() == null && match.getMatch().size() > 1) {
-      List<Match> matches = match.getMatch();
-      List<Match> ands = new ArrayList<>();
-      getCommonAnds(matches,commonMatches,ands);
+    if (match.getAnd() == null) return;
+    if (match.getWhere() == null && match.getAnd().size() > 1) {
+      List<Match> originalAnds = match.getAnd();
+      List<Match> optimalAnds = new ArrayList<>();
+      getCommonAnds(originalAnds,commonMatches,optimalAnds);
       if (commonMatches.isEmpty()) return;
-      for (Match andMatch:matches) {
-        for (Match subMatch : andMatch.getMatch()) {
-          String content = LogicComparer.serializeMatchLogic(subMatch);
-          if (!commonMatches.contains(content)) {
-            ands.add(subMatch);
+      for (Match andMatch:originalAnds) {
+        if (andMatch.getAnd()!=null) {
+          for (Match subMatch : andMatch.getAnd()) {
+            String content = LogicComparer.serializeMatchLogic(subMatch);
+            if (!commonMatches.contains(content)) {
+              optimalAnds.add(subMatch);
+            }
           }
         }
       }
-      match.setMatch(ands);
+      match.setAnd(optimalAnds);
     }
     else {
-      if (match.getMatch() != null) {
-        for (Match child : match.getMatch()) {
+      if (match.getAnd() != null) {
+        for (Match child : match.getAnd()) {
           optimiseMatch(child);
         }
       }
@@ -142,40 +104,37 @@ public class LogicOptimizer {
 
   private void optimizeOrMatches(Match match) throws JsonProcessingException {
     commonMatches = new HashSet<>();
-    if (match.getMatch() == null) return;
-    if (match.getBool() == Bool.or && match.getWhere() == null && match.getMatch().size() > 1) {
-      List<Match> matches = match.getMatch();
-      List<Match> ands = new ArrayList<>();
-      List<Match> ors = new ArrayList<>();
-      getCommonAnds(matches,commonMatches,ands);
+    if (match.getOr() == null) return;
+    if (match.getWhere() == null && match.getOr().size() > 1) {
+      List<Match> originalOrs = match.getOr();
+      List<Match> optimisedAnds = new ArrayList<>();
+      List<Match> optimisedOrs = new ArrayList<>();
+      getCommonAnds(originalOrs,commonMatches,optimisedAnds);
       if (commonMatches.isEmpty()) return;
-      for (Match orMatch:matches) {
-        if (orMatch.getBool() == Bool.and) {
+      for (Match orMatch:originalOrs) {
+        if (orMatch.getAnd()!=null) {
           Match newOr = new Match();
-          newOr.setBool(Bool.and);
-          ors.add(newOr);
-          for (Match andMatch : orMatch.getMatch()) {
+          optimisedOrs.add(newOr);
+          for (Match andMatch : orMatch.getAnd()) {
             String content = LogicComparer.serializeMatchLogic(andMatch);
             if (!commonMatches.contains(content)) {
-              newOr.addMatch(andMatch);
+              newOr.addAnd(andMatch);
             }
           }
         }
       }
-      if (!ands.isEmpty()) {
-        match.setBool(Bool.and);
-        match.setMatch(ands);
-        if (!ors.isEmpty()) {
+      if (!optimisedAnds.isEmpty()) {
+        match.setAnd(optimisedAnds);
+        if (!optimisedOrs.isEmpty()) {
           Match topOr = new Match();
-          match.addMatch(topOr);
-          topOr.setBool(Bool.or);
-          topOr.setMatch(ors);
+          match.addAnd(topOr);
+          topOr.setOr(optimisedOrs);
         }
       }
     }
     else {
-      if (match.getMatch() != null) {
-        for (Match child : match.getMatch()) {
+      if (match.getOr() != null) {
+        for (Match child : match.getOr()) {
           optimiseMatch(child);
         }
       }
@@ -186,9 +145,9 @@ public class LogicOptimizer {
 
   private void getCommonAnds(List<Match> matches, Set<String> commonMatches, List<Match> ands) throws JsonProcessingException {
     Match first=matches.get(0);
-    if (first.getBool() == Bool.and&&first.getMatch()!=null) {
-      for (int q = 0; q < first.getMatch().size(); q++) {
-        Match candidate = first.getMatch().get(q);
+    if (first.getAnd()!=null) {
+      for (int q = 0; q < first.getAnd().size(); q++) {
+        Match candidate = first.getAnd().get(q);
         String content = LogicComparer.serializeMatchLogic(candidate);
         if (!commonMatches.contains(content)) {
           if (isCommon(matches, content, 1)) {
@@ -207,9 +166,9 @@ public class LogicOptimizer {
   private boolean isCommon(List<Match> matches, String content,int index) throws JsonProcessingException {
     if (index>matches.size()-1) return true;
     Match next = matches.get(index);
-    if (next.getBool() == Bool.and&&next.getMatch()!=null) {
-        for (int q = 0; q < next.getMatch().size(); q++) {
-          Match candidate = next.getMatch().get(q);
+    if (next.getAnd()!=null) {
+        for (int q = 0; q < next.getAnd().size(); q++) {
+          Match candidate = next.getAnd().get(q);
           String testContent= LogicComparer.serializeMatchLogic(candidate);
           if (testContent.equals(content)) {
             if (index<matches.size()-1)
@@ -223,107 +182,75 @@ public class LogicOptimizer {
 
 
   public static  void flattenMatch(Match match){
-    if (match.isUnion()) return;
-    if (match.getBool() == Bool.or) {
-      flattenOrs(match);
-    }
-
-    else if (match.hasRules()){
-      for (Match child:match.getMatch()){
+   if (match.getAnd()!=null) {
+     List<Match> flatMatches= new ArrayList<>();
+     for (Match child : match.getAnd()) {
+       if (child.getAnd() != null && child.getOr() == null && child.getNot() == null) {
+         flatMatches.addAll(child.getAnd());
+       } else flatMatches.add(child);
+       flattenMatch(child);
+     }
+     match.setAnd(flatMatches);
+   }
+    if (match.getOr()!=null) {
+      List<Match> flatMatches= new ArrayList<>();
+      for (Match child : match.getOr()) {
+        if (child.getOr() != null && child.getAnd() == null && child.getNot() == null) {
+          flatMatches.addAll(child.getOr());
+        } else flatMatches.add(child);
         flattenMatch(child);
+        }
+      match.setOr(flatMatches);
       }
-    }
-
-    else if (match.getMatch()!=null){
-      List<Match> flatMatches = new ArrayList<>();
-      flattenAnds(match.getMatch(),flatMatches);
-      match.setMatch(flatMatches);
-    }
-
-
   }
-
-    private static void flattenAnds(List<Match> topMatches, List<Match> flatMatches){
-      for (Match topMatch : topMatches) {
-        //Top level match, no nested match
-        if (topMatch.getMatch() == null) {
-          flatMatches.add(topMatch);
-        }
-        else if (topMatch.isUnion()){
-          flatMatches.add(topMatch);
-        }
-        else if (topMatch.getBool() != Bool.or) {
-          flattenAnds(topMatch.getMatch(),flatMatches);
-        }
-        else {
-          flatMatches.add(topMatch);
-          flattenOrs(topMatch);
-        }
-      }
-
-    }
-
-    private static void flattenOrs(Match topMatch) {
-      List<Match> newOrs = new ArrayList<>();
-      for (Match match : topMatch.getMatch()) {
-        if (match.getMatch() != null) {
-          if (match.getBool().equals(Bool.and)) {
-            List<Match> subFlatMatches = new ArrayList<>();
-            flattenAnds(match.getMatch(), subFlatMatches);
-            if (subFlatMatches.size() == 1) {
-              newOrs.add(subFlatMatches.get(0));
-            } else {
-              match.setMatch(subFlatMatches);
-              newOrs.add(match);
-            }
-          }
-        } else newOrs.add(match);
-
-      }
-      topMatch.setMatch(newOrs);
-    }
 
   public void createRules(Query query) {
-    List<Match> newMatches = new ArrayList<>();
-    if (query.getMatch() == null) return;
-    if (query.getBool()==Bool.or){
-      addOrsAsRules(newMatches, query);
-    }
-    else {
-      for (Match match : query.getMatch()) {
-        match.setIsRule(true);
-        if (!match.isExclude()) {
-          match.setIfTrue(RuleAction.NEXT);
-          match.setIfFalse(RuleAction.REJECT);
-        } else {
-          match.setIfTrue(RuleAction.REJECT);
-          match.setIfFalse(RuleAction.NEXT);
-          match.setExclude(false);
-        }
+    if (query.getAnd() == null&&query.getOr()==null&&query.getNot()==null) return;
+    if (query.getAnd()!=null) {
+      for (Match match : query.getAnd()) {
+        query.addRule(match);
+        match.setIfTrue(RuleAction.NEXT);
+        match.setIfFalse(RuleAction.REJECT);
       }
-      Match lastMatch = query.getMatch().get(query.getMatch().size() - 1);
-      if (!lastMatch.isExclude()) {
-        lastMatch.setIfTrue(RuleAction.SELECT);
-        lastMatch.setIfFalse(RuleAction.REJECT);
-      } else {
-        lastMatch.setIfTrue(RuleAction.REJECT);
-        lastMatch.setIfFalse(RuleAction.SELECT);
-        lastMatch.setExclude(false);
+      if (query.getOr()==null&& query.getNot()==null){
+        Match lastRule= query.getRule().get(query.getRule().size()-1);
+        lastRule.setIfTrue(RuleAction.SELECT);
+        lastRule.setIfFalse(RuleAction.REJECT);
+        return;
       }
     }
-
-    query.setHasRules(true);
-  }
-
-  private void addOrsAsRules(List<Match> newMatches, Match match) {
-    for (Match subMatch : match.getMatch()) {
-      subMatch.setIsRule(true);
-      subMatch.setIfTrue(RuleAction.SELECT);
-      subMatch.setIfFalse(RuleAction.NEXT);
-      newMatches.add(subMatch);
+    if (query.getOr()!=null){
+      Match orRule= new Match();
+      query.addRule(orRule);
+      orRule.setIfTrue(RuleAction.NEXT);
+      orRule.setIfFalse(RuleAction.REJECT);
+      for (Match match : query.getOr()) {
+        orRule.addOr(match);
+      }
+      Match lastRule= orRule.getRule().get(orRule.getRule().size()-1);
+      if (query.getNot()==null){
+        lastRule.setIfTrue(RuleAction.SELECT);
+        lastRule.setIfFalse(RuleAction.REJECT);
+        return;
+      }
+      else {
+        lastRule.setIfTrue(RuleAction.SELECT);
+        lastRule.setIfFalse(RuleAction.NEXT);
+      }
     }
-    Match lastMatch = match.getMatch().get(match.getMatch().size() - 1);
-    lastMatch.setIfTrue(RuleAction.SELECT);
-    lastMatch.setIfFalse(RuleAction.REJECT);
+    if (query.getNot()!=null) {
+      for (Match match : query.getNot()) {
+        query.addRule(match);
+        match.setIfTrue(RuleAction.REJECT);
+        match.setIfFalse(RuleAction.NEXT);
+      }
+      Match lastRule= query.getRule().get(query.getRule().size()-1);
+      lastRule.setIfTrue(RuleAction.REJECT);
+      lastRule.setIfFalse(RuleAction.SELECT);
+    }
+    query.setAnd(null);
+    query.setOr(null);
+    query.setNot(null);
   }
+
 }

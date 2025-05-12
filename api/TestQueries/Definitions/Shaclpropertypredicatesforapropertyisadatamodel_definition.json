@@ -22,21 +22,8 @@
   "query" : {
     "name" : "Shacl property predicates for a property is a data model",
     "description" : "Select the predicates and values and labels of the values for a given data mode and property",
-    "match" : [ {
-      "instanceOf" : [ {
-        "parameter" : "$dataModel"
-      } ],
-      "where" : [ {
-        "@id" : "sh:path",
-        "nodeRef" : "shaclProperty",
-        "is" : [ {
-          "parameter" : "$property"
-        } ]
-      } ],
-      "path" : [ {
-        "@id" : "sh:property",
-        "variable" : "shaclProperty"
-      } ]
+    "instanceOf" : [ {
+      "parameter" : "$dataModel"
     } ],
     "return" : {
       "property" : [ {
@@ -66,6 +53,17 @@
         "@id" : "sh:minCount"
       } ],
       "propertyRef" : "shaclProperty"
-    }
+    },
+    "where" : {
+      "@id" : "sh:path",
+      "nodeRef" : "shaclProperty",
+      "is" : [ {
+        "parameter" : "$property"
+      } ]
+    },
+    "path" : [ {
+      "@id" : "sh:property",
+      "variable" : "shaclProperty"
+    } ]
   }
 }

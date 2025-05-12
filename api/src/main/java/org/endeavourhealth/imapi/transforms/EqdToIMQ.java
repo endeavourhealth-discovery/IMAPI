@@ -120,8 +120,8 @@ public class EqdToIMQ {
   }
 
   private void checkGms(Query query) {
-    if (query.getMatch() != null) {
-      for(Match match : query.getMatch()) {
+    if (query.getRule() != null) {
+      for(Match match : query.getRule()) {
         this.checkGms(match);
       }
     }
@@ -222,20 +222,19 @@ public class EqdToIMQ {
   }
 
   private void flattenRules(Query qry) {
-    if (qry.getMatch() != null) {
-      for(Match match : qry.getMatch()) {
-        if (match.getBool() == Bool.and && match.getMatch() != null) {
+    if (qry.getRule() != null) {
+      for(Match match : qry.getRule()) {
+        if (match.getAnd() !=null) {
           List<Match> flatMatches = new ArrayList();
-
-          for(Match subMatch : match.getMatch()) {
-            if (subMatch.getBool() == Bool.and && subMatch.getMatch() != null) {
-              flatMatches.addAll(subMatch.getMatch());
+          for(Match subMatch : match.getAnd()) {
+            if (subMatch.getAnd() !=null) {
+              flatMatches.addAll(subMatch.getAnd());
             } else {
               flatMatches.add(subMatch);
             }
           }
 
-          match.setMatch(flatMatches);
+          match.setAnd(flatMatches);
         }
       }
     }

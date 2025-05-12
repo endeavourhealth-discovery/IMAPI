@@ -150,7 +150,7 @@ public class QueryRepository {
   }
 
   private Query unpackQuery(Query query, QueryRequest queryRequest) throws QueryException {
-    if (query.getIri() != null && query.getReturn() == null && query.getMatch() == null) {
+    if (query.getIri() != null && query.getReturn() == null && query.getAnd() == null&&query.getOr() == null) {
       TTEntity entity = getEntity(query.getIri());
       if (entity.get(TTIriRef.iri(SHACL.PARAMETER)) != null) {
         for (TTValue param : entity.get(TTIriRef.iri(SHACL.PARAMETER)).getElements()) {

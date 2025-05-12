@@ -3,6 +3,9 @@
   "count" : 1,
   "totalCount" : 1,
   "entities" : [ {
-    "@id" : "http://endhealth.info/im#Observation"
+    "@id" : "http://endhealth.info/im#Observation",
+    "http://www.w3.org/2000/01/rdf-schema#label" : {
+      "@id" : "http://endhealth.info/im#VSET_Observation"
+    }
   } ]
 }

@@ -21,13 +21,10 @@ public class Where extends Element implements Assignable {
   @Getter
   private List<Node> is;
   private boolean not;
-  private Bool bool;
-  private List<Where> where;
   private Operator operator;
   private String value;
   private String valueLabel;
   private boolean anyRoleGroup;
-  private boolean isRoleGroup;
   private boolean isNull;
   private RelativeTo relativeTo;
   private boolean isNotNull;
@@ -37,15 +34,49 @@ public class Where extends Element implements Assignable {
   private String valueVariable;
   @Getter
   private boolean inverse;
+  @Getter
+  private List<Where> or;
+  @Getter
+  private List<Where> and;
 
-  public boolean isRoleGroup() {
-    return isRoleGroup;
-  }
-  @JsonSetter
-  public Where setIsRoleGroup(boolean roleGroup) {
-    isRoleGroup = roleGroup;
+  public Where setAnd(List<Where> and) {
+    this.and = and;
     return this;
   }
+  public Where addAnd(Where and) {
+    if (this.and == null) {
+      this.and = new ArrayList<>();
+    }
+    this.and.add(and);
+    return this;
+  }
+  public Where and(Consumer<Where> builder) {
+    Where and = new Where();
+    addAnd(and);
+    builder.accept(and);
+    return this;
+  }
+
+  public Where setOr(List<Where> or) {
+    this.or = or;
+    return this;
+  }
+
+  public Where addOr(Where or) {
+    if (this.or == null) {
+      this.or = new ArrayList<>();
+    }
+    this.or.add(or);
+    return this;
+  }
+
+  public Where or(Consumer<Where> builder) {
+    Where or = new Where();
+    addOr(or);
+    builder.accept(or);
+    return this;
+  }
+
 
   @JsonSetter
   public Where setTypeOf(Node typeOf) {
@@ -117,14 +148,6 @@ public class Where extends Element implements Assignable {
   }
 
 
-  public Bool getBool() {
-    return bool;
-  }
-
-  public Where setBool(Bool bool) {
-    this.bool = bool;
-    return this;
-  }
 
   public boolean getIsNotNull() {
     return isNotNull;
@@ -144,28 +167,6 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  public List<Where> getWhere() {
-    return where;
-  }
-
-  @JsonSetter
-  public Where setWhere(List<Where> where) {
-    this.where = where;
-    return this;
-  }
-
-  public Where addWhere(Where prop) {
-    if (this.where == null) this.where = new ArrayList<>();
-    this.where.add(prop);
-    return this;
-  }
-
-  public Where where(Consumer<Where> builder) {
-    Where prop = new Where();
-    addWhere(prop);
-    builder.accept(prop);
-    return this;
-  }
 
   public String getValueVariable() {
     return valueVariable;

@@ -17,7 +17,7 @@ public class EqdAuditToIMQ {
       Query popQuery= new Query();
       query.addDataSet(popQuery);
       popQuery
-        .match(f -> f
+        .and(f -> f
           .setVariable(POPULATION)
           .addInstanceOf(new Node().setIri(resources.getNamespace()+ popId).setMemberOf(true))
           .setName(resources.reportNames.get(popId)));

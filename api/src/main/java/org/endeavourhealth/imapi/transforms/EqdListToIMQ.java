@@ -21,7 +21,7 @@ public class EqdListToIMQ {
     this.resources.setQueryType(QueryType.LIST);
 
     String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
-    query.match(f -> f
+    query.and(f -> f
       .addInstanceOf(new Node().setIri(resources.getNamespace() +id).setMemberOf(true))
       .setName(resources.reportNames.get(id)));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
@@ -33,7 +33,7 @@ public class EqdListToIMQ {
           .setName(eqColGroup.getDisplayName()+" in "+ eqReport.getName())
             .addType(iri(IM.FIELD_GROUP));
       columnGroup.addObject(iri(IM.USED_IN),iri(query.getIri()));
-      query.addDataSet(new Query().setIri(subQuery.getIri()).setName(eqColGroup.getDisplayName()));
+      query.addDataSet(subQuery);
       convertListGroup(eqColGroup, subQuery,query.getName());
       columnGroup.set((IM.DEFINITION), TTLiteral.literal(subQuery));
       document.addEntity(columnGroup);
@@ -71,7 +71,7 @@ public class EqdListToIMQ {
       resources.setRule(1);
       resources.setSubRule(1);
       Match match = resources.convertCriteria(eqColGroup.getCriteria());
-      subQuery.addMatch(match);
+      subQuery.addAnd(match);
     }
     Return aReturn = new Return();
     subQuery.setReturn(aReturn);

@@ -6,6 +6,7 @@ import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import lombok.extern.slf4j.Slf4j;
+import org.endeavourhealth.imapi.utility.EnvHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class EmailService {
     Multipart multipart = new MimeMultipart();
     multipart.addBodyPart(mimeBodyPart);
     message.setContent(multipart);
-    if ("production".equals(System.getenv("MODE"))) Transport.send(message);
+    if (!EnvHelper.isDevMode()) Transport.send(message);
     else log.info("Email sent");
   }
 

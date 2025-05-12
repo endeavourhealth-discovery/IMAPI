@@ -150,13 +150,18 @@ public class IMQToOS {
     if (query.isActiveOnly()) {
       addFilterWithId("status", Set.of(IM.ACTIVE), Bool.and, boolBuilder);
     }
-    List<Match> ands= query.getAnd();
-    List<Match> ors= query.getOr();
-    for (List<Match> matches:Arrays.asList(ands,ors)){
-      if (matches!=null){
-        for (Match match : matches) {
-          if (!addMatch(match)) {
-            return ignoreInvalid;
+    if (query.getAnd() == null && query.getOr() == null){
+      if(!addMatch(query))
+        return ignoreInvalid;
+    } else {
+      List<Match> ands = query.getAnd();
+      List<Match> ors = query.getOr();
+      for (List<Match> matches : Arrays.asList(ands, ors)) {
+        if (matches != null) {
+          for (Match match : matches) {
+            if (!addMatch(match)) {
+              return ignoreInvalid;
+            }
           }
         }
       }

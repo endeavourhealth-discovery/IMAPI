@@ -1,5 +1,5 @@
 {
-  "@id": "http://endhealth.info/map#FHIR_2_PatientToIM",
+  "iri": "http://endhealth.info/map#FHIR_2_PatientToIM",
   "sourceType": "http://hl7.org/2-0/fhir/StructureDefinition#Patient",
   "targetType": "http://endhealth.info/im#Patient",
   "propertyMap": [
@@ -8,7 +8,7 @@
       "sourceVariable": "fhirId",
       "target": "iri",
       "function": {
-        "@id": "http://endhealth.info/im#Concatenate",
+        "iri": "http://endhealth.info/im#Concatenate",
         "argument": [
           {
             "valueData": "urn:uuid:"
@@ -52,7 +52,7 @@
           "listMode": "ALL",
           "target": "forenames",
           "function": {
-            "@id": "http://endhealth.info/im#StringJoin",
+            "iri": "http://endhealth.info/im#StringJoin",
             "argument": [
               {
                 "parameter": "delimiter",

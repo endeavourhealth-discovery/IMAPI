@@ -1,5 +1,5 @@
 {
-  "@context" : {
+  "context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -11,12 +11,12 @@
   "argument" : [ {
     "parameter" : "myDataModel",
     "valueIri" : {
-      "@id" : "im:Observation"
+      "iri" : "im:Observation"
     }
   }, {
     "parameter" : "myProperty",
     "valueIri" : {
-      "@id" : "im:concept"
+      "iri" : "im:concept"
     }
   } ],
   "query" : {
@@ -27,28 +27,28 @@
         "parameter" : "myDataModel"
       } ],
       "where" : [ {
-        "@id" : "sh:property",
+        "iri" : "sh:property",
         "match" : {
           "boolWhere" : "and",
           "where" : [ {
-            "@id" : "sh:path",
+            "iri" : "sh:path",
             "is" : [ {
               "parameter" : "myProperty"
             } ]
           }, {
             "boolWhere" : "or",
             "where" : [ {
-              "@id" : "sh:class",
+              "iri" : "sh:class",
               "match" : {
                 "variable" : "propType"
               }
             }, {
-              "@id" : "sh:node",
+              "iri" : "sh:node",
               "match" : {
                 "variable" : "propType"
               }
             }, {
-              "@id" : "sh:datatype",
+              "iri" : "sh:datatype",
               "match" : {
                 "variable" : "propType"
               }
@@ -61,7 +61,7 @@
     "return" : {
       "nodeRef" : "propType",
       "property" : [ {
-        "@id" : "rdfs:label"
+        "iri" : "rdfs:label"
       } ]
     }
   }

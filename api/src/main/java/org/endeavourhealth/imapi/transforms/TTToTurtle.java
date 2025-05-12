@@ -59,7 +59,7 @@ public class TTToTurtle {
     if (prefixes == null)
       return;
     for (Map.Entry<String, String> entry : prefixes.entrySet()) {
-      turtle.insert(0, "@prefix " + entry.getValue() + ": <" + entry.getKey() + "> .\n");
+      turtle.insert(0, "prefix " + entry.getValue() + ": <" + entry.getKey() + "> .\n");
 
     }
   }

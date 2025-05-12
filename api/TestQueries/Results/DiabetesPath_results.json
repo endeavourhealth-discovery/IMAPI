@@ -1,17 +1,17 @@
 {
   "match" : [ {
     "where" : [ {
-      "@id" : "http://endhealth.info/im#concept",
+      "iri" : "http://endhealth.info/im#concept",
       "name" : "concept",
       "nodeRef" : "condition",
       "is" : [ {
-        "@id" : "http://snomed.info/sct#44054006",
+        "iri" : "http://snomed.info/sct#44054006",
         "name" : "Diabetes mellitus type 2 (disorder)",
         "descendantsOrSelfOf" : true
       } ]
     } ],
     "path" : {
-      "@id" : "http://endhealth.info/im#condition",
+      "iri" : "http://endhealth.info/im#condition",
       "name" : "condition",
       "node" : {
         "variable" : "condition"

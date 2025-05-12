@@ -5,13 +5,13 @@ import cz.habarta.typescript.generator.*
  */
 
 plugins {
-    id("war")
-    alias(libs.plugins.typescript.generator)
-    alias(libs.plugins.static.const.generator)
-    id("java-library")
-    id("java")
-    id("maven-publish")
-    id("jacoco")
+  id("war")
+  alias(libs.plugins.typescript.generator)
+  alias(libs.plugins.static.const.generator)
+  id("java-library")
+  id("java")
+  id("maven-publish")
+  id("jacoco")
 }
 
 group = "org.endeavourhealth.imapi"
@@ -19,172 +19,178 @@ version = "1.0-SNAPSHOT"
 
 val ENV = System.getenv("ENV") ?: "dev"
 if (ENV == "prod") {
-    tasks.build { finalizedBy("publish") }
+  tasks.build { finalizedBy("publish") }
 } else {
-    tasks.named<JavaCompile>("compileJava") {
-        dependsOn("staticConstGenerator")
-    }
+  tasks.named<JavaCompile>("compileJava") {
+    dependsOn("staticConstGenerator")
+  }
 }
 
 tasks {
-    generateTypeScript {
-        jsonLibrary = JsonLibrary.jackson2
-        outputFileType = TypeScriptFileType.implementationFile
-        optionalProperties = OptionalProperties.useLibraryDefinition
-        classPatterns = listOf(
-            "org.endeavourhealth.imapi.model.DataModelProperty",
-            "org.endeavourhealth.imapi.model.iml.*",
-            "org.endeavourhealth.imapi.model.search.*",
-            "org.endeavourhealth.imapi.model.set.EclSearchRequest",
-            "org.endeavourhealth.imapi.model.imq.*",
-            "org.endeavourhealth.imapi.model.eclBuilder.*",
-            "org.endeavourhealth.imapi.vocabulary.*",
-            "org.endeavourhealth.imapi.vocabulary.**.*",
-            "org.endeavourhealth.imapi.model.github.*",
-            "org.endeavourhealth.imapi.model.workflow.*",
-            "org.endeavourhealth.imapi.model.workflow.**.*",
-            "org.endeavourhealth.imapi.model.DownloadEntityOptions"
-        )
-        outputFile = "../../IMDirectory/src/interfaces/AutoGen.ts"
-        outputKind = TypeScriptOutputKind.module
-        mapEnum = EnumMapping.asEnum
-    }
+  generateTypeScript {
+    jsonLibrary = JsonLibrary.jackson2
+    outputFileType = TypeScriptFileType.implementationFile
+    optionalProperties = OptionalProperties.useLibraryDefinition
+    classPatterns = listOf(
+      "org.endeavourhealth.imapi.model.DataModelProperty",
+      "org.endeavourhealth.imapi.model.iml.*",
+      "org.endeavourhealth.imapi.model.search.*",
+      "org.endeavourhealth.imapi.model.set.EclSearchRequest",
+      "org.endeavourhealth.imapi.model.imq.*",
+      "org.endeavourhealth.imapi.model.eclBuilder.*",
+      "org.endeavourhealth.imapi.vocabulary.*",
+      "org.endeavourhealth.imapi.vocabulary.**.*",
+      "org.endeavourhealth.imapi.model.github.*",
+      "org.endeavourhealth.imapi.model.workflow.*",
+      "org.endeavourhealth.imapi.model.workflow.**.*",
+      "org.endeavourhealth.imapi.model.DownloadEntityOptions",
+      "org.endeavourhealth.imapi.model.tripletree.TTDocument",
+      "org.endeavourhealth.imapi.model.tripletree.TTEntity",
+      "org.endeavourhealth.imapi.model.Pageable",
+      "org.endeavourhealth.imapi.model.ConceptContextMap",
+      "org.endeavourhealth.imapi.model.validation.EntityValidationRequest",
+      "org.endeavourhealth.imapi.model.dto.*"
+    )
+    outputFile = "../../IMDirectory/src/interfaces/AutoGen.ts"
+    outputKind = TypeScriptOutputKind.module
+    mapEnum = EnumMapping.asEnum
+  }
 }
 
 tasks {
-    staticConstGenerator {
-        inputJson = "vocab.json"
-        javaOutputFolder = "src/main/java/org/endeavourhealth/imapi/vocabulary/"
-        typeScriptOutputFolder = "../../IMDirectory/src/vocabulary/"
-    }
+  staticConstGenerator {
+    inputJson = "vocab.json"
+    javaOutputFolder = "src/main/java/org/endeavourhealth/imapi/vocabulary/"
+    typeScriptOutputFolder = "../../IMDirectory/src/vocabulary/"
+  }
 }
 
 sonar.properties {
-    property("sonar.gradle.skipCompile", true)
-    property("sonar.projectKey", "endeavourhealth-discovery_IMAPI::api")
-    property(
-        "sonar.exclusions",
-        "**/config/**, **/controllers/**, **/dataaccess/**, **/errorhandling/**, **/model/**, **/parser/**, **/vocabulary/**"
-    )
+  property("sonar.gradle.skipCompile", true)
+  property("sonar.projectKey", "endeavourhealth-discovery_IMAPI::api")
+  property(
+    "sonar.exclusions",
+    "**/config/**, **/controllers/**, **/dataaccess/**, **/errorhandling/**, **/model/**, **/parser/**, **/vocabulary/**"
+  )
 }
 
 tasks.war {
-    archiveFileName.set("imapi.war")
+  archiveFileName.set("imapi.war")
 }
 
 dependencies {
-    implementation(libs.angus.mail)
-    implementation(libs.antlr)
-    implementation(libs.apache.collections4)
-    implementation(libs.apache.poi)
-    implementation(libs.apache.text)
-    implementation(libs.assert.j)
-    implementation(libs.aws.cognito.idp)
-    implementation(libs.aws.sdk.bom)
-    implementation(libs.aws.sdk.core)
-    implementation(libs.aws.s3)
-    implementation(libs.dropwizard)
-    implementation(libs.dropwizard.graphite)
-    implementation(libs.dropwizard.servlets)
-    implementation(libs.fact.plus.plus)
-    implementation(libs.jackson.databind)
-    implementation(libs.logback.core)
-    implementation(libs.logback.classic)
-    implementation(libs.elasticsearch)
-    implementation(libs.hapi.fhir.r4)
-    implementation(libs.jersey.client)
-    implementation(libs.jersey.inject)
-    implementation(libs.owl.api)
-    implementation(libs.open.llet)
-    implementation(libs.postgres)
-    implementation(libs.reactor.core)
-    implementation(libs.rdf4j.common)
-    implementation(libs.rdf4j.query)
-    implementation(libs.rdf4j.iterator)
-    implementation(libs.rdf4j.repo.api)
-    implementation(libs.rdf4j.repo.http)
-    implementation(libs.rdf4j.repo.sail)
-    implementation(libs.rdf4j.sail.native)
-    implementation(libs.slf4j)
-    implementation(libs.spring.context)
-    implementation(libs.spring.data.jpa)
-    implementation(libs.spring.oauth.server)
-    implementation(libs.spring.security)
-    implementation(libs.spring.web)
-    implementation(libs.springdoc)
-    implementation(libs.validation)
-    implementation(libs.woodstox)
-    implementation(libs.wsrs)
+  implementation(libs.angus.mail)
+  implementation(libs.antlr)
+  implementation(libs.apache.collections4)
+  implementation(libs.apache.poi)
+  implementation(libs.apache.text)
+  implementation(libs.assert.j)
+  implementation(libs.aws.cognito.idp)
+  implementation(libs.aws.sdk.bom)
+  implementation(libs.aws.sdk.core)
+  implementation(libs.aws.s3)
+  implementation(libs.dropwizard)
+  implementation(libs.dropwizard.graphite)
+  implementation(libs.dropwizard.servlets)
+  implementation(libs.fact.plus.plus)
+  implementation(libs.jackson.databind)
+  implementation(libs.logback.core)
+  implementation(libs.logback.classic)
+  implementation(libs.elasticsearch)
+  implementation(libs.hapi.fhir.r4)
+  implementation(libs.jersey.client)
+  implementation(libs.jersey.inject)
+  implementation(libs.owl.api)
+  implementation(libs.open.llet)
+  implementation(libs.postgres)
+  implementation(libs.reactor.core)
+  implementation(libs.rdf4j.common)
+  implementation(libs.rdf4j.query)
+  implementation(libs.rdf4j.iterator)
+  implementation(libs.rdf4j.repo.api)
+  implementation(libs.rdf4j.repo.http)
+  implementation(libs.rdf4j.repo.sail)
+  implementation(libs.rdf4j.sail.native)
+  implementation(libs.slf4j)
+  implementation(libs.spring.context)
+  implementation(libs.spring.data.jpa)
+  implementation(libs.spring.oauth.server)
+  implementation(libs.spring.security)
+  implementation(libs.spring.web)
+  implementation(libs.springdoc)
+  implementation(libs.validation)
+  implementation(libs.woodstox)
+  implementation(libs.wsrs)
 
-    runtimeOnly(libs.h2database)
-    runtimeOnly(libs.spring.dev.tools)
+  runtimeOnly(libs.h2database)
+  runtimeOnly(libs.spring.dev.tools)
 
-    testImplementation(libs.cucumber)
-    testImplementation(libs.cucumber.junit)
-    testImplementation(libs.junit)
-    testImplementation(libs.junit.suite)
-    testImplementation(libs.mockito)
-    testImplementation(libs.spring.test)
-    testImplementation(libs.spring.test.security)
-    testImplementation(libs.system.stubs)
+  testImplementation(libs.cucumber)
+  testImplementation(libs.cucumber.junit)
+  testImplementation(libs.junit)
+  testImplementation(libs.junit.suite)
+  testImplementation(libs.mockito)
+  testImplementation(libs.spring.test)
+  testImplementation(libs.spring.test.security)
+  testImplementation(libs.system.stubs)
 
-    providedCompile(libs.spring.tomcat)
+  providedCompile(libs.spring.tomcat)
 
-    compileOnly(libs.jackson.annotations)
-    compileOnly(libs.lombok)
+  compileOnly(libs.jackson.annotations)
+  compileOnly(libs.lombok)
 
-    annotationProcessor(libs.jackson.annotations)
-    annotationProcessor(libs.lombok)
+  annotationProcessor(libs.jackson.annotations)
+  annotationProcessor(libs.lombok)
 }
 
 publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
-        }
+  publications {
+    create<MavenPublication>("mavenJava") {
+      from(components["java"])
     }
-    repositories {
-        maven {
-            url = uri("https://artifactory.endhealth.co.uk/repository/maven-snapshots")
-            credentials {
-                username = System.getenv("MAVEN_USERNAME")
-                password = System.getenv("MAVEN_PASSWORD")
-            }
-        }
+  }
+  repositories {
+    maven {
+      url = uri("https://artifactory.endhealth.co.uk/repository/maven-snapshots")
+      credentials {
+        username = System.getenv("MAVEN_USERNAME")
+        password = System.getenv("MAVEN_PASSWORD")
+      }
     }
+  }
 }
 
 tasks.test {
-    useJUnitPlatform()
-    finalizedBy(tasks.jacocoTestReport)
+  useJUnitPlatform()
+  finalizedBy(tasks.jacocoTestReport)
 }
 
 tasks.jacocoTestReport {
-    dependsOn(tasks.test)
+  dependsOn(tasks.test)
 
-    reports {
-        xml.required.set(true)
-    }
+  reports {
+    xml.required.set(true)
+  }
 }
 
 val cucumberRuntime by getConfigurations().creating {
-    extendsFrom(configurations["testImplementation"])
+  extendsFrom(configurations["testImplementation"])
 }
 
 tasks.register("cucumberCli") {
-    dependsOn("assemble", "testClasses")
-    doLast {
-        providers.javaexec {
-            mainClass.set("io.cucumber.core.cli.Main")
-            classpath = cucumberRuntime + sourceSets.main.get().output + sourceSets.test.get().output
-            args = listOf(
-                "--plugin", "pretty",
-                "--plugin", "html:build/reports/cucumber/cucumber-report.html",
-                "--glue", "org.endeavourhealth.imapi",
-                "src/test/resources"
-            )
-        }
+  dependsOn("assemble", "testClasses")
+  doLast {
+    providers.javaexec {
+      mainClass.set("io.cucumber.core.cli.Main")
+      classpath = cucumberRuntime + sourceSets.main.get().output + sourceSets.test.get().output
+      args = listOf(
+        "--plugin", "pretty",
+        "--plugin", "html:build/reports/cucumber/cucumber-report.html",
+        "--glue", "org.endeavourhealth.imapi",
+        "src/test/resources"
+      )
     }
+  }
 }
 
 description = "Information Model API"

@@ -1,5 +1,5 @@
 {
-  "@context" : {
+  "context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -15,22 +15,22 @@
     "activeOnly" : true,
     "match" : [ {
       "typeOf" : {
-        "@id" : "im:Concept",
+        "iri" : "im:Concept",
         "descendantsOrSelfOf" : true
       },
       "where" : [ {
-        "@id" : "rdfs:domain",
+        "iri" : "rdfs:domain",
         "is" : [ {
-          "@id" : "sn:674814021000119106",
+          "iri" : "sn:674814021000119106",
           "ancestorsOf" : true
         } ]
       } ]
     } ],
     "return" : {
       "property" : [ {
-        "@id" : "im:code"
+        "iri" : "im:code"
       }, {
-        "@id" : "rdfs:label"
+        "iri" : "rdfs:label"
       } ]
     }
   }

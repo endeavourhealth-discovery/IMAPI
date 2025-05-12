@@ -1,5 +1,5 @@
 {
-  "@context" : {
+  "context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -12,15 +12,15 @@
     "name" : "Some Barts cerner codes with context including a regex",
     "match" : [ {
       "where" : [ {
-        "@id" : "im:scheme",
+        "iri" : "im:scheme",
         "is" : [ {
-          "@id" : "http://endhealth.info/bc#"
+          "iri" : "http://endhealth.info/bc#"
         } ]
       }, {
-        "@id" : "im:Concept",
+        "iri" : "im:Concept",
         "match" : {
           "where" : [ {
-            "@id" : "im:sourceRegex"
+            "iri" : "im:sourceRegex"
           } ]
         },
         "inverse" : true
@@ -28,23 +28,23 @@
     } ],
     "return" : {
       "property" : [ {
-        "@id" : "rdfs:label"
+        "iri" : "rdfs:label"
       }, {
-        "@id" : "im:code"
+        "iri" : "im:code"
       }, {
-        "@id" : "im:Concept",
+        "iri" : "im:Concept",
         "inverse" : true,
         "return" : {
           "property" : [ {
-            "@id" : "im:sourceValue"
+            "iri" : "im:sourceValue"
           }, {
-            "@id" : "im:sourceRegex"
+            "iri" : "im:sourceRegex"
           }, {
-            "@id" : "im:sourceSystem"
+            "iri" : "im:sourceSystem"
           }, {
-            "@id" : "im:sourceTable"
+            "iri" : "im:sourceTable"
           }, {
-            "@id" : "im:sourceField"
+            "iri" : "im:sourceField"
           } ]
         }
       } ]

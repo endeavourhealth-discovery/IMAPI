@@ -17,10 +17,10 @@
       "direction": null,
       "iriValue": [
         {
-          "@id": "http://endhealth.info/im#MatchClause"
+          "iri": "http://endhealth.info/im#MatchClause"
         },
         {
-          "@id": "http://endhealth.info/im#ConceptSet"
+          "iri": "http://endhealth.info/im#ConceptSet"
         }
       ],
       "and": null,
@@ -33,7 +33,7 @@
       "direction": null,
       "iriValue": [
         {
-          "@id": "http://endhealth.info/im#VSET_Observation"
+          "iri": "http://endhealth.info/im#VSET_Observation"
         }
       ],
       "and": null,

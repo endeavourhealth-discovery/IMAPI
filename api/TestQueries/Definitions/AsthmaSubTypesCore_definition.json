@@ -1,5 +1,5 @@
 {
-  "@context" : {
+  "context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -12,15 +12,15 @@
     "name" : "AsthmaSubTypesCore",
     "match" : [ {
       "instanceOf" : [ {
-        "@id" : "sn:195967001",
+        "iri" : "sn:195967001",
         "descendantsOrSelfOf" : true
       } ]
     } ],
     "return" : {
       "property" : [ {
-        "@id" : "rdfs:label"
+        "iri" : "rdfs:label"
       }, {
-        "@id" : "im:code"
+        "iri" : "im:code"
       } ]
     }
   }

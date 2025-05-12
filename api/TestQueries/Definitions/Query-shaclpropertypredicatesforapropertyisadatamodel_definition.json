@@ -1,5 +1,5 @@
 {
-  "@context" : {
+  "context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -11,12 +11,12 @@
   "argument" : [ {
     "parameter" : "dataModel",
     "valueIri" : {
-      "@id" : "im:Patient"
+      "iri" : "im:Patient"
     }
   }, {
     "parameter" : "property",
     "valueIri" : {
-      "@id" : "im:age"
+      "iri" : "im:age"
     }
   } ],
   "query" : {
@@ -27,10 +27,10 @@
         "parameter" : "$dataModel"
       } ],
       "where" : [ {
-        "@id" : "sh:property",
+        "iri" : "sh:property",
         "match" : {
           "where" : [ {
-            "@id" : "sh:path",
+            "iri" : "sh:path",
             "is" : [ {
               "parameter" : "$property"
             } ]
@@ -42,30 +42,30 @@
     "return" : {
       "nodeRef" : "shaclProperty",
       "property" : [ {
-        "@id" : "sh:class",
+        "iri" : "sh:class",
         "return" : {
           "property" : [ {
-            "@id" : "rdfs:label"
+            "iri" : "rdfs:label"
           } ]
         }
       }, {
-        "@id" : "sh:node",
+        "iri" : "sh:node",
         "return" : {
           "property" : [ {
-            "@id" : "rdfs:label"
+            "iri" : "rdfs:label"
           } ]
         }
       }, {
-        "@id" : "sh:datatype",
+        "iri" : "sh:datatype",
         "return" : {
           "property" : [ {
-            "@id" : "rdfs:label"
+            "iri" : "rdfs:label"
           } ]
         }
       }, {
-        "@id" : "sh:maxCount"
+        "iri" : "sh:maxCount"
       }, {
-        "@id" : "sh:minCount"
+        "iri" : "sh:minCount"
       } ]
     }
   }

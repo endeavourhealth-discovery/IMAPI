@@ -39,7 +39,7 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
   private static void outputIri(JsonGenerator gen, String fieldName, TTIriRef ref, TTNodeSerializer helper) throws IOException {
     gen.writeFieldName(fieldName);
     gen.writeStartObject();
-    gen.writeStringField("id", helper.prefix(ref.getIri()));
+    gen.writeStringField("iri", helper.prefix(ref.getIri()));
     if (ref.getName() != null && !ref.getName().isEmpty())
       gen.writeStringField("name", ref.getName());
     gen.writeEndObject();

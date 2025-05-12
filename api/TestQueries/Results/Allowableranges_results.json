@@ -3,6 +3,6 @@
   "count" : 1,
   "totalCount" : 1,
   "entities" : [ {
-    "@id" : "http://snomed.info/sct#105590001"
+    "iri" : "http://snomed.info/sct#105590001"
   } ]
 }

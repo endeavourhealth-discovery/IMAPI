@@ -4,10 +4,10 @@
     {
       "where": [
         {
-          "@id": "http://endhealth.info/im#isContainedIn",
+          "iri": "http://endhealth.info/im#isContainedIn",
           "in": [
             {
-              "@id": "http://endhealth.info/im#EntityTypes"
+              "iri": "http://endhealth.info/im#EntityTypes"
             }
           ]
         }
@@ -16,7 +16,7 @@
     },
     {
       "path": {
-        "@id": "http://www.w3.org/ns/shacl#property",
+        "iri": "http://www.w3.org/ns/shacl#property",
         "node": {
           "variable": "predicate"
         }
@@ -24,7 +24,7 @@
       "bool": "and",
       "where": [
         {
-          "@id": "http://www.w3.org/ns/shacl#node",
+          "iri": "http://www.w3.org/ns/shacl#node",
           "in": [
             {
               "parameter": "$this"
@@ -32,16 +32,16 @@
           ]
         },
         {
-          "@id": "http://www.w3.org/ns/shacl#path",
+          "iri": "http://www.w3.org/ns/shacl#path",
           "in": [
             {
-              "@id": "http://endhealth.info/im#isContainedIn"
+              "iri": "http://endhealth.info/im#isContainedIn"
             },
             {
-              "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+              "iri": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
             },
             {
-              "@id": "http://endhealth.info/im#isSubsetOf"
+              "iri": "http://endhealth.info/im#isSubsetOf"
             }
           ]
         }
@@ -53,18 +53,18 @@
       "nodeRef": "concept",
       "property": [
         {
-          "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+          "iri": "http://www.w3.org/2000/01/rdf-schema#label"
         },
         {
           "node": {
             "nodeRef": "predicate",
             "property": [
               {
-                "@id": "http://www.w3.org/ns/shacl#path"
+                "iri": "http://www.w3.org/ns/shacl#path"
               }
             ]
           },
-          "@id": "http://www.w3.org/ns/shacl#property"
+          "iri": "http://www.w3.org/ns/shacl#property"
         }
       ]
     }

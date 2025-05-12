@@ -53,7 +53,7 @@ public class TTContextHelper {
       }
       gen.writeFieldName("entities");
       gen.writeStartObject();
-      gen.writeStringField("id", "http://envhealth.info/im#entities");
+      gen.writeStringField("iri", "http://envhealth.info/im#entities");
       gen.writeStringField("container", "set");
       gen.writeEndObject();
       gen.writeEndObject();

@@ -1,5 +1,5 @@
 {
-  "@context" : {
+  "context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -13,40 +13,40 @@
     "description" : "all of the data model properties for entities that have a property df a data of birth",
     "match" : [ {
       "typeOf" : {
-        "@id" : "sh:NodeShape"
+        "iri" : "sh:NodeShape"
       },
       "where" : [ {
-        "@id" : "sh:property",
+        "iri" : "sh:property",
         "match" : {
           "where" : [ {
-            "@id" : "sh:path",
+            "iri" : "sh:path",
             "is" : [ {
-              "@id" : "im:dateOfBirth"
+              "iri" : "im:dateOfBirth"
             } ]
           } ]
         }
       } ]
     }, {
       "where" : [ {
-        "@id" : "sh:property"
+        "iri" : "sh:property"
       } ]
     } ],
     "return" : {
       "property" : [ {
-        "@id" : "sh:property",
+        "iri" : "sh:property",
         "return" : {
           "property" : [ {
-            "@id" : "sh:path"
+            "iri" : "sh:path"
           }, {
-            "@id" : "sh:node"
+            "iri" : "sh:node"
           }, {
-            "@id" : "sh:minCount"
+            "iri" : "sh:minCount"
           }, {
-            "@id" : "sh:maxCount"
+            "iri" : "sh:maxCount"
           }, {
-            "@id" : "sh:class"
+            "iri" : "sh:class"
           }, {
-            "@id" : "sh:datatype"
+            "iri" : "sh:datatype"
           } ]
         }
       } ]

@@ -1,5 +1,5 @@
 {
-  "@context" : {
+  "context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -13,18 +13,18 @@
     "name" : "Filter concept subtypes that are members of value sets",
     "match" : [ {
       "instanceOf" : [ {
-        "@id" : "sn:57148006",
+        "iri" : "sn:57148006",
         "descendantsOrSelfOf" : true
       }, {
-        "@id" : "sn:11164009",
+        "iri" : "sn:11164009",
         "descendantsOrSelfOf" : true
       } ],
       "where" : [ {
-        "@id" : "im:hasMember",
+        "iri" : "im:hasMember",
         "is" : [ {
-          "@id" : "im:VSET_Conditions"
+          "iri" : "im:VSET_Conditions"
         }, {
-          "@id" : "im:VSET_ASD"
+          "iri" : "im:VSET_ASD"
         } ],
         "inverse" : true
       } ]

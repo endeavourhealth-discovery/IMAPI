@@ -1,5 +1,5 @@
 {
-  "@context" : {
+  "context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -12,26 +12,26 @@
     "name" : "FamilyHistoryExpansionObjectFormat",
     "match" : [ {
       "where" : [ {
-        "@id" : "im:hasMember",
+        "iri" : "im:hasMember",
         "is" : [ {
-          "@id" : "im:VSET_FamilyHistory"
+          "iri" : "im:VSET_FamilyHistory"
         } ],
         "inverse" : true
       } ]
     } ],
     "return" : {
       "property" : [ {
-        "@id" : "rdfs:label"
+        "iri" : "rdfs:label"
       }, {
-        "@id" : "im:code"
+        "iri" : "im:code"
       }, {
-        "@id" : "im:matchedTo",
+        "iri" : "im:matchedTo",
         "inverse" : true,
         "return" : {
           "property" : [ {
-            "@id" : "rdfs:label"
+            "iri" : "rdfs:label"
           }, {
-            "@id" : "im:code"
+            "iri" : "im:code"
           } ]
         }
       } ]

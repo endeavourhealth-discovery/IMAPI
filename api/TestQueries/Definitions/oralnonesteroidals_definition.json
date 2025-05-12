@@ -1,5 +1,5 @@
 {
-  "@context" : {
+  "context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -14,23 +14,23 @@
       "boolMatch" : "and",
       "match" : [ {
         "instanceOf" : [ {
-          "@id" : "sn:763158003",
+          "iri" : "sn:763158003",
           "descendantsOrSelfOf" : true
         } ],
         "where" : [ {
-          "@id" : "sn:127489000",
+          "iri" : "sn:127489000",
           "anyRoleGroup" : true,
           "descendantsOrSelfOf" : true,
           "is" : [ {
-            "@id" : "sn:372665008",
+            "iri" : "sn:372665008",
             "descendantsOrSelfOf" : true
           } ]
         }, {
-          "@id" : "sn:411116001",
+          "iri" : "sn:411116001",
           "anyRoleGroup" : true,
           "descendantsOrSelfOf" : true,
           "is" : [ {
-            "@id" : "sn:385268001",
+            "iri" : "sn:385268001",
             "descendantsOrSelfOf" : true
           } ]
         } ]
@@ -38,7 +38,7 @@
     } ],
     "return" : {
       "property" : [ {
-        "@id" : "rdfs:label"
+        "iri" : "rdfs:label"
       } ]
     }
   }

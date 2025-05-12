@@ -3,7 +3,7 @@
   "count" : 1,
   "totalCount" : 1,
   "entities" : [ {
-    "@id" : "http://endhealth.info/im#VSET_Observation",
+    "iri" : "http://endhealth.info/im#VSET_Observation",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Observation (Data model value set)"
   } ]
 }

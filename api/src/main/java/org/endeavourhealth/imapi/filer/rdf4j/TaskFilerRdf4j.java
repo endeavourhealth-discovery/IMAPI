@@ -74,7 +74,7 @@ public class TaskFilerRdf4j {
       conn.add(builder.build());
       String emailSubject = "New bug report added: [" + bugReport.getId().getIri() + "]";
       String emailContent = "Click <a href=\"https://im.endhealth.net/#/workflow/bugReport/" + bugReport.getId().getIri() + "\">here</a>";
-      emailService.sendMail(emailSubject, emailContent);
+      emailService.sendMail(emailSubject, emailContent, "bugreport@endeavourhealth.net");
     } catch (RepositoryException e) {
       throw new TaskFilerException("Failed to file task", e);
     } catch (MessagingException e) {
@@ -91,11 +91,11 @@ public class TaskFilerRdf4j {
       conn.add(builder.build());
       String emailSubject = "New role request added: [" + roleRequest.getId().getIri() + "]";
       String emailContent = "Click <a href=\"https://im.endhealth.net/#/workflow/roleRequest/" + roleRequest.getId().getIri() + "\">here</a>";
-//            emailService.sendMail(emailSubject, emailContent);
+      emailService.sendMail(emailSubject, emailContent, "rolerequest@endeavourhealth.net");
     } catch (RepositoryException e) {
       throw new TaskFilerException("Failed to file task", e);
-//        } catch (MessagingException e) {
-//            throw new TaskFilerException("Failed to send email",e);
+    } catch (MessagingException e) {
+      throw new TaskFilerException("Failed to send email", e);
     }
   }
 
@@ -108,11 +108,11 @@ public class TaskFilerRdf4j {
       conn.add(builder.build());
       String emailSubject = "New role request added: [" + entityApproval.getId().getIri() + "]";
       String emailContent = "Click <a href=\"https://im.endhealth.net/#/workflow/entityApproval/" + entityApproval.getId().getIri() + "\">here</a>";
-//            emailService.sendMail(emailSubject, emailContent);
+      emailService.sendMail(emailSubject, emailContent, "entityapproval@endeavourhealth.net");
     } catch (RepositoryException e) {
       throw new TaskFilerException("Failed to file task", e);
-//        } catch (MessagingException e) {
-//            throw new TaskFilerException("Failed to send email",e);
+    } catch (MessagingException e) {
+      throw new TaskFilerException("Failed to send email", e);
     }
   }
 

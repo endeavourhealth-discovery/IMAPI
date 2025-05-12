@@ -79,6 +79,27 @@ public class PropertyShape{
   private TTIriRef hasValueType;
   @Getter
   private String definition;
+  @Getter
+  private String ascending;
+  @Getter
+  private String descending;
+  @Getter
+  private boolean orderable;
+
+  public PropertyShape setAscending(String ascending) {
+    this.ascending = ascending;
+    return this;
+  }
+
+  public PropertyShape setDescending(String descending) {
+    this.descending = descending;
+    return this;
+  }
+
+  public PropertyShape setOrderable(boolean orderable) {
+    this.orderable = orderable;
+    return this;
+  }
 
 
   public PropertyShape setParameter(List<ParameterShape> parameter) {

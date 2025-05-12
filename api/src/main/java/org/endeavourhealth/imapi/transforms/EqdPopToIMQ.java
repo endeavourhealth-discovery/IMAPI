@@ -25,9 +25,13 @@ public class EqdPopToIMQ {
     query.setTypeOf(new Node().setIri(IM.NAMESPACE + "Patient"));
 
     if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
-      query.addInstanceOf(
+      query.and(m->m
+        .setIfTrue(RuleAction.NEXT)
+        .setIfFalse(RuleAction.REJECT)
+        .setBaseRule(true)
+        .addInstanceOf(
         new Node().setIri(IM.NAMESPACE + "Q_RegisteredGMS")
-        .setName("Registered with GP for GMS services on the reference date"));
+        .setName("Registered with GP for GMS services on the reference date")));
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()){
         EqdToIMQ.gmsPatients.add(activeReport);
         EqdToIMQ.gmsPatients.add(resources.getNamespace()+  activeReport);
@@ -36,23 +40,30 @@ public class EqdPopToIMQ {
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
       String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
       if (EqdToIMQ.gmsPatients.contains(id)){
-        query.addInstanceOf(
+        query.addRule(new Match()
+            .setIfTrue(RuleAction.NEXT)
+            .setIfFalse(RuleAction.REJECT)
+          .setBaseRule(true)
+          .addInstanceOf(
          new Node().setIri(IM.NAMESPACE + "Q_RegisteredGMS")
           .setName("Registered with GP for GMS services on the reference date")
-           .setMemberOf(true));
+           .setMemberOf(true)));
       }
       else {
-        query.addInstanceOf(new Node().setIri(resources.getNamespace() + id)
+        query.addRule(new Match()
+          .setIfTrue(RuleAction.NEXT)
+          .setIfFalse(RuleAction.REJECT)
+          .setBaseRule(true)
+          .addInstanceOf(new Node().setIri(resources.getNamespace() + id)
           .setName(resources.reportNames.get(id))
-          .setMemberOf(true));
+          .setMemberOf(true)));
       }
     }
-    query.setHasRules(true);
-    Match topOr = null;
+    resources.setRule(0);
+    resources.setSubRule(0);
     for (EQDOCCriteriaGroup eqGroup : eqReport.getPopulation().getCriteriaGroup()) {
       Match rule = resources.convertGroup(eqGroup);
-      query.addMatch(rule);
-      rule.setIsRule(true);
+      query.addRule(rule);
       VocRuleAction ifTrue = eqGroup.getActionIfTrue();
       VocRuleAction ifFalse = eqGroup.getActionIfFalse();
       if (eqGroup.getDefinition().getParentPopulationGuid() != null)
@@ -67,6 +78,8 @@ public class EqdPopToIMQ {
         case REJECT -> rule.setIfFalse(RuleAction.REJECT);
         case NEXT -> rule.setIfFalse(RuleAction.NEXT);
       }
+
+
     }
     return query;
   }

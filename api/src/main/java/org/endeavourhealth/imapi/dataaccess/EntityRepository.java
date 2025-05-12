@@ -848,6 +848,19 @@ public class EntityRepository {
     }
   }
 
+  public Map<String,String> getCodesToIri(String scheme) {
+    String sql = """
+      SELECT ?code ?scheme ?iri ?altCode
+      WHERE {
+        Values ?scheme {%s}
+        ?iri im:code ?code.
+        OPTIONAL {?iri im:alternativeCode ?altCode}
+        ?iri im:scheme ?scheme
+      }
+      """.formatted("<"+ scheme +">");
+    return getCodes(sql);
+  }
+
   public Map<String, String> getCodeToIri() {
     String sql = """
       SELECT ?code ?scheme ?iri ?altCode
@@ -857,7 +870,11 @@ public class EntityRepository {
         ?iri im:scheme ?scheme
       }
       """;
-    Map<String, String> codeToIri = new HashMap<>();
+    return getCodes(sql);
+  }
+
+  private Map<String, String> getCodes(String sql) {
+  Map<String, String> codeToIri = new HashMap<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
       try (TupleQueryResult gs = qry.evaluate()) {
@@ -1843,4 +1860,6 @@ public class EntityRepository {
       ))
       .collect(Collectors.toList());
   }
+
+
 }

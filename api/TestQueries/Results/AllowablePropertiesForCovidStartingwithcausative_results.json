@@ -1,7 +1,39 @@
 {
   "entities" : [ {
+    "@id" : "http://endhealth.info/vis#A3B__",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Bacterial infections - causative organisms",
+    "http://endhealth.info/im#code" : "A3B.."
+  }, {
+    "@id" : "http://endhealth.info/tpp#X75N8",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Causative agent",
+    "http://endhealth.info/im#code" : "X75N8"
+  }, {
+    "@id" : "http://endhealth.info/tpp#A3B__",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Bacterial infections - causative organisms",
+    "http://endhealth.info/im#code" : "A3B.."
+  }, {
+    "@id" : "http://snomed.info/sct#30931000001101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Allergy or adverse effect causative agent simple reference set (foundation metadata concept)",
+    "http://endhealth.info/im#code" : "30931000001101"
+  }, {
     "@id" : "http://snomed.info/sct#246075003",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Causative agent (attribute)",
     "http://endhealth.info/im#code" : "246075003"
+  }, {
+    "@id" : "http://snomed.info/sct#362944004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Causative_agents (qualifier value)",
+    "http://endhealth.info/im#code" : "362944004"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Ua1SC",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Causative factors for behaviour",
+    "http://endhealth.info/im#code" : "Ua1SC"
+  }, {
+    "@id" : "http://snomed.info/sct#400209005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Injury caused by causative force (disorder)",
+    "http://endhealth.info/im#code" : "400209005"
+  }, {
+    "@id" : "http://snomed.info/sct#305181000000102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Causative factors for behaviour (observable entity)",
+    "http://endhealth.info/im#code" : "305181000000102"
   } ]
 }

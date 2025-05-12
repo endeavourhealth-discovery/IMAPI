@@ -33,20 +33,20 @@ public class PathRepository {
   private List<Match> getPaths(String source, String target) {
     List<Match> result = new ArrayList<>();
     String sql = """
-       select ?path ?pathLabel ?where ?whereLabel ?target ?targetName
+       select ?path ?pathLabel ?path2 ?path2Label ?where ?whereLabel ?target ?targetName
             where {
             ?target rdfs:label ?targetName.
           {
               ?target ^sh:path ?property.
-              ?where ^sh:path ?property.
-              ?where rdfs:label ?whereLabel.
+              ?path2 ^sh:path ?property.
+              ?path2 rdfs:label ?path2Label.
               ?property ^sh:property ?source.
           }
           union
           {
               ?target ^sh:path ?property.
-              ?where ^sh:path ?property.
-              ?where rdfs:label ?whereLabel.
+              ?path2 ^sh:path ?property.
+              ?path2 rdfs:label ?path2Label.
               ?property ^sh:property ?recordType.
               ?recordType ^sh:node ?recordProperty.
               ?recordProperty sh:path ?path.
@@ -77,8 +77,8 @@ public class PathRepository {
           {
                  ?target im:isA ?class.
                 ?class ^sh:class ?property.
-                ?property sh:path ?where.
-                ?where rdfs:label ?whereLabel.
+                ?property sh:path ?path2.
+                ?path2 rdfs:label ?path2Label.
                 ?property ^sh:property ?source.
           }
           union {
@@ -94,7 +94,7 @@ public class PathRepository {
                 ?recordProperty ^sh:property ?source.
               }
       }
-      group by ?path ?pathLabel ?where ?whereLabel ?target  ?targetName    
+      group by ?path ?pathLabel ?path2 ?path2Label ?where ?whereLabel ?target  ?targetName    
       """;
     //The logic is to look for a target as a record types, properties, value sets or concepts linked to the source.
     TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
@@ -109,17 +109,22 @@ public class PathRepository {
         if (bs.getValue("path") != null) {
           String pathIri = bs.getValue("path").stringValue();
           pathVariable = pathIri.substring(pathIri.lastIndexOf("#") + 1);
-          match.setPath(new Path().setIri(pathIri)
-            .setName(bs.getValue("pathLabel").stringValue()));
+          Path pathMatch = new Path().setIri(pathIri).setName(bs.getValue("pathLabel").stringValue());
+          match.addPath(pathMatch);
+        }
+        if (bs.getValue("path2") != null) {
+          String pathIri = bs.getValue("path2").stringValue();
+          match.getPath().get(0).addPath(new Path().setIri(pathIri).setName(bs.getValue("path2Label").stringValue()));
+          pathVariable = pathIri.substring(pathIri.lastIndexOf("#") + 1);
         }
         if (bs.getValue("where") != null) {
-          match.addWhere(new Where()
+          match.setWhere(new Where()
             .setIri(bs.getValue("where").stringValue())
             .setName(bs.getValue("whereLabel").stringValue())
             .addIs(new Node().setIri(target).setName(bs.getValue("targetName").stringValue())
               .setDescendantsOrSelfOf(true)));
           if (pathVariable != null && match.getWhere() != null)
-            match.getWhere().get(0).setNodeRef(pathVariable);
+            match.getWhere().setNodeRef(pathVariable);
         }
       }
     }

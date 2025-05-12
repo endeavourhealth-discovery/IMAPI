@@ -12,11 +12,9 @@
   "query" : {
     "name" : "Search for concepts",
     "activeOnly" : true,
-    "match" : [ {
-      "typeOf" : {
-        "@id" : "im:Concept"
-      }
-    } ],
+    "typeOf" : {
+      "@id" : "im:Concept"
+    },
     "return" : {
       "property" : [ {
         "@id" : "rdfs:label"

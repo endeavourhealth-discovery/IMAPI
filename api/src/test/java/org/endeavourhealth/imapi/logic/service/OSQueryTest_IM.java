@@ -48,14 +48,11 @@ class OSQueryTest_IM {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
-        .setMatch(List.of(
-          new Match()
-            .setWhere(List.of(
+            .setWhere(
               new Where()
                 .setIri(IM.HAS_SCHEME)
                 .setIs(List.of(new Node().setIri(SNOMED.NAMESPACE)))
-            ))
-        ))
+            )
       );
 
     SearchResponse results = osq.openSearchQuery(req);
@@ -69,12 +66,10 @@ class OSQueryTest_IM {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
-        .setMatch(List.of(
-          new Match()
             .addInstanceOf(new Node().setIri("http://snomed.info/sct#57148006")
               .setDescendantsOrSelfOf(true)
-            )))
-      );
+            ))
+      ;
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
@@ -90,12 +85,9 @@ class OSQueryTest_IM {
         List.of(TTIriRef.iri("http://snomed.info/sct#57148006", "http://snomed.info/sct#11164009"))
       ))
       .setQuery(new Query()
-        .setMatch(List.of(
-          new Match()
             .addInstanceOf(new Node().setParameter("$isas")
               .setDescendantsOrSelfOf(true)
-            )))
-      );
+            ));
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
@@ -108,15 +100,12 @@ class OSQueryTest_IM {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
-        .setMatch(List.of(
-          new Match()
-            .addWhere(new Where()
+            .setWhere(new Where()
               .setIri(IM.HAS_MEMBER)
               .setInverse(true)
               .setIs(List.of(new Node().setIri("http://endhealth.info/im#VSET_ASD")))
             )
-        ))
-      );
+        );
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());

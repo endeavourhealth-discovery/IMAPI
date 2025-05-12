@@ -47,10 +47,9 @@ class OSQueryTest_OS {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
-        .match(m -> m
           .where(w -> w
             .setIri(IM.HAS_SCHEME)
-            .is(is -> is.setIri(SNOMED.NAMESPACE)))));
+            .is(is -> is.setIri(SNOMED.NAMESPACE))));
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
@@ -64,9 +63,8 @@ class OSQueryTest_OS {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
-        .match(m -> m
           .instanceOf(n -> n.setIri("http://snomed.info/sct#57148006")
-            .setDescendantsOrSelfOf(true))));
+            .setDescendantsOrSelfOf(true)));
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
@@ -80,9 +78,8 @@ class OSQueryTest_OS {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
-        .match(m -> m
           .instanceOf(n -> n.setIri("http://endhealth.info/im#VSET_ASD")
-            .setMemberOf(true))));
+            .setMemberOf(true)));
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
@@ -96,11 +93,10 @@ class OSQueryTest_OS {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
-        .match(m -> m
           .instanceOf(n -> n.setIri("http://snomed.info/sct#57148006")
             .setDescendantsOrSelfOf(true))
           .instanceOf(n -> n.setIri("http://endhealth.info/im#VSET_ASD")
-            .setMemberOf(true))));
+            .setMemberOf(true)));
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
@@ -114,10 +110,8 @@ class OSQueryTest_OS {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
-        .query(q -> q
-          .match(m -> m
             .instanceOf(n -> n.setIri("http://endhealth.info/im#VSET_ASD")
-              .setMemberOf(true)))));
+              .setMemberOf(true)));
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(0, results.getEntities().size());
@@ -129,11 +123,10 @@ class OSQueryTest_OS {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
-        .match(m -> m
           .instanceOf(n -> n.setIri("http://snomed.info/sct#57148006")
             .setDescendantsOrSelfOf(true))
           .instanceOf(n -> n.setIri("http://endhealth.info/im#VSET_LongTermConditions")
-            .setMemberOf(true))));
+            .setMemberOf(true)));
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(0, results.getEntities().size());

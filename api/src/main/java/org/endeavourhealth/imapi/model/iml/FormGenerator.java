@@ -46,10 +46,6 @@ public class FormGenerator {
     return this;
   }
 
-  public String getId() {
-    return iri;
-  }
-
   public FormGenerator setType(List<TTIriRef> type) {
     this.type = type;
     return this;
@@ -62,11 +58,6 @@ public class FormGenerator {
 
   public FormGenerator setSubClassOf(List<TTIriRef> subClassOf) {
     this.subClassOf = subClassOf;
-    return this;
-  }
-
-  public FormGenerator setId(String id) {
-    this.iri = id;
     return this;
   }
 
@@ -94,8 +85,7 @@ public class FormGenerator {
   }
 
   public FormGenerator addProperty(PropertyShape property) {
-    if (null == this.property)
-      this.property = new ArrayList<>();
+    if (null == this.property) this.property = new ArrayList<>();
     this.property.add(property);
     return this;
   }

@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "instanceOf", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends Element implements Assignable {
+public class Where extends Element implements Assignable,BoolGroup<Where> {
   @Getter
   private String description;
   private Range range;
@@ -20,7 +20,9 @@ public class Where extends Element implements Assignable {
   private Node typeOf;
   @Getter
   private List<Node> is;
-  private boolean not;
+  @Getter
+  private List<Node> notIs;
+  private List<Where> not;
   private Operator operator;
   private String value;
   private String valueLabel;
@@ -39,10 +41,25 @@ public class Where extends Element implements Assignable {
   @Getter
   private List<Where> and;
 
+  public Where setNotIs(List<Node> notIs) {
+    this.notIs = notIs;
+    return this;
+  }
+
+  public Where addNotIs(Node notIs) {
+    if (this.notIs == null) {
+      this.notIs = new ArrayList<>();
+    }
+    this.notIs.add(notIs);
+    return this;
+  }
+
   public Where setAnd(List<Where> and) {
     this.and = and;
     return this;
   }
+
+
   public Where addAnd(Where and) {
     if (this.and == null) {
       this.and = new ArrayList<>();
@@ -55,6 +72,12 @@ public class Where extends Element implements Assignable {
     addAnd(and);
     builder.accept(and);
     return this;
+  }
+
+
+  @Override
+  public List<Where> getNot() {
+    return this.not;
   }
 
   public Where setOr(List<Where> or) {
@@ -97,11 +120,7 @@ public class Where extends Element implements Assignable {
 
 
 
-  public boolean isNot() {
-    return not;
-  }
-
-  public Where setNot(boolean not) {
+  public Where setNot(List<Where> not) {
     this.not = not;
     return this;
   }

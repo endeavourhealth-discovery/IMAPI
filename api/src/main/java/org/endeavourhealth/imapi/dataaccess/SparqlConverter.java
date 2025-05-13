@@ -152,7 +152,7 @@ public class SparqlConverter {
     sparql.append(getDefaultPrefixes());
   }
 
-  private void addWhereSparql(StringBuilder sparql, Set<TTIriRef> statusFilter, Boolean includeReturns, Boolean countOnly) throws QueryException {
+  private void addWhereSparql(StringBuilder sparql, Set<TTIriRef> statusFilter, boolean includeReturns, boolean countOnly) throws QueryException {
     mainEntity = "entity";
     if (query.getVariable() != null) {
       mainEntity = query.getVariable();
@@ -164,7 +164,7 @@ public class SparqlConverter {
     }
     processMatch(whereQl, mainEntity, query);
 
-    if (Boolean.TRUE.equals(!countOnly && includeReturns) && null != query.getReturn()) {
+    if ((!countOnly && includeReturns) && null != query.getReturn()) {
       Return aReturn =query.getReturn();
       convertReturn(sparql, whereQl, aReturn);
     }
@@ -633,6 +633,20 @@ public class SparqlConverter {
           whereQl.append("}\n");
         }
         whereQl.append("}\n");
+      }
+      if (where.getNot()!=null){
+        whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
+        whereQl.append("{\n");
+        int i = -1;
+        for (Where not : where.getNot()) {
+          i++;
+          if (i == 0) whereQl.append("{\n");
+          else whereQl.append(" UNION {\n");
+          processWhere(whereQl, subject, not, pathVariable);
+          whereQl.append("}\n");
+        }
+        whereQl.append("}}\n");
+
       }
     }
   }

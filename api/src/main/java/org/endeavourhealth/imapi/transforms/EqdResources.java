@@ -477,10 +477,9 @@ public class EqdResources {
   }
 
   private void convertColumnValue(EQDOCColumnValue cv, Where pv) throws IOException, EQDException {
-    VocColumnValueInNotIn in = cv.getInNotIn();
-    boolean notIn = in == VocColumnValueInNotIn.NOTIN;
+    boolean in = cv.getInNotIn()==VocColumnValueInNotIn.IN;
     if (!cv.getValueSet().isEmpty()) {
-      this.setPropertyValueSets(cv, pv, notIn);
+      this.setPropertyValueSets(cv, pv, in);
     } else if (!CollectionUtils.isEmpty(cv.getLibraryItem())) {
       String valueLabel = "Library value set";
 
@@ -489,13 +488,8 @@ public class EqdResources {
         String vsetName = "Unnamed library set " + this.setCounter;
         Node iri = (new Node()).setIri(this.namespace + vset).setName(vsetName);
         iri.setMemberOf(true);
-        if (!notIn) {
-          pv.addIs(iri);
-        } else {
-          iri.setExclude(true);
-          pv.addIs(iri);
-        }
-
+        if (in) pv.addIs(iri);
+        else pv.addNotIs(iri);
         pv.setValueLabel(valueLabel);
         this.createLibraryValueSet(iri.getIri(), vsetName);
       }
@@ -516,10 +510,9 @@ public class EqdResources {
 
         where.setIs(values);
       } else if (!notIn) {
-        this.setInlineValues(vs, where);
+        this.setInlineValues(vs, where,true);
       } else {
-        where.setNot(true);
-        this.setInlineValues(vs, where);
+        this.setInlineValues(vs, where,false);
       }
     }
 
@@ -854,7 +847,7 @@ public class EqdResources {
     return vs.getCodeSystem() == VocCodeSystemEx.SNOMED_CONCEPT && vs.getDescription() != null && vs.getClusterCode().contains("FlattenedCodeList") ? this.importMaps.getReferenceFromCoreTerm(vs.getDescription()) : null;
   }
 
-  private void setInlineValues(EQDOCValueSet vs, Where pv) throws IOException, EQDException {
+  private void setInlineValues(EQDOCValueSet vs, Where pv,boolean in) throws IOException, EQDException {
     VocCodeSystemEx scheme = vs.getCodeSystem();
     if (vs.getDescription() != null) {
       pv.setValueLabel(vs.getDescription());
@@ -900,8 +893,8 @@ public class EqdResources {
             if (node.isExclude()) {
               exclusions = " (exclusions)";
             }
-
-            pv.addIs(node);
+            if (in) pv.addIs(node);
+            else pv.addNotIs(node);
             if (node.getName() != null && name == null) {
               name = this.getShortName(node.getName(), (String)null);
             }
@@ -917,12 +910,15 @@ public class EqdResources {
             }
 
             if (node.isMemberOf()) {
-              pv.addIs(node);
+              if (in) pv.addIs(node);
+              else pv.addNotIs(node);
             }
           }
           Set<Node> conceptContent = setContent.stream().filter(c -> !c.isMemberOf()).collect(Collectors.toSet());
           TTEntity valueSet = this.createValueSet(vs, conceptContent);
-          pv.addIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setMemberOf(true));
+          if (in) pv.addIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setMemberOf(true));
+          else pv.addNotIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setMemberOf(true));
+          pv.setValueLabel(valueSet.getName() + exclusions);
         }
 
         if (setContent.size() > 1 && name != null) {

@@ -9,10 +9,11 @@ import java.util.List;
 import java.util.function.Consumer;
 @JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "nodeRef", "header","typeOf", "instanceOf","and","or","not","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends IriLD{
+public class Match extends IriLD implements BoolGroup<Match>{
   private Element graph;
   @Getter
   private Where where;
+  @Getter
   private String description;
   private OrderLimit orderBy;
   private String nodeRef;
@@ -88,8 +89,9 @@ public class Match extends IriLD{
   }
 
 
-  public Match setOr(List<Match> or) {
-    this.or = or;
+
+  public Match setOr(List<Match> ors) {
+    this.or = ors;
     return this;
   }
 
@@ -387,12 +389,6 @@ public class Match extends IriLD{
     this.description = description;
     return this;
   }
-
-  public String getDescription() {
-    return description;
-  }
-
-
 
 
 }

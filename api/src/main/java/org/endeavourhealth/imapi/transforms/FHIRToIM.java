@@ -36,16 +36,15 @@ public class FHIRToIM {
       Include[] include = valueSet.getCompose().getInclude();
       Query query = new Query();
       Match match = new Match();
-      query.addMatch(match);
+      query.addOr(match);
       if (valueSet.getCompose().getInclude().length == 1) {
         String member = include[0].getSystem();
         match.addInstanceOf(new Node().setIri(member)
           .setDescendantsOrSelfOf(true));
       } else {
-        match.setBool(Bool.or);
         for (Include value : include) {
           Match memberMatch = new Match();
-          match.addMatch(memberMatch);
+          match.addOr(memberMatch);
           String member = value.getSystem().replace("fhir/", "fhir#");
           memberMatch.addInstanceOf(new Node().setIri(member).setDescendantsOrSelfOf(true));
         }

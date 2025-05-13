@@ -22,47 +22,41 @@
   "query" : {
     "name" : "Data model property range",
     "description" : "get node, class or datatype value (range)  of property objects for specific data model and property",
-    "match" : [ {
-      "instanceOf" : [ {
-        "parameter" : "myDataModel"
-      } ],
-      "where" : [ {
-        "@id" : "sh:property",
-        "match" : {
-          "boolWhere" : "and",
-          "where" : [ {
-            "@id" : "sh:path",
-            "is" : [ {
-              "parameter" : "myProperty"
-            } ]
-          }, {
-            "boolWhere" : "or",
-            "where" : [ {
-              "@id" : "sh:class",
-              "match" : {
-                "variable" : "propType"
-              }
-            }, {
-              "@id" : "sh:node",
-              "match" : {
-                "variable" : "propType"
-              }
-            }, {
-              "@id" : "sh:datatype",
-              "match" : {
-                "variable" : "propType"
-              }
-            } ]
-          } ],
-          "variable" : "shaclProperty"
-        }
-      } ]
+    "instanceOf" : [ {
+      "parameter" : "myDataModel"
     } ],
     "return" : {
-      "nodeRef" : "propType",
       "property" : [ {
-        "@id" : "rdfs:label"
+        "@id" : "rdfs:label",
+        "valueRef" : "propType"
       } ]
-    }
+    },
+    "where" : {
+      "and" : [ {
+        "@id" : "sh:path",
+        "nodeRef" : "shaclProperty",
+        "is" : [ {
+          "parameter" : "myProperty"
+        } ]
+      }, {
+        "or" : [ {
+          "@id" : "sh:class",
+          "nodeRef" : "shaclProperty",
+          "valueVariable" : "propType"
+        }, {
+          "@id" : "sh:node",
+          "nodeRef" : "shaclProperty",
+          "valueVariable" : "propType"
+        }, {
+          "@id" : "sh:datatype",
+          "nodeRef" : "shaclProperty",
+          "valueVariable" : "propType"
+        } ]
+      } ]
+    },
+    "path" : [ {
+      "@id" : "sh:property",
+      "variable" : "shaclProperty"
+    } ]
   }
 }

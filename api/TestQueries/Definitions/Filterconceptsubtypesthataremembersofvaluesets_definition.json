@@ -11,23 +11,21 @@
   "textSearch" : "FOXG1",
   "query" : {
     "name" : "Filter concept subtypes that are members of value sets",
-    "match" : [ {
-      "instanceOf" : [ {
-        "@id" : "sn:57148006",
-        "descendantsOrSelfOf" : true
+    "instanceOf" : [ {
+      "@id" : "sn:57148006",
+      "descendantsOrSelfOf" : true
+    }, {
+      "@id" : "sn:11164009",
+      "descendantsOrSelfOf" : true
+    } ],
+    "where" : {
+      "@id" : "im:hasMember",
+      "is" : [ {
+        "@id" : "im:VSET_Conditions"
       }, {
-        "@id" : "sn:11164009",
-        "descendantsOrSelfOf" : true
+        "@id" : "im:VSET_ASD"
       } ],
-      "where" : [ {
-        "@id" : "im:hasMember",
-        "is" : [ {
-          "@id" : "im:VSET_Conditions"
-        }, {
-          "@id" : "im:VSET_ASD"
-        } ],
-        "inverse" : true
-      } ]
-    } ]
+      "inverse" : true
+    }
   }
 }

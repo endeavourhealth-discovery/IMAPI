@@ -13,11 +13,10 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"parameter", "iri", "type", "set", "variable", "qualifier","name"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Node extends Element implements GraphNode{
+public class Node extends Element{
   private boolean exclude;
   private String code;
   private String type;
-  private Path path;
   private boolean inverse;
 
   public boolean isInverse() {
@@ -26,21 +25,6 @@ public class Node extends Element implements GraphNode{
 
   public Node setInverse(boolean inverse) {
     this.inverse = inverse;
-    return this;
-  }
-
-  public Path getPath() {
-    return path;
-  }
-
-  public Node setPath(Path path) {
-    this.path = path;
-    return this;
-  }
-
-  public Node path (Consumer< Path > builder) {
-    this.path= new Path();
-    builder.accept(this.path);
     return this;
   }
 

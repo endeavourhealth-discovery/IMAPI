@@ -100,17 +100,16 @@ public class QueryService {
     };
     TTEntity cohort = findFirstQuery(children);
     Query defaultQuery= new Query();
-    defaultQuery.setMatch(new ArrayList<>());
     if (cohort!=null) {
       Query cohortQuery = cohort.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       defaultQuery.setTypeOf(cohortQuery.getTypeOf());
-      defaultQuery.addInstanceOf(new Node().setIri(cohort.getIri()));
+      defaultQuery.addInstanceOf(new Node().setIri(cohort.getIri()).setMemberOf(true));
       return defaultQuery;
     }  else return null;
   }
   private TTEntity findFirstQuery(List<TTEntity> children) throws JsonProcessingException {
     for (TTEntity child : children) {
-      if (child.isType(iri(IM.COHORT_QUERY))){
+      if (child.isType(iri(IM.QUERY))){
       if (child.get(iri(IM.DEFINITION)) != null){
           return child;
         }

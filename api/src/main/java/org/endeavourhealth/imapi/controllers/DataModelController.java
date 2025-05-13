@@ -33,11 +33,12 @@ public class DataModelController {
   )
   @GetMapping("/public/dataModelProperties")
   public NodeShape getDataModelProperties(
-    @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri
+    @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri,
+     @RequestParam(name = "pathsOnly", required = false, defaultValue = "false") boolean pathsOnly
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
-      log.debug("getDataModelProperties for " + iri);
-      return dataModelService.getDataModelDisplayProperties(iri);
+      log.debug("getDataModelProperties "+ (pathsOnly ?"paths only":"")+"for " + iri);
+      return dataModelService.getDataModelDisplayProperties(iri,pathsOnly);
     }
   }
 
@@ -54,6 +55,8 @@ public class DataModelController {
       return dataModelService.getPropertiesDisplay(iri);
     }
   }
+
+
 
   @Operation(
     summary = "Retrieve UI property for query builder",
@@ -76,7 +79,8 @@ public class DataModelController {
   )
   @GetMapping(value = "/public/dataModels")
   public List<TTIriRef> getDataModelsFromProperty(
-    @Parameter(description = "IRI of the property") @RequestParam(name = "propIri") String propIri
+    @Parameter(description = "IRI of the property")
+    @RequestParam(name = "propIri") String propIri
   ) {
     log.debug("getDataModelsFromProperty");
     return dataModelService.getDataModelsFromProperty(propIri);

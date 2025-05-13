@@ -215,12 +215,11 @@ public class Transformer {
     return result;
   }
 
-  private boolean where(Match where, Object sourceNode) throws JsonProcessingException {
-    for (Where property : where.getWhere()) {
+  private boolean where(Match match, Object sourceNode) throws JsonProcessingException {
+    Where property= match.getWhere();
       Object sourceValue = sourceTranslator.getPropertyValue(sourceNode, property.getId());
       if (property.getValue() != null && property.getValue().equals(sourceValue))
         return true;
-    }
     return false;
   }
 

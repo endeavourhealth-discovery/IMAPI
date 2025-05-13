@@ -10,35 +10,32 @@
   },
   "query" : {
     "name" : "oral none steroidals",
-    "match" : [ {
-      "boolMatch" : "and",
-      "match" : [ {
-        "instanceOf" : [ {
-          "@id" : "sn:763158003",
-          "descendantsOrSelfOf" : true
-        } ],
-        "where" : [ {
-          "@id" : "sn:127489000",
-          "anyRoleGroup" : true,
-          "descendantsOrSelfOf" : true,
-          "is" : [ {
-            "@id" : "sn:372665008",
-            "descendantsOrSelfOf" : true
-          } ]
-        }, {
-          "@id" : "sn:411116001",
-          "anyRoleGroup" : true,
-          "descendantsOrSelfOf" : true,
-          "is" : [ {
-            "@id" : "sn:385268001",
-            "descendantsOrSelfOf" : true
-          } ]
-        } ]
-      } ]
+    "instanceOf" : [ {
+      "@id" : "sn:763158003",
+      "descendantsOrSelfOf" : true
     } ],
     "return" : {
       "property" : [ {
         "@id" : "rdfs:label"
+      } ]
+    },
+    "where" : {
+      "and" : [ {
+        "@id" : "sn:127489000",
+        "anyRoleGroup" : true,
+        "descendantsOrSelfOf" : true,
+        "is" : [ {
+          "@id" : "sn:372665008",
+          "descendantsOrSelfOf" : true
+        } ]
+      }, {
+        "@id" : "sn:411116001",
+        "anyRoleGroup" : true,
+        "descendantsOrSelfOf" : true,
+        "is" : [ {
+          "@id" : "sn:385268001",
+          "descendantsOrSelfOf" : true
+        } ]
       } ]
     }
   }

@@ -285,11 +285,7 @@ public class IMQToOS {
     if (!addProperties(match))
       return false;
 
-    if (match.getAnd() != null||match.getOr()!=null) {
-      return false;
-    }
-
-    return true;
+    return match.getAnd() != null||match.getOr()==null;
   }
 
   private boolean addProperties(Match match) throws QueryException {
@@ -390,9 +386,9 @@ public class IMQToOS {
       } else if (match.getWhere().getAnd() != null){
           for (Where binding:match.getWhere().getAnd()) {
             if (binding.getIri().equals(SHACL.PATH)) {
-              path = getIriFromAlias(binding.getIs().get(0));
+          path = getIriFromAlias(binding.getIs().getFirst());
             } else if (binding.getIri().equals(SHACL.NODE)) {
-              node = getIriFromAlias(binding.getIs().get(0));
+          node = getIriFromAlias(binding.getIs().getFirst());
             }
           }
       }
@@ -432,7 +428,7 @@ public class IMQToOS {
               addToInstanceFilters(type, argument.getValueIri().getIri(), instanceFilters);
               return;
             } else if (null != argument.getValueIriList()) {
-              argument.getValueIriList().stream().forEach(ttIriRef -> addToInstanceFilters(type, ttIriRef.getIri(), instanceFilters));
+              argument.getValueIriList().forEach(ttIriRef -> addToInstanceFilters(type, ttIriRef.getIri(), instanceFilters));
               return;
             }
           }

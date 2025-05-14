@@ -246,7 +246,7 @@ public class EntityService {
   public List<List<TTIriRef>> getParentHierarchiesFlatLists(ParentDto parent) {
     List<List<TTIriRef>> parentHierarchies = new ArrayList<>();
     parentHierarchies.add(new ArrayList<>());
-    addParentHierarchiesRecursively(parentHierarchies, parentHierarchies.get(0), parent);
+    addParentHierarchiesRecursively(parentHierarchies, parentHierarchies.getFirst(), parent);
     return parentHierarchies;
   }
 
@@ -287,7 +287,7 @@ public class EntityService {
     );
 
     if (!paths.isEmpty()) {
-      shortestPath = paths.get(paths.size() - 1);
+      shortestPath = paths.getLast();
       int index = indexOf(shortestPath, ancestor);
       shortestPath = shortestPath.subList(0, index == shortestPath.size() ? index : index + 1);
     }

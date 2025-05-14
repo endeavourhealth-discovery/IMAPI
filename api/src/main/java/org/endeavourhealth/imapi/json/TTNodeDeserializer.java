@@ -113,16 +113,13 @@ public class TTNodeDeserializer {
       return TTLiteral.literal(node.get(IM.VALUE).textValue());
 
     TTIriRef type = iri(expand(node.get(IM.TYPE).asText()));
-    if (XSD.STRING.equals(type.getIri()))
-      return TTLiteral.literal(node.get(IM.VALUE).textValue());
-    else if (XSD.BOOLEAN.equals(type.getIri())) {
-      return TTLiteral.literal(Boolean.valueOf(node.get(IM.VALUE).asText()));
-    } else if (XSD.INTEGER.equals(type.getIri())) {
-      return TTLiteral.literal(Integer.valueOf(node.get(IM.VALUE).asText()));
-    } else if (XSD.PATTERN.equals(type.getIri()))
-      return TTLiteral.literal(Pattern.compile(node.get(IM.VALUE).textValue()));
-    else
-      throw new IOException("Unhandled literal type [" + type.getIri() + "]");
+    return switch (type.getIri()) {
+      case XSD.STRING -> TTLiteral.literal(node.get(IM.VALUE).textValue());
+      case XSD.BOOLEAN -> TTLiteral.literal(Boolean.valueOf(node.get(IM.VALUE).asText()));
+      case XSD.INTEGER -> TTLiteral.literal(Integer.valueOf(node.get(IM.VALUE).asText()));
+      case XSD.PATTERN -> TTLiteral.literal(Pattern.compile(node.get(IM.VALUE).textValue()));
+      case null, default -> throw new IOException("Unhandled literal type [" + type.getIri() + "]");
+    };
   }
 
   public String expand(String iri) {

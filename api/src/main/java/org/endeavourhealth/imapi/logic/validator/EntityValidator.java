@@ -199,7 +199,7 @@ public class EntityValidator {
     if (!entity.has(iri(IM.ROLE_GROUP))) return response;
     for (TTValue group : entity.get(iri(IM.ROLE_GROUP)).getElements()) {
       if (group.asNode().has(iri(IM.GROUP_NUMBER))) {
-        if (group.asNode().getPredicateMap().keySet().size() <= 1) {
+        if (group.asNode().getPredicateMap().size() <= 1) {
           response.setValid(false);
           response.setMessage("1 or more role groups are invalid");
         } else {

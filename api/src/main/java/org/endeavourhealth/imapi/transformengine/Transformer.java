@@ -225,9 +225,9 @@ public class Transformer {
 
   public Object getListItems(List<?> source, ListMode listMode) {
     if (listMode == ListMode.FIRST)
-      return source.get(0);
+      return source.getFirst();
     else if (listMode == ListMode.REST) {
-      source.remove(0);
+      source.removeFirst();
       return source;
     } else
       return source;

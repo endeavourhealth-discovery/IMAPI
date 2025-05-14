@@ -144,7 +144,7 @@ public class LogicOptimizer {
 
 
   private void getCommonAnds(List<Match> matches, Set<String> commonMatches, List<Match> ands) throws JsonProcessingException {
-    Match first=matches.get(0);
+    Match first=matches.getFirst();
     if (first.getAnd()!=null) {
       for (int q = 0; q < first.getAnd().size(); q++) {
         Match candidate = first.getAnd().get(q);

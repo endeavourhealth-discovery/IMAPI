@@ -31,24 +31,22 @@ public class TTLiteralSerializer extends StdSerializer<TTLiteral> {
     usePrefixes = (usePrefixes != null && usePrefixes && helper != null);
 
     if (literal.getType() != null) {
-      if (XSD.STRING.equals(literal.getType().getIri()))
-        gen.writeString(literal.getValue());
-      else if (XSD.BOOLEAN.equals(literal.getType().getIri()))
-        gen.writeBoolean(literal.booleanValue());
-      else if (XSD.INTEGER.equals(literal.getType().getIri()))
-        gen.writeNumber(literal.intValue());
-      else if (XSD.LONG.equals(literal.getType().getIri()))
-        gen.writeNumber(literal.longValue());
-      else if (XSD.PATTERN.equals(literal.getType().getIri())) {
-        gen.writeStartObject();
-        gen.writeStringField("@value", literal.getValue());
-        gen.writeStringField("@type", usePrefixes
-          ? helper.prefix(literal.getType().getIri())
-          : literal.getType().getIri()
-        );
-        gen.writeEndObject();
-      } else
-        throw new IOException("Unhandled literal type [" + literal.getType().getIri() + "]");
+      switch (literal.getType().getIri()) {
+        case XSD.STRING -> gen.writeString(literal.getValue());
+        case XSD.BOOLEAN -> gen.writeBoolean(literal.booleanValue());
+        case XSD.INTEGER -> gen.writeNumber(literal.intValue());
+        case XSD.LONG -> gen.writeNumber(literal.longValue());
+        case XSD.PATTERN -> {
+          gen.writeStartObject();
+          gen.writeStringField("@value", literal.getValue());
+          gen.writeStringField("@type", usePrefixes
+            ? helper.prefix(literal.getType().getIri())
+            : literal.getType().getIri()
+          );
+          gen.writeEndObject();
+        }
+        case null, default -> throw new IOException("Unhandled literal type [" + literal.getType().getIri() + "]");
+      }
 
     } else
       // No type, assume string

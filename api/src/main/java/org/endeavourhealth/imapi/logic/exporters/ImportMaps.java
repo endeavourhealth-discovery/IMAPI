@@ -103,8 +103,7 @@ public class ImportMaps implements AutoCloseable {
   public Set<String> getCodes(String scheme) throws IOException {
     Map<String, String> codeToIri = getCodeToIri();
     Set<String> codes = new HashSet<>();
-    codeToIri.entrySet().stream().forEach(item -> {
-      String entry = item.getKey();
+    codeToIri.forEach((entry, value) -> {
       if (entry.startsWith(scheme)) {
         String code = entry.split(scheme)[1];
         codes.add(code);

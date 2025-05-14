@@ -23,7 +23,7 @@ public class QueryValidator {
     variables.put(mainEntity, VarType.NODE);
     processMatches(query, mainEntity);
     if (null != query.getInstanceOf()) {
-      query.getInstanceOf().get(0).setVariable(mainEntity);
+      query.getInstanceOf().getFirst().setVariable(mainEntity);
       variables.put(mainEntity, VarType.NODE);
     }
     if (null != query.getWhere()) {

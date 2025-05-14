@@ -544,7 +544,7 @@ public class SetRepository {
           ?entity ?subsumption ?member.
           Values ?subsumption {%s}
         }
-        """.formatted(String.join(" ", subsumptions.stream().map(s -> "<" + s + ">").collect(Collectors.toList()))));
+        """.formatted(subsumptions.stream().map(s -> "<" + s + ">").collect(Collectors.joining(" "))));
     }
     spql.add("""
         ?entity rdfs:label ?term;

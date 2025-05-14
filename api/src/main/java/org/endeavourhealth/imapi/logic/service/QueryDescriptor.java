@@ -384,7 +384,7 @@ public class QueryDescriptor {
     Where conceptWhere = getConceptWhere(wheres);
     if (conceptWhere != null) {
       wheres.remove(conceptWhere);
-      wheres.add(0, conceptWhere);
+      wheres.addFirst(conceptWhere);
       describeWhere(conceptWhere);
     }
     for (Where where : wheres) {

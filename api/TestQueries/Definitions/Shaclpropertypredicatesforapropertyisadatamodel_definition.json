@@ -11,12 +11,12 @@
   "argument" : [ {
     "parameter" : "dataModel",
     "valueIri" : {
-      "@id" : "im:Patient"
+      "iri" : "im:Patient"
     }
   }, {
     "parameter" : "property",
     "valueIri" : {
-      "@id" : "im:age"
+      "iri" : "im:age"
     }
   } ],
   "query" : {
@@ -27,42 +27,42 @@
     } ],
     "return" : {
       "property" : [ {
-        "@id" : "sh:class",
+        "iri" : "sh:class",
         "return" : {
           "property" : [ {
-            "@id" : "rdfs:label"
+            "iri" : "rdfs:label"
           } ]
         }
       }, {
-        "@id" : "sh:node",
+        "iri" : "sh:node",
         "return" : {
           "property" : [ {
-            "@id" : "rdfs:label"
+            "iri" : "rdfs:label"
           } ]
         }
       }, {
-        "@id" : "sh:datatype",
+        "iri" : "sh:datatype",
         "return" : {
           "property" : [ {
-            "@id" : "rdfs:label"
+            "iri" : "rdfs:label"
           } ]
         }
       }, {
-        "@id" : "sh:maxCount"
+        "iri" : "sh:maxCount"
       }, {
-        "@id" : "sh:minCount"
+        "iri" : "sh:minCount"
       } ],
       "propertyRef" : "shaclProperty"
     },
     "where" : {
-      "@id" : "sh:path",
+      "iri" : "sh:path",
       "nodeRef" : "shaclProperty",
       "is" : [ {
         "parameter" : "$property"
       } ]
     },
     "path" : [ {
-      "@id" : "sh:property",
+      "iri" : "sh:property",
       "variable" : "shaclProperty"
     } ]
   }

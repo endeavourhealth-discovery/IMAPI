@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
+import jakarta.mail.MessagingException;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.query.*;

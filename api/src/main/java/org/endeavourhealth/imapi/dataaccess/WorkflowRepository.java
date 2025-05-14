@@ -40,30 +40,30 @@ public class WorkflowRepository {
   }
 
   public BugReport getBugReport(String id) throws UserNotFoundException {
-    StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator());
-    sparqlJoiner.add("SELECT ?s ?typeData ?createdByData ?assignedToData ?productData ?moduleData ?versionData ?osData ?browserData ?severityData ?statusData ?errorData ?descriptionData ?reproduceStepsData ?expectedResultData ?dateCreatedData ?stateData ");
-    sparqlJoiner.add("WHERE { ");
-    sparqlJoiner.add("?s ?type ?typeData ;");
-    sparqlJoiner.add("?createdBy ?createdByData ;");
-    sparqlJoiner.add("?assignedTo ?assignedToData ;");
-    sparqlJoiner.add("?state ?stateData ;");
-    sparqlJoiner.add("?dateCreated ?dateCreatedData .");
-    sparqlJoiner.add("OPTIONAL {?s ?product ?productData ;}");
-    sparqlJoiner.add("OPTIONAL {?s ?module ?moduleData ;}");
-    sparqlJoiner.add("OPTIONAL {?s ?version ?versionData ;}");
-    sparqlJoiner.add("OPTIONAL {?s ?os ?osData ;}");
-    sparqlJoiner.add("OPTIONAL {?s ?osOther ?osOtherData ;}");
-    sparqlJoiner.add("OPTIONAL {?s ?browser ?browserData ;}");
-    sparqlJoiner.add("OPTIONAL {?s ?browserOther ?browserOtherData ;}");
-    sparqlJoiner.add("OPTIONAL {?s ?severity ?severityData ;}");
-    sparqlJoiner.add("OPTIONAL {?s ?status ?statusData ;}");
-    sparqlJoiner.add("OPTIONAL {?s ?error ?errorData ;}");
-    sparqlJoiner.add("OPTIONAL {?s ?description ?descriptionData ;}");
-    sparqlJoiner.add("OPTIONAL {?s ?reproduceSteps ?reproduceStepsData ;}");
-    sparqlJoiner.add("OPTIONAL {?s ?expectedResult ?expectedResultData ;}");
-    sparqlJoiner.add("OPTIONAL {?s ?actualResult ?actualResultData ;}");
-    sparqlJoiner.add("}");
-    String sparql = sparqlJoiner.toString();
+    String sparql = """
+      SELECT ?s ?typeData ?createdByData ?assignedToData ?productData ?moduleData ?versionData ?osData ?browserData ?severityData ?statusData ?errorData ?descriptionData ?reproduceStepsData ?expectedResultData ?dateCreatedData ?stateData
+      WHERE {
+        ?s ?type ?typeData ;
+        ?createdBy ?createdByData ;
+        ?assignedTo ?assignedToData ;
+        ?state ?stateData ;
+        ?dateCreated ?dateCreatedData .
+        OPTIONAL {?s ?product ?productData ;}
+        OPTIONAL {?s ?module ?moduleData ;}
+        OPTIONAL {?s ?version ?versionData ;}
+        OPTIONAL {?s ?os ?osData ;}
+        OPTIONAL {?s ?osOther ?osOtherData ;}
+        OPTIONAL {?s ?browser ?browserData ;}
+        OPTIONAL {?s ?browserOther ?browserOtherData ;}
+        OPTIONAL {?s ?severity ?severityData ;}
+        OPTIONAL {?s ?status ?statusData ;}
+        OPTIONAL {?s ?error ?errorData ;}
+        OPTIONAL {?s ?description ?descriptionData ;}
+        OPTIONAL {?s ?reproduceSteps ?reproduceStepsData ;}
+        OPTIONAL {?s ?expectedResult ?expectedResultData ;}
+        OPTIONAL {?s ?actualResult ?actualResultData ;}
+      }
+      """;
 
     try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {
       TupleQuery qry = prepareSparql(conn, sparql);
@@ -77,24 +77,23 @@ public class WorkflowRepository {
           mapBugReportFromBindingSet(bugReport, bs);
           return bugReport;
         }
-      } catch (UserNotFoundException e) {
-        throw e;
       }
     }
     return null;
   }
 
   public List<TaskHistory> getHistory(String id) throws UserNotFoundException {
-    StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
-    stringJoiner.add("SELECT ?predicateData ?originalObjectData ?newObjectData ?changeDateData ?modifiedByData WHERE {");
-    stringJoiner.add("?s ?history ?historyId .");
-    stringJoiner.add("?historyId ?predicate ?predicateData ;");
-    stringJoiner.add("?originalObject ?originalObjectData ;");
-    stringJoiner.add("?newObject ?newObjectData ;");
-    stringJoiner.add("?changeDate ?changeDateData ;");
-    stringJoiner.add("?modifiedBy ?modifiedByData .");
-    stringJoiner.add("}");
-    String sparql = stringJoiner.toString();
+    String sparql = """
+      SELECT ?predicateData ?originalObjectData ?newObjectData ?changeDateData ?modifiedByData
+      WHERE {
+        ?s ?history ?historyId .
+        ?historyId ?predicate ?predicateData ;
+        ?originalObject ?originalObjectData ;
+        ?newObject ?newObjectData ;
+        ?changeDate ?changeDateData ;
+        ?modifiedBy ?modifiedByData .
+      }
+      """;
     List<TaskHistory> results = new ArrayList<>();
     try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {
       TupleQuery qry = prepareSparql(conn, sparql);
@@ -134,7 +133,15 @@ public class WorkflowRepository {
     taskFilerRdf4j.updateTask(subject, predicate, originalObject, newObject, userId);
   }
 
-  public WorkflowResponse getTasksByCreatedBy(WorkflowRequest request) throws UserNotFoundException {
+  private String getTaskSparqlFromRequest(WorkflowRequest request) throws UserNotFoundException {
+    StringJoiner sparqlJoiner = getTaskSparql();
+    if (null != request.getSize()) sparqlJoiner.add("LIMIT " + request.getSize());
+    if (null != request.getPage() && null != request.getSize())
+      sparqlJoiner.add("OFFSET " + request.getSize() * (request.getPage() == 0 ? 0 : request.getPage() - 1));
+    return sparqlJoiner.toString();
+  }
+
+  private StringJoiner getTaskSparql() {
     StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator());
     sparqlJoiner.add("SELECT ?s ?createdByData ?typeData ?assignedToData ?stateData ?dateCreatedData WHERE {");
     sparqlJoiner.add("?s ?createdBy ?createdByData ;");
@@ -143,10 +150,11 @@ public class WorkflowRepository {
     sparqlJoiner.add("?state ?stateData ;");
     sparqlJoiner.add("?type ?typeData .");
     sparqlJoiner.add("}");
-    if (null != request.getSize()) sparqlJoiner.add("LIMIT " + request.getSize());
-    if (null != request.getPage() && null != request.getSize())
-      sparqlJoiner.add("OFFSET " + request.getSize() * (request.getPage() == 0 ? 0 : request.getPage() - 1));
-    String sparql = sparqlJoiner.toString();
+    return sparqlJoiner;
+  }
+
+  public WorkflowResponse getTasksByCreatedBy(WorkflowRequest request) throws UserNotFoundException {
+    String sparql = getTaskSparqlFromRequest(request);
     WorkflowResponse response = new WorkflowResponse();
 
     try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {
@@ -168,9 +176,12 @@ public class WorkflowRepository {
   }
 
   public Integer countTaskByCreatedBy(WorkflowRequest request) {
-    StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
-    stringJoiner.add("SELECT (COUNT(DISTINCT ?s) AS ?count) WHERE { ?s ?createdBy ?createdByData }");
-    String sparql = stringJoiner.toString();
+    String sparql = """
+      SELECT (COUNT(DISTINCT ?s) AS ?count)
+      WHERE {
+        ?s ?createdBy ?createdByData
+      }
+      """;
     try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {
       TupleQuery qry = prepareSparql(conn, sparql);
       qry.setBinding("createdBy", iri(WORKFLOW.CREATED_BY));
@@ -186,18 +197,7 @@ public class WorkflowRepository {
   }
 
   public WorkflowResponse getTasksByAssignedTo(WorkflowRequest request) throws UserNotFoundException {
-    StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator());
-    sparqlJoiner.add("SELECT ?s ?createdByData ?typeData ?assignedToData ?stateData ?dateCreatedData WHERE {");
-    sparqlJoiner.add("?s ?createdBy ?createdByData ;");
-    sparqlJoiner.add("?dateCreated ?dateCreatedData ;");
-    sparqlJoiner.add("?assignedTo ?assignedToData ;");
-    sparqlJoiner.add("?state ?stateData ;");
-    sparqlJoiner.add("?type ?typeData .");
-    sparqlJoiner.add("}");
-    if (null != request.getSize()) sparqlJoiner.add("LIMIT " + request.getSize());
-    if (null != request.getPage() && null != request.getSize())
-      sparqlJoiner.add("OFFSET " + request.getSize() * (request.getPage() == 0 ? 0 : request.getPage() - 1));
-    String sparql = sparqlJoiner.toString();
+    String sparql = getTaskSparqlFromRequest(request);
     WorkflowResponse response = new WorkflowResponse();
 
     try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {
@@ -219,9 +219,12 @@ public class WorkflowRepository {
   }
 
   public Integer countTaskByAssignedTo(WorkflowRequest request) {
-    StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
-    stringJoiner.add("SELECT (COUNT(DISTINCT ?s) AS ?count) WHERE { ?s ?assignedTo ?assignedToData }");
-    String sparql = stringJoiner.toString();
+    String sparql = """
+        SELECT (COUNT(DISTINCT ?s) AS ?count)
+        WHERE {
+          ?s ?assignedTo ?assignedToData
+        }
+      """;
     try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {
       TupleQuery qry = prepareSparql(conn, sparql);
       qry.setBinding("assignedTo", iri(WORKFLOW.ASSIGNED_TO));
@@ -237,18 +240,7 @@ public class WorkflowRepository {
   }
 
   public WorkflowResponse getUnassignedTasks(WorkflowRequest request) throws UserNotFoundException {
-    StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator());
-    sparqlJoiner.add("SELECT ?s ?createdByData ?typeData ?assignedToData ?stateData ?dateCreatedData WHERE {");
-    sparqlJoiner.add("?s ?createdBy ?createdByData ;");
-    sparqlJoiner.add("?dateCreated ?dateCreatedData ;");
-    sparqlJoiner.add("?assignedTo ?assignedToData ;");
-    sparqlJoiner.add("?state ?stateData ;");
-    sparqlJoiner.add("?type ?typeData .");
-    sparqlJoiner.add("}");
-    if (null != request.getSize()) sparqlJoiner.add("LIMIT " + request.getSize());
-    if (null != request.getPage() && null != request.getSize())
-      sparqlJoiner.add("OFFSET " + request.getSize() * (request.getPage() == 0 ? 0 : request.getPage() - 1));
-    String sparql = sparqlJoiner.toString();
+    String sparql = getTaskSparqlFromRequest(request);
     WorkflowResponse response = new WorkflowResponse();
 
     try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {
@@ -270,14 +262,7 @@ public class WorkflowRepository {
   }
 
   public Task getTask(String id) throws UserNotFoundException {
-    StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator());
-    sparqlJoiner.add("SELECT ?s ?createdByData ?typeData ?assignedToData ?stateData ?dateCreatedData WHERE {");
-    sparqlJoiner.add("?s ?createdBy ?createdByData ;");
-    sparqlJoiner.add("?dateCreated ?dateCreatedData ;");
-    sparqlJoiner.add("?assignedTo ?assignedToData ;");
-    sparqlJoiner.add("?state ?stateData ;");
-    sparqlJoiner.add("?type ?typeData .");
-    sparqlJoiner.add("}");
+    StringJoiner sparqlJoiner = getTaskSparql();
     String sparql = sparqlJoiner.toString();
 
     try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {

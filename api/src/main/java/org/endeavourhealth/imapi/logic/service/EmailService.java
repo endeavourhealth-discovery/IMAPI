@@ -6,6 +6,7 @@ import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import lombok.extern.slf4j.Slf4j;
+import org.endeavourhealth.imapi.utility.EnvHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,21 +36,21 @@ public class EmailService {
     prop.put("mail.smtp.port", port);
   }
 
-  public void sendMail(String subject, String content) throws MessagingException {
+  public void sendMail(String subject, String content, String to) throws MessagingException {
     Session session = setupSession();
-    Message message = setupMessage(session, subject);
+    Message message = setupMessage(session, subject, to);
     MimeBodyPart mimeBodyPart = new MimeBodyPart();
     mimeBodyPart.setContent(content, "text/html; charset=utf-8");
     Multipart multipart = new MimeMultipart();
     multipart.addBodyPart(mimeBodyPart);
     message.setContent(multipart);
-    if ("production".equals(System.getenv("MODE"))) Transport.send(message);
+    if (!EnvHelper.isDevMode()) Transport.send(message);
     else log.info("Email sent");
   }
 
-  public void sendMailWithAttachment(String subject, String content, File attachment) throws MessagingException, IOException {
+  public void sendMailWithAttachment(String subject, String content, File attachment, String to) throws MessagingException, IOException {
     Session session = setupSession();
-    Message message = setupMessage(session, subject);
+    Message message = setupMessage(session, subject, to);
     MimeBodyPart mimeBodyPart = new MimeBodyPart();
     mimeBodyPart.setContent(content, "text/html; charset=utf-8");
     MimeBodyPart attachmentBodyPart = new MimeBodyPart();
@@ -71,10 +72,10 @@ public class EmailService {
     });
   }
 
-  private Message setupMessage(Session session, String subject) throws MessagingException {
+  private Message setupMessage(Session session, String subject, String toEmail) throws MessagingException {
     Message message = new MimeMessage(session);
-    message.setFrom(new InternetAddress("imapi@endeavourhealth.org"));
-    message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("support@endeavourhealth.org"));
+    message.setFrom(new InternetAddress(System.getenv("EMAILER_HOST")));
+    message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
     message.setSubject(subject);
     return message;
   }

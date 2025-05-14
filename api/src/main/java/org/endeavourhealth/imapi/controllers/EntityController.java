@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -101,6 +102,18 @@ public class EntityController {
       return entityService.getBundleByPredicateExclusions(iri, null).getEntity();
     }
   }
+
+  @GetMapping(value = "/entityTypes", produces = "application/json")
+  @Operation(summary = "Get entity type", description = "Fetches entity types using IRI")
+  public Set<String> getEntityType(@RequestParam(name = "iri") String iri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
+      log.debug("getEntityTypes");
+      return entityService.getBundle(iri,Set.of(RDF.TYPE)).getEntity()
+        .getType().getElements().stream().map(e->e.asIriRef().getIri()).collect(Collectors.toSet());
+    }
+  }
+
+
 
   @GetMapping(value = "/public/partialBundle", produces = "application/json")
   @Operation(summary = "Get partial entity bundle", description = "Fetches a partial entity bundle by IRI and a set of predicates")

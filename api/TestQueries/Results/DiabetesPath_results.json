@@ -1,21 +1,64 @@
 {
-  "match" : [ {
-    "where" : [ {
-      "iri" : "http://endhealth.info/im#concept",
-      "name" : "concept",
-      "nodeRef" : "condition",
-      "is" : [ {
-        "iri" : "http://snomed.info/sct#44054006",
-        "name" : "Diabetes mellitus type 2 (disorder)",
-        "descendantsOrSelfOf" : true
-      } ]
-    } ],
-    "path" : {
-      "iri" : "http://endhealth.info/im#condition",
-      "name" : "condition",
-      "node" : {
-        "variable" : "condition"
-      }
+  "match": [
+    {
+      "where": {
+        "iri": "http://endhealth.info/im#concept",
+        "name": "concept",
+        "nodeRef": "condition",
+        "is": [
+          {
+            "iri": "http://snomed.info/sct#44054006",
+            "name": "Diabetes mellitus type 2 (disorder)",
+            "descendantsOrSelfOf": true
+          }
+        ]
+      },
+      "path": [
+        {
+          "iri": "http://endhealth.info/im#condition",
+          "name": "condition"
+        }
+      ]
+    },
+    {
+      "where": {
+        "iri": "http://endhealth.info/im#concept",
+        "name": "concept",
+        "nodeRef": "observation",
+        "is": [
+          {
+            "iri": "http://snomed.info/sct#44054006",
+            "name": "Diabetes mellitus type 2 (disorder)",
+            "descendantsOrSelfOf": true
+          }
+        ]
+      },
+      "path": [
+        {
+          "iri": "http://endhealth.info/im#observation",
+          "name": "observation"
+        }
+      ]
+    },
+    {
+      "where": {
+        "iri": "http://endhealth.info/im#concept",
+        "name": "concept",
+        "nodeRef": "investigation",
+        "is": [
+          {
+            "iri": "http://snomed.info/sct#44054006",
+            "name": "Diabetes mellitus type 2 (disorder)",
+            "descendantsOrSelfOf": true
+          }
+        ]
+      },
+      "path": [
+        {
+          "iri": "http://endhealth.info/im#investigation",
+          "name": "investigation (test header)"
+        }
+      ]
     }
-  } ]
+  ]
 }

@@ -94,12 +94,14 @@ public class SearchTextFileExporter {
   }
 
   private void addItemToJoiner(StringJoiner stringJoiner, Object item, boolean inArray) throws DownloadException {
-    if (item instanceof String string) stringJoiner.add("\"" + string + "\"");
-    else if (item instanceof Integer integer) stringJoiner.add(integer.toString());
-    else if (item instanceof TTIriRef ttIriRef) stringJoiner.add(iriToString(ttIriRef, inArray));
-    else if (item instanceof List<?> list) stringJoiner.add(arrayToString(list));
-    else if (item instanceof Set<?> subSet) stringJoiner.add(setToString(subSet));
-    else if (null == item) stringJoiner.add("");
-    else throw new DownloadException("Unexpected type encountered while converting to csv" + item);
+    switch (item) {
+      case String string -> stringJoiner.add("\"" + string + "\"");
+      case Integer integer -> stringJoiner.add(integer.toString());
+      case TTIriRef ttIriRef -> stringJoiner.add(iriToString(ttIriRef, inArray));
+      case List<?> list -> stringJoiner.add(arrayToString(list));
+      case Set<?> subSet -> stringJoiner.add(setToString(subSet));
+      case null -> stringJoiner.add("");
+      default -> throw new DownloadException("Unexpected type encountered while converting to csv" + item);
+    }
   }
 }

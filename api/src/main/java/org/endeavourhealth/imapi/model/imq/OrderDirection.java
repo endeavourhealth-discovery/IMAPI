@@ -3,6 +3,11 @@ package org.endeavourhealth.imapi.model.imq;
 public class OrderDirection extends RelativeTo {
   private Order direction;
 
+  public  OrderDirection setNodeRef(String nodeRef){
+    super.setNodeRef(nodeRef);
+    return this;
+  }
+
   public Order getDirection() {
     return direction;
   }

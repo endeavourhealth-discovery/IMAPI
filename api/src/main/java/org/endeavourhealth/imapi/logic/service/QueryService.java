@@ -2,17 +2,12 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.transforms.Context;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -100,17 +95,16 @@ public class QueryService {
     };
     TTEntity cohort = findFirstQuery(children);
     Query defaultQuery= new Query();
-    defaultQuery.setMatch(new ArrayList<>());
     if (cohort!=null) {
       Query cohortQuery = cohort.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       defaultQuery.setTypeOf(cohortQuery.getTypeOf());
-      defaultQuery.addInstanceOf(new Node().setIri(cohort.getIri()));
+      defaultQuery.addInstanceOf(new Node().setIri(cohort.getIri()).setMemberOf(true));
       return defaultQuery;
     }  else return null;
   }
   private TTEntity findFirstQuery(List<TTEntity> children) throws JsonProcessingException {
     for (TTEntity child : children) {
-      if (child.isType(iri(IM.COHORT_QUERY))){
+      if (child.isType(iri(IM.QUERY))){
       if (child.get(iri(IM.DEFINITION)) != null){
           return child;
         }

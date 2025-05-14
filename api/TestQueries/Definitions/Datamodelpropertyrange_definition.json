@@ -1,68 +1,80 @@
 {
-  "context" : {
-    "im" : "http://endhealth.info/im#",
-    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "owl" : "http://www.w3.org/2002/07/owl#",
-    "sh" : "http://www.w3.org/ns/shacl#",
-    "xsd" : "http://www.w3.org/2001/XMLSchema#",
-    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
-    "sn" : "http://snomed.info/sct#"
+  "context": {
+    "im": "http://endhealth.info/im#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "sh": "http://www.w3.org/ns/shacl#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "sn": "http://snomed.info/sct#"
   },
-  "argument" : [ {
-    "parameter" : "myDataModel",
-    "valueIri" : {
-      "iri" : "im:Observation"
+  "argument": [
+    {
+      "parameter": "myDataModel",
+      "valueIri": {
+        "iri": "im:Observation"
+      }
+    },
+    {
+      "parameter": "myProperty",
+      "valueIri": {
+        "iri": "im:concept"
+      }
     }
-  }, {
-    "parameter" : "myProperty",
-    "valueIri" : {
-      "iri" : "im:concept"
-    }
-  } ],
-  "query" : {
-    "name" : "Data model property range",
-    "description" : "get node, class or datatype value (range)  of property objects for specific data model and property",
-    "match" : [ {
-      "instanceOf" : [ {
-        "parameter" : "myDataModel"
-      } ],
-      "where" : [ {
-        "iri" : "sh:property",
-        "match" : {
-          "boolWhere" : "and",
-          "where" : [ {
-            "iri" : "sh:path",
-            "is" : [ {
-              "parameter" : "myProperty"
-            } ]
-          }, {
-            "boolWhere" : "or",
-            "where" : [ {
-              "iri" : "sh:class",
-              "match" : {
-                "variable" : "propType"
-              }
-            }, {
-              "iri" : "sh:node",
-              "match" : {
-                "variable" : "propType"
-              }
-            }, {
-              "iri" : "sh:datatype",
-              "match" : {
-                "variable" : "propType"
-              }
-            } ]
-          } ],
-          "variable" : "shaclProperty"
+  ],
+  "query": {
+    "name": "Data model property range",
+    "description": "get node, class or datatype value (range)  of property objects for specific data model and property",
+    "instanceOf": [
+      {
+        "parameter": "myDataModel"
+      }
+    ],
+    "return": {
+      "property": [
+        {
+          "iri": "rdfs:label",
+          "valueRef": "propType"
         }
-      } ]
-    } ],
-    "return" : {
-      "nodeRef" : "propType",
-      "property" : [ {
-        "iri" : "rdfs:label"
-      } ]
-    }
+      ]
+    },
+    "where": {
+      "and": [
+        {
+          "iri": "sh:path",
+          "nodeRef": "shaclProperty",
+          "is": [
+            {
+              "parameter": "myProperty"
+            }
+          ]
+        },
+        {
+          "or": [
+            {
+              "iri": "sh:class",
+              "nodeRef": "shaclProperty",
+              "valueVariable": "propType"
+            },
+            {
+              "iri": "sh:node",
+              "nodeRef": "shaclProperty",
+              "valueVariable": "propType"
+            },
+            {
+              "iri": "sh:datatype",
+              "nodeRef": "shaclProperty",
+              "valueVariable": "propType"
+            }
+          ]
+        }
+      ]
+    },
+    "path": [
+      {
+        "iri": "sh:property",
+        "variable": "shaclProperty"
+      }
+    ]
   }
 }

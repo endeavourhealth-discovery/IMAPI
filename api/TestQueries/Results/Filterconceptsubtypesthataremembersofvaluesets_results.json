@@ -1,6 +1,9 @@
 {
   "entities" : [ {
-    "iri" : "http://snomed.info/sct#702450004",
+    "@id" : "http://endhealth.info/emis#7561151000006117",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "FOXG1 syndrome (emis code id)"
+  }, {
+    "@id" : "http://snomed.info/sct#702450004",
     "http://www.w3.org/2000/01/rdf-schema#label" : "FOXG1 syndrome (disorder)"
   } ]
 }

@@ -100,20 +100,20 @@ public class TTTranslator implements SyntaxTranslator {
         String predicate = property;
         if (!property.contains(":"))
           predicate = IM.NAMESPACE + property;
-        if (targetValue instanceof List<?> targetValueList) {
-          TTArray array = new TTArray();
-          for (Object item : targetValueList) {
-            array.add((TTValue) convertToTargetSingle(item));
+        switch (targetValue) {
+          case List<?> targetValueList -> {
+            TTArray array = new TTArray();
+            for (Object item : targetValueList) {
+              array.add((TTValue) convertToTargetSingle(item));
+            }
+            ((TTNode) targetEntity).set(TTIriRef.iri(predicate), array);
           }
-          ((TTNode) targetEntity).set(TTIriRef.iri(predicate), array);
-        } else if (targetValue instanceof TTArray targetValueTTArray) {
-          ((TTNode) targetEntity).set(TTIriRef.iri(predicate), targetValueTTArray);
-        } else if (targetValue instanceof TTEntity targetValueTTEntity) {
-          setPropertyValueTTEntity(rule, (TTNode) targetEntity, targetValueTTEntity, predicate);
-        } else if (targetValue instanceof TTValue targetValueTTValue) {
-          setPropertyValueTTValue(rule, (TTNode) targetEntity, targetValueTTValue, predicate);
-        } else {
-          ((TTNode) targetEntity).set(TTIriRef.iri(predicate), TTLiteral.literal(targetValue));
+          case TTArray targetValueTTArray -> ((TTNode) targetEntity).set(TTIriRef.iri(predicate), targetValueTTArray);
+          case TTEntity targetValueTTEntity ->
+            setPropertyValueTTEntity(rule, (TTNode) targetEntity, targetValueTTEntity, predicate);
+          case TTValue targetValueTTValue ->
+            setPropertyValueTTValue(rule, (TTNode) targetEntity, targetValueTTValue, predicate);
+          case null, default -> ((TTNode) targetEntity).set(TTIriRef.iri(predicate), TTLiteral.literal(targetValue));
         }
       }
     } catch (JsonProcessingException e) {

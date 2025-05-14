@@ -28,28 +28,30 @@ class SearchServiceTest {
   private String succinctDefinitions;
   EntityService entityService = new EntityService();
 
- //@Test
+//@Test
   void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
-   output(TestQueries.getMembers());
+  output(TestQueries.dataModelPropertyRange());
+  output(TestQueries.shapesWithDateOFBirth());
    output(TestQueries.getAllowableSubtypes());
-   output(TestQueries.subtypesParameterised());
+   output(TestQueries.AllowablePropertiesForCovid());
    output(TestQueries.getAllowableProperties());
+   output(TestQueries.getMembers());
+
+   output(TestQueries.subtypesParameterised());
+
     output(TestQueries.getMembers());;
-    output(TestQueries.AllowablePropertiesForCovid());
+
     output(TestQueries.getMembers());
     output(TestQueries.pathQuery());
 
-    output(TestQueries.query2());
+
     //output(TestQueries.pathQueryAtenolol3());
 
 
-    output(TestQueries.query6());
-    output(TestQueries.dataModelPropertyRange());
     output(TestQueries.rangeSuggestion());
 
 
     output(TestQueries.query1());
-    output(TestQueries.query2());
     output(TestQueries.getShaclProperty());
 
     output(TestQueries.deleteSets());
@@ -73,6 +75,7 @@ class SearchServiceTest {
 
   private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
     String name = null;
+    String originalRequest = new ObjectMapper().writeValueAsString(dataSet);
 
     if (dataSet.getPathQuery() != null)
       name = dataSet.getPathQuery().getName();
@@ -101,6 +104,11 @@ class SearchServiceTest {
       try (FileWriter wr = new FileWriter(path.toString())) {
         wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
         System.out.println("Found " + result.get("entities").size() + " entities");
+        if (result.get("entities").size() ==0) {
+          dataSet= new ObjectMapper().readValue(originalRequest, QueryRequest.class);
+          result = searchService.queryIM(dataSet);
+          throw new RuntimeException("No results found for query " + name);
+        }
       }
     } else if (dataSet.getPathQuery() != null) {
       PathDocument result = searchService.pathQuery(dataSet.getPathQuery());

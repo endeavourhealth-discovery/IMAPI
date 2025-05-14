@@ -41,7 +41,7 @@ public class AWSCognitoClient {
       .build();
     ListUsersResponse result = identityProvider.listUsers(usersRequest);
     if (result.users().isEmpty()) throw new UserNotFoundException("User with id: " + id + " not found.");
-    username = result.users().get(0).username();
+    username = result.users().getFirst().username();
     userCache.put(id, username);
     return username;
   }
@@ -50,7 +50,7 @@ public class AWSCognitoClient {
     String id = getKeysByValue(username);
     if (null != id) return id;
     AdminGetUserResponse result = adminGetUserByUsername(username);
-    id = result.userAttributes().get(0).value();
+    id = result.userAttributes().getFirst().value();
     userCache.put(id, username);
     return id;
   }

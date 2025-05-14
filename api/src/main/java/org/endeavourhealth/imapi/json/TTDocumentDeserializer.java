@@ -66,17 +66,16 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
       Iterator<Map.Entry<String, JsonNode>> fields = entityNode.fields();
       while (fields.hasNext()) {
         Map.Entry<String, JsonNode> field = fields.next();
-        if (field.getKey().equals(ID)) {
-          entity.setIri(helper.expand(field.getValue().textValue()));
-        } else if (field.getKey().equals(GRAPH)) {
-          entity.setGraph(new TTIriRef(helper.expand(field.getValue().get(ID).asText())));
-        } else if (field.getKey().equals(CRUD)) {
-          entity.setCrud(iri(helper.expand(field.getValue().get(ID).asText())));
-        } else {
-          if (field.getValue().isArray())
-            entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeArrayAsValue(field.getValue()));
-          else
-            entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeAsValue(field.getValue()));
+        switch (field.getKey()) {
+          case ID -> entity.setIri(helper.expand(field.getValue().textValue()));
+          case GRAPH -> entity.setGraph(new TTIriRef(helper.expand(field.getValue().get(ID).asText())));
+          case CRUD -> entity.setCrud(iri(helper.expand(field.getValue().get(ID).asText())));
+          default -> {
+            if (field.getValue().isArray())
+              entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeArrayAsValue(field.getValue()));
+            else
+              entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeAsValue(field.getValue()));
+          }
         }
       }
     }

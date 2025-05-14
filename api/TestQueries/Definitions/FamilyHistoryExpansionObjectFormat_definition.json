@@ -10,15 +10,6 @@
   },
   "query" : {
     "name" : "FamilyHistoryExpansionObjectFormat",
-    "match" : [ {
-      "where" : [ {
-        "@id" : "im:hasMember",
-        "is" : [ {
-          "@id" : "im:VSET_FamilyHistory"
-        } ],
-        "inverse" : true
-      } ]
-    } ],
     "return" : {
       "property" : [ {
         "@id" : "rdfs:label"
@@ -35,6 +26,13 @@
           } ]
         }
       } ]
+    },
+    "where" : {
+      "@id" : "im:hasMember",
+      "is" : [ {
+        "@id" : "im:VSET_FamilyHistory"
+      } ],
+      "inverse" : true
     }
   }
 }

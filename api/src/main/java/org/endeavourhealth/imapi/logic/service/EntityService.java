@@ -66,6 +66,7 @@ public class EntityService {
     return bundle;
   }
 
+
   public List<TTEntity> getPartialEntities(Set<String> iris, Set<String> predicates) {
     List<TTEntity> entities = new ArrayList<>();
     if (iris.stream().anyMatch(str -> str == null || str.isEmpty())) {

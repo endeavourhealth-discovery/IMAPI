@@ -26,17 +26,15 @@
       "instanceOf" : [ {
         "parameter" : "$dataModel"
       } ],
-      "where" : [ {
+      "path" : [ {
         "@id" : "sh:property",
-        "match" : {
-          "where" : [ {
-            "@id" : "sh:path",
-            "is" : [ {
-              "parameter" : "$property"
-            } ]
-          } ],
-          "variable" : "shaclProperty"
-        }
+        "where" : [ {
+          "@id" : "sh:path",
+          "is" : [ {
+            "parameter" : "$property"
+          } ]
+        } ],
+        "variable" : "shaclProperty"
       } ]
     } ],
     "return" : {

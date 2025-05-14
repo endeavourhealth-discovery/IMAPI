@@ -75,36 +75,27 @@ public class SetRepository {
   }
 
   private Set<Concept> getReplacedExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
-    Query replaced = new Query();
-    replaced.setMatch(imQuery.getMatch());
-    replaced.setVariable(ACTIVE_ENTITY);
-    replaced.getMatch().getFirst().setVariable(ACTIVE_ENTITY);
-    if (replaced.getMatch().getFirst().getMatch() != null) {
-      for (Match match : replaced.getMatch().getFirst().getMatch()) {
-        match.setVariable(ACTIVE_ENTITY);
-      }
-    }
+    imQuery.setVariable(ACTIVE_ENTITY);
     Return aReturn = setReturn(imQuery, includeLegacy);
     aReturn.setNodeRef(ENTITY);
-    replaced.setReturn(aReturn);
-    replaced.match(m -> m
-      .setBool(Bool.or)
-      .match(m1 -> m1
+    imQuery.setReturn(aReturn);
+    imQuery
+      .or(m -> m
         .setVariable(ENTITY)
         .where(p -> p
           .setIri(IM.PREVIOUS_ENTITY_OF)
           .addIs(new Node().setNodeRef(ACTIVE_ENTITY))))
-      .match(m1 -> m1
+      .or(m1 -> m1
         .setVariable(ENTITY)
         .where(p -> p
           .setIri(IM.SUBSUMED_BY)
           .addIs(new Node().setNodeRef(ACTIVE_ENTITY))))
-      .match(m1 -> m1
+      .or(m1 -> m1
         .setVariable(ENTITY)
         .where(p -> p
           .setIri(IM.MAY_BE_SUBSUMED_BY)
-          .addIs(new Node().setNodeRef(ACTIVE_ENTITY)))));
-    return getExpansion(replaced, includeLegacy, statusFilter, schemeFilter, page);
+          .addIs(new Node().setNodeRef(ACTIVE_ENTITY))));
+    return getExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
 
   }
 

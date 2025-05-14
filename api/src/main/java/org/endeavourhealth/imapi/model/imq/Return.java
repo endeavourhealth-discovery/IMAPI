@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -15,11 +16,24 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Return {
   private String nodeRef;
+  @Getter
+  private String valueRef;
+  @Getter
+  private String propertyRef;
   private List<ReturnProperty> property;
   private FunctionClause function;
   private String as;
 
 
+  public Return setPropertyRef(String propertyRef) {
+    this.propertyRef = propertyRef;
+    return this;
+  }
+
+  public Return setValueRef(String valueRef) {
+    this.valueRef = valueRef;
+    return this;
+  }
 
   public String getAs() {
     return as;

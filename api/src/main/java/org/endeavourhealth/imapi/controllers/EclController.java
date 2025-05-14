@@ -5,8 +5,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
-import org.endeavourhealth.imapi.model.eclBuilder.BoolGroup;
-import org.endeavourhealth.imapi.model.eclBuilder.EclBuilderException;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
@@ -90,29 +88,8 @@ public class EclController {
     }
   }
 
-  @PostMapping(value = "public/eclBuilderFromQuery", produces = "application/json")
-  @Operation(
-    summary = "Build ECL from Query",
-    description = "Generates ECL builder component objects from an IM Query"
-  )
-  public BoolGroup getEclBuilderFromQuery(@RequestBody Query query) throws QueryException, EclBuilderException, IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclBuilderFromQuery.POST")) {
-      log.debug("getEclBuilderFromQuery");
-      return eclService.getEclBuilderFromQuery(query);
-    }
-  }
 
-  @PostMapping(value = "public/queryFromEclBuilder", produces = "application/json")
-  @Operation(
-    summary = "Generate Query from ECL Builder",
-    description = "Converts ECL builder component objects into an IM Query"
-  )
-  public Query getQueryFromEclBuilder(@RequestBody BoolGroup boolGroup) throws IOException, EclBuilderException {
-    log.debug("getQueryFromEclBuilder");
-    try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.QueryFromEclBuilder.POST")) {
-      return eclService.getQueryFromEclBuilder(boolGroup);
-    }
-  }
+
 
   @PostMapping(value = "public/validateEcl", consumes = "text/plain", produces = "application/json")
   @Operation(

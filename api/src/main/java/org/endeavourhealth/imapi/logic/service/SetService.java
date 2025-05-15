@@ -47,10 +47,10 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class SetService {
 
   private final SetTextFileExporter setTextFileExporter = new SetTextFileExporter();
-  private final SetRepository setRepository = new SetRepository();
-  private final EntityRepository entityRepository = new EntityRepository();
-  private final FilerService filerService = new FilerService();
-  private final SetExporter setExporter = new SetExporter();
+  private SetRepository setRepository = new SetRepository();
+  private EntityRepository entityRepository = new EntityRepository();
+  private FilerService filerService = new FilerService();
+  private SetExporter setExporter = new SetExporter();
 
   public Pageable<Node> getMembers(String iri, boolean entailments, Integer rowNumber, Integer pageSize) {
     return setRepository.getMembers(iri, entailments, rowNumber, pageSize);

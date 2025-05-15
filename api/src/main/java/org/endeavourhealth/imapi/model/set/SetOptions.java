@@ -25,7 +25,7 @@ public class SetOptions {
     this.includeLegacy = includeLegacy;
     this.includeSubsets = includeSubsets;
     this.schemes = schemes;
-    this.subsumptions= subsumptions;
+    this.subsumptions = subsumptions;
 
   }
 
@@ -82,6 +82,11 @@ public class SetOptions {
 
   public SetOptions setIncludeIM1id(boolean includeIM1id) {
     this.includeIM1id = includeIM1id;
+    return this;
+  }
+
+  public SetOptions setSubsumptions(List<String> subsumptions) {
+    this.subsumptions = subsumptions;
     return this;
   }
 }

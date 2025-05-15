@@ -104,19 +104,12 @@ public class ConnectionManager {
       if (type == null || type.isEmpty())
         type = "http";
 
-      switch (type.toLowerCase()) {
-        case "http":
-          repo = getHttpRepo(repoId);
-          break;
-        case "file":
-          repo = getFileRepo(repoId);
-          break;
-        case "sparql":
-          repo = getSparqlRepo(repoId);
-          break;
-        default:
-          throw new DALException("Invalid graph connection parameters");
-      }
+      repo = switch (type.toLowerCase()) {
+        case "http" -> getHttpRepo(repoId);
+        case "file" -> getFileRepo(repoId);
+        case "sparql" -> getSparqlRepo(repoId);
+        default -> throw new DALException("Invalid graph connection parameters");
+      };
       repos.put(repoId, repo);
     }
 

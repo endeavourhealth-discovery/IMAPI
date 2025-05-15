@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.model.eclBuilder.EclType;
+import org.endeavourhealth.imapi.model.imq.EclType;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
@@ -10,7 +10,6 @@ import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.DataFormatException;
 
 public class IMQToECL {
 
@@ -23,7 +22,7 @@ public class IMQToECL {
    * @param query       a node representing a class expression e.g. value of im:Definition
    * @param includeName flag to include the concept term is the output
    * @return String of ECL
-   * @throws DataFormatException invalid or unsupported ECL syntax
+   * @throws QueryException invalid or unsupported ECL syntax
    */
   public String getECLFromQuery(Query query, Boolean includeName) throws QueryException {
     StringBuilder ecl = new StringBuilder();
@@ -33,98 +32,112 @@ public class IMQToECL {
         ecl.append("prefix ").append(prefix.getPrefix()).append(": ").append(prefix.getNamespace()).append("\n");
       }
     }
-    match(query, ecl, includeName);
+    expressionMatch(query, ecl, includeName, false);
     return ecl.toString().trim();
   }
 
   public EclType getEclType(Match match) {
-    if (match.getMatch() != null) {
-      if (match.getMatch().size() > 0) {
-        if (match.getWhere() != null)
-          return EclType.compoundRefined;
-      }
-    }
     if (match.getWhere() != null)
       return EclType.refined;
-    if (match.getMatch() != null) {
-      for (Match subMatch : match.getMatch()) {
-        if (subMatch.isExclude())
-          return EclType.exclusion;
-      }
+    if (match.getAnd() != null || match.getOr() != null) {
       return EclType.compound;
     }
+
     if (match.getInstanceOf() != null)
       return EclType.simple;
-    else return null;
+    else throw new IllegalArgumentException("Invalid IMQ for ECL conversion");
   }
 
   public String getECLFromQuery(Query query) throws QueryException {
     return getECLFromQuery(query, false);
   }
 
-  private boolean isList(Match match) {
-    return null != match.getMatch();
-  }
 
-
-  private void match(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
+  private void expressionMatch(Match match, StringBuilder ecl, boolean includeNames, boolean isNested) throws QueryException {
     EclType matchType = getEclType(match);
+    boolean isExclusion = match.getNot() != null;
     if (matchType == null)
       return;
     if (matchType == EclType.simple) {
       matchInstanceOf(match, ecl, includeNames);
     } else if (matchType == EclType.refined) {
-      if (match.getInstanceOf() != null) {
-        if (match.getInstanceOf().size() > 1) {
-          ecl.append("(");
-        }
-        matchInstanceOf(match, ecl, includeNames);
-      } else
-        ecl.append("*");
+      match(match, ecl, includeNames, true);
       addRefinementsToMatch(match, ecl, includeNames, false);
-      if (match.getInstanceOf() != null)
-        if (match.getInstanceOf().size() > 1)
-          ecl.append(")");
       ecl.append("\n");
-    } else if (matchType == EclType.compound || matchType == EclType.compoundRefined) {
-      if (matchType == EclType.compoundRefined)
+    } else if (matchType == EclType.compound) {
+      if (isNested || isExclusion)
         ecl.append("(");
+      compound(match, ecl, includeNames);
+      if (isNested || isExclusion)
+        ecl.append(")");
+      ecl.append("\n");
+    }
+    if (match.getNot() != null) {
+      ecl.append(" MINUS ");
       boolean first = true;
-      for (Match subMatch : match.getMatch()) {
-        EclType subMatchType = getEclType(subMatch);
-        boolean bracket = match.getMatch().size() > 1 && subMatchType == EclType.refined;
+      for (Match subMatch : match.getNot()) {
         if (!first) {
-          ecl.append("\n");
-          if (match.getBool() == Bool.or) {
-            ecl.append(" OR ");
-          } else
-            ecl.append(" AND ");
+          ecl.append("OR ");
         }
-        if (bracket)
-          ecl.append("(");
-        match(subMatch, ecl, includeNames);
-        if (bracket)
-          ecl.append(")");
+        first = false;
+        expressionMatch(subMatch, ecl, includeNames, true);
+        ecl.append("\n");
+      }
+    }
+  }
+
+  private void match(Match match, StringBuilder ecl, boolean includeNames, boolean isNested) throws QueryException {
+    boolean isWild = false;
+    if (match.getInstanceOf() == null && match.getOr() == null && match.getAnd() == null) {
+      ecl.append("*");
+    } else if (match.getInstanceOf() != null) {
+      if (match.getInstanceOf().size() > 1) {
+        ecl.append("(");
+      }
+      matchInstanceOf(match, ecl, includeNames);
+      if (match.getInstanceOf().size() > 1) {
+        ecl.append(")");
+      }
+    } else {
+      if (isNested)
+        ecl.append("(");
+      compound(match, ecl, includeNames);
+      if (isNested)
+        ecl.append(")");
+    }
+    if (isWild) ecl.append(")");
+  }
+
+  private boolean bracketNeeded(Match match, boolean first) {
+    if (match.getInstanceOf() == null && match.getOr() == null && match.getAnd() == null) return true;
+    if (match.getWhere() != null && !first) return true;
+    return false;
+  }
+
+  private void compound(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
+    boolean first = true;
+    if (match.getAnd() != null) {
+      boolean isConjunction = match.getAnd().size() > 1;
+      for (Match subMatch : match.getAnd()) {
+        if (!first) {
+          ecl.append(" AND ");
+        }
+        if (bracketNeeded(subMatch, first)) ecl.append("(");
+        expressionMatch(subMatch, ecl, includeNames, isConjunction);
+        if (bracketNeeded(subMatch, first)) ecl.append(")");
         first = false;
       }
-      if (matchType == EclType.compoundRefined) {
-        ecl.append(")");
-        addRefinementsToMatch(match, ecl, includeNames, false);
-      }
-      ecl.append("\n");
-    } else {
-      for (Match subMatch : match.getMatch()) {
-        if (subMatch.isExclude()) {
-          ecl.append(" MINUS ");
+    }
+    if (match.getOr() != null) {
+      boolean isDisjunction = match.getOr().size() > 1;
+      for (Match subMatch : match.getOr()) {
+        if (!first) {
+          ecl.append(" OR ");
         }
-        if (null != subMatch.getMatch() && subMatch.getMatch().size() > 1) {
-          ecl.append("(");
-        }
-        match(subMatch, ecl, includeNames);
-        if (null != subMatch.getMatch() && subMatch.getMatch().size() > 1) {
-          ecl.append(")");
-        }
-        ecl.append("\n");
+        if (bracketNeeded(subMatch, first)) ecl.append("(");
+        expressionMatch(subMatch, ecl, includeNames, isDisjunction);
+        if (bracketNeeded(subMatch, first)) ecl.append(")");
+        first = false;
       }
     }
   }
@@ -150,74 +163,57 @@ public class IMQToECL {
 
   private void addRefinementsToMatch(Match match, StringBuilder ecl, boolean includeNames, boolean ignoreColon) throws QueryException {
     if (!ignoreColon) ecl.append(": ");
-    boolean first = true;
-    for (Where where : match.getWhere()) {
-      if (!first) {
-        ecl.append("\n AND ");
-      }
-      first = false;
-      if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)) {
-        ecl.append("{");
-        addRefinementsToMatch(where.getMatch(), ecl, includeNames, true);
-        ecl.append("}");
-      } else {
-        addRefined(where, ecl, includeNames);
-      }
-    }
+    addRefined(match.getWhere(), ecl, includeNames, false);
   }
 
-  private void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames) throws QueryException {
-    if (null != property.getIri() && property.getIri().equals(IM.ROLE_GROUP)) {
-      ecl.append("{");
-      addRefinementsToMatch(property.getMatch(), ecl, includeNames, true);
-      ecl.append("}");
-    } else {
-      boolean first = true;
-      for (Where subProperty : property.getWhere()) {
+  private void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames, boolean nested) throws QueryException {
+    if (nested) ecl.append("(");
+    boolean first = true;
+    if (property.getAnd() != null) {
+      for (Where subProperty : property.getAnd()) {
         if (!first) {
           ecl.append("\n");
-          if (property.getBool() == Bool.or) {
-            ecl.append(" OR ");
-          } else
-            ecl.append(" , ");
+          ecl.append(" , ");
         }
         first = false;
-        addRefined(subProperty, ecl, includeNames);
+        addRefined(subProperty, ecl, includeNames, true);
       }
     }
+    if (property.getOr() != null) {
+      for (Where subProperty : property.getOr()) {
+        if (!first) {
+          ecl.append("\n");
+          ecl.append(" OR ");
+        }
+        first = false;
+        addRefined(subProperty, ecl, includeNames, true);
+      }
+    }
+    if (nested) ecl.append(")");
   }
 
 
-  private void addRefined(Where where, StringBuilder ecl, Boolean includeNames) throws QueryException {
+  private void addRefined(Where where, StringBuilder ecl, Boolean includeNames, boolean nested) throws QueryException {
     try {
-      if (null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP)) {
+      if (where.getIri() != null && where.getIri().equals(IM.ROLE_GROUP)) {
         ecl.append("{");
-        addRefinementsToMatch(where.getMatch(), ecl, includeNames, true);
+        addRefinementsToWhere(where, ecl, includeNames, false);
         ecl.append("}");
       } else {
-        if (null == where.getWhere()) {
-          if (null == where.getIs() && null == where.getMatch())
-            throw new QueryException("Where clause must contain a value or sub match clause");
-          if (where.getIs() != null) {
-            boolean first = true;
-            for (Node value : where.getIs()) {
-              if (!first)
-                ecl.append("\n OR ");
-              first = false;
-              addProperty(where, ecl, includeNames);
-              ecl.append(" = ");
-              addClass(value, ecl, includeNames);
-            }
-          } else {
+        if (where.getAnd() == null && where.getOr() == null) {
+          if (null == where.getIs())
+            throw new QueryException("Where clause must contain a value or sub expressionMatch clause");
+          boolean first = true;
+          for (Node value : where.getIs()) {
+            if (!first)
+              ecl.append("\n OR ");
+            first = false;
             addProperty(where, ecl, includeNames);
-            ecl.append(" = (");
-            match(where.getMatch(), ecl, includeNames);
-            ecl.append(")");
+            ecl.append(" = ");
+            addClass(value, ecl, includeNames);
           }
         } else {
-          ecl.append("(");
-          addRefinementsToWhere(where, ecl, includeNames);
-          ecl.append(")");
+          addRefinementsToWhere(where, ecl, includeNames, nested);
         }
       }
     } catch (Exception e) {

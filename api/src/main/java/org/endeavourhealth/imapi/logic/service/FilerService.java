@@ -150,13 +150,13 @@ public class FilerService {
   public void isValid(TTEntity entity, String mode) throws TTFilerException, JsonProcessingException {
     ArrayList<String> errorMessages = new ArrayList<>();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      if (Boolean.TRUE.equals(!isValidIri(entity))) errorMessages.add("Missing iri.");
+      if (!isValidIri(entity)) errorMessages.add("Missing iri.");
       if ("Create".equals(mode) && entityService.iriExists(entity.getIri())) errorMessages.add("Iri already exists.");
       if ("Update".equals(mode) && !entityService.iriExists(entity.getIri())) errorMessages.add("Iri doesn't exists.");
-      if (Boolean.TRUE.equals(!isValidName(entity))) errorMessages.add("Name is invalid.");
-      if (Boolean.TRUE.equals(!isValidType(entity))) errorMessages.add("Types are invalid.");
-      if (Boolean.TRUE.equals(!isValidStatus(entity))) errorMessages.add("Status is invalid");
-      if (Boolean.TRUE.equals(!hasParents(entity))) errorMessages.add("Parents are invalid");
+      if (!isValidName(entity)) errorMessages.add("Name is invalid.");
+      if (!isValidType(entity)) errorMessages.add("Types are invalid.");
+      if (!isValidStatus(entity)) errorMessages.add("Status is invalid");
+      if (!hasParents(entity)) errorMessages.add("Parents are invalid");
       if (!errorMessages.isEmpty()) {
         String errorsAsString = String.join(",", errorMessages);
         throw new TTFilerException(mode + " entity errors: [" + errorsAsString + "] for entity " + om.writeValueAsString(entity));

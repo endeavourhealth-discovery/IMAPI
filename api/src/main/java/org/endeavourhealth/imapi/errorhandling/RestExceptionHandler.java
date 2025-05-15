@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.errorhandling;
 import org.apache.catalina.connector.ClientAbortException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.customexceptions.*;
-import org.endeavourhealth.imapi.model.eclBuilder.EclBuilderException;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.*;
@@ -151,11 +150,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     return buildResponseEntity(error);
   }
 
-  @ExceptionHandler(EclBuilderException.class)
-  protected ResponseEntity<Object> handleEclBuilderException(EclBuilderException ex) {
-    ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, ErrorCodes.ECL_BUILDER_EXCEPTION);
-    return buildResponseEntity(error);
-  }
 
   @ExceptionHandler(IllegalArgumentException.class)
   protected ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {

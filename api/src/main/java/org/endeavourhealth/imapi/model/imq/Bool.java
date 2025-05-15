@@ -2,5 +2,7 @@ package org.endeavourhealth.imapi.model.imq;
 
 public enum Bool {
   and,
-  or
+  or,
+  not,
+  rule
 }

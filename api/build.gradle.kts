@@ -45,7 +45,13 @@ tasks {
       "org.endeavourhealth.imapi.model.github.*",
       "org.endeavourhealth.imapi.model.workflow.*",
       "org.endeavourhealth.imapi.model.workflow.**.*",
-      "org.endeavourhealth.imapi.model.DownloadEntityOptions"
+      "org.endeavourhealth.imapi.model.DownloadEntityOptions",
+      "org.endeavourhealth.imapi.model.EntityReferenceNode",
+      "org.endeavourhealth.imapi.model.Pageable",
+      "org.endeavourhealth.imapi.model.validation.EntityValidationRequest",
+      "org.endeavourhealth.imapi.model.tripletree.TTDocument",
+      "org.endeavourhealth.imapi.model.ConceptContextMap",
+      "org.endeavourhealth.imapi.model.dto.CodeGenDto"
     )
     outputFile = "../../IMDirectory/src/interfaces/AutoGen.ts"
     outputKind = TypeScriptOutputKind.module

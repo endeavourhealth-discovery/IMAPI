@@ -61,6 +61,13 @@ class CodeGenTest {
   }
 
   @Test
+  void testSeparate() {
+    String fieldName = codeGen.separate("MedicationRequestPrescription");
+    String expectedOutput = "medication request prescription";
+    assertEquals(expectedOutput, fieldName, "Name separated correctly");
+  }
+
+  @Test
   void testGetSuffix() {
 
     String fieldName = codeGen.getSuffix("http://www.w3.org/2001/XMLSchema#long");
@@ -156,6 +163,6 @@ class CodeGenTest {
     PartialDateTime pdt1 = new PartialDateTime(LocalDateTime.of(2000, 1, 1, 9, 0), Precision.YYYY_MM_DD);
     PartialDateTime pdt2 = new PartialDateTime(LocalDateTime.of(2000, 1, 1, 10, 0), Precision.YYYY_MM_DD);
 
-    assertTrue(pdt1.equals(pdt2));
+    assertEquals(pdt1, pdt2);
   }
 }

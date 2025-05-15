@@ -6,7 +6,7 @@ import java.io.Closeable;
 import java.io.IOException;
 
 public class MetricsTimer implements Closeable {
-  private Timer.Context context;
+  private final Timer.Context context;
 
   public MetricsTimer(Timer.Context context) {
     this.context = context;

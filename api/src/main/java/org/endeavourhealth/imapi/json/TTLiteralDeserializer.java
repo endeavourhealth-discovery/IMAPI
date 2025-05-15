@@ -43,15 +43,12 @@ public class TTLiteralDeserializer extends StdDeserializer<TTLiteral> {
     }
 
     TTIriRef type = iri(helper == null ? node.get(IM.TYPE).asText() : helper.expand(node.get(IM.TYPE).asText()));
-    if (XSD.STRING.equals(type.getIri()))
-      return literal(node.get(IM.VALUE).textValue());
-    else if (XSD.BOOLEAN.equals(type.getIri())) {
-      return literal(Boolean.valueOf(node.get(IM.VALUE).asText()));
-    } else if (XSD.INTEGER.equals(type.getIri())) {
-      return literal(Integer.valueOf(node.get(IM.VALUE).asText()));
-    } else if (XSD.PATTERN.equals(type.getIri()))
-      return literal(Pattern.compile(node.get(IM.VALUE).textValue()));
-    else
-      throw new IOException("Unhandled literal type [" + type.getIri() + "]");
+    return switch (type.getIri()) {
+      case XSD.STRING -> literal(node.get(IM.VALUE).textValue());
+      case XSD.BOOLEAN -> literal(Boolean.valueOf(node.get(IM.VALUE).asText()));
+      case XSD.INTEGER -> literal(Integer.valueOf(node.get(IM.VALUE).asText()));
+      case XSD.PATTERN -> literal(Pattern.compile(node.get(IM.VALUE).textValue()));
+      case null, default -> throw new IOException("Unhandled literal type [" + type.getIri() + "]");
+    };
   }
 }

@@ -21,7 +21,7 @@ public class EqdListToIMQ {
     this.resources.setQueryType(QueryType.LIST);
 
     String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
-    query.match(f -> f
+    query.and(f -> f
       .addInstanceOf(new Node().setIri(resources.getNamespace() +id).setMemberOf(true))
       .setName(resources.reportNames.get(id)));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
@@ -33,7 +33,7 @@ public class EqdListToIMQ {
           .setName(eqColGroup.getDisplayName()+" in "+ eqReport.getName())
             .addType(iri(IM.FIELD_GROUP));
       columnGroup.addObject(iri(IM.USED_IN),iri(query.getIri()));
-      query.addQuery(new Query().setIri(subQuery.getIri()).setName(eqColGroup.getDisplayName()));
+      query.addDataSet(subQuery);
       convertListGroup(eqColGroup, subQuery,query.getName());
       columnGroup.set((IM.DEFINITION), TTLiteral.literal(subQuery));
       document.addEntity(columnGroup);
@@ -60,7 +60,7 @@ public class EqdListToIMQ {
     for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
       String eqColumn = String.join("/", eqCol.getColumn());
         String eqULR = eqTable + "/" + eqColumn;
-        String propertyPath = resources.getPath(eqULR);
+        String propertyPath = resources.getIMPath(eqULR);
         convertColumn(select, propertyPath,eqCol.getDisplayName());
     }
   }
@@ -68,14 +68,16 @@ public class EqdListToIMQ {
 
   private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws IOException, QueryException, EQDException {
     if (eqColGroup.getCriteria()!=null) {
+      resources.setRule(1);
+      resources.setSubRule(1);
       Match match = resources.convertCriteria(eqColGroup.getCriteria());
-      subQuery.addMatch(match);
+      subQuery.addAnd(match);
     }
     Return aReturn = new Return();
     subQuery.setReturn(aReturn);
-    String tablePath = resources.getPath(eqTable);
+    String tablePath = resources.getIMPath(eqTable);
       String[] paths = tablePath.split(" ");
-      for (int i = 0; i < paths.length; i ++) {
+      for (int i = 0; i < paths.length-1; i=i+2) {
         ReturnProperty property= new ReturnProperty().setIri(paths[i].replace("^", ""));
         aReturn.addProperty(property);
         aReturn = property.setReturn(new Return()).getReturn();
@@ -90,7 +92,7 @@ public class EqdListToIMQ {
         else if (eqColGroup.getSummary()==VocListGroupSummary.EXISTS) {
           aReturn
             .property(p->p
-              .as(eqColGroup.getDisplayName())
+              .as("Y-N")
               .case_(c->c
                 .when(w->w
                   .setExists(true)
@@ -102,11 +104,19 @@ public class EqdListToIMQ {
       }
     }
     else {
+      aReturn
+        .property(p->p
+          .as("Y-N")
+          .case_(c->c
+            .when(w->w
+              .setExists(true)
+              .setThen("Y"))
+            .setElse("N")));
       EQDOCListColumns eqCols = eqColGroup.getColumnar();
       for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
         String eqColumn = String.join("/", eqCol.getColumn());
         String eqURL = eqTable + "/" + eqColumn;
-        String subPath = resources.getPath(eqURL);
+        String subPath = resources.getIMPath(eqURL);
         convertColumn(aReturn, subPath, eqCol.getDisplayName());
       }
     }

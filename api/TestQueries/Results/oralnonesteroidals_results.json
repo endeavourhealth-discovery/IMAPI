@@ -1,7 +1,7 @@
 {
   "page" : 1,
-  "count" : 461,
-  "totalCount" : 461,
+  "count" : 462,
+  "totalCount" : 462,
   "entities" : [ {
     "@id" : "http://snomed.info/sct#411987001",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing almotriptan in oral dose form (medicinal product form)"
@@ -1355,6 +1355,9 @@
   }, {
     "@id" : "http://snomed.info/sct#1263417003",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely mefenamic acid 250 milligram/1 each conventional release oral tablet (clinical drug)"
+  }, {
+    "@id" : "http://snomed.info/sct#1354490009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing aspirin and glycine in oral dose form (medicinal product form)"
   }, {
     "@id" : "http://snomed.info/sct#1275609004",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Product containing precisely ibuprofen 400 milligram/1 each conventional release oral capsule (clinical drug)"

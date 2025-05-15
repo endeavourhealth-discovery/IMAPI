@@ -22,9 +22,9 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class DataModelService {
-  private final EntityRepository entityRepository = new EntityRepository();
-  private final DataModelRepository dataModelRepository = new DataModelRepository();
-  private final EntityService entityService = new EntityService();
+  private EntityRepository entityRepository = new EntityRepository();
+  private DataModelRepository dataModelRepository = new DataModelRepository();
+  private EntityService entityService = new EntityService();
 
   public List<TTIriRef> getDataModelsFromProperty(String propIri) {
     return dataModelRepository.findDataModelsFromProperty(propIri);

@@ -9,7 +9,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class TTToClassObject {
   public <T> T getObject(TTEntity entity, Class<T> classType) throws InstantiationException, IllegalAccessException, JsonProcessingException, NoSuchMethodException, InvocationTargetException {
@@ -26,7 +25,7 @@ public class TTToClassObject {
 
     List<Field> result = new ArrayList<>(getAllFields(clazz.getSuperclass()));
     List<Field> filteredFields = Arrays.stream(clazz.getDeclaredFields())
-      .collect(Collectors.toList());
+      .toList();
     result.addAll(filteredFields);
     return result;
   }

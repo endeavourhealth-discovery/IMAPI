@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.logic.service.EntityService.filterOutInactiveTermCodes;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -33,10 +32,10 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class ConceptService {
 
-  private EclService eclService = new EclService();
-  private EntityService entityService = new EntityService();
-  private EntityRepository entityRepository = new EntityRepository();
-  private ConceptRepository conceptRepository = new ConceptRepository();
+  private final EclService eclService = new EclService();
+  private final EntityService entityService = new EntityService();
+  private final EntityRepository entityRepository = new EntityRepository();
+  private final ConceptRepository conceptRepository = new ConceptRepository();
 
   public List<SimpleMap> getMatchedFrom(String iri) {
     if (iri == null || iri.isEmpty()) return new ArrayList<>();
@@ -82,7 +81,7 @@ public class ConceptService {
     return entityService.iriRefPageableToEntityReferenceNodePageable(propertiesAndCount, schemeIris, inactive);
   }
 
-  public Pageable<EntityReferenceNode> getSuperiorPropertiesBoolFocusPaged(SuperiorPropertiesBoolFocusPagedRequest request) throws DataFormatException, EclFormatException, QueryException {
+  public Pageable<EntityReferenceNode> getSuperiorPropertiesBoolFocusPaged(SuperiorPropertiesBoolFocusPagedRequest request) throws EclFormatException, QueryException {
     Query query = eclService.getQueryFromEcl(request.getEcl());
     EclSearchRequest eclSearchRequest = new EclSearchRequest()
       .setEclQuery(query)

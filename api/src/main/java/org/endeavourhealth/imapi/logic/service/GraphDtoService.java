@@ -16,8 +16,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class GraphDtoService {
-  private EntityService entityService = new EntityService();
-  private DataModelService dataModelService = new DataModelService();
+  private final EntityService entityService = new EntityService();
+  private final DataModelService dataModelService = new DataModelService();
 
   public GraphDto getGraphData(String iri) {
     if (null == iri || iri.isEmpty()) return new GraphDto();

@@ -120,7 +120,7 @@ public class GithubService {
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     ObjectMapper mapper = new ObjectMapper();
     List<GithubRelease> results = new ArrayList<>();
-    List<GithubDTO> githubDTOList = mapper.readValue(response.body(), new TypeReference<List<GithubDTO>>() {
+    List<GithubDTO> githubDTOList = mapper.readValue(response.body(), new TypeReference<>() {
     });
     for (GithubDTO githubDTO : githubDTOList) {
       results.add(processGithubRelease(githubDTO));

@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.logic.service;
 import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
-import org.endeavourhealth.imapi.filer.rdf4j.TaskFilerRdf4j;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Component;
 public class WorkflowService {
 
   private final WorkflowRepository workflowRepository = new WorkflowRepository();
-  private final TaskFilerRdf4j taskFilerRdf4j = new TaskFilerRdf4j();
 
   public void createBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
     bugReport.setId(generateId());

@@ -27,8 +27,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class EntityService {
   public static final int MAX_CHILDREN = 200;
-  private EntityRepository entityRepository = new EntityRepository();
-  private EntityValidator validator = new EntityValidator();
+  private final EntityRepository entityRepository = new EntityRepository();
+  private final EntityValidator validator = new EntityValidator();
 
   private static void filterOutSpecifiedPredicates(Set<String> excludePredicates, TTBundle bundle) {
     if (excludePredicates != null) {

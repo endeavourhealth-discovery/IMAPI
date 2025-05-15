@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.logic.service;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
@@ -15,10 +14,8 @@ import org.hl7.fhir.r4.model.ValueSet;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.DataFormatException;
 
 public class FhirService {
-  ConfigManager configManager = new ConfigManager();
   SetService setService = new SetService();
   EclService eclService = new EclService();
 
@@ -28,7 +25,7 @@ public class FhirService {
     return setService.getFHIRSetExport(setOptions);
   }
 
-  public String eclToFhir(String data) throws DataFormatException, EclFormatException, QueryException {
+  public String eclToFhir(String data) throws EclFormatException, QueryException {
     ValueSet result = new ValueSet();
     ValueSet.ValueSetExpansionComponent expansion = new ValueSet.ValueSetExpansionComponent();
     ValueSet.ConceptSetFilterComponent filter = new ValueSet.ConceptSetFilterComponent();

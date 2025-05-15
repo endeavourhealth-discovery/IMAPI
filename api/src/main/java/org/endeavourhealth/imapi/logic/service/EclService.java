@@ -1,11 +1,9 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
@@ -63,7 +61,6 @@ public class EclService {
   public Query getQueryFromEcl(String ecl) throws EclFormatException {
     return new ECLToIMQ().getQueryFromECL(ecl);
   }
-
 
 
   public Boolean validateEcl(String ecl) {

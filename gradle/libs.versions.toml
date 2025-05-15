@@ -39,7 +39,7 @@ systemStubs = "2.1.7"
 tomcatAnnotations = "6.0.53"
 validation = "3.1.1"
 woodstox = "7.1.0"
-wsrs = "3.1.0"
+wsrs = "4.0.0"
 
 # Plugins
 typescriptGenerator = "3.2.1263"

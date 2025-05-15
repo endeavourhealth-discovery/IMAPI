@@ -6,12 +6,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
-import org.endeavourhealth.imapi.model.imq.Bool;
 import org.endeavourhealth.imapi.model.imq.DisplayMode;
 import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Node;
@@ -80,7 +79,7 @@ public class EqdToIMQ {
   }
 
   private void addReportNames(EnquiryDocument eqd) {
-    for(EQDOCReport eqReport : eqd.getReport()) {
+    for (EQDOCReport eqReport : eqd.getReport()) {
       if (eqReport.getId() != null) {
         this.resources.reportNames.put(eqReport.getId(), eqReport.getName());
       }
@@ -89,7 +88,7 @@ public class EqdToIMQ {
   }
 
   private void convertReports(EnquiryDocument eqd) throws IOException, QueryException, EQDException {
-    for(EQDOCReport eqReport : eqd.getReport()) {
+    for (EQDOCReport eqReport : eqd.getReport()) {
       if (eqReport.getId() == null) {
         throw new EQDException("No report id");
       }
@@ -108,9 +107,9 @@ public class EqdToIMQ {
     }
 
     if (this.document.getEntities() != null) {
-      for(TTEntity report : this.document.getEntities()) {
+      for (TTEntity report : this.document.getEntities()) {
         if (report.get(IM.DEFINITION) != null) {
-          Query query = (Query)report.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+          Query query = (Query) report.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
           this.checkGms(query);
           report.set(IM.DEFINITION, TTLiteral.literal(query));
         }
@@ -121,13 +120,13 @@ public class EqdToIMQ {
 
   private void checkGms(Query query) {
     if (query.getRule() != null) {
-      for(Match match : query.getRule()) {
+      for (Match match : query.getRule()) {
         this.checkGms(match);
       }
     }
 
     if (query.getDataSet() != null) {
-      for(Query subQuery : query.getDataSet()) {
+      for (Query subQuery : query.getDataSet()) {
         this.checkGms(subQuery);
       }
     }
@@ -136,9 +135,9 @@ public class EqdToIMQ {
 
   private void checkGms(Match match) {
     if (match.getInstanceOf() != null) {
-      for(Node node : match.getInstanceOf()) {
+      for (Node node : match.getInstanceOf()) {
         if (gmsPatients.contains(node.getIri())) {
-          node.setIri(IM.NAMESPACE+"Q_RegisteredGMS").setName("Registered with GP for GMS services on the reference date");
+          node.setIri(IM.NAMESPACE + "Q_RegisteredGMS").setName("Registered with GP for GMS services on the reference date");
         }
       }
     }
@@ -148,7 +147,7 @@ public class EqdToIMQ {
   private void convertFolders(EnquiryDocument eqd) throws EQDException {
     List<EQDOCFolder> eqFolders = eqd.getReportFolder();
     if (eqFolders != null) {
-      for(EQDOCFolder eqFolder : eqFolders) {
+      for (EQDOCFolder eqFolder : eqFolders) {
         if (eqFolder.getId() == null) {
           throw new EQDException("No folder id");
         }
@@ -223,11 +222,11 @@ public class EqdToIMQ {
 
   private void flattenRules(Query qry) {
     if (qry.getRule() != null) {
-      for(Match match : qry.getRule()) {
-        if (match.getAnd() !=null) {
+      for (Match match : qry.getRule()) {
+        if (match.getAnd() != null) {
           List<Match> flatMatches = new ArrayList();
-          for(Match subMatch : match.getAnd()) {
-            if (subMatch.getAnd() !=null) {
+          for (Match subMatch : match.getAnd()) {
+            if (subMatch.getAnd() != null) {
               flatMatches.addAll(subMatch.getAnd());
             } else {
               flatMatches.add(subMatch);

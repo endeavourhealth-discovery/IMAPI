@@ -5,7 +5,6 @@ import org.endeavourhealth.imapi.model.fhir.CodeSystem;
 import org.endeavourhealth.imapi.model.fhir.FHIRConcept;
 import org.endeavourhealth.imapi.model.fhir.Include;
 import org.endeavourhealth.imapi.model.fhir.ValueSet;
-import org.endeavourhealth.imapi.model.imq.Bool;
 import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;

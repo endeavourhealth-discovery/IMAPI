@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -48,11 +47,10 @@ public class TTToSPARQL {
       for (Map.Entry<TTIriRef, TTArray> entry : predicateObjectList.entrySet()) {
         TTIriRef predicate = entry.getKey();
         TTArray value = entry.getValue();
-        if (value != null)
-          if (!value.isEmpty()) {
-            outputPredicateObject(predicate, entry.getValue(), nodeCount);
-            nodeCount++;
-          }
+        if (value != null && !value.isEmpty()) {
+          outputPredicateObject(predicate, entry.getValue(), nodeCount);
+          nodeCount++;
+        }
       }
     }
   }

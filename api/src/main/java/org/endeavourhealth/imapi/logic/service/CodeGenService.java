@@ -21,9 +21,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class CodeGenService {
-  private EntityService entityService = new EntityService();
-  private DataModelService dataModelService = new DataModelService();
-  private CodeGenRepository codeGenRepository = new CodeGenRepository();
+  private final EntityService entityService = new EntityService();
+  private final DataModelService dataModelService = new DataModelService();
+  private final CodeGenRepository codeGenRepository = new CodeGenRepository();
 
   public List<String> getCodeTemplateList() {
     return codeGenRepository.getCodeTemplateList();

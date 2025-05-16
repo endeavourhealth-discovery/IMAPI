@@ -11,7 +11,8 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 
 public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
@@ -85,9 +86,9 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
           if (query == null)
             query = new Query();
           copyMatchToQuery(match, query);
-          }
         }
       }
+    }
     return query;
   }
 
@@ -95,7 +96,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
     if (match.getInstanceOf() != null) {
       query.setInstanceOf(match.getInstanceOf());
     }
-    if (match.getNot()!=null)
+    if (match.getNot() != null)
       query.setNot(match.getNot());
     if (match.getAnd() != null)
       query.setAnd(match.getAnd());
@@ -340,10 +341,10 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
     if (resolved == null) {
       try {
         // Creating a URL object from the given string
-        new URL(iriRef);
+        new URI(iriRef).toURL();
         // If no exception is thrown, the URL is valid
         resolved = iriRef;
-      } catch (MalformedURLException e) {
+      } catch (MalformedURLException | URISyntaxException e) {
         throw new IllegalStateException("invalid iri syntax in : " + iriRef);
       }
     }
@@ -561,7 +562,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
         }
 
         if (result instanceof Match asMatch) {
-          Node node = (asMatch).getInstanceOf().get(0);
+          Node node = (asMatch).getInstanceOf().getFirst();
           if (where == null) {
             where = new Where();
             wheres.add(where);

@@ -115,10 +115,10 @@ public class UserService {
 
   public UserDataDto getUserData(String userId) throws JsonProcessingException {
     UserDataDto userData = new UserDataDto();
-    userData.setPreset(getUserPreset(userId).replaceAll("\"", ""));
-    userData.setPrimaryColor(getUserPrimaryColor(userId).replaceAll("\"", ""));
+    userData.setPreset(getUserPreset(userId).replace("\"", ""));
+    userData.setPrimaryColor(getUserPrimaryColor(userId).replace("\"", ""));
     userData.setDarkMode(getUserDarkMode(userId));
-    userData.setScale(getUserScale(userId).replaceAll("\"", "").replaceAll("\\\\", ""));
+    userData.setScale(getUserScale(userId).replace("\"", "").replace("\\\\", ""));
     userData.setOrganisations(getUserOrganisations(userId));
     userData.setFavourites(getUserFavourites(userId));
     userData.setMru(getUserMRU(userId));

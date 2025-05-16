@@ -36,6 +36,8 @@ tasks {
       "org.endeavourhealth.imapi.model.iml.*",
       "org.endeavourhealth.imapi.model.search.*",
       "org.endeavourhealth.imapi.model.set.EclSearchRequest",
+      "org.endeavourhealth.imapi.model.set.SetOptions",
+      "org.endeavourhealth.imapi.model.set.SetExportRequest",
       "org.endeavourhealth.imapi.model.imq.*",
       "org.endeavourhealth.imapi.model.eclBuilder.*",
       "org.endeavourhealth.imapi.vocabulary.*",
@@ -49,7 +51,9 @@ tasks {
       "org.endeavourhealth.imapi.model.Pageable",
       "org.endeavourhealth.imapi.model.ConceptContextMap",
       "org.endeavourhealth.imapi.model.validation.EntityValidationRequest",
-      "org.endeavourhealth.imapi.model.dto.*"
+      "org.endeavourhealth.imapi.model.tripletree.TTDocument",
+      "org.endeavourhealth.imapi.model.ConceptContextMap",
+      "org.endeavourhealth.imapi.model.dto.CodeGenDto"
     )
     outputFile = "../../IMDirectory/src/interfaces/AutoGen.ts"
     outputKind = TypeScriptOutputKind.module

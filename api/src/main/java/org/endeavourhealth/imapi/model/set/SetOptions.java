@@ -17,6 +17,9 @@ public class SetOptions {
   @Getter
   private List<String> subsumptions;
 
+  public SetOptions() {
+  }
+
   public SetOptions(String setIri, boolean includeDefinition, boolean includeCore, boolean includeLegacy, boolean includeSubsets, List<String> schemes,
                     List<String> subsumptions) {
     this.setIri = setIri;

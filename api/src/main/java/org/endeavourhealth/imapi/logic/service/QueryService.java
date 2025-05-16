@@ -48,7 +48,7 @@ public class QueryService {
     return new QueryDescriptor().describeQuery(query, displayMode);
   }
 
-  public Match describeMatch(Match match) throws QueryException, JsonProcessingException {
+  public Match describeMatch(Match match) throws QueryException {
     return new QueryDescriptor().describeSingleMatch(match);
   }
 
@@ -154,25 +154,22 @@ public class QueryService {
     if (children.isEmpty()) {
       return new Query().setTypeOf(IM.NAMESPACE + "Patient");
     }
-    ;
     TTEntity cohort = findFirstQuery(children);
     Query defaultQuery = new Query();
-    defaultQuery.setMatch(new ArrayList<>());
     if (cohort != null) {
       Query cohortQuery = cohort.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       defaultQuery.setTypeOf(cohortQuery.getTypeOf());
-      defaultQuery.addInstanceOf(new Node().setIri(cohort.getIri()));
+      defaultQuery.addInstanceOf(new Node().setIri(cohort.getIri()).setMemberOf(true));
       return defaultQuery;
     } else return null;
   }
 
-  private TTEntity findFirstQuery(List<TTEntity> children) throws JsonProcessingException {
+  private TTEntity findFirstQuery(List<TTEntity> children) {
     for (TTEntity child : children) {
-      if (child.isType(iri(IM.COHORT_QUERY))) {
-        if (child.get(iri(IM.DEFINITION)) != null) {
-          return child;
-        }
+      if (child.isType(iri(IM.QUERY)) && child.get(iri(IM.DEFINITION)) != null) {
+        return child;
       }
+
     }
     for (TTEntity child : children) {
       if (child.isType(iri(IM.FOLDER))) {

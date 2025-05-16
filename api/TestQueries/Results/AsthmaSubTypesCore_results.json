@@ -1,7 +1,7 @@
 {
   "page" : 1,
-  "count" : 115,
-  "totalCount" : 115,
+  "count" : 113,
+  "totalCount" : 113,
   "entities" : [ {
     "@id" : "http://snomed.info/sct#195967001",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Asthma (disorder)",
@@ -58,10 +58,6 @@
     "@id" : "http://snomed.info/sct#782520007",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Exacerbation of allergic asthma due to infection (disorder)",
     "http://endhealth.info/im#code" : "782520007"
-  }, {
-    "@id" : "http://snomed.info/sct#31387002",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Exercise-induced asthma (disorder)",
-    "http://endhealth.info/im#code" : "31387002"
   }, {
     "@id" : "http://snomed.info/sct#34015007",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Bakers' asthma (disorder)",
@@ -438,10 +434,6 @@
     "@id" : "http://snomed.info/sct#16584951000119101",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Oral steroid-dependent asthma (disorder)",
     "http://endhealth.info/im#code" : "16584951000119101"
-  }, {
-    "@id" : "http://snomed.info/sct#866881000000101",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Chronic asthma with fixed airflow obstruction (disorder)",
-    "http://endhealth.info/im#code" : "866881000000101"
   }, {
     "@id" : "http://snomed.info/sct#1086701000000102",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Life threatening acute exacerbation of allergic asthma (disorder)",

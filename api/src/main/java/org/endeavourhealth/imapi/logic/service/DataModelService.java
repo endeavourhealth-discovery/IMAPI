@@ -39,9 +39,10 @@ public class DataModelService {
   }
 
 
-  public NodeShape getDataModelDisplayProperties(String iri) {
-    return dataModelRepository.getDataModelDisplayProperties(iri);
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly) {
+    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly);
   }
+
 
   public List<DataModelProperty> getDataModelProperties(String iri) {
     return getDataModelProperties(iri, true);
@@ -73,7 +74,7 @@ public class DataModelService {
         TTIriRef inheritedFrom = propertyGroup.asNode().has(iri(IM.INHERITED_FROM))
           ? propertyGroup.asNode().get(iri(IM.INHERITED_FROM)).asIriRef()
           : null;
-        if (propertyGroup.asNode().has(iri(SHACL.PATH)) && (propertyGroup.asNode().has(iri(SHACL.DATATYPE)) || includeComplexTypes)) {
+        if (propertyGroup.asNode().has(iri(SHACL.PATH)) && (propertyGroup.asNode().has(iri(SHACL.DATATYPE)) || propertyGroup.asNode().has(iri(SHACL.CLASS)) || includeComplexTypes)) {
           getDataModelShaclProperties(properties, propertyGroup, inheritedFrom);
         }
       }

@@ -7,10 +7,10 @@ pluginManagement {
     mavenCentral()
     gradlePluginPortal()
     maven {
-      url = uri('https://artifactory.endhealth.co.uk/repository/maven-releases')
+      url = uri("https://artifactory.endhealth.co.uk/repository/maven-releases")
     }
     maven {
-      url = uri('https://artifactory.endhealth.co.uk/repository/maven-snapshots')
+      url = uri("https://artifactory.endhealth.co.uk/repository/maven-snapshots")
     }
     mavenLocal()
   }
@@ -23,5 +23,5 @@ pluginManagement {
   }
 }
 
-rootProject.name = 'IMAPI'
-include(':api')
+rootProject.name = "IMAPI"
+include(":api")

@@ -82,11 +82,28 @@ public class ImportMaps implements AutoCloseable {
       return new EntityRepository().getCodeToIri();
   }
 
+
+  public Map<String,String> getCodesToIri(String scheme) throws IOException {
+    Map<String, String> codeToIri;
+    if (TTFilerFactory.isBulk())
+      codeToIri= fileRepo.getCodeToIri();
+    else
+      codeToIri= new EntityRepository().getCodesToIri(scheme);
+    Map<String, String> map= new HashMap<>();
+    codeToIri.entrySet().stream().forEach(item -> {
+      String entry = item.getKey();
+      String value = item.getValue();
+      if (entry.startsWith(scheme)) {
+        String code = entry.split(scheme)[1];
+        map.put(code,value);
+      }
+    });
+    return map;
+  }
   public Set<String> getCodes(String scheme) throws IOException {
     Map<String, String> codeToIri = getCodeToIri();
     Set<String> codes = new HashSet<>();
-    codeToIri.entrySet().stream().forEach(item -> {
-      String entry = item.getKey();
+    codeToIri.forEach((entry, value) -> {
       if (entry.startsWith(scheme)) {
         String code = entry.split(scheme)[1];
         codes.add(code);

@@ -18,7 +18,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,13 +48,14 @@ public class SecurityConfig {
 
   protected void setRequestPermissions(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry req) {
     if (EnvHelper.isPublicMode()) {
-      req.requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
+      req.requestMatchers(HttpMethod.GET, "/").permitAll()
+        .requestMatchers(HttpMethod.GET, "/index.html").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
         .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
         .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll()
-        .requestMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
-        .requestMatchers(HttpMethod.GET, "/v3/**").permitAll();
+        .requestMatchers(HttpMethod.GET, "/v3/api-docs/All").permitAll();
     }
 
     req.requestMatchers(HttpMethod.GET, "/api/status/public/**").permitAll()
@@ -74,8 +74,11 @@ public class SecurityConfig {
   private JwtAuthenticationConverter grantedAuthoritiesExtractor() {
     JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
     jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
-        List<String> list = (List<String>) jwt.getClaims().getOrDefault("cognito:groups", new ArrayList<String>());
-        return list.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        List<String> list = jwt.getClaimAsStringList("cognito:groups");
+        if (list != null && !list.isEmpty())
+          return list.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        else
+          return null;
       }
     );
     return jwtAuthenticationConverter;

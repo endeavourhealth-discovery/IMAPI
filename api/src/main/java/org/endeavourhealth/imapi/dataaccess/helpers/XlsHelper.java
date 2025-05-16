@@ -43,7 +43,7 @@ public class XlsHelper {
     Set<TTIriRef> predicates = summary.getPredicateMap().keySet();
     List<String> predicateNames = new ArrayList<>();
     predicateNames.add("Iri");
-    predicateNames.addAll(predicates.stream().map(TTIriRef::getName).collect(Collectors.toList()));
+    predicateNames.addAll(predicates.stream().map(TTIriRef::getName).toList());
     Sheet sheet = workbook.createSheet("Concept summary");
     addHeaders(sheet, 10000, predicateNames);
     Row row = sheet.createRow(sheet.getLastRowNum() + 1);

@@ -33,7 +33,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   private final Map<String, String> prefixMap;
   private final Update deleteTriples;
   String blockers = "<http://snomed.info/sct#138875005>,<" + IM.NAMESPACE + "Concept>";
-  private RepositoryConnection conn;
+  private final RepositoryConnection conn;
 
   public TTEntityFilerRdf4j(RepositoryConnection conn, Map<String, String> prefixMap) {
     this.conn = conn;
@@ -348,7 +348,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     try {
 
       String decodedURL = URLDecoder.decode(iri, StandardCharsets.UTF_8);
-      URL url = new URL(decodedURL);
+      URL url = new URI(decodedURL).toURL();
       URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
       String result = uri.toASCIIString();
 

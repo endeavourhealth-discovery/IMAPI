@@ -5,7 +5,6 @@ import org.endeavourhealth.imapi.model.fhir.CodeSystem;
 import org.endeavourhealth.imapi.model.fhir.FHIRConcept;
 import org.endeavourhealth.imapi.model.fhir.Include;
 import org.endeavourhealth.imapi.model.fhir.ValueSet;
-import org.endeavourhealth.imapi.model.imq.Bool;
 import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
@@ -36,16 +35,15 @@ public class FHIRToIM {
       Include[] include = valueSet.getCompose().getInclude();
       Query query = new Query();
       Match match = new Match();
-      query.addMatch(match);
+      query.addOr(match);
       if (valueSet.getCompose().getInclude().length == 1) {
         String member = include[0].getSystem();
         match.addInstanceOf(new Node().setIri(member)
           .setDescendantsOrSelfOf(true));
       } else {
-        match.setBool(Bool.or);
         for (Include value : include) {
           Match memberMatch = new Match();
-          match.addMatch(memberMatch);
+          match.addOr(memberMatch);
           String member = value.getSystem().replace("fhir/", "fhir#");
           memberMatch.addInstanceOf(new Node().setIri(member).setDescendantsOrSelfOf(true));
         }

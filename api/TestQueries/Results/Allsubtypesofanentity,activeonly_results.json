@@ -1,7 +1,7 @@
 {
   "page" : 1,
-  "count" : 54,
-  "totalCount" : 54,
+  "count" : 55,
+  "totalCount" : 55,
   "entities" : [ {
     "@id" : "http://snomed.info/sct#417928002",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Abuse (event)"
@@ -42,17 +42,20 @@
     "@id" : "http://snomed.info/sct#1285089009",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Abuse of elderly person (event)"
   }, {
-    "@id" : "http://snomed.info/sct#1285720003",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Financial abuse (event)"
+    "@id" : "http://snomed.info/sct#219241002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Abandonment of child with intent to injure or kill (event)"
   }, {
     "@id" : "http://snomed.info/sct#242037000",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Child abandonment (event)"
   }, {
-    "@id" : "http://snomed.info/sct#242039002",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Abuse of partner (event)"
+    "@id" : "http://snomed.info/sct#1285720003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Financial abuse (event)"
   }, {
     "@id" : "http://snomed.info/sct#371772001",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Domestic abuse (event)"
+  }, {
+    "@id" : "http://snomed.info/sct#1345178001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Intimate partner abuse (event)"
   }, {
     "@id" : "http://snomed.info/sct#242040000",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Physical abuse of elderly person (event)"

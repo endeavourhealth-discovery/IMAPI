@@ -88,8 +88,8 @@ public class OSQuery {
     } else {
       results = getOsResults(request, query);
     }
-    if (query.getQuery() != null) {
-      for (Query childQuery : query.getQuery()) {
+    if (query.getDataSet() != null) {
+      for (Query childQuery : query.getDataSet()) {
         childQuery.setParentResult(results);
         if (childQuery.isImQuery()) {
           results = new QueryRepository().queryIM(request, false);

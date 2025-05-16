@@ -14,7 +14,7 @@ import java.util.*;
 
 /**
  * Transformer engine to mapObject a collection of source objects to target objects using a transformation map
- * All source objects must be able to support graph like property paths (e.g. json, xml, object reflection.
+ * All source objects must be able to support graph like property paths (e.g. json, xml, object reflection).
  * <p> The transformation engine does not include extracting data match csv or tables.
  * However, the format dependent plugins may be extended to retrieve or cache data</p>
  */
@@ -215,23 +215,25 @@ public class Transformer {
     return result;
   }
 
-  private boolean where(Match where, Object sourceNode) throws JsonProcessingException {
-    for (Where property : where.getWhere()) {
-      Object sourceValue = sourceTranslator.getPropertyValue(sourceNode, property.getId());
-      if (property.getValue() != null && property.getValue().equals(sourceValue))
-        return true;
-    }
-    return false;
+  private boolean where(Match match, Object sourceNode) throws JsonProcessingException {
+    Where property = match.getWhere();
+    Object sourceValue = sourceTranslator.getPropertyValue(sourceNode, property.getId());
+    return property.getValue() != null && property.getValue().equals(sourceValue);
   }
 
   public Object getListItems(List<?> source, ListMode listMode) {
-    if (listMode == ListMode.FIRST)
-      return source.get(0);
-    else if (listMode == ListMode.REST) {
-      source.remove(0);
-      return source;
-    } else
-      return source;
+    switch (listMode) {
+      case ListMode.FIRST -> {
+        return source.getFirst();
+      }
+      case ListMode.REST -> {
+        source.removeFirst();
+        return source;
+      }
+      default -> {
+        return source;
+      }
+    }
   }
 }
 

@@ -19,7 +19,7 @@ import java.util.List;
 public class CachedObjectMapper implements AutoCloseable {
   private static final Deque<ObjectMapper> pool = new ArrayDeque<>();
 
-  private ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
 
   public CachedObjectMapper() {
     objectMapper = pop();

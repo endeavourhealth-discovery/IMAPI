@@ -8,7 +8,9 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class IMQToECL {
@@ -26,6 +28,7 @@ public class IMQToECL {
    */
   public String getECLFromQuery(Query query, Boolean includeName) throws QueryException {
     StringBuilder ecl = new StringBuilder();
+    cleanMatch(query);
     if (query.getPrefixes() != null) {
       prefixes = query.getPrefixes();
       for (Prefix prefix : prefixes) {
@@ -36,16 +39,31 @@ public class IMQToECL {
     return ecl.toString().trim();
   }
 
+  private void cleanMatch(Match match) {
+   if (match.getOr()!=null) {
+     for (int i = match.getOr().size() - 1; i >= 0; i--) {
+       Match subMatch = match.getOr().get(i);
+       if (subMatch.getInstanceOf()!=null&&subMatch.getInstanceOf().getFirst().getIri()==null) {
+         match.getOr().remove(i);
+       }
+     }
+     if (match.getOr().isEmpty()) {
+       match.setOr(null);
+     } else {
+       for (Match subMatch : match.getOr()) {
+         cleanMatch(subMatch);
+       }
+     }
+   }
+  }
+
   public EclType getEclType(Match match) {
     if (match.getWhere() != null)
       return EclType.refined;
     if (match.getAnd() != null || match.getOr() != null) {
       return EclType.compound;
     }
-
-    if (match.getInstanceOf() != null)
-      return EclType.simple;
-    else throw new IllegalArgumentException("Invalid IMQ for ECL conversion");
+    else return EclType.simple;
   }
 
   public String getECLFromQuery(Query query) throws QueryException {
@@ -53,7 +71,9 @@ public class IMQToECL {
   }
 
 
+
   private void expressionMatch(Match match, StringBuilder ecl, boolean includeNames, boolean isNested) throws QueryException {
+
     EclType matchType = getEclType(match);
     boolean isExclusion = match.getNot() != null;
     if (matchType == null)
@@ -183,7 +203,7 @@ public class IMQToECL {
       for (Where subProperty : property.getOr()) {
         if (!first) {
           ecl.append("\n");
-          ecl.append(" OR ");
+          ecl.append(" or ");
         }
         first = false;
         addRefined(subProperty, ecl, includeNames, true);

@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
+import org.endeavourhealth.imapi.model.imq.ECLStatus;
 import org.endeavourhealth.imapi.transforms.ECLToIMQ;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
 import org.springframework.stereotype.Component;
@@ -62,8 +63,7 @@ public class EclService {
     return new ECLToIMQ().getQueryFromECL(ecl);
   }
 
-
-  public Boolean validateEcl(String ecl) {
+  public ECLStatus validateEcl(String ecl) {
     return new ECLToIMQ().validateEcl(ecl);
   }
 }

@@ -69,12 +69,13 @@ public class LogicOptimizer {
     match.setRule(null);
   }
 
-  private void optimiseMatch(Match match) throws JsonProcessingException {
+  public void optimiseMatch(Match match) throws JsonProcessingException {
     optimizeAndMatches(match);
     optimizeOrMatches(match);
   }
   private void optimizeAndMatches(Match match) throws JsonProcessingException {
     commonMatches = new HashSet<>();
+
     if (match.getAnd() == null) return;
     if (match.getWhere() == null && match.getAnd().size() > 1) {
       List<Match> originalAnds = match.getAnd();
@@ -92,13 +93,6 @@ public class LogicOptimizer {
         }
       }
       match.setAnd(optimalAnds);
-    }
-    else {
-      if (match.getAnd() != null) {
-        for (Match child : match.getAnd()) {
-          optimiseMatch(child);
-        }
-      }
     }
   }
 
@@ -132,13 +126,7 @@ public class LogicOptimizer {
         }
       }
     }
-    else {
-      if (match.getOr() != null) {
-        for (Match child : match.getOr()) {
-          optimiseMatch(child);
-        }
-      }
-    }
+
   }
 
 
@@ -202,7 +190,34 @@ public class LogicOptimizer {
         }
       match.setOr(flatMatches);
       }
+    if (match.getWhere()!=null) {
+      flattenWhere(match.getWhere());
+    }
   }
+
+  private static void flattenWhere(Where where) {
+    if (where.getAnd()!=null) {
+      List<Where> flatWheres= new ArrayList<>();
+      for (Where child : where.getAnd()) {
+        if (child.getAnd() != null && child.getOr() == null && child.getNot() == null) {
+          flatWheres.addAll(child.getAnd());
+        } else flatWheres.add(child);
+        flattenWhere(child);
+      }
+      where.setAnd(flatWheres);
+    }
+    if (where.getOr()!=null) {
+      List<Where> flatWheres= new ArrayList<>();
+      for (Where child : where.getOr()) {
+        if (child.getOr() != null && child.getAnd() == null && child.getNot() == null) {
+          flatWheres.addAll(child.getOr());
+        } else flatWheres.add(child);
+        flattenWhere(child);
+      }
+      where.setOr(flatWheres);
+    }
+  }
+
 
   public void createRules(Query query) {
     if (query.getAnd() == null&&query.getOr()==null&&query.getNot()==null) return;

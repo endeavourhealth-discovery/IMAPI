@@ -732,6 +732,37 @@ public class QueryDescriptor {
       where.setValueLabel(valueLabel.toString());
     }
   }
+
+  public void generateUUIDs(Match match) {
+    if (match.getUuid() == null) {
+      match.setUuid(UUID.randomUUID().toString());
+    }
+    if (match.getWhere() != null) {
+      generateUUIDs(match.getWhere());
+    }
+    for (List<Match> matches : Arrays.asList(match.getRule(), match.getOr(), match.getAnd(), match.getNot())) {
+      if (matches != null) {
+        for (Match subMatch : matches) {
+          generateUUIDs(subMatch);
+        }
+      }
+    }
+  }
+
+  public void generateUUIDs(Where where) {
+    if (where.getUuid() == null) {
+      where.setUuid(UUID.randomUUID().toString());
+    }
+    for (List<Where> wheres : Arrays.asList(where.getOr(), where.getAnd(), where.getNot())) {
+      if (wheres != null) {
+        for (Where subWhere : wheres) {
+          generateUUIDs(subWhere);
+        }
+      }
+    }
+  }
 }
+
+
 
 

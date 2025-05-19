@@ -79,12 +79,15 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
         Object result = visit(child);
         if (result instanceof Prefixes asPrefixes) {
           prefixes = asPrefixes;
-          if (query == null)
+          if (query == null) {
             query = new Query();
+
+          }
           query.setPrefixes(prefixes);
         } else if (result instanceof Match match) {
-          if (query == null)
+          if (query == null) {
             query = new Query();
+          }
           copyMatchToQuery(match, query);
         }
       }
@@ -166,8 +169,9 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Match asMatch)
+        if (result instanceof Match asMatch) {
           match = asMatch;
+        }
         else if (result instanceof Where asWhere) {
           if (match == null) {
             match = new Match();

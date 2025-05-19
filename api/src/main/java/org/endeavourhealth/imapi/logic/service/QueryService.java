@@ -9,11 +9,14 @@ import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
+import org.endeavourhealth.imapi.postgress.PostgresService;
+import org.endeavourhealth.imapi.postgress.QueryExecutorStatus;
 import org.endeavourhealth.imapi.rabbitmq.ConnectionManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -22,6 +25,7 @@ import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -34,6 +38,7 @@ public class QueryService {
   private ConnectionManager connectionManager;
   private MYSQLConnectionManager mySQLConnectionManager;
   private ObjectMapper objectMapper = new ObjectMapper();
+  private PostgresService postgresService = new PostgresService();
 
   private Map<Integer, List<String>> queryResultsMap = new HashMap<>();
 
@@ -96,7 +101,27 @@ public class QueryService {
     return getSQLFromIMQ(query);
   }
 
+  public void handleSQLConversionException(String userId, String userName, QueryRequest queryRequest) throws SQLException {
+    DBEntry entry = new DBEntry()
+      .setId(UUID.randomUUID())
+      .setQueryRequest(queryRequest)
+      .setQueryIri(queryRequest.getQuery().getIri())
+      .setQueryName(queryRequest.getQuery().getName())
+      .setStatus(QueryExecutorStatus.ERRORED)
+      .setUserId(userId)
+      .setUserName(userName)
+      .setQueuedAt(LocalDateTime.now())
+      .setKilledAt(LocalDateTime.now());
+    postgresService.create(entry);
+  }
+
   public void addToExecutionQueue(String userId, String userName, QueryRequest queryRequest) throws Exception {
+    try {
+      getSQLFromIMQ(queryRequest.getQuery());
+    } catch (SQLConversionException e) {
+      handleSQLConversionException(userId, userName, queryRequest);
+      throw new QueryException("Unable to convert query to SQL", e);
+    }
     if (null == connectionManager) connectionManager = new ConnectionManager();
     connectionManager.publishToQueue(userId, userName, queryRequest);
   }

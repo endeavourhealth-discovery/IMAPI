@@ -24,10 +24,8 @@ public class PostgresConnectionManager {
     Properties props = new Properties();
     props.setProperty("user", POSTGRES_USER);
     props.setProperty("password", POSTGRES_PASSWORD);
-    try (Connection conn = DriverManager.getConnection(POSTGRES_URL, props)) {
-      connection = conn;
-      return connection;
-    }
+    connection = DriverManager.getConnection(POSTGRES_URL, props);
+    return connection;
   }
 
   public static PreparedStatement prepareStatement(String sql) throws SQLException {

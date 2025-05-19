@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -71,7 +70,7 @@ public class QueryController {
   )
   public SearchResponse queryIMSearch(@RequestBody QueryRequest queryRequest) throws IOException, OpenSearchException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIMSearch.POST")) {
-      log.debug("queryIMSearch : {}",queryRequest.getTextSearch());
+      log.debug("queryIMSearch : {}", queryRequest.getTextSearch());
       return searchService.queryIMSearch(queryRequest);
     }
   }
@@ -166,14 +165,9 @@ public class QueryController {
   public void addToQueue(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.AddToQueue.POST")) {
       log.debug("addToQueue");
-      try {
-        String userId = requestObjectService.getRequestAgentId(request);
-        String userName = requestObjectService.getRequestAgentName(request);
-        queryService.getSQLFromIMQ(queryRequest.getQuery());
-        queryService.addToExecutionQueue(userId, userName, queryRequest);
-      } catch (SQLConversionException e) {
-        throw new QueryException(e.getMessage());
-      }
+      String userId = requestObjectService.getRequestAgentId(request);
+      String userName = requestObjectService.getRequestAgentName(request);
+      queryService.addToExecutionQueue(userId, userName, queryRequest);
     }
   }
 
@@ -181,7 +175,7 @@ public class QueryController {
   @Operation(
     summary = "Get the query queue items and status for a user"
   )
-  public Pageable<DBEntry> userQueryQueue(HttpServletRequest request, @PathVariable(name = "page") int page, @PathVariable(name = "size") int size) throws IOException, SQLConversionException, SQLException {
+  public Pageable<DBEntry> userQueryQueue(HttpServletRequest request, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLConversionException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.UserQueryQueue.GET")) {
       log.debug("getUserQueryQueue");
       String userId = requestObjectService.getRequestAgentId(request);

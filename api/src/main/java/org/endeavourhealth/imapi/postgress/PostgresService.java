@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.postgress;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.Pageable;
@@ -12,28 +13,28 @@ import java.util.UUID;
 @NoArgsConstructor
 @Slf4j
 public class PostgresService {
-  public Pageable<DBEntry> getAllByUserId(String userId, int page, int size) throws SQLException {
+  public Pageable<DBEntry> getAllByUserId(String userId, int page, int size) throws SQLException, JsonProcessingException {
     Pageable<DBEntry> results = PostgresRepository.findAllByUserId(userId, page, size);
     int totalCount = PostgresRepository.getTotalCountByUserId(userId);
     results.setTotalCount(totalCount);
     return results;
   }
 
-  public Pageable<DBEntry> findAllByStatus(QueryExecutorStatus status, int page, int size) throws SQLException {
+  public Pageable<DBEntry> findAllByStatus(QueryExecutorStatus status, int page, int size) throws SQLException, JsonProcessingException {
     Pageable<DBEntry> results = PostgresRepository.findAllByStatus(status, page, size);
     int totalCount = PostgresRepository.getTotalCountByStatus(status);
     results.setTotalCount(totalCount);
     return results;
   }
 
-  public Pageable<DBEntry> findAllByUserIdAndStatus(String userId, QueryExecutorStatus status, int page, int size) throws SQLException {
+  public Pageable<DBEntry> findAllByUserIdAndStatus(String userId, QueryExecutorStatus status, int page, int size) throws SQLException, JsonProcessingException {
     Pageable<DBEntry> results = PostgresRepository.findAllByUserIdAndStatus(userId, status, page, size);
     int totalCount = PostgresRepository.getTotalCountByUserIdAndStatus(userId, status);
     results.setTotalCount(totalCount);
     return results;
   }
 
-  public DBEntry getById(UUID id) throws SQLException {
+  public DBEntry getById(UUID id) throws SQLException, JsonProcessingException {
     Optional<DBEntry> dbEntry = PostgresRepository.findById(id);
     return dbEntry.orElse(null);
   }
@@ -42,7 +43,7 @@ public class PostgresService {
     PostgresRepository.save(dbEntry);
   }
 
-  public DBEntry update(DBEntry dbEntry) throws SQLException {
+  public DBEntry update(DBEntry dbEntry) throws SQLException, JsonProcessingException {
     Optional<DBEntry> existingDbEntry = PostgresRepository.findById(dbEntry.getId());
     existingDbEntry.ifPresent(entry -> {
       if (null != entry.getQueuedAt()) dbEntry.setQueuedAt(entry.getQueuedAt());

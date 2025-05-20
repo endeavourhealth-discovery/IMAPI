@@ -28,8 +28,9 @@ class SearchServiceTest {
   private String succinctDefinitions;
   EntityService entityService = new EntityService();
 
-//@Test
-  void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
+@Test
+  void imq() throws Exception {
+  ask(TestQueries.isValidProperty());
   output(TestQueries.dataModelPropertyRange());
   output(TestQueries.shapesWithDateOFBirth());
    output(TestQueries.getAllowableSubtypes());
@@ -121,6 +122,14 @@ class SearchServiceTest {
     }
 
 
+  }
+
+  private void ask(QueryRequest askQuery) throws Exception {
+    SearchService searchService = new SearchService();
+    if (searchService.askQueryIM(askQuery)){
+      System.out.println("ask query Valid");
+    } else
+      throw new Exception("invalid ask query");
   }
 
   //@Test

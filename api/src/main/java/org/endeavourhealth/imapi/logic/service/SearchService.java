@@ -93,7 +93,6 @@ public class SearchService {
   }
 
   public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
-    if (null == queryRequest.getAskIri()) throw new IllegalArgumentException("Query request missing askIri");
     QueryRepository repo = new QueryRepository();
     repo.unpackQueryRequest(queryRequest);
     return repo.askQueryIM(queryRequest);

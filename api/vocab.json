@@ -2142,6 +2142,14 @@
         "value": "QUERY.NAMESPACE + \"AllowableProperties\""
       },
       {
+        "name": "ALLOWABLE_PROPERTY_ANCESTORS",
+        "value": "QUERY.NAMESPACE + \"AllowablePropertyAncestors\""
+      },
+      {
+        "name": "IS_VALID_PROPERTY",
+        "value": "QUERY.NAMESPACE + \"IsValidProperty\""
+      },
+      {
         "name": "SEARCH_PROPERTIES",
         "value": "QUERY.NAMESPACE + \"SearchProperties\""
       },

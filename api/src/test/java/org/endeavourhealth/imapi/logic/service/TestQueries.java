@@ -5,6 +5,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
 
+import java.util.List;
+
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TestQueries {
@@ -284,6 +286,20 @@ public class TestQueries {
         .setIri(IM.NAMESPACE + "Query_AllowableProperties")
       );
   }
+
+  public static QueryRequest isValidProperty() {
+    return new QueryRequest().
+      addArgument(new Argument()
+        .setParameter("property")
+        .setValueIri(TTIriRef.iri("http://snomed.info/sct#363698007")))
+      .addArgument(new Argument()
+        .setParameter("concept")
+        .setValueIriList(List.of(iri(SNOMED.NAMESPACE+161891005))))
+      .setQuery(new Query()
+        .setName("Allowable Properties for medications")
+        .setIri(QUERY.IS_VALID_PROPERTY));
+  }
+
 
   public static QueryRequest getConcepts() {
     return new QueryRequest()

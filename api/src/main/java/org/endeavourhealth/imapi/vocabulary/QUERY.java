@@ -15,6 +15,8 @@ public class QUERY {
     public static final String OBJECT_PROPERTY_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "ObjectPropertyRangeSuggestions";
     public static final String DATA_PROPERTY_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "DataPropertyRangeSuggestions";
     public static final String ALLOWABLE_PROPERTIES = QUERY.NAMESPACE + "AllowableProperties";
+    public static final String ALLOWABLE_PROPERTY_ANCESTORS = QUERY.NAMESPACE + "AllowablePropertyAncestors";
+    public static final String IS_VALID_PROPERTY = QUERY.NAMESPACE + "IsValidProperty";
     public static final String SEARCH_PROPERTIES = QUERY.NAMESPACE + "SearchProperties";
     public static final String SEARCH_ENTITIES = QUERY.NAMESPACE + "SearchEntities";
     public static final String SEARCH_FOLDERS = QUERY.NAMESPACE + "SearchFolders";

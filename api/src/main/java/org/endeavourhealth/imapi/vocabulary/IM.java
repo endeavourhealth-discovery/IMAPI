@@ -4,7 +4,7 @@ package org.endeavourhealth.imapi.vocabulary;
 
 public class IM {
     public static final String DOMAIN = "http://endhealth.info/";
-    public static final String HAS_SUBTYPES = IM.DOMAIN+"hasSubtypes";
+    public static final String HAS_SUBTYPES = IM.DOMAIN + "hasSubtypes";
     public static final String PREFIX = "im";
     public static final String NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
     public static final String HAS_VALUESET = IM.NAMESPACE + "hasValueSet";

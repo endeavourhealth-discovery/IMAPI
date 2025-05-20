@@ -46,6 +46,7 @@ tasks {
       "org.endeavourhealth.imapi.model.workflow.*",
       "org.endeavourhealth.imapi.model.workflow.**.*",
       "org.endeavourhealth.imapi.model.DownloadEntityOptions",
+      "org.endeavourhealth.imapi.model.EntityReferenceNode",
       "org.endeavourhealth.imapi.model.tripletree.TTDocument",
       "org.endeavourhealth.imapi.model.tripletree.TTEntity",
       "org.endeavourhealth.imapi.model.Pageable",

@@ -71,7 +71,7 @@
       },
       {
         "name": "HAS_SUBTYPES",
-        "value" : "IM.DOMAIN+\"hasSubtypes\""
+        "value" : "IM.DOMAIN + \"hasSubtypes\""
       },
       {
         "name": "PREFIX",

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
+import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -29,6 +30,10 @@ public class QueryService {
     if (queryEntity.get(iri(IM.DEFINITION)) == null)
       return null;
     return queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+  }
+
+  public static void generateUUIdsForQuery(Query query){
+    new QueryDescriptor().generateUUIDs(query);
   }
 
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
@@ -124,5 +129,10 @@ public class QueryService {
     return null;
   }
 
+
+  public Query flattenQuery(Query query) throws JsonProcessingException {
+    LogicOptimizer.flattenMatch(query);
+    return query;
+  }
 
 }

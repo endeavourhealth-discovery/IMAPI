@@ -2,8 +2,7 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.IntervalSet;
-
-import java.util.UnknownFormatConversionException;
+import org.endeavourhealth.imapi.model.imq.ECLStatus;
 
 
 public class ParserErrorListener extends BaseErrorListener {
@@ -11,9 +10,16 @@ public class ParserErrorListener extends BaseErrorListener {
   @Override
   public void syntaxError(Recognizer<?, ?> recognizer,
                           Object offendingSymbol, int line, int charPositionInLine,
-                          String msg, RecognitionException e) {
+                          String msg, RecognitionException e) throws ECLSyntaxError{
+    ECLStatus errorData= new ECLStatus();
+    errorData.setValid(false);
+    errorData.setLine(line);
+    errorData.setOffset(charPositionInLine);
+    errorData.setMessage(msg);
     if (recognizer instanceof Lexer) {
-      throw new UnknownFormatConversionException(msg + " line " + line + " offset " + charPositionInLine);
+      throw new ECLSyntaxError("Invalid ECL"
+        , errorData);
+
     } else {
       Parser parser = (Parser) recognizer;
       IntervalSet expectedTokens = parser.getExpectedTokens();
@@ -21,8 +27,10 @@ public class ParserErrorListener extends BaseErrorListener {
       if (offendingSymbol instanceof CommonToken)
         badSymbol = ((CommonToken) offendingSymbol).getText().split(",")[0];
       String message = "Expecting " + expectedTokens.toString(parser.getVocabulary());
-      throw new UnknownFormatConversionException(" Parser error :  line "
-        + line + " offset " + charPositionInLine + " i.e '" + badSymbol + "'  " + message);
+      errorData.setMessage("Symbol '"+badSymbol + "' " + message);
+      throw new ECLSyntaxError("Invalid ECL"
+        , errorData);
+
     }
   }
 }

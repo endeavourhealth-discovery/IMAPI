@@ -41,6 +41,15 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   @Getter
   private List<Where> and;
 
+
+
+  public Where() {
+  }
+
+  public Where(String iri) {
+    super.setIri(iri);
+  }
+
   public Where setNotIs(List<Node> notIs) {
     this.notIs = notIs;
     return this;
@@ -144,12 +153,7 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
     return this;
   }
 
-  public Where() {
-  }
 
-  public Where(String iri) {
-    super.setIri(iri);
-  }
 
   public static Where iri(String iri) {
     return new Where(iri);

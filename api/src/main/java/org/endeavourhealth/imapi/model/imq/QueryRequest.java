@@ -2,6 +2,8 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.*;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -28,6 +30,11 @@ public class QueryRequest implements ContextMap {
   private String askIri;
   private List<Map<Long, String>> timings = new ArrayList<>();
   private List<TTIriRef> cohort;
+  @Getter
+  @Setter
+  private boolean includeNames;
+
+
 
   public List<TTIriRef> getCohort() {
     return cohort;

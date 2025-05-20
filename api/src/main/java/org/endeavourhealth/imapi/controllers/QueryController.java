@@ -105,6 +105,20 @@ public class QueryController {
       return queryService.describeQuery(query, displayMode);
     }
   }
+  @PostMapping("/public/flattenBooleans")
+  @Operation(
+    summary = "optimises logical boolean of query",
+    description = "Returns the query with boolean optimisation"
+  )
+  public Query flattenBooleans(
+    @RequestBody Query query) throws IOException, QueryException {
+
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
+      log.debug("flattenQuery");
+      return queryService.flattenQuery(query);
+    }
+  }
+
 
   @PostMapping("/public/matchDisplayFromMatch")
   @Operation(

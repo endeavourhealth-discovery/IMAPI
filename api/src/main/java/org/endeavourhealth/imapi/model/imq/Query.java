@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.transforms.ECLSyntaxError;
 
 
 import java.util.ArrayList;
@@ -28,6 +29,9 @@ public class Query extends Match {
   private JsonNode parentResult;
   @Getter
   private TTIriRef persistentIri;
+
+
+
 
   public Query setRule(List<Match>rule){
     super.setRule(rule);

@@ -8,10 +8,10 @@ Feature: Code is generated
     And properties
     """
     [
-      { "property": { "@id": "http://prop1", "name": "First property"}, "type": { "@id": "http://www.w3.org/2001/XMLSchema#string", "name": "string" }, "maxExclusive": "1" },
-      { "property": { "@id": "http://prop2", "name": "Second property"}, "type": { "@id": "http://www.w3.org/2001/XMLSchema#string", "name": "string" } },
-      { "property": { "@id": "http://prop3", "name": "Third property"}, "type": { "@id": "http://www.w3.org/2001/XMLSchema#string", "name": "string" }, "maxExclusive": "0" },
-      { "property": { "@id": "http://prop4", "name": "Fourth property"}, "type": { "@id": "http://www.w3.org/2001/XMLSchema#string", "name": "string" }, "maxExclusive": "2" }
+      { "property": { "iri": "http://prop1", "name": "First property"}, "type": { "iri": "http://www.w3.org/2001/XMLSchema#string", "name": "string" }, "maxExclusive": "1" },
+      { "property": { "iri": "http://prop2", "name": "Second property"}, "type": { "iri": "http://www.w3.org/2001/XMLSchema#string", "name": "string" } },
+      { "property": { "iri": "http://prop3", "name": "Third property"}, "type": { "iri": "http://www.w3.org/2001/XMLSchema#string", "name": "string" }, "maxExclusive": "0" },
+      { "property": { "iri": "http://prop4", "name": "Fourth property"}, "type": { "iri": "http://www.w3.org/2001/XMLSchema#string", "name": "string" }, "maxExclusive": "2" }
     ]
     """
     And a template of
@@ -57,10 +57,10 @@ Feature: Code is generated
     And properties
     """
     [
-      { "property": { "@id": "http://prop1", "name": "First property"}, "type": { "@id": "http://www.w3.org/2001/XMLSchema#string", "name": "string" }, "maxExclusive": "1" },
-      { "property": { "@id": "http://prop2", "name": "Second property"}, "type": { "@id": "http://www.w3.org/2001/XMLSchema#string", "name": "string" } },
-      { "property": { "@id": "http://prop3", "name": "Third property"}, "type": { "@id": "http://www.w3.org/2001/XMLSchema#string", "name": "string" }, "maxExclusive": "0" },
-      { "property": { "@id": "http://prop4", "name": "Fourth property"}, "type": { "@id": "http://www.w3.org/2001/XMLSchema#string", "name": "string" }, "maxExclusive": "2" }
+      { "property": { "iri": "http://prop1", "name": "First property"}, "type": { "iri": "http://www.w3.org/2001/XMLSchema#string", "name": "string" }, "maxExclusive": "1" },
+      { "property": { "iri": "http://prop2", "name": "Second property"}, "type": { "iri": "http://www.w3.org/2001/XMLSchema#string", "name": "string" } },
+      { "property": { "iri": "http://prop3", "name": "Third property"}, "type": { "iri": "http://www.w3.org/2001/XMLSchema#string", "name": "string" }, "maxExclusive": "0" },
+      { "property": { "iri": "http://prop4", "name": "Fourth property"}, "type": { "iri": "http://www.w3.org/2001/XMLSchema#string", "name": "string" }, "maxExclusive": "2" }
     ]
     """
     And a template of

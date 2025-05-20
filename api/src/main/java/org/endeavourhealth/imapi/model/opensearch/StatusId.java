@@ -9,7 +9,7 @@ public class StatusId implements MatchPhraseId {
     this.id = id;
   }
 
-  @JsonProperty("status.@id")
+  @JsonProperty("status.iri")
   public String getId() {
     return id;
   }

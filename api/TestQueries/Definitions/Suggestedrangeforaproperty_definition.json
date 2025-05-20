@@ -1,5 +1,5 @@
 {
-  "@context" : {
+  "context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -11,7 +11,7 @@
   "argument" : [ {
     "parameter" : "this",
     "valueIri" : {
-      "@id" : "im:recordOwner"
+      "iri" : "im:recordOwner"
     }
   } ],
   "query" : {
@@ -19,24 +19,24 @@
     "description" : "get node, class or datatype values (ranges)  of property objects that have 4this as their path",
     "match" : [ {
       "where" : [ {
-        "@id" : "sh:path",
+        "iri" : "sh:path",
         "is" : [ {
           "parameter" : "this"
         } ]
       }, {
         "boolWhere" : "or",
         "where" : [ {
-          "@id" : "sh:node",
+          "iri" : "sh:node",
           "match" : {
             "variable" : "range"
           }
         }, {
-          "@id" : "sh:class",
+          "iri" : "sh:class",
           "match" : {
             "variable" : "range"
           }
         }, {
-          "@id" : "sh:datatype",
+          "iri" : "sh:datatype",
           "match" : {
             "variable" : "range"
           }
@@ -46,7 +46,7 @@
     "return" : {
       "nodeRef" : "range",
       "property" : [ {
-        "@id" : "rdfs:label"
+        "iri" : "rdfs:label"
       } ]
     }
   }

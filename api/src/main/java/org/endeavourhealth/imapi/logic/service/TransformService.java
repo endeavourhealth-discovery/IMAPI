@@ -115,7 +115,7 @@ public class TransformService {
     if (targetFormat == null)
       throw new IllegalArgumentException("Target format must be defined in request (e.g. targetFormat : JSON-LD)");
     if (graphMapIri == null)
-      throw new IllegalArgumentException("Graph Map iri (\"@id\" : \"http...\" must be present in request");
+      throw new IllegalArgumentException("Graph Map iri (\"iri\" : \"http...\" must be present in request");
     if (sources == null)
       throw new IllegalArgumentException("No data Sources in request...");
 

@@ -11,7 +11,7 @@ import java.util.Objects;
 
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-@JsonPropertyOrder({"iri", "qualifier","name","description"})
+@JsonPropertyOrder({"iri", "qualifier", "name", "description"})
 public class IriLD {
   private String iri;
   private String name;
@@ -20,8 +20,6 @@ public class IriLD {
   @Getter
   @Setter
   private String uuid;
-
-
 
 
 
@@ -43,8 +41,6 @@ public class IriLD {
     return this;
   }
 
-
-  @JsonProperty("@id")
   public String getIri() {
     return iri;
   }

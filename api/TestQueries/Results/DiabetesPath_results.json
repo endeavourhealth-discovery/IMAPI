@@ -1,48 +1,64 @@
 {
-  "match" : [ {
-    "where" : {
-      "@id" : "http://endhealth.info/im#concept",
-      "name" : "concept",
-      "nodeRef" : "condition",
-      "is" : [ {
-        "@id" : "http://snomed.info/sct#44054006",
-        "name" : "Diabetes mellitus type 2 (disorder)",
-        "descendantsOrSelfOf" : true
-      } ]
+  "match": [
+    {
+      "where": {
+        "iri": "http://endhealth.info/im#concept",
+        "name": "concept",
+        "nodeRef": "condition",
+        "is": [
+          {
+            "iri": "http://snomed.info/sct#44054006",
+            "name": "Diabetes mellitus type 2 (disorder)",
+            "descendantsOrSelfOf": true
+          }
+        ]
+      },
+      "path": [
+        {
+          "iri": "http://endhealth.info/im#condition",
+          "name": "condition"
+        }
+      ]
     },
-    "path" : [ {
-      "@id" : "http://endhealth.info/im#condition",
-      "name" : "condition"
-    } ]
-  }, {
-    "where" : {
-      "@id" : "http://endhealth.info/im#concept",
-      "name" : "concept",
-      "nodeRef" : "observation",
-      "is" : [ {
-        "@id" : "http://snomed.info/sct#44054006",
-        "name" : "Diabetes mellitus type 2 (disorder)",
-        "descendantsOrSelfOf" : true
-      } ]
+    {
+      "where": {
+        "iri": "http://endhealth.info/im#concept",
+        "name": "concept",
+        "nodeRef": "observation",
+        "is": [
+          {
+            "iri": "http://snomed.info/sct#44054006",
+            "name": "Diabetes mellitus type 2 (disorder)",
+            "descendantsOrSelfOf": true
+          }
+        ]
+      },
+      "path": [
+        {
+          "iri": "http://endhealth.info/im#observation",
+          "name": "observation"
+        }
+      ]
     },
-    "path" : [ {
-      "@id" : "http://endhealth.info/im#observation",
-      "name" : "observation"
-    } ]
-  }, {
-    "where" : {
-      "@id" : "http://endhealth.info/im#concept",
-      "name" : "concept",
-      "nodeRef" : "investigation",
-      "is" : [ {
-        "@id" : "http://snomed.info/sct#44054006",
-        "name" : "Diabetes mellitus type 2 (disorder)",
-        "descendantsOrSelfOf" : true
-      } ]
-    },
-    "path" : [ {
-      "@id" : "http://endhealth.info/im#investigation",
-      "name" : "investigation (test header)"
-    } ]
-  } ]
+    {
+      "where": {
+        "iri": "http://endhealth.info/im#concept",
+        "name": "concept",
+        "nodeRef": "investigation",
+        "is": [
+          {
+            "iri": "http://snomed.info/sct#44054006",
+            "name": "Diabetes mellitus type 2 (disorder)",
+            "descendantsOrSelfOf": true
+          }
+        ]
+      },
+      "path": [
+        {
+          "iri": "http://endhealth.info/im#investigation",
+          "name": "investigation (test header)"
+        }
+      ]
+    }
+  ]
 }

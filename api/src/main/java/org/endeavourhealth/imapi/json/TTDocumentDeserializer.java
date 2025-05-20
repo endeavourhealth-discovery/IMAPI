@@ -16,8 +16,8 @@ import java.util.Map;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
-  private static final String GRAPH = "@graph";
-  private static final String ID = "@id";
+  private static final String GRAPH = "graph";
+  private static final String ID = "iri";
   private static final String CRUD = "crud";
   private static final String ENTITIES = "entities";
   private final TTContext context = new TTContext();

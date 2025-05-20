@@ -1,5 +1,5 @@
 {
-  "@context" : {
+  "context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -11,10 +11,10 @@
   "pathQuery" : {
     "name" : "SubstancePath",
     "source" : {
-      "@id" : "im:Patient"
+      "iri" : "im:Patient"
     },
     "target" : {
-      "@id" : "sn:105590001"
+      "iri" : "sn:105590001"
     }
   }
 }

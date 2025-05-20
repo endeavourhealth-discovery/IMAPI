@@ -5,19 +5,19 @@
       "boolMatch": "or",
       "match": [
         {
-          "@type": "http://endhealth.info/im#Concept"
+          "type": "http://endhealth.info/im#Concept"
         },
         {
-          "@type": "http://endhealth.info/im#ConceptSet"
+          "type": "http://endhealth.info/im#ConceptSet"
         },
         {
-          "@type": "http://endhealth.info/im#Folder"
+          "type": "http://endhealth.info/im#Folder"
         },
         {
-          "@type": "http://endhealth.info/im#ValueSet"
+          "type": "http://endhealth.info/im#ValueSet"
         },
         {
-          "@type": "http://endhealth.info/im#dataModelProperty"
+          "type": "http://endhealth.info/im#dataModelProperty"
         }
       ],
       "variable": "type"
@@ -29,19 +29,19 @@
       "nodeRef": "type",
       "property": [
         {
-          "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+          "iri": "http://www.w3.org/2000/01/rdf-schema#label"
         },
         {
-          "@id": "http://www.w3.org/2000/01/rdf-schema#comment"
+          "iri": "http://www.w3.org/2000/01/rdf-schema#comment"
         },
         {
-          "@id": "http://endhealth.info/im#status"
+          "iri": "http://endhealth.info/im#status"
         },
         {
-          "@id": "http://endhealth.info/im#usageTotal"
+          "iri": "http://endhealth.info/im#usageTotal"
         },
         {
-          "@id": "http://endhealth.info/im#scheme"
+          "iri": "http://endhealth.info/im#scheme"
         }
       ]
     }

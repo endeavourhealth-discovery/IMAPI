@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Getter;
 import org.endeavourhealth.imapi.json.TTNodeDeserializerV2;
 import org.endeavourhealth.imapi.json.TTNodeSerializerV2;
 
@@ -18,14 +19,9 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @JsonDeserialize(using = TTNodeDeserializerV2.class)
 public class TTNode implements TTValue, Serializable {
   private Map<TTIriRef, TTArray> predicateValues = new HashMap<>();
+  @Getter
   private String iri;
 
-  @JsonProperty("@id")
-  public String getIri() {
-    return iri;
-  }
-
-  @JsonProperty("@id")
   public TTNode setIri(String iri) {
     this.iri = iri;
     return this;
@@ -72,15 +68,16 @@ public class TTNode implements TTValue, Serializable {
     predicateValues.put(predicate, value);
     return this;
   }
+
   @JsonIgnore
-  public TTNode set(String predicate, TTValue value){
-    this.set(iri(predicate),value);
+  public TTNode set(String predicate, TTValue value) {
+    this.set(iri(predicate), value);
     return this;
   }
 
   @JsonIgnore
-  public TTNode set(String predicate, boolean value){
-    this.set(iri(predicate),value);
+  public TTNode set(String predicate, boolean value) {
+    this.set(iri(predicate), value);
     return this;
   }
 

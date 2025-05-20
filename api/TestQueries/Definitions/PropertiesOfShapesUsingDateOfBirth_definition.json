@@ -1,49 +1,62 @@
 {
-  "@context" : {
-    "im" : "http://endhealth.info/im#",
-    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "owl" : "http://www.w3.org/2002/07/owl#",
-    "sh" : "http://www.w3.org/ns/shacl#",
-    "xsd" : "http://www.w3.org/2001/XMLSchema#",
-    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
-    "sn" : "http://snomed.info/sct#"
+  "context": {
+    "im": "http://endhealth.info/im#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "sh": "http://www.w3.org/ns/shacl#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "sn": "http://snomed.info/sct#"
   },
-  "query" : {
-    "name" : "PropertiesOfShapesUsingDateOfBirth",
-    "description" : "all of the data model properties for entities that have a property df a data of birth",
-    "typeOf" : {
-      "@id" : "sh:NodeShape"
+  "query": {
+    "name": "PropertiesOfShapesUsingDateOfBirth",
+    "description": "all of the data model properties for entities that have a property df a data of birth",
+    "typeOf": {
+      "iri": "sh:NodeShape"
     },
-    "return" : {
-      "property" : [ {
-        "@id" : "sh:property",
-        "return" : {
-          "property" : [ {
-            "@id" : "sh:path"
-          }, {
-            "@id" : "sh:node"
-          }, {
-            "@id" : "sh:minCount"
-          }, {
-            "@id" : "sh:maxCount"
-          }, {
-            "@id" : "sh:class"
-          }, {
-            "@id" : "sh:datatype"
-          } ]
+    "return": {
+      "property": [
+        {
+          "iri": "sh:property",
+          "return": {
+            "property": [
+              {
+                "iri": "sh:path"
+              },
+              {
+                "iri": "sh:node"
+              },
+              {
+                "iri": "sh:minCount"
+              },
+              {
+                "iri": "sh:maxCount"
+              },
+              {
+                "iri": "sh:class"
+              },
+              {
+                "iri": "sh:datatype"
+              }
+            ]
+          }
         }
-      } ]
+      ]
     },
-    "where" : {
-      "@id" : "sh:path",
-      "nodeRef" : "shaclProperty",
-      "is" : [ {
-        "@id" : "im:dateOfBirth"
-      } ]
+    "where": {
+      "iri": "sh:path",
+      "nodeRef": "shaclProperty",
+      "is": [
+        {
+          "iri": "im:dateOfBirth"
+        }
+      ]
     },
-    "path" : [ {
-      "@id" : "sh:property",
-      "variable" : "shaclProperty"
-    } ]
+    "path": [
+      {
+        "iri": "sh:property",
+        "variable": "shaclProperty"
+      }
+    ]
   }
 }

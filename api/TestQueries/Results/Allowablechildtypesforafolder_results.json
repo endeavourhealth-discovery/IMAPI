@@ -1,12 +1,16 @@
 {
-  "page" : 1,
-  "count" : 3,
-  "totalCount" : 3,
-  "entities" : [ {
-    "@id" : "http://endhealth.info/im#Folder"
-  }, {
-    "@id" : "http://endhealth.info/im#CohortQuery"
-  }, {
-    "@id" : "http://endhealth.info/im#DatasetQuery"
-  } ]
+  "page": 1,
+  "count": 3,
+  "totalCount": 3,
+  "entities": [
+    {
+      "iri": "http://endhealth.info/im#Folder"
+    },
+    {
+      "iri": "http://endhealth.info/im#CohortQuery"
+    },
+    {
+      "iri": "http://endhealth.info/im#DatasetQuery"
+    }
+  ]
 }

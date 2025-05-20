@@ -3,25 +3,25 @@
   "match": [
     {
       "path": {
-        "@id": "http://endhealth.info/im#gpRegistration",
+        "iri": "http://endhealth.info/im#gpRegistration",
         "variable": "practice",
         "node": {
-          "@id": "http://endhealth.info/im#GPRegistration"
+          "iri": "http://endhealth.info/im#GPRegistration"
         }
       },
       "bool": "and",
       "where": [
         {
-          "@id": "http://endhealth.info/im#patientType",
+          "iri": "http://endhealth.info/im#patientType",
           "in": [
             {
-              "@id": "http://endhealth.info/im#2751000252106",
+              "iri": "http://endhealth.info/im#2751000252106",
               "name": "Regular GMS patient"
             }
           ]
         },
         {
-          "@id": "http://endhealth.info/im#effectiveDate",
+          "iri": "http://endhealth.info/im#effectiveDate",
           "operator": "<=",
           "relativeTo": {
             "parameter": "$referenceDate"
@@ -31,11 +31,11 @@
           "bool": "or",
           "where": [
             {
-              "@id": "http://endhealth.info/im#endDate",
+              "iri": "http://endhealth.info/im#endDate",
               "null": true
             },
             {
-              "@id": "http://endhealth.info/im#endDate",
+              "iri": "http://endhealth.info/im#endDate",
               "operator": ">",
               "relativeTo": {
                 "parameter": "$referenceDate"
@@ -52,7 +52,7 @@
       "nodeRef": "practice",
       "property": [
         {
-          "@id": "http://endhealth.info/im#recordOwner"
+          "iri": "http://endhealth.info/im#recordOwner"
         }
       ]
     }

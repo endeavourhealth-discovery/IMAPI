@@ -217,7 +217,7 @@ public class Transformer {
 
   private boolean where(Match match, Object sourceNode) throws JsonProcessingException {
     Where property = match.getWhere();
-    Object sourceValue = sourceTranslator.getPropertyValue(sourceNode, property.getId());
+    Object sourceValue = sourceTranslator.getPropertyValue(sourceNode, property.getIri());
     return property.getValue() != null && property.getValue().equals(sourceValue);
   }
 

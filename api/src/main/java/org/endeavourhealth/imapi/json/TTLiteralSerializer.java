@@ -38,8 +38,8 @@ public class TTLiteralSerializer extends StdSerializer<TTLiteral> {
         case XSD.LONG -> gen.writeNumber(literal.longValue());
         case XSD.PATTERN -> {
           gen.writeStartObject();
-          gen.writeStringField("@value", literal.getValue());
-          gen.writeStringField("@type", usePrefixes
+          gen.writeStringField("value", literal.getValue());
+          gen.writeStringField("type", usePrefixes
             ? helper.prefix(literal.getType().getIri())
             : literal.getType().getIri()
           );

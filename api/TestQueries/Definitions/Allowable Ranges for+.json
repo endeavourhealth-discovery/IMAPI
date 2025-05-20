@@ -4,7 +4,7 @@
     {
       "where": [
         {
-          "@id": "http://www.w3.org/2000/01/rdf-schema#range",
+          "iri": "http://www.w3.org/2000/01/rdf-schema#range",
           "in": [
             {
               "parameter": "this"
@@ -21,10 +21,10 @@
     {
       "property": [
         {
-          "@id": "http://endhealth.info/im#code"
+          "iri": "http://endhealth.info/im#code"
         },
         {
-          "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+          "iri": "http://www.w3.org/2000/01/rdf-schema#label"
         }
       ]
     }

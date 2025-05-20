@@ -50,7 +50,7 @@
                         "header": [],
                         "body": {
                           "mode": "raw",
-                          "raw": "{\n    \"argument\": [\n        {\n            \"parameter\": \"this\",\n            \"valueIri\": {\n                \"@id\": \"http://snomed.info/sct#162408000\"\n            }\n        }\n    ],\n    \"query\": {\n        \"@id\": \"http://endhealth.info/im#Query_GetIsas\"\n    }\n}",
+                          "raw": "{\n    \"argument\": [\n        {\n            \"parameter\": \"this\",\n            \"valueIri\": {\n                \"iri\": \"http://snomed.info/sct#162408000\"\n            }\n        }\n    ],\n    \"query\": {\n        \"iri\": \"http://endhealth.info/im#Query_GetIsas\"\n    }\n}",
                           "options": {
                             "raw": {
                               "language": "json"
@@ -103,7 +103,7 @@
                         "header": [],
                         "body": {
                           "mode": "raw",
-                          "raw": "{\n    \"argument\": [\n        {\n            \"parameter\": \"this\",\n            \"valueIri\": {\n                \"@id\": \"http://endhealth.info/im#CohortQuery\"\n            }\n        }\n    ],\n    \"query\": {\n        \"@id\": \"http://endhealth.info/im#Query_SearchEntities\"\n    }\n}",
+                          "raw": "{\n    \"argument\": [\n        {\n            \"parameter\": \"this\",\n            \"valueIri\": {\n                \"iri\": \"http://endhealth.info/im#CohortQuery\"\n            }\n        }\n    ],\n    \"query\": {\n        \"iri\": \"http://endhealth.info/im#Query_SearchEntities\"\n    }\n}",
                           "options": {
                             "raw": {
                               "language": "json"
@@ -156,7 +156,7 @@
                         "header": [],
                         "body": {
                           "mode": "raw",
-                          "raw": "{\n    \"argument\": [\n        {\n            \"parameter\": \"this\",\n            \"valueIri\": {\n                \"@id\": \"http://snomed.info/sct#763158003\"\n            }\n        }\n    ],\n    \"query\": {\n        \"@id\": \"http://endhealth.info/im#Query_AllowableProperties\"\n    }\n}",
+                          "raw": "{\n    \"argument\": [\n        {\n            \"parameter\": \"this\",\n            \"valueIri\": {\n                \"iri\": \"http://snomed.info/sct#763158003\"\n            }\n        }\n    ],\n    \"query\": {\n        \"iri\": \"http://endhealth.info/im#Query_AllowableProperties\"\n    }\n}",
                           "options": {
                             "raw": {
                               "language": "json"
@@ -209,7 +209,7 @@
                         "header": [],
                         "body": {
                           "mode": "raw",
-                          "raw": "{\n    \"argument\": [\n        {\n            \"parameter\": \"this\",\n            \"valueIri\": {\n                \"@id\": \"http://snomed.info/sct#127489000\"\n            }\n        }\n    ],\n    \"query\": {\n        \"@id\": \"http://endhealth.info/im#Query_AllowableRanges\"\n    }\n}",
+                          "raw": "{\n    \"argument\": [\n        {\n            \"parameter\": \"this\",\n            \"valueIri\": {\n                \"iri\": \"http://snomed.info/sct#127489000\"\n            }\n        }\n    ],\n    \"query\": {\n        \"iri\": \"http://endhealth.info/im#Query_AllowableRanges\"\n    }\n}",
                           "options": {
                             "raw": {
                               "language": "json"
@@ -264,7 +264,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n    \"textSearch\": \"Nocturnal cough\",\n    \"argument\": [\n        {\n            \"parameter\": \"this\",\n            \"valueIri\": {\n                \"@id\": \"http://snomed.info/sct#162408000\"\n            }\n        }\n    ],\n    \"query\": {\n        \"match\": [\n            {\n                \"descendantsOrSelfOf\": true,\n                \"variable\": \"isa\",\n                \"parameter\": \"this\"\n            }\n        ],\n        \"activeOnly\": true,\n        \"return\": [\n            {\n                \"nodeRef\": \"isa\",\n                \"property\": [\n                    {\n                        \"@id\": \"http://www.w3.org/2000/01/rdf-schema#label\"\n                    },\n                    {\n                        \"@id\": \"http://endhealth.info/im#code\"\n                    }\n                ]\n            }\n        ]\n    }\n}",
+                      "raw": "{\n    \"textSearch\": \"Nocturnal cough\",\n    \"argument\": [\n        {\n            \"parameter\": \"this\",\n            \"valueIri\": {\n                \"iri\": \"http://snomed.info/sct#162408000\"\n            }\n        }\n    ],\n    \"query\": {\n        \"match\": [\n            {\n                \"descendantsOrSelfOf\": true,\n                \"variable\": \"isa\",\n                \"parameter\": \"this\"\n            }\n        ],\n        \"activeOnly\": true,\n        \"return\": [\n            {\n                \"nodeRef\": \"isa\",\n                \"property\": [\n                    {\n                        \"iri\": \"http://www.w3.org/2000/01/rdf-schema#label\"\n                    },\n                    {\n                        \"iri\": \"http://endhealth.info/im#code\"\n                    }\n                ]\n            }\n        ]\n    }\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -317,7 +317,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n    \"textSearch\": \"Nocturnal cough\",\n    \"argument\": [\n        {\n            \"parameter\": \"this\",\n            \"valueIri\": {\n                \"@id\": \"http://snomed.info/sct#162408000\"\n            }\n        }\n    ],\n    \"query\": {\n        \"match\": [\n            {\n                \"descendantsOrSelfOf\": true,\n                \"variable\": \"isa\",\n                \"parameter\": \"this\"\n            }\n        ],\n        \"activeOnly\": true\n    }\n}",
+                      "raw": "{\n    \"textSearch\": \"Nocturnal cough\",\n    \"argument\": [\n        {\n            \"parameter\": \"this\",\n            \"valueIri\": {\n                \"iri\": \"http://snomed.info/sct#162408000\"\n            }\n        }\n    ],\n    \"query\": {\n        \"match\": [\n            {\n                \"descendantsOrSelfOf\": true,\n                \"variable\": \"isa\",\n                \"parameter\": \"this\"\n            }\n        ],\n        \"activeOnly\": true\n    }\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -370,7 +370,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n    \"argument\": [\n        {\n            \"parameter\": \"this\",\n            \"valueIri\": {\n                \"@id\": \"http://snomed.info/sct#162408000\"\n            }\n        }\n    ],\n    \"query\": {\n        \"match\": [\n            {\n                \"where\": [\n                    {\n                        \"@id\": \"http://endhealth.info/im#isA\",\n                        \"is\": [\n                            {\n                                \"parameter\": \"this\"\n                            }\n                        ]\n                    }\n                ]\n            }\n        ],\n        \"activeOnly\": true\n    }\n}",
+                      "raw": "{\n    \"argument\": [\n        {\n            \"parameter\": \"this\",\n            \"valueIri\": {\n                \"iri\": \"http://snomed.info/sct#162408000\"\n            }\n        }\n    ],\n    \"query\": {\n        \"match\": [\n            {\n                \"where\": [\n                    {\n                        \"iri\": \"http://endhealth.info/im#isA\",\n                        \"is\": [\n                            {\n                                \"parameter\": \"this\"\n                            }\n                        ]\n                    }\n                ]\n            }\n        ],\n        \"activeOnly\": true\n    }\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -431,7 +431,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n    \"textSearch\": \"Nocturnal cough\",\n    \"argument\": [\n        {\n            \"parameter\": \"this\",\n            \"valueIri\": {\n                \"@id\": \"http://snomed.info/sct#162408000\"\n            }\n        }\n    ],\n    \"page\": {\n        \"pageSize\": 5,\n        \"pageNumber\": 1\n    },\n    \"query\": {\n        \"match\": [\n            {\n                \"descendantsOrSelfOf\": true,\n                \"variable\": \"isa\",\n                \"parameter\": \"this\"\n            }\n        ],\n        \"activeOnly\": true,\n        \"return\": [\n            {\n                \"nodeRef\": \"isa\",\n                \"property\": [\n                    {\n                        \"@id\": \"http://www.w3.org/2000/01/rdf-schema#label\"\n                    },\n                    {\n                        \"@id\": \"http://endhealth.info/im#code\"\n                    }\n                ]\n            }\n        ]\n    }\n}",
+                      "raw": "{\n    \"textSearch\": \"Nocturnal cough\",\n    \"argument\": [\n        {\n            \"parameter\": \"this\",\n            \"valueIri\": {\n                \"iri\": \"http://snomed.info/sct#162408000\"\n            }\n        }\n    ],\n    \"page\": {\n        \"pageSize\": 5,\n        \"pageNumber\": 1\n    },\n    \"query\": {\n        \"match\": [\n            {\n                \"descendantsOrSelfOf\": true,\n                \"variable\": \"isa\",\n                \"parameter\": \"this\"\n            }\n        ],\n        \"activeOnly\": true,\n        \"return\": [\n            {\n                \"nodeRef\": \"isa\",\n                \"property\": [\n                    {\n                        \"iri\": \"http://www.w3.org/2000/01/rdf-schema#label\"\n                    },\n                    {\n                        \"iri\": \"http://endhealth.info/im#code\"\n                    }\n                ]\n            }\n        ]\n    }\n}",
                       "options": {
                         "raw": {
                           "language": "json"

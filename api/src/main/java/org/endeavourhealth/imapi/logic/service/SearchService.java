@@ -73,14 +73,14 @@ public class SearchService {
     ArrayNode commonResult = new ObjectMapper().createArrayNode();
     Set<String> imEntityIds = new HashSet<>();
     for (JsonNode entity : imResult.get("entities")) {
-      JsonNode idNode = entity.get("@id");
+      JsonNode idNode = entity.get("iri");
       if (idNode != null && idNode.isTextual()) {
         imEntityIds.add(idNode.asText());
       }
     }
-    // Check if each @id in the second JSON's entities exists in the first JSON's @id set
+    // Check if each iri in the second JSON's entities exists in the first JSON's iri set
     for (JsonNode entity : osResult.get("entities")) {
-      JsonNode idNode = entity.get("@id");
+      JsonNode idNode = entity.get("iri");
       if (idNode == null || !idNode.isTextual() || imEntityIds.contains(idNode.asText())) {
         commonResult.add(entity);
       }

@@ -12,7 +12,7 @@ import java.io.IOException;
 
 /**
  * JSON LD- Serializer for TTDocument (triple tree node with collection of entities)
- * <p>Uses @context for prefixes and common annotation elements</p>
+ * <p>Uses context for prefixes and common annotation elements</p>
  */
 public class TTDocumentSerializer extends StdSerializer<TTDocument> {
 
@@ -26,7 +26,7 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
 
   private static void processGraph(TTDocument document, JsonGenerator gen, TTNodeSerializer helper) throws IOException {
     if (document.getGraph() != null) {
-      outputIri(gen, "@graph", document.getGraph(), helper);
+      outputIri(gen, "graph", document.getGraph(), helper);
     }
   }
 
@@ -39,7 +39,7 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
   private static void outputIri(JsonGenerator gen, String fieldName, TTIriRef ref, TTNodeSerializer helper) throws IOException {
     gen.writeFieldName(fieldName);
     gen.writeStartObject();
-    gen.writeStringField("@id", helper.prefix(ref.getIri()));
+    gen.writeStringField("iri", helper.prefix(ref.getIri()));
     if (ref.getName() != null && !ref.getName().isEmpty())
       gen.writeStringField("name", ref.getName());
     gen.writeEndObject();
@@ -51,9 +51,9 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
       for (TTEntity entity : document.getEntities()) {
         gen.writeStartObject();
         if (entity.getIri() != null)
-          gen.writeStringField("@id", helper.prefix(entity.getIri()));
+          gen.writeStringField("iri", helper.prefix(entity.getIri()));
         if (entity.getGraph() != null) {
-          outputIri(gen, "@graph", entity.getGraph(), helper);
+          outputIri(gen, "graph", entity.getGraph(), helper);
         }
         if (entity.getCrud() != null) {
           outputIri(gen, "crud", entity.getCrud(), helper);

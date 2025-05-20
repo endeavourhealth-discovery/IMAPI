@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "instanceOf", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends Element implements Assignable,BoolGroup<Where> {
+public class Where extends Element implements Assignable, BoolGroup<Where> {
   @Getter
   private String description;
   private Range range;
@@ -76,6 +76,7 @@ public class Where extends Element implements Assignable,BoolGroup<Where> {
     this.and.add(and);
     return this;
   }
+
   public Where and(Consumer<Where> builder) {
     Where and = new Where();
     addAnd(and);
@@ -128,7 +129,6 @@ public class Where extends Element implements Assignable,BoolGroup<Where> {
   }
 
 
-
   public Where setNot(List<Where> not) {
     this.not = not;
     return this;
@@ -171,7 +171,6 @@ public class Where extends Element implements Assignable,BoolGroup<Where> {
   }
 
 
-
   public boolean getIsNotNull() {
     return isNotNull;
   }
@@ -196,13 +195,8 @@ public class Where extends Element implements Assignable,BoolGroup<Where> {
   }
 
   public Where setValueVariable(String valueVariable) {
-    this.valueVariable= valueVariable;
+    this.valueVariable = valueVariable;
     return this;
-  }
-
-  @JsonProperty("@id")
-  public String getId() {
-    return super.getIri();
   }
 
   @Override
@@ -241,8 +235,6 @@ public class Where extends Element implements Assignable,BoolGroup<Where> {
     this.anyRoleGroup = anyRoleGroup;
     return this;
   }
-
-
 
 
   public Where setName(String name) {

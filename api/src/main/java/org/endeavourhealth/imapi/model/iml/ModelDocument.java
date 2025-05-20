@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.iml;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Getter;
 import org.endeavourhealth.imapi.model.imq.QueryEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.transforms.TTManager;
@@ -12,30 +13,25 @@ import java.util.List;
 /**
  * A document containing various instance entities conforming to data model shapes of various kinds
  */
-@JsonPropertyOrder({"@context", "query"})
+@JsonPropertyOrder({"context", "query"})
 public class ModelDocument {
+  @Getter
   private TTContext context;
+  @Getter
   private List<Entity> folder;
+  @Getter
   private List<ConceptSet> conceptSet;
   private List<MapFunction> functionClause;
+  @Getter
   private List<QueryEntity> query;
 
   public ModelDocument() {
     this.context = TTManager.getDefaultContext();
   }
 
-  @JsonProperty("@context")
-  public TTContext getContext() {
-    return context;
-  }
-
   public ModelDocument setContext(TTContext context) {
     this.context = context;
     return this;
-  }
-
-  public List<QueryEntity> getQuery() {
-    return query;
   }
 
   public ModelDocument setQuery(List<QueryEntity> query) {
@@ -50,10 +46,6 @@ public class ModelDocument {
     return this;
   }
 
-  public List<Entity> getFolder() {
-    return folder;
-  }
-
   public ModelDocument setFolder(List<Entity> folder) {
     this.folder = folder;
     return this;
@@ -64,10 +56,6 @@ public class ModelDocument {
       this.folder = new ArrayList<>();
     this.folder.add(folder);
     return this;
-  }
-
-  public List<ConceptSet> getConceptSet() {
-    return conceptSet;
   }
 
   public ModelDocument setConceptSet(List<ConceptSet> conceptSet) {

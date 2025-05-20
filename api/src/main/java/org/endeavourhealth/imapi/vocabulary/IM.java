@@ -4,7 +4,7 @@ package org.endeavourhealth.imapi.vocabulary;
 
 public class IM {
     public static final String DOMAIN = "http://endhealth.info/";
-    public static final String HAS_SUBTYPES = IM.DOMAIN+"hasSubtypes";
+    public static final String HAS_SUBTYPES = IM.DOMAIN + "hasSubtypes";
     public static final String PREFIX = "im";
     public static final String NAMESPACE = IM.DOMAIN + IM.PREFIX + "#";
     public static final String HAS_VALUESET = IM.NAMESPACE + "hasValueSet";
@@ -17,15 +17,15 @@ public class IM {
     public static final String ENTAILED_MEMBER = IM.NAMESPACE + "entailedMember";
     public static final String ENTAILMENT = IM.NAMESPACE + "entailment";
     public static final String EXCLUDE = IM.NAMESPACE + "exclude";
-    public static final String IRI = "@id";
-    public static final String VALUE = "@value";
-    public static final String TYPE = "@type";
+    public static final String IRI = "iri";
+    public static final String VALUE = "value";
+    public static final String TYPE = "type";
     public static final String id = IM.NAMESPACE + "id";
-    public static final String RELATIONSHIP_TYPE = IM.NAMESPACE+"relationshipType";
+    public static final String RELATIONSHIP_TYPE = IM.NAMESPACE + "relationshipType";
     public static final String CODE = IM.NAMESPACE + "code";
     public static final String PREFERRED_NAME = IM.NAMESPACE + "preferredName";
     public static final String HAS_SCHEME = IM.NAMESPACE + "scheme";
-    public static final String BINDING = IM.NAMESPACE+"binding";
+    public static final String BINDING = IM.NAMESPACE + "binding";
     public static final String HAS_STATUS = IM.NAMESPACE + "status";
     public static final String STATUS = IM.NAMESPACE + "Status";
     public static final String CONTENT_TYPE = IM.NAMESPACE + "contentType";

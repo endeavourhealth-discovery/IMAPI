@@ -86,31 +86,39 @@ public class ExcelSearchExporter {
   }
 
   private void addCellValue(Row row, Object value) {
-    if (value instanceof String valueAsString) {
-      Cell stringCell = row.createCell(getLastCellNum(row), CellType.STRING);
-      if (valueAsString.contains("\n")) {
-        stringCell.getRow()
-          .setHeightInPoints(stringCell.getSheet().getDefaultRowHeightInPoints() * valueAsString.split("\n").length);
+    switch (value) {
+      case String valueAsString -> {
+        Cell stringCell = row.createCell(getLastCellNum(row), CellType.STRING);
+        if (valueAsString.contains("\n")) {
+          stringCell.getRow()
+            .setHeightInPoints(stringCell.getSheet().getDefaultRowHeightInPoints() * valueAsString.split("\n").length);
+        }
+        stringCell.setCellValue(valueAsString);
       }
-      stringCell.setCellValue(valueAsString);
-    } else if (value instanceof Integer valueAsInteger) {
-      Cell intCell = row.createCell(getLastCellNum(row), CellType.NUMERIC);
-      intCell.setCellValue(valueAsInteger);
-    } else if (value instanceof TTIriRef valueAsTTIriRef) {
-      Cell ttIriRefCell = row.createCell(getLastCellNum(row), CellType.STRING);
-      ttIriRefCell.setCellValue(iriToString(valueAsTTIriRef, false));
-    } else if (value instanceof ArrayList<?> valueAsList) {
-      Cell arrayCell = row.createCell(getLastCellNum(row), CellType.STRING);
-      arrayCell.setCellValue(listToString(valueAsList));
-    } else if (value instanceof Set<?> valueAsSet) {
-      Cell arrayCell = row.createCell(getLastCellNum(row), CellType.STRING);
-      arrayCell.setCellValue(setToString(valueAsSet));
-    } else if (null == value) {
-      Cell intCell = row.createCell(getLastCellNum(row), CellType.STRING);
-      intCell.setCellValue("");
-    } else {
-      Cell iriCell = row.createCell(getLastCellNum(row), CellType.STRING);
-      iriCell.setCellValue("UNHANDLED TYPE");
+      case Integer valueAsInteger -> {
+        Cell intCell = row.createCell(getLastCellNum(row), CellType.NUMERIC);
+        intCell.setCellValue(valueAsInteger);
+      }
+      case TTIriRef valueAsTTIriRef -> {
+        Cell ttIriRefCell = row.createCell(getLastCellNum(row), CellType.STRING);
+        ttIriRefCell.setCellValue(iriToString(valueAsTTIriRef, false));
+      }
+      case ArrayList<?> valueAsList -> {
+        Cell arrayCell = row.createCell(getLastCellNum(row), CellType.STRING);
+        arrayCell.setCellValue(listToString(valueAsList));
+      }
+      case Set<?> valueAsSet -> {
+        Cell arrayCell = row.createCell(getLastCellNum(row), CellType.STRING);
+        arrayCell.setCellValue(setToString(valueAsSet));
+      }
+      case null -> {
+        Cell intCell = row.createCell(getLastCellNum(row), CellType.STRING);
+        intCell.setCellValue("");
+      }
+      default -> {
+        Cell iriCell = row.createCell(getLastCellNum(row), CellType.STRING);
+        iriCell.setCellValue("UNHANDLED TYPE");
+      }
     }
   }
 

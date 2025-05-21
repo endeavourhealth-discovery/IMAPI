@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.iml;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.Getter;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -13,8 +14,9 @@ import java.util.function.Consumer;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
-@JsonPropertyOrder({"@id", "status", "label", "comment", "targetShape", "type", "isContainedIn", "subClassOf", "group", "scheme"})
+@JsonPropertyOrder({"iri", "status", "label", "comment", "targetShape", "type", "isContainedIn", "subClassOf", "group", "scheme"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@Getter
 public class FormGenerator {
   private String iri;
   private TTIriRef status;
@@ -27,17 +29,9 @@ public class FormGenerator {
   private List<TTIriRef> subClassOf;
   private List<PropertyShape> property;
 
-  public String getIri() {
-    return iri;
-  }
-
   public FormGenerator setIri(String iri) {
     this.iri = iri;
     return this;
-  }
-
-  public TTIriRef getStatus() {
-    return status;
   }
 
   @JsonSetter
@@ -46,23 +40,10 @@ public class FormGenerator {
     return this;
   }
 
-  public TTIriRef getScheme() {
-    return scheme;
-  }
-
   @JsonSetter
   public FormGenerator setScheme(TTIriRef scheme) {
     this.scheme = scheme;
     return this;
-  }
-
-  public List<TTIriRef> getType() {
-    return type;
-  }
-
-  @JsonProperty("@id")
-  public String getId() {
-    return iri;
   }
 
   public FormGenerator setType(List<TTIriRef> type) {
@@ -70,17 +51,9 @@ public class FormGenerator {
     return this;
   }
 
-  public List<TTEntity> getIsContainedIn() {
-    return isContainedIn;
-  }
-
   public FormGenerator setIsContainedIn(List<TTEntity> isContainedIn) {
     this.isContainedIn = isContainedIn;
     return this;
-  }
-
-  public List<TTIriRef> getSubClassOf() {
-    return subClassOf;
   }
 
   public FormGenerator setSubClassOf(List<TTIriRef> subClassOf) {
@@ -88,22 +61,9 @@ public class FormGenerator {
     return this;
   }
 
-  public FormGenerator setId(String id) {
-    this.iri = id;
-    return this;
-  }
-
-  public String getLabel() {
-    return label;
-  }
-
   public FormGenerator setLabel(String label) {
     this.label = label;
     return this;
-  }
-
-  public String getComment() {
-    return comment;
   }
 
   public FormGenerator setComment(String comment) {
@@ -112,18 +72,10 @@ public class FormGenerator {
   }
 
 
-  public TTIriRef getTargetShape() {
-    return targetShape;
-  }
-
   @JsonSetter
   public FormGenerator setTargetShape(TTIriRef targetShape) {
     this.targetShape = targetShape;
     return this;
-  }
-
-  public List<PropertyShape> getProperty() {
-    return property;
   }
 
   @JsonSetter
@@ -133,8 +85,7 @@ public class FormGenerator {
   }
 
   public FormGenerator addProperty(PropertyShape property) {
-    if (null == this.property)
-      this.property = new ArrayList<>();
+    if (null == this.property) this.property = new ArrayList<>();
     this.property.add(property);
     return this;
   }

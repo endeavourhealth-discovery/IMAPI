@@ -16,8 +16,8 @@ import java.util.Map;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
-  private static final String GRAPH = "@graph";
-  private static final String ID = "@id";
+  private static final String GRAPH = "graph";
+  private static final String ID = "iri";
   private static final String CRUD = "crud";
   private static final String ENTITIES = "entities";
   private final TTContext context = new TTContext();
@@ -66,17 +66,16 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
       Iterator<Map.Entry<String, JsonNode>> fields = entityNode.fields();
       while (fields.hasNext()) {
         Map.Entry<String, JsonNode> field = fields.next();
-        if (field.getKey().equals(ID)) {
-          entity.setIri(helper.expand(field.getValue().textValue()));
-        } else if (field.getKey().equals(GRAPH)) {
-          entity.setGraph(new TTIriRef(helper.expand(field.getValue().get(ID).asText())));
-        } else if (field.getKey().equals(CRUD)) {
-          entity.setCrud(iri(helper.expand(field.getValue().get(ID).asText())));
-        } else {
-          if (field.getValue().isArray())
-            entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeArrayAsValue(field.getValue()));
-          else
-            entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeAsValue(field.getValue()));
+        switch (field.getKey()) {
+          case ID -> entity.setIri(helper.expand(field.getValue().textValue()));
+          case GRAPH -> entity.setGraph(new TTIriRef(helper.expand(field.getValue().get(ID).asText())));
+          case CRUD -> entity.setCrud(iri(helper.expand(field.getValue().get(ID).asText())));
+          default -> {
+            if (field.getValue().isArray())
+              entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeArrayAsValue(field.getValue()));
+            else
+              entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeAsValue(field.getValue()));
+          }
         }
       }
     }

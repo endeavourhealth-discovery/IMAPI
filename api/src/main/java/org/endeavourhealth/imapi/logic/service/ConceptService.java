@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.logic.service.EntityService.filterOutInactiveTermCodes;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -82,7 +81,7 @@ public class ConceptService {
     return entityService.iriRefPageableToEntityReferenceNodePageable(propertiesAndCount, schemeIris, inactive);
   }
 
-  public Pageable<EntityReferenceNode> getSuperiorPropertiesBoolFocusPaged(SuperiorPropertiesBoolFocusPagedRequest request) throws DataFormatException, EclFormatException, QueryException {
+  public Pageable<EntityReferenceNode> getSuperiorPropertiesBoolFocusPaged(SuperiorPropertiesBoolFocusPagedRequest request) throws EclFormatException, QueryException {
     Query query = eclService.getQueryFromEcl(request.getEcl());
     EclSearchRequest eclSearchRequest = new EclSearchRequest()
       .setEclQuery(query)

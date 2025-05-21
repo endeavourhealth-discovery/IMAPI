@@ -2,35 +2,77 @@ package org.endeavourhealth.imapi.model.imq;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.transforms.ECLSyntaxError;
 
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"prefix", "iri", "name", "description", "activeOnly", "bool", "match", "return", "construct", "query", "groupBy", "orderBy"})
+@JsonPropertyOrder({"prefix", "iri", "name", "description", "activeOnly", "typeOf","instanceOf","and","or","not","return", "construct", "query", "groupBy", "orderBy"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends Match {
   private Prefixes prefixes;
   private String description;
+  @Getter
   private boolean activeOnly;
-  private List<Query> query;
-  private List<Match> match;
-  private OrderLimit orderBy;
+  private List<Query> dataSet;
   private List<GroupBy> groupBy;
-  private Return returx;
   private String iri;
   private String name;
   private boolean imQuery;
   private JsonNode parentResult;
   @Getter
   private TTIriRef persistentIri;
+
+
+
+
+  public Query setRule(List<Match>rule){
+    super.setRule(rule);
+    return this;
+  }
+  public Query addRule(Match rule){
+    super.addRule(rule);
+    return this;
+  }
+
+  public Query setAnd(List<Match> and){
+    super.setAnd(and);
+    return this;
+  }
+  public Query addAnd(Match and){
+    super.addAnd(and);
+    return this;
+  }
+  public Query and(Consumer<Match> builder){
+    Match match = new Match();
+    addAnd(match);
+    builder.accept(match);
+    return this;
+  }
+
+  public Query setNot(List<Match> not){
+    super.setNot(not);
+    return this;
+  }
+
+  public Query addNot(Match not){
+    super.addNot(not);
+    return this;
+  }
+
+  public Query not(Consumer<Match> builder){
+    Match match = new Match();
+    addNot(match);
+    builder.accept(match);
+    return this;
+  }
 
   public Query addInstanceOf(Node instanceOf){
     super.addInstanceOf(instanceOf);
@@ -46,6 +88,57 @@ public class Query extends Match {
 
   public Query setInstanceOf(List<Node> instanceOf){
     super.setInstanceOf(instanceOf);
+    return this;
+  }
+
+  public Query setOr(List<Match> or){
+    super.setOr(or);
+    return this;
+  }
+
+  public Query addOr(Match or){
+    super.addOr(or);
+    return this;
+  }
+  public Query or(Consumer<Match> builder){
+    Match match = new Match();
+    addOr(match);
+    builder.accept(match);
+    return this;
+  }
+
+  public Query dataset(Consumer<Query> builder){
+    Query query = new Query();
+    addDataSet(query);
+    builder.accept(query);
+    return this;
+  }
+
+
+  public Query setPath(List<Path> path){
+    super.setPath(path);
+    return this;
+  }
+
+  public Query addPath(Path path){
+    super.addPath(path);
+    return this;
+  }
+
+  public Query path(Consumer<Path> builder){
+    Path path = new Path();
+    addPath(path);
+    builder.accept(path);
+    return this;
+  }
+
+  public Query setWhere(Where where) {
+    super.setWhere(where);
+    return this;
+  }
+
+  public Query where(Consumer<Where> builder) {
+    super.where(builder);
     return this;
   }
 
@@ -85,6 +178,10 @@ public class Query extends Match {
     super.setVariable(variable);
     return this;
   }
+  public Query setBaseRule(boolean baseRule) {
+    super.setBaseRule(baseRule);
+    return this;
+  }
 
   public Prefixes getPrefixes() {
     return prefixes;
@@ -94,7 +191,6 @@ public class Query extends Match {
     this.prefixes = prefixes;
     return this;
   }
-
 
 
   public Query addPrefix(String prefix, String namespace) {
@@ -107,11 +203,6 @@ public class Query extends Match {
   }
 
 
-  public Query setBool(Bool bool) {
-    super.setBool(bool);
-    return this;
-  }
-
 
 
   public Query setTypeOf(String type) {
@@ -120,45 +211,15 @@ public class Query extends Match {
   }
 
 
-  @JsonProperty("return")
-  public Return getReturn() {
-    return returx;
-  }
-
   public Query setReturn(Return returx) {
-    this.returx = returx;
+    super.setReturn(returx);
     return this;
   }
 
 
 
   public Query return_(Consumer<Return> builder) {
-    this.returx= new Return();
-    builder.accept(this.returx);
-    return this;
-  }
-
-
-  public List<Match> getMatch() {
-    return match;
-  }
-
-  public Query setMatch(List<Match> from) {
-    this.match = from;
-    return this;
-  }
-
-  public Query addMatch(Match match) {
-    if (this.match == null)
-      this.match = new ArrayList<>();
-    this.match.add(match);
-    return this;
-  }
-
-  public Query match(Consumer<Match> builder) {
-    Match match = new Match();
-    addMatch(match);
-    builder.accept(match);
+    super.return_(builder);
     return this;
   }
 
@@ -190,12 +251,14 @@ public class Query extends Match {
     return this;
   }
 
-  public OrderLimit getOrderBy() {
-    return orderBy;
-  }
 
   public Query setOrderBy(OrderLimit orderBy) {
-    this.orderBy = orderBy;
+    super.setOrderBy(orderBy);
+    return this;
+  }
+
+  public Query orderBy(Consumer<OrderLimit> builder) {
+    super.orderBy(builder);
     return this;
   }
 
@@ -223,34 +286,30 @@ public class Query extends Match {
     return this;
   }
 
-  public List<Query> getQuery() {
-    return query;
+  public List<Query> getDataSet() {
+    return dataSet;
   }
 
   @JsonSetter
-  public Query setQuery(List<Query> query) {
-    this.query = query;
+  public Query setDataSet(List<Query> dataSet) {
+    this.dataSet = dataSet;
     return this;
   }
 
-  public Query addQuery(Query query) {
-    if (this.query == null)
-      this.query = new ArrayList<>();
-    this.query.add(query);
+  public Query addDataSet(Query query) {
+    if (this.dataSet == null)
+      this.dataSet = new ArrayList<>();
+    this.dataSet.add(query);
     return this;
   }
 
-  public Query query(Consumer<Query> builder) {
+  public Query dataSet(Consumer<Query> builder) {
     Query query = new Query();
-    addQuery(query);
+    addDataSet(query);
     builder.accept(query);
     return this;
   }
 
-
-  public boolean isActiveOnly() {
-    return activeOnly;
-  }
 
   public Query setActiveOnly(boolean activeOnly) {
     this.activeOnly = activeOnly;

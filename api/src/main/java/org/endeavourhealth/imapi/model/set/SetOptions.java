@@ -17,6 +17,9 @@ public class SetOptions {
   @Getter
   private List<String> subsumptions;
 
+  public SetOptions() {
+  }
+
   public SetOptions(String setIri, boolean includeDefinition, boolean includeCore, boolean includeLegacy, boolean includeSubsets, List<String> schemes,
                     List<String> subsumptions) {
     this.setIri = setIri;
@@ -25,7 +28,7 @@ public class SetOptions {
     this.includeLegacy = includeLegacy;
     this.includeSubsets = includeSubsets;
     this.schemes = schemes;
-    this.subsumptions= subsumptions;
+    this.subsumptions = subsumptions;
 
   }
 
@@ -82,6 +85,11 @@ public class SetOptions {
 
   public SetOptions setIncludeIM1id(boolean includeIM1id) {
     this.includeIM1id = includeIM1id;
+    return this;
+  }
+
+  public SetOptions setSubsumptions(List<String> subsumptions) {
+    this.subsumptions = subsumptions;
     return this;
   }
 }

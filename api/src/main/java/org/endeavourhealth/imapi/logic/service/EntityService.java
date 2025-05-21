@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.ValidatedEntity;
+import org.endeavourhealth.imapi.model.dto.FilterOptionsDto;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -64,6 +65,7 @@ public class EntityService {
     filterOutInactiveTermCodes(bundle);
     return bundle;
   }
+
 
   public List<TTEntity> getPartialEntities(Set<String> iris, Set<String> predicates) {
     List<TTEntity> entities = new ArrayList<>();
@@ -244,7 +246,7 @@ public class EntityService {
   public List<List<TTIriRef>> getParentHierarchiesFlatLists(ParentDto parent) {
     List<List<TTIriRef>> parentHierarchies = new ArrayList<>();
     parentHierarchies.add(new ArrayList<>());
-    addParentHierarchiesRecursively(parentHierarchies, parentHierarchies.get(0), parent);
+    addParentHierarchiesRecursively(parentHierarchies, parentHierarchies.getFirst(), parent);
     return parentHierarchies;
   }
 
@@ -285,7 +287,7 @@ public class EntityService {
     );
 
     if (!paths.isEmpty()) {
-      shortestPath = paths.get(paths.size() - 1);
+      shortestPath = paths.getLast();
       int index = indexOf(shortestPath, ancestor);
       shortestPath = shortestPath.subList(0, index == shortestPath.size() ? index : index + 1);
     }
@@ -489,6 +491,30 @@ public class EntityService {
 
   public List<TTEntity> getEntitiesByType(String type, Integer offset, Integer limit, String... predicates) {
     return entityRepository.getEntitiesByType(type, offset, limit, predicates);
+  }
+
+  public FilterOptionsDto getFilterOptions() {
+    FilterOptionsDto filterOptions = new FilterOptionsDto();
+    filterOptions.setSchemes(getAllChildren(IM.GRAPH));
+    filterOptions.setStatus(getAllChildren(IM.STATUS));
+    filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_OPTIONS));
+    filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_OPTIONS));
+    filterOptions.setSortDirections(getAllChildren(IM.SORT_DIRECTION_FILTER_OPTIONS));
+    return filterOptions;
+  }
+
+  public FilterOptionsDto getFilterDefaults() {
+    FilterOptionsDto filterOptions = new FilterOptionsDto();
+    filterOptions.setSchemes(getAllChildren(IM.SCHEME_FILTER_DEFAULTS));
+    filterOptions.setStatus(getAllChildren(IM.STATUS_FILTER_DEFAULTS));
+    filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_DEFAULTS));
+    filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_DEFAULTS));
+    filterOptions.setSortDirections(getAllChildren(IM.SORT_DIRECTION_FILTER_DEFAULTS));
+    return filterOptions;
+  }
+
+  private List<TTIriRef> getAllChildren(String iri) {
+    return getChildren(iri, null, null, null, false);
   }
 }
 

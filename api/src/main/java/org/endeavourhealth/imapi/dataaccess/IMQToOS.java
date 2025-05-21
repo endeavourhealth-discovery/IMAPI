@@ -150,14 +150,20 @@ public class IMQToOS {
     if (query.isActiveOnly()) {
       addFilterWithId("status", Set.of(IM.ACTIVE), Bool.and, boolBuilder);
     }
-    if (query.getMatch() == null)
-      return true;
-    for (Match match : query.getMatch()) {
-      if (!addMatch(match)) {
-        if (ignoreInvalid)
-          return true;
-        else
-          return false;
+    if (query.getAnd() == null && query.getOr() == null){
+      if(!addMatch(query))
+        return ignoreInvalid;
+    } else {
+      List<Match> ands = query.getAnd();
+      List<Match> ors = query.getOr();
+      for (List<Match> matches : Arrays.asList(ands, ors)) {
+        if (matches != null) {
+          for (Match match : matches) {
+            if (!addMatch(match)) {
+              return ignoreInvalid;
+            }
+          }
+        }
       }
     }
     return true;
@@ -207,48 +213,48 @@ public class IMQToOS {
       return true;
     if (query.getReturn() != null) {
       Return ret = query.getReturn();
-        if (ret.getProperty() != null) {
-          for (ReturnProperty prop : ret.getProperty()) {
-            if (prop.getIri() != null) {
-              switch (prop.getIri()) {
-                case RDFS.COMMENT:
-                  sources.add("description");
-                  break;
-                case RDFS.LABEL:
-                  sources.add("name");
-                  break;
-                case IM.CODE:
-                  sources.add("code");
-                  break;
-                case IM.HAS_STATUS:
-                  sources.add(STATUS);
-                  break;
-                case IM.ALTERNATIVE_CODE:
-                  sources.add("alternativeCode");
-                  break;
-                case IM.HAS_SCHEME:
-                  sources.add(SCHEME);
-                  break;
-                case RDF.TYPE:
-                  sources.add("entityType");
-                  break;
-                case IM.USAGE_TOTAL:
-                  sources.add(USAGE_TOTAL);
-                  break;
-                case IM.BINDING:
-                  sources.add("binding");
-                  break;
-                case IM.HAS_TERM_CODE:
-                  sources.add("termCode");
-                  break;
-                case RDFS.DOMAIN:
-                  break;
-                default:
-                  return false;
-              }
+      if (ret.getProperty() != null) {
+        for (ReturnProperty prop : ret.getProperty()) {
+          if (prop.getIri() != null) {
+            switch (prop.getIri()) {
+              case RDFS.COMMENT:
+                sources.add("description");
+                break;
+              case RDFS.LABEL:
+                sources.add("name");
+                break;
+              case IM.CODE:
+                sources.add("code");
+                break;
+              case IM.HAS_STATUS:
+                sources.add(STATUS);
+                break;
+              case IM.ALTERNATIVE_CODE:
+                sources.add("alternativeCode");
+                break;
+              case IM.HAS_SCHEME:
+                sources.add(SCHEME);
+                break;
+              case RDF.TYPE:
+                sources.add("entityType");
+                break;
+              case IM.USAGE_TOTAL:
+                sources.add(USAGE_TOTAL);
+                break;
+              case IM.BINDING:
+                sources.add("binding");
+                break;
+              case IM.HAS_TERM_CODE:
+                sources.add("termCode");
+                break;
+              case RDFS.DOMAIN:
+                break;
+              default:
+                return false;
             }
           }
         }
+      }
     }
     String[] sourceArray = sources.toArray(String[]::new);
     sourceBuilder.fetchSource(sourceArray, null);
@@ -256,7 +262,7 @@ public class IMQToOS {
   }
 
   private void addFilterWithId(String property, Set<String> values, Bool bool, BoolQueryBuilder boolBldr) {
-    TermsQueryBuilder tqr = new TermsQueryBuilder(property + ".@id", values);
+    TermsQueryBuilder tqr = new TermsQueryBuilder(property + ".iri", values);
     if (Bool.and == bool) boolBldr.filter(tqr);
     else if (Bool.or == bool) boolBldr.should(tqr);
   }
@@ -274,31 +280,38 @@ public class IMQToOS {
 
     if (match.getInstanceOf() != null) {
       setFromAliases(match.getInstanceOf());
-
     }
 
     if (!addProperties(match))
       return false;
 
-    if (match.getMatch() != null) {
-      return false;
-    }
-
-    return true;
+    return match.getAnd() != null||match.getOr()==null;
   }
 
   private boolean addProperties(Match match) throws QueryException {
+    if (match.getPath()!=null){
+      for (Path pathMatch : match.getPath()) {
+        String w = pathMatch.getIri();
+        if (IM.BINDING.equals(w)) {
+          return addBinding(match,pathMatch, match.getOr()!=null ?Bool.or : Bool.and, boolBuilder);
+        }
+      }
+    }
     if (match.getWhere() == null)
       return true;
-    for (Where where : match.getWhere()) {
+    Where where = match.getWhere();
       if (isBooleanWhere(where)) {
         BoolQueryBuilder nestedBool = new BoolQueryBuilder();
-        for (Where nestedWhere : where.getWhere())
-          if (!addProperty(nestedWhere, where.getBool(), nestedBool)) return false;
+        for (List<Where> nested : Arrays.asList(where.getOr(),where.getAnd())){
+          if (nested!=null){
+            for (Where nestedWhere : nested) {
+              if (!addProperty(nestedWhere, where.getAnd()!=null ?Bool.and : Bool.or, nestedBool)) return false;
+            }
+          }
+        }
         boolBuilder.filter(nestedBool);
       } else if (!addProperty(where, Bool.and, boolBuilder))
         return false;
-    }
     return true;
   }
 
@@ -308,14 +321,12 @@ public class IMQToOS {
       return addIsFilter("scheme", where, bool, boolBldr);
     } else if (IM.IS_MEMBER_OF.equals(w)) {
       return addIsFilter("memberOf", where, bool, boolBldr);
-    }else if (IM.HAS_MEMBER.equals(w)&&where.isInverse()) {
-        return addIsFilter("memberOf", where, bool, boolBldr);
+    } else if (IM.HAS_MEMBER.equals(w) && where.isInverse()) {
+      return addIsFilter("memberOf", where, bool, boolBldr);
     } else if (IM.HAS_STATUS.equals(w)) {
       return addIsFilter("status", where, bool, boolBldr);
     } else if (RDF.TYPE.equals(w)) {
       return addIsFilter("entityType", where, bool, boolBldr);
-    } else if (IM.BINDING.equals(w)) {
-      return addBinding(where, bool, boolBldr);
     } else if (IM.IS_A.equals(w)) {
       return addIsFilter("isA", where, bool, boolBldr);
     } else if (IM.CONTENT_TYPE.equals(w)) {
@@ -325,7 +336,7 @@ public class IMQToOS {
   }
 
   private boolean isBooleanWhere(Where where) {
-    return where.getBool() != null && where.getWhere() != null && where.getMatch() == null && where.getIs() == null && where.getValue() == null;
+    return where.getAnd() != null || where.getOr() != null;
   }
 
   private boolean addIsFilter(String property, Where where, Bool bool, BoolQueryBuilder boolBldr) {
@@ -361,17 +372,25 @@ public class IMQToOS {
     } else return node.getIri();
   }
 
-  private boolean addBinding(Where where, Bool bool, BoolQueryBuilder boolBldr) throws QueryException {
+  private boolean addBinding(Match match,Path pathMath, Bool bool, BoolQueryBuilder boolBldr) throws QueryException {
     try {
-      String path = null;
       String node = null;
-      Match match = where.getMatch();
-      for (Where binding : match.getWhere()) {
+      String path = null;
+      if (match.getWhere().getIri() != null) {
+        Where binding = match.getWhere();
         if (binding.getIri().equals(SHACL.PATH)) {
           path = getIriFromAlias(binding.getIs().get(0));
         } else if (binding.getIri().equals(SHACL.NODE)) {
           node = getIriFromAlias(binding.getIs().get(0));
         }
+      } else if (match.getWhere().getAnd() != null){
+          for (Where binding:match.getWhere().getAnd()) {
+            if (binding.getIri().equals(SHACL.PATH)) {
+          path = getIriFromAlias(binding.getIs().getFirst());
+            } else if (binding.getIri().equals(SHACL.NODE)) {
+          node = getIriFromAlias(binding.getIs().getFirst());
+            }
+          }
       }
       if (path == null || node == null)
         throw new QueryException("Invalid binding in where clause. Should have match where path and match where node");
@@ -409,7 +428,7 @@ public class IMQToOS {
               addToInstanceFilters(type, argument.getValueIri().getIri(), instanceFilters);
               return;
             } else if (null != argument.getValueIriList()) {
-              argument.getValueIriList().stream().forEach(ttIriRef -> addToInstanceFilters(type, ttIriRef.getIri(), instanceFilters));
+              argument.getValueIriList().forEach(ttIriRef -> addToInstanceFilters(type, ttIriRef.getIri(), instanceFilters));
               return;
             }
           }
@@ -422,7 +441,7 @@ public class IMQToOS {
       if (parentResult.get("entities") != null) {
         for (Iterator<JsonNode> it = parentResult.get("entities").elements(); it.hasNext(); ) {
           JsonNode element = it.next();
-          addToInstanceFilters(type, element.get("@id").asText(), instanceFilters);
+          addToInstanceFilters(type, element.get("iri").asText(), instanceFilters);
         }
 
         return;

@@ -142,7 +142,7 @@ public class QueryRepository {
     Query unpackedQuery = unpackQuery(queryRequest.getQuery(), queryRequest);
     queryRequest.setQuery(unpackedQuery);
     if (null != queryRequest.getContext() && null != result)
-      result.set("@context", mapper.convertValue(queryRequest.getContext(), JsonNode.class));
+      result.set("context", mapper.convertValue(queryRequest.getContext(), JsonNode.class));
   }
 
   public void unpackQueryRequest(QueryRequest queryRequest) throws QueryException {
@@ -150,7 +150,7 @@ public class QueryRepository {
   }
 
   private Query unpackQuery(Query query, QueryRequest queryRequest) throws QueryException {
-    if (query.getIri() != null && query.getReturn() == null && query.getMatch() == null) {
+    if (query.getIri() != null && query.getReturn() == null && query.getAnd() == null&&query.getOr() == null) {
       TTEntity entity = getEntity(query.getIri());
       if (entity.get(TTIriRef.iri(SHACL.PARAMETER)) != null) {
         for (TTValue param : entity.get(TTIriRef.iri(SHACL.PARAMETER)).getElements()) {
@@ -186,7 +186,7 @@ public class QueryRepository {
         String error = "Query request arguments require parameter name :'" + parameterName + "' ";
         if (parameterType.equals(TTIriRef.iri(IM.NAMESPACE + "IriRef"))) {
           if (arg.getValueIri() == null)
-            throw new QueryException(error + " to have a valueIri :{@id : http....}");
+            throw new QueryException(error + " to have a valueIri :{iri : http....}");
         } else if (arg.getValueData() == null) {
           throw new QueryException(error + " to have valueData where with string value");
         }
@@ -239,6 +239,8 @@ public class QueryRepository {
   private void bindReturn(BindingSet bs, Return aReturn, ArrayNode entities,
                           Map<String, ObjectNode> nodeMap) {
     String subject = aReturn.getNodeRef();
+    if (subject == null) subject = aReturn.getPropertyRef();
+    if (subject == null) subject = aReturn.getValueRef();
     Value value = bs.getValue(subject);
     ObjectNode node;
     if (value != null) {
@@ -248,9 +250,9 @@ public class QueryRepository {
         entities.add(node);
         nodeMap.put(value.stringValue(), node);
         if (value.isIRI())
-          node.put("@id", value.stringValue());
+          node.put("iri", value.stringValue());
         else
-          node.put("@bn", value.stringValue());
+          node.put("bn", value.stringValue());
       }
       bindNode(bs, aReturn, node);
     }
@@ -277,7 +279,7 @@ public class QueryRepository {
       if (object.isIRI()) {
         ObjectNode iriNode = mapper.createObjectNode();
         node.set(predicate, iriNode);
-        iriNode.put("@id", nodeValue);
+        iriNode.put("iri", nodeValue);
       } else if (object.isBNode()) {
         node.put(predicate, nodeValue);
       } else
@@ -320,9 +322,9 @@ public class QueryRepository {
           valueNode = mapper.createObjectNode();
           arrayNode.add(valueNode);
           if (nodeValue.isIRI())
-            valueNode.put("@id", nodeValue.stringValue());
+            valueNode.put("iri", nodeValue.stringValue());
           else
-            valueNode.put("@bn", nodeValue.stringValue());
+            valueNode.put("bn", nodeValue.stringValue());
         }
         bindNode(bs, returnNode, valueNode);
       }
@@ -331,9 +333,9 @@ public class QueryRepository {
 
   private ObjectNode getValueNode(ArrayNode arrayNode, String nodeId) {
     for (JsonNode entry : arrayNode) {
-      if (entry.get("@id").textValue().equals(nodeId))
+      if (entry.get("iri").textValue().equals(nodeId))
         return (ObjectNode) entry;
-      if (entry.get("@bn").textValue().equals(nodeId))
+      if (entry.get("bn").textValue().equals(nodeId))
         return (ObjectNode) entry;
     }
     return null;
@@ -355,222 +357,8 @@ public class QueryRepository {
 
   }
 
-  /**
-   * Method to populate the iris in a query with their  names
-   *
-   * @param query the query object in iml Query form
-   */
-  public void labelQuery(Query query) {
-    List<TTIriRef> ttIris = new ArrayList<>();
-    Map<String, String> iriLabels = new HashMap<>();
-    gatherQueryLabels(query, ttIris, iriLabels);
-    List<String> iriList = resolveIris(iriLabels.keySet());
-    String iris = String.join(",", iriList);
 
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      String sql = "Select ?entity ?label where { ?entity <" + RDFS.LABEL + "> ?label.\n" +
-        "filter (?entity in (" + iris + "))\n}";
-      TupleQuery qry = conn.prepareTupleQuery(sql);
-      try (TupleQueryResult rs = qry.evaluate()) {
-        while (rs.hasNext()) {
-          BindingSet bs = rs.next();
-          String label = bs.getValue("label").stringValue();
-          String iri = bs.getValue("entity").stringValue();
-          iriLabels.put(iri, label);
-        }
-      }
-    }
-    for (TTIriRef ttIri : ttIris) {
-      ttIri.setName(iriLabels.get(ttIri.getIri()));
-    }
-    setQueryLabels(query, iriLabels);
-  }
 
-  public List<String> resolveIris(Set<String> iriLabels) {
-    List<String> iriList = iriLabels.stream().filter(iri -> iri != null && iri.contains("#")).toList();
-    return iriList.stream().map(iri -> "<" + iri + ">").toList();
-  }
-
-  private void gatherQueryLabels(Query query, List<TTIriRef> ttIris, Map<String, String> iris) {
-    if (query.getMatch() != null) {
-      for (Match match : query.getMatch()) {
-        gatherFromLabels(match, ttIris, iris);
-      }
-    }
-    if (query.getReturn() != null) {
-      Return select = query.getReturn();
-      gatherReturnLabels(select, ttIris, iris);
-    }
-    if (query.getQuery() != null)
-      for (Query subQuery : query.getQuery())
-        gatherQueryLabels(subQuery, ttIris, iris);
-  }
-
-  private void gatherReturnLabels(Return select, List<TTIriRef> ttIris, Map<String, String> iris) {
-    if (select.getProperty() != null) {
-      for (ReturnProperty property : select.getProperty()) {
-        if (property.getIri() != null) {
-          addToIriList(property.getIri(), ttIris, iris);
-        }
-        if (property.getReturn() != null) {
-          gatherReturnLabels(property.getReturn(), ttIris, iris);
-        }
-      }
-    }
-  }
-
-  private void gatherWhereLabels(Where where, List<TTIriRef> ttIris, Map<String, String> iris) {
-    if (where.getId() != null)
-      addToIriList(where.getId(), ttIris, iris);
-
-    if (where.getUnit() != null)
-      addToIriList(where.getUnit().getIri(), ttIris, iris);
-
-    if (where.getIs() != null)
-      for (Element in : where.getIs())
-        addToIriList(in.getIri(), ttIris, iris);
-    if (where.getMatch() != null)
-      gatherFromLabels(where.getMatch(), ttIris, iris);
-    if (where.getRange() != null)
-      gatherRangeLabels(where.getRange(), ttIris, iris);
-  }
-
-  private void gatherRangeLabels(Range range, List<TTIriRef> ttIris, Map<String, String> iris) {
-    if (range.getFrom() != null) {
-      gatherValueLabels(range.getFrom(), ttIris, iris);
-    }
-    if (range.getTo() != null) {
-      gatherValueLabels(range.getTo(), ttIris, iris);
-    }
-  }
-
-  private void gatherValueLabels(org.endeavourhealth.imapi.model.imq.Value value, List<TTIriRef> ttIris, Map<String, String> iris) {
-    if (value.getUnit() != null)
-      addToIriList(value.getUnit().getIri(), ttIris, iris);
-  }
-
-  private void gatherFromLabels(Match match, List<TTIriRef> ttIris, Map<String, String> iris) {
-    if (match.getIri() != null)
-      addToIriList(match.getIri(), ttIris, iris);
-    else if (match.getTypeOf() != null)
-      addToIriList(match.getTypeOf().getIri(), ttIris, iris);
-    if (match.getWhere() != null) {
-      for (Where where : match.getWhere()) {
-        gatherWhereLabels(where, ttIris, iris);
-      }
-    }
-    if (match.getMatch() != null) {
-      match.getMatch().forEach(f -> gatherFromLabels(f, ttIris, iris));
-    }
-
-    if (match.getWhere() != null) {
-      for (Where path : match.getWhere()) {
-        addToIriList(path.getIri(), ttIris, iris);
-      }
-    }
-    if (match.getOrderBy() != null) {
-      gatherOrderLimitLabels(match.getOrderBy(), ttIris, iris);
-    }
-  }
-
-  private void gatherOrderLimitLabels(OrderLimit orderBy, List<TTIriRef> ttIris, Map<String, String> iris) {
-    if (orderBy.getProperty() != null) {
-      addToIriList(orderBy.getProperty().getIri(), ttIris, iris);
-    }
-  }
-
-  private void setQueryLabels(Query query, Map<String, String> iriLabels) {
-    if (query.getMatch() != null) {
-      for (Match match : query.getMatch()) {
-        setMatchLabels(match, iriLabels);
-      }
-    }
-    if (query.getReturn() != null) {
-      Return select = query.getReturn();
-      setReturnLabels(select, iriLabels);
-    }
-    if (query.getQuery() != null)
-      for (Query subQuery : query.getQuery())
-        setQueryLabels(subQuery, iriLabels);
-  }
-
-  private void setMatchLabels(Match match, Map<String, String> iriLabels) {
-    if (match.getIri() != null) {
-      match.setName(iriLabels.get(match.getIri()));
-    } else if (match.getTypeOf() != null) {
-      if (!isIri(match.getTypeOf().getIri())) {
-        match.setTypeOf(IM.NAMESPACE + match.getTypeOf().getIri());
-      }
-      match.setName(iriLabels.get(match.getTypeOf().getIri()));
-    }
-    if (match.getWhere() != null) {
-      for (Where where : match.getWhere()) {
-        setWhereLabels(where, iriLabels);
-      }
-    }
-    if (match.getMatch() != null) {
-      match.getMatch().forEach(f -> setMatchLabels(f, iriLabels));
-    }
-
-    if (match.getOrderBy() != null) {
-      setOrderLimitLabels(match.getOrderBy(), iriLabels);
-    }
-  }
-
-  private void setOrderLimitLabels(OrderLimit orderBy, Map<String, String> iriLabels) {
-    if (orderBy.getProperty() != null) {
-      orderBy.getProperty().setName(iriLabels.get(orderBy.getProperty().getIri()));
-    }
-  }
-
-  private void setWhereLabels(Where where, Map<String, String> iris) {
-    if (where.getId() != null)
-      where.setName(iris.get(where.getId()));
-    if (where.getUnit() != null)
-      where.getUnit().setName(iris.get(where.getUnit().getIri()));
-    if (where.getIs() != null)
-      for (Element in : where.getIs())
-        in.setName(iris.get(in.getIri()));
-    if (where.getMatch() != null)
-      setMatchLabels(where.getMatch(), iris);
-    if (where.getRange() != null)
-      setRangeLabels(where.getRange(), iris);
-  }
-
-  private void setRangeLabels(Range range, Map<String, String> iris) {
-    if (range.getTo() != null)
-      setValueLabels(range.getTo(), iris);
-    if (range.getFrom() != null)
-      setValueLabels(range.getFrom(), iris);
-  }
-
-  private void setValueLabels(org.endeavourhealth.imapi.model.imq.Value value, Map<String, String> iris) {
-    if (value.getUnit() != null)
-      value.getUnit().setName(iris.get(value.getUnit().getIri()));
-  }
-
-  private void setReturnLabels(Return select, Map<String, String> iris) {
-    if (select.getProperty() != null) {
-      for (ReturnProperty property : select.getProperty()) {
-        if (property.getIri() != null) {
-          property.setValue(iris.get(property.getIri()));
-        }
-        if (property.getReturn() != null) {
-          setReturnLabels(property.getReturn(), iris);
-        }
-      }
-    }
-  }
-
-  private void addToIriList(String iri, List<TTIriRef> ttIris, Map<String, String> iris) {
-    if (iri != null && !iri.isEmpty()) {
-      if (!isIri(iri)) {
-        iri = IM.NAMESPACE + iri;
-      }
-      ttIris.add(TTIriRef.iri(iri));
-      iris.put(iri, null);
-    }
-  }
 
   private boolean isIri(String iri) {
     return iri.matches("([a-z]+)?:.*");

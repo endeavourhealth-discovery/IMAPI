@@ -250,8 +250,8 @@ public class OpenSearchSender {
         }
         Optional { ?graph rdfs:label ?graphName }
         Optional {
-          ?iri rdf:type ?type. 
-          Optional {?type rdfs:label ?typeName} 
+          ?iri rdf:type ?type.
+          Optional {?type rdfs:label ?typeName}
         }
         Optional {
           ?iri im:isA ?extraType.
@@ -584,34 +584,35 @@ public class OpenSearchSender {
         }
       }
       log.info("creating index {} and default mappings", index);
-      String settings = "{\"settings\": {\n" +
-        "    \"analysis\": {\n" +
-        "      \"filter\": {\n" +
-        "        \"edge_ngram_filter\": {\n" +
-        "          \"type\": \"edge_ngram\",\n" +
-        "          \"min_gram\": 1,\n" +
-        "          \"max_gram\": 20\n" +
-        "        }\n" +
-        "      },\n" +
-        "      \"analyzer\": {\n" +
-        "        \"autocomplete\": {\n" +
-        "          \"type\": \"custom\",\n" +
-        "          \"tokenizer\": \"standard\",\n" +
-        "          \"filter\": [\n" +
-        "            \"lowercase\",\n" +
-        "            \"edge_ngram_filter\"\n" +
-        "          ]\n" +
-        "        }\n" +
-        "      }\n" +
-        "    }\n" +
-        "  },";
+      String settings = """
+        {"settings": {
+            "analysis": {
+              "filter": {
+                "edge_ngram_filter": {
+                  "type": "edge_ngram",
+                  "min_gram": 1,
+                  "max_gram": 20
+                }
+              },
+              "analyzer": {
+                "autocomplete": {
+                  "type": "custom",
+                  "tokenizer": "standard",
+                  "filter": [
+                    "lowercase",
+                    "edge_ngram_filter"
+                  ]
+                }
+              }
+            }
+          },""";
       String mappings = settings + """
         
           "mappings": {
             "properties": {
               "scheme": {
                 "properties": {
-                  "@id": {
+                  "iri": {
                   "type": "keyword"
                     },
                   "name" : {
@@ -629,7 +630,7 @@ public class OpenSearchSender {
                },
               "entityType" : {
                 "properties" : {
-                  "@id": {
+                  "iri": {
                     "type": "keyword"
                   },
                   "name" : {
@@ -639,7 +640,7 @@ public class OpenSearchSender {
               },
               "status": {
                 "properties" : {
-                  "@id": {
+                  "iri": {
                     "type": "keyword"
                   },
                   "name" : {
@@ -649,7 +650,7 @@ public class OpenSearchSender {
               },
               "isA": {
                 "properties" : {
-                  "@id": {
+                  "iri": {
                     "type": "keyword"
                   },
                   "name" : {
@@ -662,7 +663,7 @@ public class OpenSearchSender {
               },
               "memberOf": {
                 "properties" : {
-                "@id": {
+                "iri": {
                   "type": "keyword"
                 },
                 "name" : {
@@ -701,7 +702,7 @@ public class OpenSearchSender {
                   },
                   "status" : {
                       "properties" : {
-                        "@id" : {
+                        "iri" : {
                           "type" : "keyword"
                         },
                         "name" : {

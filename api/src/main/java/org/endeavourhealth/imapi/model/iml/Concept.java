@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.iml;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Getter
 public class Concept extends Entity {
 
   private String code;
@@ -18,10 +20,6 @@ public class Concept extends Entity {
   private String codeId;
   private String alternativeCode;
   private Set<TTIriRef> subsumedBy;
-
-  public Set<TTIriRef> getSubsumedBy() {
-    return subsumedBy;
-  }
 
   public Concept setSubsumedBy(Set<TTIriRef> subsumedBy) {
     this.subsumedBy = subsumedBy;
@@ -35,26 +33,14 @@ public class Concept extends Entity {
     return this;
   }
 
-  public String getAlternativeCode() {
-    return alternativeCode;
-  }
-
   public Concept setAlternativeCode(String alternativeCode) {
     this.alternativeCode = alternativeCode;
     return this;
   }
 
-  public String getCodeId() {
-    return codeId;
-  }
-
   public Concept setCodeId(String codeId) {
     this.codeId = codeId;
     return this;
-  }
-
-  public Set<TTIriRef> getSubClassOf() {
-    return subClassOf;
   }
 
   public Concept setSubClassOf(Set<TTIriRef> subClassOf) {
@@ -69,14 +55,9 @@ public class Concept extends Entity {
     return this;
   }
 
-  @JsonProperty("@id")
   public Concept setIri(String iri) {
     super.setIri(iri);
     return this;
-  }
-
-  public Integer getUsage() {
-    return usage;
   }
 
   public Concept setUsage(Integer usage) {
@@ -95,10 +76,6 @@ public class Concept extends Entity {
     return this;
   }
 
-  public String getCode() {
-    return code;
-  }
-
   public Concept setCode(String code) {
     this.code = code;
     return this;
@@ -108,10 +85,6 @@ public class Concept extends Entity {
   public Concept setScheme(TTIriRef scheme) {
     super.setScheme(scheme);
     return this;
-  }
-
-  public Set<Concept> getMatchedFrom() {
-    return matchedFrom;
   }
 
   public Concept setMatchedFrom(Set<Concept> matchedFrom) {
@@ -124,10 +97,6 @@ public class Concept extends Entity {
       this.matchedFrom = new HashSet<>();
     this.matchedFrom.add(legacy);
     return this;
-  }
-
-  public String getIm1Id() {
-    return im1Id;
   }
 
   public void setIm1Id(String im1Id) {

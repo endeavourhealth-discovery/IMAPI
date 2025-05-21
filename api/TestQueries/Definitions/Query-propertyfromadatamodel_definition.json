@@ -12,13 +12,13 @@
     {
       "parameter": "dataModel",
       "valueIri": {
-        "@id": "http://endhealth.info/im#Patient"
+        "iri": "http://endhealth.info/im#Patient"
       }
     },
     {
       "parameter": "property",
       "valueIri": {
-        "@id": "http://endhealth.info/im#age"
+        "iri": "http://endhealth.info/im#age"
       }
     }
   ],
@@ -27,7 +27,7 @@
     "match": [
       {
         "path": {
-          "@id": "http://www.w3.org/ns/shacl#property"
+          "iri": "http://www.w3.org/ns/shacl#property"
         },
         "where": [
           {
@@ -36,7 +36,7 @@
                 "parameter": "$property"
               }
             ],
-            "@id": "http://www.w3.org/ns/shacl#path"
+            "iri": "http://www.w3.org/ns/shacl#path"
           }
         ],
         "parameter": "$dataModel"
@@ -44,45 +44,45 @@
     ],
     "select": [
       {
-        "@id": "http://www.w3.org/ns/shacl#property",
+        "iri": "http://www.w3.org/ns/shacl#property",
         "select": [
           {
-            "@id": "http://www.w3.org/ns/shacl#path",
+            "iri": "http://www.w3.org/ns/shacl#path",
             "select": [
               {
-                "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+                "iri": "http://www.w3.org/2000/01/rdf-schema#label"
               }
             ]
           },
           {
-            "@id": "http://www.w3.org/ns/shacl#class",
+            "iri": "http://www.w3.org/ns/shacl#class",
             "select": [
               {
-                "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+                "iri": "http://www.w3.org/2000/01/rdf-schema#label"
               }
             ]
           },
           {
-            "@id": "http://www.w3.org/ns/shacl#node",
+            "iri": "http://www.w3.org/ns/shacl#node",
             "select": [
               {
-                "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+                "iri": "http://www.w3.org/2000/01/rdf-schema#label"
               }
             ]
           },
           {
-            "@id": "http://www.w3.org/ns/shacl#datatype",
+            "iri": "http://www.w3.org/ns/shacl#datatype",
             "select": [
               {
-                "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+                "iri": "http://www.w3.org/2000/01/rdf-schema#label"
               }
             ]
           },
           {
-            "@id": "http://www.w3.org/ns/shacl#maxCount"
+            "iri": "http://www.w3.org/ns/shacl#maxCount"
           },
           {
-            "@id": "http://www.w3.org/ns/shacl#minCount"
+            "iri": "http://www.w3.org/ns/shacl#minCount"
           }
         ]
       }

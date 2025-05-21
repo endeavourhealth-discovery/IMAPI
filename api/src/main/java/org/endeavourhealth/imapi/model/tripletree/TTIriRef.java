@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.Serializable;
@@ -11,15 +13,26 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(name = "TTIriRef", description = "Class representing an IRI")
 public class TTIriRef implements TTValue, Serializable {
   private static Pattern iriPattern = Pattern.compile("([a-z]+)?[:].*");
+
+  @Schema(description = "The actual iri")
   private String iri;
+
+  @Getter
   @JsonProperty(defaultValue = "")
+  @Schema(description = "The name of the concept the IRI represents")
   private String name;
+
+  @Getter
   @JsonProperty(defaultValue = "")
+  @Schema(description = "Longer/fuller description of the represented concept")
   private String description;
+
   public TTIriRef() {
   }
+
   public TTIriRef(String iri) {
     setIri(iri);
   }
@@ -38,8 +51,7 @@ public class TTIriRef implements TTValue, Serializable {
     return new TTIriRef(iri, name);
   }
 
-  @JsonProperty(value = "@id", required = true)
-  @JsonAlias({"@id"})
+  @JsonProperty(value = "iri", required = true)
   public String getIri() {
     return this.iri;
   }
@@ -54,10 +66,6 @@ public class TTIriRef implements TTValue, Serializable {
     return this;
   }
 
-
-  public String getName() {
-    return name;
-  }
 
   public TTIriRef setName(String name) {
     this.name = name;
@@ -81,10 +89,6 @@ public class TTIriRef implements TTValue, Serializable {
   }
 
 
-  public String getDescription() {
-    return description;
-  }
-
   public TTIriRef setDescription(String description) {
     this.description = description;
     return this;
@@ -98,8 +102,7 @@ public class TTIriRef implements TTValue, Serializable {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof TTIriRef)) return false;
-    TTIriRef ttIriRef = (TTIriRef) o;
+    if (!(o instanceof TTIriRef ttIriRef)) return false;
     return iri.equals(ttIriRef.iri);
   }
 

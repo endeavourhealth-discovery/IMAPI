@@ -9,7 +9,7 @@ public class TypeId implements MatchPhraseId {
     this.id = id;
   }
 
-  @JsonProperty("entityType.@id")
+  @JsonProperty("entityType.iri")
   public String getId() {
     return id;
   }

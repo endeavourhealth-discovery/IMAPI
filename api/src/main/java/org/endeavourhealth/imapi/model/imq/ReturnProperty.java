@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.*;
+import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -10,35 +11,40 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"node", "variable", "iri", "name", "function", "as"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class ReturnProperty {
+  @Getter
   private String iri;
+  @Getter
   private String nodeRef;
+  @Getter
   private String name;
+  @Getter
   private String propertyRef;
+  @Getter
   private String value;
+  @Getter
   private String valueRef;
+  @Getter
   private boolean inverse;
+  @Getter
   private FunctionClause function;
+  @Getter
   private String unit;
+  @Getter
   private String as;
   private Return returx;
   private TTIriRef dataType;
   @JsonProperty("case")
   private Case case_;
+  @Getter
   private String description;
+  @Getter
   private List<Match> match;
+  @Getter
   private Bool boolMatch;
-
-  public String getName() {
-    return name;
-  }
 
   public ReturnProperty setName(String name) {
     this.name = name;
     return this;
-  }
-
-  public List<Match> getMatch() {
-    return match;
   }
 
   public ReturnProperty setMatch(List<Match> match) {
@@ -61,10 +67,6 @@ public class ReturnProperty {
     return this;
   }
 
-
-  public Bool getBoolMatch() {
-    return boolMatch;
-  }
 
   public ReturnProperty setBoolMatch(Bool boolMatch) {
     this.boolMatch = boolMatch;
@@ -96,17 +98,9 @@ public class ReturnProperty {
     return this;
   }
 
-  public String getNodeRef() {
-    return nodeRef;
-  }
-
   public ReturnProperty setNodeRef(String nodeRef) {
     this.nodeRef = nodeRef;
     return this;
-  }
-
-  public String getValueRef() {
-    return valueRef;
   }
 
   public ReturnProperty setValueRef(String valueRef) {
@@ -130,10 +124,6 @@ public class ReturnProperty {
     return this;
   }
 
-  public String getAs() {
-    return as;
-  }
-
   @JsonSetter
   public ReturnProperty setAs(String as) {
     this.as = as;
@@ -145,17 +135,9 @@ public class ReturnProperty {
     return this;
   }
 
-  public String getUnit() {
-    return unit;
-  }
-
   public ReturnProperty setUnit(String unit) {
     this.unit = unit;
     return this;
-  }
-
-  public FunctionClause getFunction() {
-    return function;
   }
 
   public ReturnProperty setFunction(FunctionClause function) {
@@ -168,37 +150,20 @@ public class ReturnProperty {
     return this;
   }
 
-  public boolean isInverse() {
-    return inverse;
-  }
-
   public ReturnProperty setInverse(boolean inverse) {
     this.inverse = inverse;
     return this;
   }
 
 
-  public String getValue() {
-    return value;
-  }
-
   public ReturnProperty setValue(String value) {
     this.value = value;
     return this;
   }
 
-  @JsonProperty("@id")
-  public String getIri() {
-    return iri;
-  }
-
   public ReturnProperty setIri(String iri) {
     this.iri = iri;
     return this;
-  }
-
-  public String getPropertyRef() {
-    return propertyRef;
   }
 
   public ReturnProperty setPropertyRef(String propertyRef) {
@@ -207,11 +172,8 @@ public class ReturnProperty {
   }
 
 
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
+  public ReturnProperty setDescription(String description) {
     this.description = description;
+    return this;
   }
 }

@@ -48,7 +48,7 @@ public class JsonLDSerializer extends StdSerializer<Object> {
       node = defaultMapper.valueToTree(value);
     } else
       node = (ObjectNode) value;
-    JsonNode context = node.get("@context");
+    JsonNode context = node.get("context");
     if (context != null) {
       Map<String, String> map = defaultMapper.convertValue(context, HashMap.class);
       setPrefixIriMap(map);
@@ -58,7 +58,7 @@ public class JsonLDSerializer extends StdSerializer<Object> {
     while (fieldNames.hasNext()) {
       String fieldName = fieldNames.next();
       JsonNode fieldValue = node.get(fieldName);
-      if (fieldName.equals("@id") || fieldName.equals("@type") || fieldName.equals("@set")) {
+      if (fieldName.equals("iri") || fieldName.equals("type") || fieldName.equals("set")) {
         gen.writeStringField(fieldName, prefix(fieldValue.asText()));
       } else {
         gen.writeFieldName(fieldName);

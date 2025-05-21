@@ -31,8 +31,4 @@ public interface TTValue extends Serializable {
   default TTNode asNode() {
     return null;
   }
-
-  default Integer getOrder() {
-    return null;
-  }
 }

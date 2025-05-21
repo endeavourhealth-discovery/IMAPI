@@ -22,7 +22,7 @@ public class QueryServiceTest {
   EntityService entityService = new EntityService();
 
   void testCohortQueriesToSQL() throws JsonProcessingException {
-    List<TTIriRef> queries = entityService.getEntitiesByType(IM.COHORT_QUERY);
+    List<TTIriRef> queries = entityService.getEntitiesByType(IM.QUERY);
     System.out.println("Queries: " + queries.size());
     for (TTIriRef ref : queries) {
       System.out.println("Testing " + ref.getName() + " " + ref.getIri());

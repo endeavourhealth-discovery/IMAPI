@@ -13,10 +13,10 @@
       "nodeRef": "isa",
       "property": [
         {
-          "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+          "iri": "http://www.w3.org/2000/01/rdf-schema#label"
         },
         {
-          "@id": "http://endhealth.info/im#code"
+          "iri": "http://endhealth.info/im#code"
         }
       ]
     }

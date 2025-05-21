@@ -3,16 +3,15 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.UserRepository;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
+import org.endeavourhealth.imapi.model.dto.UserDataDto;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.USER;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class UserService {
@@ -112,5 +111,17 @@ public class UserService {
     TTEntity entity = entityService.getBundle(entityIri, predicates).getEntity();
     if (null == entity.getScheme()) return false;
     return organisations.contains(entity.getScheme().getIri());
+  }
+
+  public UserDataDto getUserData(String userId) throws JsonProcessingException {
+    UserDataDto userData = new UserDataDto();
+    userData.setPreset(getUserPreset(userId).replace("\"", ""));
+    userData.setPrimaryColor(getUserPrimaryColor(userId).replace("\"", ""));
+    userData.setDarkMode(getUserDarkMode(userId));
+    userData.setScale(getUserScale(userId).replace("\"", "").replace("\\\\", ""));
+    userData.setOrganisations(getUserOrganisations(userId));
+    userData.setFavourites(getUserFavourites(userId));
+    userData.setMru(getUserMRU(userId));
+    return userData;
   }
 }

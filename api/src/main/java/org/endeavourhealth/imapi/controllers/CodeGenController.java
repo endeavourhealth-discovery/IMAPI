@@ -65,9 +65,6 @@ public class CodeGenController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.GenerateCode.GET")) {
       log.debug("GenerateCode");
 
-      if (iri == null || iri.isEmpty())
-        iri = "http://endhealth.info/im#PatientRecordEntry";
-
       return codeGenService.generateCode(iri, templateName, namespace);
     }
   }

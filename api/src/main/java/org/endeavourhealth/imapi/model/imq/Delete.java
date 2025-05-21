@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.List;
 
-@JsonPropertyOrder({"id", "iri", "@id", "alias", "case", "aggregate",
+@JsonPropertyOrder({"id", "iri", "alias", "case", "aggregate",
   "where", "orderBy", "direction", "limit", "groupBy", "having", "select"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Delete {

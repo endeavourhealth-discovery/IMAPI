@@ -5,10 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
-import org.endeavourhealth.imapi.model.eclBuilder.BoolGroup;
-import org.endeavourhealth.imapi.model.eclBuilder.EclBuilderException;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
@@ -56,27 +53,18 @@ public class EclController {
     }
   }
 
-  @PostMapping(value = "/public/eclFromQuery")
-  @Operation(
-    summary = "Generate ECL text from Query",
-    description = "Converts an IM Query into an equivalent ECL string"
-  )
-  public String getECLFromQuery(@RequestBody Query query) throws QueryException, IOException {
+  @PostMapping("/public/eclFromQuery")
+  public String getECLFromQuery(@RequestBody QueryRequest request) throws QueryException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclFromQuery.POST")) {
-      return eclService.getECLFromQuery(query, false);
+      log.debug("getEclFromQuery");
+      return eclService.getECLFromQuery(request.getQuery(), request.isIncludeNames());
     }
   }
 
-  @PostMapping(value = "/public/eclFromQueryWithNames")
-  @Operation(
-    summary = "Generate ECL text with concept names",
-    description = "Converts an IM query to an ECL string while including named concepts"
-  )
-  public String getECLFromQueryWithNames(@RequestBody Query query) throws QueryException, IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclFromQueryWithNames.POST")) {
-      return eclService.getECLFromQuery(query, true);
-    }
-  }
+
+
+
+
 
   @PostMapping(value = "/public/queryFromEcl", consumes = "text/plain", produces = "application/json")
   @Operation(
@@ -90,36 +78,30 @@ public class EclController {
     }
   }
 
-  @PostMapping(value = "public/eclBuilderFromQuery", produces = "application/json")
+  @PostMapping(value = "/public/eclFromEcl", consumes = "text/plain", produces = "application/json")
   @Operation(
-    summary = "Build ECL from Query",
-    description = "Generates ECL builder component objects from an IM Query"
+    summary = "Convert ECL to ECL with names",
+    description = "Transforms a provided ECL string into an IM Query object"
   )
-  public BoolGroup getEclBuilderFromQuery(@RequestBody Query query) throws QueryException, EclBuilderException, IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclBuilderFromQuery.POST")) {
-      log.debug("getEclBuilderFromQuery");
-      return eclService.getEclBuilderFromQuery(query);
+  public String getEclFromEcl(@RequestBody String ecl,
+                                @RequestParam(name = "showNames", required = false) boolean showNames)
+    throws IOException, QueryException, EclFormatException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclWithNames.POST")) {
+      log.debug("getEcl from ecl");
+      Query query= eclService.getQueryFromEcl(ecl);
+      return eclService.getECLFromQuery(query,showNames);
     }
   }
 
-  @PostMapping(value = "public/queryFromEclBuilder", produces = "application/json")
-  @Operation(
-    summary = "Generate Query from ECL Builder",
-    description = "Converts ECL builder component objects into an IM Query"
-  )
-  public Query getQueryFromEclBuilder(@RequestBody BoolGroup boolGroup) throws IOException, EclBuilderException {
-    log.debug("getQueryFromEclBuilder");
-    try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.QueryFromEclBuilder.POST")) {
-      return eclService.getQueryFromEclBuilder(boolGroup);
-    }
-  }
+
+
 
   @PostMapping(value = "public/validateEcl", consumes = "text/plain", produces = "application/json")
   @Operation(
     summary = "Validate ECL format",
     description = "Checks if the provided ECL string is valid"
   )
-  public Boolean validateEcl(@RequestBody String ecl) throws IOException {
+  public ECLStatus validateEcl(@RequestBody String ecl) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateEcl.POST")) {
       return eclService.validateEcl(ecl);
     }

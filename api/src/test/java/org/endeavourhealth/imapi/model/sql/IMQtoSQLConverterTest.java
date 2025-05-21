@@ -27,7 +27,7 @@ public class IMQtoSQLConverterTest {
   public void IMQtoSQL() {
     // Get list of queries from GraphDb
     EntityRepository entityRepository = new EntityRepository();
-    List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(IM.COHORT_QUERY);
+    List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(IM.QUERY);
     LOG.info("Found {} queries", cohortQueryIris.size());
 
     // Prepare

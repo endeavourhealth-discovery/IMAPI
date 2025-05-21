@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +57,7 @@ public class QueryController {
   )
   public SearchResponse queryIMSearch(@RequestBody QueryRequest queryRequest) throws IOException, OpenSearchException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIMSearch.POST")) {
-      log.debug("queryIMSearch");
+      log.debug("queryIMSearch : {}",queryRequest.getTextSearch());
       return searchService.queryIMSearch(queryRequest);
     }
   }
@@ -104,6 +105,20 @@ public class QueryController {
       return queryService.describeQuery(query, displayMode);
     }
   }
+  @PostMapping("/public/flattenBooleans")
+  @Operation(
+    summary = "optimises logical boolean of query",
+    description = "Returns the query with boolean optimisation"
+  )
+  public Query flattenBooleans(
+    @RequestBody Query query) throws IOException, QueryException {
+
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
+      log.debug("flattenQuery");
+      return queryService.flattenQuery(query);
+    }
+  }
+
 
   @PostMapping("/public/matchDisplayFromMatch")
   @Operation(

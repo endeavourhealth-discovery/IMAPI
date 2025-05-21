@@ -4,7 +4,7 @@
   "match": [
     {
       "path": {
-        "@id": "http://www.w3.org/ns/shacl#datatype",
+        "iri": "http://www.w3.org/ns/shacl#datatype",
         "node": {
           "variable": "range"
         }
@@ -16,7 +16,7 @@
       "nodeRef": "range",
       "property": [
         {
-          "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+          "iri": "http://www.w3.org/2000/01/rdf-schema#label"
         }
       ]
     }

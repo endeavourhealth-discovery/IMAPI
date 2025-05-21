@@ -1,12 +1,12 @@
 {
-  "@id": "http://endhealth.info/im#Q_TestQuery",
+  "iri": "http://endhealth.info/im#Q_TestQuery",
   "name": "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
   "match": [
     {
-      "@type": "Patient"
+      "type": "Patient"
     },
     {
-      "@set": "http://endhealth.info/im#Q_RegisteredGMS",
+      "set": "http://endhealth.info/im#Q_RegisteredGMS",
       "name": "Registered for GMS services on reference date"
     },
     {
@@ -15,7 +15,7 @@
         {
           "where": [
             {
-              "@id": "http://endhealth.info/im#age",
+              "iri": "http://endhealth.info/im#age",
               "range": {
                 "from": {
                   "operator": ">=",
@@ -32,21 +32,21 @@
           ]
         },
         {
-          "@set": "http://example/queries#Q_Diabetics"
+          "set": "http://example/queries#Q_Diabetics"
         },
         {
           "path": {
-            "@id": "http://endhealth.info/im#observation",
+            "iri": "http://endhealth.info/im#observation",
             "node": {
-              "@type": "Observation"
+              "type": "Observation"
             }
           },
           "where": [
             {
-              "@id": "http://endhealth.info/im#concept",
+              "iri": "http://endhealth.info/im#concept",
               "in": [
                 {
-                  "@id": "http://snomed.info/sct#714628002",
+                  "iri": "http://snomed.info/sct#714628002",
                   "descendantsOf": true
                 }
               ],
@@ -58,24 +58,24 @@
     },
     {
       "path": {
-        "@id": "http://endhealth.info/im#observation",
+        "iri": "http://endhealth.info/im#observation",
         "node": {
-          "@type": "Observation"
+          "type": "Observation"
         }
       },
       "bool": "and",
       "where": [
         {
-          "@id": "http://endhealth.info/im#concept",
+          "iri": "http://endhealth.info/im#concept",
           "name": "concept",
           "in": [
             {
-              "@id": "http://snomed.info/sct#271649006",
+              "iri": "http://snomed.info/sct#271649006",
               "name": "Systolic blood pressure",
               "descendantsOrSelfOf": true
             },
             {
-              "@id": "http://endhealth.info/emis#1994021000006104",
+              "iri": "http://endhealth.info/emis#1994021000006104",
               "name": "Home systolic blood pressure",
               "descendantsOrSelfOf": true
             }
@@ -83,7 +83,7 @@
           "valueLabel": "Office or home systolic blood pressure"
         },
         {
-          "@id": "http://endhealth.info/im#effectiveDate",
+          "iri": "http://endhealth.info/im#effectiveDate",
           "operator": ">=",
           "value": "-6",
           "unit": "MONTHS",
@@ -97,7 +97,7 @@
         {
           "direction": "descending",
           "limit": 1,
-          "@id": "http://endhealth.info/im#effectiveDate"
+          "iri": "http://endhealth.info/im#effectiveDate"
         }
       ]
     },
@@ -108,16 +108,16 @@
           "bool": "and",
           "where": [
             {
-              "@id": "http://endhealth.info/im#numericValue",
+              "iri": "http://endhealth.info/im#numericValue",
               "operator": ">",
               "value": "140",
               "nodeRef": "latestBP"
             },
             {
-              "@id": "http://endhealth.info/im#concept",
+              "iri": "http://endhealth.info/im#concept",
               "in": [
                 {
-                  "@id": "http://snomed.info/sct#271649006",
+                  "iri": "http://snomed.info/sct#271649006",
                   "name": "Systolic blood pressure",
                   "descendantsOrSelfOf": true
                 }
@@ -131,16 +131,16 @@
           "bool": "and",
           "where": [
             {
-              "@id": "http://endhealth.info/im#numericValue",
+              "iri": "http://endhealth.info/im#numericValue",
               "operator": ">",
               "value": "130",
               "nodeRef": "latestBP"
             },
             {
-              "@id": "http://endhealth.info/im#concept",
+              "iri": "http://endhealth.info/im#concept",
               "in": [
                 {
-                  "@id": "http://endhealth.info/emis#1994021000006104",
+                  "iri": "http://endhealth.info/emis#1994021000006104",
                   "name": "Home systolic blood pressure",
                   "descendantsOrSelfOf": true
                 }
@@ -156,26 +156,26 @@
     {
       "exclude": true,
       "path": {
-        "@id": "http://endhealth.info/im#observation",
+        "iri": "http://endhealth.info/im#observation",
         "node": {
-          "@type": "Observation"
+          "type": "Observation"
         }
       },
       "bool": "and",
       "where": [
         {
-          "@id": "http://endhealth.info/im#concept",
+          "iri": "http://endhealth.info/im#concept",
           "in": [
             {
-              "@set": "http://endhealth.info/im#InvitedForScreening"
+              "set": "http://endhealth.info/im#InvitedForScreening"
             }
           ]
         },
         {
-          "@id": "http://endhealth.info/im#effectiveDate",
+          "iri": "http://endhealth.info/im#effectiveDate",
           "operator": ">=",
           "relativeTo": {
-            "@id": "http://endhealth.info/im#effectiveDate",
+            "iri": "http://endhealth.info/im#effectiveDate",
             "nodeRef": "highBPReading"
           }
         }
@@ -183,7 +183,7 @@
     },
     {
       "exclude": true,
-      "@set": "http://endhealth.info/im#Q_Hypertensives",
+      "set": "http://endhealth.info/im#Q_Hypertensives",
       "name": "Hypertensives"
     }
   ]

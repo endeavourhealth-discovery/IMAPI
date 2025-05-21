@@ -3,6 +3,8 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Getter;
+import lombok.Setter;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.Objects;
@@ -15,6 +17,11 @@ public class IriLD {
   private String name;
   private String qualifier;
   private String description;
+  @Getter
+  @Setter
+  private String uuid;
+
+
 
   public String getDescription() {
     return description;
@@ -34,7 +41,6 @@ public class IriLD {
     return this;
   }
 
-  @JsonProperty("@id")
   public String getIri() {
     return iri;
   }

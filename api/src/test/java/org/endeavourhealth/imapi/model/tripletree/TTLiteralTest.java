@@ -30,13 +30,13 @@ class TTLiteralTest {
 
   private final String json = new StringJoiner(System.lineSeparator())
     .add("{")
-    .add("  \"@id\" : \"http://endhealth.co.uk/im#objectTest\",")
-    .add("  \"@graph\" : {")
-    .add("    \"@id\" : \"http://endhealth.co.uk/im#Rich\"")
+    .add("  \"iri\" : \"http://endhealth.co.uk/im#objectTest\",")
+    .add("  \"graph\" : {")
+    .add("    \"iri\" : \"http://endhealth.co.uk/im#Rich\"")
     .add("  },")
     .add("  \"http://www.w3.org/2000/01/rdf-schema#label\" : \"Test object\",")
     .add("  \"http://www.w3.org/2000/01/rdf-schema#comment\" : \"This is an entity to test object serialization\",")
-    .add("  \"http://endhealth.info/im#Query\" : \"{\\\"term\\\":\\\"Mickey Mouse\\\",\\\"code\\\":\\\"EM-EYE-CEE\\\",\\\"status\\\":{\\\"@id\\\":\\\"http://endhealth.info/im#Active\\\"}}\"")
+    .add("  \"http://endhealth.info/im#Query\" : \"{\\\"term\\\":\\\"Mickey Mouse\\\",\\\"code\\\":\\\"EM-EYE-CEE\\\",\\\"status\\\":{\\\"iri\\\":\\\"http://endhealth.info/im#Active\\\"}}\"")
     .add("}")
     .toString();
 

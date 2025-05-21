@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.UserService;
 import org.endeavourhealth.imapi.model.dto.BooleanBody;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
+import org.endeavourhealth.imapi.model.dto.UserDataDto;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,15 @@ import java.util.List;
 public class UserController {
   private final UserService userService = new UserService();
   private final RequestObjectService requestObjectService = new RequestObjectService();
+
+  @GetMapping(value = "/data")
+  public UserDataDto getUserData(HttpServletRequest request) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
+      log.debug("getUserData");
+      String userId = requestObjectService.getRequestAgentId(request);
+      return userService.getUserData(userId);
+    }
+  }
 
   @Operation(summary = "Get user preset", description = "Fetches the user preset configuration based on the request.")
   @GetMapping(value = "/preset")

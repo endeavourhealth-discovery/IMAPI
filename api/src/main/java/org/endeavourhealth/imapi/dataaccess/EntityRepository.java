@@ -206,7 +206,7 @@ public class EntityRepository {
         }
       }
     }
-    return entities.values().stream().collect(Collectors.toList());
+    return new ArrayList<>(entities.values());
   }
 
   public Map<String, Set<TTIriRef>> getTypesByIris(Set<String> stringIris) {
@@ -645,8 +645,7 @@ public class EntityRepository {
   public TTBundle getBundle(String iri, Set<String> predicates, boolean excludePredicates, int depth) {
     TTBundle bundle = new TTBundle().setEntity(new TTEntity().setIri(iri)).setPredicates(new HashMap<>());
     if (null != predicates && predicates.contains(RDFS.LABEL) && !predicates.contains(RDFS.COMMENT)) {
-      Set<String> predicatesPlus = new HashSet<>();
-      predicatesPlus.addAll(predicates);
+      Set<String> predicatesPlus = new HashSet<>(predicates);
       predicatesPlus.add(RDFS.COMMENT);
       predicates = predicatesPlus;
     }
@@ -848,6 +847,19 @@ public class EntityRepository {
     }
   }
 
+  public Map<String,String> getCodesToIri(String scheme) {
+    String sql = """
+      SELECT ?code ?scheme ?iri ?altCode
+      WHERE {
+        Values ?scheme {%s}
+        ?iri im:code ?code.
+        OPTIONAL {?iri im:alternativeCode ?altCode}
+        ?iri im:scheme ?scheme
+      }
+      """.formatted("<"+ scheme +">");
+    return getCodes(sql);
+  }
+
   public Map<String, String> getCodeToIri() {
     String sql = """
       SELECT ?code ?scheme ?iri ?altCode
@@ -857,7 +869,11 @@ public class EntityRepository {
         ?iri im:scheme ?scheme
       }
       """;
-    Map<String, String> codeToIri = new HashMap<>();
+    return getCodes(sql);
+  }
+
+  private Map<String, String> getCodes(String sql) {
+  Map<String, String> codeToIri = new HashMap<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
       try (TupleQueryResult gs = qry.evaluate()) {
@@ -1215,7 +1231,7 @@ public class EntityRepository {
         GRAPH ?g { ?s rdfs:label ?name.
          ?s rdf:type ?typeIri.
          graph im:{
-         ?typeIri rdfs:label ?typeName.}} 
+         ?typeIri rdfs:label ?typeName.}}
         VALUES ?s { %s }
         OPTIONAL { ?s sh:order ?order . }
         BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
@@ -1651,7 +1667,7 @@ public class EntityRepository {
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = conn.prepareTupleQuery(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
-        Map<String, TTNode> bnodeMap = new HashMap();
+        Map<String, TTNode> bnodeMap = new HashMap<>();
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String iri = bs.getValue("entity").stringValue();
@@ -1693,7 +1709,7 @@ public class EntityRepository {
     String sparqlString =
       """
           select * where {
-              ?s rdf:type im:CohortQuery .
+              ?s rdf:type ?c .
               ?s rdfs:label ?name .
           }
         """;
@@ -1843,4 +1859,6 @@ public class EntityRepository {
       ))
       .collect(Collectors.toList());
   }
+
+
 }

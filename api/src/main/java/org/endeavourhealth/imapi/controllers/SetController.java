@@ -17,7 +17,7 @@ import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.set.SetOptions;
+import org.endeavourhealth.imapi.model.set.SetExportRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
@@ -84,7 +84,7 @@ public class SetController {
       headers.setContentType(new MediaType("application", "force-download"));
       headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".txt\"");
       try {
-        Set<Concept> members = setService.getExpandedSetMembers(iri, true, true, true, List.of());
+        Set<Concept> members = setService.getExpandedSetMembers(iri, true, true, true, List.of(),List.of(IM.SUBSUMED_BY));
         String result = setExporter.generateForIm1(iri, entity.getName(), members).toString();
         return new HttpEntity<>(result, headers);
       } catch (QueryException | JsonProcessingException e) {
@@ -112,36 +112,25 @@ public class SetController {
     }
   }
 
-  @GetMapping("/public/setExport")
+  @PostMapping(value = "/public/setExport")
   @Operation(
     summary = "Export a set in the specified format",
     description = "Exports a set of data according to the provided options, including various flags such as definition, core, legacy, subsets, etc."
   )
   public HttpEntity<Object> getSetExport(
-    @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "definition", defaultValue = "false") boolean definition,
-    @RequestParam(name = "core", defaultValue = "false") boolean core,
-    @RequestParam(name = "legacy", defaultValue = "false") boolean legacy,
-    @RequestParam(name = "includeSubsets", defaultValue = "false") boolean subsets,
-    @RequestParam(name = "ownRow", defaultValue = "false") boolean ownRow,
-    @RequestParam(name = "im1id", defaultValue = "false") boolean im1id,
-    @RequestParam(name = "format") String format,
-    @RequestParam(name = "subsumptions", required = false) List<String> subsumptions,
-    @RequestParam(name = "schemes", defaultValue = "") List<String> schemes
+    @RequestBody SetExportRequest request
   ) throws DownloadException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SetExport.GET")) {
       log.debug("getSetExport");
-      if (subsumptions == null) {
-        subsumptions = List.of(IM.SUBSUMED_BY);
+      if (request.getOptions().getSubsumptions() == null || request.getOptions().getSubsumptions().isEmpty()) {
+        request.getOptions().setSubsumptions(List.of(IM.SUBSUMED_BY));
       }
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
-      headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"");
-
-      SetOptions setOptions = new SetOptions(iri, definition, core, legacy, subsets, schemes, subsumptions);
+      headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + request.getFormat() + "\"");
 
       try {
-        byte[] setExport = setService.getSetExport(format, im1id, setOptions);
+        byte[] setExport = setService.getSetExport(request.getFormat(), request.getOptions().isIncludeIM1id(), request.getOptions());
         return new HttpEntity<>(setExport, headers);
       } catch (IOException e) {
         throw new DownloadException("Failed to write to document.");

@@ -15,7 +15,6 @@ public class SearchResultSummary {
   @JsonProperty(defaultValue = "")
   private String name;
   @JsonProperty(value = "iri", required = true)
-  @JsonAlias({"@id"})
   private String iri;
   @JsonProperty(defaultValue = "")
   private String code;
@@ -46,19 +45,21 @@ public class SearchResultSummary {
     this.unit = unit;
     return this;
   }
-  public SearchResultSummary addIntervalUnit (TTIriRef intervalUnit){
-      if (this.unit == null) {
-        this.unit = new HashSet<>();
-      }
-      this.unit.add(intervalUnit);
-      return this;
+
+  public SearchResultSummary addIntervalUnit(TTIriRef intervalUnit) {
+    if (this.unit == null) {
+      this.unit = new HashSet<>();
     }
-  public SearchResultSummary intervalUnit (Consumer< TTIriRef > builder) {
-      TTIriRef intervalUnit = new TTIriRef();
-      addIntervalUnit(intervalUnit);
-      builder.accept(intervalUnit);
-      return this;
-    }
+    this.unit.add(intervalUnit);
+    return this;
+  }
+
+  public SearchResultSummary intervalUnit(Consumer<TTIriRef> builder) {
+    TTIriRef intervalUnit = new TTIriRef();
+    addIntervalUnit(intervalUnit);
+    builder.accept(intervalUnit);
+    return this;
+  }
 
 
   public List<TTIriRef> getQualifier() {
@@ -69,20 +70,21 @@ public class SearchResultSummary {
     this.qualifier = qualifier;
     return this;
   }
-  public SearchResultSummary addQualifier (TTIriRef qualifier){
-      if (this.qualifier == null) {
-        this.qualifier = new ArrayList<>();
-      }
-      this.qualifier.add(qualifier);
-      return this;
-    }
 
-  public SearchResultSummary qualifier (Consumer < TTIriRef > builder) {
-      TTIriRef qualifier = new TTIriRef();
-      addQualifier(qualifier);
-      builder.accept(qualifier);
-      return this;
+  public SearchResultSummary addQualifier(TTIriRef qualifier) {
+    if (this.qualifier == null) {
+      this.qualifier = new ArrayList<>();
     }
+    this.qualifier.add(qualifier);
+    return this;
+  }
+
+  public SearchResultSummary qualifier(Consumer<TTIriRef> builder) {
+    TTIriRef qualifier = new TTIriRef();
+    addQualifier(qualifier);
+    builder.accept(qualifier);
+    return this;
+  }
 
 
   public String getPreferredName() {

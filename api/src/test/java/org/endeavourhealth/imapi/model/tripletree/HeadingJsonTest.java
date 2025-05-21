@@ -10,7 +10,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HeadingJsonTest {
-  private static final String IRI_JSON = "{\"name\":\"Test name\",\"@id\":\"http://endhealth.info/im#Test\"}";
+  private static final String IRI_JSON = "{\"name\":\"Test name\",\"iri\":\"http://endhealth.info/im#Test\"}";
 
   private static final String IRI = "http://endhealth.info/im#Test";
   private static final String NAME = "Test name";

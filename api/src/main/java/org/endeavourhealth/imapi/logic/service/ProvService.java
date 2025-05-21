@@ -83,5 +83,4 @@ public class ProvService {
   public List<TTEntity> getProvHistory(String iri) {
     return provRepository.getProvHistory(iri);
   }
-
 }

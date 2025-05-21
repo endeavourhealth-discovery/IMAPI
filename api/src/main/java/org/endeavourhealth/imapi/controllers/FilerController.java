@@ -211,7 +211,7 @@ public class FilerController {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, container does not exist");
       }
 
-      String iri = IM.NAMESPACE + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8.toString());
+      String iri = IM.NAMESPACE + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8);
       if (entityService.iriExists(iri)) {
         log.error("Entity with that name already exists");
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity with that name already exists");
@@ -238,7 +238,7 @@ public class FilerController {
       TTArray contentTypes = new TTArray();
       for (JsonNode j : results.get("entities")) {
         TTIriRef contentType = new TTIriRef();
-        contentType.setIri(j.get("@id").asText());
+        contentType.setIri(j.get("iri").asText());
         contentType.setName(j.get(RDFS.LABEL).asText());
         contentTypes.add(contentType);
       }

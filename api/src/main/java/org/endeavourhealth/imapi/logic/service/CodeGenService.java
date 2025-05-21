@@ -1,29 +1,29 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.apache.commons.text.CaseUtils;
 import org.apache.commons.text.WordUtils;
 import org.endeavourhealth.imapi.dataaccess.CodeGenRepository;
 import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.codegen.CodeGenTemplate;
 import org.endeavourhealth.imapi.model.dto.CodeGenDto;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.springframework.http.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class CodeGenService {
-  private EntityService entityService = new EntityService();
-  private DataModelService dataModelService = new DataModelService();
-  private CodeGenRepository codeGenRepository = new CodeGenRepository();
+  private final EntityService entityService = new EntityService();
+  private final DataModelService dataModelService = new DataModelService();
+  private final CodeGenRepository codeGenRepository = new CodeGenRepository();
 
   public List<String> getCodeTemplateList() {
     return codeGenRepository.getCodeTemplateList();
@@ -43,28 +43,25 @@ public class CodeGenService {
   }
 
   public HttpEntity<Object> generateCode(String iri, String templateName, String namespace) {
+    List<TTIriRef> models = (iri == null || iri.isEmpty())
+      ? getIMModels()
+      : Collections.singletonList(getModelSummary(iri));
+
     CodeGenDto template = codeGenRepository.getCodeTemplate(templateName);
-    List<TTIriRef> models = getModelAndDependencies(iri, new ArrayList<>());
 
     return createModelCodeZip(namespace, models, template);
+  }
+
+  private List<TTIriRef> getIMModels() {
+    List<TTIriRef> models = entityService.getEntitiesByType(SHACL.NODESHAPE);
+    return models.stream()
+      .filter(m -> m.getIri().startsWith(IM.NAMESPACE))
+      .toList();
   }
 
   private TTIriRef getModelSummary(String iri) {
     SearchResultSummary summary = entityService.getSummary(iri);
     return new TTIriRef(summary.getIri(), summary.getName()).setDescription(summary.getDescription());
-  }
-
-  private List<TTIriRef> getModelAndDependencies(String iri, List<TTIriRef> models) {
-    if (models.stream().anyMatch(m -> m.getIri().equals(iri)))
-      return models;
-
-    models.add(getModelSummary(iri));
-
-    for (EntityReferenceNode child : entityService.getImmediateChildren(iri, null, null, null, false)) {
-      getModelAndDependencies(child.getIri(), models);
-    }
-
-    return models;
   }
 
   private HttpEntity<Object> createModelCodeZip(String namespace, List<TTIriRef> models, CodeGenDto template) {
@@ -74,7 +71,7 @@ public class CodeGenService {
     } catch (IOException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to create zip:" + e.getMessage());
     }
-    String filename = models.get(0).getName() + " " + LocalDate.now();
+    String filename = models.getFirst().getName() + " " + LocalDate.now();
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(new MediaType("application", "force-download"));
     headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".txt\"");
@@ -85,7 +82,7 @@ public class CodeGenService {
     for (TTIriRef model : models) {
       String code = generateCodeForModel(template, model, namespace);
 
-      ZipEntry entry = new ZipEntry(clean(CaseUtils.toCamelCase(model.getName(), true)) + template.getExtension());
+      ZipEntry entry = new ZipEntry(clean(toTitleCase(codify(model.getName()))) + template.getExtension());
 
       zos.putNextEntry(entry);
       zos.write(code.getBytes());

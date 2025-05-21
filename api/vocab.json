@@ -70,12 +70,24 @@
         "value": "\"http://endhealth.info/\""
       },
       {
+        "name": "HAS_SUBTYPES",
+        "value" : "IM.DOMAIN + \"hasSubtypes\""
+      },
+      {
         "name": "PREFIX",
         "value": "\"im\""
       },
       {
         "name": "NAMESPACE",
         "value": "IM.DOMAIN + IM.PREFIX + \"#\""
+      },
+      {
+        "name": "HAS_VALUESET",
+        "value": "IM.NAMESPACE + \"hasValueSet\""
+      },
+      {
+        "name": "VALUE_SET",
+        "value": "IM.NAMESPACE + \"ValueSet\""
       },
       {
         "name": "DESCENDANTS_OR_SELF_OF",
@@ -95,7 +107,7 @@
       },
       {
         "name": "ANCESTORS_OF",
-        "value": "IM.NAMESPACE + \"DncestorsOf\""
+        "value": "IM.NAMESPACE + \"AncestorsOf\""
       },
       {
         "name": "ENTAILED_MEMBER",
@@ -109,17 +121,18 @@
         "name": "EXCLUDE",
         "value": "IM.NAMESPACE + \"exclude\""
       },
+
       {
         "name": "IRI",
-        "value": "\"@id\""
+        "value": "\"iri\""
       },
       {
         "name": "VALUE",
-        "value": "\"@value\""
+        "value": "\"value\""
       },
       {
         "name": "TYPE",
-        "value": "\"@type\""
+        "value": "\"type\""
       },
       {
         "name": "id",
@@ -127,7 +140,7 @@
       },
       {
         "name": "RELATIONSHIP_TYPE",
-        "value": "IM.NAMESPACE+\"relationshipType\""
+        "value": "IM.NAMESPACE + \"relationshipType\""
       },
       {
         "name": "CODE",
@@ -143,7 +156,7 @@
       },
       {
         "name": "BINDING",
-        "value": "IM.NAMESPACE+\"binding\""
+        "value": "IM.NAMESPACE + \"binding\""
       },
       {
         "name": "HAS_STATUS",
@@ -861,10 +874,7 @@
         "name": "HAS_VALUE",
         "value": "IM.NAMESPACE + \"hasValue\""
       },
-      {
-        "name": "VALUE_SET",
-        "value": "IM.NAMESPACE + \"ValueSet\""
-      },
+
       {
         "name": "DATAMODEL_ENTITY",
         "value": "IM.NAMESPACE + \"DataModelEntity\""
@@ -1076,6 +1086,38 @@
       {
         "name": "DATATYPE_QUALIFIER",
         "value": "IM.NAMESPACE + \"datatypeQualifier\""
+      },
+      {
+        "name": "TYPE_FILTER_OPTIONS",
+        "value": "IM.NAMESPACE + \"TypeFilterOptions\""
+      },
+      {
+        "name": "SORT_FIELD_FILTER_OPTIONS",
+        "value": "IM.NAMESPACE + \"SortFieldFilterOptions\""
+      },
+      {
+        "name": "SORT_DIRECTION_FILTER_OPTIONS",
+        "value": "IM.NAMESPACE + \"SortDirectionFilterOptions\""
+      },
+      {
+        "name": "SCHEME_FILTER_DEFAULTS",
+        "value": "IM.NAMESPACE + \"SchemeFilterDefaultOptions\""
+      },
+      {
+        "name": "STATUS_FILTER_DEFAULTS",
+        "value": "IM.NAMESPACE + \"StatusFilterDefaultOptions\""
+      },
+      {
+        "name": "TYPE_FILTER_DEFAULTS",
+        "value": "IM.NAMESPACE + \"TypeFilterDefaultOptions\""
+      },
+      {
+        "name": "SORT_FIELD_FILTER_DEFAULTS",
+        "value": "IM.NAMESPACE + \"SortFieldFilterDefaultOptions\""
+      },
+      {
+        "name": "SORT_DIRECTION_FILTER_DEFAULTS",
+        "value": "IM.NAMESPACE + \"SortDirectionFilterDefaultOptions\""
       }
     ]
   },
@@ -1902,6 +1944,10 @@
         "value": "COMPONENT.DOMAIN + \"Component_\""
       },
       {
+        "name": "TAB_LAYOUT",
+        "value": "COMPONENT.NAMESPACE + \"TabLayout\""
+      },
+      {
         "name": "TEXT_DISPLAY",
         "value": "COMPONENT.NAMESPACE + \"textDisplay\""
       },
@@ -2199,7 +2245,7 @@
       },
       {
         "name": "BNF",
-        "value": "\"http://endhealth.info/bnf#\""
+        "value": "\"http://bnf.info/bnf#\""
       },
       {
         "name": "ICD10",

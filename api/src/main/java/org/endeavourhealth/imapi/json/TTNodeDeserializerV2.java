@@ -40,17 +40,17 @@ public class TTNodeDeserializerV2 extends StdDeserializer<TTNode> {
     while (iterator.hasNext()) {
       Map.Entry<String, JsonNode> field = iterator.next();
       String key = expand(field.getKey());
-      if (!"@context".equals(key)) {
+      if (!"context".equals(key)) {
         JsonNode value = field.getValue();
-        if ("@id".equals(key))
+        if ("iri".equals(key))
           result.setIri(expand(value.textValue()));
         else if (value.isTextual())
           result.set(TTIriRef.iri(key), TTLiteral.literal(value.asText()));
         else if (value.isArray())
           result.set(TTIriRef.iri(key), ctx.readValue(value.traverse(jsonParser.getCodec()), TTArray.class));
         else if (value.isObject()) {
-          if (value.has("@id"))
-            result.set(TTIriRef.iri(key), TTIriRef.iri(value.get("@id").asText()));
+          if (value.has("iri"))
+            result.set(TTIriRef.iri(key), TTIriRef.iri(value.get("iri").asText()));
           else
             result.set(TTIriRef.iri(key), ctx.readValue(value.traverse(jsonParser.getCodec()), TTNode.class));
         } else

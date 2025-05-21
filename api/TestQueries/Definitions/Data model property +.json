@@ -4,14 +4,14 @@
   "match": [
     {
       "path": {
-        "@id": "http://www.w3.org/ns/shacl#property",
+        "iri": "http://www.w3.org/ns/shacl#property",
         "node": {
           "variable": "shaclProperty"
         }
       },
       "where": [
         {
-          "@id": "http://www.w3.org/ns/shacl#path",
+          "iri": "http://www.w3.org/ns/shacl#path",
           "in": [
             {
               "parameter": "myProperty"
@@ -30,31 +30,31 @@
           "node": {
             "property": [
               {
-                "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+                "iri": "http://www.w3.org/2000/01/rdf-schema#label"
               }
             ]
           },
-          "@id": "http://www.w3.org/ns/shacl#class"
+          "iri": "http://www.w3.org/ns/shacl#class"
         },
         {
           "node": {
             "property": [
               {
-                "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+                "iri": "http://www.w3.org/2000/01/rdf-schema#label"
               }
             ]
           },
-          "@id": "http://www.w3.org/ns/shacl#node"
+          "iri": "http://www.w3.org/ns/shacl#node"
         },
         {
           "node": {
             "property": [
               {
-                "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+                "iri": "http://www.w3.org/2000/01/rdf-schema#label"
               }
             ]
           },
-          "@id": "http://www.w3.org/ns/shacl#datatype"
+          "iri": "http://www.w3.org/ns/shacl#datatype"
         }
       ]
     }

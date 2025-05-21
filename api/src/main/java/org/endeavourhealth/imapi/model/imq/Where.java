@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -11,16 +12,17 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "instanceOf", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends Element implements Assignable {
+public class Where extends Element implements Assignable, BoolGroup<Where> {
+  @Getter
   private String description;
   private Range range;
   @Getter
   private Node typeOf;
+  @Getter
   private List<Node> is;
-  private boolean not;
-  private Match match;
-  private Bool bool;
-  private List<Where> where;
+  @Getter
+  private List<Node> notIs;
+  private List<Where> not;
   private Operator operator;
   private String value;
   private String valueLabel;
@@ -33,9 +35,81 @@ public class Where extends Element implements Assignable {
   private String valueParameter;
   private String valueVariable;
   @Getter
-  private Path path;
-  @Getter
   private boolean inverse;
+  @Getter
+  private List<Where> or;
+  @Getter
+  private List<Where> and;
+
+
+
+  public Where() {
+  }
+
+  public Where(String iri) {
+    super.setIri(iri);
+  }
+
+  public Where setNotIs(List<Node> notIs) {
+    this.notIs = notIs;
+    return this;
+  }
+
+  public Where addNotIs(Node notIs) {
+    if (this.notIs == null) {
+      this.notIs = new ArrayList<>();
+    }
+    this.notIs.add(notIs);
+    return this;
+  }
+
+  public Where setAnd(List<Where> and) {
+    this.and = and;
+    return this;
+  }
+
+
+  public Where addAnd(Where and) {
+    if (this.and == null) {
+      this.and = new ArrayList<>();
+    }
+    this.and.add(and);
+    return this;
+  }
+
+  public Where and(Consumer<Where> builder) {
+    Where and = new Where();
+    addAnd(and);
+    builder.accept(and);
+    return this;
+  }
+
+
+  @Override
+  public List<Where> getNot() {
+    return this.not;
+  }
+
+  public Where setOr(List<Where> or) {
+    this.or = or;
+    return this;
+  }
+
+  public Where addOr(Where or) {
+    if (this.or == null) {
+      this.or = new ArrayList<>();
+    }
+    this.or.add(or);
+    return this;
+  }
+
+  public Where or(Consumer<Where> builder) {
+    Where or = new Where();
+    addOr(or);
+    builder.accept(or);
+    return this;
+  }
+
 
   @JsonSetter
   public Where setTypeOf(Node typeOf) {
@@ -54,24 +128,8 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  @JsonSetter
-  public Where setPath(Path path) {
-    this.path = path;
-    return this;
-  }
 
-  public Where path(Consumer<Path> builder) {
-    this.path = new Path();
-    builder.accept(this.path);
-    return this;
-  }
-
-
-  public boolean isNot() {
-    return not;
-  }
-
-  public Where setNot(boolean not) {
+  public Where setNot(List<Where> not) {
     this.not = not;
     return this;
   }
@@ -95,12 +153,7 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  public Where() {
-  }
 
-  public Where(String iri) {
-    super.setIri(iri);
-  }
 
   public static Where iri(String iri) {
     return new Where(iri);
@@ -117,15 +170,6 @@ public class Where extends Element implements Assignable {
     return this.valueLabel;
   }
 
-
-  public Bool getBool() {
-    return bool;
-  }
-
-  public Where setBool(Bool bool) {
-    this.bool = bool;
-    return this;
-  }
 
   public boolean getIsNotNull() {
     return isNotNull;
@@ -145,41 +189,14 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  public List<Where> getWhere() {
-    return where;
-  }
-
-  @JsonSetter
-  public Where setWhere(List<Where> where) {
-    this.where = where;
-    return this;
-  }
-
-  public Where addWhere(Where prop) {
-    if (this.where == null) this.where = new ArrayList<>();
-    this.where.add(prop);
-    return this;
-  }
-
-  public Where where(Consumer<Where> builder) {
-    Where prop = new Where();
-    addWhere(prop);
-    builder.accept(prop);
-    return this;
-  }
 
   public String getValueVariable() {
     return valueVariable;
   }
 
   public Where setValueVariable(String valueVariable) {
-    this.valueVariable= valueVariable;
+    this.valueVariable = valueVariable;
     return this;
-  }
-
-  @JsonProperty("@id")
-  public String getId() {
-    return super.getIri();
   }
 
   @Override
@@ -220,39 +237,14 @@ public class Where extends Element implements Assignable {
   }
 
 
-  public Match getMatch() {
-    return match;
-  }
-
-  @JsonSetter
-  public Where setMatch(Match match) {
-    this.match = match;
-    return this;
-  }
-
-
-  public Where match(Consumer<Match> builder) {
-    builder.accept(setMatch(new Match()).getMatch());
-    return this;
-  }
-
-
   public Where setName(String name) {
     super.setName(name);
     return this;
   }
 
-  public String getDescription() {
-    return description;
-  }
-
   public Where setDescription(String description) {
     this.description = description;
     return this;
-  }
-
-  public List<Node> getIs() {
-    return is;
   }
 
   @JsonSetter

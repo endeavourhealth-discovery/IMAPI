@@ -36,10 +36,10 @@ public class TransformService {
       dataMap.load(in);
     }
 
-    TTDocument document= new TTDocument();
+    TTDocument document = new TTDocument();
 
     EqdToIMQ converter = new EqdToIMQ();
-    converter.convertEQD(document,eqDoc,dataMap,null);
+    converter.convertEQD(document, eqDoc, dataMap, null);
     return document;
 
   }
@@ -49,7 +49,7 @@ public class TransformService {
    *
    * @param request A fully formed transform request object from the API containing the typed sources, the map , and the source and target format
    * @return A set of objects which are the target objects transformed from the source
-   * @throws Exception With a reference to the underlying reason for failure to transform.
+   * @throws JsonProcessingException With a reference to the underlying reason for failure to transform.
    */
 
   public Set<Object> runTransform(TransformRequest request) throws JsonProcessingException {
@@ -115,7 +115,7 @@ public class TransformService {
     if (targetFormat == null)
       throw new IllegalArgumentException("Target format must be defined in request (e.g. targetFormat : JSON-LD)");
     if (graphMapIri == null)
-      throw new IllegalArgumentException("Graph Map iri (\"@id\" : \"http...\" must be present in request");
+      throw new IllegalArgumentException("Graph Map iri (\"iri\" : \"http...\" must be present in request");
     if (sources == null)
       throw new IllegalArgumentException("No data Sources in request...");
 

@@ -2,17 +2,13 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
+import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.transforms.Context;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -36,11 +32,15 @@ public class QueryService {
     return queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
   }
 
+  public static void generateUUIdsForQuery(Query query){
+    new QueryDescriptor().generateUUIDs(query);
+  }
+
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
     return new QueryDescriptor().describeQuery(query, displayMode);
   }
 
-  public Match describeMatch(Match match) throws QueryException, JsonProcessingException {
+  public Match describeMatch(Match match) throws QueryException {
     return new QueryDescriptor().describeSingleMatch(match);
   }
 
@@ -56,7 +56,7 @@ public class QueryService {
       if (entities.isArray()) {
         Set<String> iris = new HashSet<>();
         for (JsonNode entity : queryResults.get(ENTITIES)) {
-          iris.add(entity.get("@id").asText());
+          iris.add(entity.get("iri").asText());
         }
         List<SearchResultSummary> summaries = entityRepository.getEntitySummariesByIris(iris);
         searchResponse.setEntities(summaries);
@@ -93,42 +93,46 @@ public class QueryService {
   }
 
   public Query getDefaultQuery() throws JsonProcessingException {
-    List<TTEntity> children = entityRepository.getFolderChildren(IM.NAMESPACE+"Q_DefaultCohorts", SHACL.ORDER,RDF.TYPE,RDFS.LABEL,
+    List<TTEntity> children = entityRepository.getFolderChildren(IM.NAMESPACE + "Q_DefaultCohorts", SHACL.ORDER, RDF.TYPE, RDFS.LABEL,
       IM.DEFINITION);
     if (children.isEmpty()) {
-      return new Query().setTypeOf(IM.NAMESPACE+"Patient");
-    };
+      return new Query().setTypeOf(IM.NAMESPACE + "Patient");
+    }
     TTEntity cohort = findFirstQuery(children);
-    Query defaultQuery= new Query();
-    defaultQuery.setMatch(new ArrayList<>());
-    if (cohort!=null) {
+    Query defaultQuery = new Query();
+    if (cohort != null) {
       Query cohortQuery = cohort.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       defaultQuery.setTypeOf(cohortQuery.getTypeOf());
-      defaultQuery.addInstanceOf(new Node().setIri(cohort.getIri()));
+      defaultQuery.addInstanceOf(new Node().setIri(cohort.getIri()).setMemberOf(true));
       return defaultQuery;
-    }  else return null;
+    } else return null;
   }
-  private TTEntity findFirstQuery(List<TTEntity> children) throws JsonProcessingException {
+
+  private TTEntity findFirstQuery(List<TTEntity> children) {
     for (TTEntity child : children) {
-      if (child.isType(iri(IM.COHORT_QUERY))){
-      if (child.get(iri(IM.DEFINITION)) != null){
-          return child;
-        }
+      if (child.isType(iri(IM.QUERY)) && child.get(iri(IM.DEFINITION)) != null) {
+        return child;
       }
+
     }
     for (TTEntity child : children) {
-      if (child.isType(iri(IM.FOLDER))){
-        List<TTEntity> subchildren = entityRepository.getFolderChildren(IM.NAMESPACE+"DefaultCohorts", SHACL.ORDER,RDF.TYPE,RDFS.LABEL,
+      if (child.isType(iri(IM.FOLDER))) {
+        List<TTEntity> subchildren = entityRepository.getFolderChildren(IM.NAMESPACE + "DefaultCohorts", SHACL.ORDER, RDF.TYPE, RDFS.LABEL,
           IM.DEFINITION);
-        if (subchildren==null|| subchildren.isEmpty()) {
+        if (subchildren == null || subchildren.isEmpty()) {
           return null;
         }
         TTEntity cohort = findFirstQuery(subchildren);
-        if (cohort!=null) return cohort ;
+        if (cohort != null) return cohort;
       }
     }
     return null;
   }
 
+
+  public Query flattenQuery(Query query) throws JsonProcessingException {
+    LogicOptimizer.flattenMatch(query);
+    return query;
+  }
 
 }

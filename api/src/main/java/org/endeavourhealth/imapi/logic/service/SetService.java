@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.logic.exporters.SetTextFileExporter;
+import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.SetDiffObject;
 import org.endeavourhealth.imapi.model.iml.Concept;
@@ -83,7 +84,7 @@ public class SetService {
 
     if (options.includeCore() || options.includeLegacy() || options.includeSubsets()) {
       log.trace("Expanding...");
-      result.setConcepts(getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes()));
+      result.setConcepts(getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes(), options.getSubsumptions()));
     }
 
     return result;
@@ -113,35 +114,8 @@ public class SetService {
         valueSet.setStatus(Enumerations.PublicationStatus.valueOf(result.getStatus().toUpperCase()));
       valueSet.setVersion(String.valueOf(result.getVersion()));
 
-      TTEntity entityDefinition = new EntityRepository().getEntityPredicates(options.getSetIri(), Set.of(IM.DEFINITION)).getEntity();
-      if (null != entityDefinition.get(iri(IM.DEFINITION))) {
-        filter.setValue(entityDefinition.get(iri(IM.DEFINITION)).asLiteral().getValue());
-        filters.add(filter);
-        includeConcept.setFilter(filters);
-        includes.add(includeConcept);
-      }
-
-      if (null != result.getSubsets() && !result.getSubsets().isEmpty()) {
-        List<CanonicalType> subsetList = new ArrayList<>();
-        ValueSet.ConceptSetComponent subsetConcept = new ValueSet.ConceptSetComponent();
-        for (String s : result.getSubsets()) {
-          CanonicalType convertedSubset = new CanonicalType(s);
-          subsetList.add(convertedSubset);
-        }
-        subsetConcept.setValueSet(subsetList);
-        includes.add(subsetConcept);
-      }
-
-      if (null != result.getConcepts() && !result.getConcepts().isEmpty()) {
-        for (Concept c : result.getConcepts()) {
-          ValueSet.ValueSetExpansionContainsComponent subContains = new ValueSet.ValueSetExpansionContainsComponent();
-          subContains.setId(c.getCodeId());
-          subContains.setDisplay(c.getName());
-          subContains.setCode(c.getCode());
-          subContains.setSystem(c.getScheme().getIri());
-          contains.add(subContains);
-        }
-      }
+      getIncludes(options, filter, filters, includeConcept, includes, result);
+      getContains(result, contains);
     }
     compose.setInclude(includes);
     valueSet.setCompose(compose);
@@ -153,8 +127,43 @@ public class SetService {
     return parser.encodeResourceToString(valueSet);
   }
 
-  public Set<Concept> getFullyExpandedMembers(String iri, boolean includeLegacy, boolean includeSubset, List<String> schemes) throws QueryException, JsonProcessingException {
-    return getExpandedSetMembers(iri, true, includeLegacy, includeSubset, schemes);
+  private static void getContains(SetContent result, List<ValueSet.ValueSetExpansionContainsComponent> contains) {
+    if (null != result.getConcepts() && !result.getConcepts().isEmpty()) {
+      for (Concept c : result.getConcepts()) {
+        ValueSet.ValueSetExpansionContainsComponent subContains = new ValueSet.ValueSetExpansionContainsComponent();
+        subContains.setId(c.getCodeId());
+        subContains.setDisplay(c.getName());
+        subContains.setCode(c.getCode());
+        subContains.setSystem(c.getScheme().getIri());
+        contains.add(subContains);
+      }
+    }
+  }
+
+  private static void getIncludes(SetOptions options, ValueSet.ConceptSetFilterComponent filter, List<ValueSet.ConceptSetFilterComponent> filters, ValueSet.ConceptSetComponent includeConcept, List<ValueSet.ConceptSetComponent> includes, SetContent result) {
+    TTEntity entityDefinition = new EntityRepository().getEntityPredicates(options.getSetIri(), Set.of(IM.DEFINITION)).getEntity();
+    if (null != entityDefinition.get(iri(IM.DEFINITION))) {
+      filter.setValue(entityDefinition.get(iri(IM.DEFINITION)).asLiteral().getValue());
+      filters.add(filter);
+      includeConcept.setFilter(filters);
+      includes.add(includeConcept);
+    }
+
+    if (null != result.getSubsets() && !result.getSubsets().isEmpty()) {
+      List<CanonicalType> subsetList = new ArrayList<>();
+      ValueSet.ConceptSetComponent subsetConcept = new ValueSet.ConceptSetComponent();
+      for (String s : result.getSubsets()) {
+        CanonicalType convertedSubset = new CanonicalType(s);
+        subsetList.add(convertedSubset);
+      }
+      subsetConcept.setValueSet(subsetList);
+      includes.add(subsetConcept);
+    }
+  }
+
+  public Set<Concept> getFullyExpandedMembers(String iri, boolean includeLegacy, boolean includeSubset, List<String> schemes,
+                                              List<String> subsumptions) throws QueryException, JsonProcessingException {
+    return getExpandedSetMembers(iri, true, includeLegacy, includeSubset, schemes, subsumptions);
   }
 
   public Set<TTIriRef> getSubsets(String iri) {
@@ -189,9 +198,18 @@ public class SetService {
       else throw new GeneralCustomException("Set does not have a definition.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    LinkedHashSet<Concept> concepts = getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes()).stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
-    if (concepts.isEmpty())
-      throw new GeneralCustomException("Set does not have members.", HttpStatus.INTERNAL_SERVER_ERROR);
+    LinkedHashSet<Concept> concepts = getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes(),
+      options.getSubsumptions()).stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
+    if (concepts.isEmpty()) {
+      if (setEntity.get(iri(IM.DEFINITION)) != null) {
+        new SetMemberGenerator().generateMembers(options.getSetIri());
+        concepts = getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(),
+          options.getSchemes(),
+          options.getSubsumptions()).stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
+
+      }
+    }
+    // throw new GeneralCustomException("Set does not have members.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     switch (format) {
       case "xlsx", "csv", "tsv":
@@ -211,19 +229,20 @@ public class SetService {
     }
   }
 
-  public Set<Concept> getExpandedSetMembers(String iri, boolean core, boolean legacy, boolean subsets, List<String> schemes) throws QueryException, JsonProcessingException {
+  public Set<Concept> getExpandedSetMembers(String iri, boolean core, boolean legacy, boolean subsets, List<String> schemes,
+                                            List<String> subsumptions) throws QueryException, JsonProcessingException {
     if (!(core || legacy || subsets)) return new HashSet<>();
 
     Set<Concept> result = null;
 
     if (core || legacy) {
-      result = setRepository.getExpansionFromIri(iri, legacy, schemes, new ArrayList<>());
+      result = setRepository.getExpansionFromIri(iri, legacy, schemes, subsumptions);
     }
 
     if (null == result) result = new HashSet<>();
 
     if (subsets) {
-      expandSubsets(iri, core, legacy, schemes, result);
+      expandSubsets(iri, core, legacy, schemes, result, subsumptions);
       result = result.stream().sorted(Comparator.comparing(m -> (null == m.getIsContainedIn() || m.getIsContainedIn().isEmpty()) ? "" : m.getIsContainedIn().iterator().next().getName())).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
@@ -231,12 +250,13 @@ public class SetService {
   }
 
 
-  private void expandSubsets(String iri, boolean core, boolean legacy, List<String> schemes, Set<Concept> result) throws QueryException, JsonProcessingException {
+  private void expandSubsets(String iri, boolean core, boolean legacy, List<String> schemes, Set<Concept> result,
+                             List<String> subsumptions) throws QueryException, JsonProcessingException {
     log.trace("Expanding subsets for {}...", iri);
     Set<TTIriRef> subSetIris = setRepository.getSubsetIrisWithNames(iri);
     log.trace("Found {} subsets...", subSetIris.size());
     for (TTIriRef subset : subSetIris) {
-      Set<Concept> subsetMembers = getExpandedSetMembers(subset.getIri(), core, legacy, true, schemes);
+      Set<Concept> subsetMembers = getExpandedSetMembers(subset.getIri(), core, legacy, true, schemes, subsumptions);
       if (null != subsetMembers && !subsetMembers.isEmpty()) {
         TTEntity subsetEntity = new TTEntity(subset.getIri()).setName(subset.getName());
         subsetMembers.forEach(ss -> {
@@ -287,11 +307,15 @@ public class SetService {
     Set<Concept> membersA = null;
     Set<Concept> membersB = null;
     if (setIriA.isPresent() && !setIriA.get().isEmpty()) {
-      membersA = getFullyExpandedMembers(setIriA.get(), false, false, null);
+      membersA = getFullyExpandedMembers(setIriA.get(), false, false, null, new ArrayList<>());
     }
     if (setIriB.isPresent() && !setIriB.get().isEmpty()) {
-      membersB = getFullyExpandedMembers(setIriB.get(), false, false, null);
+      membersB = getFullyExpandedMembers(setIriB.get(), false, false, null, new ArrayList<>());
     }
+    return getSetDiffObject(membersA, membersB);
+  }
+
+  private static SetDiffObject getSetDiffObject(Set<Concept> membersA, Set<Concept> membersB) {
     SetDiffObject setDiffObject = new SetDiffObject();
     Map<String, Concept> membersMap = new HashMap<>();
     if (membersA != null) {
@@ -322,7 +346,7 @@ public class SetService {
   public void publishSetToIM1(String iri) throws QueryException, JsonProcessingException {
     log.trace("Looking up set...");
     String name = entityRepository.getBundle(iri, Set.of(RDFS.LABEL)).getEntity().getName();
-    Set<Concept> members = getExpandedSetMembers(iri, true, true, true, List.of());
+    Set<Concept> members = getExpandedSetMembers(iri, true, true, true, List.of(), List.of(IM.SUBSUMED_BY));
     setExporter.publishSetToIM1(iri, name, members);
   }
 }

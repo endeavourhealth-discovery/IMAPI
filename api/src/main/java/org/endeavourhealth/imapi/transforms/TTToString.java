@@ -74,8 +74,7 @@ public class TTToString {
     int nodeIndent = indent;
     int totalKeys = node.getPredicateMap().size();
     int count = 1;
-    boolean group = false;
-    if (totalKeys > 1) group = true;
+    boolean group = totalKeys > 1;
     for (Map.Entry<TTIriRef, TTArray> element : node.getPredicateMap().entrySet()) {
       if (totalKeys == count) last = true;
       if (count == 1) first = true;

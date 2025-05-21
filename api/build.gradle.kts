@@ -126,6 +126,7 @@ dependencies {
   implementation(libs.validation)
   implementation(libs.woodstox)
   implementation(libs.wsrs)
+  implementation(libs.mysqlConncector)
 
   runtimeOnly(libs.h2database)
   runtimeOnly(libs.spring.dev.tools)

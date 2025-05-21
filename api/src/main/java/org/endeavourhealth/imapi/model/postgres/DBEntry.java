@@ -15,7 +15,7 @@ public class DBEntry {
   private String queryIri;
   private String queryName;
   private QueryRequest queryRequest;
-  private String userId;
+  private UUID userId;
   private String userName;
   private LocalDateTime queuedAt;
   private LocalDateTime startedAt;
@@ -24,6 +24,7 @@ public class DBEntry {
   private LocalDateTime killedAt;
   private QueryExecutorStatus status;
   private String queryResult;
+  private String error;
 
   public DBEntry setId(UUID id) {
     this.id = id;
@@ -45,7 +46,7 @@ public class DBEntry {
     return this;
   }
 
-  public DBEntry setUserId(String userId) {
+  public DBEntry setUserId(UUID userId) {
     this.userId = userId;
     return this;
   }
@@ -87,6 +88,11 @@ public class DBEntry {
 
   public DBEntry setQueryResult(String queryResult) {
     this.queryResult = queryResult;
+    return this;
+  }
+
+  public DBEntry setError(String error) {
+    this.error = error;
     return this;
   }
 }

@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Slf4j
 public class PostgresService {
-  public Pageable<DBEntry> getAllByUserId(String userId, int page, int size) throws SQLException, JsonProcessingException {
+  public Pageable<DBEntry> getAllByUserId(UUID userId, int page, int size) throws SQLException, JsonProcessingException {
     Pageable<DBEntry> results = PostgresRepository.findAllByUserId(userId, page, size);
     int totalCount = PostgresRepository.getTotalCountByUserId(userId);
     results.setTotalCount(totalCount);

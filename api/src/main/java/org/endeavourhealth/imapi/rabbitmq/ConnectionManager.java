@@ -50,14 +50,14 @@ public class ConnectionManager {
     return connection;
   }
 
-  public Channel getPublisherChannel(String username) throws IOException {
+  public Channel getPublisherChannel(UUID userId) throws IOException {
     createExchange();
     Channel channel = getConnection().createChannel(false);
     channel.confirmSelect();
     channel.exchangeDeclare(EXCHANGE_NAME, "topic", true);
     LOG.info("Created exchange: query_runner");
     AMQP.Queue.DeclareOk queue = channel.queueDeclare("query.execute.publish", true, false, false, null);
-    channel.queueBind("query.execute.publish", "query_runner", "query.execute." + username);
+    channel.queueBind("query.execute.publish", "query_runner", "query.execute." + userId);
     LOG.info("Created queue: {}", queue.getQueue());
     return channel;
   }
@@ -119,7 +119,7 @@ public class ConnectionManager {
     });
   }
 
-  public void publishToQueue(String userId, String userName, QueryRequest message) throws Exception {
+  public void publishToQueue(UUID userId, String userName, QueryRequest message) throws Exception {
     Channel channel = getPublisherChannel(userId);
     LOG.info("Publishing to queue: {}", message.getQuery().getIri());
     UUID id = UUID.randomUUID();

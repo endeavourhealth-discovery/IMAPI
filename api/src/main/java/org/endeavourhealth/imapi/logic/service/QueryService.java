@@ -101,7 +101,7 @@ public class QueryService {
     return getSQLFromIMQ(query);
   }
 
-  public void handleSQLConversionException(String userId, String userName, QueryRequest queryRequest) throws SQLException {
+  public void handleSQLConversionException(UUID userId, String userName, QueryRequest queryRequest, String error) throws SQLException {
     DBEntry entry = new DBEntry()
       .setId(UUID.randomUUID())
       .setQueryRequest(queryRequest)
@@ -111,15 +111,16 @@ public class QueryService {
       .setUserId(userId)
       .setUserName(userName)
       .setQueuedAt(LocalDateTime.now())
-      .setKilledAt(LocalDateTime.now());
+      .setKilledAt(LocalDateTime.now())
+      .setError(error);
     postgresService.create(entry);
   }
 
-  public void addToExecutionQueue(String userId, String userName, QueryRequest queryRequest) throws Exception {
+  public void addToExecutionQueue(UUID userId, String userName, QueryRequest queryRequest) throws Exception {
     try {
       getSQLFromIMQ(queryRequest.getQuery());
     } catch (SQLConversionException e) {
-      handleSQLConversionException(userId, userName, queryRequest);
+      handleSQLConversionException(userId, userName, queryRequest, e.getMessage());
       throw new QueryException("Unable to convert query to SQL", e);
     }
     if (null == connectionManager) connectionManager = new ConnectionManager();

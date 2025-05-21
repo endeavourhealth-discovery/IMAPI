@@ -9,14 +9,15 @@ CREATE TABLE query_runner.query_queue (
   query_iri VARCHAR(255) NOT NULL,
   query_name VARCHAR(255) NOT NULL,
   query_request JSONB NOT NULL,
-  user_id TEXT NOT NULL,
+  user_id UUID NOT NULL,
   user_name VARCHAR(255) NOT NULL,
   queued_at TIMESTAMP NOT NULL,
   started_at TIMESTAMP,
   pid INT,                    -- Internal (postgres) process ID (for killing)
   finished_at TIMESTAMP,
   killed_at TIMESTAMP,
-  status TEXT
+  status TEXT,
+  error TEXT
 );
 
 

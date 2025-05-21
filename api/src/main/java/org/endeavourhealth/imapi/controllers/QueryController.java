@@ -165,7 +165,7 @@ public class QueryController {
   public void addToQueue(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.AddToQueue.POST")) {
       log.debug("addToQueue");
-      String userId = requestObjectService.getRequestAgentId(request);
+      UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
       String userName = requestObjectService.getRequestAgentName(request);
       queryService.addToExecutionQueue(userId, userName, queryRequest);
     }
@@ -178,7 +178,7 @@ public class QueryController {
   public Pageable<DBEntry> userQueryQueue(HttpServletRequest request, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLConversionException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.UserQueryQueue.GET")) {
       log.debug("getUserQueryQueue");
-      String userId = requestObjectService.getRequestAgentId(request);
+      UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
       return postgresService.getAllByUserId(userId, page, size);
     }
   }
@@ -224,14 +224,18 @@ public class QueryController {
   @Operation(
     summary = "Delete a query from the queue using the query uuid"
   )
-  public void deleteFromQueue(@RequestParam(name = "id") UUID id) throws IOException, SQLException {
+  public void deleteFromQueue(HttpServletRequest request, @RequestParam(name = "id") UUID id) throws IOException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DeleteFromQueue.DELETE")) {
       log.debug("deleteFromQueue");
       DBEntry entry = postgresService.getById(id);
-      if (QueryExecutorStatus.CANCELLED.equals(entry.getStatus())) {
+      UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
+      if (!userId.equals(entry.getUserId())) {
+        throw new IllegalArgumentException("Can only delete a query that belongs to the user making the request.");
+      }
+      if (QueryExecutorStatus.CANCELLED.equals(entry.getStatus()) || QueryExecutorStatus.ERRORED.equals(entry.getStatus())) {
         postgresService.delete(id);
       } else {
-        throw new IllegalArgumentException("Can only delete an item that has already been cancelled");
+        throw new IllegalArgumentException("Can only delete an item that has already been cancelled or has errored.");
       }
     }
   }
@@ -246,9 +250,8 @@ public class QueryController {
       DBEntry entry = postgresService.getById(requeueQueryRequest.getQueueId());
       if (QueryExecutorStatus.CANCELLED.equals(entry.getStatus()) || QueryExecutorStatus.ERRORED.equals(entry.getStatus())) {
         postgresService.delete(requeueQueryRequest.getQueueId());
-        String userId = requestObjectService.getRequestAgentId(request);
+        UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
         String userName = requestObjectService.getRequestAgentName(request);
-        queryService.getSQLFromIMQ(requeueQueryRequest.getQueryRequest().getQuery());
         queryService.addToExecutionQueue(userId, userName, requeueQueryRequest.getQueryRequest());
       }
     }

@@ -36,7 +36,7 @@ public class TaskFilerRdf4j {
   private RepositoryConnection conn;
   private EmailService emailService = new EmailService(
     System.getenv("EMAILER_HOST"),
-    System.getenv("EMAILER_PORT"),
+    Integer.parseInt(System.getenv("EMAILER_PORT")),
     System.getenv("EMAILER_USERNAME"),
     System.getenv("EMAILER_PASSWORD")
   );

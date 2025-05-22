@@ -135,6 +135,7 @@ public class TaskFilerRdf4j {
   }
 
   public void updateTask(String subject, String predicate, String originalObject, String newObject, String userId) throws TaskFilerException, UserNotFoundException {
+    if (null == originalObject && null == newObject) return;
     if (predicate.equals(WORKFLOW.ASSIGNED_TO) || predicate.equals(WORKFLOW.CREATED_BY)) {
       newObject = usernameToId(newObject);
       originalObject = usernameToId(originalObject);
@@ -143,12 +144,16 @@ public class TaskFilerRdf4j {
       StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
       stringJoiner.add("DELETE { ?subject ?predicate ?originalObject }");
       stringJoiner.add("INSERT { ?subject ?predicate ?newObject }");
-      stringJoiner.add("WHERE { ?subject ?predicate ?originalObject }");
+      stringJoiner.add("WHERE { ?subject ?predicate ?o ");
+      if (null != originalObject) stringJoiner.add("FILTER (?o = ?originalObject)");
+      stringJoiner.add("BIND(?o AS ?originalObject)");
+      if (null != newObject) stringJoiner.add("BIND(?newVal AS ?newObject)");
+      stringJoiner.add("}");
       Update update = conn.prepareUpdate(stringJoiner.toString());
       update.setBinding("subject", iri(subject));
       update.setBinding("predicate", iri(predicate));
-      update.setBinding("newObject", literal(newObject));
-      update.setBinding("originalObject", literal(originalObject));
+      if (null != newObject) update.setBinding("newVal", literal(newObject));
+      if (null != originalObject) update.setBinding("originalObject", literal(originalObject));
       update.execute();
       updateHistory(subject, predicate, originalObject, newObject, userId);
     } catch (UpdateExecutionException e) {
@@ -162,8 +167,8 @@ public class TaskFilerRdf4j {
       BNode bn = bnode();
       builder.add(iri(subject), iri(WORKFLOW.HISTORY), bn);
       builder.add(bn, iri(WORKFLOW.HISTORY_PREDICATE), literal(predicate));
-      builder.add(bn, iri(WORKFLOW.HISTORY_ORIGINAL_OBJECT), literal(originalObject));
-      builder.add(bn, iri(WORKFLOW.HISTORY_NEW_OBJECT), literal(newObject));
+      if (null != originalObject) builder.add(bn, iri(WORKFLOW.HISTORY_ORIGINAL_OBJECT), literal(originalObject));
+      if (null != newObject) builder.add(bn, iri(WORKFLOW.HISTORY_NEW_OBJECT), literal(newObject));
       builder.add(bn, iri(WORKFLOW.HISTORY_CHANGE_DATE), literal(LocalDateTime.now()));
       builder.add(bn, iri(WORKFLOW.MODIFIED_BY), literal(userId));
       conn.add(builder.build());

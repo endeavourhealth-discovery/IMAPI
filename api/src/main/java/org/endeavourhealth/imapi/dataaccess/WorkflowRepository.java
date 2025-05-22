@@ -41,7 +41,7 @@ public class WorkflowRepository {
 
   public BugReport getBugReport(String id) throws UserNotFoundException {
     String sparql = """
-      SELECT ?s ?typeData ?createdByData ?assignedToData ?productData ?moduleData ?versionData ?osData ?browserData ?severityData ?statusData ?errorData ?descriptionData ?reproduceStepsData ?expectedResultData ?dateCreatedData ?stateData
+      SELECT ?s ?typeData ?createdByData ?assignedToData ?productData ?moduleData ?versionData ?osData ?browserData ?severityData ?statusData ?errorData ?descriptionData ?reproduceStepsData ?expectedResultData ?actualResultData ?dateCreatedData ?stateData
       WHERE {
         ?s ?type ?typeData ;
         ?createdBy ?createdByData ;

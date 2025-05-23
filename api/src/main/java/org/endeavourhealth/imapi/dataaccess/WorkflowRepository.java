@@ -41,7 +41,7 @@ public class WorkflowRepository {
 
   public BugReport getBugReport(String id) throws UserNotFoundException {
     String sparql = """
-      SELECT ?s ?typeData ?createdByData ?assignedToData ?productData ?moduleData ?versionData ?osData ?browserData ?severityData ?statusData ?errorData ?descriptionData ?reproduceStepsData ?expectedResultData ?dateCreatedData ?stateData
+      SELECT ?s ?typeData ?createdByData ?assignedToData ?productData ?moduleData ?versionData ?osData ?browserData ?severityData ?statusData ?errorData ?descriptionData ?reproduceStepsData ?expectedResultData ?actualResultData ?dateCreatedData ?stateData
       WHERE {
         ?s ?type ?typeData ;
         ?createdBy ?createdByData ;
@@ -88,10 +88,10 @@ public class WorkflowRepository {
       WHERE {
         ?s ?history ?historyId .
         ?historyId ?predicate ?predicateData ;
-        ?originalObject ?originalObjectData ;
-        ?newObject ?newObjectData ;
         ?changeDate ?changeDateData ;
         ?modifiedBy ?modifiedByData .
+        Optional { ?historyId ?originalObject ?originalObjectData . }
+        Optional { ?historyId ?newObject ?newObjectData . }
       }
       """;
     List<TaskHistory> results = new ArrayList<>();
@@ -112,10 +112,12 @@ public class WorkflowRepository {
           taskHistory.setPredicate(bs.getValue("predicateData").stringValue());
           if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO) && !bs.getValue("originalObjectData").stringValue().equals("UNASSIGNED"))
             taskHistory.setOriginalObject(awsCognitoClient.adminGetUsername(bs.getValue("originalObjectData").stringValue()));
-          else taskHistory.setOriginalObject(bs.getValue("originalObjectData").stringValue());
+          else if (null != bs.getValue("originalObjectData"))
+            taskHistory.setOriginalObject(bs.getValue("originalObjectData").stringValue());
           if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO) && !bs.getValue("newObjectData").stringValue().equals("UNASSIGNED"))
             taskHistory.setNewObject(awsCognitoClient.adminGetUsername(bs.getValue("newObjectData").stringValue()));
-          else taskHistory.setNewObject(bs.getValue("newObjectData").stringValue());
+          else if (null != bs.getValue("newObjectData"))
+            taskHistory.setNewObject(bs.getValue("newObjectData").stringValue());
           taskHistory.setChangeDate(LocalDateTime.parse(bs.getValue("changeDateData").stringValue()));
           taskHistory.setModifiedBy(awsCognitoClient.adminGetUsername(bs.getValue("modifiedByData").stringValue()));
           results.add(taskHistory);

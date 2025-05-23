@@ -1,18 +1,24 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.WORKFLOW;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 @Component
 public class WorkflowService {
 
   private final WorkflowRepository workflowRepository = new WorkflowRepository();
+  private final RequestObjectService requestObjectService = new RequestObjectService();
 
   public void createBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
     bugReport.setId(generateId());
@@ -21,6 +27,35 @@ public class WorkflowService {
 
   public BugReport getBugReport(String id) throws UserNotFoundException {
     return workflowRepository.getBugReport(id);
+  }
+
+  public void updateBugReport(BugReport bugReport, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    String username = requestObjectService.getRequestAgentName(request);
+    String userId = requestObjectService.getRequestAgentId(request);
+    if (!username.equals(bugReport.getCreatedBy()))
+      throw new TaskFilerException("User does not have permission to update bug report");
+    BugReport originalBugReport = getBugReport(bugReport.getId().getIri());
+    if (!originalBugReport.getProduct().equals(bugReport.getProduct()))
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.RELATED_PRODUCT, originalBugReport.getProduct(), bugReport.getProduct(), userId);
+    if (!originalBugReport.getModule().equals(bugReport.getModule()))
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.RELATED_MODULE, originalBugReport.getModule().toString(), bugReport.getModule().toString(), userId);
+    if (!originalBugReport.getOs().equals(bugReport.getOs()))
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.OPERATING_SYSTEM, originalBugReport.getOs().toString(), bugReport.getOs().toString(), userId);
+    if (!Objects.equals(originalBugReport.getOsOther(), bugReport.getOsOther()))
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.OPERATING_SYSTEM_OTHER, originalBugReport.getOsOther(), bugReport.getOsOther(), userId);
+    if (!originalBugReport.getBrowser().equals(bugReport.getBrowser()))
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.BROWSER, originalBugReport.getBrowser().toString(), bugReport.getBrowser().toString(), userId);
+    if (!Objects.equals(originalBugReport.getBrowserOther(), bugReport.getBrowserOther()))
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.BROWSER_OTHER, originalBugReport.getBrowserOther(), bugReport.getBrowserOther(), userId);
+    if (!originalBugReport.getDescription().equals(bugReport.getDescription()))
+      workflowRepository.update(bugReport.getId().getIri(), RDFS.COMMENT, originalBugReport.getDescription(), bugReport.getDescription(), userId);
+    if (!originalBugReport.getReproduceSteps().equals(bugReport.getReproduceSteps()))
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.REPRODUCE_STEPS, originalBugReport.getReproduceSteps(), bugReport.getReproduceSteps(), userId);
+    if (!originalBugReport.getExpectedResult().equals(bugReport.getExpectedResult()))
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.EXPECTED_RESULT, originalBugReport.getExpectedResult(), bugReport.getExpectedResult(), userId);
+    if (!originalBugReport.getActualResult().equals(bugReport.getActualResult()))
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.ACTUAL_RESULT, originalBugReport.getActualResult(), bugReport.getActualResult(), userId);
+    updateTask(bugReport, userId);
   }
 
   public WorkflowResponse getTasksByCreatedBy(WorkflowRequest request) throws UserNotFoundException {

@@ -7,25 +7,24 @@ import org.endeavourhealth.imapi.model.workflow.task.TaskHistory;
 import org.endeavourhealth.imapi.model.workflow.task.TaskState;
 import org.endeavourhealth.imapi.model.workflow.task.TaskType;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 public class RoleRequest extends Task {
-    private UserRole role;
+  private UserRole role;
 
-    public RoleRequest(TTIriRef id, TaskType type, String createdBy, String assignedTo, TaskState state, LocalDateTime dateCreated, List<TaskHistory> history, UserRole role) {
-        super(id, createdBy, type, state, assignedTo, dateCreated, history);
-        this.role = role;
-    }
+  public RoleRequest(TTIriRef id, TaskType type, String createdBy, String assignedTo, TaskState state, LocalDateTime dateCreated, List<TaskHistory> history, String hostUrl, UserRole role) {
+    super(id, createdBy, type, state, assignedTo, dateCreated, history, hostUrl);
+    this.role = role;
+  }
 
-    public RoleRequest() {
+  public RoleRequest() {
 
-    }
+  }
 
-    public RoleRequest setRole(UserRole role) {
-        this.role = role;
-        return this;
-    }
+  public RoleRequest setRole(UserRole role) {
+    this.role = role;
+    return this;
+  }
 }

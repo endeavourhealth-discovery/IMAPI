@@ -1,23 +1,20 @@
 package org.endeavourhealth.imapi.aws;
 
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import org.endeavourhealth.imapi.model.admin.User;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
-import org.endeavourhealth.imapi.model.admin.User;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class AWSCognitoClient {
   private static final Map<String, String> userCache = new HashMap<>();
-  private final CognitoIdentityProviderClient identityProvider;
   private static final String COGNITO_USER_POOL = System.getenv("COGNITO_USER_POOL");
   private static final String COGNITO_REGION = System.getenv("COGNITO_REGION");
+  private final CognitoIdentityProviderClient identityProvider;
 
   public AWSCognitoClient() {
     this.identityProvider = createCognitoClient();
@@ -135,6 +132,15 @@ public class AWSCognitoClient {
       .build();
     ListUsersInGroupResponse listUsersInGroupResult = identityProvider.listUsersInGroup(listUsersInGroupRequest);
     return listUsersInGroupResult.users().stream().map(UserType::username).toList();
+  }
+
+  public List<User> adminListUsersInGroupAsUser(String groupName) throws UserNotFoundException {
+    List<String> usernames = adminListUsersInGroup(groupName);
+    List<User> users = new ArrayList<>();
+    for (String username : usernames) {
+      users.add(adminGetUser(username));
+    }
+    return users;
   }
 
   public User adminCreateUser(User user) {

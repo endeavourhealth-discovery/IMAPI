@@ -73,7 +73,7 @@ public class TaskFilerRdf4j {
       builder.add(iri(bugReport.getId().getIri()), iri(WORKFLOW.ACTUAL_RESULT), literal(bugReport.getActualResult()));
       conn.add(builder.build());
       String emailSubject = "New bug report added: [" + bugReport.getId().getIri() + "]";
-      String emailContent = "Click <a href=\"https://im.endhealth.net/#/workflow/bugReport/" + bugReport.getId().getIri() + "\">here</a>";
+      String emailContent = "Click <a href=\"" + bugReport.getHostUrl() + "/#/workflow/bugReport/" + bugReport.getId().getIri() + "\">here</a>";
       emailService.sendMail(emailSubject, emailContent, "bugreport@endeavourhealth.net");
     } catch (RepositoryException e) {
       throw new TaskFilerException("Failed to file task", e);
@@ -90,7 +90,7 @@ public class TaskFilerRdf4j {
       builder.add(iri(roleRequest.getId().getIri()), iri(WORKFLOW.REQUESTED_ROLE), literal(roleRequest.getRole()));
       conn.add(builder.build());
       String emailSubject = "New role request added: [" + roleRequest.getId().getIri() + "]";
-      String emailContent = "Click <a href=\"https://im.endhealth.net/#/workflow/roleRequest/" + roleRequest.getId().getIri() + "\">here</a>";
+      String emailContent = "Click <a href=\"" + roleRequest.getHostUrl() + "/#/workflow/roleRequest/" + roleRequest.getId().getIri() + "\">here</a>";
       emailService.sendMail(emailSubject, emailContent, "rolerequest@endeavourhealth.net");
     } catch (RepositoryException e) {
       throw new TaskFilerException("Failed to file task", e);
@@ -107,7 +107,7 @@ public class TaskFilerRdf4j {
       builder.add(iri(entityApproval.getId().getIri()), iri(WORKFLOW.APPROVAL_TYPE), literal(entityApproval.getApprovalType()));
       conn.add(builder.build());
       String emailSubject = "New role request added: [" + entityApproval.getId().getIri() + "]";
-      String emailContent = "Click <a href=\"https://im.endhealth.net/#/workflow/entityApproval/" + entityApproval.getId().getIri() + "\">here</a>";
+      String emailContent = "Click <a href=\"" + entityApproval.getHostUrl() + "/#/workflow/entityApproval/" + entityApproval.getId().getIri() + "\">here</a>";
       emailService.sendMail(emailSubject, emailContent, "entityapproval@endeavourhealth.net");
     } catch (RepositoryException e) {
       throw new TaskFilerException("Failed to file task", e);

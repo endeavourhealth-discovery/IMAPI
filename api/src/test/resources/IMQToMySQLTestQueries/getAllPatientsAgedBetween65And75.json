@@ -1,58 +1,29 @@
 {
-  "@id": "http://endhealth.info/im#Q_TestQuery",
-  "description": "get all patients aged between 65 and 70",
-  "bool": "and",
-  "match": [
+  "and": [
     {
-      "name": "Patients 65-70, or diabetes or prediabetes",
-      "description": "Patients with an age between 65 and 70, or on the diabetic register, or have prediabetes",
-      "@id": "http://endhealth.info/im#9eb6711c-91f0-4a94-a7e9-b65603b9c509",
-      "typeOf": {
-        "@id": "http://endhealth.info/im#Patient",
-        "name": "Patients",
-        "description": " with the following features : "
-      },
-      "match": [
-        {
-          "name": "aged between 65 and 70",
-          "@id": "http://endhealth.info/im#874c7c72-d69e-43da-85c4-96724f07e245",
-          "typeOf": {
-            "@id": "http://endhealth.info/im#Patient",
-            "name": "Patients",
-            "description": " with the following features : "
-          },
-          "where": [
-            {
-              "@id": "http://endhealth.info/im#age",
-              "name": "age",
-              "range": {
-                "from": {
-                  "operator": ">=",
-                  "value": "65",
-                  "unit": {
-                    "name": "Years",
-                    "@id": "http://endhealth.info/im#Years"
-                  }
-                },
-                "to": {
-                  "operator": "<",
-                  "value": "70",
-                  "unit": {
-                    "name": "Years",
-                    "@id": "http://endhealth.info/im#Years"
-                  }
-                }
-              },
-              "qualifier": "between 65 years (inc.) below 70 years"
+      "where": {
+        "iri": "http://endhealth.info/im#age",
+        "range": {
+          "from": {
+            "operator": ">=",
+            "value": "65",
+            "unit": {
+              "iri": "http://endhealth.info/im#Years"
             }
-          ]
-        }
-      ]
+          },
+          "to": {
+            "operator": "<",
+            "value": "70",
+            "unit": {
+              "iri": "http://endhealth.info/im#Years"
+            }
+          }
+        },
+        "qualifier": "between 65 years (inc.) below 70 years"
+      }
     }
   ],
   "typeOf": {
-    "@id": "http://endhealth.info/im#Patient",
-    "name": "Patients",
-    "description": " with the following features : "
+    "iri": "http://endhealth.info/im#Patient"
   }
 }

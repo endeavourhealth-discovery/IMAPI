@@ -1,26 +1,16 @@
 {
-  "@id": "http://endhealth.info/im#Q_TestQuery",
   "description": "get all patients",
-  "bool": "and",
-  "match": [
+  "and": [
     {
-      "description": "get all patients",
-      "@id": "http://endhealth.info/im#9eb6711c-91f0-4a94-a7e9-b65603b9c509",
-      "typeOf": {
-        "@id": "http://endhealth.info/im#Patient",
-        "name": "Patients"
-      },
-      "where": [
-        {
-          "@id": "http://endhealth.info/im#title",
-          "operator": "=",
-          "value": "Mr"
-        }
-      ]
+      "where": {
+        "iri": "http://endhealth.info/im#title",
+        "operator": "=",
+        "value": "Mr"
+      }
     }
   ],
   "typeOf": {
-    "@id": "http://endhealth.info/im#Patient",
+    "iri": "http://endhealth.info/im#Patient",
     "name": "Patients",
     "description": " with the following features : "
   }

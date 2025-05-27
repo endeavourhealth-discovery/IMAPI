@@ -1,90 +1,30 @@
 {
-  "@id": "http://endhealth.info/im#Q_TestQuery",
-  "name": "Patients who had high blood pressure in the last year",
-  "bool": "and",
-  "match": [
+  "iri": "http://endhealth.info/im#Q_TestQuery",
+  "typeOf": { "iri": "http://endhealth.info/im#Patient" },
+  "and": [
     {
-      "name": "Have high blood pressure in the last year",
-      "description": "Latest systolic within 12 months of the reference date, is either an office systolic >140 or a home systolic >130",
-      "preface": "Select the latest ",
-      "@id": "http://endhealth.info/im#5296d0a5-902e-4a62-aeb6-1a3c3d85ad72",
-      "typeOf": {
-        "@id": "http://endhealth.info/im#Patient",
-        "name": "Patients",
-        "description": " with the following features : "
-      },
-      "orderBy": {
-        "property": {
-          "@id": "http://endhealth.info/im#effectiveDate",
-          "name": "date (effective date) ",
-          "direction": "descending"
-        },
-        "limit": 1,
-        "description": "latest "
-      },
-      "path": {
-        "@id": "http://endhealth.info/im#observation",
-        "name": "observations of",
-        "where": {
-          "bool": "and",
-          "typeOf": {
-            "@id": "http://endhealth.info/im#Observation"
-          },
-          "where": [
-            {
-              "@id": "http://endhealth.info/im#concept",
-              "name": "concept",
-              "is": [
-                {
-                  "@id": "http://snomed.info/sct#271649006",
-                  "name": "Systolic blood pressure",
-                  "descendantsOrSelfOf": true,
-                  "code": "271649006"
-                },
-                {
-                  "@id": "http://endhealth.info/emis#1994021000006115",
-                  "name": "Home systolic blood pressure",
-                  "descendantsOrSelfOf": true,
-                  "code": "1994021000006104"
-                }
-              ],
-              "valueLabel": " Systolic blood pressure, or Home systolic blood pressure"
-            },
-            {
-              "@id": "http://endhealth.info/im#effectiveDate",
-              "name": "date (effective date) ",
-              "operator": ">=",
-              "value": "-12",
-              "relativeTo": {
-                "parameter": "$referenceDate",
-                "qualifier": "the reference date"
-              },
-              "qualifier": "on or after",
-              "valueLabel": "12 months before ",
-              "unit": {
-                "@id": "http://endhealth.info/im#Months"
-              }
-            }
-          ]
+      "instanceOf": [
+        {
+          "iri": "http://endhealth.info/im#Q_RegisteredGMS",
+          "memberOf": true
         }
-      },
-      "return": {
-        "nodeRef": "observation",
-        "as": "latestBP"
-      }
-    }
-  ],
-  "instanceOf": [
+      ]
+    },
     {
-      "@id": "http://endhealth.info/im#Q_RegisteredGMS",
-      "qualifier": "in ",
-      "name": "Registered for GMS services on reference date",
-      "memberOf": true
+      "where": {
+        "iri": "http://endhealth.info/im#concept",
+        "nodeRef": "Observation",
+        "is": [{ "iri": "http://snomed.info/sct#714628002", "descendantsOf": true }],
+        "valueLabel": "Prediabetes"
+      },
+      "path": [
+        {
+          "iri": "http://endhealth.info/im#observation",
+          "variable": "Observation",
+          "name": "has pre-diabetes",
+          "typeOf": { "iri": "http://endhealth.info/im#Observation" }
+        }
+      ]
     }
-  ],
-  "typeOf": {
-    "@id": "http://endhealth.info/im#Patient",
-    "name": "Patients",
-    "description": " with the following features : "
-  }
+  ]
 }

@@ -23,13 +23,14 @@ public class Path extends Element {
   public Node getTypeOf() {
     return typeOf;
   }
+
   @JsonSetter
   public Path setTypeOf(Node typeOf) {
     this.typeOf = typeOf;
     return this;
   }
 
-  public Path setTypeOf(String iri){
+  public Path setTypeOf(String iri) {
     setTypeOf(new Node().setIri(iri));
     return this;
   }
@@ -39,7 +40,6 @@ public class Path extends Element {
   }
 
 
-
   @JsonSetter("path")
   public Path setPath(List<Path> path) {
     this.path = path;
@@ -47,8 +47,8 @@ public class Path extends Element {
   }
 
   public Path addPath(Path path) {
-    if (this.path==null)
-      this.path= new ArrayList<>();
+    if (this.path == null)
+      this.path = new ArrayList<>();
     this.path.add(path);
     return this;
   }
@@ -61,11 +61,9 @@ public class Path extends Element {
   }
 
   public Path setOptional(boolean optional) {
-    this.optional= optional;
+    this.optional = optional;
     return this;
   }
-
-
 
 
   public Path setInverse(boolean inverse) {

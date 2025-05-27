@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"prefix", "iri", "name", "description", "activeOnly", "typeOf","instanceOf","and","or","not","return", "construct", "query", "groupBy", "orderBy"})
+@JsonPropertyOrder({"prefix", "iri", "name", "description", "activeOnly", "typeOf", "instanceOf", "and", "or", "not", "return", "construct", "query", "groupBy", "orderBy"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends Match {
   private Prefixes prefixes;
@@ -31,83 +31,85 @@ public class Query extends Match {
   private TTIriRef persistentIri;
 
 
-
-
-  public Query setRule(List<Match>rule){
+  public Query setRule(List<Match> rule) {
     super.setRule(rule);
     return this;
   }
-  public Query addRule(Match rule){
+
+  public Query addRule(Match rule) {
     super.addRule(rule);
     return this;
   }
 
-  public Query setAnd(List<Match> and){
+  public Query setAnd(List<Match> and) {
     super.setAnd(and);
     return this;
   }
-  public Query addAnd(Match and){
+
+  public Query addAnd(Match and) {
     super.addAnd(and);
     return this;
   }
-  public Query and(Consumer<Match> builder){
+
+  public Query and(Consumer<Match> builder) {
     Match match = new Match();
     addAnd(match);
     builder.accept(match);
     return this;
   }
 
-  public Query setNot(List<Match> not){
+  public Query setNot(List<Match> not) {
     super.setNot(not);
     return this;
   }
 
-  public Query addNot(Match not){
+  public Query addNot(Match not) {
     super.addNot(not);
     return this;
   }
 
-  public Query not(Consumer<Match> builder){
+  public Query not(Consumer<Match> builder) {
     Match match = new Match();
     addNot(match);
     builder.accept(match);
     return this;
   }
 
-  public Query addInstanceOf(Node instanceOf){
+  public Query addInstanceOf(Node instanceOf) {
     super.addInstanceOf(instanceOf);
     return this;
   }
 
-  public Query instanceOf(Consumer<Node> builder){
+  public Query instanceOf(Consumer<Node> builder) {
     Node node = new Node();
     super.addInstanceOf(node);
     builder.accept(node);
     return this;
   }
 
-  public Query setInstanceOf(List<Node> instanceOf){
+  public Query setInstanceOf(List<Node> instanceOf) {
     super.setInstanceOf(instanceOf);
     return this;
   }
 
-  public Query setOr(List<Match> or){
+  public Query setOr(List<Match> or) {
     super.setOr(or);
     return this;
   }
 
-  public Query addOr(Match or){
+  public Query addOr(Match or) {
     super.addOr(or);
     return this;
   }
-  public Query or(Consumer<Match> builder){
+
+  public Query or(Consumer<Match> builder) {
     Match match = new Match();
     addOr(match);
     builder.accept(match);
     return this;
   }
 
-  public Query dataset(Consumer<Query> builder){
+  public Query dataset(Consumer<Query> builder) {
     Query query = new Query();
     addDataSet(query);
     builder.accept(query);
@@ -115,17 +117,17 @@ public class Query extends Match {
   }
 
 
-  public Query setPath(List<Path> path){
+  public Query setPath(List<Path> path) {
     super.setPath(path);
     return this;
   }
 
-  public Query addPath(Path path){
+  public Query addPath(Path path) {
     super.addPath(path);
     return this;
   }
 
-  public Query path(Consumer<Path> builder){
+  public Query path(Consumer<Path> builder) {
     Path path = new Path();
     addPath(path);
     builder.accept(path);
@@ -149,12 +151,13 @@ public class Query extends Match {
   }
 
 
-  public Query function (Consumer < FunctionClause > builder) {
+  public Query function(Consumer<FunctionClause> builder) {
     FunctionClause function = new FunctionClause();
     super.setFunction(function);
     builder.accept(function);
     return this;
   }
+
   public JsonNode getParentResult() {
     return parentResult;
   }
@@ -178,6 +181,7 @@ public class Query extends Match {
     super.setVariable(variable);
     return this;
   }
+
   public Query setBaseRule(boolean baseRule) {
     super.setBaseRule(baseRule);
     return this;
@@ -203,8 +207,6 @@ public class Query extends Match {
   }
 
 
-
-
   public Query setTypeOf(String type) {
     super.setTypeOf(type);
     return this;
@@ -215,7 +217,6 @@ public class Query extends Match {
     super.setReturn(returx);
     return this;
   }
-
 
 
   public Query return_(Consumer<Return> builder) {

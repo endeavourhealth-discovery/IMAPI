@@ -58,6 +58,7 @@ public class IMQtoMySQLSteps {
       ClassPathResource resource = new ClassPathResource(path);
       Path filePath = resource.getFile().toPath();
       String content = Files.readString(filePath);
+      System.out.println(content);
       return objectMapper.readValue(content, Query.class);
     } catch (Exception e) {
       return null;

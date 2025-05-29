@@ -51,16 +51,19 @@ public class IMQtoSQLConverter {
       if (definition.getAnd() != null) {
         for (Match match : definition.getAnd()) {
           addIMQueryToSQLQueryRecursively(qry, match, Bool.and);
+          if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
         }
       }
       if (definition.getOr() != null) {
         for (Match match : definition.getOr()) {
           addIMQueryToSQLQueryRecursively(qry, match, Bool.or);
+          if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
         }
       }
       if (definition.getNot() != null) {
         for (Match match : definition.getNot()) {
           addIMQueryToSQLQueryRecursively(qry, match, Bool.not);
+          if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
         }
       }
       return qry.toSql(2);
@@ -419,7 +422,7 @@ public class IMQtoSQLConverter {
         convertMatchProperty(subQuery, p);
       }
     } else if (bool == Bool.or) {
-      for (Where p : property.getAnd()) {
+      for (Where p : property.getOr()) {
         convertMatchProperty(subQuery, p);
       }
     }

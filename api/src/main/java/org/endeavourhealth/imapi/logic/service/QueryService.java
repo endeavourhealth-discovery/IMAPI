@@ -76,20 +76,21 @@ public class QueryService {
     return searchResponse;
   }
 
-  public String getSQLFromIMQ(Query query, String lang) {
+  public String getSQLFromIMQ(QueryRequest queryRequest, String lang, Map<String, String> iriToUuidMap) {
     try {
-      return new IMQtoSQLConverter(lang).IMQtoSQL(query);
+      return new IMQtoSQLConverter(queryRequest, lang, iriToUuidMap).IMQtoSQL();
     } catch (SQLConversionException e) {
       return e.getMessage();
     }
   }
 
-  public String getSQLFromIMQIri(String queryIri, String lang) throws JsonProcessingException {
+  public String getSQLFromIMQIri(String queryIri, String lang, Map<String, String> iriToUuidMap) throws JsonProcessingException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null)
       return null;
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
-    return getSQLFromIMQ(query, lang);
+    QueryRequest queryRequest = new QueryRequest().setQuery(query);
+    return getSQLFromIMQ(queryRequest, lang, iriToUuidMap);
   }
 
   public Query getDefaultQuery() throws JsonProcessingException {

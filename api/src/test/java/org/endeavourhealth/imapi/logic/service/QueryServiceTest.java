@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -20,16 +21,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class QueryServiceTest {
 
   EntityService entityService = new EntityService();
+  QueryService queryService = new QueryService();
 
   void testCohortQueriesToSQL() throws JsonProcessingException {
     List<TTIriRef> queries = entityService.getEntitiesByType(IM.QUERY);
     System.out.println("Queries: " + queries.size());
     for (TTIriRef ref : queries) {
       System.out.println("Testing " + ref.getName() + " " + ref.getIri());
-      TTEntity entity = entityService.getBundle(ref.getIri(), Collections.singleton(IM.DEFINITION)).getEntity();
-      Query query = entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       try {
-        String sql = new IMQtoSQLConverter(null).IMQtoSQL(query);
+        String sql = queryService.getSQLFromIMQIri(ref.getIri(), null, new HashMap<>());
         assertNotNull(sql);
         if (!sql.startsWith("org.endeavourhealth.imapi.errorhandling.SQLConversionException")) {
           System.out.println("OK");
@@ -50,7 +50,7 @@ public class QueryServiceTest {
 //          rs.close();
 //          st.close();
 //        }
-      } catch (Exception | SQLConversionException e) {
+      } catch (Exception e) {
         System.out.println("ERROR: " + e.getMessage());
 
 //        System.out.println(e.getMessage());

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.zip.DataFormatException;
 
 @RestController
@@ -139,10 +140,10 @@ public class QueryController {
     summary = "Generate SQL",
     description = "Generates SQL from the provided IMQ query."
   )
-  public String getSQLFromIMQ(@RequestBody Query query, @RequestParam(name = "lang", defaultValue = "MYSQL") String lang) throws IOException {
+  public String getSQLFromIMQ(@RequestBody QueryRequest queryRequest, @RequestParam(name = "lang", defaultValue = "MYSQL") String lang) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQ.POST")) {
       log.debug("getSQLFromIMQ");
-      return queryService.getSQLFromIMQ(query, lang);
+      return queryService.getSQLFromIMQ(queryRequest, lang, new HashMap<>());
     }
   }
 
@@ -154,7 +155,7 @@ public class QueryController {
   public String getSQLFromIMQIri(@RequestParam(name = "queryIri") String queryIri, @RequestParam(name = "lang", defaultValue = "MYSQL") String lang) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getSQLFromIMQIri");
-      return queryService.getSQLFromIMQIri(queryIri, lang);
+      return queryService.getSQLFromIMQIri(queryIri, lang, new HashMap<>());
     }
   }
 

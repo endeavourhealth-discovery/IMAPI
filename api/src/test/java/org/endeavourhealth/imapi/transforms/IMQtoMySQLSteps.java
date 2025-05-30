@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.*;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.core.io.ClassPathResource;
@@ -16,12 +17,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 public class IMQtoMySQLSteps {
-  private Query query;
+  private QueryRequest queryRequest;
   private String mysql;
   private final ObjectMapper objectMapper = new ObjectMapper();
-  private final IMQtoSQLConverter imqtoSQLConverter = new IMQtoSQLConverter(null);
 
   private static final String URL = "jdbc:mysql://localhost:3306/compass?useSSL=false&allowPublicKeyRetrieval=true";
   private static final String USER = "root";
@@ -29,13 +30,13 @@ public class IMQtoMySQLSteps {
 
   @Given("a valid IMQ {string}")
   public void a_valid_query(String path) {
-    this.query = loadQueryFromPath(path);
+    this.queryRequest = loadQueryRequestFromPath(path);
   }
 
   @When("I convert to MySQL")
   public void i_convert_to_MySQL() {
     try {
-      this.mysql = imqtoSQLConverter.IMQtoSQL(query);
+      this.mysql = new IMQtoSQLConverter(queryRequest, null, new HashMap<>()).IMQtoSQL();
     } catch (SQLConversionException e) {
       this.mysql = e.getMessage();
     }
@@ -53,13 +54,13 @@ public class IMQtoMySQLSteps {
     Assertions.assertTrue(isValid);
   }
 
-  private Query loadQueryFromPath(String path) {
+  private QueryRequest loadQueryRequestFromPath(String path) {
     try {
       ClassPathResource resource = new ClassPathResource(path);
       Path filePath = resource.getFile().toPath();
       String content = Files.readString(filePath);
       System.out.println(content);
-      return objectMapper.readValue(content, Query.class);
+      return objectMapper.readValue(content, QueryRequest.class);
     } catch (Exception e) {
       return null;
     }

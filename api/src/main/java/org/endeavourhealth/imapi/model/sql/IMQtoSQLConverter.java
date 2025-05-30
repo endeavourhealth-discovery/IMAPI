@@ -11,17 +11,26 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public class IMQtoSQLConverter {
+  private static final String URL = "jdbc:mysql://localhost:3306/compass?useSSL=false&allowPublicKeyRetrieval=true";
+  private static final String USER = "root";
+  private static final String PASSWORD = "8l0>f4AlADd2";
 
   private TableMap tableMap;
   private String lang;
+  private Map<String, String> iriToUuidMap;
+  private QueryRequest queryRequest;
 
-  public IMQtoSQLConverter(String lang) {
+  public IMQtoSQLConverter(QueryRequest queryRequest, String lang, Map<String, String> iriToUuidMap) {
+    this.queryRequest = queryRequest;
+    this.iriToUuidMap = iriToUuidMap;
     this.lang = lang != null ? lang : "MYSQL";
     try {
       String resourcePath = isPostgreSQL() ? "IMQtoSQL.json" : "IMQtoMYSQL.json";
@@ -37,7 +46,9 @@ public class IMQtoSQLConverter {
     return this.lang.equals("POSTGRESQL");
   }
 
-  public String IMQtoSQL(Query definition) throws SQLConversionException {
+  public String IMQtoSQL() throws SQLConversionException {
+    if (queryRequest.getQuery() == null) throw new SQLConversionException("Query is null");
+    Query definition = queryRequest.getQuery();
     if (definition.getTypeOf() == null) {
       throw new SQLConversionException("SQL Conversion Error: Query must have a main (model) type");
     }
@@ -163,7 +174,8 @@ public class IMQtoSQLConverter {
   private void convertMatchInstanceOf(SQLQuery qry, Match match, Bool bool) throws SQLConversionException {
     if (match.getInstanceOf() == null)
       throw new SQLConversionException("SQL Conversion Error: MatchSet must have at least one element\n" + match);
-    String rsltTbl = qry.getAlias() + "_rslt";
+    String subQueryIri = match.getInstanceOf().getFirst().getIri();
+    String rsltTbl = "query." + iriToUuidMap.get(subQueryIri);
     qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON "
       + rsltTbl + ".id = " + qry.getAlias() + ".id");
     if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".iri IS NULL");

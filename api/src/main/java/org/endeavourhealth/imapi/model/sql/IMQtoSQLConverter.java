@@ -82,12 +82,13 @@ public class IMQtoSQLConverter {
     if (queryRequest.getReferenceDate() != null) {
       sql = sql.replaceAll("\\$referenceDate", "'" + queryRequest.getReferenceDate() + "'");
     }
-    for (Argument arg : queryRequest.getArgument()) {
-      if (arg.getValueData() != null)
-        sql = sql.replaceAll("\\$" + arg.getParameter(), "'" + arg.getValueData() + "'");
-      else if (arg.getValueIri() != null)
-        sql = sql.replaceAll("\\$" + arg.getParameter(), "'" + arg.getValueIri().getIri() + "'");
-    }
+    if (queryRequest.getArgument() != null)
+      for (Argument arg : queryRequest.getArgument()) {
+        if (arg.getValueData() != null)
+          sql = sql.replaceAll("\\$" + arg.getParameter(), "'" + arg.getValueData() + "'");
+        else if (arg.getValueIri() != null)
+          sql = sql.replaceAll("\\$" + arg.getParameter(), "'" + arg.getValueIri().getIri() + "'");
+      }
     return sql;
   }
 

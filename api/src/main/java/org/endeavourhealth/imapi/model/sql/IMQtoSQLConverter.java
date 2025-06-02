@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.model.sql;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -11,18 +10,12 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
 public class IMQtoSQLConverter {
-  private static final String URL = "jdbc:mysql://localhost:3306/compass?useSSL=false&allowPublicKeyRetrieval=true";
-  private static final String USER = "root";
-  private static final String PASSWORD = "8l0>f4AlADd2";
-
   private TableMap tableMap;
   private String lang;
   private Map<String, String> iriToUuidMap;
@@ -77,7 +70,7 @@ public class IMQtoSQLConverter {
           if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
         }
       }
-      return qry.toSql(2);
+      return qry.toSql(2).replaceAll("\\$referenceDate", "'" + queryRequest.getReferenceDate() + "'");
     } catch (SQLConversionException e) {
       log.error("SQL Conversion Error!");
       throw e;
@@ -145,17 +138,10 @@ public class IMQtoSQLConverter {
   private void wrapMatchPartition(SQLQuery qry, OrderLimit order) throws SQLConversionException {
     if (order.getProperty() == null)
       throw new SQLConversionException("SQL Conversion Error: ORDER MUST HAVE A FIELD SPECIFIED\n" + order);
-
     SQLQuery inner = qry.clone(qry.getAlias() + "_inner", tableMap);
-
     String innerSql = qry.getAlias() + "_inner AS (" + inner.toSql(2) + ")";
-
     SQLQuery partition = qry.subQuery(qry.getAlias() + "_inner", qry.getAlias() + "_part", tableMap);
-
-    // TODO: Correct partition field
     String partField = isPostgreSQL() ? "((json ->> 'patient')::UUID)" : "patient_id";
-
-
     ArrayList<String> o = new ArrayList<>();
     for (OrderDirection property : order.getProperty()) {
       String dir = property.getDirection().toString().toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
@@ -175,7 +161,7 @@ public class IMQtoSQLConverter {
     if (match.getInstanceOf() == null)
       throw new SQLConversionException("SQL Conversion Error: MatchSet must have at least one element\n" + match);
     String subQueryIri = match.getInstanceOf().getFirst().getIri();
-    String rsltTbl = "query." + iriToUuidMap.get(subQueryIri);
+    String rsltTbl = "query." + iriToUuidMap.getOrDefault(subQueryIri, "uuid");
     qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON "
       + rsltTbl + ".id = " + qry.getAlias() + ".id");
     if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".iri IS NULL");
@@ -183,7 +169,6 @@ public class IMQtoSQLConverter {
   }
 
   private void convertMatchBoolSubMatch(SQLQuery qry, Match match, Bool bool) throws SQLConversionException {
-    // TODO: Boolean "OR" should be a union (more performant)
     if (match.getAnd() != null) {
       List<Match> subMatches = match.getAnd();
       for (Match subMatch : subMatches) {
@@ -235,7 +220,6 @@ public class IMQtoSQLConverter {
     if (match.getWhere() == null) {
       throw new SQLConversionException("INVALID MatchProperty\n" + match);
     }
-
     convertMatchProperty(qry, match.getWhere());
   }
 
@@ -346,9 +330,10 @@ public class IMQtoSQLConverter {
     if (range.getUnit() != null && "DATE".equals(range.getUnit().getName()))
       return "'" + range.getValue() + "' " + range.getOperator().getValue() + " " + fieldName;
     else {
+      String baseLineDate = queryRequest.getReferenceDate() != null ? queryRequest.getReferenceDate() : "NOW()";
       String returnString = isPostgreSQL()
-        ? "(now() - INTERVAL '" + range.getValue() + (range.getUnit() != null ? " " + getUnitName(range.getUnit()) : "") + "') " + range.getOperator().getValue() + " " + fieldName
-        : "DATE_SUB(NOW(), INTERVAL " + range.getValue() + (range.getUnit() != null ? " " + getUnitName(range.getUnit()) : "") + ") " + range.getOperator().getValue() + " " + fieldName;
+        ? "('" + baseLineDate + "' - INTERVAL '" + range.getValue() + (range.getUnit() != null ? " " + getUnitName(range.getUnit()) : "") + "') " + range.getOperator().getValue() + " " + fieldName
+        : "DATE_SUB('" + baseLineDate + "', INTERVAL " + range.getValue() + (range.getUnit() != null ? " " + getUnitName(range.getUnit()) : "") + ") " + range.getOperator().getValue() + " " + fieldName;
       return returnString;
     }
   }
@@ -369,8 +354,6 @@ public class IMQtoSQLConverter {
         throw new SQLConversionException("SQL Conversion Error: UNHANDLED 'IN' ENTRY\n" + pIn);
       }
     }
-
-    // OPTIMIZATION
     String mmbrTbl = qry.getAlias() + "_mmbr";
 
     qry.getJoins().add("JOIN set_member " + mmbrTbl + " ON " + mmbrTbl + ".member = " + qry.getFieldName(property.getIri(), null, tableMap));
@@ -387,7 +370,6 @@ public class IMQtoSQLConverter {
     if (property.getRelativeTo().getParameter() != null)
       qry.getWheres().add(qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + convertMatchPropertyRelativeTo(qry, property, property.getRelativeTo().getParameter()));
     else if (property.getRelativeTo().getNodeRef() != null) {
-      // Include implied join on noderef
       qry.getJoins().add("JOIN " + property.getRelativeTo().getNodeRef() + " ON " + property.getRelativeTo().getNodeRef() + ".id = " + qry.getAlias() + ".id");
       qry.getWheres()
         .add(
@@ -414,16 +396,11 @@ public class IMQtoSQLConverter {
     if (property.getIri() == null || property.getValue() == null) {
       throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyValue\n" + property);
     }
-
     String where = "date".equals(qry.getFieldType(property.getIri(), null, tableMap)) ? convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), new Value().setValue(property.getValue()).setUnit(property.getUnit()).setOperator(property.getOperator())) : qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + property.getValue();
-
     if (property.getUnit() != null) where += " -- CONVERT " + property.getUnit() + "\n";
-
-    // TODO: TCT
     if (property.isAncestorsOf() || property.isDescendantsOf() || property.isDescendantsOrSelfOf()) {
       where += " -- TCT\n";
     }
-
     qry.getWheres().add(where);
   }
 

@@ -70,11 +70,25 @@ public class IMQtoSQLConverter {
           if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
         }
       }
-      return qry.toSql(2).replaceAll("\\$referenceDate", "'" + queryRequest.getReferenceDate() + "'");
+      String sql = qry.toSql(2);
+      return replaceArgumentsWithValue(sql);
     } catch (SQLConversionException e) {
       log.error("SQL Conversion Error!");
       throw e;
     }
+  }
+
+  private String replaceArgumentsWithValue(String sql) {
+    if (queryRequest.getReferenceDate() != null) {
+      sql = sql.replaceAll("\\$referenceDate", "'" + queryRequest.getReferenceDate() + "'");
+    }
+    for (Argument arg : queryRequest.getArgument()) {
+      if (arg.getValueData() != null)
+        sql = sql.replaceAll("\\$" + arg.getParameter(), "'" + arg.getValueData() + "'");
+      else if (arg.getValueIri() != null)
+        sql = sql.replaceAll("\\$" + arg.getParameter(), "'" + arg.getValueIri().getIri() + "'");
+    }
+    return sql;
   }
 
   private void addIMQueryToSQLQueryRecursively(SQLQuery qry, Match match, Bool bool) throws SQLConversionException {

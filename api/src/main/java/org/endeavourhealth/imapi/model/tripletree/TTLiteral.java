@@ -113,9 +113,6 @@ public class TTLiteral implements TTValue, Serializable {
 
   public TTLiteral(Object value) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-      om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-      om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
       this.value = om.writeValueAsString(value);
       this.type = iri(XSD.STRING);
     }

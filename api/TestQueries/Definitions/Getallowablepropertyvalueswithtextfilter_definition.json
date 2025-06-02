@@ -26,6 +26,13 @@
     "return" : {
       "property" : [ {
         "iri" : "rdfs:label"
+      }, {
+        "iri" : "im:hasTermCode",
+        "return" : {
+          "property" : [ {
+            "iri" : "rdfs:label"
+          } ]
+        }
       } ]
     }
   }

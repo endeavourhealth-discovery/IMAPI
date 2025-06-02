@@ -78,7 +78,7 @@ public class ExcelSearchExporter {
     addCellValue(row, entity.getDescription());
     addCellValue(row, entity.getStatus());
     addCellValue(row, entity.getScheme());
-    addCellValue(row, entity.getEntityType());
+    addCellValue(row, entity.getType());
   }
 
   private int getLastCellNum(Row row) {

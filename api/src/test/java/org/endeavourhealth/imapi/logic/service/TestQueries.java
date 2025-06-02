@@ -170,7 +170,11 @@ public class TestQueries {
             .is(n -> n
               .setIri(IM.NAMESPACE + "VSET_Conditions"))
             .is(n -> n
-              .setIri(IM.NAMESPACE + "VSET_ASD"))));
+              .setIri(IM.NAMESPACE + "VSET_ASD")))
+        .return_(r->r
+          .property(p->p.setIri(RDFS.LABEL))
+          .property(p->p.setIri(IM.HAS_TERM_CODE)
+            .return_(r1->r1.property(p1->p1.setIri(RDFS.LABEL))))));
   }
 
 
@@ -186,7 +190,11 @@ public class TestQueries {
         .return_(s -> s.property(p -> p.setIri(RDFS.LABEL)))
           .addInstanceOf(new Node()
             .setParameter("this")
-            .setDescendantsOrSelfOf(true)));
+            .setDescendantsOrSelfOf(true))
+        .return_(r->r
+          .property(p->p.setIri(RDFS.LABEL))
+          .property(p->p.setIri(IM.HAS_TERM_CODE)
+            .return_(r1->r1.property(p1->p1.setIri(RDFS.LABEL))))));
   }
 
   public static QueryRequest substanceTextSearch() {
@@ -198,8 +206,12 @@ public class TestQueries {
       .setQuery(new Query()
           .instanceOf(i -> i
             .setParameter("this")
-            .setDescendantsOrSelfOf(true)))
-        .setName("substances starting with 'thia'");
+            .setDescendantsOrSelfOf(true))
+        .return_(r->r
+          .property(p->p.setIri(RDFS.LABEL))
+          .property(p->p.setIri(IM.HAS_TERM_CODE)
+            .return_(r1->r1.property(p1->p1.setIri(RDFS.LABEL)))))
+        .setName("substances starting with 'thia'"));
   }
 
 
@@ -268,13 +280,7 @@ public class TestQueries {
     return new QueryRequest().setQuery(query);
   }
 
-  public static QueryRequest getAllowableRanges() {
-    QueryRequest qr = new QueryRequest().setQuery(new Query().setIri(IM.NAMESPACE + "Query_AllowableRanges")
-      .setName("Allowable ranges"));
-    qr.addArgument(new Argument().setParameter("this")
-      .setValueIri(TTIriRef.iri("http://snomed.info/sct#127489000")));
-    return qr;
-  }
+
 
   public static QueryRequest getAllowableProperties() {
     return new QueryRequest().
@@ -307,9 +313,10 @@ public class TestQueries {
         .setActiveOnly(true)
         .setName("Search for concepts")
           .setTypeOf(IM.CONCEPT)
-        .return_(s -> s
-          .property(p -> p
-            .setIri(RDFS.LABEL))))
+        .return_(r->r
+          .property(p->p.setIri(RDFS.LABEL))
+          .property(p->p.setIri(IM.HAS_TERM_CODE)
+            .return_(r1->r1.property(p1->p1.setIri(RDFS.LABEL))))))
       .setTextSearch("chest pain");
   }
 
@@ -326,22 +333,12 @@ public class TestQueries {
 
   public static QueryRequest AllowablePropertiesForCovid() {
     QueryRequest qr = new QueryRequest()
-      .setTextSearch("causative");
-    Query query = new Query()
-      .setName("AllowablePropertiesForCovidStarting with causative")
-      .setDescription("'using property domains get the allowable properties match the supertypes of this concept")
-      .setActiveOnly(true);
-    query
-        .setTypeOf(new Node().setIri(IM.CONCEPT)
-          .setDescendantsOrSelfOf(true))
-        .where(w1 -> w1
-          .setIri(RDFS.DOMAIN)
-          .addIs(new Node().setIri(SNOMED.NAMESPACE + "674814021000119106").setAncestorsOf(true))
-        )
-      .return_(r -> r
-        .property(s -> s.setIri(IM.CODE))
-        .property(s -> s.setIri(RDFS.LABEL)));
-    qr.setQuery(query);
+      .setName("Allowable Properties for Covid")
+      .setTextSearch("caus");
+    qr.setQuery(new Query()
+      .setIri(QUERY.ALLOWABLE_PROPERTIES));
+    qr.argument(a->a.setParameter("this")
+      .setValueIri(iri(SNOMED.NAMESPACE + "840539006")));
     return qr;
   }
 

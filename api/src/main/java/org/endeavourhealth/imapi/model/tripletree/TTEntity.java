@@ -13,6 +13,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 @JsonSerialize(using = TTEntitySerializer.class)
 @JsonDeserialize(using = TTEntityDeserializer.class)
@@ -44,6 +45,22 @@ public class TTEntity extends TTNode implements Serializable {
     TTLiteral literal = getAsLiteral(iri(RDFS.LABEL));
     return (literal == null) ? null : literal.getValue();
   }
+
+  public String getPreferredName(){
+    TTLiteral literal = getAsLiteral(iri(IM.PREFERRED_NAME));
+    return (literal == null) ? null : literal.getValue();
+  }
+
+  public String getBestMatch(){
+    TTLiteral literal = getAsLiteral(iri(IM.BEST_MATCH));
+    return (literal == null) ? null : literal.getValue();
+  }
+
+  public Integer getUsageTotal(){
+    TTLiteral literal = getAsLiteral(iri(IM.USAGE_TOTAL));
+    return (literal == null) ? null : literal.intValue();
+  }
+
 
   public TTEntity setVersion(int version) {
     set(iri(IM.VERSION), TTLiteral.literal(version));
@@ -118,6 +135,14 @@ public class TTEntity extends TTNode implements Serializable {
     else
       return get(iri(RDF.TYPE));
   }
+  public Set<TTIriRef> getTypes(){
+    TTArray types = getType();
+    if(types == null)
+      return null;
+    return types.getElements().stream().map(TTValue::asIriRef).collect(java.util.stream.Collectors.toSet());
+  }
+
+
 
   public TTIriRef getStatus() {
     return this.getAsIriRef(iri(IM.HAS_STATUS));

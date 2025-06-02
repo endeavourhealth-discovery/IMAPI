@@ -151,7 +151,7 @@ public class OpenSearchSender {
           String name = rs.getValue("name").stringValue();
           blob.setName(name);
           blob.setUsageTotal(0);
-
+          addTerm(blob,name,null,null,null);
           String code;
           if (rs.getValue("code") != null) {
             code = rs.getValue("code").stringValue();
@@ -160,11 +160,11 @@ public class OpenSearchSender {
           if (rs.getValue("preferredName") != null) {
             String preferred = rs.getValue("preferredName").stringValue();
             blob.setPreferredName(preferred);
-            addTerm(blob, preferred, null, null);
+            addTerm(blob, preferred, null, null,null);
           } else if (name.contains(" (") && preferredNameCount.get(name.split(" \\(")[0]) < 2) {
             String preferred = name.split(" \\(")[0];
             blob.setPreferredName(preferred);
-            addTerm(blob, preferred, null, null);
+            addTerm(blob, preferred, null, null,null);
           } else
             blob.setPreferredName(name);
           if (rs.getValue("alternativeCode") != null) {
@@ -213,11 +213,6 @@ public class OpenSearchSender {
             blob.setUsageTotal(Integer.parseInt(rs.getValue("usageTotal").stringValue()));
           }
 
-          String lengthKey = blob.getPreferredName() != null ? blob.getPreferredName() : name;
-          lengthKey = getLengthKey(lengthKey);
-
-          blob.setLength(lengthKey.length());
-          addTerm(blob, name, null, null);
         }
 
       } catch (Exception e) {
@@ -284,20 +279,22 @@ public class OpenSearchSender {
           EntityDocument blob = batch.get(iri);
           String termCode = null;
           String synonym = null;
+          String keyTerm=null;
           TTIriRef status = null;
           if (rs.getValue("synonym") != null)
-            synonym = rs.getValue("synonym").stringValue().toLowerCase();
+            synonym = rs.getValue("synonym").stringValue();
           if (rs.getValue("termCode") != null)
             termCode = rs.getValue("termCode").stringValue();
-
+          if (rs.getValue("keyTerm") != null)
+            keyTerm=rs.getValue("keyTerm").stringValue();
           if (rs.getValue("termCodeStatus") != null)
             status = iri(rs.getValue("termCodeStatus").stringValue());
           if (synonym != null) {
-            addTerm(blob, synonym, termCode, status);
+            addTerm(blob, synonym, termCode, status,keyTerm);
           } else if (termCode != null) {
             SearchTermCode tc = getTermCodeFromCode(blob, termCode);
             if (tc == null) {
-              blob.addTermCode(null, termCode, status);
+              blob.addTermCode(null, termCode, status,keyTerm);
             }
           }
 
@@ -311,13 +308,14 @@ public class OpenSearchSender {
       .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
       .add("PREFIX im: <http://endhealth.info/im#>")
       .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-      .add("select ?iri ?termCode ?synonym ?termCodeStatus")
+      .add("select ?iri ?termCode ?synonym ?termCodeStatus ?keyTerm")
       .add("where {")
       .add("?iri im:hasTermCode ?tc.")
       .add("      VALUES  ?iri  {" + inList + "}")
       .add("       Optional {?tc im:code ?termCode}")
       .add("       Optional  {?tc rdfs:label ?synonym}")
       .add("       Optional  {?tc im:status ?termCodeStatus}")
+      .add("       Optional  {?tc im:keyTerm ?keyTerm}")
       .add("}").toString();
   }
 
@@ -450,17 +448,13 @@ public class OpenSearchSender {
   }
 
 
-  private void addTerm(EntityDocument blob, String term, String code, TTIriRef status) {
+  private void addTerm(EntityDocument blob, String term, String code, TTIriRef status,String keyTerm) {
     SearchTermCode tc = getTermCode(blob, term);
     if (tc == null) {
-      blob.addTermCode(term, code, status);
-    }
-    term = term.replaceAll("[ '()\\-_./,]", "").toLowerCase();
-    tc = getTermCode(blob, term);
-    if (tc == null) {
-      if (term.length() > 30)
-        term = term.substring(0, 30);
-      blob.addTermCode(term, code, status);
+      blob.addTermCode(term, code, status,keyTerm);
+    } else if (code != null && !code.equals(tc.getCode())) {
+      tc.setCode(code);
+      tc.setStatus(status);
     }
   }
 
@@ -628,7 +622,7 @@ public class OpenSearchSender {
                        }
                     }
                },
-              "entityType" : {
+              "type" : {
                 "properties" : {
                   "iri": {
                     "type": "keyword"
@@ -687,10 +681,14 @@ public class OpenSearchSender {
                 "type": "keyword"
               },
               "termCode" : {
+              "type" : "nested",
                 "properties" : {
                   "code" : {
-                    "type" : "text"
+                    "type" : "keyword"
                   },
+                  "keyTerm": {
+                   "type" : "keyword"
+                   },
                   "term" : {
                     "type" : "text",
                      "fields" :{
@@ -700,6 +698,7 @@ public class OpenSearchSender {
                           },
                     "analyzer": "autocomplete"
                   },
+                  "length": {"type": "integer"},
                   "status" : {
                       "properties" : {
                         "iri" : {

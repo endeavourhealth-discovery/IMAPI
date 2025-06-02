@@ -11,11 +11,12 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.net.URI;
@@ -23,6 +24,9 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 public class OSQuery {
@@ -35,17 +39,46 @@ public class OSQuery {
       ObjectNode resultNode = om.createObjectNode();
       resultNodes.add(resultNode);
       ObjectNode osResult = om.treeToValue(hit.get("_source"), ObjectNode.class);
+
       resultNode.set("iri", osResult.get("iri"));
       resultNode.set(RDFS.LABEL, osResult.get("name"));
+      processBestMatch(om,hit, resultNode);
       processNodeResultReturn(request, osResult, resultNode);
     }
   }
 
+  private static void processBestMatch(CachedObjectMapper om,JsonNode hit,ObjectNode resultNode){
+    JsonNode innerHits= hit.get("inner_hits");
+    if (innerHits != null) {
+      if (innerHits.get("termCode") != null) {
+        String name=resultNode.get(RDFS.LABEL).asText();
+        JsonNode bestHit =innerHits.get("termCode").get("hits").get("hits").get(0).get("_source").get("term");
+        String bestTerm=bestHit.asText()+
+          (name.endsWith(")") && name.contains("(")
+            ? " " + name.substring(name.lastIndexOf("("))
+            : "");
+        resultNode.put(IM.BEST_MATCH, bestTerm);
+      }
+    }
+  }
+
   private static void processNodeResultReturn(QueryRequest request, ObjectNode osResult, ObjectNode resultNode) {
-    if (null == request.getQuery().getReturn())
+    if (null == request.getQuery().getReturn()){
+      processSourceReturns(osResult, resultNode);
       return;
+    }
     Return select = request.getQuery().getReturn();
     processNodeResultReturnProperty(osResult, resultNode, select);
+  }
+
+  private static void processSourceReturns(ObjectNode osResult, ObjectNode resultNode) {
+    Set<String> sources = new HashSet<>(List.of(RDFS.LABEL, "iri", IM.PREFERRED_NAME, IM.CODE, IM.USAGE_TOTAL, RDF.TYPE, IM.HAS_SCHEME, IM.HAS_STATUS));
+    for (String field : sources) {
+      String osField = field.substring(field.lastIndexOf("#") + 1);
+      if (osResult.get(osField) != null) {
+        resultNode.set(field, osResult.get(osField));
+      }
+    }
   }
 
   private static void processNodeResultReturnProperty(ObjectNode osResult, ObjectNode resultNode, Return select) {
@@ -68,68 +101,35 @@ public class OSQuery {
     return getStandardResults(request);
   }
 
-  public JsonNode imQuery(QueryRequest request) throws OpenSearchException {
-    return getNodeResults(request);
-  }
-
-  public JsonNode imQuery(QueryRequest request, boolean ignoreInvalid) throws OpenSearchException {
-    this.ignoreInvalid = ignoreInvalid;
-    return getNodeResults(request);
-  }
-
-  public JsonNode getIMOSResults(QueryRequest request) throws QueryException, OpenSearchException {
-    Query query = request.getQuery();
-    JsonNode results;
-    if (query.isImQuery()) {
-      Page page = request.getPage();
-      request.setPage(null);
-      results = new QueryRepository().queryIM(request, false);
-      request.setPage(page);
-    } else {
-      results = getOsResults(request, query);
-    }
-    if (query.getDataSet() != null) {
-      for (Query childQuery : query.getDataSet()) {
-        childQuery.setParentResult(results);
-        if (childQuery.isImQuery()) {
-          results = new QueryRepository().queryIM(request, false);
-        } else {
-          results = getOsResults(request, childQuery);
-        }
+  private JsonNode getOSResults(QueryRequest request) throws OpenSearchException, QueryException {
+    Query query= request.getQuery();
+    if (request.getTextSearchStyle()==null) request.setTextSearchStyle(TextSearchStyle.autocomplete);
+    SearchSourceBuilder builder;
+    if (request.getTextSearchStyle()==TextSearchStyle.autocomplete){
+      builder = converter.buildQuery(request, query,TextSearchStyle.autocomplete);
+      if (builder == null)
+        return null;
+      request.addTiming("Entry point for initial search\"" + request.getTextSearch() + "\"");
+      JsonNode results = runQuery(builder);
+      if (!results.get("hits").get("hits").isEmpty()) {
+        return results;
       }
-      return results;
-    } else
-      return results;
-  }
-
-  private JsonNode getOsResults(QueryRequest request, Query query) throws QueryException, OpenSearchException {
-    if (ignoreInvalid)
-      converter.setIgnoreInvalid(true);
-    SearchSourceBuilder builder = converter.buildQuery(request, query, IMQToOS.QUERY_TYPE.AUTOCOMPLETE);
-    if (builder == null)
-      return null;
-
-    request.addTiming("Entry point for autocomplete\"" + request.getTextSearch() + "\"");
+    }
+    builder = converter.buildQuery(request, query, TextSearchStyle.ngram, Fuzziness.ZERO);
+    if (builder == null) return null;
     JsonNode results = runQuery(builder);
     if (!results.get("hits").get("hits").isEmpty()) {
       return results;
-    }
-    if (request.getTextSearch().contains(" ")) {
-      builder = converter.buildQuery(request, query, IMQToOS.QUERY_TYPE.NGRAM, Fuzziness.ZERO);
+    } else {
+      builder = converter.buildQuery(request, query, TextSearchStyle.multiword);
       results = runQuery(builder);
       if (!results.get("hits").get("hits").isEmpty()) {
         return results;
       } else {
-        builder = converter.buildQuery(request, query, IMQToOS.QUERY_TYPE.MULTIWORD);
+        builder = converter.buildQuery(request, query, TextSearchStyle.ngram, Fuzziness.TWO);
         results = runQuery(builder);
         if (!results.get("hits").get("hits").isEmpty()) {
           return results;
-        } else {
-          builder = converter.buildQuery(request, query, IMQToOS.QUERY_TYPE.NGRAM, Fuzziness.TWO);
-          results = runQuery(builder);
-          if (!results.get("hits").get("hits").isEmpty()) {
-            return results;
-          }
         }
       }
     }
@@ -137,10 +137,12 @@ public class OSQuery {
     String corrected = spellingCorrection(request);
     if (corrected != null) {
       request.setTextSearch(corrected);
-      builder = new IMQToOS().buildQuery(request, query, IMQToOS.QUERY_TYPE.AUTOCOMPLETE);
+      builder = new IMQToOS().buildQuery(request, query, TextSearchStyle.autocomplete, Fuzziness.ZERO);
+      if (builder==null) return null;
       return runQuery(builder);
     }
     return results;
+
   }
 
   private String spellingCorrection(QueryRequest request) throws OpenSearchException {
@@ -259,43 +261,36 @@ public class OSQuery {
   }
 
   private SearchResponse getStandardResults(QueryRequest request) throws OpenSearchException, QueryException {
-    SearchResponse searchResults = new SearchResponse();
-
     try {
-      JsonNode root = getIMOSResults(request);
-
+      JsonNode root = IMOSQuery(request);
       if (root == null)
         return null;
       if (root.has("entities")) {
         return processIMQueryResponse(root, request);
       }
-      try (CachedObjectMapper resultMapper = new CachedObjectMapper()) {
-        searchResults.setHighestUsage(0);
-        searchResults.setCount(0);
-        for (JsonNode hit : root.get("hits").get("hits")) {
-          SearchResultSummary source = resultMapper.treeToValue(hit.get("_source"), SearchResultSummary.class);
-          searchResults.addEntity(source);
-          if (source.getUsageTotal() != null && source.getUsageTotal() > searchResults.getHighestUsage())
-            searchResults.setHighestUsage(source.getUsageTotal());
-          source.setMatch(source.getName());
-          if (source.getPreferredName() != null) {
-            source.setName(source.getPreferredName());
-            source.setMatch(source.getName());
-          }
-          source.setTermCode(null);
-        }
-        Integer totalCount = resultMapper.treeToValue(root.get("hits").get("total").get("value"), Integer.class);
-        if (null != totalCount) searchResults.setCount(totalCount);
-        if (request.getPage() != null) {
-          searchResults.setPage(request.getPage().getPageNumber());
-        }
-        request.addTiming("Results List built");
-        searchResults.setTerm(request.getTextSearch());
-        return searchResults;
-      }
+      else return new SearchResponse();
     } catch (JsonProcessingException e) {
       throw new OpenSearchException("Could not parse OpenSearch response", e);
     }
+
+
+  }
+
+  private SearchResultSummary getSummary(TTEntity entity){
+    SearchResultSummary summary= new SearchResultSummary();
+    summary.setIri(entity.getIri());
+    summary.setName(entity.getName());
+    summary.setPreferredName(entity.getPreferredName());
+    summary.setType(entity.getTypes());
+    summary.setCode(entity.getCode());
+    summary.setStatus(entity.getStatus());
+    summary.setScheme(entity.getScheme());
+    summary.setUsageTotal(entity.getUsageTotal());
+    summary.setBestMatch(entity.getBestMatch());
+    if (summary.getPreferredName() != null) {
+      summary.setName(summary.getPreferredName());
+    }
+    return summary;
   }
 
   private SearchResponse processIMQueryResponse(JsonNode root, QueryRequest request) throws OpenSearchException, JsonProcessingException {
@@ -305,16 +300,10 @@ public class OSQuery {
       searchResults.setCount(0);
       for (JsonNode hit : root.get("entities")) {
         TTEntity entity = resultMapper.treeToValue(hit, TTEntity.class);
-        SearchResultSummary summary = entityService.getSummary(entity.getIri());
+        SearchResultSummary summary =getSummary(entity);
         searchResults.addEntity(summary);
         if (summary.getUsageTotal() != null && summary.getUsageTotal() > searchResults.getHighestUsage())
           searchResults.setHighestUsage(summary.getUsageTotal());
-        summary.setMatch(summary.getName());
-        if (summary.getPreferredName() != null) {
-          summary.setName(summary.getPreferredName());
-          summary.setMatch(summary.getName());
-        }
-        summary.setTermCode(null);
       }
       Integer totalCount = resultMapper.treeToValue(root.get("totalCount"), Integer.class);
       if (null != totalCount) searchResults.setCount(totalCount);
@@ -326,15 +315,15 @@ public class OSQuery {
       return searchResults;
     }
   }
-
-  private JsonNode getNodeResults(QueryRequest request) throws OpenSearchException {
+  public JsonNode IMOSQuery(QueryRequest request) throws OpenSearchException {
     try {
-      JsonNode root = getIMOSResults(request);
+      JsonNode root = getOSResults(request);
       if (root == null)
-        return new ObjectMapper().createObjectNode();
+        return null;
       try (CachedObjectMapper om = new CachedObjectMapper()) {
         if (!root.get("hits").get("hits").isEmpty()) {
           ObjectNode searchResults = om.createObjectNode();
+          searchResults.set("totalCount", root.get("hits").get("total").get("value"));
           ArrayNode resultNodes = om.createArrayNode();
           searchResults.set("entities", resultNodes);
           processNodeResults(request, root, om, resultNodes);
@@ -348,4 +337,5 @@ public class OSQuery {
       throw new OpenSearchException(e.getMessage(), e);
     }
   }
+
 }

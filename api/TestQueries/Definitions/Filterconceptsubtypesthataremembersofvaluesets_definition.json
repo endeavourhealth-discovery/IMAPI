@@ -1,37 +1,43 @@
 {
-  "context": {
-    "im": "http://endhealth.info/im#",
-    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "owl": "http://www.w3.org/2002/07/owl#",
-    "sh": "http://www.w3.org/ns/shacl#",
-    "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-    "sn": "http://snomed.info/sct#"
+  "context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
   },
-  "textSearch": "FOXG1",
-  "query": {
-    "name": "Filter concept subtypes that are members of value sets",
-    "instanceOf": [
-      {
-        "iri": "sn:57148006",
-        "descendantsOrSelfOf": true
-      },
-      {
-        "iri": "sn:11164009",
-        "descendantsOrSelfOf": true
-      }
-    ],
-    "where": {
-      "iri": "im:hasMember",
-      "is": [
-        {
-          "iri": "im:VSET_Conditions"
-        },
-        {
-          "iri": "im:VSET_ASD"
+  "textSearch" : "FOXG1",
+  "query" : {
+    "name" : "Filter concept subtypes that are members of value sets",
+    "instanceOf" : [ {
+      "iri" : "sn:57148006",
+      "descendantsOrSelfOf" : true
+    }, {
+      "iri" : "sn:11164009",
+      "descendantsOrSelfOf" : true
+    } ],
+    "where" : {
+      "iri" : "im:hasMember",
+      "is" : [ {
+        "iri" : "im:VSET_Conditions"
+      }, {
+        "iri" : "im:VSET_ASD"
+      } ],
+      "inverse" : true
+    },
+    "return" : {
+      "property" : [ {
+        "iri" : "rdfs:label"
+      }, {
+        "iri" : "im:hasTermCode",
+        "return" : {
+          "property" : [ {
+            "iri" : "rdfs:label"
+          } ]
         }
-      ],
-      "inverse": true
+      } ]
     }
   }
 }

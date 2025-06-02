@@ -23,6 +23,7 @@ public class IM {
     public static final String id = IM.NAMESPACE + "id";
     public static final String RELATIONSHIP_TYPE = IM.NAMESPACE + "relationshipType";
     public static final String CODE = IM.NAMESPACE + "code";
+    public static final String KEY_TERM = IM.NAMESPACE + "keyTerm";
     public static final String PREFERRED_NAME = IM.NAMESPACE + "preferredName";
     public static final String HAS_SCHEME = IM.NAMESPACE + "scheme";
     public static final String BINDING = IM.NAMESPACE + "binding";
@@ -209,7 +210,7 @@ public class IM {
     public static final String DATAMODEL_OBJECTPROPERTY = IM.NAMESPACE + "dataModelObjectProperty";
     public static final String DATAMODEL_DATAPROPERTY = IM.NAMESPACE + "dataModelDataProperty";
     public static final String DATAMODEL_FUNCTIONPROPERTY = IM.NAMESPACE + "functionProperty";
-    public static final String MATCH = IM.NAMESPACE + "match";
+    public static final String BEST_MATCH = IM.NAMESPACE + "bestMatch";
     public static final String ENTITY_TYPE = IM.NAMESPACE + "entityType";
     public static final String VALUE_DATA = IM.NAMESPACE + "valueData";
     public static final String VALUE_OBJECT = IM.NAMESPACE + "valueObject";

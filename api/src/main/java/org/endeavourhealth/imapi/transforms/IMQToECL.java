@@ -263,15 +263,19 @@ public class IMQToECL {
         if (where.getAnd() == null && where.getOr() == null) {
           if (null == where.getIs())
             throw new QueryException("Where clause must contain a value or sub expressionMatch clause");
+          addProperty(where, ecl, includeNames);
+          ecl.append(" = ");
           boolean first = true;
+          if (where.getIs().size() > 1)
+            ecl.append(" (");
           for (Node value : where.getIs()) {
             if (!first)
-              ecl.append("\n OR ");
+              ecl.append("\n or ");
             first = false;
-            addProperty(where, ecl, includeNames);
-            ecl.append(" = ");
             addClass(value, ecl, includeNames);
           }
+          if (where.getIs().size()>1)
+            ecl.append(")");
         } else {
           addRefinementsToWhere(where, ecl, includeNames, nested);
         }

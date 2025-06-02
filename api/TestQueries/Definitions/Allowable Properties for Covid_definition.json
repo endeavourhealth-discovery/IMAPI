@@ -8,14 +8,15 @@
     "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "sn" : "http://snomed.info/sct#"
   },
+  "textSearch" : "caus",
   "argument" : [ {
     "parameter" : "this",
     "valueIri" : {
-      "iri" : "im:IMQueries"
+      "iri" : "sn:840539006"
     }
   } ],
   "query" : {
-    "iri" : "im:Query_AllowableChildTypes",
-    "name" : "Allowable child types for a folder"
-  }
+    "iri" : "im:Query_AllowableProperties"
+  },
+  "name" : "Allowable Properties for Covid"
 }

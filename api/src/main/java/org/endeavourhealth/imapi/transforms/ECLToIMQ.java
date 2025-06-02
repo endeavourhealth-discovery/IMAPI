@@ -53,7 +53,6 @@ public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
     parser.setTokenStream(tokens);
     IMECLParser.ImeclContext eclCtx = parser.imecl();
     Query query= new ECLToIMQVisitor().getIMQ(eclCtx, true);
-    new QueryDescriptor().generateUUIDs(query);
     return query;
   }
 

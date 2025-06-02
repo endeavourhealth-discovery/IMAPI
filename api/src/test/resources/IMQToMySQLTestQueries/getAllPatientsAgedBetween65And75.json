@@ -1,29 +1,31 @@
 {
-  "and": [
-    {
-      "where": {
-        "iri": "http://endhealth.info/im#age",
-        "range": {
-          "from": {
-            "operator": ">=",
-            "value": "65",
-            "unit": {
-              "iri": "http://endhealth.info/im#Years"
+  "query": {
+    "and": [
+      {
+        "where": {
+          "iri": "http://endhealth.info/im#age",
+          "range": {
+            "from": {
+              "operator": ">=",
+              "value": "65",
+              "unit": {
+                "iri": "http://endhealth.info/im#Years"
+              }
+            },
+            "to": {
+              "operator": "<",
+              "value": "70",
+              "unit": {
+                "iri": "http://endhealth.info/im#Years"
+              }
             }
           },
-          "to": {
-            "operator": "<",
-            "value": "70",
-            "unit": {
-              "iri": "http://endhealth.info/im#Years"
-            }
-          }
-        },
-        "qualifier": "between 65 years (inc.) below 70 years"
+          "qualifier": "between 65 years (inc.) below 70 years"
+        }
       }
+    ],
+    "typeOf": {
+      "iri": "http://endhealth.info/im#Patient"
     }
-  ],
-  "typeOf": {
-    "iri": "http://endhealth.info/im#Patient"
   }
 }

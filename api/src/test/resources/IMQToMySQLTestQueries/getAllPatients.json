@@ -1,17 +1,19 @@
 {
-  "description": "get all patients",
-  "and": [
-    {
-      "where": {
-        "iri": "http://endhealth.info/im#title",
-        "operator": "=",
-        "value": "Mr"
+  "query": {
+    "description": "get all patients",
+    "and": [
+      {
+        "where": {
+          "iri": "http://endhealth.info/im#title",
+          "operator": "=",
+          "value": "Mr"
+        }
       }
+    ],
+    "typeOf": {
+      "iri": "http://endhealth.info/im#Patient",
+      "name": "Patients",
+      "description": " with the following features : "
     }
-  ],
-  "typeOf": {
-    "iri": "http://endhealth.info/im#Patient",
-    "name": "Patients",
-    "description": " with the following features : "
   }
 }

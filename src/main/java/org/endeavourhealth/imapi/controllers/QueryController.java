@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.zip.DataFormatException;
 
 @RestController
@@ -90,7 +91,7 @@ public class QueryController {
     @RequestParam(name = "displayMode", defaultValue = "ORIGINAL") DisplayMode displayMode)
     throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
-      log.debug("getQueryDisplay");
+      log.debug("describeQuery");
       return queryService.describeQuery(iri, displayMode);
     }
   }
@@ -144,10 +145,10 @@ public class QueryController {
     summary = "Generate SQL",
     description = "Generates SQL from the provided IMQ query."
   )
-  public String getSQLFromIMQ(@RequestBody Query query) throws IOException {
+  public String getSQLFromIMQ(@RequestBody QueryRequest queryRequest, @RequestParam(name = "lang", defaultValue = "MYSQL") String lang) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQ.POST")) {
       log.debug("getSQLFromIMQ");
-      return queryService.getSQLFromIMQ(query);
+      return queryService.getSQLFromIMQ(queryRequest, lang, new HashMap<>());
     }
   }
 
@@ -156,10 +157,10 @@ public class QueryController {
     summary = "Generate SQL from IRI",
     description = "Generates SQL from the given IMQ query IRI."
   )
-  public String getSQLFromIMQIri(@RequestParam(name = "queryIri") String queryIri) throws IOException {
+  public String getSQLFromIMQIri(@RequestParam(name = "queryIri") String queryIri, @RequestParam(name = "lang", defaultValue = "MYSQL") String lang) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getSQLFromIMQIri");
-      return queryService.getSQLFromIMQIri(queryIri);
+      return queryService.getSQLFromIMQIri(queryIri, lang, new HashMap<>());
     }
   }
 

@@ -1,0 +1,23 @@
+{
+  "query": {
+    "not": [
+      {
+        "instanceOf": [
+          {
+            "iri": "http://endhealth.info/im#Q_Hypertensives",
+            "memberOf": true
+          }
+        ]
+      }
+    ],
+    "instanceOf": [
+      {
+        "iri": "http://endhealth.info/im#Q_RegisteredGMS",
+        "memberOf": true
+      }
+    ],
+    "typeOf": {
+      "iri": "http://endhealth.info/im#Patient"
+    }
+  }
+}

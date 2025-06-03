@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -24,6 +25,7 @@ public class QueryDescriptor {
   private final EntityRepository repo = new EntityRepository();
   private String namespace = IM.NAMESPACE;
   private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
+  private final QueryRepository queryRepository = new QueryRepository();
 
   public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
@@ -73,7 +75,6 @@ public class QueryDescriptor {
     }
   }
 
-
   private void describeReturn(Return ret) {
     if (ret.getProperty() != null) {
       for (ReturnProperty prop : ret.getProperty()) {
@@ -94,7 +95,6 @@ public class QueryDescriptor {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
   }
-
 
   private void setIriNames(Query query) throws QueryException {
     Set<String> iriSet = new HashSet<>();
@@ -221,7 +221,6 @@ public class QueryDescriptor {
       iriSet.add(assignable.getUnit().getIri());
     }
   }
-
 
   public String getTermInContext(String source, Context... contexts) {
     if (source.isEmpty()) return "";
@@ -375,7 +374,6 @@ public class QueryDescriptor {
     return header.toString();
   }
 
-
   private void describeWheres(List<Where> wheres) {
     Where conceptWhere = getConceptWhere(wheres);
     if (conceptWhere != null) {
@@ -390,7 +388,6 @@ public class QueryDescriptor {
       }
     }
   }
-
 
   private String getPreposition(IriLD node) {
     if (node.getIri() != null) {
@@ -414,9 +411,7 @@ public class QueryDescriptor {
       String label = getTermInContext(set);
       set.setName(label);
       set.setQualifier(qualifier);
-
     }
-
   }
 
   private void describeOrderBy(OrderLimit orderBy) {
@@ -442,7 +437,6 @@ public class QueryDescriptor {
     }
     return null;
   }
-
 
   private void describeWhere(Where where) {
     if (where.getUuid() == null) where.setUuid(UUID.randomUUID().toString());
@@ -600,7 +594,6 @@ public class QueryDescriptor {
     if (units != null) {
       qualifier = qualifier + " " + getTermInContext(units.getIri(), Context.LOWERCASE);
     }
-
     if (inclusive) {
       qualifier = qualifier + " (inc.)";
     }
@@ -678,13 +671,11 @@ public class QueryDescriptor {
     describeRelativeTo(where);
   }
 
-
   private void describeRangeWhere(Where where) {
     describeFrom(where, where.getRange().getFrom());
     describeTo(where, where.getRange().getTo());
     describeRelativeTo(where);
   }
-
 
   private void describeRelativeTo(Where where) {
     RelativeTo relativeTo = where.getRelativeTo();
@@ -714,7 +705,6 @@ public class QueryDescriptor {
         modifier = set.isExclude() ? " but not: " : " ";
         set.setQualifier(modifier);
       }
-
       String value = getTermInContext(set);
       set.setName(value);
       if (iriContext.get(set.getIri()) != null) {
@@ -730,9 +720,7 @@ public class QueryDescriptor {
         if (i > 0) valueLabel.append(", or ");
       }
       Node set = where.getIs().get(i);
-
       valueLabel.append(set.getQualifier() != null ? set.getQualifier() + " " : "").append(set.getName());
-
     }
     where.setValueLabel(valueLabel.toString());
   }

@@ -1,0 +1,190 @@
+{
+  "query": {
+    "iri": "http://endhealth.info/im#Q_TestQuery",
+    "name": "Patients 65-70, or diabetes or prediabetes that need invitations for blood pressure measuring",
+    "description": "Test for patients either aged between 65 and 70 or with diabetes with the most recent systolic in the last 12 months either home >130 or office >140, not followed by a screening invite, excluding hypertensives",
+    "typeOf": {
+      "iri": "http://endhealth.info/im#Patient"
+    },
+    "and": [
+      {
+        "instanceOf": [
+          {
+            "iri": "http://endhealth.info/im#Q_RegisteredGMS",
+            "name": "Registered for GMS services on reference date",
+            "memberOf": true
+          }
+        ]
+      },
+      {
+        "name": "Patients 65-70, or diabetes or prediabetes",
+        "description": "Patients with an age between 65 and 70, or on the diabetic register, or have prediabetes",
+        "or": [
+          {
+            "where": {
+              "iri": "http://endhealth.info/im#age",
+              "name": "aged between 65 and 70",
+              "range": {
+                "from": {
+                  "operator": ">=",
+                  "value": "65",
+                  "qualifier": null,
+                  "valueLabel": null,
+                  "valueParameter": null,
+                  "unit": {
+                    "iri": "http://endhealth.info/im#Years"
+                  }
+                },
+                "to": {
+                  "operator": "<",
+                  "value": "70",
+                  "qualifier": null,
+                  "valueLabel": null,
+                  "valueParameter": null,
+                  "unit": {
+                    "iri": "http://endhealth.info/im#Years"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "where": {
+              "iri": "http://endhealth.info/im#concept",
+              "nodeRef": "Observation",
+              "is": [
+                {
+                  "iri": "http://snomed.info/sct#714628002",
+                  "descendantsOf": true
+                }
+              ],
+              "valueLabel": "Prediabetes"
+            },
+            "path": [
+              {
+                "iri": "http://endhealth.info/im#observation",
+                "variable": "Observation",
+                "name": "has pre-diabetes",
+                "typeOf": {
+                  "iri": "http://endhealth.info/im#Observation"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Have high blood pressure in the last year",
+        "description": "Latest systolic within 12 months of the reference date, is either an office systolic >140 or a home systolic >130",
+        "where": {
+          "and": [
+            {
+              "iri": "http://endhealth.info/im#concept",
+              "name": "concept",
+              "nodeRef": "Observation",
+              "is": [
+                {
+                  "iri": "http://snomed.info/sct#271649006",
+                  "name": "Systolic blood pressure",
+                  "descendantsOrSelfOf": true
+                },
+                {
+                  "iri": "http://endhealth.info/emis#1994021000006115",
+                  "name": "Home systolic blood pressure",
+                  "descendantsOrSelfOf": true
+                }
+              ],
+              "valueLabel": "Office or home systolic blood pressure"
+            },
+            {
+              "iri": "http://endhealth.info/im#effectiveDate",
+              "operator": ">=",
+              "value": "-12",
+              "relativeTo": {
+                "parameter": "$referenceDate"
+              },
+              "nodeRef": "Observation",
+              "valueLabel": "last 12 months",
+              "unit": {
+                "iri": "http://endhealth.info/im#Months"
+              }
+            }
+          ]
+        },
+        "orderBy": {
+          "property": [
+            {
+              "iri": "http://endhealth.info/im#effectiveDate",
+              "nodeRef": "Observation",
+              "direction": "descending"
+            }
+          ],
+          "limit": 1
+        },
+        "path": [
+          {
+            "iri": "http://endhealth.info/im#observation",
+            "variable": "Observation",
+            "typeOf": {
+              "iri": "http://endhealth.info/im#Observation"
+            }
+          }
+        ],
+        "then": {
+          "nodeRef": "latestBP",
+          "where": {
+            "or": [
+              {
+                "and": [
+                  {
+                    "iri": "http://endhealth.info/im#concept",
+                    "is": [
+                      {
+                        "iri": "http://snomed.info/sct#271649006",
+                        "name": "Systolic blood pressure",
+                        "descendantsOrSelfOf": true
+                      }
+                    ],
+                    "valueLabel": "Office blood pressure"
+                  },
+                  {
+                    "iri": "http://endhealth.info/im#value",
+                    "operator": ">",
+                    "value": "140"
+                  }
+                ]
+              },
+              {
+                "and": [
+                  {
+                    "iri": "http://endhealth.info/im#concept",
+                    "is": [
+                      {
+                        "iri": "http://endhealth.info/emis#1994021000006115",
+                        "name": "Home systolic blood pressure",
+                        "descendantsOrSelfOf": true
+                      }
+                    ],
+                    "valueLabel": "Home blood pressure"
+                  },
+                  {
+                    "iri": "http://endhealth.info/im#value",
+                    "operator": ">",
+                    "value": "130"
+                  }
+                ]
+              }
+            ]
+          },
+          "return": {
+            "as": "highBPReading"
+          }
+        },
+        "return": {
+          "nodeRef": "Observation",
+          "as": "latestBP"
+        }
+      }
+    ]
+  }
+}

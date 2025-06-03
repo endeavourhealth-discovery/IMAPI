@@ -1,0 +1,38 @@
+package org.endeavourhealth.imapi.model.sql;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.HashMap;
+
+@Getter
+@Setter
+@AllArgsConstructor
+public class TableMap {
+  private HashMap<String, Table> properties;
+  private HashMap<String, Table> dataModels;
+
+  public TableMap() {
+  }
+
+  public Table getTable(String iri) {
+    Table propTable = properties.get(iri);
+    if (propTable != null) {
+      String dataModel = propTable.getDataModel();
+      Table dmTable = dataModels.get(dataModel);
+
+      Table returnTable = new Table();
+      returnTable.setTable(propTable.getTable() != null ? propTable.getTable() : dmTable.getTable());
+      returnTable.setCondition(propTable.getCondition() != null ? propTable.getCondition() : dmTable.getCondition());
+      returnTable.setFields(dmTable.getFields());
+      returnTable.setRelationships(dmTable.getRelationships());
+      return returnTable;
+    }
+    return dataModels.get(iri);
+  }
+
+  public void putTable(String iri, Table table) {
+    dataModels.put(iri, table);
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "properties": {
+    "http://endhealth.info/im#patient": {
+      "dataModel": "http://endhealth.info/im#Patient"
+    },
+    "http://endhealth.info/im#observation": {
+      "dataModel": "http://endhealth.info/im#Observation"
+    },
+    "http://endhealth.info/im#gPRegistration": {
+      "dataModel": "http://endhealth.info/im#GPRegistration"
+    },
+    "http://endhealth.info/im#prescription": {
+      "dataModel": "http://endhealth.info/im#Prescription"
+    },
+    "http://endhealth.info/im#medicationRequest": {
+      "dataModel": "http://endhealth.info/im#MedicationRequest"
+    },
+    "http://endhealth.info/im#episodeOfCare": {
+      "dataModel": "http://endhealth.info/im#EpisodeOfCare"
+    }
+  },
+  "dataModels": {
+    "http://endhealth.info/im#Patient": {
+      "table": "patient",
+      "fields": {
+        "http://endhealth.info/im#age": {"field": "{alias}.date_of_birth", "type": "date"},
+        "http://endhealth.info/im#dateOfBirth": {"field": "{alias}.date_of_birth", "type": "date"}
+      },
+      "relationships": {
+        "http://endhealth.info/im#Observation": {"fromField": "id", "toField": "{alias}.patient_id"}
+      }
+    },
+    "http://endhealth.info/im#Observation": {
+      "table": "observation",
+      "fields": {
+        "http://endhealth.info/im#concept": {"field": "{alias}.core_concept_id", "type": "iri"},
+        "http://endhealth.info/im#effectiveDate": {"field": "{alias}.clinical_effective_date", "type": "date"},
+        "http://endhealth.info/im#value": {"field": "{alias}.result_value", "type": "number"},
+        "http://endhealth.info/im#ageAtEvent": {"field": "{alias}.age_at_event", "type": "age"}
+      },
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "{alias}.patient_id", "toField": "id"}
+      }
+    },
+    "http://endhealth.info/im#GPRegistration": {
+      "table": "registration_status_history",
+      "fields": {
+        "http://endhealth.info/im#concept": {"field": "{alias}.concept", "type": "iri"},
+        "http://endhealth.info/im#gpPatientType": {"field": "{alias}.patientType", "type": "iri"},
+        "http://endhealth.info/im#gpRegisteredStatus": {"field": "{alias}.status", "type": "iri"},
+        "http://endhealth.info/im#gpGMSRegistrationDate": {
+          "field": "{alias}.clinical_effective_date",
+          "type": "date"
+        },
+        "http://endhealth.info/im#effectiveDate": {"field": "{alias}.clinical_effective_date", "type": "date"},
+        "http://endhealth.info/im#endDate": {"field": "{alias}.endDate", "type": "date"}
+      },
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "{alias}.patient_id", "toField": "id"}
+      }
+    },
+    "http://endhealth.info/im#Prescription": {
+      "table": "medication_order",
+      "fields": {
+        "http://endhealth.info/im#concept": {"field": "{alias}.concept", "type": "iri"},
+        "http://endhealth.info/im#effectiveDate": {"field": "{alias}.clinical_effective_date", "type": "date"}
+      },
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "{alias}.patient_id", "toField": "id"}
+      }
+    },
+    "http://endhealth.info/im#MedicationRequest": {
+      "table": "medication_order",
+      "fields": {
+        "http://endhealth.info/im#concept": {"field": "{alias}.concept", "type": "iri"},
+        "http://endhealth.info/im#effectiveDate": {"field": "{alias}.clinical_effective_date", "type": "date"}
+      },
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "{alias}.patient_id", "toField": "id"}
+      }
+    },
+    "http://endhealth.info/im#EpisodeOfCare": {
+      "table": "episode_of_care",
+      "fields": {
+        "http://endhealth.info/im#concept": {"field": "{alias}.concept", "type": "iri"},
+        "http://endhealth.info/im#gpPatientType": {
+          "field": "{alias}.gpPatientType",
+          "type": "iri"
+        },
+        "http://endhealth.info/im#effectiveDate": {"field": "{alias}.clinical_effective_date", "type": "date"},
+        "http://endhealth.info/im#endDate": {"field": "{alias}.endDate", "type": "date"}
+      },
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "{alias}.patient", "toField": "id"}
+      }
+    }
+  }
+}

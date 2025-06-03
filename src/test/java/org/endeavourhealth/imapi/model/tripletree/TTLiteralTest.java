@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
@@ -69,7 +70,9 @@ class TTLiteralTest {
 
   @Test
   void serializeTest() throws JsonProcessingException {
-    String actual = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(testObject);
+    ObjectMapper om= new ObjectMapper();
+    om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    String actual = om.writerWithDefaultPrettyPrinter().writeValueAsString(testObject);
     assertEquals(json, actual);
   }
 

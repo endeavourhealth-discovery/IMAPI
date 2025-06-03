@@ -45,7 +45,7 @@ public class EntityRepository {
   private static void hydrateCorePropertiesSetEntityDocumentProperties(EntityDocument entityDocument, TupleQueryResult qr) {
     BindingSet rs = qr.next();
     entityDocument.setName(rs.getValue("name").stringValue());
-    entityDocument.addTermCode(entityDocument.getName(), null, null);
+    entityDocument.addTermCode(entityDocument.getName(), null, null,null);
 
     if (rs.hasBinding("preferredName")) entityDocument.setPreferredName(rs.getValue("preferredName").stringValue());
 
@@ -271,7 +271,7 @@ public class EntityRepository {
           String iri = bs.getValue("s").stringValue();
           Set<TTIriRef> types = iriToTypesMap.get(iri);
           SearchResultSummary summary = new SearchResultSummary();
-          summary.setIri(iri).setName(bs.getValue("sname").stringValue()).setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue()).setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue()))).setEntityType(types).setStatus(new TTIriRef(bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue())).setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
+          summary.setIri(iri).setName(bs.getValue("sname").stringValue()).setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue()).setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue()))).setType(types).setStatus(new TTIriRef(bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue())).setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
           summaries.add(summary);
         }
       }
@@ -319,7 +319,7 @@ public class EntityRepository {
               .setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
           }
           if (bs.hasBinding("type")) {
-            result.addEntityType(TTIriRef.iri(bs.getValue("type").stringValue())
+            result.addType(TTIriRef.iri(bs.getValue("type").stringValue())
               .setName(bs.getValue("typeName").stringValue()));
           }
 
@@ -485,14 +485,14 @@ public class EntityRepository {
           if (synonym != null) {
             SearchTermCode tc = getTermCode(entityDocument, synonym);
             if (tc == null) {
-              entityDocument.addTermCode(synonym, termCode, status);
+              entityDocument.addTermCode(synonym, termCode, status,null);
               addKey(synonym);
             } else if (termCode != null) {
               tc.setCode(termCode);
             }
           } else if (termCode != null) {
             SearchTermCode tc = getTermCodeFromCode(entityDocument, termCode);
-            if (tc == null) entityDocument.addTermCode(null, termCode, status);
+            if (tc == null) entityDocument.addTermCode(null, termCode, status,null);
           }
 
         }

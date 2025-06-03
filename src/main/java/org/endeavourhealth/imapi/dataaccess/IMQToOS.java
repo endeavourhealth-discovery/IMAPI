@@ -1,12 +1,16 @@
 package org.endeavourhealth.imapi.dataaccess;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.Getter;
+import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.functionscore.ScriptScoreQueryBuilder;
+import org.elasticsearch.index.query.functionscore.*;
 import org.elasticsearch.script.Script;
+import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -23,21 +27,16 @@ public class IMQToOS {
   private static final String USAGE_TOTAL = "usageTotal";
   private static final String STATUS = "status";
   private QueryRequest request;
-  private BoolQueryBuilder boolBuilder;
-  private SearchSourceBuilder sourceBuilder;
   private Query query;
+  @Getter
   private boolean ignoreInvalid;
-
-  public boolean isIgnoreInvalid() {
-    return ignoreInvalid;
-  }
 
   public IMQToOS setIgnoreInvalid(boolean ignoreInvalid) {
     this.ignoreInvalid = ignoreInvalid;
     return this;
   }
 
-  public SearchSourceBuilder buildQuery(QueryRequest imRequest, Query oneQuery, QUERY_TYPE type, Fuzziness fuzziness) throws QueryException {
+  public SearchSourceBuilder buildQuery(QueryRequest imRequest, Query oneQuery, TextSearchStyle type, Fuzziness fuzziness) throws QueryException {
     request = imRequest;
     query = oneQuery;
     request.setTextSearch(request.getTextSearch()
@@ -45,67 +44,94 @@ public class IMQToOS {
       .replace("{", "")
       .replace("}", ""));
     switch (type) {
-      case AUTOCOMPLETE -> {
+      case autocomplete -> {
         return autocompleteQuery(request, query);
       }
-      case MULTIWORD -> {
+      case multiword -> {
         return multiWordQuery(request, query);
       }
-      case NGRAM -> {
+      case ngram -> {
         return nGramQuery(request, query, fuzziness);
       }
     }
     throw new QueryException("Valid query type needed");
   }
 
-  public SearchSourceBuilder buildQuery(QueryRequest imRequest, Query oneQuery, QUERY_TYPE type) throws QueryException {
+  public SearchSourceBuilder buildQuery(QueryRequest imRequest, Query oneQuery, TextSearchStyle type) throws QueryException {
     return buildQuery(imRequest, oneQuery, type, Fuzziness.ZERO);
   }
 
   private SearchSourceBuilder nGramQuery(QueryRequest imRequest, Query oneQuery, Fuzziness fuzziness) throws QueryException {
 
-    boolBuilder = new BoolQueryBuilder();
-    if (!addMatches())
+    BoolQueryBuilder boolBuilder = new BoolQueryBuilder();
+    if (!addMatches(boolBuilder))
       return null;
-    sourceBuilder = new SearchSourceBuilder();
-    if (!addReturns())
+    SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+    if (!addReturns(sourceBuilder))
       return null;
-    addScriptAndPage();
     String text = request.getTextSearch();
     MatchQueryBuilder mat = new MatchQueryBuilder("termCode.term", text);
     mat.analyzer("standard");
     mat.operator(Operator.AND);
     mat.fuzziness(fuzziness);
-    boolBuilder.must(mat);
+    Map<String,Object> params= new HashMap<>();
+    params.put("term",text);
+    Script script= new Script(ScriptType.INLINE,
+      Script.DEFAULT_SCRIPT_LANG,
+      "double s= 100000; if (doc['termCode.term.keyword'].value.toLowerCase().startsWith(params.term)) s=200000; return s - doc['termCode.length'].value",
+      Collections.emptyMap(),
+      params);
 
+    NestedQueryBuilder nested= buildNested(mat,script);
+    boolBuilder.must(nested);
+    sourceBuilder.query(boolBuilder);
+    addPages(sourceBuilder);
     return sourceBuilder;
   }
 
   private SearchSourceBuilder multiWordQuery(QueryRequest imRequest, Query query) throws QueryException {
-    if (!addMatches())
+    BoolQueryBuilder boolBuilder = new BoolQueryBuilder();
+    if (!addMatches(boolBuilder))
       return null;
-    sourceBuilder = new SearchSourceBuilder();
-    if (!addReturns())
+    SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+    if (!addReturns(sourceBuilder))
       return null;
-    addScriptAndPage();
 
     String text = request.getTextSearch();
     int wordPos = 0;
     text = text.replace("(", "").replace(")", "").replace("-", "");
-    for (String term : text.split(" ")) {
-      wordPos++;
-      MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder("termCode.term", term);
-      mfs.boost(wordPos == 1 ? 4 : 1);
-      mfs.analyzer("standard");
-      boolBuilder.must(mfs);
-    }
-
+    wordPos++;
+    MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder("termCode.term", text);
+    mfs.boost(wordPos == 1 ? 4 : 1);
+    mfs.analyzer("standard");
+    mfs.slop(text.split(" ").length - 1);
+    Map<String,Object> params= new HashMap<>();
+    params.put("term",text);
+    Script script= new Script(ScriptType.INLINE,
+      Script.DEFAULT_SCRIPT_LANG,
+      "double s= 100000; if (doc['termCode.term.keyword'].value.toLowerCase().startsWith(params.term)) s=200000; return s - doc['termCode.length'].value",
+      Collections.emptyMap(),
+      params);
+    NestedQueryBuilder nested= buildNested(mfs,script);
+    boolBuilder.must(nested);
+    sourceBuilder.query(boolBuilder);
+    addPages(sourceBuilder);
     return sourceBuilder;
   }
 
-  private SearchSourceBuilder autocompleteQuery(QueryRequest imRequest, Query query) throws QueryException {
+  private NestedQueryBuilder buildNested(QueryBuilder query,Script script){
+    ScriptScoreQueryBuilder ssb= new ScriptScoreQueryBuilder(
+      query,
+      script
+    );
+    String[] includes= {"termCode.term"};
+    return new NestedQueryBuilder("termCode",ssb, ScoreMode.Max)
+      .innerHit(new InnerHitBuilder()
+        .setFetchSourceContext(new FetchSourceContext(true, includes, null)));
+  }
 
-    boolBuilder = new BoolQueryBuilder();
+  private SearchSourceBuilder autocompleteQuery(QueryRequest imRequest, Query query) throws QueryException {
+    BoolQueryBuilder boolBuilder = new BoolQueryBuilder();
     String term = request.getTextSearch();
     if (term.contains(":") && (!term.contains(" "))) {
       String namespace = EntityCache.getDefaultPrefixes().getNamespace(term.substring(0, term.indexOf(":")));
@@ -114,44 +140,35 @@ public class IMQToOS {
         if (splits.length == 2) term = namespace + term.split(":")[1];
       }
     }
-    addCodesAndIri(term);
+    addCodesAndIri(boolBuilder,term);
 
     String prefix = term.replaceAll("[ '()\\-_./]", "").toLowerCase();
-    TermQueryBuilder tqac = new TermQueryBuilder("preferredName.keyword", term).caseInsensitive(true);
-    tqac.boost(20000000F);
-    boolBuilder.should(tqac);
-    tqac = new TermQueryBuilder("name.keyword", term).caseInsensitive(true);
-    tqac.boost(20000000F);
-    boolBuilder.should(tqac);
-    tqac = new TermQueryBuilder("termCode.term.keyword", term).caseInsensitive(true);
-    tqac.boost(20000000F);
-    boolBuilder.should(tqac);
-    PrefixQueryBuilder pqb = new PrefixQueryBuilder("termCode.term", prefix);
-    pqb.boost(1000000F);
-    boolBuilder.should(pqb);
-    MatchPhrasePrefixQueryBuilder mpt = new MatchPhrasePrefixQueryBuilder("termCode.term", term)
-      .analyzer("standard")
-      .slop(1);
-    boolBuilder.should(mpt);
+    String field="termCode.keyTerm";
+    if (prefix.length() >31)
+      field="termCode.term.keyword";
+    PrefixQueryBuilder pqb = new PrefixQueryBuilder(field, prefix).caseInsensitive(true);
+    Script script= new Script(ScriptType.INLINE,Script.DEFAULT_SCRIPT_LANG,"100000 - doc['termCode.length'].value",Collections.emptyMap());
+    NestedQueryBuilder nested= buildNested(pqb,script);
+    boolBuilder.should(nested);
     boolBuilder.minimumShouldMatch(1);
-    if (!addMatches())
+    if (!addMatches(boolBuilder))
       return null;
-
-    sourceBuilder = new SearchSourceBuilder();
-    if (!addReturns())
+    SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+    if (!addReturns(sourceBuilder))
       return null;
-    addScriptAndPage();
+    sourceBuilder.query(boolBuilder);
+    addPages(sourceBuilder);
     return sourceBuilder;
   }
 
-  private boolean addMatches() throws QueryException {
+  private boolean addMatches(BoolQueryBuilder boolBuilder) throws QueryException {
     if (query == null)
       return true;
     if (query.isActiveOnly()) {
       addFilterWithId("status", Set.of(IM.ACTIVE), Bool.and, boolBuilder);
     }
     if (query.getAnd() == null && query.getOr() == null){
-      if(!addMatch(query))
+      if(!addMatch(boolBuilder,query))
         return ignoreInvalid;
     } else {
       List<Match> ands = query.getAnd();
@@ -159,7 +176,7 @@ public class IMQToOS {
       for (List<Match> matches : Arrays.asList(ands, ors)) {
         if (matches != null) {
           for (Match match : matches) {
-            if (!addMatch(match)) {
+            if (!addMatch(boolBuilder,match)) {
               return ignoreInvalid;
             }
           }
@@ -169,7 +186,7 @@ public class IMQToOS {
     return true;
   }
 
-  private void addCodesAndIri(String term) {
+  private void addCodesAndIri(BoolQueryBuilder boolBuilder,String term) {
     TermQueryBuilder tqb = new TermQueryBuilder("code", term);
     boolBuilder.should(tqb);
     TermQueryBuilder tqac = new TermQueryBuilder("alternativeCode", term);
@@ -182,10 +199,7 @@ public class IMQToOS {
 
   }
 
-  private void addScriptAndPage() {
-    Script script = new Script(getScoreScript());
-    ScriptScoreQueryBuilder sqr = QueryBuilders.scriptScoreQuery(boolBuilder, script);
-    sourceBuilder.query(sqr);
+  private void addPages(SearchSourceBuilder sourceBuilder) {
     if (request.getPage() != null) {
       sourceBuilder.size(request.getPage().getPageSize()).from(request.getPage().getPageSize() * (request.getPage().getPageNumber() - 1));
     } else {
@@ -207,8 +221,8 @@ public class IMQToOS {
       "if (_score>10000000) {_score=20;} else if (_score>1000000) {_score=4;} else _score=0;_score+ usage;";
   }
 
-  private boolean addReturns() {
-    Set<String> sources = new HashSet<>(List.of("name", "iri", "preferredName", "code", "usageTotal", "entityType", "scheme", "status"));
+  private boolean addReturns(SearchSourceBuilder sourceBuilder) {
+    Set<String> sources = new HashSet<>(List.of("name", "iri", "preferredName", "code", "usageTotal", "type", "scheme", "status"));
     if (query == null)
       return true;
     if (query.getReturn() != null) {
@@ -236,7 +250,7 @@ public class IMQToOS {
                 sources.add(SCHEME);
                 break;
               case RDF.TYPE:
-                sources.add("entityType");
+                sources.add("type");
                 break;
               case IM.USAGE_TOTAL:
                 sources.add(USAGE_TOTAL);
@@ -273,22 +287,22 @@ public class IMQToOS {
     else if (Bool.or == bool) boolBldr.should(tqr);
   }
 
-  private boolean addMatch(Match match) throws QueryException {
+  private boolean addMatch(BoolQueryBuilder boolBuilder,Match match) throws QueryException {
+    if (match.getAnd() != null||match.getOr()!=null)
+      return false;
     if (match.getTypeOf() != null) {
-      addFilterWithId("entityType", Set.of(getIriFromAlias(match.getTypeOf())), Bool.and, boolBuilder);
+      addFilterWithId("type", Set.of(getIriFromAlias(match.getTypeOf())), Bool.and, boolBuilder);
     }
 
     if (match.getInstanceOf() != null) {
-      setFromAliases(match.getInstanceOf());
+      setFromAliases(boolBuilder,match.getInstanceOf());
     }
-
-    if (!addProperties(match))
+    if (!addProperties(boolBuilder,match))
       return false;
-
-    return match.getAnd() != null||match.getOr()==null;
+    return true;
   }
 
-  private boolean addProperties(Match match) throws QueryException {
+  private boolean addProperties(BoolQueryBuilder boolBuilder,Match match) throws QueryException {
     if (match.getPath()!=null){
       for (Path pathMatch : match.getPath()) {
         String w = pathMatch.getIri();
@@ -326,7 +340,7 @@ public class IMQToOS {
     } else if (IM.HAS_STATUS.equals(w)) {
       return addIsFilter("status", where, bool, boolBldr);
     } else if (RDF.TYPE.equals(w)) {
-      return addIsFilter("entityType", where, bool, boolBldr);
+      return addIsFilter("type", where, bool, boolBldr);
     } else if (IM.IS_A.equals(w)) {
       return addIsFilter("isA", where, bool, boolBldr);
     } else if (IM.CONTENT_TYPE.equals(w)) {
@@ -401,7 +415,7 @@ public class IMQToOS {
     }
   }
 
-  private void setFromAliases(List<Node> types) throws QueryException {
+  private void setFromAliases(BoolQueryBuilder boolBuilder,List<Node> types) throws QueryException {
     Map<String, Set<String>> instanceFilters = new HashMap<>();
     for (Node type : types) {
       setFromAlias(type, instanceFilters);
@@ -463,11 +477,6 @@ public class IMQToOS {
 
   }
 
-  public enum QUERY_TYPE {
-    AUTOCOMPLETE,
-    MULTIWORD,
-    NGRAM
-  }
 
 
 }

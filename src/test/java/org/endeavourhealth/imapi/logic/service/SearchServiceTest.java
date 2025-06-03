@@ -29,13 +29,17 @@ class SearchServiceTest {
   EntityService entityService = new EntityService();
 
 //@Test
-  void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
+  void imq() throws Exception {
+  output(TestQueries.rangeTextSearch());
+  output(TestQueries.getMembers());
+  output(TestQueries.AllowablePropertiesForCovid());
+  ask(TestQueries.isValidProperty());
   output(TestQueries.dataModelPropertyRange());
   output(TestQueries.shapesWithDateOFBirth());
    output(TestQueries.getAllowableSubtypes());
    output(TestQueries.AllowablePropertiesForCovid());
    output(TestQueries.getAllowableProperties());
-   output(TestQueries.getMembers());
+
 
    output(TestQueries.subtypesParameterised());
 
@@ -61,7 +65,7 @@ class SearchServiceTest {
 
     output(TestQueries.substanceTextSearch());
     output(TestQueries.rangeTextSearch());
-    output(TestQueries.getAllowableRanges());
+
     output(TestQueries.oralNsaids());
     output(TestQueries.getAllowableProperties());
     output(TestQueries.getIsas());
@@ -85,8 +89,9 @@ class SearchServiceTest {
       name = dataSet.getUpdate().getName();
     if (name != null)
       name = name.replaceAll(" ", "").replaceAll("\\(", "").replaceAll("\\)", "");
-    else
-      name = "unnamed query";
+    else if (dataSet.getName()!=null)
+      name= dataSet.getName();
+    else name = "unnamed query";
     SearchService searchService = new SearchService();
     System.out.println("Testing " + name);
     dataSet.setContext(TTManager.createBasicContext());
@@ -121,6 +126,14 @@ class SearchServiceTest {
     }
 
 
+  }
+
+  private void ask(QueryRequest askQuery) throws Exception {
+    SearchService searchService = new SearchService();
+    if (searchService.askQueryIM(askQuery)){
+      System.out.println("ask query Valid");
+    } else
+      throw new Exception("invalid ask query");
   }
 
   //@Test

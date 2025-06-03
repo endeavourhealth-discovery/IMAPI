@@ -38,23 +38,63 @@ public class IMQToECL {
     expressionMatch(query, ecl, includeName, false);
     return ecl.toString().trim();
   }
-
   private void cleanMatch(Match match) {
-   if (match.getOr()!=null) {
-     for (int i = match.getOr().size() - 1; i >= 0; i--) {
-       Match subMatch = match.getOr().get(i);
-       if (subMatch.getInstanceOf()!=null&&subMatch.getInstanceOf().getFirst().getIri()==null) {
-         match.getOr().remove(i);
-       }
-     }
-     if (match.getOr().isEmpty()) {
-       match.setOr(null);
-     } else {
-       for (Match subMatch : match.getOr()) {
-         cleanMatch(subMatch);
-       }
-     }
-   }
+    match.setOr(cleanSubMatches(match.getOr()));
+    match.setAnd(cleanSubMatches(match.getAnd()));
+    match.setNot(cleanSubMatches(match.getNot()));
+    if (match.getWhere()!=null)
+      cleanWhere(match.getWhere());
+  }
+
+  private void cleanWhere(Where where) {
+    where.setOr(cleanSubWheres(where.getOr()));
+    where.setAnd(cleanSubWheres(where.getAnd()));
+  }
+
+  private List<Where> cleanSubWheres(List<Where> wheres) {
+    if (wheres==null) return null;
+    for (int i = wheres.size() - 1; i >= 0; i--) {
+      if (isBlankWhere(wheres.get(i))) {
+        wheres.remove(i);
+      }
+    }
+    if (wheres.isEmpty()) {
+      return null;
+    }
+    for (Where subWhere : wheres) {
+      cleanWhere(subWhere);
+    }
+    return wheres;
+  }
+
+  private boolean isBlankWhere(Where where) {
+    if (where.getIri()==null&&where.getOr()==null&&where.getAnd()==null&&where.getNot()==null) return true;
+    if (where.getAnd()!=null||where.getNot()!=null||where.getOr()!=null) return false;
+    if (where.getIs()==null) return true;
+    return where.getIs().getFirst().getIri() == null;
+  }
+
+  private List<Match> cleanSubMatches(List<Match> matches) {
+    if (matches == null) return null;
+    for (int i = matches.size() - 1; i >= 0; i--) {
+      if (isBlankMatch(matches.get(i))) {
+        matches.remove(i);
+      }
+    }
+    if (matches.isEmpty()) {
+      return null;
+    }
+    for (Match m : matches) {
+      cleanMatch(m);
+    }
+    return matches;
+  }
+
+
+  private boolean isBlankMatch(Match match){
+    if (match.getInstanceOf()!=null&&match.getInstanceOf().getFirst().getIri()==null&&match.getWhere()==null)
+      return true;
+    return false;
   }
 
   public EclType getEclType(Match match) {
@@ -223,15 +263,19 @@ public class IMQToECL {
         if (where.getAnd() == null && where.getOr() == null) {
           if (null == where.getIs())
             throw new QueryException("Where clause must contain a value or sub expressionMatch clause");
+          addProperty(where, ecl, includeNames);
+          ecl.append(" = ");
           boolean first = true;
+          if (where.getIs().size() > 1)
+            ecl.append(" (");
           for (Node value : where.getIs()) {
             if (!first)
-              ecl.append("\n OR ");
+              ecl.append("\n or ");
             first = false;
-            addProperty(where, ecl, includeNames);
-            ecl.append(" = ");
             addClass(value, ecl, includeNames);
           }
+          if (where.getIs().size()>1)
+            ecl.append(")");
         } else {
           addRefinementsToWhere(where, ecl, includeNames, nested);
         }

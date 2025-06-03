@@ -1091,7 +1091,7 @@ public class EqdResources {
         Node n = new Node();
         n.setIri(e.getIri());
         n.setName(e.getName());
-        if (Set.of(iri(IM.CONCEPT_SET), iri(IM.VALUESET)).stream().anyMatch(e.getEntityType()::contains))
+        if (Set.of(iri(IM.CONCEPT_SET), iri(IM.VALUESET)).stream().anyMatch(e.getType()::contains))
           n.setMemberOf(true);
         return n;
       })

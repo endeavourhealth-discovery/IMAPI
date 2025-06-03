@@ -1,10 +1,8 @@
 {
-  "page": 1,
-  "count": 1,
-  "totalCount": 1,
-  "entities": [
-    {
-      "iri": "http://endhealth.info/im#Patient"
-    }
-  ]
+  "page" : 1,
+  "count" : 1,
+  "totalCount" : 1,
+  "entities" : [ {
+    "iri" : "http://endhealth.info/im#Patient"
+  } ]
 }

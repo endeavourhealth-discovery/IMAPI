@@ -8,10 +8,14 @@ import java.util.*;
 public class LogicOptimizer {
   Set<String> commonMatches;
 
+  public static void flattenQuery(Query query) {
+   flattenMatch(query,null,null);
+  }
+
   public void resolveLogic(Match match, DisplayMode displayMode) throws JsonProcessingException {
     if (displayMode== DisplayMode.LOGICAL) {
       getLogicFromRules(match);
-        flattenMatch(match);
+        flattenMatch(match,null,null);
         optimiseMatch(match);
     }
     else {
@@ -169,14 +173,14 @@ public class LogicOptimizer {
   }
 
 
-  public static  void flattenMatch(Match match){
+  public static  void flattenMatch(Match match,Match parent,Bool operator){
    if (match.getAnd()!=null) {
      List<Match> flatMatches= new ArrayList<>();
      for (Match child : match.getAnd()) {
        if (child.getAnd() != null && child.getOr() == null && child.getNot() == null) {
          flatMatches.addAll(child.getAnd());
        } else flatMatches.add(child);
-       flattenMatch(child);
+       flattenMatch(child,match,Bool.and);
      }
      match.setAnd(flatMatches);
    }
@@ -186,7 +190,7 @@ public class LogicOptimizer {
         if (child.getOr() != null && child.getAnd() == null && child.getNot() == null) {
           flatMatches.addAll(child.getOr());
         } else flatMatches.add(child);
-        flattenMatch(child);
+        flattenMatch(child,match,Bool.or);
         }
       match.setOr(flatMatches);
       }

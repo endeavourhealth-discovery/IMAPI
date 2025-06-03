@@ -2106,8 +2106,8 @@
         "value": "QUERY.DOMAIN + \"Query_\""
       },
       {
-        "name": "ALLOWABLE_RANGES",
-        "value": "QUERY.NAMESPACE + \"AllowableRanges\""
+        "name": "IS_ALLOWABLE_RANGE",
+        "value": "QUERY.NAMESPACE + \"IsAllowableRange\""
       },
       {
         "name": "ALLOWABLE_RANGE_SUGGESTIONS",

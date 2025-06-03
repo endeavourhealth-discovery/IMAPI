@@ -5,7 +5,7 @@ package org.endeavourhealth.imapi.vocabulary;
 public class QUERY {
     public static final String DOMAIN = "http://endhealth.info/im#";
     public static final String NAMESPACE = QUERY.DOMAIN + "Query_";
-    public static final String ALLOWABLE_RANGES = QUERY.NAMESPACE + "AllowableRanges";
+    public static final String IS_ALLOWABLE_RANGE = QUERY.NAMESPACE + "IsAllowableRange";
     public static final String ALLOWABLE_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "AllowableRangeSuggestions";
     public static final String GET_SUBCLASSES = QUERY.NAMESPACE + "GetSubClasses";
     public static final String GET_ANCESTORS = QUERY.NAMESPACE + "GetAncestors";

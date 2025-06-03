@@ -53,10 +53,10 @@ public class OSQuery {
       if (innerHits.get("termCode") != null) {
         String name=resultNode.get(RDFS.LABEL).asText();
         JsonNode bestHit =innerHits.get("termCode").get("hits").get("hits").get(0).get("_source").get("term");
-        String bestTerm=bestHit.asText()+
-          (name.endsWith(")") && name.contains("(")
-            ? " " + name.substring(name.lastIndexOf("("))
-            : "");
+        String bestTerm=bestHit.asText();
+        if (!bestTerm.endsWith(")")&& name.endsWith(")") && name.contains("(")){
+          bestTerm=bestTerm+name.substring(name.lastIndexOf("("));
+        }
         resultNode.put(IM.BEST_MATCH, bestTerm);
       }
     }

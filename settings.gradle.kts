@@ -24,4 +24,3 @@ pluginManagement {
 }
 
 rootProject.name = "IMAPI"
-include(":api")

@@ -58,8 +58,13 @@ public class QueryController {
   )
   public SearchResponse queryIMSearch(@RequestBody QueryRequest queryRequest) throws IOException, OpenSearchException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIMSearch.POST")) {
-      log.debug("queryIMSearch : {}",queryRequest.getTextSearch());
-      return searchService.queryIMSearch(queryRequest);
+      log.debug("queryIMSearch  {} : {} ",queryRequest.getTextSearchStyle(),queryRequest.getTextSearch());
+      if (queryRequest.getPage()!=null){
+        log.debug("page {} rows per page {}",queryRequest.getPage().getPageNumber(),queryRequest.getPage().getPageSize());
+      }
+      SearchResponse response= searchService.queryIMSearch(queryRequest);
+      log.debug("queryIMSearch response {}",response.getEntities()!=null?response.getEntities().size():0);
+      return response;
     }
   }
 

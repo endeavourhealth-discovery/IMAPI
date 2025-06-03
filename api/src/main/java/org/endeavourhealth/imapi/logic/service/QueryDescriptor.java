@@ -49,6 +49,7 @@ public class QueryDescriptor {
 
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
     setIriNames(query);
+    if (query.getUuid()==null) query.setUuid(UUID.randomUUID().toString());
     if (displayMode == DisplayMode.RULES && query.getRule() == null) {
       new LogicOptimizer().createRules(query);
     } else if (displayMode == DisplayMode.LOGICAL && query.getRule() != null) {
@@ -281,6 +282,7 @@ public class QueryDescriptor {
 
 
   public void describeMatch(Match match) {
+    if (match.getUuid()==null) match.setUuid(UUID.randomUUID().toString());
     if (match.getOrderBy() != null) {
       describeOrderBy(match.getOrderBy());
     }
@@ -437,6 +439,7 @@ public class QueryDescriptor {
   }
 
   private void describeWhere(Where where) {
+    if (where.getUuid() == null) where.setUuid(UUID.randomUUID().toString());
     if (where.getAnd() != null) {
       describeWheres(where.getAnd());
     }
@@ -449,7 +452,6 @@ public class QueryDescriptor {
       }
       if (where.getValue() != null || where.getOperator() != null) {
         describeValueWhere(where);
-        where.setQualifier("is " + where.getQualifier());
       }
       if (where.getIs() != null) {
         describeWhereIs(where);
@@ -473,14 +475,16 @@ public class QueryDescriptor {
     if (null != operator) switch (operator) {
       case gt:
         if (date) {
-          if (!isRange) if (value != null) {
-            if (value.equals("0")) {
-              qualifier = "after ";
-            } else {
-              qualifier = "is within ";
-              if (past && relativeTo) relativity = " before the ";
-              if (!past && relativeTo) relativity = " of the ";
-            }
+          if (!isRange){
+            if (value != null) {
+              if (value.equals("0")) {
+                qualifier = "after ";
+              } else {
+                qualifier = "is within ";
+                if (past && relativeTo) relativity = " before the ";
+                if (!past && relativeTo) relativity = " of the ";
+              }
+            } else qualifier="after";
           }
         } else {
           if (!isRange) qualifier = "greater than ";
@@ -717,8 +721,8 @@ public class QueryDescriptor {
       }
       Node set = where.getIs().get(i);
       valueLabel.append(set.getQualifier() != null ? set.getQualifier() + " " : "").append(set.getName());
-      where.setValueLabel(valueLabel.toString());
     }
+    where.setValueLabel(valueLabel.toString());
   }
 
   public void generateUUIDs(Match match) {

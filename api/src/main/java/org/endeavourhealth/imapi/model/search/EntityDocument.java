@@ -18,7 +18,7 @@ public class EntityDocument {
   String code;
   String alternativeCode;
   TTIriRef scheme;
-  Set<TTIriRef> entityType = new HashSet<>();
+  Set<TTIriRef> type = new HashSet<>();
   TTIriRef status;
   Set<SearchTermCode> termCode = new HashSet<>();
   Integer usageTotal;
@@ -148,7 +148,7 @@ public class EntityDocument {
   }
 
   public EntityDocument addType(TTIriRef type) {
-    this.entityType.add(type);
+    this.type.add(type);
     return this;
   }
 
@@ -171,12 +171,12 @@ public class EntityDocument {
     return this;
   }
 
-  public Set<TTIriRef> getEntityType() {
-    return entityType;
+  public Set<TTIriRef> getType() {
+    return type;
   }
 
-  public EntityDocument setEntityType(Set<TTIriRef> entityType) {
-    this.entityType = entityType;
+  public EntityDocument setType(Set<TTIriRef> type) {
+    this.type = type;
     return this;
   }
 
@@ -190,10 +190,18 @@ public class EntityDocument {
     return this;
   }
 
-  public EntityDocument addTermCode(String term, String code, TTIriRef status) {
-
+  public EntityDocument addTermCode(String term, String code, TTIriRef status,String keyTerm) {
     SearchTermCode tc = new SearchTermCode();
     tc.setTerm(term).setCode(code).setStatus(status);
+    if (term!=null)
+      tc.setLength(term.length());
+    if (keyTerm==null)
+      keyTerm= term;
+    if (keyTerm!=null) {
+      keyTerm = keyTerm.replaceAll("[ '()\\-_./,]", "").toLowerCase();
+      keyTerm = keyTerm.substring(0, Math.min(keyTerm.length(), 30));
+      tc.setKeyTerm(keyTerm);
+    }
     this.termCode.add(tc);
     return this;
   }

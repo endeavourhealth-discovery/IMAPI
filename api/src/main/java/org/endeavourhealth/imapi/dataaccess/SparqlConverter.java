@@ -62,19 +62,22 @@ public class SparqlConverter {
     value = value.replace("$", "");
     if (null != queryRequest.getArgument()) {
       for (Argument argument : queryRequest.getArgument()) {
-        String res = processArgument(argument, value);
+        String res = processArgument(queryRequest,argument, value);
         if (res != null) return res;
       }
     }
     return value;
   }
 
-  private static String processArgument(Argument argument, String value) throws QueryException {
+  private static String processArgument(QueryRequest queryRequest,Argument argument, String value) throws QueryException {
     if (argument.getParameter().equals(value)) {
       if (null != argument.getValueData())
         return argument.getValueData();
-      else if (null != argument.getValueIri())
-        return argument.getValueIri().getIri();
+      else if (null != argument.getValueIri()) {
+        if (argument.getValueIri().getIri() != null)
+          return argument.getValueIri().getIri();
+        else throw new QueryException("Argument parameter " + value + " valueIri cannot be null or set requestAskIri");
+      }
       else if (null != argument.getValueIriList()) {
         if (argument.getValueIriList().isEmpty())
           throw new QueryException("Argument parameter " + value + " valueIriList cannot be empty");
@@ -162,6 +165,9 @@ public class SparqlConverter {
     if (query.getTypeOf() != null) {
       whereQl.append("?").append(mainEntity).append(" rdf:type ").append(iriFromString(query.getTypeOf().getIri())).append(".\n");
     }
+    if (queryRequest.getAskIri()!=null) {
+      whereQl.append(" VALUES ").append("?").append(mainEntity).append("{").append(iriFromString(queryRequest.getAskIri())).append("}\n");
+    }
     processMatch(whereQl, mainEntity, query);
 
     if ((!countOnly && includeReturns) && null != query.getReturn()) {
@@ -196,11 +202,7 @@ public class SparqlConverter {
 
     StringBuilder selectQl = new StringBuilder();
     selectQl.append(getDefaultPrefixes());
-    if (null != queryRequest.getTextSearch()) {
 
-      selectQl.append("PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>\n")
-        .append("PREFIX con: <http://www.ontotext.com/connectors/lucene#>\n");
-    }
 
     selectQl.append("SELECT ");
     selectQl.append("(COUNT(distinct ?entity");
@@ -215,9 +217,6 @@ public class SparqlConverter {
       whereQl.append("?").append(mainEntity).append(" rdf:type ").append(iriFromString(query.getTypeOf().getIri())).append(".\n");
     }
 
-    if (null != queryRequest.getTextSearch()) {
-      textSearch(whereQl);
-    }
     processMatch(whereQl, mainEntity, query);
 
     if (null != query.getInstanceOf()) {
@@ -254,27 +253,6 @@ public class SparqlConverter {
     return text.replaceAll("[(\\-){}^\"/~\\\\]", " ").replaceAll("\\s+", " ").trim();
   }
 
-  private void textSearch(StringBuilder whereQl) {
-    String text = queryRequest.getTextSearch();
-    if (query.getReturn() == null) {
-      query.return_(s -> s.property(p -> p.setIri(RDFS.LABEL)));
-    }
-    if (text.split(" ").length > 3) {
-      whereQl.append("?").append(mainEntity).append(" rdfs:label ?labelText.\n");
-      whereQl.append("filter (strstarts(?labelText,\"").append(text.replace("\"", " ")).append("\"))\n");
-    } else {
-      text = escape(text);
-      whereQl.append("[] a con-inst:im_fts;\n")
-        .append("       con:query ");
-      String[] words = text.split(" ");
-      for (int i = 0; i < words.length; i++) {
-        words[i] = "(label:" + words[i] + "*" + ")";
-      }
-      String searchText = String.join(" && ", words);
-      whereQl.append("\"").append(searchText).append("\" ;\n");
-      whereQl.append("       con:entities ?").append(mainEntity).append(".\n");
-    }
-  }
 
   private void processMatch(StringBuilder whereQl, String parent, Match match) throws QueryException {
     String subject;
@@ -285,8 +263,7 @@ public class SparqlConverter {
     else if (match.getParameter() != null) {
       subject = match.getParameter();
       whereQl.append(" VALUES ").append("?").append(subject).append("{").append(getIriFromAlias(null, match.getParameter(), null, null)).append("}\n");
-    }
-    else
+    } else
       subject = parent;
     String mainSubject= subject;
 
@@ -381,8 +358,8 @@ public class SparqlConverter {
     if (match.getInstanceOf().size()==1) {
       o++;
       String object="instance"+o;
+      String inList = iriFromAliases(match.getInstanceOf());
       Node instance= match.getInstanceOf().getFirst();
-      String inList = iriFromAlias(instance).replace(","," ");
       if (instance.getNodeRef() != null) {
         object = instance.getNodeRef();
       }
@@ -392,7 +369,7 @@ public class SparqlConverter {
          processMatchIsDescendantsOrSelfOf(whereQl, subject, object, inList);
       } else if (instance.isDescendantsOf()) {
           processMatchIsDescendantsOf(whereQl, subject, object, inList);
-      } else if (instance.isAncestorsOf()) {
+      } else if (instance.isAncestorsOf()||instance.isAncestorsOrSelfOf()) {
         processMatchIsAncestorOf(whereQl, subject, object, inList);
       } else {
         processMatchEqual(whereQl, subject, inList);
@@ -554,10 +531,12 @@ public class SparqlConverter {
       subject=pathVariable;
     }
     String propertyVariable=null;
-    if (where.getVariable() != null) propertyVariable= where.getVariable();
-    else {
-      o++;
-      propertyVariable = "property" + o;
+    if (!where.isInverse()) {
+      if (where.getVariable() != null) propertyVariable = where.getVariable();
+      else {
+        o++;
+        propertyVariable = "property" + o;
+      }
     }
     if (where.getNodeRef()!=null){
       subject=where.getNodeRef();
@@ -590,6 +569,7 @@ public class SparqlConverter {
           o++;
           object = "o" + o;
         }
+
       if (where.getIs() != null && where.getIs().getFirst().getVariable() != null) {
         object = where.getIs().getFirst().getVariable();
         }
@@ -612,7 +592,7 @@ public class SparqlConverter {
           whereQl.append(tabs).append(" }");
         }
         if (where.getIs() != null) {
-          in(whereQl, object, where.getIs(), false);
+          processWhereIs(whereQl, object, where.getIs(), false);
         } else if (where.getValue() != null) {
           whereValue(whereQl, object, where);
         }
@@ -651,30 +631,29 @@ public class SparqlConverter {
     }
   }
 
-  private void processWhereIsDescendantsOrSelfOf(StringBuilder whereQl, String inverse, String subject, String object, String property, Where where) {
+  private void processWhereIsDescendantsOrSelfOf(StringBuilder whereQl, String inverse, String subject, String object, String property, Where where) throws QueryException {
     if (inverse.equals("^")) {
-      whereQl.append("?").append(property).append(" im:isA ").append(iriFromString(where.getIri())).append(".\n");
-      whereQl.append("?").append(object).append(" ").append("?").append(property).append(" ?").append(subject).append(".\n");
+      whereQl.append("?").append(subject).append(" ").append("^").append(iriFromAlias(where)).append(".\n");
     } else {
-      whereQl.append("?").append(property).append(" im:isA ").append(iriFromString(where.getIri())).append(".\n");
+      whereQl.append("?").append(property).append(" im:isA ?").append(iriFromAlias(where)).append(".\n");
       whereQl.append("?").append(subject).append(" ").append("?").append(property).append(" ?").append(object).append(".\n");
     }
   }
 
-  private void processWhereOther(String propertyVariable, StringBuilder whereQl, String subject, String object, String property, Where where, String inverse) {
-    if (propertyVariable != null) {
-      if (inverse.equals("^")) {
-        whereQl.append("?").append(object).append(" ").append("?").append(property).append(" ?").append(subject).append(".\n");
-        whereQl.append("filter (?").append(property).append(" = ").append(iriFromString(where.getIri())).append(")\n");
-      } else {
+  private void processWhereOther(String propertyVariable, StringBuilder whereQl, String subject, String object, String property, Where where, String inverse) throws QueryException {
+    if (inverse.equals("^")) {
+      whereQl.append("?").append(subject).append(" ").append("^").append(iriFromAlias(where)).append("?").append(object).append("\n");
+    }
+    else {
+      if (propertyVariable != null) {
         whereQl.append("?").append(subject).append(" ").append("?").append(property).append(" ?").append(object).append(".\n");
         whereQl.append("filter (?").append(property).append(" = ").append(iriFromString(where.getIri())).append(")\n");
-      }
-    } else
-      whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromString(where.getIri())).append(" ?").append(object).append(".\n");
+      } else whereQl.append("?").append(subject).append(" ").append(inverse)
+        .append(iriFromString(where.getIri())).append(" ?").append(object).append(".\n");
+    }
   }
 
-  private void in(StringBuilder whereQl, String object, List<Node> in, boolean isNot) throws QueryException {
+  private void processWhereIs(StringBuilder whereQl, String object, List<Node> in, boolean isNot) throws QueryException {
     String not = isNot ? " not " : "";
     boolean subTypes = false;
     boolean superTypes = false;
@@ -842,15 +821,11 @@ public class SparqlConverter {
         }
       }
     }
-    if (null != queryRequest.getTextSearch() && !(countOnly || highestUsage)) {
-      selectQl.append("ORDER BY DESC(").append("strstarts(lcase(?").append(labelVariable)
-        .append("),\"").append(escape(queryRequest.getTextSearch()).split(" ")[0])
-        .append("\")) ASC(strlen(?").append(labelVariable).append("))\n");
-    } else if (null != clause.getOrderBy() && !countOnly && null != clause.getOrderBy().getProperty()) {
+    if (null != clause.getOrderBy() && !countOnly && null != clause.getOrderBy().getProperty()) {
       generateOrderBy(selectQl, clause);
     }
 
-    if (null != queryRequest.getPage()) {
+    if (null != queryRequest.getPage()&&queryRequest.getTextSearch()==null) {
       selectQl.append("LIMIT ").append(queryRequest.getPage().getPageSize()).append("\n");
       if (queryRequest.getPage().getPageNumber() > 0)
         selectQl.append("OFFSET ").append((queryRequest.getPage().getPageNumber() - 1) * (queryRequest.getPage().getPageSize())).append("\n");
@@ -880,6 +855,10 @@ public class SparqlConverter {
     return getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getVariable(), alias.getNodeRef());
   }
 
+public String iriFromAlias(Where alias) throws QueryException {
+  return getIriFromAlias(alias.getIri(), alias.getParameter(), null,null);
+}
+
   private String getIriFromAlias(String id, String parameter, String variable, String valueRef) throws QueryException {
     if (null == id) {
       if (null != parameter) {
@@ -896,6 +875,16 @@ public class SparqlConverter {
   public String iriFromAlias(Node alias) throws QueryException {
     return getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getVariable(), alias.getNodeRef());
   }
+
+  public String iriFromAliases(List<Node> aliases) throws QueryException {
+    List<String> iriList = new ArrayList<>();
+    for (Node alias : aliases) {
+      iriList.add(getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getVariable(), alias.getNodeRef()));
+    }
+    return String.join(" ", iriList);
+  }
+
+
 
 
 

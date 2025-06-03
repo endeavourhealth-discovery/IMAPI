@@ -10,8 +10,9 @@ awsS3 = "2.28.13"
 awsSDKBOM = "2.28.13"
 awsSDKCore = "2.28.13"
 cucumber = "7.22.0"
+commons-text = "1.10.0"
 dropwizard = "4.2.30"
-elasticSearch = "8.14.0"
+elasticSearch = "7.17.28"
 factPlusPlus = "1.6.5"
 h2 = "2.3.232"
 hapiFHIRR4 = "7.4.0"
@@ -56,6 +57,7 @@ apache-collections4 = { module = "org.apache.commons:commons-collections4", vers
 apache-poi = { module = "org.apache.poi:poi-ooxml", version.ref = "apachePoi" }
 apache-text = { module = "org.apache.commons:commons-text", version.ref = "apacheText" }
 assert-j = { module = "org.assertj:assertj-core", version.ref = "assertJ" }
+apache-commons-text = { module = "org.apache.commons:commons-text", version.ref = "commons-text" }
 aws-cognito-idp = { module = "software.amazon.awssdk:cognitoidentityprovider", version.ref = "awsCognitoIDP" }
 aws-sdk-bom = { module = "software.amazon.awssdk:bom", version.ref = "awsSDKBOM" }
 aws-sdk-core = { module = "software.amazon.awssdk:core", version.ref = "awsSDKCore" }
@@ -63,7 +65,7 @@ aws-s3 = { module = "software.amazon.awssdk:s3", version.ref = "awsS3" }
 dropwizard = { module = "io.dropwizard.metrics:metrics-core", version.ref = "dropwizard" }
 dropwizard-graphite = { module = "io.dropwizard.metrics:metrics-graphite", version.ref = "dropwizard" }
 dropwizard-servlets = { module = "io.dropwizard.metrics:metrics-servlets", version.ref = "dropwizard" }
-elasticsearch = { module = "org.elasticsearch:elasticsearch", version.ref = "elasticSearch" }
+elasticsearch = {module= "org.elasticsearch.client:elasticsearch-rest-high-level-client",version.ref="elasticSearch"}
 fact-plus-plus = { module = "uk.ac.manchester.cs:factplusplus", version.ref = "factPlusPlus" }
 h2database = { module = "com.h2database:h2", version.ref = "h2" }
 hapi-fhir-r4 = { module = "ca.uhn.hapi.fhir:hapi-fhir-structures-r4", version.ref = "hapiFHIRR4" }

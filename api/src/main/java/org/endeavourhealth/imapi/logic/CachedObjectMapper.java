@@ -58,8 +58,11 @@ public class CachedObjectMapper implements AutoCloseable {
     synchronized (pool) {
       if (!pool.isEmpty())
         return pool.pop();
-      else
-        return new ObjectMapper();
+      else{
+        ObjectMapper om = new ObjectMapper();
+        om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        return om;
+      }
     }
   }
 

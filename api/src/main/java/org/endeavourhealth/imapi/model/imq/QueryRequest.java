@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class QueryRequest implements ContextMap {
 
+
   private String name;
   private Page page;
   private Map<String, String> context;
@@ -33,6 +34,9 @@ public class QueryRequest implements ContextMap {
   @Getter
   @Setter
   private boolean includeNames;
+  @Getter
+  @Setter
+  private TextSearchStyle textSearchStyle;
 
 
 

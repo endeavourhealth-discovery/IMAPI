@@ -29,7 +29,7 @@ public class SearchService {
   private static QueryRequest getHighestUseRequestFromQuery(QueryRequest queryRequest, ObjectMapper om, QueryRepository repo) throws JsonProcessingException, QueryException {
     QueryRequest highestUsageRequest = om.readValue(om.writeValueAsString(queryRequest), QueryRequest.class);
     repo.unpackQueryRequest(highestUsageRequest, om.createObjectNode());
-    highestUsageRequest.getQuery().setReturn(new Return().property(p -> p.setIri(IM.USAGE_TOTAL).setValueRef(USAGE_TOTAL)));
+    highestUsageRequest.getQuery().setReturn(new Return().property(p -> p.setIri(IM.USAGE_TOTAL)));
     OrderDirection od = new OrderDirection().setDirection(Order.descending);
     od.setValueVariable(USAGE_TOTAL);
     highestUsageRequest.getQuery().setOrderBy(new OrderLimit().addProperty(od));
@@ -50,50 +50,21 @@ public class SearchService {
     repo.unpackQueryRequest(queryRequest, result);
     if (null != queryRequest.getTextSearch()) {
       OSQuery osq = new OSQuery();
-      JsonNode osResult = osq.imQuery(queryRequest);
-      if (osResult.get("entities") != null)
+      JsonNode osResult = osq.IMOSQuery(queryRequest);
+      if (osResult!=null && osResult.get("entities") != null)
         return osResult;
       else {
-        return queryOSIM(queryRequest, repo);
+        return repo.queryIM(queryRequest, false);
       }
     }
 
     return repo.queryIM(queryRequest, false);
   }
 
-  private JsonNode queryOSIM(QueryRequest queryRequest, QueryRepository repo) throws QueryException, OpenSearchException {
-    OSQuery osq = new OSQuery();
-    JsonNode osResult = osq.imQuery(queryRequest, true);
-    if (osResult.get("entities") == null)
-      return osResult;
-    JsonNode imResult = repo.queryIM(queryRequest, false);
-    if (imResult.get("entities") == null) {
-      return imResult;
-    }
-    ArrayNode commonResult = new ObjectMapper().createArrayNode();
-    Set<String> imEntityIds = new HashSet<>();
-    for (JsonNode entity : imResult.get("entities")) {
-      JsonNode idNode = entity.get("iri");
-      if (idNode != null && idNode.isTextual()) {
-        imEntityIds.add(idNode.asText());
-      }
-    }
-    // Check if each iri in the second JSON's entities exists in the first JSON's iri set
-    for (JsonNode entity : osResult.get("entities")) {
-      JsonNode idNode = entity.get("iri");
-      if (idNode == null || !idNode.isTextual() || imEntityIds.contains(idNode.asText())) {
-        commonResult.add(entity);
-      }
-    }
-    if
-    (!commonResult.isEmpty()) {
-      return new ObjectMapper().createObjectNode().set("entities", commonResult);
-    } else
-      return new ObjectMapper().createObjectNode();
-  }
+
+
 
   public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
-    if (null == queryRequest.getAskIri()) throw new IllegalArgumentException("Query request missing askIri");
     QueryRepository repo = new QueryRepository();
     repo.unpackQueryRequest(queryRequest);
     return repo.askQueryIM(queryRequest);
@@ -113,13 +84,11 @@ public class SearchService {
     repo.unpackQueryRequest(queryRequest, om.createObjectNode());
 
     if (null != queryRequest.getTextSearch()) {
-      return new OSQuery().openSearchQuery(queryRequest);
-    } else {
-      QueryRequest highestUsageRequest = getHighestUseRequestFromQuery(queryRequest, om, repo);
-      JsonNode queryResults = repo.queryIM(queryRequest, false);
-      JsonNode highestUsageResults = repo.queryIM(highestUsageRequest, true);
-      return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, highestUsageResults);
+      SearchResponse results= new OSQuery().openSearchQuery(queryRequest);
+      if (results!=null) return results;
     }
+    JsonNode queryResults = repo.queryIM(queryRequest, false);
+    return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, queryResults);
   }
 
   public void validateQueryRequest(QueryRequest queryRequest) throws QueryException {

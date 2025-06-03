@@ -71,7 +71,7 @@
       },
       {
         "name": "HAS_SUBTYPES",
-        "value" : "IM.DOMAIN + \"hasSubtypes\""
+        "value": "IM.DOMAIN + \"hasSubtypes\""
       },
       {
         "name": "PREFIX",
@@ -121,7 +121,6 @@
         "name": "EXCLUDE",
         "value": "IM.NAMESPACE + \"exclude\""
       },
-
       {
         "name": "IRI",
         "value": "\"iri\""
@@ -145,6 +144,10 @@
       {
         "name": "CODE",
         "value": "IM.NAMESPACE + \"code\""
+      },
+      {
+        "name": "KEY_TERM",
+        "value": "IM.NAMESPACE + \"keyTerm\""
       },
       {
         "name": "PREFERRED_NAME",
@@ -874,7 +877,6 @@
         "name": "HAS_VALUE",
         "value": "IM.NAMESPACE + \"hasValue\""
       },
-
       {
         "name": "DATAMODEL_ENTITY",
         "value": "IM.NAMESPACE + \"DataModelEntity\""
@@ -892,8 +894,8 @@
         "value": "IM.NAMESPACE + \"functionProperty\""
       },
       {
-        "name": "MATCH",
-        "value": "IM.NAMESPACE + \"match\""
+        "name": "BEST_MATCH",
+        "value": "IM.NAMESPACE + \"bestMatch\""
       },
       {
         "name": "ENTITY_TYPE",
@@ -1786,6 +1788,10 @@
         "value": "WORKFLOW.NAMESPACE + \"state\""
       },
       {
+        "name": "HOST_URL",
+        "value": "WORKFLOW.NAMESPACE + \"hostUrl\""
+      },
+      {
         "name": "RELATED_PRODUCT",
         "value": "WORKFLOW.NAMESPACE + \"relatedProduct\""
       },
@@ -2102,8 +2108,8 @@
         "value": "QUERY.DOMAIN + \"Query_\""
       },
       {
-        "name": "ALLOWABLE_RANGES",
-        "value": "QUERY.NAMESPACE + \"AllowableRanges\""
+        "name": "IS_ALLOWABLE_RANGE",
+        "value": "QUERY.NAMESPACE + \"IsAllowableRange\""
       },
       {
         "name": "ALLOWABLE_RANGE_SUGGESTIONS",
@@ -2140,6 +2146,14 @@
       {
         "name": "ALLOWABLE_PROPERTIES",
         "value": "QUERY.NAMESPACE + \"AllowableProperties\""
+      },
+      {
+        "name": "ALLOWABLE_PROPERTY_ANCESTORS",
+        "value": "QUERY.NAMESPACE + \"AllowablePropertyAncestors\""
+      },
+      {
+        "name": "IS_VALID_PROPERTY",
+        "value": "QUERY.NAMESPACE + \"IsValidProperty\""
       },
       {
         "name": "SEARCH_PROPERTIES",

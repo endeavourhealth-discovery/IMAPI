@@ -25,7 +25,7 @@ public class FhirService {
     return setService.getFHIRSetExport(setOptions);
   }
 
-  public String eclToFhir(String data) throws EclFormatException, QueryException {
+  public String eclToFhir(String data) throws EclFormatException, QueryException, JsonProcessingException {
     ValueSet result = new ValueSet();
     ValueSet.ValueSetExpansionComponent expansion = new ValueSet.ValueSetExpansionComponent();
     ValueSet.ConceptSetFilterComponent filter = new ValueSet.ConceptSetFilterComponent();

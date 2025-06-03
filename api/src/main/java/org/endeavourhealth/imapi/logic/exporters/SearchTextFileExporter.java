@@ -66,7 +66,7 @@ public class SearchTextFileExporter {
     addItemToJoiner(line, entity.getDescription(), false);
     addItemToJoiner(line, entity.getStatus(), false);
     addItemToJoiner(line, entity.getScheme(), false);
-    addItemToJoiner(line, entity.getEntityType(), false);
+    addItemToJoiner(line, entity.getType(), false);
     results.add(line.toString());
   }
 

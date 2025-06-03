@@ -18,12 +18,12 @@ public class EmailService {
   private String username;
   private String password;
 
-  public EmailService(String host, String port, String username, String password) {
+  public EmailService(String host, int port, String username, String password) {
     prop = new Properties();
     prop.put("mail.smtp.auth", true);
     prop.put("mail.smtp.starttls.enable", "true");
     prop.put("mail.smtp.host", host);
-    prop.put("mail.smtp.post", port);
+    prop.put("mail.smtp.port", port);
     prop.put("mail.smtp.ssl.trust", host);
 
     this.username = username;

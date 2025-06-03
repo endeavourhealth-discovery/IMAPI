@@ -124,6 +124,7 @@ dependencies {
   implementation(libs.apache.collections4)
   implementation(libs.apache.poi)
   implementation(libs.apache.text)
+  implementation(libs.apache.commons.text)
   implementation(libs.assert.j)
   implementation(libs.aws.cognito.idp)
   implementation(libs.aws.sdk.bom)

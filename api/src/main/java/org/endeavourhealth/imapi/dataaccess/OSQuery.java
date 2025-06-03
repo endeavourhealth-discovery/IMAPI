@@ -55,7 +55,7 @@ public class OSQuery {
         JsonNode bestHit =innerHits.get("termCode").get("hits").get("hits").get(0).get("_source").get("term");
         String bestTerm=bestHit.asText();
         if (!bestTerm.endsWith(")")&& name.endsWith(")") && name.contains("(")){
-          bestTerm=bestTerm+name.substring(name.lastIndexOf("("));
+          bestTerm=bestTerm+" "+name.substring(name.lastIndexOf("("));
         }
         resultNode.put(IM.BEST_MATCH, bestTerm);
       }

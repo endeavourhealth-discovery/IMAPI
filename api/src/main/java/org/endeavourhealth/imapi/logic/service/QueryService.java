@@ -131,7 +131,7 @@ public class QueryService {
 
 
   public Query flattenQuery(Query query) throws JsonProcessingException {
-    LogicOptimizer.flattenMatch(query);
+    LogicOptimizer.flattenQuery(query);
     return query;
   }
 

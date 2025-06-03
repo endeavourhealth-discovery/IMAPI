@@ -73,7 +73,7 @@ public class TaskFilerRdf4j {
       builder.add(iri(bugReport.getId().getIri()), iri(WORKFLOW.ACTUAL_RESULT), literal(bugReport.getActualResult()));
       conn.add(builder.build());
       String emailSubject = "New bug report added: [" + bugReport.getId().getIri() + "]";
-      String emailContent = "Click <a href=\"https://im.endhealth.net/#/workflow/bugReport/" + bugReport.getId().getIri() + "\">here</a>";
+      String emailContent = "Click <a href=\"" + bugReport.getHostUrl() + "/#/workflow/bugReport/" + bugReport.getId().getIri() + "\">here</a>";
       emailService.sendMail(emailSubject, emailContent, "bugreport@endeavourhealth.net");
     } catch (RepositoryException e) {
       throw new TaskFilerException("Failed to file task", e);
@@ -90,7 +90,7 @@ public class TaskFilerRdf4j {
       builder.add(iri(roleRequest.getId().getIri()), iri(WORKFLOW.REQUESTED_ROLE), literal(roleRequest.getRole()));
       conn.add(builder.build());
       String emailSubject = "New role request added: [" + roleRequest.getId().getIri() + "]";
-      String emailContent = "Click <a href=\"https://im.endhealth.net/#/workflow/roleRequest/" + roleRequest.getId().getIri() + "\">here</a>";
+      String emailContent = "Click <a href=\"" + roleRequest.getHostUrl() + "/#/workflow/roleRequest/" + roleRequest.getId().getIri() + "\">here</a>";
       emailService.sendMail(emailSubject, emailContent, "rolerequest@endeavourhealth.net");
     } catch (RepositoryException e) {
       throw new TaskFilerException("Failed to file task", e);
@@ -107,7 +107,7 @@ public class TaskFilerRdf4j {
       builder.add(iri(entityApproval.getId().getIri()), iri(WORKFLOW.APPROVAL_TYPE), literal(entityApproval.getApprovalType()));
       conn.add(builder.build());
       String emailSubject = "New role request added: [" + entityApproval.getId().getIri() + "]";
-      String emailContent = "Click <a href=\"https://im.endhealth.net/#/workflow/entityApproval/" + entityApproval.getId().getIri() + "\">here</a>";
+      String emailContent = "Click <a href=\"" + entityApproval.getHostUrl() + "/#/workflow/entityApproval/" + entityApproval.getId().getIri() + "\">here</a>";
       emailService.sendMail(emailSubject, emailContent, "entityapproval@endeavourhealth.net");
     } catch (RepositoryException e) {
       throw new TaskFilerException("Failed to file task", e);
@@ -135,6 +135,7 @@ public class TaskFilerRdf4j {
   }
 
   public void updateTask(String subject, String predicate, String originalObject, String newObject, String userId) throws TaskFilerException, UserNotFoundException {
+    if (null == originalObject && null == newObject) return;
     if (predicate.equals(WORKFLOW.ASSIGNED_TO) || predicate.equals(WORKFLOW.CREATED_BY)) {
       newObject = usernameToId(newObject);
       originalObject = usernameToId(originalObject);
@@ -143,12 +144,16 @@ public class TaskFilerRdf4j {
       StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
       stringJoiner.add("DELETE { ?subject ?predicate ?originalObject }");
       stringJoiner.add("INSERT { ?subject ?predicate ?newObject }");
-      stringJoiner.add("WHERE { ?subject ?predicate ?originalObject }");
+      stringJoiner.add("WHERE { ?subject ?predicate ?o ");
+      if (null != originalObject) stringJoiner.add("FILTER (?o = ?originalObject)");
+      stringJoiner.add("BIND(?o AS ?originalObject)");
+      if (null != newObject) stringJoiner.add("BIND(?newVal AS ?newObject)");
+      stringJoiner.add("}");
       Update update = conn.prepareUpdate(stringJoiner.toString());
       update.setBinding("subject", iri(subject));
       update.setBinding("predicate", iri(predicate));
-      update.setBinding("newObject", literal(newObject));
-      update.setBinding("originalObject", literal(originalObject));
+      if (null != newObject) update.setBinding("newVal", literal(newObject));
+      if (null != originalObject) update.setBinding("originalObject", literal(originalObject));
       update.execute();
       updateHistory(subject, predicate, originalObject, newObject, userId);
     } catch (UpdateExecutionException e) {
@@ -162,8 +167,8 @@ public class TaskFilerRdf4j {
       BNode bn = bnode();
       builder.add(iri(subject), iri(WORKFLOW.HISTORY), bn);
       builder.add(bn, iri(WORKFLOW.HISTORY_PREDICATE), literal(predicate));
-      builder.add(bn, iri(WORKFLOW.HISTORY_ORIGINAL_OBJECT), literal(originalObject));
-      builder.add(bn, iri(WORKFLOW.HISTORY_NEW_OBJECT), literal(newObject));
+      if (null != originalObject) builder.add(bn, iri(WORKFLOW.HISTORY_ORIGINAL_OBJECT), literal(originalObject));
+      if (null != newObject) builder.add(bn, iri(WORKFLOW.HISTORY_NEW_OBJECT), literal(newObject));
       builder.add(bn, iri(WORKFLOW.HISTORY_CHANGE_DATE), literal(LocalDateTime.now()));
       builder.add(bn, iri(WORKFLOW.MODIFIED_BY), literal(userId));
       conn.add(builder.build());
@@ -213,5 +218,6 @@ public class TaskFilerRdf4j {
     builder.add(iri(task.getId().getIri()), iri(WORKFLOW.STATE), literal(null == task.getState() ? TaskState.TODO : task.getState()));
     builder.add(iri(task.getId().getIri()), iri(WORKFLOW.ASSIGNED_TO), literal(null == task.getAssignedTo() ? "UNASSIGNED" : task.getAssignedTo()));
     builder.add(iri(task.getId().getIri()), iri(WORKFLOW.DATE_CREATED), literal(null == task.getDateCreated() ? LocalDateTime.now() : task.getDateCreated()));
+    builder.add(iri(task.getId().getIri()), iri(WORKFLOW.HOST_URL), literal(task.getHostUrl()));
   }
 }

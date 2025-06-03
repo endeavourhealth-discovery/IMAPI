@@ -10,6 +10,7 @@ public class WORKFLOW {
     public static final String CREATED_BY = WORKFLOW.NAMESPACE + "createdBy";
     public static final String ASSIGNED_TO = WORKFLOW.NAMESPACE + "assignedTo";
     public static final String STATE = WORKFLOW.NAMESPACE + "state";
+    public static final String HOST_URL = WORKFLOW.NAMESPACE + "hostUrl";
     public static final String RELATED_PRODUCT = WORKFLOW.NAMESPACE + "relatedProduct";
     public static final String RELATED_MODULE = WORKFLOW.NAMESPACE + "relatedModule";
     public static final String OPERATING_SYSTEM = WORKFLOW.NAMESPACE + "operatingSystem";

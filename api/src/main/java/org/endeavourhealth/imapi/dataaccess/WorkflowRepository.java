@@ -41,13 +41,14 @@ public class WorkflowRepository {
 
   public BugReport getBugReport(String id) throws UserNotFoundException {
     String sparql = """
-      SELECT ?s ?typeData ?createdByData ?assignedToData ?productData ?moduleData ?versionData ?osData ?browserData ?severityData ?statusData ?errorData ?descriptionData ?reproduceStepsData ?expectedResultData ?dateCreatedData ?stateData
+      SELECT ?s ?typeData ?createdByData ?assignedToData ?productData ?moduleData ?versionData ?osData ?browserData ?severityData ?statusData ?errorData ?descriptionData ?reproduceStepsData ?expectedResultData ?actualResultData ?dateCreatedData ?stateData ?hostUrlData
       WHERE {
         ?s ?type ?typeData ;
         ?createdBy ?createdByData ;
         ?assignedTo ?assignedToData ;
         ?state ?stateData ;
-        ?dateCreated ?dateCreatedData .
+        ?dateCreated ?dateCreatedData ;
+        ?hostUrl ?hostUrlData .
         OPTIONAL {?s ?product ?productData ;}
         OPTIONAL {?s ?module ?moduleData ;}
         OPTIONAL {?s ?version ?versionData ;}
@@ -88,10 +89,10 @@ public class WorkflowRepository {
       WHERE {
         ?s ?history ?historyId .
         ?historyId ?predicate ?predicateData ;
-        ?originalObject ?originalObjectData ;
-        ?newObject ?newObjectData ;
         ?changeDate ?changeDateData ;
         ?modifiedBy ?modifiedByData .
+        Optional { ?historyId ?originalObject ?originalObjectData . }
+        Optional { ?historyId ?newObject ?newObjectData . }
       }
       """;
     List<TaskHistory> results = new ArrayList<>();
@@ -112,10 +113,12 @@ public class WorkflowRepository {
           taskHistory.setPredicate(bs.getValue("predicateData").stringValue());
           if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO) && !bs.getValue("originalObjectData").stringValue().equals("UNASSIGNED"))
             taskHistory.setOriginalObject(awsCognitoClient.adminGetUsername(bs.getValue("originalObjectData").stringValue()));
-          else taskHistory.setOriginalObject(bs.getValue("originalObjectData").stringValue());
+          else if (null != bs.getValue("originalObjectData"))
+            taskHistory.setOriginalObject(bs.getValue("originalObjectData").stringValue());
           if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO) && !bs.getValue("newObjectData").stringValue().equals("UNASSIGNED"))
             taskHistory.setNewObject(awsCognitoClient.adminGetUsername(bs.getValue("newObjectData").stringValue()));
-          else taskHistory.setNewObject(bs.getValue("newObjectData").stringValue());
+          else if (null != bs.getValue("newObjectData"))
+            taskHistory.setNewObject(bs.getValue("newObjectData").stringValue());
           taskHistory.setChangeDate(LocalDateTime.parse(bs.getValue("changeDateData").stringValue()));
           taskHistory.setModifiedBy(awsCognitoClient.adminGetUsername(bs.getValue("modifiedByData").stringValue()));
           results.add(taskHistory);
@@ -143,12 +146,13 @@ public class WorkflowRepository {
 
   private StringJoiner getTaskSparql() {
     StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator());
-    sparqlJoiner.add("SELECT ?s ?createdByData ?typeData ?assignedToData ?stateData ?dateCreatedData WHERE {");
+    sparqlJoiner.add("SELECT ?s ?createdByData ?typeData ?assignedToData ?stateData ?dateCreatedData ?hostUrlData WHERE {");
     sparqlJoiner.add("?s ?createdBy ?createdByData ;");
     sparqlJoiner.add("?dateCreated ?dateCreatedData ;");
     sparqlJoiner.add("?assignedTo ?assignedToData ;");
     sparqlJoiner.add("?state ?stateData ;");
-    sparqlJoiner.add("?type ?typeData .");
+    sparqlJoiner.add("?type ?typeData ;");
+    sparqlJoiner.add("?hostUrl ?hostUrlData .");
     sparqlJoiner.add("}");
     return sparqlJoiner;
   }
@@ -346,6 +350,7 @@ public class WorkflowRepository {
     qry.setBinding("state", iri(WORKFLOW.STATE));
     qry.setBinding("assignedTo", iri(WORKFLOW.ASSIGNED_TO));
     qry.setBinding("dateCreated", iri(WORKFLOW.DATE_CREATED));
+    qry.setBinding("hostUrl", iri(WORKFLOW.HOST_URL));
   }
 
   private void setBugReportBindings(TupleQuery qry) {
@@ -401,6 +406,7 @@ public class WorkflowRepository {
     task.setState(TaskState.valueOf(bs.getValue("stateData").stringValue()));
     task.setDateCreated(LocalDateTime.parse(bs.getValue("dateCreatedData").stringValue()));
     task.setHistory(getHistory(task.getId().getIri()));
+    task.setHostUrl(bs.getValue("hostUrlData").stringValue());
   }
 
   private void mapRoleRequestFromBindingSet(RoleRequest roleRequest, BindingSet bs) throws UserNotFoundException {

@@ -86,6 +86,15 @@ public class AdminController {
     }
   }
 
+  @GetMapping(value = "/cognito/group/usersAsUser")
+  @Operation(summary = "List users in Cognito group as User object")
+  public List<User> listUsersInGroupAsUser(@Parameter(description = "The name of the Cognito group.") @RequestParam("group") String group) throws IOException, UserNotFoundException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.usersInGroupAsUser.GET")) {
+      log.debug("getUsersInGroupAsUser");
+      return awsCognitoClient.adminListUsersInGroupAsUser(group);
+    }
+  }
+
   @PostMapping(value = "/cognito/group/user")
   @Operation(summary = "Add user to Cognito group", description = "Add a specific user to a Cognito group.")
   public void addUserToGroup(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The request payload containing the username and group name.") @RequestBody CognitoGroupRequest cognitoGroupRequest) throws IOException {

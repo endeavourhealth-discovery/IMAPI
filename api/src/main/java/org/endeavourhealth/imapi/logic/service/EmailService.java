@@ -23,7 +23,7 @@ public class EmailService {
     prop.put("mail.smtp.auth", true);
     prop.put("mail.smtp.starttls.enable", "true");
     prop.put("mail.smtp.host", host);
-    prop.put("mail.smtp.post", port);
+    prop.put("mail.smtp.port", port);
     prop.put("mail.smtp.ssl.trust", host);
 
     this.username = username;

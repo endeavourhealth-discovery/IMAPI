@@ -71,7 +71,7 @@
       },
       {
         "name": "HAS_SUBTYPES",
-        "value" : "IM.DOMAIN + \"hasSubtypes\""
+        "value": "IM.DOMAIN + \"hasSubtypes\""
       },
       {
         "name": "PREFIX",
@@ -121,7 +121,6 @@
         "name": "EXCLUDE",
         "value": "IM.NAMESPACE + \"exclude\""
       },
-
       {
         "name": "IRI",
         "value": "\"iri\""
@@ -878,7 +877,6 @@
         "name": "HAS_VALUE",
         "value": "IM.NAMESPACE + \"hasValue\""
       },
-
       {
         "name": "DATAMODEL_ENTITY",
         "value": "IM.NAMESPACE + \"DataModelEntity\""
@@ -1788,6 +1786,10 @@
       {
         "name": "STATE",
         "value": "WORKFLOW.NAMESPACE + \"state\""
+      },
+      {
+        "name": "HOST_URL",
+        "value": "WORKFLOW.NAMESPACE + \"hostUrl\""
       },
       {
         "name": "RELATED_PRODUCT",

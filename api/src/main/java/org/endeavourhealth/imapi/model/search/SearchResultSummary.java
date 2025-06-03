@@ -25,17 +25,24 @@ public class SearchResultSummary {
   @JsonProperty(required = true)
   private TTIriRef scheme;
   @JsonProperty(required = true)
-  private Set<TTIriRef> entityType = new HashSet<>();
+  private Set<TTIriRef> type = new HashSet<>();
   @JsonProperty(defaultValue = "0")
   private Integer usageTotal;
   @JsonProperty(defaultValue = "")
-  private String match;
+  private String bestMatch;
   private String preferredName;
   private Set<String> key;
   private Set<TTIriRef> isA = new HashSet<>();
   Set<SearchTermCode> termCode = new HashSet<>();
   Set<TTIriRef> unit;
   List<TTIriRef> qualifier;
+
+  public SearchResultSummary addTermCode(String term, String code, TTIriRef status) {
+    SearchTermCode tc = new SearchTermCode();
+    tc.setTerm(term).setCode(code).setStatus(status);
+    this.termCode.add(tc);
+    return this;
+  }
 
   public Set<TTIriRef> getUnit() {
     return unit;
@@ -96,17 +103,17 @@ public class SearchResultSummary {
     return this;
   }
 
-  public SearchResultSummary(String name, String iri, String code, String description, TTIriRef status, TTIriRef scheme, Set<TTIriRef> entityTypes, Set<TTIriRef> isDescendentOf, Integer usageTotal, String match) {
+  public SearchResultSummary(String name, String iri, String code, String description, TTIriRef status, TTIriRef scheme, Set<TTIriRef> entityTypes, Set<TTIriRef> isDescendentOf, Integer usageTotal, String bestMatch) {
     this.name = name;
     this.iri = iri;
     this.code = code;
     this.description = description;
     this.status = status;
     this.scheme = scheme;
-    this.entityType = entityTypes;
+    this.type = entityTypes;
     this.isA = isDescendentOf;
     this.usageTotal = usageTotal;
-    this.match = match;
+    this.bestMatch = bestMatch;
   }
 
   public SearchResultSummary() {
@@ -133,8 +140,8 @@ public class SearchResultSummary {
   @JsonSetter("name")
   public SearchResultSummary setNameFromJson(String name) {
     this.name = name;
-    if (this.match == null)
-      this.match = name;
+    if (this.bestMatch == null)
+      this.bestMatch = name;
     return this;
   }
 
@@ -185,19 +192,19 @@ public class SearchResultSummary {
     return this;
   }
 
-  public Set<TTIriRef> getEntityType() {
-    return entityType;
+  public Set<TTIriRef> getType() {
+    return type;
   }
 
-  public SearchResultSummary setEntityType(Set<TTIriRef> entityType) {
-    this.entityType = entityType;
+  public SearchResultSummary setType(Set<TTIriRef> type) {
+    this.type = type;
     return this;
   }
 
-  public SearchResultSummary addEntityType(TTIriRef entityType) {
-    if (this.entityType == null)
-      this.entityType = new HashSet<>();
-    this.entityType.add(entityType);
+  public SearchResultSummary addType(TTIriRef entityType) {
+    if (this.type == null)
+      this.type = new HashSet<>();
+    this.type.add(entityType);
     return this;
   }
 
@@ -210,12 +217,12 @@ public class SearchResultSummary {
     return this;
   }
 
-  public String getMatch() {
-    return match;
+  public String getBestMatch() {
+    return bestMatch;
   }
 
-  public SearchResultSummary setMatch(String match) {
-    this.match = match;
+  public SearchResultSummary setBestMatch(String bestMatch) {
+    this.bestMatch = bestMatch;
     return this;
   }
 

@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.model.iml;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
@@ -16,7 +15,7 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Entity {
   private String iri;
-  private Set<TTIriRef> entityType;
+  private Set<TTIriRef> type;
   private String name;
   private String description;
   private Set<TTEntity> isContainedIn;
@@ -28,17 +27,17 @@ public class Entity {
     return this;
   }
 
-  public Entity setEntityType(Set<TTIriRef> entityType) {
-    this.entityType = entityType;
+  public Entity setType(Set<TTIriRef> type) {
+    this.type = type;
     return this;
   }
 
   public Entity addType(TTIriRef newType) {
-    if (null != entityType) {
-      entityType.add(newType);
+    if (null != type) {
+      type.add(newType);
     } else {
-      entityType = new HashSet<>();
-      entityType.add(newType);
+      type = new HashSet<>();
+      type.add(newType);
     }
     return this;
   }

@@ -1,9 +1,11 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Page;
+import org.endeavourhealth.imapi.model.imq.DisplayMode;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
@@ -46,7 +48,7 @@ public class EclService {
           .setCode(concept.getCode())
           .setScheme(concept.getScheme())
           .setStatus(concept.getStatus())
-          .setEntityType(concept.getEntityType())
+          .setType(concept.getType())
       ).toList();
     SearchResponse result = new SearchResponse();
     result.setEntities(evaluatedAsSummary);
@@ -59,8 +61,10 @@ public class EclService {
     return new IMQToECL().getECLFromQuery(query, includeNames);
   }
 
-  public Query getQueryFromEcl(String ecl) throws EclFormatException {
-    return new ECLToIMQ().getQueryFromECL(ecl);
+  public Query getQueryFromEcl(String ecl) throws EclFormatException, QueryException, JsonProcessingException {
+    Query query= new ECLToIMQ().getQueryFromECL(ecl);
+    new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL);
+    return query;
   }
 
   public ECLStatus validateEcl(String ecl) {

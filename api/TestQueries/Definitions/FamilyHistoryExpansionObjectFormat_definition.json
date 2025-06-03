@@ -1,47 +1,38 @@
 {
-  "context": {
-    "im": "http://endhealth.info/im#",
-    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "owl": "http://www.w3.org/2002/07/owl#",
-    "sh": "http://www.w3.org/ns/shacl#",
-    "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-    "sn": "http://snomed.info/sct#"
+  "context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
   },
-  "query": {
-    "name": "FamilyHistoryExpansionObjectFormat",
-    "return": {
-      "property": [
-        {
-          "iri": "rdfs:label"
-        },
-        {
-          "iri": "im:code"
-        },
-        {
-          "iri": "im:matchedTo",
-          "inverse": true,
-          "return": {
-            "property": [
-              {
-                "iri": "rdfs:label"
-              },
-              {
-                "iri": "im:code"
-              }
-            ]
-          }
-        }
-      ]
+  "query" : {
+    "name" : "FamilyHistoryExpansionObjectFormat",
+    "where" : {
+      "iri" : "im:hasMember",
+      "is" : [ {
+        "iri" : "im:VSET_FamilyHistory"
+      } ],
+      "inverse" : true
     },
-    "where": {
-      "iri": "im:hasMember",
-      "is": [
-        {
-          "iri": "im:VSET_FamilyHistory"
+    "return" : {
+      "property" : [ {
+        "iri" : "rdfs:label"
+      }, {
+        "iri" : "im:code"
+      }, {
+        "iri" : "im:matchedTo",
+        "inverse" : true,
+        "return" : {
+          "property" : [ {
+            "iri" : "rdfs:label"
+          }, {
+            "iri" : "im:code"
+          } ]
         }
-      ],
-      "inverse": true
+      } ]
     }
   }
 }

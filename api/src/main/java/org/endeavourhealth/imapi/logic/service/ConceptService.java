@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.*;
@@ -81,7 +82,7 @@ public class ConceptService {
     return entityService.iriRefPageableToEntityReferenceNodePageable(propertiesAndCount, schemeIris, inactive);
   }
 
-  public Pageable<EntityReferenceNode> getSuperiorPropertiesBoolFocusPaged(SuperiorPropertiesBoolFocusPagedRequest request) throws EclFormatException, QueryException {
+  public Pageable<EntityReferenceNode> getSuperiorPropertiesBoolFocusPaged(SuperiorPropertiesBoolFocusPagedRequest request) throws EclFormatException, QueryException, JsonProcessingException {
     Query query = eclService.getQueryFromEcl(request.getEcl());
     EclSearchRequest eclSearchRequest = new EclSearchRequest()
       .setEclQuery(query)

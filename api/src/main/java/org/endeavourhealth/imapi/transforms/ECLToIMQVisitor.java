@@ -17,8 +17,6 @@ import java.util.*;
 
 public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
-  private List<Node> nodes = new ArrayList<>();
-  private List<Where> wheres = new ArrayList<>();
   private Prefixes prefixes;
 
   public Query getIMQ(IMECLParser.ImeclContext ctx) {
@@ -27,48 +25,11 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   public Query getIMQ(IMECLParser.ImeclContext ctx, boolean includeNames) {
     Query query = (Query) visitImecl(ctx);
-    if (includeNames) addNames();
     return query;
   }
 
-  private void addNames() {
-    Set<TTIriRef> toName = getToNameIris();
 
-    if (!toName.isEmpty()) {
-      Map<String, String> nameMap = new EntityRepository().getNameMap(toName);
-      for (Node node : nodes) {
-        if (node.getName() == null && node.getIri() != null)
-          node.setName(nameMap.get(node.getIri()));
 
-      }
-      addWhereNames(nameMap);
-    }
-  }
-
-  private void addWhereNames(Map<String, String> nameMap) {
-    if (!wheres.isEmpty()) {
-      for (Where where : wheres) {
-        if (where.getName() == null && where.getIri() != null)
-          where.setName(nameMap.get(where.getIri()));
-      }
-    }
-  }
-
-  private Set<TTIriRef> getToNameIris() {
-    Set<TTIriRef> toName = new HashSet<>();
-    for (Node node : nodes) {
-      if (node.getName() == null && node.getIri() != null)
-        toName.add(TTIriRef.iri(node.getIri()));
-
-    }
-    if (!wheres.isEmpty()) {
-      for (Where where : wheres) {
-        if (where.getName() == null && where.getIri() != null)
-          toName.add(TTIriRef.iri(where.getIri()));
-      }
-    }
-    return toName;
-  }
 
 
   @Override
@@ -257,12 +218,10 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
             match = new Match();
           if (result instanceof Node asNode) {
             node = asNode;
-            nodes.add(node);
             match.addInstanceOf(asNode);
           } else if (result instanceof TTIriRef iri) {
             if (node == null) {
               node = new Node();
-              nodes.add(node);
               match.addInstanceOf(node);
             }
             if (iri.getIri() != null)
@@ -564,12 +523,10 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
         if (result instanceof Boolean asBoolean && Boolean.TRUE.equals(asBoolean)) {
           reverseFlag = true;
         }
-
         if (result instanceof Match asMatch) {
-          Node node = (asMatch).getInstanceOf().getFirst();
-          if (where == null) {
+          if (where==null){
+            Node node = (asMatch).getInstanceOf().getFirst();
             where = new Where();
-            wheres.add(where);
             where.setIri(node.getIri());
             where.setName(node.getName());
             where.setDescendantsOf(node.isDescendantsOf());
@@ -581,14 +538,36 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
             if (reverseFlag)
               where.setInverse(reverseFlag);
           } else {
-            where.setIs(List.of(node));
-            nodes.add(node);
+              if (asMatch.getOr() != null) {
+                getWhereFromMatch(asMatch, where);
+              } else if (asMatch.getAnd() != null) {
+                  Where andWhere = new Where();
+                  for (Match subMatch : asMatch.getAnd()) {
+                    andWhere.addAnd(new Where().setIri(where.getIri())
+                        .addIs(new Node().setIri(subMatch.getInstanceOf().getFirst().getIri())));
+              }
+              where= andWhere;
+            } else {
+                Node node = (asMatch).getInstanceOf().getFirst();
+                where.addIs(node);
+                if (reverseFlag)
+                  where.setInverse(reverseFlag);
+              }
           }
         }
       }
     }
     if (null != where) where.setAnyRoleGroup(true);
     return where;
+  }
+
+  private void getWhereFromMatch(Match match, Where where) {
+    if (match.getOr() != null) {
+      for (Match subMatch : match.getOr()) {
+        where.addIs(new Node().setIri(subMatch.getInstanceOf().getFirst().getIri()));
+      }
+    }
+
   }
 
   @Override

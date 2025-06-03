@@ -17,11 +17,21 @@
   } ],
   "query" : {
     "name" : "substances starting with 'thia'",
-    "match" : [ {
-      "instanceOf" : [ {
-        "parameter" : "this",
-        "descendantsOrSelfOf" : true
+    "instanceOf" : [ {
+      "parameter" : "this",
+      "descendantsOrSelfOf" : true
+    } ],
+    "return" : {
+      "property" : [ {
+        "iri" : "rdfs:label"
+      }, {
+        "iri" : "im:hasTermCode",
+        "return" : {
+          "property" : [ {
+            "iri" : "rdfs:label"
+          } ]
+        }
       } ]
-    } ]
+    }
   }
 }

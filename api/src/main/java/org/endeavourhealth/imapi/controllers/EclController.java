@@ -71,7 +71,7 @@ public class EclController {
     summary = "Convert ECL to Query",
     description = "Transforms a provided ECL string into an IM Query object"
   )
-  public Query getQueryFromECL(@RequestBody String ecl) throws IOException, EclFormatException {
+  public Query getQueryFromECL(@RequestBody String ecl) throws IOException, EclFormatException,QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.QueryFromEcl.POST")) {
       log.debug("getQueryFromEcl");
       return eclService.getQueryFromEcl(ecl);

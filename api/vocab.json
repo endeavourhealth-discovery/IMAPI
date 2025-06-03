@@ -146,6 +146,10 @@
         "value": "IM.NAMESPACE + \"code\""
       },
       {
+        "name": "KEY_TERM",
+        "value": "IM.NAMESPACE + \"keyTerm\""
+      },
+      {
         "name": "PREFERRED_NAME",
         "value": "IM.NAMESPACE + \"preferredName\""
       },
@@ -890,8 +894,8 @@
         "value": "IM.NAMESPACE + \"functionProperty\""
       },
       {
-        "name": "MATCH",
-        "value": "IM.NAMESPACE + \"match\""
+        "name": "BEST_MATCH",
+        "value": "IM.NAMESPACE + \"bestMatch\""
       },
       {
         "name": "ENTITY_TYPE",
@@ -2104,8 +2108,8 @@
         "value": "QUERY.DOMAIN + \"Query_\""
       },
       {
-        "name": "ALLOWABLE_RANGES",
-        "value": "QUERY.NAMESPACE + \"AllowableRanges\""
+        "name": "IS_ALLOWABLE_RANGE",
+        "value": "QUERY.NAMESPACE + \"IsAllowableRange\""
       },
       {
         "name": "ALLOWABLE_RANGE_SUGGESTIONS",
@@ -2142,6 +2146,14 @@
       {
         "name": "ALLOWABLE_PROPERTIES",
         "value": "QUERY.NAMESPACE + \"AllowableProperties\""
+      },
+      {
+        "name": "ALLOWABLE_PROPERTY_ANCESTORS",
+        "value": "QUERY.NAMESPACE + \"AllowablePropertyAncestors\""
+      },
+      {
+        "name": "IS_VALID_PROPERTY",
+        "value": "QUERY.NAMESPACE + \"IsValidProperty\""
       },
       {
         "name": "SEARCH_PROPERTIES",

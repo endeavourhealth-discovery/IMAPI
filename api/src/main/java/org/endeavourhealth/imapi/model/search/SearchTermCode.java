@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.model.search;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
+import lombok.Getter;
+import lombok.Setter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.Comparator;
@@ -10,6 +12,26 @@ public class SearchTermCode implements Comparable<SearchTermCode> {
   String term;
   String code;
   TTIriRef status;
+  Integer length;
+  String keyTerm;
+
+  public Integer getLength() {
+    return length;
+  }
+
+  public SearchTermCode setLength(Integer length) {
+    this.length = length;
+    return this;
+  }
+
+  public String getKeyTerm() {
+    return keyTerm;
+  }
+
+  public SearchTermCode setKeyTerm(String keyTerm) {
+    this.keyTerm = keyTerm;
+    return this;
+  }
 
   public String getTerm() {
     return term;

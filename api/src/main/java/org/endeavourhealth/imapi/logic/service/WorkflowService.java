@@ -2,11 +2,13 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.endeavourhealth.imapi.aws.AWSCognitoClient;
 import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.*;
+import org.endeavourhealth.imapi.model.workflow.task.TaskState;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.WORKFLOW;
@@ -19,6 +21,7 @@ public class WorkflowService {
 
   private final WorkflowRepository workflowRepository = new WorkflowRepository();
   private final RequestObjectService requestObjectService = new RequestObjectService();
+  private final AWSCognitoClient awsCognitoClient = new AWSCognitoClient();
 
   public void createBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
     bugReport.setId(generateId());
@@ -91,9 +94,47 @@ public class WorkflowService {
     return workflowRepository.getRoleRequest(id);
   }
 
+  public void updateRoleRequest(RoleRequest roleRequest, HttpServletRequest request) throws JsonProcessingException, TaskFilerException, UserNotFoundException {
+    String username = requestObjectService.getRequestAgentName(request);
+    String userId = requestObjectService.getRequestAgentId(request);
+    if (!username.equals(roleRequest.getCreatedBy()))
+      throw new TaskFilerException("User does not have permission to update role request");
+    RoleRequest originalRoleRequest = getRoleRequest(roleRequest.getId().getIri());
+    if (!originalRoleRequest.getRole().equals(roleRequest.getRole()))
+      workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.REQUESTED_ROLE, originalRoleRequest.getRole().toString(), roleRequest.getRole().toString(), userId);
+    updateTask(roleRequest, userId);
+  }
+
+  public void approveRoleRequest(HttpServletRequest request, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    String userId = requestObjectService.getRequestAgentId(request);
+    awsCognitoClient.adminAddUserToGroup(roleRequest.getCreatedBy(), roleRequest.getRole().toString());
+    workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.APPROVED.toString(), userId);
+    workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), userId);
+  }
+
+  public void rejectRoleRequest(HttpServletRequest request, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    String userId = requestObjectService.getRequestAgentId(request);
+    workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.REJECTED.toString(), userId);
+  }
+
   public void createEntityApproval(EntityApproval entityApproval) throws UserNotFoundException, TaskFilerException {
     entityApproval.setId(generateId());
     workflowRepository.createEntityApproval(entityApproval);
+  }
+
+  public EntityApproval getEntityApproval(String id) throws UserNotFoundException {
+    return workflowRepository.getEntityApproval(id);
+  }
+
+  public void updateEntityApproval(EntityApproval entityApproval, HttpServletRequest request) throws JsonProcessingException, TaskFilerException, UserNotFoundException {
+    String username = requestObjectService.getRequestAgentName(request);
+    String userId = requestObjectService.getRequestAgentId(request);
+    if (!username.equals(entityApproval.getCreatedBy()))
+      throw new TaskFilerException("User does not have permission to update entity approval");
+    EntityApproval originalEntityApprovaal = getEntityApproval(entityApproval.getId().getIri());
+    if (!originalEntityApprovaal.getApprovalType().equals(entityApproval.getApprovalType()))
+      workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.APPROVAL_TYPE, originalEntityApprovaal.getApprovalType().toString(), entityApproval.getApprovalType().toString(), userId);
+    updateTask(entityApproval, userId);
   }
 
   public void updateTask(Task task, String userId) throws UserNotFoundException, TaskFilerException {

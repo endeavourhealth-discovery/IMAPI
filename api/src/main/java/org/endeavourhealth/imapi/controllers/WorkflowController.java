@@ -123,12 +123,41 @@ public class WorkflowController {
   }
 
   @Operation(summary = "Get Role Request", description = "Retrieve a role request using its unique ID.")
-  @GetMapping(value = "/getRoleRequest", produces = "application/json")
+  @GetMapping(value = "/roleRequest", produces = "application/json")
   @PreAuthorize("hasAuthority('IMAdmin')")
   public RoleRequest getRoleRequest(@RequestParam(name = "id") String id) throws UserNotFoundException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.roleRequest.GET")) {
       log.debug("getRoleRequest");
       return workflowService.getRoleRequest(id);
+    }
+  }
+
+  @Operation(summary = "Update role request", description = "Update a role request workflow task")
+  @PostMapping(value = "/updateRoleRequest")
+  public void updateRoleRequest(HttpServletRequest request, @RequestBody RoleRequest roleRequest) throws IOException, TaskFilerException, UserNotFoundException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.updateRoleRequest.POST")) {
+      log.debug("updateRoleRequest");
+      workflowService.updateRoleRequest(roleRequest, request);
+    }
+  }
+
+  @Operation(summary = "Approve role request")
+  @PostMapping(value = "/approveRoleRequest")
+  @PreAuthorize("hasAuthority('IMAdmin')")
+  public void approveRoleRequest(HttpServletRequest request, @RequestBody RoleRequest roleRequest) throws IOException, TaskFilerException, UserNotFoundException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.approveRoleRequest.POST")) {
+      log.debug("approveRoleRequest");
+      workflowService.approveRoleRequest(request, roleRequest);
+    }
+  }
+
+  @Operation(summary = "Reject role request")
+  @PostMapping(value = "/rejectRoleRequest")
+  @PreAuthorize("hasAuthority('IMAdmin')")
+  public void rejectRoleRequest(HttpServletRequest request, @RequestBody RoleRequest roleRequest) throws IOException, TaskFilerException, UserNotFoundException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.rejectRoleRequest.POST")) {
+      log.debug("rejectRoleRequest");
+      workflowService.rejectRoleRequest(request, roleRequest);
     }
   }
 
@@ -140,6 +169,24 @@ public class WorkflowController {
       String id = requestObjectService.getRequestAgentId(request);
       if (null == entityApproval.getCreatedBy()) entityApproval.setCreatedBy(id);
       workflowService.createEntityApproval(entityApproval);
+    }
+  }
+
+  @Operation(summary = "Get entity approval", description = "Get an approval request for an entity by id")
+  @GetMapping(value = "/entityApproval")
+  public EntityApproval getEntityApproval(@RequestParam(name = "id") String id) throws UserNotFoundException, IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.entityApproval.GET")) {
+      log.debug("getEntityApproval");
+      return workflowService.getEntityApproval(id);
+    }
+  }
+
+  @Operation(summary = "Update entity approval", description = "Update an approval request for an entity")
+  @PostMapping(value = "/updateEntityApproval")
+  public void updateEntityApproval(HttpServletRequest request, @RequestBody EntityApproval entityApproval) throws IOException, UserNotFoundException, TaskFilerException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.updateEntityApproval.POST")) {
+      log.debug("updateEntityApproval");
+      workflowService.updateEntityApproval(entityApproval, request);
     }
   }
 

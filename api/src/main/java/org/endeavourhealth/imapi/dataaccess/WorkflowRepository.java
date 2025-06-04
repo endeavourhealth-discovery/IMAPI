@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.filer.rdf4j.TaskFilerRdf4j;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.model.workflow.bugReport.*;
+import org.endeavourhealth.imapi.model.workflow.entityApproval.ApprovalType;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.model.workflow.task.TaskHistory;
 import org.endeavourhealth.imapi.model.workflow.task.TaskState;
@@ -292,21 +293,22 @@ public class WorkflowRepository {
   }
 
   public RoleRequest getRoleRequest(String id) throws UserNotFoundException {
-    StringJoiner sparqlJoiner = new StringJoiner(System.lineSeparator());
-    sparqlJoiner.add("SELECT ?s ?typeData ?createdByData ?assignedToData ?productData ?moduleData ?versionData ?osData ?browserData ?severityData ?statusData ?errorData ?descriptionData ?reproduceStepsData ?expectedResultData ?dateCreatedData ?stateData ");
-    sparqlJoiner.add("WHERE { ");
-    sparqlJoiner.add("?s ?type ?typeData ;");
-    sparqlJoiner.add("?createdBy ?createdByData ;");
-    sparqlJoiner.add("?assignedTo ?assignedToData ;");
-    sparqlJoiner.add("?state ?stateData ;");
-    sparqlJoiner.add("?dateCreated ?dateCreatedData ;");
-    sparqlJoiner.add("?role ?roleData .");
-    sparqlJoiner.add("}");
-    String sparql = sparqlJoiner.toString();
+    String sparql = """
+      SELECT ?s ?typeData ?createdByData ?assignedToData ?dateCreatedData ?stateData ?hostUrlData ?roleData
+      WHERE {
+        ?s ?type ?typeData ;
+        ?createdBy ?createdByData ;
+        ?assignedTo ?assignedToData ;
+        ?state ?stateData ;
+        ?dateCreated ?dateCreatedData ;
+        ?hostUrl ?hostUrlData ;
+        ?role ?roleData .
+      }
+      """;
 
     try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {
       TupleQuery qry = prepareSparql(conn, sparql);
-      setBugReportBindings(qry);
+      setRoleRequestBindings(qry);
       qry.setBinding("s", iri(id));
 
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -315,6 +317,37 @@ public class WorkflowRepository {
           BindingSet bs = rs.next();
           mapRoleRequestFromBindingSet(roleRequest, bs);
           return roleRequest;
+        }
+      }
+    }
+    return null;
+  }
+
+  public EntityApproval getEntityApproval(String id) throws UserNotFoundException {
+    String sparql = """
+      SELECT ?s ?typeData ?createdByData ?assignedToData ?dateCreatedData ?stateData ?hostUrlData ?roleData
+      WHERE {
+        ?s ?type ?typeData ;
+        ?createdBy ?createdByData ;
+        ?assignedTo ?assignedToData ;
+        ?state ?stateData ;
+        ?dateCreated ?dateCreatedData ;
+        ?hostUrl ?hostUrlData ;
+        ?role ?roleData .
+      }
+      """;
+
+    try (RepositoryConnection conn = ConnectionManager.getWorkflowConnection()) {
+      TupleQuery qry = prepareSparql(conn, sparql);
+      setEntityApprovalBindings(qry);
+      qry.setBinding("s", iri(id));
+
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          EntityApproval entityApproval = new EntityApproval();
+          BindingSet bs = rs.next();
+          mapEntityApprovalFromBindingSet(entityApproval, bs);
+          return entityApproval;
         }
       }
     }
@@ -371,6 +404,16 @@ public class WorkflowRepository {
     qry.setBinding("actualResult", iri(WORKFLOW.ACTUAL_RESULT));
   }
 
+  private void setRoleRequestBindings(TupleQuery qry) {
+    setTaskBindings(qry);
+    qry.setBinding("role", iri(WORKFLOW.REQUESTED_ROLE));
+  }
+
+  private void setEntityApprovalBindings(TupleQuery qry) {
+    setTaskBindings(qry);
+    qry.setBinding("approvalType", iri(WORKFLOW.APPROVAL_TYPE));
+  }
+
   private void mapBugReportFromBindingSet(BugReport bugReport, BindingSet bs) throws UserNotFoundException {
     mapTaskFromBindingSet(bugReport, bs);
     if (null != bs.getValue("productData")) bugReport.setProduct(bs.getValue("productData").stringValue());
@@ -412,5 +455,11 @@ public class WorkflowRepository {
   private void mapRoleRequestFromBindingSet(RoleRequest roleRequest, BindingSet bs) throws UserNotFoundException {
     mapTaskFromBindingSet(roleRequest, bs);
     if (null != bs.getValue("roleData")) roleRequest.setRole(UserRole.valueOf(bs.getValue("roleData").stringValue()));
+  }
+
+  private void mapEntityApprovalFromBindingSet(EntityApproval entityApproval, BindingSet bs) throws UserNotFoundException {
+    mapTaskFromBindingSet(entityApproval, bs);
+    if (null != bs.getValue("approvalTypeData"))
+      entityApproval.setApprovalType(ApprovalType.valueOf(bs.getValue("approvalTypeData").stringValue()));
   }
 }

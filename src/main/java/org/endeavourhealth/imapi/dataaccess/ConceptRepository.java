@@ -14,10 +14,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringJoiner;
-import java.util.UUID;
+import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
@@ -82,25 +79,10 @@ public class ConceptRepository {
     return simpleMaps;
   }
 
-  public Pageable<TTIriRef> getSuperiorPropertiesByConceptPagedWithTotalCount(String conceptIri, Integer rowNumber, Integer pageSize, boolean inactive) {
+  public Pageable<TTIriRef> getSuperiorPropertiesByConceptPaged(Set<String> conceptIri, Integer rowNumber, Integer pageSize, boolean inactive) {
     List<TTIriRef> properties = new ArrayList<>();
     Pageable<TTIriRef> result = new Pageable<>();
 
-    StringJoiner sqlCount = new StringJoiner(System.lineSeparator()).add("""
-      SELECT (COUNT(?a1) as ?count)
-      WHERE {
-        ?concept im:isA ?p .
-        ?a1 rdfs:domain ?p .
-        FILTER NOT EXISTS {
-          ?a2 rdfs:domain ?p .
-          ?a1 im:isA ?a2 .
-          FILTER(?a1 != ?a2)
-        }
-      """);
-    if (!inactive) {
-      sqlCount.add("OPTIONAL {?a1 im:status ?a1s}").add("FILTER(?a1s != im:Inactive) .");
-    }
-    sqlCount.add("}");
 
     StringJoiner stringQuery = new StringJoiner(System.lineSeparator()).add("""
       SELECT ?a1 ?attributeName
@@ -126,15 +108,8 @@ public class ConceptRepository {
     }
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qryCount = prepareSparql(conn, sqlCount.toString());
-      qryCount.setBinding("concept", iri(conceptIri));
-      try (TupleQueryResult rsCount = qryCount.evaluate()) {
-        BindingSet bsCount = rsCount.next();
-        result.setTotalCount(((Literal) bsCount.getValue("count")).intValue());
-      }
 
       TupleQuery qry = prepareSparql(conn, stringQuery.toString());
-      qry.setBinding("concept", iri(conceptIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         result.setPageSize(pageSize);
         while (rs.hasNext()) {

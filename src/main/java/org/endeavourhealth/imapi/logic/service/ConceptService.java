@@ -20,10 +20,7 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -72,13 +69,13 @@ public class ConceptService {
       .toList();
   }
 
-  public Pageable<EntityReferenceNode> getSuperiorPropertiesPaged(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
-    if (null == iri || iri.isEmpty()) return null;
+  public Pageable<EntityReferenceNode> getSuperiorPropertiesPaged(Set<String> iris, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+    if (null == iris || iris.isEmpty()) return null;
 
     int rowNumber = 0;
     if (null != page && null != size) rowNumber = (page - 1) * size;
 
-    Pageable<TTIriRef> propertiesAndCount = conceptRepository.getSuperiorPropertiesByConceptPagedWithTotalCount(iri, rowNumber, size, inactive);
+    Pageable<TTIriRef> propertiesAndCount = conceptRepository.getSuperiorPropertiesByConceptPaged(iris, rowNumber, size, inactive);
     return entityService.iriRefPageableToEntityReferenceNodePageable(propertiesAndCount, schemeIris, inactive);
   }
 

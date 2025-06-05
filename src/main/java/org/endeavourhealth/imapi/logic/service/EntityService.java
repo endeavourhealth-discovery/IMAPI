@@ -369,6 +369,9 @@ public class EntityService {
   public EntityReferenceNode getEntityAsEntityReferenceNode(String iri) {
     return getEntityAsEntityReferenceNode(iri, null, false);
   }
+  public List<EntityReferenceNode> getAsEntityReferenceNodes(Set<String> iris) {
+    return entityRepository.getAsEntityReferenceNodes(iris);
+  }
 
   public EntityReferenceNode getEntityAsEntityReferenceNode(String iri, List<String> schemeIris, boolean inactive) {
     if (null == iri) throw new IllegalArgumentException("Missing iri parameter");

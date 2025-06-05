@@ -63,13 +63,13 @@ public class ConceptController {
 
   @GetMapping(value = "/public/superiorPropertiesPaged")
   @Operation(summary = "Get top level properties for an entity as a tree node", description = "Finds the highest parent (superior) properties for an entity and returns then in a tree node format for use in a hierarchy tree")
-  public Pageable<EntityReferenceNode> getSuperiorPropertiesPaged(@RequestParam(name = "conceptIri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "inactive", required = false) boolean inactive) throws IOException {
+  public Pageable<EntityReferenceNode> getSuperiorPropertiesPaged(@RequestParam(name = "conceptIri") Set<String> iris, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "inactive", required = false) boolean inactive) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SuperiorPropertiesPaged.GET")) {
       log.debug("getSuperiorPropertiesPaged");
       if (null == page) page = 1;
       if (null == size) size = EntityService.MAX_CHILDREN;
       if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
-      return conceptService.getSuperiorPropertiesPaged(iri, schemeIris, page, size, inactive);
+      return conceptService.getSuperiorPropertiesPaged(iris, schemeIris, page, size, inactive);
     }
   }
 

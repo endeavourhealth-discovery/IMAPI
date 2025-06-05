@@ -240,7 +240,9 @@ public class IMQtoSQLConverter {
 
   private void convertMatchProperty(SQLQuery qry, Where property) throws SQLConversionException {
     if (property.getIs() != null) {
-      convertMatchPropertyIs(qry, property, property.getIs());
+      convertMatchPropertyIs(qry, property, property.getIs(), false);
+    } else if (property.getNotIs() != null) {
+      convertMatchPropertyIs(qry, property, property.getNotIs(), true);
     } else if (property.getRange() != null) {
       convertMatchPropertyRange(qry, property);
     } else if (property.getRelativeTo() != null) {
@@ -258,8 +260,7 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private void convertMatchPropertyIs(SQLQuery qry, Where property, List<Node> list) throws SQLConversionException {
-    boolean inverse = false;
+  private void convertMatchPropertyIs(SQLQuery qry, Where property, List<Node> list, boolean inverse) throws SQLConversionException {
     if (list == null) {
       throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyIs\n" + property);
     }

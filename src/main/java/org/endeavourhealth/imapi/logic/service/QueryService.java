@@ -32,7 +32,7 @@ public class QueryService {
     return queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
   }
 
-  public static void generateUUIdsForQuery(Query query){
+  public static void generateUUIdsForQuery(Query query) {
     new QueryDescriptor().generateUUIDs(query);
   }
 
@@ -84,11 +84,10 @@ public class QueryService {
     }
   }
 
-  public String getSQLFromIMQIri(String queryIri, String lang, Map<String, String> iriToUuidMap) throws JsonProcessingException {
-    TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
-    if (queryEntity.get(iri(IM.DEFINITION)) == null)
-      return null;
-    Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+  public String getSQLFromIMQIri(String queryIri, String lang, Map<String, String> iriToUuidMap) throws JsonProcessingException, QueryException {
+    Query query = describeQuery(queryIri, DisplayMode.LOGICAL);
+    if (query == null) return null;
+    query = flattenQuery(query);
     QueryRequest queryRequest = new QueryRequest().setQuery(query);
     return getSQLFromIMQ(queryRequest, lang, iriToUuidMap);
   }

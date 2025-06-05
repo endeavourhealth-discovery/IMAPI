@@ -190,6 +190,26 @@ public class WorkflowController {
     }
   }
 
+  @Operation(summary = "Approve entity approval")
+  @PostMapping(value = "/approveEntityApproval")
+  @PreAuthorize("hasAuthority('IMAdmin')")
+  public void approveEntityApproval(HttpServletRequest request, @RequestBody EntityApproval entityApproval) throws IOException, TaskFilerException, UserNotFoundException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.approveEntityApproval.POST")) {
+      log.debug("approveEntityApproval");
+      workflowService.approveEntityApproval(request, entityApproval);
+    }
+  }
+
+  @Operation(summary = "Reject entity approval")
+  @PostMapping(value = "/rejectEntityApproval")
+  @PreAuthorize("hasAuthority('IMAdmin')")
+  public void rejectEntityApproval(HttpServletRequest request, @RequestBody EntityApproval entityApproval) throws IOException, TaskFilerException, UserNotFoundException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.rejectEntityApproval.POST")) {
+      log.debug("rejectEntityApproval");
+      workflowService.rejectEntityApproval(request, entityApproval);
+    }
+  }
+
   @Operation(summary = "Update Task", description = "Update details of an existing task.")
   @PostMapping(value = "/updateTask")
   public void updateTask(HttpServletRequest request, @RequestBody Task task) throws IOException, UserNotFoundException, TaskFilerException {

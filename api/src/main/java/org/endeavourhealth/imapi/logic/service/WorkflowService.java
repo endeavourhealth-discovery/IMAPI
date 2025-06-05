@@ -137,6 +137,18 @@ public class WorkflowService {
     updateTask(entityApproval, userId);
   }
 
+  public void approveEntityApproval(HttpServletRequest request, EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    String userId = requestObjectService.getRequestAgentId(request);
+    //TODO entity draft replace active
+    workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, entityApproval.getState().toString(), TaskState.APPROVED.toString(), userId);
+    workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), userId);
+  }
+
+  public void rejectEntityApproval(HttpServletRequest request, EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    String userId = requestObjectService.getRequestAgentId(request);
+    workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, entityApproval.getState().toString(), TaskState.REJECTED.toString(), userId);
+  }
+
   public void updateTask(Task task, String userId) throws UserNotFoundException, TaskFilerException {
     Task originalTask = getTask(task.getId().getIri());
     if (!task.getType().equals(originalTask.getType()))

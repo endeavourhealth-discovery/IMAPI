@@ -1,20 +1,28 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.servlet.http.HttpServletRequest;
+import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
+import org.endeavourhealth.imapi.model.editor.EditRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.workflow.EntityApproval;
+import org.endeavourhealth.imapi.model.workflow.entityApproval.ApprovalType;
+import org.endeavourhealth.imapi.model.workflow.task.TaskState;
+import org.endeavourhealth.imapi.model.workflow.task.TaskType;
 import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -35,6 +43,40 @@ public class FilerService {
   private final EntityService entityService = new EntityService();
   private final OpenSearchService openSearchService = new OpenSearchService();
   private final UserService userService = new UserService();
+  private final WorkflowService workflowService = new WorkflowService();
+
+  private static Boolean isValidIri(TTEntity entity) {
+    if (null == entity.getIri()) return false;
+    return !"".equals(entity.getIri());
+  }
+
+  private static Boolean isValidName(TTEntity entity) {
+    if (null == entity.getName()) return false;
+    return !"".equals(entity.getName());
+  }
+
+  private static Boolean isValidType(TTEntity entity) {
+    if (null == entity.getType()) return false;
+    if (entity.getType().isEmpty()) return false;
+    return entity.getType().getElements().stream().allMatch(TTValue::isIriRef);
+  }
+
+  private static Boolean isValidStatus(TTEntity entity) {
+    if (null == entity.getStatus()) return false;
+    return entity.getStatus().isIriRef();
+  }
+
+  private static Boolean hasParents(TTEntity entity) {
+    String[] parentPredicateArray = new String[]{IM.IS_A, IM.IS_CONTAINED_IN, RDFS.SUBCLASS_OF, IM.IS_SUBSET_OF};
+    for (String parentPredicate : parentPredicateArray) {
+      if (!hasParentPredicateAndIsValidIriRefList(entity, iri(parentPredicate))) return false;
+    }
+    return true;
+  }
+
+  private static Boolean hasParentPredicateAndIsValidIriRefList(TTEntity entity, TTIriRef predicate) {
+    return !(null != entity.get(predicate) && !entity.get(predicate).isEmpty() && (!entity.get(predicate).getElements().stream().allMatch(TTValue::isIriRef)));
+  }
 
   public void fileDocument(TTDocument document, String agentName, String taskId) {
     new Thread(() -> {
@@ -129,12 +171,21 @@ public class FilerService {
     }
   }
 
-  public TTEntity createEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {
-    isValid(entity, "Create");
+  public TTEntity createEntity(EditRequest editRequest, String agentName) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
+    isValid(editRequest.getEntity(), "Create");
     TTIriRef graph = iri(GRAPH.DISCOVERY);
-    entity.setCrud(iri(IM.ADD_QUADS)).setVersion(1);
-    fileEntity(entity, graph, agentName, null);
-    return entity;
+    editRequest.getEntity().setCrud(iri(IM.ADD_QUADS)).setVersion(1);
+    fileEntity(editRequest.getEntity(), graph, agentName, null);
+    EntityApproval entityApproval = new EntityApproval();
+    entityApproval
+      .setEntityIri(iri(editRequest.getEntity().getIri()))
+      .setApprovalType(ApprovalType.CREATE)
+      .setCreatedBy(agentName)
+      .setHostUrl(editRequest.getHostUrl())
+      .setState(TaskState.TODO)
+      .setType(TaskType.ENTITY_APPROVAL);
+    workflowService.createEntityApproval(entityApproval);
+    return editRequest.getEntity();
   }
 
   public TTEntity updateEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {
@@ -145,6 +196,25 @@ public class FilerService {
     entity.setVersion(usedEntity.getVersion() + 1);
     fileEntity(entity, graph, agentName, usedEntity);
     return entity;
+  }
+
+  public TTEntity updateEntityWithWorkflow(EditRequest editRequest, String agentName, HttpServletRequest request) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
+    isValid(editRequest.getEntity(), "Update");
+    TTIriRef graph = iri(GRAPH.DISCOVERY);
+    editRequest.getEntity().setCrud(iri(IM.UPDATE_ALL));
+    TTEntity usedEntity = entityService.getBundle(editRequest.getEntity().getIri(), null).getEntity();
+    editRequest.getEntity().setVersion(usedEntity.getVersion() + 1);
+    fileEntity(editRequest.getEntity(), graph, agentName, usedEntity);
+    EntityApproval entityApproval = new EntityApproval();
+    entityApproval
+      .setEntityIri(iri(editRequest.getEntity().getIri()))
+      .setApprovalType(ApprovalType.EDIT)
+      .setCreatedBy(agentName)
+      .setHostUrl(editRequest.getHostUrl())
+      .setState(TaskState.TODO)
+      .setType(TaskType.ENTITY_APPROVAL);
+    workflowService.updateEntityApproval(entityApproval, request);
+    return editRequest.getEntity();
   }
 
   public void isValid(TTEntity entity, String mode) throws TTFilerException, JsonProcessingException {
@@ -162,39 +232,6 @@ public class FilerService {
         throw new TTFilerException(mode + " entity errors: [" + errorsAsString + "] for entity " + om.writeValueAsString(entity));
       }
     }
-  }
-
-  private static Boolean isValidIri(TTEntity entity) {
-    if (null == entity.getIri()) return false;
-    return !"".equals(entity.getIri());
-  }
-
-  private static Boolean isValidName(TTEntity entity) {
-    if (null == entity.getName()) return false;
-    return !"".equals(entity.getName());
-  }
-
-  private static Boolean isValidType(TTEntity entity) {
-    if (null == entity.getType()) return false;
-    if (entity.getType().isEmpty()) return false;
-    return entity.getType().getElements().stream().allMatch(TTValue::isIriRef);
-  }
-
-  private static Boolean isValidStatus(TTEntity entity) {
-    if (null == entity.getStatus()) return false;
-    return entity.getStatus().isIriRef();
-  }
-
-  private static Boolean hasParents(TTEntity entity) {
-    String[] parentPredicateArray = new String[]{IM.IS_A, IM.IS_CONTAINED_IN, RDFS.SUBCLASS_OF, IM.IS_SUBSET_OF};
-    for (String parentPredicate : parentPredicateArray) {
-      if (!hasParentPredicateAndIsValidIriRefList(entity, iri(parentPredicate))) return false;
-    }
-    return true;
-  }
-
-  private static Boolean hasParentPredicateAndIsValidIriRefList(TTEntity entity, TTIriRef predicate) {
-    return !(null != entity.get(predicate) && !entity.get(predicate).isEmpty() && (!entity.get(predicate).getElements().stream().allMatch(TTValue::isIriRef)));
   }
 
   public Boolean userCanFile(String agentId, TTIriRef iriRef) throws JsonProcessingException {

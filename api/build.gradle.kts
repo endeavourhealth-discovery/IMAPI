@@ -54,7 +54,8 @@ tasks {
       "org.endeavourhealth.imapi.model.validation.EntityValidationRequest",
       "org.endeavourhealth.imapi.model.tripletree.TTDocument",
       "org.endeavourhealth.imapi.model.ConceptContextMap",
-      "org.endeavourhealth.imapi.model.dto.CodeGenDto"
+      "org.endeavourhealth.imapi.model.dto.CodeGenDto",
+      "org.endeavourhealth.imapi.model.editor.*"
     )
     outputFile = "../../IMDirectory/src/interfaces/AutoGen.ts"
     outputKind = TypeScriptOutputKind.module

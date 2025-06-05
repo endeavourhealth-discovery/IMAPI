@@ -6,7 +6,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.xml.bind.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSearchExporter;
 import org.endeavourhealth.imapi.logic.exporters.SearchTextFileExporter;
 import org.endeavourhealth.imapi.logic.service.*;
@@ -18,6 +20,7 @@ import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.dto.FilterOptionsDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
+import org.endeavourhealth.imapi.model.editor.EditRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -108,11 +111,10 @@ public class EntityController {
   public Set<String> getEntityType(@RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
       log.debug("getEntityTypes");
-      return entityService.getBundle(iri,Set.of(RDF.TYPE)).getEntity()
-        .getType().getElements().stream().map(e->e.asIriRef().getIri()).collect(Collectors.toSet());
+      return entityService.getBundle(iri, Set.of(RDF.TYPE)).getEntity()
+        .getType().getElements().stream().map(e -> e.asIriRef().getIri()).collect(Collectors.toSet());
     }
   }
-
 
 
   @GetMapping(value = "/public/partialBundle", produces = "application/json")
@@ -228,22 +230,22 @@ public class EntityController {
   @PostMapping(value = "/create")
   @PreAuthorize("hasAuthority('create')")
   @Operation(summary = "Create entity", description = "Creates a new entity in the system with the provided details")
-  public TTEntity createEntity(@RequestBody TTEntity entity, HttpServletRequest request) throws TTFilerException, IOException {
+  public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws TTFilerException, IOException, UserNotFoundException, TaskFilerException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       log.debug("createEntity");
       String agentName = reqObjService.getRequestAgentName(request);
-      return filerService.createEntity(entity, agentName);
+      return filerService.createEntity(editRequest, agentName);
     }
   }
 
   @PostMapping(value = "/update")
   @PreAuthorize("hasAuthority('edit')")
   @Operation(summary = "Update entity", description = "Updates an existing entity with the provided details")
-  public TTEntity updateEntity(@RequestBody TTEntity entity, HttpServletRequest request) throws TTFilerException, IOException {
+  public TTEntity updateEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws TTFilerException, IOException, UserNotFoundException, TaskFilerException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       log.debug("updateEntity");
       String agentName = reqObjService.getRequestAgentName(request);
-      return filerService.updateEntity(entity, agentName);
+      return filerService.updateEntityWithWorkflow(editRequest, agentName, request);
     }
   }
 

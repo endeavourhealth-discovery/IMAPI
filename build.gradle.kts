@@ -105,7 +105,7 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.ConceptContextMap",
     "org.endeavourhealth.imapi.model.dto.CodeGenDto"
   )
-  outputFile = "../../IMDirectory/src/interfaces/AutoGen.ts"
+  outputFile = "../IMDirectory/src/interfaces/AutoGen.ts"
   outputKind = TypeScriptOutputKind.module
   mapEnum = EnumMapping.asEnum
 }

@@ -1688,6 +1688,7 @@ public class EntityRepository {
 
   public Map<String, TTEntity> getEntitiesWithPredicates(Set<String> iris, Set<String> predicates) {
     Map<String, TTEntity> result = new HashMap<>();
+    iris.remove(null);
     String entityIris = String.join(" ", iris.stream().map(i -> "<" + i + ">").collect(Collectors.toSet()));
     String predicateIris = String.join(" ", predicates.stream().map(i -> "<" + i + ">").collect(Collectors.toSet()));
     String sql = """

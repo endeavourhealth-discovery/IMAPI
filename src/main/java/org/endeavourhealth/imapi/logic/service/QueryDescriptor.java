@@ -23,16 +23,11 @@ public class QueryDescriptor {
   private final EntityRepository entityRepository = new EntityRepository();
   private Map<String, TTEntity> iriContext;
   private final EntityRepository repo = new EntityRepository();
-  private String namespace = IM.NAMESPACE;
   private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
-  private final QueryRepository queryRepository = new QueryRepository();
 
   public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
-    //String queryString = queryCache.get(queryIri);
-    //if (queryString != null) return new ObjectMapper().readValue(queryString, Query.class);
-    namespace = queryIri.substring(queryIri.lastIndexOf("#") + 1);
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
     if (query.getIri() == null)
       query.setIri(queryIri);
@@ -49,7 +44,7 @@ public class QueryDescriptor {
 
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
     setIriNames(query);
-    if (query.getUuid()==null) query.setUuid(UUID.randomUUID().toString());
+    if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
     if (displayMode == DisplayMode.RULES && query.getRule() == null) {
       new LogicOptimizer().createRules(query);
     } else if (displayMode == DisplayMode.LOGICAL && query.getRule() != null) {
@@ -282,7 +277,7 @@ public class QueryDescriptor {
 
 
   public void describeMatch(Match match) {
-    if (match.getUuid()==null) match.setUuid(UUID.randomUUID().toString());
+    if (match.getUuid() == null) match.setUuid(UUID.randomUUID().toString());
     if (match.getOrderBy() != null) {
       describeOrderBy(match.getOrderBy());
     }
@@ -475,7 +470,7 @@ public class QueryDescriptor {
     if (null != operator) switch (operator) {
       case gt:
         if (date) {
-          if (!isRange){
+          if (!isRange) {
             if (value != null) {
               if (value.equals("0")) {
                 qualifier = "after ";
@@ -484,7 +479,7 @@ public class QueryDescriptor {
                 if (past && relativeTo) relativity = " before the ";
                 if (!past && relativeTo) relativity = " of the ";
               }
-            } else qualifier="after";
+            } else qualifier = "after";
           }
         } else {
           if (!isRange) qualifier = "greater than ";

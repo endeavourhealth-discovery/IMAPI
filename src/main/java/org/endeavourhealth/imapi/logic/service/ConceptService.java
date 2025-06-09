@@ -1,20 +1,12 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.*;
-import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
-import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -30,10 +22,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class ConceptService {
 
-  private EclService eclService = new EclService();
-  private EntityService entityService = new EntityService();
-  private EntityRepository entityRepository = new EntityRepository();
-  private ConceptRepository conceptRepository = new ConceptRepository();
+  private final EntityRepository entityRepository = new EntityRepository();
+  private final ConceptRepository conceptRepository = new ConceptRepository();
 
   public List<SimpleMap> getMatchedFrom(String iri) {
     if (iri == null || iri.isEmpty()) return new ArrayList<>();
@@ -69,42 +59,17 @@ public class ConceptService {
       .toList();
   }
 
-  public Pageable<EntityReferenceNode> getSuperiorPropertiesPaged(Set<String> iris, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+  public Set<String> getPropertiesForDomains(Set<String> iris) {
     if (null == iris || iris.isEmpty()) return null;
+    return conceptRepository.getPropertiesForDomains(iris);
 
-    int rowNumber = 0;
-    if (null != page && null != size) rowNumber = (page - 1) * size;
-
-    Pageable<TTIriRef> propertiesAndCount = conceptRepository.getSuperiorPropertiesByConceptPaged(iris, rowNumber, size, inactive);
-    return entityService.iriRefPageableToEntityReferenceNodePageable(propertiesAndCount, schemeIris, inactive);
   }
 
-  public Pageable<EntityReferenceNode> getSuperiorPropertiesBoolFocusPaged(SuperiorPropertiesBoolFocusPagedRequest request) throws EclFormatException, QueryException, JsonProcessingException {
-    Query query = eclService.getQueryFromEcl(request.getEcl());
-    EclSearchRequest eclSearchRequest = new EclSearchRequest()
-      .setEclQuery(query)
-      .setIncludeLegacy(false)
-      .setStatusFilter(Stream.of(iri(IM.ACTIVE)).collect(Collectors.toCollection(HashSet::new)))
-      .setLimit(EntityService.MAX_CHILDREN);
-    SearchResponse searchResponse = eclService.eclSearch(eclSearchRequest);
-    List<String> conceptIris = searchResponse.getEntities().stream().map(SearchResultSummary::getIri).toList();
-    if (conceptIris.isEmpty()) return null;
 
-    int rowNumber = 0;
-    if (0 != request.getPage() && 0 != request.getSize()) rowNumber = (request.getPage() - 1) * request.getSize();
-    Pageable<TTIriRef> propertiesAndCount = conceptRepository.getSuperiorPropertiesByConceptBoolFocusPagedWithTotalCount(conceptIris, rowNumber, request.getSize(), request.isInactive());
-    return entityService.iriRefPageableToEntityReferenceNodePageable(propertiesAndCount, request.getSchemeFilters(), request.isInactive());
-  }
 
-  public Pageable<EntityReferenceNode> getSuperiorPropertyValuesPaged(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+  public Set<String> getRangesForProperty(String iri) {
     if (null == iri || iri.isEmpty()) return null;
-
-    int rowNumber = 0;
-    if (null != page && null != size) rowNumber = (page - 1) * size;
-
-
-    Pageable<TTIriRef> propertiesAndCount = conceptRepository.getSuperiorPropertyValuesByPropertyPagedWithTotalCount(iri, rowNumber, size, inactive);
-    return entityService.iriRefPageableToEntityReferenceNodePageable(propertiesAndCount, schemeIris, inactive);
+    return conceptRepository.getRangesForProperty(iri);
   }
 
   public List<ConceptContextMap> getConceptContextMaps(String iri) {

@@ -1304,7 +1304,7 @@ public class EntityRepository {
             entityMap.put(iri, refNode);
           }
           refNode.setName(bs.getValue("name").stringValue());
-          if (bs.getValue("hasChilren")!=null) {
+          if (bs.getValue("hasChildren")!=null) {
             refNode.setHasChildren(((Literal) bs.getValue("hasChildren")).booleanValue());
           }
           if (bs.getValue("hasGrandchildren")!=null) {
@@ -1315,6 +1315,9 @@ public class EntityRepository {
         }
       }
     }
+    result = result.stream()
+      .sorted(Comparator.comparing(EntityReferenceNode::isHasChildren).reversed())
+      .collect(Collectors.toList());
     return result;
   }
 

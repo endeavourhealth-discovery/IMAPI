@@ -28,15 +28,16 @@ class SearchServiceTest {
   private String succinctDefinitions;
   EntityService entityService = new EntityService();
 
-//@Test
+@Test
   void imq() throws Exception {
+  output(TestQueries.getAllowableSubtypes());
   output(TestQueries.rangeTextSearch());
   output(TestQueries.getMembers());
   output(TestQueries.AllowablePropertiesForCovid());
   ask(TestQueries.isValidProperty());
   output(TestQueries.dataModelPropertyRange());
   output(TestQueries.shapesWithDateOFBirth());
-   output(TestQueries.getAllowableSubtypes());
+
    output(TestQueries.AllowablePropertiesForCovid());
    output(TestQueries.getAllowableProperties());
 

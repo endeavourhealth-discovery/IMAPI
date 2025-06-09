@@ -499,18 +499,17 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   @Override
   public Object visitEclattributegroup(IMECLParser.EclattributegroupContext ctx) {
-    Where where = new Where();
-    where.setIri(IM.ROLE_GROUP);
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
         if (result instanceof Where asWhere) {
-          where.addAnd(asWhere);
+          asWhere.setIri(IM.ROLE_GROUP);
+          asWhere.setAnyRoleGroup(false);
+          return asWhere;
         }
       }
     }
-    where.setAnyRoleGroup(false);
-    return where;
+    return null;
   }
 
   @Override

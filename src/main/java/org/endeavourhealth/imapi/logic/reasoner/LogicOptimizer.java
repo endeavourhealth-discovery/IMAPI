@@ -13,6 +13,43 @@ public class LogicOptimizer {
    cleanBooleans(query);
   }
 
+  public static void optimiseECLQuery(Query query){
+    flattenQuery(query);
+    optimiseECL(query);
+  }
+
+  public static void optimiseECL(Query query){
+    mergeNested(query);
+  }
+
+  private static void mergeNested(Match match) {
+    if (match.getOr()!=null &&match.getOr().size()==1){
+      Match orMatch= match.getOr().getFirst();
+      mergeMatch(match, orMatch);
+    }
+    if (match.getAnd()!=null &&match.getAnd().size()==1){
+      Match andMatch= match.getAnd().getFirst();
+      mergeMatch(match, andMatch);
+    }
+  }
+
+  private static void mergeMatch(Match match, Match nestedMatch) {
+      match.setInstanceOf(nestedMatch.getInstanceOf());
+      match.setOr(nestedMatch.getOr());
+      match.setAnd(nestedMatch.getAnd());
+      if (nestedMatch.getNot()!=null){
+        if (match.getNot()==null) match.setNot(nestedMatch.getNot());
+        else match.getNot().addAll(nestedMatch.getNot());
+      }
+      if (nestedMatch.getWhere()!=null) {
+        if (match.getWhere() == null) match.setWhere(nestedMatch.getWhere());
+        else {
+          Where newAndWhere = new Where();
+          newAndWhere.addAnd(match.getWhere());
+          newAndWhere.addAnd(nestedMatch.getWhere());
+        }
+      }
+  }
 
 
   private static <T extends BoolGroup<T>> void cleanBoolGroup(T group, T parent, Bool parentOp, Integer parentIndex) {

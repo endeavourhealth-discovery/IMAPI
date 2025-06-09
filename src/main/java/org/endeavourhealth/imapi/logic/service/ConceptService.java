@@ -22,8 +22,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class ConceptService {
 
-  private final EntityRepository entityRepository = new EntityRepository();
-  private final ConceptRepository conceptRepository = new ConceptRepository();
+  private EntityRepository entityRepository = new EntityRepository();
+  private ConceptRepository conceptRepository = new ConceptRepository();
 
   public List<SimpleMap> getMatchedFrom(String iri) {
     if (iri == null || iri.isEmpty()) return new ArrayList<>();

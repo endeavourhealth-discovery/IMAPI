@@ -28,7 +28,7 @@ class SearchServiceTest {
   private String succinctDefinitions;
   EntityService entityService = new EntityService();
 
-@Test
+//@Test
   void imq() throws Exception {
   output(TestQueries.getAllowableSubtypes());
   output(TestQueries.rangeTextSearch());

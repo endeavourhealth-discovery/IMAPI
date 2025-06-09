@@ -10,8 +10,9 @@ awsS3 = "2.28.13"
 awsSDKBOM = "2.28.13"
 awsSDKCore = "2.28.13"
 cucumber = "7.22.0"
+commons-text = "1.10.0"
 dropwizard = "4.2.30"
-elasticSearch = "8.14.0"
+elasticSearch = "7.17.28"
 factPlusPlus = "1.6.5"
 h2 = "2.3.232"
 hapiFHIRR4 = "7.4.0"
@@ -36,25 +37,20 @@ springContext = "6.2.5"
 springdoc = "2.8.6"
 springTestSecurity = "6.2.0"
 systemStubs = "2.1.7"
-tomcatAnnotations = "6.0.53"
 validation = "3.1.1"
 woodstox = "7.1.0"
 wsrs = "3.1.0"
-
-# Plugins
-typescriptGenerator = "3.2.1263"
-staticConstGenerator = "1.2-SNAPSHOT"
-sonarqube = "4.4.1.3373"
+mysqlConncector = "9.2.0"
 
 [libraries]
 # Implementation
-im-grammar = { module = "org.endeavourhealth.informationManager:Grammar", version = "1.0-SNAPSHOT" }
 angus-mail = { module = "org.eclipse.angus:angus-mail", version.ref = "angusMail" }
 antlr = { module = "org.antlr:antlr4-runtime", version.ref = "antlr" }
 apache-collections4 = { module = "org.apache.commons:commons-collections4", version.ref = "apacheCollections4" }
 apache-poi = { module = "org.apache.poi:poi-ooxml", version.ref = "apachePoi" }
 apache-text = { module = "org.apache.commons:commons-text", version.ref = "apacheText" }
 assert-j = { module = "org.assertj:assertj-core", version.ref = "assertJ" }
+apache-commons-text = { module = "org.apache.commons:commons-text", version.ref = "commons-text" }
 aws-cognito-idp = { module = "software.amazon.awssdk:cognitoidentityprovider", version.ref = "awsCognitoIDP" }
 aws-sdk-bom = { module = "software.amazon.awssdk:bom", version.ref = "awsSDKBOM" }
 aws-sdk-core = { module = "software.amazon.awssdk:core", version.ref = "awsSDKCore" }
@@ -62,7 +58,7 @@ aws-s3 = { module = "software.amazon.awssdk:s3", version.ref = "awsS3" }
 dropwizard = { module = "io.dropwizard.metrics:metrics-core", version.ref = "dropwizard" }
 dropwizard-graphite = { module = "io.dropwizard.metrics:metrics-graphite", version.ref = "dropwizard" }
 dropwizard-servlets = { module = "io.dropwizard.metrics:metrics-servlets", version.ref = "dropwizard" }
-elasticsearch = { module = "org.elasticsearch:elasticsearch", version.ref = "elasticSearch" }
+elasticsearch = {module= "org.elasticsearch.client:elasticsearch-rest-high-level-client",version.ref="elasticSearch"}
 fact-plus-plus = { module = "uk.ac.manchester.cs:factplusplus", version.ref = "factPlusPlus" }
 h2database = { module = "com.h2database:h2", version.ref = "h2" }
 hapi-fhir-r4 = { module = "ca.uhn.hapi.fhir:hapi-fhir-structures-r4", version.ref = "hapiFHIRR4" }
@@ -74,8 +70,6 @@ logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback"
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 open-llet = { module = "com.github.galigator.openllet:openllet-owlapi", version.ref = "openLlet" }
-opensearch-client = { module = "org.opensearch.client:opensearch-rest-client", version.ref = "opensearchClient" }
-opensearch-java = { module = "org.opensearch.client:opensearch-java", version.ref = "opensearchJava" }
 owl-api = { module = "net.sourceforge.owlapi:owlapi-distribution", version.ref = "owlApi" }
 postgres = { module = "org.postgresql:postgresql", version.ref = "postgres" }
 rdf4j-query = { module = "org.eclipse.rdf4j:rdf4j-query", version.ref = "rdf4j" }
@@ -86,7 +80,6 @@ rdf4j-repo-http = { module = "org.eclipse.rdf4j:rdf4j-repository-http", version.
 rdf4j-repo-sail = { module = "org.eclipse.rdf4j:rdf4j-repository-sail", version.ref = "rdf4j" }
 rdf4j-sail-native = { module = "org.eclipse.rdf4j:rdf4j-sail-nativerdf", version.ref = "rdf4j" }
 reactor-core = { module = "io.projectreactor:reactor-core", version.ref = "reactor" }
-servlet = { module = "jakarta.servlet:jakarta.servlet-api", version.ref = "servlet" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 spring-context = { module = "org.springframework:spring-context", version.ref = "springContext" }
 spring-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa", version.ref = "spring" }
@@ -97,10 +90,10 @@ spring-security = { module = "org.springframework.boot:spring-boot-starter-secur
 spring-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat", version.ref = "spring" }
 spring-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "spring" }
 system-stubs = { module = "uk.org.webcompere:system-stubs-jupiter", version.ref = "systemStubs" }
-tomcat-annotations = { module = "org.apache.tomcat:annotations-api", version.ref = "tomcatAnnotations" }
 validation = { module = "jakarta.validation:jakarta.validation-api", version.ref = "validation" }
 woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox" }
 wsrs = { module = "jakarta.ws.rs:jakarta.ws.rs-api", version.ref = "wsrs" }
+mysqlConncector = { module = "com.mysql:mysql-connector-j", version.ref = "mysqlConncector" }
 
 #Test implementation
 cucumber = { module = "io.cucumber:cucumber-java", version.ref = "cucumber" }
@@ -112,17 +105,6 @@ spring-test = { module = "org.springframework.boot:spring-boot-starter-test", ve
 spring-test-security = { module = "org.springframework.security:spring-security-test", version.ref = "springTestSecurity" }
 
 [plugins]
-typescript-generator = { id = "cz.habarta.typescript-generator", version.ref = "typescriptGenerator" }
-static-const-generator = { id = "org.endeavourhealth.plugins.StaticConstGenerator", version.ref = "staticConstGenerator" }
-sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
-
-[bundles]
-#Implementation
-aws = ["aws-cognito-idp", "aws-s3", "aws-sdk-bom", "aws-sdk-core"]
-rdf4j = ["rdf4j-common", "rdf4j-iterator", "rdf4j-query", "rdf4j-repo-api", "rdf4j-repo-http", "rdf4j-repo-sail", "rdf4j-sail-native"]
-spring = ["spring-context", "spring-data-jpa", "spring-dev-tools", "springdoc", "spring-oauth-server", "spring-security", "spring-tomcat", "spring-web"]
-
-#Test implementation
-cucumber = ["cucumber", "cucumber-junit"]
-junit = ["junit", "junit-suite"]
-springTest = ["spring-test", "spring-test-security"]
+typescript-generator = { id = "cz.habarta.typescript-generator", version = "3.2.1263" }
+static-const-generator = { id = "org.endeavourhealth.plugins.StaticConstGenerator", version = "1.2-SNAPSHOT" }
+sonar = { id = "org.sonarqube", version = "6.2.0.5505" }

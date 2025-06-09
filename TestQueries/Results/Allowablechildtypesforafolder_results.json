@@ -1,0 +1,9 @@
+{
+  "entities" : [ {
+    "iri" : "http://endhealth.info/im#Folder"
+  }, {
+    "iri" : "http://endhealth.info/im#CohortQuery"
+  }, {
+    "iri" : "http://endhealth.info/im#DatasetQuery"
+  } ]
+}

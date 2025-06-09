@@ -1,7 +1,7 @@
 version: 0.0
 os: linux
 files:
-  - source: /api/build/libs/imapi.war
+  - source: /build/libs/imapi.war
     destination: /opt/tomcat/webapps
 hooks:
   BeforeInstall:

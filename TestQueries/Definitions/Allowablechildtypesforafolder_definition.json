@@ -11,7 +11,7 @@
   "argument" : [ {
     "parameter" : "this",
     "valueIri" : {
-      "iri" : "im:IMQueries"
+      "iri" : "im:Q_Queries"
     }
   } ],
   "query" : {

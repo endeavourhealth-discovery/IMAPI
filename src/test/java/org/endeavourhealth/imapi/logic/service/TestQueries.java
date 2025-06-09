@@ -118,7 +118,7 @@ public class TestQueries {
     qr.setContext(TTManager.createBasicContext());
     qr.addArgument(new Argument()
       .setParameter("this")
-      .setValueIri(TTIriRef.iri(IM.NAMESPACE + "IMQueries")));
+      .setValueIri(TTIriRef.iri(IM.NAMESPACE + "Q_Queries")));
     Query query = new Query()
       .setName("Allowable child types for a folder")
       .setIri(IM.NAMESPACE + "Query_AllowableChildTypes");

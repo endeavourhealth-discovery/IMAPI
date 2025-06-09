@@ -9,13 +9,88 @@ public class LogicOptimizer {
   Set<String> commonMatches;
 
   public static void flattenQuery(Query query) {
-   flattenMatch(query,null,null);
+   flattenMatch(query);
+   cleanBooleans(query);
+  }
+
+  public static void optimiseECLQuery(Query query){
+    flattenQuery(query);
+    optimiseECL(query);
+  }
+
+  public static void optimiseECL(Query query){
+    mergeNested(query);
+  }
+
+  private static void mergeNested(Match match) {
+    if (match.getOr()!=null &&match.getOr().size()==1){
+      Match orMatch= match.getOr().getFirst();
+      mergeMatch(match, orMatch);
+    }
+    if (match.getAnd()!=null &&match.getAnd().size()==1){
+      Match andMatch= match.getAnd().getFirst();
+      mergeMatch(match, andMatch);
+    }
+  }
+
+  private static void mergeMatch(Match match, Match nestedMatch) {
+      match.setInstanceOf(nestedMatch.getInstanceOf());
+      match.setOr(nestedMatch.getOr());
+      match.setAnd(nestedMatch.getAnd());
+      if (nestedMatch.getNot()!=null){
+        if (match.getNot()==null) match.setNot(nestedMatch.getNot());
+        else match.getNot().addAll(nestedMatch.getNot());
+      }
+      if (nestedMatch.getWhere()!=null) {
+        if (match.getWhere() == null) match.setWhere(nestedMatch.getWhere());
+        else {
+          Where newAndWhere = new Where();
+          newAndWhere.addAnd(match.getWhere());
+          newAndWhere.addAnd(nestedMatch.getWhere());
+        }
+      }
+  }
+
+
+  private static <T extends BoolGroup<T>> void cleanBoolGroup(T group, T parent, Bool parentOp, Integer parentIndex) {
+    clean(group, parent, parentOp, parentIndex, Bool.and);
+    clean(group, parent, parentOp, parentIndex, Bool.or);
+  }
+
+  private static <T extends BoolGroup<T>> void clean(T group, T parent, Bool parentOp, Integer parentIndex, Bool op) {
+    List<T> list = (op == Bool.and) ? group.getAnd() : group.getOr();
+    if (list == null) return;
+    for (int i = 0; i < list.size(); i++) {
+      cleanBoolGroup(list.get(i), group, op, i);
+    }
+    if (list.isEmpty()) {
+      if (op == Bool.and) group.setAnd(null);
+      else group.setOr(null);
+    } else if (list.size() == 1 && parent != null) {
+      T only = list.getFirst();
+      if (parentOp == Bool.and) parent.getAnd().set(parentIndex, only);
+      else if (parentOp == Bool.or) parent.getOr().set(parentIndex, only);
+    }
+  }
+
+
+
+
+  private static void cleanBooleans(Match match) {
+    cleanBoolGroup(match,null,null,null);
+    if (match.getWhere()!=null){
+      cleanBooleans(match.getWhere());
+    }
+  }
+
+  private static void cleanBooleans(Where where) {
+    cleanBoolGroup(where,null,null,null);
   }
 
   public void resolveLogic(Match match, DisplayMode displayMode) throws JsonProcessingException {
     if (displayMode== DisplayMode.LOGICAL) {
       getLogicFromRules(match);
-        flattenMatch(match,null,null);
+        flattenMatch(match);
         optimiseMatch(match);
     }
     else {
@@ -173,14 +248,14 @@ public class LogicOptimizer {
   }
 
 
-  public static  void flattenMatch(Match match,Match parent,Bool operator){
+  public static  void flattenMatch(Match match){
    if (match.getAnd()!=null) {
      List<Match> flatMatches= new ArrayList<>();
      for (Match child : match.getAnd()) {
        if (child.getAnd() != null && child.getOr() == null && child.getNot() == null) {
          flatMatches.addAll(child.getAnd());
        } else flatMatches.add(child);
-       flattenMatch(child,match,Bool.and);
+       flattenMatch(child);
      }
      match.setAnd(flatMatches);
    }
@@ -190,7 +265,7 @@ public class LogicOptimizer {
         if (child.getOr() != null && child.getAnd() == null && child.getNot() == null) {
           flatMatches.addAll(child.getOr());
         } else flatMatches.add(child);
-        flattenMatch(child,match,Bool.or);
+        flattenMatch(child);
         }
       match.setOr(flatMatches);
       }

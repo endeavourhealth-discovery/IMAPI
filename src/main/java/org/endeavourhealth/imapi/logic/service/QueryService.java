@@ -135,4 +135,8 @@ public class QueryService {
     return query;
   }
 
+  public Query optimiseECLQuery(Query query) {
+    LogicOptimizer.optimiseECLQuery(query);
+    return query;
+  }
 }

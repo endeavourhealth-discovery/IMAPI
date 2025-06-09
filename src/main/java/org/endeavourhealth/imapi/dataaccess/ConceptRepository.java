@@ -14,10 +14,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringJoiner;
-import java.util.UUID;
+import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
@@ -82,189 +79,52 @@ public class ConceptRepository {
     return simpleMaps;
   }
 
-  public Pageable<TTIriRef> getSuperiorPropertiesByConceptPagedWithTotalCount(String conceptIri, Integer rowNumber, Integer pageSize, boolean inactive) {
-    List<TTIriRef> properties = new ArrayList<>();
-    Pageable<TTIriRef> result = new Pageable<>();
-
-    StringJoiner sqlCount = new StringJoiner(System.lineSeparator()).add("""
-      SELECT (COUNT(?a1) as ?count)
-      WHERE {
-        ?concept im:isA ?p .
-        ?a1 rdfs:domain ?p .
-        FILTER NOT EXISTS {
-          ?a2 rdfs:domain ?p .
-          ?a1 im:isA ?a2 .
-          FILTER(?a1 != ?a2)
-        }
-      """);
-    if (!inactive) {
-      sqlCount.add("OPTIONAL {?a1 im:status ?a1s}").add("FILTER(?a1s != im:Inactive) .");
-    }
-    sqlCount.add("}");
-
-    StringJoiner stringQuery = new StringJoiner(System.lineSeparator()).add("""
-      SELECT ?a1 ?attributeName
-      WHERE {
-        ?concept im:isA ?p .
-        ?p rdfs:label ?parentName .
-        ?a1 rdfs:domain ?p ;
-        rdfs:label ?attributeName .
-        FILTER NOT EXISTS {
-          ?a2 rdfs:domain ?p .
-          ?a1 im:isA ?a2 .
-          FILTER(?a1 != ?a2)
-        }
-      """);
-    if (!inactive) {
-      stringQuery.add("OPTIONAL {?a1 im:status ?a1s}").add("FILTER(?a1s != im:Inactive) .");
-    }
-    stringQuery.add("}");
-    stringQuery.add("ORDER BY ?attributeName");
-
-    if (rowNumber != null && pageSize != null) {
-      stringQuery.add("LIMIT " + pageSize).add("OFFSET " + rowNumber);
-    }
-
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qryCount = prepareSparql(conn, sqlCount.toString());
-      qryCount.setBinding("concept", iri(conceptIri));
-      try (TupleQueryResult rsCount = qryCount.evaluate()) {
-        BindingSet bsCount = rsCount.next();
-        result.setTotalCount(((Literal) bsCount.getValue("count")).intValue());
+  public Set<String> getPropertiesForDomains(Set<String> iris) {
+   Set<String> properties = new HashSet<>();
+   String sql= """
+     select distinct ?property
+     where {
+       VALUES ?domains {%s}
+       ?domains im:isA ?superDomains.
+       ?property rdfs:domain ?superDomains
       }
-
-      TupleQuery qry = prepareSparql(conn, stringQuery.toString());
-      qry.setBinding("concept", iri(conceptIri));
+     """.formatted(String.join(" ",iris.stream().map(iri->"<"+iri+">").toArray(String[]::new)));
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sql);
       try (TupleQueryResult rs = qry.evaluate()) {
-        result.setPageSize(pageSize);
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          properties.add(new TTIriRef(bs.getValue("a1").stringValue(), bs.getValue("attributeName").stringValue()));
+          properties.add(bs.getValue("property").stringValue());
         }
-        result.setResult(properties);
       }
     }
-    return result;
+    return properties;
   }
 
-  public Pageable<TTIriRef> getSuperiorPropertiesByConceptBoolFocusPagedWithTotalCount(List<String> conceptIris, Integer rowNumber, Integer pageSize, boolean inactive) {
-    List<TTIriRef> properties = new ArrayList<>();
-    Pageable<TTIriRef> result = new Pageable<>();
-
-    StringJoiner sqlCount = new StringJoiner(System.lineSeparator()).add("SELECT (COUNT(DISTINCT ?a1) as ?count)").add("WHERE {");
-    if (conceptIris != null && !conceptIris.isEmpty()) {
-      sqlCount.add(valueList("concept", conceptIris));
-    }
-    sqlCount.add("""
-      ?concept im:isA ?p .
-      ?a1 rdfs:domain ?p .
-      FILTER NOT EXISTS {
-        ?a2 rdfs:domain ?p .
-        ?a1 im:isA ?a2 .
-        FILTER(?a1 != ?a2)
+  public Set<String> getRangesForProperty(String conceptIri) {
+    Set<String> ranges = new HashSet<>();
+    String sql= """
+      Select ?range
+      where {
+        VALUES ?superProperty {%s}
+        ?property im:isA ?superProperty.
+        ?property rdfs:range ?range.
       }
-      """);
-    if (!inactive) {
-      sqlCount.add("OPTIONAL {?a1 im:status ?a1s}").add("FILTER(?a1s != im:Inactive) .");
-    }
-    sqlCount.add("}");
-
-    StringJoiner stringQuery = new StringJoiner(System.lineSeparator()).add("SELECT DISTINCT ?a1 ?attributeName").add("WHERE {");
-    if (conceptIris != null && !conceptIris.isEmpty()) {
-      stringQuery.add(valueList("concept", conceptIris));
-    }
-    stringQuery.add("""
-      ?concept im:isA ?p .
-      ?p rdfs:label ?parentName .
-      ?a1 rdfs:domain ?p ;
-      rdfs:label ?attributeName .
-      FILTER NOT EXISTS {
-        ?a2 rdfs:domain ?p .
-        ?a1 im:isA ?a2 .
-        FILTER(?a1 != ?a2)
-      }
-      """);
-    if (!inactive) {
-      stringQuery.add("OPTIONAL {?a1 im:status ?a1s}").add("FILTER(?a1s != im:Inactive) .");
-    }
-    stringQuery.add("}");
-    stringQuery.add("ORDER BY ?attributeName");
-
-    if (rowNumber != null && pageSize != null) {
-      stringQuery.add("LIMIT " + pageSize).add("OFFSET " + rowNumber);
-    }
+      """.formatted("<"+conceptIri+">");
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qryCount = prepareSparql(conn, sqlCount.toString());
-      try (TupleQueryResult rsCount = qryCount.evaluate()) {
-        BindingSet bsCount = rsCount.next();
-        result.setTotalCount(((Literal) bsCount.getValue("count")).intValue());
-      }
-
-      TupleQuery qry = prepareSparql(conn, stringQuery.toString());
+      TupleQuery qry = prepareSparql(conn, sql);
       try (TupleQueryResult rs = qry.evaluate()) {
-        result.setPageSize(pageSize);
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          properties.add(new TTIriRef(bs.getValue("a1").stringValue(), bs.getValue("attributeName").stringValue()));
+          ranges.add(bs.getValue("range").stringValue());
         }
-        result.setResult(properties);
       }
     }
-    return result;
+    return ranges;
   }
 
-  public Pageable<TTIriRef> getSuperiorPropertyValuesByPropertyPagedWithTotalCount(String propertyIri, Integer rowNumber, Integer pageSize, boolean inactive) {
-    List<TTIriRef> values = new ArrayList<>();
-    Pageable<TTIriRef> result = new Pageable<>();
 
-    StringJoiner sqlCount = new StringJoiner(System.lineSeparator()).add("""
-      SELECT (COUNT(?value) as ?count)
-      WHERE {
-        ?property rdfs:range ?value .
-      """);
-    if (!inactive) {
-      sqlCount.add("OPTIONAL {?value im:status ?vs}").add("FILTER(?vs != im:Inactive) .");
-    }
-    sqlCount.add("}");
-
-    StringJoiner stringQuery = new StringJoiner(System.lineSeparator()).add("""
-      SELECT ?value ?valueName
-      WHERE {
-        ?property rdfs:range ?value .
-        ?value rdfs:label ?valueName .
-      """);
-    if (!inactive) {
-      stringQuery.add("OPTIONAL {?value im:status ?vs}").add("FILTER(?vs != im:Inactive) .");
-    }
-    stringQuery.add("}");
-    stringQuery.add("ORDER BY ?valueName");
-
-    if (rowNumber != null && pageSize != null) {
-      stringQuery.add("LIMIT " + pageSize).add("OFFSET " + rowNumber);
-    }
-
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qryCount = prepareSparql(conn, sqlCount.toString());
-      qryCount.setBinding("property", iri(propertyIri));
-      try (TupleQueryResult rsCount = qryCount.evaluate()) {
-        BindingSet bsCount = rsCount.next();
-        result.setTotalCount(((Literal) bsCount.getValue("count")).intValue());
-      }
-
-      TupleQuery qry = prepareSparql(conn, stringQuery.toString());
-      qry.setBinding("property", iri(propertyIri));
-      try (TupleQueryResult rs = qry.evaluate()) {
-        result.setPageSize(pageSize);
-        while (rs.hasNext()) {
-          BindingSet bs = rs.next();
-          values.add(new TTIriRef(bs.getValue("value").stringValue(), bs.getValue("valueName").stringValue()));
-        }
-        result.setResult(values);
-      }
-    }
-    return result;
-  }
 
   public List<ConceptContextMap> getConceptContextMaps(String iri) {
     List<ConceptContextMap> result = new ArrayList<>();

@@ -125,6 +125,21 @@ public class QueryController {
     }
   }
 
+  @PostMapping("/public/optimiseECLQuery")
+  @Operation(
+    summary = "optimises logical boolean of query",
+    description = "Returns the query with boolean optimisation"
+  )
+  public Query optimiseECLQuery(
+    @RequestBody Query query) throws IOException, QueryException {
+
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
+      log.debug("optimiseECLQuery");
+      return queryService.optimiseECLQuery(query);
+    }
+  }
+
+
 
   @PostMapping("/public/matchDisplayFromMatch")
   @Operation(

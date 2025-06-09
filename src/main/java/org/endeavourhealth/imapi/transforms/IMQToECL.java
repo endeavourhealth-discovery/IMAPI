@@ -121,8 +121,10 @@ public class IMQToECL {
     if (matchType == EclType.simple) {
       matchInstanceOf(match, ecl, includeNames);
     } else if (matchType == EclType.refined) {
+      if (isExclusion) ecl.append("(");
       match(match, ecl, includeNames, true);
       addRefinementsToMatch(match, ecl, includeNames, false);
+      if (isExclusion) ecl.append(")");
       ecl.append("\n");
     } else if (matchType == EclType.compound) {
       if (isNested || isExclusion)

@@ -1272,6 +1272,56 @@ public class EntityRepository {
     return new ArrayList<>(new ArrayList<>(iriMap.values()));
   }
 
+  public List<EntityReferenceNode> getAsEntityReferenceNodes(Set<String> iris) {
+    TTArray types = new TTArray();
+    List<EntityReferenceNode> result = new ArrayList<>();
+    String entities= iris.stream().map(iri->"<"+iri+">").collect(Collectors.joining(" "));
+    StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
+      SELECT distinct ?entity ?name ?typeIri ?typeName ?hasChildren ?hasGrandchildren
+      WHERE {
+        VALUES ?entity {%s}
+        GRAPH ?g { ?entity rdfs:label ?name } .
+        OPTIONAL { ?entity rdf:type ?typeIri .
+          OPTIONAL { ?typeIri rdfs:label ?typeName . }
+        }
+        BIND(EXISTS{?child (%s) ?entity} AS ?hasChildren)
+        BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?entity} AS ?hasGrandchildren)
+        }
+      
+      """.formatted(entities,PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
+    Map<String,EntityReferenceNode> entityMap = new HashMap<>();
+
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, sql.toString());
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String iri = bs.getValue("entity").stringValue();
+          EntityReferenceNode refNode = entityMap.get(iri);
+          if (refNode == null) {
+            refNode = new EntityReferenceNode(bs.getValue("entity").stringValue()).setType(types);
+            result.add(refNode);
+            entityMap.put(iri, refNode);
+          }
+          refNode.setName(bs.getValue("name").stringValue());
+          if (bs.getValue("hasChildren")!=null) {
+            refNode.setHasChildren(((Literal) bs.getValue("hasChildren")).booleanValue());
+          }
+          if (bs.getValue("hasGrandchildren")!=null) {
+            refNode.setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue());
+          }
+          if (bs.getValue("typeIri") != null && bs.getValue("typeName") != null)
+            types.add(new TTIriRef(bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
+        }
+      }
+    }
+    result = result.stream()
+      .sorted(Comparator.comparing(EntityReferenceNode::isHasChildren).reversed())
+      .collect(Collectors.toList());
+    return result;
+  }
+
+
   public EntityReferenceNode getEntityReferenceNode(String iri, List<String> schemeIris, boolean inactive) {
     TTArray types = new TTArray();
     EntityReferenceNode result = new EntityReferenceNode(iri).setType(types);

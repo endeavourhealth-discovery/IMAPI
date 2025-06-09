@@ -148,6 +148,15 @@ public class EntityController {
     }
   }
 
+  @GetMapping(value = "/public/asEntityReferenceNodes")
+  @Operation(summary = "Get entity as reference node", description = "Fetches the specified entity iris as an EntityReferenceNode by IRI")
+  public List<EntityReferenceNode> getAsEntityReferenceNodes(@RequestParam(name = "iris") Set<String> iris) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.AsEntityReferenceNodes.GET")) {
+      log.debug("getAsEntityReferenceNodes");
+      return entityService.getAsEntityReferenceNodes(iris);
+    }
+  }
+
   @GetMapping(value = "/public/childrenPaged")
   @Operation(summary = "Get entity children with paging", description = "Fetches immediate children of the specified entity with pagination and total count")
   public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(@RequestParam(name = "iri") String iri,

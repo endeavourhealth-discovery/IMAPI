@@ -61,41 +61,22 @@ public class ConceptController {
     }
   }
 
-  @GetMapping(value = "/public/superiorPropertiesPaged")
+  @GetMapping(value = "/public/propertiesForDomains")
   @Operation(summary = "Get top level properties for an entity as a tree node", description = "Finds the highest parent (superior) properties for an entity and returns then in a tree node format for use in a hierarchy tree")
-  public Pageable<EntityReferenceNode> getSuperiorPropertiesPaged(@RequestParam(name = "conceptIri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "inactive", required = false) boolean inactive) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SuperiorPropertiesPaged.GET")) {
-      log.debug("getSuperiorPropertiesPaged");
-      if (null == page) page = 1;
-      if (null == size) size = EntityService.MAX_CHILDREN;
-      if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
-      return conceptService.getSuperiorPropertiesPaged(iri, schemeIris, page, size, inactive);
+  public Set<String> getPropertiesForDomains(@RequestParam(name = "conceptIri") Set<String> iris) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.propertiesForDomains.GET")) {
+      log.debug("getPropertiesForDomains");
+      return conceptService.getPropertiesForDomains(iris);
     }
   }
 
-  @PostMapping(value = "/public/superiorPropertiesBoolFocusPaged")
-  @Operation(summary = "Get top level properties for an entity as a tree node", description = "Finds the highest parent (superior) properties for an entity and returns then in a tree node format for use in a hierarchy tree")
-  public Pageable<EntityReferenceNode> getSuperiorPropertiesBoolFocusPaged(@RequestBody SuperiorPropertiesBoolFocusPagedRequest request) throws IOException, QueryException, DataFormatException, EclFormatException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SuperiorPropertiesBoolFocusPaged.GET")) {
-      log.debug("getSuperiorPropertiesBoolFocusPaged");
-      if (request.getEcl().isEmpty()) throw new IllegalArgumentException("Ecl cannot be empty");
-      if (0 == request.getPage()) request.setPage(1);
-      if (0 == request.getSize()) request.setSize(EntityService.MAX_CHILDREN);
-      if (request.getSchemeFilters().isEmpty())
-        request.setSchemeFilters(new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE)));
-      return conceptService.getSuperiorPropertiesBoolFocusPaged(request);
-    }
-  }
 
-  @GetMapping(value = "/public/superiorPropertyValuesPaged")
-  @Operation(summary = "Get top level property values for an entity as a tree node", description = "Finds the highest parent (superior) property value for an entity and returns then in a tree node format for use in a hierarchy tree")
-  public Pageable<EntityReferenceNode> getSuperiorPropertyValuesPaged(@RequestParam(name = "propertyIri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "inactive", required = false) boolean inactive) throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SuperiorPropertyValuesPaged.GET")) {
-      log.debug("getSuperiorPropertyValuesPaged");
-      if (null == page) page = 1;
-      if (null == size) size = EntityService.MAX_CHILDREN;
-      if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
-      return conceptService.getSuperiorPropertyValuesPaged(iri, schemeIris, page, size, inactive);
+  @GetMapping(value = "/public/rangesForProperty")
+  @Operation(summary = "Get top level property ranges for an entity as a tree node", description = "Finds the highest parent (superior) property value for an entity and returns then in a tree node format for use in a hierarchy tree")
+  public Set<String> getRangesForProperty(@RequestParam(name = "propertyIri") String iri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.rangesForProperty.GET")) {
+      log.debug("getRangesForProperty");
+      return conceptService.getRangesForProperty(iri);
     }
   }
 

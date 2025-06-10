@@ -1,0 +1,35 @@
+{
+  "name": "Allowable Properties for a terminology concept",
+  "match": [
+    {
+      "type": "http://endhealth.info/im#Concept",
+      "where": [
+        {
+          "description": "property that has this concept or supertype as a domain",
+          "iri": "http://www.w3.org/2000/01/rdf-schema#domain",
+          "in": [
+            {
+              "parameter": "this",
+              "ancestorsOf": true
+            }
+          ]
+        }
+      ],
+      "variable": "concept"
+    }
+  ],
+  "activeOnly": true,
+  "return": [
+    {
+      "nodeRef": "concept",
+      "property": [
+        {
+          "iri": "http://endhealth.info/im#code"
+        },
+        {
+          "iri": "http://www.w3.org/2000/01/rdf-schema#label"
+        }
+      ]
+    }
+  ]
+}

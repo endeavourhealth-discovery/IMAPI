@@ -1,0 +1,37 @@
+{
+  "context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
+  },
+  "textSearch" : "Test for patients either aged between 18 and 65 or with diabetes with the most recent ",
+  "argument" : [ {
+    "parameter" : "dataModelIri",
+    "valueIri" : {
+      "iri" : "im:Patient"
+    }
+  } ],
+  "query" : {
+    "name" : "Allowable queries for patient cohort",
+    "match" : [ {
+      "typeOf" : {
+        "iri" : "im:CohortQuery"
+      },
+      "where" : [ {
+        "iri" : "im:returnType",
+        "is" : [ {
+          "parameter" : "dataModelIri"
+        } ]
+      } ]
+    } ],
+    "return" : [ {
+      "property" : [ {
+        "iri" : "rdfs:label"
+      } ]
+    } ]
+  }
+}

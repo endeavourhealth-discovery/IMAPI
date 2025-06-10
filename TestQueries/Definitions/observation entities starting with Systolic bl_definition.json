@@ -1,0 +1,215 @@
+{
+  "termFilter": "Systolic bloo",
+  "statusFilter": [
+    "http://endhealth.info/im#Active"
+  ],
+  "typeFilter": [
+    "http://endhealth.info/im#ConceptSet",
+    "http://endhealth.info/im#Concept"
+  ],
+  "schemeFilter": [
+    "http://endhealth.info/im#",
+    "http://snomed.info/sct#"
+  ],
+  "orderBy": [
+    {
+      "field": "entityType",
+      "direction": null,
+      "iriValue": [
+        {
+          "iri": "http://endhealth.info/im#MatchClause"
+        },
+        {
+          "iri": "http://endhealth.info/im#ConceptSet"
+        }
+      ],
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": false
+    },
+    {
+      "field": "memberOf",
+      "direction": null,
+      "iriValue": [
+        {
+          "iri": "http://endhealth.info/im#VSET_Observation"
+        }
+      ],
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": false
+    },
+    {
+      "field": "name",
+      "direction": null,
+      "iriValue": null,
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": true
+    },
+    {
+      "field": "preferredName",
+      "direction": null,
+      "iriValue": null,
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": true
+    },
+    {
+      "field": "subsumptionCount",
+      "direction": "descending",
+      "iriValue": null,
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": false
+    },
+    {
+      "field": "length",
+      "direction": "ascending",
+      "iriValue": null,
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": false
+    },
+    {
+      "field": "usageTotal",
+      "direction": "descending",
+      "iriValue": null,
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": false
+    },
+    {
+      "field": "name",
+      "direction": null,
+      "iriValue": null,
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": true
+    },
+    {
+      "field": "preferredName",
+      "direction": null,
+      "iriValue": null,
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": true
+    },
+    {
+      "field": "subsumptionCount",
+      "direction": "descending",
+      "iriValue": null,
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": false
+    },
+    {
+      "field": "usageTotal",
+      "direction": "descending",
+      "iriValue": null,
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": false
+    },
+    {
+      "field": "length",
+      "direction": "ascending",
+      "iriValue": null,
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": false
+    },
+    {
+      "field": "name",
+      "direction": null,
+      "iriValue": null,
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": true
+    },
+    {
+      "field": "preferredName",
+      "direction": null,
+      "iriValue": null,
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": true
+    },
+    {
+      "field": "subsumptionCount",
+      "direction": "descending",
+      "iriValue": null,
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": false
+    },
+    {
+      "field": "usageTotal",
+      "direction": "descending",
+      "iriValue": null,
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": false
+    },
+    {
+      "field": "length",
+      "direction": "ascending",
+      "iriValue": null,
+      "and": null,
+      "textValue": null,
+      "not": false,
+      "startsWithTerm": false
+    }
+  ],
+  "timings": [
+    {
+      "1719329627039": "Entry point for \"Systolic bloo\""
+    },
+    {
+      "1719329627039": "start building auto complete query"
+    },
+    {
+      "1719329627885": "About to run query"
+    },
+    {
+      "1719329628726": "Query sent..."
+    },
+    {
+      "1719329630756": "Query run and response received. Ready to produce search results"
+    },
+    {
+      "1719329630979": "Results List built"
+    },
+    {
+      "1719329630980": "About to run query"
+    },
+    {
+      "1719329630981": "Query sent..."
+    },
+    {
+      "1719329631075": "Query run and response received. Ready to produce search results"
+    },
+    {
+      "1719329631075": "Results List built"
+    },
+    {
+      "1719329631075": "end auto complete query - returning results"
+    }
+  ]
+}

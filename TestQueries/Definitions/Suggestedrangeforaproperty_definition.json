@@ -1,0 +1,53 @@
+{
+  "context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
+  },
+  "argument" : [ {
+    "parameter" : "this",
+    "valueIri" : {
+      "iri" : "im:recordOwner"
+    }
+  } ],
+  "query" : {
+    "name" : "Suggested range for a property",
+    "description" : "get node, class or datatype values (ranges)  of property objects that have 4this as their path",
+    "match" : [ {
+      "where" : [ {
+        "iri" : "sh:path",
+        "is" : [ {
+          "parameter" : "this"
+        } ]
+      }, {
+        "boolWhere" : "or",
+        "where" : [ {
+          "iri" : "sh:node",
+          "match" : {
+            "variable" : "range"
+          }
+        }, {
+          "iri" : "sh:class",
+          "match" : {
+            "variable" : "range"
+          }
+        }, {
+          "iri" : "sh:datatype",
+          "match" : {
+            "variable" : "range"
+          }
+        } ]
+      } ]
+    } ],
+    "return" : {
+      "nodeRef" : "range",
+      "property" : [ {
+        "iri" : "rdfs:label"
+      } ]
+    }
+  }
+}

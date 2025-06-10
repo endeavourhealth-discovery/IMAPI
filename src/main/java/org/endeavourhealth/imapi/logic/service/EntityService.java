@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.validator.EntityValidator;
@@ -518,6 +519,10 @@ public class EntityService {
 
   private List<TTIriRef> getAllChildren(String iri) {
     return getChildren(iri, null, null, null, false);
+  }
+
+  public List<TTEntity> getAllowableChildTypes(String iri) {
+    return entityRepository.getAllowableChildTypes(iri);
   }
 }
 

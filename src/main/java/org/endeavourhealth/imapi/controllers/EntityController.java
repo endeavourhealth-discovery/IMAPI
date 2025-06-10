@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -466,4 +467,13 @@ public class EntityController {
       return entityService.getFilterDefaults();
     }
   }
+  @GetMapping("/public/allowableChildTypes")
+  @Operation(summary = "Get allowable child types", description = "Fetches the allowable child types for an entity and the predicate that links them")
+  public List<TTEntity> getAllowableChildTypes(@RequestParam(name = "iri") String iri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.AllowableChildTypes.GET")) {
+      log.debug("get AllowableChildTypes for " + iri);
+      return entityService.getAllowableChildTypes(iri);
+    }
+  }
+
 }

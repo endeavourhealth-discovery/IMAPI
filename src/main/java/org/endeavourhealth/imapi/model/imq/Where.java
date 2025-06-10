@@ -28,6 +28,8 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   private String valueLabel;
   private boolean anyRoleGroup;
   private boolean isNull;
+  @Getter
+  private boolean roleGroup;
   private RelativeTo relativeTo;
   private boolean isNotNull;
   private FunctionClause function;
@@ -41,7 +43,10 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   @Getter
   private List<Where> and;
 
-
+  public Where setRoleGroup(boolean roleGroup) {
+    this.roleGroup = roleGroup;
+    return this;
+  }
 
   public Where() {
   }

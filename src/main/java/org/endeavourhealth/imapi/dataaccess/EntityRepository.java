@@ -1,5 +1,9 @@
 package org.endeavourhealth.imapi.dataaccess;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Values;
@@ -1912,4 +1916,52 @@ public class EntityRepository {
   }
 
 
+  public List<TTEntity> getAllowableChildTypes(String iri) {
+    String spq = """
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX im: <http://endhealth.info/im#>
+      PREFIX sh: <http://www.w3.org/ns/shacl#>
+      SELECT distinct  ?entity ?label ?path ?pathLabel
+      WHERE {
+           VALUES ?parent {%s}
+          {
+           ?parent rdf:type ?entity.
+           ?entity rdfs:label ?label.
+          ?entity sh:property ?property.
+          ?property sh:path ?path.
+              ?path rdfs:label ?pathLabel.
+          ?property sh:node ?entity.
+          }
+          union {
+              VALUES ?path {im:isContainedIn}
+           ?parent im:contentType ?entity.
+           ?entity rdfs:label ?label.
+              ?entity sh:property ?property.
+              ?path rdfs:label ?pathLabel.
+          }
+      }
+      """.formatted("<" + iri + ">");
+    List<TTEntity> result= new ArrayList<>();
+    Map<String, TTEntity> iriMap = new HashMap<>();
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = conn.prepareTupleQuery(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          TTEntity child = iriMap.get(bs.getValue("entity").stringValue());
+          if (child == null) {
+            child = new TTEntity()
+              .setIri(bs.getValue("entity").stringValue())
+              .setName(bs.getValue("label").stringValue());
+            result.add(child);
+          }
+          child.set(TTIriRef.iri(SHACL.PATH), TTIriRef
+            .iri(bs.getValue("path").stringValue())
+            .setName(bs.getValue("pathLabel").stringValue()));
+        }
+      }
+    }
+    return result;
+  }
 }

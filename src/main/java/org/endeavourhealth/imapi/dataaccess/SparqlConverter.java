@@ -546,14 +546,17 @@ public class SparqlConverter {
       subject = "roleGroup" + o;
       o++;
     }
-    if (where.getIri() != null && where.getIri().equals(IM.ROLE_GROUP)) {
+    if (where.isAnyRoleGroup() && !where.isInverse()) {
+      whereQl.append("?").append(subject).append(" ^im:roleGroup ").append("?roleGroup").append(o).append(".\n");
+      subject = "roleGroup" + o;
+      o++;
+    }
+    if (where.isRoleGroup()) {
       whereQl.append("?").append(subject).append(" im:roleGroup ").append("?roleGroup").append(".\n");
       subject = "roleGroup";
       processWhere(whereQl,subject,where,pathVariable);
     }
-    else {
-
-      if (where.getIri() != null || where.getParameter() != null) {
+    if (where.getIri() != null || where.getParameter() != null) {
         o++;
         String inverse = where.isInverse() ? "^" : "";
         String property;
@@ -582,11 +585,7 @@ public class SparqlConverter {
         } else {
           processWhereOther(propertyVariable, whereQl, subject, object, property, where, inverse);
         }
-        if (where.isAnyRoleGroup() && where.isInverse()) {
-          o++;
-          whereQl.append("?").append(object).append(" ^im:roleGroup ").append("?subject").append(o).append(".\n");
-          object = "subject" + o;
-        }
+
 
         if (where.getIsNull()) {
           whereQl.append(tabs).append(" }");
@@ -626,8 +625,6 @@ public class SparqlConverter {
           whereQl.append("}\n");
         }
         whereQl.append("}}\n");
-
-      }
     }
   }
 

@@ -503,8 +503,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
         if (result instanceof Where asWhere) {
-          asWhere.setIri(IM.ROLE_GROUP);
-          asWhere.setAnyRoleGroup(false);
+          asWhere.setRoleGroup(true);
           return asWhere;
         }
       }

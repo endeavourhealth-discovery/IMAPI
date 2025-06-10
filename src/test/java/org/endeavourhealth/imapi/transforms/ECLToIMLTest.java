@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ECLToIMLTest {
 
 
-  //@Test
+ // @Test
   public void ECLToIMLTest() throws DataFormatException, JsonProcessingException, QueryException, EclFormatException {
     String ecl0 = "<<*:  R http://endhealth.info/im#hasMemberParent|member parent | = http://bnf.info/bnf#BNF_040201|4.2.1 Antipsychotic drugs (BNF based value sets)|";
     String ecl1 = "(<< 10363801000001108 \n" +

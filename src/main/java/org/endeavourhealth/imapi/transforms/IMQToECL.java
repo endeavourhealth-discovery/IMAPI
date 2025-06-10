@@ -257,12 +257,8 @@ public class IMQToECL {
 
   private void addRefined(Where where, StringBuilder ecl, Boolean includeNames, boolean nested) throws QueryException {
     try {
-      if (where.getIri() != null && where.getIri().equals(IM.ROLE_GROUP)) {
-        ecl.append("{");
-        addRefinementsToWhere(where, ecl, includeNames, false);
-        ecl.append("}");
-      } else {
-        if (where.getAnd() == null && where.getOr() == null) {
+      if (where.isRoleGroup()) ecl.append("{");
+      if (where.getAnd() == null && where.getOr() == null) {
           if (null == where.getIs())
             throw new QueryException("Where clause must contain a value or sub expressionMatch clause");
           addProperty(where, ecl, includeNames);
@@ -280,8 +276,8 @@ public class IMQToECL {
             ecl.append(")");
         } else {
           addRefinementsToWhere(where, ecl, includeNames, nested);
-        }
       }
+      if (where.isRoleGroup()) ecl.append("}");
     } catch (Exception e) {
       throw new QueryException("Where clause inside a role group clause must contain a where");
     }

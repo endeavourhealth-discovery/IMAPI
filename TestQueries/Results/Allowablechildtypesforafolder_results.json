@@ -1,9 +1,125 @@
 {
   "entities" : [ {
-    "iri" : "http://endhealth.info/im#Folder"
+    "iri" : "http://endhealth.info/im#Folder",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Folder",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b1339",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://www.w3.org/2000/01/rdf-schema#label"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b1340",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://www.w3.org/2000/01/rdf-schema#comment"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b1341",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b1342",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://endhealth.info/im#status"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b1343",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://endhealth.info/im#scheme"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b1344",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://endhealth.info/im#isContainedIn"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b1345",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://endhealth.info/im#contentType"
+      }
+    } ]
   }, {
-    "iri" : "http://endhealth.info/im#CohortQuery"
+    "iri" : "http://endhealth.info/im#CohortQuery",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Cohort Query",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b37",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://www.w3.org/2000/01/rdf-schema#label"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b38",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://www.w3.org/2000/01/rdf-schema#comment"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b39",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b40",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://endhealth.info/im#status"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b41",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://endhealth.info/im#scheme"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b42",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://endhealth.info/im#isContainedIn"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b43",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://endhealth.info/im#definition"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b44",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://endhealth.info/im#returnType"
+      }
+    } ]
   }, {
-    "iri" : "http://endhealth.info/im#DatasetQuery"
+    "iri" : "http://endhealth.info/im#DatasetQuery",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Dataset Query",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b45",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://www.w3.org/2000/01/rdf-schema#label"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b46",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://www.w3.org/2000/01/rdf-schema#comment"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b47",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b48",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://endhealth.info/im#status"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b49",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://endhealth.info/im#scheme"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b50",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://endhealth.info/im#isContainedIn"
+      }
+    }, {
+      "bn" : "genid-ffa4c3634ec04083842237b1b7daa5d832-b51",
+      "http://www.w3.org/ns/shacl#path" : {
+        "iri" : "http://endhealth.info/im#definition"
+      }
+    } ]
   } ]
 }

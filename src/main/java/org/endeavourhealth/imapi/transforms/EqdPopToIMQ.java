@@ -16,18 +16,20 @@ public class EqdPopToIMQ {
   public Query convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws IOException, QueryException, EQDException {
     String activeReport = eqReport.getId();
     if (eqReport.getVersionIndependentGUID() != null) activeReport = eqReport.getVersionIndependentGUID();
+    if (eqReport.getName().equals("All currently registered patients"))
+      EqdToIMQ.gmsPatients.add(activeReport);
     this.resources = resources;
     this.resources.setQueryType(QueryType.POP);
     query.setTypeOf(new Node().setIri(IM.NAMESPACE + "Patient"));
-
     if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
-      query.and(m -> m
+      query.addRule(new Match()
         .setIfTrue(RuleAction.NEXT)
         .setIfFalse(RuleAction.REJECT)
         .setBaseRule(true)
         .addInstanceOf(
           new Node().setIri(IM.NAMESPACE + "Q_RegisteredGMS")
-            .setName("Registered with GP for GMS services on the reference date")));
+            .setName("Registered with GP for GMS services on the reference date")
+            .setMemberOf(true)));
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()) {
         EqdToIMQ.gmsPatients.add(activeReport);
         EqdToIMQ.gmsPatients.add(resources.getNamespace() + activeReport);

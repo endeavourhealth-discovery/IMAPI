@@ -1,0 +1,24 @@
+{
+  "name": "Suggested range for a data property",
+  "description": "get datatype values (ranges)  of property objects that have 4this as their path",
+  "match": [
+    {
+      "path": {
+        "iri": "http://www.w3.org/ns/shacl#datatype",
+        "node": {
+          "variable": "range"
+        }
+      }
+    }
+  ],
+  "return": [
+    {
+      "nodeRef": "range",
+      "property": [
+        {
+          "iri": "http://www.w3.org/2000/01/rdf-schema#label"
+        }
+      ]
+    }
+  ]
+}

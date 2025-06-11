@@ -62,6 +62,13 @@ public class Match extends IriLD implements BoolGroup<Match>{
   private List<Match> and;
   @Getter
   private List<Match> rule;
+  @Getter
+  private String libraryItem;
+
+  public Match setLibraryItem(String libraryItem) {
+    this.libraryItem = libraryItem;
+    return this;
+  }
 
   public Match setWhere(Where where) {
     this.where = where;

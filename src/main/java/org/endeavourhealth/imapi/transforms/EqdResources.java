@@ -219,7 +219,14 @@ public class EqdResources {
       return this.getPopulationQuery(eqCriteria);
     } else {
       this.incrementSubRule();
-      return this.convertCriterion(eqCriteria.getCriterion());
+      if (eqCriteria.getCriterion() != null) {
+        return this.convertCriterion(eqCriteria.getCriterion());
+      }
+      else {
+        Match library= new Match();
+        library.setLibraryItem(eqCriteria.getLibraryItem().getLibraryItem());
+        return library;
+      }
     }
   }
 
@@ -480,7 +487,6 @@ public class EqdResources {
       this.setPropertyValueSets(cv, pv, in);
     } else if (!CollectionUtils.isEmpty(cv.getLibraryItem())) {
       String valueLabel = "Library value set";
-
       for (String vset : cv.getLibraryItem()) {
         ++this.setCounter;
         String vsetName = "Unnamed library set " + this.setCounter;
@@ -496,22 +502,16 @@ public class EqdResources {
     }
   }
 
-  private void setPropertyValueSets(EQDOCColumnValue cv, Where where, boolean notIn) throws IOException, EQDException {
+  private void setPropertyValueSets(EQDOCColumnValue cv, Where where, boolean in) throws IOException, EQDException {
 
     for (EQDOCValueSet vs : cv.getValueSet()) {
       if (vs.getAllValues() != null) {
         List<Node> values = this.getExceptionSet(vs.getAllValues());
-
         for (Node node : values) {
           node.setExclude(true);
         }
-
         where.setIs(values);
-      } else if (!notIn) {
-        this.setInlineValues(vs, where, true);
-      } else {
-        this.setInlineValues(vs, where, false);
-      }
+      } else this.setInlineValues(vs, where, in);
     }
 
   }
@@ -854,10 +854,11 @@ public class EqdResources {
 
     TTIriRef cluster = this.getClusterSet(vs);
     if (cluster != null) {
-      pv.addIs((new Node()).setIri(cluster.getIri()).setName(cluster.getName()).setMemberOf(true));
+      if (in)
+        pv.addIs((new Node()).setIri(cluster.getIri()).setName(cluster.getName()).setMemberOf(true));
+      else pv.addNotIs((new Node()).setIri(cluster.getIri()).setName(cluster.getName()).setMemberOf(true));
     } else {
       Set<Node> setContent = new HashSet<>();
-
       for (EQDOCValueSetValue ev : vs.getValues()) {
         Set<Node> setMembers = this.processEQDOCValueSet(scheme, ev);
         if (!setMembers.isEmpty()) {
@@ -882,7 +883,9 @@ public class EqdResources {
       if (scheme == VocCodeSystemEx.SCT_CONST) {
         Query eclQuery = this.convertToEcl(scheme, setContent);
         TTEntity valueSet = this.createValueSet(vs, eclQuery, setContent);
-        pv.addIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setMemberOf(true));
+        if (in)
+          pv.addIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setMemberOf(true));
+        else pv.addNotIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setMemberOf(true));
         pv.setValueLabel(valueSet.getName() + (eclQuery.getNot() != null ? " (+exclusions)" : ""));
       } else {
         String name = null;

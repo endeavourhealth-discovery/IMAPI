@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 public class IMQtoSQLConverter {
@@ -27,7 +28,7 @@ public class IMQtoSQLConverter {
     this.lang = lang != null ? lang : "MYSQL";
     try {
       String resourcePath = isPostgreSQL() ? "IMQtoSQL.json" : "IMQtoMYSQL.json";
-      String text = Files.readString(Paths.get(getClass().getClassLoader().getResource(resourcePath).toURI()));
+      String text = Files.readString(Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource(resourcePath)).toURI()));
       tableMap = new ObjectMapper().readValue(text, TableMap.class);
     } catch (Exception e) {
       log.error("Could not parse datamodel map!");
@@ -42,8 +43,8 @@ public class IMQtoSQLConverter {
   public String IMQtoSQL() throws SQLConversionException {
     if (queryRequest.getQuery() == null) throw new SQLConversionException("Query is null");
     Query definition = queryRequest.getQuery();
-    if (definition.getTypeOf() == null) {
-      throw new SQLConversionException("SQL Conversion Error: Query must have a main (model) type");
+    if (definition.getTypeOf() == null && definition.getDataSet() == null) {
+      throw new SQLConversionException("SQL Conversion Error: Query must have a main (model) type or a dataset");
     }
 
     if (definition.getAnd() == null && definition.getOr() == null && definition.getNot() == null) {
@@ -449,6 +450,7 @@ public class IMQtoSQLConverter {
     return switch (iriRef.getIri()) {
       case IM.YEARS -> "Year";
       case IM.MONTHS -> "Month";
+      case IM.DAYS -> "Day";
       default -> throw new SQLConversionException("SQL Conversion Error: No unit name found for\n" + iriRef.getIri());
     };
   }

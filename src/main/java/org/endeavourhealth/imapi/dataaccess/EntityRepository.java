@@ -1,9 +1,5 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Values;
@@ -49,7 +45,7 @@ public class EntityRepository {
   private static void hydrateCorePropertiesSetEntityDocumentProperties(EntityDocument entityDocument, TupleQueryResult qr) {
     BindingSet rs = qr.next();
     entityDocument.setName(rs.getValue("name").stringValue());
-    entityDocument.addTermCode(entityDocument.getName(), null, null,null);
+    entityDocument.addTermCode(entityDocument.getName(), null, null, null);
 
     if (rs.hasBinding("preferredName")) entityDocument.setPreferredName(rs.getValue("preferredName").stringValue());
 
@@ -489,14 +485,14 @@ public class EntityRepository {
           if (synonym != null) {
             SearchTermCode tc = getTermCode(entityDocument, synonym);
             if (tc == null) {
-              entityDocument.addTermCode(synonym, termCode, status,null);
+              entityDocument.addTermCode(synonym, termCode, status, null);
               addKey(synonym);
             } else if (termCode != null) {
               tc.setCode(termCode);
             }
           } else if (termCode != null) {
             SearchTermCode tc = getTermCodeFromCode(entityDocument, termCode);
-            if (tc == null) entityDocument.addTermCode(null, termCode, status,null);
+            if (tc == null) entityDocument.addTermCode(null, termCode, status, null);
           }
 
         }
@@ -620,7 +616,7 @@ public class EntityRepository {
    * @return a bundle including the entity and the predicate names
    */
   public TTBundle getBundle(String iri) {
-    return getBundle(iri, null, false);
+    return getBundle(iri, null, false, null);
   }
 
   /**
@@ -631,7 +627,7 @@ public class EntityRepository {
    * @return bundle with entity and map of predicate names
    */
   public TTBundle getBundle(String iri, Set<String> predicates) {
-    return getBundle(iri, predicates, false);
+    return getBundle(iri, predicates, false, null);
   }
 
   /**
@@ -642,11 +638,12 @@ public class EntityRepository {
    * @param excludePredicates Flag denoting if predicate list is inclusion or exclusion
    * @return
    */
-  public TTBundle getBundle(String iri, Set<String> predicates, boolean excludePredicates) {
-    return getBundle(iri, predicates, excludePredicates, 5);
+  public TTBundle getBundle(String iri, Set<String> predicates, boolean excludePredicates, String graph) {
+    return getBundle(iri, predicates, excludePredicates, 5, graph);
   }
 
-  public TTBundle getBundle(String iri, Set<String> predicates, boolean excludePredicates, int depth) {
+  public TTBundle getBundle(String iri, Set<String> predicates, boolean excludePredicates, int depth, String graph) {
+    if (null == graph) graph = GRAPH.DISCOVERY;
     TTBundle bundle = new TTBundle().setEntity(new TTEntity().setIri(iri)).setPredicates(new HashMap<>());
     if (null != predicates && predicates.contains(RDFS.LABEL) && !predicates.contains(RDFS.COMMENT)) {
       Set<String> predicatesPlus = new HashSet<>(predicates);
@@ -659,6 +656,7 @@ public class EntityRepository {
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       GraphQuery qry = conn.prepareGraphQuery(sql.toString());
       qry.setBinding("entity", Values.iri(iri));
+      qry.setBinding("graph", Values.iri(graph));
       try (GraphQueryResult gs = qry.evaluate()) {
         Map<String, TTValue> valueMap = new HashMap<>();
         for (org.eclipse.rdf4j.model.Statement st : gs) {
@@ -851,7 +849,7 @@ public class EntityRepository {
     }
   }
 
-  public Map<String,String> getCodesToIri(String scheme) {
+  public Map<String, String> getCodesToIri(String scheme) {
     String sql = """
       SELECT ?code ?scheme ?iri ?altCode
       WHERE {
@@ -860,7 +858,7 @@ public class EntityRepository {
         OPTIONAL {?iri im:alternativeCode ?altCode}
         ?iri im:scheme ?scheme
       }
-      """.formatted("<"+ scheme +">");
+      """.formatted("<" + scheme + ">");
     return getCodes(sql);
   }
 
@@ -877,7 +875,7 @@ public class EntityRepository {
   }
 
   private Map<String, String> getCodes(String sql) {
-  Map<String, String> codeToIri = new HashMap<>();
+    Map<String, String> codeToIri = new HashMap<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
       try (TupleQueryResult gs = qry.evaluate()) {
@@ -988,6 +986,7 @@ public class EntityRepository {
   private StringJoiner getBundleSparql(Set<String> predicates, boolean excludePredicates, int depth) {
     StringJoiner sql = new StringJoiner(System.lineSeparator());
     sql.add(RDFS_PREFIX);
+    sql.add("GRAPH ?g {");
     sql.add("CONSTRUCT {").add("  ?entity ?1predicate ?1Level.").add("  ?1Level rdfs:label ?1Name.");
     for (int i = 1; i < depth; i++) {
       sql.add("  ?" + i + "Level ?" + (i + 1) + "predicate ?" + (i + 1) + "Level.").add("  ?" + (i + 1) + "predicate rdfs:label ?" + (i + 1) + "pName.").add("  ?" + (i + 1) + "Level rdfs:label ?" + (i + 1) + "Name.");
@@ -1022,6 +1021,7 @@ public class EntityRepository {
       sql.add("  OPTIONAL {?" + (i) + "Level ?" + (i + 1) + "predicate ?" + (i + 1) + "Level.").add("    FILTER (isBlank(?" + i + "Level))").add("  OPTIONAL {?" + (i + 1) + "predicate rdfs:label ?" + (i + 1) + "pName}").add("  OPTIONAL {?" + (i + 1) + "Level rdfs:label ?" + (i + 1) + "Name").add("    FILTER (!isBlank(?" + (i + 1) + "Level))}");
     }
     sql.add(String.join("", Collections.nCopies(depth, "}")));
+    sql.add("}");
     return sql;
   }
 
@@ -1151,7 +1151,7 @@ public class EntityRepository {
   }
 
   public TTBundle getEntityPredicates(String iri, Set<String> predicates) {
-    return getBundle(iri, predicates, false);
+    return getBundle(iri, predicates, false, null);
   }
 
   public List<TTIriRef> getConceptUsages(String objectIri, Integer rowNumber, Integer pageSize) {
@@ -1279,7 +1279,7 @@ public class EntityRepository {
   public List<EntityReferenceNode> getAsEntityReferenceNodes(Set<String> iris) {
     TTArray types = new TTArray();
     List<EntityReferenceNode> result = new ArrayList<>();
-    String entities= iris.stream().map(iri->"<"+iri+">").collect(Collectors.joining(" "));
+    String entities = iris.stream().map(iri -> "<" + iri + ">").collect(Collectors.joining(" "));
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
       SELECT distinct ?entity ?name ?typeIri ?typeName ?hasChildren ?hasGrandchildren
       WHERE {
@@ -1292,8 +1292,8 @@ public class EntityRepository {
         BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?entity} AS ?hasGrandchildren)
         }
       
-      """.formatted(entities,PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
-    Map<String,EntityReferenceNode> entityMap = new HashMap<>();
+      """.formatted(entities, PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
+    Map<String, EntityReferenceNode> entityMap = new HashMap<>();
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = prepareSparql(conn, sql.toString());
@@ -1308,10 +1308,10 @@ public class EntityRepository {
             entityMap.put(iri, refNode);
           }
           refNode.setName(bs.getValue("name").stringValue());
-          if (bs.getValue("hasChildren")!=null) {
+          if (bs.getValue("hasChildren") != null) {
             refNode.setHasChildren(((Literal) bs.getValue("hasChildren")).booleanValue());
           }
-          if (bs.getValue("hasGrandchildren")!=null) {
+          if (bs.getValue("hasGrandchildren") != null) {
             refNode.setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue());
           }
           if (bs.getValue("typeIri") != null && bs.getValue("typeName") != null)
@@ -1942,7 +1942,7 @@ public class EntityRepository {
           }
       }
       """.formatted("<" + iri + ">");
-    List<TTEntity> result= new ArrayList<>();
+    List<TTEntity> result = new ArrayList<>();
     Map<String, TTEntity> iriMap = new HashMap<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = conn.prepareTupleQuery(spq);

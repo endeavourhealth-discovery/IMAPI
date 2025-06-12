@@ -171,11 +171,12 @@ public class FilerService {
     }
   }
 
-  public TTEntity createEntity(EditRequest editRequest, String agentName) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
+  public TTEntity createEntity(EditRequest editRequest, String agentName, String graph) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
     isValid(editRequest.getEntity(), "Create");
-    TTIriRef graph = iri(GRAPH.DISCOVERY);
+    if (null == graph) graph = GRAPH.DISCOVERY;
+    TTIriRef graphIri = iri(graph);
     editRequest.getEntity().setCrud(iri(IM.ADD_QUADS)).setVersion(1);
-    fileEntity(editRequest.getEntity(), graph, agentName, null);
+    fileEntity(editRequest.getEntity(), graphIri, agentName, null);
     EntityApproval entityApproval = new EntityApproval();
     entityApproval
       .setEntityIri(iri(editRequest.getEntity().getIri()))
@@ -188,23 +189,19 @@ public class FilerService {
     return editRequest.getEntity();
   }
 
-  public TTEntity updateEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {
+  public TTEntity updateEntity(TTEntity entity, String agentName, String graph) throws TTFilerException, JsonProcessingException {
     isValid(entity, "Update");
-    TTIriRef graph = iri(GRAPH.DISCOVERY);
+    if (null == graph) graph = GRAPH.DISCOVERY;
+    TTIriRef graphIri = iri(graph);
     entity.setCrud(iri(IM.UPDATE_ALL));
     TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
     entity.setVersion(usedEntity.getVersion() + 1);
-    fileEntity(entity, graph, agentName, usedEntity);
+    fileEntity(entity, graphIri, agentName, usedEntity);
     return entity;
   }
 
-  public TTEntity updateEntityWithWorkflow(EditRequest editRequest, String agentName, HttpServletRequest request) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
-    isValid(editRequest.getEntity(), "Update");
-    TTIriRef graph = iri(GRAPH.DISCOVERY);
-    editRequest.getEntity().setCrud(iri(IM.UPDATE_ALL));
-    TTEntity usedEntity = entityService.getBundle(editRequest.getEntity().getIri(), null).getEntity();
-    editRequest.getEntity().setVersion(usedEntity.getVersion() + 1);
-    fileEntity(editRequest.getEntity(), graph, agentName, usedEntity);
+  public TTEntity updateEntityWithWorkflow(EditRequest editRequest, String agentName, HttpServletRequest request, String graph) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
+    TTEntity entity = createEntity(editRequest, agentName, graph);
     EntityApproval entityApproval = new EntityApproval();
     entityApproval
       .setEntityIri(iri(editRequest.getEntity().getIri()))
@@ -214,7 +211,7 @@ public class FilerService {
       .setState(TaskState.TODO)
       .setType(TaskType.ENTITY_APPROVAL);
     workflowService.updateEntityApproval(entityApproval, request);
-    return editRequest.getEntity();
+    return entity;
   }
 
   public void isValid(TTEntity entity, String mode) throws TTFilerException, JsonProcessingException {

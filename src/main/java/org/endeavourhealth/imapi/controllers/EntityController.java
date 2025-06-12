@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.controllers;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,6 +33,7 @@ import org.endeavourhealth.imapi.model.validation.EntityValidationResponse;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -100,10 +100,10 @@ public class EntityController {
 
   @GetMapping(value = "/fullEntity", produces = "application/json")
   @Operation(summary = "Get full entity", description = "Fetches full entity details using IRI")
-  public TTEntity getFullEntity(@RequestParam(name = "iri") String iri) throws IOException {
+  public TTEntity getFullEntity(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
       log.debug("getFullEntity");
-      return entityService.getBundleByPredicateExclusions(iri, null).getEntity();
+      return entityService.getBundleByPredicateExclusions(iri, null, graph).getEntity();
     }
   }
 
@@ -244,7 +244,7 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       log.debug("createEntity");
       String agentName = reqObjService.getRequestAgentName(request);
-      return filerService.createEntity(editRequest, agentName);
+      return filerService.createEntity(editRequest, agentName, GRAPH.DISCOVERY);
     }
   }
 
@@ -255,7 +255,29 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       log.debug("updateEntity");
       String agentName = reqObjService.getRequestAgentName(request);
-      return filerService.updateEntityWithWorkflow(editRequest, agentName, request);
+      return filerService.updateEntityWithWorkflow(editRequest, agentName, request, GRAPH.DISCOVERY);
+    }
+  }
+
+  @PostMapping(value = "/createDraft")
+  @PreAuthorize("hasAuthority('edit')")
+  @Operation(summary = "Save draft entity", description = "Add an entity to the users draft graph to await approval process")
+  public TTEntity saveDraft(@RequestBody EditRequest editRequest, HttpServletRequest request) throws TTFilerException, IOException, UserNotFoundException, TaskFilerException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.draft.POST")) {
+      log.debug("saveDraft");
+      String agentName = reqObjService.getRequestAgentName(request);
+      String userGraph = reqObjService.getUserGraph(request);
+      return filerService.createEntity(editRequest, agentName, userGraph);
+    }
+  }
+
+  @GetMapping(value = "/draft")
+  @Operation(summary = "get draft entity", description = "Get a users draft entity by entity iri")
+  public TTEntity getDraft(@RequestParam(name = "iri") String iri, HttpServletRequest request) throws TTFilerException, IOException, UserNotFoundException, TaskFilerException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.draft.GET")) {
+      log.debug("getDraft");
+      String userGraph = reqObjService.getUserGraph(request);
+      return entityService.getBundleByPredicateExclusions(iri, null, userGraph).getEntity();
     }
   }
 
@@ -343,19 +365,19 @@ public class EntityController {
 
   @GetMapping("/public/entityByPredicateExclusions")
   @Operation(summary = "Get entity by predicate exclusions", description = "Fetches an entity details using IRI, excluding specified predicates")
-  public TTEntity getEntityByPredicateExclusions(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) throws IOException {
+  public TTEntity getEntityByPredicateExclusions(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.EntityByPredicateExclusions.GET")) {
       log.debug("getEntityByPredicateExclusions");
-      return entityService.getBundleByPredicateExclusions(iri, predicates).getEntity();
+      return entityService.getBundleByPredicateExclusions(iri, predicates, graph).getEntity();
     }
   }
 
   @GetMapping("/public/bundleByPredicateExclusions")
   @Operation(summary = "Get bundle by predicate exclusions", description = "Fetches a bundle of entities identified by IRI, excluding specified predicates")
-  public TTBundle getBundleByPredicateExclusions(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) throws IOException {
+  public TTBundle getBundleByPredicateExclusions(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.BundleByPredicateExclusions.GET")) {
       log.debug("getBundleByPredicateExclusions");
-      return entityService.getBundleByPredicateExclusions(iri, predicates);
+      return entityService.getBundleByPredicateExclusions(iri, predicates, graph);
     }
   }
 
@@ -469,6 +491,7 @@ public class EntityController {
       return entityService.getFilterDefaults();
     }
   }
+
   @GetMapping("/public/allowableChildTypes")
   @Operation(summary = "Get allowable child types", description = "Fetches the allowable child types for an entity and the predicate that links them")
   public List<TTEntity> getAllowableChildTypes(@RequestParam(name = "iri") String iri) throws IOException {

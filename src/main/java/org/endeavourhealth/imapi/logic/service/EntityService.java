@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.validator.EntityValidator;
@@ -60,13 +59,12 @@ public class EntityService {
     return entityRepository.getBundle(iri, predicates);
   }
 
-  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) {
-    TTBundle bundle = entityRepository.getBundle(iri, excludePredicates, true);
+  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates, String graph) {
+    TTBundle bundle = entityRepository.getBundle(iri, excludePredicates, true, graph);
     filterOutSpecifiedPredicates(excludePredicates, bundle);
     filterOutInactiveTermCodes(bundle);
     return bundle;
   }
-
 
   public List<TTEntity> getPartialEntities(Set<String> iris, Set<String> predicates) {
     List<TTEntity> entities = new ArrayList<>();
@@ -370,6 +368,7 @@ public class EntityService {
   public EntityReferenceNode getEntityAsEntityReferenceNode(String iri) {
     return getEntityAsEntityReferenceNode(iri, null, false);
   }
+
   public List<EntityReferenceNode> getAsEntityReferenceNodes(Set<String> iris) {
     return entityRepository.getAsEntityReferenceNodes(iris);
   }
@@ -424,7 +423,7 @@ public class EntityService {
     Set<String> entityPredicates = getPredicates(iri);
     TTBundle response;
     if (entityPredicates.contains(IM.HAS_MEMBER)) {
-      response = getBundleByPredicateExclusions(iri, excludedPredicates);
+      response = getBundleByPredicateExclusions(iri, excludedPredicates, null);
       excludedPredicates.add(IM.HAS_MEMBER);
       Pageable<TTIriRef> partialAndCount = getPartialWithTotalCount(iri, IM.HAS_MEMBER, null, 1, 10, false);
       TTArray partialAsTTArray = new TTArray();
@@ -439,7 +438,7 @@ public class EntityService {
       response.addPredicate(iri(IM.HAS_MEMBER));
       response.getEntity().set(iri(IM.HAS_MEMBER), partialAsTTArray);
     } else {
-      response = getBundleByPredicateExclusions(iri, excludedPredicates);
+      response = getBundleByPredicateExclusions(iri, excludedPredicates, null);
     }
     response.getEntity().removeObject(iri(RDF.TYPE));
     return response;

@@ -2,10 +2,9 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.endeavourhealth.imapi.logic.CachedObjectMapper;
-
-
 import jakarta.servlet.http.HttpServletRequest;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.Base64;
 
@@ -32,4 +31,8 @@ public class RequestObjectService {
     }
   }
 
+  public String getUserGraph(HttpServletRequest request) throws JsonProcessingException {
+    String userId = getRequestAgentId(request);
+    return IM.DOMAIN + "draft/" + userId + "#";
+  }
 }

@@ -766,5 +766,46 @@ public class SetRepository {
   }
 
 
+  public boolean isValidPropertyForDomains(String propertyIri, Set<String> entityIris) {
+    String concepts= entityIris.stream().map(iri->"<"+iri+">").collect(Collectors.joining(" "));
+    String spq= """
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX im: <http://endhealth.info/im#>
+      ASK
+      WHERE {?property im:isA ?superProperty.
+      VALUES ?property {%s}
+      VALUES ?concept {%s}
+      ?superProperty rdfs:domain ?domain.
+      ?concept im:isA ?domain.
+      }
+      """.formatted("<"+propertyIri+">",concepts);
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      return conn.prepareBooleanQuery(spq).evaluate();
+    }
+  }
+
+  public boolean isValidRangeForProperty(String propertyIri, String valueIri) {
+
+    String spq= """
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX im: <http://endhealth.info/im#>
+      
+      ASK
+      WHERE {?property im:isA ?superProperty.
+      Values ?property {%s}
+      ?superProperty rdfs:range ?range.
+      VALUES ?concept {%s}
+      ?concept im:isA ?range.
+      }
+      
+      """.formatted("<"+propertyIri+">","<"+valueIri+">");
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      return conn.prepareBooleanQuery(spq).evaluate();
+    }
+  }
+
+
+
+
 }
 

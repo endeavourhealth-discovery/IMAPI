@@ -71,6 +71,7 @@ public class ConceptController {
   }
 
 
+
   @GetMapping(value = "/public/rangesForProperty")
   @Operation(summary = "Get top level property ranges for an entity as a tree node", description = "Finds the highest parent (superior) property value for an entity and returns then in a tree node format for use in a hierarchy tree")
   public Set<String> getRangesForProperty(@RequestParam(name = "propertyIri") String iri) throws IOException {

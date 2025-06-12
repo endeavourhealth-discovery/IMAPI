@@ -61,8 +61,13 @@ public class EclController {
     }
   }
 
-
-
+  @PostMapping("/public/validateModel")
+  public Query validateModel(@RequestBody Query query) throws QueryException, IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateDomainsAndRanges.POST")) {
+      log.debug("validatesDomainsAndRanges");
+      return eclService.validateModel(query);
+    }
+  }
 
 
 

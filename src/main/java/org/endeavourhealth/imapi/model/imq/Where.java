@@ -43,6 +43,8 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   @Getter
   private List<Where> and;
 
+
+
   public Where setRoleGroup(boolean roleGroup) {
     this.roleGroup = roleGroup;
     return this;

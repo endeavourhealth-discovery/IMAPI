@@ -53,29 +53,39 @@ public class IMQtoSQLConverter {
 
     try {
       SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null, tableMap);
-      if (definition.getAnd() != null) {
-        for (Match match : definition.getAnd()) {
-          addIMQueryToSQLQueryRecursively(qry, match, Bool.and);
-          if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
-        }
-      }
-      if (definition.getOr() != null) {
-        for (Match match : definition.getOr()) {
-          addIMQueryToSQLQueryRecursively(qry, match, Bool.or);
-          if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
-        }
-      }
-      if (definition.getNot() != null) {
-        for (Match match : definition.getNot()) {
-          addIMQueryToSQLQueryRecursively(qry, match, Bool.not);
-          if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
-        }
+      if (definition.getDataSet() != null) {
+        if (definition.getInstanceOf() == null)
+          throw new SQLConversionException("Query with a dataset must have an instanceOf (cohort query)");
+        convertInstanceOf(qry, definition.getInstanceOf(), Bool.and);
+      } else {
+        addBooleanMatchesToSQL(qry, definition);
       }
       String sql = qry.toSql(2);
       return replaceArgumentsWithValue(sql);
     } catch (SQLConversionException e) {
       log.error("SQL Conversion Error!");
       throw e;
+    }
+  }
+
+  private void addBooleanMatchesToSQL(SQLQuery qry, Query definition) throws SQLConversionException {
+    if (definition.getAnd() != null) {
+      for (Match match : definition.getAnd()) {
+        addIMQueryToSQLQueryRecursively(qry, match, Bool.and);
+        if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
+      }
+    }
+    if (definition.getOr() != null) {
+      for (Match match : definition.getOr()) {
+        addIMQueryToSQLQueryRecursively(qry, match, Bool.or);
+        if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
+      }
+    }
+    if (definition.getNot() != null) {
+      for (Match match : definition.getNot()) {
+        addIMQueryToSQLQueryRecursively(qry, match, Bool.not);
+        if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
+      }
     }
   }
 
@@ -138,7 +148,7 @@ public class IMQtoSQLConverter {
 
   private void convertMatch(Match match, SQLQuery qry, Bool bool) throws SQLConversionException {
     if (match.getInstanceOf() != null) {
-      convertMatchInstanceOf(qry, match, bool);
+      convertInstanceOf(qry, match.getInstanceOf(), bool);
     } else if (match.getAnd() != null) {
       convertMatchBoolSubMatch(qry, match, Bool.and);
     }
@@ -173,15 +183,15 @@ public class IMQtoSQLConverter {
     qry.getWheres().add("rn = 1");
   }
 
-  private void convertMatchInstanceOf(SQLQuery qry, Match match, Bool bool) throws SQLConversionException {
-    if (match.getInstanceOf() == null)
-      throw new SQLConversionException("SQL Conversion Error: MatchSet must have at least one element\n" + match);
-    String subQueryIri = match.getInstanceOf().getFirst().getIri();
+  private void convertInstanceOf(SQLQuery qry, List<Node> instanceOf, Bool bool) throws SQLConversionException {
+    if (instanceOf.isEmpty())
+      throw new SQLConversionException("SQL Conversion Error: MatchSet must have at least one element");
+    String subQueryIri = instanceOf.getFirst().getIri();
     String rsltTbl = "query." + iriToUuidMap.getOrDefault(subQueryIri, "uuid");
     qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON "
       + rsltTbl + ".id = " + qry.getAlias() + ".id");
     if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".iri IS NULL");
-    qry.getWheres().add(rsltTbl + ".iri = '" + match.getInstanceOf().getFirst().getIri() + "'");
+    qry.getWheres().add(rsltTbl + ".iri = '" + instanceOf.getFirst().getIri() + "'");
   }
 
   private void convertMatchBoolSubMatch(SQLQuery qry, Match match, Bool bool) throws SQLConversionException {

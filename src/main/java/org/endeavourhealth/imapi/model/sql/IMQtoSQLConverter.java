@@ -47,8 +47,8 @@ public class IMQtoSQLConverter {
       throw new SQLConversionException("SQL Conversion Error: Query must have a main (model) type or a dataset");
     }
 
-    if (definition.getAnd() == null && definition.getOr() == null && definition.getNot() == null) {
-      throw new SQLConversionException("Query must have at least one match");
+    if (definition.getAnd() == null && definition.getOr() == null && definition.getNot() == null && definition.getInstanceOf() == null) {
+      throw new SQLConversionException("Query must have at least one match or instance of");
     }
 
     try {

@@ -199,6 +199,7 @@ public class QueryRepository {
               if (foundCount>end) break;
             }
               if (notMatched(lastEntity, queryRequest.getTextSearch())) {
+                foundCount--;
                 entities.remove(entities.size() - 2);
               }
               lastEntity = entity;

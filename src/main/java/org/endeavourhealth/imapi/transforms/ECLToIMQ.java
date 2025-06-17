@@ -26,6 +26,7 @@ public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
   public static final String ROLE_GROUP = IM.ROLE_GROUP;
   private final IMECLLexer lexer;
   private final IMECLParser parser;
+  private boolean validateEntities;
 
 
   public ECLToIMQ() {
@@ -33,6 +34,11 @@ public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
     this.parser = new IMECLParser(null);
     this.parser.removeErrorListeners();
     this.parser.addErrorListener(new ParserErrorListener());
+  }
+
+  public void getQueryFromECL(ECLQuery eclQuery, boolean validateEntities){
+    this.validateEntities = validateEntities;
+    getQueryFromECL(eclQuery);
   }
 
   /**
@@ -55,14 +61,16 @@ public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
       ECLToIMQVisitor visitor = new ECLToIMQVisitor();
       Query query = visitor.getIMQ(eclCtx);
       eclQuery.setQuery(query);
-      ECLQueryValidator validator = new ECLQueryValidator();
-      ECLStatus status= validator.validateQuery(query, ValidationLevel.CONCEPT);
-      if (!status.isValid()) {
-        try {
-          new IMQToECL().getECLFromQuery(eclQuery);
-        } catch (Exception e){
-          eclQuery.getStatus().setValid(false);
-          eclQuery.getStatus().setMessage(e.getMessage());
+      if (validateEntities) {
+        ECLQueryValidator validator = new ECLQueryValidator();
+        ECLStatus status = validator.validateQuery(query, ValidationLevel.CONCEPT);
+        if (!status.isValid()) {
+          try {
+            new IMQToECL().getECLFromQuery(eclQuery);
+          } catch (Exception e) {
+            eclQuery.getStatus().setValid(false);
+            eclQuery.getStatus().setMessage(e.getMessage());
+          }
         }
       }
     } catch (ECLSyntaxError error) {

@@ -94,7 +94,7 @@ public class EclService {
     String ecl= eclQuery.getEcl();
     if (ecl==null||ecl.isEmpty())
       return eclQuery;
-    new ECLToIMQ().getQueryFromECL(eclQuery);
+    new ECLToIMQ().getQueryFromECL(eclQuery,true);
     Query query=eclQuery.getQuery();
     if (query!=null &&!query.isInvalid()) {
       try {
@@ -111,7 +111,7 @@ public class EclService {
     String ecl=eclQuery.getEcl();
     if (ecl==null||ecl.isEmpty())
       return eclQuery;
-    new ECLToIMQ().getQueryFromECL(eclQuery);
+    new ECLToIMQ().getQueryFromECL(eclQuery,true);
     return eclQuery;
   }
 
@@ -119,7 +119,7 @@ public class EclService {
     String ecl= eclQuery.getEcl();
     if (ecl==null|| ecl.isEmpty())
       return eclQuery;
-    new ECLToIMQ().getQueryFromECL(eclQuery);
+    new ECLToIMQ().getQueryFromECL(eclQuery,true);
     new IMQToECL().getECLFromQuery(eclQuery);
     return eclQuery;
   }

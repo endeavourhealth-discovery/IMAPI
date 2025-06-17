@@ -9,87 +9,49 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
+import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.transforms.ECLToIMQ;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class EclService {
   private final SetRepository setRepository = new SetRepository();
 
-  public Query validateModel(Query query) {
-    query.setValid(validateMatchWheres(query));
-    return query;
+
+  public ECLQuery validateModelFromQuery(ECLQuery eclQuery) {
+    eclQuery.setStatus(new ECLQueryValidator().validateQuery(eclQuery.getQuery(),ValidationLevel.ECL));
+    return eclQuery;
   }
 
-  private boolean validateMatchWheres(Match match){
-    boolean valid=true;
-    if (match.getWhere()!=null){
-      Set<String> focusConcepts= new HashSet<>();
-      getFocusConcepts(match,focusConcepts);
-      if (!validateWhere(match.getWhere(),focusConcepts)){
-        valid= false;
-      }
-    }
-    for (List<Match> matches : Arrays.asList(match.getOr(),match.getAnd(),match.getNot())){
-      if (matches!=null){
-        for (Match m : matches){
-          if (!validateMatchWheres(m)){
-            valid=false;
-          }
-        }
-      }
-    }
-    return valid;
-  }
 
-  private boolean validateWhere(Where where, Set<String> focusConcepts) {
-    boolean valid=true;
-    if (where.getIri()!=null){
-      if (!setRepository.isValidPropertyForDomains(where.getIri(),focusConcepts)){
-        where.setValid(false);
-        valid= false;
-      }
-    }
-    if (valid){
-      if (where.getIs()!=null) {
-        for (Node node : where.getIs()) {
-          if (node.getIri() != null) {
-            if (!setRepository.isValidRangeForProperty(where.getIri(),node.getIri())) {
-              valid= false;
-            }
-          }
-        }
-      }
-    }
-    return valid;
-  }
 
-  private void getFocusConcepts(Match match,Set<String> focusConcepts){
-    if (match.getInstanceOf()!=null){
-      for (Node node : match.getInstanceOf()){
-        if (node.getIri()!=null){
-          focusConcepts.add(node.getIri());
-        }
+  public ECLQuery validateModelFromECL(ECLQuery eclQuery) {
+    try {
+      getQueryFromECL(eclQuery);
+      validateModelFromQuery(eclQuery);
+      if (!eclQuery.getStatus().isValid()) {
+        new IMQToECL().getECLFromQuery(eclQuery);
       }
+      return eclQuery;
+    } catch (Exception e){
+      ECLStatus eclStatus= new ECLStatus();
+      eclStatus.setValid(false);
+      eclStatus.setMessage(e.getMessage());
+      eclQuery.setStatus(eclStatus);
+      return eclQuery;
     }
-    for (List<Match> matches : Arrays.asList(match.getOr(),match.getAnd(),match.getNot())){
-      if (matches!=null){
-        for (Match m : matches){
-          getFocusConcepts(m,focusConcepts);
-        }
-      }
-    }
-  }
+}
+
 
   public String getEcl(Query inferred) throws QueryException {
     if (inferred == null) throw new QueryException("Missing data for ECL conversion");
-    else return new IMQToECL().getECLFromQuery(inferred, true);
+    ECLQuery eclQuery = new ECLQuery();
+    eclQuery.setQuery(inferred);
+    new IMQToECL().getECLFromQuery(eclQuery);
+    return eclQuery.getEcl();
   }
 
   public int getEclSearchTotalCount(EclSearchRequest request) throws QueryException {
@@ -121,17 +83,44 @@ public class EclService {
     return result;
   }
 
-  public String getECLFromQuery(Query query, Boolean includeNames) throws QueryException {
-    return new IMQToECL().getECLFromQuery(query, includeNames);
+  public ECLQuery getECLFromQuery(ECLQuery eclQuery) {
+    new IMQToECL().getECLFromQuery(eclQuery);
+    return eclQuery;
   }
 
-  public Query getQueryFromEcl(String ecl) throws EclFormatException, QueryException, JsonProcessingException {
-    Query query= new ECLToIMQ().getQueryFromECL(ecl);
-    new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL);
-    return query;
+
+
+  public ECLQuery getQueryFromECL(ECLQuery eclQuery) {
+    String ecl= eclQuery.getEcl();
+    if (ecl==null||ecl.isEmpty())
+      return eclQuery;
+    new ECLToIMQ().getQueryFromECL(eclQuery);
+    Query query=eclQuery.getQuery();
+    if (query!=null &&!query.isInvalid()) {
+      try {
+        new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL);
+      } catch (Exception e) {
+        eclQuery.getStatus().setValid(false);
+        eclQuery.getStatus().setMessage(e.getMessage());
+      }
+    }
+    return eclQuery;
   }
 
-  public ECLStatus validateEcl(String ecl) {
-    return new ECLToIMQ().validateEcl(ecl);
+  public ECLQuery validateEcl(ECLQuery eclQuery) {
+    String ecl=eclQuery.getEcl();
+    if (ecl==null||ecl.isEmpty())
+      return eclQuery;
+    new ECLToIMQ().getQueryFromECL(eclQuery);
+    return eclQuery;
+  }
+
+  public ECLQuery getEclFromEcl(ECLQuery eclQuery){
+    String ecl= eclQuery.getEcl();
+    if (ecl==null|| ecl.isEmpty())
+      return eclQuery;
+    new ECLToIMQ().getQueryFromECL(eclQuery);
+    new IMQToECL().getECLFromQuery(eclQuery);
+    return eclQuery;
   }
 }

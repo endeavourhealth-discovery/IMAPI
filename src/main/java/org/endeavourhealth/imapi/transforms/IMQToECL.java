@@ -1,11 +1,12 @@
 package org.endeavourhealth.imapi.transforms;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.model.imq.EclType;
+import org.endeavourhealth.imapi.model.imq.ECLType;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.util.Arrays;
@@ -17,17 +18,25 @@ public class IMQToECL {
 
   private Map<String, String> names = new HashMap<>();
   private Prefixes prefixes;
+  @Getter
+  @Setter
+  private ECLStatus eclStatus;
+  private final EntityRepository entityRepository = new EntityRepository();
+
+
 
   /**
    * Takes a IM ECL compliant definition of a set and returns is ECL language
    *
-   * @param query       a node representing a class expression e.g. value of im:Definition
-   * @param includeName flag to include the concept term is the output
-   * @return String of ECL
-   * @throws QueryException invalid or unsupported ECL syntax
+   * @param eclQuery       An object containing a 'query' and 'showNames'
+   * @return the object with a status, ecl and the query
    */
-  public String getECLFromQuery(Query query, Boolean includeName) throws QueryException {
+  public void getECLFromQuery(ECLQuery eclQuery) {
+    eclStatus = new ECLStatus();
+    eclStatus.setValid(true);
+    eclQuery.setStatus(eclStatus);
     StringBuilder ecl = new StringBuilder();
+    Query query = eclQuery.getQuery();
     cleanMatch(query);
     if (query.getPrefixes() != null) {
       prefixes = query.getPrefixes();
@@ -35,8 +44,13 @@ public class IMQToECL {
         ecl.append("prefix ").append(prefix.getPrefix()).append(": ").append(prefix.getNamespace()).append("\n");
       }
     }
-    expressionMatch(query, ecl, includeName, false);
-    return ecl.toString().trim();
+    try {
+      expressionMatch(query, ecl, eclQuery.isShowNames(), false);
+      eclQuery.setEcl(ecl.toString().trim());
+    } catch (Exception ex) {
+      eclStatus.setValid(false);
+      query.setInvalid(true);
+    }
   }
   private void cleanMatch(Match match) {
     match.setOr(cleanSubMatches(match.getOr()));
@@ -97,36 +111,45 @@ public class IMQToECL {
     return false;
   }
 
-  public EclType getEclType(Match match) {
+  public ECLType getEclType(Match match) {
     if (match.getWhere() != null)
-      return EclType.refined;
+      return ECLType.refined;
     if (match.getAnd() != null || match.getOr() != null) {
-      return EclType.compound;
+      return ECLType.compound;
     }
-    else return EclType.simple;
+    else return ECLType.simple;
   }
 
-  public String getECLFromQuery(Query query) throws QueryException {
-    return getECLFromQuery(query, false);
-  }
 
+
+  private void setErrorStatus(StringBuilder ecl, String message) {
+    eclStatus.setValid(false);
+    if (eclStatus.getLine()==null) {
+      String[] eclText = ecl.toString().split("\n");
+      Integer line = eclText.length;
+      Integer offset = eclText[eclText.length-1].length();
+      eclStatus.setLine(line);
+      eclStatus.setOffset(offset);
+      eclStatus.setMessage(message);
+    }
+  }
 
 
   private void expressionMatch(Match match, StringBuilder ecl, boolean includeNames, boolean isNested) throws QueryException {
 
-    EclType matchType = getEclType(match);
+    ECLType matchType = getEclType(match);
     boolean isExclusion = match.getNot() != null;
     if (matchType == null)
       return;
-    if (matchType == EclType.simple) {
+    if (matchType == ECLType.simple) {
       matchInstanceOf(match, ecl, includeNames);
-    } else if (matchType == EclType.refined) {
+    } else if (matchType == ECLType.refined) {
       if (isExclusion) ecl.append("(");
       match(match, ecl, includeNames, true);
       addRefinementsToMatch(match, ecl, includeNames, false);
       if (isExclusion) ecl.append(")");
       ecl.append("\n");
-    } else if (matchType == EclType.compound) {
+    } else if (matchType == ECLType.compound) {
       if (isNested || isExclusion)
         ecl.append("(");
       compound(match, ecl, includeNames);
@@ -206,11 +229,14 @@ public class IMQToECL {
 
   private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames) {
     if (match.getInstanceOf().size() == 1) {
+      if (match.getInstanceOf().get(0).isInvalid())
+        setErrorStatus(ecl, "unknown concept");
       addClass(match.getInstanceOf().get(0), ecl, includeNames);
     } else {
       ecl.append("(");
       boolean first = true;
       for (Node instance : match.getInstanceOf()) {
+        if (instance.isInvalid()) setErrorStatus(ecl, "unknown concept");
         if (!first) {
           ecl.append(" OR ");
         }
@@ -256,25 +282,31 @@ public class IMQToECL {
 
 
   private void addRefined(Where where, StringBuilder ecl, Boolean includeNames, boolean nested) throws QueryException {
+    if (where.isInvalid()) setErrorStatus(ecl, "unknown property concept : ");
     try {
       if (where.isRoleGroup()) ecl.append("{");
       if (where.getAnd() == null && where.getOr() == null) {
-          if (null == where.getIs())
-            throw new QueryException("Where clause must contain a value or sub expressionMatch clause");
-          addProperty(where, ecl, includeNames);
-          ecl.append(" = ");
-          boolean first = true;
-          if (where.getIs().size() > 1)
-            ecl.append(" (");
-          for (Node value : where.getIs()) {
-            if (!first)
-              ecl.append("\n or ");
-            first = false;
-            addClass(value, ecl, includeNames);
+        if (null == where.getIs() && null == where.getNotIs())
+          throw new QueryException("Where clause must contain a value or sub expressionMatch clause");
+        addProperty(where, ecl, includeNames);
+        ecl.append(where.getIs() != null ? " = " : " != ");
+        boolean first = true;
+        for (List<Node> nodes : Arrays.asList(where.getIs(), where.getNotIs())) {
+          if (nodes != null) {
+            if (nodes.size() > 1)
+              ecl.append(" (");
+            for (Node value : nodes) {
+              if (!first)
+                ecl.append("\n or ");
+              first = false;
+              if (value.isInvalid()) setErrorStatus(ecl, "unknown value concept : ");
+              addClass(value, ecl, includeNames);
+            }
+            if (nodes.size() > 1)
+              ecl.append(")");
           }
-          if (where.getIs().size()>1)
-            ecl.append(")");
-        } else {
+        }
+      }else {
           addRefinementsToWhere(where, ecl, includeNames, nested);
       }
       if (where.isRoleGroup()) ecl.append("}");
@@ -320,7 +352,6 @@ public class IMQToECL {
       return "*";
     if (name == null && includeNames) {
       if (names.get(iri) == null) {
-        EntityRepository entityRepository = new EntityRepository();
         name = entityRepository.getEntityReferenceByIri(iri).getName();
         names.put(iri, name);
       }

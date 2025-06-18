@@ -805,7 +805,30 @@ public class SetRepository {
   }
 
 
-
-
+  public Map<String,Boolean> getValidConcepts(Set<String> conceptIris) {
+    Map<String,Boolean> result= new HashMap<>();
+    String spq= """
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      
+      SELECT ?concept ?type
+      WHERE {
+        Values ?concept {%s}
+        optional {?concept rdf:type ?type.}
+      }
+      """.formatted(conceptIris.stream().map(iri->"<"+iri+">").collect(Collectors.joining(" ")));
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = conn.prepareTupleQuery(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String conceptIri = bs.getValue("concept").stringValue();
+          if (bs.getValue("type") != null) {
+            result.put(conceptIri, true);
+          } else result.put(conceptIri, false);
+        }
+      }
+    }
+    return result;
+  }
 }
 

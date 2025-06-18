@@ -545,7 +545,7 @@ public class SparqlConverter {
       subject = "roleGroup" + o;
       o++;
     }
-    if (where.isAnyRoleGroup() && !where.isInverse()) {
+    if (where.isAnyRoleGroup() && where.isInverse()) {
       whereQl.append("?").append(subject).append(" ^im:roleGroup ").append("?roleGroup").append(o).append(".\n");
       subject = "roleGroup" + o;
       o++;

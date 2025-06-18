@@ -4,6 +4,7 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
+import org.endeavourhealth.imapi.model.imq.ECLQuery;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
@@ -41,10 +42,11 @@ public class FhirService {
     includes.add(includeConcept);
     compose.setInclude(includes);
     result.setCompose(compose);
-
-    Query eclQuery = eclService.getQueryFromEcl(data);
+    ECLQuery eclQuery = new ECLQuery();
+    eclQuery.setEcl(data);
+    eclQuery = eclService.getQueryFromECL(eclQuery);
     EclSearchRequest request = new EclSearchRequest();
-    request.setEclQuery(eclQuery);
+    request.setEclQuery(eclQuery.getQuery());
     request.setIncludeLegacy(false);
     request.setSize(0);
     SearchResponse evaluated = eclService.eclSearch(request);

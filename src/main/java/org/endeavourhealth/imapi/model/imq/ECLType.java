@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.imq;
 
-public enum EclType {
+public enum ECLType {
   refined,
   compound,
   simple

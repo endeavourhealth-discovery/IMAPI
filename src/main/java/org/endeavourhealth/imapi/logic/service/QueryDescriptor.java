@@ -53,13 +53,6 @@ public class QueryDescriptor {
     if (query.getGroupBy() != null) {
       describeGroupBys(query.getGroupBy());
     }
-    if (query.getDataSet() == null) {
-      Query dataSet = new Query();
-      dataSet.setName("Data set");
-      dataSet.return_(r -> r
-        .property(p -> p.setIri(IM.NAMESPACE + "id").setAs("id")));
-      query.addDataSet(dataSet);
-    }
     return query;
   }
 

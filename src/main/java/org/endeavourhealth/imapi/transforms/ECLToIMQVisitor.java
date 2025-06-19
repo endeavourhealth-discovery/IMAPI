@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
+import lombok.Getter;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
@@ -18,14 +19,12 @@ import java.util.*;
 public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   private Prefixes prefixes;
+  @Getter
+  private boolean hasNames;
+
 
   public Query getIMQ(IMECLParser.ImeclContext ctx) {
-    return getIMQ(ctx, false);
-  }
-
-  public Query getIMQ(IMECLParser.ImeclContext ctx, boolean includeNames) {
-    Query query = (Query) visitImecl(ctx);
-    return query;
+    return (Query) visitImecl(ctx);
   }
 
 
@@ -52,6 +51,10 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
           copyMatchToQuery(match, query);
         }
       }
+    }
+    if (query==null){
+      query = new Query();
+      query.setInvalid(true);
     }
     return query;
   }
@@ -261,8 +264,10 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
             return null;
           else if (iri.getIri() == null)
             iri.setIri(result.toString());
-          else
+          else {
             iri.setName(result.toString());
+            hasNames = true;
+          }
         }
       }
     }
@@ -303,9 +308,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
     }
     if (resolved == null) {
       try {
-        // Creating a URL object from the given string
         new URI(iriRef).toURL();
-        // If no exception is thrown, the URL is valid
         resolved = iriRef;
       } catch (MalformedURLException | URISyntaxException e) {
         throw new IllegalStateException("invalid iri syntax in : " + iriRef);

@@ -1,0 +1,172 @@
+{
+  "totalCount" : 42,
+  "entities" : [ {
+    "iri" : "http://endhealth.info/tpp#182__",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain",
+    "http://endhealth.info/im#bestMatch" : "Chest pain"
+  }, {
+    "iri" : "http://endhealth.info/vis#182__",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain",
+    "http://endhealth.info/im#bestMatch" : "Chest pain"
+  }, {
+    "iri" : "http://endhealth.info/bc#3848116",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain",
+    "http://endhealth.info/im#bestMatch" : "Chest Pain"
+  }, {
+    "iri" : "http://snomed.info/sct#29857009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain (finding)",
+    "http://endhealth.info/im#bestMatch" : "Chest pain (finding)"
+  }, {
+    "iri" : "http://endhealth.info/vis#182Z_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain NOS",
+    "http://endhealth.info/im#bestMatch" : "Chest pain NOS"
+  }, {
+    "iri" : "http://endhealth.info/tpp#182Z_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain NOS",
+    "http://endhealth.info/im#bestMatch" : "Chest pain NOS"
+  }, {
+    "iri" : "http://endhealth.info/bc#3844666",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Type",
+    "http://endhealth.info/im#bestMatch" : "Chest Pain Type"
+  }, {
+    "iri" : "http://endhealth.info/tpp#Y092a",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain: none",
+    "http://endhealth.info/im#bestMatch" : "Chest pain: none"
+  }, {
+    "iri" : "http://endhealth.info/tpp#X77QU",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain rating",
+    "http://endhealth.info/im#bestMatch" : "Chest pain rating"
+  }, {
+    "iri" : "http://endhealth.info/bc#332237058",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Clinic",
+    "http://endhealth.info/im#bestMatch" : "Chest Pain Clinic"
+  }, {
+    "iri" : "http://snomed.info/sct#251897005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain rating (staging scale)",
+    "http://endhealth.info/im#bestMatch" : "Chest pain rating (staging scale)"
+  }, {
+    "iri" : "http://snomed.info/sct#9267009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain at rest (finding)",
+    "http://endhealth.info/im#bestMatch" : "Chest pain at rest (finding)"
+  }, {
+    "iri" : "http://endhealth.info/bc#3844663",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Location",
+    "http://endhealth.info/im#bestMatch" : "Chest Pain Location"
+  }, {
+    "iri" : "http://endhealth.info/tpp#Y2497",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain referral",
+    "http://endhealth.info/im#bestMatch" : "Chest pain referral"
+  }, {
+    "iri" : "http://endhealth.info/tpp#Y0929",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain: unknown",
+    "http://endhealth.info/im#bestMatch" : "Chest Pain: unknown"
+  }, {
+    "iri" : "http://endhealth.info/tpp#~2473",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "chest pain referral",
+    "http://endhealth.info/im#bestMatch" : "chest pain referral"
+  }, {
+    "iri" : "http://endhealth.info/bc#3844669",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Radiation",
+    "http://endhealth.info/im#bestMatch" : "Chest Pain Radiation"
+  }, {
+    "iri" : "http://endhealth.info/vis#182A_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain on exertion",
+    "http://endhealth.info/im#bestMatch" : "Chest pain on exertion"
+  }, {
+    "iri" : "http://snomed.info/sct#81953000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain on exertion (finding)",
+    "http://endhealth.info/im#bestMatch" : "Chest pain on exertion (finding)"
+  }, {
+    "iri" : "http://endhealth.info/tpp#182A_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain on exertion",
+    "http://endhealth.info/im#bestMatch" : "Chest pain on exertion"
+  }, {
+    "iri" : "http://endhealth.info/tpp#1821_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain not present",
+    "http://endhealth.info/im#bestMatch" : "Chest pain not present"
+  }, {
+    "iri" : "http://endhealth.info/vis#1821_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain not present",
+    "http://endhealth.info/im#bestMatch" : "Chest pain not present"
+  }, {
+    "iri" : "http://snomed.info/sct#161971004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain not present (situation)",
+    "http://endhealth.info/im#bestMatch" : "Chest pain not present (situation)"
+  }, {
+    "iri" : "http://snomed.info/sct#274664007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain on breathing (finding)",
+    "http://endhealth.info/im#bestMatch" : "Chest pain on breathing (finding)"
+  }, {
+    "iri" : "http://endhealth.info/tpp#XM1B3",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain on breathing",
+    "http://endhealth.info/im#bestMatch" : "Chest pain on breathing"
+  }, {
+    "iri" : "http://endhealth.info/icd10#R071",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain on breathing",
+    "http://endhealth.info/im#bestMatch" : "Chest pain on breathing"
+  }, {
+    "iri" : "http://endhealth.info/icd10#R074",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain, unspecified",
+    "http://endhealth.info/im#bestMatch" : "Chest pain, unspecified"
+  }, {
+    "iri" : "http://endhealth.info/bc#332237211",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Clinic Letter",
+    "http://endhealth.info/im#bestMatch" : "Chest Pain Clinic Letter"
+  }, {
+    "iri" : "http://snomed.info/sct#34791000119103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain due to pericarditis (finding)",
+    "http://endhealth.info/im#bestMatch" : "Chest pain of pericarditis (finding)"
+  }, {
+    "iri" : "http://endhealth.info/bc#71836413",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain/angina freetext",
+    "http://endhealth.info/im#bestMatch" : "Chest pain/angina freetext"
+  }, {
+    "iri" : "http://endhealth.info/emis#1948711000006114",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain relieved by rest",
+    "http://endhealth.info/im#bestMatch" : "Chest pain relieved by rest"
+  }, {
+    "iri" : "http://endhealth.info/tpp#Y5917",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain                 [D]",
+    "http://endhealth.info/im#bestMatch" : "Chest pain                 [D]"
+  }, {
+    "iri" : "http://endhealth.info/tpp#R065z",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain NOS",
+    "http://endhealth.info/im#bestMatch" : "Chest pain NOS             [D]"
+  }, {
+    "iri" : "http://endhealth.info/tpp#Y5918",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain NOS             [D]",
+    "http://endhealth.info/im#bestMatch" : "Chest pain NOS             [D]"
+  }, {
+    "iri" : "http://endhealth.info/tpp#R065_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain",
+    "http://endhealth.info/im#bestMatch" : "Chest pain                 [D]"
+  }, {
+    "iri" : "http://endhealth.info/bc#3844672",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Associated Symptoms",
+    "http://endhealth.info/im#bestMatch" : "Chest Pain Associated Symptoms"
+  }, {
+    "iri" : "http://endhealth.info/bc#705190",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain/Angina Medical History",
+    "http://endhealth.info/im#bestMatch" : "Chest Pain/Angina Medical History"
+  }, {
+    "iri" : "http://endhealth.info/bc#332237324",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Clinic Follow Up Letter",
+    "http://endhealth.info/im#bestMatch" : "Chest Pain Clinic Follow Up Letter"
+  }, {
+    "iri" : "http://endhealth.info/emis#1948721000006118",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain relieved by glyceryl trinitrate",
+    "http://endhealth.info/im#bestMatch" : "Chest pain relieved by glyceryl trinitrate"
+  }, {
+    "iri" : "http://snomed.info/sct#233845001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Cardiac syndrome X (finding)",
+    "http://endhealth.info/im#bestMatch" : "Chest pain with normal coronary angiography (finding)"
+  }, {
+    "iri" : "http://endhealth.info/tpp#X200c",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Cardiac syndrome X",
+    "http://endhealth.info/im#bestMatch" : "Chest pain with normal coronary angiography"
+  }, {
+    "iri" : "http://endhealth.info/enc#LE_10406",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "chest pains since saturday, v sore, thought it was muscular (msg #752148)",
+    "http://endhealth.info/im#bestMatch" : "chest pains since saturday, v sore, thought it was muscular (msg #752148)"
+  } ]
+}

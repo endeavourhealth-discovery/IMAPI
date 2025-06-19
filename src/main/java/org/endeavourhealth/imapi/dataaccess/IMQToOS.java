@@ -13,6 +13,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -20,7 +21,6 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class IMQToOS {
   private static final String SCHEME = "scheme";
@@ -98,11 +98,9 @@ public class IMQToOS {
       return null;
 
     String text = request.getTextSearch();
-    int wordPos = 0;
     text = text.replace("(", "").replace(")", "").replace("-", "");
-    wordPos++;
     MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder("termCode.term", text);
-    mfs.boost(wordPos == 1 ? 4 : 1);
+    mfs.boost(4);
     mfs.analyzer("standard");
     mfs.slop(text.split(" ").length - 1);
     Map<String,Object> params= new HashMap<>();
@@ -291,7 +289,7 @@ public class IMQToOS {
     if (match.getAnd() != null||match.getOr()!=null)
       return false;
     if (match.getTypeOf() != null) {
-      addFilterWithId("type", Set.of(getIriFromAlias(match.getTypeOf())), Bool.and, boolBuilder);
+      addFilterWithId("type", getIriFromAlias(match.getTypeOf()), Bool.and, boolBuilder);
     }
 
     if (match.getInstanceOf() != null) {
@@ -353,18 +351,12 @@ public class IMQToOS {
     return where.getAnd() != null || where.getOr() != null;
   }
 
-  private boolean addIsFilter(String property, Where where, Bool bool, BoolQueryBuilder boolBldr) {
+  private boolean addIsFilter(String property, Where where, Bool bool, BoolQueryBuilder boolBldr) throws QueryException {
     if (where.getIs() != null) {
-      Set<String> isList = where.getIs().stream().map(is -> {
-        if (is.getIri() != null && !is.getIri().isEmpty()) return is.getIri();
-        else {
-          try {
-            return getIriFromAlias(is);
-          } catch (QueryException e) {
-            throw new RuntimeException(e);
-          }
-        }
-      }).collect(Collectors.toSet());
+      Set<String> isList= new HashSet<>();
+      for (Node is : where.getIs()) {
+        isList.addAll(getIriFromAlias(is));
+      }
       addFilterWithId(property, isList, bool, boolBldr);
       return true;
     } else if (where.getIsNull()) {
@@ -377,13 +369,55 @@ public class IMQToOS {
     return false;
   }
 
-  private String getIriFromAlias(Node node) throws QueryException {
+  public Set<String> resolveReference(String value, QueryRequest queryRequest) throws QueryException {
+    Set<String> iris = new HashSet<>();
+    value = value.replace("$", "");
+    if (null != queryRequest.getArgument()) {
+      for (Argument argument : queryRequest.getArgument()) {
+        if (argument.getParameter().equals(value)) {
+          if (null != argument.getValueData()) {
+            iris.add(argument.getValueData());
+          } else if (null != argument.getValueIri()) {
+            if (argument.getValueIri().getIri() != null)
+              iris.add(argument.getValueIri().getIri());
+            else
+              throw new QueryException("Argument parameter " + value + " valueIri cannot be null or set requestAskIri");
+          } else if (null != argument.getValueIriList()) {
+            if (argument.getValueIriList().isEmpty())
+              throw new QueryException("Argument parameter " + value + " valueIriList cannot be empty");
+            for (TTIriRef ttIriRef : argument.getValueIriList()) {
+              iris.add(ttIriRef.getIri());
+            }
+          } else if (null != argument.getValueDataList()) {
+            if (argument.getValueDataList().isEmpty())
+              throw new QueryException("Argument parameter " + value + " valueDataList cannot be empty");
+            iris.addAll(argument.getValueDataList());
+          } else {
+            if (null == argument.getValueObject()) {
+              return iris;
+            }
+            iris.add(argument.getValueObject().toString());
+          }
+        }
+        return iris;
+      }
+    }
+    return null;
+  }
+
+
+  private Set<String> getIriFromAlias(Node node) throws QueryException {
+    Set<String> iris= new HashSet<>();
     if (null == node.getIri()) {
       if (null != node.getParameter()) {
-        return SparqlConverter.resolveReference(node.getParameter(), request);
+        Set<String> resolved = resolveReference(node.getParameter(), request);
+        if (resolved != null)
+          iris.addAll(resolved);
+        else throw new QueryException("unable to resolve reference " + node.getParameter() + " in where clause");
       } else
         throw new QueryException("Match clause has no iri or parameter for type of");
-    } else return node.getIri();
+    } else iris.add(node.getIri());
+    return iris;
   }
 
   private boolean addBinding(Match match,Path pathMath, Bool bool, BoolQueryBuilder boolBldr) throws QueryException {
@@ -393,16 +427,16 @@ public class IMQToOS {
       if (match.getWhere().getIri() != null) {
         Where binding = match.getWhere();
         if (binding.getIri().equals(SHACL.PATH)) {
-          path = getIriFromAlias(binding.getIs().get(0));
+          path = binding.getIs().get(0).getIri();
         } else if (binding.getIri().equals(SHACL.NODE)) {
-          node = getIriFromAlias(binding.getIs().get(0));
+          node = binding.getIs().get(0).getIri();
         }
       } else if (match.getWhere().getAnd() != null){
           for (Where binding:match.getWhere().getAnd()) {
             if (binding.getIri().equals(SHACL.PATH)) {
-          path = getIriFromAlias(binding.getIs().getFirst());
+          path = binding.getIs().getFirst().getIri();
             } else if (binding.getIri().equals(SHACL.NODE)) {
-          node = getIriFromAlias(binding.getIs().getFirst());
+          node = binding.getIs().getFirst().getIri();
             }
           }
       }

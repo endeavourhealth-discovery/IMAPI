@@ -55,7 +55,7 @@ public class SparqlConverter {
    * @return the value of the variable as a String
    * @throws QueryException if the variable is unresolvable
    */
-  public static String resolveReference(String value, QueryRequest queryRequest) throws QueryException {
+  public String resolveReference(String value, QueryRequest queryRequest) throws QueryException {
     if (value.equalsIgnoreCase("$referenceDate") && null != queryRequest.getReferenceDate())
       return queryRequest.getReferenceDate();
 
@@ -69,7 +69,7 @@ public class SparqlConverter {
     return value;
   }
 
-  private static String processArgument(QueryRequest queryRequest,Argument argument, String value) throws QueryException {
+  private String processArgument(QueryRequest queryRequest,Argument argument, String value) throws QueryException {
     if (argument.getParameter().equals(value)) {
       if (null != argument.getValueData())
         return argument.getValueData();

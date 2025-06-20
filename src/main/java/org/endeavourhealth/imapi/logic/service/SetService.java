@@ -241,6 +241,13 @@ public class SetService {
   public Set<Concept> getExpandedSetMembers(String iri, boolean core, boolean legacy, boolean subsets, List<String> schemes,
                                             List<String> subsumptions) throws QueryException, JsonProcessingException {
     if (!(core || legacy || subsets)) return new HashSet<>();
+    boolean hasMembers= entityRepository.hasPredicates(iri, Set.of(IM.HAS_MEMBER));
+    if (!hasMembers) {
+      if (entityRepository.hasPredicates(iri,Set.of(IM.DEFINITION))){
+        new SetMemberGenerator().generateMembers(iri);
+      }
+      else return new HashSet<>();
+    }
 
     Set<Concept> result = null;
 

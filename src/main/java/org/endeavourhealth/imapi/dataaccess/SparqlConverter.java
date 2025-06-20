@@ -552,6 +552,9 @@ public class SparqlConverter {
       } else if (where.getValueVariable() != null) {
         whereQl.append(" ?").append(where.getValueVariable()).append(".\n");
       }
+      if (where.getIsNull()) {
+        whereQl.append("}\n");
+      }
     }
     processNestedWheres(where,whereQl,subject,pathVariable,isInRoleGroup);
   }

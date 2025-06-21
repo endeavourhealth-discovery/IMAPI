@@ -246,6 +246,16 @@ public class EntityController {
     }
   }
 
+
+  @PostMapping(value = "/checkExists")
+  @Operation(summary = "Check entity exists", description = "Checks whether an entity exists. ")
+  public boolean checkExists(@RequestBody TTEntity entity) throws TTFilerException, IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Exists.POST")) {
+      log.debug("checkEntityExists");
+      return entityService.checkEntityExists(entity);
+    }
+  }
+
   @PostMapping(value = "/update")
   @PreAuthorize("hasAuthority('edit')")
   @Operation(summary = "Update entity", description = "Updates an existing entity with the provided details")

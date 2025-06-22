@@ -247,12 +247,12 @@ public class EntityController {
   }
 
 
-  @PostMapping(value = "/checkExists")
+  @GetMapping(value = "/checkExists")
   @Operation(summary = "Check entity exists", description = "Checks whether an entity exists. ")
-  public boolean checkExists(@RequestBody TTEntity entity) throws TTFilerException, IOException {
+  public boolean checkExists(@RequestParam (name="iri") String iri) throws TTFilerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Exists.POST")) {
       log.debug("checkEntityExists");
-      return entityService.checkEntityExists(entity);
+      return entityService.checkEntityExists(iri);
     }
   }
 

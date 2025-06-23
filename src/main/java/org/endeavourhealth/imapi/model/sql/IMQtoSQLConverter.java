@@ -10,6 +10,8 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,11 +23,17 @@ public class IMQtoSQLConverter {
   private String lang;
   private Map<String, String> iriToUuidMap;
   private QueryRequest queryRequest;
+  private String currentDate;
 
   public IMQtoSQLConverter(QueryRequest queryRequest, String lang, Map<String, String> iriToUuidMap) {
     this.queryRequest = queryRequest;
     this.iriToUuidMap = iriToUuidMap;
     this.lang = lang != null ? lang : "MYSQL";
+
+    LocalDate today = LocalDate.now();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    this.currentDate = today.format(formatter);
+
     try {
       String resourcePath = isPostgreSQL() ? "IMQtoSQL.json" : "IMQtoMYSQL.json";
       String text = Files.readString(Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource(resourcePath)).toURI()));
@@ -52,23 +60,11 @@ public class IMQtoSQLConverter {
       if (definition.getDataSet() != null) {
         for (Query dataset : definition.getDataSet()) {
           SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null, tableMap);
-          if (definition.getInstanceOf() != null) {
-            SQLQuery cohortQry = convertMatchToQuery(qry, new Match().setInstanceOf(definition.getInstanceOf()), Bool.and);
-            qry.getWiths().addAll(cohortQry.getWiths());
-            cohortQry.setWiths(new ArrayList<>());
-            qry.getWiths().add(cohortQry.getAlias() + " AS (" + cohortQry.toSql(2) + "\n)");
-            String joiner = "JOIN ";
-            qry.getJoins().add(createJoin(qry, cohortQry, joiner));
-          }
-          String variable = getVariableFromMatch(dataset);
-          SQLQuery subQuery = qry.subQuery(definition.getTypeOf().getIri(), variable, tableMap);
-          addBooleanMatchesToSQL(subQuery, dataset);
-          dataset.setTypeOf(definition.getTypeOf());
+          if (definition.getInstanceOf() != null)
+            addDatasetInstanceOf(qry, definition.getInstanceOf());
+          if (dataset.getAnd() != null || dataset.getOr() != null || dataset.getNot() != null)
+            addDatasetSubQuery(qry, dataset, definition.getTypeOf().getIri());
           addSelectsToSQL(qry, dataset);
-          subQuery.setWiths(new ArrayList<>());
-          qry.getWiths().add(subQuery.getAlias() + " AS (" + subQuery.toSql(2) + "\n)");
-          String joiner = "JOIN ";
-          qry.getJoins().add(createJoin(qry, subQuery, joiner));
           sql.append(qry.toSql(2)).append("\n\n");
         }
       } else {
@@ -83,36 +79,44 @@ public class IMQtoSQLConverter {
     }
   }
 
+  private void addDatasetSubQuery(SQLQuery qry, Query dataset, String typeOf) throws SQLConversionException {
+    String variable = getVariableFromMatch(dataset);
+    SQLQuery subQuery = qry.subQuery(typeOf, variable, tableMap);
+    addBooleanMatchesToSQL(subQuery, dataset);
+    if (subQuery.getWiths() == null)
+      subQuery.setWiths(new ArrayList<>());
+    qry.getWiths().add(subQuery.getAlias() + " AS (" + subQuery.toSql(2) + "\n)");
+    String joiner = "JOIN ";
+    qry.getJoins().add(createJoin(qry, subQuery, joiner));
+  }
+
+  private void addDatasetInstanceOf(SQLQuery qry, List<Node> instanceOf) throws SQLConversionException {
+    SQLQuery cohortQry = convertMatchToQuery(qry, new Match().setInstanceOf(instanceOf), Bool.and);
+    qry.getWiths().addAll(cohortQry.getWiths());
+    cohortQry.setWiths(new ArrayList<>());
+    qry.getWiths().add(cohortQry.getAlias() + " AS (" + cohortQry.toSql(2) + "\n)");
+    String joiner = "JOIN ";
+    qry.getJoins().add(createJoin(qry, cohortQry, joiner));
+  }
+
   private void addBooleanMatchesToSQL(SQLQuery qry, Query definition) throws SQLConversionException {
     if (definition.getAnd() != null) {
       for (Match match : definition.getAnd()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.and);
         if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
-        if (match.getReturn() != null) {
-          addSelectsToSQL(qry, (Query) match);
-        }
       }
     }
     if (definition.getOr() != null) {
       for (Match match : definition.getOr()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.or);
         if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
-        if (match.getReturn() != null) {
-          addSelectsToSQL(qry, (Query) match);
-        }
       }
     }
     if (definition.getNot() != null) {
       for (Match match : definition.getNot()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.not);
         if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
-        if (match.getReturn() != null) {
-          addSelectsToSQL(qry, (Query) match);
-        }
       }
-    }
-    if (definition.getReturn() != null) {
-      addSelectsToSQL(qry, definition);
     }
   }
 
@@ -131,7 +135,6 @@ public class IMQtoSQLConverter {
 //            yes_no_select = String.format(yes_no_select, "SELECT 1 FROM orders WHERE orders.user_id = users.id");
             qry.getSelects().add(yes_no_select);
           } else {
-            System.out.println(property.getIri());
             String select = qry.getFieldName(property.getIri(), null, tableMap) + " AS `" + property.getAs() + "`";
             qry.getSelects().add(select);
           }
@@ -150,9 +153,9 @@ public class IMQtoSQLConverter {
   }
 
   private String replaceArgumentsWithValue(String sql) {
-    if (queryRequest.getReferenceDate() != null) {
-      sql = sql.replaceAll("\\$referenceDate", "'" + queryRequest.getReferenceDate() + "'");
-    }
+    String refDateValue = queryRequest.getReferenceDate() != null ? queryRequest.getReferenceDate() : this.currentDate;
+    sql = sql.replaceAll("\\$referenceDate", "'" + refDateValue + "'");
+
     if (queryRequest.getArgument() != null) for (Argument arg : queryRequest.getArgument()) {
       if (arg.getValueData() != null) sql = sql.replaceAll("\\$" + arg.getParameter(), "'" + arg.getValueData() + "'");
       else if (arg.getValueIri() != null)

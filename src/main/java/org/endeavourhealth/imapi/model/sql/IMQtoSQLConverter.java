@@ -50,27 +50,24 @@ public class IMQtoSQLConverter {
     try {
       StringBuilder sql = new StringBuilder();
       if (definition.getDataSet() != null) {
-        if (definition.getInstanceOf() == null)
-          throw new SQLConversionException("Query with a dataset must have an instanceOf (cohort query)");
         for (Query dataset : definition.getDataSet()) {
           SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null, tableMap);
-          SQLQuery cohortQry = convertMatchToQuery(qry, new Match().setInstanceOf(definition.getInstanceOf()), Bool.and);
-          qry.getWiths().addAll(cohortQry.getWiths());
-          cohortQry.setWiths(new ArrayList<>());
-          qry.getWiths().add(cohortQry.getAlias() + " AS (" + cohortQry.toSql(2) + "\n)");
-          String joiner = "JOIN ";
-          qry.getJoins().add(createJoin(qry, cohortQry, joiner));
-
+          if (definition.getInstanceOf() != null) {
+            SQLQuery cohortQry = convertMatchToQuery(qry, new Match().setInstanceOf(definition.getInstanceOf()), Bool.and);
+            qry.getWiths().addAll(cohortQry.getWiths());
+            cohortQry.setWiths(new ArrayList<>());
+            qry.getWiths().add(cohortQry.getAlias() + " AS (" + cohortQry.toSql(2) + "\n)");
+            String joiner = "JOIN ";
+            qry.getJoins().add(createJoin(qry, cohortQry, joiner));
+          }
           String variable = getVariableFromMatch(dataset);
           SQLQuery subQuery = qry.subQuery(definition.getTypeOf().getIri(), variable, tableMap);
+          addBooleanMatchesToSQL(subQuery, dataset);
           dataset.setTypeOf(definition.getTypeOf());
-
-          addBooleanMatchesToSQL(subQuery, definition);
-
           addSelectsToSQL(qry, dataset);
           subQuery.setWiths(new ArrayList<>());
           qry.getWiths().add(subQuery.getAlias() + " AS (" + subQuery.toSql(2) + "\n)");
-          joiner = "JOIN ";
+          String joiner = "JOIN ";
           qry.getJoins().add(createJoin(qry, subQuery, joiner));
           sql.append(qry.toSql(2)).append("\n\n");
         }
@@ -91,38 +88,48 @@ public class IMQtoSQLConverter {
       for (Match match : definition.getAnd()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.and);
         if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
+        if (match.getReturn() != null) {
+          addSelectsToSQL(qry, (Query) match);
+        }
       }
     }
     if (definition.getOr() != null) {
       for (Match match : definition.getOr()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.or);
         if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
+        if (match.getReturn() != null) {
+          addSelectsToSQL(qry, (Query) match);
+        }
       }
     }
     if (definition.getNot() != null) {
       for (Match match : definition.getNot()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.not);
         if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
+        if (match.getReturn() != null) {
+          addSelectsToSQL(qry, (Query) match);
+        }
       }
+    }
+    if (definition.getReturn() != null) {
+      addSelectsToSQL(qry, definition);
     }
   }
 
   private void addSelectsToSQL(SQLQuery qry, Query dataset) throws SQLConversionException {
-    if (dataset.getAnd() != null) {
-      String variable = getVariableFromMatch(dataset);
-      SQLQuery subQuery = qry.subQuery(dataset.getTypeOf().getIri(), variable, tableMap);
-      addBooleanMatchesToSQL(subQuery, dataset);
-    }
     if (dataset.getReturn() != null) {
-      addSelectFromReturnRecursively(qry, dataset.getReturn());
+      addSelectFromReturnRecursively(qry, dataset.getReturn(), null);
     }
   }
 
-  private void addSelectFromReturnRecursively(SQLQuery qry, Return aReturn) throws SQLConversionException {
+  private void addSelectFromReturnRecursively(SQLQuery qry, Return aReturn, ReturnProperty parentProperty) throws SQLConversionException {
     if (aReturn.getProperty() != null) {
       for (ReturnProperty property : aReturn.getProperty()) {
         if (property.getAs() != null) {
           if (property.getAs().equals("Y-N")) {
+            String yes_no_select = "CASE WHEN EXISTS ( % ) THEN 'Y' ELSE 'N' END AS `Y-N`";
+//            yes_no_select = String.format(yes_no_select, "SELECT 1 FROM orders WHERE orders.user_id = users.id");
+            qry.getSelects().add(yes_no_select);
           } else {
             System.out.println(property.getIri());
             String select = qry.getFieldName(property.getIri(), null, tableMap) + " AS `" + property.getAs() + "`";
@@ -136,7 +143,7 @@ public class IMQtoSQLConverter {
               default ->
                 throw new SQLConversionException("SQL Conversion Error: Function not recognised: " + property.getReturn().getFunction().getName());
             }
-          } else addSelectFromReturnRecursively(qry, property.getReturn());
+          } else addSelectFromReturnRecursively(qry, property.getReturn(), property);
         }
       }
     }

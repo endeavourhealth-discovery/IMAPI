@@ -178,24 +178,6 @@ public class TestQueries {
   }
 
 
-  public static QueryRequest rangeTextSearch() {
-    return new QueryRequest()
-      .setTextSearch("Hyper")
-      .addArgument(new Argument()
-        .setParameter("this")
-        .addToValueIriList(TTIriRef.iri("http://snomed.info/sct#404684003"))
-        .addToValueIriList(TTIriRef.iri("http://snomed.info/sct#71388002")))
-      .setQuery(new Query()
-        .setName("Get allowable property values with text filter")
-        .return_(s -> s.property(p -> p.setIri(RDFS.LABEL)))
-          .addInstanceOf(new Node()
-            .setParameter("this")
-            .setDescendantsOrSelfOf(true))
-        .return_(r->r
-          .property(p->p.setIri(RDFS.LABEL))
-          .property(p->p.setIri(IM.HAS_TERM_CODE)
-            .return_(r1->r1.property(p1->p1.setIri(RDFS.LABEL))))));
-  }
 
   public static QueryRequest substanceTextSearch() {
     return new QueryRequest()

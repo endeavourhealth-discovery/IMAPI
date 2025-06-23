@@ -159,6 +159,8 @@ public class IMQToECL {
     }
     if (match.getNot() != null) {
       ecl.append(" MINUS ");
+      if (match.getNot().size() >1)
+        ecl.append("(");
       boolean first = true;
       for (Match subMatch : match.getNot()) {
         if (!first) {
@@ -168,6 +170,8 @@ public class IMQToECL {
         expressionMatch(subMatch, ecl, includeNames, true);
         ecl.append("\n");
       }
+      if (match.getNot().size() >1)
+        ecl.append(")");
     }
   }
 

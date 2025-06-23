@@ -25,7 +25,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Slf4j
 public class SetRepository {
-  public static final String ACTIVE_ENTITY = "activeEntity";
+  public static final String EXPANDED_ENTITY = "expandedEntity";
   public static final String ENTITY = "entity";
   public static final String IM_1_ID = "im1Id";
   public static final String ENTITY_TYPE = "entityType";
@@ -51,12 +51,7 @@ public class SetRepository {
     return getSetExpansionFromQuery(imQuery, includeLegacy, statusFilter, schemeFilter, null);
   }
 
-  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
-    Set<Concept> result = getActiveExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
-    Set<Concept> result2 = getReplacedExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
-    result.addAll(result2);
-    return result;
-  }
+
 
   public Set<Concept> getMembersFromDefinition(Query imQuery) throws QueryException {
     Set<Concept> result = new HashSet<>();
@@ -74,50 +69,37 @@ public class SetRepository {
     return result;
   }
 
-  private Set<Concept> getReplacedExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
-    imQuery.setVariable(ACTIVE_ENTITY);
-    Return aReturn = setReturn(imQuery, includeLegacy);
-    aReturn.setNodeRef(ENTITY);
-    imQuery.setReturn(aReturn);
-    imQuery
-      .or(m -> m
-        .setVariable(ENTITY)
-        .where(p -> p
-          .setIri(IM.PREVIOUS_ENTITY_OF)
-          .addIs(new Node().setNodeRef(ACTIVE_ENTITY))))
-      .or(m1 -> m1
-        .setVariable(ENTITY)
-        .where(p -> p
-          .setIri(IM.SUBSUMED_BY)
-          .addIs(new Node().setNodeRef(ACTIVE_ENTITY))))
-      .or(m1 -> m1
-        .setVariable(ENTITY)
-        .where(p -> p
-          .setIri(IM.MAY_BE_SUBSUMED_BY)
-          .addIs(new Node().setNodeRef(ACTIVE_ENTITY))));
-    return getExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
 
-  }
-
-  private Set<Concept> getActiveExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
-    Return aReturn = setReturn(imQuery, includeLegacy);
-    imQuery.setReturn(aReturn);
-    return getExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
-  }
-
-  private Set<Concept> getExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
+  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
+    imQuery= getFullExpansionDefinition(imQuery, includeLegacy);
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     if (null != page && null != page.getPageNumber() && null != page.getPageSize()) newRequest.setPage(page);
     String sql = new SparqlConverter(newRequest).getSelectSparql(statusFilter);
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       TupleQuery qry = conn.prepareTupleQuery(sql);
-      return getCoreLegacyCodesForSparql(qry, includeLegacy, schemeFilter);
-
+      return getCoreLegacyCodesForSparql(qry, includeLegacy, schemeFilter,imQuery.getVariable());
     }
+  }
+  private Query getFullExpansionDefinition(Query imQuery, boolean includeLegacy) throws QueryException {
+    Query fullQuery= new Query();
+    fullQuery.setSubquery(imQuery);
+    setReturn(fullQuery, includeLegacy);
+    fullQuery.setVariable(EXPANDED_ENTITY);
+    fullQuery
+      .or(m -> m
+        .where(p -> p
+          .setIri(IM.PREVIOUS_ENTITY_OF)
+          .addIs(new Node().setNodeRef(ENTITY))))
+      .or(m1 -> m1
+        .where(p -> p
+          .setIri(IM.SUBSUMED_BY)
+          .addIs(new Node().setNodeRef(ENTITY))));
+    return fullQuery;
+
   }
 
 
-  private Return setReturn(Query imQuery, boolean includeLegacy) {
+  private void setReturn(Query imQuery, boolean includeLegacy) {
     Return aReturn = new Return();
     imQuery.setReturn(aReturn);
     aReturn
@@ -158,7 +140,6 @@ public class SetRepository {
       aReturn.property(p -> p.setIri(IM.MATCHED_TO).setInverse(true).return_(n -> n.as("legacy").property(s -> s.setIri(RDFS.LABEL).as("legacyTerm")).property(s -> s.setIri(IM.CODE).as("legacyCode")).property(s -> s.setIri(IM.HAS_SCHEME).return_(n1 -> n1.as(LEGACY_SCHEME).property(p1 -> p1.setIri(RDFS.LABEL).as("legacySchemeName")))).property(s -> s.setIri(IM.NAMESPACE + "usageTotal").as("legacyUse")).property(s -> s.setIri(IM.CODE_ID).as("legacyCodeId")).property(s -> s.setIri(IM.IM_1_ID).as("legacyIm1Id"))));
       aReturn.property(p -> p.setIri(IM.LOCAL_SUBCLASS_OF).setInverse(true).return_(n -> n.as("legacy").property(s -> s.setIri(RDFS.LABEL).as("legacyTerm")).property(s -> s.setIri(IM.CODE).as("legacyCode")).property(s -> s.setIri(IM.HAS_SCHEME).return_(n1 -> n1.as(LEGACY_SCHEME).property(p1 -> p1.setIri(RDFS.LABEL).as("legacySchemeName")))).property(s -> s.setIri(IM.NAMESPACE + "usageTotal").as("legacyUse")).property(s -> s.setIri(IM.CODE_ID).as("legacyCodeId")).property(s -> s.setIri(IM.IM_1_ID).as("legacyIm1Id"))));
     }
-    return aReturn;
   }
 
 
@@ -207,14 +188,14 @@ public class SetRepository {
     return result;
   }
 
-  private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes) {
+  private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes,String entityVariable) {
     Set<Concept> result = new HashSet<>();
     Set<String> coreSchemes = Set.of(SNOMED.NAMESPACE, IM.NAMESPACE);
     Map<String, Concept> conceptMap = new HashMap<>();
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
-        String concept = bs.getValue(ENTITY).stringValue();
+        String concept = bs.getValue(entityVariable).stringValue();
         Concept cl = conceptMap.get(concept);
         Value scheme = bs.getValue("scheme");
         if (cl == null) {
@@ -289,7 +270,7 @@ public class SetRepository {
     try (TupleQueryResult rs = qry.evaluate()) {
       if (rs.hasNext()) {
         BindingSet bs = rs.next();
-        return ((Literal) bs.getValue("cnt")).intValue();
+        return ((Literal) bs.getValue("count")).intValue();
       } else {
         return 0;
       }
@@ -589,7 +570,7 @@ public class SetRepository {
       String sql = addSparqlPrefixes(spql.toString());
       TupleQuery qry = conn.prepareTupleQuery(sql);
       qry.setBinding("setIri", Values.iri(setIri));
-      return getCoreLegacyCodesForSparql(qry, includeLegacy, List.of());
+      return getCoreLegacyCodesForSparql(qry, includeLegacy, List.of(),"entity");
     }
   }
 
@@ -672,7 +653,6 @@ public class SetRepository {
         %s im:hasMember ?member.
         ?member rdfs:label ?name.
         }
-        order by ?exclude
         limit %s
         offset %s
         """.formatted("<" + iri + ">", pageSize, offset);

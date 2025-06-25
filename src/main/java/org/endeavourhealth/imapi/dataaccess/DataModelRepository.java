@@ -7,32 +7,38 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.dto.UIProperty;
-import org.endeavourhealth.imapi.model.iml.*;
+import org.endeavourhealth.imapi.model.iml.NodeShape;
+import org.endeavourhealth.imapi.model.iml.ParameterShape;
+import org.endeavourhealth.imapi.model.iml.PropertyRange;
+import org.endeavourhealth.imapi.model.iml.PropertyShape;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
-import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
+import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
 
 public class DataModelRepository {
-  public List<TTIriRef> getProperties() {
+  public List<TTIriRef> getProperties(String graph) {
     List<TTIriRef> result = new ArrayList<>();
 
     String spql = """
       SELECT ?s ?name
       WHERE {
-        ?s rdf:type rdf:PropertyRef ;
-        rdfs:label ?name .
+        GRAPH ?g {
+          ?s rdf:type rdf:PropertyRef ;
+          rdfs:label ?name .
+        }
       }
       """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, spql);
+      TupleQuery qry = prepareTupleSparql(conn, spql, graph);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -45,18 +51,20 @@ public class DataModelRepository {
   }
 
 
-  public List<TTIriRef> findDataModelsFromProperty(String propIri) {
+  public List<TTIriRef> findDataModelsFromProperty(String propIri, String graph) {
     List<TTIriRef> dmList = new ArrayList<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       String sparql = """
         SELECT ?dm ?dmName
         WHERE {
-          ?dm sh:property ?prop .
-          ?dm rdfs:label ?dmName .
-          ?prop sh:path ?propIri .
+          GRAPH ?g {
+            ?dm sh:property ?prop .
+            ?dm rdfs:label ?dmName .
+            ?prop sh:path ?propIri .
+          }
         }
         """;
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sparql));
+      TupleQuery qry = prepareTupleSparql(conn, sparql, graph);
       qry.setBinding("propIri", iri(propIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -69,16 +77,18 @@ public class DataModelRepository {
 
   }
 
-  public String checkPropertyType(String propIri) {
+  public String checkPropertyType(String propIri, String graph) {
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       String query = """
         SELECT ?objectProperty ?dataProperty
-        WHERE {"
-          bind(exists{?propIri ?isA ?objProp} as ?objectProperty)
-          bind(exists{?propIri ?isA ?dataProp} as ?dataProperty)
+        WHERE {
+          GRAPH ?g {
+            bind(exists{?propIr i ?isA ?objProp} as ?objectProperty)
+            bind(exists{?propIri ?isA ?dataProp} as ?dataProperty)
+          }
         }
         """;
-      TupleQuery qry = conn.prepareTupleQuery(query);
+      TupleQuery qry = prepareTupleSparql(conn, query, graph);
       qry.setBinding("propIri", iri(propIri));
       qry.setBinding("isA", iri(IM.IS_A));
       qry.setBinding("objProp", iri(IM.DATAMODEL_OBJECTPROPERTY));
@@ -94,10 +104,10 @@ public class DataModelRepository {
     return null;
   }
 
-  public void addDataModelSubtypes(NodeShape dataModel) {
+  public void addDataModelSubtypes(NodeShape dataModel, String graph) {
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       String sql = getSubtypeSql();
-      TupleQuery qry = conn.prepareTupleQuery(sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       qry.setBinding("entity", iri(dataModel.getIri()));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -111,15 +121,13 @@ public class DataModelRepository {
   }
 
 
-
-
-  public NodeShape getDataModelDisplayProperties(String iri,boolean pathsOnly) {
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly, String graph) {
     NodeShape nodeShape = new NodeShape();
     nodeShape.setIri(iri);
-    addDataModelSubtypes(nodeShape);
+    addDataModelSubtypes(nodeShape, graph);
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      String sql = pathsOnly ?getPathSql(): getPropertySql();
-      TupleQuery qry = conn.prepareTupleQuery(sql);
+      String sql = pathsOnly ? getPathSql() : getPropertySql();
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       qry.setBinding("entity", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -297,25 +305,21 @@ public class DataModelRepository {
 
   private String getSubtypeSql() {
     return """
-      PREFIX im: <http://endhealth.info/im#>
-      PREFIX sh: <http://www.w3.org/ns/shacl#>
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       Select ?subdatamodel ?subdatamodelname
-      {
-      optional  {
-          ?subdatamodel rdfs:subClassOf ?entity.
-          ?subdatamodel rdfs:label ?subdatamodelname
-         }
-       }
+      WHERE {
+        GRAPH ?g {
+          optional  {
+            ?subdatamodel rdfs:subClassOf ?entity.
+            ?subdatamodel rdfs:label ?subdatamodelname
+          }
+        }
+      }
       """;
   }
 
 
   private String getPropertySql() {
     return """
-      PREFIX im: <http://endhealth.info/im#>
-      PREFIX sh: <http://www.w3.org/ns/shacl#>
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       Select ?entityName ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType
       ?class ?className ?classType ?classTypeName
       ?datatype ?datatypeName ?datatypeType ?datatypeTypeName
@@ -327,87 +331,100 @@ public class DataModelRepository {
       ?parameter ?parameterName ?parameterType ?parameterTypeName ?parameterSubtype ?parameterSubtypeName
       ?comment ?propertyDefinition ?units ?unitsName ?operator ?operatorName ?isRelativeValue
       ?orderable ?ascending ?descending
-      {
-         ?entity sh:property ?property.
-         ?entity rdfs:label ?entityName.
-         optional {?property sh:group ?group.
-                   ?group rdfs:label ?groupName.
-                   optional {?group sh:order ?groupOrder}
-                   }
+      WHERE {
+        GRAPH ?g {
+          ?entity sh:property ?property.
+          ?entity rdfs:label ?entityName.
+          optional {
+            ?property sh:group ?group.
+            ?group rdfs:label ?groupName.
+            optional {?group sh:order ?groupOrder}
+          }
           optional {?property sh:order ?order.}
-            optional {?property im:orderable ?orderable.
+          optional {
+            ?property im:orderable ?orderable.
             ?orderable im:ascending ?ascending.
-            ?orderable im:descending ?descending.}
+            ?orderable im:descending ?descending.
+          }
           optional {
-              ?property sh:path ?path.
-               ?path rdf:type ?pathType.
-              ?path rdfs:label ?pathName.
-              optional {?path im:definition ?propertyDefinition}
-              optional {
-                 ?path im:parameter ?parameter.
-                 ?parameter rdfs:label ?parameterName.
-                 ?parameter sh:class ?parameterType.
-                 ?parameterType rdfs:label ?parameterTypeName.
-                 optional { ?parameterSubtype im:isA ?parameterType.
-                         ?parameterSubtype rdfs:label ?parameterSubtypeName
-                         }
-                    }
+            ?property sh:path ?path.
+            ?path rdf:type ?pathType.
+            ?path rdfs:label ?pathName.
+            optional {?path im:definition ?propertyDefinition}
+            optional {
+              ?path im:parameter ?parameter.
+              ?parameter rdfs:label ?parameterName.
+              ?parameter sh:class ?parameterType.
+              ?parameterType rdfs:label ?parameterTypeName.
+              optional { 
+                ?parameterSubtype im:isA ?parameterType.
+                ?parameterSubtype rdfs:label ?parameterSubtypeName
               }
+            }
+          }
           optional {
-              ?property sh:minCount ?minCount.
-              }
-           optional {
-              ?property rdfs:comment ?comment.
-              }
-      
+            ?property sh:minCount ?minCount.
+          }
           optional {
-              ?property sh:maxCount ?maxCount.
-              }
+            ?property rdfs:comment ?comment.
+          }
           optional {
-                 ?property sh:class ?class.
-                  ?class rdfs:label ?className.
-                  ?class rdf:type ?classType.
-                  ?classType rdfs:label ?classTypeName.
-                   }
+            ?property sh:maxCount ?maxCount.
+          }
           optional {
-                  ?property sh:datatype ?datatype.
-                  ?datatype rdfs:label ?datatypeName.
-                   ?datatype rdf:type ?datatypeType.
-                  ?datatypeType rdfs:label ?datatypeTypeName.
-                  optional { ?datatype im:intervalUnit ?intervalUnit.
-                  ?intervalUnit rdfs:label ?intervalUnitName}
-                  optional { ?datatype sh:pattern ?pattern}
-                  optional {?datatype im:units ?units.
-                  ?units rdfs:label ?unitsName}
-                  optional {?datatype im:isRelativeValue ?isRelativeValue}
-                  optional {?datatype im:operator ?operator.
-                             ?operator rdfs:label ?operatorName}
-                  optional {?datatype im:datatypeQualifier ?datatypeQualifier.
-                  ?datatypeQualifier rdfs:label ?qualifierName.
-                  optional {?datatypeQualifier sh:order ?qualifierOrder}
-                  optional { ?datatypeQualifier sh:pattern ?qualifierPattern}
-                     optional {?datatypeQualifier im:isRelativeValue ?isRelativeValue}
-                  optional { ?datatypeQualifier im:units ?qualifierIntervalUnit.
-                  ?qualifierIntervalUnit rdfs:label ?qualifierIntervalUnitName}
-                      }
-                      }
-         optional {
-              ?property sh:hasValue ?hasValue.
-              optional {?hasValue rdfs:label ?hasValueName}
+            ?property sh:class ?class.
+            ?class rdfs:label ?className.
+            ?class rdf:type ?classType.
+            ?classType rdfs:label ?classTypeName.
+          }
+          optional {
+            ?property sh:datatype ?datatype.
+            ?datatype rdfs:label ?datatypeName.
+            ?datatype rdf:type ?datatypeType.
+            ?datatypeType rdfs:label ?datatypeTypeName.
+            optional { 
+              ?datatype im:intervalUnit ?intervalUnit.
+              ?intervalUnit rdfs:label ?intervalUnitName
+            }
+            optional { ?datatype sh:pattern ?pattern}
+            optional {
+              ?datatype im:units ?units.
+              ?units rdfs:label ?unitsName
+            }
+            optional {?datatype im:isRelativeValue ?isRelativeValue}
+            optional {
+              ?datatype im:operator ?operator.
+              ?operator rdfs:label ?operatorName
+            }
+            optional {
+              ?datatype im:datatypeQualifier ?datatypeQualifier.
+              ?datatypeQualifier rdfs:label ?qualifierName.
+              optional {?datatypeQualifier sh:order ?qualifierOrder}
+              optional { ?datatypeQualifier sh:pattern ?qualifierPattern}
+              optional {?datatypeQualifier im:isRelativeValue ?isRelativeValue}
+              optional { 
+                ?datatypeQualifier im:units ?qualifierIntervalUnit.
+                ?qualifierIntervalUnit rdfs:label ?qualifierIntervalUnitName
               }
-           optional {
-                     ?property sh:group ?group.
-                      ?group rdfs:label ?groupName.
-                      ?group sh:order ?groupOrder.
-                      }
-           optional {
-                 ?property sh:node ?node.
-                 ?node rdfs:label ?nodeName.
-                  ?node rdf:type ?nodeType.
-                  ?nodeType rdfs:label ?nodeTypeName.
-                   }
+            }
+          }
         }
-      
+        optional {
+          ?property sh:hasValue ?hasValue.
+          optional {?hasValue rdfs:label ?hasValueName}
+        }
+        optional {
+          ?property sh:group ?group.
+          ?group rdfs:label ?groupName.
+          ?group sh:order ?groupOrder.
+        }
+        optional {
+          ?property sh:node ?node.
+          ?node rdfs:label ?nodeName.
+          ?node rdf:type ?nodeType.
+          ?nodeType rdfs:label ?nodeTypeName.
+        }
+      }
       order by ?groupOrder ?order ?qualifierOrder
       """;
   }
@@ -415,67 +432,67 @@ public class DataModelRepository {
 
   private String getPathSql() {
     return """
-      PREFIX im: <http://endhealth.info/im#>
-      PREFIX sh: <http://www.w3.org/ns/shacl#>
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       Select ?entityName ?property ?order ?path ?pathName ?pathType
       ?node ?nodeName ?nodeType ?nodeTypeName
-      {
-         ?entity sh:property ?property.
-         ?entity rdfs:label ?entityName.
-         ?property sh:node ?node.
+      WHERE {
+        GRAPH ?g {
+          ?enti  ty sh:property ?property.
+          ?entity rdfs:label ?entityName.
+          ?property sh:node ?node.
           ?node rdfs:label ?nodeName.
           ?node rdf:type ?nodeType.
           ?nodeType rdfs:label ?nodeTypeName.
           ?property sh:path ?path.
           ?path rdf:type ?pathType.
           ?path rdfs:label ?pathName.
-           OPTIONAL {?property sh:order ?order.}
+          OPTIONAL {?property sh:order ?order.}
+        }
       }
-      
       order by ?order
       """;
   }
 
-  public UIProperty findUIPropertyForQB(String dmIri, String propIri) {
+  public UIProperty findUIPropertyForQB(String dmIri, String propIri, String graph) {
     UIProperty uiProp = new UIProperty();
     uiProp.setIri(propIri);
 
     String spql = """
       SELECT ?property ?name
-       (IF(EXISTS {
-                   ?property sh:node ?valueA
-               }, "node",
-               IF(EXISTS {
-                       ?property sh:datatype ?valueB
-                   }, "datatype",
-                   IF(EXISTS {
-                           ?property sh:class ?valueC
-                       }, "class", "None"))) AS ?propertyType)
-       ?valueType ?intervalUnitIri ?unitsIri ?operatorIri ?qualifierIri ?qualifierName
-       WHERE {
-           ?dmIri sh:property ?property .
-           ?property sh:path ?propIri .
-           ?propIri rdfs:label ?name .
-           ?property (sh:class | sh:node | sh:datatype) ?valueType .
-           OPTIONAL {
+        (IF(EXISTS {
+          ?property sh:node ?valueA
+        }, "node",
+        IF(EXISTS {
+          ?property sh:datatype ?valueB
+        }, "datatype",
+        IF(EXISTS {
+          ?property sh:class ?valueC
+        }, "class", "None"))) AS ?propertyType)
+        ?valueType ?intervalUnitIri ?unitsIri ?operatorIri ?qualifierIri ?qualifierName
+        WHERE {
+          GRAPH ?g {
+            ?dmIri sh:property ?property .
+            ?property sh:path ?propIri .
+            ?propIri rdfs:label ?name .
+            ?property (sh:class | sh:node | sh:datatype) ?valueType .
+            OPTIONAL {
                ?valueType im:datatypeQualifier ?qualifierIri .
                ?qualifierIri rdfs:label ?qualifierName .
-           }
-           OPTIONAL{
+            }
+            OPTIONAL{
                ?valueType im:intervalUnit ?intervalUnitIri .
-           }
-           OPTIONAL{
+            }
+            OPTIONAL{
                ?valueType im:units ?unitsIri .
-           }
-           OPTIONAL {
+            }
+            OPTIONAL {
                ?valueType im:operator ?operatorIri .
-           }
-       }
+            }
+          }
+        }
       """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, spql);
+      TupleQuery qry = prepareTupleSparql(conn, spql, graph);
       qry.setBinding("dmIri", iri(dmIri));
       qry.setBinding("propIri", iri(propIri));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -488,7 +505,8 @@ public class DataModelRepository {
             uiProp.setIntervalUnitIri(bs.getValue("intervalUnitIri").stringValue());
           if (bs.getValue("unitsIri") != null) uiProp.setUnitIri(bs.getValue("unitsIri").stringValue());
           if (bs.getValue("operatorIri") != null) uiProp.setOperatorIri(bs.getValue("operatorIri").stringValue());
-          if (bs.getValue("qualifierIri") != null && bs.getValue("qualifierName") != null) uiProp.addQualifierOption(bs.getValue("qualifierIri").stringValue(), bs.getValue("qualifierName").stringValue());
+          if (bs.getValue("qualifierIri") != null && bs.getValue("qualifierName") != null)
+            uiProp.addQualifierOption(bs.getValue("qualifierIri").stringValue(), bs.getValue("qualifierName").stringValue());
         }
       }
     }

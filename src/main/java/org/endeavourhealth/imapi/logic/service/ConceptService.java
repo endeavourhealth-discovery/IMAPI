@@ -2,7 +2,8 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.model.*;
+import org.endeavourhealth.imapi.model.ConceptContextMap;
+import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
@@ -12,7 +13,10 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,22 +29,22 @@ public class ConceptService {
   private EntityRepository entityRepository = new EntityRepository();
   private ConceptRepository conceptRepository = new ConceptRepository();
 
-  public List<SimpleMap> getMatchedFrom(String iri) {
+  public List<SimpleMap> getMatchedFrom(String iri, String graph) {
     if (iri == null || iri.isEmpty()) return new ArrayList<>();
     String scheme = iri.substring(0, iri.indexOf("#") + 1);
-    List<Namespace> namespaces = entityRepository.findNamespaces();
+    List<Namespace> namespaces = entityRepository.findNamespaces(graph);
     List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
     schemes.remove(scheme);
-    return conceptRepository.getMatchedFrom(iri, schemes);
+    return conceptRepository.getMatchedFrom(iri, schemes, graph);
   }
 
-  public List<SimpleMap> getMatchedTo(String iri) {
+  public List<SimpleMap> getMatchedTo(String iri, String graph) {
     if (iri == null || iri.isEmpty()) return new ArrayList<>();
     String scheme = iri.substring(0, iri.indexOf("#") + 1);
-    List<Namespace> namespaces = entityRepository.findNamespaces();
+    List<Namespace> namespaces = entityRepository.findNamespaces(graph);
     List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
     schemes.remove(scheme);
-    return conceptRepository.getMatchedTo(iri, schemes);
+    return conceptRepository.getMatchedTo(iri, schemes, graph);
   }
 
   public List<SearchTermCode> getEntityTermCodes(String iri, boolean includeInactive) {
@@ -59,21 +63,20 @@ public class ConceptService {
       .toList();
   }
 
-  public Set<String> getPropertiesForDomains(Set<String> iris) {
+  public Set<String> getPropertiesForDomains(Set<String> iris, String graph) {
     if (null == iris || iris.isEmpty()) return null;
-    return conceptRepository.getPropertiesForDomains(iris);
+    return conceptRepository.getPropertiesForDomains(iris, graph);
 
   }
 
 
-
-  public Set<String> getRangesForProperty(String iri) {
+  public Set<String> getRangesForProperty(String iri, String graph) {
     if (null == iri || iri.isEmpty()) return null;
-    return conceptRepository.getRangesForProperty(iri);
+    return conceptRepository.getRangesForProperty(iri, graph);
   }
 
-  public List<ConceptContextMap> getConceptContextMaps(String iri) {
-    return conceptRepository.getConceptContextMaps(iri);
+  public List<ConceptContextMap> getConceptContextMaps(String iri, String graph) {
+    return conceptRepository.getConceptContextMaps(iri, graph);
   }
 
   private void processTerm(TTValue term, List<SearchTermCode> termsSummary) {

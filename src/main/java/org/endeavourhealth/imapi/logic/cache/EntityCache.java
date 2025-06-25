@@ -61,11 +61,11 @@ public class EntityCache implements Runnable {
    * @param iri the iri of the shape
    * @return a TTEntity representing the shape
    */
-  public static TTBundle getProperty(String iri) {
+  public static TTBundle getProperty(String iri, String graph) {
     TTEntity property = properties.get(iri);
     if (property == null) {
       synchronized (propertyLock) {
-        TTEntityMap propertyMap = PropertyRepository.getProperty(iri);
+        TTEntityMap propertyMap = PropertyRepository.getProperty(iri, graph);
         if (propertyMap.getEntities() == null)
           return null;
         cacheProperties(propertyMap);

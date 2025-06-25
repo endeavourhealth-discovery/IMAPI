@@ -158,6 +158,10 @@
         "value": "IM.NAMESPACE + \"scheme\""
       },
       {
+        "name": "SCHEME",
+        "value": "IM.NAMESPACE + \"Scheme\""
+      },
+      {
         "name": "BINDING",
         "value": "IM.NAMESPACE + \"binding\""
       },
@@ -2240,6 +2244,19 @@
   },
   {
     "name": "GRAPH",
+    "entries": [
+      {
+        "name": "DISCOVERY",
+        "value": "\"http://endhealth.info/im#\""
+      },
+      {
+        "name": "PROV",
+        "value": "\"http://endhealth.info/prov#\""
+      }
+    ]
+  },
+  {
+    "name": "SCHEME",
     "entries": [
       {
         "name": "FHIR",

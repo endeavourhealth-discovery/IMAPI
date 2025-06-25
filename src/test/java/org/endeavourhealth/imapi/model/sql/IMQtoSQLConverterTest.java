@@ -1,33 +1,22 @@
 package org.endeavourhealth.imapi.model.sql;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
-import java.util.Set;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class IMQtoSQLConverterTest {
   private static Logger LOG = LoggerFactory.getLogger(IMQtoSQLConverterTest.class);
 
   // @Test
-  public void IMQtoSQL() {
+  public void IMQtoSQL(String graph) {
     // Get list of queries from GraphDb
     EntityRepository entityRepository = new EntityRepository();
-    List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(IM.QUERY);
+    List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(IM.QUERY, graph);
     LOG.info("Found {} queries", cohortQueryIris.size());
 
     // Prepare

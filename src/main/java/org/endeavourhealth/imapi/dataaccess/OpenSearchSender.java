@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
+import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Slf4j
@@ -45,7 +45,7 @@ public class OpenSearchSender {
   private final HTTPRepository repo = new HTTPRepository(server, repoId);
   private WebTarget target;
 
-  public void execute(boolean update) throws IOException, InterruptedException {
+  public void execute(boolean update, String graph) throws IOException, InterruptedException {
     om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     checkEnvs();
     checkIndexExists();
@@ -54,6 +54,7 @@ public class OpenSearchSender {
     Set<String> entityIris = new HashSet<>(2_000_000);
     String sql = """
       SELECT ?iri ?name
+      FROM ?g
       WHERE {
         ?iri rdfs:label ?name.
         FILTER(isIri(?iri))
@@ -61,7 +62,7 @@ public class OpenSearchSender {
       """;
     try (RepositoryConnection conn = repo.getConnection()) {
       log.info("Fetching entity iris  ...");
-      TupleQuery tupleQuery = conn.prepareTupleQuery(addSparqlPrefixes(sql));
+      TupleQuery tupleQuery = prepareTupleSparql(conn, sql, graph);
 
       int count = 0;
       try (TupleQueryResult qr = tupleQuery.evaluate()) {
@@ -113,7 +114,7 @@ public class OpenSearchSender {
       // Send every 5000
       if (batch.size() == BATCH_SIZE) {
         log.info(" Processing batch up to entity number {}... ", mapNumber);
-        getEntityBatch(batch);
+        getEntityBatch(batch, graph);
         index(batch);
         batch.clear();
       }
@@ -122,27 +123,27 @@ public class OpenSearchSender {
     // Handle remaining / last partial batch
     if (!batch.isEmpty()) {
       log.info(" Processing final batch up to entity number {}...", mapNumber);
-      getEntityBatch(batch);
+      getEntityBatch(batch, graph);
       index(batch);
     }
   }
 
 
-  private void getEntityBatch(Map<String, EntityDocument> batch) {
+  private void getEntityBatch(Map<String, EntityDocument> batch, String graph) {
     String inList = batch.keySet().stream().map(iri -> ("<" + iri + ">")).collect(Collectors.joining(" "));
-    getCore(batch, inList);
-    getTermCodes(batch, inList);
-    getIsas(batch, inList);
-    getBindings(batch, inList);
-    getSubsumptions(batch, inList);
-    getSetMembership(batch, inList);
+    getCore(batch, inList, graph);
+    getTermCodes(batch, inList, graph);
+    getIsas(batch, inList, graph);
+    getBindings(batch, inList, graph);
+    getSubsumptions(batch, inList, graph);
+    getSetMembership(batch, inList, graph);
   }
 
-  private void getCore(Map<String, EntityDocument> batch, String inList) {
+  private void getCore(Map<String, EntityDocument> batch, String inList, String graph) {
     String sql = getBatchCoreSql(inList);
 
     try (RepositoryConnection conn = repo.getConnection()) {
-      TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
+      TupleQuery tupleQuery = prepareTupleSparql(conn, sql, graph);
       try (TupleQueryResult qr = tupleQuery.evaluate()) {
         while (qr.hasNext()) {
           BindingSet rs = qr.next();
@@ -151,7 +152,7 @@ public class OpenSearchSender {
           String name = rs.getValue("name").stringValue();
           blob.setName(name);
           blob.setUsageTotal(0);
-          addTerm(blob,name,null,null,null);
+          addTerm(blob, name, null, null, null);
           String code;
           if (rs.getValue("code") != null) {
             code = rs.getValue("code").stringValue();
@@ -160,11 +161,11 @@ public class OpenSearchSender {
           if (rs.getValue("preferredName") != null) {
             String preferred = rs.getValue("preferredName").stringValue();
             blob.setPreferredName(preferred);
-            addTerm(blob, preferred, null, null,null);
+            addTerm(blob, preferred, null, null, null);
           } else if (name.contains(" (") && preferredNameCount.get(name.split(" \\(")[0]) < 2) {
             String preferred = name.split(" \\(")[0];
             blob.setPreferredName(preferred);
-            addTerm(blob, preferred, null, null,null);
+            addTerm(blob, preferred, null, null, null);
           } else
             blob.setPreferredName(name);
           if (rs.getValue("alternativeCode") != null) {
@@ -178,11 +179,6 @@ public class OpenSearchSender {
 
             if (rs.getValue("schemeName") != null)
               scheme.setName(rs.getValue("schemeName").stringValue());
-            blob.setScheme(scheme);
-          } else {
-            TTIriRef scheme = iri(rs.getValue("graph").stringValue());
-            if (rs.getValue("graphName") != null)
-              scheme.setName(rs.getValue("graphName").stringValue());
             blob.setScheme(scheme);
           }
 
@@ -236,13 +232,12 @@ public class OpenSearchSender {
   }
 
   private String getBatchCoreSql(String inList) {
-    String sql = """
-      SELECT ?iri ?name ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?usageTotal ?extraType ?extraTypeName ?preferredName ?alternativeCode ?graph ?graphName ?path ?node
+    return """
+      SELECT ?iri ?name ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?usageTotal ?extraType ?extraTypeName ?preferredName ?alternativeCode ?path ?
+      FROM ?g
       WHERE {
-        GRAPH ?graph {
-          ?iri rdfs:label ?name.
-          VALUES  ?iri  {%s}
-        }
+        ?iri rdfs:label ?name.
+        VALUES  ?iri  {%s}
         Optional { ?graph rdfs:label ?graphName }
         Optional {
           ?iri rdf:type ?type.
@@ -258,20 +253,19 @@ public class OpenSearchSender {
           Optional {?status rdfs:label ?statusName}
         }
         Optional {?iri im:scheme ?scheme.
-          Optional {?scheme rdfs:label ?schemeName } 
+          Optional {?scheme rdfs:label ?schemeName }
         }
         Optional {?iri im:code ?code.}
         Optional {?iri im:usageTotal ?usageTotal.}
         Optional {?iri im:alternativeCode ?alternativeCode.}
       }
       """.formatted(inList);
-    return addSparqlPrefixes(sql);
   }
 
-  private void getTermCodes(Map<String, EntityDocument> batch, String inList) {
+  private void getTermCodes(Map<String, EntityDocument> batch, String inList, String graph) {
     String sql = getBatchTermsSql(inList);
     try (RepositoryConnection conn = repo.getConnection()) {
-      TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
+      TupleQuery tupleQuery = prepareTupleSparql(conn, sql, graph);
       try (TupleQueryResult qr = tupleQuery.evaluate()) {
         while (qr.hasNext()) {
           BindingSet rs = qr.next();
@@ -279,22 +273,22 @@ public class OpenSearchSender {
           EntityDocument blob = batch.get(iri);
           String termCode = null;
           String synonym = null;
-          String keyTerm=null;
+          String keyTerm = null;
           TTIriRef status = null;
           if (rs.getValue("synonym") != null)
             synonym = rs.getValue("synonym").stringValue();
           if (rs.getValue("termCode") != null)
             termCode = rs.getValue("termCode").stringValue();
           if (rs.getValue("keyTerm") != null)
-            keyTerm=rs.getValue("keyTerm").stringValue();
+            keyTerm = rs.getValue("keyTerm").stringValue();
           if (rs.getValue("termCodeStatus") != null)
             status = iri(rs.getValue("termCodeStatus").stringValue());
           if (synonym != null) {
-            addTerm(blob, synonym, termCode, status,keyTerm);
+            addTerm(blob, synonym, termCode, status, keyTerm);
           } else if (termCode != null) {
             SearchTermCode tc = getTermCodeFromCode(blob, termCode);
             if (tc == null) {
-              blob.addTermCode(null, termCode, status,keyTerm);
+              blob.addTermCode(null, termCode, status, keyTerm);
             }
           }
 
@@ -304,25 +298,24 @@ public class OpenSearchSender {
   }
 
   private String getBatchTermsSql(String inList) {
-    return new StringJoiner(System.lineSeparator())
-      .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-      .add("PREFIX im: <http://endhealth.info/im#>")
-      .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-      .add("select ?iri ?termCode ?synonym ?termCodeStatus ?keyTerm")
-      .add("where {")
-      .add("?iri im:hasTermCode ?tc.")
-      .add("      VALUES  ?iri  {" + inList + "}")
-      .add("       Optional {?tc im:code ?termCode}")
-      .add("       Optional  {?tc rdfs:label ?synonym}")
-      .add("       Optional  {?tc im:status ?termCodeStatus}")
-      .add("       Optional  {?tc im:keyTerm ?keyTerm}")
-      .add("}").toString();
+    return """
+      select ?iri ?termCode ?synonym ?termCodeStatus ?keyTerm
+      FROM ?g
+      where {
+        ?iri im:hasTermCode ?tc.
+        VALUES  ?iri  {%s}
+        Optional {?tc im:code ?termCode}
+        Optional  {?tc rdfs:label ?synonym}
+        Optional  {?tc im:status ?termCodeStatus}
+        Optional  {?tc im:keyTerm ?keyTerm}
+      }
+      """.formatted(inList);
   }
 
-  private void getIsas(Map<String, EntityDocument> batch, String inList) {
+  private void getIsas(Map<String, EntityDocument> batch, String inList, String graph) {
     String sql = getBatchIsaSql(inList);
     try (RepositoryConnection conn = repo.getConnection()) {
-      TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
+      TupleQuery tupleQuery = prepareTupleSparql(conn, sql, graph);
       try (TupleQueryResult qr = tupleQuery.evaluate()) {
         while (qr.hasNext()) {
           BindingSet rs = qr.next();
@@ -335,10 +328,10 @@ public class OpenSearchSender {
 
   }
 
-  private void getSubsumptions(Map<String, EntityDocument> batch, String inList) {
+  private void getSubsumptions(Map<String, EntityDocument> batch, String inList, String graph) {
     String sql = getSubsumptionSql(inList);
     try (RepositoryConnection conn = repo.getConnection()) {
-      TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
+      TupleQuery tupleQuery = prepareTupleSparql(conn, sql, graph);
       try (TupleQueryResult qr = tupleQuery.evaluate()) {
         while (qr.hasNext()) {
           BindingSet rs = qr.next();
@@ -353,36 +346,34 @@ public class OpenSearchSender {
 
 
   private String getBatchIsaSql(String inList) {
-    return new StringJoiner(System.lineSeparator())
-      .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-      .add("PREFIX im: <http://endhealth.info/im#>")
-      .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-      .add("select ?iri ?superType")
-      .add("where {")
-      .add(" ?iri im:isA ?superType.")
-      .add("      VALUES  ?iri  {" + inList + "}")
-      .add(" ?superType im:status im:Active.")
-      .add("}").toString();
+    return """
+      select ?iri ?superType
+      FROM ?g
+      where {
+        ?iri im:isA ?superType.
+        VALUES  ?iri  {%s}
+        ?superType im:status im:Active.
+      }
+      """.formatted(inList);
   }
 
   private String getSubsumptionSql(String inList) {
-    return new StringJoiner(System.lineSeparator())
-      .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-      .add("PREFIX im: <http://endhealth.info/im#>")
-      .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-      .add("select distinct ?iri (count(?subType) as ?subsumptions)")
-      .add("where {")
-      .add(" ?iri ^im:isA ?subType.")
-      .add("      VALUES  ?iri  {" + inList + "}")
-      .add(" ?subType im:status im:Active.")
-      .add("}")
-      .add("group by ?iri").toString();
+    return """
+      select distinct ?iri (count(?subType) as ?subsumptions)
+      FROM ?g
+      where {
+        ?iri ^im:isA ?subType.
+        VALUES  ?iri  {%s}
+        ?subType im:status im:Active.
+      }
+      group by ?iri
+      """.formatted(inList);
   }
 
-  private void getSetMembership(Map<String, EntityDocument> batch, String inList) {
+  private void getSetMembership(Map<String, EntityDocument> batch, String inList, String graph) {
     String sql = getSetMembershipSql(inList);
     try (RepositoryConnection conn = repo.getConnection()) {
-      TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
+      TupleQuery tupleQuery = prepareTupleSparql(conn, sql, graph);
       try (TupleQueryResult qr = tupleQuery.evaluate()) {
         while (qr.hasNext()) {
           BindingSet rs = qr.next();
@@ -397,10 +388,10 @@ public class OpenSearchSender {
   }
 
 
-  private void getBindings(Map<String, EntityDocument> batch, String inList) {
+  private void getBindings(Map<String, EntityDocument> batch, String inList, String graph) {
     String sql = getBindingsSql(inList);
     try (RepositoryConnection conn = repo.getConnection()) {
-      TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
+      TupleQuery tupleQuery = prepareTupleSparql(conn, sql, graph);
       try (TupleQueryResult qr = tupleQuery.evaluate()) {
         while (qr.hasNext()) {
           BindingSet rs = qr.next();
@@ -415,43 +406,42 @@ public class OpenSearchSender {
   }
 
   private String getSetMembershipSql(String inList) {
-    return new StringJoiner(System.lineSeparator())
-      .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-      .add("PREFIX im: <http://endhealth.info/im#>")
-      .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-      .add("select ?iri ?set")
-      .add("where {")
-      .add(" ?set im:hasMember ?iri.")
-      .add("      VALUES  ?iri  {" + inList + "}")
-      .add("}").toString();
+    return """
+        select ?iri ?set
+        FROM ?g
+        where {
+          ?set im:hasMember ?iri.
+          VALUES  ?iri  {%s}
+        }
+      """.formatted(inList);
   }
 
   private String getBindingsSql(String inList) {
-    return new StringJoiner(System.lineSeparator())
-      .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-      .add("PREFIX im: <http://endhealth.info/im#>")
-      .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-      .add("PREFIX sh: <http://www.w3.org/ns/shacl#>")
-      .add("select ?iri ?path ?node")
-      .add("where {{")
-      .add(" ?iri im:binding ?binding.")
-      .add(" ?binding sh:path ?path.")
-      .add(" ?binding sh:node ?node.}")
-      .add("union {")
-      .add("?iri ^im:hasMember ?vset.")
-      .add("?vset im:binding ?binding.")
-      .add(" ?binding sh:path ?path.")
-      .add(" ?binding sh:node ?node.")
-      .add("}")
-      .add("VALUES  ?iri  {" + inList + "}")
-      .add("}").toString();
+    return """
+      select ?iri ?path ?node
+      FROM ?g
+      where {
+        {
+          ?iri im:binding ?binding.
+          ?binding sh:path ?path.
+          ?binding sh:node ?node.
+        }
+        union {
+          ?iri ^im:hasMember ?vset.
+          ?vset im:binding ?binding.
+          ?binding sh:path ?path.
+          ?binding sh:node ?node.
+        }
+        VALUES  ?iri  {%s}
+      }
+      """.formatted(inList);
   }
 
 
-  private void addTerm(EntityDocument blob, String term, String code, TTIriRef status,String keyTerm) {
+  private void addTerm(EntityDocument blob, String term, String code, TTIriRef status, String keyTerm) {
     SearchTermCode tc = getTermCode(blob, term);
     if (tc == null) {
-      blob.addTermCode(term, code, status,keyTerm);
+      blob.addTermCode(term, code, status, keyTerm);
     } else if (code != null && !code.equals(tc.getCode())) {
       tc.setCode(code);
       tc.setStatus(status);

@@ -6,12 +6,12 @@ import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.DisplayMode;
+import org.endeavourhealth.imapi.model.imq.ECLStatus;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
+import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.set.EclSearchRequest;
-import org.endeavourhealth.imapi.model.imq.ECLStatus;
 import org.endeavourhealth.imapi.transforms.ECLToIMQ;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
 import org.springframework.stereotype.Component;
@@ -23,17 +23,17 @@ import java.util.Set;
 public class EclService {
   private final SetRepository setRepository = new SetRepository();
 
-  public String getEcl(Query inferred) throws QueryException {
+  public String getEcl(EclSearchRequest inferred) throws QueryException {
     if (inferred == null) throw new QueryException("Missing data for ECL conversion");
-    else return new IMQToECL().getECLFromQuery(inferred, true);
+    else return new IMQToECL().getECLFromQuery(inferred.getEclQuery(), true, inferred.getGraph());
   }
 
   public int getEclSearchTotalCount(EclSearchRequest request) throws QueryException {
-    return setRepository.getSetExpansionTotalCount(request.getEclQuery(), request.getStatusFilter());
+    return setRepository.getSetExpansionTotalCount(request.getEclQuery(), request.getStatusFilter(), request.getGraph());
   }
 
   public Set<Concept> evaluateECLQuery(EclSearchRequest request) throws QueryException {
-    return setRepository.getSetExpansionFromQuery(request.getEclQuery(), request.isIncludeLegacy(), request.getStatusFilter(), List.of(), new Page().setPageNumber(request.getPage()).setPageSize(request.getSize()));
+    return setRepository.getSetExpansionFromQuery(request.getEclQuery(), request.isIncludeLegacy(), request.getStatusFilter(), List.of(), new Page().setPageNumber(request.getPage()).setPageSize(request.getSize()), request.getGraph());
   }
 
   public SearchResponse eclSearch(EclSearchRequest request) throws QueryException {
@@ -57,13 +57,13 @@ public class EclService {
     return result;
   }
 
-  public String getECLFromQuery(Query query, Boolean includeNames) throws QueryException {
-    return new IMQToECL().getECLFromQuery(query, includeNames);
+  public String getECLFromQuery(Query query, Boolean includeNames, String graph) throws QueryException {
+    return new IMQToECL().getECLFromQuery(query, includeNames, graph);
   }
 
-  public Query getQueryFromEcl(String ecl) throws EclFormatException, QueryException, JsonProcessingException {
-    Query query= new ECLToIMQ().getQueryFromECL(ecl);
-    new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL);
+  public Query getQueryFromEcl(String ecl, String graph) throws EclFormatException, QueryException, JsonProcessingException {
+    Query query = new ECLToIMQ().getQueryFromECL(ecl);
+    new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL, graph);
     return query;
   }
 

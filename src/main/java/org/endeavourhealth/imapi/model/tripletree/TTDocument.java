@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.json.TTDocumentDeserializer;
 import org.endeavourhealth.imapi.json.TTDocumentSerializer;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,11 +14,18 @@ import java.util.Map;
 @JsonSerialize(using = TTDocumentSerializer.class)
 @JsonDeserialize(using = TTDocumentDeserializer.class)
 public class TTDocument extends TTNode {
-  private TTIriRef graph;
+  private TTIriRef namespace;
   private TTContext context = new TTContext();
   private List<TTEntity> entities;
   private TTIriRef crud;
   private Map<String, String> predicates = new HashMap<>();
+
+  public TTDocument(TTIriRef defaultGraph) {
+    this.namespace = defaultGraph;
+  }
+
+  public TTDocument() {
+  }
 
   public Map<String, String> getPredicates() {
     return predicates;
@@ -30,25 +36,13 @@ public class TTDocument extends TTNode {
     return this;
   }
 
-  public TTIriRef getGraph() {
-    return graph;
-  }
-
-  public TTDocument(TTIriRef defaultGraph) {
-    this.graph = defaultGraph;
-  }
-
-  public TTDocument() {
-  }
-
-  public TTDocument setContext(TTContext context) {
-    this.context = context;
-    return this;
+  public TTIriRef getNamespace() {
+    return namespace;
   }
 
   @JsonSetter
-  public TTDocument setGraph(TTIriRef graph) {
-    this.graph = graph;
+  public TTDocument setNamespace(TTIriRef namespace) {
+    this.namespace = namespace;
     return this;
   }
 
@@ -89,9 +83,13 @@ public class TTDocument extends TTNode {
     return this;
   }
 
-
   public TTContext getContext() {
     return this.context;
+  }
+
+  public TTDocument setContext(TTContext context) {
+    this.context = context;
+    return this;
   }
 
   public TTIriRef getCrud() {

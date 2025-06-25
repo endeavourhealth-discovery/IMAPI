@@ -15,7 +15,7 @@ import org.endeavourhealth.imapi.vocabulary.SHACL;
 import javax.naming.directory.InvalidAttributesException;
 import java.util.StringJoiner;
 
-import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
+import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Slf4j
@@ -32,7 +32,7 @@ public class SetReducer {
    * @return The entity redefined or as original
    * @throws InvalidAttributesException A message of "NOT CONVERTED TO EC ...."
    */
-  public TTEntity reduce(TTEntity set) throws InvalidAttributesException {
+  public TTEntity reduce(TTEntity set, String graph) throws InvalidAttributesException {
     String sql = null;
     int originalSize;
     if (set.get(iri(IM.DEFINITION)) != null) {
@@ -48,7 +48,7 @@ public class SetReducer {
       originalSize = set.get(iri(IM.HAS_MEMBER)).size();
     }
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       qry.setBinding("set", Values.iri(set.getIri()));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (!rs.hasNext())
@@ -69,7 +69,7 @@ public class SetReducer {
   }
 
   private String getMemberSql() {
-    String sparql = """
+    return """
       SELECT DISTINCT ?member ?name
       WHERE {
         ?set im:hasMember ?member.
@@ -81,7 +81,6 @@ public class SetReducer {
         }
       }
       """;
-    return addSparqlPrefixes(sparql);
   }
 
   private String getOrSql(TTEntity set) {

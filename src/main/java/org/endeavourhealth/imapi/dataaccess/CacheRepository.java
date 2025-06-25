@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
+import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareGraphSparql;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 /**
@@ -25,11 +25,11 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 public class CacheRepository {
 
 
-  public Set<TTBundle> getSchema() {
+  public Set<TTBundle> getSchema(String graph) {
     String sql = getSchemaSql();
     Set<TTEntity> shapes = new HashSet<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      GraphQuery qry = conn.prepareGraphQuery(sql);
+      GraphQuery qry = prepareGraphSparql(conn, sql, graph);
       try (GraphQueryResult gs = qry.evaluate()) {
         Map<String, TTValue> valueMap = new HashMap<>();
         Map<String, TTNode> subjectMap = new HashMap<>();
@@ -39,7 +39,7 @@ public class CacheRepository {
       }
       Set<TTIriRef> iris = new HashSet<>();
       shapes.forEach(e -> iris.addAll(TTManager.getIrisFromNode(e)));
-      EntityRepository.getIriNames(conn, iris);
+      EntityRepository.getIriNames(conn, iris, graph);
       Set<TTBundle> result = new HashSet<>();
       for (TTEntity shape : shapes) {
         TTBundle bundle = new TTBundle();
@@ -56,24 +56,25 @@ public class CacheRepository {
   }
 
   private String getSchemaSql() {
-    String sparql = """
+    return """
       CONSTRUCT {
         ?shape ?p ?o.
         ?o ?p2 ?o2.
       }
       WHERE {
-        ?shape rdf:type sh:NodeShape.
-        ?shape ?p ?o.
-        filter (?p != im:isA)
-        OPTIONAL { ?o ?p2 ?o2
-          FILTER (
-            isBlank(?o) &&
-            (?p2 in(sh:path, sh:class,sh:node,sh:datatype,sh:order,sh:nodeKind))
-          )
+        GRAPH ?g {
+          ?shape rdf:type sh:NodeShape.
+          ?shape ?p ?o.
+          filter (?p != im:isA)
+          OPTIONAL { ?o ?p2 ?o2
+            FILTER (
+              isBlank(?o) &&
+              (?p2 in(sh:path, sh:class,sh:node,sh:datatype,sh:order,sh:nodeKind))
+            )
+          }
         }
       }
       """;
-    return addSparqlPrefixes(sparql);
   }
 
   private void processStatement(Set<TTEntity> entities, Map<String, TTValue> valueMap, Map<String, TTNode> subjectMap, Statement st) {

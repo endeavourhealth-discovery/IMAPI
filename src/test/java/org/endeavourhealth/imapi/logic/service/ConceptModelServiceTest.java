@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.logic.validator.EntityValidator;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.junit.jupiter.api.Test;
@@ -79,21 +80,21 @@ public class ConceptModelServiceTest {
 
   @Test
   void getSimpleMaps_NullIri() {
-    List<SimpleMap> actual = conceptService.getMatchedFrom(null);
+    List<SimpleMap> actual = conceptService.getMatchedFrom(null, GRAPH.DISCOVERY);
     assertNotNull(actual);
   }
 
   @Test
   void getSimpleMaps_EmptyIri() {
-    Collection<SimpleMap> actual = conceptService.getMatchedFrom("");
+    Collection<SimpleMap> actual = conceptService.getMatchedFrom("", GRAPH.DISCOVERY);
     assertNotNull(actual);
   }
 
   @Test
   void getSimpleMaps_NotNullIri() {
-    when(entityRepository.findNamespaces()).thenReturn(new ArrayList<>());
-    when(conceptRepository.getMatchedFrom(anyString(), anyList())).thenReturn(new ArrayList<>());
-    Collection<SimpleMap> actual = conceptService.getMatchedFrom("http://endhealth.info/im#25451000252115");
+    when(entityRepository.findNamespaces(null)).thenReturn(new ArrayList<>());
+    when(conceptRepository.getMatchedFrom(anyString(), anyList(), GRAPH.DISCOVERY)).thenReturn(new ArrayList<>());
+    Collection<SimpleMap> actual = conceptService.getMatchedFrom("http://endhealth.info/im#25451000252115", GRAPH.DISCOVERY);
     assertNotNull(actual);
   }
 }

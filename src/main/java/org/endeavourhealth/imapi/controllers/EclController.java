@@ -5,11 +5,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
-import org.endeavourhealth.imapi.model.set.EclSearchRequest;
+import org.endeavourhealth.imapi.model.imq.ECLStatus;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -31,7 +35,7 @@ public class EclController {
     summary = "Retrieve ECL string",
     description = "Generates an ECL string from the provided IMQ Query object"
   )
-  public String getEcl(@RequestBody Query inferred) throws QueryException, IOException {
+  public String getEcl(@RequestBody EclSearchRequest inferred) throws QueryException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("ECL.Ecl.POST")) {
       log.debug("getEcl");
       return eclService.getEcl(inferred);
@@ -57,43 +61,38 @@ public class EclController {
   public String getECLFromQuery(@RequestBody QueryRequest request) throws QueryException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclFromQuery.POST")) {
       log.debug("getEclFromQuery");
-      return eclService.getECLFromQuery(request.getQuery(), request.isIncludeNames());
+      return eclService.getECLFromQuery(request.getQuery(), request.isIncludeNames(), request.getGraph());
     }
   }
 
 
-
-
-
-
-  @PostMapping(value = "/public/queryFromEcl", consumes = "text/plain", produces = "application/json")
+  @GetMapping(value = "/public/queryFromEcl", consumes = "text/plain", produces = "application/json")
   @Operation(
     summary = "Convert ECL to Query",
     description = "Transforms a provided ECL string into an IM Query object"
   )
-  public Query getQueryFromECL(@RequestBody String ecl) throws IOException, EclFormatException,QueryException {
+  public Query getQueryFromECL(@RequestParam(name = "ecl") String ecl, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException, EclFormatException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.QueryFromEcl.POST")) {
       log.debug("getQueryFromEcl");
-      return eclService.getQueryFromEcl(ecl);
+      return eclService.getQueryFromEcl(ecl, graph);
     }
   }
 
-  @PostMapping(value = "/public/eclFromEcl", consumes = "text/plain", produces = "application/json")
+  @GetMapping(value = "/public/eclFromEcl", consumes = "text/plain", produces = "application/json")
   @Operation(
     summary = "Convert ECL to ECL with names",
     description = "Transforms a provided ECL string into an IM Query object"
   )
-  public String getEclFromEcl(@RequestBody String ecl,
-                                @RequestParam(name = "showNames", required = false) boolean showNames)
-    throws IOException, QueryException, EclFormatException {
+  public String getEclFromEcl(@RequestParam(name = "ecl") String ecl,
+                              @RequestParam(name = "showNames", required = false) Boolean showNames,
+                              @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph
+  ) throws IOException, QueryException, EclFormatException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclWithNames.POST")) {
       log.debug("getEcl from ecl");
-      Query query= eclService.getQueryFromEcl(ecl);
-      return eclService.getECLFromQuery(query,showNames);
+      Query query = eclService.getQueryFromEcl(ecl, graph);
+      return eclService.getECLFromQuery(query, showNames, graph);
     }
   }
-
-
 
 
   @PostMapping(value = "public/validateEcl", consumes = "text/plain", produces = "application/json")

@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.dataaccess.helpers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.GraphQuery;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
@@ -14,6 +16,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
+
+import static org.eclipse.rdf4j.model.util.Values.iri;
 
 @Slf4j
 public class ConnectionManager {
@@ -73,28 +77,69 @@ public class ConnectionManager {
   }
 
 
-  public static TupleQuery prepareSparql(RepositoryConnection conn, String sparql) {
+  public static TupleQuery prepareTupleSparql(RepositoryConnection conn, String sparql, String graph) {
+    if (!sparql.contains("FROM ?g")) {
+      throw new DALException("Query must contain 'FROM ?g' to specify graph");
+    }
     try {
       StringJoiner sj = new StringJoiner(System.lineSeparator());
       sj.add(DEFAULT_PREFIXES);
       sj.add(sparql);
-      return conn.prepareTupleQuery(sj.toString());
+      TupleQuery tq = conn.prepareTupleQuery(sj.toString());
+      tq.setBinding("g", iri(graph));
+      return tq;
     } catch (Exception e) {
       throw new DALException("Failed to prepare SPARQL query", e);
     }
   }
 
-  public static Update prepareUpdateSparql(RepositoryConnection conn, String sparql) {
+  public static Update prepareUpdateSparql(RepositoryConnection conn, String sparql, String graph) {
+    if (!sparql.contains("GRAPH ?g {")) {
+      throw new DALException("Query must contain 'GRAPH ?g {' to specify graph");
+    }
     try {
       StringJoiner sj = new StringJoiner(System.lineSeparator());
       sj.add(DEFAULT_PREFIXES);
       sj.add(sparql);
-      return conn.prepareUpdate(sj.toString());
+      Update uq = conn.prepareUpdate(sj.toString());
+      uq.setBinding("g", iri(graph));
+      return uq;
     } catch (Exception e) {
       throw new DALException("Failed to prepare SPARQL query", e);
     }
   }
 
+  public static GraphQuery prepareGraphSparql(RepositoryConnection conn, String sparql, String graph) {
+    if (!sparql.contains("FROM ?g")) {
+      throw new DALException("Query must contain 'FROM ?g' to specify graph");
+    }
+    try {
+      StringJoiner sj = new StringJoiner(System.lineSeparator());
+      sj.add(DEFAULT_PREFIXES);
+      sj.add(sparql);
+      GraphQuery gq = conn.prepareGraphQuery(sj.toString());
+      gq.setBinding("g", iri(graph));
+      return gq;
+    } catch (Exception e) {
+      throw new DALException("Failed to prepare SPARQL query", e);
+    }
+  }
+
+  public static BooleanQuery prepareBooleanSparql(RepositoryConnection conn, String sparql, String graph) {
+    if (!sparql.contains("GRAPH ?g {")) {
+      throw new DALException("Query must contain 'GRAPH ?g {' to specify graph");
+    }
+    try {
+      StringJoiner sj = new StringJoiner(System.lineSeparator());
+      sj.add(DEFAULT_PREFIXES);
+      sj.add(sparql);
+      BooleanQuery bq = conn.prepareBooleanQuery(sj.toString());
+      bq.setBinding("g", iri(graph));
+      return bq;
+    } catch (Exception e) {
+      throw new DALException("Failed to prepare SPARQL query", e);
+    }
+  }
 
   private static synchronized Repository getRepository(String repoId) {
     Repository repo = repos.get(repoId);

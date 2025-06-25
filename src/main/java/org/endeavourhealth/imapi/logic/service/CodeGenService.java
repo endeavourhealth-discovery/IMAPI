@@ -37,30 +37,30 @@ public class CodeGenService {
     codeGenRepository.updateCodeTemplate(name, extension, wrapper, dataTypeMap, template, complexTypes);
   }
 
-  public String generateCodeForModel(String modelIri, CodeGenDto template, String namespace) {
-    TTIriRef model = getModelSummary(modelIri);
+  public String generateCodeForModel(String modelIri, CodeGenDto template, String namespace, String graph) {
+    TTIriRef model = getModelSummary(modelIri, graph);
     return generateCodeForModel(template, model, namespace);
   }
 
-  public HttpEntity<Object> generateCode(String iri, String templateName, String namespace) {
+  public HttpEntity<Object> generateCode(String iri, String templateName, String namespace, String graph) {
     List<TTIriRef> models = (iri == null || iri.isEmpty())
-      ? getIMModels()
-      : Collections.singletonList(getModelSummary(iri));
+      ? getIMModels(graph)
+      : Collections.singletonList(getModelSummary(iri, graph));
 
     CodeGenDto template = codeGenRepository.getCodeTemplate(templateName);
 
     return createModelCodeZip(namespace, models, template);
   }
 
-  private List<TTIriRef> getIMModels() {
-    List<TTIriRef> models = entityService.getEntitiesByType(SHACL.NODESHAPE);
+  private List<TTIriRef> getIMModels(String graph) {
+    List<TTIriRef> models = entityService.getEntitiesByType(SHACL.NODESHAPE, graph);
     return models.stream()
       .filter(m -> m.getIri().startsWith(IM.NAMESPACE))
       .toList();
   }
 
-  private TTIriRef getModelSummary(String iri) {
-    SearchResultSummary summary = entityService.getSummary(iri);
+  private TTIriRef getModelSummary(String iri, String graph) {
+    SearchResultSummary summary = entityService.getSummary(iri, graph);
     return new TTIriRef(summary.getIri(), summary.getName()).setDescription(summary.getDescription());
   }
 

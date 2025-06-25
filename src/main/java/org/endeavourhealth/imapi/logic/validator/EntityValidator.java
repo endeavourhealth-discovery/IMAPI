@@ -2,9 +2,12 @@ package org.endeavourhealth.imapi.logic.validator;
 
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.model.validation.EntityValidationRequest;
-import org.endeavourhealth.imapi.model.validation.EntityValidationResponse;
+import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
+import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
@@ -29,8 +32,8 @@ public class EntityValidator {
       case VALIDATION.IS_IRI -> isValidIri(request.getEntity());
       case VALIDATION.IS_TERMCODE -> isValidTermCodes(request.getEntity());
       case VALIDATION.IS_PROPERTY -> isValidProperties(request.getEntity());
-      case VALIDATION.IS_SCHEME -> isValidScheme(request.getEntity());
-      case VALIDATION.IS_STATUS -> isValidStatus(request.getEntity());
+      case VALIDATION.IS_SCHEME -> isValidScheme(request.getEntity(), request.getGraph());
+      case VALIDATION.IS_STATUS -> isValidStatus(request.getEntity(), request.getGraph());
       case VALIDATION.IS_ROLE_GROUP -> isValidRoleGroups(request.getEntity());
       default -> throw new ValidationException("Invalid validation IRI: " + request.getValidationIri());
     };
@@ -167,10 +170,10 @@ public class EntityValidator {
     });
   }
 
-  private EntityValidationResponse isValidScheme(TTEntity entity) {
+  private EntityValidationResponse isValidScheme(TTEntity entity, String graph) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false).setMessage("Scheme is invalid");
-    List<TTIriRef> schemes = entityService.getChildren(IM.GRAPH, null, null, null, false);
+    List<TTIriRef> schemes = entityService.getChildren(IM.GRAPH, null, null, null, false, graph);
     if (entity.has(iri(IM.HAS_SCHEME)) && !entity.get(iri(IM.HAS_SCHEME)).isEmpty() && entity.get(iri(IM.HAS_SCHEME)).get(0).isIriRef()) {
       if (schemes.stream().anyMatch(s -> s.getIri().equals(entity.get(iri(IM.HAS_SCHEME)).get(0).asIriRef().getIri()))) {
         response.setValid(true);
@@ -180,10 +183,10 @@ public class EntityValidator {
     return response;
   }
 
-  private EntityValidationResponse isValidStatus(TTEntity entity) {
+  private EntityValidationResponse isValidStatus(TTEntity entity, String graph) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false).setMessage("Status is invalid");
-    List<TTIriRef> schemes = entityService.getChildren(IM.STATUS, null, null, null, false);
+    List<TTIriRef> schemes = entityService.getChildren(IM.STATUS, null, null, null, false, graph);
     if (entity.has(iri(IM.HAS_STATUS)) && !entity.get(iri(IM.HAS_STATUS)).isEmpty() && entity.get(iri(IM.HAS_STATUS)).get(0).isIriRef()) {
       if (schemes.stream().anyMatch(s -> s.getIri().equals(entity.get(iri(IM.HAS_STATUS)).get(0).asIriRef().getIri()))) {
         response.setValid(true);

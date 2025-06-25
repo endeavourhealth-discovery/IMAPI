@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model;
+package org.endeavourhealth.imapi.model.requests;
 
 import lombok.Getter;
 import lombok.Setter;

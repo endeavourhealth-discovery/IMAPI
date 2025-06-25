@@ -43,7 +43,7 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
     if (!prefixes.isEmpty())
       result.setContext(context);
     if (node.get(GRAPH) != null)
-      result.setGraph(iri(helper.expand(node.get(GRAPH).get(ID).asText())));
+      result.setNamespace(iri(helper.expand(node.get(GRAPH).get(ID).asText())));
     if (node.get(CRUD) != null)
       result.setCrud(iri(helper.expand(node.get(CRUD).get(ID).asText())));
     if (node.get(ENTITIES) != null) {

@@ -7,55 +7,31 @@ import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper;
 import org.endeavourhealth.imapi.model.tripletree.TTEntityMap;
 
-import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
+import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareGraphSparql;
 
 /**
  * Data access class for accessing information about rdf properties
  */
 public class PropertyRepository {
 
-  private PropertyRepository() {
-    throw new IllegalStateException("Utility class");
-  }
-
-  public static TTEntityMap getProperty(String focusIri) {
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      GraphQuery qry = conn.prepareGraphQuery(addSparqlPrefixes(PROPERTIES_SQL));
-      qry.setBinding("entity", Values.iri(focusIri));
-      return GraphHelper.getEntityMap(qry);
-    }
-  }
-
-  /**
-   * Gets all properties from the information module e.g. for use to populate the cache
-   *
-   * @return maps from iri to shapes and predicate names for the property entity predicates.
-   * All iris referenced include their labels as names, except for the mode predicates themselves
-   */
-  public static TTEntityMap getProperties() {
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      GraphQuery qry = conn.prepareGraphQuery(addSparqlPrefixes(GET_ALL_PROPERTIES_SQL));
-      return GraphHelper.getEntityMap(qry);
-    }
-  }
-
   public static final String PROPERTIES_SQL = """
-      CONSTRUCT {
-        ?entity ?predicate ?object.
-        ?predicate im:pLabel ?predicateLabel.
-        ?object im:oLabel ?objectLabel.
-        ?object ?subPredicate ?subObject.
-        ?subPredicate im:pLabel ?subPredicateLabel.
-        ?subObject im:oLabel ?subObjectLabel.
-        ?subObject ?subObPred  ?subObOb.
-        ?superShape ?superPred ?superOb.
-        ?superPred im:pLabel ?superPredLabel.
-        ?superOb ?superSubPred ?superSubOb.
-        ?superSubPred im:pLabel ?superSubPredLabel.
-        ?superSubOb im:oLabel ?superSubObLabel.
-        ?superSubOb ?superSubObPred ?superSubObOb.
-      }
-      WHERE {
+    CONSTRUCT {
+      ?entity ?predicate ?object.
+      ?predicate im:pLabel ?predicateLabel.
+      ?object im:oLabel ?objectLabel.
+      ?object ?subPredicate ?subObject.
+      ?subPredicate im:pLabel ?subPredicateLabel.
+      ?subObject im:oLabel ?subObjectLabel.
+      ?subObject ?subObPred  ?subObOb.
+      ?superShape ?superPred ?superOb.
+      ?superPred im:pLabel ?superPredLabel.
+      ?superOb ?superSubPred ?superSubOb.
+      ?superSubPred im:pLabel ?superSubPredLabel.
+      ?superSubOb im:oLabel ?superSubObLabel.
+      ?superSubOb ?superSubObPred ?superSubObOb.
+    }
+    WHERE {
+      GRAPH ?g {
         ?entity rdf:type sh:NodeShape.
         ?entity ?predicate ?object.
         filter (?predicate!=im:isA)
@@ -98,20 +74,20 @@ public class PropertyRepository {
           }
         }
       }
-      """;
-
-
+    }
+    """;
   private static final String GET_ALL_PROPERTIES_SQL = """
-      CONSTRUCT {
-        ?entity ?predicate ?object.
-        ?predicate im:pLabel ?predicateLabel.
-        ?object im:oLabel ?objectLabel.
-        ?object ?subPredicate ?subObject.
-        ?subPredicate im:pLabel ?subPredicateLabel.
-        ?subObject im:oLabel ?subObjectLabel.
-        ?subObject ?subObPred ?subObOb.
-      }
-      WHERE {
+    CONSTRUCT {
+      ?entity ?predicate ?object.
+      ?predicate im:pLabel ?predicateLabel.
+      ?object im:oLabel ?objectLabel.
+      ?object ?subPredicate ?subObject.
+      ?subPredicate im:pLabel ?subPredicateLabel.
+      ?subObject im:oLabel ?subObjectLabel.
+      ?subObject ?subObPred ?subObOb.
+    }
+    WHERE {
+      GRAPH ?g {
         ?entity rdf:type rdf:PropertyRef.
         ?entity ?predicate ?object.
         filter (?predicate!=im:isA)
@@ -134,5 +110,31 @@ public class PropertyRepository {
           }
         }
       }
-      """;
+    }
+    """;
+
+  private PropertyRepository() {
+    throw new IllegalStateException("Utility class");
+  }
+
+  public static TTEntityMap getProperty(String focusIri, String graph) {
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      GraphQuery qry = prepareGraphSparql(conn, PROPERTIES_SQL, graph);
+      qry.setBinding("entity", Values.iri(focusIri));
+      return GraphHelper.getEntityMap(qry);
+    }
+  }
+
+  /**
+   * Gets all properties from the information module e.g. for use to populate the cache
+   *
+   * @return maps from iri to shapes and predicate names for the property entity predicates.
+   * All iris referenced include their labels as names, except for the mode predicates themselves
+   */
+  public static TTEntityMap getProperties(String graph) {
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      GraphQuery qry = prepareGraphSparql(conn, GET_ALL_PROPERTIES_SQL, graph);
+      return GraphHelper.getEntityMap(qry);
+    }
+  }
 }

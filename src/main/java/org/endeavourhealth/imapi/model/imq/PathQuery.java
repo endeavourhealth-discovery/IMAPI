@@ -1,16 +1,15 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
+import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+@Getter
 public class PathQuery extends TTIriRef {
   private TTIriRef source;
   private TTIriRef target;
   private Integer depth;
-
-  public TTIriRef getSource() {
-    return source;
-  }
+  private String graph;
 
   @JsonSetter
   public PathQuery setSource(TTIriRef source) {
@@ -23,10 +22,6 @@ public class PathQuery extends TTIriRef {
     return this;
   }
 
-  public TTIriRef getTarget() {
-    return target;
-  }
-
   @JsonSetter
   public PathQuery setTarget(TTIriRef target) {
     this.target = target;
@@ -36,10 +31,6 @@ public class PathQuery extends TTIriRef {
   public PathQuery setTarget(String target) {
     this.target = new TTIriRef().setIri(target);
     return this;
-  }
-
-  public Integer getDepth() {
-    return depth;
   }
 
   public PathQuery setDepth(Integer depth) {
@@ -57,4 +48,8 @@ public class PathQuery extends TTIriRef {
     return this;
   }
 
+  public PathQuery setGraph(String graph) {
+    this.graph = graph;
+    return this;
+  }
 }

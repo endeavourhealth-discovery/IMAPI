@@ -15,6 +15,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.reasoner.TextMatcher;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -26,7 +27,13 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareBooleanSparql;
+import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
 
 /**
  * Methods to convert a Query object to its Sparql equivalent and return results as a json object
@@ -56,16 +63,15 @@ public class QueryRepository {
       checkReferenceDate(queryRequest);
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getSelectSparql(queryRequest.getQuery(), null, false, highestUsage);
-      ObjectNode resultNode=graphSelectSearch(queryRequest, spq, conn, result);
+      ObjectNode resultNode = graphSelectSearch(queryRequest, spq, conn, result);
       if (queryRequest.getPage() != null) {
         resultNode.put("page", page);
         resultNode.put(COUNT, count);
-        resultNode.put(TOTAL_COUNT, (page*count)+1);
+        resultNode.put(TOTAL_COUNT, (page * count) + 1);
       }
       return resultNode;
     }
   }
-
 
 
   public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
@@ -74,7 +80,7 @@ public class QueryRepository {
       new QueryValidator().validateQuery(queryRequest.getQuery());
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getAskSparql(null);
-      return graphAskSearch(spq, conn);
+      return graphAskSearch(spq, conn, queryRequest.getGraph());
     }
   }
 
@@ -120,7 +126,7 @@ public class QueryRepository {
   }
 
   private Query unpackQuery(Query query, QueryRequest queryRequest) throws QueryException {
-    if (query.getIri() != null && query.getReturn() == null && query.getAnd() == null&&query.getOr() == null) {
+    if (query.getIri() != null && query.getReturn() == null && query.getAnd() == null && query.getOr() == null) {
       TTEntity entity = getEntity(query.getIri());
       if (entity.get(TTIriRef.iri(SHACL.PARAMETER)) != null) {
         for (TTValue param : entity.get(TTIriRef.iri(SHACL.PARAMETER)).getElements()) {
@@ -133,7 +139,7 @@ public class QueryRepository {
         throw new QueryException("Query: '" + query.getIri() + "' was not found");
 
       try {
-        Query expandedQuery= definition.asLiteral().objectValue(Query.class);
+        Query expandedQuery = definition.asLiteral().objectValue(Query.class);
         expandedQuery.setIri(query.getIri());
         return expandedQuery;
       } catch (JsonProcessingException e) {
@@ -171,39 +177,39 @@ public class QueryRepository {
   }
 
   private ObjectNode graphSelectSearch(QueryRequest queryRequest, String spq, RepositoryConnection conn, ObjectNode result) {
-    Query query= queryRequest.getQuery();
+    Query query = queryRequest.getQuery();
     ArrayNode entities = result.putArray(ENTITIES);
-    ObjectNode lastEntity=null;
-    ObjectNode entity=null;
+    ObjectNode lastEntity = null;
+    ObjectNode entity = null;
     Map<String, ObjectNode> nodeMap = new HashMap<>();
-    Integer start= null;
-    Integer end=null;
-    if (queryRequest.getPage()!=null){
-      Integer page=queryRequest.getPage().getPageNumber();
-      Integer pageSize=queryRequest.getPage().getPageSize();
-      start=pageSize*(page-1);
-      end=pageSize*page;
+    Integer start = null;
+    Integer end = null;
+    if (queryRequest.getPage() != null) {
+      Integer page = queryRequest.getPage().getPageNumber();
+      Integer pageSize = queryRequest.getPage().getPageSize();
+      start = pageSize * (page - 1);
+      end = pageSize * page;
     }
-    int foundCount=-1;
-    try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
+    int foundCount = -1;
+    try (TupleQueryResult rs = sparqlQuery(spq, conn, queryRequest.getGraph())) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
         Return aReturn = query.getReturn();
         entity = bindReturn(bs, aReturn, entities, nodeMap);
         if (queryRequest.getTextSearch() != null) {
           if (lastEntity == null) lastEntity = entity;
-          if (entity.get("iri")!=null && (!entity.get("iri").textValue().equals(lastEntity.get("iri").textValue()))) {
+          if (entity.get("iri") != null && (!entity.get("iri").textValue().equals(lastEntity.get("iri").textValue()))) {
             foundCount++;
-            if (start!=null){
-              if (foundCount<start) continue;
-              if (foundCount>end) break;
+            if (start != null) {
+              if (foundCount < start) continue;
+              if (foundCount > end) break;
             }
-              if (notMatched(lastEntity, queryRequest.getTextSearch())) {
-                entities.remove(entities.size() - 2);
-              }
-              lastEntity = entity;
-              foundCount++;
+            if (notMatched(lastEntity, queryRequest.getTextSearch())) {
+              entities.remove(entities.size() - 2);
             }
+            lastEntity = entity;
+            foundCount++;
+          }
         }
       }
       if (queryRequest.getTextSearch() != null) {
@@ -224,16 +230,15 @@ public class QueryRepository {
   }
 
 
-
   private boolean notMatched(JsonNode entity, String textSearch) {
     Set<String> tested = new HashSet<>();
-    if (entity.get(RDFS.LABEL)!=null) {
+    if (entity.get(RDFS.LABEL) != null) {
       String synonym = entity.get(RDFS.LABEL).asText().split(" \\(")[0];
-        tested.add(synonym);
-        if (TextMatcher.matchTerm(textSearch,synonym))
-          return false;
+      tested.add(synonym);
+      if (TextMatcher.matchTerm(textSearch, synonym))
+        return false;
     }
-    if (entity.get(IM.HAS_TERM_CODE)!=null) {
+    if (entity.get(IM.HAS_TERM_CODE) != null) {
       for (JsonNode termCode : entity.get(IM.HAS_TERM_CODE)) {
         if (termCode.has(RDFS.LABEL)) {
           String synonym = termCode.get(RDFS.LABEL).asText().split(" \\(")[0];
@@ -249,9 +254,8 @@ public class QueryRepository {
   }
 
 
-
-  private Integer graphTotalSearch(String spq, RepositoryConnection conn) {
-    try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
+  private Integer graphTotalSearch(String spq, RepositoryConnection conn, String graph) {
+    try (TupleQueryResult rs = sparqlQuery(spq, conn, graph)) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
         if (bs.hasBinding(COUNT)) return Integer.parseInt(bs.getValue(COUNT).stringValue());
@@ -260,25 +264,25 @@ public class QueryRepository {
     return 0;
   }
 
-  private Boolean graphAskSearch(String spq, RepositoryConnection conn) {
-    return sparqlAskQuery(spq, conn);
+  private Boolean graphAskSearch(String spq, RepositoryConnection conn, String graph) {
+    return sparqlAskQuery(spq, conn, graph);
   }
 
-  private TupleQueryResult sparqlQuery(String spq, RepositoryConnection conn) {
-    TupleQuery qry = conn.prepareTupleQuery(spq);
+  private TupleQueryResult sparqlQuery(String spq, RepositoryConnection conn, String graph) {
+    TupleQuery qry = prepareTupleSparql(conn, spq, graph);
     return qry.evaluate();
   }
 
-  private Boolean sparqlAskQuery(String spq, RepositoryConnection conn) {
-    BooleanQuery qry = conn.prepareBooleanQuery(spq);
+  private Boolean sparqlAskQuery(String spq, RepositoryConnection conn, String graph) {
+    BooleanQuery qry = prepareBooleanSparql(conn, spq, graph);
     return qry.evaluate();
   }
 
 
   private ObjectNode bindReturn(BindingSet bs, Return aReturn, ArrayNode entities,
-                          Map<String, ObjectNode> nodeMap) {
+                                Map<String, ObjectNode> nodeMap) {
     String subject = aReturn.getNodeRef();
-    ObjectNode entity=null;
+    ObjectNode entity = null;
     if (subject == null) subject = aReturn.getPropertyRef();
     if (subject == null) subject = aReturn.getValueRef();
     Value value = bs.getValue(subject);
@@ -288,13 +292,13 @@ public class QueryRepository {
       if (node == null) {
         node = mapper.createObjectNode();
         entities.add(node);
-        entity= node;
+        entity = node;
         nodeMap.put(value.stringValue(), node);
         if (value.isIRI())
           node.put("iri", value.stringValue());
         else
           node.put("bn", value.stringValue());
-      } else entity=node;
+      } else entity = node;
       bindNode(bs, aReturn, node);
     }
     return entity;
@@ -375,9 +379,9 @@ public class QueryRepository {
 
   private ObjectNode getValueNode(ArrayNode arrayNode, String nodeId) {
     for (JsonNode entry : arrayNode) {
-      if (entry.get("iri")!=null &&(entry.get("iri").textValue().equals(nodeId)))
+      if (entry.get("iri") != null && (entry.get("iri").textValue().equals(nodeId)))
         return (ObjectNode) entry;
-      else if (entry.get("bn")!=null &&entry.get("bn").textValue().equals(nodeId))
+      else if (entry.get("bn") != null && entry.get("bn").textValue().equals(nodeId))
         return (ObjectNode) entry;
     }
     return null;
@@ -397,8 +401,6 @@ public class QueryRepository {
       Set.of(IM.DEFINITION, RDF.TYPE, IM.FUNCTION_DEFINITION, IM.UPDATE_PROCEDURE, SHACL.PARAMETER)).getEntity();
 
   }
-
-
 
 
   private boolean isIri(String iri) {

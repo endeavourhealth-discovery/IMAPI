@@ -287,24 +287,11 @@ public class TTManager implements AutoCloseable {
     return this;
   }
 
-  public TTDocument createDocument(String graph) {
+  public TTDocument createDocument() {
     createDefaultContext();
     document = new TTDocument();
     document.setContext(context);
-    document.setGraph(TTIriRef.iri(graph));
-    return document;
-  }
-
-  public TTDocument createDocument() {
-    TTContext context = new TTContext();
-    context.add(XSD.NAMESPACE, "xsd");
-    context.add(SHACL.NAMESPACE, "sh");
-    context.add(IM.NAMESPACE, "im");
-    context.add(RDF.NAMESPACE, "rdf", "RDF namespace");
-    context.add(RDFS.NAMESPACE, "rdfs", "RDFS namespace");
-    document = new TTDocument();
-    document.setContext(context);
-    document.setGraph(TTIriRef.iri(GRAPH.DISCOVERY));
+    document.setNamespace(TTIriRef.iri(GRAPH.DISCOVERY));
     return document;
   }
 
@@ -339,22 +326,6 @@ public class TTManager implements AutoCloseable {
     context.add(RDF.NAMESPACE, "rdf", "RDF namespace");
     context.add(RDFS.NAMESPACE, "rdfs", "RDFS namespace");
     context.add(XSD.NAMESPACE, "xsd", "xsd namespace");
-    context.add(GRAPH.ICD10, "icd10", "ICD10 namespace");
-    context.add(GRAPH.OPCS4, "opcs4", "OPCS4 namespace");
-    context.add(GRAPH.EMIS, "emis", "EMIS (inc. Read2 like) namespace");
-    context.add(GRAPH.TPP, "tpp", "TPP (inc.CTV3) namespace");
-    context.add(GRAPH.BARTS_CERNER, "bc", "Barts Cerner namespace");
-    context.add(SHACL.NAMESPACE, "sh", "SHACL namespace");
-    context.add(GRAPH.PROV, "prov", "PROV namespace");
-    context.add(GRAPH.REPORTS, "reports", "IM internal reports");
-    context.add(GRAPH.OPS_ROLES, "orole", "OPS roles namespace");
-    context.add(GRAPH.ODS, "ods", "ODS code scheme");
-    context.add(GRAPH.PRSB, "prsb", "PRSB namespace");
-    context.add(GRAPH.KINGS_WINPATH, "kchwinpath", "KCH Winpath codes");
-    context.add(GRAPH.KINGS_APEX, "kchapex", "KCH Apex codes");
-    context.add(GRAPH.CEG, "ceg", "CEG ethnicity 16+ category");
-    context.add(GRAPH.NHSDD_ETHNIC_2001, "nhse2001", "NHS Ethnicitity categories 2001 census");
-    context.add(GRAPH.VISION, "vis", "Vision (incl. Read2) namespace");
     return context;
   }
 
@@ -467,14 +438,14 @@ public class TTManager implements AutoCloseable {
     }
   }
 
-  public TTEntity createGraph(String iri, String name, String description) {
-    TTEntity graph = new TTEntity()
+  public TTEntity createScheme(String iri, String name, String description) {
+    TTEntity scheme = new TTEntity()
       .setIri(iri)
       .addType(iri(RDFS.CLASS))
       .setName(name)
       .setDescription(description);
-    graph.addObject(iri(RDFS.SUBCLASS_OF), iri(IM.GRAPH));
-    return graph;
+    scheme.addObject(iri(RDFS.SUBCLASS_OF), iri(IM.SCHEME));
+    return scheme;
   }
 
   public void saveTurtleDocument(File outputFile) {

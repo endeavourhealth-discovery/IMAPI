@@ -12,7 +12,8 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -42,20 +43,20 @@ public class OSQuery {
 
       resultNode.set("iri", osResult.get("iri"));
       resultNode.set(RDFS.LABEL, osResult.get("name"));
-      processBestMatch(om,hit, resultNode);
+      processBestMatch(om, hit, resultNode);
       processNodeResultReturn(request, osResult, resultNode);
     }
   }
 
-  private static void processBestMatch(CachedObjectMapper om,JsonNode hit,ObjectNode resultNode){
-    JsonNode innerHits= hit.get("inner_hits");
+  private static void processBestMatch(CachedObjectMapper om, JsonNode hit, ObjectNode resultNode) {
+    JsonNode innerHits = hit.get("inner_hits");
     if (innerHits != null) {
       if (innerHits.get("termCode") != null) {
-        String name=resultNode.get(RDFS.LABEL).asText();
-        JsonNode bestHit =innerHits.get("termCode").get("hits").get("hits").get(0).get("_source").get("term");
-        String bestTerm=bestHit.asText();
-        if (!bestTerm.endsWith(")")&& name.endsWith(")") && name.contains("(")){
-          bestTerm=bestTerm+" "+name.substring(name.lastIndexOf("("));
+        String name = resultNode.get(RDFS.LABEL).asText();
+        JsonNode bestHit = innerHits.get("termCode").get("hits").get("hits").get(0).get("_source").get("term");
+        String bestTerm = bestHit.asText();
+        if (!bestTerm.endsWith(")") && name.endsWith(")") && name.contains("(")) {
+          bestTerm = bestTerm + " " + name.substring(name.lastIndexOf("("));
         }
         resultNode.put(IM.BEST_MATCH, bestTerm);
       }
@@ -63,7 +64,7 @@ public class OSQuery {
   }
 
   private static void processNodeResultReturn(QueryRequest request, ObjectNode osResult, ObjectNode resultNode) {
-    if (null == request.getQuery().getReturn()){
+    if (null == request.getQuery().getReturn()) {
       processSourceReturns(osResult, resultNode);
       return;
     }
@@ -102,11 +103,11 @@ public class OSQuery {
   }
 
   private JsonNode getOSResults(QueryRequest request) throws OpenSearchException, QueryException {
-    Query query= request.getQuery();
-    if (request.getTextSearchStyle()==null) request.setTextSearchStyle(TextSearchStyle.autocomplete);
+    Query query = request.getQuery();
+    if (request.getTextSearchStyle() == null) request.setTextSearchStyle(TextSearchStyle.autocomplete);
     SearchSourceBuilder builder;
-    if (request.getTextSearchStyle()==TextSearchStyle.autocomplete){
-      builder = converter.buildQuery(request, query,TextSearchStyle.autocomplete);
+    if (request.getTextSearchStyle() == TextSearchStyle.autocomplete) {
+      builder = converter.buildQuery(request, query, TextSearchStyle.autocomplete);
       if (builder == null)
         return null;
       request.addTiming("Entry point for initial search\"" + request.getTextSearch() + "\"");
@@ -138,7 +139,7 @@ public class OSQuery {
     if (corrected != null) {
       request.setTextSearch(corrected);
       builder = new IMQToOS().buildQuery(request, query, TextSearchStyle.autocomplete, Fuzziness.ZERO);
-      if (builder==null) return null;
+      if (builder == null) return null;
       return runQuery(builder);
     }
     return results;
@@ -267,8 +268,7 @@ public class OSQuery {
         return null;
       if (root.has("entities")) {
         return processIMQueryResponse(root, request);
-      }
-      else return new SearchResponse();
+      } else return new SearchResponse();
     } catch (JsonProcessingException e) {
       throw new OpenSearchException("Could not parse OpenSearch response", e);
     }
@@ -276,8 +276,8 @@ public class OSQuery {
 
   }
 
-  private SearchResultSummary getSummary(TTEntity entity){
-    SearchResultSummary summary= new SearchResultSummary();
+  private SearchResultSummary getSummary(TTEntity entity) {
+    SearchResultSummary summary = new SearchResultSummary();
     summary.setIri(entity.getIri());
     summary.setName(entity.getName());
     summary.setPreferredName(entity.getPreferredName());
@@ -300,7 +300,7 @@ public class OSQuery {
       searchResults.setCount(0);
       for (JsonNode hit : root.get("entities")) {
         TTEntity entity = resultMapper.treeToValue(hit, TTEntity.class);
-        SearchResultSummary summary =getSummary(entity);
+        SearchResultSummary summary = getSummary(entity);
         searchResults.addEntity(summary);
         if (summary.getUsageTotal() != null && summary.getUsageTotal() > searchResults.getHighestUsage())
           searchResults.setHighestUsage(summary.getUsageTotal());
@@ -315,6 +315,7 @@ public class OSQuery {
       return searchResults;
     }
   }
+
   public JsonNode IMOSQuery(QueryRequest request) throws OpenSearchException {
     try {
       JsonNode root = getOSResults(request);

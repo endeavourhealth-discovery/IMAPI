@@ -1,10 +1,10 @@
-package org.endeavourhealth.imapi.model.imq;
+package org.endeavourhealth.imapi.model.requests;
 
 import com.fasterxml.jackson.annotation.*;
-
 import lombok.Getter;
 import lombok.Setter;
 import org.endeavourhealth.imapi.model.iml.Page;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
@@ -37,7 +37,8 @@ public class QueryRequest implements ContextMap {
   @Getter
   @Setter
   private TextSearchStyle textSearchStyle;
-
+  @Getter
+  private String graph;
 
 
   public List<TTIriRef> getCohort() {
@@ -87,19 +88,6 @@ public class QueryRequest implements ContextMap {
     return ttContext;
   }
 
-
-  @JsonIgnore
-  public QueryRequest setContext(TTContext context) {
-    if (context == null)
-      this.context = null;
-    this.context = new HashMap<>();
-    for (TTPrefix prefix : context.getPrefixes()) {
-      this.context.put(prefix.getPrefix(), prefix.getIri());
-    }
-    return this;
-  }
-
-
   public Update getUpdate() {
     return update;
   }
@@ -136,7 +124,6 @@ public class QueryRequest implements ContextMap {
     this.argument = argument;
     return this;
   }
-
 
   public QueryRequest addArgument(Argument argument) {
     if (this.argument == null)
@@ -178,7 +165,6 @@ public class QueryRequest implements ContextMap {
 
   }
 
-
   public String getReferenceDate() {
     return referenceDate;
   }
@@ -214,7 +200,6 @@ public class QueryRequest implements ContextMap {
     return this;
   }
 
-
   public Query getQuery() {
     return query;
   }
@@ -234,6 +219,17 @@ public class QueryRequest implements ContextMap {
   @Override
   public Map<String, String> getContext() {
     return this.context;
+  }
+
+  @JsonIgnore
+  public QueryRequest setContext(TTContext context) {
+    if (context == null)
+      this.context = null;
+    this.context = new HashMap<>();
+    for (TTPrefix prefix : context.getPrefixes()) {
+      this.context.put(prefix.getPrefix(), prefix.getIri());
+    }
+    return this;
   }
 
   @Override
@@ -261,6 +257,11 @@ public class QueryRequest implements ContextMap {
 
   public QueryRequest setAskIri(String askIri) {
     this.askIri = askIri;
+    return this;
+  }
+
+  public QueryRequest setGraph(String graph) {
+    this.graph = graph;
     return this;
   }
 }

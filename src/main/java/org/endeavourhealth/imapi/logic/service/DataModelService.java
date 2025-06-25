@@ -26,21 +26,21 @@ public class DataModelService {
   private DataModelRepository dataModelRepository = new DataModelRepository();
   private EntityService entityService = new EntityService();
 
-  public List<TTIriRef> getDataModelsFromProperty(String propIri) {
-    return dataModelRepository.findDataModelsFromProperty(propIri);
+  public List<TTIriRef> getDataModelsFromProperty(String propIri, String graph) {
+    return dataModelRepository.findDataModelsFromProperty(propIri, graph);
   }
 
-  public String checkPropertyType(String iri) {
-    return dataModelRepository.checkPropertyType(iri);
+  public String checkPropertyType(String iri, String graph) {
+    return dataModelRepository.checkPropertyType(iri, graph);
   }
 
-  public List<TTIriRef> getProperties() {
-    return dataModelRepository.getProperties();
+  public List<TTIriRef> getProperties(String graph) {
+    return dataModelRepository.getProperties(graph);
   }
 
 
-  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly) {
-    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly);
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly, String graph) {
+    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly, graph);
   }
 
 
@@ -111,20 +111,20 @@ public class DataModelService {
     return pv;
   }
 
-  public UIProperty getUIPropertyForQB(String dmIri, String propIri) {
-    UIProperty uiProp = dataModelRepository.findUIPropertyForQB(dmIri, propIri);
+  public UIProperty getUIPropertyForQB(String dmIri, String propIri, String graph) {
+    UIProperty uiProp = dataModelRepository.findUIPropertyForQB(dmIri, propIri, graph);
     if (null != uiProp.getIntervalUnitIri()) {
-      List<TTIriRef> isas = entityService.getIsas(uiProp.getIntervalUnitIri());
+      List<TTIriRef> isas = entityService.getIsas(uiProp.getIntervalUnitIri(), graph);
       List<TTIriRef> intervalUnitOptions = isas.stream().filter(unit -> !unit.getIri().equals(uiProp.getIntervalUnitIri())).toList();
       uiProp.setIntervalUnitOptions(intervalUnitOptions);
     }
     if (null != uiProp.getUnitIri()) {
-      List<TTIriRef> isas = entityService.getIsas(uiProp.getUnitIri());
+      List<TTIriRef> isas = entityService.getIsas(uiProp.getUnitIri(), graph);
       List<TTIriRef> unitOptions = isas.stream().filter(unit -> !unit.getIri().equals(uiProp.getUnitIri())).toList();
       uiProp.setUnitOptions(unitOptions);
     }
     if (null != uiProp.getOperatorIri())
-      uiProp.setOperatorOptions(entityService.getOperatorOptions(uiProp.getOperatorIri()));
+      uiProp.setOperatorOptions(entityService.getOperatorOptions(uiProp.getOperatorIri(), graph));
     return uiProp;
   }
 

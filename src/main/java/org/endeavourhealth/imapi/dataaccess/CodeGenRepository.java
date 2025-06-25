@@ -13,10 +13,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.dto.CodeGenDto;
-import org.endeavourhealth.imapi.vocabulary.CODE_TEMPLATE;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,7 +22,7 @@ import java.util.Map;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
+import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareUpdateSparql;
 
 @Slf4j
@@ -34,13 +31,16 @@ public class CodeGenRepository {
   public List<String> getCodeTemplateList() {
     List<String> result = new ArrayList<>();
     String sparql = """
-      SELECT ?name WHERE {
-        ?s ?type ?codeTemplate .
-        ?s ?label ?name
+      SELECT ?name
+      WHERE {
+        GRAPH ?g {
+          ?s ?type ?codeTemplate .
+          ?s ?label ?name
+        }
       }
       """;
     try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
-      TupleQuery qry = prepareSparql(conn, sparql);
+      TupleQuery qry = prepareTupleSparql(conn, sparql, GRAPH.DISCOVERY);
       qry.setBinding("type", iri(RDF.TYPE));
       qry.setBinding("codeTemplate", iri(IM.CODE_TEMPLATE));
       qry.setBinding("label", iri(RDFS.LABEL));
@@ -58,12 +58,15 @@ public class CodeGenRepository {
   public CodeGenDto getCodeTemplate(String name) {
     CodeGenDto result = new CodeGenDto();
     String sparql = """
-      SELECT ?p ?o WHERE {
-        ?s ?p ?o .
+      SELECT ?p ?o
+      WHERE {
+        GRAPH ?g {
+          ?s ?p ?o .
+        }
       }
       """;
     try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
-      TupleQuery qry = prepareSparql(conn, sparql);
+      TupleQuery qry = prepareTupleSparql(conn, sparql, GRAPH.DISCOVERY);
       qry.setBinding("s", iri(CODE_TEMPLATE.NAMESPACE + name));
 
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -103,23 +106,27 @@ public class CodeGenRepository {
 
     String deleteSparql = """
       DELETE WHERE {
-        ?s ?p ?o
+      GRAPH ?g {
+          ?s ?p ?o
+        }
       }
       """;
     try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
-      Update qry = conn.prepareUpdate(deleteSparql);
+      Update qry = prepareUpdateSparql(conn, deleteSparql, GRAPH.DISCOVERY);
       qry.setBinding("s", iri(CODE_TEMPLATE.NAMESPACE + name));
       qry.execute();
     }
     String insertSparql = """
       INSERT {
-        ?iri ?label ?name .
-        ?iri ?extensionType ?extension .
-        ?iri ?type ?typeIri .
-        ?iri ?definition ?template .
-        ?iri ?typeMap ?datatypeMap .
-        ?iri ?wrapperType ?wrapper .
-        ?iri ?includeComplex ?complexTypes .
+        GRAPH ?g {
+          ?iri ?label ?name .
+          ?iri ?extensionType ?extension .
+          ?iri ?type ?typeIri .
+          ?iri ?definition ?template .
+          ?iri ?typeMap ?datatypeMap .
+          ?iri ?wrapperType ?wrapper .
+          ?iri ?includeComplex ?complexTypes .
+        }
       }
       WHERE {
         SELECT ?iri ?label ?extension {}
@@ -127,7 +134,7 @@ public class CodeGenRepository {
       """;
     try (RepositoryConnection conn2 = ConnectionManager.getConfigConnection()) {
       try (CachedObjectMapper om = new CachedObjectMapper()) {
-        Update qry2 = prepareUpdateSparql(conn2, insertSparql);
+        Update qry2 = prepareUpdateSparql(conn2, insertSparql, GRAPH.DISCOVERY);
         qry2.setBinding("iri", iri(CODE_TEMPLATE.NAMESPACE + name));
         qry2.setBinding("label", iri(RDFS.LABEL));
         qry2.setBinding("name", literal(name));

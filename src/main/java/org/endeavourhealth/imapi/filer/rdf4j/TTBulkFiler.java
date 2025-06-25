@@ -183,8 +183,8 @@ public class TTBulkFiler implements TTDocumentFiler {
   private void writeGraph(TTDocument document) throws TTFilerException {
 
     String graph = null;
-    if (document.getGraph() != null) {
-      graph = document.getGraph().getIri();
+    if (document.getNamespace() != null) {
+      graph = document.getNamespace().getIri();
     }
     assert graph != null;
     String scheme = graph.substring(graph.lastIndexOf("/") + 1);
@@ -213,11 +213,11 @@ public class TTBulkFiler implements TTDocumentFiler {
 
         transformAndWriteQuads(converter, entity, entityGraph);
         if (counter % 100000 == 0) {
-          log.info("{} entities from {} written", counter, document.getGraph().getIri());
+          log.info("{} entities from {} written", counter, document.getNamespace().getIri());
         }
 
       }
-      log.debug("{} entities written to file for {}", counter, document.getGraph().getIri());
+      log.debug("{} entities written to file for {}", counter, document.getNamespace().getIri());
       log.info("Finished - total of {} statements,  {}", statementCount, new Date());
     } catch (Exception e) {
       throw new TTFilerException(e.getMessage());

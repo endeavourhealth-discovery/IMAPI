@@ -2,7 +2,10 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.transforms.eqd.*;
+import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriteriaGroup;
+import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
+import org.endeavourhealth.imapi.transforms.eqd.VocPopulationParentType;
+import org.endeavourhealth.imapi.transforms.eqd.VocRuleAction;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.IOException;
@@ -13,7 +16,7 @@ public class EqdPopToIMQ {
   private EqdResources resources;
 
 
-  public Query convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws IOException, QueryException, EQDException {
+  public Query convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources, String graph) throws IOException, QueryException, EQDException {
     String activeReport = eqReport.getId();
     if (eqReport.getVersionIndependentGUID() != null) activeReport = eqReport.getVersionIndependentGUID();
     this.resources = resources;
@@ -57,7 +60,7 @@ public class EqdPopToIMQ {
     resources.setRule(0);
     resources.setSubRule(0);
     for (EQDOCCriteriaGroup eqGroup : eqReport.getPopulation().getCriteriaGroup()) {
-      Match rule = resources.convertGroup(eqGroup);
+      Match rule = resources.convertGroup(eqGroup, graph);
       query.addRule(rule);
       VocRuleAction ifTrue = eqGroup.getActionIfTrue();
       VocRuleAction ifFalse = eqGroup.getActionIfFalse();

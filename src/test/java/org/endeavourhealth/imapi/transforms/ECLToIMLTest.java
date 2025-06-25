@@ -6,7 +6,7 @@ import org.endeavourhealth.imapi.dataaccess.SparqlConverter;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
 
 import java.util.zip.DataFormatException;
 
@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ECLToIMLTest {
 
 
- // @Test
+  // @Test
   public void ECLToIMLTest() throws DataFormatException, JsonProcessingException, QueryException, EclFormatException {
     String ecl0 = "<<*:  R http://endhealth.info/im#hasMemberParent|member parent | = http://bnf.info/bnf#BNF_040201|4.2.1 Antipsychotic drugs (BNF based value sets)|";
     String ecl1 = "(<< 10363801000001108 \n" +
@@ -69,7 +69,7 @@ class ECLToIMLTest {
       "^im:BNF_0205052";
     Query imq4 = new ECLToIMQ().getQueryFromECL(ecl4);
     String query4 = new ObjectMapper().writeValueAsString(imq3);
-    String ecl4Test = new IMQToECL().getECLFromQuery(imq4, true);
+    String ecl4Test = new IMQToECL().getECLFromQuery(imq4, true, null);
     System.out.println(ecl4Test);
 
   }

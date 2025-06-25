@@ -20,7 +20,7 @@ public class UserService {
 
 
   public String getUserPreset(String userId) {
-    return userRepository.getByPredicate(userId, USER.USER_PRESET);
+    return userRepository.getByPredicate(userId, USER.USER_PRESET, null);
   }
 
   public void updateUserPreset(String userId, String preset) throws JsonProcessingException {
@@ -28,7 +28,7 @@ public class UserService {
   }
 
   public String getUserPrimaryColor(String userId) {
-    return userRepository.getByPredicate(userId, USER.USER_PRIMARY_COLOR);
+    return userRepository.getByPredicate(userId, USER.USER_PRIMARY_COLOR, null);
   }
 
   public void updateUserPrimaryColor(String userId, String color) throws JsonProcessingException {
@@ -36,7 +36,7 @@ public class UserService {
   }
 
   public String getUserSurfaceColor(String userId) {
-    return userRepository.getByPredicate(userId, USER.USER_SURFACE_COLOR);
+    return userRepository.getByPredicate(userId, USER.USER_SURFACE_COLOR, null);
   }
 
   public void updateUserSurfaceColor(String userId, String color) throws JsonProcessingException {
@@ -44,7 +44,7 @@ public class UserService {
   }
 
   public Boolean getUserDarkMode(String userId) {
-    return userRepository.getByPredicate(userId, USER.USER_DARK_MODE).equals("\"true\"");
+    return userRepository.getByPredicate(userId, USER.USER_DARK_MODE, null).equals("\"true\"");
   }
 
   public void updateUserDarkMode(String userId, Boolean darkMode) throws JsonProcessingException {
@@ -52,7 +52,7 @@ public class UserService {
   }
 
   public String getUserScale(String userId) {
-    return userRepository.getByPredicate(userId, USER.USER_SCALE);
+    return userRepository.getByPredicate(userId, USER.USER_SCALE, null);
   }
 
   public void updateUserScale(String userId, String scale) throws JsonProcessingException {
@@ -62,10 +62,10 @@ public class UserService {
   public List<RecentActivityItemDto> getUserMRU(String userId) throws JsonProcessingException {
     List<RecentActivityItemDto> mru = userRepository.getUserMRU(userId);
     boolean hasNoneExistingIris = mru.stream()
-      .anyMatch(mruDto -> !entityService.iriExists(mruDto.getIri()));
+      .anyMatch(mruDto -> !entityService.iriExists(mruDto.getIri(), null));
     if (hasNoneExistingIris) {
       List<RecentActivityItemDto> updatedMRUs = mru.stream()
-        .filter(mruDto -> entityService.iriExists(mruDto.getIri())).toList();
+        .filter(mruDto -> entityService.iriExists(mruDto.getIri(), null)).toList();
       updateUserMRU(userId, updatedMRUs);
       return userRepository.getUserMRU(userId);
     }
@@ -79,10 +79,10 @@ public class UserService {
   public List<String> getUserFavourites(String userId) throws JsonProcessingException {
     List<String> favourites = userRepository.getUserFavourites(userId);
     boolean hasNoneExistingIris = favourites.stream()
-      .anyMatch(favouriteIri -> !entityService.iriExists(favouriteIri));
+      .anyMatch(favouriteIri -> !entityService.iriExists(favouriteIri, null));
     if (hasNoneExistingIris) {
       List<String> updatedFavourites = favourites.stream()
-        .filter(entityService::iriExists).toList();
+        .filter(f -> entityService.iriExists(f, null)).toList();
       updateUserFavourites(userId, updatedFavourites);
       return userRepository.getUserFavourites(userId);
     }

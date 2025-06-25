@@ -24,7 +24,7 @@ class TTDocumentTest {
   }
 
   private void checkDocument(TTDocument first, TTDocument second) {
-    assertEquals(first.getGraph(), second.getGraph());
+    assertEquals(first.getNamespace(), second.getNamespace());
     assertEquals(first.getEntities().get(0).getIri(),
       second.getEntities().get(0).getIri());
   }
@@ -32,7 +32,7 @@ class TTDocumentTest {
 
   private TTDocument getTestDocument() {
     TTDocument result = new TTDocument();
-    result.setGraph(iri("http://testgraph"));
+    result.setNamespace(iri("http://testgraph"));
     result.addPrefix(new TTPrefix("http://endhealth.info/im#", "im"));
     result.addEntity(TestHelper.getTestEntity());
     return result;

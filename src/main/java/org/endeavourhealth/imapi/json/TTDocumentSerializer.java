@@ -25,8 +25,8 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
   }
 
   private static void processGraph(TTDocument document, JsonGenerator gen, TTNodeSerializer helper) throws IOException {
-    if (document.getGraph() != null) {
-      outputIri(gen, "graph", document.getGraph(), helper);
+    if (document.getNamespace() != null) {
+      outputIri(gen, "graph", document.getNamespace(), helper);
     }
   }
 

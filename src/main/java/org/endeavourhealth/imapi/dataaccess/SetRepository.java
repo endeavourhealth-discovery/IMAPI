@@ -12,7 +12,11 @@ import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Node;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.imq.Return;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -20,7 +24,8 @@ import org.endeavourhealth.imapi.vocabulary.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
+import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
+import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareUpdateSparql;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Slf4j
@@ -46,24 +51,24 @@ public class SetRepository {
    * @return a Set of concepts with matchedFrom legacy concepts and list of im1 ids
    * @throws QueryException if json definitino invalid
    */
-  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
+  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, String graph) throws QueryException {
     //add scheme filter
-    return getSetExpansionFromQuery(imQuery, includeLegacy, statusFilter, schemeFilter, null);
+    return getSetExpansionFromQuery(imQuery, includeLegacy, statusFilter, schemeFilter, null, graph);
   }
 
-  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
-    Set<Concept> result = getActiveExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
-    Set<Concept> result2 = getReplacedExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
+  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page, String graph) throws QueryException {
+    Set<Concept> result = getActiveExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page, graph);
+    Set<Concept> result2 = getReplacedExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page, graph);
     result.addAll(result2);
     return result;
   }
 
-  public Set<Concept> getMembersFromDefinition(Query imQuery) throws QueryException {
+  public Set<Concept> getMembersFromDefinition(Query imQuery, String graph) throws QueryException {
     Set<Concept> result = new HashSet<>();
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     String sql = new SparqlConverter(newRequest).getSelectSparql(null);
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -74,7 +79,7 @@ public class SetRepository {
     return result;
   }
 
-  private Set<Concept> getReplacedExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
+  private Set<Concept> getReplacedExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page, String graph) throws QueryException {
     imQuery.setVariable(ACTIVE_ENTITY);
     Return aReturn = setReturn(imQuery, includeLegacy);
     aReturn.setNodeRef(ENTITY);
@@ -95,22 +100,22 @@ public class SetRepository {
         .where(p -> p
           .setIri(IM.MAY_BE_SUBSUMED_BY)
           .addIs(new Node().setNodeRef(ACTIVE_ENTITY))));
-    return getExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
+    return getExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page, graph);
 
   }
 
-  private Set<Concept> getActiveExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
+  private Set<Concept> getActiveExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page, String graph) throws QueryException {
     Return aReturn = setReturn(imQuery, includeLegacy);
     imQuery.setReturn(aReturn);
-    return getExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page);
+    return getExpansion(imQuery, includeLegacy, statusFilter, schemeFilter, page, graph);
   }
 
-  private Set<Concept> getExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
+  private Set<Concept> getExpansion(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page, String graph) throws QueryException {
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     if (null != page && null != page.getPageNumber() && null != page.getPageSize()) newRequest.setPage(page);
     String sql = new SparqlConverter(newRequest).getSelectSparql(statusFilter);
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       return getCoreLegacyCodesForSparql(qry, includeLegacy, schemeFilter);
 
     }
@@ -162,22 +167,23 @@ public class SetRepository {
   }
 
 
-  public int getSetExpansionTotalCount(Query imQuery, Set<TTIriRef> statusFilter) throws QueryException {
+  public int getSetExpansionTotalCount(Query imQuery, Set<TTIriRef> statusFilter, String graph) throws QueryException {
     //add scheme filter
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     String sql = new SparqlConverter(newRequest).getCountSparql(statusFilter);
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       return getCountForSparql(qry);
 
     }
   }
 
-  public Set<TTIriRef> getSubsetIrisWithNames(String iri) {
+  public Set<TTIriRef> getSubsetIrisWithNames(String iri, String graph) {
     Set<TTIriRef> result = new HashSet<>();
 
     String sql = """
       SELECT ?subset ?name
+      FROM ?g
       WHERE {
         ?subset ?isSubset ?set .
         ?subset ?label ?name .
@@ -185,7 +191,7 @@ public class SetRepository {
       """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       qry.setBinding("set", Values.iri(iri));
       qry.setBinding("isSubset", Values.iri(IM.IS_SUBSET_OF));
       qry.setBinding("label", Values.iri(RDFS.LABEL));
@@ -317,14 +323,18 @@ public class SetRepository {
   }
 
 
-  public void bindConceptSetToDataModel(String iri, Set<TTNode> dataModels) {
+  public void bindConceptSetToDataModel(String iri, Set<TTNode> dataModels, String graph) {
 
     String deleteBinding = """
       DELETE { ?concept im:binding ?datamodel}
-      WHERE { ?concept im:binding ?datamodel}
+      WHERE {
+        GRAPH ?g {
+          ?concept im:binding ?datamodel
+        }
+      }
       """;
 
-    StringJoiner newBinding = new StringJoiner("\n").add("INSERT DATA { graph <" + GRAPH.DISCOVERY + "> {");
+    StringJoiner newBinding = new StringJoiner("\n").add("INSERT DATA { GRAPH ?g {");
     int blankCount = 0;
     for (TTNode dataModel : dataModels) {
       blankCount++;
@@ -340,28 +350,29 @@ public class SetRepository {
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       conn.begin();
-      org.eclipse.rdf4j.query.Update upd = conn.prepareUpdate(addSparqlPrefixes(deleteBinding));
+      org.eclipse.rdf4j.query.Update upd = prepareUpdateSparql(conn, deleteBinding, graph);
       upd.setBinding(CONCEPT, Values.iri(iri));
       upd.execute();
-      upd = conn.prepareUpdate(addSparqlPrefixes(newBinding.toString()));
+      upd = prepareUpdateSparql(conn, newBinding.toString(), graph);
       upd.execute();
       conn.commit();
     }
 
   }
 
-  public Set<String> getSets() {
+  public Set<String> getSets(String graph) {
     Set<String> setIris = new HashSet<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       String spq = """
         SELECT distinct ?iri
+        FROM ?g
         WHERE {
           ?iri rdf:type ?type.
           FILTER (?type in (im:ValueSet, im:ConceptSet))
         }
         """;
 
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(spq));
+      TupleQuery qry = prepareTupleSparql(conn, spq, graph);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           setIris.add(rs.next().getValue("iri").stringValue());
@@ -371,48 +382,40 @@ public class SetRepository {
     return setIris;
   }
 
-  public void updateMembers(String iri, Set<Concept> members) {
+  public void updateMembers(String iri, Set<Concept> members, String graph) {
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       String spq = """
         DELETE { ?concept im:hasMember ?x.}
-        WHERE { ?concept im:hasMember ?x.}
+        WHERE {
+          GRAPH ?g {
+            ?concept im:hasMember ?x.
+          }
+        }
         """;
-      org.eclipse.rdf4j.query.Update upd = conn.prepareUpdate(addSparqlPrefixes(spq));
+      org.eclipse.rdf4j.query.Update upd = prepareUpdateSparql(conn, spq, graph);
       upd.setBinding(CONCEPT, Values.iri(iri));
       upd.execute();
-      spq = """
-        SELECT ?g
-        WHERE {
-          graph ?g {?concept rdf:type ?type }
+      StringJoiner sj = new StringJoiner("\n");
+      sj.add("INSERT DATA { GRAPH ?g {");
+      int batch = 0;
+      for (Concept member : members) {
+        batch++;
+        if (batch == 1000) {
+          sendUp(sj, conn, graph);
+          sj = new StringJoiner("\n");
+          sj.add("INSERT DATA { GRAPH ?g {");
+          batch = 0;
         }
-        """;
-      TupleQuery qry = conn.prepareTupleQuery(spq);
-      qry.setBinding(CONCEPT, Values.iri(iri));
-      try (TupleQueryResult rs = qry.evaluate()) {
-        BindingSet bs = rs.next();
-        String graph = bs.getValue("g").stringValue();
-        StringJoiner sj = new StringJoiner("\n");
-        sj.add("INSERT DATA { graph <" + graph + "> {");
-        int batch = 0;
-        for (Concept member : members) {
-          batch++;
-          if (batch == 1000) {
-            sendUp(sj, conn);
-            sj = new StringJoiner("\n");
-            sj.add("INSERT DATA { graph <" + graph + "> {");
-            batch = 0;
-          }
-          sj.add("<" + iri + "> im:hasMember <" + member.getIri() + ">.");
-        }
-        sendUp(sj, conn);
+        sj.add("<" + iri + "> im:hasMember <" + member.getIri() + ">.");
       }
+      sendUp(sj, conn, graph);
     }
   }
 
 
-  private void sendUp(StringJoiner sj, RepositoryConnection conn) {
+  private void sendUp(StringJoiner sj, RepositoryConnection conn, String graph) {
     sj.add("}}");
-    org.eclipse.rdf4j.query.Update upd = conn.prepareUpdate(addSparqlPrefixes(sj.toString()));
+    org.eclipse.rdf4j.query.Update upd = prepareUpdateSparql(conn, sj.toString(), graph);
     conn.begin();
     upd.execute();
     conn.commit();
@@ -459,9 +462,10 @@ public class SetRepository {
     return null;
   }
 
-  public Set<Concept> getSomeMembers(String setIri, Integer limit) {
+  public Set<Concept> getSomeMembers(String setIri, Integer limit, String graph) {
     String sparql = """
       SELECT *
+      FROM ?g
       WHERE {
         ?setIri im:hasMember ?entity .
       }
@@ -470,7 +474,7 @@ public class SetRepository {
     Set<Concept> result = new HashSet<>();
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sparql));
+      TupleQuery qry = prepareTupleSparql(conn, sparql, graph);
       qry.setBinding("setIri", Values.iri(setIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -485,12 +489,13 @@ public class SetRepository {
     return result;
   }
 
-  public Set<TTNode> getBindingsForConcept(Set<String> members) {
+  public Set<TTNode> getBindingsForConcept(Set<String> members, String graph) {
     Set<TTNode> result = new HashSet<>();
     Set<String> sparqlIris = members.stream().map(m -> "<" + m + ">").collect(Collectors.toSet());
     String iriList = String.join(",", sparqlIris);
     String spql = """
       SELECT distinct ?dataModel ?path
+      FROM ?g
       WHERE {
         ?memberIri ^im:hasMember ?valueSet.
         filter (?memberIri in(%s))
@@ -506,7 +511,7 @@ public class SetRepository {
       GROUP BY ?dataModel ?path
       """.formatted(iriList);
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(spql));
+      TupleQuery qry = prepareTupleSparql(conn, spql, graph);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -524,13 +529,14 @@ public class SetRepository {
 
 
   public Set<Concept> getExpansionFromIri(String setIri, boolean includeLegacy, List<String> schemes,
-                                          List<String> subsumptions) {
+                                          List<String> subsumptions, String graph) {
 
     StringJoiner spql = new StringJoiner(System.lineSeparator())
       .add("""
         SELECT distinct ?entity ?term ?code ?scheme ?schemeName ?status ?statusName ?im1Id ?use ?codeId
         ?alternativeCode ?legacy ?legacyTerm ?legacyCode ?legacyScheme ?legacySchemeName
         ?legacyIm1Id ?legacyUse ?legacyCodeId
+        FROM ?g
         WHERE {
             Values ?setIri{%s}
             {
@@ -586,8 +592,7 @@ public class SetRepository {
     spql.add("}  ");
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      String sql = addSparqlPrefixes(spql.toString());
-      TupleQuery qry = conn.prepareTupleQuery(sql);
+      TupleQuery qry = prepareTupleSparql(conn, spql.toString(), graph);
       qry.setBinding("setIri", Values.iri(setIri));
       return getCoreLegacyCodesForSparql(qry, includeLegacy, List.of());
     }
@@ -598,19 +603,20 @@ public class SetRepository {
   }
 
 
-  public Set<String> getDistillation(String iris) {
+  public Set<String> getDistillation(String iris, String graph) {
     Set<String> isas = new HashSet<>();
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       String sql = """
         SELECT ?child
+        FROM ?g
         WHERE {
         VALUES ?child { %s }
         VALUES ?parent { %s }
         ?child ?isA ?parent .
         FILTER (?child != ?parent)}
         """.formatted(iris, iris);
-      TupleQuery qry = conn.prepareTupleQuery(sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       qry.setBinding("isA", Values.iri(IM.IS_A));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -624,26 +630,29 @@ public class SetRepository {
   }
 
 
-  public Pageable<Node> getMembers(String iri, boolean entailed, Integer pageNumber, Integer pageSize) {
+  public Pageable<Node> getMembers(String iri, boolean entailed, Integer pageNumber, Integer pageSize, String graph) {
 
     if (entailed) {
-      Pageable<Node> result = getMemberWithPredicate(iri, IM.ENTAILED_MEMBER, pageNumber, pageSize);
+      Pageable<Node> result = getMemberWithPredicate(iri, IM.ENTAILED_MEMBER, pageNumber, pageSize, graph);
       if (result.getTotalCount() > 0) return result;
     }
-    return getMemberWithPredicate(iri, IM.HAS_MEMBER, pageNumber, pageSize);
+    return getMemberWithPredicate(iri, IM.HAS_MEMBER, pageNumber, pageSize, graph);
   }
 
-  private Pageable<Node> getMemberWithPredicate(String iri, String predicate, Integer pageNumber, Integer pageSize) {
+  private Pageable<Node> getMemberWithPredicate(String iri, String predicate, Integer pageNumber, Integer pageSize, String graph) {
     Pageable<Node> result = new Pageable<>();
     result.setTotalCount(0);
     String sql = """
       Select (count(distinct ?instance) as ?count)
+      FROM ?g
       where {
-      %s %s ?instance
+      ?s ?p ?instance
       }
-      """.formatted("<" + iri + ">", "<" + predicate + ">");
+      """;
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
+      qry.setBinding("s", Values.iri(iri));
+      qry.setBinding("p", Values.iri(predicate));
       try (TupleQueryResult rsCount = qry.evaluate()) {
         BindingSet bsCount = rsCount.next();
         result.setTotalCount(((Literal) bsCount.getValue("count")).intValue());
@@ -654,8 +663,9 @@ public class SetRepository {
     if (predicate.equals(IM.ENTAILED_MEMBER)) {
       sql = """
         Select ?member ?entailment ?name  ?exclude
+        FROM ?g
         where {
-        %s im:entailedMember ?instance.
+        ?s im:entailedMember ?instance.
         ?instance im:instanceOf ?member.
         ?member rdfs:label ?name.
         optional {?instance im:exclude ?exclude.}
@@ -664,22 +674,24 @@ public class SetRepository {
         order by ?exclude
         limit %s
         offset %s
-        """.formatted("<" + iri + ">", pageSize, offset);
+        """.formatted(pageSize, offset);
     } else {
       sql = """
         Select ?member ?name
+        FROM ?g
         where {
-        %s im:hasMember ?member.
+        ?s im:hasMember ?member.
         ?member rdfs:label ?name.
         }
         order by ?exclude
         limit %s
         offset %s
-        """.formatted("<" + iri + ">", pageSize, offset);
+        """.formatted(pageSize, offset);
     }
     List<Node> resultSet = new ArrayList<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
+      qry.setBinding("s", Values.iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -704,57 +716,58 @@ public class SetRepository {
     return result;
   }
 
-  public Set<Concept> getExpansionFromEntailedMembers(String setIri) {
+  public Set<Concept> getExpansionFromEntailedMembers(String setIri, String graph) {
     String sql = """
       select distinct ?member
+      FROM ?g
       where {
-           Values ?set {%s}
-           ?set im:entailedMember ?entailed.
-          {
-      	  ?entailed im:instanceOf ?member.
+        Values ?set {?setIri}
+        ?set im:entailedMember ?entailed.
+        {
+          ?entailed im:instanceOf ?member.
           filter not exists {?entailed im:entailment ?entailment}
-          }
-          union {
+        }
+        union {
           ?entailed im:instanceOf ?parent.
           ?entailed im:entailment im:DescendantsOrSelfOf.
           ?member im:isA ?parent.
-          }
-          union {
-           ?entailed im:instanceOf ?parent.
-           ?entailed im:entailment im:DescendantsOf.
-           ?member im:isA ?parent.
-           filter (?member!=?parent)
-          }
-           union {
-           ?entailed im:instanceOf ?child.
-           ?entailed im:entailment im:AncestorsOf.
-           ?child im:isA ?member.
-          }
-          filter not exists {
-              ?member im:isA ?parent2.
-              ?parent2 ^im:instanceOf ?entailment2.
-              ?entailment2 im:entailment im:DescendantsOrSelfOf.
-              ?entailment2 im:exclude true.
-          }
-          filter not exists {
-               ?member im:isA ?parent2.
-               filter (?member!=?parent2)
-              ?parent2 ^im:instanceOf ?entailment2.
-              ?entailment2 im:entailment im:DescendantsOf.
-              ?entailment2 im:exclude true.
-          }
-         filter not exists {
-              ?parent2 im:isA ?member.
-              ?parent2 ^im:instanceOf ?entailment2.
-              ?entailment2 im:entailment im:AncestorsOf.
-              ?entailment2 im:exclude true.
-          }
+        }
+        union {
+          ?entailed im:instanceOf ?parent.
+          ?entailed im:entailment im:DescendantsOf.
+          ?member im:isA ?parent.
+          filter (?member!=?parent)
+        }
+        union {
+          ?entailed im:instanceOf ?child.
+          ?entailed im:entailment im:AncestorsOf.
+          ?child im:isA ?member.
+        }
+        filter not exists {
+          ?member im:isA ?parent2.
+          ?parent2 ^im:instanceOf ?entailment2.
+          ?entailment2 im:entailment im:DescendantsOrSelfOf.
+          ?entailment2 im:exclude true.
+        }
+        filter not exists {
+          ?member im:isA ?parent2.
+          filter (?member!=?parent2)
+          ?parent2 ^im:instanceOf ?entailment2.
+          ?entailment2 im:entailment im:DescendantsOf.
+          ?entailment2 im:exclude true.
+        }
+        filter not exists {
+          ?parent2 im:isA ?member.
+          ?parent2 ^im:instanceOf ?entailment2.
+          ?entailment2 im:entailment im:AncestorsOf.
+          ?entailment2 im:exclude true.
+        }
       }
-      
-      """.formatted("<" + setIri + ">");
+      """;
     Set<Concept> expansion = new HashSet<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
+      qry.setBinding("setIri", Values.iri(setIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -20,30 +19,30 @@ import java.util.stream.Collectors;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class QueryDescriptor {
-  private final EntityRepository entityRepository = new EntityRepository();
-  private Map<String, TTEntity> iriContext;
-  private final EntityRepository repo = new EntityRepository();
   private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
+  private final EntityRepository entityRepository = new EntityRepository();
+  private final EntityRepository repo = new EntityRepository();
+  private Map<String, TTEntity> iriContext;
 
-  public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
+  public Query describeQuery(String queryIri, DisplayMode displayMode, String graph) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
     if (query.getIri() == null)
       query.setIri(queryIri);
-    query = describeQuery(query, displayMode);
+    query = describeQuery(query, displayMode, graph);
     queryCache.put(queryIri, new ObjectMapper().writeValueAsString(query));
     return query;
   }
 
-  public Match describeSingleMatch(Match match) throws QueryException {
-    setIriNames(match);
+  public Match describeSingleMatch(Match match, String graph) throws QueryException {
+    setIriNames(match, graph);
     describeMatch(match);
     return match;
   }
 
-  public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
-    setIriNames(query);
+  public Query describeQuery(Query query, DisplayMode displayMode, String graph) throws QueryException, JsonProcessingException {
+    setIriNames(query, graph);
     if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
     if (displayMode == DisplayMode.RULES && query.getRule() == null) {
       new LogicOptimizer().createRules(query);
@@ -81,17 +80,17 @@ public class QueryDescriptor {
     }
   }
 
-  private void setIriNames(Match match) throws QueryException {
+  private void setIriNames(Match match, String graph) throws QueryException {
     Set<String> iriSet = new HashSet<>();
     setIriSet(match, iriSet);
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, Set.of(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.NAMESPACE + "displayLabel"));
+      iriContext = repo.getEntitiesWithPredicates(iriSet, Set.of(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.NAMESPACE + "displayLabel"), graph);
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
   }
 
-  private void setIriNames(Query query) throws QueryException {
+  private void setIriNames(Query query, String graph) throws QueryException {
     Set<String> iriSet = new HashSet<>();
     setIriSet(query, iriSet);
     if (query.getDataSet() != null) {
@@ -103,7 +102,7 @@ public class QueryDescriptor {
       setIriSet(query.getReturn(), iriSet);
     }
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, Set.of(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.NAMESPACE + "displayLabel"));
+      iriContext = repo.getEntitiesWithPredicates(iriSet, Set.of(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.NAMESPACE + "displayLabel"), graph);
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }

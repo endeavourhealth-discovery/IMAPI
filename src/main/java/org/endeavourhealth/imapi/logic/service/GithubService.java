@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.model.customexceptions.ConfigException;
 import org.endeavourhealth.imapi.model.github.GithubDTO;
 import org.endeavourhealth.imapi.model.github.GithubRelease;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +33,7 @@ public class GithubService {
 
   public GithubRelease getGithubLatestRelease() throws JsonProcessingException, ConfigException {
     GithubRelease config = configManager.getConfig(CONFIG.IMDIRECTORY_LATEST_RELEASE, new TypeReference<>() {
-    });
+    }, null);
     if (null == config)
       throw new ConfigException("Github release config not found.");
     return config;
@@ -45,12 +46,12 @@ public class GithubService {
     ObjectMapper mapper = new ObjectMapper();
     String gitHubReleaseJson = mapper.writeValueAsString(githubRelease);
     config.setData(gitHubReleaseJson);
-    configManager.setConfig(CONFIG.IMDIRECTORY_LATEST_RELEASE, config);
+    configManager.setConfig(CONFIG.IMDIRECTORY_LATEST_RELEASE, config, GRAPH.DISCOVERY);
   }
 
   public List<GithubRelease> getGithubReleases() throws JsonProcessingException, ConfigException {
     List<GithubRelease> config = configManager.getConfig(CONFIG.IMDIRECTORY_ALL_RELEASES, new TypeReference<>() {
-    });
+    }, null);
     if (null == config)
       throw new ConfigException("Github release config not found.");
     return config;
@@ -63,7 +64,7 @@ public class GithubService {
     ObjectMapper mapper = new ObjectMapper();
     String gitHubReleaseJson = mapper.writeValueAsString(githubReleases);
     config.setData(gitHubReleaseJson);
-    configManager.setConfig(CONFIG.IMDIRECTORY_ALL_RELEASES, config);
+    configManager.setConfig(CONFIG.IMDIRECTORY_ALL_RELEASES, config, GRAPH.DISCOVERY);
   }
 
   @Scheduled(cron = "0 0 0 * * *")

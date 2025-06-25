@@ -8,7 +8,7 @@ public class RangeInheritor {
   /**
    * Updates ranges for properties based on their super properties ranges
    */
-  public void inheritRanges(RepositoryConnection conn) {
-    new EntityRepository().inheritRanges(conn);
+  public void inheritRanges(RepositoryConnection conn, String graph) {
+    new EntityRepository().inheritRanges(conn, graph);
   }
 }

@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.set;
+package org.endeavourhealth.imapi.model.requests;
 
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -14,6 +14,7 @@ public class EclSearchRequest {
   private int page = 1;
   private int size = 20;
   private Set<String> select = new HashSet<>();
+  private String graph;
 
   public Query getEclQuery() {
     return eclQuery;
@@ -75,6 +76,15 @@ public class EclSearchRequest {
 
   public EclSearchRequest setSelect(Set<String> select) {
     this.select = select;
+    return this;
+  }
+
+  public String getGraph() {
+    return graph;
+  }
+
+  public EclSearchRequest setGraph(String graph) {
+    this.graph = graph;
     return this;
   }
 }

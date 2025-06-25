@@ -21,6 +21,7 @@ import java.util.Queue;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Slf4j
@@ -29,10 +30,10 @@ public class CodeGenJava {
   private final HashMap<String, DataModel> models = new HashMap<>();
   private HTTPRepository repo;
 
-  public void generate(ZipOutputStream os) throws IOException {
+  public void generate(ZipOutputStream os, String graph) throws IOException {
     connectToDatabase();
-    getModelList();
-    getDataModelRecursively();
+    getModelList(graph);
+    getDataModelRecursively(graph);
     generateJavaCode(os);
   }
 
@@ -50,14 +51,10 @@ public class CodeGenJava {
 
   }
 
-  private void getModelList() {
+  private void getModelList(String graph) {
     log.debug("getting model list");
 
     String sql = """
-      PREFIX im: <http://endhealth.info/im#>
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      PREFIX shacl: <http://www.w3.org/ns/shacl#>
-      
       SELECT ?iri
       WHERE {
         ?iri (im:isContainedIn|rdfs:subClassOf)* im:HealthDataModel ;
@@ -65,8 +62,8 @@ public class CodeGenJava {
       }
       """;
 
-    try (RepositoryConnection con = repo.getConnection()) {
-      TupleQuery query = con.prepareTupleQuery(sql);
+    try (RepositoryConnection conn = repo.getConnection()) {
+      TupleQuery query = prepareTupleSparql(conn, sql, graph);
       try (TupleQueryResult result = query.evaluate()) {
         while (result.hasNext()) {
           BindingSet bindSet = result.next();
@@ -78,28 +75,23 @@ public class CodeGenJava {
     }
   }
 
-  private void getDataModelRecursively() {
+  private void getDataModelRecursively(String graph) {
     log.debug("getting models");
 
     while (!iris.isEmpty()) {
       String iri = iris.remove();
-      DataModel model = getDataModel(iri);
+      DataModel model = getDataModel(iri, graph);
       addMissingModelToQueue(model);
       models.put(iri, model);
     }
   }
 
-  private DataModel getDataModel(String iri) {
+  private DataModel getDataModel(String iri, String graph) {
     log.debug("get data model [{}]", iri);
 
     DataModel model = new DataModel().setIri(iri);
 
-    String sql = """
-      PREFIX im: <http://endhealth.info/im#>
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      PREFIX shacl: <http://www.w3.org/ns/shacl#>
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      
+    String sql = """      
       SELECT ?iri ?model ?comment ?propname ?type ?typeName ?dm ?min ?max ?propcomment ?order
       WHERE {
         ?iri shacl:property ?prop .
@@ -120,8 +112,8 @@ public class CodeGenJava {
         } ORDER BY ?order
       """;
 
-    try (RepositoryConnection con = repo.getConnection()) {
-      TupleQuery query = con.prepareTupleQuery(sql);
+    try (RepositoryConnection conn = repo.getConnection()) {
+      TupleQuery query = prepareTupleSparql(conn, sql, graph);
       query.setBinding("iri", Values.iri(iri));
       try (TupleQueryResult result = query.evaluate()) {
         while (result.hasNext()) {

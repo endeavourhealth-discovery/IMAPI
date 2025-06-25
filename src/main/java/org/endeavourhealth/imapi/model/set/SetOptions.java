@@ -16,12 +16,14 @@ public class SetOptions {
   private boolean includeIM1id;
   @Getter
   private List<String> subsumptions;
+  @Getter
+  private String graph;
 
   public SetOptions() {
   }
 
   public SetOptions(String setIri, boolean includeDefinition, boolean includeCore, boolean includeLegacy, boolean includeSubsets, List<String> schemes,
-                    List<String> subsumptions) {
+                    List<String> subsumptions, String graph) {
     this.setIri = setIri;
     this.includeDefinition = includeDefinition;
     this.includeCore = includeCore;
@@ -29,7 +31,7 @@ public class SetOptions {
     this.includeSubsets = includeSubsets;
     this.schemes = schemes;
     this.subsumptions = subsumptions;
-
+    this.graph = graph;
   }
 
 
@@ -90,6 +92,11 @@ public class SetOptions {
 
   public SetOptions setSubsumptions(List<String> subsumptions) {
     this.subsumptions = subsumptions;
+    return this;
+  }
+
+  public SetOptions setGraph(String graph) {
+    this.graph = graph;
     return this;
   }
 }

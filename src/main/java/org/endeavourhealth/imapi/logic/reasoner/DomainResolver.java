@@ -1,41 +1,43 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import lombok.extern.slf4j.Slf4j;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringJoiner;
+
+import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
+import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareUpdateSparql;
 
 
 @Slf4j
 public class DomainResolver {
 
-  public void updateDomains() {
+  public void updateDomains(String graph) {
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      Set<String> domains = getDomains(conn);
+      Set<String> domains = getDomains(conn, graph);
       for (String domain : domains) {
-        updateDomain(conn,domain);
+        updateDomain(conn, domain, graph);
       }
     }
   }
 
-  private void updateDomain(RepositoryConnection conn, String domain) {
-    String sql= """
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+  private void updateDomain(RepositoryConnection conn, String domain, String graph) {
+    String sql = """
       select distinct ?property
       where {
          values ?domain {%s}
         ?property rdfs:domain ?domain
       }
       
-      """.formatted("<"+domain+">");
-    Set<String> currentProperties= new HashSet<>();
-    TupleQuery currentPropertyQuery= conn.prepareTupleQuery(sql);
+      """.formatted("<" + domain + ">");
+    Set<String> currentProperties = new HashSet<>();
+    TupleQuery currentPropertyQuery = prepareTupleSparql(conn, sql, graph);
     log.info("domain resolver adding missing properties for " + domain + "...");
     try (TupleQueryResult currentResults = currentPropertyQuery.evaluate()) {
       while (currentResults.hasNext()) {
@@ -43,11 +45,8 @@ public class DomainResolver {
         currentProperties.add(bs.getValue("property").stringValue());
       }
     }
-    String current= String.join(",",currentProperties.stream().map(p->"<"+p+">").toArray(String[]::new));
-    sql= """
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      PREFIX im: <http://endhealth.info/im#>
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    String current = String.join(",", currentProperties.stream().map(p -> "<" + p + ">").toArray(String[]::new));
+    sql = """
       select distinct ?property
       where {
           Values ?domain {%s}
@@ -56,38 +55,35 @@ public class DomainResolver {
           ?rg ?property ?value.
           ?value rdf:type im:Concept.
       }
-      """.formatted("<"+domain+">",current);
-    Set<String> allProperties= new HashSet<>();
-    TupleQuery allPropertyQuery= conn.prepareTupleQuery(sql);
+      """.formatted("<" + domain + ">", current);
+    Set<String> allProperties = new HashSet<>();
+    TupleQuery allPropertyQuery = prepareTupleSparql(conn, sql, graph);
     try (TupleQueryResult allResults = allPropertyQuery.evaluate()) {
       while (allResults.hasNext()) {
         BindingSet bs = allResults.next();
         allProperties.add(bs.getValue("property").stringValue());
       }
     }
-    Set<String> missingProperties= new HashSet<>(allProperties);
+    Set<String> missingProperties = new HashSet<>(allProperties);
     missingProperties.removeAll(currentProperties);
     if (!missingProperties.isEmpty()) {
       StringJoiner insertSql = new StringJoiner("\n");
-      insertSql.add("PREFIX im: <http://endhealth.info/im#>");
-      insertSql.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>");
       insertSql.add("INSERT DATA{");
       missingProperties.forEach(p -> insertSql.add(" <" + p + "> rdfs:domain <" + domain + ">."));
       insertSql.add("}");
       String insertQuery = insertSql.toString();
-      conn.prepareUpdate(insertQuery).execute();
+      prepareUpdateSparql(conn, insertQuery, graph).execute();
     }
   }
 
-  private Set<String> getDomains(RepositoryConnection conn) {
+  private Set<String> getDomains(RepositoryConnection conn, String graph) {
     Set<String> domains = new HashSet<>();
-    String sql= """
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        select distinct ?domain where {
-        	?property rdfs:domain ?domain
-        }
-        """;
-    TupleQuery domainQuery= conn.prepareTupleQuery(sql);
+    String sql = """
+      select distinct ?domain where {
+      	?property rdfs:domain ?domain
+      }
+      """;
+    TupleQuery domainQuery = prepareTupleSparql(conn, sql, graph);
     try (TupleQueryResult domainResults = domainQuery.evaluate()) {
       while (domainResults.hasNext()) {
         BindingSet bs = domainResults.next();

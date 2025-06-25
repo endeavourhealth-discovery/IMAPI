@@ -1,21 +1,8 @@
 package org.endeavourhealth.imapi.transforms;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
-import org.endeavourhealth.imapi.model.imq.DisplayMode;
-import org.endeavourhealth.imapi.model.imq.Match;
-import org.endeavourhealth.imapi.model.imq.Node;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -26,6 +13,9 @@ import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.*;
 
 public class EqdToIMQ {
   private static final Logger log = LoggerFactory.getLogger(EqdToIMQ.class);
@@ -68,14 +58,14 @@ public class EqdToIMQ {
     return this;
   }
 
-  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, Properties criteriaMaps) throws IOException, QueryException, EQDException {
+  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, Properties criteriaMaps, String graph) throws IOException, QueryException, EQDException {
     this.document = document;
     this.resources = new EqdResources(document, dataMap);
-    this.namespace = document.getGraph().getIri();
+    this.namespace = document.getNamespace().getIri();
     this.resources.setCriteriaMaps(criteriaMaps);
     this.addReportNames(eqd);
     this.convertFolders(eqd);
-    this.convertReports(eqd);
+    this.convertReports(eqd, graph);
   }
 
   private void addReportNames(EnquiryDocument eqd) {
@@ -87,7 +77,7 @@ public class EqdToIMQ {
 
   }
 
-  private void convertReports(EnquiryDocument eqd) throws IOException, QueryException, EQDException {
+  private void convertReports(EnquiryDocument eqd, String graph) throws IOException, QueryException, EQDException {
     for (EQDOCReport eqReport : eqd.getReport()) {
       if (eqReport.getId() == null) {
         throw new EQDException("No report id");
@@ -99,7 +89,7 @@ public class EqdToIMQ {
         }
 
         log.info(eqReport.getName());
-        TTEntity qry = this.convertReport(eqReport);
+        TTEntity qry = this.convertReport(eqReport, graph);
         if (qry != null) {
           this.document.addEntity(qry);
         }
@@ -173,7 +163,7 @@ public class EqdToIMQ {
 
   }
 
-  public TTEntity convertReport(EQDOCReport eqReport) throws IOException, QueryException, EQDException {
+  public TTEntity convertReport(EQDOCReport eqReport, String graph) throws IOException, QueryException, EQDException {
     this.resources.setActiveReport(eqReport.getId());
     this.resources.setActiveReportName(eqReport.getName());
     String id = getId(eqReport);
@@ -192,10 +182,10 @@ public class EqdToIMQ {
     qry.setName(queryEntity.getName());
     if (eqReport.getPopulation() != null) {
       queryEntity.addType(TTIriRef.iri(IM.COHORT_QUERY));
-      qry = (new EqdPopToIMQ()).convertPopulation(eqReport, qry, this.resources);
+      qry = (new EqdPopToIMQ()).convertPopulation(eqReport, qry, this.resources, graph);
     } else if (eqReport.getListReport() != null) {
       queryEntity.addType(TTIriRef.iri(IM.DATASET_QUERY));
-      (new EqdListToIMQ()).convertReport(eqReport, this.document, qry, this.resources);
+      (new EqdListToIMQ()).convertReport(eqReport, this.document, qry, this.resources, graph);
     } else if (eqReport.getAuditReport() != null) {
       queryEntity.addType(TTIriRef.iri(IM.QUERY));
       (new EqdAuditToIMQ()).convertReport(eqReport, qry, this.resources);

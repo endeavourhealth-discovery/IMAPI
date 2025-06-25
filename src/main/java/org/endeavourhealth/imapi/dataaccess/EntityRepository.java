@@ -5,7 +5,6 @@ import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
@@ -26,15 +25,12 @@ import java.util.stream.Collectors;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
+import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.*;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.*;
 
 @Slf4j
 public class EntityRepository {
   static final String PARENT_PREDICATES = "rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf";
-  private static final String IM_PREFIX = "PREFIX im: <" + IM.NAMESPACE + ">";
-  private static final String RDFS_PREFIX = "PREFIX rdfs: <" + RDFS.NAMESPACE + ">";
-  private static final String RDF_PREFIX = "PREFIX rdf: <" + RDF.NAMESPACE + ">";
   private static final TimedCache<String, String> iriNameCache = new TimedCache<>("IriNameCache", 30, 5, 100);
   private static final List<org.endeavourhealth.imapi.model.Namespace> namespaceCache = new ArrayList<>();
   private static final String EXECUTING = "Executing...";
@@ -76,7 +72,7 @@ public class EntityRepository {
     }
   }
 
-  public static void getIriNames(RepositoryConnection conn, Set<TTIriRef> iris) {
+  public static void getIriNames(RepositoryConnection conn, Set<TTIriRef> iris, String graph) {
 
     if (iris == null || iris.isEmpty()) return;
 
@@ -95,13 +91,15 @@ public class EntityRepository {
     String sql = """
       SELECT ?iri ?label ?description
       WHERE {
-        ?iri rdfs:label ?label.
-        Optional { ?iri rdfs:comment ?description }
-        filter (?iri in (%s))
+        GRAPH ?g {
+          ?iri rdfs:label ?label.
+          Optional { ?iri rdfs:comment ?description }
+          filter (?iri in (%s))
+        }
       }
       """.formatted(String.join(",", toFetch));
 
-    TupleQuery qry = conn.prepareTupleQuery(sql);
+    TupleQuery qry = prepareTupleSparql(conn, sql, graph);
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
@@ -117,16 +115,19 @@ public class EntityRepository {
     }
   }
 
-  public TTIriRef getEntityReferenceByIri(String iri) {
+  public TTIriRef getEntityReferenceByIri(String iri, String graph) {
     TTIriRef result = new TTIriRef();
     String sql = """
-      SELECT ?sname WHERE {
-        ?s rdfs:label ?sname
+      SELECT ?sname
+      WHERE {
+        GRAPH ?g {
+          ?s rdfs:label ?sname
+        }
       }
       """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       qry.setBinding("s", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
@@ -138,18 +139,21 @@ public class EntityRepository {
     return result;
   }
 
-  private Set<TTIriRef> getTypesByIri(String iri) {
+  private Set<TTIriRef> getTypesByIri(String iri, String graph) {
     Set<TTIriRef> result = new HashSet<>();
 
     String sql = """
-      SELECT ?o ?oname WHERE {
-        ?s rdf:type ?o .
-        ?o rdfs:label ?oname .
+      SELECT ?o ?oname
+      WHERE {
+        GRAPH ?g {
+          ?s rdf:type ?o .
+          ?o rdfs:label ?oname .
+        }
       }
       """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       qry.setBinding("s", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -162,7 +166,7 @@ public class EntityRepository {
   }
 
 
-  public List<TTEntity> getEntitiesByType(String type, Integer offset, Integer limit, String... predicates) {
+  public List<TTEntity> getEntitiesByType(String type, Integer offset, Integer limit, String graph, String... predicates) {
     Map<String, TTEntity> entities = new HashMap<>();
     String predicateList = Arrays.stream(predicates).map(p -> "<" + p + ">").collect(Collectors.joining(" "));
     String sql = """
@@ -170,17 +174,18 @@ public class EntityRepository {
       select *
       where {
       values ?predicate {%s}
-      ?entity <%s> <%s>.
+      ?entity rdf:type ?type.
       ?entity ?predicate ?object.
       optional {?object ?predicate2 ?object2.
       filter (isBlank(?object2)}
       }
       order by ?object
       offset %s limit %s
-      """.formatted(predicateList, RDF.TYPE, type, RDFS.LABEL, offset, limit);
+      """.formatted(predicateList, offset, limit);
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
+      qry.setBinding("type", iri(type));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -209,7 +214,7 @@ public class EntityRepository {
     return new ArrayList<>(entities.values());
   }
 
-  public Map<String, Set<TTIriRef>> getTypesByIris(Set<String> stringIris) {
+  public Map<String, Set<TTIriRef>> getTypesByIris(Set<String> stringIris, String graph) {
     Map<String, Set<TTIriRef>> iriToTypesMap = new HashMap<>();
     StringJoiner iriLine = new StringJoiner(" ");
     for (String stringIri : stringIris) {
@@ -218,15 +223,18 @@ public class EntityRepository {
     }
 
     String sql = """
-      SELECT ?s ?o ?oname WHERE {
-        ?s rdf:type ?o .
-        ?o rdfs:label ?oname .
-        VALUES ?s { %s }
+      SELECT ?s ?o ?oname
+      WHERE {
+        GRAPH ?g {
+          ?s rdf:type ?o .
+          ?o rdfs:label ?oname .
+          VALUES ?s { %s }
+        }
       }
       """.formatted(iriLine.toString());
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -240,7 +248,7 @@ public class EntityRepository {
     return iriToTypesMap;
   }
 
-  public List<SearchResultSummary> getEntitySummariesByIris(Set<String> stringIris) {
+  public List<SearchResultSummary> getEntitySummariesByIris(Set<String> stringIris, String graph) {
     List<SearchResultSummary> summaries = new ArrayList<>();
     StringJoiner iriLine = new StringJoiner(" ");
     for (String stringIri : stringIris) {
@@ -249,29 +257,43 @@ public class EntityRepository {
     }
 
     String sql = """
-      SELECT ?s ?sname ?scode ?sstatus ?sstatusname ?sdescription ?g ?gname WHERE {
-      GRAPH ?g {
-      ?s rdfs:label ?sname .
-      }
-      OPTIONAL { ?s im:code ?scode . }
-      OPTIONAL { ?s im:status ?sstatus . ?sstatus rdfs:label ?sstatusname . }
-      OPTIONAL { ?s rdfs:comment ?sdescription } .
-      OPTIONAL { ?g rdfs:label ?gname } .
-      VALUES ?s { %s }
+      SELECT ?s ?sname ?scode ?sstatus ?sstatusname ?sdescription ?sscheme ?sschemename
+      WHERE {
+        GRAPH ?g {
+          ?s rdfs:label ?sname .
+          OPTIONAL { ?s im:code ?scode . }
+          OPTIONAL {
+            ?s im:status ?sstatus .
+            ?sstatus rdfs:label ?sstatusname .
+          }
+          OPTIONAL {
+            ?s im:scheme ?sscheme .
+            ?sscheme rdfs:label ?sschemename
+          }
+          OPTIONAL { ?s rdfs:comment ?sdescription .}
+          VALUES ?s { %s }
+        }
       }
       """.formatted(iriLine.toString());
 
-    Map<String, Set<TTIriRef>> iriToTypesMap = getTypesByIris(stringIris);
+    Map<String, Set<TTIriRef>> iriToTypesMap = getTypesByIris(stringIris, graph);
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String iri = bs.getValue("s").stringValue();
           Set<TTIriRef> types = iriToTypesMap.get(iri);
           SearchResultSummary summary = new SearchResultSummary();
-          summary.setIri(iri).setName(bs.getValue("sname").stringValue()).setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue()).setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue()))).setType(types).setStatus(new TTIriRef(bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue())).setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
+          summary
+            .setIri(iri)
+            .setName(bs.getValue("sname").stringValue())
+            .setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue())
+            .setScheme(new TTIriRef(bs.getValue("sscheme").stringValue(), (bs.getValue("sschemename") == null ? "" : bs.getValue("sschemename").stringValue())))
+            .setType(types)
+            .setStatus(new TTIriRef(bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()))
+            .setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
           summaries.add(summary);
         }
       }
@@ -279,35 +301,45 @@ public class EntityRepository {
     return summaries;
   }
 
-  public SearchResultSummary getEntitySummaryByIri(String iri) {
+  public SearchResultSummary getEntitySummaryByIri(String iri, String graph) {
     SearchResultSummary result = new SearchResultSummary();
     result.setIri(iri);
 
     String sql = """
-      SELECT ?sname ?type ?typeName ?scode ?sstatus ?sstatusname ?sdescription ?g ?gname ?sscheme ?sschemename ?intervalUnit ?intervalUnitName ?qualifier ?qualifierName
+      SELECT ?sname ?type ?typeName ?scode ?sstatus ?sstatusname ?sdescription ?sscheme ?sschemename ?intervalUnit ?intervalUnitName ?qualifier ?qualifierName
       WHERE {
         GRAPH ?g {
           ?s rdfs:label ?sname .
-        }
-        OPTIONAL { ?s im:code ?scode . }
-        OPTIONAL { ?s im:status ?sstatus . ?sstatus rdfs:label ?sstatusname . }
-        OPTIONAL { ?s im:scheme ?sscheme . ?sscheme rdfs:label ?sschemename . }
-           OPTIONAL { ?s rdf:type ?type .
-               ?type rdfs:label ?typeName . }
-        OPTIONAL { ?s rdfs:comment ?sdescription } .
-        OPTIONAL { ?g rdfs:label ?gname } .
-        OPTIONAL {?s im:intervalUnit ?intervals.
-              ?intervalUnit rdfs:subClassOf ?intervals.
-              ?intervalUnit rdfs:label ?intervalUnitName.
-              filter (?intervalUnit!= ?intervals)
+          OPTIONAL { ?s im:code ?scode . }
+          OPTIONAL {
+            ?s im:status ?sstatus .
+            ?sstatus rdfs:label ?sstatusname .
           }
-        OPTIONAL {?s im:datatypeQualifier ?qualifier.
-          ?qualifier rdfs:label ?qualifierName.}
+          OPTIONAL {
+            ?s im:scheme ?sscheme .
+            ?sscheme rdfs:label ?sschemename .
+          }
+          OPTIONAL {
+            ?s rdf:type ?type .
+            ?type rdfs:label ?typeName .
+          }
+          OPTIONAL { ?s rdfs:comment ?sdescription . }
+          OPTIONAL {
+            ?s im:intervalUnit ?intervals .
+            ?intervalUnit rdfs:subClassOf ?intervals .
+            ?intervalUnit rdfs:label ?intervalUnitName .
+            filter (?intervalUnit!= ?intervals)
+          }
+          OPTIONAL {
+            ?s im:datatypeQualifier ?qualifier .
+            ?qualifier rdfs:label ?qualifierName .
+          }
+        }
       }
       """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       qry.setBinding("s", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -325,8 +357,6 @@ public class EntityRepository {
 
           if (bs.hasBinding("sscheme")) {
             result.setScheme(new TTIriRef(bs.getValue("sscheme").stringValue(), (bs.getValue("sschemename") == null ? "" : bs.getValue("sschemename").stringValue())));
-          } else {
-            result.setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())));
           }
           if (bs.hasBinding("intervalUnit")) {
             result.addIntervalUnit(TTIriRef.iri(bs.getValue("intervalUnit").stringValue())
@@ -345,18 +375,21 @@ public class EntityRepository {
     return result;
   }
 
-  public List<ParentDto> findParentHierarchies(String iri) {
+  public List<ParentDto> findParentHierarchies(String iri, String graph) {
     List<ParentDto> result = new ArrayList<>();
 
     String spql = """
-      SELECT * {
-        ?s (%s) ?o .
-        ?o rdfs:label ?name .
+      SELECT *
+      WHERE {
+        GRAPH ?g {
+          ?s (%s) ?o .
+          ?o rdfs:label ?name .
+        }
       }
       """.formatted(PARENT_PREDICATES);
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, spql);
+      TupleQuery qry = prepareTupleSparql(conn, spql, graph);
       qry.setBinding("s", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -369,11 +402,20 @@ public class EntityRepository {
     return result;
   }
 
-  public boolean iriExists(String iri) {
+  public boolean iriExists(String iri, String graph) {
     boolean result = false;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, "SELECT * WHERE { ?s ?p ?o.} limit 1");
+      String sql = """
+        SELECT *
+        WHERE {
+          GRAPH ?g {
+            ?s ?p ?o.
+          }
+        }
+        limit 1
+        """;
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       qry.setBinding("s", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
@@ -390,12 +432,14 @@ public class EntityRepository {
     String sql = """
       SELECT DISTINCT ?o
       WHERE {
-        ?s ?im1Scheme ?o .
+        GRAPH ?g {
+          ?s ?im1Scheme ?o .
+        }
       }
       """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, null);
       qry.setBinding("im1Scheme", iri(IM.IM_1_SCHEME));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -407,9 +451,15 @@ public class EntityRepository {
     return results;
   }
 
-  public boolean predicatePathExists(String subject, TTIriRef predicate, String object) {
+  public boolean predicatePathExists(String subject, TTIriRef predicate, String object, String graph) {
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      BooleanQuery qry = conn.prepareBooleanQuery("ASK { ?s (?p)* ?o.}");
+      if (null == graph) graph = GRAPH.DISCOVERY;
+      String sprql = """
+          ASK {
+            GRAPH ?g {  ?s (?p)* ?o.}
+          }
+        """;
+      BooleanQuery qry = prepareBooleanSparql(conn, sprql, graph);
       qry.setBinding("p", iri(predicate.getIri()));
       qry.setBinding("s", iri(subject));
       qry.setBinding("o", iri(object));
@@ -417,38 +467,45 @@ public class EntityRepository {
     }
   }
 
-  public EntityDocument getOSDocument(String iri) {
+  public EntityDocument getOSDocument(String iri, String graph) {
     EntityDocument result = new EntityDocument().setIri(iri);
-    hydrateCoreProperties(result);
-    hydrateTerms(result);
-    hydrateIsAs(result);
-    hydrateSubsumptionCount(result);
+    hydrateCoreProperties(result, graph);
+    hydrateTerms(result, graph);
+    hydrateIsAs(result, graph);
+    hydrateSubsumptionCount(result, graph);
     return result;
   }
 
-  private void hydrateCoreProperties(EntityDocument entityDocument) {
+  private void hydrateCoreProperties(EntityDocument entityDocument, String graph) {
     String spql = """
       SELECT ?iri ?name ?preferredName ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?usageTotal ?extraType ?extraTypeName
       WHERE {
-        GRAPH ?scheme { ?iri rdf:type ?type }
-        Optional { ?iri rdfs:label ?name.}
-        Optional { ?iri im:preferredName ?preferredName.}
-        Optional {?iri im:isA ?extraType.
-          ?extraType rdfs:label ?extraTypeName.
-          filter (?extraType in (im:dataModelProperty, im:DataModelEntity))
+        GRAPH ?g {
+          ?iri rdf:type ?type .
+          Optional { ?iri rdfs:label ?name.}
+          Optional { ?iri im:preferredName ?preferredName.}
+          Optional {
+            ?iri im:isA ?extraType.
+            ?extraType rdfs:label ?extraTypeName.
+            filter (?extraType in (im:dataModelProperty, im:DataModelEntity))
+          }
+          Optional {?type rdfs:label ?typeName}
+          Optional {
+            ?iri im:status ?status.
+            Optional {?status rdfs:label ?statusName}
+          }
+          Optional {
+            ?iri im:scheme ?scheme
+            Optional {?scheme rdfs:label ?schemeName .}
+          }
+          Optional {?iri im:code ?code.}
+          Optional {?iri im:usageTotal ?usageTotal.}
         }
-        Optional {?type rdfs:label ?typeName}
-        Optional {?iri im:status ?status.
-          Optional {?status rdfs:label ?statusName}
-        }
-        Optional {?scheme rdfs:label ?schemeName }
-        Optional {?iri im:code ?code.}
-        Optional {?iri im:usageTotal ?usageTotal.}
       }
       """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery tupleQuery = conn.prepareTupleQuery(addSparqlPrefixes(spql));
+      TupleQuery tupleQuery = prepareTupleSparql(conn, spql, graph);
       tupleQuery.setBinding("iri", iri(entityDocument.getIri()));
       try (TupleQueryResult qr = tupleQuery.evaluate()) {
         if (qr.hasNext()) {
@@ -458,19 +515,21 @@ public class EntityRepository {
     }
   }
 
-  private void hydrateTerms(EntityDocument entityDocument) {
+  private void hydrateTerms(EntityDocument entityDocument, String graph) {
     String sparql = """
       SELECT ?termCode ?synonym ?termCodeStatus
       WHERE {
+        GRAPH ?g {
         ?iri im:hasTermCode ?tc.
-        Optional {?tc im:code ?termCode}
-        Optional  {?tc rdfs:label ?synonym}
-        Optional  {?tc im:status ?termCodeStatus}
+          Optional {?tc im:code ?termCode}
+          Optional  {?tc rdfs:label ?synonym}
+          Optional  {?tc im:status ?termCodeStatus}
+        }
       }
       """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery tupleQuery = conn.prepareTupleQuery(addSparqlPrefixes(sparql));
+      TupleQuery tupleQuery = prepareTupleSparql(conn, sparql, graph);
       tupleQuery.setBinding("iri", literal(entityDocument.getIri()));
       try (TupleQueryResult qr = tupleQuery.evaluate()) {
         while (qr.hasNext()) {
@@ -500,16 +559,18 @@ public class EntityRepository {
     }
   }
 
-  private void hydrateSubsumptionCount(EntityDocument entityDocument) {
+  private void hydrateSubsumptionCount(EntityDocument entityDocument, String graph) {
     String sparql = """
       SELECT (count(?subType) as ?subsumptions)
       WHERE {
-        ?iri ^im:isA ?subType.
-        ?subType im:status im:Active.
+        GRAPH ?g {
+          ?iri ^im:isA ?subType.
+          ?subType im:status im:Active.
+        }
       }
       """;
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery tupleQuery = conn.prepareTupleQuery(addSparqlPrefixes(sparql));
+      TupleQuery tupleQuery = prepareTupleSparql(conn, sparql, graph);
       tupleQuery.setBinding("iri", literal(entityDocument.getIri()));
 
       try (TupleQueryResult qr = tupleQuery.evaluate()) {
@@ -540,16 +601,18 @@ public class EntityRepository {
     return null;
   }
 
-  private void hydrateIsAs(EntityDocument entityDocument) {
+  private void hydrateIsAs(EntityDocument entityDocument, String graph) {
     String spql = """
       SELECT ?superType
       WHERE {
-        ?iri im:isA ?superType.
+        GRAPH ?g {
+          ?iri im:isA ?superType.
+        }
       }
       """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery tupleQuery = conn.prepareTupleQuery(addSparqlPrefixes(spql));
+      TupleQuery tupleQuery = prepareTupleSparql(conn, spql, graph);
       tupleQuery.setBinding("iri", literal(entityDocument.getIri()));
       try (TupleQueryResult qr = tupleQuery.evaluate()) {
         while (qr.hasNext()) {
@@ -560,16 +623,18 @@ public class EntityRepository {
     }
   }
 
-  public Set<String> getPredicates(String iri) {
+  public Set<String> getPredicates(String iri, String graph) {
     Set<String> predicates = new HashSet<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       String sparql = """
         SELECT DISTINCT ?p
         WHERE {
-          ?s ?p ?o .
+          GRAPH ?g {
+            ?s ?p ?o .
+          }
         }
         """;
-      TupleQuery qry = conn.prepareTupleQuery(sparql);
+      TupleQuery qry = prepareTupleSparql(conn, sparql, graph);
       qry.setBinding("s", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -581,10 +646,11 @@ public class EntityRepository {
     return predicates;
   }
 
-  public List<TTIriRef> findAncestorsByType(String childIri, String relationshipIri, List<String> candidateAncestorIris) {
+  public List<TTIriRef> findAncestorsByType(String childIri, String relationshipIri, List<String> candidateAncestorIris, String graph) {
     List<TTIriRef> result = new ArrayList<>();
     String sql = """
       SELECT ?aname
+      FROM ?g
       WHERE {
         ?c ?r ?a .
         ?a rdfs:label ?aname .
@@ -592,7 +658,7 @@ public class EntityRepository {
       """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       qry.setBinding("c", Values.iri(childIri));
       qry.setBinding("r", Values.iri(relationshipIri));
 
@@ -654,16 +720,15 @@ public class EntityRepository {
     StringJoiner sql = getBundleSparql(predicates, excludePredicates, depth);
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      GraphQuery qry = conn.prepareGraphQuery(sql.toString());
+      GraphQuery qry = prepareGraphSparql(conn, sql.toString(), graph);
       qry.setBinding("entity", Values.iri(iri));
-      qry.setBinding("graph", Values.iri(graph));
       try (GraphQueryResult gs = qry.evaluate()) {
         Map<String, TTValue> valueMap = new HashMap<>();
         for (org.eclipse.rdf4j.model.Statement st : gs) {
           processStatement(bundle, valueMap, iri, st);
         }
         Set<TTIriRef> iris = TTManager.getIrisFromNode(bundle.getEntity());
-        getIriNames(conn, iris);
+        getIriNames(conn, iris, graph);
         HashMap<String, String> iriToName = new HashMap<>();
         for (TTIriRef ttIriRef : iris) {
           iriToName.put(ttIriRef.getIri(), ttIriRef.getName());
@@ -690,15 +755,15 @@ public class EntityRepository {
     }
   }
 
-  public void getNames(Set<TTIriRef> iris) {
+  public void getNames(Set<TTIriRef> iris, String graph) {
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      getIriNames(conn, iris);
+      getIriNames(conn, iris, graph);
     }
   }
 
-  public Map<String, String> getNameMap(Set<TTIriRef> iris) {
+  public Map<String, String> getNameMap(Set<TTIriRef> iris, String graph) {
     Map<String, String> nameMap = new HashMap<>();
-    getNames(iris);
+    getNames(iris, graph);
     for (TTIriRef iri : iris) {
       nameMap.put(iri.getIri(), iri.getName());
     }
@@ -708,12 +773,11 @@ public class EntityRepository {
   /**
    * creates ranges for properties without ranges where the super properties have them
    */
-  public void inheritRanges(RepositoryConnection conn) {
+  public void inheritRanges(RepositoryConnection conn, String graph) {
     String sql = """
       INSERT {?property rdfs:range ?range}
       WHERE {
-        SELECT ?property ?range
-        WHERE {
+        GRAPH ?g {
           ?property rdf:type rdf:Property.
           {
             #filter (?property= <http://snomed.info/sct#10362801000001104> )
@@ -731,11 +795,11 @@ public class EntityRepository {
       }
       """;
     if (conn != null) {
-      Update upd = conn.prepareUpdate(addSparqlPrefixes(sql));
+      Update upd = prepareUpdateSparql(conn, sql, graph);
       upd.execute();
     } else {
       try (RepositoryConnection conn2 = ConnectionManager.getIMConnection()) {
-        Update upd = conn2.prepareUpdate(addSparqlPrefixes(sql));
+        Update upd = prepareUpdateSparql(conn2, sql, graph);
         upd.execute();
       }
     }
@@ -747,14 +811,13 @@ public class EntityRepository {
    * @param code the code or description id or term code
    * @return iri and name of entity
    */
-  public Set<Entity> getCoreFromCode(String code, List<String> schemes) {
-    StringJoiner sql = new StringJoiner(System.lineSeparator()).add("SELECT ?concept ?label ?type");
-    for (String scheme : schemes) {
-      sql.add("FROM <" + scheme + ">");
-    }
-    sql.add("""
+  public Set<Entity> getCoreFromCode(String code, List<String> schemes, String graph) {
+    String sql = """
+      SELECT ?concept ?label ?type
+      FROM ?g
       WHERE {
         values ?codeProperty {im:code im:codeId im:alternativeCode}
+        values ?schemes {%s}
         {
           ?concept ?codeProperty ?code.
           filter (isIri(?concept))
@@ -774,17 +837,19 @@ public class EntityRepository {
           ?node im:code ?code.
           ?legacy im:matchedTo ?concept.
           ?concept rdfs:label ?label.
+          ?concept im:scheme ?schemes.
         }
         UNION {
           ?legacy ?codeProperty ?code.
           ?legacy im:matchedTo ?concept.
           ?concept rdfs:label ?label.
+          ?concept im:schem ?schemes .
         }
         ?concept rdf:type ?type.
       }
-      """);
+      """.formatted(schemes);
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql.toString()));
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       qry.setBinding("code", Values.literal(code));
       return getConceptRefsFromResult(qry);
     }
@@ -798,9 +863,10 @@ public class EntityRepository {
    * @param scheme the legacy scheme of the term
    * @return iri and name of entity
    */
-  public Set<Entity> getCoreFromLegacyTerm(String term, String scheme) {
+  public Set<Entity> getCoreFromLegacyTerm(String term, String scheme, String graph) {
     String sql = """
       SELECT ?concept ?label ?type
+      FROM ?g
       WHERE {
         GRAPH ?scheme {
           ?legacy rdfs:label ?term.
@@ -813,7 +879,7 @@ public class EntityRepository {
       }
       """;
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       qry.setBinding("term", Values.literal(term));
       qry.setBinding("scheme", Values.iri(scheme));
       return getConceptRefsFromResult(qry);
@@ -827,31 +893,32 @@ public class EntityRepository {
    * @param scheme the scheme of the term
    * @return set of iris and name of entity
    */
-  public Set<Entity> getReferenceFromTermCode(String code, String scheme) {
+  public Set<Entity> getReferenceFromTermCode(String code, String scheme, String graph) {
     String sql = """
       SELECT ?concept ?label ?type
+      FROM ?g
       WHERE {
-        GRAPH ?scheme {
+          ?ts im:scheme ?scheme .
           ?tc im:code ?code.
           ?concept im:hasTermCode ?tc.
         }
         {
           ?concept rdfs:label ?label.
-            ?concept rdf:type ?type.
+          ?concept rdf:type ?type.
         }
-      }
       """;
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       qry.setBinding("code", Values.literal(code));
       qry.setBinding("scheme", Values.iri(scheme));
       return getConceptRefsFromResult(qry);
     }
   }
 
-  public Map<String, String> getCodesToIri(String scheme) {
+  public Map<String, String> getCodesToIri(String scheme, String graph) {
     String sql = """
       SELECT ?code ?scheme ?iri ?altCode
+      FROM ?g
       WHERE {
         Values ?scheme {%s}
         ?iri im:code ?code.
@@ -859,25 +926,26 @@ public class EntityRepository {
         ?iri im:scheme ?scheme
       }
       """.formatted("<" + scheme + ">");
-    return getCodes(sql);
+    return getCodes(sql, graph);
   }
 
-  public Map<String, String> getCodeToIri() {
+  public Map<String, String> getCodeToIri(String graph) {
     String sql = """
       SELECT ?code ?scheme ?iri ?altCode
+      FROM ?g
       WHERE {
         ?iri im:code ?code.
         OPTIONAL {?iri im:alternativeCode ?altCode}
         ?iri im:scheme ?scheme
       }
       """;
-    return getCodes(sql);
+    return getCodes(sql, graph);
   }
 
-  private Map<String, String> getCodes(String sql) {
+  private Map<String, String> getCodes(String sql, String graph) {
     Map<String, String> codeToIri = new HashMap<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       try (TupleQueryResult gs = qry.evaluate()) {
         while (gs.hasNext()) {
           BindingSet bs = gs.next();
@@ -901,13 +969,15 @@ public class EntityRepository {
    * @param term the code or description id or term code
    * @return iri and name of entity
    */
-  public TTIriRef getReferenceFromCoreTerm(String term) {
+  public TTIriRef getReferenceFromCoreTerm(String term, String graph) {
+    List<String> schemes = new ArrayList<>(List.of(IM.NAMESPACE, SNOMED.NAMESPACE));
     String sql = """
       select ?concept ?label
-      from <%s>
-      from <%s>
+      from ?g
       where {
         {
+          VALUES ?scheme {%s}
+          ?concept im:scheme ?scheme
           ?concept rdfs:label ?term.
           filter(isIri(?concept))
         }
@@ -916,24 +986,25 @@ public class EntityRepository {
           ?tc rdfs:label ?term.
         }
       }
-      """.formatted(IM.NAMESPACE, SNOMED.NAMESPACE);
+      """.formatted(schemes);
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       qry.setBinding("term", Values.literal(term));
       return getConceptRefFromResult(qry);
     }
   }
 
-  public Map<String, Set<String>> getAllMatchedLegacy() {
+  public Map<String, Set<String>> getAllMatchedLegacy(String graph) {
     String sql = """
       SELECT ?legacy ?concept
+      FROM ?g
       WHERE {
         ?legacy im:matchedTo ?concept.
       }
       """;
     Map<String, Set<String>> maps = new HashMap<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sql));
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       TTIriRef concept = new TTIriRef();
       try (TupleQueryResult gs = qry.evaluate()) {
         while (gs.hasNext()) {
@@ -985,13 +1056,11 @@ public class EntityRepository {
 
   private StringJoiner getBundleSparql(Set<String> predicates, boolean excludePredicates, int depth) {
     StringJoiner sql = new StringJoiner(System.lineSeparator());
-    sql.add(RDFS_PREFIX);
-    sql.add("GRAPH ?g {");
     sql.add("CONSTRUCT {").add("  ?entity ?1predicate ?1Level.").add("  ?1Level rdfs:label ?1Name.");
     for (int i = 1; i < depth; i++) {
       sql.add("  ?" + i + "Level ?" + (i + 1) + "predicate ?" + (i + 1) + "Level.").add("  ?" + (i + 1) + "predicate rdfs:label ?" + (i + 1) + "pName.").add("  ?" + (i + 1) + "Level rdfs:label ?" + (i + 1) + "Name.");
     }
-    sql.add("} WHERE { {");
+    sql.add("} WHERE { GRAPH ?g { {");
 
     sql.add("  ?entity ?1predicate ?1Level.").add("  ?1predicate rdfs:label ?1pName.");
     if (predicates != null && !predicates.isEmpty()) {
@@ -1014,14 +1083,13 @@ public class EntityRepository {
           """.formatted(inPredicates));
       }
 
-    } else sql.add("}");
+    } else sql.add("}}");
 
     sql.add("  OPTIONAL {?1Level rdfs:label ?1Name.").add("    FILTER (!isBlank(?1Level))}");
     for (int i = 1; i < depth; i++) {
       sql.add("  OPTIONAL {?" + (i) + "Level ?" + (i + 1) + "predicate ?" + (i + 1) + "Level.").add("    FILTER (isBlank(?" + i + "Level))").add("  OPTIONAL {?" + (i + 1) + "predicate rdfs:label ?" + (i + 1) + "pName}").add("  OPTIONAL {?" + (i + 1) + "Level rdfs:label ?" + (i + 1) + "Name").add("    FILTER (!isBlank(?" + (i + 1) + "Level))}");
     }
     sql.add(String.join("", Collections.nCopies(depth, "}")));
-    sql.add("}");
     return sql;
   }
 
@@ -1121,11 +1189,12 @@ public class EntityRepository {
     return getShort(IM.IS_A, prefixMap);
   }
 
-  public TTArray getEntityTypes(String iri) {
+  public TTArray getEntityTypes(String iri, String graph) {
     TTArray result = new TTArray();
 
     String sql = """
       SELECT ?o ?oname
+      FROM ?g
       WHERE {
         ?s rdf:type ?o .
         ?o rdfs:label ?oname .
@@ -1133,7 +1202,7 @@ public class EntityRepository {
       """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
 
       qry.setBinding("s", Values.iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -1154,12 +1223,12 @@ public class EntityRepository {
     return getBundle(iri, predicates, false, null);
   }
 
-  public List<TTIriRef> getConceptUsages(String objectIri, Integer rowNumber, Integer pageSize) {
+  public List<TTIriRef> getConceptUsages(String objectIri, Integer rowNumber, Integer pageSize, String graph) {
     List<TTIriRef> result = new ArrayList<>();
 
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
-      PREFIX shacl: <http://www.w3.org/ns/shacl#>
       SELECT DISTINCT ?s ?name
+      FROM ?g
       WHERE {
         { ?s ?p ?o . }
         UNION {
@@ -1181,7 +1250,7 @@ public class EntityRepository {
     }
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql.toString());
+      TupleQuery qry = prepareTupleSparql(conn, sql.toString(), graph);
       qry.setBinding("o", iri(objectIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -1193,9 +1262,10 @@ public class EntityRepository {
     return result;
   }
 
-  public Integer getConceptUsagesCount(String objectIri) {
+  public Integer getConceptUsagesCount(String objectIri, String graph) {
     String sql = """
       SELECT (COUNT(DISTINCT ?s) AS ?cnt)
+      FROM ?g
       WHERE {
         { ?s ?p ?o . }
         UNION {
@@ -1210,7 +1280,7 @@ public class EntityRepository {
 
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       qry.setBinding("o", iri(objectIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
@@ -1223,7 +1293,7 @@ public class EntityRepository {
     }
   }
 
-  public List<EntityReferenceNode> getEntityReferenceNodes(Set<String> stringIris, List<String> schemeIris, boolean inactive) {
+  public List<EntityReferenceNode> getEntityReferenceNodes(Set<String> stringIris, List<String> schemeIris, boolean inactive, String graph) {
     StringJoiner iriLine = new StringJoiner(" ");
     for (String stringIri : stringIris) {
       iri(stringIri);
@@ -1231,20 +1301,18 @@ public class EntityRepository {
     }
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
       SELECT ?s ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren
+      FROM ?g
       WHERE {
-        GRAPH ?g { ?s rdfs:label ?name.
-         ?s rdf:type ?typeIri.
-         graph im:{
-         ?typeIri rdfs:label ?typeName.}}
-        VALUES ?s { %s }
+        %s
+        ?s im:scheme ?schemes
+        ?s rdfs:label ?name.
+        ?s rdf:type ?typeIri.
+        ?typeIri rdfs:label ?typeName.
+        %s
         OPTIONAL { ?s sh:order ?order . }
         BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
         BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?s} AS ?hasGrandchildren)
-      """.formatted(iriLine, PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
-
-    if (schemeIris != null && !schemeIris.isEmpty()) {
-      sql.add(valueList("g", schemeIris));
-    }
+      """.formatted(valueList("schemes", schemeIris), valueList("s", stringIris), PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
 
     if (!inactive) {
       sql.add("  OPTIONAL { ?s im:status ?status FILTER (?status != im:Inactive) }");
@@ -1252,9 +1320,10 @@ public class EntityRepository {
 
     sql.add("}");
 
+
     Map<String, EntityReferenceNode> iriMap = new HashMap<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql.toString());
+      TupleQuery qry = prepareTupleSparql(conn, sql.toString(), graph);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -1276,27 +1345,27 @@ public class EntityRepository {
     return new ArrayList<>(new ArrayList<>(iriMap.values()));
   }
 
-  public List<EntityReferenceNode> getAsEntityReferenceNodes(Set<String> iris) {
+  public List<EntityReferenceNode> getAsEntityReferenceNodes(Set<String> iris, String graph) {
     TTArray types = new TTArray();
     List<EntityReferenceNode> result = new ArrayList<>();
-    String entities = iris.stream().map(iri -> "<" + iri + ">").collect(Collectors.joining(" "));
+
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
       SELECT distinct ?entity ?name ?typeIri ?typeName ?hasChildren ?hasGrandchildren
+      FROM ?g
       WHERE {
-        VALUES ?entity {%s}
-        GRAPH ?g { ?entity rdfs:label ?name } .
+        %s
+        ?entity rdfs:label ?name
         OPTIONAL { ?entity rdf:type ?typeIri .
           OPTIONAL { ?typeIri rdfs:label ?typeName . }
         }
         BIND(EXISTS{?child (%s) ?entity} AS ?hasChildren)
         BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?entity} AS ?hasGrandchildren)
-        }
-      
-      """.formatted(entities, PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
+      }
+      """.formatted(valueList("entity", iris), PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
     Map<String, EntityReferenceNode> entityMap = new HashMap<>();
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql.toString());
+      TupleQuery qry = prepareTupleSparql(conn, sql.toString(), graph);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -1326,25 +1395,24 @@ public class EntityRepository {
   }
 
 
-  public EntityReferenceNode getEntityReferenceNode(String iri, List<String> schemeIris, boolean inactive) {
+  public EntityReferenceNode getEntityReferenceNode(String iri, List<String> schemeIris, boolean inactive, String graph) {
     TTArray types = new TTArray();
     EntityReferenceNode result = new EntityReferenceNode(iri).setType(types);
 
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
       SELECT ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren
+      FROM ?g
       WHERE {
-        GRAPH ?g { ?s rdfs:label ?name } .
+        %s
+        ?s im:scheme ?scheme
+        ?s rdfs:label ?name .
         OPTIONAL { ?s sh:order ?order . }
         OPTIONAL { ?s rdf:type ?typeIri .
           OPTIONAL { ?typeIri rdfs:label ?typeName . }
         }
         BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
         BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?s} AS ?hasGrandchildren)
-      """.formatted(PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
-
-    if (schemeIris != null && !schemeIris.isEmpty()) {
-      sql.add(valueList("g", schemeIris));
-    }
+      """.formatted(valueList("scheme", schemeIris), PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
 
     if (!inactive) {
       sql.add("  OPTIONAL { ?s im:status ?status FILTER (?status != im:Inactive) }");
@@ -1353,7 +1421,7 @@ public class EntityRepository {
     sql.add("}");
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql.toString());
+      TupleQuery qry = prepareTupleSparql(conn, sql.toString(), graph);
       qry.setBinding("s", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
@@ -1380,11 +1448,11 @@ public class EntityRepository {
 
   public Pageable<TTIriRef> findImmediateChildrenPagedByIriWithTotalCount(String parentIri, List<String> schemeIris, Integer rowNumber,
                                                                           Integer pageSize, boolean inactive,
-                                                                          List<String> entityTypes) {
+                                                                          List<String> entityTypes, String graph) {
     List<TTIriRef> children = new ArrayList<>();
     Pageable<TTIriRef> result = new Pageable<>();
 
-    StringJoiner sqlCount = new StringJoiner(System.lineSeparator()).add("SELECT (COUNT(?c) as ?count)").add("WHERE {").add("  ?c (" + PARENT_PREDICATES + ") ?p .");
+    StringJoiner sqlCount = new StringJoiner(System.lineSeparator()).add("SELECT (COUNT(?c) as ?count)").add("FROM ?g").add("WHERE {").add("  ?c (" + PARENT_PREDICATES + ") ?p .");
     if (!inactive) {
       sqlCount.add("  OPTIONAL { ?c im:status ?s}").add("  FILTER (?s != im:Inactive) .");
     }
@@ -1392,7 +1460,7 @@ public class EntityRepository {
 
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("SELECT ?c ?cname ").add("WHERE {").add("  ?c ( " + PARENT_PREDICATES + ") ?p .");
     if (schemeIris != null && !schemeIris.isEmpty()) {
-      sql.add("GRAPH ?g { ?c rdfs:label ?cname } .").add(valueList("g", schemeIris));
+      sql.add("?c im:scheme ?scheme . ?c rdfs:label ?cname .").add(valueList("scheme", schemeIris));
     } else {
       sql.add("?c rdfs:label ?cname .");
     }
@@ -1411,14 +1479,14 @@ public class EntityRepository {
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 
-      TupleQuery qryCount = prepareSparql(conn, sqlCount.toString());
+      TupleQuery qryCount = prepareTupleSparql(conn, sqlCount.toString(), graph);
       qryCount.setBinding("p", iri(parentIri));
       try (TupleQueryResult rsCount = qryCount.evaluate()) {
         BindingSet bsCount = rsCount.next();
         result.setTotalCount(((Literal) bsCount.getValue("count")).intValue());
       }
 
-      TupleQuery qry = prepareSparql(conn, sql.toString());
+      TupleQuery qry = prepareTupleSparql(conn, sql.toString(), graph);
       qry.setBinding("p", iri(parentIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         result.setPageSize(pageSize);
@@ -1434,11 +1502,11 @@ public class EntityRepository {
   }
 
 
-  public Pageable<TTIriRef> findPartialWithTotalCount(String parentIri, String predicateIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+  public Pageable<TTIriRef> findPartialWithTotalCount(String parentIri, String predicateIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive, String graph) {
     List<TTIriRef> children = new ArrayList<>();
     Pageable<TTIriRef> result = new Pageable<>();
 
-    StringJoiner sqlCount = new StringJoiner(System.lineSeparator()).add("SELECT (COUNT(?p) as ?count)").add("WHERE {").add("  ?c ?pr ?p .");
+    StringJoiner sqlCount = new StringJoiner(System.lineSeparator()).add("SELECT (COUNT(?p) as ?count)").add("FROM ?g").add("WHERE {").add("  ?c ?pr ?p .");
     if (!inactive) {
       sqlCount.add("  OPTIONAL { ?p im:status ?s}").add("  FILTER (?s != im:Inactive) .");
     }
@@ -1446,10 +1514,11 @@ public class EntityRepository {
 
     StringJoiner sql = new StringJoiner(System.lineSeparator())
       .add("SELECT ?p ?pname ")
+      .add("FROM ?g")
       .add("WHERE {").add("  ?c ?pr ?p .")
       .add("?p rdfs:label ?pname .");
     if (schemeIris != null && !schemeIris.isEmpty()) {
-      sql.add(valueList("g", schemeIris));
+      sql.add(valueList("scheme", schemeIris)).add("  OPTIONAL { ?p im:scheme ?scheme . }");
     }
     if (!inactive) {
       sql.add("  OPTIONAL { ?p im:status ?s}").add("  FILTER (?s != im:Inactive) .");
@@ -1462,7 +1531,7 @@ public class EntityRepository {
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 
-      TupleQuery qryCount = prepareSparql(conn, sqlCount.toString());
+      TupleQuery qryCount = prepareTupleSparql(conn, sqlCount.toString(), graph);
       qryCount.setBinding("c", iri(parentIri));
       qryCount.setBinding("pr", iri(predicateIri));
       try (TupleQueryResult rsCount = qryCount.evaluate()) {
@@ -1470,7 +1539,7 @@ public class EntityRepository {
         result.setTotalCount(((Literal) bsCount.getValue("count")).intValue());
       }
 
-      TupleQuery qry = prepareSparql(conn, sql.toString());
+      TupleQuery qry = prepareTupleSparql(conn, sql.toString(), graph);
       qry.setBinding("c", iri(parentIri));
       qry.setBinding("pr", iri(predicateIri));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -1485,14 +1554,16 @@ public class EntityRepository {
     return result;
   }
 
-  public List<TTIriRef> findImmediateChildrenByIri(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+  public List<TTIriRef> findImmediateChildrenByIri(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive, String graph) {
     List<TTIriRef> result = new ArrayList<>();
 
-    StringJoiner sql = new StringJoiner(System.lineSeparator()).add("SELECT DISTINCT ?c ?cname {").add("  ?c (" + PARENT_PREDICATES + ") ?p .").add("GRAPH ?g { ?c rdfs:label ?cname } .");
-
-    if (schemeIris != null && !schemeIris.isEmpty()) {
-      sql.add(valueList("g", schemeIris));
-    }
+    StringJoiner sql = new StringJoiner(System.lineSeparator())
+      .add("SELECT DISTINCT ?c ?cname")
+      .add("FROM ?g")
+      .add("WHERE { ?c (" + PARENT_PREDICATES + ") ?p .")
+      .add(valueList("schemes", schemeIris))
+      .add("?c im:scheme ?schemes .")
+      .add("?c rdfs:label ?cname .");
 
     if (!inactive) {
       sql.add("  OPTIONAL { ?c im:status ?s}").add("  FILTER (?s != im:Inactive) .");
@@ -1506,7 +1577,7 @@ public class EntityRepository {
     }
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql.toString());
+      TupleQuery qry = prepareTupleSparql(conn, sql.toString(), graph);
       qry.setBinding("p", iri(parentIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -1519,14 +1590,17 @@ public class EntityRepository {
     return result;
   }
 
-  public List<TTIriRef> findImmediateParentsByIri(String childIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+  public List<TTIriRef> findImmediateParentsByIri(String childIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive, String graph) {
     List<TTIriRef> result = new ArrayList<>();
 
-    StringJoiner sql = new StringJoiner(System.lineSeparator()).add("SELECT DISTINCT ?p ?pname").add("WHERE {").add("  ?c (" + PARENT_PREDICATES + ") ?p .").add("GRAPH ?g { ?p rdfs:label ?pname } .");
-
-    if (schemeIris != null && !schemeIris.isEmpty()) {
-      sql.add(valueList("g", schemeIris));
-    }
+    StringJoiner sql = new StringJoiner(System.lineSeparator())
+      .add("SELECT DISTINCT ?p ?pname")
+      .add("FROM ?g")
+      .add("WHERE {")
+      .add("  ?c (" + PARENT_PREDICATES + ") ?p .")
+      .add(valueList("schemes", schemeIris))
+      .add("?c im:scheme ?schemes .")
+      .add("?p rdfs:label ?pname .");
 
     if (!inactive) {
       sql.add("  OPTIONAL { ?p im:status  ?s}").add("  FILTER (?s != im:Inactive) .");
@@ -1541,7 +1615,7 @@ public class EntityRepository {
     sql.add("ORDER BY ?pname");
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql.toString());
+      TupleQuery qry = prepareTupleSparql(conn, sql.toString(), graph);
       qry.setBinding("c", iri(childIri));
 
       log.debug(EXECUTING);
@@ -1557,53 +1631,10 @@ public class EntityRepository {
     return result;
   }
 
-  public List<org.endeavourhealth.imapi.model.Namespace> findNamespaces() {
-    synchronized (namespaceCache) {
-      if (namespaceCache.isEmpty()) {
-        Map<String, org.endeavourhealth.imapi.model.Namespace> result = new HashMap<>();
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-          RepositoryResult<Namespace> namespaces = conn.getNamespaces();
-          while (namespaces.hasNext()) {
-            org.eclipse.rdf4j.model.Namespace ns = namespaces.next();
-            result.put(ns.getName(), new org.endeavourhealth.imapi.model.Namespace(ns.getName(), ns.getPrefix(), ns.getName()));
-          }
-        }
-
-        // Get/add schemes
-        String sql = """
-          SELECT *
-          WHERE {
-            GRAPH ?g {
-              ?g rdfs:label ?name
-            }
-          }
-          """;
-
-        int i = 1;
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-          TupleQuery qry = conn.prepareTupleQuery(sql);
-          try (TupleQueryResult rs = qry.evaluate()) {
-            while (rs.hasNext()) {
-              BindingSet bs = rs.next();
-              org.endeavourhealth.imapi.model.Namespace ns = result.get(bs.getValue("g").stringValue());
-              if (ns == null) {
-                result.put(bs.getValue("g").stringValue(), new org.endeavourhealth.imapi.model.Namespace(bs.getValue("g").stringValue(), "PFX" + (i++), bs.getValue("name").stringValue()));
-              } else {
-                ns.setName(bs.getValue("name").stringValue());
-              }
-            }
-          }
-        }
-        namespaceCache.addAll(result.values());
-      }
-      namespaceCache.sort(Comparator.comparing(org.endeavourhealth.imapi.model.Namespace::getName));
-      return namespaceCache;
-    }
-  }
-
-  private void addTriples(List<Tpl> triples, Resource subject, Integer parent, Set<String> predicates) {
+  private void addTriples(List<Tpl> triples, Resource subject, Integer parent, Set<String> predicates, String graph) {
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
       SELECT ?sname ?p ?pname ?o ?oname
+      FROM ?g
       WHERE {
         ?s ?p ?o ;
         OPTIONAL { ?s rdfs:label ?sname }
@@ -1616,12 +1647,12 @@ public class EntityRepository {
     }
 
     sql.add("}");
-    setAndEvaluate(triples, subject, parent, predicates, sql);
+    setAndEvaluate(triples, subject, parent, predicates, sql, graph);
   }
 
-  private void setAndEvaluate(List<Tpl> triples, Resource subject, Integer parent, Set<String> predicates, StringJoiner sql) {
+  private void setAndEvaluate(List<Tpl> triples, Resource subject, Integer parent, Set<String> predicates, StringJoiner sql, String graph) {
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql.toString());
+      TupleQuery qry = prepareTupleSparql(conn, sql.toString(), graph);
 
       qry.setBinding("s", subject);
       if (predicates != null && !predicates.isEmpty()) {
@@ -1644,7 +1675,7 @@ public class EntityRepository {
             tpl.setLiteral(object.stringValue()).setObject(TTIriRef.iri(((Literal) object).getDatatype().stringValue()));
           } else if (object.isBNode()) {
             bnodes.put(object.stringValue(), row - 1);
-            addTriples(triples, (BNode) object, row - 1, null);
+            addTriples(triples, (BNode) object, row - 1, null, graph);
           } else {
             throw new DALException("ARRAY!");
           }
@@ -1653,9 +1684,10 @@ public class EntityRepository {
     }
   }
 
-  public TTIriRef findParentFolderRef(String iri) {
+  public TTIriRef findParentFolderRef(String iri, String graph) {
     String sql = """
       SELECT ?p ?pname
+      FROM ?g
       WHERE {
         ?c (%s) ?p .
         ?p rdfs:label ?pname .
@@ -1663,7 +1695,7 @@ public class EntityRepository {
       """.formatted(PARENT_PREDICATES);
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       qry.setBinding("c", iri(iri));
 
       log.debug(EXECUTING);
@@ -1678,49 +1710,49 @@ public class EntityRepository {
     return null;
   }
 
-  public Boolean hasPredicates(String subjectIri, Set<String> predicateIris) {
-    String predicates = String.join(" ", predicateIris.stream().map(iri -> "<" + iri + ">").collect(Collectors.toSet()));
+  public boolean hasPredicates(String subjectIri, Set<String> predicateIris, String graph) {
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
       String sql = """
         ASK {
-        Values ?predicates {%s}
-        %s ?predicates ?value.
+          GRAPH ?g {
+            Values ?predicates {%s}
+            ?subject ?predicates ?value.
+          }
         }
-        """.formatted(predicates, "<" + subjectIri + ">");
-      BooleanQuery sparql = conn.prepareBooleanQuery(String.valueOf(sql));
+        """.formatted(valueList("predicates", predicateIris));
+      BooleanQuery sparql = prepareBooleanSparql(conn, sql, graph);
+      sparql.setBinding("subject", iri(subjectIri));
       return sparql.evaluate();
     }
   }
 
 
-  public Map<String, TTEntity> getEntitiesWithPredicates(Set<String> iris, Set<String> predicates) {
+  public Map<String, TTEntity> getEntitiesWithPredicates(Set<String> iris, Set<String> predicates, String graph) {
     Map<String, TTEntity> result = new HashMap<>();
     iris.remove(null);
-    String entityIris = String.join(" ", iris.stream().map(i -> "<" + i + ">").collect(Collectors.toSet()));
-    String predicateIris = String.join(" ", predicates.stream().map(i -> "<" + i + ">").collect(Collectors.toSet()));
     String sql = """
-      prefix rdfs: %s
       select ?entity ?entityLabel ?predicate ?predicateLabel ?object ?objectLabel ?subPredicate ?subPredicateLabel ?subObject ?subObjectLabel
+      FROM ?g
       where {
         VALUES ?entity {%s}
         ?entity rdfs:label ?entityLabel.
         optional {
-             VALUES ?predicate {%s}
-            ?entity ?predicate ?object.
-            ?predicate rdfs:label ?predicateLabel.
-           optional {
-                   ?object rdfs:label ?objectLabel.
-                  ?object ?subPredicate ?subObject.
-                  ?subPredicate rdfs:label ?subPredicateLabel.
-                  optional {
-                     ?subObject rdfs:label ?subObjectLabel.
-                     }
-                  }
-             }
+          VALUES ?predicate {%s}
+          ?entity ?predicate ?object.
+          ?predicate rdfs:label ?predicateLabel.
+          optional {
+            ?object rdfs:label ?objectLabel.
+            ?object ?subPredicate ?subObject.
+            ?subPredicate rdfs:label ?subPredicateLabel.
+            optional {
+              ?subObject rdfs:label ?subObjectLabel.
+            }
+          }
         }
-      """.formatted("<" + RDFS.NAMESPACE + ">", entityIris, predicateIris);
+      }
+      """.formatted(valueList("entity", iris), valueList("predicate", predicates));
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
       try (TupleQueryResult rs = qry.evaluate()) {
         Map<String, TTNode> bnodeMap = new HashMap<>();
         while (rs.hasNext()) {
@@ -1760,10 +1792,12 @@ public class EntityRepository {
   }
 
 
-  public List<TTIriRef> findEntitiesByType(String typeIri) {
+  public List<TTIriRef> findEntitiesByType(String typeIri, String graph) {
     String sparqlString =
       """
-          select * where {
+          select *
+          FROM ?g
+          where {
               ?s rdf:type ?c .
               ?s rdfs:label ?name .
           }
@@ -1771,7 +1805,7 @@ public class EntityRepository {
     ArrayList<TTIriRef> iriRefs = new ArrayList<>();
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sparqlString);
+      TupleQuery qry = prepareTupleSparql(conn, sparqlString, graph);
       qry.setBinding("c", iri(typeIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -1783,46 +1817,60 @@ public class EntityRepository {
     return iriRefs;
   }
 
-  public Map<String, org.endeavourhealth.imapi.model.Namespace> findAllSchemesWithPrefixes() {
-    Map<String, org.endeavourhealth.imapi.model.Namespace> result = new HashMap<>();
+  public List<org.endeavourhealth.imapi.model.Namespace> findNamespaces(String graph) {
+    List<org.endeavourhealth.imapi.model.Namespace> result = new ArrayList<>();
 
     String sql = """
-       select * where {
-           ?s im:isA <http://endhealth.info/im#Graph> .
-       	?s rdfs:label ?name .
+       select *
+       FROM ?g
+       where {
+         ?s im:isA im:Scheme .
+         ?s rdfs:label ?name .
        }
       """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
 
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          result.put(bs.getValue("s").stringValue(), new org.endeavourhealth.imapi.model.Namespace().setIri(bs.getValue("s").stringValue()).setName(bs.getValue("name").stringValue())
-          );
+          String iri = bs.getValue("s").stringValue();
+          org.endeavourhealth.imapi.model.Namespace namespace = new org.endeavourhealth.imapi.model.Namespace()
+            .setIri(iri)
+            .setName(bs.getValue("name").stringValue())
+            .setPrefix(getPrefixFromIri(iri));
+          result.add(namespace);
         }
       }
     }
-
     return result;
   }
 
-  public Set<String> getByGraph(String graphIri) {
+  private String getPrefixFromIri(String iri) {
+    int lastSlashIndex = iri.lastIndexOf('/');
+    int hashIndex = iri.lastIndexOf('#');
+    if (lastSlashIndex != -1 && hashIndex != -1 && hashIndex > lastSlashIndex) {
+      return iri.substring(lastSlashIndex + 1, hashIndex);
+    } else if (iri.equals(FHIR.DOMAIN)) {
+      return FHIR.PREFIX;
+    }
+    return iri;
+  }
+
+  public Set<String> getByScheme(String schemeIri, String graph) {
     Set<String> results = new HashSet<>();
     String sparql = """
       SELECT DISTINCT ?s
+      FROM ?g
       WHERE {
-        GRAPH ?g {
-          ?s ?p ?o
-        }
+        ?s im:scheme ?scheme
       }
       """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sparql);
-      qry.setBinding("g", iri(graphIri));
-
+      TupleQuery qry = prepareTupleSparql(conn, sparql, graph);
+      qry.setBinding("scheme", iri(schemeIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -1833,18 +1881,20 @@ public class EntityRepository {
     return results;
   }
 
-  public List<TTIriRef> findInvertedIsas(String iri) {
+  public List<TTIriRef> findInvertedIsas(String iri, String graph) {
     String sparqlString =
       """
-          select * where {
-              ?s im:isA ?iri .
-              ?s rdfs:label ?name .
+          select *
+          FROM ?g
+          where {
+            ?s im:isA ?iri .
+            ?s rdfs:label ?name .
           }
         """;
     ArrayList<TTIriRef> iriRefs = new ArrayList<>();
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sparqlString);
+      TupleQuery qry = prepareTupleSparql(conn, sparqlString, graph);
       qry.setBinding("iri", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -1856,18 +1906,20 @@ public class EntityRepository {
     return iriRefs;
   }
 
-  public List<String> findOperatorOptions(String iri) {
+  public List<String> findOperatorOptions(String iri, String graph) {
     List<String> options = new ArrayList<>();
 
     String sparqlString =
       """
-          select * where {
-              ?s sh:in ?o .
+          select *
+          FROM ?g
+          where {
+            ?s sh:in ?o .
           }
         """;
 
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sparqlString);
+      TupleQuery qry = prepareTupleSparql(conn, sparqlString, graph);
       qry.setBinding("s", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -1882,20 +1934,22 @@ public class EntityRepository {
     return options;
   }
 
-  public List<TTEntity> getFolderChildren(String iri, String... predicates) {
+  public List<TTEntity> getFolderChildren(String iri, String graph, String... predicates) {
     Map<String, TTEntity> entities = new HashMap<>();
     String predicateList = Arrays.stream(predicates).map(p -> "<" + p + ">").collect(Collectors.joining(" "));
     String sql = """
-      select ?entity ?predicate ?order ?object where {
-      values ?predicate {%s}
-      ?entity <%s> <%s>.
-      ?entity ?predicate ?object.
-      optional {?entity <%s> ?order}
-      
+      select ?entity ?predicate ?order ?object
+      FROM ?g
+      where {
+        values ?predicate {%s}
+        ?entity im:isContainedIn ?containedIn.
+        ?entity ?predicate ?object.
+        optional {?entity sh:order ?order}
       }
-      """.formatted(predicateList, IM.IS_CONTAINED_IN, iri, SHACL.ORDER);
+      """.formatted(predicateList);
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql);
+      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
+      qry.setBinding("containedIn", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -1912,19 +1966,16 @@ public class EntityRepository {
       .sorted(Comparator.comparingInt(entity ->
         entity.get(TTIriRef.iri(SHACL.ORDER)).asLiteral().intValue()
       ))
-      .collect(Collectors.toList());
+      .toList();
   }
 
 
-  public List<TTEntity> getAllowableChildTypes(String iri) {
+  public List<TTEntity> getAllowableChildTypes(String iri, String graph) {
     String spq = """
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      PREFIX im: <http://endhealth.info/im#>
-      PREFIX sh: <http://www.w3.org/ns/shacl#>
       SELECT distinct  ?entity ?label ?path ?pathLabel
+      FROM ?g
       WHERE {
-           VALUES ?parent {%s}
+           VALUES ?parent {?iri}
           {
            ?parent rdf:type ?entity.
            ?entity rdfs:label ?label.
@@ -1941,11 +1992,12 @@ public class EntityRepository {
               ?path rdfs:label ?pathLabel.
           }
       }
-      """.formatted("<" + iri + ">");
+      """;
     List<TTEntity> result = new ArrayList<>();
     Map<String, TTEntity> iriMap = new HashMap<>();
     try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(spq);
+      TupleQuery qry = prepareTupleSparql(conn, spq, graph);
+      qry.setBinding("iri", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

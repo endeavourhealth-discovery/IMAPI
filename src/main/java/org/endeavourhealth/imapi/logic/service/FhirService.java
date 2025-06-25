@@ -6,9 +6,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
+import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.hl7.fhir.r4.model.ValueSet;
 
@@ -19,13 +19,13 @@ public class FhirService {
   SetService setService = new SetService();
   EclService eclService = new EclService();
 
-  public String getFhirValueSet(String iri, boolean expanded) throws JsonProcessingException, QueryException {
+  public String getFhirValueSet(String iri, boolean expanded, String graph) throws JsonProcessingException, QueryException {
     List<String> schemes = new ArrayList<>();
-    SetOptions setOptions = new SetOptions(iri, true, expanded, false, true, schemes, new ArrayList<>());
+    SetOptions setOptions = new SetOptions(iri, true, expanded, false, true, schemes, new ArrayList<>(), graph);
     return setService.getFHIRSetExport(setOptions);
   }
 
-  public String eclToFhir(String data) throws EclFormatException, QueryException, JsonProcessingException {
+  public String eclToFhir(String data, String graph) throws EclFormatException, QueryException, JsonProcessingException {
     ValueSet result = new ValueSet();
     ValueSet.ValueSetExpansionComponent expansion = new ValueSet.ValueSetExpansionComponent();
     ValueSet.ConceptSetFilterComponent filter = new ValueSet.ConceptSetFilterComponent();
@@ -42,7 +42,7 @@ public class FhirService {
     compose.setInclude(includes);
     result.setCompose(compose);
 
-    Query eclQuery = eclService.getQueryFromEcl(data);
+    Query eclQuery = eclService.getQueryFromEcl(data, graph);
     EclSearchRequest request = new EclSearchRequest();
     request.setEclQuery(eclQuery);
     request.setIncludeLegacy(false);

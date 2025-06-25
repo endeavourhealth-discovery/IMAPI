@@ -1,6 +1,7 @@
-package org.endeavourhealth.imapi.model.search;
+package org.endeavourhealth.imapi.model.responses;
 
 import lombok.Getter;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 
 import java.util.ArrayList;
 import java.util.List;

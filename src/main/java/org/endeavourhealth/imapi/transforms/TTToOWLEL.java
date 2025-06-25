@@ -1,10 +1,10 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
 import org.semanticweb.owlapi.formats.PrefixDocumentFormat;
@@ -66,7 +66,7 @@ public class TTToOWLEL {
     }
 
     //Create ontology
-    ontology = manager.createOntology(IRI.create(document.getGraph().getIri()));
+    ontology = manager.createOntology(IRI.create(document.getNamespace().getIri()));
 
     processPrefixes(document.getPrefixes());
     processEntities(document.getEntities());

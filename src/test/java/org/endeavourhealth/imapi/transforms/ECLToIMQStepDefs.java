@@ -15,9 +15,9 @@ public class ECLToIMQStepDefs {
   @Then("getEclFromQuery should equal original ecl {string}")
   public void GetEclFromQueryShouldEqualEcl(String ecl) throws Exception {
 
-    assertEquals(ecl, imqToECL.getECLFromQuery(query).replaceAll("\n", "")
+    assertEquals(ecl, imqToECL.getECLFromQuery(query, null).replaceAll("\n", "")
       .replaceAll("\t", "")
-      .replaceAll("or ","OR "));
+      .replaceAll("or ", "OR "));
   }
 
   @When("getQueryFromEcl is called with ecl {string}")

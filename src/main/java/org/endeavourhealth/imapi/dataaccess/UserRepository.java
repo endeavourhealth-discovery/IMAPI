@@ -7,6 +7,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.USER;
 
@@ -16,31 +17,30 @@ import java.util.StringJoiner;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareUpdateSparql;
+import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.*;
 
 public class UserRepository {
 
   public String getSparqlSelect() {
-    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("SELECT ?o WHERE {").add("  ?s ?p ?o").add("}");
+    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("SELECT ?o FROM ?g WHERE {").add("  ?s ?p ?o").add("}");
     return sparql.toString();
   }
 
   public String getSparqlDelete() {
-    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("DELETE WHERE {").add("  ?s ?p ?o").add("}");
+    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("DELETE WHERE { GRAPH ?g {").add("  ?s ?p ?o").add("}}");
     return sparql.toString();
   }
 
   public String getSparqlInsert() {
-    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("INSERT {").add("  ?s ?p ?o ").add("}").add("WHERE { SELECT ?s ?p ?o {} }");
+    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("INSERT {").add("  ?s ?p ?o ").add("}").add("WHERE { GRAPH ?g { SELECT ?s ?p ?o {} }}");
     return sparql.toString();
   }
 
-  public String getByPredicate(String user, String predicate) {
+  public String getByPredicate(String user, String predicate, String graph) {
     String result = "";
     String sparql = getSparqlSelect();
     try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-      TupleQuery qry = prepareSparql(conn, sparql);
+      TupleQuery qry = prepareTupleSparql(conn, sparql, graph);
       qry.setBinding("s", iri(USER.NAMESPACE + user));
       qry.setBinding("p", iri(predicate));
 
@@ -59,7 +59,7 @@ public class UserRepository {
     String sparql = getSparqlSelect();
 
     try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-      TupleQuery qry = prepareSparql(conn, sparql);
+      TupleQuery qry = prepareTupleSparql(conn, sparql, GRAPH.DISCOVERY);
       qry.setBinding("s", iri(USER.NAMESPACE + user));
       qry.setBinding("p", iri(USER.USER_MRU));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -80,7 +80,7 @@ public class UserRepository {
     String sparql = getSparqlSelect();
 
     try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-      TupleQuery qry = prepareSparql(conn, sparql);
+      TupleQuery qry = prepareTupleSparql(conn, sparql, GRAPH.DISCOVERY);
       qry.setBinding("s", iri(USER.NAMESPACE + user));
       qry.setBinding("p", iri(USER.USER_FAVOURITES));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -99,7 +99,7 @@ public class UserRepository {
   public void delete(String user, String predicate) {
     String sparql = getSparqlDelete();
     try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-      Update qry = conn.prepareUpdate(sparql);
+      Update qry = prepareUpdateSparql(conn, sparql, GRAPH.DISCOVERY);
       qry.setBinding("s", iri(USER.NAMESPACE + user));
       qry.setBinding("p", iri(predicate));
       qry.execute();
@@ -110,7 +110,7 @@ public class UserRepository {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       String sparql = getSparqlInsert();
       try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-        Update qry = prepareUpdateSparql(conn, sparql);
+        Update qry = prepareUpdateSparql(conn, sparql, GRAPH.DISCOVERY);
         qry.setBinding("s", iri(USER.NAMESPACE + user));
         qry.setBinding("p", iri(predicate));
         qry.setBinding("o", literal(om.writeValueAsString(object)));
@@ -120,7 +120,10 @@ public class UserRepository {
   }
 
   public void updateUserMRU(String user, List<RecentActivityItemDto> mru) throws JsonProcessingException {
-    if (mru.isEmpty()) {delete(user, USER.USER_MRU);return;}
+    if (mru.isEmpty()) {
+      delete(user, USER.USER_MRU);
+      return;
+    }
     if (mru.stream().allMatch(this::isValidRecentActivityItem)) {
       delete(user, USER.USER_MRU);
       insert(user, USER.USER_MRU, mru);
@@ -149,7 +152,7 @@ public class UserRepository {
     List<String> result = new ArrayList<>(List.of(IM.NAMESPACE));
     String sparql = getSparqlSelect();
     try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-      TupleQuery qry = prepareSparql(conn, sparql);
+      TupleQuery qry = prepareTupleSparql(conn, sparql, GRAPH.DISCOVERY);
       qry.setBinding("s", iri(USER.NAMESPACE + user));
       qry.setBinding("p", iri(USER.ORGANISATIONS));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -174,7 +177,8 @@ public class UserRepository {
 
   public boolean getUserIdExists(String userId) {
     try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-      BooleanQuery qry = conn.prepareBooleanQuery("ASK { ?s ?p ?o.}");
+      String sparql = "ASK { GRAPH ?g { ?s ?p ?o.}}";
+      BooleanQuery qry = prepareBooleanSparql(conn, sparql, GRAPH.DISCOVERY);
       qry.setBinding("s", iri(USER.NAMESPACE + userId));
       return qry.evaluate();
     }

@@ -126,30 +126,12 @@ public class IMQtoSQLConverter {
     if (aReturn.getProperty() != null) {
       for (ReturnProperty property : aReturn.getProperty()) {
         if (property.getReturn() != null) {
-          Table table = tableMap.getTable(property.getIri());
-          String typeOf = table.getDataModel();
-          if (typeOf == null)
-            throw new SQLConversionException("Property not mapped to datamodel: " + property.getIri());
-          SQLQuery subQuery = qry.subQuery(typeOf, null, tableMap);
-          addSelectFromReturnRecursively(subQuery, property.getReturn(), property, parentProperty != null ? parentProperty.getIri() : gParentTypeOf, subQuery.getAlias());
-          if (subQuery.getWiths() == null)
-            subQuery.setWiths(new ArrayList<>());
-          qry.getWiths().add(subQuery.getAlias() + " AS (" + subQuery.toSql(2) + "\n)");
-          qry.getSelects().addAll(getSelectsForParentQuery(subQuery.getSelects()));
-          String joiner = "JOIN ";
-          qry.getJoins().add(createJoin(qry, subQuery, joiner));
+          addNestedProperty(qry, property, parentProperty, gParentTypeOf);
         } else if (property.getAs() != null) {
           if (property.getAs().equals("Y-N")) {
-            Table parentTable = tableMap.getTable(parentProperty.getIri());
-            Table gParentTable = tableMap.getTable(gParentTypeOf);
-            Relationship rel = parentTable.getRelationships().get(gParentTable.getDataModel());
-            if (rel == null)
-              throw new SQLConversionException("Relationship between " + parentTable.getTable() + " and " + gParentTable.getTable() + "not found!");
-            String whereFrom = rel.getFromField().replace("{alias}", tableAlias);
-            String whereTo = gParentTable.getTable() + "." + rel.getToField();
-            String yes_no_select = "CASE WHEN EXISTS ( SELECT 1 FROM %s WHERE %s = %s ) THEN 'Y' ELSE 'N' END AS `Y-N`";
-            yes_no_select = String.format(yes_no_select, parentTable.getTable(), whereFrom, whereTo);
-            qry.getSelects().add(yes_no_select);
+            if (parentProperty == null)
+              throw new SQLConversionException("Parent Property is null: " + property.getIri());
+            addYNCase(qry, parentProperty, gParentTypeOf, tableAlias);
           } else {
             String select = qry.getFieldName(property.getIri(), null, tableMap) + " AS `" + property.getAs() + "`";
             qry.getSelects().add(select);
@@ -157,18 +139,57 @@ public class IMQtoSQLConverter {
         }
       }
     } else if (aReturn.getFunction() != null) {
-      switch (aReturn.getFunction().getName()) {
-        case Function.count -> qry.getSelects().add("COUNT(*) AS count");
-        default ->
-          throw new SQLConversionException("SQL Conversion Error: Function not recognised: " + aReturn.getFunction().getName());
-      }
+      addFunction(qry, aReturn, parentProperty);
     }
+  }
+
+  private void addFunction(SQLQuery qry, Return aReturn, ReturnProperty parentProperty) throws SQLConversionException {
+    String propertyName = parentProperty.getName();
+    switch (aReturn.getFunction().getName()) {
+      case Function.count -> qry.getSelects().add("COUNT(*) AS count");
+      case Function.average -> qry.getSelects().add(String.format("AVG(%s) AS average_%s", propertyName, propertyName));
+      case Function.sum -> qry.getSelects().add(String.format("SUM(%s) AS sum_%s", propertyName, propertyName));
+      case Function.max -> qry.getSelects().add(String.format("MAX(%s) AS max_%s", propertyName, propertyName));
+      case Function.min -> qry.getSelects().add(String.format("MIN(%s) AS min_%s", propertyName, propertyName));
+      case Function.concatenate ->
+        qry.getSelects().add(String.format("GROUP_CONCAT(DISTINCT %s SEPARATOR ', ' as concat_%s)", propertyName, propertyName));
+      default ->
+        throw new SQLConversionException("SQL Conversion Error: Function not recognised: " + aReturn.getFunction().getName());
+    }
+  }
+
+  private void addNestedProperty(SQLQuery qry, ReturnProperty property, ReturnProperty parentProperty, String gParentTypeOf) throws SQLConversionException {
+    Table table = tableMap.getTable(property.getIri());
+    String typeOf = table.getDataModel();
+    if (typeOf == null)
+      throw new SQLConversionException("Property not mapped to datamodel: " + property.getIri());
+    SQLQuery subQuery = qry.subQuery(typeOf, null, tableMap);
+    addSelectFromReturnRecursively(subQuery, property.getReturn(), property, parentProperty != null ? parentProperty.getIri() : gParentTypeOf, subQuery.getAlias());
+    if (subQuery.getWiths() == null)
+      subQuery.setWiths(new ArrayList<>());
+    qry.getWiths().add(subQuery.getAlias() + " AS (" + subQuery.toSql(2) + "\n)");
+    qry.getSelects().addAll(getSelectsForParentQuery(subQuery.getSelects()));
+    String joiner = "JOIN ";
+    qry.getJoins().add(createJoin(qry, subQuery, joiner));
+  }
+
+  private void addYNCase(SQLQuery qry, ReturnProperty parentProperty, String gParentTypeOf, String tableAlias) throws SQLConversionException {
+    Table parentTable = tableMap.getTable(parentProperty.getIri());
+    Table gParentTable = tableMap.getTable(gParentTypeOf);
+    Relationship rel = parentTable.getRelationships().get(gParentTable.getDataModel());
+    if (rel == null)
+      throw new SQLConversionException("Relationship between " + parentTable.getTable() + " and " + gParentTable.getTable() + "not found!");
+    String whereFrom = rel.getFromField().replace("{alias}", tableAlias);
+    String whereTo = gParentTable.getTable() + "." + rel.getToField();
+    String yes_no_select = "CASE WHEN EXISTS ( SELECT 1 FROM %s WHERE %s = %s ) THEN 'Y' ELSE 'N' END AS %s";
+    yes_no_select = String.format(yes_no_select, parentTable.getTable(), whereFrom, whereTo, tableAlias + "_exists");
+    qry.getSelects().add(yes_no_select);
   }
 
   private List<String> getSelectsForParentQuery(List<String> originalSelects) {
     List<String> returnSelects = new ArrayList<>();
     for (String originalSelect : originalSelects) {
-      String[] splits = originalSelect.split("AS");
+      String[] splits = originalSelect.split(" AS ");
       if (splits.length == 2)
         returnSelects.add(splits[1].strip());
       else returnSelects.add(originalSelect);

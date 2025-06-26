@@ -205,6 +205,7 @@ public class QueryRepository {
               if (foundCount > end) break;
             }
             if (notMatched(lastEntity, queryRequest.getTextSearch())) {
+              foundCount--;
               entities.remove(entities.size() - 2);
             }
             lastEntity = entity;
@@ -212,17 +213,10 @@ public class QueryRepository {
           }
         }
       }
-      if (queryRequest.getTextSearch() != null) {
-        if (lastEntity != null) {
-          if (notMatched(lastEntity, queryRequest.getTextSearch())) {
-            entities.remove(entities.size() - 2);
-          }
-        }
-        if (entity != null) {
-          if (notMatched(entity, queryRequest.getTextSearch())) {
-            entities.remove(entities.size() - 1);
-          }
-
+      if (!entities.isEmpty() && queryRequest.getTextSearch() != null) {
+        JsonNode last = entities.get(entities.size() - 1);
+        if (notMatched(last, queryRequest.getTextSearch())) {
+          entities.remove(entities.size() - 1);
         }
       }
     }

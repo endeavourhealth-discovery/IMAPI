@@ -27,19 +27,19 @@ class SearchServiceTest {
 
   //@Test
   void imq() throws Exception {
-    output(TestQueries.getAllowableSubtypes());
-    output(TestQueries.rangeTextSearch());
-    output(TestQueries.getMembers());
     output(TestQueries.AllowablePropertiesForCovid());
-    ask(TestQueries.isValidProperty());
+    output(TestQueries.subtypesParameterised());
     output(TestQueries.dataModelPropertyRange());
+    output(TestQueries.getAllowableSubtypes());
+    output(TestQueries.getMembers());
+
+    ask(TestQueries.isValidProperty());
+
     output(TestQueries.shapesWithDateOFBirth());
 
     output(TestQueries.AllowablePropertiesForCovid());
     output(TestQueries.getAllowableProperties());
 
-
-    output(TestQueries.subtypesParameterised());
 
     output(TestQueries.getMembers());
     ;
@@ -56,13 +56,8 @@ class SearchServiceTest {
 
     output(TestQueries.query1());
     output(TestQueries.getShaclProperty());
-
     output(TestQueries.deleteSets());
-
-
     output(TestQueries.substanceTextSearch());
-    output(TestQueries.rangeTextSearch());
-
     output(TestQueries.oralNsaids());
     output(TestQueries.getAllowableProperties());
     output(TestQueries.getIsas());

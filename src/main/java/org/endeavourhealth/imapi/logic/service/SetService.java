@@ -16,6 +16,7 @@ import org.endeavourhealth.imapi.model.SetDiffObject;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.iml.SetContent;
+import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
@@ -135,7 +136,11 @@ public class SetService {
 
       if (options.includeDefinition() && null != entity.get(iri(IM.DEFINITION))) {
         Query qryDef = entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
-        result.setSetDefinition(new IMQToECL().getECLFromQuery(qryDef, true, options.getGraph()));
+        ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
+        eclQueryRequest.setShowNames(true);
+        eclQueryRequest.setQuery(qryDef);
+        new IMQToECL().getECLFromQuery(eclQueryRequest);
+        result.setSetDefinition(eclQueryRequest.getEcl());
       }
     }
 
@@ -208,7 +213,12 @@ public class SetService {
 
   private String getEcl(TTEntity entity, String graph) throws QueryException, JsonProcessingException {
     if (entity.get(iri(IM.DEFINITION)) == null) return null;
-    return new IMQToECL().getECLFromQuery(entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class), true, graph);
+    ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
+    eclQueryRequest.setQuery(entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class));
+    eclQueryRequest.setShowNames(true);
+    eclQueryRequest.setGraph(graph);
+    new IMQToECL().getECLFromQuery(eclQueryRequest);
+    return eclQueryRequest.getEcl();
   }
 
   public byte[] getSetExport(String format, boolean includeIM1id, SetOptions options) throws IOException, QueryException, GeneralCustomException {
@@ -260,6 +270,12 @@ public class SetService {
   public Set<Concept> getExpandedSetMembers(String iri, boolean core, boolean legacy, boolean subsets, List<String> schemes,
                                             List<String> subsumptions, String graph) throws QueryException, JsonProcessingException {
     if (!(core || legacy || subsets)) return new HashSet<>();
+    boolean hasMembers = entityRepository.hasPredicates(iri, Set.of(IM.HAS_MEMBER), graph);
+    if (!hasMembers) {
+      if (entityRepository.hasPredicates(iri, Set.of(IM.DEFINITION), graph)) {
+        new SetMemberGenerator().generateMembers(iri, graph);
+      } else return new HashSet<>();
+    }
 
     Set<Concept> result = null;
 

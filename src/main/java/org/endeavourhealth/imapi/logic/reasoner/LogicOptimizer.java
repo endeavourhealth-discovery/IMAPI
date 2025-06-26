@@ -90,7 +90,6 @@ public class LogicOptimizer {
   public void resolveLogic(Match match, DisplayMode displayMode) throws JsonProcessingException {
     if (displayMode== DisplayMode.LOGICAL) {
       getLogicFromRules(match);
-        flattenMatch(match);
         optimiseMatch(match);
     }
     else {
@@ -298,7 +297,7 @@ public class LogicOptimizer {
   }
 
 
-  public void createRules(Query query) {
+  public void getRulesFromLogic(Query query) {
     if (query.getAnd() == null&&query.getOr()==null&&query.getNot()==null) return;
     if (query.getAnd()!=null) {
       for (Match match : query.getAnd()) {
@@ -310,7 +309,6 @@ public class LogicOptimizer {
         Match lastRule= query.getRule().get(query.getRule().size()-1);
         lastRule.setIfTrue(RuleAction.SELECT);
         lastRule.setIfFalse(RuleAction.REJECT);
-        return;
       }
     }
     if (query.getOr()!=null){
@@ -325,7 +323,6 @@ public class LogicOptimizer {
       if (query.getNot()==null){
         lastRule.setIfTrue(RuleAction.SELECT);
         lastRule.setIfFalse(RuleAction.REJECT);
-        return;
       }
       else {
         lastRule.setIfTrue(RuleAction.SELECT);

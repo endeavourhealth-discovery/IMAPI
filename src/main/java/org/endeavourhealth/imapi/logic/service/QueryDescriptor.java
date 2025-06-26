@@ -45,7 +45,7 @@ public class QueryDescriptor {
     setIriNames(query, graph);
     if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
     if (displayMode == DisplayMode.RULES && query.getRule() == null) {
-      new LogicOptimizer().createRules(query);
+      new LogicOptimizer().getRulesFromLogic(query);
     } else if (displayMode == DisplayMode.LOGICAL && query.getRule() != null) {
       new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     }
@@ -81,8 +81,7 @@ public class QueryDescriptor {
   }
 
   private void setIriNames(Match match, String graph) throws QueryException {
-    Set<String> iriSet = new HashSet<>();
-    setIriSet(match, iriSet);
+    Set<String> iriSet = IriCollector.collectIris(match);
     try {
       iriContext = repo.getEntitiesWithPredicates(iriSet, Set.of(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.NAMESPACE + "displayLabel"), graph);
     } catch (Exception e) {
@@ -91,16 +90,7 @@ public class QueryDescriptor {
   }
 
   private void setIriNames(Query query, String graph) throws QueryException {
-    Set<String> iriSet = new HashSet<>();
-    setIriSet(query, iriSet);
-    if (query.getDataSet() != null) {
-      for (Query subQuery : query.getDataSet()) {
-        setIriSet(subQuery, iriSet);
-      }
-    }
-    if (query.getReturn() != null) {
-      setIriSet(query.getReturn(), iriSet);
-    }
+    Set<String> iriSet = IriCollector.collectIris(query);
     try {
       iriContext = repo.getEntitiesWithPredicates(iriSet, Set.of(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.NAMESPACE + "displayLabel"), graph);
     } catch (Exception e) {
@@ -108,113 +98,6 @@ public class QueryDescriptor {
     }
   }
 
-  private void setIriSet(Return ret, Set<String> iriSet) {
-    if (ret.getProperty() != null) {
-      for (ReturnProperty prop : ret.getProperty()) {
-        if (prop.getIri() != null) iriSet.add(prop.getIri());
-        if (prop.getReturn() != null) {
-          setIriSet(prop.getReturn(), iriSet);
-        }
-      }
-    }
-  }
-
-  private void setIriSet(Path path, Set<String> iriSet) {
-    if (path.getIri() != null)
-      iriSet.add(path.getIri());
-    if (path.getPath() != null) {
-      for (Path subPath : path.getPath()) {
-        setIriSet(subPath, iriSet);
-      }
-    }
-  }
-
-
-  private void setIriSet(Match match, Set<String> iriSet) {
-    if (match.getIri() != null) {
-      iriSet.add(match.getIri());
-    }
-    if (match.getTypeOf() != null) {
-      iriSet.add(match.getTypeOf().getIri());
-    }
-    if (match.getPath() != null) {
-      for (Path path : match.getPath()) {
-        setIriSet(path, iriSet);
-      }
-    }
-    if (match.getInstanceOf() != null) {
-      match.getInstanceOf().forEach(i -> iriSet.add(i.getIri()));
-    }
-    if (match.getThen() != null) {
-      setIriSet(match.getThen(), iriSet);
-    }
-    if (match.getRule() != null) {
-      for (Match subMatch : match.getRule()) {
-        setIriSet(subMatch, iriSet);
-      }
-    }
-    if (match.getOr() != null) {
-      for (Match subMatch : match.getOr()) {
-        setIriSet(subMatch, iriSet);
-      }
-    }
-    if (match.getAnd() != null) {
-      for (Match subMatch : match.getAnd()) {
-        setIriSet(subMatch, iriSet);
-      }
-    }
-    if (match.getNot() != null) {
-      for (Match subMatch : match.getNot()) {
-        setIriSet(subMatch, iriSet);
-      }
-    }
-
-    if (match.getWhere() != null) {
-      setIriSet(match.getWhere(), iriSet);
-    }
-    if (match.getReturn() != null) {
-      setIriSet(match.getReturn(), iriSet);
-    }
-  }
-
-
-  private void setIriSet(Where where, Set<String> iriSet) {
-    if (where.getIri() != null) {
-      iriSet.add(where.getIri());
-    }
-    if (where.getAnd() != null) {
-      for (Where subWhere : where.getAnd()) {
-        setIriSet(subWhere, iriSet);
-      }
-    }
-    if (where.getOr() != null) {
-      for (Where subWhere : where.getOr()) {
-        setIriSet(subWhere, iriSet);
-      }
-    }
-    if (where.getIs() != null) {
-      for (Node node : where.getIs())
-        iriSet.add(node.getIri());
-    }
-    setIriSet((Assignable) where, iriSet);
-    if (where.getRange() != null) {
-      if (where.getRange().getFrom() != null) {
-        setIriSet(where.getRange().getFrom(), iriSet);
-      }
-      if (where.getRange().getTo() != null) {
-        setIriSet(where.getRange().getTo(), iriSet);
-      }
-    }
-    if (where.getValue() != null) {
-      setIriSet((Assignable) where, iriSet);
-    }
-  }
-
-  private void setIriSet(Assignable assignable, Set<String> iriSet) {
-    if (assignable.getUnit() != null) {
-      iriSet.add(assignable.getUnit().getIri());
-    }
-  }
 
   public String getTermInContext(String source, Context... contexts) {
     if (source.isEmpty()) return "";

@@ -51,7 +51,7 @@ public class OSQuery {
   private static void processBestMatch(CachedObjectMapper om, JsonNode hit, ObjectNode resultNode) {
     JsonNode innerHits = hit.get("inner_hits");
     if (innerHits != null) {
-      if (innerHits.get("termCode") != null) {
+      if (innerHits.get("termCode") != null && !innerHits.get("termCode").get("hits").get("hits").isEmpty()) {
         String name = resultNode.get(RDFS.LABEL).asText();
         JsonNode bestHit = innerHits.get("termCode").get("hits").get("hits").get(0).get("_source").get("term");
         String bestTerm = bestHit.asText();

@@ -1,14 +1,9 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
-import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.DisplayMode;
-import org.endeavourhealth.imapi.model.imq.ECLStatus;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -23,9 +18,36 @@ import java.util.Set;
 public class EclService {
   private final SetRepository setRepository = new SetRepository();
 
+  public ECLQueryRequest validateModelFromQuery(ECLQueryRequest eclQuery) {
+    eclQuery.setStatus(new ECLQueryValidator().validateQuery(eclQuery.getQuery(), ValidationLevel.ECL));
+    return eclQuery;
+  }
+
+
+  public ECLQueryRequest validateModelFromECL(ECLQueryRequest eclQuery) {
+    try {
+      getQueryFromECL(eclQuery);
+      validateModelFromQuery(eclQuery);
+      if (!eclQuery.getStatus().isValid()) {
+        new IMQToECL().getECLFromQuery(eclQuery);
+      }
+      return eclQuery;
+    } catch (Exception e) {
+      ECLStatus eclStatus = new ECLStatus();
+      eclStatus.setValid(false);
+      eclStatus.setMessage(e.getMessage());
+      eclQuery.setStatus(eclStatus);
+      return eclQuery;
+    }
+  }
+
+
   public String getEcl(EclSearchRequest inferred) throws QueryException {
     if (inferred == null) throw new QueryException("Missing data for ECL conversion");
-    else return new IMQToECL().getECLFromQuery(inferred.getEclQuery(), true, inferred.getGraph());
+    ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
+    eclQueryRequest.setQuery(inferred.getEclQuery());
+    new IMQToECL().getECLFromQuery(eclQueryRequest);
+    return eclQueryRequest.getEcl();
   }
 
   public int getEclSearchTotalCount(EclSearchRequest request) throws QueryException {
@@ -57,17 +79,43 @@ public class EclService {
     return result;
   }
 
-  public String getECLFromQuery(Query query, Boolean includeNames, String graph) throws QueryException {
-    return new IMQToECL().getECLFromQuery(query, includeNames, graph);
+  public ECLQueryRequest getECLFromQuery(ECLQueryRequest eclQuery) {
+    new IMQToECL().getECLFromQuery(eclQuery);
+    return eclQuery;
   }
 
-  public Query getQueryFromEcl(String ecl, String graph) throws EclFormatException, QueryException, JsonProcessingException {
-    Query query = new ECLToIMQ().getQueryFromECL(ecl);
-    new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL, graph);
-    return query;
+
+  public ECLQueryRequest getQueryFromECL(ECLQueryRequest eclQuery) {
+    String ecl = eclQuery.getEcl();
+    if (ecl == null || ecl.isEmpty())
+      return eclQuery;
+    new ECLToIMQ().getQueryFromECL(eclQuery, true);
+    Query query = eclQuery.getQuery();
+    if (query != null && !query.isInvalid()) {
+      try {
+        new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL, eclQuery.getGraph());
+      } catch (Exception e) {
+        eclQuery.getStatus().setValid(false);
+        eclQuery.getStatus().setMessage(e.getMessage());
+      }
+    }
+    return eclQuery;
   }
 
-  public ECLStatus validateEcl(String ecl) {
-    return new ECLToIMQ().validateEcl(ecl);
+  public ECLQueryRequest validateEcl(ECLQueryRequest eclQuery) {
+    String ecl = eclQuery.getEcl();
+    if (ecl == null || ecl.isEmpty())
+      return eclQuery;
+    new ECLToIMQ().getQueryFromECL(eclQuery, true);
+    return eclQuery;
+  }
+
+  public ECLQueryRequest getEclFromEcl(ECLQueryRequest eclQuery) {
+    String ecl = eclQuery.getEcl();
+    if (ecl == null || ecl.isEmpty())
+      return eclQuery;
+    new ECLToIMQ().getQueryFromECL(eclQuery, true);
+    new IMQToECL().getECLFromQuery(eclQuery);
+    return eclQuery;
   }
 }

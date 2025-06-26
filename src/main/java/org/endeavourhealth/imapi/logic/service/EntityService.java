@@ -507,6 +507,10 @@ public class EntityService {
   public List<TTEntity> getAllowableChildTypes(String iri, String graph) {
     return entityRepository.getAllowableChildTypes(iri, graph);
   }
+
+  public boolean checkEntityExists(String iri, String graph) {
+    return entityRepository.hasPredicates(iri, Set.of(RDF.TYPE), graph);
+  }
 }
 
 

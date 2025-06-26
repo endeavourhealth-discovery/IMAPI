@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.endeavourhealth.imapi.transforms.ECLSyntaxError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +61,16 @@ public class Match extends IriLD implements BoolGroup<Match>{
   private List<Match> and;
   @Getter
   private List<Match> rule;
+  @Getter
+  private String libraryItem;
+  @Getter
+  @Setter
+  private boolean invalid;
+
+  public Match setLibraryItem(String libraryItem) {
+    this.libraryItem = libraryItem;
+    return this;
+  }
 
   public Match setWhere(Where where) {
     this.where = where;

@@ -1,30 +1,39 @@
 package org.endeavourhealth.imapi.transforms;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class IMQToECL {
 
+  private final EntityRepository entityRepository = new EntityRepository();
   private Map<String, String> names = new HashMap<>();
   private Prefixes prefixes;
+  @Getter
+  @Setter
+  private ECLStatus eclStatus;
 
   /**
    * Takes a IM ECL compliant definition of a set and returns is ECL language
    *
-   * @param query       a node representing a class expression e.g. value of im:Definition
-   * @param includeName flag to include the concept term is the output
-   * @return String of ECL
-   * @throws QueryException invalid or unsupported ECL syntax
+   * @param eclQuery An object containing a 'query' and 'showNames'
+   * @return the object with a status, ecl and the query
    */
-  public String getECLFromQuery(Query query, Boolean includeName, String graph) throws QueryException {
+  public void getECLFromQuery(ECLQueryRequest eclQuery) {
+    eclStatus = new ECLStatus();
+    eclStatus.setValid(true);
+    eclQuery.setStatus(eclStatus);
     StringBuilder ecl = new StringBuilder();
+    Query query = eclQuery.getQuery();
     cleanMatch(query);
     if (query.getPrefixes() != null) {
       prefixes = query.getPrefixes();
@@ -32,8 +41,13 @@ public class IMQToECL {
         ecl.append("prefix ").append(prefix.getPrefix()).append(": ").append(prefix.getNamespace()).append("\n");
       }
     }
-    expressionMatch(query, ecl, includeName, false, graph);
-    return ecl.toString().trim();
+    try {
+      expressionMatch(query, ecl, eclQuery.isShowNames(), false, eclQuery.getGraph());
+      eclQuery.setEcl(ecl.toString().trim());
+    } catch (Exception ex) {
+      eclStatus.setValid(false);
+      query.setInvalid(true);
+    }
   }
 
   private void cleanMatch(Match match) {
@@ -96,34 +110,42 @@ public class IMQToECL {
     return false;
   }
 
-  public EclType getEclType(Match match) {
+  public ECLType getEclType(Match match) {
     if (match.getWhere() != null)
-      return EclType.refined;
+      return ECLType.refined;
     if (match.getAnd() != null || match.getOr() != null) {
-      return EclType.compound;
-    } else return EclType.simple;
+      return ECLType.compound;
+    } else return ECLType.simple;
   }
 
-  public String getECLFromQuery(Query query, String graph) throws QueryException {
-    return getECLFromQuery(query, false, graph);
+
+  private void setErrorStatus(StringBuilder ecl, String message) {
+    eclStatus.setValid(false);
+    if (eclStatus.getLine() == null) {
+      String[] eclText = ecl.toString().split("\n");
+      Integer line = eclText.length;
+      Integer offset = eclText[eclText.length - 1].length();
+      eclStatus.setLine(line);
+      eclStatus.setOffset(offset);
+      eclStatus.setMessage(message);
+    }
   }
 
 
   private void expressionMatch(Match match, StringBuilder ecl, boolean includeNames, boolean isNested, String graph) throws QueryException {
-
-    EclType matchType = getEclType(match);
+    ECLType matchType = getEclType(match);
     boolean isExclusion = match.getNot() != null;
     if (matchType == null)
       return;
-    if (matchType == EclType.simple) {
+    if (matchType == ECLType.simple) {
       matchInstanceOf(match, ecl, includeNames, graph);
-    } else if (matchType == EclType.refined) {
+    } else if (matchType == ECLType.refined) {
       if (isExclusion) ecl.append("(");
       match(match, ecl, includeNames, true, graph);
       addRefinementsToMatch(match, ecl, includeNames, false, graph);
       if (isExclusion) ecl.append(")");
       ecl.append("\n");
-    } else if (matchType == EclType.compound) {
+    } else if (matchType == ECLType.compound) {
       if (isNested || isExclusion)
         ecl.append("(");
       compound(match, ecl, includeNames, graph);
@@ -133,6 +155,8 @@ public class IMQToECL {
     }
     if (match.getNot() != null) {
       ecl.append(" MINUS ");
+      if (match.getNot().size() > 1)
+        ecl.append("(");
       boolean first = true;
       for (Match subMatch : match.getNot()) {
         if (!first) {
@@ -142,6 +166,8 @@ public class IMQToECL {
         expressionMatch(subMatch, ecl, includeNames, true, graph);
         ecl.append("\n");
       }
+      if (match.getNot().size() > 1)
+        ecl.append(")");
     }
   }
 
@@ -203,11 +229,14 @@ public class IMQToECL {
 
   private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames, String graph) {
     if (match.getInstanceOf().size() == 1) {
+      if (match.getInstanceOf().get(0).isInvalid())
+        setErrorStatus(ecl, "unknown concept");
       addClass(match.getInstanceOf().get(0), ecl, includeNames, graph);
     } else {
       ecl.append("(");
       boolean first = true;
       for (Node instance : match.getInstanceOf()) {
+        if (instance.isInvalid()) setErrorStatus(ecl, "unknown concept");
         if (!first) {
           ecl.append(" OR ");
         }
@@ -251,26 +280,31 @@ public class IMQToECL {
     if (nested) ecl.append(")");
   }
 
-
   private void addRefined(Where where, StringBuilder ecl, Boolean includeNames, boolean nested, String graph) throws QueryException {
+    if (where.isInvalid()) setErrorStatus(ecl, "unknown property concept : ");
     try {
       if (where.isRoleGroup()) ecl.append("{");
       if (where.getAnd() == null && where.getOr() == null) {
-        if (null == where.getIs())
+        if (null == where.getIs() && null == where.getNotIs())
           throw new QueryException("Where clause must contain a value or sub expressionMatch clause");
         addProperty(where, ecl, includeNames, graph);
-        ecl.append(" = ");
+        ecl.append(where.getIs() != null ? " = " : " != ");
         boolean first = true;
-        if (where.getIs().size() > 1)
-          ecl.append(" (");
-        for (Node value : where.getIs()) {
-          if (!first)
-            ecl.append("\n or ");
-          first = false;
-          addClass(value, ecl, includeNames, graph);
+        for (List<Node> nodes : Arrays.asList(where.getIs(), where.getNotIs())) {
+          if (nodes != null) {
+            if (nodes.size() > 1)
+              ecl.append(" (");
+            for (Node value : nodes) {
+              if (!first)
+                ecl.append("\n or ");
+              first = false;
+              if (value.isInvalid()) setErrorStatus(ecl, "unknown value concept : ");
+              addClass(value, ecl, includeNames, graph);
+            }
+            if (nodes.size() > 1)
+              ecl.append(")");
+          }
         }
-        if (where.getIs().size() > 1)
-          ecl.append(")");
       } else {
         addRefinementsToWhere(where, ecl, includeNames, nested, graph);
       }
@@ -317,7 +351,6 @@ public class IMQToECL {
       return "*";
     if (name == null && includeNames) {
       if (names.get(iri) == null) {
-        EntityRepository entityRepository = new EntityRepository();
         name = entityRepository.getEntityReferenceByIri(iri, graph).getName();
         names.put(iri, name);
       }

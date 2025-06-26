@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.validator;
 
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
 import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
@@ -68,10 +69,26 @@ public class EntityValidator {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false);
     response.setMessage("Entity definition is invalid");
-    if (entity.has(iri(IM.DEFINITION)) || entity.has(iri(IM.IS_SUBSET_OF)) || entity.has(iri(IM.HAS_SUBSET)))
+    if (entity.has(iri(IM.DEFINITION)) || entity.has(iri(IM.IS_SUBSET_OF)) || entity.has(iri(IM.HAS_SUBSET))) {
+      if (entity.has(iri(IM.DEFINITION))) {
+        try {
+          Query query = entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+          if (query.isInvalid()) {
+            response.setMessage("Query definition has unknown concepts or is invalid. Check using editor.");
+            response.setValid(false);
+            return response;
+          }
+        } catch (Exception e) {
+          response.setMessage(e.getMessage());
+          response.setValid(false);
+          return response;
+        }
+      }
       isValid(response);
+    }
     return response;
   }
+
 
   private EntityValidationResponse isValidIri(TTEntity entity) {
     EntityValidationResponse response = new EntityValidationResponse();

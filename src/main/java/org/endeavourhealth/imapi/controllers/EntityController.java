@@ -257,6 +257,16 @@ public class EntityController {
     }
   }
 
+
+  @GetMapping(value = "/checkExists")
+  @Operation(summary = "Check entity exists", description = "Checks whether an entity exists. ")
+  public boolean checkExists(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws TTFilerException, IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Exists.POST")) {
+      log.debug("checkEntityExists");
+      return entityService.checkEntityExists(iri, graph);
+    }
+  }
+
   @PostMapping(value = "/update")
   @PreAuthorize("hasAuthority('edit')")
   @Operation(summary = "Update entity", description = "Updates an existing entity with the provided details")

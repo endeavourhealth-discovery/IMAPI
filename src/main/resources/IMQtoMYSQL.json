@@ -3,6 +3,9 @@
     "http://endhealth.info/im#patient": {
       "dataModel": "http://endhealth.info/im#Patient"
     },
+    "http://endhealth.info/im#concept": {
+      "dataModel": "http://endhealth.info/im#Concept"
+    },
     "http://endhealth.info/im#observation": {
       "dataModel": "http://endhealth.info/im#Observation"
     },
@@ -93,6 +96,13 @@
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "{alias}.patient", "toField": "id"}
       }
+    },
+    "http://endhealth.info/im#Concept": {
+      "table": "concept",
+      "relationships": {
+        "http://endhealth.info/im#Observation": {"fromField": "id", "toField": "{alias}.core_concept_id"}
+      }
     }
   }
 }
+

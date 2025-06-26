@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class IMQtoSQLConverter {
@@ -64,7 +65,8 @@ public class IMQtoSQLConverter {
             addDatasetInstanceOf(qry, definition.getInstanceOf());
           if (dataset.getAnd() != null || dataset.getOr() != null || dataset.getNot() != null)
             addDatasetSubQuery(qry, dataset, definition.getTypeOf().getIri());
-          addSelectsToSQL(qry, dataset);
+          if (dataset.getReturn() != null)
+            addSelectFromReturnRecursively(qry, dataset.getReturn(), null, definition.getTypeOf().getIri(), null);
           sql.append(qry.toSql(2)).append("\n\n");
         }
       } else {
@@ -120,36 +122,58 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private void addSelectsToSQL(SQLQuery qry, Query dataset) throws SQLConversionException {
-    if (dataset.getReturn() != null) {
-      addSelectFromReturnRecursively(qry, dataset.getReturn(), null);
-    }
-  }
-
-  private void addSelectFromReturnRecursively(SQLQuery qry, Return aReturn, ReturnProperty parentProperty) throws SQLConversionException {
+  private void addSelectFromReturnRecursively(SQLQuery qry, Return aReturn, ReturnProperty parentProperty, String gParentTypeOf, String tableAlias) throws SQLConversionException {
     if (aReturn.getProperty() != null) {
       for (ReturnProperty property : aReturn.getProperty()) {
-        if (property.getAs() != null) {
+        if (property.getReturn() != null) {
+          Table table = tableMap.getTable(property.getIri());
+          String typeOf = table.getDataModel();
+          if (typeOf == null)
+            throw new SQLConversionException("Property not mapped to datamodel: " + property.getIri());
+          SQLQuery subQuery = qry.subQuery(typeOf, null, tableMap);
+          addSelectFromReturnRecursively(subQuery, property.getReturn(), property, parentProperty != null ? parentProperty.getIri() : gParentTypeOf, subQuery.getAlias());
+          if (subQuery.getWiths() == null)
+            subQuery.setWiths(new ArrayList<>());
+          qry.getWiths().add(subQuery.getAlias() + " AS (" + subQuery.toSql(2) + "\n)");
+          qry.getSelects().addAll(getSelectsForParentQuery(subQuery.getSelects()));
+          String joiner = "JOIN ";
+          qry.getJoins().add(createJoin(qry, subQuery, joiner));
+        } else if (property.getAs() != null) {
           if (property.getAs().equals("Y-N")) {
-            String yes_no_select = "CASE WHEN EXISTS ( % ) THEN 'Y' ELSE 'N' END AS `Y-N`";
-//            yes_no_select = String.format(yes_no_select, "SELECT 1 FROM orders WHERE orders.user_id = users.id");
+            Table parentTable = tableMap.getTable(parentProperty.getIri());
+            Table gParentTable = tableMap.getTable(gParentTypeOf);
+            Relationship rel = parentTable.getRelationships().get(gParentTable.getDataModel());
+            if (rel == null)
+              throw new SQLConversionException("Relationship between " + parentTable.getTable() + " and " + gParentTable.getTable() + "not found!");
+            String whereFrom = rel.getFromField().replace("{alias}", tableAlias);
+            String whereTo = gParentTable.getTable() + "." + rel.getToField();
+            String yes_no_select = "CASE WHEN EXISTS ( SELECT 1 FROM %s WHERE %s = %s ) THEN 'Y' ELSE 'N' END AS `Y-N`";
+            yes_no_select = String.format(yes_no_select, parentTable.getTable(), whereFrom, whereTo);
             qry.getSelects().add(yes_no_select);
           } else {
             String select = qry.getFieldName(property.getIri(), null, tableMap) + " AS `" + property.getAs() + "`";
             qry.getSelects().add(select);
           }
         }
-        if (property.getReturn() != null) {
-          if (property.getReturn().getFunction() != null) {
-            switch (property.getReturn().getFunction().getName()) {
-              case Function.count -> qry.getSelects().add("COUNT(*)");
-              default ->
-                throw new SQLConversionException("SQL Conversion Error: Function not recognised: " + property.getReturn().getFunction().getName());
-            }
-          } else addSelectFromReturnRecursively(qry, property.getReturn(), property);
-        }
+      }
+    } else if (aReturn.getFunction() != null) {
+      switch (aReturn.getFunction().getName()) {
+        case Function.count -> qry.getSelects().add("COUNT(*) AS count");
+        default ->
+          throw new SQLConversionException("SQL Conversion Error: Function not recognised: " + aReturn.getFunction().getName());
       }
     }
+  }
+
+  private List<String> getSelectsForParentQuery(List<String> originalSelects) {
+    List<String> returnSelects = new ArrayList<>();
+    for (String originalSelect : originalSelects) {
+      String[] splits = originalSelect.split("AS");
+      if (splits.length == 2)
+        returnSelects.add(splits[1].strip());
+      else returnSelects.add(originalSelect);
+    }
+    return returnSelects;
   }
 
   private String replaceArgumentsWithValue(String sql) {

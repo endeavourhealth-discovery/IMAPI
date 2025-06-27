@@ -20,6 +20,12 @@
     },
     "http://endhealth.info/im#episodeOfCare": {
       "dataModel": "http://endhealth.info/im#EpisodeOfCare"
+    },
+    "http://endhealth.info/im#gmsRegistrationAtEvent": {
+      "dataModel": "http://endhealth.info/im#EpisodeOfCare"
+    },
+    "http://endhealth.info/im#usualGP": {
+      "dataModel": "http://endhealth.info/im#PersonInRole"
     }
   },
   "dataModels": {
@@ -31,6 +37,17 @@
       },
       "relationships": {
         "http://endhealth.info/im#Observation": {"fromField": "id", "toField": "{alias}.patient_id"}
+      }
+    },
+    "http://endhealth.info/im#PersonInRole": {
+      "table": "person",
+      "fields": {
+        "http://endhealth.info/im#age": {"field": "{alias}.date_of_birth", "type": "date"},
+        "http://endhealth.info/im#dateOfBirth": {"field": "{alias}.date_of_birth", "type": "date"}
+      },
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "id", "toField": "{alias}.person_id"},
+        "http://endhealth.info/im#EpisodeOfCare": {"fromField": "id", "toField": "{alias}.person_id"}
       }
     },
     "http://endhealth.info/im#Observation": {

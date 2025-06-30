@@ -14,7 +14,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -26,8 +26,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.*;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareUpdateSparql;
 
 @Slf4j
 public class TTEntityFilerRdf4j implements TTEntityFiler {
@@ -74,7 +72,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   }
 
   public TTEntityFilerRdf4j() {
-    this(ConnectionManager.getIMConnection(), new HashMap<>());
+    this(IMDB.getConnection(), new HashMap<>());
   }
 
   @Override
@@ -156,7 +154,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
           filter (?entity = ?entity)
         }
         """;
-      Update deleteIsas = prepareUpdateSparql(conn, deleteSql, graph);
+      Update deleteIsas = IMDB.prepareUpdateSparql(conn, deleteSql, graph);
       deleteIsas.setBinding("isA", iri(IM.IS_A));
       deleteIsas.setBinding("entity", iri(entity));
       deleteIsas.execute();
@@ -175,7 +173,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
           ?descendant ?subClassOf ?superclass.
         }
         """;
-      TupleQuery qry = prepareTupleSparql(conn, sparql, graph);
+      TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
       qry.setBinding("entity", iri(entity));
       qry.setBinding("subClassOf", iri(RDFS.SUBCLASS_OF));
       qry.setBinding("isA", iri(IM.IS_A));
@@ -201,7 +199,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     Set<String> isAs = new HashSet<>();
     StringJoiner getIsas = new StringJoiner("\n");
     getIsas.add("Select distinct ?ancestor").add("Where {").add("<" + superClass + "> <" + IM.IS_A + "> ?ancestor").add("filter (?ancestor not in (" + blockers + "))}");
-    TupleQuery qry = prepareTupleSparql(conn, getIsas.toString(), graph);
+    TupleQuery qry = IMDB.prepareTupleSparql(conn, getIsas.toString(), graph);
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
@@ -221,7 +219,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
         addSql.add("<" + child.getKey() + "> <" + IM.IS_A + "> <" + ancestor + ">.");
       }
       addSql.add("}");
-      Update addIsAs = prepareUpdateSparql(conn, addSql.toString(), graph);
+      Update addIsAs = IMDB.prepareUpdateSparql(conn, addSql.toString(), graph);
       addIsAs.execute();
       if (count % 100 == 0) {
         log.info("isas added for {} entities", count);

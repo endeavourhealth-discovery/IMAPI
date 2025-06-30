@@ -10,7 +10,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.dataaccess.databases.ConfigDB;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.dto.CodeGenDto;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -22,8 +22,6 @@ import java.util.Map;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareUpdateSparql;
 
 @Slf4j
 public class CodeGenRepository {
@@ -39,8 +37,8 @@ public class CodeGenRepository {
         }
       }
       """;
-    try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
-      TupleQuery qry = prepareTupleSparql(conn, sparql, GRAPH.DISCOVERY);
+    try (RepositoryConnection conn = ConfigDB.getConnection()) {
+      TupleQuery qry = ConfigDB.prepareTupleSparql(conn, sparql);
       qry.setBinding("type", iri(RDF.TYPE));
       qry.setBinding("codeTemplate", iri(IM.CODE_TEMPLATE));
       qry.setBinding("label", iri(RDFS.LABEL));
@@ -65,8 +63,8 @@ public class CodeGenRepository {
         }
       }
       """;
-    try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
-      TupleQuery qry = prepareTupleSparql(conn, sparql, GRAPH.DISCOVERY);
+    try (RepositoryConnection conn = ConfigDB.getConnection()) {
+      TupleQuery qry = ConfigDB.prepareTupleSparql(conn, sparql);
       qry.setBinding("s", iri(CODE_TEMPLATE.NAMESPACE + name));
 
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -87,9 +85,7 @@ public class CodeGenRepository {
               case (IM.DEFINITION) -> result.setTemplate(bs.getValue("o").stringValue());
               case (CODE_TEMPLATE.INCLUDE_COMPLEX_TYPES) ->
                 result.setComplexTypes(((Literal) bs.getValue("o")).booleanValue());
-              default -> {
-                break;
-              }
+              default -> {}
             }
           } catch (JsonProcessingException e) {
             log.error("Unable to parse codeTemplate", e);
@@ -111,8 +107,8 @@ public class CodeGenRepository {
         }
       }
       """;
-    try (RepositoryConnection conn = ConnectionManager.getConfigConnection()) {
-      Update qry = prepareUpdateSparql(conn, deleteSparql, GRAPH.DISCOVERY);
+    try (RepositoryConnection conn = ConfigDB.getConnection()) {
+      Update qry = ConfigDB.prepareUpdateSparql(conn, deleteSparql);
       qry.setBinding("s", iri(CODE_TEMPLATE.NAMESPACE + name));
       qry.execute();
     }
@@ -132,9 +128,9 @@ public class CodeGenRepository {
         SELECT ?iri ?label ?extension {}
       }
       """;
-    try (RepositoryConnection conn2 = ConnectionManager.getConfigConnection()) {
+    try (RepositoryConnection conn2 = ConfigDB.getConnection()) {
       try (CachedObjectMapper om = new CachedObjectMapper()) {
-        Update qry2 = prepareUpdateSparql(conn2, insertSparql, GRAPH.DISCOVERY);
+        Update qry2 = ConfigDB.prepareUpdateSparql(conn2, insertSparql);
         qry2.setBinding("iri", iri(CODE_TEMPLATE.NAMESPACE + name));
         qry2.setBinding("label", iri(RDFS.LABEL));
         qry2.setBinding("name", literal(name));

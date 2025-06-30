@@ -12,7 +12,7 @@ import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.logic.reasoner.TextMatcher;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
@@ -31,9 +31,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareBooleanSparql;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
 
 /**
  * Methods to convert a Query object to its Sparql equivalent and return results as a json object
@@ -59,7 +56,7 @@ public class QueryRepository {
     ObjectNode result = mapper.createObjectNode();
     Integer page = queryRequest.getPage() != null ? queryRequest.getPage().getPageNumber() : 1;
     Integer count = queryRequest.getPage() != null ? queryRequest.getPage().getPageSize() : 0;
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (RepositoryConnection conn = IMDB.getConnection()) {
       checkReferenceDate(queryRequest);
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getSelectSparql(queryRequest.getQuery(), null, false, highestUsage);
@@ -75,7 +72,7 @@ public class QueryRepository {
 
 
   public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (RepositoryConnection conn = IMDB.getConnection()) {
       checkReferenceDate(queryRequest);
       new QueryValidator().validateQuery(queryRequest.getQuery());
       SparqlConverter converter = new SparqlConverter(queryRequest);
@@ -92,7 +89,7 @@ public class QueryRepository {
    * @throws JsonProcessingException if the json is invalid
    */
   public void updateIM(QueryRequest queryRequest) throws JsonProcessingException, QueryException {
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (RepositoryConnection conn = IMDB.getConnection()) {
       if (queryRequest.getUpdate() == null)
         throw new QueryException("Missing update in query request");
       if (queryRequest.getUpdate().getIri() == null)
@@ -180,7 +177,7 @@ public class QueryRepository {
     Query query = queryRequest.getQuery();
     ArrayNode entities = result.putArray(ENTITIES);
     ObjectNode lastEntity = null;
-    ObjectNode entity = null;
+    ObjectNode entity;
     Map<String, ObjectNode> nodeMap = new HashMap<>();
     Integer start = null;
     Integer end = null;
@@ -247,28 +244,17 @@ public class QueryRepository {
     return true;
   }
 
-
-  private Integer graphTotalSearch(String spq, RepositoryConnection conn, String graph) {
-    try (TupleQueryResult rs = sparqlQuery(spq, conn, graph)) {
-      while (rs.hasNext()) {
-        BindingSet bs = rs.next();
-        if (bs.hasBinding(COUNT)) return Integer.parseInt(bs.getValue(COUNT).stringValue());
-      }
-    }
-    return 0;
-  }
-
   private Boolean graphAskSearch(String spq, RepositoryConnection conn, String graph) {
     return sparqlAskQuery(spq, conn, graph);
   }
 
   private TupleQueryResult sparqlQuery(String spq, RepositoryConnection conn, String graph) {
-    TupleQuery qry = prepareTupleSparql(conn, spq, graph);
+    TupleQuery qry = IMDB.prepareTupleSparql(conn, spq, graph);
     return qry.evaluate();
   }
 
   private Boolean sparqlAskQuery(String spq, RepositoryConnection conn, String graph) {
-    BooleanQuery qry = prepareBooleanSparql(conn, spq, graph);
+    BooleanQuery qry = IMDB.prepareBooleanSparql(conn, spq, graph);
     return qry.evaluate();
   }
 
@@ -394,10 +380,5 @@ public class QueryRepository {
     return new EntityRepository().getBundle(iri,
       Set.of(IM.DEFINITION, RDF.TYPE, IM.FUNCTION_DEFINITION, IM.UPDATE_PROCEDURE, SHACL.PARAMETER)).getEntity();
 
-  }
-
-
-  private boolean isIri(String iri) {
-    return iri.matches("([a-z]+)?:.*");
   }
 }

@@ -1,22 +1,16 @@
 package org.endeavourhealth.imapi.model.set;
 
-import lombok.Getter;
-
 import java.util.List;
 
 public class SetOptions {
-  @Getter
   private String setIri;
   private boolean includeDefinition;
   private boolean includeCore;
   private boolean includeLegacy;
   private boolean includeSubsets;
-  @Getter
   private List<String> schemes;
   private boolean includeIM1id;
-  @Getter
   private List<String> subsumptions;
-  @Getter
   private String graph;
 
   public SetOptions() {
@@ -34,6 +28,21 @@ public class SetOptions {
     this.graph = graph;
   }
 
+  public String getSetIri() {
+    return setIri;
+  }
+
+  public List<String> getSchemes() {
+    return schemes;
+  }
+
+  public List<String> getSubsumptions() {
+    return subsumptions;
+  }
+
+  public String getGraph() {
+    return graph;
+  }
 
   public boolean includeDefinition() {
     return includeDefinition;

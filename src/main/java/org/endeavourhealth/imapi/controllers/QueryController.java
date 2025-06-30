@@ -94,7 +94,7 @@ public class QueryController {
   public Query describeQuery(
     @RequestParam(name = "queryIri") String iri,
     @RequestParam(name = "displayMode", defaultValue = "ORIGINAL") DisplayMode displayMode,
-    @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph
+    @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("describeQuery");
@@ -116,7 +116,7 @@ public class QueryController {
         queryDisplayRequest.setDisplayMode(DisplayMode.ORIGINAL);
       }
       if (null == queryDisplayRequest.getGraph()) {
-        queryDisplayRequest.setGraph(iri(GRAPH.DISCOVERY));
+        queryDisplayRequest.setGraph(iri(GRAPH.IM));
       }
       log.debug("getQueryDisplayFromQuery with displayMode: {}", displayMode);
       return queryService.describeQuery(queryDisplayRequest.getQuery(), displayMode, queryDisplayRequest.getGraph().getIri());
@@ -186,7 +186,7 @@ public class QueryController {
   public String getSQLFromIMQIri(
     @RequestParam(name = "queryIri") String queryIri,
     @RequestParam(name = "lang", defaultValue = "MYSQL") String lang,
-    @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph
+    @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getSQLFromIMQIri");
@@ -197,7 +197,7 @@ public class QueryController {
 
   @GetMapping(value = "/public/defaultQuery")
   @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")
-  public Query getDefaultQuery(@RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public Query getDefaultQuery(@RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DefaultQuery.GET")) {
       log.debug("getDefaultCohort");
       return queryService.getDefaultQuery(graph);

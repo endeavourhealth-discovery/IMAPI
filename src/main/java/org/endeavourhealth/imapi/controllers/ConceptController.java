@@ -30,7 +30,7 @@ public class ConceptController {
 
   @GetMapping(value = "/public/matchedFrom", produces = "application/json")
   @Operation(summary = "Get matched terms from the specified entity", description = "Retrieves terms that are matched from the given entity IRI for further processing or analysis.")
-  public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MatchedFrom.GET")) {
       log.debug("getMatchedFrom");
       return conceptService.getMatchedFrom(iri, graph);
@@ -39,7 +39,7 @@ public class ConceptController {
 
   @GetMapping(value = "/public/matchedTo", produces = "application/json")
   @Operation(summary = "Get matched terms to the specified entity", description = "Retrieves terms that are matched to the given entity IRI for further processing or analysis.")
-  public Collection<SimpleMap> getMatchedTo(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public Collection<SimpleMap> getMatchedTo(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MatchedTo.GET")) {
       log.debug("getMatchedTo");
       return conceptService.getMatchedTo(iri, graph);
@@ -57,7 +57,7 @@ public class ConceptController {
 
   @GetMapping(value = "/public/conceptContextMaps")
   @Operation(summary = "Get concept context maps for the specified entity", description = "Retrieves mappings to various contexts for the given entity IRI, which can be used for contextual analysis.")
-  public List<ConceptContextMap> getConceptContextMaps(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public List<ConceptContextMap> getConceptContextMaps(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ConceptContextMaps.GET")) {
       log.debug("getConceptContextMaps");
       return conceptService.getConceptContextMaps(iri, graph);

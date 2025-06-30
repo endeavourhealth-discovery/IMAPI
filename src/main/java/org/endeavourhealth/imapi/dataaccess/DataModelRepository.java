@@ -5,7 +5,7 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.dto.UIProperty;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.iml.ParameterShape;
@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
 
 public class DataModelRepository {
   public List<TTIriRef> getProperties(String graph) {
@@ -37,8 +36,8 @@ public class DataModelRepository {
       }
       """;
 
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareTupleSparql(conn, spql, graph);
+    try (RepositoryConnection conn = IMDB.getConnection()) {
+      TupleQuery qry = IMDB.prepareTupleSparql(conn, spql, graph);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -53,7 +52,7 @@ public class DataModelRepository {
 
   public List<TTIriRef> findDataModelsFromProperty(String propIri, String graph) {
     List<TTIriRef> dmList = new ArrayList<>();
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (RepositoryConnection conn = IMDB.getConnection()) {
       String sparql = """
         SELECT ?dm ?dmName
         WHERE {
@@ -64,7 +63,7 @@ public class DataModelRepository {
           }
         }
         """;
-      TupleQuery qry = prepareTupleSparql(conn, sparql, graph);
+      TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
       qry.setBinding("propIri", iri(propIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -78,7 +77,7 @@ public class DataModelRepository {
   }
 
   public String checkPropertyType(String propIri, String graph) {
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (RepositoryConnection conn = IMDB.getConnection()) {
       String query = """
         SELECT ?objectProperty ?dataProperty
         WHERE {
@@ -88,7 +87,7 @@ public class DataModelRepository {
           }
         }
         """;
-      TupleQuery qry = prepareTupleSparql(conn, query, graph);
+      TupleQuery qry = IMDB.prepareTupleSparql(conn, query, graph);
       qry.setBinding("propIri", iri(propIri));
       qry.setBinding("isA", iri(IM.IS_A));
       qry.setBinding("objProp", iri(IM.DATAMODEL_OBJECTPROPERTY));
@@ -105,9 +104,9 @@ public class DataModelRepository {
   }
 
   public void addDataModelSubtypes(NodeShape dataModel, String graph) {
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (RepositoryConnection conn = IMDB.getConnection()) {
       String sql = getSubtypeSql();
-      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
+      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
       qry.setBinding("entity", iri(dataModel.getIri()));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -125,9 +124,9 @@ public class DataModelRepository {
     NodeShape nodeShape = new NodeShape();
     nodeShape.setIri(iri);
     addDataModelSubtypes(nodeShape, graph);
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (RepositoryConnection conn = IMDB.getConnection()) {
       String sql = pathsOnly ? getPathSql() : getPropertySql();
-      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
+      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
       qry.setBinding("entity", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -356,7 +355,7 @@ public class DataModelRepository {
               ?parameter rdfs:label ?parameterName.
               ?parameter sh:class ?parameterType.
               ?parameterType rdfs:label ?parameterTypeName.
-              optional { 
+              optional {
                 ?parameterSubtype im:isA ?parameterType.
                 ?parameterSubtype rdfs:label ?parameterSubtypeName
               }
@@ -382,7 +381,7 @@ public class DataModelRepository {
             ?datatype rdfs:label ?datatypeName.
             ?datatype rdf:type ?datatypeType.
             ?datatypeType rdfs:label ?datatypeTypeName.
-            optional { 
+            optional {
               ?datatype im:intervalUnit ?intervalUnit.
               ?intervalUnit rdfs:label ?intervalUnitName
             }
@@ -402,7 +401,7 @@ public class DataModelRepository {
               optional {?datatypeQualifier sh:order ?qualifierOrder}
               optional { ?datatypeQualifier sh:pattern ?qualifierPattern}
               optional {?datatypeQualifier im:isRelativeValue ?isRelativeValue}
-              optional { 
+              optional {
                 ?datatypeQualifier im:units ?qualifierIntervalUnit.
                 ?qualifierIntervalUnit rdfs:label ?qualifierIntervalUnitName
               }
@@ -491,8 +490,8 @@ public class DataModelRepository {
         }
       """;
 
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareTupleSparql(conn, spql, graph);
+    try (RepositoryConnection conn = IMDB.getConnection()) {
+      TupleQuery qry = IMDB.prepareTupleSparql(conn, spql, graph);
       qry.setBinding("dmIri", iri(dmIri));
       qry.setBinding("propIri", iri(propIri));
       try (TupleQueryResult rs = qry.evaluate()) {

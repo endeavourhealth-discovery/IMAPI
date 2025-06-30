@@ -26,7 +26,6 @@ public class WorkflowService {
 
   private final WorkflowRepository workflowRepository = new WorkflowRepository();
   private final RequestObjectService requestObjectService = new RequestObjectService();
-  private final AWSCognitoClient awsCognitoClient = new AWSCognitoClient();
 
   public void createBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
     bugReport.setId(generateId());
@@ -112,7 +111,7 @@ public class WorkflowService {
 
   public void approveRoleRequest(HttpServletRequest request, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     String userId = requestObjectService.getRequestAgentId(request);
-    awsCognitoClient.adminAddUserToGroup(roleRequest.getCreatedBy(), roleRequest.getRole().toString());
+    new AWSCognitoClient().adminAddUserToGroup(roleRequest.getCreatedBy(), roleRequest.getRole().toString());
     workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.APPROVED.toString(), userId);
     workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), userId);
   }

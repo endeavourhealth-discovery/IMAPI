@@ -39,7 +39,7 @@ public class MetricsHelper {
 
     try {
       Metrics config = configManager.getConfig(CONFIG.MONITORING, new TypeReference<>() {
-      }, null);
+      });
       if (config != null) {
 
         //set any console logging config

@@ -4,7 +4,7 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.ConceptContextMap;
 import org.endeavourhealth.imapi.model.Context;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
@@ -12,10 +12,8 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.getString;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList;
 
@@ -35,8 +33,8 @@ public class ConceptRepository {
         }
       }
       """.formatted(valueList("scheme", schemeIris));
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
+    try (RepositoryConnection conn = IMDB.getConnection()) {
+      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
       qry.setBinding("o", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -63,8 +61,8 @@ public class ConceptRepository {
       }
       """.formatted(valueList("scheme", schemeIris));
 
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
+    try (RepositoryConnection conn = IMDB.getConnection()) {
+      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
       qry.setBinding("s", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -88,8 +86,8 @@ public class ConceptRepository {
         }
       }
       """.formatted(String.join(" ", iris.stream().map(iri -> "<" + iri + ">").toArray(String[]::new)));
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
+    try (RepositoryConnection conn = IMDB.getConnection()) {
+      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -113,8 +111,8 @@ public class ConceptRepository {
       }
       """.formatted("<" + conceptIri + ">");
 
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareTupleSparql(conn, sql, graph);
+    try (RepositoryConnection conn = IMDB.getConnection()) {
+      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -128,7 +126,7 @@ public class ConceptRepository {
 
   public List<ConceptContextMap> getConceptContextMaps(String iri, String graph) {
     List<ConceptContextMap> result = new ArrayList<>();
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (RepositoryConnection conn = IMDB.getConnection()) {
       String sparql = """
         SELECT ?nodeName ?sourceVal ?sourceRegex ?propertyName ?publisherName ?systemName ?schema ?table ?field
         WHERE {
@@ -154,7 +152,7 @@ public class ConceptRepository {
         }
         ORDER BY ?nodeName ?sourceVal ?publisherName
         """;
-      TupleQuery qry = prepareTupleSparql(conn, sparql, graph);
+      TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
       qry.setBinding("concept", iri(iri));
       qry.setBinding("imConcept", iri(IM.CONCEPT));
       qry.setBinding("imHasMap", iri(IM.HAS_MAP));

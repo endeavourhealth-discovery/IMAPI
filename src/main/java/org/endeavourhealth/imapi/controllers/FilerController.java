@@ -121,7 +121,7 @@ public class FilerController {
   @PostMapping("folder/move")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
   @Operation(summary = "Moves an entity from one folder to another.")
-  public ResponseEntity<ProblemDetailResponse> moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph, HttpServletRequest request) throws Exception {
+  public ResponseEntity<ProblemDetailResponse> moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Move.POST")) {
       log.debug("moveFolder");
 
@@ -158,7 +158,7 @@ public class FilerController {
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
 
       String agentName = reqObjService.getRequestAgentName(request);
-      filerService.fileEntity(entity, iri(GRAPH.DISCOVERY), agentName, usedEntity);
+      filerService.fileEntity(entity, iri(GRAPH.IM), agentName, usedEntity);
 
       return ResponseEntity.ok().build();
     }
@@ -170,7 +170,7 @@ public class FilerController {
   public ResponseEntity<ProblemDetailResponse> addToFolder(
     @RequestParam(name = "entity") String entityIri,
     @RequestParam(name = "folder") String folderIri,
-    @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph,
+    @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph,
     HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Add.POST")) {
       log.debug("addToFolder");
@@ -191,7 +191,7 @@ public class FilerController {
       String agentName = reqObjService.getRequestAgentName(request);
       TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
-      filerService.fileEntity(entity, iri(GRAPH.DISCOVERY), agentName, usedEntity);
+      filerService.fileEntity(entity, iri(GRAPH.IM), agentName, usedEntity);
 
       return ResponseEntity.ok().build();
     }
@@ -203,7 +203,7 @@ public class FilerController {
   public String createFolder(
     @RequestParam(name = "container") String container,
     @RequestParam(name = "name") String name,
-    @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph,
+    @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph,
     HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Create.POST")) {
       log.debug("createFolder");
@@ -235,7 +235,7 @@ public class FilerController {
 
       TTEntity entity = new TTEntity(iri)
         .setName(name)
-        .setScheme(iri(GRAPH.DISCOVERY))
+        .setScheme(iri(GRAPH.IM))
         .addType(iri(IM.FOLDER))
         .set(iri(IM.IS_CONTAINED_IN), iri(container))
         .setVersion(1)
@@ -251,7 +251,7 @@ public class FilerController {
       entity.set(iri(IM.CONTENT_TYPE), contentTypes);
 
       String agentName = reqObjService.getRequestAgentName(request);
-      filerService.fileEntity(entity, iri(GRAPH.DISCOVERY), agentName, null);
+      filerService.fileEntity(entity, iri(GRAPH.IM), agentName, null);
       return iri;
     }
   }

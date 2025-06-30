@@ -4,31 +4,28 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.imq.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
 
 public class PathRepository {
   private final PathDocument document = new PathDocument();
-  private RepositoryConnection conn;
 
   public PathDocument pathQuery(PathQuery pathQuery) {
-    try (RepositoryConnection connLocal = ConnectionManager.getIMConnection()) {
-      this.conn = connLocal;
+    try (RepositoryConnection conn = IMDB.getConnection()) {
       String targetIri = pathQuery.getTarget().getIri();
       String source = pathQuery.getSource().getIri();
-      List<Match> paths = getPaths(source, targetIri, pathQuery.getGraph());
+      List<Match> paths = getPaths(conn, source, targetIri, pathQuery.getGraph());
       document.setMatch(paths);
     }
     return document;
   }
 
-  private List<Match> getPaths(String source, String target, String graph) {
+  private List<Match> getPaths(RepositoryConnection conn, String source, String target, String graph) {
     List<Match> result = new ArrayList<>();
     String sql = """
       select ?path ?pathLabel ?path2 ?path2Label ?where ?whereLabel ?target ?targetName
@@ -93,7 +90,7 @@ public class PathRepository {
       group by ?path ?pathLabel ?path2 ?path2Label ?where ?whereLabel ?target ?targetName
       """;
     //The logic is to look for a target as a record types, properties, value sets or concepts linked to the source.
-    TupleQuery qry = prepareTupleSparql(conn, sql, graph);
+    TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
     qry.setBinding("target", iri(target));
     qry.setBinding("source", iri(source));
     try (TupleQueryResult rs = qry.evaluate()) {
@@ -110,7 +107,7 @@ public class PathRepository {
         }
         if (bs.getValue("path2") != null) {
           String pathIri = bs.getValue("path2").stringValue();
-          match.getPath().get(0).addPath(new Path().setIri(pathIri).setName(bs.getValue("path2Label").stringValue()));
+          match.getPath().getFirst().addPath(new Path().setIri(pathIri).setName(bs.getValue("path2Label").stringValue()));
           pathVariable = pathIri.substring(pathIri.lastIndexOf("#") + 1);
         }
         if (bs.getValue("where") != null) {

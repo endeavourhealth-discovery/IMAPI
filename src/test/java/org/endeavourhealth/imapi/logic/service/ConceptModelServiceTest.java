@@ -80,21 +80,21 @@ public class ConceptModelServiceTest {
 
   @Test
   void getSimpleMaps_NullIri() {
-    List<SimpleMap> actual = conceptService.getMatchedFrom(null, GRAPH.DISCOVERY);
+    List<SimpleMap> actual = conceptService.getMatchedFrom(null, GRAPH.IM);
     assertNotNull(actual);
   }
 
   @Test
   void getSimpleMaps_EmptyIri() {
-    Collection<SimpleMap> actual = conceptService.getMatchedFrom("", GRAPH.DISCOVERY);
+    Collection<SimpleMap> actual = conceptService.getMatchedFrom("", GRAPH.IM);
     assertNotNull(actual);
   }
 
   @Test
   void getSimpleMaps_NotNullIri() {
-    when(entityRepository.findNamespaces(null)).thenReturn(new ArrayList<>());
-    when(conceptRepository.getMatchedFrom(anyString(), anyList(), GRAPH.DISCOVERY)).thenReturn(new ArrayList<>());
-    Collection<SimpleMap> actual = conceptService.getMatchedFrom("http://endhealth.info/im#25451000252115", GRAPH.DISCOVERY);
+    when(entityRepository.findNamespaces(anyString())).thenReturn(new ArrayList<>());
+    when(conceptRepository.getMatchedFrom(anyString(), anyList(), anyString())).thenReturn(new ArrayList<>());
+    Collection<SimpleMap> actual = conceptService.getMatchedFrom("http://endhealth.info/im#25451000252115", GRAPH.IM);
     assertNotNull(actual);
   }
 }

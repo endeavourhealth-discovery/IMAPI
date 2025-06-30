@@ -2246,12 +2246,24 @@
     "name": "GRAPH",
     "entries": [
       {
-        "name": "DISCOVERY",
+        "name": "IM",
         "value": "\"http://endhealth.info/im#\""
       },
       {
         "name": "PROV",
         "value": "\"http://endhealth.info/prov#\""
+      },
+      {
+        "name": "USER",
+        "value": "\"http://endhealth.info/user#\""
+      },
+      {
+        "name": "WORKFLOW",
+        "value": "\"http://endhealth.info/workflow#\""
+      },
+      {
+        "name": "CONFIG",
+        "value": "\"http://endhealth.info/config#\""
       }
     ]
   },

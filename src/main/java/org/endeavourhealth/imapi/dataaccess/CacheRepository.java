@@ -7,7 +7,7 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.GraphQuery;
 import org.eclipse.rdf4j.query.GraphQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 
@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareGraphSparql;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 /**
@@ -28,8 +27,8 @@ public class CacheRepository {
   public Set<TTBundle> getSchema(String graph) {
     String sql = getSchemaSql();
     Set<TTEntity> shapes = new HashSet<>();
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      GraphQuery qry = prepareGraphSparql(conn, sql, graph);
+    try (RepositoryConnection conn = IMDB.getConnection()) {
+      GraphQuery qry = IMDB.prepareGraphSparql(conn, sql, graph);
       try (GraphQueryResult gs = qry.evaluate()) {
         Map<String, TTValue> valueMap = new HashMap<>();
         Map<String, TTNode> subjectMap = new HashMap<>();

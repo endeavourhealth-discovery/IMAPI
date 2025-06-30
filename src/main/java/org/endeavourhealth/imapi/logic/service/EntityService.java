@@ -141,7 +141,7 @@ public class EntityService {
     ArrayList<TTEntity> usageEntities = new ArrayList<>();
     if (iri == null || iri.isEmpty()) return Collections.emptyList();
 
-    Set<String> xmlDataTypes = entityRepository.getByScheme(XSD.NAMESPACE, GRAPH.DISCOVERY);
+    Set<String> xmlDataTypes = entityRepository.getByScheme(XSD.NAMESPACE, GRAPH.IM);
     if (xmlDataTypes != null && xmlDataTypes.contains(iri)) return Collections.emptyList();
 
     int rowNumber = 0;
@@ -161,7 +161,7 @@ public class EntityService {
   public Integer totalRecords(String iri, String graph) {
     if (iri == null || iri.isEmpty()) return 0;
 
-    Set<String> xmlDataTypes = entityRepository.getByScheme(XSD.NAMESPACE, GRAPH.DISCOVERY);
+    Set<String> xmlDataTypes = entityRepository.getByScheme(XSD.NAMESPACE, GRAPH.IM);
     if (xmlDataTypes != null && xmlDataTypes.contains(iri)) return 0;
 
     return entityRepository.getConceptUsagesCount(iri, graph);
@@ -473,7 +473,7 @@ public class EntityService {
   }
 
   public Set<String> getXmlSchemaDataTypes() {
-    return entityRepository.getByScheme(XSD.NAMESPACE, GRAPH.DISCOVERY);
+    return entityRepository.getByScheme(XSD.NAMESPACE, GRAPH.IM);
   }
 
   public List<TTEntity> getEntitiesByType(String type, Integer offset, Integer limit, String graph, String... predicates) {

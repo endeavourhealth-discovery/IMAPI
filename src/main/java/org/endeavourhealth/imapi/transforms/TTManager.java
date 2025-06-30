@@ -291,7 +291,7 @@ public class TTManager implements AutoCloseable {
     createDefaultContext();
     document = new TTDocument();
     document.setContext(context);
-    document.setNamespace(TTIriRef.iri(GRAPH.DISCOVERY));
+    document.setNamespace(TTIriRef.iri(GRAPH.IM));
     return document;
   }
 

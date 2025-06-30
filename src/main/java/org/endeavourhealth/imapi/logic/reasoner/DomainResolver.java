@@ -5,21 +5,17 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareUpdateSparql;
-
-
 @Slf4j
 public class DomainResolver {
 
   public void updateDomains(String graph) {
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (RepositoryConnection conn = IMDB.getConnection()) {
       Set<String> domains = getDomains(conn, graph);
       for (String domain : domains) {
         updateDomain(conn, domain, graph);
@@ -37,7 +33,7 @@ public class DomainResolver {
       
       """.formatted("<" + domain + ">");
     Set<String> currentProperties = new HashSet<>();
-    TupleQuery currentPropertyQuery = prepareTupleSparql(conn, sql, graph);
+    TupleQuery currentPropertyQuery = IMDB.prepareTupleSparql(conn, sql, graph);
     log.info("domain resolver adding missing properties for " + domain + "...");
     try (TupleQueryResult currentResults = currentPropertyQuery.evaluate()) {
       while (currentResults.hasNext()) {
@@ -57,7 +53,7 @@ public class DomainResolver {
       }
       """.formatted("<" + domain + ">", current);
     Set<String> allProperties = new HashSet<>();
-    TupleQuery allPropertyQuery = prepareTupleSparql(conn, sql, graph);
+    TupleQuery allPropertyQuery = IMDB.prepareTupleSparql(conn, sql, graph);
     try (TupleQueryResult allResults = allPropertyQuery.evaluate()) {
       while (allResults.hasNext()) {
         BindingSet bs = allResults.next();
@@ -72,7 +68,7 @@ public class DomainResolver {
       missingProperties.forEach(p -> insertSql.add(" <" + p + "> rdfs:domain <" + domain + ">."));
       insertSql.add("}");
       String insertQuery = insertSql.toString();
-      prepareUpdateSparql(conn, insertQuery, graph).execute();
+      IMDB.prepareUpdateSparql(conn, insertQuery, graph).execute();
     }
   }
 
@@ -83,7 +79,7 @@ public class DomainResolver {
       	?property rdfs:domain ?domain
       }
       """;
-    TupleQuery domainQuery = prepareTupleSparql(conn, sql, graph);
+    TupleQuery domainQuery = IMDB.prepareTupleSparql(conn, sql, graph);
     try (TupleQueryResult domainResults = domainQuery.evaluate()) {
       while (domainResults.hasNext()) {
         BindingSet bs = domainResults.next();

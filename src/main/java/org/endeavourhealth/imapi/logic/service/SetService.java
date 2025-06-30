@@ -47,7 +47,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class SetService {
 
-  private final SetTextFileExporter setTextFileExporter = new SetTextFileExporter();
+  private SetTextFileExporter setTextFileExporter = new SetTextFileExporter();
   private SetRepository setRepository = new SetRepository();
   private EntityRepository entityRepository = new EntityRepository();
   private FilerService filerService = new FilerService();

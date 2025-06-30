@@ -101,7 +101,7 @@ public class EntityController {
 
   @GetMapping(value = "/fullEntity", produces = "application/json")
   @Operation(summary = "Get full entity", description = "Fetches full entity details using IRI")
-  public TTEntity getFullEntity(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public TTEntity getFullEntity(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
       log.debug("getFullEntity");
       return entityService.getBundleByPredicateExclusions(iri, null, graph).getEntity();
@@ -130,7 +130,7 @@ public class EntityController {
 
   @GetMapping(value = "/public/children")
   @Operation(summary = "Get entity children", description = "Fetches immediate child entities of the specified entity by IRI")
-  public List<EntityReferenceNode> getEntityChildren(@RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public List<EntityReferenceNode> getEntityChildren(@RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Children.GET")) {
       log.debug("getEntityChildren");
       if (page == null && size == null) {
@@ -145,7 +145,7 @@ public class EntityController {
 
   @GetMapping(value = "/public/asEntityReferenceNode")
   @Operation(summary = "Get entity as reference node", description = "Fetches the specified entity as an EntityReferenceNode by IRI")
-  public EntityReferenceNode getEntityAsEntityReferenceNode(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public EntityReferenceNode getEntityAsEntityReferenceNode(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.AsEntityReferenceNode.GET")) {
       log.debug("getEntityAsEntityReferenceNode");
       return entityService.getEntityAsEntityReferenceNode(iri, graph);
@@ -154,7 +154,7 @@ public class EntityController {
 
   @GetMapping(value = "/public/asEntityReferenceNodes")
   @Operation(summary = "Get entity as reference node", description = "Fetches the specified entity iris as an EntityReferenceNode by IRI")
-  public List<EntityReferenceNode> getAsEntityReferenceNodes(@RequestParam(name = "iris") Set<String> iris, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public List<EntityReferenceNode> getAsEntityReferenceNodes(@RequestParam(name = "iris") Set<String> iris, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.AsEntityReferenceNodes.GET")) {
       log.debug("getAsEntityReferenceNodes");
       return entityService.getAsEntityReferenceNodes(iris, graph);
@@ -169,7 +169,7 @@ public class EntityController {
                                                                             @RequestParam(name = "page", required = false) Integer page,
                                                                             @RequestParam(name = "size", required = false) Integer size,
                                                                             @RequestParam(name = "typeFilter", required = false) List<String> typeFilter,
-                                                                            @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+                                                                            @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ChildrenPaged.GET")) {
       log.debug("getEntityChildrenPagedWithTotalCount" + ((typeFilter != null) ? "entity types= " + typeFilter : ""));
       if (page == null && size == null) {
@@ -188,7 +188,7 @@ public class EntityController {
     @RequestParam(name = "page", required = false) Integer page,
     @RequestParam(name = "size", required = false) Integer size,
     @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
-    @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph
+    @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PartialAndTotalCount.GET")) {
       log.debug("getPartialAndTotalCount");
@@ -221,7 +221,7 @@ public class EntityController {
 
   @GetMapping(value = "/public/parents")
   @Operation(summary = "Get entity parents", description = "Fetches immediate parent entities of the specified entity by IRI")
-  public List<EntityReferenceNode> getEntityParents(@RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public List<EntityReferenceNode> getEntityParents(@RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Parents.GET")) {
       log.debug("getEntityParents");
       return entityService.getImmediateParents(iri, schemeIris, page, size, false, graph);
@@ -230,7 +230,7 @@ public class EntityController {
 
   @GetMapping(value = "/public/usages")
   @Operation(summary = "Get entity usages", description = "Fetches usage details of the specified entity using IRI with pagination options")
-  public List<TTEntity> entityUsages(@RequestParam(name = "iri") String iri, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public List<TTEntity> entityUsages(@RequestParam(name = "iri") String iri, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Usages.GET")) {
       log.debug("entityUsages");
       return entityService.usages(iri, page, size, graph);
@@ -239,7 +239,7 @@ public class EntityController {
 
   @GetMapping("/public/usagesTotalRecords")
   @Operation(summary = "Get total records for usages", description = "Fetches the total number of records for the usages of a specified entity by IRI")
-  public Integer totalRecords(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public Integer totalRecords(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UsagesTotalRecords.GET")) {
       log.debug("totalRecords");
       return entityService.totalRecords(iri, graph);
@@ -253,14 +253,14 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       log.debug("createEntity");
       String agentName = reqObjService.getRequestAgentName(request);
-      return filerService.createEntity(editRequest, agentName, GRAPH.DISCOVERY);
+      return filerService.createEntity(editRequest, agentName, GRAPH.IM);
     }
   }
 
 
   @GetMapping(value = "/checkExists")
   @Operation(summary = "Check entity exists", description = "Checks whether an entity exists. ")
-  public boolean checkExists(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws TTFilerException, IOException {
+  public boolean checkExists(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws TTFilerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Exists.POST")) {
       log.debug("checkEntityExists");
       return entityService.checkEntityExists(iri, graph);
@@ -274,7 +274,7 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       log.debug("updateEntity");
       String agentName = reqObjService.getRequestAgentName(request);
-      return filerService.updateEntityWithWorkflow(editRequest, agentName, request, GRAPH.DISCOVERY);
+      return filerService.updateEntityWithWorkflow(editRequest, agentName, request, GRAPH.IM);
     }
   }
 
@@ -302,7 +302,7 @@ public class EntityController {
 
   @GetMapping("/public/summary")
   @Operation(summary = "Get entity summary", description = "Fetches a summary of the search results for the specified entity by IRI")
-  public SearchResultSummary getSummary(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public SearchResultSummary getSummary(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Summary.GET")) {
       log.debug("getSummary");
       return entityService.getSummary(iri, graph);
@@ -348,7 +348,7 @@ public class EntityController {
 
   @GetMapping("/public/folderPath")
   @Operation(summary = "Get folder path", description = "Fetches the folder path of an entity specified by its IRI")
-  public List<TTIriRef> getFolderPath(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public List<TTIriRef> getFolderPath(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FolderPath.GET")) {
       log.debug("getFolderPath");
       return entityService.getParentPath(iri, graph);
@@ -357,7 +357,7 @@ public class EntityController {
 
   @GetMapping("/public/shortestParentHierarchy")
   @Operation(summary = "Get shortest parent hierarchy", description = "Fetches the shortest parent hierarchy between an ancestor and a descendant by their IRIs")
-  public List<TTIriRef> getShortestPathBetweenNodes(@RequestParam(name = "ancestor") String ancestor, @RequestParam(name = "descendant") String descendant, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public List<TTIriRef> getShortestPathBetweenNodes(@RequestParam(name = "ancestor") String ancestor, @RequestParam(name = "descendant") String descendant, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ShortestParentHierarchy.GET")) {
       log.debug("getShortestPathBetweenNodes");
       return entityService.getShortestPathBetweenNodes(ancestor, descendant, graph);
@@ -366,7 +366,7 @@ public class EntityController {
 
   @GetMapping("/public/iriExists")
   @Operation(summary = "Check if IRI exists", description = "Checks if a specified IRI exists in the system")
-  public Boolean iriExists(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public Boolean iriExists(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.IriExists.GET")) {
       log.debug("iriExists");
       return entityService.iriExists(iri, graph);
@@ -375,7 +375,7 @@ public class EntityController {
 
   @GetMapping("/public/entityByPredicateExclusions")
   @Operation(summary = "Get entity by predicate exclusions", description = "Fetches an entity details using IRI, excluding specified predicates")
-  public TTEntity getEntityByPredicateExclusions(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public TTEntity getEntityByPredicateExclusions(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.EntityByPredicateExclusions.GET")) {
       log.debug("getEntityByPredicateExclusions");
       return entityService.getBundleByPredicateExclusions(iri, predicates, graph).getEntity();
@@ -384,7 +384,7 @@ public class EntityController {
 
   @GetMapping("/public/bundleByPredicateExclusions")
   @Operation(summary = "Get bundle by predicate exclusions", description = "Fetches a bundle of entities identified by IRI, excluding specified predicates")
-  public TTBundle getBundleByPredicateExclusions(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public TTBundle getBundleByPredicateExclusions(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.BundleByPredicateExclusions.GET")) {
       log.debug("getBundleByPredicateExclusions");
       return entityService.getBundleByPredicateExclusions(iri, predicates, graph);
@@ -393,7 +393,7 @@ public class EntityController {
 
   @GetMapping(value = "/public/predicates")
   @Operation(summary = "Get predicates of an entity", description = "Fetches the predicates associated with a specified entity IRI")
-  public Set<String> getPredicates(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public Set<String> getPredicates(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Predicates.GET")) {
       log.debug("getPredicates");
       return entityService.getPredicates(iri, graph);
@@ -411,7 +411,7 @@ public class EntityController {
 
   @GetMapping(value = "/public/detailsDisplay")
   @Operation(summary = "Get entity details display", description = "Fetches the detailed display information for an entity specified by its IRI")
-  public TTBundle getDetailsDisplay(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public TTBundle getDetailsDisplay(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DetailsDisplay.GET")) {
       log.debug("getDetailsDisplay");
       return entityService.getDetailsDisplay(iri, graph);
@@ -425,7 +425,7 @@ public class EntityController {
     @RequestParam(name = "predicate") String predicate,
     @RequestParam(name = "pageIndex") int pageIndex,
     @RequestParam(name = "pageSize") int pageSize,
-    @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph
+    @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DetailsDisplay.LOADMORE.GET")) {
       log.debug("getDetailsDisplayLoadMore");
@@ -444,7 +444,7 @@ public class EntityController {
 
   @GetMapping(value = "/public/type/entities")
   @Operation(summary = "Get entities by type", description = "Fetches entities that match the specified type IRI")
-  public List<TTIriRef> getEntitiesByType(@RequestParam(name = "iri") String typeIri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public List<TTIriRef> getEntitiesByType(@RequestParam(name = "iri") String typeIri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Predicates.GET")) {
       log.debug("getEntitiesByType");
       return entityService.getEntitiesByType(typeIri, graph);
@@ -453,7 +453,7 @@ public class EntityController {
 
   @GetMapping(value = "/public/namespaces")
   @Operation(summary = "Get scheme namespaces", description = "Fetches schemes and their prefixes available in the system")
-  public List<Namespace> getNamespaces(@RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public List<Namespace> getNamespaces(@RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
       log.debug("getSchemesWithPrefixes");
       return entityService.getNamespaces(graph);
@@ -471,7 +471,7 @@ public class EntityController {
 
   @GetMapping(value = "/public/graph")
   @Operation(summary = "Get graph data", description = "Fetches graph data for an entity specified by its IRI")
-  public GraphDto getGraphData(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public GraphDto getGraphData(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Graph.Graph.GET")) {
       log.debug("getGraphData");
       return graphDtoService.getGraphData(iri, graph);
@@ -505,7 +505,7 @@ public class EntityController {
 
   @GetMapping("/public/allowableChildTypes")
   @Operation(summary = "Get allowable child types", description = "Fetches the allowable child types for an entity and the predicate that links them")
-  public List<TTEntity> getAllowableChildTypes(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public List<TTEntity> getAllowableChildTypes(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.AllowableChildTypes.GET")) {
       log.debug("get AllowableChildTypes for " + iri);
       return entityService.getAllowableChildTypes(iri, graph);

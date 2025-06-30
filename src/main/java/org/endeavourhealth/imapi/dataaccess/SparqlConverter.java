@@ -17,7 +17,6 @@ public class SparqlConverter {
   String mainEntity;
   private Query query;
   private Update update;
-  private String labelVariable;
 
 
   public SparqlConverter(QueryRequest queryRequest) throws QueryException {
@@ -129,7 +128,7 @@ public class SparqlConverter {
     StringBuilder selectQl = new StringBuilder();
     if (countOnly) {
       mainEntity = query.getVariable();
-      if (null != query.getInstanceOf() && null != query.getInstanceOf().get(0).getVariable())
+      if (null != query.getInstanceOf() && null != query.getInstanceOf().getFirst().getVariable())
         mainEntity = query.getInstanceOf().getFirst().getVariable();
       selectQl.append("SELECT (count (distinct ?").append(mainEntity).append(") as ?count)");
     } else {
@@ -227,14 +226,12 @@ public class SparqlConverter {
       whereQl.append(" graph ").append(iriFromAlias(match.getGraph())).append(" {");
     }
     if (match.getEntailment() != null) {
-      switch (match.getEntailment()) {
-        case descendantsOrSelfOf:
-          o++;
-          whereQl.append("?").append(subject).append(" <").append(IM.IS_A).append("> ?").append(subject).append(o).append(".\n");
-          subject = subject + o;
-          break;
-        default:
-          throw new QueryException("Match entailment " + match.getEntailment().toString() + " is not yet supported");
+      if (match.getEntailment() == Entail.descendantsOrSelfOf) {
+        o++;
+        whereQl.append("?").append(subject).append(" <").append(IM.IS_A).append("> ?").append(subject).append(o).append(".\n");
+        subject = subject + o;
+      } else {
+        throw new QueryException("Match entailment " + match.getEntailment().toString() + " is not yet supported");
       }
     }
     String pathVariable = null;
@@ -668,16 +665,16 @@ public class SparqlConverter {
     if (property.getIri() == null) {
       if (property.getNodeRef() != null) {
         selectQl.append(" ").append(inverse).append(property.getNodeRef());
-        labelVariable = property.getNodeRef();
+        // labelVariable = property.getNodeRef();
       } else if (property.getPropertyRef() != null) {
         selectQl.append(" ").append(inverse).append(property.getPropertyRef());
-        labelVariable = property.getPropertyRef();
+        // labelVariable = property.getPropertyRef();
       } else if (property.getAs() != null) {
         selectQl.append(" ").append(inverse).append("?").append(property.getAs());
-        labelVariable = property.getAs();
+        // labelVariable = property.getAs();
       } else if (property.getValueRef() != null) {
         selectQl.append(" ").append("?").append(property.getValueRef());
-        labelVariable = property.getValueRef();
+        // labelVariable = property.getValueRef();
       }
       if (property.getReturn() != null) {
         convertReturn(selectQl, whereQl, property.getReturn());
@@ -707,7 +704,7 @@ public class SparqlConverter {
       whereQl.append(" ?").append(object).append(".\n");
       if (!selectQl.toString().contains(object)) selectQl.append(" ?").append(object);
       if (property.getIri() != null && property.getIri().equals(RDFS.LABEL))
-        labelVariable = object;
+        // labelVariable = object;
       if (property.getReturn() != null) {
         convertReturn(selectQl, whereQl, property.getReturn());
       }

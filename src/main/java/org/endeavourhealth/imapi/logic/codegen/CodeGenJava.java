@@ -8,6 +8,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.http.HTTPRepository;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.codegen.DataModel;
 import org.endeavourhealth.imapi.model.codegen.DataModelProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -21,34 +22,17 @@ import java.util.Queue;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Slf4j
 public class CodeGenJava {
   private final Queue<String> iris = new PriorityQueue<>();
   private final HashMap<String, DataModel> models = new HashMap<>();
-  private HTTPRepository repo;
 
   public void generate(ZipOutputStream os, String graph) throws IOException {
-    connectToDatabase();
     getModelList(graph);
     getDataModelRecursively(graph);
     generateJavaCode(os);
-  }
-
-  private void connectToDatabase() {
-    log.debug("connecting to database");
-
-    String server = System.getenv("GRAPH_SERVER") != null
-      ? System.getenv("GRAPH_SERVER")
-      : "HTTP://localhost:7200";
-    String repoID = System.getenv("GRAPH_REPO") != null
-      ? System.getenv("GRAPH_REPO")
-      : "im";
-
-    repo = new HTTPRepository(server, repoID);
-
   }
 
   private void getModelList(String graph) {
@@ -62,8 +46,8 @@ public class CodeGenJava {
       }
       """;
 
-    try (RepositoryConnection conn = repo.getConnection()) {
-      TupleQuery query = prepareTupleSparql(conn, sql, graph);
+    try (RepositoryConnection conn = IMDB.getConnection()) {
+      TupleQuery query = IMDB.prepareTupleSparql(conn, sql, graph);
       try (TupleQueryResult result = query.evaluate()) {
         while (result.hasNext()) {
           BindingSet bindSet = result.next();
@@ -112,8 +96,8 @@ public class CodeGenJava {
         } ORDER BY ?order
       """;
 
-    try (RepositoryConnection conn = repo.getConnection()) {
-      TupleQuery query = prepareTupleSparql(conn, sql, graph);
+    try (RepositoryConnection conn = IMDB.getConnection()) {
+      TupleQuery query = IMDB.prepareTupleSparql(conn, sql, graph);
       query.setBinding("iri", Values.iri(iri));
       try (TupleQueryResult result = query.evaluate()) {
         while (result.hasNext()) {

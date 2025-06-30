@@ -31,11 +31,11 @@ public class ConfigController {
     summary = "Retrieve monitoring configuration",
     description = "Fetches monitoring configuration details from the config manager"
   )
-  public String getMonitoring(@RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public String getMonitoring(@RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.Monitoring.GET")) {
       log.debug("getMonitoring");
       return configManager.getConfig(CONFIG.MONITORING, new TypeReference<>() {
-      }, graph);
+      });
     }
   }
 }

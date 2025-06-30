@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
-import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
@@ -32,8 +31,6 @@ import java.util.Set;
 @Slf4j
 public class OSQuery {
   private final IMQToOS converter = new IMQToOS();
-  private boolean ignoreInvalid;
-  private EntityService entityService = new EntityService();
 
   private static void processNodeResults(QueryRequest request, JsonNode root, CachedObjectMapper om, ArrayNode resultNodes) throws JsonProcessingException {
     for (JsonNode hit : root.get("hits").get("hits")) {
@@ -43,12 +40,12 @@ public class OSQuery {
 
       resultNode.set("iri", osResult.get("iri"));
       resultNode.set(RDFS.LABEL, osResult.get("name"));
-      processBestMatch(om, hit, resultNode);
+      processBestMatch(hit, resultNode);
       processNodeResultReturn(request, osResult, resultNode);
     }
   }
 
-  private static void processBestMatch(CachedObjectMapper om, JsonNode hit, ObjectNode resultNode) {
+  private static void processBestMatch(JsonNode hit, ObjectNode resultNode) {
     JsonNode innerHits = hit.get("inner_hits");
     if (innerHits != null) {
       if (innerHits.get("termCode") != null && !innerHits.get("termCode").get("hits").get("hits").isEmpty()) {
@@ -98,7 +95,7 @@ public class OSQuery {
 
   }
 
-  public SearchResponse openSearchQuery(QueryRequest request) throws QueryException, OpenSearchException {
+  public SearchResponse openSearchQuery(QueryRequest request) throws OpenSearchException {
     return getStandardResults(request);
   }
 
@@ -148,7 +145,6 @@ public class OSQuery {
 
   private String spellingCorrection(QueryRequest request) throws OpenSearchException {
     String oldTerm = request.getTextSearch();
-    String newTerm = null;
     String suggester = "{\n" +
       "  \"suggest\": {\n" +
       "    \"spell-check\": {\n" +
@@ -165,7 +161,7 @@ public class OSQuery {
       JsonNode root = om.readTree(response.body());
       JsonNode suggestions = root.get("suggest").get("spell-check");
       String[] words = oldTerm.split(" ");
-      newTerm = processSuggestions(suggestions, oldTerm, newTerm, words);
+      String newTerm = processSuggestions(suggestions, oldTerm, words);
       if (newTerm == null) {
         newTerm = String.join(" ", words);
       }
@@ -178,7 +174,9 @@ public class OSQuery {
     }
   }
 
-  private String processSuggestions(JsonNode suggestions, String oldTerm, String newTerm, String[] words) {
+  private String processSuggestions(JsonNode suggestions, String oldTerm, String[] words) {
+    String newTerm = null;
+
     for (JsonNode suggest : suggestions) {
       JsonNode options = suggest.get("options");
 
@@ -238,18 +236,19 @@ public class OSQuery {
       throw new OpenSearchException("Invalid OpenSearch URI", e);
     }
 
-    HttpClient client = HttpClient.newHttpClient();
     HttpResponse<String> response;
-    try {
-      response = client
-        .sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
-        .thenApply(res -> res)
-        .get();
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new OpenSearchException("OpenSearch call failed", e);
-    } catch (Exception e) {
-      throw new OpenSearchException("OpenSearch call failed", e);
+    try (HttpClient client = HttpClient.newHttpClient()) {
+      try {
+        response = client
+          .sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
+          .thenApply(res -> res)
+          .get();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        throw new OpenSearchException("OpenSearch call failed", e);
+      } catch (Exception e) {
+        throw new OpenSearchException("OpenSearch call failed", e);
+      }
     }
 
     if (299 < response.statusCode()) {
@@ -261,7 +260,7 @@ public class OSQuery {
 
   }
 
-  private SearchResponse getStandardResults(QueryRequest request) throws OpenSearchException, QueryException {
+  private SearchResponse getStandardResults(QueryRequest request) throws OpenSearchException {
     try {
       JsonNode root = IMOSQuery(request);
       if (root == null)
@@ -293,7 +292,7 @@ public class OSQuery {
     return summary;
   }
 
-  private SearchResponse processIMQueryResponse(JsonNode root, QueryRequest request) throws OpenSearchException, JsonProcessingException {
+  private SearchResponse processIMQueryResponse(JsonNode root, QueryRequest request) throws JsonProcessingException {
     try (CachedObjectMapper resultMapper = new CachedObjectMapper()) {
       SearchResponse searchResults = new SearchResponse();
       searchResults.setHighestUsage(0);

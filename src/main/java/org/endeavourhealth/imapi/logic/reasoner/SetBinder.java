@@ -5,7 +5,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareTupleSparql;
 
 @Slf4j
 public class SetBinder {
@@ -39,7 +38,7 @@ public class SetBinder {
 
   private Set<String> getSets(String graph) {
     Set<String> setIris = new HashSet<>();
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (RepositoryConnection conn = IMDB.getConnection()) {
       String sparql = """
         SELECT distinct ?iri
         WHERE {
@@ -47,7 +46,7 @@ public class SetBinder {
           filter (?type in (?imConceptSet, ?imValueSet)).
         }
         """;
-      TupleQuery qry = prepareTupleSparql(conn, sparql, graph);
+      TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
       qry.setBinding("rdfType", iri(RDF.TYPE));
       qry.setBinding("imConceptSet", iri(IM.CONCEPT_SET));
       qry.setBinding("imValueSet", iri(IM.VALUESET));

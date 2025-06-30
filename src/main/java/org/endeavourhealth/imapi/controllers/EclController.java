@@ -120,7 +120,7 @@ public class EclController {
 
   @GetMapping(value = "/public/propertiesForDomains")
   @Operation(summary = "Get top level properties for an entity as a tree node", description = "Finds the highest parent (superior) properties for an entity and returns then in a tree node format for use in a hierarchy tree")
-  public Set<String> getPropertiesForDomains(@RequestParam(name = "conceptIri") Set<String> iris, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public Set<String> getPropertiesForDomains(@RequestParam(name = "conceptIri") Set<String> iris, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.propertiesForDomains.GET")) {
       log.debug("getPropertiesForDomains");
       return conceptService.getPropertiesForDomains(iris, graph);
@@ -130,7 +130,7 @@ public class EclController {
 
   @GetMapping(value = "/public/rangesForProperty")
   @Operation(summary = "Get top level property ranges for an entity as a tree node", description = "Finds the highest parent (superior) property value for an entity and returns then in a tree node format for use in a hierarchy tree")
-  public Set<String> getRangesForProperty(@RequestParam(name = "propertyIri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException {
+  public Set<String> getRangesForProperty(@RequestParam(name = "propertyIri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.rangesForProperty.GET")) {
       log.debug("getRangesForProperty");
       return conceptService.getRangesForProperty(iri, graph);

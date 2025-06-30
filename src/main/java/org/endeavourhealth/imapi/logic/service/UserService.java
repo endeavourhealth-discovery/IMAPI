@@ -20,7 +20,7 @@ public class UserService {
 
 
   public String getUserPreset(String userId) {
-    return userRepository.getByPredicate(userId, USER.USER_PRESET, null);
+    return userRepository.getByPredicate(userId, USER.USER_PRESET);
   }
 
   public void updateUserPreset(String userId, String preset) throws JsonProcessingException {
@@ -28,7 +28,7 @@ public class UserService {
   }
 
   public String getUserPrimaryColor(String userId) {
-    return userRepository.getByPredicate(userId, USER.USER_PRIMARY_COLOR, null);
+    return userRepository.getByPredicate(userId, USER.USER_PRIMARY_COLOR);
   }
 
   public void updateUserPrimaryColor(String userId, String color) throws JsonProcessingException {
@@ -36,7 +36,7 @@ public class UserService {
   }
 
   public String getUserSurfaceColor(String userId) {
-    return userRepository.getByPredicate(userId, USER.USER_SURFACE_COLOR, null);
+    return userRepository.getByPredicate(userId, USER.USER_SURFACE_COLOR);
   }
 
   public void updateUserSurfaceColor(String userId, String color) throws JsonProcessingException {
@@ -44,7 +44,7 @@ public class UserService {
   }
 
   public Boolean getUserDarkMode(String userId) {
-    return userRepository.getByPredicate(userId, USER.USER_DARK_MODE, null).equals("\"true\"");
+    return userRepository.getByPredicate(userId, USER.USER_DARK_MODE).equals("\"true\"");
   }
 
   public void updateUserDarkMode(String userId, Boolean darkMode) throws JsonProcessingException {
@@ -52,7 +52,7 @@ public class UserService {
   }
 
   public String getUserScale(String userId) {
-    return userRepository.getByPredicate(userId, USER.USER_SCALE, null);
+    return userRepository.getByPredicate(userId, USER.USER_SCALE);
   }
 
   public void updateUserScale(String userId, String scale) throws JsonProcessingException {

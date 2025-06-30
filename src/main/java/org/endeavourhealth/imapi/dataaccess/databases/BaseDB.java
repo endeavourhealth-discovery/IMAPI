@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.dataaccess.helpers;
+package org.endeavourhealth.imapi.dataaccess.databases;
 
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.query.BooleanQuery;
@@ -11,17 +11,15 @@ import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
+import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.StringJoiner;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 
 @Slf4j
-public class ConnectionManager {
-  private static final Map<String, Repository> repos = new HashMap<>();
+public abstract class BaseDB {
   private static final String DEFAULT_PREFIXES = """
     PREFIX bc: <http://endhealth.info/bc#>
     PREFIX reports: <http://endhealth.info/reports#>
@@ -56,28 +54,7 @@ public class ConnectionManager {
     PREFIX ods: <http://endhealth.info/ods#>
     """;
 
-  private ConnectionManager() {
-    throw new IllegalStateException("Utility class");
-  }
-
-  public static RepositoryConnection getIMConnection() {
-    return getRepository("im").getConnection();
-  }
-
-  public static RepositoryConnection getConfigConnection() {
-    return getRepository("config").getConnection();
-  }
-
-  public static RepositoryConnection getUserConnection() {
-    return getRepository("user").getConnection();
-  }
-
-  public static RepositoryConnection getWorkflowConnection() {
-    return getRepository("workflow").getConnection();
-  }
-
-
-  public static TupleQuery prepareTupleSparql(RepositoryConnection conn, String sparql, String graph) {
+  protected static TupleQuery prepareTupleSparql(RepositoryConnection conn, String sparql, String graph) {
     if (!sparql.contains("FROM ?g")) {
       throw new DALException("Query must contain 'FROM ?g' to specify graph");
     }
@@ -93,7 +70,7 @@ public class ConnectionManager {
     }
   }
 
-  public static Update prepareUpdateSparql(RepositoryConnection conn, String sparql, String graph) {
+  protected static Update prepareUpdateSparql(RepositoryConnection conn, String sparql, String graph) {
     if (!sparql.contains("GRAPH ?g {")) {
       throw new DALException("Query must contain 'GRAPH ?g {' to specify graph");
     }
@@ -109,7 +86,7 @@ public class ConnectionManager {
     }
   }
 
-  public static GraphQuery prepareGraphSparql(RepositoryConnection conn, String sparql, String graph) {
+  protected static GraphQuery prepareGraphSparql(RepositoryConnection conn, String sparql, String graph) {
     if (!sparql.contains("FROM ?g")) {
       throw new DALException("Query must contain 'FROM ?g' to specify graph");
     }
@@ -125,7 +102,7 @@ public class ConnectionManager {
     }
   }
 
-  public static BooleanQuery prepareBooleanSparql(RepositoryConnection conn, String sparql, String graph) {
+  protected static BooleanQuery prepareBooleanSparql(RepositoryConnection conn, String sparql, String graph) {
     if (!sparql.contains("GRAPH ?g {")) {
       throw new DALException("Query must contain 'GRAPH ?g {' to specify graph");
     }
@@ -141,24 +118,18 @@ public class ConnectionManager {
     }
   }
 
-  private static synchronized Repository getRepository(String repoId) {
-    Repository repo = repos.get(repoId);
-    if (repo == null) {
-      log.debug("Connecting to repository [{}]", repoId);
-      String type = System.getenv("GRAPH_TYPE");
-      if (type == null || type.isEmpty())
-        type = "http";
+  protected static synchronized Repository getRepository(String repoId) {
+    log.debug("Connecting to repository [{}]", repoId);
+    String type = System.getenv("GRAPH_TYPE");
+    if (type == null || type.isEmpty())
+      type = "http";
 
-      repo = switch (type.toLowerCase()) {
-        case "http" -> getHttpRepo(repoId);
-        case "file" -> getFileRepo(repoId);
-        case "sparql" -> getSparqlRepo(repoId);
-        default -> throw new DALException("Invalid graph connection parameters");
-      };
-      repos.put(repoId, repo);
-    }
-
-    return repo;
+    return switch (type.toLowerCase()) {
+      case "http" -> getHttpRepo(repoId);
+      case "file" -> getFileRepo(repoId);
+      case "sparql" -> getSparqlRepo(repoId);
+      default -> throw new DALException("Invalid graph connection parameters");
+    };
   }
 
   private static HTTPRepository getHttpRepo(String repoId) {

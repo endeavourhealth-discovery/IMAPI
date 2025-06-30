@@ -36,14 +36,14 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class FilerService {
 
-  private final TTTransactionFiler documentFiler = new TTTransactionFiler();
-  private final TTEntityFiler entityFiler = new TTEntityFilerRdf4j();
-  private final TTEntityFiler entityProvFiler = entityFiler;
-  private final ProvService provService = new ProvService();
-  private final EntityService entityService = new EntityService();
-  private final OpenSearchService openSearchService = new OpenSearchService();
-  private final UserService userService = new UserService();
-  private final WorkflowService workflowService = new WorkflowService();
+  private TTTransactionFiler documentFiler = new TTTransactionFiler();
+  private TTEntityFiler entityFiler = new TTEntityFilerRdf4j();
+  private TTEntityFiler entityProvFiler = entityFiler;
+  private ProvService provService = new ProvService();
+  private EntityService entityService = new EntityService();
+  private OpenSearchService openSearchService = new OpenSearchService();
+  private UserService userService = new UserService();
+  private WorkflowService workflowService = new WorkflowService();
 
   private static Boolean isValidIri(TTEntity entity) {
     if (null == entity.getIri()) return false;
@@ -172,7 +172,7 @@ public class FilerService {
   }
 
   public TTEntity createEntity(EditRequest editRequest, String agentName, String graph) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
-    if (null == graph) graph = GRAPH.DISCOVERY;
+    if (null == graph) graph = GRAPH.IM;
     isValid(editRequest.getEntity(), "Create", graph);
     TTIriRef graphIri = iri(graph);
     editRequest.getEntity().setCrud(iri(IM.ADD_QUADS)).setVersion(1);
@@ -190,7 +190,7 @@ public class FilerService {
   }
 
   public TTEntity updateEntity(TTEntity entity, String agentName, String graph) throws TTFilerException, JsonProcessingException {
-    if (null == graph) graph = GRAPH.DISCOVERY;
+    if (null == graph) graph = GRAPH.IM;
     isValid(entity, "Update", graph);
     TTIriRef graphIri = iri(graph);
     entity.setCrud(iri(IM.UPDATE_ALL));

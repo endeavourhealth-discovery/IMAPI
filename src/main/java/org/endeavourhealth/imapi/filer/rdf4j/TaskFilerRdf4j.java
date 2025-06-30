@@ -9,7 +9,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.endeavourhealth.imapi.aws.AWSCognitoClient;
 import org.endeavourhealth.imapi.aws.UserNotFoundException;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.dataaccess.databases.WorkflowDB;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.logic.service.EmailService;
 import org.endeavourhealth.imapi.model.workflow.BugReport;
@@ -27,24 +27,17 @@ import java.time.LocalDateTime;
 import java.util.StringJoiner;
 
 import static org.eclipse.rdf4j.model.util.Values.*;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareUpdateSparql;
 
 public class TaskFilerRdf4j {
-  private final AWSCognitoClient awsCognitoClient = new AWSCognitoClient();
   private RepositoryConnection conn;
-  private EmailService emailService = new EmailService(
-    System.getenv("EMAILER_HOST"),
-    Integer.parseInt(System.getenv("EMAILER_PORT")),
-    System.getenv("EMAILER_USERNAME"),
-    System.getenv("EMAILER_PASSWORD")
-  );
+  private EmailService emailService;
 
-  public TaskFilerRdf4j(RepositoryConnection conn, AWSCognitoClient awsCognitoClient) {
+  public TaskFilerRdf4j(RepositoryConnection conn) {
     this.conn = conn;
   }
 
   public TaskFilerRdf4j() {
-    this(ConnectionManager.getWorkflowConnection(), new AWSCognitoClient());
+    this(WorkflowDB.getConnection());
   }
 
   public void fileBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
@@ -52,27 +45,27 @@ public class TaskFilerRdf4j {
     try {
       ModelBuilder builder = new ModelBuilder();
       buildTask(builder, bugReport);
-      builder.namedGraph(GRAPH.DISCOVERY).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.RELATED_PRODUCT), literal(bugReport.getProduct()));
-      builder.namedGraph(GRAPH.DISCOVERY).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.RELATED_VERSION), literal(bugReport.getVersion()));
-      builder.namedGraph(GRAPH.DISCOVERY).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.RELATED_MODULE), literal(bugReport.getModule()));
-      builder.namedGraph(GRAPH.DISCOVERY).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.OPERATING_SYSTEM), literal(bugReport.getOs()));
+      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.RELATED_PRODUCT), literal(bugReport.getProduct()));
+      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.RELATED_VERSION), literal(bugReport.getVersion()));
+      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.RELATED_MODULE), literal(bugReport.getModule()));
+      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.OPERATING_SYSTEM), literal(bugReport.getOs()));
       if (bugReport.getOs().equals(OperatingSystem.OTHER))
-        builder.namedGraph(GRAPH.DISCOVERY).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.OPERATING_SYSTEM_OTHER), literal(bugReport.getOsOther()));
-      builder.namedGraph(GRAPH.DISCOVERY).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.BROWSER), literal(bugReport.getBrowser()));
+        builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.OPERATING_SYSTEM_OTHER), literal(bugReport.getOsOther()));
+      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.BROWSER), literal(bugReport.getBrowser()));
       if (bugReport.getBrowser().equals(Browser.OTHER))
-        builder.namedGraph(GRAPH.DISCOVERY).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.BROWSER_OTHER), literal(bugReport.getBrowserOther()));
-      builder.namedGraph(GRAPH.DISCOVERY).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.SEVERITY), literal(null == bugReport.getSeverity() ? Severity.UNASSIGNED : bugReport.getSeverity()));
-      builder.namedGraph(GRAPH.DISCOVERY).add(iri(bugReport.getId().getIri()), iri(IM.HAS_STATUS), literal(null == bugReport.getStatus() ? Status.NEW : bugReport.getStatus()));
+        builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.BROWSER_OTHER), literal(bugReport.getBrowserOther()));
+      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.SEVERITY), literal(null == bugReport.getSeverity() ? Severity.UNASSIGNED : bugReport.getSeverity()));
+      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(IM.HAS_STATUS), literal(null == bugReport.getStatus() ? Status.NEW : bugReport.getStatus()));
       if (null != bugReport.getError())
-        builder.namedGraph(GRAPH.DISCOVERY).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.ERROR), literal(bugReport.getError()));
-      builder.namedGraph(GRAPH.DISCOVERY).add(iri(bugReport.getId().getIri()), iri(RDFS.COMMENT), literal(bugReport.getDescription()));
-      builder.namedGraph(GRAPH.DISCOVERY).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.REPRODUCE_STEPS), literal(bugReport.getReproduceSteps()));
-      builder.namedGraph(GRAPH.DISCOVERY).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.EXPECTED_RESULT), literal(bugReport.getExpectedResult()));
-      builder.namedGraph(GRAPH.DISCOVERY).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.ACTUAL_RESULT), literal(bugReport.getActualResult()));
+        builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.ERROR), literal(bugReport.getError()));
+      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(RDFS.COMMENT), literal(bugReport.getDescription()));
+      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.REPRODUCE_STEPS), literal(bugReport.getReproduceSteps()));
+      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.EXPECTED_RESULT), literal(bugReport.getExpectedResult()));
+      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.ACTUAL_RESULT), literal(bugReport.getActualResult()));
       conn.add(builder.build());
       String emailSubject = "New bug report added: [" + bugReport.getId().getIri() + "]";
       String emailContent = "Click <a href=\"" + bugReport.getHostUrl() + "/#/workflow/bugReport/" + bugReport.getId().getIri() + "\">here</a>";
-      emailService.sendMail(emailSubject, emailContent, "bugreport@endeavourhealth.net");
+      getEmailService().sendMail(emailSubject, emailContent, "bugreport@endeavourhealth.net");
     } catch (RepositoryException e) {
       throw new TaskFilerException("Failed to file task", e);
     } catch (MessagingException e) {
@@ -85,11 +78,11 @@ public class TaskFilerRdf4j {
     try {
       ModelBuilder builder = new ModelBuilder();
       buildTask(builder, roleRequest);
-      builder.namedGraph(GRAPH.DISCOVERY).add(iri(roleRequest.getId().getIri()), iri(WORKFLOW.REQUESTED_ROLE), literal(roleRequest.getRole()));
+      builder.namedGraph(GRAPH.IM).add(iri(roleRequest.getId().getIri()), iri(WORKFLOW.REQUESTED_ROLE), literal(roleRequest.getRole()));
       conn.add(builder.build());
       String emailSubject = "New role request added: [" + roleRequest.getId().getIri() + "]";
       String emailContent = "Click <a href=\"" + roleRequest.getHostUrl() + "/#/workflow/roleRequest/" + roleRequest.getId().getIri() + "\">here</a>";
-      emailService.sendMail(emailSubject, emailContent, "rolerequest@endeavourhealth.net");
+      getEmailService().sendMail(emailSubject, emailContent, "rolerequest@endeavourhealth.net");
     } catch (RepositoryException e) {
       throw new TaskFilerException("Failed to file task", e);
     } catch (MessagingException e) {
@@ -102,11 +95,11 @@ public class TaskFilerRdf4j {
     try {
       ModelBuilder builder = new ModelBuilder();
       buildTask(builder, entityApproval);
-      builder.namedGraph(GRAPH.DISCOVERY).add(iri(entityApproval.getId().getIri()), iri(WORKFLOW.APPROVAL_TYPE), literal(entityApproval.getApprovalType()));
+      builder.namedGraph(GRAPH.IM).add(iri(entityApproval.getId().getIri()), iri(WORKFLOW.APPROVAL_TYPE), literal(entityApproval.getApprovalType()));
       conn.add(builder.build());
       String emailSubject = "New role request added: [" + entityApproval.getId().getIri() + "]";
       String emailContent = "Click <a href=\"" + entityApproval.getHostUrl() + "/#/workflow/entityApproval/" + entityApproval.getId().getIri() + "\">here</a>";
-      emailService.sendMail(emailSubject, emailContent, "entityapproval@endeavourhealth.net");
+      getEmailService().sendMail(emailSubject, emailContent, "entityapproval@endeavourhealth.net");
     } catch (RepositoryException e) {
       throw new TaskFilerException("Failed to file task", e);
     } catch (MessagingException e) {
@@ -122,7 +115,7 @@ public class TaskFilerRdf4j {
             GRAPH ?g { ?s ?p ?o }
           }
         """;
-      Update update = prepareUpdateSparql(conn, sparql, GRAPH.DISCOVERY);
+      Update update = WorkflowDB.prepareUpdateSparql(conn, sparql);
       update.setBinding("s", iri(taskId));
       update.execute();
     } catch (UpdateExecutionException e) {
@@ -150,7 +143,7 @@ public class TaskFilerRdf4j {
       stringJoiner.add("BIND(?o AS ?originalObject)");
       if (null != newObject) stringJoiner.add("BIND(?newVal AS ?newObject)");
       stringJoiner.add("}}");
-      Update update = prepareUpdateSparql(conn, stringJoiner.toString(), GRAPH.DISCOVERY);
+      Update update = WorkflowDB.prepareUpdateSparql(conn, stringJoiner.toString());
       update.setBinding("subject", iri(subject));
       update.setBinding("predicate", iri(predicate));
       if (null != newObject) update.setBinding("newVal", literal(newObject));
@@ -166,14 +159,14 @@ public class TaskFilerRdf4j {
     try {
       ModelBuilder builder = new ModelBuilder();
       BNode bn = bnode();
-      builder.namedGraph(GRAPH.DISCOVERY).add(iri(subject), iri(WORKFLOW.HISTORY), bn);
-      builder.namedGraph(GRAPH.DISCOVERY).add(bn, iri(WORKFLOW.HISTORY_PREDICATE), literal(predicate));
+      builder.namedGraph(GRAPH.IM).add(iri(subject), iri(WORKFLOW.HISTORY), bn);
+      builder.namedGraph(GRAPH.IM).add(bn, iri(WORKFLOW.HISTORY_PREDICATE), literal(predicate));
       if (null != originalObject)
-        builder.namedGraph(GRAPH.DISCOVERY).add(bn, iri(WORKFLOW.HISTORY_ORIGINAL_OBJECT), literal(originalObject));
+        builder.namedGraph(GRAPH.IM).add(bn, iri(WORKFLOW.HISTORY_ORIGINAL_OBJECT), literal(originalObject));
       if (null != newObject)
-        builder.namedGraph(GRAPH.DISCOVERY).add(bn, iri(WORKFLOW.HISTORY_NEW_OBJECT), literal(newObject));
-      builder.namedGraph(GRAPH.DISCOVERY).add(bn, iri(WORKFLOW.HISTORY_CHANGE_DATE), literal(LocalDateTime.now()));
-      builder.namedGraph(GRAPH.DISCOVERY).add(bn, iri(WORKFLOW.MODIFIED_BY), literal(userId));
+        builder.namedGraph(GRAPH.IM).add(bn, iri(WORKFLOW.HISTORY_NEW_OBJECT), literal(newObject));
+      builder.namedGraph(GRAPH.IM).add(bn, iri(WORKFLOW.HISTORY_CHANGE_DATE), literal(LocalDateTime.now()));
+      builder.namedGraph(GRAPH.IM).add(bn, iri(WORKFLOW.MODIFIED_BY), literal(userId));
       conn.add(builder.build());
     } catch (Exception e) {
       throw new TaskFilerException("Update task history failed.", e);
@@ -181,6 +174,7 @@ public class TaskFilerRdf4j {
   }
 
   private void replaceUsernameWithId(Task task) throws UserNotFoundException {
+    AWSCognitoClient awsCognitoClient = new AWSCognitoClient();
     String cognitoIdRegex = "[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}";
     if (null != task.getCreatedBy() && !task.getCreatedBy().matches(cognitoIdRegex))
       task.setCreatedBy(awsCognitoClient.adminGetId(task.getCreatedBy()));
@@ -191,16 +185,28 @@ public class TaskFilerRdf4j {
   private String usernameToId(String username) throws UserNotFoundException {
     if (username.equals("UNASSIGNED")) return username;
     String cognitoIdRegex = "[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}";
-    if (!username.matches(cognitoIdRegex)) return awsCognitoClient.adminGetId(username);
+    if (!username.matches(cognitoIdRegex)) return new AWSCognitoClient().adminGetId(username);
     return username;
   }
 
   private void buildTask(ModelBuilder builder, Task task) {
-    builder.namedGraph(GRAPH.DISCOVERY).add(iri(task.getId().getIri()), iri(WORKFLOW.CREATED_BY), literal(task.getCreatedBy()));
-    builder.namedGraph(GRAPH.DISCOVERY).add(iri(task.getId().getIri()), iri(RDF.TYPE), literal(task.getType()));
-    builder.namedGraph(GRAPH.DISCOVERY).add(iri(task.getId().getIri()), iri(WORKFLOW.STATE), literal(null == task.getState() ? TaskState.TODO : task.getState()));
-    builder.namedGraph(GRAPH.DISCOVERY).add(iri(task.getId().getIri()), iri(WORKFLOW.ASSIGNED_TO), literal(null == task.getAssignedTo() ? "UNASSIGNED" : task.getAssignedTo()));
-    builder.namedGraph(GRAPH.DISCOVERY).add(iri(task.getId().getIri()), iri(WORKFLOW.DATE_CREATED), literal(null == task.getDateCreated() ? LocalDateTime.now() : task.getDateCreated()));
-    builder.namedGraph(GRAPH.DISCOVERY).add(iri(task.getId().getIri()), iri(WORKFLOW.HOST_URL), literal(task.getHostUrl()));
+    builder.namedGraph(GRAPH.IM).add(iri(task.getId().getIri()), iri(WORKFLOW.CREATED_BY), literal(task.getCreatedBy()));
+    builder.namedGraph(GRAPH.IM).add(iri(task.getId().getIri()), iri(RDF.TYPE), literal(task.getType()));
+    builder.namedGraph(GRAPH.IM).add(iri(task.getId().getIri()), iri(WORKFLOW.STATE), literal(null == task.getState() ? TaskState.TODO : task.getState()));
+    builder.namedGraph(GRAPH.IM).add(iri(task.getId().getIri()), iri(WORKFLOW.ASSIGNED_TO), literal(null == task.getAssignedTo() ? "UNASSIGNED" : task.getAssignedTo()));
+    builder.namedGraph(GRAPH.IM).add(iri(task.getId().getIri()), iri(WORKFLOW.DATE_CREATED), literal(null == task.getDateCreated() ? LocalDateTime.now() : task.getDateCreated()));
+    builder.namedGraph(GRAPH.IM).add(iri(task.getId().getIri()), iri(WORKFLOW.HOST_URL), literal(task.getHostUrl()));
+  }
+
+  private EmailService getEmailService() {
+    if (emailService == null) {
+      emailService= new EmailService(
+        System.getenv("EMAILER_HOST"),
+        Integer.parseInt(System.getenv("EMAILER_PORT")),
+        System.getenv("EMAILER_USERNAME"),
+        System.getenv("EMAILER_PASSWORD")
+      );
+    }
+    return emailService;
   }
 }

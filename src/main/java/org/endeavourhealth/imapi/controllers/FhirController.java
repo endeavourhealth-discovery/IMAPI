@@ -26,7 +26,7 @@ public class FhirController {
 
   @GetMapping(value = "/ValueSet", produces = "application/json")
   @Operation(summary = "Retrieves the specified value set")
-  public String getValueSet(@RequestParam(name = "url") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException, QueryException {
+  public String getValueSet(@RequestParam(name = "url") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Fhir.ValueSet.GET")) {
       log.info("Retrieving valueSet");
       return fhirService.getFhirValueSet(iri, false, graph);
@@ -35,7 +35,7 @@ public class FhirController {
 
   @GetMapping(value = "/ValueSet/$expand", produces = "application/json")
   @Operation(summary = "Retrieves the specified value set and expands any subsets & members")
-  public String getValueSetExpanded(@RequestParam(name = "url") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException, QueryException {
+  public String getValueSetExpanded(@RequestParam(name = "url") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Fhir.ValueSet.Expand.GET")) {
       log.info("Retrieving expanded valueSet");
       return fhirService.getFhirValueSet(iri, true, graph);
@@ -44,7 +44,7 @@ public class FhirController {
 
   @GetMapping(value = "/ValueSet/ECL", consumes = "text/plain", produces = "application/json")
   @Operation(summary = "Evaluates an ECL expression and returns the result as a FHIR r4 value set")
-  public String getEclToFhir(@RequestParam(name = "ecl") String ecl, @RequestParam(name = "graph", defaultValue = GRAPH.DISCOVERY) String graph) throws IOException, QueryException, DataFormatException, EclFormatException {
+  public String getEclToFhir(@RequestParam(name = "ecl") String ecl, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException, QueryException, DataFormatException, EclFormatException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Fhir.ValueSet.Ecl.POST")) {
       log.info("Evaluating valueset ECL expression");
       return fhirService.eclToFhir(ecl, graph);

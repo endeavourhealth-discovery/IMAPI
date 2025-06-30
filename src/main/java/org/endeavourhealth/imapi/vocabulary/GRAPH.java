@@ -3,6 +3,9 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 public class GRAPH {
-    public static final String DISCOVERY = "http://endhealth.info/im#";
+    public static final String IM = "http://endhealth.info/im#";
     public static final String PROV = "http://endhealth.info/prov#";
+    public static final String USER = "http://endhealth.info/user#";
+    public static final String WORKFLOW = "http://endhealth.info/workflow#";
+    public static final String CONFIG = "http://endhealth.info/config#";
 }

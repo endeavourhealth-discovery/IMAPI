@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.dataaccess;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.GraphQuery;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper;
 import org.endeavourhealth.imapi.model.tripletree.TTEntityMap;
 
@@ -112,7 +112,7 @@ public class ShapeRepository {
    * All iris referenced include their labels as names, except for the mode predicates themselves
    */
   public static TTEntityMap getShapes() {
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (RepositoryConnection conn = IMDB.getConnection()) {
       GraphQuery qry = conn.prepareGraphQuery(addSparqlPrefixes(GET_ALL_SHAPES_SQL));
       return GraphHelper.getEntityMap(qry);
     }
@@ -129,7 +129,7 @@ public class ShapeRepository {
    */
   public static TTEntityMap getShapeAndAncestors(String focusIri) {
 
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (RepositoryConnection conn = IMDB.getConnection()) {
       GraphQuery qry = conn.prepareGraphQuery(addSparqlPrefixes(GET_SHAPES_SQL));
       qry.setBinding("entity", Values.iri(focusIri));
       return GraphHelper.getEntityMap(qry);

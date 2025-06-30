@@ -32,7 +32,7 @@
     "http://endhealth.info/im#Patient": {
       "table": "patient",
       "fields": {
-        "http://endhealth.info/im#age": {"field": "{alias}.date_of_birth", "type": "date"},
+        "http://endhealth.info/im#age": {"field": "TIMESTAMPDIFF(YEAR, {alias}.date_of_birth, $referenceDate)", "type": "date"},
         "http://endhealth.info/im#dateOfBirth": {"field": "{alias}.date_of_birth", "type": "date"}
       },
       "relationships": {

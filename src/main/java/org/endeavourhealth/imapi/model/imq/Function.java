@@ -4,7 +4,6 @@ public enum Function {
   sum,
   count,
   average,
-  timeDifference,
   concatenate,
   max,
   min

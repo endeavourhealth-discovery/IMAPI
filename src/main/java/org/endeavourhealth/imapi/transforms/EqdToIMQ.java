@@ -191,10 +191,10 @@ public class EqdToIMQ {
     qry.setIri(queryEntity.getIri());
     qry.setName(queryEntity.getName());
     if (eqReport.getPopulation() != null) {
-      queryEntity.addType(TTIriRef.iri(IM.COHORT_QUERY));
+      queryEntity.addType(TTIriRef.iri(IM.QUERY));
       qry = (new EqdPopToIMQ()).convertPopulation(eqReport, qry, this.resources);
     } else if (eqReport.getListReport() != null) {
-      queryEntity.addType(TTIriRef.iri(IM.DATASET_QUERY));
+      queryEntity.addType(TTIriRef.iri(IM.QUERY));
       (new EqdListToIMQ()).convertReport(eqReport, this.document, qry, this.resources);
     } else if (eqReport.getAuditReport() != null) {
       queryEntity.addType(TTIriRef.iri(IM.QUERY));

@@ -281,7 +281,6 @@ public class EqdResources {
         }
 
         linkedMatch = this.convertLinkedCriterion(eqCriterion, nodeRef);
-        linkedMatch.setNodeRef(nodeRef);
         if (linkedMatch.getThen() == null) {
           linkedMatch.setOrderBy(null);
         }
@@ -291,7 +290,7 @@ public class EqdResources {
         standardMatch.setDescription(eqCriterion.getDescription());
         return standardMatch;
       } else {
-        matchHolder = (new Match()).setHasLinked(true);
+        matchHolder = new Match();
         if (baseMatch != null) {
           if (linkedMatch == null) {
             matchHolder = baseMatch;
@@ -585,6 +584,7 @@ public class EqdResources {
   private Match convertLinkedCriterion(EQDOCCriterion eqCriterion, String nodeRef) throws IOException, QueryException, EQDException {
     EQDOCCriterion eqLinkedCriterion = eqCriterion.getLinkedCriterion().getCriterion();
     Match match = this.convertCriterion(eqLinkedCriterion);
+    match.setLinkedMatch(nodeRef);
     match.setReturn(null);
     Where relationProperty = new Where();
     addMatchWhere(match, relationProperty);

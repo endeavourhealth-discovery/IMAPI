@@ -52,8 +52,8 @@ public class IMQtoSQLConverter {
   public String IMQtoSQL() throws SQLConversionException {
     if (queryRequest.getQuery() == null) throw new SQLConversionException("Query is null");
     Query definition = queryRequest.getQuery();
-    if (definition.getTypeOf() == null && definition.getDataSet() == null) {
-      throw new SQLConversionException("SQL Conversion Error: Query must have a main (model) type or a dataset");
+    if (definition.getTypeOf() == null) {
+      throw new SQLConversionException("SQL Conversion Error: Query must have a main (model) type");
     }
 
     try {
@@ -67,7 +67,7 @@ public class IMQtoSQLConverter {
             addDatasetSubQuery(qry, dataset, definition.getTypeOf().getIri());
           if (dataset.getReturn() != null)
             addSelectFromReturnRecursively(qry, dataset.getReturn(), null, definition.getTypeOf().getIri(), null);
-          sql.append(qry.toSql(2)).append("\n\n");
+          sql.append(qry.toSql(2)).append(";\n\n");
         }
       } else {
         SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null, tableMap);

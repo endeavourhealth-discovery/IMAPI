@@ -37,6 +37,7 @@ public class QueryRequest implements ContextMap {
   @Setter
   private TextSearchStyle textSearchStyle;
 
+  public QueryRequest() {}
 
   public QueryRequest setCohort(List<TTIriRef> cohort) {
     this.cohort = cohort;

@@ -3,6 +3,12 @@
     "http://endhealth.info/im#patient": {
       "dataModel": "http://endhealth.info/im#Patient"
     },
+    "http://endhealth.info/im#provider": {
+      "dataModel": "http://endhealth.info/im#Organisation"
+    },
+    "http://endhealth.info/im#gpRegistrationAtEvent": {
+      "dataModel": "http://endhealth.info/im#GPRegistration"
+    },
     "http://endhealth.info/im#concept": {
       "dataModel": "http://endhealth.info/im#Concept"
     },
@@ -26,13 +32,24 @@
     },
     "http://endhealth.info/im#usualGP": {
       "dataModel": "http://endhealth.info/im#PersonInRole"
+    },
+    "http://endhealth.info/im#homeAddress": {
+      "dataModel": "http://endhealth.info/im#Address"
     }
   },
   "dataModels": {
+    "http://endhealth.info/im#Address": {
+      "table": "patient_address",
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "patient_id", "toField": "{alias}.id"}
+      }
+    },
     "http://endhealth.info/im#Patient": {
       "table": "patient",
       "fields": {
-        "http://endhealth.info/im#age": {"field": "TIMESTAMPDIFF(YEAR, {alias}.date_of_birth, $referenceDate)", "type": "date"},
+        "http://endhealth.info/im#age": {
+          "field": "TIMESTAMPDIFF(YEAR, {alias}.date_of_birth, $referenceDate)", "type": "date"
+        },
         "http://endhealth.info/im#dateOfBirth": {"field": "{alias}.date_of_birth", "type": "date"}
       },
       "relationships": {
@@ -87,6 +104,17 @@
       },
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "{alias}.patient_id", "toField": "id"}
+      }
+    },
+    "http://endhealth.info/im#Organisation": {
+      "table": "organization",
+      "fields": {
+        "http://endhealth.info/im#odsCode": {"field": "{alias}.ods_code", "type": "string"},
+        "http://www.w3.org/2000/01/rdf-schema#label": {"field": "{alias}.name", "type": "string"}
+      },
+      "relationships": {
+        "http://endhealth.info/im#GPRegistration": {"fromField": "{alias}.id", "toField": "organization_id"},
+        "http://endhealth.info/im#EpisodeOfCare": {"fromField": "{alias}.id", "toField": "organization_id"}
       }
     },
     "http://endhealth.info/im#MedicationRequest": {

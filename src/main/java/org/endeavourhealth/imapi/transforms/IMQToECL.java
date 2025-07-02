@@ -197,10 +197,9 @@ public class IMQToECL {
     if (isWild) ecl.append(")");
   }
 
-  private boolean bracketNeeded(Match match, boolean first) {
+  private boolean bracketNeeded(Match match, boolean first,boolean multiItems) {
     if (match.getInstanceOf() == null && match.getOr() == null && match.getAnd() == null) return true;
-    if (match.getWhere() != null && !first) return true;
-    return false;
+    return match.getWhere() != null && (!first || multiItems);
   }
 
   private void compound(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
@@ -211,9 +210,9 @@ public class IMQToECL {
         if (!first) {
           ecl.append(" AND ");
         }
-        if (bracketNeeded(subMatch, first)) ecl.append("(");
+        if (bracketNeeded(subMatch, first,isConjunction)) ecl.append("(");
         expressionMatch(subMatch, ecl, includeNames, isConjunction);
-        if (bracketNeeded(subMatch, first)) ecl.append(")");
+        if (bracketNeeded(subMatch, first,isConjunction)) ecl.append(")");
         first = false;
       }
     }
@@ -223,9 +222,9 @@ public class IMQToECL {
         if (!first) {
           ecl.append(" OR ");
         }
-        if (bracketNeeded(subMatch, first)) ecl.append("(");
+        if (bracketNeeded(subMatch, first,isDisjunction)) ecl.append("(");
         expressionMatch(subMatch, ecl, includeNames, isDisjunction);
-        if (bracketNeeded(subMatch, first)) ecl.append(")");
+        if (bracketNeeded(subMatch, first,isDisjunction)) ecl.append(")");
         first = false;
       }
     }

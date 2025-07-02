@@ -19,11 +19,10 @@ public class EqdListToIMQ {
   public void convertReport(EQDOCReport eqReport, TTDocument document,Query query, EqdResources resources) throws IOException, QueryException, EQDException {
     this.resources = resources;
     this.resources.setQueryType(QueryType.LIST);
-
+    query.setTypeOf(new Node().setIri(IM.NAMESPACE + "Patient"));
     String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
-    query.and(f -> f
-      .addInstanceOf(new Node().setIri(resources.getNamespace() +id).setMemberOf(true))
-      .setName(resources.reportNames.get(id)));
+    query.addInstanceOf(new Node().setIri(resources.getNamespace() +id).setMemberOf(true))
+      .setName(resources.reportNames.get(id));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
       EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();
       Query subQuery = new Query();
@@ -124,7 +123,7 @@ public class EqdListToIMQ {
 
   private void convertColumn(Return aReturn, String subPath,String as) {
       String[] elements = subPath.split(" ");
-      for (int i = 0; i < elements.length-1; i ++) {
+      for (int i = 0; i < elements.length-1; i =i+2) {
         ReturnProperty path = new ReturnProperty();
         path.setIri(elements[i]);
         aReturn.addProperty(path);

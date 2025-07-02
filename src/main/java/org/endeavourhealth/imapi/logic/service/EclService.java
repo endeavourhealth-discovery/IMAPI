@@ -5,27 +5,53 @@ import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.DisplayMode;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
-import org.endeavourhealth.imapi.model.imq.ECLStatus;
+import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.transforms.ECLToIMQ;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class EclService {
   private final SetRepository setRepository = new SetRepository();
 
+
+  public ECLQuery validateModelFromQuery(ECLQuery eclQuery) {
+    eclQuery.setStatus(new ECLQueryValidator().validateQuery(eclQuery.getQuery(),ValidationLevel.ECL));
+    return eclQuery;
+  }
+
+
+
+  public ECLQuery validateModelFromECL(ECLQuery eclQuery) {
+    try {
+      getQueryFromECL(eclQuery);
+      validateModelFromQuery(eclQuery);
+      if (!eclQuery.getStatus().isValid()) {
+        new IMQToECL().getECLFromQuery(eclQuery);
+      }
+      return eclQuery;
+    } catch (Exception e){
+      ECLStatus eclStatus= new ECLStatus();
+      eclStatus.setValid(false);
+      eclStatus.setMessage(e.getMessage());
+      eclQuery.setStatus(eclStatus);
+      return eclQuery;
+    }
+}
+
+
   public String getEcl(Query inferred) throws QueryException {
     if (inferred == null) throw new QueryException("Missing data for ECL conversion");
-    else return new IMQToECL().getECLFromQuery(inferred, true);
+    ECLQuery eclQuery = new ECLQuery();
+    eclQuery.setQuery(inferred);
+    new IMQToECL().getECLFromQuery(eclQuery);
+    return eclQuery.getEcl();
   }
 
   public int getEclSearchTotalCount(EclSearchRequest request) throws QueryException {
@@ -57,17 +83,44 @@ public class EclService {
     return result;
   }
 
-  public String getECLFromQuery(Query query, Boolean includeNames) throws QueryException {
-    return new IMQToECL().getECLFromQuery(query, includeNames);
+  public ECLQuery getECLFromQuery(ECLQuery eclQuery) {
+    new IMQToECL().getECLFromQuery(eclQuery);
+    return eclQuery;
   }
 
-  public Query getQueryFromEcl(String ecl) throws EclFormatException, QueryException, JsonProcessingException {
-    Query query= new ECLToIMQ().getQueryFromECL(ecl);
-    new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL);
-    return query;
+
+
+  public ECLQuery getQueryFromECL(ECLQuery eclQuery) {
+    String ecl= eclQuery.getEcl();
+    if (ecl==null||ecl.isEmpty())
+      return eclQuery;
+    new ECLToIMQ().getQueryFromECL(eclQuery,true);
+    Query query=eclQuery.getQuery();
+    if (query!=null &&!query.isInvalid()) {
+      try {
+        new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL);
+      } catch (Exception e) {
+        eclQuery.getStatus().setValid(false);
+        eclQuery.getStatus().setMessage(e.getMessage());
+      }
+    }
+    return eclQuery;
   }
 
-  public ECLStatus validateEcl(String ecl) {
-    return new ECLToIMQ().validateEcl(ecl);
+  public ECLQuery validateEcl(ECLQuery eclQuery) {
+    String ecl=eclQuery.getEcl();
+    if (ecl==null||ecl.isEmpty())
+      return eclQuery;
+    new ECLToIMQ().getQueryFromECL(eclQuery,true);
+    return eclQuery;
+  }
+
+  public ECLQuery getEclFromEcl(ECLQuery eclQuery){
+    String ecl= eclQuery.getEcl();
+    if (ecl==null|| ecl.isEmpty())
+      return eclQuery;
+    new ECLToIMQ().getQueryFromECL(eclQuery,true);
+    new IMQToECL().getECLFromQuery(eclQuery);
+    return eclQuery;
   }
 }

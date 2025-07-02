@@ -29,6 +29,27 @@ public class Query extends Match {
   private JsonNode parentResult;
   @Getter
   private TTIriRef persistentIri;
+  @Getter
+  private Query subquery;
+  @Getter
+  private String bindAs;
+
+  public Query setBindAs(String bindAs) {
+    this.bindAs = bindAs;
+    return this;
+  }
+
+  public Query setSubquery(Query subquery) {
+    this.subquery = subquery;
+    return this;
+  }
+
+  public Query subquery (Consumer < Query > builder) {
+      Query subquery = new Query();
+      this.subquery = subquery;
+      builder.accept(subquery);
+      return this;
+    }
 
 
   public Query setRule(List<Match> rule) {

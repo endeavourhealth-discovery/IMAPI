@@ -2,8 +2,8 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.microsoft.schemas.office.visio.x2012.main.impl.TextTypeImpl;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import lombok.Getter;
+import lombok.Setter;
 
 
 @JsonPropertyOrder({"parameter", "iri", "variable", "parameter", "name"})
@@ -21,6 +21,9 @@ public class Element extends IriLD implements Entailment {
   private boolean parentOf;
   private boolean memberOf;
   private String nodeRef;
+  @Getter
+  @Setter
+  private boolean invalid;
 
   public boolean isMemberOf() {
     return memberOf;

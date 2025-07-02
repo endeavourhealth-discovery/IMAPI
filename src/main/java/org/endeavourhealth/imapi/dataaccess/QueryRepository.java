@@ -171,20 +171,20 @@ public class QueryRepository {
   }
 
   private ObjectNode graphSelectSearch(QueryRequest queryRequest, String spq, RepositoryConnection conn, ObjectNode result) {
-    Query query= queryRequest.getQuery();
+    Query query = queryRequest.getQuery();
     ArrayNode entities = result.putArray(ENTITIES);
-    ObjectNode lastEntity=null;
-    ObjectNode entity=null;
+    ObjectNode lastEntity = null;
+    ObjectNode entity = null;
     Map<String, ObjectNode> nodeMap = new HashMap<>();
-    Integer start= null;
-    Integer end=null;
-    if (queryRequest.getPage()!=null){
-      Integer page=queryRequest.getPage().getPageNumber();
-      Integer pageSize=queryRequest.getPage().getPageSize();
-      start=pageSize*(page-1);
-      end=pageSize*page;
+    Integer start = null;
+    Integer end = null;
+    if (queryRequest.getPage() != null) {
+      Integer page = queryRequest.getPage().getPageNumber();
+      Integer pageSize = queryRequest.getPage().getPageSize();
+      start = pageSize * (page - 1);
+      end = pageSize * page;
     }
-    int foundCount=-1;
+    int foundCount = -1;
     try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
@@ -192,31 +192,25 @@ public class QueryRepository {
         entity = bindReturn(bs, aReturn, entities, nodeMap);
         if (queryRequest.getTextSearch() != null) {
           if (lastEntity == null) lastEntity = entity;
-          if (entity.get("iri")!=null && (!entity.get("iri").textValue().equals(lastEntity.get("iri").textValue()))) {
+          if (entity.get("iri") != null && (!entity.get("iri").textValue().equals(lastEntity.get("iri").textValue()))) {
             foundCount++;
-            if (start!=null){
-              if (foundCount<start) continue;
-              if (foundCount>end) break;
+            if (start != null) {
+              if (foundCount < start) continue;
+              if (foundCount > end) break;
             }
-              if (notMatched(lastEntity, queryRequest.getTextSearch())) {
-                entities.remove(entities.size() - 2);
-              }
-              lastEntity = entity;
-              foundCount++;
+            if (notMatched(lastEntity, queryRequest.getTextSearch())) {
+              foundCount--;
+              entities.remove(entities.size() - 2);
             }
+            lastEntity = entity;
+            foundCount++;
+          }
         }
       }
-      if (queryRequest.getTextSearch() != null) {
-        if (lastEntity != null) {
-          if (notMatched(lastEntity, queryRequest.getTextSearch())) {
-            entities.remove(entities.size() - 2);
-          }
-        }
-        if (entity != null) {
-          if (notMatched(entity, queryRequest.getTextSearch())) {
-            entities.remove(entities.size() - 1);
-          }
-
+      if (!entities.isEmpty() && queryRequest.getTextSearch() != null) {
+        JsonNode last = entities.get(entities.size() - 1);
+        if (notMatched(last, queryRequest.getTextSearch())) {
+          entities.remove(entities.size() - 1);
         }
       }
     }

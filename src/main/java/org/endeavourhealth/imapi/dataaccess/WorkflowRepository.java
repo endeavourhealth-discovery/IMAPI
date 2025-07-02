@@ -103,12 +103,12 @@ public class WorkflowRepository {
       TupleQuery qry = WorkflowDB.prepareTupleSparql(conn, sparql);
       setBugReportBindings(qry);
       qry.setBinding("s", iri(id));
-      qry.setBinding("history", iri(WORKFLOW.HISTORY));
-      qry.setBinding("predicate", iri(WORKFLOW.HISTORY_PREDICATE));
-      qry.setBinding("originalObject", iri(WORKFLOW.HISTORY_ORIGINAL_OBJECT));
-      qry.setBinding("newObject", iri(WORKFLOW.HISTORY_NEW_OBJECT));
-      qry.setBinding("changeDate", iri(WORKFLOW.HISTORY_CHANGE_DATE));
-      qry.setBinding("modifiedBy", iri(WORKFLOW.MODIFIED_BY));
+      qry.setBinding("history", WORKFLOW.HISTORY.asDbIri());
+      qry.setBinding("predicate", WORKFLOW.HISTORY_PREDICATE.asDbIri());
+      qry.setBinding("originalObject", WORKFLOW.HISTORY_ORIGINAL_OBJECT.asDbIri());
+      qry.setBinding("newObject", WORKFLOW.HISTORY_NEW_OBJECT.asDbIri());
+      qry.setBinding("changeDate", WORKFLOW.HISTORY_CHANGE_DATE.asDbIri());
+      qry.setBinding("modifiedBy", WORKFLOW.MODIFIED_BY.asDbIri());
 
       AWSCognitoClient awsCognitoClient = new AWSCognitoClient();
 
@@ -138,7 +138,7 @@ public class WorkflowRepository {
     taskFilerRdf4j.deleteTask(taskId);
   }
 
-  public void update(String subject, String predicate, String originalObject, String newObject, String userId) throws TaskFilerException, UserNotFoundException {
+  public void update(String subject, VocabEnum predicate, String originalObject, String newObject, String userId) throws TaskFilerException, UserNotFoundException {
     taskFilerRdf4j.updateTask(subject, predicate, originalObject, newObject, userId);
   }
 
@@ -199,7 +199,7 @@ public class WorkflowRepository {
       """;
     try (RepositoryConnection conn = WorkflowDB.getConnection()) {
       TupleQuery qry = WorkflowDB.prepareTupleSparql(conn, sparql);
-      qry.setBinding("createdBy", iri(WORKFLOW.CREATED_BY));
+      qry.setBinding("createdBy", WORKFLOW.CREATED_BY.asDbIri());
       qry.setBinding("createdByData", literal(request.getUserId()));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
@@ -243,7 +243,7 @@ public class WorkflowRepository {
       """;
     try (RepositoryConnection conn = WorkflowDB.getConnection()) {
       TupleQuery qry = WorkflowDB.prepareTupleSparql(conn, sparql);
-      qry.setBinding("assignedTo", iri(WORKFLOW.ASSIGNED_TO));
+      qry.setBinding("assignedTo", WORKFLOW.ASSIGNED_TO.asDbIri());
       qry.setBinding("assignedToData", literal(request.getUserId()));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
@@ -382,7 +382,7 @@ public class WorkflowRepository {
       """;
     try (RepositoryConnection conn = WorkflowDB.getConnection()) {
       TupleQuery qry = WorkflowDB.prepareTupleSparql(conn, sparql);
-      qry.setBinding("p", iri(WORKFLOW.CREATED_BY));
+      qry.setBinding("p", WORKFLOW.CREATED_BY.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -396,40 +396,40 @@ public class WorkflowRepository {
   }
 
   private void setTaskBindings(TupleQuery qry) {
-    qry.setBinding("createdBy", iri(WORKFLOW.CREATED_BY));
-    qry.setBinding("type", iri(RDF.TYPE));
-    qry.setBinding("state", iri(WORKFLOW.STATE));
-    qry.setBinding("assignedTo", iri(WORKFLOW.ASSIGNED_TO));
-    qry.setBinding("dateCreated", iri(WORKFLOW.DATE_CREATED));
-    qry.setBinding("hostUrl", iri(WORKFLOW.HOST_URL));
+    qry.setBinding("createdBy", WORKFLOW.CREATED_BY.asDbIri());
+    qry.setBinding("type", RDF.TYPE.asDbIri());
+    qry.setBinding("state", WORKFLOW.STATE.asDbIri());
+    qry.setBinding("assignedTo", WORKFLOW.ASSIGNED_TO.asDbIri());
+    qry.setBinding("dateCreated", WORKFLOW.DATE_CREATED.asDbIri());
+    qry.setBinding("hostUrl", WORKFLOW.HOST_URL.asDbIri());
   }
 
   private void setBugReportBindings(TupleQuery qry) {
     setTaskBindings(qry);
-    qry.setBinding("product", iri(WORKFLOW.RELATED_PRODUCT));
-    qry.setBinding("version", iri(WORKFLOW.RELATED_VERSION));
-    qry.setBinding("module", iri(WORKFLOW.RELATED_MODULE));
-    qry.setBinding("os", iri(WORKFLOW.OPERATING_SYSTEM));
-    qry.setBinding("osOther", iri(WORKFLOW.OPERATING_SYSTEM_OTHER));
-    qry.setBinding("browser", iri(WORKFLOW.BROWSER));
-    qry.setBinding("browserOther", iri(WORKFLOW.BROWSER_OTHER));
-    qry.setBinding("severity", iri(WORKFLOW.SEVERITY));
-    qry.setBinding("status", iri(IM.HAS_STATUS));
-    qry.setBinding("error", iri(WORKFLOW.ERROR));
-    qry.setBinding("description", iri(RDFS.COMMENT));
-    qry.setBinding("reproduceSteps", iri(WORKFLOW.REPRODUCE_STEPS));
-    qry.setBinding("expectedResult", iri(WORKFLOW.EXPECTED_RESULT));
-    qry.setBinding("actualResult", iri(WORKFLOW.ACTUAL_RESULT));
+    qry.setBinding("product", WORKFLOW.RELATED_PRODUCT.asDbIri());
+    qry.setBinding("version", WORKFLOW.RELATED_VERSION.asDbIri());
+    qry.setBinding("module", WORKFLOW.RELATED_MODULE.asDbIri());
+    qry.setBinding("os", WORKFLOW.OPERATING_SYSTEM.asDbIri());
+    qry.setBinding("osOther", WORKFLOW.OPERATING_SYSTEM_OTHER.asDbIri());
+    qry.setBinding("browser", WORKFLOW.BROWSER.asDbIri());
+    qry.setBinding("browserOther", WORKFLOW.BROWSER_OTHER.asDbIri());
+    qry.setBinding("severity", WORKFLOW.SEVERITY.asDbIri());
+    qry.setBinding("status", IM.HAS_STATUS.asDbIri());
+    qry.setBinding("error", WORKFLOW.ERROR.asDbIri());
+    qry.setBinding("description", RDFS.COMMENT.asDbIri());
+    qry.setBinding("reproduceSteps", WORKFLOW.REPRODUCE_STEPS.asDbIri());
+    qry.setBinding("expectedResult", WORKFLOW.EXPECTED_RESULT.asDbIri());
+    qry.setBinding("actualResult", WORKFLOW.ACTUAL_RESULT.asDbIri());
   }
 
   private void setRoleRequestBindings(TupleQuery qry) {
     setTaskBindings(qry);
-    qry.setBinding("role", iri(WORKFLOW.REQUESTED_ROLE));
+    qry.setBinding("role", WORKFLOW.REQUESTED_ROLE.asDbIri());
   }
 
   private void setEntityApprovalBindings(TupleQuery qry) {
     setTaskBindings(qry);
-    qry.setBinding("approvalType", iri(WORKFLOW.APPROVAL_TYPE));
+    qry.setBinding("approvalType", WORKFLOW.APPROVAL_TYPE.asDbIri());
   }
 
   private void mapBugReportFromBindingSet(BugReport bugReport, BindingSet bs) throws UserNotFoundException {

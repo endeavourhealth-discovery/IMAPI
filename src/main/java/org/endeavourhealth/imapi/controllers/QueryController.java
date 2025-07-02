@@ -14,7 +14,7 @@ import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -94,11 +94,11 @@ public class QueryController {
   public Query describeQuery(
     @RequestParam(name = "queryIri") String iri,
     @RequestParam(name = "displayMode", defaultValue = "ORIGINAL") DisplayMode displayMode,
-    @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph
+    @RequestParam(name = "graph") String graph
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("describeQuery");
-      return queryService.describeQuery(iri, displayMode, graph);
+      return queryService.describeQuery(iri, displayMode, Graph.from(graph));
     }
   }
 
@@ -116,10 +116,10 @@ public class QueryController {
         queryDisplayRequest.setDisplayMode(DisplayMode.ORIGINAL);
       }
       if (null == queryDisplayRequest.getGraph()) {
-        queryDisplayRequest.setGraph(iri(GRAPH.IM));
+        queryDisplayRequest.setGraph(iri(Graph.IM));
       }
       log.debug("getQueryDisplayFromQuery with displayMode: {}", displayMode);
-      return queryService.describeQuery(queryDisplayRequest.getQuery(), displayMode, queryDisplayRequest.getGraph().getIri());
+      return queryService.describeQuery(queryDisplayRequest.getQuery(), displayMode, Graph.from(queryDisplayRequest.getGraph().getIri()));
     }
   }
 
@@ -186,21 +186,21 @@ public class QueryController {
   public String getSQLFromIMQIri(
     @RequestParam(name = "queryIri") String queryIri,
     @RequestParam(name = "lang", defaultValue = "MYSQL") String lang,
-    @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph
+    @RequestParam(name = "graph") String graph
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getSQLFromIMQIri");
-      return queryService.getSQLFromIMQIri(queryIri, lang, new HashMap<>(), graph);
+      return queryService.getSQLFromIMQIri(queryIri, lang, new HashMap<>(), Graph.from(graph));
     }
   }
 
 
   @GetMapping(value = "/public/defaultQuery")
   @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")
-  public Query getDefaultQuery(@RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
+  public Query getDefaultQuery(@RequestParam(name = "graph") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DefaultQuery.GET")) {
       log.debug("getDefaultCohort");
-      return queryService.getDefaultQuery(graph);
+      return queryService.getDefaultQuery(Graph.from(graph));
     }
   }
 }

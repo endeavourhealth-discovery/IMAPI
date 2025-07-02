@@ -4,7 +4,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 public class WorkflowDB extends BaseDB {
   private static Repository repository = null;
@@ -14,11 +14,11 @@ public class WorkflowDB extends BaseDB {
   }
 
   public static TupleQuery prepareTupleSparql(RepositoryConnection connection, String sparql) {
-    return BaseDB.prepareTupleSparql(connection, sparql, GRAPH.WORKFLOW);
+    return BaseDB.prepareTupleSparql(connection, sparql, Graph.WORKFLOW);
   }
 
   public static Update prepareUpdateSparql(RepositoryConnection conn, String sparql) {
-    return BaseDB.prepareUpdateSparql(conn, sparql, GRAPH.WORKFLOW);
+    return BaseDB.prepareUpdateSparql(conn, sparql, Graph.WORKFLOW);
   }
 
   private static Repository getRepo() {

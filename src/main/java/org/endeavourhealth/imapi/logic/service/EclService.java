@@ -55,7 +55,15 @@ public class EclService {
   }
 
   public Set<Concept> evaluateECLQuery(EclSearchRequest request) throws QueryException {
-    return setRepository.getSetExpansionFromQuery(request.getEclQuery(), request.isIncludeLegacy(), request.getStatusFilter(), List.of(), new Page().setPageNumber(request.getPage()).setPageSize(request.getSize()), request.getGraph());
+    return setRepository.getSetExpansionFromQuery(
+      request.getEclQuery(),
+      request.isIncludeLegacy(),
+      request.getStatusFilter(),
+      List.of(),
+      new Page()
+        .setPageNumber(request.getPage())
+        .setPageSize(request.getSize()),
+      request.getGraph());
   }
 
   public SearchResponse eclSearch(EclSearchRequest request) throws QueryException {

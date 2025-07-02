@@ -2,13 +2,61 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class RDF {
-    public static final String NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-    public static final String PREFIX = "rdf";
-    public static final String TYPE = RDF.NAMESPACE + "type";
-    public static final String PROPERTY = RDF.NAMESPACE + "Property";
-    public static final String LIST = RDF.NAMESPACE + "List";
-    public static final String PREDICATE = RDF.NAMESPACE + "predicate";
-    public static final String SUBJECT = RDF.NAMESPACE + "subject";
-    public static final String OBJECT = RDF.NAMESPACE + "object";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum RDF implements VocabEnum {
+
+    NAMESPACE("http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
+    PREFIX("rdf"),
+    TYPE(RDF.NAMESPACE + "type"),
+    PROPERTY(RDF.NAMESPACE + "Property"),
+    LIST(RDF.NAMESPACE + "List"),
+    PREDICATE(RDF.NAMESPACE + "predicate"),
+    SUBJECT(RDF.NAMESPACE + "subject"),
+    OBJECT(RDF.NAMESPACE + "object"),
+    ;
+
+    private final String value;
+
+    RDF(final String value) {
+        this.value = value;
+    }
+
+    RDF(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static RDF from(String text) {
+    for (RDF b : RDF.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

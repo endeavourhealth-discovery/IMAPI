@@ -8,7 +8,6 @@ import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
@@ -31,7 +30,7 @@ public class ConfigController {
     summary = "Retrieve monitoring configuration",
     description = "Fetches monitoring configuration details from the config manager"
   )
-  public String getMonitoring(@RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
+  public String getMonitoring() throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.Monitoring.GET")) {
       log.debug("getMonitoring");
       return configManager.getConfig(CONFIG.MONITORING, new TypeReference<>() {

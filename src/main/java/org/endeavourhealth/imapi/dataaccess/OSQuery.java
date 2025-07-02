@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
+
 @Slf4j
 public class OSQuery {
   private final IMQToOS converter = new IMQToOS();
@@ -39,7 +41,7 @@ public class OSQuery {
       ObjectNode osResult = om.treeToValue(hit.get("_source"), ObjectNode.class);
 
       resultNode.set("iri", osResult.get("iri"));
-      resultNode.set(RDFS.LABEL, osResult.get("name"));
+      resultNode.set(RDFS.LABEL.toString(), osResult.get("name"));
       processBestMatch(hit, resultNode);
       processNodeResultReturn(request, osResult, resultNode);
     }
@@ -49,13 +51,13 @@ public class OSQuery {
     JsonNode innerHits = hit.get("inner_hits");
     if (innerHits != null) {
       if (innerHits.get("termCode") != null && !innerHits.get("termCode").get("hits").get("hits").isEmpty()) {
-        String name = resultNode.get(RDFS.LABEL).asText();
+        String name = resultNode.get(RDFS.LABEL.toString()).asText();
         JsonNode bestHit = innerHits.get("termCode").get("hits").get("hits").get(0).get("_source").get("term");
         String bestTerm = bestHit.asText();
         if (!bestTerm.endsWith(")") && name.endsWith(")") && name.contains("(")) {
           bestTerm = bestTerm + " " + name.substring(name.lastIndexOf("("));
         }
-        resultNode.put(IM.BEST_MATCH, bestTerm);
+        resultNode.put(IM.BEST_MATCH.toString(), bestTerm);
       }
     }
   }
@@ -70,7 +72,8 @@ public class OSQuery {
   }
 
   private static void processSourceReturns(ObjectNode osResult, ObjectNode resultNode) {
-    Set<String> sources = new HashSet<>(List.of(RDFS.LABEL, "iri", IM.PREFERRED_NAME, IM.CODE, IM.USAGE_TOTAL, RDF.TYPE, IM.HAS_SCHEME, IM.HAS_STATUS));
+    Set<String> sources = asHashSet(RDFS.LABEL, IM.PREFERRED_NAME, IM.CODE, IM.USAGE_TOTAL, RDF.TYPE, IM.HAS_SCHEME, IM.HAS_STATUS);
+    sources.add("iri");
     for (String field : sources) {
       String osField = field.substring(field.lastIndexOf("#") + 1);
       if (osResult.get(osField) != null) {

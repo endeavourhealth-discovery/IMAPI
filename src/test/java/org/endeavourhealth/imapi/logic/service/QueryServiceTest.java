@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.EntityType;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,7 +19,7 @@ public class QueryServiceTest {
   QueryService queryService = new QueryService();
 
   void testCohortQueriesToSQL() throws JsonProcessingException {
-    List<TTIriRef> queries = entityService.getEntitiesByType(IM.QUERY, null);
+    List<TTIriRef> queries = entityService.getEntitiesByType(EntityType.QUERY, null);
     System.out.println("Queries: " + queries.size());
     for (TTIriRef ref : queries) {
       System.out.println("Testing " + ref.getName() + " " + ref.getIri());

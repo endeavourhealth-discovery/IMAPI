@@ -447,7 +447,7 @@ public class IMQtoSQLConverter {
   private String getUnitName(TTIriRef iriRef) throws SQLConversionException {
     if (iriRef.getName() != null)
       return iriRef.getName();
-    return switch (iriRef.getIri()) {
+    return switch (IM.from(iriRef.getIri())) {
       case IM.YEARS -> "Year";
       case IM.MONTHS -> "Month";
       default -> throw new SQLConversionException("SQL Conversion Error: No unit name found for\n" + iriRef.getIri());

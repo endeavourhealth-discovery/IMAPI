@@ -8,7 +8,7 @@ import org.endeavourhealth.imapi.logic.validator.EntityValidator;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.junit.jupiter.api.Test;
@@ -20,12 +20,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -73,28 +71,28 @@ public class ConceptModelServiceTest {
       .setCode("24951000252112")
       .setTerm("Adverse reaction to Testogel")
       .setStatus(new TTIriRef().setIri(IM.ACTIVE).setName(TTIriRef.iri(IM.ACTIVE).getName()));
-    when(entityRepository.getBundle("http://endhealth.info/im#25451000252115", Stream.of(IM.HAS_TERM_CODE).collect(Collectors.toSet()))).thenReturn(new TTBundle().setEntity(new TTEntity().set(TTIriRef.iri(IM.HAS_TERM_CODE), new TTArray().add(new TTNode().set(TTIriRef.iri(IM.CODE), new TTLiteral(termCode.getCode())).set(TTIriRef.iri(RDFS.LABEL), new TTLiteral(termCode.getTerm())).set(TTIriRef.iri(IM.HAS_STATUS), new TTArray().add(termCode.getStatus()))))));
+    when(entityRepository.getBundle("http://endhealth.info/im#25451000252115", asHashSet(IM.HAS_TERM_CODE))).thenReturn(new TTBundle().setEntity(new TTEntity().set(TTIriRef.iri(IM.HAS_TERM_CODE), new TTArray().add(new TTNode().set(TTIriRef.iri(IM.CODE), new TTLiteral(termCode.getCode())).set(TTIriRef.iri(RDFS.LABEL), new TTLiteral(termCode.getTerm())).set(TTIriRef.iri(IM.HAS_STATUS), new TTArray().add(termCode.getStatus()))))));
     List<SearchTermCode> actual = conceptService.getEntityTermCodes("http://endhealth.info/im#25451000252115", false);
     assertNotNull(actual);
   }
 
   @Test
   void getSimpleMaps_NullIri() {
-    List<SimpleMap> actual = conceptService.getMatchedFrom(null, GRAPH.IM);
+    List<SimpleMap> actual = conceptService.getMatchedFrom(null, Graph.IM);
     assertNotNull(actual);
   }
 
   @Test
   void getSimpleMaps_EmptyIri() {
-    Collection<SimpleMap> actual = conceptService.getMatchedFrom("", GRAPH.IM);
+    Collection<SimpleMap> actual = conceptService.getMatchedFrom("", Graph.IM);
     assertNotNull(actual);
   }
 
   @Test
   void getSimpleMaps_NotNullIri() {
-    when(entityRepository.findNamespaces(anyString())).thenReturn(new ArrayList<>());
-    when(conceptRepository.getMatchedFrom(anyString(), anyList(), anyString())).thenReturn(new ArrayList<>());
-    Collection<SimpleMap> actual = conceptService.getMatchedFrom("http://endhealth.info/im#25451000252115", GRAPH.IM);
+    when(entityRepository.findNamespaces(any())).thenReturn(new ArrayList<>());
+    when(conceptRepository.getMatchedFrom(anyString(), anyList(), any())).thenReturn(new ArrayList<>());
+    Collection<SimpleMap> actual = conceptService.getMatchedFrom("http://endhealth.info/im#25451000252115", Graph.IM);
     assertNotNull(actual);
   }
 }

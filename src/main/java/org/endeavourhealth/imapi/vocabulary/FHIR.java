@@ -2,10 +2,58 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class FHIR {
-    public static final String DOMAIN = "http://hl7.org/fhir/";
-    public static final String PREFIX = "fhir";
-    public static final String DSTU2 = "http://hl7.org/2-0/fhir/StructureDefinition#";
-    public static final String GRAPH_FHIR = FHIR.DOMAIN;
-    public static final String VALUESET_FOLDER = "http://endhealth.info/im#VSET_FHIR";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum FHIR implements VocabEnum {
+
+    DOMAIN("http://hl7.org/fhir/"),
+    PREFIX("fhir"),
+    DSTU2("http://hl7.org/2-0/fhir/StructureDefinition#"),
+    GRAPH_FHIR(FHIR.DOMAIN),
+    VALUESET_FOLDER("http://endhealth.info/im#VSET_FHIR"),
+    ;
+
+    private final String value;
+
+    FHIR(final String value) {
+        this.value = value;
+    }
+
+    FHIR(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static FHIR from(String text) {
+    for (FHIR b : FHIR.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

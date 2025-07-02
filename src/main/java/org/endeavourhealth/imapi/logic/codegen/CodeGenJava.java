@@ -7,11 +7,11 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.codegen.DataModel;
 import org.endeavourhealth.imapi.model.codegen.DataModelProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
@@ -29,13 +29,13 @@ public class CodeGenJava {
   private final Queue<String> iris = new PriorityQueue<>();
   private final HashMap<String, DataModel> models = new HashMap<>();
 
-  public void generate(ZipOutputStream os, String graph) throws IOException {
+  public void generate(ZipOutputStream os, Graph graph) throws IOException {
     getModelList(graph);
     getDataModelRecursively(graph);
     generateJavaCode(os);
   }
 
-  private void getModelList(String graph) {
+  private void getModelList(Graph graph) {
     log.debug("getting model list");
 
     String sql = """
@@ -59,7 +59,7 @@ public class CodeGenJava {
     }
   }
 
-  private void getDataModelRecursively(String graph) {
+  private void getDataModelRecursively(Graph graph) {
     log.debug("getting models");
 
     while (!iris.isEmpty()) {
@@ -70,7 +70,7 @@ public class CodeGenJava {
     }
   }
 
-  private DataModel getDataModel(String iri, String graph) {
+  private DataModel getDataModel(String iri, Graph graph) {
     log.debug("get data model [{}]", iri);
 
     DataModel model = new DataModel().setIri(iri);
@@ -334,7 +334,7 @@ public class CodeGenJava {
 
   private String getDataType(TTIriRef dataType, boolean dataModel, boolean isArray) {
     String dataTypeName = null;
-    if (dataType.getIri().startsWith(XSD.NAMESPACE)) {
+    if (dataType.getIri().startsWith(XSD.NAMESPACE.toString())) {
       dataTypeName = capitalise(getSuffix(dataType.getIri()));
     } else if (dataModel) {
       dataTypeName = "UUID";

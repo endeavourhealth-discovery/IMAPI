@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
         Map.Entry<String, JsonNode> field = fields.next();
         switch (field.getKey()) {
           case ID -> entity.setIri(helper.expand(field.getValue().textValue()));
-          case GRAPH -> entity.setGraph(new TTIriRef(helper.expand(field.getValue().get(ID).asText())));
+          case GRAPH -> entity.setGraph(Graph.from(helper.expand(field.getValue().get(ID).asText())));
           case CRUD -> entity.setCrud(iri(helper.expand(field.getValue().get(ID).asText())));
           default -> {
             if (field.getValue().isArray())

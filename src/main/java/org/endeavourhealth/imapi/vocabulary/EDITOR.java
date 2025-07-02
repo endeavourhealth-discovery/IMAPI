@@ -2,14 +2,62 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class EDITOR {
-    public static final String DOMAIN = "http://endhealth.info/im#";
-    public static final String NAMESPACE = EDITOR.DOMAIN + "Editor_";
-    public static final String CONCEPT_SHAPE = EDITOR.NAMESPACE + "ConceptShape";
-    public static final String CONCEPT_SET_SHAPE = EDITOR.NAMESPACE + "ConceptSetShape";
-    public static final String VALUE_SET_SHAPE = EDITOR.NAMESPACE + "ValueSetShape";
-    public static final String FOLDER_SHAPE = EDITOR.NAMESPACE + "FolderShape";
-    public static final String DATA_MODEL_SHAPE = EDITOR.NAMESPACE + "DataModelShape";
-    public static final String COHORT_QUERY_SHAPE = EDITOR.NAMESPACE + "CohortQueryShape";
-    public static final String PROPERTY_SHAPE = EDITOR.NAMESPACE + "PropertyShape";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum EDITOR implements VocabEnum {
+
+    DOMAIN("http://endhealth.info/im#"),
+    NAMESPACE(EDITOR.DOMAIN + "Editor_"),
+    CONCEPT_SHAPE(EDITOR.NAMESPACE + "ConceptShape"),
+    CONCEPT_SET_SHAPE(EDITOR.NAMESPACE + "ConceptSetShape"),
+    VALUE_SET_SHAPE(EDITOR.NAMESPACE + "ValueSetShape"),
+    FOLDER_SHAPE(EDITOR.NAMESPACE + "FolderShape"),
+    DATA_MODEL_SHAPE(EDITOR.NAMESPACE + "DataModelShape"),
+    COHORT_QUERY_SHAPE(EDITOR.NAMESPACE + "CohortQueryShape"),
+    PROPERTY_SHAPE(EDITOR.NAMESPACE + "PropertyShape"),
+    ;
+
+    private final String value;
+
+    EDITOR(final String value) {
+        this.value = value;
+    }
+
+    EDITOR(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static EDITOR from(String text) {
+    for (EDITOR b : EDITOR.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

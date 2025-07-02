@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.USER;
+import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.StringJoiner;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 
 public class UserRepository {
 
@@ -32,6 +34,10 @@ public class UserRepository {
   public String getSparqlInsert() {
     StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("INSERT {").add("  ?s ?p ?o ").add("}").add("WHERE { GRAPH ?g { SELECT ?s ?p ?o {} }}");
     return sparql.toString();
+  }
+
+  public String getByPredicate(String user, VocabEnum predicate) {
+    return getByPredicate(user, predicate.toString());
   }
 
   public String getByPredicate(String user, String predicate) {
@@ -59,7 +65,7 @@ public class UserRepository {
     try (RepositoryConnection conn = UserDB.getConnection()) {
       TupleQuery qry = UserDB.prepareTupleSparql(conn, sparql);
       qry.setBinding("s", iri(USER.NAMESPACE + user));
-      qry.setBinding("p", iri(USER.USER_MRU));
+      qry.setBinding("p", USER.USER_MRU.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -80,7 +86,7 @@ public class UserRepository {
     try (RepositoryConnection conn = UserDB.getConnection()) {
       TupleQuery qry = UserDB.prepareTupleSparql(conn, sparql);
       qry.setBinding("s", iri(USER.NAMESPACE + user));
-      qry.setBinding("p", iri(USER.USER_FAVOURITES));
+      qry.setBinding("p", USER.USER_FAVOURITES.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -94,23 +100,23 @@ public class UserRepository {
     return result;
   }
 
-  public void delete(String user, String predicate) {
+  public void delete(String user, VocabEnum predicate) {
     String sparql = getSparqlDelete();
     try (RepositoryConnection conn = UserDB.getConnection()) {
       Update qry = UserDB.prepareUpdateSparql(conn, sparql);
       qry.setBinding("s", iri(USER.NAMESPACE + user));
-      qry.setBinding("p", iri(predicate));
+      qry.setBinding("p", predicate.asDbIri());
       qry.execute();
     }
   }
 
-  public void insert(String user, String predicate, Object object) throws JsonProcessingException {
+  public void insert(String user, VocabEnum predicate, Object object) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       String sparql = getSparqlInsert();
       try (RepositoryConnection conn = UserDB.getConnection()) {
         Update qry = UserDB.prepareUpdateSparql(conn, sparql);
         qry.setBinding("s", iri(USER.NAMESPACE + user));
-        qry.setBinding("p", iri(predicate));
+        qry.setBinding("p", predicate.asDbIri());
         qry.setBinding("o", literal(om.writeValueAsString(object)));
         qry.execute();
       }
@@ -137,22 +143,22 @@ public class UserRepository {
     insert(user, USER.USER_FAVOURITES, favourites);
   }
 
-  public void updateByPredicate(String user, String data, String predicate) throws JsonProcessingException {
+  public void updateByPredicate(String user, String data, VocabEnum predicate) throws JsonProcessingException {
     delete(user, predicate);
     insert(user, predicate, data);
   }
 
-  public void updateByPredicate(String user, Boolean data, String predicate) throws JsonProcessingException {
-    updateByPredicate(user, String.valueOf(data), predicate);
+  public void updateByPredicate(String user, Boolean data, VocabEnum predicate) throws JsonProcessingException {
+    updateByPredicate(user, data.toString(), predicate);
   }
 
   public List<String> getUserOrganisations(String user) throws JsonProcessingException {
-    List<String> result = new ArrayList<>(List.of(IM.NAMESPACE));
+    List<String> result = asArrayList(IM.NAMESPACE);
     String sparql = getSparqlSelect();
     try (RepositoryConnection conn = UserDB.getConnection()) {
       TupleQuery qry = UserDB.prepareTupleSparql(conn, sparql);
       qry.setBinding("s", iri(USER.NAMESPACE + user));
-      qry.setBinding("p", iri(USER.ORGANISATIONS));
+      qry.setBinding("p", USER.ORGANISATIONS.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();

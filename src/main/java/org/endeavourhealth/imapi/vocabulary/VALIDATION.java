@@ -2,15 +2,63 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class VALIDATION {
-    public static final String DOMAIN = "http://endhealth.info/im#";
-    public static final String NAMESPACE = VALIDATION.DOMAIN + "Validation_";
-    public static final String IS_DEFINITION = VALIDATION.NAMESPACE + "isDefinition";
-    public static final String HAS_PARENT = VALIDATION.NAMESPACE + "hasParent";
-    public static final String IS_IRI = VALIDATION.NAMESPACE + "isIri";
-    public static final String IS_TERMCODE = VALIDATION.NAMESPACE + "isTermcode";
-    public static final String IS_PROPERTY = VALIDATION.NAMESPACE + "isProperty";
-    public static final String IS_SCHEME = VALIDATION.NAMESPACE + "isScheme";
-    public static final String IS_STATUS = VALIDATION.NAMESPACE + "isStatus";
-    public static final String IS_ROLE_GROUP = VALIDATION.NAMESPACE + "isRoleGroup";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum VALIDATION implements VocabEnum {
+
+    DOMAIN("http://endhealth.info/im#"),
+    NAMESPACE(VALIDATION.DOMAIN + "Validation_"),
+    IS_DEFINITION(VALIDATION.NAMESPACE + "isDefinition"),
+    HAS_PARENT(VALIDATION.NAMESPACE + "hasParent"),
+    IS_IRI(VALIDATION.NAMESPACE + "isIri"),
+    IS_TERMCODE(VALIDATION.NAMESPACE + "isTermcode"),
+    IS_PROPERTY(VALIDATION.NAMESPACE + "isProperty"),
+    IS_SCHEME(VALIDATION.NAMESPACE + "isScheme"),
+    IS_STATUS(VALIDATION.NAMESPACE + "isStatus"),
+    IS_ROLE_GROUP(VALIDATION.NAMESPACE + "isRoleGroup"),
+    ;
+
+    private final String value;
+
+    VALIDATION(final String value) {
+        this.value = value;
+    }
+
+    VALIDATION(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static VALIDATION from(String text) {
+    for (VALIDATION b : VALIDATION.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

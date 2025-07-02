@@ -4,7 +4,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 public class ProvDB extends BaseDB {
   private static Repository repository = null;
@@ -14,11 +14,11 @@ public class ProvDB extends BaseDB {
   }
 
   public static TupleQuery prepareTupleSparql(RepositoryConnection connection, String sparql) {
-    return prepareTupleSparql(connection, sparql, GRAPH.CONFIG);
+    return prepareTupleSparql(connection, sparql, Graph.CONFIG);
   }
 
   public static Update prepareUpdateSparql(RepositoryConnection conn, String sparql) {
-    return prepareUpdateSparql(conn, sparql, GRAPH.CONFIG);
+    return prepareUpdateSparql(conn, sparql, Graph.CONFIG);
   }
 
   private static Repository getRepo() {

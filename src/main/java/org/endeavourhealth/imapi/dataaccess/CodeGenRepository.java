@@ -39,9 +39,9 @@ public class CodeGenRepository {
       """;
     try (RepositoryConnection conn = ConfigDB.getConnection()) {
       TupleQuery qry = ConfigDB.prepareTupleSparql(conn, sparql);
-      qry.setBinding("type", iri(RDF.TYPE));
-      qry.setBinding("codeTemplate", iri(IM.CODE_TEMPLATE));
-      qry.setBinding("label", iri(RDFS.LABEL));
+      qry.setBinding("type", RDF.TYPE.asDbIri());
+      qry.setBinding("codeTemplate", IM.CODE_TEMPLATE.asDbIri());
+      qry.setBinding("label", RDFS.LABEL.asDbIri());
 
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -65,27 +65,28 @@ public class CodeGenRepository {
       """;
     try (RepositoryConnection conn = ConfigDB.getConnection()) {
       TupleQuery qry = ConfigDB.prepareTupleSparql(conn, sparql);
-      qry.setBinding("s", iri(CODE_TEMPLATE.NAMESPACE + name));
+      qry.setBinding("s", iri(CodeTemplate.NAMESPACE + name));
 
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           try (CachedObjectMapper om = new CachedObjectMapper()) {
-            switch (bs.getValue("p").stringValue()) {
-              case (CODE_TEMPLATE.DATATYPE_MAP) -> {
+
+
+            switch (CodeTemplate.from(bs.getValue("p").stringValue())) {
+              case CodeTemplate.DATATYPE_MAP -> {
                 ObjectNode map = (ObjectNode) om.readTree(bs.getValue("o").stringValue());
                 for (Iterator<Map.Entry<String, JsonNode>> it = map.fields(); it.hasNext(); ) {
                   Map.Entry<String, JsonNode> ele = it.next();
                   result.getDatatypeMap().put(ele.getKey(), ele.getValue().textValue());
                 }
               }
-              case (CODE_TEMPLATE.WRAPPER) -> result.setCollectionWrapper(bs.getValue("o").stringValue());
-              case (CODE_TEMPLATE.EXTENSION) -> result.setExtension(bs.getValue("o").stringValue());
-              case (RDFS.LABEL) -> result.setName(bs.getValue("o").stringValue());
-              case (IM.DEFINITION) -> result.setTemplate(bs.getValue("o").stringValue());
-              case (CODE_TEMPLATE.INCLUDE_COMPLEX_TYPES) ->
+              case CodeTemplate.WRAPPER -> result.setCollectionWrapper(bs.getValue("o").stringValue());
+              case CodeTemplate.EXTENSION -> result.setExtension(bs.getValue("o").stringValue());
+              case CodeTemplate.LABEL -> result.setName(bs.getValue("o").stringValue());
+              case CodeTemplate.DEFINITION -> result.setTemplate(bs.getValue("o").stringValue());
+              case CodeTemplate.INCLUDE_COMPLEX_TYPES ->
                 result.setComplexTypes(((Literal) bs.getValue("o")).booleanValue());
-              default -> {}
             }
           } catch (JsonProcessingException e) {
             log.error("Unable to parse codeTemplate", e);
@@ -109,7 +110,7 @@ public class CodeGenRepository {
       """;
     try (RepositoryConnection conn = ConfigDB.getConnection()) {
       Update qry = ConfigDB.prepareUpdateSparql(conn, deleteSparql);
-      qry.setBinding("s", iri(CODE_TEMPLATE.NAMESPACE + name));
+      qry.setBinding("s", iri(CodeTemplate.NAMESPACE + name));
       qry.execute();
     }
     String insertSparql = """
@@ -131,20 +132,20 @@ public class CodeGenRepository {
     try (RepositoryConnection conn2 = ConfigDB.getConnection()) {
       try (CachedObjectMapper om = new CachedObjectMapper()) {
         Update qry2 = ConfigDB.prepareUpdateSparql(conn2, insertSparql);
-        qry2.setBinding("iri", iri(CODE_TEMPLATE.NAMESPACE + name));
-        qry2.setBinding("label", iri(RDFS.LABEL));
+        qry2.setBinding("iri", iri(CodeTemplate.NAMESPACE + name));
+        qry2.setBinding("label", RDFS.LABEL.asDbIri());
         qry2.setBinding("name", literal(name));
-        qry2.setBinding("extensionType", iri(CODE_TEMPLATE.EXTENSION));
+        qry2.setBinding("extensionType", CodeTemplate.EXTENSION.asDbIri());
         qry2.setBinding("extension", literal(extension));
-        qry2.setBinding("type", iri(RDF.TYPE));
-        qry2.setBinding("typeIri", iri(IM.CODE_TEMPLATE));
-        qry2.setBinding("definition", iri(IM.DEFINITION));
+        qry2.setBinding("type", RDF.TYPE.asDbIri());
+        qry2.setBinding("typeIri", IM.CODE_TEMPLATE.asDbIri());
+        qry2.setBinding("definition", CodeTemplate.DEFINITION.asDbIri());
         qry2.setBinding("template", literal(template));
-        qry2.setBinding("typeMap", iri(CODE_TEMPLATE.DATATYPE_MAP));
+        qry2.setBinding("typeMap", CodeTemplate.DATATYPE_MAP.asDbIri());
         qry2.setBinding("datatypeMap", literal(om.writeValueAsString(dataTypeMap)));
-        qry2.setBinding("wrapperType", iri(CODE_TEMPLATE.WRAPPER));
+        qry2.setBinding("wrapperType", CodeTemplate.WRAPPER.asDbIri());
         qry2.setBinding("wrapper", literal(wrapper));
-        qry2.setBinding("includeComplex", iri(CODE_TEMPLATE.INCLUDE_COMPLEX_TYPES));
+        qry2.setBinding("includeComplex", CodeTemplate.INCLUDE_COMPLEX_TYPES.asDbIri());
         qry2.setBinding("complexTypes", literal(complexTypes));
         qry2.execute();
       } catch (JsonProcessingException err) {

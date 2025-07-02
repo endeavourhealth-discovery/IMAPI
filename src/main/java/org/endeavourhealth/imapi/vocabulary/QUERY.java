@@ -2,28 +2,76 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class QUERY {
-    public static final String DOMAIN = "http://endhealth.info/im#";
-    public static final String NAMESPACE = QUERY.DOMAIN + "Query_";
-    public static final String IS_ALLOWABLE_RANGE = QUERY.NAMESPACE + "IsAllowableRange";
-    public static final String ALLOWABLE_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "AllowableRangeSuggestions";
-    public static final String GET_SUBCLASSES = QUERY.NAMESPACE + "GetSubClasses";
-    public static final String GET_ANCESTORS = QUERY.NAMESPACE + "GetAncestors";
-    public static final String SEARCH_CONTAINED_IN = QUERY.NAMESPACE + "SearchContainedIn";
-    public static final String ALLOWABLE_CHILD_TYPES = QUERY.NAMESPACE + "AllowableChildTypes";
-    public static final String PROPERTY_RANGE = QUERY.NAMESPACE + "PropertyRange";
-    public static final String OBJECT_PROPERTY_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "ObjectPropertyRangeSuggestions";
-    public static final String DATA_PROPERTY_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "DataPropertyRangeSuggestions";
-    public static final String ALLOWABLE_PROPERTIES = QUERY.NAMESPACE + "AllowableProperties";
-    public static final String ALLOWABLE_PROPERTY_ANCESTORS = QUERY.NAMESPACE + "AllowablePropertyAncestors";
-    public static final String IS_VALID_PROPERTY = QUERY.NAMESPACE + "IsValidProperty";
-    public static final String SEARCH_PROPERTIES = QUERY.NAMESPACE + "SearchProperties";
-    public static final String SEARCH_ENTITIES = QUERY.NAMESPACE + "SearchEntities";
-    public static final String SEARCH_FOLDERS = QUERY.NAMESPACE + "SearchFolders";
-    public static final String SEARCH_ALLOWABLE_CONTAINED_IN = QUERY.NAMESPACE + "SearchAllowableContainedIn";
-    public static final String SEARCH_MAIN_TYPES = QUERY.NAMESPACE + "SearchmainTypes";
-    public static final String DM_PROPERTY = QUERY.NAMESPACE + "DataModelPropertyByShape";
-    public static final String SEARCH_ALLOWABLE_SUBCLASS = QUERY.NAMESPACE + "SearchAllowableSubclass";
-    public static final String GET_VALUES_FROM_PROPERTY_RANGE = QUERY.NAMESPACE + "GetValuesFromPropertyRange";
-    public static final String GET_SUBSETS = QUERY.NAMESPACE + "GetSubsets";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum QUERY implements VocabEnum {
+
+    DOMAIN("http://endhealth.info/im#"),
+    NAMESPACE(QUERY.DOMAIN + "Query_"),
+    IS_ALLOWABLE_RANGE(QUERY.NAMESPACE + "IsAllowableRange"),
+    ALLOWABLE_RANGE_SUGGESTIONS(QUERY.NAMESPACE + "AllowableRangeSuggestions"),
+    GET_SUBCLASSES(QUERY.NAMESPACE + "GetSubClasses"),
+    GET_ANCESTORS(QUERY.NAMESPACE + "GetAncestors"),
+    SEARCH_CONTAINED_IN(QUERY.NAMESPACE + "SearchContainedIn"),
+    ALLOWABLE_CHILD_TYPES(QUERY.NAMESPACE + "AllowableChildTypes"),
+    PROPERTY_RANGE(QUERY.NAMESPACE + "PropertyRange"),
+    OBJECT_PROPERTY_RANGE_SUGGESTIONS(QUERY.NAMESPACE + "ObjectPropertyRangeSuggestions"),
+    DATA_PROPERTY_RANGE_SUGGESTIONS(QUERY.NAMESPACE + "DataPropertyRangeSuggestions"),
+    ALLOWABLE_PROPERTIES(QUERY.NAMESPACE + "AllowableProperties"),
+    ALLOWABLE_PROPERTY_ANCESTORS(QUERY.NAMESPACE + "AllowablePropertyAncestors"),
+    IS_VALID_PROPERTY(QUERY.NAMESPACE + "IsValidProperty"),
+    SEARCH_PROPERTIES(QUERY.NAMESPACE + "SearchProperties"),
+    SEARCH_ENTITIES(QUERY.NAMESPACE + "SearchEntities"),
+    SEARCH_FOLDERS(QUERY.NAMESPACE + "SearchFolders"),
+    SEARCH_ALLOWABLE_CONTAINED_IN(QUERY.NAMESPACE + "SearchAllowableContainedIn"),
+    SEARCH_MAIN_TYPES(QUERY.NAMESPACE + "SearchmainTypes"),
+    DM_PROPERTY(QUERY.NAMESPACE + "DataModelPropertyByShape"),
+    SEARCH_ALLOWABLE_SUBCLASS(QUERY.NAMESPACE + "SearchAllowableSubclass"),
+    GET_VALUES_FROM_PROPERTY_RANGE(QUERY.NAMESPACE + "GetValuesFromPropertyRange"),
+    GET_SUBSETS(QUERY.NAMESPACE + "GetSubsets"),
+    ;
+
+    private final String value;
+
+    QUERY(final String value) {
+        this.value = value;
+    }
+
+    QUERY(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static QUERY from(String text) {
+    for (QUERY b : QUERY.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

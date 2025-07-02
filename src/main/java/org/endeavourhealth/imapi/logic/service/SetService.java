@@ -26,6 +26,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.hl7.fhir.r4.model.CanonicalType;
@@ -41,6 +42,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 
 @Slf4j
@@ -67,7 +70,7 @@ public class SetService {
   }
 
   private static void getIncludes(SetOptions options, ValueSet.ConceptSetFilterComponent filter, List<ValueSet.ConceptSetFilterComponent> filters, ValueSet.ConceptSetComponent includeConcept, List<ValueSet.ConceptSetComponent> includes, SetContent result) {
-    TTEntity entityDefinition = new EntityRepository().getEntityPredicates(options.getSetIri(), Set.of(IM.DEFINITION)).getEntity();
+    TTEntity entityDefinition = new EntityRepository().getEntityPredicates(options.getSetIri(), asHashSet(IM.DEFINITION)).getEntity();
     if (null != entityDefinition.get(iri(IM.DEFINITION))) {
       filter.setValue(entityDefinition.get(iri(IM.DEFINITION)).asLiteral().getValue());
       filters.add(filter);
@@ -115,11 +118,11 @@ public class SetService {
     return setDiffObject;
   }
 
-  public Pageable<Node> getMembers(String iri, boolean entailments, Integer rowNumber, Integer pageSize, String graph) {
+  public Pageable<Node> getMembers(String iri, boolean entailments, Integer rowNumber, Integer pageSize, Graph graph) {
     return setRepository.getMembers(iri, entailments, rowNumber, pageSize, graph);
   }
 
-  public Pageable<Node> getDirectOrEntailedMembersFromIri(String iri, boolean entailments, Integer pageNumber, Integer pageSize, String graph) {
+  public Pageable<Node> getDirectOrEntailedMembersFromIri(String iri, boolean entailments, Integer pageNumber, Integer pageSize, Graph graph) {
     return setRepository.getMembers(iri, entailments, pageNumber, pageSize, graph);
   }
 
@@ -127,7 +130,7 @@ public class SetService {
     SetContent result = new SetContent();
 
     log.trace("Fetching metadata for {}...", options.getSetIri());
-    TTEntity entity = new EntityRepository().getEntityPredicates(options.getSetIri(), Set.of(RDFS.LABEL, RDFS.COMMENT, IM.HAS_STATUS, IM.VERSION, IM.DEFINITION)).getEntity();
+    TTEntity entity = new EntityRepository().getEntityPredicates(options.getSetIri(), asHashSet(RDFS.LABEL, RDFS.COMMENT, IM.HAS_STATUS, IM.VERSION, IM.DEFINITION)).getEntity();
 
     if (null != entity) {
       result.setName(entity.getName()).setDescription(entity.getDescription()).setVersion(entity.getVersion());
@@ -195,15 +198,15 @@ public class SetService {
   }
 
   public Set<Concept> getFullyExpandedMembers(String iri, boolean includeLegacy, boolean includeSubset, List<String> schemes,
-                                              List<String> subsumptions, String graph) throws QueryException, JsonProcessingException {
+                                              List<String> subsumptions, Graph graph) throws QueryException, JsonProcessingException {
     return getExpandedSetMembers(iri, true, includeLegacy, includeSubset, schemes, subsumptions, graph);
   }
 
-  public Set<TTIriRef> getSubsets(String iri, String graph) {
+  public Set<TTIriRef> getSubsets(String iri, Graph graph) {
     return setRepository.getSubsetIrisWithNames(iri, graph);
   }
 
-  public List<TTIriRef> getDistillation(List<TTIriRef> conceptList, String graph) {
+  public List<TTIriRef> getDistillation(List<TTIriRef> conceptList, Graph graph) {
     List<String> iriList = conceptList.stream().map(c -> "<" + c.getIri() + ">").toList();
     String iris = String.join(" ", iriList);
     Set<String> isas = setRepository.getDistillation(iris, graph);
@@ -211,7 +214,7 @@ public class SetService {
     return conceptList;
   }
 
-  private String getEcl(TTEntity entity, String graph) throws QueryException, JsonProcessingException {
+  private String getEcl(TTEntity entity, Graph graph) throws QueryException, JsonProcessingException {
     if (entity.get(iri(IM.DEFINITION)) == null) return null;
     ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
     eclQueryRequest.setQuery(entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class));
@@ -228,10 +231,10 @@ public class SetService {
     if (null == format || format.isEmpty())
       throw new IllegalArgumentException("File type format needs to be set.");
 
-    TTEntity setEntity = entityRepository.getBundle(options.getSetIri(), Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
+    TTEntity setEntity = entityRepository.getBundle(options.getSetIri(), asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
 
     if (options.includeDefinition()) {
-      String ecl = getEcl(setEntity, options.getSetIri());
+      String ecl = getEcl(setEntity, options.getGraph());
       if (null != ecl) return ecl.getBytes();
       else throw new GeneralCustomException("Set does not have a definition.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -268,11 +271,11 @@ public class SetService {
   }
 
   public Set<Concept> getExpandedSetMembers(String iri, boolean core, boolean legacy, boolean subsets, List<String> schemes,
-                                            List<String> subsumptions, String graph) throws QueryException, JsonProcessingException {
+                                            List<String> subsumptions, Graph graph) throws QueryException, JsonProcessingException {
     if (!(core || legacy || subsets)) return new HashSet<>();
-    boolean hasMembers = entityRepository.hasPredicates(iri, Set.of(IM.HAS_MEMBER), graph);
+    boolean hasMembers = entityRepository.hasPredicates(iri, asHashSet(IM.HAS_MEMBER), graph);
     if (!hasMembers) {
-      if (entityRepository.hasPredicates(iri, Set.of(IM.DEFINITION), graph)) {
+      if (entityRepository.hasPredicates(iri, asHashSet(IM.DEFINITION), graph)) {
         new SetMemberGenerator().generateMembers(iri, graph);
       } else return new HashSet<>();
     }
@@ -294,7 +297,7 @@ public class SetService {
   }
 
   private void expandSubsets(String iri, boolean core, boolean legacy, List<String> schemes, Set<Concept> result,
-                             List<String> subsumptions, String graph) throws QueryException, JsonProcessingException {
+                             List<String> subsumptions, Graph graph) throws QueryException, JsonProcessingException {
     log.trace("Expanding subsets for {}...", iri);
     Set<TTIriRef> subSetIris = setRepository.getSubsetIrisWithNames(iri, graph);
     log.trace("Found {} subsets...", subSetIris.size());
@@ -312,7 +315,7 @@ public class SetService {
     }
   }
 
-  public void updateSubsetsFromSuper(String agentName, TTEntity entity, String graph) throws TTFilerException, JsonProcessingException {
+  public void updateSubsetsFromSuper(String agentName, TTEntity entity, Graph graph) throws TTFilerException, JsonProcessingException {
     TTArray subsets = entity.get(iri(IM.HAS_SUBSET));
     String entityIri = entity.getIri();
     Set<TTIriRef> subsetsOriginal = getSubsets(entityIri, graph);
@@ -342,7 +345,7 @@ public class SetService {
     }
   }
 
-  public SetDiffObject getSetComparison(Optional<String> setIriA, Optional<String> setIriB, String graph) throws QueryException, JsonProcessingException {
+  public SetDiffObject getSetComparison(Optional<String> setIriA, Optional<String> setIriB, Graph graph) throws QueryException, JsonProcessingException {
     if (setIriA.isEmpty() && setIriB.isEmpty()) {
       throw new IllegalArgumentException("One of SetIriA or SetIriB are required");
     }
@@ -357,10 +360,10 @@ public class SetService {
     return getSetDiffObject(membersA, membersB);
   }
 
-  public void publishSetToIM1(String iri, String graph) throws QueryException, JsonProcessingException {
+  public void publishSetToIM1(String iri, Graph graph) throws QueryException, JsonProcessingException {
     log.trace("Looking up set...");
-    String name = entityRepository.getBundle(iri, Set.of(RDFS.LABEL)).getEntity().getName();
-    Set<Concept> members = getExpandedSetMembers(iri, true, true, true, List.of(), List.of(IM.SUBSUMED_BY), graph);
+    String name = entityRepository.getBundle(iri, asHashSet(RDFS.LABEL)).getEntity().getName();
+    Set<Concept> members = getExpandedSetMembers(iri, true, true, true, List.of(), asArrayList(IM.SUBSUMED_BY), graph);
     setExporter.publishSetToIM1(iri, name, members);
   }
 }

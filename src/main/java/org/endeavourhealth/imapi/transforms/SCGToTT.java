@@ -39,7 +39,7 @@ public class SCGToTT {
 
   private TTEntity convertECContext(SCGParser.ExpressionContext ctx) throws DataFormatException {
     if (ctx.definitionstatus() != null && ctx.definitionstatus().equivalentto() != null) {
-      entity.set(iri(IM.DEFINITIONAL_STATUS), IM.SUFFICIENTLY_DEFINED);
+      entity.set(IM.DEFINITIONAL_STATUS.asIri(), IM.SUFFICIENTLY_DEFINED.asIri());
     }
     if (ctx.subexpression() != null)
       convertSubexpression(ctx.subexpression());

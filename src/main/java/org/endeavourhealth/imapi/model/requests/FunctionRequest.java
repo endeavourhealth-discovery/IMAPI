@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.requests;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.Argument;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,7 @@ public class FunctionRequest {
   private String functionIri;
   private List<Argument> arguments;
   private Page page;
-  private String graph;
+  private Graph graph;
 
   public FunctionRequest setFunctionIri(String functionIri) {
     this.functionIri = functionIri;
@@ -35,7 +36,7 @@ public class FunctionRequest {
     return this;
   }
 
-  public FunctionRequest setGraph(String graph) {
+  public FunctionRequest setGraph(Graph graph) {
     this.graph = graph;
     return this;
   }

@@ -2,9 +2,57 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class ODS {
-    public static final String BASE_NAMESPACE = "https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-";
-    public static final String ORGANISATION_ROLE_TYPE = ODS.BASE_NAMESPACE + "OrganizationRole-1#ODS_RoleType";
-    public static final String ORGANISATION_RELATIONSHIP = ODS.BASE_NAMESPACE + "OrganizationRelationship-1#ODS_Relationship";
-    public static final String ORGANISATION_RECORD_CLASS = ODS.BASE_NAMESPACE + "OrganizationRecordClass-1#ODS_RecordClass";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum ODS implements VocabEnum {
+
+    BASE_NAMESPACE("https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-"),
+    ORGANISATION_ROLE_TYPE(ODS.BASE_NAMESPACE + "OrganizationRole-1#ODS_RoleType"),
+    ORGANISATION_RELATIONSHIP(ODS.BASE_NAMESPACE + "OrganizationRelationship-1#ODS_Relationship"),
+    ORGANISATION_RECORD_CLASS(ODS.BASE_NAMESPACE + "OrganizationRecordClass-1#ODS_RecordClass"),
+    ;
+
+    private final String value;
+
+    ODS(final String value) {
+        this.value = value;
+    }
+
+    ODS(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static ODS from(String text) {
+    for (ODS b : ODS.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

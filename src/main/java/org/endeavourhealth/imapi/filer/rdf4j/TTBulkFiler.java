@@ -6,9 +6,7 @@ import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTToNQuad;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -182,12 +180,12 @@ public class TTBulkFiler implements TTDocumentFiler {
 
   private void writeGraph(TTDocument document) throws TTFilerException {
 
-    String graph = null;
+    Graph graph = null;
     if (document.getNamespace() != null) {
-      graph = document.getNamespace().getIri();
+      graph = Graph.from(document.getNamespace().getIri());
     }
     assert graph != null;
-    String scheme = graph.substring(graph.lastIndexOf("/") + 1);
+    SCHEME scheme = SCHEME.from(graph.toString().substring(graph.toString().lastIndexOf("/") + 1));
     String path = dataPath;
 
     try {
@@ -198,12 +196,12 @@ public class TTBulkFiler implements TTDocumentFiler {
       log.info("Writing out graph data for {}", graph);
       for (TTEntity entity : document.getEntities()) {
         counter++;
-        String entityGraph = entity.getGraph() != null ? entity.getGraph().getIri() : graph;
-        if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > getPrivacyLevel()))
+        Graph entityGraph = entity.getGraph() != null ? entity.getGraph() : graph;
+        if (entity.get(IM.PRIVACY_LEVEL.asIri()) != null && (entity.get(IM.PRIVACY_LEVEL.asIri()).asLiteral().intValue() > getPrivacyLevel()))
           continue;
 
         allEntities.write(entity.getIri() + "\n");
-        if (graph.equals(IM.NAMESPACE))
+        if (graph.equals(Graph.IM))
           coreIris.write(entity.getIri() + "\t" + entity.getName() + "\n");
         addToMaps(entity, entityGraph);
         addSubtypes(entity);
@@ -226,7 +224,7 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void transformAndWriteQuads(TTToNQuad converter, TTEntity entity, String entityGraph) throws IOException {
+  private void transformAndWriteQuads(TTToNQuad converter, TTEntity entity, Graph entityGraph) throws IOException {
     List<String> quadList = converter.transformEntity(entity, entityGraph);
     for (String quad : quadList) {
       quads.write(quad + "\n");
@@ -234,7 +232,7 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void createFileWriters(String scheme, String path) throws IOException {
+  private void createFileWriters(SCHEME scheme, String path) throws IOException {
     quads = new FileWriter(path + "/BulkImport" + ".nq", true);
     codeMap = new FileWriter(path + "/CodeMap.txt", true);
     termCoreMap = new FileWriter(path + "/TermCoreMap-" + scheme + ".txt", true);
@@ -266,8 +264,8 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void addTerms(TTEntity entity, String graph) throws IOException {
-    boolean isCoreGraph = graph.equals(IM.NAMESPACE) || graph.equals(SNOMED.NAMESPACE);
+  private void addTerms(TTEntity entity, Graph graph) throws IOException {
+    boolean isCoreGraph = graph.equals(Graph.IM);
     if (isCoreGraph && entity.getName() != null)
       coreTerms.write(entity.getName() + "\t" + entity.getIri() + "\n");
   }
@@ -284,14 +282,14 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void addToMaps(TTEntity entity, String graph) throws IOException {
+  private void addToMaps(TTEntity entity, Graph graph) throws IOException {
     addCodeToMaps(entity, graph);
     addCodeIdToMaps(entity);
     addTermCodeToMaps(entity, graph);
     addMatchToToMaps(entity, graph);
   }
 
-  private void addCodeToMaps(TTEntity entity, String graph) throws IOException {
+  private void addCodeToMaps(TTEntity entity, Graph graph) throws IOException {
     if (entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)) != null) {
       codeMap.write(graph + entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
       if (graph.equals(IM.NAMESPACE) || (graph.equals(SNOMED.NAMESPACE)))
@@ -313,7 +311,7 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void addTermCodeToMaps(TTEntity entity, String graph) throws IOException {
+  private void addTermCodeToMaps(TTEntity entity, Graph graph) throws IOException {
     if (entity.get(iri(IM.HAS_TERM_CODE)) != null) {
       for (TTValue tc : entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
         if (tc.asNode().get(iri(IM.CODE)) != null) {
@@ -325,7 +323,7 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void addMatchToToMaps(TTEntity entity, String graph) throws IOException {
+  private void addMatchToToMaps(TTEntity entity, Graph graph) throws IOException {
     boolean isCoreGraph = graph.equals(IM.NAMESPACE) || graph.equals(SNOMED.NAMESPACE);
 
     if (entity.get(iri(IM.MATCHED_TO)) != null) {

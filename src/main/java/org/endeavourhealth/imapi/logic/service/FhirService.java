@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.SetOptions;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.hl7.fhir.r4.model.ValueSet;
 
 import java.util.ArrayList;
@@ -19,13 +20,13 @@ public class FhirService {
   SetService setService = new SetService();
   EclService eclService = new EclService();
 
-  public String getFhirValueSet(String iri, boolean expanded, String graph) throws JsonProcessingException, QueryException {
+  public String getFhirValueSet(String iri, boolean expanded, Graph graph) throws JsonProcessingException, QueryException {
     List<String> schemes = new ArrayList<>();
     SetOptions setOptions = new SetOptions(iri, true, expanded, false, true, schemes, new ArrayList<>(), graph);
     return setService.getFHIRSetExport(setOptions);
   }
 
-  public String eclToFhir(String data, String graph) throws EclFormatException, QueryException, JsonProcessingException {
+  public String eclToFhir(String data) throws QueryException {
     ValueSet result = new ValueSet();
     ValueSet.ValueSetExpansionComponent expansion = new ValueSet.ValueSetExpansionComponent();
     ValueSet.ConceptSetFilterComponent filter = new ValueSet.ConceptSetFilterComponent();

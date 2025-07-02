@@ -53,7 +53,7 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
         if (entity.getIri() != null)
           gen.writeStringField("iri", helper.prefix(entity.getIri()));
         if (entity.getGraph() != null) {
-          outputIri(gen, "graph", entity.getGraph(), helper);
+          outputIri(gen, "graph", entity.getGraph().asIri(), helper);
         }
         if (entity.getCrud() != null) {
           outputIri(gen, "crud", entity.getCrud(), helper);

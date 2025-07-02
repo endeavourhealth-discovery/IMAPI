@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
@@ -23,21 +24,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TTLiteralTest {
   EntityService entityService = new EntityService();
 
-  private final TTEntity testObject = (TTEntity) new TTEntity("http://endhealth.co.uk/im#objectTest")
-    .setGraph(iri("http://endhealth.co.uk/im#Rich"))
+  private final TTEntity testObject = (TTEntity) new TTEntity("http://endhealth.info/im#objectTest")
+    .setGraph(Graph.IM)
     .set(TTIriRef.iri(RDFS.LABEL), "Test object")
     .set(TTIriRef.iri(RDFS.COMMENT), "This is an entity to test object serialization")
     .set(TTIriRef.iri(IM.QUERY), literal(new SearchTermCode().setTerm("Mickey Mouse").setCode("EM-EYE-CEE").setStatus(TTIriRef.iri(IM.ACTIVE))));
 
   private final String json = new StringJoiner(System.lineSeparator())
     .add("{")
-    .add("  \"iri\" : \"http://endhealth.co.uk/im#objectTest\",")
+    .add("  \"iri\" : \"http://endhealth.info/im#objectTest\",")
     .add("  \"graph\" : {")
-    .add("    \"iri\" : \"http://endhealth.co.uk/im#Rich\"")
+    .add("    \"iri\" : \"http://endhealth.info/im#\",")
+    .add("    \"name\" : \"Im\"")
     .add("  },")
     .add("  \"http://www.w3.org/2000/01/rdf-schema#label\" : \"Test object\",")
     .add("  \"http://www.w3.org/2000/01/rdf-schema#comment\" : \"This is an entity to test object serialization\",")
-    .add("  \"http://endhealth.info/im#Query\" : \"{\\\"term\\\":\\\"Mickey Mouse\\\",\\\"code\\\":\\\"EM-EYE-CEE\\\",\\\"status\\\":{\\\"iri\\\":\\\"http://endhealth.info/im#Active\\\"}}\"")
+    .add("  \"http://endhealth.info/im#Query\" : \"{\\\"term\\\":\\\"Mickey Mouse\\\",\\\"code\\\":\\\"EM-EYE-CEE\\\",\\\"status\\\":{\\\"name\\\":\\\"Active\\\",\\\"iri\\\":\\\"http://endhealth.info/im#Active\\\"}}\"")
     .add("}")
     .toString();
 
@@ -55,7 +57,7 @@ class TTLiteralTest {
 
   // @Test
   void loadTest() throws JsonProcessingException {
-    TTBundle bundle = entityService.getBundle("http://endhealth.co.uk/im#objectTest", null);
+    TTBundle bundle = entityService.getBundle("http://endhealth.info/im#objectTest", null);
     TTArray preds = bundle.getEntity().get(TTIriRef.iri(IM.QUERY));
     assertEquals(1, preds.size());
 
@@ -104,14 +106,14 @@ class TTLiteralTest {
   @Test
   void testTTLiteralSerialization_FirstNull() throws JsonProcessingException {
     TTLiteral first = literal(null, (TTIriRef) null);
-    TTLiteral second = literal("TEST", XSD.STRING);
+    TTLiteral second = literal("TEST", XSD.STRING.asIri());
 
     assertNotEquals(first, second);
   }
 
   @Test
   void testTTLiteralSerialization_SecondNull() throws JsonProcessingException {
-    TTLiteral first = literal("TEST", XSD.STRING);
+    TTLiteral first = literal("TEST", XSD.STRING.asIri());
     TTLiteral second = literal(null, (TTIriRef) null);
 
     assertNotEquals(first, second);
@@ -119,16 +121,16 @@ class TTLiteralTest {
 
   @Test
   void testTTLiteralSerialization_DiffVal() throws JsonProcessingException {
-    TTLiteral first = literal("SAME", XSD.STRING);
-    TTLiteral second = literal("DIFFERENT", XSD.STRING);
+    TTLiteral first = literal("SAME", XSD.STRING.asIri());
+    TTLiteral second = literal("DIFFERENT", XSD.STRING.asIri());
 
     assertNotEquals(first, second);
   }
 
   @Test
   void testTTLiteralSerialization_DiffType() throws JsonProcessingException {
-    TTLiteral first = literal("SAME", XSD.STRING);
-    TTLiteral second = literal("SAME", XSD.INTEGER);
+    TTLiteral first = literal("SAME", XSD.STRING.asIri());
+    TTLiteral second = literal("SAME", XSD.INTEGER.asIri());
 
     assertNotEquals(first, second);
   }
@@ -151,8 +153,8 @@ class TTLiteralTest {
 
   @Test
   void testTTLiteralSerialization_Same() throws JsonProcessingException {
-    TTLiteral first = literal("SAME", XSD.STRING);
-    TTLiteral second = literal("SAME", XSD.STRING);
+    TTLiteral first = literal("SAME", XSD.STRING.asIri());
+    TTLiteral second = literal("SAME", XSD.STRING.asIri());
 
     assertEquals(first, second);
   }

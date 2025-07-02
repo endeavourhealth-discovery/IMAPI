@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.requests;
 
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +15,7 @@ public class EclSearchRequest {
   private int page = 1;
   private int size = 20;
   private Set<String> select = new HashSet<>();
-  private String graph;
+  private Graph graph;
 
   public Query getEclQuery() {
     return eclQuery;
@@ -79,11 +80,11 @@ public class EclSearchRequest {
     return this;
   }
 
-  public String getGraph() {
+  public Graph getGraph() {
     return graph;
   }
 
-  public EclSearchRequest setGraph(String graph) {
+  public EclSearchRequest setGraph(Graph graph) {
     this.graph = graph;
     return this;
   }

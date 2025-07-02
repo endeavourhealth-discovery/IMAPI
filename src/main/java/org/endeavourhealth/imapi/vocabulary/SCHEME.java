@@ -2,36 +2,85 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class SCHEME {
-    public static final String FHIR = "http://hl7.org/fhir/";
-    public static final String SMARTLIFE = "http://smartlifehealth.info/smh#";
-    public static final String QOF = "http://endhealth.info/qof#";
-    public static final String DISCOVERY = "http://endhealth.info/im#";
-    public static final String BNF = "http://bnf.info/bnf#";
-    public static final String ICD10 = "http://endhealth.info/icd10#";
-    public static final String EMIS = "http://endhealth.info/emis#";
-    public static final String CPRD_MED = "http://endhealth.info/cprdm#";
-    public static final String CPRD_PROD = "http://endhealth.info/cprdp#";
-    public static final String OPCS4 = "http://endhealth.info/opcs4#";
-    public static final String TPP = "http://endhealth.info/tpp#";
-    public static final String ODS = "http://endhealth.info/ods#";
-    public static final String PRSB = "http://endhealth.info/prsb#";
-    public static final String KINGS_APEX = "http://endhealth.info/kpax#";
-    public static final String KINGS_WINPATH = "http://endhealth.info/kwp#";
-    public static final String VISION = "http://endhealth.info/vis#";
-    public static final String READ2 = "http://endhealth.info/read2#";
-    public static final String BARTS_CERNER = "http://endhealth.info/bc#";
-    public static final String NHSDD_ETHNIC_2001 = "http://endhealth.info/nhsethnic2001#";
-    public static final String IM1 = "http://endhealth.info/im1#";
-    public static final String ENCOUNTERS = "http://endhealth.info/enc#";
-    public static final String CONFIG = "http://endhealth.info/config#";
-    public static final String CEG = "http://endhealth.info/ceg#";
-    public static final String NHS_TFC = "http://endhealth.info/nhstfc#";
-    public static final String STATS = "http://endhealth.info/stats#";
-    public static final String DELTAS = "http://endhealth.info/deltas#";
-    public static final String PROV = "http://endhealth.info/prov#";
-    public static final String QUERY = "http://endhealth.info/query#";
-    public static final String REPORTS = "http://endhealth.info/reports#";
-    public static final String OPS_ROLES = "https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#";
-    public static final String XS = "http://www.w3.org/2001/XMLSchema#";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum SCHEME implements VocabEnum {
+
+    SNOMED("http://snomed.info/sct#"),
+    FHIR("http://hl7.org/fhir/"),
+    SMARTLIFE("http://smartlifehealth.info/smh#"),
+    QOF("http://endhealth.info/qof#"),
+    IM("http://endhealth.info/im#"),
+    BNF("http://bnf.info/bnf#"),
+    ICD10("http://endhealth.info/icd10#"),
+    EMIS("http://endhealth.info/emis#"),
+    CPRD_MED("http://endhealth.info/cprdm#"),
+    CPRD_PROD("http://endhealth.info/cprdp#"),
+    OPCS4("http://endhealth.info/opcs4#"),
+    TPP("http://endhealth.info/tpp#"),
+    ODS("http://endhealth.info/ods#"),
+    PRSB("http://endhealth.info/prsb#"),
+    KINGS_APEX("http://endhealth.info/kpax#"),
+    KINGS_WINPATH("http://endhealth.info/kwp#"),
+    VISION("http://endhealth.info/vis#"),
+    READ2("http://endhealth.info/read2#"),
+    BARTS_CERNER("http://endhealth.info/bc#"),
+    NHSDD_ETHNIC_2001("http://endhealth.info/nhsethnic2001#"),
+    IM1("http://endhealth.info/im1#"),
+    ENCOUNTERS("http://endhealth.info/enc#"),
+    CONFIG("http://endhealth.info/config#"),
+    CEG("http://endhealth.info/ceg#"),
+    NHS_TFC("http://endhealth.info/nhstfc#"),
+    STATS("http://endhealth.info/stats#"),
+    DELTAS("http://endhealth.info/deltas#"),
+    PROV("http://endhealth.info/prov#"),
+    QUERY("http://endhealth.info/query#"),
+    REPORTS("http://endhealth.info/reports#"),
+    OPS_ROLES("https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#"),
+    XS("http://www.w3.org/2001/XMLSchema#"),
+    ;
+
+    private final String value;
+
+    SCHEME(final String value) {
+        this.value = value;
+    }
+
+    SCHEME(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static SCHEME from(String text) {
+    for (SCHEME b : SCHEME.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

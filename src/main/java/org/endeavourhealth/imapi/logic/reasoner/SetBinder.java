@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 
@@ -23,7 +24,7 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 public class SetBinder {
   private final SetRepository setRepository = new SetRepository();
 
-  public void bindSets(String graph) {
+  public void bindSets(Graph graph) {
     log.info("Getting value sets....");
     Set<String> sets = getSets(graph);
     int count = 0;
@@ -36,7 +37,7 @@ public class SetBinder {
     }
   }
 
-  private Set<String> getSets(String graph) {
+  private Set<String> getSets(Graph graph) {
     Set<String> setIris = new HashSet<>();
     try (RepositoryConnection conn = IMDB.getConnection()) {
       String sparql = """
@@ -47,9 +48,9 @@ public class SetBinder {
         }
         """;
       TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
-      qry.setBinding("rdfType", iri(RDF.TYPE));
-      qry.setBinding("imConceptSet", iri(IM.CONCEPT_SET));
-      qry.setBinding("imValueSet", iri(IM.VALUESET));
+      qry.setBinding("rdfType", RDF.TYPE.asDbIri());
+      qry.setBinding("imConceptSet", IM.CONCEPT_SET.asDbIri());
+      qry.setBinding("imValueSet", IM.VALUESET.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           setIris.add(rs.next().getValue("iri").stringValue());
@@ -59,7 +60,7 @@ public class SetBinder {
     return setIris;
   }
 
-  public Set<TTNode> bindSet(String iri, String graph) {
+  public Set<TTNode> bindSet(String iri, Graph graph) {
     Set<Concept> members = setRepository.getSomeMembers(iri, 100, graph);
     if (!members.isEmpty()) {
       Set<String> memberIris = members.stream().map(Entity::getIri).collect(Collectors.toSet());

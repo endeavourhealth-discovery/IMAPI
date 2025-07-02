@@ -10,6 +10,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,9 +24,26 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
  */
 public class CacheRepository {
 
-
-  public Set<TTBundle> getSchema(String graph) {
-    String sql = getSchemaSql();
+  public Set<TTBundle> getSchema(Graph graph) {
+    String sql = """
+      CONSTRUCT {
+        ?shape ?p ?o.
+        ?o ?p2 ?o2.
+      }
+      WHERE {
+        GRAPH ?g {
+          ?shape rdf:type sh:NodeShape.
+          ?shape ?p ?o.
+          filter (?p != im:isA)
+          OPTIONAL { ?o ?p2 ?o2
+            FILTER (
+              isBlank(?o) &&
+              (?p2 in(sh:path, sh:class,sh:node,sh:datatype,sh:order,sh:nodeKind))
+            )
+          }
+        }
+      }
+      """;
     Set<TTEntity> shapes = new HashSet<>();
     try (RepositoryConnection conn = IMDB.getConnection()) {
       GraphQuery qry = IMDB.prepareGraphSparql(conn, sql, graph);
@@ -52,28 +70,6 @@ public class CacheRepository {
       return result;
     }
 
-  }
-
-  private String getSchemaSql() {
-    return """
-      CONSTRUCT {
-        ?shape ?p ?o.
-        ?o ?p2 ?o2.
-      }
-      WHERE {
-        GRAPH ?g {
-          ?shape rdf:type sh:NodeShape.
-          ?shape ?p ?o.
-          filter (?p != im:isA)
-          OPTIONAL { ?o ?p2 ?o2
-            FILTER (
-              isBlank(?o) &&
-              (?p2 in(sh:path, sh:class,sh:node,sh:datatype,sh:order,sh:nodeKind))
-            )
-          }
-        }
-      }
-      """;
   }
 
   private void processStatement(Set<TTEntity> entities, Map<String, TTValue> valueMap, Map<String, TTNode> subjectMap, Statement st) {

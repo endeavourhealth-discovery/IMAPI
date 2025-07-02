@@ -23,7 +23,7 @@ import org.endeavourhealth.imapi.model.requests.SetExportRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -37,6 +37,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 
 @RestController
 @RequestMapping("api/set")
@@ -57,9 +59,9 @@ public class SetController {
   @GetMapping(value = "/publish")
   @Operation(summary = "Publish set", description = "Publishes an expanded set to IM1")
   @PreAuthorize("hasAuthority('IM1_PUBLISH')")
-  public void publish(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException, QueryException {
+  public void publish(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph") String graph) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Publish.GET")) {
-      setService.publishSetToIM1(iri, graph);
+      setService.publishSetToIM1(iri, Graph.from(graph));
     }
   }
 
@@ -70,7 +72,7 @@ public class SetController {
     @RequestParam(name = "entailments", required = false) Boolean entailments,
     @RequestParam(name = "page", required = false) Integer page,
     @RequestParam(name = "size", required = false) Integer size,
-    @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph
+    @RequestParam(name = "graph") String graph
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.EntailedMembers.GET")) {
       log.debug("getEntailedMembers");
@@ -78,21 +80,21 @@ public class SetController {
         page = 1;
         size = 10;
       }
-      return setService.getDirectOrEntailedMembersFromIri(iri, entailments, page, size, graph);
+      return setService.getDirectOrEntailedMembersFromIri(iri, entailments, page, size, Graph.from(graph));
     }
   }
 
   @GetMapping(value = "/public/export")
   @Operation(summary = "Export set", description = "Exporting an expanded set to IM1")
-  public HttpEntity<Object> exportSet(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws DownloadException, IOException {
+  public HttpEntity<Object> exportSet(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph") String graph) throws DownloadException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Export.GET")) {
-      TTIriRef entity = entityService.getEntityReference(iri, graph);
+      TTIriRef entity = entityService.getEntityReference(iri, Graph.from(graph));
       String filename = entity.getName() + " " + LocalDate.now();
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(new MediaType("application", "force-download"));
       headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".txt\"");
       try {
-        Set<Concept> members = setService.getExpandedSetMembers(iri, true, true, true, List.of(), List.of(IM.SUBSUMED_BY), graph);
+        Set<Concept> members = setService.getExpandedSetMembers(iri, true, true, true, List.of(), asArrayList(IM.SUBSUMED_BY), Graph.from(graph));
         String result = setExporter.generateForIm1(iri, entity.getName(), members).toString();
         return new HttpEntity<>(result, headers);
       } catch (QueryException | JsonProcessingException e) {
@@ -104,10 +106,10 @@ public class SetController {
 
   @GetMapping("/public/subsets")
   @Operation(summary = "Get subsets of entity", description = "Fetches all subsets for the given IRI.")
-  public Set<TTIriRef> getSubsets(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException {
+  public Set<TTIriRef> getSubsets(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Subsets.GET")) {
       log.debug("getSubsets");
-      return setService.getSubsets(iri, graph);
+      return setService.getSubsets(iri, Graph.from(graph));
     }
   }
 
@@ -131,7 +133,7 @@ public class SetController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SetExport.GET")) {
       log.debug("getSetExport");
       if (request.getOptions().getSubsumptions() == null || request.getOptions().getSubsumptions().isEmpty()) {
-        request.getOptions().setSubsumptions(List.of(IM.SUBSUMED_BY));
+        request.getOptions().setSubsumptions(asArrayList(IM.SUBSUMED_BY));
       }
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
@@ -152,10 +154,10 @@ public class SetController {
 
   @GetMapping(value = "/public/setDiff")
   @Operation(summary = "Compare two sets", description = "Compares two sets identified by the provided IRIs and returns their differences.")
-  public SetDiffObject getSetComparison(@RequestParam(name = "setIriA") Optional<String> setIriA, @RequestParam(name = "setIriB") Optional<String> setIriB, @RequestParam(name = "graph", defaultValue = GRAPH.IM) String graph) throws IOException, QueryException {
+  public SetDiffObject getSetComparison(@RequestParam(name = "setIriA") Optional<String> setIriA, @RequestParam(name = "setIriB") Optional<String> setIriB, @RequestParam(name = "graph") String graph) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.SetDiff.GET")) {
       log.debug("getSetComparison");
-      return setService.getSetComparison(setIriA, setIriB, graph);
+      return setService.getSetComparison(setIriA, setIriB, Graph.from(graph));
     }
   }
 

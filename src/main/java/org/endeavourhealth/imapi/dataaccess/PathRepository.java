@@ -6,6 +6,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ public class PathRepository {
     return document;
   }
 
-  private List<Match> getPaths(RepositoryConnection conn, String source, String target, String graph) {
+  private List<Match> getPaths(RepositoryConnection conn, String source, String target, Graph graph) {
     List<Match> result = new ArrayList<>();
     String sql = """
       select ?path ?pathLabel ?path2 ?path2Label ?where ?whereLabel ?target ?targetName

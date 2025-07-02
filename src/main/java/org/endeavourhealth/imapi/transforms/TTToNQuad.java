@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +10,9 @@ import java.util.Map;
 public class TTToNQuad {
   private List<String> quads;
   private static int blank;
-  String graph;
+  Graph graph;
 
-  public List<String> transformEntity(TTEntity entity, String graph) {
+  public List<String> transformEntity(TTEntity entity, Graph graph) {
     quads = new ArrayList<>();
     this.graph = graph;
     appendEntity(entity);

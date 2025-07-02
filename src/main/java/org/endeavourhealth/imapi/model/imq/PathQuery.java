@@ -3,13 +3,14 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 @Getter
 public class PathQuery extends TTIriRef {
   private TTIriRef source;
   private TTIriRef target;
   private Integer depth;
-  private String graph;
+  private Graph graph;
 
   @JsonSetter
   public PathQuery setSource(TTIriRef source) {
@@ -48,7 +49,7 @@ public class PathQuery extends TTIriRef {
     return this;
   }
 
-  public PathQuery setGraph(String graph) {
+  public PathQuery setGraph(Graph graph) {
     this.graph = graph;
     return this;
   }

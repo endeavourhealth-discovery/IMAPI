@@ -6,6 +6,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper;
 import org.endeavourhealth.imapi.model.tripletree.TTEntityMap;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 /**
  * Data access class for accessing information about rdf properties
@@ -115,7 +116,7 @@ public class PropertyRepository {
     throw new IllegalStateException("Utility class");
   }
 
-  public static TTEntityMap getProperty(String focusIri, String graph) {
+  public static TTEntityMap getProperty(String focusIri, Graph graph) {
     try (RepositoryConnection conn = IMDB.getConnection()) {
       GraphQuery qry = IMDB.prepareGraphSparql(conn, PROPERTIES_SQL, graph);
       qry.setBinding("entity", Values.iri(focusIri));
@@ -129,7 +130,7 @@ public class PropertyRepository {
    * @return maps from iri to shapes and predicate names for the property entity predicates.
    * All iris referenced include their labels as names, except for the mode predicates themselves
    */
-  public static TTEntityMap getProperties(String graph) {
+  public static TTEntityMap getProperties(Graph graph) {
     try (RepositoryConnection conn = IMDB.getConnection()) {
       GraphQuery qry = IMDB.prepareGraphSparql(conn, GET_ALL_PROPERTIES_SQL, graph);
       return GraphHelper.getEntityMap(qry);

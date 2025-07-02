@@ -7,12 +7,11 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.IM_FUNCTION;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
+
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class FunctionService {
   public static final String ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY = "One or more arguments are missing parameter key";
@@ -23,8 +22,8 @@ public class FunctionService {
 
   private final RequestObjectService requestObjectService = new RequestObjectService();
 
-  public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments, String graph) throws JsonProcessingException {
-    return switch (iri) {
+  public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments, Graph graph) throws JsonProcessingException {
+    return switch (IM_FUNCTION.from(iri)) {
       case IM_FUNCTION.LOCAL_NAME_RETRIEVER -> getLocalName(arguments);
       case IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES -> getAdditionalAllowableTypes(arguments, graph);
       case IM_FUNCTION.GET_LOGIC_OPTIONS -> getLogicOptions(graph);
@@ -56,7 +55,7 @@ public class FunctionService {
     }
   }
 
-  private JsonNode getSchemeFromIri(List<Argument> arguments, String graph) {
+  private JsonNode getSchemeFromIri(List<Argument> arguments, Graph graph) {
     if (null == arguments)
       throw new IllegalArgumentException("No arguments, send json where/value pairs in request body");
     String iri = null;
@@ -69,7 +68,7 @@ public class FunctionService {
       throw new IllegalArgumentException(NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY);
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       String schemeIri = iri.substring(0, iri.lastIndexOf("#") + 1);
-      List<EntityReferenceNode> schemes = entityService.getImmediateChildren(IM.GRAPH, new ArrayList<>(), 1, 1000, false, graph);
+      List<EntityReferenceNode> schemes = entityService.getImmediateChildren(IM.SCHEMES.toString(), new ArrayList<>(), 1, 1000, false, graph);
       List<EntityReferenceNode> schemesFiltered = schemes.stream().filter(s -> s.getIri().equals(schemeIri)).toList();
       List<TTIriRef> schemesFilteredIriRef = schemesFiltered.stream().map(s -> new TTIriRef().setIri(s.getIri()).setName(s.getName())).toList();
       if (schemesFiltered.isEmpty()) throw new IllegalArgumentException("Iri has invalid scheme");
@@ -77,7 +76,7 @@ public class FunctionService {
     }
   }
 
-  private JsonNode getAdditionalAllowableTypes(List<Argument> arguments, String graph) {
+  private JsonNode getAdditionalAllowableTypes(List<Argument> arguments, Graph graph) {
     if (null == arguments)
       throw new IllegalArgumentException("No arguments, send array of json where/value pairs in request body");
     String entityIri = null;
@@ -88,9 +87,9 @@ public class FunctionService {
     }
     if (null == entityIri)
       throw new IllegalArgumentException(NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY);
-    List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.ENTITY_TYPES, null, 1, 200, false, graph);
+    List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.ENTITY_TYPES.toString(), null, 1, 200, false, graph);
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      if (IM.CONCEPT.equals(entityIri)) {
+      if (IM.CONCEPT.toString().equals(entityIri)) {
         String finalEntityIri = entityIri;
         List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(finalEntityIri, RDF.PROPERTY, SHACL.NODESHAPE).contains(t.getIri())).toList();
         List<TTIriRef> filteredResultsAsIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).toList();
@@ -104,25 +103,25 @@ public class FunctionService {
     }
   }
 
-  private JsonNode getLogicOptions(String graph) {
+  private JsonNode getLogicOptions(Graph graph) {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      Set<String> iris = new HashSet<>(Arrays.asList(SHACL.AND, SHACL.OR, SHACL.NOT));
+      Set<String> iris = asHashSet(SHACL.AND, SHACL.OR, SHACL.NOT);
       Set<TTIriRef> iriRefs = entityService.getNames(iris, graph);
       List<TTIriRef> options = new ArrayList<>(iriRefs);
       return om.valueToTree(options);
     }
   }
 
-  private JsonNode getSetEditorIriSchemes(String graph) {
-    List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.GRAPH, null, 1, 200, false, graph);
+  private JsonNode getSetEditorIriSchemes(Graph graph) {
+    List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.SCHEMES.toString(), null, 1, 200, false, graph);
     List<TTIriRef> resultsAsIri = results.stream().map(r -> new TTIriRef(r.getIri(), r.getName())).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.valueToTree(resultsAsIri);
     }
   }
 
-  private JsonNode getUserEditableSchemes(HttpServletRequest request, String graph) throws JsonProcessingException {
-    List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.GRAPH, null, 1, 200, false, graph);
+  private JsonNode getUserEditableSchemes(HttpServletRequest request, Graph graph) throws JsonProcessingException {
+    List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.SCHEMES.toString(), null, 1, 200, false, graph);
     String userId = requestObjectService.getRequestAgentId(request);
     List<String> organisations = userService.getUserOrganisations(userId);
     List<TTIriRef> resultsAsIri = results.stream().filter(r -> organisations.stream().anyMatch(o -> o.equals(r.getIri()))).map(r -> new TTIriRef(r.getIri(), r.getName())).toList();

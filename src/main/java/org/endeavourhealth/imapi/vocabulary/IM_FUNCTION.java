@@ -2,19 +2,67 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class IM_FUNCTION {
-    public static final String DOMAIN = "http://endhealth.info/";
-    public static final String NAMESPACE = IM_FUNCTION.DOMAIN + "im#Function_";
-    public static final String SNOMED_CONCEPT_GENERATOR = IM_FUNCTION.NAMESPACE + "SnomedConceptGenerator";
-    public static final String LOCAL_NAME_RETRIEVER = IM_FUNCTION.NAMESPACE + "LocalNameRetriever";
-    public static final String GET_ADDITIONAL_ALLOWABLE_TYPES = IM_FUNCTION.NAMESPACE + "GetAdditionalAllowableTypes";
-    public static final String GET_LOGIC_OPTIONS = IM_FUNCTION.NAMESPACE + "GetLogicOptions";
-    public static final String GET_SET_EDITOR_IRI_SCHEMES = IM_FUNCTION.NAMESPACE + "GetSetEditorIriSchemes";
-    public static final String IM1_SCHEME_OPTIONS = IM_FUNCTION.NAMESPACE + "IM1SchemeOptions";
-    public static final String SCHEME_FROM_IRI = IM_FUNCTION.NAMESPACE + "SchemeFromIri";
-    public static final String GET_USER_EDITABLE_SCHEMES = IM_FUNCTION.NAMESPACE + "GetUserEditableSchemes";
-    public static final String IS_TYPE = IM_FUNCTION.NAMESPACE + "IsType";
-    public static final String ALLOWABLE_PROPERTIES = IM_FUNCTION.NAMESPACE + "AllowableProperties";
-    public static final String ALLOWABLE_RANGES = IM_FUNCTION.NAMESPACE + "AllowableRanges";
-    public static final String ALLOWABLE_PROPERTY_VALUES = IM_FUNCTION.NAMESPACE + "AllowablePropertyValues";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum IM_FUNCTION implements VocabEnum {
+
+    DOMAIN("http://endhealth.info/"),
+    NAMESPACE(IM_FUNCTION.DOMAIN + "im#Function_"),
+    SNOMED_CONCEPT_GENERATOR(IM_FUNCTION.NAMESPACE + "SnomedConceptGenerator"),
+    LOCAL_NAME_RETRIEVER(IM_FUNCTION.NAMESPACE + "LocalNameRetriever"),
+    GET_ADDITIONAL_ALLOWABLE_TYPES(IM_FUNCTION.NAMESPACE + "GetAdditionalAllowableTypes"),
+    GET_LOGIC_OPTIONS(IM_FUNCTION.NAMESPACE + "GetLogicOptions"),
+    GET_SET_EDITOR_IRI_SCHEMES(IM_FUNCTION.NAMESPACE + "GetSetEditorIriSchemes"),
+    IM1_SCHEME_OPTIONS(IM_FUNCTION.NAMESPACE + "IM1SchemeOptions"),
+    SCHEME_FROM_IRI(IM_FUNCTION.NAMESPACE + "SchemeFromIri"),
+    GET_USER_EDITABLE_SCHEMES(IM_FUNCTION.NAMESPACE + "GetUserEditableSchemes"),
+    IS_TYPE(IM_FUNCTION.NAMESPACE + "IsType"),
+    ALLOWABLE_PROPERTIES(IM_FUNCTION.NAMESPACE + "AllowableProperties"),
+    ALLOWABLE_RANGES(IM_FUNCTION.NAMESPACE + "AllowableRanges"),
+    ALLOWABLE_PROPERTY_VALUES(IM_FUNCTION.NAMESPACE + "AllowablePropertyValues"),
+    ;
+
+    private final String value;
+
+    IM_FUNCTION(final String value) {
+        this.value = value;
+    }
+
+    IM_FUNCTION(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static IM_FUNCTION from(String text) {
+    for (IM_FUNCTION b : IM_FUNCTION.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

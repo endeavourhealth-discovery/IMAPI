@@ -2,7 +2,55 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class BNF {
-    public static final String DOMAIN = "http://bnf.info/";
-    public static final String NAMESPACE = BNF.DOMAIN + "bnf#";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum BNF implements VocabEnum {
+
+    DOMAIN("http://bnf.info/"),
+    NAMESPACE(BNF.DOMAIN + "bnf#"),
+    ;
+
+    private final String value;
+
+    BNF(final String value) {
+        this.value = value;
+    }
+
+    BNF(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static BNF from(String text) {
+    for (BNF b : BNF.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

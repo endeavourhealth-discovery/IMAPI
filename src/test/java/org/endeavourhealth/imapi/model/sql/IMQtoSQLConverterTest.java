@@ -3,6 +3,8 @@ package org.endeavourhealth.imapi.model.sql;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.EntityType;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +15,10 @@ public class IMQtoSQLConverterTest {
   private static Logger LOG = LoggerFactory.getLogger(IMQtoSQLConverterTest.class);
 
   // @Test
-  public void IMQtoSQL(String graph) {
+  public void IMQtoSQL(Graph graph) {
     // Get list of queries from GraphDb
     EntityRepository entityRepository = new EntityRepository();
-    List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(IM.QUERY, graph);
+    List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(EntityType.QUERY, graph);
     LOG.info("Found {} queries", cohortQueryIris.size());
 
     // Prepare

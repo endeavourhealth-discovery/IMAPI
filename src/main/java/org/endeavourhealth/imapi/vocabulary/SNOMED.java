@@ -2,10 +2,58 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class SNOMED {
-    public static final String DOMAIN = "http://snomed.info/";
-    public static final String NAMESPACE = SNOMED.DOMAIN + "sct#";
-    public static final String PREFIX = "sn";
-    public static final String ATTRIBUTE = SNOMED.NAMESPACE + "246061005";
-    public static final String ANY = SNOMED.NAMESPACE + "*";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum SNOMED implements VocabEnum {
+
+    DOMAIN("http://snomed.info/"),
+    NAMESPACE(SNOMED.DOMAIN + "sct#"),
+    PREFIX("sn"),
+    ATTRIBUTE(SNOMED.NAMESPACE + "246061005"),
+    ANY(SNOMED.NAMESPACE + "*"),
+    ;
+
+    private final String value;
+
+    SNOMED(final String value) {
+        this.value = value;
+    }
+
+    SNOMED(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static SNOMED from(String text) {
+    for (SNOMED b : SNOMED.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

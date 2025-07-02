@@ -21,16 +21,15 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 /**
  * Methods to convert a Query object to its Sparql equivalent and return results as a json object
@@ -223,16 +222,16 @@ public class QueryRepository {
 
   private boolean notMatched(JsonNode entity, String textSearch) {
     Set<String> tested = new HashSet<>();
-    if (entity.get(RDFS.LABEL) != null) {
-      String synonym = entity.get(RDFS.LABEL).asText().split(" \\(")[0];
+    if (entity.get(RDFS.LABEL.toString()) != null) {
+      String synonym = entity.get(RDFS.LABEL.toString()).asText().split(" \\(")[0];
       tested.add(synonym);
       if (TextMatcher.matchTerm(textSearch, synonym))
         return false;
     }
-    if (entity.get(IM.HAS_TERM_CODE) != null) {
-      for (JsonNode termCode : entity.get(IM.HAS_TERM_CODE)) {
-        if (termCode.has(RDFS.LABEL)) {
-          String synonym = termCode.get(RDFS.LABEL).asText().split(" \\(")[0];
+    if (entity.get(IM.HAS_TERM_CODE.toString()) != null) {
+      for (JsonNode termCode : entity.get(IM.HAS_TERM_CODE.toString())) {
+        if (termCode.has(RDFS.LABEL.toString())) {
+          String synonym = termCode.get(RDFS.LABEL.toString()).asText().split(" \\(")[0];
           if (!tested.contains(synonym)) {
             tested.add(synonym);
             if (TextMatcher.matchTerm(textSearch, synonym))
@@ -244,16 +243,16 @@ public class QueryRepository {
     return true;
   }
 
-  private Boolean graphAskSearch(String spq, RepositoryConnection conn, String graph) {
+  private Boolean graphAskSearch(String spq, RepositoryConnection conn, Graph graph) {
     return sparqlAskQuery(spq, conn, graph);
   }
 
-  private TupleQueryResult sparqlQuery(String spq, RepositoryConnection conn, String graph) {
+  private TupleQueryResult sparqlQuery(String spq, RepositoryConnection conn, Graph graph) {
     TupleQuery qry = IMDB.prepareTupleSparql(conn, spq, graph);
     return qry.evaluate();
   }
 
-  private Boolean sparqlAskQuery(String spq, RepositoryConnection conn, String graph) {
+  private Boolean sparqlAskQuery(String spq, RepositoryConnection conn, Graph graph) {
     BooleanQuery qry = IMDB.prepareBooleanSparql(conn, spq, graph);
     return qry.evaluate();
   }
@@ -378,7 +377,7 @@ public class QueryRepository {
 
   private TTEntity getEntity(String iri) {
     return new EntityRepository().getBundle(iri,
-      Set.of(IM.DEFINITION, RDF.TYPE, IM.FUNCTION_DEFINITION, IM.UPDATE_PROCEDURE, SHACL.PARAMETER)).getEntity();
+      asHashSet(IM.DEFINITION, RDF.TYPE, IM.FUNCTION_DEFINITION, IM.UPDATE_PROCEDURE, SHACL.PARAMETER)).getEntity();
 
   }
 }

@@ -6,6 +6,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 public class IMDB extends BaseDB {
   private static Repository repository = null;
@@ -14,19 +15,19 @@ public class IMDB extends BaseDB {
     return getRepo().getConnection();
   }
 
-  public static TupleQuery prepareTupleSparql(RepositoryConnection connection, String sparql, String graph) {
+  public static TupleQuery prepareTupleSparql(RepositoryConnection connection, String sparql, Graph graph) {
     return BaseDB.prepareTupleSparql(connection, sparql, graph);
   }
 
-  public static GraphQuery prepareGraphSparql(RepositoryConnection conn, String sparql, String graph) {
+  public static GraphQuery prepareGraphSparql(RepositoryConnection conn, String sparql, Graph graph) {
     return BaseDB.prepareGraphSparql(conn, sparql, graph);
   }
 
-  public static BooleanQuery prepareBooleanSparql(RepositoryConnection conn, String sparql, String graph) {
+  public static BooleanQuery prepareBooleanSparql(RepositoryConnection conn, String sparql, Graph graph) {
     return BaseDB.prepareBooleanSparql(conn, sparql, graph);
   }
 
-  public static Update prepareUpdateSparql(RepositoryConnection conn, String sparql, String graph) {
+  public static Update prepareUpdateSparql(RepositoryConnection conn, String sparql, Graph graph) {
     return BaseDB.prepareUpdateSparql(conn, sparql, graph);
   }
 

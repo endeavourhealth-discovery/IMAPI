@@ -1,12 +1,12 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -47,6 +47,10 @@ public class TTIriRef implements TTValue, Serializable {
     return new TTIriRef(iri);
   }
 
+  public static TTIriRef iri(VocabEnum vocabEnum) {
+    return vocabEnum.asIri();
+  }
+
   public static TTIriRef iri(String iri, String name) {
     return new TTIriRef(iri, name);
   }
@@ -66,6 +70,10 @@ public class TTIriRef implements TTValue, Serializable {
     return this;
   }
 
+  @JsonIgnore
+  public TTIriRef setIri(VocabEnum iri) {
+    return setIri(iri.toString());
+  }
 
   public TTIriRef setName(String name) {
     this.name = name;

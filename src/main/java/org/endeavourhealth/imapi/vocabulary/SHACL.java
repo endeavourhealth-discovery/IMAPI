@@ -2,45 +2,93 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class SHACL {
-    public static final String NAMESPACE = "http://www.w3.org/ns/shacl#";
-    public static final String PREFIX = "sh";
-    public static final String PATH = SHACL.NAMESPACE + "path";
-    public static final String MININCLUSIVE = SHACL.NAMESPACE + "minInclusive";
-    public static final String MINEXCLUSIVE = SHACL.NAMESPACE + "minExclusive";
-    public static final String MAXINCLUSIVE = SHACL.NAMESPACE + "maxInclusive";
-    public static final String MAXEXCLUSIVE = SHACL.NAMESPACE + "maxExclusive";
-    public static final String PROPERTY = SHACL.NAMESPACE + "property";
-    public static final String PROPERTY_GROUP = SHACL.NAMESPACE + "PropertyGroup";
-    public static final String MINCOUNT = SHACL.NAMESPACE + "minCount";
-    public static final String MAXCOUNT = SHACL.NAMESPACE + "maxCount";
-    public static final String VALUE = SHACL.NAMESPACE + "value";
-    public static final String PATTERN = SHACL.NAMESPACE + "pattern";
-    public static final String INVERSEPATH = SHACL.NAMESPACE + "inversePath";
-    public static final String CLASS = SHACL.NAMESPACE + "class";
-    public static final String DATATYPE = SHACL.NAMESPACE + "datatype";
-    public static final String SPARQL = SHACL.NAMESPACE + "sparql";
-    public static final String SELECT = SHACL.NAMESPACE + "select";
-    public static final String PARAMETER = SHACL.NAMESPACE + "parameter";
-    public static final String IRI = SHACL.NAMESPACE + "IRI";
-    public static final String OPTIONAL = SHACL.NAMESPACE + "optional";
-    public static final String NODESHAPE = SHACL.NAMESPACE + "NodeShape";
-    public static final String TARGETCLASS = SHACL.NAMESPACE + "targetClass";
-    public static final String NODE = SHACL.NAMESPACE + "node";
-    public static final String ORDER = SHACL.NAMESPACE + "order";
-    public static final String OR = SHACL.NAMESPACE + "or";
-    public static final String NOT = SHACL.NAMESPACE + "not";
-    public static final String NODE_KIND = SHACL.NAMESPACE + "nodeKind";
-    public static final String PROPERTYSHAPE = SHACL.NAMESPACE + "PropertyShape";
-    public static final String AND = SHACL.NAMESPACE + "and";
-    public static final String NODES = SHACL.NAMESPACE + "nodes";
-    public static final String TARGET_TYPE = SHACL.NAMESPACE + "targetType";
-    public static final String TARGET = SHACL.NAMESPACE + "target";
-    public static final String SPARQL_TARGET = SHACL.NAMESPACE + "SPARQLTarget";
-    public static final String FUNCTION = SHACL.NAMESPACE + "Function";
-    public static final String RETURN_TYPE = SHACL.NAMESPACE + "returnType";
-    public static final String GROUP = SHACL.NAMESPACE + "group";
-    public static final String NAME = SHACL.NAMESPACE + "name";
-    public static final String EXPRESSION = SHACL.NAMESPACE + "expression";
-    public static final String HAS_VALUE = SHACL.NAMESPACE + "hasValue";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum SHACL implements VocabEnum {
+
+    NAMESPACE("http://www.w3.org/ns/shacl#"),
+    PREFIX("sh"),
+    PATH(SHACL.NAMESPACE + "path"),
+    MININCLUSIVE(SHACL.NAMESPACE + "minInclusive"),
+    MINEXCLUSIVE(SHACL.NAMESPACE + "minExclusive"),
+    MAXINCLUSIVE(SHACL.NAMESPACE + "maxInclusive"),
+    MAXEXCLUSIVE(SHACL.NAMESPACE + "maxExclusive"),
+    PROPERTY(SHACL.NAMESPACE + "property"),
+    PROPERTY_GROUP(SHACL.NAMESPACE + "PropertyGroup"),
+    MINCOUNT(SHACL.NAMESPACE + "minCount"),
+    MAXCOUNT(SHACL.NAMESPACE + "maxCount"),
+    VALUE(SHACL.NAMESPACE + "value"),
+    PATTERN(SHACL.NAMESPACE + "pattern"),
+    INVERSEPATH(SHACL.NAMESPACE + "inversePath"),
+    CLASS(SHACL.NAMESPACE + "class"),
+    DATATYPE(SHACL.NAMESPACE + "datatype"),
+    SPARQL(SHACL.NAMESPACE + "sparql"),
+    SELECT(SHACL.NAMESPACE + "select"),
+    PARAMETER(SHACL.NAMESPACE + "parameter"),
+    IRI(SHACL.NAMESPACE + "IRI"),
+    OPTIONAL(SHACL.NAMESPACE + "optional"),
+    NODESHAPE(SHACL.NAMESPACE + "NodeShape"),
+    TARGETCLASS(SHACL.NAMESPACE + "targetClass"),
+    NODE(SHACL.NAMESPACE + "node"),
+    ORDER(SHACL.NAMESPACE + "order"),
+    OR(SHACL.NAMESPACE + "or"),
+    NOT(SHACL.NAMESPACE + "not"),
+    NODE_KIND(SHACL.NAMESPACE + "nodeKind"),
+    PROPERTYSHAPE(SHACL.NAMESPACE + "PropertyShape"),
+    AND(SHACL.NAMESPACE + "and"),
+    NODES(SHACL.NAMESPACE + "nodes"),
+    TARGET_TYPE(SHACL.NAMESPACE + "targetType"),
+    TARGET(SHACL.NAMESPACE + "target"),
+    SPARQL_TARGET(SHACL.NAMESPACE + "SPARQLTarget"),
+    FUNCTION(SHACL.NAMESPACE + "Function"),
+    RETURN_TYPE(SHACL.NAMESPACE + "returnType"),
+    GROUP(SHACL.NAMESPACE + "group"),
+    NAME(SHACL.NAMESPACE + "name"),
+    EXPRESSION(SHACL.NAMESPACE + "expression"),
+    HAS_VALUE(SHACL.NAMESPACE + "hasValue"),
+    ;
+
+    private final String value;
+
+    SHACL(final String value) {
+        this.value = value;
+    }
+
+    SHACL(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static SHACL from(String text) {
+    for (SHACL b : SHACL.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

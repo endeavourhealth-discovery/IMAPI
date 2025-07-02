@@ -2,17 +2,65 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class RDFS {
-    public static final String NAMESPACE = "http://www.w3.org/2000/01/rdf-schema#";
-    public static final String PREFIX = "rdfs";
-    public static final String LABEL = RDFS.NAMESPACE + "label";
-    public static final String COMMENT = RDFS.NAMESPACE + "comment";
-    public static final String SUBCLASS_OF = RDFS.NAMESPACE + "subClassOf";
-    public static final String SUB_PROPERTY_OF = RDFS.NAMESPACE + "subPropertyOf";
-    public static final String DOMAIN = RDFS.NAMESPACE + "domain";
-    public static final String RANGE = RDFS.NAMESPACE + "range";
-    public static final String RESOURCE = RDFS.NAMESPACE + "Resource";
-    public static final String CLASS = RDFS.NAMESPACE + "Class";
-    public static final String DATATYPE = RDFS.NAMESPACE + "Datatype";
-    public static final String IS_DEFINED_BY = RDFS.NAMESPACE + "isDefinedBy";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum RDFS implements VocabEnum {
+
+    NAMESPACE("http://www.w3.org/2000/01/rdf-schema#"),
+    PREFIX("rdfs"),
+    LABEL(RDFS.NAMESPACE + "label"),
+    COMMENT(RDFS.NAMESPACE + "comment"),
+    SUBCLASS_OF(RDFS.NAMESPACE + "subClassOf"),
+    SUB_PROPERTY_OF(RDFS.NAMESPACE + "subPropertyOf"),
+    DOMAIN(RDFS.NAMESPACE + "domain"),
+    RANGE(RDFS.NAMESPACE + "range"),
+    RESOURCE(RDFS.NAMESPACE + "Resource"),
+    CLASS(RDFS.NAMESPACE + "Class"),
+    DATATYPE(RDFS.NAMESPACE + "Datatype"),
+    IS_DEFINED_BY(RDFS.NAMESPACE + "isDefinedBy"),
+    ;
+
+    private final String value;
+
+    RDFS(final String value) {
+        this.value = value;
+    }
+
+    RDFS(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static RDFS from(String text) {
+    for (RDFS b : RDFS.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

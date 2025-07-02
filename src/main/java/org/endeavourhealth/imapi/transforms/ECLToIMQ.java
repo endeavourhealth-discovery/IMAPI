@@ -11,13 +11,11 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.parser.imecl.IMECLBaseVisitor;
 import org.endeavourhealth.imapi.parser.imecl.IMECLLexer;
 import org.endeavourhealth.imapi.parser.imecl.IMECLParser;
-import org.endeavourhealth.imapi.vocabulary.IM;
 
 /**
  * Converts ECL to Discovery syntax, supporting commonly used constructs
  */
 public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
-  public static final String ROLE_GROUP = IM.ROLE_GROUP;
   private final IMECLLexer lexer;
   private final IMECLParser parser;
   private boolean validateEntities;

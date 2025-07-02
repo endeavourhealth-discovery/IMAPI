@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
@@ -18,10 +19,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.endeavourhealth.imapi.logic.service.EntityService.filterOutInactiveTermCodes;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Component
 public class ConceptService {
@@ -29,7 +30,7 @@ public class ConceptService {
   private EntityRepository entityRepository = new EntityRepository();
   private ConceptRepository conceptRepository = new ConceptRepository();
 
-  public List<SimpleMap> getMatchedFrom(String iri, String graph) {
+  public List<SimpleMap> getMatchedFrom(String iri, Graph graph) {
     if (iri == null || iri.isEmpty()) return new ArrayList<>();
     String scheme = iri.substring(0, iri.indexOf("#") + 1);
     List<Namespace> namespaces = entityRepository.findNamespaces(graph);
@@ -38,7 +39,7 @@ public class ConceptService {
     return conceptRepository.getMatchedFrom(iri, schemes, graph);
   }
 
-  public List<SimpleMap> getMatchedTo(String iri, String graph) {
+  public List<SimpleMap> getMatchedTo(String iri, Graph graph) {
     if (iri == null || iri.isEmpty()) return new ArrayList<>();
     String scheme = iri.substring(0, iri.indexOf("#") + 1);
     List<Namespace> namespaces = entityRepository.findNamespaces(graph);
@@ -50,7 +51,7 @@ public class ConceptService {
   public List<SearchTermCode> getEntityTermCodes(String iri, boolean includeInactive) {
     if (iri == null || iri.isEmpty())
       return Collections.emptyList();
-    TTBundle termsBundle = entityRepository.getBundle(iri, Stream.of(IM.HAS_TERM_CODE).collect(Collectors.toSet()));
+    TTBundle termsBundle = entityRepository.getBundle(iri, asHashSet(IM.HAS_TERM_CODE));
     if (!includeInactive) filterOutInactiveTermCodes(termsBundle);
     TTArray terms = termsBundle.getEntity().get(iri(IM.HAS_TERM_CODE));
     if (null == terms) return Collections.emptyList();
@@ -63,19 +64,19 @@ public class ConceptService {
       .toList();
   }
 
-  public Set<String> getPropertiesForDomains(Set<String> iris, String graph) {
+  public Set<String> getPropertiesForDomains(Set<String> iris, Graph graph) {
     if (null == iris || iris.isEmpty()) return null;
     return conceptRepository.getPropertiesForDomains(iris, graph);
 
   }
 
 
-  public Set<String> getRangesForProperty(String iri, String graph) {
+  public Set<String> getRangesForProperty(String iri, Graph graph) {
     if (null == iri || iri.isEmpty()) return null;
     return conceptRepository.getRangesForProperty(iri, graph);
   }
 
-  public List<ConceptContextMap> getConceptContextMaps(String iri, String graph) {
+  public List<ConceptContextMap> getConceptContextMaps(String iri, Graph graph) {
     return conceptRepository.getConceptContextMaps(iri, graph);
   }
 

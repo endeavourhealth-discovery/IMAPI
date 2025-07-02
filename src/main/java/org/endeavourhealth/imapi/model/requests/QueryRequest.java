@@ -38,7 +38,7 @@ public class QueryRequest implements ContextMap {
   @Setter
   private TextSearchStyle textSearchStyle;
   @Getter
-  private String graph;
+  private Graph graph;
 
 
   public List<TTIriRef> getCohort() {
@@ -241,13 +241,13 @@ public class QueryRequest implements ContextMap {
 
   public QueryRequest setDefaultPrefixMap() {
     this.context = new HashMap<>();
-    context.put(IM.NAMESPACE, "im");
-    context.put(SNOMED.NAMESPACE, "sn");
-    context.put(OWL.NAMESPACE, "owl");
-    context.put(RDF.NAMESPACE, "rdf");
-    context.put(RDFS.NAMESPACE, "rdfs");
-    context.put(XSD.NAMESPACE, "xsd");
-    context.put(SHACL.NAMESPACE, "sh");
+    context.put(IM.NAMESPACE.toString(), "im");
+    context.put(SNOMED.NAMESPACE.toString(), "sn");
+    context.put(OWL.NAMESPACE.toString(), "owl");
+    context.put(RDF.NAMESPACE.toString(), "rdf");
+    context.put(RDFS.NAMESPACE.toString(), "rdfs");
+    context.put(XSD.NAMESPACE.toString(), "xsd");
+    context.put(SHACL.NAMESPACE.toString(), "sh");
     return this;
   }
 
@@ -260,7 +260,7 @@ public class QueryRequest implements ContextMap {
     return this;
   }
 
-  public QueryRequest setGraph(String graph) {
+  public QueryRequest setGraph(Graph graph) {
     this.graph = graph;
     return this;
   }

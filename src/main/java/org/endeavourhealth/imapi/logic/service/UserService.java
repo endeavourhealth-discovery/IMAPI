@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
+
 @Component
 public class UserService {
   private final UserRepository userRepository = new UserRepository();
@@ -107,7 +109,7 @@ public class UserService {
 
   public boolean getEditAccess(String userId, String entityIri) throws JsonProcessingException {
     List<String> organisations = this.getUserOrganisations(userId);
-    Set<String> predicates = Collections.singleton(IM.HAS_SCHEME);
+    Set<String> predicates = asHashSet(IM.HAS_SCHEME);
     TTEntity entity = entityService.getBundle(entityIri, predicates).getEntity();
     if (null == entity.getScheme()) return false;
     return organisations.contains(entity.getScheme().getIri());

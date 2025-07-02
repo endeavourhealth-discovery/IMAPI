@@ -7,8 +7,9 @@ import org.endeavourhealth.imapi.model.codegen.CodeGenTemplate;
 import org.endeavourhealth.imapi.model.dto.CodeGenDto;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.EntityType;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.springframework.http.*;
 
 import java.io.ByteArrayOutputStream;
@@ -37,12 +38,12 @@ public class CodeGenService {
     codeGenRepository.updateCodeTemplate(name, extension, wrapper, dataTypeMap, template, complexTypes);
   }
 
-  public String generateCodeForModel(String modelIri, CodeGenDto template, String namespace, String graph) {
+  public String generateCodeForModel(String modelIri, CodeGenDto template, String namespace, Graph graph) {
     TTIriRef model = getModelSummary(modelIri, graph);
     return generateCodeForModel(template, model, namespace);
   }
 
-  public HttpEntity<Object> generateCode(String iri, String templateName, String namespace, String graph) {
+  public HttpEntity<Object> generateCode(String iri, String templateName, String namespace, Graph graph) {
     List<TTIriRef> models = (iri == null || iri.isEmpty())
       ? getIMModels(graph)
       : Collections.singletonList(getModelSummary(iri, graph));
@@ -52,14 +53,14 @@ public class CodeGenService {
     return createModelCodeZip(namespace, models, template);
   }
 
-  private List<TTIriRef> getIMModels(String graph) {
-    List<TTIriRef> models = entityService.getEntitiesByType(SHACL.NODESHAPE, graph);
+  private List<TTIriRef> getIMModels(Graph graph) {
+    List<TTIriRef> models = entityService.getEntitiesByType(EntityType.NODESHAPE, graph);
     return models.stream()
-      .filter(m -> m.getIri().startsWith(IM.NAMESPACE))
+      .filter(m -> m.getIri().startsWith(IM.NAMESPACE.toString()))
       .toList();
   }
 
-  private TTIriRef getModelSummary(String iri, String graph) {
+  private TTIriRef getModelSummary(String iri, Graph graph) {
     SearchResultSummary summary = entityService.getSummary(iri, graph);
     return new TTIriRef(summary.getIri(), summary.getName()).setDescription(summary.getDescription());
   }

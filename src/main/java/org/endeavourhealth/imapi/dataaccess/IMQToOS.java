@@ -15,12 +15,11 @@ import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
+
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class IMQToOS {
   private static final String SCHEME = "scheme";
@@ -163,7 +162,7 @@ public class IMQToOS {
     if (query == null)
       return true;
     if (query.isActiveOnly()) {
-      addFilterWithId("status", Set.of(IM.ACTIVE), Bool.and, boolBuilder);
+      addFilterWithId("status", asHashSet(IM.ACTIVE), Bool.and, boolBuilder);
     }
     if (query.getAnd() == null && query.getOr() == null) {
       if (!addMatch(boolBuilder, query))
@@ -214,38 +213,38 @@ public class IMQToOS {
       if (ret.getProperty() != null) {
         for (ReturnProperty prop : ret.getProperty()) {
           if (prop.getIri() != null) {
-            switch (prop.getIri()) {
-              case RDFS.COMMENT:
+            switch (OpenSearch.from(prop.getIri())) {
+              case OpenSearch.DESCRIPTION:
                 sources.add("description");
                 break;
-              case RDFS.LABEL:
+              case OpenSearch.NAME:
                 sources.add("name");
                 break;
-              case IM.CODE:
+              case OpenSearch.CODE:
                 sources.add("code");
                 break;
-              case IM.HAS_STATUS:
+              case OpenSearch.STATUS:
                 sources.add(STATUS);
                 break;
-              case IM.ALTERNATIVE_CODE:
+              case OpenSearch.ALTERNATIVE_CODE:
                 sources.add("alternativeCode");
                 break;
-              case IM.HAS_SCHEME:
+              case OpenSearch.SCHEME:
                 sources.add(SCHEME);
                 break;
-              case RDF.TYPE:
+              case OpenSearch.TYPE:
                 sources.add("type");
                 break;
-              case IM.USAGE_TOTAL:
+              case OpenSearch.USAGE_TOTAL:
                 sources.add(USAGE_TOTAL);
                 break;
-              case IM.BINDING:
+              case OpenSearch.BINDING:
                 sources.add("binding");
                 break;
-              case IM.HAS_TERM_CODE:
+              case OpenSearch.TERM_CODE:
                 sources.add("termCode");
                 break;
-              case RDFS.DOMAIN:
+              case OpenSearch.DOMAIN:
                 break;
               default:
                 return false;

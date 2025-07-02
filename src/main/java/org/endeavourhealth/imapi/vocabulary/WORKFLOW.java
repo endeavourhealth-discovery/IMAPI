@@ -2,33 +2,81 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class WORKFLOW {
-    public static final String DOMAIN = "http://endhealth.info/";
-    public static final String NAMESPACE = WORKFLOW.DOMAIN + "workflow#";
-    public static final String BUG_REPORT = WORKFLOW.NAMESPACE + "bugReport";
-    public static final String DATE_CREATED = WORKFLOW.NAMESPACE + "dateCreated";
-    public static final String CREATED_BY = WORKFLOW.NAMESPACE + "createdBy";
-    public static final String ASSIGNED_TO = WORKFLOW.NAMESPACE + "assignedTo";
-    public static final String STATE = WORKFLOW.NAMESPACE + "state";
-    public static final String HOST_URL = WORKFLOW.NAMESPACE + "hostUrl";
-    public static final String RELATED_PRODUCT = WORKFLOW.NAMESPACE + "relatedProduct";
-    public static final String RELATED_MODULE = WORKFLOW.NAMESPACE + "relatedModule";
-    public static final String OPERATING_SYSTEM = WORKFLOW.NAMESPACE + "operatingSystem";
-    public static final String OPERATING_SYSTEM_OTHER = WORKFLOW.NAMESPACE + "operatingSystemOther";
-    public static final String BROWSER = WORKFLOW.NAMESPACE + "browser";
-    public static final String BROWSER_OTHER = WORKFLOW.NAMESPACE + "browserOther";
-    public static final String SEVERITY = WORKFLOW.NAMESPACE + "severity";
-    public static final String ERROR = WORKFLOW.NAMESPACE + "errorDetails";
-    public static final String REPRODUCE_STEPS = WORKFLOW.NAMESPACE + "reproduceSteps";
-    public static final String EXPECTED_RESULT = WORKFLOW.NAMESPACE + "expectedResult";
-    public static final String ACTUAL_RESULT = WORKFLOW.NAMESPACE + "actualResult";
-    public static final String RELATED_VERSION = WORKFLOW.NAMESPACE + "relatedVersion";
-    public static final String REQUESTED_ROLE = WORKFLOW.NAMESPACE + "requestedRole";
-    public static final String APPROVAL_TYPE = WORKFLOW.NAMESPACE + "approvalType";
-    public static final String HISTORY = WORKFLOW.NAMESPACE + "history";
-    public static final String HISTORY_PREDICATE = WORKFLOW.NAMESPACE + "historyPredicate";
-    public static final String HISTORY_ORIGINAL_OBJECT = WORKFLOW.NAMESPACE + "historyOriginalObject";
-    public static final String HISTORY_NEW_OBJECT = WORKFLOW.NAMESPACE + "historyNewObject";
-    public static final String HISTORY_CHANGE_DATE = WORKFLOW.NAMESPACE + "historyChangeDate";
-    public static final String MODIFIED_BY = WORKFLOW.NAMESPACE + "modifiedBy";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum WORKFLOW implements VocabEnum {
+
+    DOMAIN("http://endhealth.info/"),
+    NAMESPACE(WORKFLOW.DOMAIN + "workflow#"),
+    BUG_REPORT(WORKFLOW.NAMESPACE + "bugReport"),
+    DATE_CREATED(WORKFLOW.NAMESPACE + "dateCreated"),
+    CREATED_BY(WORKFLOW.NAMESPACE + "createdBy"),
+    ASSIGNED_TO(WORKFLOW.NAMESPACE + "assignedTo"),
+    STATE(WORKFLOW.NAMESPACE + "state"),
+    HOST_URL(WORKFLOW.NAMESPACE + "hostUrl"),
+    RELATED_PRODUCT(WORKFLOW.NAMESPACE + "relatedProduct"),
+    RELATED_MODULE(WORKFLOW.NAMESPACE + "relatedModule"),
+    OPERATING_SYSTEM(WORKFLOW.NAMESPACE + "operatingSystem"),
+    OPERATING_SYSTEM_OTHER(WORKFLOW.NAMESPACE + "operatingSystemOther"),
+    BROWSER(WORKFLOW.NAMESPACE + "browser"),
+    BROWSER_OTHER(WORKFLOW.NAMESPACE + "browserOther"),
+    SEVERITY(WORKFLOW.NAMESPACE + "severity"),
+    ERROR(WORKFLOW.NAMESPACE + "errorDetails"),
+    REPRODUCE_STEPS(WORKFLOW.NAMESPACE + "reproduceSteps"),
+    EXPECTED_RESULT(WORKFLOW.NAMESPACE + "expectedResult"),
+    ACTUAL_RESULT(WORKFLOW.NAMESPACE + "actualResult"),
+    RELATED_VERSION(WORKFLOW.NAMESPACE + "relatedVersion"),
+    REQUESTED_ROLE(WORKFLOW.NAMESPACE + "requestedRole"),
+    APPROVAL_TYPE(WORKFLOW.NAMESPACE + "approvalType"),
+    HISTORY(WORKFLOW.NAMESPACE + "history"),
+    HISTORY_PREDICATE(WORKFLOW.NAMESPACE + "historyPredicate"),
+    HISTORY_ORIGINAL_OBJECT(WORKFLOW.NAMESPACE + "historyOriginalObject"),
+    HISTORY_NEW_OBJECT(WORKFLOW.NAMESPACE + "historyNewObject"),
+    HISTORY_CHANGE_DATE(WORKFLOW.NAMESPACE + "historyChangeDate"),
+    MODIFIED_BY(WORKFLOW.NAMESPACE + "modifiedBy"),
+    ;
+
+    private final String value;
+
+    WORKFLOW(final String value) {
+        this.value = value;
+    }
+
+    WORKFLOW(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static WORKFLOW from(String text) {
+    for (WORKFLOW b : WORKFLOW.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

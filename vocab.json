@@ -70,16 +70,32 @@
         "value": "\"http://endhealth.info/\""
       },
       {
-        "name": "HAS_SUBTYPES",
-        "value": "IM.DOMAIN + \"hasSubtypes\""
-      },
-      {
         "name": "PREFIX",
         "value": "\"im\""
       },
       {
         "name": "NAMESPACE",
-        "value": "IM.DOMAIN + IM.PREFIX + \"#\""
+        "value": "IM.DOMAIN + IM.PREFIX.toString() + \"#\""
+      },
+      {
+        "name": "CONCATENATE",
+        "value": "IM.NAMESPACE + \"Concatenate\""
+      },
+      {
+        "name": "STRING_JOIN",
+        "value": "IM.NAMESPACE + \"StringJoin\""
+      },
+      {
+        "name": "SNOMED_CODE_CONCEPT_MAP",
+        "value": "IM.NAMESPACE + \"SchemedCodeConceptMap\""
+      },
+      {
+        "name": "DISPLAY_LABEL",
+        "value": "IM.NAMESPACE + \"displayLabel\""
+      },
+      {
+        "name": "HAS_SUBTYPES",
+        "value": "IM.NAMESPACE + \"hasSubtypes\""
       },
       {
         "name": "HAS_VALUESET",
@@ -134,7 +150,7 @@
         "value": "\"type\""
       },
       {
-        "name": "id",
+        "name": "ID",
         "value": "IM.NAMESPACE + \"id\""
       },
       {
@@ -156,10 +172,6 @@
       {
         "name": "HAS_SCHEME",
         "value": "IM.NAMESPACE + \"scheme\""
-      },
-      {
-        "name": "SCHEME",
-        "value": "IM.NAMESPACE + \"Scheme\""
       },
       {
         "name": "BINDING",
@@ -230,7 +242,7 @@
         "value": "IM.NAMESPACE + \"Config\""
       },
       {
-        "name": "GRAPH",
+        "name": "SCHEMES",
         "value": "IM.NAMESPACE + \"Graph\""
       },
       {
@@ -746,10 +758,6 @@
         "value": "IM.NAMESPACE + \"EntityTypes\""
       },
       {
-        "name": "ID",
-        "value": "IM.NAMESPACE + \"id\""
-      },
-      {
         "name": "CONCEPT_SET_GROUP",
         "value": "IM.NAMESPACE + \"ConceptSetGroup\""
       },
@@ -932,10 +940,6 @@
       {
         "name": "IM_1_ID",
         "value": "IM.NAMESPACE + \"im1Id\""
-      },
-      {
-        "name": "IM_1_SCHEME",
-        "value": "IM.NAMESPACE + \"im1Scheme\""
       },
       {
         "name": "PROV_ACTIVITY_TYPE",
@@ -2243,7 +2247,7 @@
     ]
   },
   {
-    "name": "GRAPH",
+    "name": "Graph",
     "entries": [
       {
         "name": "IM",
@@ -2268,8 +2272,25 @@
     ]
   },
   {
+    "name": "IMPORT",
+    "entries": [
+      {
+        "name": "IM",
+        "value": "\"http://endhealth.info/im#\""
+      },
+      {
+        "name": "PROV",
+        "value": "\"http://endhealth.info/prov#\""
+      }
+    ]
+  },
+  {
     "name": "SCHEME",
     "entries": [
+      {
+        "name": "SNOMED",
+        "value": "\"http://snomed.info/sct#\""
+      },
       {
         "name": "FHIR",
         "value": "\"http://hl7.org/fhir/\""
@@ -2283,7 +2304,7 @@
         "value": "\"http://endhealth.info/qof#\""
       },
       {
-        "name": "DISCOVERY",
+        "name": "IM",
         "value": "\"http://endhealth.info/im#\""
       },
       {
@@ -2397,7 +2418,7 @@
     ]
   },
   {
-    "name": "CODE_TEMPLATE",
+    "name": "CodeTemplate",
     "entries": [
       {
         "name": "DOMAIN",
@@ -2405,7 +2426,7 @@
       },
       {
         "name": "NAMESPACE",
-        "value": "CODE_TEMPLATE.DOMAIN + \"codeTemplate#\""
+        "value": "CodeTemplate.DOMAIN + \"codeTemplate#\""
       },
       {
         "name": "PREFIX",
@@ -2413,19 +2434,106 @@
       },
       {
         "name": "WRAPPER",
-        "value": "CODE_TEMPLATE.NAMESPACE + \"wrapper\""
+        "value": "CodeTemplate.NAMESPACE + \"wrapper\""
+      },
+      {
+        "name": "LABEL",
+        "value": "RDFS.LABEL"
+      },
+      {
+        "name": "DEFINITION",
+        "value": "IM.DEFINITION"
       },
       {
         "name": "DATATYPE_MAP",
-        "value": "CODE_TEMPLATE.NAMESPACE + \"datatypeMap\""
+        "value": "CodeTemplate.NAMESPACE + \"datatypeMap\""
       },
       {
         "name": "EXTENSION",
-        "value": "CODE_TEMPLATE.NAMESPACE + \"extension\""
+        "value": "CodeTemplate.NAMESPACE + \"extension\""
       },
       {
         "name": "INCLUDE_COMPLEX_TYPES",
-        "value": "CODE_TEMPLATE.NAMESPACE + \"includeComplexTypes\""
+        "value": "CodeTemplate.NAMESPACE + \"includeComplexTypes\""
+      }
+    ]
+  },
+  {
+    "name":  "OpenSearch",
+    "entries": [
+      {
+        "name": "NAME",
+        "value": "RDFS.LABEL"
+      },
+      {
+        "name": "DESCRIPTION",
+        "value": "RDFS.COMMENT"
+      },
+      {
+        "name": "CODE",
+        "value": "IM.CODE"
+      },
+      {
+        "name": "STATUS",
+        "value": "IM.HAS_STATUS"
+      },
+      {
+        "name": "ALTERNATIVE_CODE",
+        "value": "IM.ALTERNATIVE_CODE"
+      },
+      {
+        "name": "SCHEME",
+        "value": "IM.HAS_SCHEME"
+      },
+      {
+        "name": "TYPE",
+        "value": "RDF.TYPE"
+      },
+      {
+        "name": "USAGE_TOTAL",
+        "value": "IM.USAGE_TOTAL"
+      },
+      {
+        "name": "BINDING",
+        "value": "IM.BINDING"
+      },
+      {
+        "name": "TERM_CODE",
+        "value": "IM.HAS_TERM_CODE"
+      },
+      {
+        "name": "DOMAIN",
+        "value": "RDFS.DOMAIN"
+      }
+    ]
+  },
+  {
+    "name":  "TransformFunction",
+    "entries": [
+      {
+        "name": "CONCATENATE",
+        "value": "IM.CONCATENATE"
+      },
+      {
+        "name": "STRING_JOIN",
+        "value": "IM.STRING_JOIN"
+      },
+      {
+        "name": "SNOMED_CODE_CONCEPT_MAP",
+        "value": "IM.SNOMED_CODE_CONCEPT_MAP"
+      }
+    ]
+  },
+  {
+    "name": "EntityType",
+    "entries": [
+      {
+        "name": "QUERY",
+        "value": "IM.QUERY"
+      },
+      {
+        "name": "NODESHAPE",
+        "value": "SHACL.NODESHAPE"
       }
     ]
   }

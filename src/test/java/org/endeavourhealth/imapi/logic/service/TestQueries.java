@@ -84,7 +84,7 @@ public class TestQueries {
         .addInstanceOf(new Node()
           .setParameter("$dataModel"))
         .path(p -> p
-          .setIri(SHACL.PROPERTY)
+          .setIri(SHACL.PROPERTY.toString())
           .setVariable("shaclProperty"))
         .where(w -> w
           .setNodeRef("shaclProperty")
@@ -225,9 +225,9 @@ public class TestQueries {
       .setName("PropertiesOfShapesUsingDateOfBirth")
       .setDescription("all of the data model properties for entities that have a property df a data of birth");
     query
-      .setTypeOf(SHACL.NODESHAPE)
+      .setTypeOf(SHACL.NODESHAPE.toString())
       .path(p -> p
-        .setIri(SHACL.PROPERTY)
+        .setIri(SHACL.PROPERTY.toString())
         .setVariable("shaclProperty"))
       .where(p1 -> p1
         .setNodeRef("shaclProperty")
@@ -279,10 +279,10 @@ public class TestQueries {
         .setValueIri(TTIriRef.iri("http://snomed.info/sct#363698007")))
       .addArgument(new Argument()
         .setParameter("concept")
-        .setValueIriList(List.of(iri(SNOMED.NAMESPACE + 161891005))))
+        .setValueIriList(List.of(iri("http://snomed.info/sct#161891005"))))
       .setQuery(new Query()
         .setName("Allowable Properties for medications")
-        .setIri(QUERY.IS_VALID_PROPERTY));
+        .setIri(QUERY.IS_VALID_PROPERTY.toString()));
   }
 
 
@@ -291,7 +291,7 @@ public class TestQueries {
       .query(q -> q
         .setActiveOnly(true)
         .setName("Search for concepts")
-        .setTypeOf(IM.CONCEPT)
+        .setTypeOf(IM.CONCEPT.toString())
         .return_(r -> r
           .property(p -> p.setIri(RDFS.LABEL))
           .property(p -> p.setIri(IM.HAS_TERM_CODE)
@@ -315,7 +315,7 @@ public class TestQueries {
       .setName("Allowable Properties for Covid")
       .setTextSearch("caus");
     qr.setQuery(new Query()
-      .setIri(QUERY.ALLOWABLE_PROPERTIES));
+      .setIri(QUERY.ALLOWABLE_PROPERTIES.toString()));
     qr.argument(a -> a.setParameter("this")
       .setValueIri(iri(SNOMED.NAMESPACE + "840539006")));
     return qr;

@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.requests;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class SetDistillationRequest {
   private List<TTIriRef> conceptList;
-  private String graph;
+  private Graph graph;
 
   public SetDistillationRequest setConceptList(List<TTIriRef> conceptList) {
     this.conceptList = conceptList;
@@ -25,7 +26,7 @@ public class SetDistillationRequest {
     this.conceptList.add(concept);
   }
 
-  public SetDistillationRequest setGraph(String graph) {
+  public SetDistillationRequest setGraph(Graph graph) {
     this.graph = graph;
     return this;
   }

@@ -25,6 +25,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Slf4j
 public class SetRepository {
@@ -47,12 +48,12 @@ public class SetRepository {
    * @return a Set of concepts with matchedFrom legacy concepts and list of im1 ids
    * @throws QueryException if json definitino invalid
    */
-  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, String graph) throws QueryException {
+  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Graph graph) throws QueryException {
     //add scheme filter
     return getSetExpansionFromQuery(imQuery, includeLegacy, statusFilter, schemeFilter, null, graph);
   }
 
-  public Set<Concept> getMembersFromDefinition(Query imQuery, String graph) throws QueryException {
+  public Set<Concept> getMembersFromDefinition(Query imQuery, Graph graph) throws QueryException {
     Set<Concept> result = new HashSet<>();
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     String sql = new SparqlConverter(newRequest).getSelectSparql(null);
@@ -68,7 +69,7 @@ public class SetRepository {
     return result;
   }
 
-  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page, String graph) throws QueryException {
+  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page, Graph graph) throws QueryException {
     imQuery = getFullExpansionDefinition(imQuery, includeLegacy);
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     if (null != page && null != page.getPageNumber() && null != page.getPageSize()) newRequest.setPage(page);
@@ -164,7 +165,7 @@ public class SetRepository {
   }
 
 
-  public int getSetExpansionTotalCount(Query imQuery, Set<TTIriRef> statusFilter, String graph) throws QueryException {
+  public int getSetExpansionTotalCount(Query imQuery, Set<TTIriRef> statusFilter, Graph graph) throws QueryException {
     //add scheme filter
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     String sql = new SparqlConverter(newRequest).getCountSparql(statusFilter);
@@ -175,7 +176,7 @@ public class SetRepository {
     }
   }
 
-  public Set<TTIriRef> getSubsetIrisWithNames(String iri, String graph) {
+  public Set<TTIriRef> getSubsetIrisWithNames(String iri, Graph graph) {
     Set<TTIriRef> result = new HashSet<>();
 
     String sql = """
@@ -190,8 +191,8 @@ public class SetRepository {
     try (RepositoryConnection conn = IMDB.getConnection()) {
       TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
       qry.setBinding("set", Values.iri(iri));
-      qry.setBinding("isSubset", Values.iri(IM.IS_SUBSET_OF));
-      qry.setBinding("label", Values.iri(RDFS.LABEL));
+      qry.setBinding("isSubset", IM.IS_SUBSET_OF.asDbIri());
+      qry.setBinding("label", RDFS.LABEL.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -212,7 +213,7 @@ public class SetRepository {
 
   private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes, String entityVariable) {
     Set<Concept> result = new HashSet<>();
-    Set<String> coreSchemes = Set.of(SNOMED.NAMESPACE, IM.NAMESPACE);
+    Set<String> coreSchemes =asHashSet(SNOMED.NAMESPACE, IM.NAMESPACE);
     Map<String, Concept> conceptMap = new HashMap<>();
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
@@ -320,7 +321,7 @@ public class SetRepository {
   }
 
 
-  public void bindConceptSetToDataModel(String iri, Set<TTNode> dataModels, String graph) {
+  public void bindConceptSetToDataModel(String iri, Set<TTNode> dataModels, Graph graph) {
 
     String deleteBinding = """
       DELETE { ?concept im:binding ?datamodel}
@@ -357,7 +358,7 @@ public class SetRepository {
 
   }
 
-  public Set<String> getSets(String graph) {
+  public Set<String> getSets(Graph graph) {
     Set<String> setIris = new HashSet<>();
     try (RepositoryConnection conn = IMDB.getConnection()) {
       String spq = """
@@ -379,7 +380,7 @@ public class SetRepository {
     return setIris;
   }
 
-  public void updateMembers(String iri, Set<Concept> members, String graph) {
+  public void updateMembers(String iri, Set<Concept> members, Graph graph) {
     try (RepositoryConnection conn = IMDB.getConnection()) {
       String spq = """
         DELETE { ?concept im:hasMember ?x.}
@@ -410,7 +411,7 @@ public class SetRepository {
   }
 
 
-  private void sendUp(StringJoiner sj, RepositoryConnection conn, String graph) {
+  private void sendUp(StringJoiner sj, RepositoryConnection conn, Graph graph) {
     sj.add("}}");
     org.eclipse.rdf4j.query.Update upd = IMDB.prepareUpdateSparql(conn, sj.toString(), graph);
     conn.begin();
@@ -459,7 +460,7 @@ public class SetRepository {
     return null;
   }
 
-  public Set<Concept> getSomeMembers(String setIri, Integer limit, String graph) {
+  public Set<Concept> getSomeMembers(String setIri, Integer limit, Graph graph) {
     String sparql = """
       SELECT *
       FROM ?g
@@ -486,7 +487,7 @@ public class SetRepository {
     return result;
   }
 
-  public Set<TTNode> getBindingsForConcept(Set<String> members, String graph) {
+  public Set<TTNode> getBindingsForConcept(Set<String> members, Graph graph) {
     Set<TTNode> result = new HashSet<>();
     Set<String> sparqlIris = members.stream().map(m -> "<" + m + ">").collect(Collectors.toSet());
     String iriList = String.join(",", sparqlIris);
@@ -526,7 +527,7 @@ public class SetRepository {
 
 
   public Set<Concept> getExpansionFromIri(String setIri, boolean includeLegacy, List<String> schemes,
-                                          List<String> subsumptions, String graph) {
+                                          List<String> subsumptions, Graph graph) {
 
     StringJoiner spql = new StringJoiner(System.lineSeparator())
       .add("""
@@ -600,7 +601,7 @@ public class SetRepository {
   }
 
 
-  public Set<String> getDistillation(String iris, String graph) {
+  public Set<String> getDistillation(String iris, Graph graph) {
     Set<String> isas = new HashSet<>();
 
     try (RepositoryConnection conn = IMDB.getConnection()) {
@@ -614,7 +615,7 @@ public class SetRepository {
         FILTER (?child != ?parent)}
         """.formatted(iris, iris);
       TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
-      qry.setBinding("isA", Values.iri(IM.IS_A));
+      qry.setBinding("isA", IM.IS_A.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -627,16 +628,16 @@ public class SetRepository {
   }
 
 
-  public Pageable<Node> getMembers(String iri, boolean entailed, Integer pageNumber, Integer pageSize, String graph) {
+  public Pageable<Node> getMembers(String iri, boolean entailed, Integer pageNumber, Integer pageSize, Graph graph) {
 
     if (entailed) {
-      Pageable<Node> result = getMemberWithPredicate(iri, IM.ENTAILED_MEMBER, pageNumber, pageSize, graph);
+      Pageable<Node> result = getMemberWithPredicate(iri, IM.ENTAILED_MEMBER.toString(), pageNumber, pageSize, graph);
       if (result.getTotalCount() > 0) return result;
     }
-    return getMemberWithPredicate(iri, IM.HAS_MEMBER, pageNumber, pageSize, graph);
+    return getMemberWithPredicate(iri, IM.HAS_MEMBER.toString(), pageNumber, pageSize, graph);
   }
 
-  private Pageable<Node> getMemberWithPredicate(String iri, String predicate, Integer pageNumber, Integer pageSize, String graph) {
+  private Pageable<Node> getMemberWithPredicate(String iri, String predicate, Integer pageNumber, Integer pageSize, Graph graph) {
     Pageable<Node> result = new Pageable<>();
     result.setTotalCount(0);
     String sql = """
@@ -696,7 +697,7 @@ public class SetRepository {
           node.setIri(bs.getValue("member").stringValue()).setName(bs.getValue("name").stringValue());
           if (bs.getValue("entailment") != null) {
             String entailment = bs.getValue("entailment").stringValue();
-            switch (entailment) {
+            switch (IM.from(entailment)) {
               case IM.DESCENDANTS_OR_SELF_OF -> node.setDescendantsOrSelfOf(true);
               case IM.DESCENDANTS_OF -> node.setDescendantsOf(true);
               case IM.ANCESTORS_OF -> node.setAncestorsOf(true);
@@ -712,7 +713,7 @@ public class SetRepository {
     return result;
   }
 
-  public Set<Concept> getExpansionFromEntailedMembers(String setIri, String graph) {
+  public Set<Concept> getExpansionFromEntailedMembers(String setIri, Graph graph) {
     String sql = """
       select distinct ?member
       FROM ?g

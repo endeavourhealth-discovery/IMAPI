@@ -12,7 +12,7 @@ import java.util.*;
 
 @Slf4j
 public class ClosureGeneratorBulk implements TCGenerator {
-  private static final String[] topConcepts = {"http://snomed.info/sct#138875005", IM.CONCEPT, "http://snomed.info/sct#370115009"};
+  private static final String[] topConcepts = {"http://snomed.info/sct#138875005", IM.CONCEPT.toString(), "http://snomed.info/sct#370115009"};
   private final Set<String> blockingIris = new HashSet<>();
   private Map<String, Map<String, Set<String>>> relationshipMap;
   private HashMap<String, Set<String>> closureMap;
@@ -23,7 +23,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
     getTctBlockers();
     FileRepository repo = new FileRepository(outpath);
 
-    relationshipMap = new HashMap<>(1_000_000);
+    relationshipMap = HashMap.newHashMap(1_000_000);
     log.info("Getting all subtypes....");
     repo.fetchRelationships(relationshipMap, blockingIris);
 
@@ -44,11 +44,11 @@ public class ClosureGeneratorBulk implements TCGenerator {
 
 
   private void buildClosure() {
-    closureMap = new HashMap<>(10_000_000);
+    closureMap = HashMap.newHashMap(10_000_000);
     log.debug("Generating closure map for subclasses");
     int c = 0;
     counter = 0;
-    for (Map.Entry<String, Set<String>> row : relationshipMap.get(RDFS.SUBCLASS_OF).entrySet()) {
+    for (Map.Entry<String, Set<String>> row : relationshipMap.get(RDFS.SUBCLASS_OF.toString()).entrySet()) {
       c++;
       String child = row.getKey();
       if (closureMap.get(child) == null) {
@@ -63,7 +63,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
 
   private Set<String> generateClosure(String child) {
     Set<String> closures = closureMap.computeIfAbsent(child, k -> new HashSet<>());
-    String relationship = RDFS.SUBCLASS_OF;
+    String relationship = RDFS.SUBCLASS_OF.toString();
 
     // Add self
     closures.add(child);

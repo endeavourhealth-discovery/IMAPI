@@ -45,23 +45,29 @@ public class TaskFilerRdf4j {
     try {
       ModelBuilder builder = new ModelBuilder();
       buildTask(builder, bugReport);
-      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.RELATED_PRODUCT), literal(bugReport.getProduct()));
-      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.RELATED_VERSION), literal(bugReport.getVersion()));
-      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.RELATED_MODULE), literal(bugReport.getModule()));
-      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.OPERATING_SYSTEM), literal(bugReport.getOs()));
+      ModelBuilder namedGraph = builder.namedGraph(Graph.IM.toString());
+      namedGraph.add(iri(bugReport.getId().getIri()), WORKFLOW.RELATED_PRODUCT.asDbIri(), literal(bugReport.getProduct()))
+        .add(iri(bugReport.getId().getIri()), WORKFLOW.RELATED_VERSION.asDbIri(), literal(bugReport.getVersion()))
+        .add(iri(bugReport.getId().getIri()), WORKFLOW.RELATED_MODULE.asDbIri(), literal(bugReport.getModule()))
+        .add(iri(bugReport.getId().getIri()), WORKFLOW.OPERATING_SYSTEM.asDbIri(), literal(bugReport.getOs()))
+        .add(iri(bugReport.getId().getIri()), WORKFLOW.BROWSER.asDbIri(), literal(bugReport.getBrowser()))
+        .add(iri(bugReport.getId().getIri()), WORKFLOW.SEVERITY.asDbIri(), literal(null == bugReport.getSeverity() ? Severity.UNASSIGNED : bugReport.getSeverity()))
+        .add(iri(bugReport.getId().getIri()), IM.HAS_STATUS.asDbIri(), literal(null == bugReport.getStatus() ? Status.NEW : bugReport.getStatus()))
+        .add(iri(bugReport.getId().getIri()), RDFS.COMMENT.asDbIri(), literal(bugReport.getDescription()))
+        .add(iri(bugReport.getId().getIri()), WORKFLOW.REPRODUCE_STEPS.asDbIri(), literal(bugReport.getReproduceSteps()))
+        .add(iri(bugReport.getId().getIri()), WORKFLOW.EXPECTED_RESULT.asDbIri(), literal(bugReport.getExpectedResult()))
+        .add(iri(bugReport.getId().getIri()), WORKFLOW.ACTUAL_RESULT.asDbIri(), literal(bugReport.getActualResult()));
+
+
       if (bugReport.getOs().equals(OperatingSystem.OTHER))
-        builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.OPERATING_SYSTEM_OTHER), literal(bugReport.getOsOther()));
-      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.BROWSER), literal(bugReport.getBrowser()));
+        namedGraph.add(iri(bugReport.getId().getIri()), WORKFLOW.OPERATING_SYSTEM_OTHER.asDbIri(), literal(bugReport.getOsOther()));
+
       if (bugReport.getBrowser().equals(Browser.OTHER))
-        builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.BROWSER_OTHER), literal(bugReport.getBrowserOther()));
-      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.SEVERITY), literal(null == bugReport.getSeverity() ? Severity.UNASSIGNED : bugReport.getSeverity()));
-      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(IM.HAS_STATUS), literal(null == bugReport.getStatus() ? Status.NEW : bugReport.getStatus()));
+        namedGraph.add(iri(bugReport.getId().getIri()), WORKFLOW.BROWSER_OTHER.asDbIri(), literal(bugReport.getBrowserOther()));
+
       if (null != bugReport.getError())
-        builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.ERROR), literal(bugReport.getError()));
-      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(RDFS.COMMENT), literal(bugReport.getDescription()));
-      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.REPRODUCE_STEPS), literal(bugReport.getReproduceSteps()));
-      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.EXPECTED_RESULT), literal(bugReport.getExpectedResult()));
-      builder.namedGraph(GRAPH.IM).add(iri(bugReport.getId().getIri()), iri(WORKFLOW.ACTUAL_RESULT), literal(bugReport.getActualResult()));
+        namedGraph.add(iri(bugReport.getId().getIri()), WORKFLOW.ERROR.asDbIri(), literal(bugReport.getError()));
+
       conn.add(builder.build());
       String emailSubject = "New bug report added: [" + bugReport.getId().getIri() + "]";
       String emailContent = "Click <a href=\"" + bugReport.getHostUrl() + "/#/workflow/bugReport/" + bugReport.getId().getIri() + "\">here</a>";
@@ -78,7 +84,8 @@ public class TaskFilerRdf4j {
     try {
       ModelBuilder builder = new ModelBuilder();
       buildTask(builder, roleRequest);
-      builder.namedGraph(GRAPH.IM).add(iri(roleRequest.getId().getIri()), iri(WORKFLOW.REQUESTED_ROLE), literal(roleRequest.getRole()));
+      builder.namedGraph(Graph.IM.toString())
+        .add(iri(roleRequest.getId().getIri()), WORKFLOW.REQUESTED_ROLE.asDbIri(), literal(roleRequest.getRole()));
       conn.add(builder.build());
       String emailSubject = "New role request added: [" + roleRequest.getId().getIri() + "]";
       String emailContent = "Click <a href=\"" + roleRequest.getHostUrl() + "/#/workflow/roleRequest/" + roleRequest.getId().getIri() + "\">here</a>";
@@ -95,7 +102,8 @@ public class TaskFilerRdf4j {
     try {
       ModelBuilder builder = new ModelBuilder();
       buildTask(builder, entityApproval);
-      builder.namedGraph(GRAPH.IM).add(iri(entityApproval.getId().getIri()), iri(WORKFLOW.APPROVAL_TYPE), literal(entityApproval.getApprovalType()));
+      builder.namedGraph(Graph.IM.toString())
+        .add(iri(entityApproval.getId().getIri()), WORKFLOW.APPROVAL_TYPE.asDbIri(), literal(entityApproval.getApprovalType()));
       conn.add(builder.build());
       String emailSubject = "New role request added: [" + entityApproval.getId().getIri() + "]";
       String emailContent = "Click <a href=\"" + entityApproval.getHostUrl() + "/#/workflow/entityApproval/" + entityApproval.getId().getIri() + "\">here</a>";
@@ -128,7 +136,7 @@ public class TaskFilerRdf4j {
     fileBugReport(bugReport);
   }
 
-  public void updateTask(String subject, String predicate, String originalObject, String newObject, String userId) throws TaskFilerException, UserNotFoundException {
+  public void updateTask(String subject, VocabEnum predicate, String originalObject, String newObject, String userId) throws TaskFilerException, UserNotFoundException {
     if (null == originalObject && null == newObject) return;
     if (predicate.equals(WORKFLOW.ASSIGNED_TO) || predicate.equals(WORKFLOW.CREATED_BY)) {
       newObject = usernameToId(newObject);
@@ -145,7 +153,7 @@ public class TaskFilerRdf4j {
       stringJoiner.add("}}");
       Update update = WorkflowDB.prepareUpdateSparql(conn, stringJoiner.toString());
       update.setBinding("subject", iri(subject));
-      update.setBinding("predicate", iri(predicate));
+      update.setBinding("predicate", predicate.asDbIri());
       if (null != newObject) update.setBinding("newVal", literal(newObject));
       if (null != originalObject) update.setBinding("originalObject", literal(originalObject));
       update.execute();
@@ -155,18 +163,22 @@ public class TaskFilerRdf4j {
     }
   }
 
-  private void updateHistory(String subject, String predicate, String originalObject, String newObject, String userId) throws TaskFilerException {
+  private void updateHistory(String subject, VocabEnum predicate, String originalObject, String newObject, String userId) throws TaskFilerException {
     try {
       ModelBuilder builder = new ModelBuilder();
       BNode bn = bnode();
-      builder.namedGraph(GRAPH.IM).add(iri(subject), iri(WORKFLOW.HISTORY), bn);
-      builder.namedGraph(GRAPH.IM).add(bn, iri(WORKFLOW.HISTORY_PREDICATE), literal(predicate));
+      ModelBuilder ng = builder.namedGraph(Graph.IM.toString());
+      ng.add(iri(subject), WORKFLOW.HISTORY.asDbIri(), bn)
+        .add(bn, WORKFLOW.HISTORY_PREDICATE.asDbIri(), predicate.asDbIri())
+        .add(bn, WORKFLOW.HISTORY_CHANGE_DATE.asDbIri(), literal(LocalDateTime.now()))
+        .add(bn, WORKFLOW.MODIFIED_BY.asDbIri(), literal(userId));
+
       if (null != originalObject)
-        builder.namedGraph(GRAPH.IM).add(bn, iri(WORKFLOW.HISTORY_ORIGINAL_OBJECT), literal(originalObject));
+        ng.add(bn, WORKFLOW.HISTORY_ORIGINAL_OBJECT.asDbIri(), literal(originalObject));
+
       if (null != newObject)
-        builder.namedGraph(GRAPH.IM).add(bn, iri(WORKFLOW.HISTORY_NEW_OBJECT), literal(newObject));
-      builder.namedGraph(GRAPH.IM).add(bn, iri(WORKFLOW.HISTORY_CHANGE_DATE), literal(LocalDateTime.now()));
-      builder.namedGraph(GRAPH.IM).add(bn, iri(WORKFLOW.MODIFIED_BY), literal(userId));
+        ng.add(bn, WORKFLOW.HISTORY_NEW_OBJECT.asDbIri(), literal(newObject));
+
       conn.add(builder.build());
     } catch (Exception e) {
       throw new TaskFilerException("Update task history failed.", e);
@@ -190,17 +202,18 @@ public class TaskFilerRdf4j {
   }
 
   private void buildTask(ModelBuilder builder, Task task) {
-    builder.namedGraph(GRAPH.IM).add(iri(task.getId().getIri()), iri(WORKFLOW.CREATED_BY), literal(task.getCreatedBy()));
-    builder.namedGraph(GRAPH.IM).add(iri(task.getId().getIri()), iri(RDF.TYPE), literal(task.getType()));
-    builder.namedGraph(GRAPH.IM).add(iri(task.getId().getIri()), iri(WORKFLOW.STATE), literal(null == task.getState() ? TaskState.TODO : task.getState()));
-    builder.namedGraph(GRAPH.IM).add(iri(task.getId().getIri()), iri(WORKFLOW.ASSIGNED_TO), literal(null == task.getAssignedTo() ? "UNASSIGNED" : task.getAssignedTo()));
-    builder.namedGraph(GRAPH.IM).add(iri(task.getId().getIri()), iri(WORKFLOW.DATE_CREATED), literal(null == task.getDateCreated() ? LocalDateTime.now() : task.getDateCreated()));
-    builder.namedGraph(GRAPH.IM).add(iri(task.getId().getIri()), iri(WORKFLOW.HOST_URL), literal(task.getHostUrl()));
+    builder.namedGraph(Graph.IM.toString())
+      .add(iri(task.getId().getIri()), WORKFLOW.CREATED_BY.asDbIri(), literal(task.getCreatedBy()))
+      .add(iri(task.getId().getIri()), RDF.TYPE.asDbIri(), literal(task.getType()))
+      .add(iri(task.getId().getIri()), WORKFLOW.STATE.asDbIri(), literal(null == task.getState() ? TaskState.TODO : task.getState()))
+      .add(iri(task.getId().getIri()), WORKFLOW.ASSIGNED_TO.asDbIri(), literal(null == task.getAssignedTo() ? "UNASSIGNED" : task.getAssignedTo()))
+      .add(iri(task.getId().getIri()), WORKFLOW.DATE_CREATED.asDbIri(), literal(null == task.getDateCreated() ? LocalDateTime.now() : task.getDateCreated()))
+      .add(iri(task.getId().getIri()), WORKFLOW.HOST_URL.asDbIri(), literal(task.getHostUrl()));
   }
 
   private EmailService getEmailService() {
     if (emailService == null) {
-      emailService= new EmailService(
+      emailService = new EmailService(
         System.getenv("EMAILER_HOST"),
         Integer.parseInt(System.getenv("EMAILER_PORT")),
         System.getenv("EMAILER_USERNAME"),

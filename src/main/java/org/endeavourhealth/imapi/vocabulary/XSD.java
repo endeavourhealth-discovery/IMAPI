@@ -2,20 +2,68 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class XSD {
-    public static final String NAMESPACE = "http://www.w3.org/2001/XMLSchema#";
-    public static final String PREFIX = "xsd";
-    public static final String PATTERN = XSD.NAMESPACE + "pattern";
-    public static final String MIN_INCLUSIVE = XSD.NAMESPACE + "minInclusive";
-    public static final String MIN_EXCLUSIVE = XSD.NAMESPACE + "minExclusive";
-    public static final String MAX_INCLUSIVE = XSD.NAMESPACE + "maxInclusive";
-    public static final String MAX_EXCLUSIVE = XSD.NAMESPACE + "maxExclusive";
-    public static final String INTEGER = XSD.NAMESPACE + "integer";
-    public static final String STRING = XSD.NAMESPACE + "string";
-    public static final String BOOLEAN = XSD.NAMESPACE + "boolean";
-    public static final String LONG = XSD.NAMESPACE + "long";
-    public static final String DOUBLE = XSD.NAMESPACE + "double";
-    public static final String DATE_TIME = XSD.NAMESPACE + "dateTime";
-    public static final String NUMBER = XSD.NAMESPACE + "number";
-    public static final String DECIMAL = XSD.NAMESPACE + "decimal";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum XSD implements VocabEnum {
+
+    NAMESPACE("http://www.w3.org/2001/XMLSchema#"),
+    PREFIX("xsd"),
+    PATTERN(XSD.NAMESPACE + "pattern"),
+    MIN_INCLUSIVE(XSD.NAMESPACE + "minInclusive"),
+    MIN_EXCLUSIVE(XSD.NAMESPACE + "minExclusive"),
+    MAX_INCLUSIVE(XSD.NAMESPACE + "maxInclusive"),
+    MAX_EXCLUSIVE(XSD.NAMESPACE + "maxExclusive"),
+    INTEGER(XSD.NAMESPACE + "integer"),
+    STRING(XSD.NAMESPACE + "string"),
+    BOOLEAN(XSD.NAMESPACE + "boolean"),
+    LONG(XSD.NAMESPACE + "long"),
+    DOUBLE(XSD.NAMESPACE + "double"),
+    DATE_TIME(XSD.NAMESPACE + "dateTime"),
+    NUMBER(XSD.NAMESPACE + "number"),
+    DECIMAL(XSD.NAMESPACE + "decimal"),
+    ;
+
+    private final String value;
+
+    XSD(final String value) {
+        this.value = value;
+    }
+
+    XSD(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static XSD from(String text) {
+    for (XSD b : XSD.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

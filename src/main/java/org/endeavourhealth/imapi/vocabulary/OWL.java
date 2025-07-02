@@ -2,36 +2,84 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class OWL {
-    public static final String NAMESPACE = "http://www.w3.org/2002/07/owl#";
-    public static final String PREFIX = "owl";
-    public static final String THING = OWL.NAMESPACE + "Thing";
-    public static final String CLASS = OWL.NAMESPACE + "Class";
-    public static final String EQUIVALENT_CLASS = OWL.NAMESPACE + "equivalentClass";
-    public static final String INTERSECTION_OF = OWL.NAMESPACE + "intersectionOf";
-    public static final String UNION_OF = OWL.NAMESPACE + "unionOf";
-    public static final String RESTRICTION = OWL.NAMESPACE + "Restriction";
-    public static final String ON_PROPERTY = OWL.NAMESPACE + "onProperty";
-    public static final String ON_CLASS = OWL.NAMESPACE + "onClass";
-    public static final String SOME_VALUES_FROM = OWL.NAMESPACE + "someValuesFrom";
-    public static final String ALL_VALUES_FROM = OWL.NAMESPACE + "allValuesFrom";
-    public static final String OBJECT_PROPERTY = OWL.NAMESPACE + "ObjectProperty";
-    public static final String DATATYPE_PROPERTY = OWL.NAMESPACE + "DatatypeProperty";
-    public static final String ANNOTATION_PROPERTY = OWL.NAMESPACE + "AnnotationProperty";
-    public static final String INVERSE_OF = OWL.NAMESPACE + "inverseOf";
-    public static final String INVERSE_OBJECT_PROPERTY = OWL.NAMESPACE + "inverseOf";
-    public static final String PROPERTY_CHAIN = OWL.NAMESPACE + "propertyChainAxiom";
-    public static final String TRANSITIVE = OWL.NAMESPACE + "TransitiveProperty";
-    public static final String FUNCTIONAL = OWL.NAMESPACE + "FunctionalProperty";
-    public static final String SYMMETRIC = OWL.NAMESPACE + "SymmetricProperty";
-    public static final String REFLEXIVE = OWL.NAMESPACE + "ReflexiveProperty";
-    public static final String ON_DATATYPE = OWL.NAMESPACE + "onDatatype";
-    public static final String WITH_RESTRICTIONS = OWL.NAMESPACE + "withRestrictions";
-    public static final String MAX_CARDINALITY = OWL.NAMESPACE + "maxCardinality";
-    public static final String MIN_CARDINALITY = OWL.NAMESPACE + "minCardinality";
-    public static final String ON_DATA_RANGE = OWL.NAMESPACE + "onDataRange";
-    public static final String HAS_VALUE = OWL.NAMESPACE + "hasValue";
-    public static final String COMPLEMENT_OF = OWL.NAMESPACE + "complementOf";
-    public static final String ONE_OF = OWL.NAMESPACE + "oneOf";
-    public static final String NAMED_INDIVIDUAL = OWL.NAMESPACE + "NamedIndividual";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum OWL implements VocabEnum {
+
+    NAMESPACE("http://www.w3.org/2002/07/owl#"),
+    PREFIX("owl"),
+    THING(OWL.NAMESPACE + "Thing"),
+    CLASS(OWL.NAMESPACE + "Class"),
+    EQUIVALENT_CLASS(OWL.NAMESPACE + "equivalentClass"),
+    INTERSECTION_OF(OWL.NAMESPACE + "intersectionOf"),
+    UNION_OF(OWL.NAMESPACE + "unionOf"),
+    RESTRICTION(OWL.NAMESPACE + "Restriction"),
+    ON_PROPERTY(OWL.NAMESPACE + "onProperty"),
+    ON_CLASS(OWL.NAMESPACE + "onClass"),
+    SOME_VALUES_FROM(OWL.NAMESPACE + "someValuesFrom"),
+    ALL_VALUES_FROM(OWL.NAMESPACE + "allValuesFrom"),
+    OBJECT_PROPERTY(OWL.NAMESPACE + "ObjectProperty"),
+    DATATYPE_PROPERTY(OWL.NAMESPACE + "DatatypeProperty"),
+    ANNOTATION_PROPERTY(OWL.NAMESPACE + "AnnotationProperty"),
+    INVERSE_OF(OWL.NAMESPACE + "inverseOf"),
+    INVERSE_OBJECT_PROPERTY(OWL.NAMESPACE + "inverseOf"),
+    PROPERTY_CHAIN(OWL.NAMESPACE + "propertyChainAxiom"),
+    TRANSITIVE(OWL.NAMESPACE + "TransitiveProperty"),
+    FUNCTIONAL(OWL.NAMESPACE + "FunctionalProperty"),
+    SYMMETRIC(OWL.NAMESPACE + "SymmetricProperty"),
+    REFLEXIVE(OWL.NAMESPACE + "ReflexiveProperty"),
+    ON_DATATYPE(OWL.NAMESPACE + "onDatatype"),
+    WITH_RESTRICTIONS(OWL.NAMESPACE + "withRestrictions"),
+    MAX_CARDINALITY(OWL.NAMESPACE + "maxCardinality"),
+    MIN_CARDINALITY(OWL.NAMESPACE + "minCardinality"),
+    ON_DATA_RANGE(OWL.NAMESPACE + "onDataRange"),
+    HAS_VALUE(OWL.NAMESPACE + "hasValue"),
+    COMPLEMENT_OF(OWL.NAMESPACE + "complementOf"),
+    ONE_OF(OWL.NAMESPACE + "oneOf"),
+    NAMED_INDIVIDUAL(OWL.NAMESPACE + "NamedIndividual"),
+    ;
+
+    private final String value;
+
+    OWL(final String value) {
+        this.value = value;
+    }
+
+    OWL(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static OWL from(String text) {
+    for (OWL b : OWL.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

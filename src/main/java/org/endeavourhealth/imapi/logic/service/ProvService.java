@@ -9,7 +9,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -27,11 +27,11 @@ public class ProvService {
     String root;
 
     if (null != targetEntity.getGraph())
-      root = targetEntity.getGraph().getIri();
+      root = targetEntity.getGraph().toString();
     else if (null != targetEntity.getScheme() && null != targetEntity.getScheme().getIri())
       root = targetEntity.getScheme().getIri();
     else
-      root = IM.NAMESPACE;
+      root = IM.NAMESPACE.toString();
 
     String uir = getPerson(agentName, root);
     ProvAgent agent = new ProvAgent()
@@ -64,7 +64,7 @@ public class ProvService {
         .setIri(usedEntity.getIri() + "/" + (usedEntity.getVersion()))
         .setName(usedEntity.getName())
         .set(iri(IM.DEFINITION), new TTLiteral(om.writeValueAsString(usedEntity)))
-        .setGraph(iri(GRAPH.PROV))
+        .setGraph(Graph.PROV)
         .setCrud(iri(IM.ADD_QUADS));
     }
   }

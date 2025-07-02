@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.eqd.*;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.IOException;
@@ -16,7 +17,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class EqdListToIMQ {
   private EqdResources resources;
 
-  public void convertReport(EQDOCReport eqReport, TTDocument document, Query query, EqdResources resources, String graph) throws IOException, QueryException, EQDException {
+  public void convertReport(EQDOCReport eqReport, TTDocument document, Query query, EqdResources resources, Graph graph) throws IOException, QueryException, EQDException {
     this.resources = resources;
     this.resources.setQueryType(QueryType.LIST);
     query.setTypeOf(new Node().setIri(IM.NAMESPACE + "Patient"));
@@ -30,17 +31,17 @@ public class EqdListToIMQ {
       TTEntity columnGroup = new TTEntity()
         .setIri(subQuery.getIri())
         .setName(eqColGroup.getDisplayName() + " in " + eqReport.getName())
-        .addType(iri(IM.FIELD_GROUP));
-      columnGroup.addObject(iri(IM.USED_IN), iri(query.getIri()));
+        .addType(IM.FIELD_GROUP.asIri());
+      columnGroup.addObject(IM.USED_IN.asIri(), iri(query.getIri()));
       query.addDataSet(subQuery);
       convertListGroup(eqColGroup, subQuery, query.getName(), graph);
-      columnGroup.set((IM.DEFINITION), TTLiteral.literal(subQuery));
+      columnGroup.set(IM.DEFINITION.asIri(), TTLiteral.literal(subQuery));
       document.addEntity(columnGroup);
     }
   }
 
 
-  private void convertListGroup(EQDOCListColumnGroup eqColGroup, Query subQuery, String reportName, String graph) throws IOException, QueryException, EQDException {
+  private void convertListGroup(EQDOCListColumnGroup eqColGroup, Query subQuery, String reportName, Graph graph) throws IOException, QueryException, EQDException {
     String eqTable = eqColGroup.getLogicalTableName();
     subQuery.setName(eqColGroup.getDisplayName());
     resources.setColumnGroup(iri(subQuery.getIri()).setName(subQuery.getName() + " in " + reportName));
@@ -65,7 +66,7 @@ public class EqdListToIMQ {
   }
 
 
-  private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery, String graph) throws IOException, QueryException, EQDException {
+  private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery, Graph graph) throws IOException, QueryException, EQDException {
     if (eqColGroup.getCriteria() != null) {
       resources.setRule(1);
       resources.setSubRule(1);

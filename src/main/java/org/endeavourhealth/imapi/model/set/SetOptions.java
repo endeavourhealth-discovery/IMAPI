@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.model.set;
 
+import org.endeavourhealth.imapi.vocabulary.Graph;
+
 import java.util.List;
 
 public class SetOptions {
@@ -11,13 +13,13 @@ public class SetOptions {
   private List<String> schemes;
   private boolean includeIM1id;
   private List<String> subsumptions;
-  private String graph;
+  private Graph graph;
 
   public SetOptions() {
   }
 
   public SetOptions(String setIri, boolean includeDefinition, boolean includeCore, boolean includeLegacy, boolean includeSubsets, List<String> schemes,
-                    List<String> subsumptions, String graph) {
+                    List<String> subsumptions, Graph graph) {
     this.setIri = setIri;
     this.includeDefinition = includeDefinition;
     this.includeCore = includeCore;
@@ -40,7 +42,7 @@ public class SetOptions {
     return subsumptions;
   }
 
-  public String getGraph() {
+  public Graph getGraph() {
     return graph;
   }
 
@@ -104,7 +106,7 @@ public class SetOptions {
     return this;
   }
 
-  public SetOptions setGraph(String graph) {
+  public SetOptions setGraph(Graph graph) {
     this.graph = graph;
     return this;
   }

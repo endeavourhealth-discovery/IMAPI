@@ -291,7 +291,7 @@ public class TTManager implements AutoCloseable {
     createDefaultContext();
     document = new TTDocument();
     document.setContext(context);
-    document.setNamespace(TTIriRef.iri(GRAPH.IM));
+    document.setNamespace(TTIriRef.iri(Graph.IM));
     return document;
   }
 
@@ -444,7 +444,7 @@ public class TTManager implements AutoCloseable {
       .addType(iri(RDFS.CLASS))
       .setName(name)
       .setDescription(description);
-    scheme.addObject(iri(RDFS.SUBCLASS_OF), iri(IM.SCHEME));
+    scheme.addObject(iri(RDFS.SUBCLASS_OF), SCHEME.IM.asIri());
     return scheme;
   }
 

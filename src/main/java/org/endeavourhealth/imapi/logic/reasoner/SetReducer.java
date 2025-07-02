@@ -9,6 +9,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
@@ -31,7 +32,7 @@ public class SetReducer {
    * @return The entity redefined or as original
    * @throws InvalidAttributesException A message of "NOT CONVERTED TO EC ...."
    */
-  public TTEntity reduce(TTEntity set, String graph) throws InvalidAttributesException {
+  public TTEntity reduce(TTEntity set, Graph graph) throws InvalidAttributesException {
     String sql = null;
     int originalSize;
     if (set.get(iri(IM.DEFINITION)) != null) {

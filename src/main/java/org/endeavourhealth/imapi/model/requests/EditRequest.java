@@ -2,12 +2,13 @@ package org.endeavourhealth.imapi.model.requests;
 
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 @Getter
 public class EditRequest {
   private TTEntity entity;
   private String hostUrl;
-  private String graph;
+  private Graph graph;
   private String crud;
 
   public EditRequest(TTEntity entity, String hostUrl) {
@@ -29,7 +30,7 @@ public class EditRequest {
     return this;
   }
 
-  public EditRequest setGraph(String graph) {
+  public EditRequest setGraph(Graph graph) {
     this.graph = graph;
     return this;
   }

@@ -17,11 +17,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.when;
@@ -53,7 +52,7 @@ public class ConceptServiceStepDefs {
     termsBundle.setEntity(entity);
 
     MockitoAnnotations.initMocks(this);
-    when(entityRepository.getBundle(termsBundle.getEntity().getIri(), Stream.of(IM.HAS_TERM_CODE).collect(Collectors.toSet()))).thenReturn(termsBundle);
+    when(entityRepository.getBundle(termsBundle.getEntity().getIri(), asHashSet(IM.HAS_TERM_CODE))).thenReturn(termsBundle);
   }
 
 

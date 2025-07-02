@@ -53,7 +53,7 @@ class OSQueryTest_IM {
         .setWhere(
           new Where()
             .setIri(IM.HAS_SCHEME)
-            .setIs(List.of(new Node().setIri(SNOMED.NAMESPACE)))
+            .setIs(List.of(new Node().setIri(SNOMED.NAMESPACE.toString())))
         )
       );
 

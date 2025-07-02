@@ -2,7 +2,55 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class PRSB {
-    public static final String NAMESPACE = "http://prsb.info/rs#";
-    public static final String PREFIX = "rs";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum PRSB implements VocabEnum {
+
+    NAMESPACE("http://prsb.info/rs#"),
+    PREFIX("rs"),
+    ;
+
+    private final String value;
+
+    PRSB(final String value) {
+        this.value = value;
+    }
+
+    PRSB(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static PRSB from(String text) {
+    for (PRSB b : PRSB.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

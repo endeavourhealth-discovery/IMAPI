@@ -11,10 +11,7 @@ import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -23,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.*;
 
 @Component
 public class QueryService {
@@ -34,25 +32,25 @@ public class QueryService {
   }
 
   public Query getQueryFromIri(String queryIri) throws JsonProcessingException {
-    TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
+    TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null)
       return null;
     return queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
   }
 
-  public Query describeQuery(Query query, DisplayMode displayMode, String graph) throws QueryException, JsonProcessingException {
+  public Query describeQuery(Query query, DisplayMode displayMode, Graph graph) throws QueryException, JsonProcessingException {
     return new QueryDescriptor().describeQuery(query, displayMode, graph);
   }
 
-  public Match describeMatch(Match match, String graph) throws QueryException {
+  public Match describeMatch(Match match, Graph graph) throws QueryException {
     return new QueryDescriptor().describeSingleMatch(match, graph);
   }
 
-  public Query describeQuery(String queryIri, DisplayMode displayMode, String graph) throws JsonProcessingException, QueryException {
+  public Query describeQuery(String queryIri, DisplayMode displayMode, Graph graph) throws JsonProcessingException, QueryException {
     return new QueryDescriptor().describeQuery(queryIri, displayMode, graph);
   }
 
-  public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults, JsonNode highestUsageResults, String graph) {
+  public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults, JsonNode highestUsageResults, Graph graph) {
     SearchResponse searchResponse = new SearchResponse();
 
     if (queryResults.has(ENTITIES)) {
@@ -88,7 +86,7 @@ public class QueryService {
     }
   }
 
-  public String getSQLFromIMQIri(String queryIri, String lang, Map<String, String> iriToUuidMap, String graph) throws JsonProcessingException, QueryException {
+  public String getSQLFromIMQIri(String queryIri, String lang, Map<String, String> iriToUuidMap, Graph graph) throws JsonProcessingException, QueryException {
     Query query = describeQuery(queryIri, DisplayMode.LOGICAL, graph);
     if (query == null) return null;
     query = flattenQuery(query);
@@ -96,9 +94,9 @@ public class QueryService {
     return getSQLFromIMQ(queryRequest, lang, iriToUuidMap);
   }
 
-  public Query getDefaultQuery(String graph) throws JsonProcessingException {
-    List<TTEntity> children = entityRepository.getFolderChildren(IM.NAMESPACE + "Q_DefaultCohorts", graph, SHACL.ORDER, RDF.TYPE, RDFS.LABEL,
-      IM.DEFINITION);
+  public Query getDefaultQuery(Graph graph) throws JsonProcessingException {
+    List<TTEntity> children = entityRepository.getFolderChildren(IM.NAMESPACE + "Q_DefaultCohorts", graph, asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL,
+      IM.DEFINITION));
     if (children.isEmpty()) {
       return new Query().setTypeOf(IM.NAMESPACE + "Patient");
     }
@@ -112,7 +110,7 @@ public class QueryService {
     } else return null;
   }
 
-  private TTEntity findFirstQuery(List<TTEntity> children, String graph) {
+  private TTEntity findFirstQuery(List<TTEntity> children, Graph graph) {
     for (TTEntity child : children) {
       if (child.isType(iri(IM.QUERY)) && child.get(iri(IM.DEFINITION)) != null) {
         return child;
@@ -121,8 +119,8 @@ public class QueryService {
     }
     for (TTEntity child : children) {
       if (child.isType(iri(IM.FOLDER))) {
-        List<TTEntity> subchildren = entityRepository.getFolderChildren(IM.NAMESPACE + "DefaultCohorts", graph, SHACL.ORDER, RDF.TYPE, RDFS.LABEL,
-          IM.DEFINITION);
+        List<TTEntity> subchildren = entityRepository.getFolderChildren(IM.NAMESPACE + "DefaultCohorts", graph, asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL,
+          IM.DEFINITION));
         if (subchildren == null || subchildren.isEmpty()) {
           return null;
         }

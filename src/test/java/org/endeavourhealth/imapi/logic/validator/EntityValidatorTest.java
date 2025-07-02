@@ -25,7 +25,7 @@ public class EntityValidatorTest {
     @Test
     void isValidIriAndData() throws ValidationException {
       TTEntity actual = new TTEntity();
-      actual.addObject(iri(IM.IS_CONTAINED_IN), iri(IM.QUERY, "Query"));
+      actual.addObject(iri(IM.IS_CONTAINED_IN), iri(IM.QUERY.toString(), "Query"));
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.HAS_PARENT).setEntity(actual);
       EntityValidationResponse response = new EntityValidationResponse().setValid(true).setMessage(null);
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
@@ -34,7 +34,7 @@ public class EntityValidatorTest {
     @Test
     void isInvalidIriAndData() throws ValidationException {
       TTEntity actual = new TTEntity();
-      actual.addObject(iri(IM.NAMESPACE + "foo"), iri(IM.QUERY, "Query"));
+      actual.addObject(iri(IM.NAMESPACE + "foo"), iri(IM.QUERY.toString(), "Query"));
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.HAS_PARENT).setEntity(actual);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity is missing a parent. Add a parent to 'Subset of', 'Subclass of' or 'Contained in'.");
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);

@@ -11,7 +11,6 @@ import org.endeavourhealth.imapi.model.customexceptions.ConfigException;
 import org.endeavourhealth.imapi.model.github.GithubDTO;
 import org.endeavourhealth.imapi.model.github.GithubRelease;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

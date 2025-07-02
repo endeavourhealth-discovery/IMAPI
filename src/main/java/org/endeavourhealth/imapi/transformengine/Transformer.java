@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.map.MapProperty;
+import org.endeavourhealth.imapi.vocabulary.TransformFunction;
 
 
 import java.util.*;
@@ -183,7 +184,7 @@ public class Transformer {
 
   private Object runFunction(MapFunction functionClause) {
     Map<String, Object> args = getFunctionArguments(functionClause);
-    return TransformFunctions.runFunction(functionClause.getIri(), args);
+    return TransformFunctions.runFunction(TransformFunction.valueOf(functionClause.getIri()), args);
   }
 
 

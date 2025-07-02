@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.ConceptContextMap;
 import org.endeavourhealth.imapi.model.Context;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
@@ -19,7 +20,7 @@ import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueLis
 
 public class ConceptRepository {
 
-  public List<SimpleMap> getMatchedFrom(String iri, List<String> schemeIris, String graph) {
+  public List<SimpleMap> getMatchedFrom(String iri, List<String> schemeIris, Graph graph) {
     List<SimpleMap> simpleMaps = new ArrayList<>();
     String sql = """
       SELECT ?s ?code ?scheme ?name
@@ -46,7 +47,7 @@ public class ConceptRepository {
     return simpleMaps;
   }
 
-  public List<SimpleMap> getMatchedTo(String iri, List<String> schemeIris, String graph) {
+  public List<SimpleMap> getMatchedTo(String iri, List<String> schemeIris, Graph graph) {
     List<SimpleMap> simpleMaps = new ArrayList<>();
     String sql = """
       SELECT ?o ?code ?scheme ?name
@@ -74,7 +75,7 @@ public class ConceptRepository {
     return simpleMaps;
   }
 
-  public Set<String> getPropertiesForDomains(Set<String> iris, String graph) {
+  public Set<String> getPropertiesForDomains(Set<String> iris, Graph graph) {
     Set<String> properties = new HashSet<>();
     String sql = """
       select distinct ?property
@@ -98,7 +99,7 @@ public class ConceptRepository {
     return properties;
   }
 
-  public Set<String> getRangesForProperty(String conceptIri, String graph) {
+  public Set<String> getRangesForProperty(String conceptIri, Graph graph) {
     Set<String> ranges = new HashSet<>();
     String sql = """
       Select ?range
@@ -124,7 +125,7 @@ public class ConceptRepository {
   }
 
 
-  public List<ConceptContextMap> getConceptContextMaps(String iri, String graph) {
+  public List<ConceptContextMap> getConceptContextMaps(String iri, Graph graph) {
     List<ConceptContextMap> result = new ArrayList<>();
     try (RepositoryConnection conn = IMDB.getConnection()) {
       String sparql = """
@@ -154,18 +155,18 @@ public class ConceptRepository {
         """;
       TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
       qry.setBinding("concept", iri(iri));
-      qry.setBinding("imConcept", iri(IM.CONCEPT));
-      qry.setBinding("imHasMap", iri(IM.HAS_MAP));
-      qry.setBinding("rdfsLabel", iri(RDFS.LABEL));
-      qry.setBinding("imContextNode", iri(IM.CONTEXT_NODE));
-      qry.setBinding("imTargetProperty", iri(IM.TARGET_PROPERTY));
-      qry.setBinding("imSourcePublisher", iri(IM.SOURCE_PUBLISHER));
-      qry.setBinding("imSourceSystem", iri(IM.SOURCE_SYSTEM));
-      qry.setBinding("imSourceSchema", iri(IM.SOURCE_SCHEMA));
-      qry.setBinding("imSourceTable", iri(IM.SOURCE_TABLE));
-      qry.setBinding("imSourceField", iri(IM.SOURCE_FIELD));
-      qry.setBinding("imSourceValue", iri(IM.SOURCE_VALUE));
-      qry.setBinding("imSourceRegex", iri(IM.SOURCE_REGEX));
+      qry.setBinding("imConcept", IM.CONCEPT.asDbIri());
+      qry.setBinding("imHasMap", IM.HAS_MAP.asDbIri());
+      qry.setBinding("rdfsLabel", RDFS.LABEL.asDbIri());
+      qry.setBinding("imContextNode", IM.CONTEXT_NODE.asDbIri());
+      qry.setBinding("imTargetProperty", IM.TARGET_PROPERTY.asDbIri());
+      qry.setBinding("imSourcePublisher", IM.SOURCE_PUBLISHER.asDbIri());
+      qry.setBinding("imSourceSystem", IM.SOURCE_SYSTEM.asDbIri());
+      qry.setBinding("imSourceSchema", IM.SOURCE_SCHEMA.asDbIri());
+      qry.setBinding("imSourceTable", IM.SOURCE_TABLE.asDbIri());
+      qry.setBinding("imSourceField", IM.SOURCE_FIELD.asDbIri());
+      qry.setBinding("imSourceValue", IM.SOURCE_VALUE.asDbIri());
+      qry.setBinding("imSourceRegex", IM.SOURCE_REGEX.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

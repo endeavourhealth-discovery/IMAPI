@@ -2,33 +2,81 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
-public class COMPONENT {
-    public static final String DOMAIN = "http://endhealth.info/im#";
-    public static final String NAMESPACE = COMPONENT.DOMAIN + "Component_";
-    public static final String TAB_LAYOUT = COMPONENT.NAMESPACE + "TabLayout";
-    public static final String TEXT_DISPLAY = COMPONENT.NAMESPACE + "textDisplay";
-    public static final String TEXT_INPUT = COMPONENT.NAMESPACE + "textInput";
-    public static final String HTML_INPUT = COMPONENT.NAMESPACE + "htmlInput";
-    public static final String ENTITY_MULTI_SEARCH = COMPONENT.NAMESPACE + "entityMultiSearch";
-    public static final String ENTITY_SEARCH = COMPONENT.NAMESPACE + "entitySearch";
-    public static final String ENTITY_COMBOBOX = COMPONENT.NAMESPACE + "entityComboBox";
-    public static final String ENTITY_DROPDOWN = COMPONENT.NAMESPACE + "entityDropdown";
-    public static final String ARRAY_BUILDER = COMPONENT.NAMESPACE + "arrayBuilder";
-    public static final String ENTITY_AUTO_COMPLETE = COMPONENT.NAMESPACE + "entityAutoComplete";
-    public static final String MEMBERS_BUILDER = COMPONENT.NAMESPACE + "membersBuilder";
-    public static final String COMPONENT_GROUP = COMPONENT.NAMESPACE + "componentGroup";
-    public static final String PROPERTY_BUILDER = COMPONENT.NAMESPACE + "propertyBuilder";
-    public static final String SET_DEFINITION_BUILDER = COMPONENT.NAMESPACE + "SetDefinitionBuilder";
-    public static final String QUERY_DEFINITION_BUILDER = COMPONENT.NAMESPACE + "QueryDefinitionBuilder";
-    public static final String TOGGLEABLE = COMPONENT.NAMESPACE + "ToggleableComponent";
-    public static final String HORIZONTAL_LAYOUT = COMPONENT.NAMESPACE + "HorizontalLayout";
-    public static final String VERTICAL_LAYOUT = COMPONENT.NAMESPACE + "VerticalLayout";
-    public static final String DROPDOWN_TEXT_INPUT_CONCATENATOR = COMPONENT.NAMESPACE + "dropdownTextInputConcatenator";
-    public static final String ROLE_GROUP_BUILDER = COMPONENT.NAMESPACE + "roleGroupBuilder";
-    public static final String TERM_CODE_EDITOR = COMPONENT.NAMESPACE + "termCodeEditor";
-    public static final String TEXT_DROPDOWN = COMPONENT.NAMESPACE + "textDropdown";
-    public static final String ENTITY_DISPLAY = COMPONENT.NAMESPACE + "entityDisplay";
-    public static final String IRI_BUILDER = COMPONENT.NAMESPACE + "iriBuilder";
-    public static final String AUTOCOMPLETE_SEARCH_BAR_WRAPPER = COMPONENT.NAMESPACE + "autocompleteSearchBarWrapper";
-    public static final String SUBSET_BUILDER = COMPONENT.NAMESPACE + "subsetBuilder";
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
+public enum COMPONENT implements VocabEnum {
+
+    DOMAIN("http://endhealth.info/im#"),
+    NAMESPACE(COMPONENT.DOMAIN + "Component_"),
+    TAB_LAYOUT(COMPONENT.NAMESPACE + "TabLayout"),
+    TEXT_DISPLAY(COMPONENT.NAMESPACE + "textDisplay"),
+    TEXT_INPUT(COMPONENT.NAMESPACE + "textInput"),
+    HTML_INPUT(COMPONENT.NAMESPACE + "htmlInput"),
+    ENTITY_MULTI_SEARCH(COMPONENT.NAMESPACE + "entityMultiSearch"),
+    ENTITY_SEARCH(COMPONENT.NAMESPACE + "entitySearch"),
+    ENTITY_COMBOBOX(COMPONENT.NAMESPACE + "entityComboBox"),
+    ENTITY_DROPDOWN(COMPONENT.NAMESPACE + "entityDropdown"),
+    ARRAY_BUILDER(COMPONENT.NAMESPACE + "arrayBuilder"),
+    ENTITY_AUTO_COMPLETE(COMPONENT.NAMESPACE + "entityAutoComplete"),
+    MEMBERS_BUILDER(COMPONENT.NAMESPACE + "membersBuilder"),
+    COMPONENT_GROUP(COMPONENT.NAMESPACE + "componentGroup"),
+    PROPERTY_BUILDER(COMPONENT.NAMESPACE + "propertyBuilder"),
+    SET_DEFINITION_BUILDER(COMPONENT.NAMESPACE + "SetDefinitionBuilder"),
+    QUERY_DEFINITION_BUILDER(COMPONENT.NAMESPACE + "QueryDefinitionBuilder"),
+    TOGGLEABLE(COMPONENT.NAMESPACE + "ToggleableComponent"),
+    HORIZONTAL_LAYOUT(COMPONENT.NAMESPACE + "HorizontalLayout"),
+    VERTICAL_LAYOUT(COMPONENT.NAMESPACE + "VerticalLayout"),
+    DROPDOWN_TEXT_INPUT_CONCATENATOR(COMPONENT.NAMESPACE + "dropdownTextInputConcatenator"),
+    ROLE_GROUP_BUILDER(COMPONENT.NAMESPACE + "roleGroupBuilder"),
+    TERM_CODE_EDITOR(COMPONENT.NAMESPACE + "termCodeEditor"),
+    TEXT_DROPDOWN(COMPONENT.NAMESPACE + "textDropdown"),
+    ENTITY_DISPLAY(COMPONENT.NAMESPACE + "entityDisplay"),
+    IRI_BUILDER(COMPONENT.NAMESPACE + "iriBuilder"),
+    AUTOCOMPLETE_SEARCH_BAR_WRAPPER(COMPONENT.NAMESPACE + "autocompleteSearchBarWrapper"),
+    SUBSET_BUILDER(COMPONENT.NAMESPACE + "subsetBuilder"),
+    ;
+
+    private final String value;
+
+    COMPONENT(final String value) {
+        this.value = value;
+    }
+
+    COMPONENT(final VocabEnum value) {
+        this.value = value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public TTIriRef asIri() {
+      return iri(
+        value,
+        Arrays.stream(this.name().split("_"))
+          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+          .collect(Collectors.joining(" "))
+      );
+    }
+
+    public IRI asDbIri() {
+      return Values.iri(value);
+    }
+
+    public static COMPONENT from(String text) {
+    for (COMPONENT b : COMPONENT.values()) {
+      if (b.value.equals(text)) {
+        return b;
+      }
+    }
+    return null;
+  }
 }

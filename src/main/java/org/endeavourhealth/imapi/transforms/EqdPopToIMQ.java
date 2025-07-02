@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriteriaGroup;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.VocPopulationParentType;
 import org.endeavourhealth.imapi.transforms.eqd.VocRuleAction;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.IOException;
@@ -16,7 +17,7 @@ public class EqdPopToIMQ {
   private EqdResources resources;
 
 
-  public Query convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources, String graph) throws IOException, QueryException, EQDException {
+  public Query convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources, Graph graph) throws IOException, QueryException, EQDException {
     String activeReport = eqReport.getId();
     if (eqReport.getVersionIndependentGUID() != null) activeReport = eqReport.getVersionIndependentGUID();
     if (eqReport.getName().equals("All currently registered patients"))

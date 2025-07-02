@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.model.iml.ParameterShape;
 import org.endeavourhealth.imapi.model.iml.PropertyRange;
 import org.endeavourhealth.imapi.model.iml.PropertyShape;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
@@ -23,7 +24,7 @@ import java.util.Optional;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 
 public class DataModelRepository {
-  public List<TTIriRef> getProperties(String graph) {
+  public List<TTIriRef> getProperties(Graph graph) {
     List<TTIriRef> result = new ArrayList<>();
 
     String spql = """
@@ -50,7 +51,7 @@ public class DataModelRepository {
   }
 
 
-  public List<TTIriRef> findDataModelsFromProperty(String propIri, String graph) {
+  public List<TTIriRef> findDataModelsFromProperty(String propIri, Graph graph) {
     List<TTIriRef> dmList = new ArrayList<>();
     try (RepositoryConnection conn = IMDB.getConnection()) {
       String sparql = """
@@ -76,7 +77,7 @@ public class DataModelRepository {
 
   }
 
-  public String checkPropertyType(String propIri, String graph) {
+  public String checkPropertyType(String propIri, Graph graph) {
     try (RepositoryConnection conn = IMDB.getConnection()) {
       String query = """
         SELECT ?objectProperty ?dataProperty
@@ -89,21 +90,21 @@ public class DataModelRepository {
         """;
       TupleQuery qry = IMDB.prepareTupleSparql(conn, query, graph);
       qry.setBinding("propIri", iri(propIri));
-      qry.setBinding("isA", iri(IM.IS_A));
-      qry.setBinding("objProp", iri(IM.DATAMODEL_OBJECTPROPERTY));
-      qry.setBinding("dataProp", iri(IM.DATAMODEL_DATAPROPERTY));
+      qry.setBinding("isA", IM.IS_A.asDbIri());
+      qry.setBinding("objProp", IM.DATAMODEL_OBJECTPROPERTY.asDbIri());
+      qry.setBinding("dataProp", IM.DATAMODEL_DATAPROPERTY.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
-          if (bs.hasBinding("objectProperty")) return IM.DATAMODEL_OBJECTPROPERTY;
-          else if (bs.hasBinding("dataProperty")) return IM.DATAMODEL_DATAPROPERTY;
+          if (bs.hasBinding("objectProperty")) return IM.DATAMODEL_OBJECTPROPERTY.toString();
+          else if (bs.hasBinding("dataProperty")) return IM.DATAMODEL_DATAPROPERTY.toString();
         }
       }
     }
     return null;
   }
 
-  public void addDataModelSubtypes(NodeShape dataModel, String graph) {
+  public void addDataModelSubtypes(NodeShape dataModel, Graph graph) {
     try (RepositoryConnection conn = IMDB.getConnection()) {
       String sql = getSubtypeSql();
       TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
@@ -120,7 +121,7 @@ public class DataModelRepository {
   }
 
 
-  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly, String graph) {
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly, Graph graph) {
     NodeShape nodeShape = new NodeShape();
     nodeShape.setIri(iri);
     addDataModelSubtypes(nodeShape, graph);
@@ -177,41 +178,25 @@ public class DataModelRepository {
 
   }
 
-
   private void addProperty(NodeShape node, PropertyShape group, BindingSet bs) {
     String propertyIri = bs.getValue("path").stringValue();
     PropertyShape property;
+
     if (group != null) property = getPropertyFromGroup(group, propertyIri);
     else property = getPropertyFromNode(node, propertyIri);
+
     property.getPath().setName(bs.getValue("pathName").stringValue());
+
     if (bs.getValue("class") != null) {
       property.setClazz(new PropertyRange().setIri(bs.getValue("class").stringValue()).setName(bs.getValue("className").stringValue()).setType(TTIriRef.iri(bs.getValue("classType").stringValue()).setName(bs.getValue("classTypeName").stringValue())));
     }
+
     if (bs.getValue("datatype") != null) {
-      PropertyRange datatype = property.getDatatype();
-      if (datatype == null) {
-        datatype = new PropertyRange();
-        datatype.setIri(bs.getValue("datatype").stringValue()).setName(bs.getValue("datatypeName").stringValue()).setType(TTIriRef.iri(bs.getValue("datatypeType").stringValue()).setName(bs.getValue("datatypeTypeName").stringValue()));
-        property.setDatatype(datatype);
-        if (bs.getValue("pattern") != null) {
-          datatype.setPattern(bs.getValue("pattern").stringValue());
-        }
-        if (bs.getValue("isRelativeValue") != null) {
-          datatype.setRelativeValue("true".equalsIgnoreCase(bs.getValue("isRelativeValue").stringValue()));
-        }
-        if (bs.getValue("units") != null) {
-          datatype.setUnits(TTIriRef.iri(bs.getValue("units").stringValue()).setName(bs.getValue("unitsName").stringValue()));
-        }
-        if (bs.getValue("operator") != null) {
-          datatype.setOperator(TTIriRef.iri(bs.getValue("operator").stringValue()).setName(bs.getValue("operatorName").stringValue()));
-        }
-      }
-      if (bs.getValue("datatypeQualifier") != null) {
-        addDataTypeQualifier(datatype, bs);
-      }
+      getPropertyDataType(bs, property);
     } else if (bs.getValue("node") != null) {
       property.setNode(new PropertyRange().setIri(bs.getValue("node").stringValue()).setName(bs.getValue("nodeName").stringValue()).setType(TTIriRef.iri(bs.getValue("nodeType").stringValue()).setName(bs.getValue("nodeTypeName").stringValue())));
     }
+
     if (bs.getValue("order") != null) {
       property.setOrder(Integer.parseInt(bs.getValue("order").stringValue()));
     }
@@ -222,31 +207,61 @@ public class DataModelRepository {
       property.setMaxCount(Integer.parseInt(bs.getValue("minCount").stringValue()));
     }
     if (bs.getValue("orderable") != null) {
-      property.setOrderable(true);
-      property.setAscending(bs.getValue("ascending").stringValue());
-      property.setDescending(bs.getValue("descending").stringValue());
+      getPropertyOrderable(bs, property);
     }
     if (bs.getValue("comment") != null) {
       property.setComment(bs.getValue("comment").stringValue());
     }
 
-
     if (bs.getValue("hasValue") != null) {
-      Value hasValue = bs.getValue("hasValue");
-      if (hasValue.isIRI()) {
-        property.setHasValue(TTIriRef.iri(hasValue.stringValue()).setName(bs.getValue("hasValueName").stringValue()));
-        property.setHasValueType(TTIriRef.iri(RDFS.RESOURCE));
-      } else {
-        property.setHasValue(hasValue.stringValue());
-        property.setHasValueType(TTIriRef.iri(XSD.STRING));
-      }
-
+      getPropertyValue(bs, property);
     }
     if (bs.getValue("parameter") != null) {
       addParameter(property, bs);
     }
     if (bs.getValue("propertyDefinition") != null) {
       property.setDefinition(bs.getValue("propertyDefinition").stringValue());
+    }
+  }
+
+  private void getPropertyDataType(BindingSet bs, PropertyShape property) {
+    PropertyRange datatype = property.getDatatype();
+    if (datatype == null) {
+      datatype = new PropertyRange();
+      datatype.setIri(bs.getValue("datatype").stringValue()).setName(bs.getValue("datatypeName").stringValue()).setType(TTIriRef.iri(bs.getValue("datatypeType").stringValue()).setName(bs.getValue("datatypeTypeName").stringValue()));
+      property.setDatatype(datatype);
+      if (bs.getValue("pattern") != null) {
+        datatype.setPattern(bs.getValue("pattern").stringValue());
+      }
+      if (bs.getValue("isRelativeValue") != null) {
+        datatype.setRelativeValue("true".equalsIgnoreCase(bs.getValue("isRelativeValue").stringValue()));
+      }
+      if (bs.getValue("units") != null) {
+        datatype.setUnits(TTIriRef.iri(bs.getValue("units").stringValue()).setName(bs.getValue("unitsName").stringValue()));
+      }
+      if (bs.getValue("operator") != null) {
+        datatype.setOperator(TTIriRef.iri(bs.getValue("operator").stringValue()).setName(bs.getValue("operatorName").stringValue()));
+      }
+    }
+    if (bs.getValue("datatypeQualifier") != null) {
+      addDataTypeQualifier(datatype, bs);
+    }
+  }
+
+  private static void getPropertyOrderable(BindingSet bs, PropertyShape property) {
+    property.setOrderable(true);
+    property.setAscending(bs.getValue("ascending").stringValue());
+    property.setDescending(bs.getValue("descending").stringValue());
+  }
+
+  private static void getPropertyValue(BindingSet bs, PropertyShape property) {
+    Value hasValue = bs.getValue("hasValue");
+    if (hasValue.isIRI()) {
+      property.setHasValue(TTIriRef.iri(hasValue.stringValue()).setName(bs.getValue("hasValueName").stringValue()));
+      property.setHasValueType(TTIriRef.iri(RDFS.RESOURCE));
+    } else {
+      property.setHasValue(hasValue.stringValue());
+      property.setHasValueType(TTIriRef.iri(XSD.STRING));
     }
   }
 
@@ -451,7 +466,7 @@ public class DataModelRepository {
       """;
   }
 
-  public UIProperty findUIPropertyForQB(String dmIri, String propIri, String graph) {
+  public UIProperty findUIPropertyForQB(String dmIri, String propIri, Graph graph) {
     UIProperty uiProp = new UIProperty();
     uiProp.setIri(propIri);
 

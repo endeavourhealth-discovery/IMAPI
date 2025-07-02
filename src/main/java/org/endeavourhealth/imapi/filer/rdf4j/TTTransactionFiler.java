@@ -17,10 +17,9 @@ import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.TTManager;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SCHEME;
@@ -30,6 +29,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 
 /**
  * Methods to create update and delete entities and generate a transaction log with the ability to refile
@@ -75,16 +75,15 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     this.logPath = logPath;
   }
 
-  private static Map<String, Set<String>> getEntitiesToCheckForUsage(TTDocument transaction) throws TTFilerException {
-    Map<String, Set<String>> toCheck = new HashMap<>();
+  private static Map<Graph, Set<String>> getEntitiesToCheckForUsage(TTDocument transaction) throws TTFilerException {
+    Map<Graph, Set<String>> toCheck = new HashMap<>();
     for (TTEntity entity : transaction.getEntities()) {
 
       setEntityCrudOperation(transaction, entity);
 
       if (Objects.equals(entity.getCrud(), iri(IM.UPDATE_ALL))) {
-        String graph = GRAPH.IM;
         if (entity.getPredicateMap().isEmpty())
-          toCheck.computeIfAbsent(graph, g -> new HashSet<>()).add("<" + entity.getIri() + ">");
+          toCheck.computeIfAbsent(Graph.IM, g -> new HashSet<>()).add("<" + entity.getIri() + ">");
       }
 
     }
@@ -100,10 +99,10 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
   }
 
-  private static void checkIfEntitiesCurrentlyInUse(Map<String, Set<String>> toCheck) throws TTFilerException {
+  private static void checkIfEntitiesCurrentlyInUse(Map<Graph, Set<String>> toCheck) throws TTFilerException {
     try (RepositoryConnection conn = IMDB.getConnection()) {
-      for (Map.Entry<String, Set<String>> entry : toCheck.entrySet()) {
-        String graph = entry.getKey();
+      for (Map.Entry<Graph, Set<String>> entry : toCheck.entrySet()) {
+        Graph graph = entry.getKey();
         Set<String> entities = entry.getValue();
         String sql = "select * where {" +
           "?s ?p ?o.\n" +
@@ -182,10 +181,10 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     document.getEntities().removeIf(e -> null == e.getIri());
 
     checkDeletes(document);
-    fileAsDocument(document, GRAPH.IM);
+    fileAsDocument(document, Graph.IM);
   }
 
-  public void fileDocument(TTDocument document, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
+  public void fileDocument(TTDocument document, String taskId, Graph graph) throws TTFilerException, JsonProcessingException, QueryException {
     if (document.getEntities() == null) {
       throw new TTFilerException("Document has no entities");
     }
@@ -193,17 +192,17 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     document.getEntities().removeIf(e -> null == e.getIri());
 
     checkDeletes(document);
-    fileAsDocument(document, taskId);
+    fileAsDocument(document, taskId, graph);
   }
 
   private void checkDeletes(TTDocument transaction) throws TTFilerException {
-    Map<String, Set<String>> toCheck = getEntitiesToCheckForUsage(transaction);
+    Map<Graph, Set<String>> toCheck = getEntitiesToCheckForUsage(transaction);
     if (!toCheck.isEmpty()) {
       checkIfEntitiesCurrentlyInUse(toCheck);
     }
   }
 
-  private void fileAsDocument(TTDocument document, String graph) throws TTFilerException, JsonProcessingException, QueryException {
+  private void fileAsDocument(TTDocument document, Graph graph) throws TTFilerException, JsonProcessingException, QueryException {
     try {
       startTransaction();
       log.info("Filing entities.... ");
@@ -229,7 +228,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
         writeLog(document);
       updateTct(document, graph);
       log.info("Updating range inheritances");
-      new RangeInheritor().inheritRanges(conn, GRAPH.IM);
+      new RangeInheritor().inheritRanges(conn, Graph.IM);
       commit();
 
     } catch (Exception e) {
@@ -243,7 +242,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     return filingProgress;
   }
 
-  private synchronized void fileAsDocument(TTDocument document, String taskId, String graph) throws TTFilerException, JsonProcessingException, QueryException {
+  private synchronized void fileAsDocument(TTDocument document, String taskId, Graph graph) throws TTFilerException, JsonProcessingException, QueryException {
 
     if (filingProgress != null)
       throw new TTFilerException("There is a document already filing, please try again later");
@@ -273,7 +272,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
         writeLog(document);
       updateTct(document, graph);
       log.info("Updating range inheritances");
-      new RangeInheritor().inheritRanges(conn, GRAPH.IM);
+      new RangeInheritor().inheritRanges(conn, Graph.IM);
       commit();
     } catch (TTFilerException e) {
       rollback();
@@ -287,14 +286,14 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     filingProgress = null;
   }
 
-  private void fileEntity(TTEntity entity, String graph) throws TTFilerException {
+  private void fileEntity(TTEntity entity, Graph graph) throws TTFilerException {
     if (entity.has(iri(IM.HAS_SCHEME)) && entity.get(iri(IM.HAS_SCHEME)).asIriRef().getIri().equals(SCHEME.ODS))
       instanceFiler.fileEntity(entity, graph);
     else
       conceptFiler.fileEntity(entity, graph);
   }
 
-  public void updateSets(TTDocument document, String graph) throws QueryException, JsonProcessingException {
+  public void updateSets(TTDocument document, Graph graph) throws QueryException, JsonProcessingException {
     for (TTEntity entity : document.getEntities()) {
       if (entity.isType(iri(IM.CONCEPT_SET)) || entity.isType(iri(IM.VALUESET))) {
         log.info("Expanding set {}", entity.getIri());
@@ -305,7 +304,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
   }
 
-  public void updateTct(TTDocument document, String graph) throws TTFilerException {
+  public void updateTct(TTDocument document, Graph graph) throws TTFilerException {
     isAs = new HashMap<>();
     done = new HashSet<>();
     manager = new TTManager();
@@ -325,9 +324,9 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     conceptFiler.fileIsAs(isAs, graph);
   }
 
-  private void setExternalIsas(Set<TTEntity> toClose, String graph) throws TTFilerException {
+  private void setExternalIsas(Set<TTEntity> toClose, Graph graph) throws TTFilerException {
     for (TTEntity entity : toClose) {
-      for (String iriRef : List.of(RDFS.SUBCLASS_OF, IM.LOCAL_SUBCLASS_OF)) {
+      for (String iriRef : asArrayList(RDFS.SUBCLASS_OF, IM.LOCAL_SUBCLASS_OF)) {
         String subclass = entity.getIri();
         if (entity.get(iri(iriRef)) != null) {
           for (TTValue superClass : entity.get(iri(iriRef)).getElements()) {
@@ -349,7 +348,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     if (!done.contains(subclass)) {
       isAs.computeIfAbsent(subclass, s -> new HashSet<>());
       isAs.get(subclass).add(subclass);
-      for (String iriRef : List.of(RDFS.SUBCLASS_OF, IM.LOCAL_SUBCLASS_OF)) {
+      for (String iriRef : asArrayList(RDFS.SUBCLASS_OF, IM.LOCAL_SUBCLASS_OF)) {
         if (entity.get(iri(iriRef)) != null) {
           processSuperClass(entity, iriRef, subclass);
         }
@@ -400,21 +399,21 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   public void fileEntities(TTDocument document) throws TTFilerException {
     log.info("Filing entities.... ");
 
-    TTIriRef defaultGraph = iri(GRAPH.IM);
+    Graph defaultGraph = Graph.IM;
 
     startTransaction();
     try {
       if (document.getEntities() != null) {
         int i = 0;
         for (TTEntity entity : document.getEntities()) {
-          TTIriRef entityGraph = entity.getGraph() != null ? entity.getGraph() : defaultGraph;
+          Graph entityGraph = entity.getGraph() != null ? entity.getGraph() : defaultGraph;
           if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
             continue;
           setEntityCrudOperation(document, entity);
-          fileEntity(entity, entityGraph.getIri());
+          fileEntity(entity, entityGraph);
           i++;
           if (i % 10000 == 0) {
-            log.info("Filed {} entities from {} in graph {}", i, document.getEntities().size(), GRAPH.IM);
+            log.info("Filed {} entities from {} in graph {}", i, document.getEntities().size(), Graph.IM);
             commit();
             startTransaction();
           }

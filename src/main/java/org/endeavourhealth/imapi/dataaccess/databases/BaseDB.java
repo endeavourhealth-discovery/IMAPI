@@ -12,6 +12,7 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.io.File;
 import java.util.StringJoiner;
@@ -54,7 +55,14 @@ public abstract class BaseDB {
     PREFIX ods: <http://endhealth.info/ods#>
     """;
 
-  protected static TupleQuery prepareTupleSparql(RepositoryConnection conn, String sparql, String graph) {
+  protected BaseDB() {
+  }
+
+  protected static TupleQuery prepareTupleSparql(RepositoryConnection conn, String sparql, Graph graph) {
+    if (graph == null)
+      throw new DALException("graph is null - a graph must be provided");
+
+
     if (!sparql.contains("FROM ?g")) {
       throw new DALException("Query must contain 'FROM ?g' to specify graph");
     }
@@ -63,14 +71,17 @@ public abstract class BaseDB {
       sj.add(DEFAULT_PREFIXES);
       sj.add(sparql);
       TupleQuery tq = conn.prepareTupleQuery(sj.toString());
-      tq.setBinding("g", iri(graph));
+      tq.setBinding("g", iri(graph.toString()));
       return tq;
     } catch (Exception e) {
       throw new DALException("Failed to prepare SPARQL query", e);
     }
   }
 
-  protected static Update prepareUpdateSparql(RepositoryConnection conn, String sparql, String graph) {
+  protected static Update prepareUpdateSparql(RepositoryConnection conn, String sparql, Graph graph) {
+    if (graph == null)
+      throw new DALException("graph is null - a graph must be provided");
+
     if (!sparql.contains("GRAPH ?g {")) {
       throw new DALException("Query must contain 'GRAPH ?g {' to specify graph");
     }
@@ -79,14 +90,17 @@ public abstract class BaseDB {
       sj.add(DEFAULT_PREFIXES);
       sj.add(sparql);
       Update uq = conn.prepareUpdate(sj.toString());
-      uq.setBinding("g", iri(graph));
+      uq.setBinding("g", iri(graph.toString()));
       return uq;
     } catch (Exception e) {
       throw new DALException("Failed to prepare SPARQL query", e);
     }
   }
 
-  protected static GraphQuery prepareGraphSparql(RepositoryConnection conn, String sparql, String graph) {
+  protected static GraphQuery prepareGraphSparql(RepositoryConnection conn, String sparql, Graph graph) {
+    if (graph == null)
+      throw new DALException("graph is null - a graph must be provided");
+
     if (!sparql.contains("FROM ?g")) {
       throw new DALException("Query must contain 'FROM ?g' to specify graph");
     }
@@ -95,14 +109,17 @@ public abstract class BaseDB {
       sj.add(DEFAULT_PREFIXES);
       sj.add(sparql);
       GraphQuery gq = conn.prepareGraphQuery(sj.toString());
-      gq.setBinding("g", iri(graph));
+      gq.setBinding("g", iri(graph.toString()));
       return gq;
     } catch (Exception e) {
       throw new DALException("Failed to prepare SPARQL query", e);
     }
   }
 
-  protected static BooleanQuery prepareBooleanSparql(RepositoryConnection conn, String sparql, String graph) {
+  protected static BooleanQuery prepareBooleanSparql(RepositoryConnection conn, String sparql, Graph graph) {
+    if (graph == null)
+      throw new DALException("graph is null - a graph must be provided");
+
     if (!sparql.contains("GRAPH ?g {")) {
       throw new DALException("Query must contain 'GRAPH ?g {' to specify graph");
     }
@@ -111,7 +128,7 @@ public abstract class BaseDB {
       sj.add(DEFAULT_PREFIXES);
       sj.add(sparql);
       BooleanQuery bq = conn.prepareBooleanQuery(sj.toString());
-      bq.setBinding("g", iri(graph));
+      bq.setBinding("g", iri(graph.toString()));
       return bq;
     } catch (Exception e) {
       throw new DALException("Failed to prepare SPARQL query", e);

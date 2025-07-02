@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.util.Arrays;
@@ -132,7 +133,7 @@ public class IMQToECL {
   }
 
 
-  private void expressionMatch(Match match, StringBuilder ecl, boolean includeNames, boolean isNested, String graph) throws QueryException {
+  private void expressionMatch(Match match, StringBuilder ecl, boolean includeNames, boolean isNested, Graph graph) throws QueryException {
     ECLType matchType = getEclType(match);
     boolean isExclusion = match.getNot() != null;
     if (matchType == null)
@@ -171,7 +172,7 @@ public class IMQToECL {
     }
   }
 
-  private void match(Match match, StringBuilder ecl, boolean includeNames, boolean isNested, String graph) throws QueryException {
+  private void match(Match match, StringBuilder ecl, boolean includeNames, boolean isNested, Graph graph) throws QueryException {
     boolean isWild = false;
     if (match.getInstanceOf() == null && match.getOr() == null && match.getAnd() == null) {
       ecl.append("*");
@@ -199,7 +200,7 @@ public class IMQToECL {
     return false;
   }
 
-  private void compound(Match match, StringBuilder ecl, boolean includeNames, String graph) throws QueryException {
+  private void compound(Match match, StringBuilder ecl, boolean includeNames, Graph graph) throws QueryException {
     boolean first = true;
     if (match.getAnd() != null) {
       boolean isConjunction = match.getAnd().size() > 1;
@@ -227,7 +228,7 @@ public class IMQToECL {
     }
   }
 
-  private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames, String graph) {
+  private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames, Graph graph) {
     if (match.getInstanceOf().size() == 1) {
       if (match.getInstanceOf().get(0).isInvalid())
         setErrorStatus(ecl, "unknown concept");
@@ -249,12 +250,12 @@ public class IMQToECL {
   }
 
 
-  private void addRefinementsToMatch(Match match, StringBuilder ecl, boolean includeNames, boolean ignoreColon, String graph) throws QueryException {
+  private void addRefinementsToMatch(Match match, StringBuilder ecl, boolean includeNames, boolean ignoreColon, Graph graph) throws QueryException {
     if (!ignoreColon) ecl.append(": ");
     addRefined(match.getWhere(), ecl, includeNames, false, graph);
   }
 
-  private void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames, boolean nested, String graph) throws QueryException {
+  private void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames, boolean nested, Graph graph) throws QueryException {
     if (nested) ecl.append("(");
     boolean first = true;
     if (property.getAnd() != null) {
@@ -280,7 +281,7 @@ public class IMQToECL {
     if (nested) ecl.append(")");
   }
 
-  private void addRefined(Where where, StringBuilder ecl, Boolean includeNames, boolean nested, String graph) throws QueryException {
+  private void addRefined(Where where, StringBuilder ecl, Boolean includeNames, boolean nested, Graph graph) throws QueryException {
     if (where.isInvalid()) setErrorStatus(ecl, "unknown property concept : ");
     try {
       if (where.isRoleGroup()) ecl.append("{");
@@ -315,18 +316,18 @@ public class IMQToECL {
   }
 
 
-  private void addProperty(Where exp, StringBuilder ecl, boolean includeName, String graph) {
+  private void addProperty(Where exp, StringBuilder ecl, boolean includeName, Graph graph) {
     if (exp.isInverse())
       ecl.append(" R ");
     addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName(), graph);
   }
 
-  private void addConcept(StringBuilder ecl, boolean includeName, String subsumption, String id, String name, String graph) {
+  private void addConcept(StringBuilder ecl, boolean includeName, String subsumption, String id, String name, Graph graph) {
     String iriRef = checkMember(id, name, includeName, graph);
     ecl.append(subsumption).append(iriRef);
   }
 
-  private void addClass(Node exp, StringBuilder ecl, boolean includeName, String graph) {
+  private void addClass(Node exp, StringBuilder ecl, boolean includeName, Graph graph) {
     addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName(), graph);
   }
 
@@ -346,7 +347,7 @@ public class IMQToECL {
   }
 
 
-  private String checkMember(String iri, String name, boolean includeNames, String graph) {
+  private String checkMember(String iri, String name, boolean includeNames, Graph graph) {
     if (iri == null || iri.isEmpty())
       return "*";
     if (name == null && includeNames) {
@@ -356,7 +357,7 @@ public class IMQToECL {
       }
       name = names.get(iri);
     }
-    if (iri.startsWith(SNOMED.NAMESPACE)) {
+    if (iri.startsWith(SNOMED.NAMESPACE.toString())) {
       iri = iri.substring(iri.lastIndexOf("#") + 1);
     } else if (iri.contains("#")) {
       if (prefixes != null) {
@@ -377,7 +378,7 @@ public class IMQToECL {
    * @return ECL String
    */
 
-  public String getMembersAsECL(TTArray members, String graph) {
+  public String getMembersAsECL(TTArray members, Graph graph) {
     StringBuilder ecl = new StringBuilder();
     boolean first = true;
     String or = " OR ";

@@ -126,7 +126,7 @@ public class TTNodeSerializer {
 
   public void serializeLiteral(TTLiteral literal, JsonGenerator gen) throws IOException {
     if (literal.getType() != null) {
-      switch (literal.getType().getIri()) {
+      switch (XSD.from(literal.getType().getIri())) {
         case XSD.STRING -> gen.writeString(literal.getValue());
         case XSD.BOOLEAN -> gen.writeBoolean(literal.booleanValue());
         case XSD.INTEGER -> gen.writeNumber(literal.intValue());

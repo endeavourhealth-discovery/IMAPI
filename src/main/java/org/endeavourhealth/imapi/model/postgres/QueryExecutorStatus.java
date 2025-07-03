@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.postgress;
+package org.endeavourhealth.imapi.model.postgres;
 
 public enum QueryExecutorStatus {
   QUEUED,

@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.model.postgres;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
-import org.endeavourhealth.imapi.postgress.QueryExecutorStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

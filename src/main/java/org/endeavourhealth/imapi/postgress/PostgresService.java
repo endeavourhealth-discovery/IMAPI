@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
+import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 
 import java.sql.SQLException;
 import java.util.Optional;

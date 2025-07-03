@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
+import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

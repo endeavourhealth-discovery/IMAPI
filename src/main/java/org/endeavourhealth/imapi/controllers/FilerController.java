@@ -22,6 +22,7 @@ import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -223,7 +224,7 @@ public class FilerController {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, container does not exist");
       }
 
-      String iri = IM.NAMESPACE + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8);
+      String iri = Namespace.IM + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8);
       if (entityService.iriExists(iri, graph)) {
         log.error("Entity with that name already exists");
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity with that name already exists");
@@ -231,7 +232,7 @@ public class FilerController {
 
       Query query = new Query()
         .setName("Allowable child types for a folder")
-        .setIri(IM.NAMESPACE + "Query_AllowableChildTypes");
+        .setIri(Namespace.IM + "Query_AllowableChildTypes");
       QueryRequest queryRequest = new QueryRequest()
         .setQuery(query)
         .argument(a -> a

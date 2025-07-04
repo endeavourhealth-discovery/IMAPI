@@ -14,7 +14,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum MAP implements VocabEnum {
 
     DOMAIN("http://endhealth.info/"),
-    NAMESPACE(MAP.DOMAIN + "map#"),
     PREFIX("map"),
     ;
 
@@ -47,11 +46,12 @@ public enum MAP implements VocabEnum {
     }
 
     public static MAP from(String text) {
-    for (MAP b : MAP.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (MAP b : MAP.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

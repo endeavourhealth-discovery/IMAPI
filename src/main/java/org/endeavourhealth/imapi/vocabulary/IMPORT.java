@@ -13,8 +13,32 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum IMPORT implements VocabEnum {
 
-    IM("http://endhealth.info/im#"),
-    PROV("http://endhealth.info/prov#"),
+    CEG("ceg"),
+    IM1("imv1"),
+    QOF("qof"),
+    QUERY("corequery"),
+    BNF("bnf"),
+    PRSB("prsb"),
+    CORE("core"),
+    SNOMED("snomed"),
+    EMIS("emis"),
+    CPRD_MED("cprd"),
+    TPP("tpp"),
+    OPCS4("opcs4"),
+    ICD10("icd10"),
+    ENCOUNTERS("encounters"),
+    VISION("vision"),
+    KINGS_APEX("kingsapex"),
+    KINGS_WINPATH("kingswinpath"),
+    SMARTLIFE("smartlifequery"),
+    BARTS_CERNER("barts"),
+    ODS("ods"),
+    NHS_TFC("nhstfc"),
+    CONFIG("config"),
+    DELTAS("deltas"),
+    SINGLE_FILE("singlefile"),
+    QR("qcodegroups"),
+    FHIR("fhir"),
     ;
 
     private final String value;
@@ -46,11 +70,12 @@ public enum IMPORT implements VocabEnum {
     }
 
     public static IMPORT from(String text) {
-    for (IMPORT b : IMPORT.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (IMPORT b : IMPORT.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

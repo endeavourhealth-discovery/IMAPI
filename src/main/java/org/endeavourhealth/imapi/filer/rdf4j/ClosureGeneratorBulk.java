@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.FileRepository;
 import org.endeavourhealth.imapi.filer.TCGenerator;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.io.FileWriter;
@@ -104,7 +105,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
         TTBulkFiler.setStatementCount(TTBulkFiler.getStatementCount() + 1);
         if (counter % 1_000_000 == 0)
           log.info("Written {} isas ", counter);
-        fw.write("<" + entry.getKey() + "> <" + IM.IS_A + "> <" + closure + "> <" + IM.NAMESPACE + ">.\n");
+        fw.write("<" + entry.getKey() + "> <" + IM.IS_A + "> <" + closure + "> <" + Namespace.IM + ">.\n");
       }
     }
     fw.close();

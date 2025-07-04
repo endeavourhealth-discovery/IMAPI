@@ -13,46 +13,45 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum SHACL implements VocabEnum {
 
-    NAMESPACE("http://www.w3.org/ns/shacl#"),
     PREFIX("sh"),
-    PATH(SHACL.NAMESPACE + "path"),
-    MININCLUSIVE(SHACL.NAMESPACE + "minInclusive"),
-    MINEXCLUSIVE(SHACL.NAMESPACE + "minExclusive"),
-    MAXINCLUSIVE(SHACL.NAMESPACE + "maxInclusive"),
-    MAXEXCLUSIVE(SHACL.NAMESPACE + "maxExclusive"),
-    PROPERTY(SHACL.NAMESPACE + "property"),
-    PROPERTY_GROUP(SHACL.NAMESPACE + "PropertyGroup"),
-    MINCOUNT(SHACL.NAMESPACE + "minCount"),
-    MAXCOUNT(SHACL.NAMESPACE + "maxCount"),
-    VALUE(SHACL.NAMESPACE + "value"),
-    PATTERN(SHACL.NAMESPACE + "pattern"),
-    INVERSEPATH(SHACL.NAMESPACE + "inversePath"),
-    CLASS(SHACL.NAMESPACE + "class"),
-    DATATYPE(SHACL.NAMESPACE + "datatype"),
-    SPARQL(SHACL.NAMESPACE + "sparql"),
-    SELECT(SHACL.NAMESPACE + "select"),
-    PARAMETER(SHACL.NAMESPACE + "parameter"),
-    IRI(SHACL.NAMESPACE + "IRI"),
-    OPTIONAL(SHACL.NAMESPACE + "optional"),
-    NODESHAPE(SHACL.NAMESPACE + "NodeShape"),
-    TARGETCLASS(SHACL.NAMESPACE + "targetClass"),
-    NODE(SHACL.NAMESPACE + "node"),
-    ORDER(SHACL.NAMESPACE + "order"),
-    OR(SHACL.NAMESPACE + "or"),
-    NOT(SHACL.NAMESPACE + "not"),
-    NODE_KIND(SHACL.NAMESPACE + "nodeKind"),
-    PROPERTYSHAPE(SHACL.NAMESPACE + "PropertyShape"),
-    AND(SHACL.NAMESPACE + "and"),
-    NODES(SHACL.NAMESPACE + "nodes"),
-    TARGET_TYPE(SHACL.NAMESPACE + "targetType"),
-    TARGET(SHACL.NAMESPACE + "target"),
-    SPARQL_TARGET(SHACL.NAMESPACE + "SPARQLTarget"),
-    FUNCTION(SHACL.NAMESPACE + "Function"),
-    RETURN_TYPE(SHACL.NAMESPACE + "returnType"),
-    GROUP(SHACL.NAMESPACE + "group"),
-    NAME(SHACL.NAMESPACE + "name"),
-    EXPRESSION(SHACL.NAMESPACE + "expression"),
-    HAS_VALUE(SHACL.NAMESPACE + "hasValue"),
+    PATH(Namespace.SHACL + "path"),
+    MININCLUSIVE(Namespace.SHACL + "minInclusive"),
+    MINEXCLUSIVE(Namespace.SHACL + "minExclusive"),
+    MAXINCLUSIVE(Namespace.SHACL + "maxInclusive"),
+    MAXEXCLUSIVE(Namespace.SHACL + "maxExclusive"),
+    PROPERTY(Namespace.SHACL + "property"),
+    PROPERTY_GROUP(Namespace.SHACL + "PropertyGroup"),
+    MINCOUNT(Namespace.SHACL + "minCount"),
+    MAXCOUNT(Namespace.SHACL + "maxCount"),
+    VALUE(Namespace.SHACL + "value"),
+    PATTERN(Namespace.SHACL + "pattern"),
+    INVERSEPATH(Namespace.SHACL + "inversePath"),
+    CLASS(Namespace.SHACL + "class"),
+    DATATYPE(Namespace.SHACL + "datatype"),
+    SPARQL(Namespace.SHACL + "sparql"),
+    SELECT(Namespace.SHACL + "select"),
+    PARAMETER(Namespace.SHACL + "parameter"),
+    IRI(Namespace.SHACL + "IRI"),
+    OPTIONAL(Namespace.SHACL + "optional"),
+    NODESHAPE(Namespace.SHACL + "NodeShape"),
+    TARGETCLASS(Namespace.SHACL + "targetClass"),
+    NODE(Namespace.SHACL + "node"),
+    ORDER(Namespace.SHACL + "order"),
+    OR(Namespace.SHACL + "or"),
+    NOT(Namespace.SHACL + "not"),
+    NODE_KIND(Namespace.SHACL + "nodeKind"),
+    PROPERTYSHAPE(Namespace.SHACL + "PropertyShape"),
+    AND(Namespace.SHACL + "and"),
+    NODES(Namespace.SHACL + "nodes"),
+    TARGET_TYPE(Namespace.SHACL + "targetType"),
+    TARGET(Namespace.SHACL + "target"),
+    SPARQL_TARGET(Namespace.SHACL + "SPARQLTarget"),
+    FUNCTION(Namespace.SHACL + "Function"),
+    RETURN_TYPE(Namespace.SHACL + "returnType"),
+    GROUP(Namespace.SHACL + "group"),
+    NAME(Namespace.SHACL + "name"),
+    EXPRESSION(Namespace.SHACL + "expression"),
+    HAS_VALUE(Namespace.SHACL + "hasValue"),
     ;
 
     private final String value;
@@ -84,11 +83,12 @@ public enum SHACL implements VocabEnum {
     }
 
     public static SHACL from(String text) {
-    for (SHACL b : SHACL.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (SHACL b : SHACL.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

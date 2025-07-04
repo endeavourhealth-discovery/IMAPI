@@ -13,8 +13,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum ORG implements VocabEnum {
 
-    ORGANISATION_NAMESPACE("http://org.endhealth.info/im#"),
-    LOCATION_NAMESPACE("http://loc.endhealth.info/im#"),
     ORGANISATION_RECORD_CLASS("http://endhealth.info/im#organisationRecordClass"),
     RELATED_ORGANISATION("http://endhealth.info/im#organisationRelationship"),
     TARGET("http://endhealth.info/im#targetOrganisation"),
@@ -51,11 +49,12 @@ public enum ORG implements VocabEnum {
     }
 
     public static ORG from(String text) {
-    for (ORG b : ORG.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (ORG b : ORG.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

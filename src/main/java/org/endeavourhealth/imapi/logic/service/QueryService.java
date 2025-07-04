@@ -95,10 +95,10 @@ public class QueryService {
   }
 
   public Query getDefaultQuery(Graph graph) throws JsonProcessingException {
-    List<TTEntity> children = entityRepository.getFolderChildren(IM.NAMESPACE + "Q_DefaultCohorts", graph, asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL,
+    List<TTEntity> children = entityRepository.getFolderChildren(Namespace.IM + "Q_DefaultCohorts", graph, asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL,
       IM.DEFINITION));
     if (children.isEmpty()) {
-      return new Query().setTypeOf(IM.NAMESPACE + "Patient");
+      return new Query().setTypeOf(Namespace.IM + "Patient");
     }
     TTEntity cohort = findFirstQuery(children, graph);
     Query defaultQuery = new Query();
@@ -119,7 +119,7 @@ public class QueryService {
     }
     for (TTEntity child : children) {
       if (child.isType(iri(IM.FOLDER))) {
-        List<TTEntity> subchildren = entityRepository.getFolderChildren(IM.NAMESPACE + "DefaultCohorts", graph, asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL,
+        List<TTEntity> subchildren = entityRepository.getFolderChildren(Namespace.IM + "DefaultCohorts", graph, asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL,
           IM.DEFINITION));
         if (subchildren == null || subchildren.isEmpty()) {
           return null;

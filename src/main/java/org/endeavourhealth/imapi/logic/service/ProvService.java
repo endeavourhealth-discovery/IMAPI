@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -31,7 +32,7 @@ public class ProvService {
     else if (null != targetEntity.getScheme() && null != targetEntity.getScheme().getIri())
       root = targetEntity.getScheme().getIri();
     else
-      root = IM.NAMESPACE.toString();
+      root = Namespace.IM.toString();
 
     String uir = getPerson(agentName, root);
     ProvAgent agent = new ProvAgent()

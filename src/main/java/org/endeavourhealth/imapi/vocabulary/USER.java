@@ -14,7 +14,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum USER implements VocabEnum {
 
     DOMAIN("http://endhealth.info/"),
-    NAMESPACE(USER.DOMAIN + "user#"),
     PREFIX("usr"),
     USER_PRESET(USER.DOMAIN + "UserPreset"),
     USER_PRIMARY_COLOR(USER.DOMAIN + "UserPrimaryColor"),
@@ -55,11 +54,12 @@ public enum USER implements VocabEnum {
     }
 
     public static USER from(String text) {
-    for (USER b : USER.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (USER b : USER.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

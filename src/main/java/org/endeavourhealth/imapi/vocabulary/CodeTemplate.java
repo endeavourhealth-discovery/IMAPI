@@ -14,14 +14,13 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum CodeTemplate implements VocabEnum {
 
     DOMAIN("http://endhealth.info/"),
-    NAMESPACE(CodeTemplate.DOMAIN + "codeTemplate#"),
     PREFIX("cTemp"),
-    WRAPPER(CodeTemplate.NAMESPACE + "wrapper"),
+    WRAPPER(Namespace.IM_CODE_TEMPLATE + "wrapper"),
     LABEL(RDFS.LABEL),
     DEFINITION(IM.DEFINITION),
-    DATATYPE_MAP(CodeTemplate.NAMESPACE + "datatypeMap"),
-    EXTENSION(CodeTemplate.NAMESPACE + "extension"),
-    INCLUDE_COMPLEX_TYPES(CodeTemplate.NAMESPACE + "includeComplexTypes"),
+    DATATYPE_MAP(Namespace.IM_CODE_TEMPLATE + "datatypeMap"),
+    EXTENSION(Namespace.IM_CODE_TEMPLATE + "extension"),
+    INCLUDE_COMPLEX_TYPES(Namespace.IM_CODE_TEMPLATE + "includeComplexTypes"),
     ;
 
     private final String value;
@@ -53,11 +52,12 @@ public enum CodeTemplate implements VocabEnum {
     }
 
     public static CodeTemplate from(String text) {
-    for (CodeTemplate b : CodeTemplate.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (CodeTemplate b : CodeTemplate.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

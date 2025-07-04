@@ -13,21 +13,20 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum XSD implements VocabEnum {
 
-    NAMESPACE("http://www.w3.org/2001/XMLSchema#"),
     PREFIX("xsd"),
-    PATTERN(XSD.NAMESPACE + "pattern"),
-    MIN_INCLUSIVE(XSD.NAMESPACE + "minInclusive"),
-    MIN_EXCLUSIVE(XSD.NAMESPACE + "minExclusive"),
-    MAX_INCLUSIVE(XSD.NAMESPACE + "maxInclusive"),
-    MAX_EXCLUSIVE(XSD.NAMESPACE + "maxExclusive"),
-    INTEGER(XSD.NAMESPACE + "integer"),
-    STRING(XSD.NAMESPACE + "string"),
-    BOOLEAN(XSD.NAMESPACE + "boolean"),
-    LONG(XSD.NAMESPACE + "long"),
-    DOUBLE(XSD.NAMESPACE + "double"),
-    DATE_TIME(XSD.NAMESPACE + "dateTime"),
-    NUMBER(XSD.NAMESPACE + "number"),
-    DECIMAL(XSD.NAMESPACE + "decimal"),
+    PATTERN(Namespace.XSD + "pattern"),
+    MIN_INCLUSIVE(Namespace.XSD + "minInclusive"),
+    MIN_EXCLUSIVE(Namespace.XSD + "minExclusive"),
+    MAX_INCLUSIVE(Namespace.XSD + "maxInclusive"),
+    MAX_EXCLUSIVE(Namespace.XSD + "maxExclusive"),
+    INTEGER(Namespace.XSD + "integer"),
+    STRING(Namespace.XSD + "string"),
+    BOOLEAN(Namespace.XSD + "boolean"),
+    LONG(Namespace.XSD + "long"),
+    DOUBLE(Namespace.XSD + "double"),
+    DATE_TIME(Namespace.XSD + "dateTime"),
+    NUMBER(Namespace.XSD + "number"),
+    DECIMAL(Namespace.XSD + "decimal"),
     ;
 
     private final String value;
@@ -59,11 +58,12 @@ public enum XSD implements VocabEnum {
     }
 
     public static XSD from(String text) {
-    for (XSD b : XSD.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (XSD b : XSD.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

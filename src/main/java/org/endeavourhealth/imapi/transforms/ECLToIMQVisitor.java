@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.parser.imecl.IMECLBaseVisitor;
 import org.endeavourhealth.imapi.parser.imecl.IMECLParser;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.net.MalformedURLException;
@@ -287,7 +288,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   @Override
   public Object visitSctid(IMECLParser.SctidContext ctx) {
-    return SNOMED.NAMESPACE + ctx.getText();
+    return Namespace.SNOMED + ctx.getText();
   }
 
 

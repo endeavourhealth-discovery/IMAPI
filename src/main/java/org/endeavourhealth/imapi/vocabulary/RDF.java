@@ -13,14 +13,13 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum RDF implements VocabEnum {
 
-    NAMESPACE("http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
     PREFIX("rdf"),
-    TYPE(RDF.NAMESPACE + "type"),
-    PROPERTY(RDF.NAMESPACE + "Property"),
-    LIST(RDF.NAMESPACE + "List"),
-    PREDICATE(RDF.NAMESPACE + "predicate"),
-    SUBJECT(RDF.NAMESPACE + "subject"),
-    OBJECT(RDF.NAMESPACE + "object"),
+    TYPE(Namespace.RDF + "type"),
+    PROPERTY(Namespace.RDF + "Property"),
+    LIST(Namespace.RDF + "List"),
+    PREDICATE(Namespace.RDF + "predicate"),
+    SUBJECT(Namespace.RDF + "subject"),
+    OBJECT(Namespace.RDF + "object"),
     ;
 
     private final String value;
@@ -52,11 +51,12 @@ public enum RDF implements VocabEnum {
     }
 
     public static RDF from(String text) {
-    for (RDF b : RDF.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (RDF b : RDF.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

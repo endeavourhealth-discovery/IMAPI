@@ -6,7 +6,6 @@ import org.eclipse.rdf4j.model.impl.ValidatingValueFactory;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.FileRepository;
@@ -79,7 +78,7 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  public Map<String, String> getCodesToIri(String scheme, Graph graph) throws IOException {
+  public Map<String, String> getCodesToIri(SCHEME scheme, Graph graph) throws IOException {
     Map<String, String> codeToIri;
     if (TTFilerFactory.isBulk())
       codeToIri = fileRepo.getCodeToIri();
@@ -89,20 +88,20 @@ public class ImportMaps implements AutoCloseable {
     codeToIri.entrySet().stream().forEach(item -> {
       String entry = item.getKey();
       String value = item.getValue();
-      if (entry.startsWith(scheme)) {
-        String code = entry.split(scheme)[1];
+      if (entry.startsWith(scheme.toString())) {
+        String code = entry.split(scheme.toString())[1];
         map.put(code, value);
       }
     });
     return map;
   }
 
-  public Set<String> getCodes(String scheme, Graph graph) throws IOException {
+  public Set<String> getCodes(SCHEME scheme, Graph graph) throws IOException {
     Map<String, String> codeToIri = getCodeToIri(graph);
     Set<String> codes = new HashSet<>();
     codeToIri.forEach((entry, value) -> {
-      if (entry.startsWith(scheme)) {
-        String code = entry.split(scheme)[1];
+      if (entry.startsWith(scheme.toString())) {
+        String code = entry.split(scheme.toString())[1];
         codes.add(code);
       }
     });
@@ -120,7 +119,7 @@ public class ImportMaps implements AutoCloseable {
       return new EntityRepository().getAllMatchedLegacy(graph);
   }
 
-  public Set<Entity> getCoreFromLegacyTerm(String term, SCHEME scheme, Graph graph) throws IOException {
+  public Set<Entity> getCoreFromLegacyTerm(String term, SCHEME scheme, Graph graph) {
     return new EntityRepository().getCoreFromLegacyTerm(term, scheme, graph);
 
   }
@@ -200,7 +199,7 @@ public class ImportMaps implements AutoCloseable {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
       qry.setBinding("concept", valueFactory.createIRI(concept));
-      qry.setBinding("snomedNamespace", SNOMED.NAMESPACE.asDbIri());
+      qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
       qry.setBinding("subClassOf", RDFS.SUBCLASS_OF.asDbIri());
       qry.setBinding("label", RDFS.LABEL.asDbIri());
       try (TupleQueryResult rs = qry.evaluate();) {
@@ -257,7 +256,7 @@ public class ImportMaps implements AutoCloseable {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
       qry.setBinding("code", IM.CODE.asDbIri());
-      qry.setBinding("snomedNamespace", SNOMED.NAMESPACE.asDbIri());
+      qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -286,7 +285,7 @@ public class ImportMaps implements AutoCloseable {
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
-      qry.setBinding("snomedNamespace", SNOMED.NAMESPACE.asDbIri());
+      qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
       qry.setBinding("vision", SCHEME.VISION.asDbIri());
       qry.setBinding("imCode", IM.CODE.asDbIri());
       qry.setBinding("matchedTo", IM.MATCHED_TO.asDbIri());
@@ -394,7 +393,7 @@ public class ImportMaps implements AutoCloseable {
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
-      qry.setBinding("snomedNamespace", SNOMED.NAMESPACE.asDbIri());
+      qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
       qry.setBinding("emis", SCHEME.EMIS.asDbIri());
       qry.setBinding("imCode", IM.CODE.asDbIri());
       qry.setBinding("matchedTo", IM.MATCHED_TO.asDbIri());
@@ -434,7 +433,7 @@ public class ImportMaps implements AutoCloseable {
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
-      qry.setBinding("snomedNamespace", SNOMED.NAMESPACE.asDbIri());
+      qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -448,7 +447,7 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  public Set<Entity> getLegacyFromTermCode(String originalCode, SCHEME scheme, Graph graph) throws IOException {
+  public Set<Entity> getLegacyFromTermCode(String originalCode, SCHEME scheme, Graph graph) {
     return new EntityRepository().getReferenceFromTermCode(originalCode, scheme, graph);
   }
 

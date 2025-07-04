@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.model.codegen.DataModel;
 import org.endeavourhealth.imapi.model.codegen.DataModelProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
@@ -334,7 +335,7 @@ public class CodeGenJava {
 
   private String getDataType(TTIriRef dataType, boolean dataModel, boolean isArray) {
     String dataTypeName = null;
-    if (dataType.getIri().startsWith(XSD.NAMESPACE.toString())) {
+    if (dataType.getIri().startsWith(Namespace.XSD.toString())) {
       dataTypeName = capitalise(getSuffix(dataType.getIri()));
     } else if (dataModel) {
       dataTypeName = "UUID";

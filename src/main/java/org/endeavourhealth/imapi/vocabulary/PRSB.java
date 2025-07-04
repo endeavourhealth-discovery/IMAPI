@@ -13,7 +13,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum PRSB implements VocabEnum {
 
-    NAMESPACE("http://prsb.info/rs#"),
     PREFIX("rs"),
     ;
 
@@ -46,11 +45,12 @@ public enum PRSB implements VocabEnum {
     }
 
     public static PRSB from(String text) {
-    for (PRSB b : PRSB.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (PRSB b : PRSB.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

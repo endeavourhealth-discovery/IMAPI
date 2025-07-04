@@ -14,14 +14,13 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum EDITOR implements VocabEnum {
 
     DOMAIN("http://endhealth.info/im#"),
-    NAMESPACE(EDITOR.DOMAIN + "Editor_"),
-    CONCEPT_SHAPE(EDITOR.NAMESPACE + "ConceptShape"),
-    CONCEPT_SET_SHAPE(EDITOR.NAMESPACE + "ConceptSetShape"),
-    VALUE_SET_SHAPE(EDITOR.NAMESPACE + "ValueSetShape"),
-    FOLDER_SHAPE(EDITOR.NAMESPACE + "FolderShape"),
-    DATA_MODEL_SHAPE(EDITOR.NAMESPACE + "DataModelShape"),
-    COHORT_QUERY_SHAPE(EDITOR.NAMESPACE + "CohortQueryShape"),
-    PROPERTY_SHAPE(EDITOR.NAMESPACE + "PropertyShape"),
+    CONCEPT_SHAPE(Namespace.IM_EDITOR + "ConceptShape"),
+    CONCEPT_SET_SHAPE(Namespace.IM_EDITOR + "ConceptSetShape"),
+    VALUE_SET_SHAPE(Namespace.IM_EDITOR + "ValueSetShape"),
+    FOLDER_SHAPE(Namespace.IM_EDITOR + "FolderShape"),
+    DATA_MODEL_SHAPE(Namespace.IM_EDITOR + "DataModelShape"),
+    COHORT_QUERY_SHAPE(Namespace.IM_EDITOR + "CohortQueryShape"),
+    PROPERTY_SHAPE(Namespace.IM_EDITOR + "PropertyShape"),
     ;
 
     private final String value;
@@ -53,11 +52,12 @@ public enum EDITOR implements VocabEnum {
     }
 
     public static EDITOR from(String text) {
-    for (EDITOR b : EDITOR.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (EDITOR b : EDITOR.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

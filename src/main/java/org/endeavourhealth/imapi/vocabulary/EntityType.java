@@ -46,11 +46,12 @@ public enum EntityType implements VocabEnum {
     }
 
     public static EntityType from(String text) {
-    for (EntityType b : EntityType.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (EntityType b : EntityType.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

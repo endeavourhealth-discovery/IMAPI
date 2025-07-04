@@ -55,11 +55,12 @@ public enum OpenSearch implements VocabEnum {
     }
 
     public static OpenSearch from(String text) {
-    for (OpenSearch b : OpenSearch.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (OpenSearch b : OpenSearch.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

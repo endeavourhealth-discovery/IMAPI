@@ -22,7 +22,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Slf4j
 public class TTBulkFiler implements TTDocumentFiler {
-  private static final Set<String> specialChildren = new HashSet<>(List.of(SNOMED.NAMESPACE + "92381000000106"));
+  private static final Set<String> specialChildren = new HashSet<>(List.of(Namespace.SNOMED + "92381000000106"));
   private static String dataPath;
   private static String configTTl;
   private static String preload;
@@ -180,12 +180,22 @@ public class TTBulkFiler implements TTDocumentFiler {
 
   private void writeGraph(TTDocument document) throws TTFilerException {
 
-    Graph graph = null;
-    if (document.getNamespace() != null) {
-      graph = Graph.from(document.getNamespace().getIri());
-    }
-    assert graph != null;
-    SCHEME scheme = SCHEME.from(graph.toString().substring(graph.toString().lastIndexOf("/") + 1));
+    String namespaceIri = document.getNamespace().getIri();
+    if (namespaceIri == null)
+      throw new TTFilerException("Document has no namespace set");
+
+    Namespace namespace = Namespace.from(namespaceIri);
+    if (namespace == null)
+      throw new TTFilerException("Unrecognized namespace [" +  namespaceIri + "]");
+
+    Graph graph = Graph.from(namespace.toString());
+    if (graph == null)
+      throw new TTFilerException("Unrecognized graph [" +  namespaceIri + "]");
+
+    SCHEME scheme = SCHEME.from(namespace.toString());
+    if (scheme == null)
+      throw new TTFilerException("Unrecognized scheme [" +  namespaceIri + "]");
+
     String path = dataPath;
 
     try {
@@ -196,20 +206,25 @@ public class TTBulkFiler implements TTDocumentFiler {
       log.info("Writing out graph data for {}", graph);
       for (TTEntity entity : document.getEntities()) {
         counter++;
-        Graph entityGraph = entity.getGraph() != null ? entity.getGraph() : graph;
+        Namespace entityNS = entity.getGraph() == null ? namespace : Namespace.from(entity.getGraph().toString());
+
         if (entity.get(IM.PRIVACY_LEVEL.asIri()) != null && (entity.get(IM.PRIVACY_LEVEL.asIri()).asLiteral().intValue() > getPrivacyLevel()))
           continue;
+
+        if (entityNS == null)
+          throw new TTFilerException("Unrecognized namespace on entity [" +  entity.getGraph() + "]");
+
 
         allEntities.write(entity.getIri() + "\n");
         if (graph.equals(Graph.IM))
           coreIris.write(entity.getIri() + "\t" + entity.getName() + "\n");
-        addToMaps(entity, entityGraph);
+        addToMaps(entity, entityNS);
         addSubtypes(entity);
-        addTerms(entity, entityGraph);
+        addTerms(entity, entityNS);
 
         setStatusAndScheme(entity);
 
-        transformAndWriteQuads(converter, entity, entityGraph);
+        transformAndWriteQuads(converter, entity, graph);
         if (counter % 100000 == 0) {
           log.info("{} entities from {} written", counter, document.getNamespace().getIri());
         }
@@ -264,9 +279,8 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void addTerms(TTEntity entity, Graph graph) throws IOException {
-    boolean isCoreGraph = graph.equals(Graph.IM);
-    if (isCoreGraph && entity.getName() != null)
+  private void addTerms(TTEntity entity, Namespace namespace) throws IOException {
+    if (namespace.equals(Namespace.IM) && entity.getName() != null)
       coreTerms.write(entity.getName() + "\t" + entity.getIri() + "\n");
   }
 
@@ -282,22 +296,22 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void addToMaps(TTEntity entity, Graph graph) throws IOException {
-    addCodeToMaps(entity, graph);
+  private void addToMaps(TTEntity entity, Namespace namespace) throws IOException {
+    addCodeToMaps(entity, namespace);
     addCodeIdToMaps(entity);
-    addTermCodeToMaps(entity, graph);
-    addMatchToToMaps(entity, graph);
+    addTermCodeToMaps(entity, namespace);
+    addMatchToToMaps(entity, namespace);
   }
 
-  private void addCodeToMaps(TTEntity entity, Graph graph) throws IOException {
+  private void addCodeToMaps(TTEntity entity, Namespace namespace) throws IOException {
     if (entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)) != null) {
-      codeMap.write(graph + entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
-      if (graph.equals(IM.NAMESPACE) || (graph.equals(SNOMED.NAMESPACE)))
+      codeMap.write(namespace + entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
+      if (namespace.equals(Namespace.IM) || (namespace.equals(Namespace.SNOMED)))
         codeCoreMap.write(entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
     } else {
       if (entity.getCode() != null) {
-        codeMap.write(graph + entity.getCode() + "\t" + entity.getIri() + "\n");
-        if (graph.equals(IM.NAMESPACE) || (graph.equals(SNOMED.NAMESPACE)))
+        codeMap.write(namespace + entity.getCode() + "\t" + entity.getIri() + "\n");
+        if (namespace.equals(Namespace.IM) || (namespace.equals(Namespace.SNOMED)))
           codeCoreMap.write(entity.getCode() + "\t" + entity.getIri() + "\n");
       }
     }
@@ -311,20 +325,20 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void addTermCodeToMaps(TTEntity entity, Graph graph) throws IOException {
+  private void addTermCodeToMaps(TTEntity entity, Namespace namespace) throws IOException {
     if (entity.get(iri(IM.HAS_TERM_CODE)) != null) {
       for (TTValue tc : entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
         if (tc.asNode().get(iri(IM.CODE)) != null) {
           String code = tc.asNode().get(iri(IM.CODE)).asLiteral().getValue();
-          if (graph.equals(IM.NAMESPACE) || (graph.equals(SNOMED.NAMESPACE)))
+          if (namespace.equals(Namespace.IM) || (namespace.equals(Namespace.SNOMED)))
             codeCoreMap.write(code + "\t" + entity.getIri() + "\n");
         }
       }
     }
   }
 
-  private void addMatchToToMaps(TTEntity entity, Graph graph) throws IOException {
-    boolean isCoreGraph = graph.equals(IM.NAMESPACE) || graph.equals(SNOMED.NAMESPACE);
+  private void addMatchToToMaps(TTEntity entity, Namespace namespace) throws IOException {
+    boolean isCoreGraph = namespace.equals(Namespace.IM) || namespace.equals(Namespace.SNOMED);
 
     if (entity.get(iri(IM.MATCHED_TO)) != null) {
       for (TTValue core : entity.get(iri(IM.MATCHED_TO)).getElements()) {

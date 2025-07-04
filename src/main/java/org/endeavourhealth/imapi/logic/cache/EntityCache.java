@@ -21,11 +21,11 @@ public class EntityCache implements Runnable {
 
   @Getter
   public static final TTContext defaultPrefixes = new TTContext()
-    .add(RDFS.NAMESPACE, "rdfs")
-    .add(RDF.NAMESPACE, "rdf")
-    .add(IM.NAMESPACE, "im")
-    .add(XSD.NAMESPACE, "xsd")
-    .add(SNOMED.NAMESPACE, "sn");
+    .add(Namespace.RDFS, "rdfs")
+    .add(Namespace.RDF, "rdf")
+    .add(Namespace.IM, "im")
+    .add(Namespace.XSD, "xsd")
+    .add(Namespace.SNOMED, "sn");
   public static final Object shapeLock = new Object();
   public static final Object propertyLock = new Object();
   public static final Object entityLock = new Object();

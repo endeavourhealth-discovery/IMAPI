@@ -14,7 +14,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum BNF implements VocabEnum {
 
     DOMAIN("http://bnf.info/"),
-    NAMESPACE(BNF.DOMAIN + "bnf#"),
     ;
 
     private final String value;
@@ -46,11 +45,12 @@ public enum BNF implements VocabEnum {
     }
 
     public static BNF from(String text) {
-    for (BNF b : BNF.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (BNF b : BNF.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

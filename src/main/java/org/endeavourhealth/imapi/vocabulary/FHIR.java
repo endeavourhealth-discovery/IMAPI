@@ -49,11 +49,12 @@ public enum FHIR implements VocabEnum {
     }
 
     public static FHIR from(String text) {
-    for (FHIR b : FHIR.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (FHIR b : FHIR.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

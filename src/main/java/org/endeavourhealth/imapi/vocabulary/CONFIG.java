@@ -13,15 +13,14 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum CONFIG implements VocabEnum {
 
-    NAMESPACE("http://endhealth.info/config#"),
     DOMAIN("http://endhealth.info/"),
     PREFIX("cfg"),
     LABEL(RDFS.LABEL),
     HAS_CONFIG(IM.HAS_CONFIG),
     COMMENT(RDFS.COMMENT),
-    IMDIRECTORY_LATEST_RELEASE(CONFIG.NAMESPACE + "IMDirectoryLatestRelease"),
-    IMDIRECTORY_ALL_RELEASES(CONFIG.NAMESPACE + "IMDirectoryAllReleases"),
-    MONITORING(CONFIG.NAMESPACE + "monitoring"),
+    IMDIRECTORY_LATEST_RELEASE(Namespace.CONFIG + "IMDirectoryLatestRelease"),
+    IMDIRECTORY_ALL_RELEASES(Namespace.CONFIG + "IMDirectoryAllReleases"),
+    MONITORING(Namespace.CONFIG + "monitoring"),
     ;
 
     private final String value;
@@ -53,11 +52,12 @@ public enum CONFIG implements VocabEnum {
     }
 
     public static CONFIG from(String text) {
-    for (CONFIG b : CONFIG.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (CONFIG b : CONFIG.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

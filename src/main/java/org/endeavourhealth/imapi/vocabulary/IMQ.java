@@ -13,7 +13,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum IMQ implements VocabEnum {
 
-    NAMESPACE("http://endhealth.info/imq#"),
     ;
 
     private final String value;
@@ -45,11 +44,12 @@ public enum IMQ implements VocabEnum {
     }
 
     public static IMQ from(String text) {
-    for (IMQ b : IMQ.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (IMQ b : IMQ.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

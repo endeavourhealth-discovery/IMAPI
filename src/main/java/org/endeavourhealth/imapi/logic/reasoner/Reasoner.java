@@ -344,7 +344,7 @@ public class Reasoner {
         if (!sob.getRepresentativeElement().isAnonymous()) {
           String iriName = sob.getRepresentativeElement().asOWLObjectProperty()
             .getIRI().toString();
-          if (!iriName.equals(OWL.NAMESPACE + "topObjectProperty") && (!iriName.contains("_TOP_"))) {
+          if (!iriName.equals(Namespace.OWL + "topObjectProperty") && (!iriName.contains("_TOP_"))) {
             addSubClassOf(c, TTIriRef
               .iri(iriName));
           } else {
@@ -363,7 +363,7 @@ public class Reasoner {
         if (!sob.getRepresentativeElement().isAnonymous()) {
           String iriName = sob.getRepresentativeElement().asOWLDataProperty()
             .getIRI().toString();
-          if (!iriName.equals(OWL.NAMESPACE + "topDataProperty") && (!iriName.contains("_TOP_"))) {
+          if (!iriName.equals(Namespace.OWL + "topDataProperty") && (!iriName.contains("_TOP_"))) {
             addSubClassOf(c, TTIriRef.iri(iriName));
           } else {
             addSubClassOf(c, iri(RDF.PROPERTY));

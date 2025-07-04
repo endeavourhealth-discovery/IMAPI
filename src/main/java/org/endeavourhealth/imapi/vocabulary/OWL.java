@@ -13,37 +13,36 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum OWL implements VocabEnum {
 
-    NAMESPACE("http://www.w3.org/2002/07/owl#"),
     PREFIX("owl"),
-    THING(OWL.NAMESPACE + "Thing"),
-    CLASS(OWL.NAMESPACE + "Class"),
-    EQUIVALENT_CLASS(OWL.NAMESPACE + "equivalentClass"),
-    INTERSECTION_OF(OWL.NAMESPACE + "intersectionOf"),
-    UNION_OF(OWL.NAMESPACE + "unionOf"),
-    RESTRICTION(OWL.NAMESPACE + "Restriction"),
-    ON_PROPERTY(OWL.NAMESPACE + "onProperty"),
-    ON_CLASS(OWL.NAMESPACE + "onClass"),
-    SOME_VALUES_FROM(OWL.NAMESPACE + "someValuesFrom"),
-    ALL_VALUES_FROM(OWL.NAMESPACE + "allValuesFrom"),
-    OBJECT_PROPERTY(OWL.NAMESPACE + "ObjectProperty"),
-    DATATYPE_PROPERTY(OWL.NAMESPACE + "DatatypeProperty"),
-    ANNOTATION_PROPERTY(OWL.NAMESPACE + "AnnotationProperty"),
-    INVERSE_OF(OWL.NAMESPACE + "inverseOf"),
-    INVERSE_OBJECT_PROPERTY(OWL.NAMESPACE + "inverseOf"),
-    PROPERTY_CHAIN(OWL.NAMESPACE + "propertyChainAxiom"),
-    TRANSITIVE(OWL.NAMESPACE + "TransitiveProperty"),
-    FUNCTIONAL(OWL.NAMESPACE + "FunctionalProperty"),
-    SYMMETRIC(OWL.NAMESPACE + "SymmetricProperty"),
-    REFLEXIVE(OWL.NAMESPACE + "ReflexiveProperty"),
-    ON_DATATYPE(OWL.NAMESPACE + "onDatatype"),
-    WITH_RESTRICTIONS(OWL.NAMESPACE + "withRestrictions"),
-    MAX_CARDINALITY(OWL.NAMESPACE + "maxCardinality"),
-    MIN_CARDINALITY(OWL.NAMESPACE + "minCardinality"),
-    ON_DATA_RANGE(OWL.NAMESPACE + "onDataRange"),
-    HAS_VALUE(OWL.NAMESPACE + "hasValue"),
-    COMPLEMENT_OF(OWL.NAMESPACE + "complementOf"),
-    ONE_OF(OWL.NAMESPACE + "oneOf"),
-    NAMED_INDIVIDUAL(OWL.NAMESPACE + "NamedIndividual"),
+    THING(Namespace.OWL + "Thing"),
+    CLASS(Namespace.OWL + "Class"),
+    EQUIVALENT_CLASS(Namespace.OWL + "equivalentClass"),
+    INTERSECTION_OF(Namespace.OWL + "intersectionOf"),
+    UNION_OF(Namespace.OWL + "unionOf"),
+    RESTRICTION(Namespace.OWL + "Restriction"),
+    ON_PROPERTY(Namespace.OWL + "onProperty"),
+    ON_CLASS(Namespace.OWL + "onClass"),
+    SOME_VALUES_FROM(Namespace.OWL + "someValuesFrom"),
+    ALL_VALUES_FROM(Namespace.OWL + "allValuesFrom"),
+    OBJECT_PROPERTY(Namespace.OWL + "ObjectProperty"),
+    DATATYPE_PROPERTY(Namespace.OWL + "DatatypeProperty"),
+    ANNOTATION_PROPERTY(Namespace.OWL + "AnnotationProperty"),
+    INVERSE_OF(Namespace.OWL + "inverseOf"),
+    INVERSE_OBJECT_PROPERTY(Namespace.OWL + "inverseOf"),
+    PROPERTY_CHAIN(Namespace.OWL + "propertyChainAxiom"),
+    TRANSITIVE(Namespace.OWL + "TransitiveProperty"),
+    FUNCTIONAL(Namespace.OWL + "FunctionalProperty"),
+    SYMMETRIC(Namespace.OWL + "SymmetricProperty"),
+    REFLEXIVE(Namespace.OWL + "ReflexiveProperty"),
+    ON_DATATYPE(Namespace.OWL + "onDatatype"),
+    WITH_RESTRICTIONS(Namespace.OWL + "withRestrictions"),
+    MAX_CARDINALITY(Namespace.OWL + "maxCardinality"),
+    MIN_CARDINALITY(Namespace.OWL + "minCardinality"),
+    ON_DATA_RANGE(Namespace.OWL + "onDataRange"),
+    HAS_VALUE(Namespace.OWL + "hasValue"),
+    COMPLEMENT_OF(Namespace.OWL + "complementOf"),
+    ONE_OF(Namespace.OWL + "oneOf"),
+    NAMED_INDIVIDUAL(Namespace.OWL + "NamedIndividual"),
     ;
 
     private final String value;
@@ -75,11 +74,12 @@ public enum OWL implements VocabEnum {
     }
 
     public static OWL from(String text) {
-    for (OWL b : OWL.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (OWL b : OWL.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

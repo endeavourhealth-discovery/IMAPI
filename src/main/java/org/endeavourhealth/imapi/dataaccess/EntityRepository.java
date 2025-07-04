@@ -18,6 +18,7 @@ import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -59,7 +60,7 @@ public class EntityRepository {
     if (rs.hasBinding("extraType")) {
       TTIriRef extraType = TTIriRef.iri(rs.getValue("extraType").stringValue(), rs.getValue("extraTypeName").stringValue());
       entityDocument.addType(extraType);
-      if (extraType.equals(TTIriRef.iri(IM.NAMESPACE + "DataModelEntity"))) {
+      if (extraType.equals(TTIriRef.iri(Namespace.IM + "DataModelEntity"))) {
         int usageTotal = 2000000;
         entityDocument.setUsageTotal(usageTotal);
       }
@@ -864,7 +865,7 @@ public class EntityRepository {
     }
   }
 
-  public Map<String, String> getCodesToIri(String scheme, Graph graph) {
+  public Map<String, String> getCodesToIri(SCHEME scheme, Graph graph) {
     String sql = """
       SELECT ?code ?scheme ?iri ?altCode
       WHERE {
@@ -917,7 +918,7 @@ public class EntityRepository {
    * @return iri and name of entity
    */
   public TTIriRef getReferenceFromCoreTerm(String term, Graph graph) {
-    List<String> schemes = asArrayList(IM.NAMESPACE, SNOMED.NAMESPACE);
+    List<String> schemes = asArrayList(SCHEME.IM, SCHEME.SNOMED);
     String sql = """
       select ?concept ?label
       from ?g

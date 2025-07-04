@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.transforms.eqd.VocPopulationParentType;
 import org.endeavourhealth.imapi.transforms.eqd.VocRuleAction;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.io.IOException;
 
@@ -24,14 +25,14 @@ public class EqdPopToIMQ {
       EqdToIMQ.gmsPatients.add(activeReport);
     this.resources = resources;
     this.resources.setQueryType(QueryType.POP);
-    query.setTypeOf(new Node().setIri(IM.NAMESPACE + "Patient"));
+    query.setTypeOf(new Node().setIri(Namespace.IM + "Patient"));
     if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
       query.addRule(new Match()
         .setIfTrue(RuleAction.NEXT)
         .setIfFalse(RuleAction.REJECT)
         .setBaseRule(true)
         .addInstanceOf(
-          new Node().setIri(IM.NAMESPACE + "Q_RegisteredGMS")
+          new Node().setIri(Namespace.IM + "Q_RegisteredGMS")
             .setName("Registered with GP for GMS services on the reference date")
             .setMemberOf(true)));
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()) {
@@ -47,7 +48,7 @@ public class EqdPopToIMQ {
           .setIfFalse(RuleAction.REJECT)
           .setBaseRule(true)
           .addInstanceOf(
-            new Node().setIri(IM.NAMESPACE + "Q_RegisteredGMS")
+            new Node().setIri(Namespace.IM + "Q_RegisteredGMS")
               .setName("Registered with GP for GMS services on the reference date")
               .setMemberOf(true)));
       } else {

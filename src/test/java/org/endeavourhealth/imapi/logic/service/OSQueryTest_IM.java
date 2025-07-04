@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,7 @@ class OSQueryTest_IM {
         .setWhere(
           new Where()
             .setIri(IM.HAS_SCHEME)
-            .setIs(List.of(new Node().setIri(SNOMED.NAMESPACE.toString())))
+            .setIs(List.of(new Node().setIri(Namespace.SNOMED.toString())))
         )
       );
 

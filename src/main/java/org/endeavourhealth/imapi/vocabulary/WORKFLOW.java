@@ -14,33 +14,32 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum WORKFLOW implements VocabEnum {
 
     DOMAIN("http://endhealth.info/"),
-    NAMESPACE(WORKFLOW.DOMAIN + "workflow#"),
-    BUG_REPORT(WORKFLOW.NAMESPACE + "bugReport"),
-    DATE_CREATED(WORKFLOW.NAMESPACE + "dateCreated"),
-    CREATED_BY(WORKFLOW.NAMESPACE + "createdBy"),
-    ASSIGNED_TO(WORKFLOW.NAMESPACE + "assignedTo"),
-    STATE(WORKFLOW.NAMESPACE + "state"),
-    HOST_URL(WORKFLOW.NAMESPACE + "hostUrl"),
-    RELATED_PRODUCT(WORKFLOW.NAMESPACE + "relatedProduct"),
-    RELATED_MODULE(WORKFLOW.NAMESPACE + "relatedModule"),
-    OPERATING_SYSTEM(WORKFLOW.NAMESPACE + "operatingSystem"),
-    OPERATING_SYSTEM_OTHER(WORKFLOW.NAMESPACE + "operatingSystemOther"),
-    BROWSER(WORKFLOW.NAMESPACE + "browser"),
-    BROWSER_OTHER(WORKFLOW.NAMESPACE + "browserOther"),
-    SEVERITY(WORKFLOW.NAMESPACE + "severity"),
-    ERROR(WORKFLOW.NAMESPACE + "errorDetails"),
-    REPRODUCE_STEPS(WORKFLOW.NAMESPACE + "reproduceSteps"),
-    EXPECTED_RESULT(WORKFLOW.NAMESPACE + "expectedResult"),
-    ACTUAL_RESULT(WORKFLOW.NAMESPACE + "actualResult"),
-    RELATED_VERSION(WORKFLOW.NAMESPACE + "relatedVersion"),
-    REQUESTED_ROLE(WORKFLOW.NAMESPACE + "requestedRole"),
-    APPROVAL_TYPE(WORKFLOW.NAMESPACE + "approvalType"),
-    HISTORY(WORKFLOW.NAMESPACE + "history"),
-    HISTORY_PREDICATE(WORKFLOW.NAMESPACE + "historyPredicate"),
-    HISTORY_ORIGINAL_OBJECT(WORKFLOW.NAMESPACE + "historyOriginalObject"),
-    HISTORY_NEW_OBJECT(WORKFLOW.NAMESPACE + "historyNewObject"),
-    HISTORY_CHANGE_DATE(WORKFLOW.NAMESPACE + "historyChangeDate"),
-    MODIFIED_BY(WORKFLOW.NAMESPACE + "modifiedBy"),
+    BUG_REPORT(Namespace.WORKFLOW + "bugReport"),
+    DATE_CREATED(Namespace.WORKFLOW + "dateCreated"),
+    CREATED_BY(Namespace.WORKFLOW + "createdBy"),
+    ASSIGNED_TO(Namespace.WORKFLOW + "assignedTo"),
+    STATE(Namespace.WORKFLOW + "state"),
+    HOST_URL(Namespace.WORKFLOW + "hostUrl"),
+    RELATED_PRODUCT(Namespace.WORKFLOW + "relatedProduct"),
+    RELATED_MODULE(Namespace.WORKFLOW + "relatedModule"),
+    OPERATING_SYSTEM(Namespace.WORKFLOW + "operatingSystem"),
+    OPERATING_SYSTEM_OTHER(Namespace.WORKFLOW + "operatingSystemOther"),
+    BROWSER(Namespace.WORKFLOW + "browser"),
+    BROWSER_OTHER(Namespace.WORKFLOW + "browserOther"),
+    SEVERITY(Namespace.WORKFLOW + "severity"),
+    ERROR(Namespace.WORKFLOW + "errorDetails"),
+    REPRODUCE_STEPS(Namespace.WORKFLOW + "reproduceSteps"),
+    EXPECTED_RESULT(Namespace.WORKFLOW + "expectedResult"),
+    ACTUAL_RESULT(Namespace.WORKFLOW + "actualResult"),
+    RELATED_VERSION(Namespace.WORKFLOW + "relatedVersion"),
+    REQUESTED_ROLE(Namespace.WORKFLOW + "requestedRole"),
+    APPROVAL_TYPE(Namespace.WORKFLOW + "approvalType"),
+    HISTORY(Namespace.WORKFLOW + "history"),
+    HISTORY_PREDICATE(Namespace.WORKFLOW + "historyPredicate"),
+    HISTORY_ORIGINAL_OBJECT(Namespace.WORKFLOW + "historyOriginalObject"),
+    HISTORY_NEW_OBJECT(Namespace.WORKFLOW + "historyNewObject"),
+    HISTORY_CHANGE_DATE(Namespace.WORKFLOW + "historyChangeDate"),
+    MODIFIED_BY(Namespace.WORKFLOW + "modifiedBy"),
     ;
 
     private final String value;
@@ -72,11 +71,12 @@ public enum WORKFLOW implements VocabEnum {
     }
 
     public static WORKFLOW from(String text) {
-    for (WORKFLOW b : WORKFLOW.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (WORKFLOW b : WORKFLOW.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

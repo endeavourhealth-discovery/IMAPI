@@ -384,7 +384,7 @@ public class WorkflowRepository {
         }
       }
     }
-    return WORKFLOW.NAMESPACE + "10000000";
+    return Namespace.WORKFLOW + "10000000";
   }
 
   private void setTaskBindings(TupleQuery qry) {

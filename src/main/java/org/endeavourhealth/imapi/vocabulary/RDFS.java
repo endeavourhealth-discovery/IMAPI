@@ -13,18 +13,17 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum RDFS implements VocabEnum {
 
-    NAMESPACE("http://www.w3.org/2000/01/rdf-schema#"),
     PREFIX("rdfs"),
-    LABEL(RDFS.NAMESPACE + "label"),
-    COMMENT(RDFS.NAMESPACE + "comment"),
-    SUBCLASS_OF(RDFS.NAMESPACE + "subClassOf"),
-    SUB_PROPERTY_OF(RDFS.NAMESPACE + "subPropertyOf"),
-    DOMAIN(RDFS.NAMESPACE + "domain"),
-    RANGE(RDFS.NAMESPACE + "range"),
-    RESOURCE(RDFS.NAMESPACE + "Resource"),
-    CLASS(RDFS.NAMESPACE + "Class"),
-    DATATYPE(RDFS.NAMESPACE + "Datatype"),
-    IS_DEFINED_BY(RDFS.NAMESPACE + "isDefinedBy"),
+    LABEL(Namespace.RDFS + "label"),
+    COMMENT(Namespace.RDFS + "comment"),
+    SUBCLASS_OF(Namespace.RDFS + "subClassOf"),
+    SUB_PROPERTY_OF(Namespace.RDFS + "subPropertyOf"),
+    DOMAIN(Namespace.RDFS + "domain"),
+    RANGE(Namespace.RDFS + "range"),
+    RESOURCE(Namespace.RDFS + "Resource"),
+    CLASS(Namespace.RDFS + "Class"),
+    DATATYPE(Namespace.RDFS + "Datatype"),
+    IS_DEFINED_BY(Namespace.RDFS + "isDefinedBy"),
     ;
 
     private final String value;
@@ -56,11 +55,12 @@ public enum RDFS implements VocabEnum {
     }
 
     public static RDFS from(String text) {
-    for (RDFS b : RDFS.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (RDFS b : RDFS.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

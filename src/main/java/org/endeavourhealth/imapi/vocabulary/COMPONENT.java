@@ -14,33 +14,32 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum COMPONENT implements VocabEnum {
 
     DOMAIN("http://endhealth.info/im#"),
-    NAMESPACE(COMPONENT.DOMAIN + "Component_"),
-    TAB_LAYOUT(COMPONENT.NAMESPACE + "TabLayout"),
-    TEXT_DISPLAY(COMPONENT.NAMESPACE + "textDisplay"),
-    TEXT_INPUT(COMPONENT.NAMESPACE + "textInput"),
-    HTML_INPUT(COMPONENT.NAMESPACE + "htmlInput"),
-    ENTITY_MULTI_SEARCH(COMPONENT.NAMESPACE + "entityMultiSearch"),
-    ENTITY_SEARCH(COMPONENT.NAMESPACE + "entitySearch"),
-    ENTITY_COMBOBOX(COMPONENT.NAMESPACE + "entityComboBox"),
-    ENTITY_DROPDOWN(COMPONENT.NAMESPACE + "entityDropdown"),
-    ARRAY_BUILDER(COMPONENT.NAMESPACE + "arrayBuilder"),
-    ENTITY_AUTO_COMPLETE(COMPONENT.NAMESPACE + "entityAutoComplete"),
-    MEMBERS_BUILDER(COMPONENT.NAMESPACE + "membersBuilder"),
-    COMPONENT_GROUP(COMPONENT.NAMESPACE + "componentGroup"),
-    PROPERTY_BUILDER(COMPONENT.NAMESPACE + "propertyBuilder"),
-    SET_DEFINITION_BUILDER(COMPONENT.NAMESPACE + "SetDefinitionBuilder"),
-    QUERY_DEFINITION_BUILDER(COMPONENT.NAMESPACE + "QueryDefinitionBuilder"),
-    TOGGLEABLE(COMPONENT.NAMESPACE + "ToggleableComponent"),
-    HORIZONTAL_LAYOUT(COMPONENT.NAMESPACE + "HorizontalLayout"),
-    VERTICAL_LAYOUT(COMPONENT.NAMESPACE + "VerticalLayout"),
-    DROPDOWN_TEXT_INPUT_CONCATENATOR(COMPONENT.NAMESPACE + "dropdownTextInputConcatenator"),
-    ROLE_GROUP_BUILDER(COMPONENT.NAMESPACE + "roleGroupBuilder"),
-    TERM_CODE_EDITOR(COMPONENT.NAMESPACE + "termCodeEditor"),
-    TEXT_DROPDOWN(COMPONENT.NAMESPACE + "textDropdown"),
-    ENTITY_DISPLAY(COMPONENT.NAMESPACE + "entityDisplay"),
-    IRI_BUILDER(COMPONENT.NAMESPACE + "iriBuilder"),
-    AUTOCOMPLETE_SEARCH_BAR_WRAPPER(COMPONENT.NAMESPACE + "autocompleteSearchBarWrapper"),
-    SUBSET_BUILDER(COMPONENT.NAMESPACE + "subsetBuilder"),
+    TAB_LAYOUT(Namespace.IM_COMPONENT + "TabLayout"),
+    TEXT_DISPLAY(Namespace.IM_COMPONENT + "textDisplay"),
+    TEXT_INPUT(Namespace.IM_COMPONENT + "textInput"),
+    HTML_INPUT(Namespace.IM_COMPONENT + "htmlInput"),
+    ENTITY_MULTI_SEARCH(Namespace.IM_COMPONENT + "entityMultiSearch"),
+    ENTITY_SEARCH(Namespace.IM_COMPONENT + "entitySearch"),
+    ENTITY_COMBOBOX(Namespace.IM_COMPONENT + "entityComboBox"),
+    ENTITY_DROPDOWN(Namespace.IM_COMPONENT + "entityDropdown"),
+    ARRAY_BUILDER(Namespace.IM_COMPONENT + "arrayBuilder"),
+    ENTITY_AUTO_COMPLETE(Namespace.IM_COMPONENT + "entityAutoComplete"),
+    MEMBERS_BUILDER(Namespace.IM_COMPONENT + "membersBuilder"),
+    COMPONENT_GROUP(Namespace.IM_COMPONENT + "componentGroup"),
+    PROPERTY_BUILDER(Namespace.IM_COMPONENT + "propertyBuilder"),
+    SET_DEFINITION_BUILDER(Namespace.IM_COMPONENT + "SetDefinitionBuilder"),
+    QUERY_DEFINITION_BUILDER(Namespace.IM_COMPONENT + "QueryDefinitionBuilder"),
+    TOGGLEABLE(Namespace.IM_COMPONENT + "ToggleableComponent"),
+    HORIZONTAL_LAYOUT(Namespace.IM_COMPONENT + "HorizontalLayout"),
+    VERTICAL_LAYOUT(Namespace.IM_COMPONENT + "VerticalLayout"),
+    DROPDOWN_TEXT_INPUT_CONCATENATOR(Namespace.IM_COMPONENT + "dropdownTextInputConcatenator"),
+    ROLE_GROUP_BUILDER(Namespace.IM_COMPONENT + "roleGroupBuilder"),
+    TERM_CODE_EDITOR(Namespace.IM_COMPONENT + "termCodeEditor"),
+    TEXT_DROPDOWN(Namespace.IM_COMPONENT + "textDropdown"),
+    ENTITY_DISPLAY(Namespace.IM_COMPONENT + "entityDisplay"),
+    IRI_BUILDER(Namespace.IM_COMPONENT + "iriBuilder"),
+    AUTOCOMPLETE_SEARCH_BAR_WRAPPER(Namespace.IM_COMPONENT + "autocompleteSearchBarWrapper"),
+    SUBSET_BUILDER(Namespace.IM_COMPONENT + "subsetBuilder"),
     ;
 
     private final String value;
@@ -72,11 +71,12 @@ public enum COMPONENT implements VocabEnum {
     }
 
     public static COMPONENT from(String text) {
-    for (COMPONENT b : COMPONENT.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (COMPONENT b : COMPONENT.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

@@ -19,6 +19,7 @@ import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.net.*;
@@ -33,7 +34,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   private final Map<String, String> prefixMap;
   private final Update deleteTriples;
   private final BaseDB conn;
-  String blockers = "<http://snomed.info/sct#138875005>,<" + IM.NAMESPACE + "Concept>";
+  String blockers = "<http://snomed.info/sct#138875005>,<" + Namespace.IM + "Concept>";
 
   public TTEntityFilerRdf4j(BaseDB conn, Map<String, String> prefixMap) {
     this.conn = conn;

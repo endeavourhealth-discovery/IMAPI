@@ -114,7 +114,7 @@ public class SetRepository {
           .property(s2 -> s2
             .setIri(RDFS.LABEL).as("schemeName"))))
       .property(s -> s
-        .setIri(IM.NAMESPACE + "usageTotal").as("usage"))
+        .setIri(IM.USAGE_TOTAL).as("usage"))
       .property(s -> s
         .setIri(IM.IM_1_ID).as(IM_1_ID))
       .property(s -> s
@@ -144,7 +144,7 @@ public class SetRepository {
           .property(s -> s.setIri(RDFS.LABEL).as("legacyTerm"))
           .property(s -> s.setIri(IM.CODE).as("legacyCode"))
           .property(s -> s.setIri(IM.HAS_SCHEME).return_(n1 -> n1.as(LEGACY_SCHEME).property(p1 -> p1.setIri(RDFS.LABEL).as("legacySchemeName"))))
-          .property(s -> s.setIri(IM.NAMESPACE + "usageTotal").as("legacyUse"))
+          .property(s -> s.setIri(IM.USAGE_TOTAL).as("legacyUse"))
           .property(s -> s.setIri(IM.CODE_ID).as("legacyCodeId"))
           .property(s -> s.setIri(IM.IM_1_ID).as("legacyIm1Id"))
         )
@@ -156,7 +156,7 @@ public class SetRepository {
           .property(s -> s.setIri(RDFS.LABEL).as("legacyTerm"))
           .property(s -> s.setIri(IM.CODE).as("legacyCode"))
           .property(s -> s.setIri(IM.HAS_SCHEME).return_(n1 -> n1.as(LEGACY_SCHEME).property(p1 -> p1.setIri(RDFS.LABEL).as("legacySchemeName"))))
-          .property(s -> s.setIri(IM.NAMESPACE + "usageTotal").as("legacyUse"))
+          .property(s -> s.setIri(IM.USAGE_TOTAL).as("legacyUse"))
           .property(s -> s.setIri(IM.CODE_ID).as("legacyCodeId"))
           .property(s -> s.setIri(IM.IM_1_ID).as("legacyIm1Id"))
         )
@@ -212,7 +212,7 @@ public class SetRepository {
 
   private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes, String entityVariable) {
     Set<Concept> result = new HashSet<>();
-    Set<String> coreSchemes =asHashSet(SNOMED.NAMESPACE, IM.NAMESPACE);
+    Set<String> coreSchemes =asHashSet(SCHEME.SNOMED, SCHEME.IM);
     Map<String, Concept> conceptMap = new HashMap<>();
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
@@ -512,7 +512,7 @@ public class SetRepository {
           TTNode dataModel = new TTNode();
           dataModel.set(iri(SHACL.NODE), iri(bs.getValue("dataModel").stringValue()));
           if (bs.getValue("path") != null) dataModel.set(iri(SHACL.PATH), iri(bs.getValue("path").stringValue()));
-          else dataModel.set(iri(SHACL.PATH), iri(IM.NAMESPACE + CONCEPT));
+          else dataModel.set(iri(SHACL.PATH), iri(IM.CONCEPT_PROPERTY));
           result.add(dataModel);
         }
       }

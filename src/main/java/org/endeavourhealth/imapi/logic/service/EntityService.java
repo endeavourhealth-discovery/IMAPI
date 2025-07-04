@@ -376,7 +376,7 @@ public class EntityService {
   }
 
   public List<ValidatedEntity> getValidatedEntitiesBySnomedCodes(List<String> codes, Graph graph) {
-    List<String> snomedCodes = codes.stream().map(code -> SNOMED.NAMESPACE + code).toList();
+    List<String> snomedCodes = codes.stream().map(code -> org.endeavourhealth.imapi.vocabulary.Namespace.SNOMED + code).toList();
     List<TTEntity> entities = getPartialEntities(new HashSet<>(snomedCodes), Set.of(RDFS.LABEL.toString(), IM.CODE.toString()));
     SetService setService = new SetService();
     List<TTIriRef> needed = setService.getDistillation(entities.stream().map(e -> iri(e.getIri())).toList(), graph);
@@ -429,7 +429,7 @@ public class EntityService {
       TTNode loadMoreNode = new TTNode()
         .setIri(IM.LOAD_MORE.toString())
         .set(iri(RDFS.LABEL), "Load more")
-        .set(iri(IM.NAMESPACE + "totalCount"), partialAndCount.getTotalCount());
+        .set(iri(org.endeavourhealth.imapi.vocabulary.Namespace.IM + "totalCount"), partialAndCount.getTotalCount());
       partialAsTTArray.add(loadMoreNode);
       response.addPredicate(iri(IM.HAS_MEMBER));
       response.getEntity().set(iri(IM.HAS_MEMBER), partialAsTTArray);

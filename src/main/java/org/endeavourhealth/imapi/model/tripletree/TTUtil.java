@@ -69,10 +69,10 @@ public class TTUtil {
 
   public static TTContext getDefaultContext() {
     TTContext ctx = new TTContext();
-    ctx.add(IM.NAMESPACE, "");
-    ctx.add(RDFS.NAMESPACE, "rdfs");
-    ctx.add(RDF.NAMESPACE, "rdf");
-    ctx.add(SNOMED.NAMESPACE, "sn");
+    ctx.add(Namespace.IM, "");
+    ctx.add(Namespace.RDFS, "rdfs");
+    ctx.add(Namespace.RDF, "rdf");
+    ctx.add(Namespace.SNOMED, "sn");
     return ctx;
   }
 

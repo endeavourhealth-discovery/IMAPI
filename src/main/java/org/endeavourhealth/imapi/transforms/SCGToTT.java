@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.parser.scg.SCGLexer;
 import org.endeavourhealth.imapi.parser.scg.SCGParser;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.util.zip.DataFormatException;
@@ -80,9 +81,9 @@ public class SCGToTT {
     String code = conceptId.getText();
     if (code.matches("[0-9]+")) {
       if (code.contains("1000252"))
-        return TTIriRef.iri(IM.NAMESPACE + code);
+        return TTIriRef.iri(Namespace.IM + code);
       else
-        return TTIriRef.iri(SNOMED.NAMESPACE + code);
+        return TTIriRef.iri(Namespace.SNOMED + code);
     } else
       throw new DataFormatException("ECL converter can only be used for snomed codes at this stage");
   }

@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.dataaccess.databases.UserDB;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.USER;
 import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
@@ -45,7 +46,7 @@ public class UserRepository {
     String sparql = getSparqlSelect();
     try (UserDB conn = UserDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("s", iri(USER.NAMESPACE + user));
+      qry.setBinding("s", iri(Namespace.USER + user));
       qry.setBinding("p", iri(predicate));
 
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -64,7 +65,7 @@ public class UserRepository {
 
     try (UserDB conn = UserDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("s", iri(USER.NAMESPACE + user));
+      qry.setBinding("s", iri(Namespace.USER + user));
       qry.setBinding("p", USER.USER_MRU.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
@@ -85,7 +86,7 @@ public class UserRepository {
 
     try (UserDB conn = UserDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("s", iri(USER.NAMESPACE + user));
+      qry.setBinding("s", iri(Namespace.USER + user));
       qry.setBinding("p", USER.USER_FAVOURITES.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
@@ -104,7 +105,7 @@ public class UserRepository {
     String sparql = getSparqlDelete();
     try (UserDB conn = UserDB.getConnection()) {
       Update qry = conn.prepareInsertSparql(sparql);
-      qry.setBinding("s", iri(USER.NAMESPACE + user));
+      qry.setBinding("s", iri(Namespace.USER + user));
       qry.setBinding("p", predicate.asDbIri());
       qry.execute();
     }
@@ -115,7 +116,7 @@ public class UserRepository {
       String sparql = getSparqlInsert();
       try (UserDB conn = UserDB.getConnection()) {
         Update qry = conn.prepareInsertSparql(sparql);
-        qry.setBinding("s", iri(USER.NAMESPACE + user));
+        qry.setBinding("s", iri(Namespace.USER + user));
         qry.setBinding("p", predicate.asDbIri());
         qry.setBinding("o", literal(om.writeValueAsString(object)));
         qry.execute();
@@ -153,11 +154,11 @@ public class UserRepository {
   }
 
   public List<String> getUserOrganisations(String user) throws JsonProcessingException {
-    List<String> result = asArrayList(IM.NAMESPACE);
+    List<String> result = asArrayList(Namespace.IM);
     String sparql = getSparqlSelect();
     try (UserDB conn = UserDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("s", iri(USER.NAMESPACE + user));
+      qry.setBinding("s", iri(Namespace.USER + user));
       qry.setBinding("p", USER.ORGANISATIONS.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
@@ -183,7 +184,7 @@ public class UserRepository {
     try (UserDB conn = UserDB.getConnection()) {
       String sparql = "ASK { GRAPH ?g { ?s ?p ?o.}}";
       BooleanQuery qry = conn.prepareBooleanSparql(sparql);
-      qry.setBinding("s", iri(USER.NAMESPACE + userId));
+      qry.setBinding("s", iri(Namespace.USER + userId));
       return qry.evaluate();
     }
   }

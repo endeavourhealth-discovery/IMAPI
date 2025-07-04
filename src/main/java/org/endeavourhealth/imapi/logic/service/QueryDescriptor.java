@@ -9,10 +9,7 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.Context;
-import org.endeavourhealth.imapi.vocabulary.Graph;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -59,7 +56,7 @@ public class QueryDescriptor {
       Query dataSet = new Query();
       dataSet.setName("Data set");
       dataSet.return_(r -> r
-        .property(p -> p.setIri(IM.NAMESPACE + "id").setAs("id")));
+        .property(p -> p.setIri(Namespace.IM + "id").setAs("id")));
       query.addDataSet(dataSet);
     }
     return query;
@@ -111,10 +108,10 @@ public class QueryDescriptor {
     for (Context context : contexts) {
       if (context == Context.PLURAL) {
         if (entity != null) {
-          if (entity.get(iri(IM.NAMESPACE + "plural")) == null) {
+          if (entity.get(iri(Namespace.IM + "plural")) == null) {
             if (!term.toString().toLowerCase().endsWith("s")) term.append("s");
           } else {
-            term = new StringBuilder(entity.get(iri(IM.NAMESPACE + "plural")).asLiteral().getValue());
+            term = new StringBuilder(entity.get(iri(Namespace.IM + "plural")).asLiteral().getValue());
           }
         } else if (!term.toString().toLowerCase().endsWith("s")) term.append("s");
       }
@@ -123,7 +120,7 @@ public class QueryDescriptor {
       }
     }
     if (entity != null) {
-      if (entity.get(iri(IM.NAMESPACE + "displayLabel")) != null) {
+      if (entity.get(iri(Namespace.IM + "displayLabel")) != null) {
         term.setLength(0);
       }
       if (entity.get(iri(IM.PREPOSITION)) != null) {
@@ -312,7 +309,7 @@ public class QueryDescriptor {
 
   private Where getConceptWhere(List<Where> wheres) {
     for (Where where : wheres) {
-      if (where.getIri() != null) if (where.getIri().equals(IM.NAMESPACE + "concept")) return where;
+      if (where.getIri() != null) if (where.getIri().equals(Namespace.IM + "concept")) return where;
     }
     return null;
   }
@@ -324,7 +321,7 @@ public class QueryDescriptor {
     }
     if (where.getOr() != null) {
       describeWheres(where.getOr());
-    } else if (where.getAnd() == null && where.getOr() == null) {
+    } else if (where.getAnd() == null) {
       where.setName(getTermInContext(where, Context.PROPERTY));
       if (where.getRange() != null) {
         describeRangeWhere(where);

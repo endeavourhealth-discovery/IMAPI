@@ -14,15 +14,14 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum VALIDATION implements VocabEnum {
 
     DOMAIN("http://endhealth.info/im#"),
-    NAMESPACE(VALIDATION.DOMAIN + "Validation_"),
-    IS_DEFINITION(VALIDATION.NAMESPACE + "isDefinition"),
-    HAS_PARENT(VALIDATION.NAMESPACE + "hasParent"),
-    IS_IRI(VALIDATION.NAMESPACE + "isIri"),
-    IS_TERMCODE(VALIDATION.NAMESPACE + "isTermcode"),
-    IS_PROPERTY(VALIDATION.NAMESPACE + "isProperty"),
-    IS_SCHEME(VALIDATION.NAMESPACE + "isScheme"),
-    IS_STATUS(VALIDATION.NAMESPACE + "isStatus"),
-    IS_ROLE_GROUP(VALIDATION.NAMESPACE + "isRoleGroup"),
+    IS_DEFINITION(Namespace.IM_VALIDATION + "isDefinition"),
+    HAS_PARENT(Namespace.IM_VALIDATION + "hasParent"),
+    IS_IRI(Namespace.IM_VALIDATION + "isIri"),
+    IS_TERMCODE(Namespace.IM_VALIDATION + "isTermcode"),
+    IS_PROPERTY(Namespace.IM_VALIDATION + "isProperty"),
+    IS_SCHEME(Namespace.IM_VALIDATION + "isScheme"),
+    IS_STATUS(Namespace.IM_VALIDATION + "isStatus"),
+    IS_ROLE_GROUP(Namespace.IM_VALIDATION + "isRoleGroup"),
     ;
 
     private final String value;
@@ -54,11 +53,12 @@ public enum VALIDATION implements VocabEnum {
     }
 
     public static VALIDATION from(String text) {
-    for (VALIDATION b : VALIDATION.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (VALIDATION b : VALIDATION.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

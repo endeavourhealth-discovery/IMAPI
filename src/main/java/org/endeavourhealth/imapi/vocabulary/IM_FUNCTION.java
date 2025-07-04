@@ -14,19 +14,18 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum IM_FUNCTION implements VocabEnum {
 
     DOMAIN("http://endhealth.info/"),
-    NAMESPACE(IM_FUNCTION.DOMAIN + "im#Function_"),
-    SNOMED_CONCEPT_GENERATOR(IM_FUNCTION.NAMESPACE + "SnomedConceptGenerator"),
-    LOCAL_NAME_RETRIEVER(IM_FUNCTION.NAMESPACE + "LocalNameRetriever"),
-    GET_ADDITIONAL_ALLOWABLE_TYPES(IM_FUNCTION.NAMESPACE + "GetAdditionalAllowableTypes"),
-    GET_LOGIC_OPTIONS(IM_FUNCTION.NAMESPACE + "GetLogicOptions"),
-    GET_SET_EDITOR_IRI_SCHEMES(IM_FUNCTION.NAMESPACE + "GetSetEditorIriSchemes"),
-    IM1_SCHEME_OPTIONS(IM_FUNCTION.NAMESPACE + "IM1SchemeOptions"),
-    SCHEME_FROM_IRI(IM_FUNCTION.NAMESPACE + "SchemeFromIri"),
-    GET_USER_EDITABLE_SCHEMES(IM_FUNCTION.NAMESPACE + "GetUserEditableSchemes"),
-    IS_TYPE(IM_FUNCTION.NAMESPACE + "IsType"),
-    ALLOWABLE_PROPERTIES(IM_FUNCTION.NAMESPACE + "AllowableProperties"),
-    ALLOWABLE_RANGES(IM_FUNCTION.NAMESPACE + "AllowableRanges"),
-    ALLOWABLE_PROPERTY_VALUES(IM_FUNCTION.NAMESPACE + "AllowablePropertyValues"),
+    SNOMED_CONCEPT_GENERATOR(Namespace.FUNCTION + "SnomedConceptGenerator"),
+    LOCAL_NAME_RETRIEVER(Namespace.FUNCTION + "LocalNameRetriever"),
+    GET_ADDITIONAL_ALLOWABLE_TYPES(Namespace.FUNCTION + "GetAdditionalAllowableTypes"),
+    GET_LOGIC_OPTIONS(Namespace.FUNCTION + "GetLogicOptions"),
+    GET_SET_EDITOR_IRI_SCHEMES(Namespace.FUNCTION + "GetSetEditorIriSchemes"),
+    IM1_SCHEME_OPTIONS(Namespace.FUNCTION + "IM1SchemeOptions"),
+    SCHEME_FROM_IRI(Namespace.FUNCTION + "SchemeFromIri"),
+    GET_USER_EDITABLE_SCHEMES(Namespace.FUNCTION + "GetUserEditableSchemes"),
+    IS_TYPE(Namespace.FUNCTION + "IsType"),
+    ALLOWABLE_PROPERTIES(Namespace.FUNCTION + "AllowableProperties"),
+    ALLOWABLE_RANGES(Namespace.FUNCTION + "AllowableRanges"),
+    ALLOWABLE_PROPERTY_VALUES(Namespace.FUNCTION + "AllowablePropertyValues"),
     ;
 
     private final String value;
@@ -58,11 +57,12 @@ public enum IM_FUNCTION implements VocabEnum {
     }
 
     public static IM_FUNCTION from(String text) {
-    for (IM_FUNCTION b : IM_FUNCTION.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (IM_FUNCTION b : IM_FUNCTION.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

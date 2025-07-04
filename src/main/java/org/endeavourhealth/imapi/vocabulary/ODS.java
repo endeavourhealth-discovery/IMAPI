@@ -48,11 +48,12 @@ public enum ODS implements VocabEnum {
     }
 
     public static ODS from(String text) {
-    for (ODS b : ODS.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (ODS b : ODS.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

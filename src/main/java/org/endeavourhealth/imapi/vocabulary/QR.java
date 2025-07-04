@@ -14,7 +14,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum QR implements VocabEnum {
 
     DOMAIN("http://apiqcodes.org/"),
-    NAMESPACE(QR.DOMAIN + "qcodes#"),
     PREFIX("qc"),
     ;
 
@@ -47,11 +46,12 @@ public enum QR implements VocabEnum {
     }
 
     public static QR from(String text) {
-    for (QR b : QR.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (QR b : QR.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

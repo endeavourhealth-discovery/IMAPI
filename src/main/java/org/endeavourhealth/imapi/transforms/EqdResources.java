@@ -11,10 +11,7 @@ import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.eqd.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.SCHEME;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -287,7 +284,7 @@ public class EqdResources {
 
   private void setBaseReturn(Match match) {
     String base = "IndexEvent";
-    match.setReturn((new Return()).setAs(base).property((p) -> p.setIri(IM.NAMESPACE + "effectiveDate")));
+    match.setReturn((new Return()).setAs(base).property((p) -> p.setIri(Namespace.IM + "effectiveDate")));
   }
 
   private Match convertBaseCriteriaGroup(EQDOCBaseCriteriaGroup baseGroup, Graph graph) throws QueryException, EQDException, IOException {
@@ -483,7 +480,7 @@ public class EqdResources {
           path = path.substring(1);
         }
 
-        path = inverse + (path.startsWith("http") ? path : IM.NAMESPACE + path);
+        path = inverse + (path.startsWith("http") ? path : Namespace.IM + path);
         paths[i] = path;
       }
 
@@ -493,7 +490,7 @@ public class EqdResources {
 
 
   private String resolveIri(String iri) {
-    return iri.startsWith("http") ? iri : IM.NAMESPACE + iri;
+    return iri.startsWith("http") ? iri : Namespace.IM + iri;
   }
 
   private Match convertTestCriterion(EQDOCCriterion eqCriterion, Graph graph) throws EQDException, IOException {
@@ -540,13 +537,13 @@ public class EqdResources {
     relationProperty.setIri(child.substring(child.lastIndexOf(" ") + 1));
     String parentProperty;
     if (eqRelationship.getParentColumn().contains("DATE")) {
-      parentProperty = IM.NAMESPACE + "effectiveDate";
+      parentProperty = Namespace.IM + "effectiveDate";
     } else {
       if (!eqRelationship.getParentColumn().contains("DOB")) {
         throw new QueryException("Non date linked criteria not managed yet");
       }
 
-      parentProperty = IM.NAMESPACE + "dateOfBirth";
+      parentProperty = Namespace.IM + "dateOfBirth";
     }
 
     if (eqRelationship.getRangeValue() != null) {
@@ -882,9 +879,8 @@ public class EqdResources {
 
   private Query convertToEcl(VocCodeSystemEx scheme, Set<Node> setContent) throws EQDException {
     if (scheme == VocCodeSystemEx.SCT_CONST) {
-      String property = SNOMED.NAMESPACE + "127489000";
+      String property = Namespace.SNOMED + "127489000";
       String name = null;
-      String exclusions = "";
       Query eclQuery = (new Query());
       Where where = new Where();
       where.setAnyRoleGroup(true);
@@ -898,7 +894,7 @@ public class EqdResources {
           notWhere.addIs(node);
         } else where.addIs(node);
         if (node.getName() != null && name == null) {
-          name = this.getShortName(node.getName(), (String) null);
+          name = this.getShortName(node.getName(), null);
         }
       }
 

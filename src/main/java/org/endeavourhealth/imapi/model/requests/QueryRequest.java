@@ -241,13 +241,13 @@ public class QueryRequest implements ContextMap {
 
   public QueryRequest setDefaultPrefixMap() {
     this.context = new HashMap<>();
-    context.put(IM.NAMESPACE.toString(), "im");
-    context.put(SNOMED.NAMESPACE.toString(), "sn");
-    context.put(OWL.NAMESPACE.toString(), "owl");
-    context.put(RDF.NAMESPACE.toString(), "rdf");
-    context.put(RDFS.NAMESPACE.toString(), "rdfs");
-    context.put(XSD.NAMESPACE.toString(), "xsd");
-    context.put(SHACL.NAMESPACE.toString(), "sh");
+    context.put(Namespace.IM.toString(), "im");
+    context.put(Namespace.SNOMED.toString(), "sn");
+    context.put(Namespace.OWL.toString(), "owl");
+    context.put(Namespace.RDF.toString(), "rdf");
+    context.put(Namespace.RDFS.toString(), "rdfs");
+    context.put(Namespace.XSD.toString(), "xsd");
+    context.put(Namespace.SHACL.toString(), "sh");
     return this;
   }
 

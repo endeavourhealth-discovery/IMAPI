@@ -45,6 +45,8 @@ public enum SCHEME implements VocabEnum {
     REPORTS("http://endhealth.info/reports#"),
     OPS_ROLES("https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#"),
     XS("http://www.w3.org/2001/XMLSchema#"),
+    SYSTEM("http://sys.endhealth.info/im#"),
+    QR("http://apiqcodes.org/qcodes#"),
     ;
 
     private final String value;
@@ -76,11 +78,12 @@ public enum SCHEME implements VocabEnum {
     }
 
     public static SCHEME from(String text) {
-    for (SCHEME b : SCHEME.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (SCHEME b : SCHEME.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

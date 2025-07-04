@@ -18,6 +18,7 @@ public enum Graph implements VocabEnum {
     USER("http://endhealth.info/user#"),
     WORKFLOW("http://endhealth.info/workflow#"),
     CONFIG("http://endhealth.info/config#"),
+    SMARTLIFE("http://smartlifehealth.info/smh#"),
     ;
 
     private final String value;
@@ -49,11 +50,12 @@ public enum Graph implements VocabEnum {
     }
 
     public static Graph from(String text) {
-    for (Graph b : Graph.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (Graph b : Graph.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

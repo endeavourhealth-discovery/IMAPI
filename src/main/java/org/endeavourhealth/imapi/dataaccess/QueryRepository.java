@@ -157,7 +157,7 @@ public class QueryRepository {
       if (arg.getParameter().equals(parameterName)) {
         found = true;
         String error = "Query request arguments require parameter name :'" + parameterName + "' ";
-        if (parameterType.equals(TTIriRef.iri(IM.NAMESPACE + "IriRef"))) {
+        if (parameterType.equals(TTIriRef.iri(Namespace.IM + "IriRef"))) {
           if (arg.getValueIri() == null)
             throw new QueryException(error + " to have a valueIri :{iri : http....}");
         } else if (arg.getValueData() == null) {

@@ -56,7 +56,7 @@ public abstract class BaseDB implements AutoCloseable {
     """;
 
   protected RepositoryConnection conn;
-  private final SimpleDataset dataset= new SimpleDataset();;
+  private final SimpleDataset dataset= new SimpleDataset();
 
   protected BaseDB(Graph... graphs) {
     for (Graph graph : graphs) {

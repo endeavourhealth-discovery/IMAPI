@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.io.IOException;
 
@@ -20,7 +21,7 @@ public class EqdListToIMQ {
   public void convertReport(EQDOCReport eqReport, TTDocument document, Query query, EqdResources resources, Graph graph) throws IOException, QueryException, EQDException {
     this.resources = resources;
     this.resources.setQueryType(QueryType.LIST);
-    query.setTypeOf(new Node().setIri(IM.NAMESPACE + "Patient"));
+    query.setTypeOf(new Node().setIri(Namespace.IM + "Patient"));
     String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
     query.addInstanceOf(new Node().setIri(resources.getNamespace() + id).setMemberOf(true))
       .setName(resources.reportNames.get(id));

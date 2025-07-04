@@ -14,10 +14,9 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum SNOMED implements VocabEnum {
 
     DOMAIN("http://snomed.info/"),
-    NAMESPACE(SNOMED.DOMAIN + "sct#"),
     PREFIX("sn"),
-    ATTRIBUTE(SNOMED.NAMESPACE + "246061005"),
-    ANY(SNOMED.NAMESPACE + "*"),
+    ATTRIBUTE(Namespace.SNOMED + "246061005"),
+    ANY(Namespace.SNOMED + "*"),
     ;
 
     private final String value;
@@ -49,11 +48,12 @@ public enum SNOMED implements VocabEnum {
     }
 
     public static SNOMED from(String text) {
-    for (SNOMED b : SNOMED.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (SNOMED b : SNOMED.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

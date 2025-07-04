@@ -14,28 +14,27 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum QUERY implements VocabEnum {
 
     DOMAIN("http://endhealth.info/im#"),
-    NAMESPACE(QUERY.DOMAIN + "Query_"),
-    IS_ALLOWABLE_RANGE(QUERY.NAMESPACE + "IsAllowableRange"),
-    ALLOWABLE_RANGE_SUGGESTIONS(QUERY.NAMESPACE + "AllowableRangeSuggestions"),
-    GET_SUBCLASSES(QUERY.NAMESPACE + "GetSubClasses"),
-    GET_ANCESTORS(QUERY.NAMESPACE + "GetAncestors"),
-    SEARCH_CONTAINED_IN(QUERY.NAMESPACE + "SearchContainedIn"),
-    ALLOWABLE_CHILD_TYPES(QUERY.NAMESPACE + "AllowableChildTypes"),
-    PROPERTY_RANGE(QUERY.NAMESPACE + "PropertyRange"),
-    OBJECT_PROPERTY_RANGE_SUGGESTIONS(QUERY.NAMESPACE + "ObjectPropertyRangeSuggestions"),
-    DATA_PROPERTY_RANGE_SUGGESTIONS(QUERY.NAMESPACE + "DataPropertyRangeSuggestions"),
-    ALLOWABLE_PROPERTIES(QUERY.NAMESPACE + "AllowableProperties"),
-    ALLOWABLE_PROPERTY_ANCESTORS(QUERY.NAMESPACE + "AllowablePropertyAncestors"),
-    IS_VALID_PROPERTY(QUERY.NAMESPACE + "IsValidProperty"),
-    SEARCH_PROPERTIES(QUERY.NAMESPACE + "SearchProperties"),
-    SEARCH_ENTITIES(QUERY.NAMESPACE + "SearchEntities"),
-    SEARCH_FOLDERS(QUERY.NAMESPACE + "SearchFolders"),
-    SEARCH_ALLOWABLE_CONTAINED_IN(QUERY.NAMESPACE + "SearchAllowableContainedIn"),
-    SEARCH_MAIN_TYPES(QUERY.NAMESPACE + "SearchmainTypes"),
-    DM_PROPERTY(QUERY.NAMESPACE + "DataModelPropertyByShape"),
-    SEARCH_ALLOWABLE_SUBCLASS(QUERY.NAMESPACE + "SearchAllowableSubclass"),
-    GET_VALUES_FROM_PROPERTY_RANGE(QUERY.NAMESPACE + "GetValuesFromPropertyRange"),
-    GET_SUBSETS(QUERY.NAMESPACE + "GetSubsets"),
+    IS_ALLOWABLE_RANGE(Namespace.IM_QUERY + "IsAllowableRange"),
+    ALLOWABLE_RANGE_SUGGESTIONS(Namespace.IM_QUERY + "AllowableRangeSuggestions"),
+    GET_SUBCLASSES(Namespace.IM_QUERY + "GetSubClasses"),
+    GET_ANCESTORS(Namespace.IM_QUERY + "GetAncestors"),
+    SEARCH_CONTAINED_IN(Namespace.IM_QUERY + "SearchContainedIn"),
+    ALLOWABLE_CHILD_TYPES(Namespace.IM_QUERY + "AllowableChildTypes"),
+    PROPERTY_RANGE(Namespace.IM_QUERY + "PropertyRange"),
+    OBJECT_PROPERTY_RANGE_SUGGESTIONS(Namespace.IM_QUERY + "ObjectPropertyRangeSuggestions"),
+    DATA_PROPERTY_RANGE_SUGGESTIONS(Namespace.IM_QUERY + "DataPropertyRangeSuggestions"),
+    ALLOWABLE_PROPERTIES(Namespace.IM_QUERY + "AllowableProperties"),
+    ALLOWABLE_PROPERTY_ANCESTORS(Namespace.IM_QUERY + "AllowablePropertyAncestors"),
+    IS_VALID_PROPERTY(Namespace.IM_QUERY + "IsValidProperty"),
+    SEARCH_PROPERTIES(Namespace.IM_QUERY + "SearchProperties"),
+    SEARCH_ENTITIES(Namespace.IM_QUERY + "SearchEntities"),
+    SEARCH_FOLDERS(Namespace.IM_QUERY + "SearchFolders"),
+    SEARCH_ALLOWABLE_CONTAINED_IN(Namespace.IM_QUERY + "SearchAllowableContainedIn"),
+    SEARCH_MAIN_TYPES(Namespace.IM_QUERY + "SearchmainTypes"),
+    DM_PROPERTY(Namespace.IM_QUERY + "DataModelPropertyByShape"),
+    SEARCH_ALLOWABLE_SUBCLASS(Namespace.IM_QUERY + "SearchAllowableSubclass"),
+    GET_VALUES_FROM_PROPERTY_RANGE(Namespace.IM_QUERY + "GetValuesFromPropertyRange"),
+    GET_SUBSETS(Namespace.IM_QUERY + "GetSubsets"),
     ;
 
     private final String value;
@@ -67,11 +66,12 @@ public enum QUERY implements VocabEnum {
     }
 
     public static QUERY from(String text) {
-    for (QUERY b : QUERY.values()) {
-      if (b.value.equals(text)) {
-        return b;
+      for (QUERY b : QUERY.values()) {
+        if (b.value.equals(text)) {
+          return b;
+        }
       }
+      return null;
     }
-    return null;
-  }
+
 }

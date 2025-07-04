@@ -19,7 +19,7 @@ public class EclService {
   private final SetRepository setRepository = new SetRepository();
 
   public ECLQueryRequest validateModelFromQuery(ECLQueryRequest eclQuery) {
-    eclQuery.setStatus(new ECLQueryValidator().validateQuery(eclQuery.getQuery(), ValidationLevel.ECL));
+    eclQuery.setStatus(new ECLQueryValidator().validateQuery(eclQuery.getQuery(), ValidationLevel.ECL, eclQuery.getGraph()));
     return eclQuery;
   }
 

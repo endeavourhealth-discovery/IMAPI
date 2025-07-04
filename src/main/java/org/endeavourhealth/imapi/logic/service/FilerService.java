@@ -3,6 +3,8 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.aws.UserNotFoundException;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
+import org.endeavourhealth.imapi.dataaccess.databases.ProvDB;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
@@ -37,14 +39,29 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
 @Component
 public class FilerService {
 
-  private TTTransactionFiler documentFiler = new TTTransactionFiler();
-  private TTEntityFiler entityFiler = new TTEntityFilerRdf4j();
-  private TTEntityFiler entityProvFiler = entityFiler;
-  private ProvService provService = new ProvService();
-  private EntityService entityService = new EntityService();
-  private OpenSearchService openSearchService = new OpenSearchService();
-  private UserService userService = new UserService();
-  private WorkflowService workflowService = new WorkflowService();
+  private IMDB imdb;
+  private ProvDB provDB;
+  private TTTransactionFiler documentFiler;
+  private TTEntityFiler entityFiler;
+  private TTEntityFiler entityProvFiler;
+  private ProvService provService;
+  private EntityService entityService;
+  private OpenSearchService openSearchService;
+  private UserService userService;
+  private WorkflowService workflowService;
+
+  public FilerService() {
+    imdb = IMDB.getConnection(Graph.IM);
+    provDB = ProvDB.getConnection();
+    documentFiler = new TTTransactionFiler(Graph.IM);
+    entityFiler = new TTEntityFilerRdf4j(imdb);
+    entityProvFiler = new TTEntityFilerRdf4j(provDB);
+    provService = new ProvService();
+    entityService = new EntityService();
+    openSearchService = new OpenSearchService();
+    userService = new UserService();
+    workflowService = new WorkflowService();
+  }
 
   private static boolean isValidIri(TTEntity entity) {
     if (null == entity.getIri()) return false;
@@ -79,10 +96,10 @@ public class FilerService {
     return !(null != entity.get(predicate) && !entity.get(predicate).isEmpty() && (!entity.get(predicate).getElements().stream().allMatch(TTValue::isIriRef)));
   }
 
-  public void fileDocument(TTDocument document, String agentName, String taskId, Graph graph) {
+  public void fileDocument(TTDocument document, String agentName, String taskId) {
     new Thread(() -> {
       try {
-        documentFiler.fileDocument(document, taskId, graph);
+        documentFiler.fileDocument(document, taskId);
         fileProvDoc(document, agentName);
       } catch (TTFilerException | JsonProcessingException | QueryException e) {
         throw new RuntimeException(e);
@@ -94,15 +111,15 @@ public class FilerService {
     return documentFiler.getFilingProgress(taskId);
   }
 
-  public void fileEntity(TTEntity entity, Graph graph, String agentName, TTEntity usedEntity) throws TTFilerException {
+  public void fileEntity(TTEntity entity,String agentName, TTEntity usedEntity) throws TTFilerException {
     try {
-      entityFiler.fileEntity(entity, graph);
+      entityFiler.fileEntity(entity);
 
       if (entity.isType(iri(IM.CONCEPT)))
-        entityFiler.updateIsAs(entity, graph);
+        entityFiler.updateIsAs(entity);
 
       if (entity.isType(iri(IM.VALUESET)))
-        new SetMemberGenerator().generateMembers(entity.getIri(), graph);
+        new SetMemberGenerator().generateMembers(entity.getIri(), entity.getGraph());
 
 
       ProvAgent agent = fileProvAgent(entity, agentName);
@@ -110,7 +127,7 @@ public class FilerService {
       ProvActivity activity = fileProvActivity(entity, agent, provUsedEntity);
 
       writeDelta(entity, activity, provUsedEntity);
-      fileOpenSearch(entity.getIri(), graph);
+      fileOpenSearch(entity.getIri(), entity.getGraph());
     } catch (Exception e) {
       throw new TTFilerException("Error filing entity", e);
     }
@@ -140,7 +157,7 @@ public class FilerService {
 
   private ProvAgent fileProvAgent(TTEntity entity, String agentName) throws TTFilerException {
     ProvAgent agent = provService.buildProvenanceAgent(entity, agentName);
-    entityProvFiler.fileEntity(agent, Graph.PROV);
+    entityProvFiler.fileEntity(agent);
     return agent;
   }
 
@@ -149,7 +166,7 @@ public class FilerService {
       return null;
 
     TTEntity provUsedEntity = provService.buildUsedEntity(usedEntity);
-    entityProvFiler.fileEntity(provUsedEntity, Graph.PROV);
+    entityProvFiler.fileEntity(provUsedEntity);
 
     return provUsedEntity;
   }
@@ -158,7 +175,7 @@ public class FilerService {
     String provUsedIri = provUsedEntity == null ? null : provUsedEntity.getIri();
 
     ProvActivity activity = provService.buildProvenanceActivity(entity, agent, provUsedIri);
-    entityProvFiler.fileEntity(activity, Graph.PROV);
+    entityProvFiler.fileEntity(activity);
     return activity;
 
   }
@@ -173,10 +190,9 @@ public class FilerService {
   }
 
   public TTEntity createEntity(EditRequest editRequest, String agentName, Graph graph) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
-    if (null == graph) graph = Graph.IM;
     isValid(editRequest.getEntity(), "Create", graph);
-    editRequest.getEntity().setCrud(iri(IM.ADD_QUADS)).setVersion(1);
-    fileEntity(editRequest.getEntity(), graph, agentName, null);
+    editRequest.getEntity().setCrud(iri(IM.ADD_QUADS)).setVersion(1).setGraph(graph);
+    fileEntity(editRequest.getEntity(), agentName, null);
     EntityApproval entityApproval = new EntityApproval();
     entityApproval
       .setEntityIri(iri(editRequest.getEntity().getIri()))
@@ -190,12 +206,11 @@ public class FilerService {
   }
 
   public TTEntity updateEntity(TTEntity entity, String agentName, Graph graph) throws TTFilerException, JsonProcessingException {
-    if (null == graph) graph = Graph.IM;
     isValid(entity, "Update", graph);
-    entity.setCrud(iri(IM.UPDATE_ALL));
+    entity.setCrud(iri(IM.UPDATE_ALL)).setGraph(graph);
     TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
     entity.setVersion(usedEntity.getVersion() + 1);
-    fileEntity(entity, graph, agentName, usedEntity);
+    fileEntity(entity, agentName, usedEntity);
     return entity;
   }
 

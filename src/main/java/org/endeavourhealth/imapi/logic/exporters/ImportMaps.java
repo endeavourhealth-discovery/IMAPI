@@ -188,7 +188,7 @@ public class ImportMaps implements AutoCloseable {
 
   public Map<String, Set<String>> getDescendantsRDF(String concept, Graph graph) throws TTFilerException {
     Map<String, Set<String>> codeToTerm = new HashMap<>();
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sparql = """
         SELECT ?child ?name
         WHERE {
@@ -197,7 +197,7 @@ public class ImportMaps implements AutoCloseable {
           ?child ?label ?name.
         }
         """;
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
       qry.setBinding("concept", valueFactory.createIRI(concept));
       qry.setBinding("snomedNamespace", SNOMED.NAMESPACE.asDbIri());
@@ -222,7 +222,7 @@ public class ImportMaps implements AutoCloseable {
 
   private Set<String> importAllRDF4J(Set<String> entities, Graph graph) throws TTFilerException {
 
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sparql = """
         SELECT distinct ?entity
         WHERE {
@@ -230,7 +230,7 @@ public class ImportMaps implements AutoCloseable {
           filter (isIri(?entity))
         }
         """;
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("rdfLabel", RDFS.LABEL.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -247,14 +247,14 @@ public class ImportMaps implements AutoCloseable {
 
   private Set<String> importSnomedRDF4J(Set<String> snomedCodes, Graph graph) throws TTFilerException {
 
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sparql = """
         SELECT ?snomed
         WHERE {
           ?concept ?scheme ?snomedNamespace.
           ?concept ?code ?snomed}
         """;
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
       qry.setBinding("code", IM.CODE.asDbIri());
       qry.setBinding("snomedNamespace", SNOMED.NAMESPACE.asDbIri());
@@ -273,7 +273,7 @@ public class ImportMaps implements AutoCloseable {
 
   private Map<String, Set<String>> importReadToSnomedRdf4j(Map<String, Set<String>> readToSnomed, Graph graph) throws TTFilerException {
 
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sparql = """
         SELECT ?code ?snomed
         WHERE {
@@ -284,7 +284,7 @@ public class ImportMaps implements AutoCloseable {
           ?snomedIri ?imCode ?snomed .
         }
         """;
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
       qry.setBinding("snomedNamespace", SNOMED.NAMESPACE.asDbIri());
       qry.setBinding("vision", SCHEME.VISION.asDbIri());
@@ -330,7 +330,7 @@ public class ImportMaps implements AutoCloseable {
 
   private Map<String, TTEntity> getEMISReadAsVisionRdf4j(Graph graph) {
     Map<String, TTEntity> emisRead2 = new HashMap<>();
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sql = """
         SELECT ?oldCode ?name ?snomedIri
         WHERE {
@@ -343,7 +343,7 @@ public class ImportMaps implements AutoCloseable {
           }
         }
         """;
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
       qry.setBinding("emis", SCHEME.EMIS.asDbIri());
       qry.setBinding("label", RDFS.LABEL.asDbIri());
@@ -380,7 +380,7 @@ public class ImportMaps implements AutoCloseable {
 
   private Map<String, Set<String>> importEmisToSnomedRdf4j(Graph graph) throws TTFilerException {
     Map<String, Set<String>> emisToSnomed = new HashMap<>();
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sparql = """
         SELECT ?code ?snomedIri  ?name
         WHERE {
@@ -392,7 +392,7 @@ public class ImportMaps implements AutoCloseable {
           ?snomedIri ?imCode ?snomed.
         }
         """;
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
       qry.setBinding("snomedNamespace", SNOMED.NAMESPACE.asDbIri());
       qry.setBinding("emis", SCHEME.EMIS.asDbIri());
@@ -423,7 +423,7 @@ public class ImportMaps implements AutoCloseable {
    */
   public Map<String, String> getDescriptionIds(Graph graph) throws TTFilerException {
     Map<String, String> termMap = new HashMap<>();
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sparql = """
         SELECT ?snomed ?descid
         WHERE {
@@ -432,7 +432,7 @@ public class ImportMaps implements AutoCloseable {
           ?node im:code ?descid.
         }
         """;
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
       qry.setBinding("snomedNamespace", SNOMED.NAMESPACE.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {

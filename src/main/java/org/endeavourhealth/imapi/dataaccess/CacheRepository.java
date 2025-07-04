@@ -24,7 +24,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
  */
 public class CacheRepository {
 
-  public Set<TTBundle> getSchema(Graph graph) {
+  public Set<TTBundle> getSchema(Graph graph) throws Exception {
     String sql = """
       CONSTRUCT {
         ?shape ?p ?o.
@@ -45,8 +45,8 @@ public class CacheRepository {
       }
       """;
     Set<TTEntity> shapes = new HashSet<>();
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      GraphQuery qry = IMDB.prepareGraphSparql(conn, sql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      GraphQuery qry = conn.prepareGraphSparql(sql);
       try (GraphQueryResult gs = qry.evaluate()) {
         Map<String, TTValue> valueMap = new HashMap<>();
         Map<String, TTNode> subjectMap = new HashMap<>();
@@ -56,7 +56,7 @@ public class CacheRepository {
       }
       Set<TTIriRef> iris = new HashSet<>();
       shapes.forEach(e -> iris.addAll(TTManager.getIrisFromNode(e)));
-      EntityRepository.getIriNames(conn, iris, graph);
+      EntityRepository.getIriNames(conn, iris);
       Set<TTBundle> result = new HashSet<>();
       for (TTEntity shape : shapes) {
         TTBundle bundle = new TTBundle();

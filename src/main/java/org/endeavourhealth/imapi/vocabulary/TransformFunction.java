@@ -13,9 +13,9 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum TransformFunction implements VocabEnum {
 
-    CONCATENATE(IM.CONCATENATE),
-    STRING_JOIN(IM.STRING_JOIN),
-    SNOMED_CODE_CONCEPT_MAP(IM.SNOMED_CODE_CONCEPT_MAP),
+    CONCATENATE(IM.NAMESPACE + "Concatenate"),
+    STRING_JOIN(IM.NAMESPACE + "StringJoin"),
+    SNOMED_CODE_CONCEPT_MAP(IM.NAMESPACE + "SchemedCodeConceptMap"),
     ;
 
     private final String value;

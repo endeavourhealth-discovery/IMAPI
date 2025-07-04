@@ -22,7 +22,7 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 public class UserRepository {
 
   public String getSparqlSelect() {
-    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("SELECT ?o FROM ?g WHERE {").add("  ?s ?p ?o").add("}");
+    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("SELECT ?o WHERE { GRAPH ?g {").add("  ?s ?p ?o").add("}}");
     return sparql.toString();
   }
 
@@ -43,8 +43,8 @@ public class UserRepository {
   public String getByPredicate(String user, String predicate) {
     String result = "";
     String sparql = getSparqlSelect();
-    try (RepositoryConnection conn = UserDB.getConnection()) {
-      TupleQuery qry = UserDB.prepareTupleSparql(conn, sparql);
+    try (UserDB conn = UserDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("s", iri(USER.NAMESPACE + user));
       qry.setBinding("p", iri(predicate));
 
@@ -62,8 +62,8 @@ public class UserRepository {
     List<RecentActivityItemDto> result = new ArrayList<>();
     String sparql = getSparqlSelect();
 
-    try (RepositoryConnection conn = UserDB.getConnection()) {
-      TupleQuery qry = UserDB.prepareTupleSparql(conn, sparql);
+    try (UserDB conn = UserDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("s", iri(USER.NAMESPACE + user));
       qry.setBinding("p", USER.USER_MRU.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -83,8 +83,8 @@ public class UserRepository {
     List<String> result = new ArrayList<>();
     String sparql = getSparqlSelect();
 
-    try (RepositoryConnection conn = UserDB.getConnection()) {
-      TupleQuery qry = UserDB.prepareTupleSparql(conn, sparql);
+    try (UserDB conn = UserDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("s", iri(USER.NAMESPACE + user));
       qry.setBinding("p", USER.USER_FAVOURITES.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -102,8 +102,8 @@ public class UserRepository {
 
   public void delete(String user, VocabEnum predicate) {
     String sparql = getSparqlDelete();
-    try (RepositoryConnection conn = UserDB.getConnection()) {
-      Update qry = UserDB.prepareUpdateSparql(conn, sparql);
+    try (UserDB conn = UserDB.getConnection()) {
+      Update qry = conn.prepareInsertSparql(sparql);
       qry.setBinding("s", iri(USER.NAMESPACE + user));
       qry.setBinding("p", predicate.asDbIri());
       qry.execute();
@@ -113,8 +113,8 @@ public class UserRepository {
   public void insert(String user, VocabEnum predicate, Object object) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       String sparql = getSparqlInsert();
-      try (RepositoryConnection conn = UserDB.getConnection()) {
-        Update qry = UserDB.prepareUpdateSparql(conn, sparql);
+      try (UserDB conn = UserDB.getConnection()) {
+        Update qry = conn.prepareInsertSparql(sparql);
         qry.setBinding("s", iri(USER.NAMESPACE + user));
         qry.setBinding("p", predicate.asDbIri());
         qry.setBinding("o", literal(om.writeValueAsString(object)));
@@ -155,8 +155,8 @@ public class UserRepository {
   public List<String> getUserOrganisations(String user) throws JsonProcessingException {
     List<String> result = asArrayList(IM.NAMESPACE);
     String sparql = getSparqlSelect();
-    try (RepositoryConnection conn = UserDB.getConnection()) {
-      TupleQuery qry = UserDB.prepareTupleSparql(conn, sparql);
+    try (UserDB conn = UserDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("s", iri(USER.NAMESPACE + user));
       qry.setBinding("p", USER.ORGANISATIONS.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -180,9 +180,9 @@ public class UserRepository {
   }
 
   public boolean getUserIdExists(String userId) {
-    try (RepositoryConnection conn = UserDB.getConnection()) {
+    try (UserDB conn = UserDB.getConnection()) {
       String sparql = "ASK { GRAPH ?g { ?s ?p ?o.}}";
-      BooleanQuery qry = UserDB.prepareBooleanSparql(conn, sparql);
+      BooleanQuery qry = conn.prepareBooleanSparql(sparql);
       qry.setBinding("s", iri(USER.NAMESPACE + userId));
       return qry.evaluate();
     }

@@ -17,20 +17,19 @@ public class PathRepository {
   private final PathDocument document = new PathDocument();
 
   public PathDocument pathQuery(PathQuery pathQuery) {
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(pathQuery.getGraph())) {
       String targetIri = pathQuery.getTarget().getIri();
       String source = pathQuery.getSource().getIri();
-      List<Match> paths = getPaths(conn, source, targetIri, pathQuery.getGraph());
+      List<Match> paths = getPaths(conn, source, targetIri);
       document.setMatch(paths);
     }
     return document;
   }
 
-  private List<Match> getPaths(RepositoryConnection conn, String source, String target, Graph graph) {
+  private List<Match> getPaths(IMDB conn, String source, String target) {
     List<Match> result = new ArrayList<>();
     String sql = """
       select ?path ?pathLabel ?path2 ?path2Label ?where ?whereLabel ?target ?targetName
-      FROM ?g
       where {
         ?target rdfs:label ?targetName.
         {
@@ -91,7 +90,7 @@ public class PathRepository {
       group by ?path ?pathLabel ?path2 ?path2Label ?where ?whereLabel ?target ?targetName
       """;
     //The logic is to look for a target as a record types, properties, value sets or concepts linked to the source.
-    TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+    TupleQuery qry = conn.prepareTupleSparql(sql);
     qry.setBinding("target", iri(target));
     qry.setBinding("source", iri(source));
     try (TupleQueryResult rs = qry.evaluate()) {

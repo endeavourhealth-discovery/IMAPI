@@ -12,9 +12,8 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
-import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
+import org.endeavourhealth.imapi.dataaccess.databases.BaseDB;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -33,10 +32,10 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   private static final ValueFactory valueFactory = new ValidatingValueFactory(SimpleValueFactory.getInstance());
   private final Map<String, String> prefixMap;
   private final Update deleteTriples;
-  private final RepositoryConnection conn;
+  private final BaseDB conn;
   String blockers = "<http://snomed.info/sct#138875005>,<" + IM.NAMESPACE + "Concept>";
 
-  public TTEntityFilerRdf4j(RepositoryConnection conn, Map<String, String> prefixMap) {
+  public TTEntityFilerRdf4j(BaseDB conn, Map<String, String> prefixMap) {
     this.conn = conn;
     this.prefixMap = prefixMap;
     String sparql = """
@@ -69,30 +68,29 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
         }
       }
       """;
-    deleteTriples = conn.prepareUpdate(sparql);
+    deleteTriples = conn.prepareDeleteSparql(sparql);
   }
 
-  public TTEntityFilerRdf4j() {
-    this(IMDB.getConnection(), new HashMap<>());
+  public TTEntityFilerRdf4j(BaseDB conn) {
+    this(conn, new HashMap<>());
   }
 
   @Override
-  public void fileEntity(TTEntity entity, Graph graph) throws TTFilerException {
+  public void fileEntity(TTEntity entity) throws TTFilerException {
 
     if (entity.get(TTIriRef.iri(RDFS.LABEL)) != null) {
       if (entity.get(TTIriRef.iri(IM.HAS_STATUS)) == null) entity.set(IM.HAS_STATUS.asIri(), IM.ACTIVE.asIri());
-      if (entity.get(TTIriRef.iri(IM.HAS_SCHEME)) == null) entity.set(IM.HAS_SCHEME.asIri(), graph.asIri());
     }
-    if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_PREDICATES))) updatePredicates(entity, graph);
-    else if (entity.getCrud().equals(TTIriRef.iri(IM.ADD_QUADS))) addQuads(entity, graph);
-    else if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_ALL))) replacePredicates(entity, graph);
-    else if (entity.getCrud().equals(TTIriRef.iri(IM.DELETE_ALL))) deleteTriples(entity, graph);
+    if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_PREDICATES))) updatePredicates(entity);
+    else if (entity.getCrud().equals(TTIriRef.iri(IM.ADD_QUADS))) addQuads(entity);
+    else if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_ALL))) replacePredicates(entity);
+    else if (entity.getCrud().equals(TTIriRef.iri(IM.DELETE_ALL))) deleteTriples(entity);
     else throw new TTFilerException("Entity " + entity.getIri() + " has no crud assigned");
 
   }
 
   @Override
-  public void updateIsAs(TTEntity entity, Graph graph) {
+  public void updateIsAs(TTEntity entity) {
     Set<String> isAs = new HashSet<>();
     if (entity.has(IM.IS_CHILD_OF.asIri()))
       entity.get(IM.IS_CHILD_OF.asIri()).stream().forEach(childOf -> isAs.add(childOf.asIriRef().getIri()));
@@ -101,10 +99,10 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
       entity.get(RDFS.SUBCLASS_OF.asIri()).stream().forEach(childOf -> isAs.add(childOf.asIriRef().getIri()));
 
     deleteAscendantIsas(entity.getIri());
-    if (!isAs.isEmpty()) saveAscendantIsas(entity.getIri(), isAs);
+    if (!isAs.isEmpty()) saveAscendantIsas(entity.getIri(), isAs, entity.getGraph());
   }
 
-  public void saveAscendantIsas(String entityIri, Set<String> isAs) {
+  public void saveAscendantIsas(String entityIri, Set<String> isAs, Graph graph) {
     StringJoiner iriLine = new StringJoiner(" ");
     for (String stringIri : isAs) {
       iri(stringIri);
@@ -121,7 +119,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
       }
       """.formatted(iriLine.toString());
 
-    Update saveIsas = conn.prepareUpdate(sql);
+    Update saveIsas = conn.prepareInsertSparql(sql, graph);
     saveIsas.setBinding("entity", iri(entityIri));
     saveIsas.execute();
   }
@@ -137,12 +135,13 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
            ?entity im:isA ?anyAncestor.
        }
       """;
-    Update deleteIsas = conn.prepareUpdate(deleteSql);
+    Update deleteIsas = conn.prepareDeleteSparql(deleteSql);
     deleteIsas.setBinding("entity", iri(entity));
     deleteIsas.execute();
   }
 
-  public void deleteIsas(Set<String> entities, Graph graph) {
+  @Override
+  public void deleteIsAs(Set<String> entities) {
     log.info("Deleting descendant and ascendant isas");
     for (String entity : entities) {
       String deleteSql = """
@@ -155,7 +154,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
           filter (?entity = ?entity)
         }
         """;
-      Update deleteIsas = IMDB.prepareUpdateSparql(conn, deleteSql, graph);
+      Update deleteIsas = conn.prepareDeleteSparql(deleteSql);
       deleteIsas.setBinding("isA", IM.IS_A.asDbIri());
       deleteIsas.setBinding("entity", iri(entity));
       deleteIsas.execute();
@@ -163,7 +162,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
   }
 
-  public Set<TTEntity> getDescendants(Set<String> entities, Graph graph) {
+  public Set<TTEntity> getDescendants(Set<String> entities) {
     Set<TTEntity> descendants = new HashSet<>();
     Map<String, TTEntity> entityMap = new HashMap<>();
     for (String entity : entities) {
@@ -174,7 +173,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
           ?descendant ?subClassOf ?superclass.
         }
         """;
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("entity", iri(entity));
       qry.setBinding("subClassOf", RDFS.SUBCLASS_OF.asDbIri());
       qry.setBinding("isA", IM.IS_A.asDbIri());
@@ -196,11 +195,11 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
   }
 
-  public Set<String> getIsAs(String superClass, Graph graph) {
+  public Set<String> getIsAs(String superClass) {
     Set<String> isAs = new HashSet<>();
     StringJoiner getIsas = new StringJoiner("\n");
     getIsas.add("Select distinct ?ancestor").add("Where {").add("<" + superClass + "> <" + IM.IS_A + "> ?ancestor").add("filter (?ancestor not in (" + blockers + "))}");
-    TupleQuery qry = IMDB.prepareTupleSparql(conn, getIsas.toString(), graph);
+    TupleQuery qry = conn.prepareTupleSparql(getIsas.toString());
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
@@ -220,7 +219,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
         addSql.add("<" + child.getKey() + "> <" + IM.IS_A + "> <" + ancestor + ">.");
       }
       addSql.add("}");
-      Update addIsAs = IMDB.prepareUpdateSparql(conn, addSql.toString(), graph);
+      Update addIsAs = conn.prepareInsertSparql(addSql.toString(), graph);
       addIsAs.execute();
       if (count % 100 == 0) {
         log.info("isas added for {} entities", count);
@@ -229,15 +228,14 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   }
 
 
-  private void replacePredicates(TTEntity entity, Graph graph) throws TTFilerException {
-    deleteTriples(entity, graph);
-    addQuads(entity, graph);
+  private void replacePredicates(TTEntity entity) throws TTFilerException {
+    deleteTriples(entity);
+    addQuads(entity);
   }
 
-  private void addQuads(TTEntity entity, Graph graph) throws TTFilerException {
+  private void addQuads(TTEntity entity) throws TTFilerException {
     try {
       ModelBuilder builder = new ModelBuilder();
-      builder = builder.namedGraph(graph.toString());
       for (Map.Entry<TTIriRef, TTArray> entry : entity.getPredicateMap().entrySet()) {
         addTriple(builder, toIri(entity.getIri()), toIri(entry.getKey().getIri()), entry.getValue());
       }
@@ -248,10 +246,9 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
   }
 
-  private void deleteTriples(TTEntity entity, Graph graph) throws TTFilerException {
+  private void deleteTriples(TTEntity entity) throws TTFilerException {
     try {
       deleteTriples.setBinding("concept", valueFactory.createIRI(entity.getIri()));
-      deleteTriples.setBinding("graph", graph.asDbIri());
       deleteTriples.execute();
     } catch (Exception e) {
       throw new TTFilerException("Failed to delete triples : " + e.getMessage());
@@ -260,7 +257,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   }
 
 
-  private void deletePredicates(TTEntity entity, Graph graph) throws TTFilerException {
+  private void deletePredicates(TTEntity entity) throws TTFilerException {
     StringBuilder predList = new StringBuilder();
     int i = 0;
     Map<TTIriRef, TTArray> predicates = entity.getPredicateMap();
@@ -278,28 +275,25 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
           ?o3 ?p4 ?o4.
         }
         WHERE {
-          graph ?graphIri {
-            {
-              ?concept ?p1 ?o1.
-              filter(?p1 in(%s))
+          {
+            ?concept ?p1 ?o1.
+            filter(?p1 in(%s))
+            OPTIONAL {
+              ?o1 ?p2 ?o2.
+              filter (isBlank(?o1))
               OPTIONAL {
-                ?o1 ?p2 ?o2.
-                filter (isBlank(?o1))
+                ?o2 ?p3 ?o3
+                filter (isBlank(?o2))
                 OPTIONAL {
-                  ?o2 ?p3 ?o3
-                  filter (isBlank(?o2))
-                  OPTIONAL {
-                    ?o3 ?p4 ?o4.
-                    filter(!isBlank(?o3))
-                  }
+                  ?o3 ?p4 ?o4.
+                  filter(!isBlank(?o3))
                 }
               }
             }
           }
         }
       """.formatted(predList);
-    Update deletePredicates = conn.prepareUpdate(spq);
-    deletePredicates.setBinding("graphIri", graph.asDbIri());
+    Update deletePredicates = conn.prepareDeleteSparql(spq);
     deletePredicates.setBinding("concept", iri(entity.getIri()));
     try {
       deletePredicates.execute();
@@ -309,11 +303,11 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
   }
 
-  private void updatePredicates(TTEntity entity, Graph graph) throws TTFilerException {
+  private void updatePredicates(TTEntity entity) throws TTFilerException {
 
     //Deletes the previous predicate values and adds in the new ones
-    deletePredicates(entity, graph);
-    addQuads(entity, graph);
+    deletePredicates(entity);
+    addQuads(entity);
   }
 
   private void addTriple(ModelBuilder builder, Resource subject, IRI predicate, TTArray array) throws TTFilerException {

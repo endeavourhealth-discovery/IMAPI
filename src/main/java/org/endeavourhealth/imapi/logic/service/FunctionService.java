@@ -28,7 +28,7 @@ public class FunctionService {
       case IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES -> getAdditionalAllowableTypes(arguments, graph);
       case IM_FUNCTION.GET_LOGIC_OPTIONS -> getLogicOptions(graph);
       case IM_FUNCTION.GET_SET_EDITOR_IRI_SCHEMES -> getSetEditorIriSchemes(graph);
-      case IM_FUNCTION.IM1_SCHEME_OPTIONS -> getIM1SchemeOptions();
+      case IM_FUNCTION.IM1_SCHEME_OPTIONS -> getIM1SchemeOptions(graph);
       case IM_FUNCTION.SCHEME_FROM_IRI -> getSchemeFromIri(arguments, graph);
       case IM_FUNCTION.GET_USER_EDITABLE_SCHEMES -> getUserEditableSchemes(request, graph);
       default -> throw new IllegalArgumentException("No such function: " + iri);
@@ -130,8 +130,8 @@ public class FunctionService {
     }
   }
 
-  private JsonNode getIM1SchemeOptions() {
-    List<String> results = entityService.getIM1SchemeOptions();
+  private JsonNode getIM1SchemeOptions(Graph graph) {
+    List<String> results = entityService.getIM1SchemeOptions(graph);
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.stringArrayToTree(results);
     }

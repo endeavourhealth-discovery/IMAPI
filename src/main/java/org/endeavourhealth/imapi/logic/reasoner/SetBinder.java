@@ -39,7 +39,7 @@ public class SetBinder {
 
   private Set<String> getSets(Graph graph) {
     Set<String> setIris = new HashSet<>();
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sparql = """
         SELECT distinct ?iri
         WHERE {
@@ -47,7 +47,7 @@ public class SetBinder {
           filter (?type in (?imConceptSet, ?imValueSet)).
         }
         """;
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("rdfType", RDF.TYPE.asDbIri());
       qry.setBinding("imConceptSet", IM.CONCEPT_SET.asDbIri());
       qry.setBinding("imValueSet", IM.VALUESET.asDbIri());

@@ -1,6 +1,7 @@
 [
   {
     "name": "CONFIG",
+    "imports": ["IM", "RDFS"],
     "entries": [
       {
         "name": "NAMESPACE",
@@ -13,6 +14,18 @@
       {
         "name": "PREFIX",
         "value": "\"cfg\""
+      },
+      {
+        "name": "LABEL",
+        "value": "RDFS.LABEL"
+      },
+      {
+        "name": "HAS_CONFIG",
+        "value": "IM.HAS_CONFIG"
+      },
+      {
+        "name": "COMMENT",
+        "value": "RDFS.COMMENT"
       },
       {
         "name": "IMDIRECTORY_LATEST_RELEASE",
@@ -76,18 +89,6 @@
       {
         "name": "NAMESPACE",
         "value": "IM.DOMAIN + IM.PREFIX.toString() + \"#\""
-      },
-      {
-        "name": "CONCATENATE",
-        "value": "IM.NAMESPACE + \"Concatenate\""
-      },
-      {
-        "name": "STRING_JOIN",
-        "value": "IM.NAMESPACE + \"StringJoin\""
-      },
-      {
-        "name": "SNOMED_CODE_CONCEPT_MAP",
-        "value": "IM.NAMESPACE + \"SchemedCodeConceptMap\""
       },
       {
         "name": "DISPLAY_LABEL",
@@ -2419,6 +2420,7 @@
   },
   {
     "name": "CodeTemplate",
+    "imports": ["IM", "RDFS"],
     "entries": [
       {
         "name": "DOMAIN",
@@ -2460,6 +2462,7 @@
   },
   {
     "name":  "OpenSearch",
+    "imports": ["IM", "RDF", "RDFS"],
     "entries": [
       {
         "name": "NAME",
@@ -2509,23 +2512,25 @@
   },
   {
     "name":  "TransformFunction",
+    "imports": ["IM"],
     "entries": [
       {
         "name": "CONCATENATE",
-        "value": "IM.CONCATENATE"
+        "value": "IM.NAMESPACE + \"Concatenate\""
       },
       {
         "name": "STRING_JOIN",
-        "value": "IM.STRING_JOIN"
+        "value": "IM.NAMESPACE + \"StringJoin\""
       },
       {
         "name": "SNOMED_CODE_CONCEPT_MAP",
-        "value": "IM.SNOMED_CODE_CONCEPT_MAP"
+        "value": "IM.NAMESPACE + \"SchemedCodeConceptMap\""
       }
     ]
   },
   {
     "name": "EntityType",
+    "imports": ["IM", "SHACL"],
     "entries": [
       {
         "name": "QUERY",

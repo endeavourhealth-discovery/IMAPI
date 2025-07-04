@@ -43,13 +43,13 @@ public class EntityCache implements Runnable {
   /**
    * Refreshes the node shape cache, predicate orders and domains and ranges
    */
-  public static void refreshCache() {
-    refreshShapes();
+  public static void refreshCache(Graph graph) {
+    refreshShapes(graph);
   }
 
-  public static void refreshShapes() {
+  public static void refreshShapes(Graph graph) {
     synchronized (EntityCache.shapeLock) {
-      TTEntityMap shapeMap = ShapeRepository.getShapes();
+      TTEntityMap shapeMap = ShapeRepository.getShapes(graph);
       cacheShapes(shapeMap);
     }
   }
@@ -118,11 +118,11 @@ public class EntityCache implements Runnable {
    * @param iri the iri of the shape
    * @return a TTEntity representing the shape
    */
-  public static TTBundle getShape(String iri) {
+  public static TTBundle getShape(String iri, Graph graph) {
     TTEntity shape = shapes.get(iri);
     if (shape == null) {
       synchronized (shapeLock) {
-        TTEntityMap shapeMap = ShapeRepository.getShapeAndAncestors(iri);
+        TTEntityMap shapeMap = ShapeRepository.getShapeAndAncestors(iri, graph);
         if (shapeMap.getEntities() == null)
           return null;
         synchronized (EntityCache.shapeLock) {
@@ -237,7 +237,7 @@ public class EntityCache implements Runnable {
 
   @Override
   public void run() {
-    refreshCache();
+    refreshCache(Graph.IM);
   }
 
 }

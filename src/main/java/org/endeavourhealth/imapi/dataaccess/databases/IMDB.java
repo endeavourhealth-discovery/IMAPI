@@ -1,41 +1,23 @@
 package org.endeavourhealth.imapi.dataaccess.databases;
 
-import org.eclipse.rdf4j.query.BooleanQuery;
-import org.eclipse.rdf4j.query.GraphQuery;
-import org.eclipse.rdf4j.query.TupleQuery;
-import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class IMDB extends BaseDB {
-  private static Repository repository = null;
-
-  public static RepositoryConnection getConnection() {
-    return getRepo().getConnection();
+  private static final Repository repository = BaseDB.getRepository("im");
+  public static IMDB getConnection(Graph main, Graph ...additional) {
+    List<Graph> g = new ArrayList<>();
+    g.add(main);
+    g.addAll(Arrays.asList(additional));
+    return new IMDB(g.toArray(new Graph[0]));
   }
 
-  public static TupleQuery prepareTupleSparql(RepositoryConnection connection, String sparql, Graph graph) {
-    return BaseDB.prepareTupleSparql(connection, sparql, graph);
-  }
-
-  public static GraphQuery prepareGraphSparql(RepositoryConnection conn, String sparql, Graph graph) {
-    return BaseDB.prepareGraphSparql(conn, sparql, graph);
-  }
-
-  public static BooleanQuery prepareBooleanSparql(RepositoryConnection conn, String sparql, Graph graph) {
-    return BaseDB.prepareBooleanSparql(conn, sparql, graph);
-  }
-
-  public static Update prepareUpdateSparql(RepositoryConnection conn, String sparql, Graph graph) {
-    return BaseDB.prepareUpdateSparql(conn, sparql, graph);
-  }
-
-  private static Repository getRepo() {
-    if (repository == null) {
-      repository = getRepository("im");
-    }
-
-    return repository;
+  private IMDB(Graph ...graphs) {
+    super(graphs);
+    conn = repository.getConnection();
   }
 }

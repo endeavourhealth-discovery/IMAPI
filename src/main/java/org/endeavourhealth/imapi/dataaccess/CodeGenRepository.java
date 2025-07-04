@@ -9,7 +9,6 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.ConfigDB;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.dto.CodeGenDto;
@@ -37,8 +36,8 @@ public class CodeGenRepository {
         }
       }
       """;
-    try (RepositoryConnection conn = ConfigDB.getConnection()) {
-      TupleQuery qry = ConfigDB.prepareTupleSparql(conn, sparql);
+    try (ConfigDB conn = ConfigDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("type", RDF.TYPE.asDbIri());
       qry.setBinding("codeTemplate", IM.CODE_TEMPLATE.asDbIri());
       qry.setBinding("label", RDFS.LABEL.asDbIri());
@@ -63,8 +62,8 @@ public class CodeGenRepository {
         }
       }
       """;
-    try (RepositoryConnection conn = ConfigDB.getConnection()) {
-      TupleQuery qry = ConfigDB.prepareTupleSparql(conn, sparql);
+    try (ConfigDB conn = ConfigDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("s", iri(CodeTemplate.NAMESPACE + name));
 
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -108,8 +107,8 @@ public class CodeGenRepository {
         }
       }
       """;
-    try (RepositoryConnection conn = ConfigDB.getConnection()) {
-      Update qry = ConfigDB.prepareUpdateSparql(conn, deleteSparql);
+    try (ConfigDB conn = ConfigDB.getConnection()) {
+      Update qry = conn.prepareInsertSparql(deleteSparql);
       qry.setBinding("s", iri(CodeTemplate.NAMESPACE + name));
       qry.execute();
     }
@@ -129,9 +128,9 @@ public class CodeGenRepository {
         SELECT ?iri ?label ?extension {}
       }
       """;
-    try (RepositoryConnection conn2 = ConfigDB.getConnection()) {
+    try (ConfigDB conn = ConfigDB.getConnection()) {
       try (CachedObjectMapper om = new CachedObjectMapper()) {
-        Update qry2 = ConfigDB.prepareUpdateSparql(conn2, insertSparql);
+        Update qry2 = conn.prepareInsertSparql(insertSparql);
         qry2.setBinding("iri", iri(CodeTemplate.NAMESPACE + name));
         qry2.setBinding("label", RDFS.LABEL.asDbIri());
         qry2.setBinding("name", literal(name));

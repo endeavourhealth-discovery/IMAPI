@@ -34,8 +34,8 @@ public class ConceptRepository {
         }
       }
       """.formatted(valueList("scheme", schemeIris));
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("o", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -62,8 +62,8 @@ public class ConceptRepository {
       }
       """.formatted(valueList("scheme", schemeIris));
 
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("s", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -87,8 +87,8 @@ public class ConceptRepository {
         }
       }
       """.formatted(String.join(" ", iris.stream().map(iri -> "<" + iri + ">").toArray(String[]::new)));
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -112,8 +112,8 @@ public class ConceptRepository {
       }
       """.formatted("<" + conceptIri + ">");
 
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -127,7 +127,7 @@ public class ConceptRepository {
 
   public List<ConceptContextMap> getConceptContextMaps(String iri, Graph graph) {
     List<ConceptContextMap> result = new ArrayList<>();
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sparql = """
         SELECT ?nodeName ?sourceVal ?sourceRegex ?propertyName ?publisherName ?systemName ?schema ?table ?field
         WHERE {
@@ -153,7 +153,7 @@ public class ConceptRepository {
         }
         ORDER BY ?nodeName ?sourceVal ?publisherName
         """;
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("concept", iri(iri));
       qry.setBinding("imConcept", IM.CONCEPT.asDbIri());
       qry.setBinding("imHasMap", IM.HAS_MAP.asDbIri());

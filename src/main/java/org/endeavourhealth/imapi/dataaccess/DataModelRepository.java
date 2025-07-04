@@ -37,8 +37,8 @@ public class DataModelRepository {
       }
       """;
 
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, spql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(spql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -53,7 +53,7 @@ public class DataModelRepository {
 
   public List<TTIriRef> findDataModelsFromProperty(String propIri, Graph graph) {
     List<TTIriRef> dmList = new ArrayList<>();
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sparql = """
         SELECT ?dm ?dmName
         WHERE {
@@ -64,7 +64,7 @@ public class DataModelRepository {
           }
         }
         """;
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("propIri", iri(propIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -78,7 +78,7 @@ public class DataModelRepository {
   }
 
   public String checkPropertyType(String propIri, Graph graph) {
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String query = """
         SELECT ?objectProperty ?dataProperty
         WHERE {
@@ -88,7 +88,7 @@ public class DataModelRepository {
           }
         }
         """;
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, query, graph);
+      TupleQuery qry = conn.prepareTupleSparql(query);
       qry.setBinding("propIri", iri(propIri));
       qry.setBinding("isA", IM.IS_A.asDbIri());
       qry.setBinding("objProp", IM.DATAMODEL_OBJECTPROPERTY.asDbIri());
@@ -105,9 +105,9 @@ public class DataModelRepository {
   }
 
   public void addDataModelSubtypes(NodeShape dataModel, Graph graph) {
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sql = getSubtypeSql();
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("entity", iri(dataModel.getIri()));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -125,9 +125,9 @@ public class DataModelRepository {
     NodeShape nodeShape = new NodeShape();
     nodeShape.setIri(iri);
     addDataModelSubtypes(nodeShape, graph);
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sql = pathsOnly ? getPathSql() : getPropertySql();
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("entity", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -505,8 +505,8 @@ public class DataModelRepository {
         }
       """;
 
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, spql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(spql);
       qry.setBinding("dmIri", iri(dmIri));
       qry.setBinding("propIri", iri(propIri));
       try (TupleQueryResult rs = qry.evaluate()) {

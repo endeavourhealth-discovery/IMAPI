@@ -322,8 +322,8 @@ public class EntityService {
     return entityRepository.getPredicates(iri, graph);
   }
 
-  public List<String> getIM1SchemeOptions() {
-    return entityRepository.getIM1SchemeOptions();
+  public List<String> getIM1SchemeOptions(Graph graph) {
+    return entityRepository.getIM1SchemeOptions(graph);
   }
 
   protected Pageable<EntityReferenceNode> iriRefPageableToEntityReferenceNodePageable(Pageable<TTIriRef> iriRefPageable, List<String> schemeIris, boolean inactive, Graph graph) {
@@ -492,11 +492,11 @@ public class EntityService {
 
   public FilterOptionsDto getFilterDefaults() {
     FilterOptionsDto filterOptions = new FilterOptionsDto();
-    filterOptions.setSchemes(getAllChildren(IM.SCHEME_FILTER_DEFAULTS, null));
-    filterOptions.setStatus(getAllChildren(IM.STATUS_FILTER_DEFAULTS, null));
-    filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_DEFAULTS, null));
-    filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_DEFAULTS, null));
-    filterOptions.setSortDirections(getAllChildren(IM.SORT_DIRECTION_FILTER_DEFAULTS, null));
+    filterOptions.setSchemes(getAllChildren(IM.SCHEME_FILTER_DEFAULTS, Graph.IM));
+    filterOptions.setStatus(getAllChildren(IM.STATUS_FILTER_DEFAULTS, Graph.IM));
+    filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_DEFAULTS, Graph.IM));
+    filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_DEFAULTS, Graph.IM));
+    filterOptions.setSortDirections(getAllChildren(IM.SORT_DIRECTION_FILTER_DEFAULTS, Graph.IM));
     return filterOptions;
   }
 

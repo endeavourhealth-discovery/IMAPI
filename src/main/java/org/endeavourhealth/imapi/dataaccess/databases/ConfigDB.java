@@ -1,31 +1,26 @@
 package org.endeavourhealth.imapi.dataaccess.databases;
 
-import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 
 public class ConfigDB extends BaseDB {
-  private static Repository repository = null;
-
-  public static RepositoryConnection getConnection() {
-    return getRepo().getConnection();
-  }
-
-  public static TupleQuery prepareTupleSparql(RepositoryConnection connection, String sparql) {
-    return BaseDB.prepareTupleSparql(connection, sparql, Graph.CONFIG);
-  }
-
-  public static Update prepareUpdateSparql(RepositoryConnection conn, String sparql) {
-    return BaseDB.prepareUpdateSparql(conn, sparql, Graph.CONFIG);
-  }
-
-  private static Repository getRepo() {
-    if (repository == null) {
-      repository = getRepository("config");
+  private static final Repository repository = BaseDB.getRepository("config");
+  public static ConfigDB getConnection() {
+    try {
+      return new ConfigDB();
+    } catch (Exception e) {
+      throw new DALException(e.getMessage(), e);
     }
+  }
 
-    return repository;
+  private ConfigDB() {
+    super(Graph.CONFIG);
+    conn = repository.getConnection();
+  }
+
+  public Update prepareInsertSparql(String sparql) {
+    return super.prepareInsertSparql(sparql, Graph.CONFIG);
   }
 }

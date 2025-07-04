@@ -128,7 +128,7 @@ public class EntityController {
 
   @GetMapping(value = "/public/children")
   @Operation(summary = "Get entity children", description = "Fetches immediate child entities of the specified entity by IRI")
-  public List<EntityReferenceNode> getEntityChildren(@RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph") String graph) throws IOException {
+  public List<EntityReferenceNode> getEntityChildren(@RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", required = false) String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Children.GET")) {
       log.debug("getEntityChildren");
       if (page == null && size == null) {
@@ -137,7 +137,8 @@ public class EntityController {
       }
       TTEntity entity = entityService.getBundle(iri, asHashSet(RDF.TYPE)).getEntity();
       boolean inactive = entity.getType() != null && entity.getType().contains(iri(IM.TASK));
-      return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive, Graph.from(graph));
+
+      return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive, graph == null ? Graph.IM : Graph.from(graph));
     }
   }
 

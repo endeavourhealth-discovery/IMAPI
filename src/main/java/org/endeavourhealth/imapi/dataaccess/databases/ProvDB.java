@@ -1,31 +1,16 @@
 package org.endeavourhealth.imapi.dataaccess.databases;
 
-import org.eclipse.rdf4j.query.TupleQuery;
-import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 
 public class ProvDB extends BaseDB {
-  private static Repository repository = null;
-
-  public static RepositoryConnection getConnection() {
-    return getRepo().getConnection();
+  private static final Repository repository = BaseDB.getRepository("prov");
+  public static ProvDB getConnection() {
+    return new ProvDB();
   }
 
-  public static TupleQuery prepareTupleSparql(RepositoryConnection connection, String sparql) {
-    return prepareTupleSparql(connection, sparql, Graph.CONFIG);
-  }
-
-  public static Update prepareUpdateSparql(RepositoryConnection conn, String sparql) {
-    return prepareUpdateSparql(conn, sparql, Graph.CONFIG);
-  }
-
-  private static Repository getRepo() {
-    if (repository == null) {
-      repository = getRepository("im");
-    }
-
-    return repository;
+  private ProvDB() {
+    super(Graph.PROV);
+    conn = repository.getConnection();
   }
 }

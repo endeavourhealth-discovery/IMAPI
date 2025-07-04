@@ -16,15 +16,15 @@ import java.util.StringJoiner;
 public class DomainResolver {
 
   public void updateDomains(Graph graph) {
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      Set<String> domains = getDomains(conn, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      Set<String> domains = getDomains(conn);
       for (String domain : domains) {
         updateDomain(conn, domain, graph);
       }
     }
   }
 
-  private void updateDomain(RepositoryConnection conn, String domain, Graph graph) {
+  private void updateDomain(IMDB conn, String domain, Graph graph) {
     String sql = """
       select distinct ?property
       where {
@@ -34,7 +34,7 @@ public class DomainResolver {
       
       """.formatted("<" + domain + ">");
     Set<String> currentProperties = new HashSet<>();
-    TupleQuery currentPropertyQuery = IMDB.prepareTupleSparql(conn, sql, graph);
+    TupleQuery currentPropertyQuery = conn.prepareTupleSparql(sql);
     log.info("domain resolver adding missing properties for " + domain + "...");
     try (TupleQueryResult currentResults = currentPropertyQuery.evaluate()) {
       while (currentResults.hasNext()) {
@@ -54,7 +54,7 @@ public class DomainResolver {
       }
       """.formatted("<" + domain + ">", current);
     Set<String> allProperties = new HashSet<>();
-    TupleQuery allPropertyQuery = IMDB.prepareTupleSparql(conn, sql, graph);
+    TupleQuery allPropertyQuery = conn.prepareTupleSparql(sql);
     try (TupleQueryResult allResults = allPropertyQuery.evaluate()) {
       while (allResults.hasNext()) {
         BindingSet bs = allResults.next();
@@ -69,18 +69,18 @@ public class DomainResolver {
       missingProperties.forEach(p -> insertSql.add(" <" + p + "> rdfs:domain <" + domain + ">."));
       insertSql.add("}");
       String insertQuery = insertSql.toString();
-      IMDB.prepareUpdateSparql(conn, insertQuery, graph).execute();
+      conn.prepareInsertSparql(insertQuery, graph).execute();
     }
   }
 
-  private Set<String> getDomains(RepositoryConnection conn, Graph graph) {
+  private Set<String> getDomains(IMDB conn) {
     Set<String> domains = new HashSet<>();
     String sql = """
       select distinct ?domain where {
       	?property rdfs:domain ?domain
       }
       """;
-    TupleQuery domainQuery = IMDB.prepareTupleSparql(conn, sql, graph);
+    TupleQuery domainQuery = conn.prepareTupleSparql(sql);
     try (TupleQueryResult domainResults = domainQuery.evaluate()) {
       while (domainResults.hasNext()) {
         BindingSet bs = domainResults.next();

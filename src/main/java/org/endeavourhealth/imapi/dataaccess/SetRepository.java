@@ -57,8 +57,8 @@ public class SetRepository {
     Set<Concept> result = new HashSet<>();
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     String sql = new SparqlConverter(newRequest).getSelectSparql(null);
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -74,8 +74,8 @@ public class SetRepository {
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     if (null != page && null != page.getPageNumber() && null != page.getPageSize()) newRequest.setPage(page);
     String sql = new SparqlConverter(newRequest).getSelectSparql(statusFilter);
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       return getCoreLegacyCodesForSparql(qry, includeLegacy, schemeFilter, imQuery.getVariable());
     }
   }
@@ -169,8 +169,8 @@ public class SetRepository {
     //add scheme filter
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     String sql = new SparqlConverter(newRequest).getCountSparql(statusFilter);
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       return getCountForSparql(qry);
 
     }
@@ -181,15 +181,14 @@ public class SetRepository {
 
     String sql = """
       SELECT ?subset ?name
-      FROM ?g
       WHERE {
         ?subset ?isSubset ?set .
         ?subset ?label ?name .
       }
       """;
 
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("set", Values.iri(iri));
       qry.setBinding("isSubset", IM.IS_SUBSET_OF.asDbIri());
       qry.setBinding("label", RDFS.LABEL.asDbIri());
@@ -346,12 +345,12 @@ public class SetRepository {
     }
     newBinding.add("}}");
 
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       conn.begin();
-      org.eclipse.rdf4j.query.Update upd = IMDB.prepareUpdateSparql(conn, deleteBinding, graph);
+      org.eclipse.rdf4j.query.Update upd = conn.prepareDeleteSparql(deleteBinding);
       upd.setBinding(CONCEPT, Values.iri(iri));
       upd.execute();
-      upd = IMDB.prepareUpdateSparql(conn, newBinding.toString(), graph);
+      upd = conn.prepareInsertSparql(newBinding.toString(), graph);
       upd.execute();
       conn.commit();
     }
@@ -360,17 +359,16 @@ public class SetRepository {
 
   public Set<String> getSets(Graph graph) {
     Set<String> setIris = new HashSet<>();
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String spq = """
         SELECT distinct ?iri
-        FROM ?g
         WHERE {
           ?iri rdf:type ?type.
           FILTER (?type in (im:ValueSet, im:ConceptSet))
         }
         """;
 
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, spq, graph);
+      TupleQuery qry = conn.prepareTupleSparql(spq);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           setIris.add(rs.next().getValue("iri").stringValue());
@@ -381,7 +379,7 @@ public class SetRepository {
   }
 
   public void updateMembers(String iri, Set<Concept> members, Graph graph) {
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String spq = """
         DELETE { ?concept im:hasMember ?x.}
         WHERE {
@@ -390,7 +388,7 @@ public class SetRepository {
           }
         }
         """;
-      org.eclipse.rdf4j.query.Update upd = IMDB.prepareUpdateSparql(conn, spq, graph);
+      org.eclipse.rdf4j.query.Update upd = conn.prepareDeleteSparql(spq);
       upd.setBinding(CONCEPT, Values.iri(iri));
       upd.execute();
       StringJoiner sj = new StringJoiner("\n");
@@ -411,9 +409,9 @@ public class SetRepository {
   }
 
 
-  private void sendUp(StringJoiner sj, RepositoryConnection conn, Graph graph) {
+  private void sendUp(StringJoiner sj, IMDB conn, Graph graph) {
     sj.add("}}");
-    org.eclipse.rdf4j.query.Update upd = IMDB.prepareUpdateSparql(conn, sj.toString(), graph);
+    org.eclipse.rdf4j.query.Update upd = conn.prepareInsertSparql(sj.toString(),graph);
     conn.begin();
     upd.execute();
     conn.commit();
@@ -463,7 +461,6 @@ public class SetRepository {
   public Set<Concept> getSomeMembers(String setIri, Integer limit, Graph graph) {
     String sparql = """
       SELECT *
-      FROM ?g
       WHERE {
         ?setIri im:hasMember ?entity .
       }
@@ -471,8 +468,8 @@ public class SetRepository {
       """.formatted(limit);
     Set<Concept> result = new HashSet<>();
 
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sparql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("setIri", Values.iri(setIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -493,7 +490,6 @@ public class SetRepository {
     String iriList = String.join(",", sparqlIris);
     String spql = """
       SELECT distinct ?dataModel ?path
-      FROM ?g
       WHERE {
         ?memberIri ^im:hasMember ?valueSet.
         filter (?memberIri in(%s))
@@ -508,8 +504,8 @@ public class SetRepository {
       }
       GROUP BY ?dataModel ?path
       """.formatted(iriList);
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, spql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(spql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -534,7 +530,6 @@ public class SetRepository {
         SELECT distinct ?entity ?term ?code ?scheme ?schemeName ?status ?statusName ?im1Id ?use ?codeId
         ?alternativeCode ?legacy ?legacyTerm ?legacyCode ?legacyScheme ?legacySchemeName
         ?legacyIm1Id ?legacyUse ?legacyCodeId
-        FROM ?g
         WHERE {
             Values ?setIri{%s}
             {
@@ -589,8 +584,8 @@ public class SetRepository {
 
     spql.add("}  ");
 
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, spql.toString(), graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(spql.toString());
       qry.setBinding("setIri", Values.iri(setIri));
       return getCoreLegacyCodesForSparql(qry, includeLegacy, List.of(), "entity");
     }
@@ -604,17 +599,16 @@ public class SetRepository {
   public Set<String> getDistillation(String iris, Graph graph) {
     Set<String> isas = new HashSet<>();
 
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sql = """
         SELECT ?child
-        FROM ?g
         WHERE {
         VALUES ?child { %s }
         VALUES ?parent { %s }
         ?child ?isA ?parent .
         FILTER (?child != ?parent)}
         """.formatted(iris, iris);
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("isA", IM.IS_A.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -642,13 +636,12 @@ public class SetRepository {
     result.setTotalCount(0);
     String sql = """
       Select (count(distinct ?instance) as ?count)
-      FROM ?g
       where {
       ?s ?p ?instance
       }
       """;
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("s", Values.iri(iri));
       qry.setBinding("p", Values.iri(predicate));
       try (TupleQueryResult rsCount = qry.evaluate()) {
@@ -658,10 +651,9 @@ public class SetRepository {
     }
     String offset = Integer.toString((pageNumber - 1) * pageSize);
     if (result.getTotalCount() == 0) return result;
-    if (predicate.equals(IM.ENTAILED_MEMBER)) {
+    if (predicate.equals(IM.ENTAILED_MEMBER.toString())) {
       sql = """
         Select ?member ?entailment ?name  ?exclude
-        FROM ?g
         where {
         ?s im:entailedMember ?instance.
         ?instance im:instanceOf ?member.
@@ -676,7 +668,6 @@ public class SetRepository {
     } else {
       sql = """
         Select ?member ?name
-        FROM ?g
         where {
         ?s im:hasMember ?member.
         ?member rdfs:label ?name.
@@ -686,8 +677,8 @@ public class SetRepository {
         """.formatted(pageSize, offset);
     }
     List<Node> resultSet = new ArrayList<>();
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("s", Values.iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -716,7 +707,6 @@ public class SetRepository {
   public Set<Concept> getExpansionFromEntailedMembers(String setIri, Graph graph) {
     String sql = """
       select distinct ?member
-      FROM ?g
       where {
         Values ?set {?setIri}
         ?set im:entailedMember ?entailed.
@@ -762,8 +752,8 @@ public class SetRepository {
       }
       """;
     Set<Concept> expansion = new HashSet<>();
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("setIri", Values.iri(setIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -776,7 +766,7 @@ public class SetRepository {
   }
 
 
-  public boolean isValidPropertyForDomains(String propertyIri, Set<String> entityIris) {
+  public boolean isValidPropertyForDomains(String propertyIri, Set<String> entityIris, Graph graph) {
     String concepts = entityIris.stream().map(iri -> "<" + iri + ">").collect(Collectors.joining(" "));
     String spq = """
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -789,12 +779,12 @@ public class SetRepository {
       ?concept im:isA ?domain.
       }
       """.formatted("<" + propertyIri + ">", concepts);
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      return conn.prepareBooleanQuery(spq).evaluate();
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      return conn.prepareBooleanSparql(spq).evaluate();
     }
   }
 
-  public boolean isValidRangeForProperty(String propertyIri, String valueIri) {
+  public boolean isValidRangeForProperty(String propertyIri, String valueIri, Graph graph) {
 
     String spq = """
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -809,13 +799,13 @@ public class SetRepository {
       }
       
       """.formatted("<" + propertyIri + ">", "<" + valueIri + ">");
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      return conn.prepareBooleanQuery(spq).evaluate();
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      return conn.prepareBooleanSparql(spq).evaluate();
     }
   }
 
 
-  public Map<String, Boolean> getValidConcepts(Set<String> conceptIris) {
+  public Map<String, Boolean> getValidConcepts(Set<String> conceptIris, Graph graph) {
     Map<String, Boolean> result = new HashMap<>();
     String spq = """
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -826,8 +816,8 @@ public class SetRepository {
         optional {?concept rdf:type ?type.}
       }
       """.formatted(conceptIris.stream().map(iri -> "<" + iri + ">").collect(Collectors.joining(" ")));
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = conn.prepareTupleQuery(spq);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

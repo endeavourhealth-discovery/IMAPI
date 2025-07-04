@@ -7,14 +7,10 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.ConfigDB;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.config.Config;
-import org.endeavourhealth.imapi.vocabulary.CONFIG;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.VocabEnum;
+import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.context.annotation.Configuration;
 
 import static org.eclipse.rdf4j.model.util.Values.literal;
@@ -68,18 +64,17 @@ public class ConfigManager {
   public Config getConfig(CONFIG config) {
     String sql = """
       SELECT ?name ?data
-      FROM ?g
       WHERE {
         ?s ?label ?name ;
         ?config ?data .
       }
       """;
 
-    try (RepositoryConnection conn = ConfigDB.getConnection()) {
-      TupleQuery qry = ConfigDB.prepareTupleSparql(conn, sql);
+    try (ConfigDB conn = ConfigDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("s", config.asDbIri());
-      qry.setBinding("label",RDFS.LABEL.asDbIri());
-      qry.setBinding("config", IM.HAS_CONFIG.asDbIri());
+      qry.setBinding("label",CONFIG.LABEL.asDbIri());
+      qry.setBinding("config", CONFIG.HAS_CONFIG.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -94,26 +89,23 @@ public class ConfigManager {
   }
 
   public void setConfig(CONFIG iri, Config config) {
-    insert(iri, RDFS.LABEL, config.getName());
-    insert(iri, RDFS.COMMENT, config.getComment());
-    insert(iri, IM.HAS_CONFIG, config.getData());
+    insert(iri, CONFIG.LABEL, config.getName());
+    insert(iri, CONFIG.COMMENT, config.getComment());
+    insert(iri, CONFIG.HAS_CONFIG, config.getData());
   }
 
   private void insert(CONFIG subject, VocabEnum predicate, String object) {
     if (null == subject || null == predicate)
       throw new IllegalArgumentException("Subject or Predicate cannot be null");
-    try (CachedObjectMapper om = new CachedObjectMapper()) {
-      try (RepositoryConnection conn = ConfigDB.getConnection()) {
-        String query = DELETE_INSERT_SPARQL;
-        if (null == getConfig(subject)) query = INSERT_SPARQL;
-        Update qry = ConfigDB.prepareUpdateSparql(conn, query);
-        qry.setBinding("s", subject.asDbIri());
-        qry.setBinding("p", predicate.asDbIri());
-        qry.setBinding("o", literal(object));
-        qry.execute();
-      }
+    try (CachedObjectMapper om = new CachedObjectMapper();
+         ConfigDB conn = ConfigDB.getConnection()) {
+      String query = DELETE_INSERT_SPARQL;
+      if (null == getConfig(subject)) query = INSERT_SPARQL;
+      Update qry = conn.prepareInsertSparql(query, Graph.CONFIG);
+      qry.setBinding("s", subject.asDbIri());
+      qry.setBinding("p", predicate.asDbIri());
+      qry.setBinding("o", literal(object));
+      qry.execute();
     }
   }
-
-
 }

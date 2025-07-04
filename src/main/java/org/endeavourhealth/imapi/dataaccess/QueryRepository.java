@@ -11,7 +11,6 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.logic.reasoner.TextMatcher;
 import org.endeavourhealth.imapi.model.imq.*;
@@ -55,7 +54,7 @@ public class QueryRepository {
     ObjectNode result = mapper.createObjectNode();
     Integer page = queryRequest.getPage() != null ? queryRequest.getPage().getPageNumber() : 1;
     Integer count = queryRequest.getPage() != null ? queryRequest.getPage().getPageSize() : 0;
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(queryRequest.getGraph())) {
       checkReferenceDate(queryRequest);
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getSelectSparql(queryRequest.getQuery(), null, false, highestUsage);
@@ -71,12 +70,12 @@ public class QueryRepository {
 
 
   public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(queryRequest.getGraph())) {
       checkReferenceDate(queryRequest);
       new QueryValidator().validateQuery(queryRequest.getQuery());
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getAskSparql(null);
-      return graphAskSearch(spq, conn, queryRequest.getGraph());
+      return graphAskSearch(spq, conn);
     }
   }
 
@@ -88,7 +87,7 @@ public class QueryRepository {
    * @throws JsonProcessingException if the json is invalid
    */
   public void updateIM(QueryRequest queryRequest) throws JsonProcessingException, QueryException {
-    try (RepositoryConnection conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.getConnection(queryRequest.getGraph())) {
       if (queryRequest.getUpdate() == null)
         throw new QueryException("Missing update in query request");
       if (queryRequest.getUpdate().getIri() == null)
@@ -99,15 +98,14 @@ public class QueryRepository {
       checkReferenceDate(queryRequest);
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getUpdateSparql();
-      graphUpdateSearch(spq, conn);
+      graphUpdateSearch(spq, conn, queryRequest.getGraph());
 
     }
   }
 
-  private void graphUpdateSearch(String spq, RepositoryConnection conn) {
-    org.eclipse.rdf4j.query.Update update = conn.prepareUpdate(spq);
+  private void graphUpdateSearch(String spq, IMDB conn, Graph graph) throws QueryException {
+    org.eclipse.rdf4j.query.Update update = conn.prepareUpdateSparql(spq, graph);
     update.execute();
-
   }
 
   public void unpackQueryRequest(QueryRequest queryRequest, ObjectNode result) throws QueryException {
@@ -172,7 +170,7 @@ public class QueryRepository {
     }
   }
 
-  private ObjectNode graphSelectSearch(QueryRequest queryRequest, String spq, RepositoryConnection conn, ObjectNode result) {
+  private ObjectNode graphSelectSearch(QueryRequest queryRequest, String spq, IMDB conn, ObjectNode result) {
     Query query = queryRequest.getQuery();
     ArrayNode entities = result.putArray(ENTITIES);
     ObjectNode lastEntity = null;
@@ -187,7 +185,7 @@ public class QueryRepository {
       end = pageSize * page;
     }
     int foundCount = -1;
-    try (TupleQueryResult rs = sparqlQuery(spq, conn, queryRequest.getGraph())) {
+    try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
         Return aReturn = query.getReturn();
@@ -243,17 +241,17 @@ public class QueryRepository {
     return true;
   }
 
-  private Boolean graphAskSearch(String spq, RepositoryConnection conn, Graph graph) {
-    return sparqlAskQuery(spq, conn, graph);
+  private Boolean graphAskSearch(String spq, IMDB conn) {
+    return sparqlAskQuery(spq, conn);
   }
 
-  private TupleQueryResult sparqlQuery(String spq, RepositoryConnection conn, Graph graph) {
-    TupleQuery qry = IMDB.prepareTupleSparql(conn, spq, graph);
+  private TupleQueryResult sparqlQuery(String spq, IMDB conn) {
+    TupleQuery qry = conn.prepareTupleSparql(spq);
     return qry.evaluate();
   }
 
-  private Boolean sparqlAskQuery(String spq, RepositoryConnection conn, Graph graph) {
-    BooleanQuery qry = IMDB.prepareBooleanSparql(conn, spq, graph);
+  private Boolean sparqlAskQuery(String spq, IMDB conn) {
+    BooleanQuery qry = conn.prepareBooleanSparql(spq);
     return qry.evaluate();
   }
 

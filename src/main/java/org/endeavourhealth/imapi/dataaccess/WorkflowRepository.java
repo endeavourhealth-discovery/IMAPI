@@ -43,7 +43,6 @@ public class WorkflowRepository {
   public BugReport getBugReport(String id) throws UserNotFoundException {
     String sparql = """
       SELECT ?s ?typeData ?createdByData ?assignedToData ?productData ?moduleData ?versionData ?osData ?browserData ?severityData ?statusData ?errorData ?descriptionData ?reproduceStepsData ?expectedResultData ?actualResultData ?dateCreatedData ?stateData ?hostUrlData
-      FROM ?g
       WHERE {
         ?s ?type ?typeData ;
         ?createdBy ?createdByData ;
@@ -68,8 +67,8 @@ public class WorkflowRepository {
       }
       """;
 
-    try (RepositoryConnection conn = WorkflowDB.getConnection()) {
-      TupleQuery qry = WorkflowDB.prepareTupleSparql(conn, sparql);
+    try (WorkflowDB conn = WorkflowDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       setBugReportBindings(qry);
       qry.setBinding("s", iri(id));
 
@@ -88,7 +87,6 @@ public class WorkflowRepository {
   public List<TaskHistory> getHistory(String id) throws UserNotFoundException {
     String sparql = """
       SELECT ?predicateData ?originalObjectData ?newObjectData ?changeDateData ?modifiedByData
-      FROM ?g
       WHERE {
         ?s ?history ?historyId .
         ?historyId ?predicate ?predicateData ;
@@ -99,8 +97,8 @@ public class WorkflowRepository {
       }
       """;
     List<TaskHistory> results = new ArrayList<>();
-    try (RepositoryConnection conn = WorkflowDB.getConnection()) {
-      TupleQuery qry = WorkflowDB.prepareTupleSparql(conn, sparql);
+    try (WorkflowDB conn = WorkflowDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       setBugReportBindings(qry);
       qry.setBinding("s", iri(id));
       qry.setBinding("history", WORKFLOW.HISTORY.asDbIri());
@@ -155,7 +153,6 @@ public class WorkflowRepository {
   private String getTaskSparql() {
     return """
       SELECT ?s ?createdByData ?typeData ?assignedToData ?stateData ?dateCreatedData ?hostUrlData
-      FROM ?g
       WHERE {
         ?s ?createdBy ?createdByData ;
         ?dateCreated ?dateCreatedData ;
@@ -171,8 +168,8 @@ public class WorkflowRepository {
     String sparql = getTaskSparqlFromRequest(request);
     WorkflowResponse response = new WorkflowResponse();
 
-    try (RepositoryConnection conn = WorkflowDB.getConnection()) {
-      TupleQuery qry = WorkflowDB.prepareTupleSparql(conn, sparql);
+    try (WorkflowDB conn = WorkflowDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       setTaskBindings(qry);
       qry.setBinding("createdByData", literal(request.getUserId()));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -192,13 +189,12 @@ public class WorkflowRepository {
   public Integer countTaskByCreatedBy(WorkflowRequest request) {
     String sparql = """
       SELECT (COUNT(DISTINCT ?s) AS ?count)
-      FROM ?g
       WHERE {
         ?s ?createdBy ?createdByData
       }
       """;
-    try (RepositoryConnection conn = WorkflowDB.getConnection()) {
-      TupleQuery qry = WorkflowDB.prepareTupleSparql(conn, sparql);
+    try (WorkflowDB conn = WorkflowDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("createdBy", WORKFLOW.CREATED_BY.asDbIri());
       qry.setBinding("createdByData", literal(request.getUserId()));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -215,8 +211,8 @@ public class WorkflowRepository {
     String sparql = getTaskSparqlFromRequest(request);
     WorkflowResponse response = new WorkflowResponse();
 
-    try (RepositoryConnection conn = WorkflowDB.getConnection()) {
-      TupleQuery qry = WorkflowDB.prepareTupleSparql(conn, sparql);
+    try (WorkflowDB conn = WorkflowDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       setTaskBindings(qry);
       qry.setBinding("assignedToData", literal(request.getUserId()));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -236,13 +232,12 @@ public class WorkflowRepository {
   public Integer countTaskByAssignedTo(WorkflowRequest request) {
     String sparql = """
         SELECT (COUNT(DISTINCT ?s) AS ?count)
-        FROM ?g
         WHERE {
           ?s ?assignedTo ?assignedToData
         }
       """;
-    try (RepositoryConnection conn = WorkflowDB.getConnection()) {
-      TupleQuery qry = WorkflowDB.prepareTupleSparql(conn, sparql);
+    try (WorkflowDB conn = WorkflowDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("assignedTo", WORKFLOW.ASSIGNED_TO.asDbIri());
       qry.setBinding("assignedToData", literal(request.getUserId()));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -259,8 +254,8 @@ public class WorkflowRepository {
     String sparql = getTaskSparqlFromRequest(request);
     WorkflowResponse response = new WorkflowResponse();
 
-    try (RepositoryConnection conn = WorkflowDB.getConnection()) {
-      TupleQuery qry = WorkflowDB.prepareTupleSparql(conn, sparql);
+    try (WorkflowDB conn = WorkflowDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       setTaskBindings(qry);
       qry.setBinding("assignedToData", literal("UNASSIGNED"));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -280,8 +275,8 @@ public class WorkflowRepository {
   public Task getTask(String id) throws UserNotFoundException {
     String sparql = getTaskSparql();
 
-    try (RepositoryConnection conn = WorkflowDB.getConnection()) {
-      TupleQuery qry = WorkflowDB.prepareTupleSparql(conn, sparql);
+    try (WorkflowDB conn = WorkflowDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       setTaskBindings(qry);
       qry.setBinding("s", iri(id));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -305,7 +300,6 @@ public class WorkflowRepository {
   public RoleRequest getRoleRequest(String id) throws UserNotFoundException {
     String sparql = """
       SELECT ?s ?typeData ?createdByData ?assignedToData ?dateCreatedData ?stateData ?hostUrlData ?roleData
-      FROM ?g
       WHERE {
         ?s ?type ?typeData ;
         ?createdBy ?createdByData ;
@@ -317,8 +311,8 @@ public class WorkflowRepository {
       }
       """;
 
-    try (RepositoryConnection conn = WorkflowDB.getConnection()) {
-      TupleQuery qry = WorkflowDB.prepareTupleSparql(conn, sparql);
+    try (WorkflowDB conn = WorkflowDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       setRoleRequestBindings(qry);
       qry.setBinding("s", iri(id));
 
@@ -337,7 +331,6 @@ public class WorkflowRepository {
   public EntityApproval getEntityApproval(String id) throws UserNotFoundException {
     String sparql = """
       SELECT ?s ?typeData ?createdByData ?assignedToData ?dateCreatedData ?stateData ?hostUrlData ?roleData
-      FROM ?g
       WHERE {
         ?s ?type ?typeData ;
         ?createdBy ?createdByData ;
@@ -349,8 +342,8 @@ public class WorkflowRepository {
       }
       """;
 
-    try (RepositoryConnection conn = WorkflowDB.getConnection()) {
-      TupleQuery qry = WorkflowDB.prepareTupleSparql(conn, sparql);
+    try (WorkflowDB conn = WorkflowDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       setEntityApprovalBindings(qry);
       qry.setBinding("s", iri(id));
 
@@ -375,13 +368,12 @@ public class WorkflowRepository {
   public String generateId() {
     String sparql = """
       SELECT DISTINCT ?s
-      FROM ?g
       WHERE {?s ?p ?o .}
       ORDER BY DESC (?s)
       LIMIT 1
       """;
-    try (RepositoryConnection conn = WorkflowDB.getConnection()) {
-      TupleQuery qry = WorkflowDB.prepareTupleSparql(conn, sparql);
+    try (WorkflowDB conn = WorkflowDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("p", WORKFLOW.CREATED_BY.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {

@@ -36,8 +36,8 @@ public class ProvRepository {
       } order by desc(?effectiveDate)
       """;
 
-    try (RepositoryConnection conn = ProvDB.getConnection()) {
-      TupleQuery qry = ProvDB.prepareTupleSparql(conn, sql);
+    try (ProvDB conn = ProvDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("entity", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {

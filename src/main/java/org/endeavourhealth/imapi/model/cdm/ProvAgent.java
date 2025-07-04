@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.cdm;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTUtil;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -10,6 +11,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class ProvAgent extends Entry {
 
   public ProvAgent() {
+    this.setGraph(Graph.PROV);
     this.addType(iri(IM.PROVENANCE_AGENT));
   }
 

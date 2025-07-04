@@ -7,10 +7,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +15,9 @@ import java.util.List;
 @Slf4j
 public class LuceneIndexer {
 
-  public void buildIndexes() {
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      dropIndex(conn);
+  public void buildIndexes(Graph graph) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      dropIndex(conn, graph);
       String sql = """
         PREFIX con: <http://www.ontotext.com/connectors/lucene#>
         PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>
@@ -60,12 +57,12 @@ public class LuceneIndexer {
         }
         """.formatted(RDFS.LABEL, IM.CODE, IM.CONCEPT, IM.FOLDER, IM.FORM_GENERATOR, IM.FUNCTION, IM.COHORT_QUERY, IM.DATASET_QUERY, IM.QUERY, SHACL.NODESHAPE, RDFS.CLASS, RDF.PROPERTY);
       log.info("Building lucene index... This will take an hour or so...");
-      Update upd = conn.prepareUpdate(sql);
+      Update upd = conn.prepareInsertSparql(sql, graph);
       upd.execute();
     }
   }
 
-  private void dropIndex(RepositoryConnection conn) {
+  private void dropIndex(IMDB conn, Graph graph) {
     String checkList = """
         PREFIX luc: <http://www.ontotext.com/connectors/lucene#>
       
@@ -73,7 +70,7 @@ public class LuceneIndexer {
           ?cntUri luc:listConnectors ?cntStr .
         }
       """;
-    TupleQuery qry = conn.prepareTupleQuery(checkList);
+    TupleQuery qry = conn.prepareTupleSparql(checkList);
     List<String> connectors = new ArrayList<>();
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
@@ -92,7 +89,7 @@ public class LuceneIndexer {
             }
           """;
         log.info("Dropping lucene index...");
-        Update upd = conn.prepareUpdate(spq);
+        Update upd = conn.prepareInsertSparql(spq, graph);
         upd.execute();
       }
     }

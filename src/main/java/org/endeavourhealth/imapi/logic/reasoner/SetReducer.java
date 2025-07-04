@@ -47,8 +47,8 @@ public class SetReducer {
       sql = getMemberSql();
       originalSize = set.get(iri(IM.HAS_MEMBER)).size();
     }
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      TupleQuery qry = IMDB.prepareTupleSparql(conn, sql, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("set", Values.iri(set.getIri()));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (!rs.hasNext())

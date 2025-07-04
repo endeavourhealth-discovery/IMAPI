@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.*;
 
@@ -12,11 +13,11 @@ public class ECLQueryValidator {
 
 
 
-  public ECLStatus validateQuery(Query query, ValidationLevel validationLevel) {
+  public ECLStatus validateQuery(Query query, ValidationLevel validationLevel, Graph graph) {
     this.validationLevel = validationLevel;
     Set<String> iris= IriCollector.collectIris(query);
-    validConcepts= setRepository.getValidConcepts(iris);
-    query.setInvalid(isInvalidMatchWheres(query));
+    validConcepts= setRepository.getValidConcepts(iris, graph);
+    query.setInvalid(isInvalidMatchWheres(query, graph));
     ECLStatus status = new ECLStatus();
     status.setValid(!query.isInvalid());
     if (query.isInvalid()) {
@@ -25,7 +26,7 @@ public class ECLQueryValidator {
     return status;
   }
 
-  private boolean isInvalidMatchWheres(Match match){
+  private boolean isInvalidMatchWheres(Match match, Graph graph) {
     boolean invalid=false;
     if (match.getInstanceOf()!=null){
       for (Node node: match.getInstanceOf()){
@@ -41,14 +42,14 @@ public class ECLQueryValidator {
       Set<String> focusConcepts= new HashSet<>();
       if (validationLevel==ValidationLevel.ECL)
         getFocusConcepts(match,focusConcepts);
-      if (isInvalidWhere(match.getWhere(),focusConcepts)){
+      if (isInvalidWhere(match.getWhere(),focusConcepts, graph)){
         invalid= true;
       }
     }
     for (List<Match> matches : Arrays.asList(match.getOr(),match.getAnd(),match.getNot())){
       if (matches!=null){
         for (Match m : matches){
-          if (isInvalidMatchWheres(m)){
+          if (isInvalidMatchWheres(m, graph)){
             invalid=true;
           }
         }
@@ -57,7 +58,7 @@ public class ECLQueryValidator {
     return invalid;
   }
 
-  private boolean isInvalidWhere(Where where, Set<String> focusConcepts) {
+  private boolean isInvalidWhere(Where where, Set<String> focusConcepts, Graph graph) {
     boolean invalid=false;
     if (where.getIri()!=null){
       if (!validConcepts.get(where.getIri())) {
@@ -65,7 +66,7 @@ public class ECLQueryValidator {
         where.setInvalid(true);
       }
       if (validationLevel==ValidationLevel.ECL) {
-        if (!setRepository.isValidPropertyForDomains(where.getIri(), focusConcepts)) {
+        if (!setRepository.isValidPropertyForDomains(where.getIri(), focusConcepts, graph)) {
           where.setInvalid(true);
           invalid = true;
         }
@@ -81,7 +82,7 @@ public class ECLQueryValidator {
                 node.setInvalid(true);
               }
               if (validationLevel == ValidationLevel.ECL) {
-                if (!setRepository.isValidRangeForProperty(where.getIri(), node.getIri())) {
+                if (!setRepository.isValidRangeForProperty(where.getIri(), node.getIri(), graph)) {
                   node.setInvalid(true);
                   invalid = true;
                 }
@@ -95,7 +96,7 @@ public class ECLQueryValidator {
       for (List<Where> wheres: Arrays.asList(where.getOr(), where.getAnd())) {
         if (wheres != null) {
           for (Where w : wheres) {
-            if (isInvalidWhere(w, focusConcepts)) {
+            if (isInvalidWhere(w, focusConcepts, graph)) {
               invalid= true;
             }
           }

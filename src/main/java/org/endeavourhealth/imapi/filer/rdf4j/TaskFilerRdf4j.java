@@ -9,6 +9,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.endeavourhealth.imapi.aws.AWSCognitoClient;
 import org.endeavourhealth.imapi.aws.UserNotFoundException;
+import org.endeavourhealth.imapi.dataaccess.databases.BaseDB;
 import org.endeavourhealth.imapi.dataaccess.databases.WorkflowDB;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.logic.service.EmailService;
@@ -29,15 +30,11 @@ import java.util.StringJoiner;
 import static org.eclipse.rdf4j.model.util.Values.*;
 
 public class TaskFilerRdf4j {
-  private RepositoryConnection conn;
+  private WorkflowDB conn;
   private EmailService emailService;
 
-  public TaskFilerRdf4j(RepositoryConnection conn) {
-    this.conn = conn;
-  }
-
   public TaskFilerRdf4j() {
-    this(WorkflowDB.getConnection());
+    conn = WorkflowDB.getConnection();
   }
 
   public void fileBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
@@ -123,7 +120,7 @@ public class TaskFilerRdf4j {
             GRAPH ?g { ?s ?p ?o }
           }
         """;
-      Update update = WorkflowDB.prepareUpdateSparql(conn, sparql);
+      Update update = conn.prepareInsertSparql(sparql);
       update.setBinding("s", iri(taskId));
       update.execute();
     } catch (UpdateExecutionException e) {
@@ -151,7 +148,7 @@ public class TaskFilerRdf4j {
       stringJoiner.add("BIND(?o AS ?originalObject)");
       if (null != newObject) stringJoiner.add("BIND(?newVal AS ?newObject)");
       stringJoiner.add("}}");
-      Update update = WorkflowDB.prepareUpdateSparql(conn, stringJoiner.toString());
+      Update update = conn.prepareInsertSparql(stringJoiner.toString());
       update.setBinding("subject", iri(subject));
       update.setBinding("predicate", predicate.asDbIri());
       if (null != newObject) update.setBinding("newVal", literal(newObject));

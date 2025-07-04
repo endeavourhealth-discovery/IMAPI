@@ -117,8 +117,8 @@ public class PropertyRepository {
   }
 
   public static TTEntityMap getProperty(String focusIri, Graph graph) {
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      GraphQuery qry = IMDB.prepareGraphSparql(conn, PROPERTIES_SQL, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      GraphQuery qry = conn.prepareGraphSparql(PROPERTIES_SQL);
       qry.setBinding("entity", Values.iri(focusIri));
       return GraphHelper.getEntityMap(qry);
     }
@@ -131,8 +131,8 @@ public class PropertyRepository {
    * All iris referenced include their labels as names, except for the mode predicates themselves
    */
   public static TTEntityMap getProperties(Graph graph) {
-    try (RepositoryConnection conn = IMDB.getConnection()) {
-      GraphQuery qry = IMDB.prepareGraphSparql(conn, GET_ALL_PROPERTIES_SQL, graph);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      GraphQuery qry = conn.prepareGraphSparql(GET_ALL_PROPERTIES_SQL);
       return GraphHelper.getEntityMap(qry);
     }
   }

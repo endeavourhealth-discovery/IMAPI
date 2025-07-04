@@ -256,7 +256,7 @@ public class EqdResources {
 
     EQDOCFilterAttribute filter = eqCriterion.getFilterAttribute();
     if (!filter.getColumnValue().isEmpty() || filter.getRestriction() != null) {
-      standardMatch = this.convertStandardCriterion(eqCriterion, baseMatch == null ? null : baseMatch.getReturn().getAs());
+      standardMatch = this.convertStandardCriterion(eqCriterion, baseMatch == null ? null : "IndexEvent");
       if (eqCriterion.getDescription()!=null) standardMatch.setDescription(eqCriterion.getDescription());
       if (baseMatch != null) {
         baseMatch.setThen(standardMatch);
@@ -283,7 +283,7 @@ public class EqdResources {
         }
 
         if (baseMatch != null) {
-          nodeRef = baseMatch.getReturn().getAs();
+          nodeRef = "IndexEvent";
         } else if (standardMatch.getReturn() != null) {
           nodeRef = standardMatch.getReturn().getAs();
         }
@@ -329,10 +329,12 @@ public class EqdResources {
 
       for (EQDOCBaseCriteriaGroup baseGroup : eqCriterion.getBaseCriteriaGroup()) {
         Match subQuery = this.convertBaseCriteriaGroup(baseGroup);
+        this.setBaseReturn(subQuery);
         baseMatch.addOr(subQuery);
       }
     } else {
       baseMatch = this.convertBaseCriteriaGroup((EQDOCBaseCriteriaGroup) eqCriterion.getBaseCriteriaGroup().get(0));
+      this.setBaseReturn(baseMatch);
     }
 
 
@@ -342,7 +344,7 @@ public class EqdResources {
       baseMatch.setOrderBy(lastMatch.getOrderBy());
     }
 
-    this.setBaseReturn(baseMatch);
+
     return baseMatch;
   }
 

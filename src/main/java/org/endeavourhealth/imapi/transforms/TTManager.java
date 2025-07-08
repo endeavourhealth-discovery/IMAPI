@@ -291,7 +291,6 @@ public class TTManager implements AutoCloseable {
     createDefaultContext();
     document = new TTDocument();
     document.setContext(context);
-    document.setDefaultScheme(SCHEME.IM);
     return document;
   }
 
@@ -438,14 +437,14 @@ public class TTManager implements AutoCloseable {
     }
   }
 
-  public TTEntity createScheme(SCHEME iri, String name, String description) {
-    TTEntity scheme = new TTEntity()
-      .setIri(iri.toString())
-      .addType(iri(RDFS.CLASS))
+  public TTEntity createNamespaceEntity(Namespace namespace, String name, String description) {
+    TTEntity result = new TTEntity()
+      .setIri(namespace.toString())
+      .addType(RDFS.CLASS.asIri())
       .setName(name)
       .setDescription(description);
-    scheme.addObject(iri(RDFS.SUBCLASS_OF), SCHEME.IM.asIri());
-    return scheme;
+    result.addObject(iri(RDFS.SUBCLASS_OF), Namespace.IM.asIri());
+    return result;
   }
 
   public void saveTurtleDocument(File outputFile) {

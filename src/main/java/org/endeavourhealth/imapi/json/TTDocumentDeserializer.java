@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.Graph;
-import org.endeavourhealth.imapi.vocabulary.SCHEME;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,8 +44,6 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
     helper.populatePrefixesFromJson(node, prefixes);
     if (!prefixes.isEmpty())
       result.setContext(context);
-    if (node.get(DEFAULT_SCHEME) != null)
-      result.setDefaultScheme(SCHEME.from(node.get(DEFAULT_SCHEME).get(ID).asText()));
     if (node.get(CRUD) != null)
       result.setCrud(iri(helper.expand(node.get(CRUD).get(ID).asText())));
     if (node.get(ENTITIES) != null) {

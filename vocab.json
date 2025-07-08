@@ -743,10 +743,6 @@
         "value": "Namespace.IM + \"uprn\""
       },
       {
-        "name": "SYSTEM_NAMESPACE",
-        "value": "\"http://sys.endhealth.info/im#\""
-      },
-      {
         "name": "ENTITY_TYPES",
         "value": "Namespace.IM + \"EntityTypes\""
       },
@@ -2193,292 +2189,119 @@
     ]
   },
   {
-    "name": "IMPORT",
+    "name": "ImportType",
     "entries": [
       {
         "name": "SNOMED",
-        "value": "\"http://snomed.info/sct#\""
+        "value": "\"snomed\""
+      },
+      {
+        "name": "SKIP_TCT",
+        "value": "\"tct\""
+      },
+      {
+        "name": "SKIP_SEARCH",
+        "value": "\"search\""
       },
       {
         "name": "FHIR",
-        "value": "\"http://hl7.org/fhir/\""
+        "value": "\"fhir\""
       },
       {
         "name": "SMARTLIFE",
-        "value": "\"http://smartlifehealth.info/smh#\""
+        "value": "\"smartlifequery\""
       },
       {
         "name": "QOF",
-        "value": "\"http://endhealth.info/qof#\""
+        "value": "\"qof\""
       },
       {
         "name": "CORE",
-        "value": "\"http://endhealth.info/im#\""
+        "value": "\"core\""
       },
       {
         "name": "SINGLE_FILE",
-        "value": "\"http://endhealth.info/im#singlefile\""
+        "value": "\"singlefile\""
       },
       {
         "name": "BNF",
-        "value": "\"http://bnf.info/bnf#\""
+        "value": "\"bnf\""
       },
       {
         "name": "ICD10",
-        "value": "\"http://endhealth.info/icd10#\""
+        "value": "\"icd10\""
       },
       {
         "name": "EMIS",
-        "value": "\"http://endhealth.info/emis#\""
+        "value": "\"emis\""
       },
       {
         "name": "CPRD_MED",
-        "value": "\"http://endhealth.info/cprdm#\""
-      },
-      {
-        "name": "CPRD_PROD",
-        "value": "\"http://endhealth.info/cprdp#\""
+        "value": "\"cprd\""
       },
       {
         "name": "OPCS4",
-        "value": "\"http://endhealth.info/opcs4#\""
+        "value": "\"opcs4\""
       },
       {
         "name": "TPP",
-        "value": "\"http://endhealth.info/tpp#\""
+        "value": "\"tpp\""
       },
       {
         "name": "ODS",
-        "value": "\"http://endhealth.info/ods#\""
+        "value": "\"ods\""
       },
       {
         "name": "PRSB",
-        "value": "\"http://endhealth.info/prsb#\""
+        "value": "\"prsb\""
       },
       {
         "name": "KINGS_APEX",
-        "value": "\"http://endhealth.info/kpax#\""
+        "value": "\"kingsapex\""
       },
       {
         "name": "KINGS_WINPATH",
-        "value": "\"http://endhealth.info/kwp#\""
+        "value": "\"kingswinpath\""
       },
       {
         "name": "VISION",
-        "value": "\"http://endhealth.info/vis#\""
-      },
-      {
-        "name": "READ2",
-        "value": "\"http://endhealth.info/read2#\""
+        "value": "\"vision\""
       },
       {
         "name": "BARTS_CERNER",
-        "value": "\"http://endhealth.info/bc#\""
-      },
-      {
-        "name": "NHSDD_ETHNIC_2001",
-        "value": "\"http://endhealth.info/nhsethnic2001#\""
+        "value": "\"barts\""
       },
       {
         "name": "IM1",
-        "value": "\"http://endhealth.info/im1#\""
+        "value": "\"imv1\""
       },
       {
         "name": "ENCOUNTERS",
-        "value": "\"http://endhealth.info/enc#\""
+        "value": "\"encounters\""
       },
       {
         "name": "CONFIG",
-        "value": "\"http://endhealth.info/config#\""
+        "value": "\"config\""
       },
       {
         "name": "CEG",
-        "value": "\"http://endhealth.info/ceg#\""
+        "value": "\"ceg\""
       },
       {
         "name": "NHS_TFC",
-        "value": "\"http://endhealth.info/nhstfc#\""
-      },
-      {
-        "name": "STATS",
-        "value": "\"http://endhealth.info/stats#\""
+        "value": "\"nhstfc\""
       },
       {
         "name": "DELTAS",
-        "value": "\"http://endhealth.info/deltas#\""
-      },
-      {
-        "name": "PROV",
-        "value": "\"http://endhealth.info/prov#\""
+        "value": "\"deltas\""
       },
       {
         "name": "QUERY",
-        "value": "\"http://endhealth.info/query#\""
-      },
-      {
-        "name": "REPORTS",
-        "value": "\"http://endhealth.info/reports#\""
-      },
-      {
-        "name": "OPS_ROLES",
-        "value": "\"https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#\""
-      },
-      {
-        "name": "XS",
-        "value": "\"http://www.w3.org/2001/XMLSchema#\""
-      },
-      {
-        "name": "SYSTEM",
-        "value": "\"http://sys.endhealth.info/im#\""
+        "value": "\"corequery\""
       },
       {
         "name": "QR",
-        "value": "\"http://apiqcodes.org/qcodes#\""
-      }
-    ]
-  },
-  {
-    "name": "SCHEME",
-    "entries": [
-      {
-        "name": "SNOMED",
-        "value": "\"http://snomed.info/sct#\""
-      },
-      {
-        "name": "RDF",
-        "value": "\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\""
-      },
-      {
-        "name": "FHIR",
-        "value": "\"http://hl7.org/fhir/\""
-      },
-      {
-        "name": "SMARTLIFE",
-        "value": "\"http://smartlifehealth.info/smh#\""
-      },
-      {
-        "name": "QOF",
-        "value": "\"http://endhealth.info/qof#\""
-      },
-      {
-        "name": "IM",
-        "value": "\"http://endhealth.info/im#\""
-      },
-      {
-        "name": "BNF",
-        "value": "\"http://bnf.info/bnf#\""
-      },
-      {
-        "name": "ICD10",
-        "value": "\"http://endhealth.info/icd10#\""
-      },
-      {
-        "name": "EMIS",
-        "value": "\"http://endhealth.info/emis#\""
-      },
-      {
-        "name": "CPRD_MED",
-        "value": "\"http://endhealth.info/cprdm#\""
-      },
-      {
-        "name": "CPRD_PROD",
-        "value": "\"http://endhealth.info/cprdp#\""
-      },
-      {
-        "name": "OPCS4",
-        "value": "\"http://endhealth.info/opcs4#\""
-      },
-      {
-        "name": "TPP",
-        "value": "\"http://endhealth.info/tpp#\""
-      },
-      {
-        "name": "ODS",
-        "value": "\"http://endhealth.info/ods#\""
-      },
-      {
-        "name": "PRSB",
-        "value": "\"http://endhealth.info/prsb#\""
-      },
-      {
-        "name": "KINGS_APEX",
-        "value": "\"http://endhealth.info/kpax#\""
-      },
-      {
-        "name": "KINGS_WINPATH",
-        "value": "\"http://endhealth.info/kwp#\""
-      },
-      {
-        "name": "VISION",
-        "value": "\"http://endhealth.info/vis#\""
-      },
-      {
-        "name": "READ2",
-        "value": "\"http://endhealth.info/read2#\""
-      },
-      {
-        "name": "BARTS_CERNER",
-        "value": "\"http://endhealth.info/bc#\""
-      },
-      {
-        "name": "NHSDD_ETHNIC_2001",
-        "value": "\"http://endhealth.info/nhsethnic2001#\""
-      },
-      {
-        "name": "IM1",
-        "value": "\"http://endhealth.info/im1#\""
-      },
-      {
-        "name": "ENCOUNTERS",
-        "value": "\"http://endhealth.info/enc#\""
-      },
-      {
-        "name": "CONFIG",
-        "value": "\"http://endhealth.info/config#\""
-      },
-      {
-        "name": "CEG",
-        "value": "\"http://endhealth.info/ceg#\""
-      },
-      {
-        "name": "NHS_TFC",
-        "value": "\"http://endhealth.info/nhstfc#\""
-      },
-      {
-        "name": "STATS",
-        "value": "\"http://endhealth.info/stats#\""
-      },
-      {
-        "name": "DELTAS",
-        "value": "\"http://endhealth.info/deltas#\""
-      },
-      {
-        "name": "PROV",
-        "value": "\"http://endhealth.info/prov#\""
-      },
-      {
-        "name": "QUERY",
-        "value": "\"http://endhealth.info/query#\""
-      },
-      {
-        "name": "REPORTS",
-        "value": "\"http://endhealth.info/reports#\""
-      },
-      {
-        "name": "OPS_ROLES",
-        "value": "\"https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#\""
-      },
-      {
-        "name": "XS",
-        "value": "\"http://www.w3.org/2001/XMLSchema#\""
-      },
-      {
-        "name": "SYSTEM",
-        "value": "\"http://sys.endhealth.info/im#\""
-      },
-      {
-        "name": "QR",
-        "value": "\"http://apiqcodes.org/qcodes#\""
+        "value": "\"qcodegroups\""
       }
     ]
   },
@@ -2606,6 +2429,10 @@
     "name": "Namespace",
     "entries": [
       {
+        "name": "ODS",
+        "value": "\"http://endhealth.info/ods#\""
+      },
+      {
         "name": "CEG",
         "value": "\"http://endhealth.info/ceg#\""
       },
@@ -2630,7 +2457,14 @@
         "name": "IM",
         "value": "\"http://endhealth.info/im#\""
       },
-
+      {
+        "name": "IM1",
+        "value": "\"http://endhealth.info/im1#\""
+      },
+      {
+        "name": "EMIS",
+        "value": "\"http://endhealth.info/emis#\""
+      },
       {
         "name": "FUNCTION",
         "value": "\"http://endhealth.info/im#Function_\""
@@ -2740,6 +2574,38 @@
       {
         "name": "LOCATION",
         "value": "\"http://loc.endhealth.info/im#\""
+      },
+      {
+        "name": "FHIR",
+        "value": "\"http://hl7.org/fhir/\""
+      },
+      {
+        "name": "SYSTEM",
+        "value": "\"http://sys.endhealth.info/im#\""
+      },
+      {
+        "name": "KINGS_APEX",
+        "value": "\"http://endhealth.info/kpax#\""
+      },
+      {
+        "name": "NHSDD_ETHNIC_2001",
+        "value": "\"http://endhealth.info/nhsethnic2001#\""
+      },
+      {
+        "name": "CPRD_MED",
+        "value": "\"http://endhealth.info/cprdm#\""
+      },
+      {
+        "name": "CPRD_PROD",
+        "value": "\"http://endhealth.info/cprdp#\""
+      },
+      {
+        "name": "NHS_TFC",
+        "value": "\"http://endhealth.info/nhstfc#\""
+      },
+      {
+        "name": "KINGS_WINPATH",
+        "value": "\"http://endhealth.info/kwp#\""
       }
     ]
   }

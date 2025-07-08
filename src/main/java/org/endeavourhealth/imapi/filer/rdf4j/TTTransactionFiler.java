@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.filer.TTDocumentFiler;
@@ -21,8 +20,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SCHEME;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +55,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
    * Destination folder for transaction log files must be set.
    */
   public TTTransactionFiler(Graph graph) {
-    this(System.getenv("DELTA_PATH"));
+    logPath = System.getenv("DELTA_PATH");
     log.info("Connecting");
     conn = IMDB.getConnection(graph);
 
@@ -64,15 +63,6 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     conceptFiler = new TTEntityFilerRdf4j(conn, prefixMap);
     instanceFiler = conceptFiler;   // Concepts & Instances filed in the same way
     log.info("Done");
-  }
-
-  /**
-   * Destination folder for transaction log files must be set.
-   *
-   * @param logPath folder containing the transaction log files
-   */
-  public TTTransactionFiler(String logPath) {
-    this.logPath = logPath;
   }
 
   private static Map<Graph, Set<String>> getEntitiesToCheckForUsage(TTDocument transaction) throws TTFilerException {
@@ -290,7 +280,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     if (entity.getGraph() == null)
       throw new TTFilerException("No graph specified for entity");
 
-    if (entity.has(iri(IM.HAS_SCHEME)) && entity.get(iri(IM.HAS_SCHEME)).asIriRef().getIri().equals(SCHEME.ODS))
+    if (entity.has(iri(IM.HAS_SCHEME)) && entity.get(iri(IM.HAS_SCHEME)).asIriRef().getIri().equals(Namespace.ODS))
       instanceFiler.fileEntity(entity);
     else
       conceptFiler.fileEntity(entity);

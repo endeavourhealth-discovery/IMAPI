@@ -970,11 +970,11 @@ public class EqdResources {
     } else if (scheme != VocCodeSystemEx.SNOMED_CONCEPT && !scheme.value().contains("SCT")) {
       throw new IllegalArgumentException("code scheme not recognised : " + scheme.value());
     } else {
-      List<SCHEME> schemes = new ArrayList<>();
-      schemes.add(SCHEME.SNOMED);
-      schemes.add(SCHEME.EMIS);
-      schemes.add(SCHEME.IM);
-      schemes.add(SCHEME.BNF);
+      List<Namespace> schemes = new ArrayList<>();
+      schemes.add(Namespace.SNOMED);
+      schemes.add(Namespace.EMIS);
+      schemes.add(Namespace.IM);
+      schemes.add(Namespace.BNF);
       Set<Node> snomed = valueMap.get(originalCode);
       if (snomed == null) {
         snomed = this.getValuesFromOriginal(originalCode, originalTerm, legacyCode, schemes, graph);
@@ -1009,7 +1009,7 @@ public class EqdResources {
     return result;
   }
 
-  private Set<Node> getValuesFromOriginal(String originalCode, String originalTerm, String legacyCode, List<SCHEME> schemes, Graph graph) {
+  private Set<Node> getValuesFromOriginal(String originalCode, String originalTerm, String legacyCode, List<Namespace> schemes, Graph graph) {
     Set<Entity> snomed = this.getCoreFromCode(originalCode, schemes, graph);
     if (snomed == null && legacyCode != null) {
       snomed = this.getCoreFromCode(legacyCode, schemes, graph);
@@ -1041,7 +1041,7 @@ public class EqdResources {
 
   private Set<Entity> getLegacyFromTermCode(String originalCode, Graph graph) {
     try {
-      return this.importMaps.getLegacyFromTermCode(originalCode, SCHEME.EMIS, graph);
+      return this.importMaps.getLegacyFromTermCode(originalCode, Namespace.EMIS, graph);
     } catch (Exception e) {
       log.error("unable to retrieve iri from term code {}", e.getMessage());
       return Collections.emptySet();
@@ -1053,14 +1053,14 @@ public class EqdResources {
       if (originalTerm.contains("s disease of lymph nodes of head, face AND/OR neck")) {
         log.info("!!");
       }
-      return this.importMaps.getCoreFromLegacyTerm(originalTerm, SCHEME.EMIS, graph);
+      return this.importMaps.getCoreFromLegacyTerm(originalTerm, Namespace.EMIS, graph);
     } catch (Exception e) {
       log.error("unable to retrieve from term {}", e.getMessage());
       return Collections.emptySet();
     }
   }
 
-  private Set<Entity> getCoreFromCode(String originalCode, List<SCHEME> schemes, Graph graph) {
+  private Set<Entity> getCoreFromCode(String originalCode, List<Namespace> schemes, Graph graph) {
     return this.importMaps.getCoreFromCode(originalCode, schemes, graph);
   }
 

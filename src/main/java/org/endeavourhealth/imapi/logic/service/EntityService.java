@@ -141,7 +141,7 @@ public class EntityService {
     ArrayList<TTEntity> usageEntities = new ArrayList<>();
     if (iri == null || iri.isEmpty()) return Collections.emptyList();
 
-    Set<String> xmlDataTypes = entityRepository.getByScheme(SCHEME.XS, Graph.IM);
+    Set<String> xmlDataTypes = entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD, Graph.IM);
     if (xmlDataTypes != null && xmlDataTypes.contains(iri)) return Collections.emptyList();
 
     int rowNumber = 0;
@@ -161,7 +161,7 @@ public class EntityService {
   public Integer totalRecords(String iri, Graph graph) {
     if (iri == null || iri.isEmpty()) return 0;
 
-    Set<String> xmlDataTypes = entityRepository.getByScheme(SCHEME.XS, Graph.IM);
+    Set<String> xmlDataTypes = entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD, Graph.IM);
     if (xmlDataTypes != null && xmlDataTypes.contains(iri)) return 0;
 
     return entityRepository.getConceptUsagesCount(iri, graph);
@@ -473,7 +473,7 @@ public class EntityService {
   }
 
   public Set<String> getXmlSchemaDataTypes() {
-    return entityRepository.getByScheme(SCHEME.XS, Graph.IM);
+    return entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD, Graph.IM);
   }
 
   public List<TTEntity> getEntitiesByType(String type, Integer offset, Integer limit, Graph graph, String... predicates) {

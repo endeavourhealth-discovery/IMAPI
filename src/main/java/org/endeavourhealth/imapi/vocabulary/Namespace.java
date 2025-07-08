@@ -14,12 +14,15 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum Namespace implements VocabEnum {
 
+    ODS("http://endhealth.info/ods#"),
     CEG("http://endhealth.info/ceg#"),
     QOF("http://endhealth.info/qof#"),
     SMARTLIFE("http://smartlifehealth.info/smh#"),
     CONFIG("http://endhealth.info/config#"),
     IMQ("http://endhealth.info/imq#"),
     IM("http://endhealth.info/im#"),
+    IM1("http://endhealth.info/im1#"),
+    EMIS("http://endhealth.info/emis#"),
     FUNCTION("http://endhealth.info/im#Function_"),
     MAP("http://endhealth.info/map#"),
     OWL("http://www.w3.org/2002/07/owl#"),
@@ -46,6 +49,14 @@ public enum Namespace implements VocabEnum {
     BARTS_CERNER("http://endhealth.info/bc#"),
     ORGANISATION("http://org.endhealth.info/im#"),
     LOCATION("http://loc.endhealth.info/im#"),
+    FHIR("http://hl7.org/fhir/"),
+    SYSTEM("http://sys.endhealth.info/im#"),
+    KINGS_APEX("http://endhealth.info/kpax#"),
+    NHSDD_ETHNIC_2001("http://endhealth.info/nhsethnic2001#"),
+    CPRD_MED("http://endhealth.info/cprdm#"),
+    CPRD_PROD("http://endhealth.info/cprdp#"),
+    NHS_TFC("http://endhealth.info/nhstfc#"),
+    KINGS_WINPATH("http://endhealth.info/kwp#"),
     ;
 
     private final String value;

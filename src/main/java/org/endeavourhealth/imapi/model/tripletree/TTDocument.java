@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.json.TTDocumentDeserializer;
 import org.endeavourhealth.imapi.json.TTDocumentSerializer;
-import org.endeavourhealth.imapi.vocabulary.SCHEME;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,27 +15,9 @@ import java.util.Map;
 @JsonDeserialize(using = TTDocumentDeserializer.class)
 public class TTDocument extends TTNode {
   private TTContext context = new TTContext();
-  private SCHEME defaultScheme;
   private List<TTEntity> entities;
   private TTIriRef crud;
   private Map<String, String> predicates = new HashMap<>();
-
-  public TTDocument() {
-  }
-
-  public TTDocument(SCHEME defaultScheme) {
-    this.defaultScheme = defaultScheme;
-  }
-
-  public SCHEME getDefaultScheme() {
-    return defaultScheme;
-  }
-
-  @JsonSetter
-  public TTDocument setDefaultScheme(SCHEME defaultScheme) {
-    this.defaultScheme = defaultScheme;
-    return this;
-  }
 
   public Map<String, String> getPredicates() {
     return predicates;

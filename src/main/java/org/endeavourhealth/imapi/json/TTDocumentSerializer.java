@@ -24,19 +24,6 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
     super(t);
   }
 
-  private static void processDefaultScheme(TTDocument document, JsonGenerator gen, TTNodeSerializer helper) throws IOException {
-    if (document.getDefaultScheme() != null) {
-      TTIriRef scheme = document.getDefaultScheme().asIri();
-
-      gen.writeFieldName("defaultScheme");
-      gen.writeStartObject();
-      gen.writeStringField("iri", scheme.getIri());
-      if (scheme.getName() != null && !scheme.getName().isEmpty())
-        gen.writeStringField("name", scheme.getName());
-      gen.writeEndObject();
-    }
-  }
-
   private static void processCrud(TTDocument document, JsonGenerator gen, TTNodeSerializer helper) throws IOException {
     if (document.getCrud() != null) {
       outputIri(gen, "crud", document.getCrud().asIriRef(), helper);
@@ -80,7 +67,6 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
     TTNodeSerializer helper = new TTNodeSerializer(document.getContext(), usePrefixes);
     gen.writeStartObject();
     helper.serializeContexts(document.getPrefixes(), gen);
-    processDefaultScheme(document, gen, helper);
     processCrud(document, gen, helper);
     processEntities(document, gen, prov, helper);
 

@@ -39,6 +39,22 @@ public class TTBulkFiler implements TTDocumentFiler {
   private FileWriter allEntities;
   private FileWriter codeIds;
   private FileWriter coreIris;
+  private Graph graph;
+
+  public TTBulkFiler(Graph graph) {
+    this.graph = graph;
+  }
+
+  public void fileDocument(TTDocument document) throws TTFilerException {
+    if (document.getEntities() == null)
+      return;
+    if (document.getEntities().isEmpty())
+      return;
+
+    validateDocument(document);
+
+    writeGraph(document, graph);
+  }
 
   private static void setStatusAndScheme(TTEntity entity) {
     if (entity.get(iri(RDFS.LABEL)) != null) {
@@ -159,26 +175,14 @@ public class TTBulkFiler implements TTDocumentFiler {
     statementCount++;
   }
 
-  public void fileDocument(TTDocument document) throws TTFilerException {
-    if (document.getEntities() == null)
-      return;
-    if (document.getEntities().isEmpty())
-      return;
-    writeGraph(document);
-
+  private void validateDocument(TTDocument document) throws TTFilerException {
+    for (TTEntity entity : document.getEntities()) {
+      if (entity.getScheme() == null)
+        throw new TTFilerException("Missing entity scheme for entity " + entity);
+    }
   }
 
-  @Override
-  public void writeLog(TTDocument document) {
-    throw new UnsupportedOperationException("TTBulkFiler does not support writeLog");
-  }
-
-  @Override
-  public void fileDeltas(String dataPath) {
-    throw new UnsupportedOperationException("Deltas cannot be filed by a bulk filer. Set Filer Factory bulk to false");
-  }
-
-  private void writeGraph(TTDocument document) throws TTFilerException {
+  private void writeGraph(TTDocument document, Graph graph) throws TTFilerException {
     String path = dataPath;
 
     try {
@@ -189,13 +193,6 @@ public class TTBulkFiler implements TTDocumentFiler {
       log.info("Writing document entities...");
       for (TTEntity entity : document.getEntities()) {
         counter++;
-
-        if (entity.getScheme() == null) {
-          if (document.getDefaultScheme() == null)
-            throw new TTFilerException("Entity with without scheme and no default set: " + entity.getIri());
-
-          entity.setScheme(document.getDefaultScheme().asIri());
-        }
 
         if (entity.get(IM.PRIVACY_LEVEL.asIri()) != null && (entity.get(IM.PRIVACY_LEVEL.asIri()).asLiteral().intValue() > getPrivacyLevel()))
           continue;
@@ -266,7 +263,7 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void addTerms(TTEntity entity) throws IOException {
-    if (entity.getScheme().equals(SCHEME.IM.toString()) && entity.getName() != null)
+    if (entity.getScheme().equals(Namespace.IM.toString()) && entity.getName() != null)
       coreTerms.write(entity.getName() + "\t" + entity.getIri() + "\n");
   }
 
@@ -293,12 +290,12 @@ public class TTBulkFiler implements TTDocumentFiler {
     String scheme = entity.getScheme().getIri();
     if (entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)) != null) {
       codeMap.write(scheme + entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
-      if (scheme.equals(SCHEME.IM.toString()) || (scheme.equals(SCHEME.SNOMED.toString())))
+      if (scheme.equals(Namespace.IM.toString()) || (scheme.equals(Namespace.SNOMED.toString())))
         codeCoreMap.write(entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
     } else {
       if (entity.getCode() != null) {
         codeMap.write(scheme + entity.getCode() + "\t" + entity.getIri() + "\n");
-        if (scheme.equals(SCHEME.IM.toString()) || (scheme.equals(SCHEME.SNOMED.toString())))
+        if (scheme.equals(Namespace.IM.toString()) || (scheme.equals(Namespace.SNOMED.toString())))
           codeCoreMap.write(entity.getCode() + "\t" + entity.getIri() + "\n");
       }
     }

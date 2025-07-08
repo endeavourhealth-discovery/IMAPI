@@ -1,25 +1,18 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.OSQuery;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
-import org.endeavourhealth.imapi.vocabulary.SCHEME;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.zip.DataFormatException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -35,7 +28,7 @@ class OSQueryTest_OS {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void openSearchQuery_term() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void openSearchQuery_term() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1");
 
@@ -47,13 +40,13 @@ class OSQueryTest_OS {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void openSearchQuery_term_scheme() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void openSearchQuery_term_scheme() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
         .where(w -> w
           .setIri(IM.HAS_SCHEME)
-          .is(is -> is.setIri(SCHEME.SNOMED.toString()))));
+          .is(is -> is.setIri(Namespace.SNOMED.toString()))));
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
@@ -63,7 +56,7 @@ class OSQueryTest_OS {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void openSearchQuery_term_IsA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void openSearchQuery_term_IsA() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
@@ -78,7 +71,7 @@ class OSQueryTest_OS {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void openSearchQuery_term_Member() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void openSearchQuery_term_Member() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
@@ -93,7 +86,7 @@ class OSQueryTest_OS {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void openSearchQuery_term_IsA_Member() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void openSearchQuery_term_IsA_Member() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
@@ -110,7 +103,7 @@ class OSQueryTest_OS {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void openSearchQuery_term_NotMember() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void openSearchQuery_term_NotMember() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
@@ -123,7 +116,7 @@ class OSQueryTest_OS {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void openSearchQuery_term_IsA_NotMember() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void openSearchQuery_term_IsA_NotMember() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q

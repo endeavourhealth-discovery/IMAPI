@@ -182,7 +182,6 @@ public enum IM implements VocabEnum {
     POST_CODE(Namespace.IM + "postCode"),
     COUNTRY(Namespace.IM + "country"),
     UPRN(Namespace.IM + "uprn"),
-    SYSTEM_NAMESPACE("http://sys.endhealth.info/im#"),
     ENTITY_TYPES(Namespace.IM + "EntityTypes"),
     CONCEPT_SET_GROUP(Namespace.IM + "ConceptSetGroup"),
     OLD_CODE(Namespace.IM + "oldCode"),

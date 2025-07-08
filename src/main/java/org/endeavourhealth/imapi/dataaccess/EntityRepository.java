@@ -411,7 +411,7 @@ public class EntityRepository {
 
     try (IMDB conn = IMDB.getConnection(graph)) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("im1Scheme", SCHEME.IM1.asDbIri());
+      qry.setBinding("im1Scheme", Namespace.IM1.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -764,7 +764,7 @@ public class EntityRepository {
    * @param code the code or description id or term code
    * @return iri and name of entity
    */
-  public Set<Entity> getCoreFromCode(String code, List<SCHEME> schemes, Graph graph) {
+  public Set<Entity> getCoreFromCode(String code, List<Namespace> namespaces, Graph graph) {
     String sql = """
       SELECT ?concept ?label ?type
       WHERE {
@@ -799,7 +799,7 @@ public class EntityRepository {
         }
         ?concept rdf:type ?type.
       }
-      """.formatted(schemes.stream().map(SCHEME::toString).collect(Collectors.joining(" ")));
+      """.formatted(namespaces.stream().map(Namespace::toString).collect(Collectors.joining(" ")));
     try (IMDB conn = IMDB.getConnection(graph)) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("code", Values.literal(code));
@@ -812,10 +812,10 @@ public class EntityRepository {
    * Returns a core entity iri and name from a legacy term
    *
    * @param term   the code or description id or term code
-   * @param scheme the legacy scheme of the term
+   * @param namespace the legacy scheme of the term
    * @return iri and name of entity
    */
-  public Set<Entity> getCoreFromLegacyTerm(String term, SCHEME scheme, Graph graph) {
+  public Set<Entity> getCoreFromLegacyTerm(String term, Namespace namespace, Graph graph) {
     String sql = """
       SELECT ?concept ?label ?type
       WHERE {
@@ -832,7 +832,7 @@ public class EntityRepository {
     try (IMDB conn = IMDB.getConnection(graph)) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("term", Values.literal(term));
-      qry.setBinding("scheme", scheme.asDbIri());
+      qry.setBinding("scheme", namespace.asDbIri());
       return getConceptRefsFromResult(qry);
     }
   }
@@ -841,10 +841,10 @@ public class EntityRepository {
    * Returns an entity iri and name from a term code
    *
    * @param code   the code that is a term code
-   * @param scheme the scheme of the term
+   * @param namespace the scheme of the term
    * @return set of iris and name of entity
    */
-  public Set<Entity> getReferenceFromTermCode(String code, SCHEME scheme, Graph graph) {
+  public Set<Entity> getReferenceFromTermCode(String code, Namespace namespace, Graph graph) {
     String sql = """
       SELECT ?concept ?label ?type
       WHERE {
@@ -860,12 +860,12 @@ public class EntityRepository {
     try (IMDB conn = IMDB.getConnection(graph)) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("code", Values.literal(code));
-      qry.setBinding("scheme", scheme.asDbIri());
+      qry.setBinding("scheme", namespace.asDbIri());
       return getConceptRefsFromResult(qry);
     }
   }
 
-  public Map<String, String> getCodesToIri(SCHEME scheme, Graph graph) {
+  public Map<String, String> getCodesToIri(Namespace namespace, Graph graph) {
     String sql = """
       SELECT ?code ?scheme ?iri ?altCode
       WHERE {
@@ -874,7 +874,7 @@ public class EntityRepository {
         OPTIONAL {?iri im:alternativeCode ?altCode}
         ?iri im:scheme ?scheme
       }
-      """.formatted("<" + scheme + ">");
+      """.formatted("<" + namespace + ">");
     return getCodes(sql, graph);
   }
 
@@ -918,7 +918,7 @@ public class EntityRepository {
    * @return iri and name of entity
    */
   public TTIriRef getReferenceFromCoreTerm(String term, Graph graph) {
-    List<String> schemes = asArrayList(SCHEME.IM, SCHEME.SNOMED);
+    List<String> schemes = asArrayList(Namespace.IM, Namespace.SNOMED);
     String sql = """
       select ?concept ?label
       from ?g
@@ -1731,7 +1731,7 @@ public class EntityRepository {
     return iri;
   }
 
-  public Set<String> getByScheme(SCHEME schemeIri, Graph graph) {
+  public Set<String> getByNamespace(Namespace namespace, Graph graph) {
     Set<String> results = new HashSet<>();
     String sparql = """
       SELECT DISTINCT ?s
@@ -1742,7 +1742,7 @@ public class EntityRepository {
 
     try (IMDB conn = IMDB.getConnection(graph)) {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("scheme", iri(schemeIri.toString()));
+      qry.setBinding("scheme", namespace.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

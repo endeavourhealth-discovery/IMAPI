@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
@@ -288,7 +287,7 @@ class EntityModelServiceTest {
   @Test
   void usages_XMLContainsIri() {
 
-    when(entityRepository.getByScheme(any(), any())).thenReturn(Stream.of("http://endhealth.info/im#25451000252115").collect(Collectors.toSet()));
+    when(entityRepository.getByNamespace(any(), any())).thenReturn(Stream.of("http://endhealth.info/im#25451000252115").collect(Collectors.toSet()));
 
     List<TTEntity> actual = entityService.usages("http://endhealth.info/im#25451000252115", 1, 10, null);
 
@@ -304,7 +303,7 @@ class EntityModelServiceTest {
   @Test
   void totalRecords_NotNullIri() {
     when(entityRepository.getConceptUsagesCount(any(), any())).thenReturn(1000);
-    when(entityRepository.getByScheme(any(), any())).thenReturn(Stream.of("http://www.w3.org/2001/XMLSchema#string").collect(Collectors.toSet()));
+    when(entityRepository.getByNamespace(any(), any())).thenReturn(Stream.of("http://www.w3.org/2001/XMLSchema#string").collect(Collectors.toSet()));
 
     Integer actual = entityService.totalRecords("http://endhealth.info/im#25451000252115", Graph.IM);
     assertEquals(1000, actual);
@@ -312,7 +311,7 @@ class EntityModelServiceTest {
 
   @Test
   void totalRecords_XMLIri() {
-    when(entityRepository.getByScheme(any(), any())).thenReturn(Stream.of("http://www.w3.org/2001/XMLSchema#string").collect(Collectors.toSet()));
+    when(entityRepository.getByNamespace(any(), any())).thenReturn(Stream.of("http://www.w3.org/2001/XMLSchema#string").collect(Collectors.toSet()));
 
     Integer actual = entityService.totalRecords("http://www.w3.org/2001/XMLSchema#string", Graph.IM);
     assertEquals(0, actual);

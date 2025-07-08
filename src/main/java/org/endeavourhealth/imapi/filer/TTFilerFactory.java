@@ -25,7 +25,7 @@ public class TTFilerFactory {
     if (!bulk)
       return new TTTransactionFiler(graph);
     else
-      return new TTBulkFiler();
+      return new TTBulkFiler(graph);
   }
 
   public static TTEntityFiler getEntityFiler(Graph graph) {

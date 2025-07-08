@@ -60,7 +60,6 @@ public class Reasoner {
     manager.setDocument(document);
     inferred = new TTDocument();
     inferred.setContext(document.getContext());
-    inferred.setDefaultScheme(document.getDefaultScheme());
     inferred.setCrud(document.getCrud());
     classify(document);
     addDocumentRoles();

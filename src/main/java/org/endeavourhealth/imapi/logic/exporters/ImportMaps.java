@@ -36,7 +36,7 @@ public class ImportMaps implements AutoCloseable {
    */
   public Map<String, Set<String>> importEmisToSnomed(Graph graph) throws TTFilerException, IOException {
     if (TTFilerFactory.isBulk())
-      return fileRepo.getCodeCoreMap(SCHEME.EMIS);
+      return fileRepo.getCodeCoreMap(Namespace.EMIS);
     return importEmisToSnomedRdf4j(graph);
   }
 
@@ -78,7 +78,7 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  public Map<String, String> getCodesToIri(SCHEME scheme, Graph graph) throws IOException {
+  public Map<String, String> getCodesToIri(Namespace scheme, Graph graph) throws IOException {
     Map<String, String> codeToIri;
     if (TTFilerFactory.isBulk())
       codeToIri = fileRepo.getCodeToIri();
@@ -96,7 +96,7 @@ public class ImportMaps implements AutoCloseable {
     return map;
   }
 
-  public Set<String> getCodes(SCHEME scheme, Graph graph) throws IOException {
+  public Set<String> getCodes(Namespace scheme, Graph graph) throws IOException {
     Map<String, String> codeToIri = getCodeToIri(graph);
     Set<String> codes = new HashSet<>();
     codeToIri.forEach((entry, value) -> {
@@ -108,7 +108,7 @@ public class ImportMaps implements AutoCloseable {
     return codes;
   }
 
-  public Set<Entity> getCoreFromCode(String code, List<SCHEME> schemes, Graph graph) {
+  public Set<Entity> getCoreFromCode(String code, List<Namespace> schemes, Graph graph) {
     return new EntityRepository().getCoreFromCode(code, schemes, graph);
   }
 
@@ -119,7 +119,7 @@ public class ImportMaps implements AutoCloseable {
       return new EntityRepository().getAllMatchedLegacy(graph);
   }
 
-  public Set<Entity> getCoreFromLegacyTerm(String term, SCHEME scheme, Graph graph) {
+  public Set<Entity> getCoreFromLegacyTerm(String term, Namespace scheme, Graph graph) {
     return new EntityRepository().getCoreFromLegacyTerm(term, scheme, graph);
 
   }
@@ -167,7 +167,7 @@ public class ImportMaps implements AutoCloseable {
   public Map<String, Set<String>> importReadToSnomed(Graph graph) throws TTFilerException, IOException {
     Map<String, Set<String>> readToSnomed = new HashMap<>();
     if (TTFilerFactory.isBulk()) {
-      return fileRepo.getCodeCoreMap(SCHEME.EMIS);
+      return fileRepo.getCodeCoreMap(Namespace.EMIS);
     }
     return importReadToSnomedRdf4j(readToSnomed, graph);
   }
@@ -286,7 +286,7 @@ public class ImportMaps implements AutoCloseable {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
       qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
-      qry.setBinding("vision", SCHEME.VISION.asDbIri());
+      qry.setBinding("vision", Namespace.VISION.asDbIri());
       qry.setBinding("imCode", IM.CODE.asDbIri());
       qry.setBinding("matchedTo", IM.MATCHED_TO.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -306,7 +306,7 @@ public class ImportMaps implements AutoCloseable {
 
   public Map<String, TTEntity> getEMISReadAsVision(Graph graph) throws IOException {
     if (TTFilerFactory.isBulk()) {
-      Map<String, Set<String>> emisToCore = fileRepo.getCodeCoreMap(SCHEME.EMIS);
+      Map<String, Set<String>> emisToCore = fileRepo.getCodeCoreMap(Namespace.EMIS);
       Map<String, TTEntity> emisRead2 = new HashMap<>();
       for (Map.Entry<String, Set<String>> entry : emisToCore.entrySet()) {
         String code = entry.getKey();
@@ -314,8 +314,8 @@ public class ImportMaps implements AutoCloseable {
           code = (code + ".....").substring(0, 5);
           TTEntity entity = emisRead2.computeIfAbsent(code, k -> new TTEntity());
           entity.setCode(code);
-          entity.setScheme(TTIriRef.iri(SCHEME.VISION));
-          entity.setIri(SCHEME.VISION + code.replace(".", ""));
+          entity.setScheme(TTIriRef.iri(Namespace.VISION));
+          entity.setIri(Namespace.VISION + code.replace(".", ""));
           for (String snomed : entry.getValue()) {
             entity.addObject(TTIriRef.iri(IM.MATCHED_TO), TTIriRef.iri(snomed));
           }
@@ -344,7 +344,7 @@ public class ImportMaps implements AutoCloseable {
         """;
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
-      qry.setBinding("emis", SCHEME.EMIS.asDbIri());
+      qry.setBinding("emis", Namespace.EMIS.asDbIri());
       qry.setBinding("label", RDFS.LABEL.asDbIri());
       qry.setBinding("matchedTo", IM.MATCHED_TO.asDbIri());
       qry.setBinding("hasTermCode", IM.HAS_TERM_CODE.asDbIri());
@@ -360,7 +360,7 @@ public class ImportMaps implements AutoCloseable {
             TTEntity entity = emisRead2.computeIfAbsent(code, k -> new TTEntity());
             entity.setName(name);
             entity.setCode(code);
-            entity.setIri(SCHEME.VISION + code.replace(".", ""));
+            entity.setIri(Namespace.VISION + code.replace(".", ""));
             entity.addObject(TTIriRef.iri(IM.MATCHED_TO), TTIriRef.iri(snomedIri));
           }
         }
@@ -394,7 +394,7 @@ public class ImportMaps implements AutoCloseable {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
       qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
-      qry.setBinding("emis", SCHEME.EMIS.asDbIri());
+      qry.setBinding("emis", Namespace.EMIS.asDbIri());
       qry.setBinding("imCode", IM.CODE.asDbIri());
       qry.setBinding("matchedTo", IM.MATCHED_TO.asDbIri());
       qry.setBinding("label", RDFS.LABEL.asDbIri());
@@ -447,7 +447,7 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  public Set<Entity> getLegacyFromTermCode(String originalCode, SCHEME scheme, Graph graph) {
+  public Set<Entity> getLegacyFromTermCode(String originalCode, Namespace scheme, Graph graph) {
     return new EntityRepository().getReferenceFromTermCode(originalCode, scheme, graph);
   }
 

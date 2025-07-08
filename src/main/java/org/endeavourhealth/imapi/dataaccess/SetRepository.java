@@ -212,7 +212,7 @@ public class SetRepository {
 
   private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes, String entityVariable) {
     Set<Concept> result = new HashSet<>();
-    Set<String> coreSchemes =asHashSet(SCHEME.SNOMED, SCHEME.IM);
+    Set<String> coreSchemes =asHashSet(Namespace.SNOMED, Namespace.IM);
     Map<String, Concept> conceptMap = new HashMap<>();
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {

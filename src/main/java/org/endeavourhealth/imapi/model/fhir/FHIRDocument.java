@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class FHIRDocument {
-  private Graph graph;
   private List<ValueSet> valueSets;
   private List<CodeSystem> codeSystems;
 
@@ -59,15 +58,4 @@ public class FHIRDocument {
     builder.accept(cs);
     return this;
   }
-
-  public Graph getGraph() {
-    return graph;
-  }
-
-  public FHIRDocument setGraph(Graph graph) {
-    this.graph = graph;
-    return this;
-  }
-
-
 }

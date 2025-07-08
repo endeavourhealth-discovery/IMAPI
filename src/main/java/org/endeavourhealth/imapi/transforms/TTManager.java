@@ -442,7 +442,8 @@ public class TTManager implements AutoCloseable {
       .setIri(namespace.toString())
       .addType(RDFS.CLASS.asIri())
       .setName(name)
-      .setDescription(description);
+      .setDescription(description)
+      .setScheme(namespace.asIri());
     result.addObject(iri(RDFS.SUBCLASS_OF), Namespace.IM.asIri());
     return result;
   }

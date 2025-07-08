@@ -14,6 +14,13 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum Namespace implements VocabEnum {
 
+    LNWH_SY("http://endhealth.info/lnwhsy#"),
+    LNWH_SL("http://endhealth.info/lnwhsl#"),
+    THH_SL("http://endhealth.info/thhsl#"),
+    KINGS_PIMS("http://endhealth.info/kingsp#"),
+    IMPERIAL("http://endhealth.info/impc#"),
+    CWH("http://endhealth.info/cwhcc#"),
+    BHRUT("http://endhealth.info/bhrutm#"),
     ODS("http://endhealth.info/ods#"),
     CEG("http://endhealth.info/ceg#"),
     QOF("http://endhealth.info/qof#"),

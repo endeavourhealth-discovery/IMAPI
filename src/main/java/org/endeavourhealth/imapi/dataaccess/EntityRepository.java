@@ -1725,7 +1725,7 @@ public class EntityRepository {
     int hashIndex = iri.lastIndexOf('#');
     if (lastSlashIndex != -1 && hashIndex != -1 && hashIndex > lastSlashIndex) {
       return iri.substring(lastSlashIndex + 1, hashIndex);
-    } else if (iri.equals(FHIR.DOMAIN.toString())) {
+    } else if (iri.equals(Namespace.FHIR.toString())) {
       return FHIR.PREFIX.toString();
     }
     return iri;

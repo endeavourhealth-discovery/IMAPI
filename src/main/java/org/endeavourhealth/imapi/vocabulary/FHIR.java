@@ -14,10 +14,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum FHIR implements VocabEnum {
 
-    DOMAIN("http://hl7.org/fhir/"),
     PREFIX("fhir"),
     DSTU2("http://hl7.org/2-0/fhir/StructureDefinition#"),
-    GRAPH_FHIR(FHIR.DOMAIN),
     VALUESET_FOLDER("http://endhealth.info/im#VSET_FHIR"),
     ;
 

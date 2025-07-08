@@ -41,20 +41,12 @@
     "name": "FHIR",
     "entries": [
       {
-        "name": "DOMAIN",
-        "value": "\"http://hl7.org/fhir/\""
-      },
-      {
         "name": "PREFIX",
         "value": "\"fhir\""
       },
       {
         "name": "DSTU2",
         "value": "\"http://hl7.org/2-0/fhir/StructureDefinition#\""
-      },
-      {
-        "name": "GRAPH_FHIR",
-        "value": "FHIR.DOMAIN"
       },
       {
         "name": "VALUESET_FOLDER",
@@ -2428,6 +2420,34 @@
   {
     "name": "Namespace",
     "entries": [
+      {
+        "name": "LNWH_SY",
+        "value": "\"http://endhealth.info/lnwhsy#\""
+      },
+      {
+        "name": "LNWH_SL",
+        "value": "\"http://endhealth.info/lnwhsl#\""
+      },
+      {
+        "name": "THH_SL",
+        "value": "\"http://endhealth.info/thhsl#\""
+      },
+      {
+        "name": "KINGS_PIMS",
+        "value": "\"http://endhealth.info/kingsp#\""
+      },
+      {
+        "name": "IMPERIAL",
+        "value": "\"http://endhealth.info/impc#\""
+      },
+      {
+        "name": "CWH",
+        "value": "\"http://endhealth.info/cwhcc#\""
+      },
+      {
+        "name": "BHRUT",
+        "value": "\"http://endhealth.info/bhrutm#\""
+      },
       {
         "name": "ODS",
         "value": "\"http://endhealth.info/ods#\""

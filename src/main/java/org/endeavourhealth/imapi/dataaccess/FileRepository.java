@@ -266,8 +266,8 @@ public class FileRepository {
   }
 
 
-  private String getSchemeFile(String fileType, Namespace scheme) {
-    return dataPath + "/" + fileType + "-" + scheme + ".txt";
+  private String getSchemeFile(String fileType, Namespace namespace) {
+    return dataPath + "/" + fileType + "-" + namespace.name() + ".txt";
   }
 
   private String getFile(String fileType) {

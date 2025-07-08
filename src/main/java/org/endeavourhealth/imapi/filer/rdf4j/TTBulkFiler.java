@@ -179,58 +179,44 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void writeGraph(TTDocument document) throws TTFilerException {
-
-    String namespaceIri = document.getNamespace().getIri();
-    if (namespaceIri == null)
-      throw new TTFilerException("Document has no namespace set");
-
-    Namespace namespace = Namespace.from(namespaceIri);
-    if (namespace == null)
-      throw new TTFilerException("Unrecognized namespace [" +  namespaceIri + "]");
-
-    Graph graph = Graph.from(namespace.toString());
-    if (graph == null)
-      throw new TTFilerException("Unrecognized graph [" +  namespaceIri + "]");
-
-    SCHEME scheme = SCHEME.from(namespace.toString());
-    if (scheme == null)
-      throw new TTFilerException("Unrecognized scheme [" +  namespaceIri + "]");
-
     String path = dataPath;
 
     try {
-      createFileWriters(scheme, path);
+      createFileWriters(path);
 
       int counter = 0;
       TTToNQuad converter = new TTToNQuad();
-      log.info("Writing out graph data for {}", graph);
+      log.info("Writing document entities...");
       for (TTEntity entity : document.getEntities()) {
         counter++;
-        Namespace entityNS = entity.getGraph() == null ? namespace : Namespace.from(entity.getGraph().toString());
+
+        if (entity.getScheme() == null) {
+          if (document.getDefaultScheme() == null)
+            throw new TTFilerException("Entity with without scheme and no default set: " + entity.getIri());
+
+          entity.setScheme(document.getDefaultScheme().asIri());
+        }
 
         if (entity.get(IM.PRIVACY_LEVEL.asIri()) != null && (entity.get(IM.PRIVACY_LEVEL.asIri()).asLiteral().intValue() > getPrivacyLevel()))
           continue;
 
-        if (entityNS == null)
-          throw new TTFilerException("Unrecognized namespace on entity [" +  entity.getGraph() + "]");
-
-
         allEntities.write(entity.getIri() + "\n");
-        if (graph.equals(Graph.IM))
+        if (Graph.IM.equals(entity.getGraph()))
           coreIris.write(entity.getIri() + "\t" + entity.getName() + "\n");
-        addToMaps(entity, entityNS);
+
+        addToMaps(entity);
         addSubtypes(entity);
-        addTerms(entity, entityNS);
+        addTerms(entity);
 
         setStatusAndScheme(entity);
 
-        transformAndWriteQuads(converter, entity, graph);
+        transformAndWriteQuads(converter, entity);
         if (counter % 100000 == 0) {
-          log.info("{} entities from {} written", counter, document.getNamespace().getIri());
+          log.info("{} entities written", counter);
         }
 
       }
-      log.debug("{} entities written to file for {}", counter, document.getNamespace().getIri());
+      log.debug("{} entities written to file", counter);
       log.info("Finished - total of {} statements,  {}", statementCount, new Date());
     } catch (Exception e) {
       throw new TTFilerException(e.getMessage());
@@ -239,25 +225,25 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void transformAndWriteQuads(TTToNQuad converter, TTEntity entity, Graph entityGraph) throws IOException {
-    List<String> quadList = converter.transformEntity(entity, entityGraph);
+  private void transformAndWriteQuads(TTToNQuad converter, TTEntity entity) throws IOException {
+    List<String> quadList = converter.transformEntity(entity);
     for (String quad : quadList) {
       quads.write(quad + "\n");
       incrementStatementCount();
     }
   }
 
-  private void createFileWriters(SCHEME scheme, String path) throws IOException {
-    quads = new FileWriter(path + "/BulkImport" + ".nq", true);
+  private void createFileWriters(String path) throws IOException {
+    quads = new FileWriter(path + "/BulkImport.nq", true);
     codeMap = new FileWriter(path + "/CodeMap.txt", true);
-    termCoreMap = new FileWriter(path + "/TermCoreMap-" + scheme + ".txt", true);
-    subtypes = new FileWriter(path + "/SubTypes" + ".txt", true);
-    allEntities = new FileWriter(path + "/Entities" + ".txt", true);
-    codeCoreMap = new FileWriter(path + "/CodeCoreMap-" + scheme + ".txt", true);
-    codeIds = new FileWriter(path + "/CodeIds-" + scheme + ".txt", true);
-    descendants = new FileWriter(path + "/Descendants" + ".txt", true);
-    coreTerms = new FileWriter(path + "/CoreTerms" + ".txt", true);
-    legacyCore = new FileWriter(path + "/LegacyCore" + ".txt", true);
+    termCoreMap = new FileWriter(path + "/TermCoreMap.txt", true);
+    subtypes = new FileWriter(path + "/SubTypes.txt", true);
+    allEntities = new FileWriter(path + "/Entities.txt", true);
+    codeCoreMap = new FileWriter(path + "/CodeCoreMap.txt", true);
+    codeIds = new FileWriter(path + "/CodeIds.txt", true);
+    descendants = new FileWriter(path + "/Descendants.txt", true);
+    coreTerms = new FileWriter(path + "/CoreTerms.txt", true);
+    legacyCore = new FileWriter(path + "/LegacyCore.txt", true);
     coreIris = new FileWriter(path + "/coreIris.txt", true);
   }
 
@@ -279,8 +265,8 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void addTerms(TTEntity entity, Namespace namespace) throws IOException {
-    if (namespace.equals(Namespace.IM) && entity.getName() != null)
+  private void addTerms(TTEntity entity) throws IOException {
+    if (entity.getScheme().equals(SCHEME.IM.toString()) && entity.getName() != null)
       coreTerms.write(entity.getName() + "\t" + entity.getIri() + "\n");
   }
 
@@ -296,22 +282,23 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void addToMaps(TTEntity entity, Namespace namespace) throws IOException {
-    addCodeToMaps(entity, namespace);
+  private void addToMaps(TTEntity entity) throws IOException {
+    addCodeToMaps(entity);
     addCodeIdToMaps(entity);
-    addTermCodeToMaps(entity, namespace);
-    addMatchToToMaps(entity, namespace);
+    addTermCodeToMaps(entity);
+    addMatchToToMaps(entity);
   }
 
-  private void addCodeToMaps(TTEntity entity, Namespace namespace) throws IOException {
+  private void addCodeToMaps(TTEntity entity) throws IOException {
+    String scheme = entity.getScheme().getIri();
     if (entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)) != null) {
-      codeMap.write(namespace + entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
-      if (namespace.equals(Namespace.IM) || (namespace.equals(Namespace.SNOMED)))
+      codeMap.write(scheme + entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
+      if (scheme.equals(SCHEME.IM.toString()) || (scheme.equals(SCHEME.SNOMED.toString())))
         codeCoreMap.write(entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
     } else {
       if (entity.getCode() != null) {
-        codeMap.write(namespace + entity.getCode() + "\t" + entity.getIri() + "\n");
-        if (namespace.equals(Namespace.IM) || (namespace.equals(Namespace.SNOMED)))
+        codeMap.write(scheme + entity.getCode() + "\t" + entity.getIri() + "\n");
+        if (scheme.equals(SCHEME.IM.toString()) || (scheme.equals(SCHEME.SNOMED.toString())))
           codeCoreMap.write(entity.getCode() + "\t" + entity.getIri() + "\n");
       }
     }
@@ -325,24 +312,26 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void addTermCodeToMaps(TTEntity entity, Namespace namespace) throws IOException {
+  private void addTermCodeToMaps(TTEntity entity) throws IOException {
+    String scheme = entity.getScheme().getIri();
+
     if (entity.get(iri(IM.HAS_TERM_CODE)) != null) {
       for (TTValue tc : entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
         if (tc.asNode().get(iri(IM.CODE)) != null) {
           String code = tc.asNode().get(iri(IM.CODE)).asLiteral().getValue();
-          if (namespace.equals(Namespace.IM) || (namespace.equals(Namespace.SNOMED)))
+          if (scheme.equals(Namespace.IM.toString()) || (scheme.equals(Namespace.SNOMED.toString())))
             codeCoreMap.write(code + "\t" + entity.getIri() + "\n");
         }
       }
     }
   }
 
-  private void addMatchToToMaps(TTEntity entity, Namespace namespace) throws IOException {
-    boolean isCoreGraph = namespace.equals(Namespace.IM) || namespace.equals(Namespace.SNOMED);
+  private void addMatchToToMaps(TTEntity entity) throws IOException {
+    String scheme = entity.getScheme().getIri();
 
     if (entity.get(iri(IM.MATCHED_TO)) != null) {
       for (TTValue core : entity.get(iri(IM.MATCHED_TO)).getElements()) {
-        if (!isCoreGraph) {
+        if (scheme.equals(Namespace.IM.toString()) || (scheme.equals(Namespace.SNOMED.toString()))) {
           legacyCore.write(entity.getIri() + "\t" + core.asIriRef().getIri() + "\n");
           if (entity.get(iri(IM.CODE_ID)) != null)
             codeIds.write(entity.get(iri(IM.CODE_ID)).asLiteral().getValue() + "\t" +

@@ -2,6 +2,7 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.util.Values;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -13,32 +14,41 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum IMPORT implements VocabEnum {
 
-    CEG("ceg"),
-    IM1("imv1"),
-    QOF("qof"),
-    QUERY("corequery"),
-    BNF("bnf"),
-    PRSB("prsb"),
-    CORE("core"),
-    SNOMED("snomed"),
-    EMIS("emis"),
-    CPRD_MED("cprd"),
-    TPP("tpp"),
-    OPCS4("opcs4"),
-    ICD10("icd10"),
-    ENCOUNTERS("encounters"),
-    VISION("vision"),
-    KINGS_APEX("kingsapex"),
-    KINGS_WINPATH("kingswinpath"),
-    SMARTLIFE("smartlifequery"),
-    BARTS_CERNER("barts"),
-    ODS("ods"),
-    NHS_TFC("nhstfc"),
-    CONFIG("config"),
-    DELTAS("deltas"),
-    SINGLE_FILE("singlefile"),
-    QR("qcodegroups"),
-    FHIR("fhir"),
+    SNOMED("http://snomed.info/sct#"),
+    FHIR("http://hl7.org/fhir/"),
+    SMARTLIFE("http://smartlifehealth.info/smh#"),
+    QOF("http://endhealth.info/qof#"),
+    CORE("http://endhealth.info/im#"),
+    SINGLE_FILE("http://endhealth.info/im#singlefile"),
+    BNF("http://bnf.info/bnf#"),
+    ICD10("http://endhealth.info/icd10#"),
+    EMIS("http://endhealth.info/emis#"),
+    CPRD_MED("http://endhealth.info/cprdm#"),
+    CPRD_PROD("http://endhealth.info/cprdp#"),
+    OPCS4("http://endhealth.info/opcs4#"),
+    TPP("http://endhealth.info/tpp#"),
+    ODS("http://endhealth.info/ods#"),
+    PRSB("http://endhealth.info/prsb#"),
+    KINGS_APEX("http://endhealth.info/kpax#"),
+    KINGS_WINPATH("http://endhealth.info/kwp#"),
+    VISION("http://endhealth.info/vis#"),
+    READ2("http://endhealth.info/read2#"),
+    BARTS_CERNER("http://endhealth.info/bc#"),
+    NHSDD_ETHNIC_2001("http://endhealth.info/nhsethnic2001#"),
+    IM1("http://endhealth.info/im1#"),
+    ENCOUNTERS("http://endhealth.info/enc#"),
+    CONFIG("http://endhealth.info/config#"),
+    CEG("http://endhealth.info/ceg#"),
+    NHS_TFC("http://endhealth.info/nhstfc#"),
+    STATS("http://endhealth.info/stats#"),
+    DELTAS("http://endhealth.info/deltas#"),
+    PROV("http://endhealth.info/prov#"),
+    QUERY("http://endhealth.info/query#"),
+    REPORTS("http://endhealth.info/reports#"),
+    OPS_ROLES("https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#"),
+    XS("http://www.w3.org/2001/XMLSchema#"),
+    SYSTEM("http://sys.endhealth.info/im#"),
+    QR("http://apiqcodes.org/qcodes#"),
     ;
 
     private final String value;
@@ -51,6 +61,7 @@ public enum IMPORT implements VocabEnum {
         this.value = value.toString();
     }
 
+    @JsonValue
     @Override
     public String toString() {
         return value;
@@ -70,6 +81,9 @@ public enum IMPORT implements VocabEnum {
     }
 
     public static IMPORT from(String text) {
+      if (text == null)
+        return null;
+
       for (IMPORT b : IMPORT.values()) {
         if (b.value.equals(text)) {
           return b;

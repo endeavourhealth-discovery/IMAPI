@@ -1,14 +1,12 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.OWL;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.*;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
 import org.semanticweb.owlapi.formats.PrefixDocumentFormat;
 import org.semanticweb.owlapi.model.*;
+import org.semanticweb.owlapi.model.EntityType;
 import org.semanticweb.owlapi.util.DefaultPrefixManager;
 
 import java.util.HashSet;
@@ -33,16 +31,13 @@ public class TTToOWLEL {
   private OWLDataFactory dataFactory;
   private OWLOntologyManager manager;
   private OWLOntology ontology;
-  private TTEntity currentEntity;
   private TTManager ttManager;
-  private Set<String> declared;
 
 
   public TTToOWLEL() {
     manager = OWLManager.createOWLOntologyManager();
     dataFactory = manager.getOWLDataFactory();
     prefixManager = new DefaultPrefixManager();
-    declared = new HashSet<>();
   }
 
 
@@ -53,10 +48,9 @@ public class TTToOWLEL {
    * @param dmanager TTManager - The Discovery ontology manager
    * @return OWLOntology manager together with one ontology (optional) and a set of prefixes
    * @throws OWLOntologyCreationException if the owl ontology cannot be created
-   * @throws DataFormatException          if the owl ontology content is invalid
    */
 
-  public OWLOntologyManager transform(TTDocument document, TTManager dmanager) throws OWLOntologyCreationException {
+  public OWLOntologyManager transform(TTDocument document, TTManager dmanager, Graph graph) throws OWLOntologyCreationException {
 
     ttManager = dmanager;
     //if the dmanager is null create it
@@ -66,7 +60,7 @@ public class TTToOWLEL {
     }
 
     //Create ontology
-    ontology = manager.createOntology(IRI.create(document.getNamespace().getIri()));
+    ontology = manager.createOntology(IRI.create(graph.toString()));
 
     processPrefixes(document.getPrefixes());
     processEntities(document.getEntities());
@@ -89,23 +83,26 @@ public class TTToOWLEL {
 
     for (TTEntity entity : entities) {
       classno = classno + 1;
-      currentEntity = entity;
       IRI iri = getIri(entity.getIri());
       addDeclaration(entity);
       Map<TTIriRef, TTArray> predicates = entity.getPredicateMap();
-      for (Map.Entry<TTIriRef, TTArray> entry : predicates.entrySet()) {
-        if (entry.getKey().equals(iri(RDFS.SUBCLASS_OF))) {
-          if (!entity.isType(iri(RDF.PROPERTY)))
-            addSubClassOf(iri, entry.getValue());
-          else
-            addSubPropertyOf(iri, iri(OWL.OBJECT_PROPERTY), entry.getValue());
-        } else if (entry.getKey().equals(iri(OWL.EQUIVALENT_CLASS))) {
-          addEquivalentClasses(iri, entry.getValue());
-        } else if (entry.getKey().equals(iri(RDFS.SUB_PROPERTY_OF))) {
+      processEntityPredicates(entity, predicates, iri);
+    }
+  }
+
+  private void processEntityPredicates(TTEntity entity, Map<TTIriRef, TTArray> predicates, IRI iri) {
+    for (Map.Entry<TTIriRef, TTArray> entry : predicates.entrySet()) {
+      if (entry.getKey().equals(iri(RDFS.SUBCLASS_OF))) {
+        if (!entity.isType(iri(RDF.PROPERTY)))
+          addSubClassOf(iri, entry.getValue());
+        else
           addSubPropertyOf(iri, iri(OWL.OBJECT_PROPERTY), entry.getValue());
-        } else if (entry.getValue().isLiteral())
-          addAnnotation(iri, entry.getKey(), entry.getValue().asLiteral());
-      }
+      } else if (entry.getKey().equals(iri(OWL.EQUIVALENT_CLASS))) {
+        addEquivalentClasses(iri, entry.getValue());
+      } else if (entry.getKey().equals(iri(RDFS.SUB_PROPERTY_OF))) {
+        addSubPropertyOf(iri, iri(OWL.OBJECT_PROPERTY), entry.getValue());
+      } else if (entry.getValue().isLiteral())
+        addAnnotation(iri, entry.getKey(), entry.getValue().asLiteral());
     }
   }
 
@@ -202,34 +199,6 @@ public class TTToOWLEL {
 
   }
 
-  /**
-   * produces either a single data property restriction or an object intersection of several cardinalities
-   *
-   * @param cex Discovery propertyData expression
-   * @return OWL Class expression
-   */
-  private OWLClassExpression getDPERestrictionAsOWLClassExpression(TTValue cex) {
-    TTNode exp = cex.asNode();
-
-    IRI prop = getIri(exp.get(iri(OWL.ON_PROPERTY)).asIriRef());
-    if (exp.get(iri(OWL.SOME_VALUES_FROM)) != null) {
-      return dataFactory.getOWLDataSomeValuesFrom(
-        dataFactory.getOWLDataProperty(prop),
-        getOWLDataRange(exp));
-    } else if (exp.get(iri(OWL.ALL_VALUES_FROM)) != null) {
-      return dataFactory.getOWLDataAllValuesFrom(
-        dataFactory.getOWLDataProperty(prop),
-        getOWLDataRange(exp));
-    } else if (exp.get(iri(OWL.ON_DATA_RANGE)) != null) {
-      return dataFactory.getOWLDataSomeValuesFrom(
-        dataFactory.getOWLDataProperty(prop),
-        getOWLDataRange(exp));
-    } else
-      return
-        dataFactory.getOWLClass("OWL EL limit - cardinality and data restrictions not supported", prefixManager);
-  }
-
-
   public OWLClassExpression getOWLClassExpression(TTValue cex) {
     if (cex.isIriRef()) {
       IRI iri = getIri(cex.asIriRef());
@@ -307,14 +276,6 @@ public class TTToOWLEL {
       indiList.add(dataFactory.getOWLNamedIndividual(getIri(oneOf.asIriRef())));
     }
     return dataFactory.getOWLObjectOneOf(indiList);
-  }
-
-  private OWLDataRange getOWLDataRange(TTValue exp) {
-    if (exp.asNode().get(iri(OWL.ON_DATA_RANGE)) != null)
-      return dataFactory.getOWLDatatype(getIri(exp.asNode().get(iri(OWL.ON_DATA_RANGE)).asIriRef()));
-    else
-      return dataFactory.getOWLDatatype(getIri("xsd:string"));
-
   }
 
   private void addDeclaration(TTEntity ttEntity) {

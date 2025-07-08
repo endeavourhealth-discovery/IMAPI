@@ -60,7 +60,7 @@ public class Reasoner {
     manager.setDocument(document);
     inferred = new TTDocument();
     inferred.setContext(document.getContext());
-    inferred.setNamespace(document.getNamespace());
+    inferred.setDefaultScheme(document.getDefaultScheme());
     inferred.setCrud(document.getCrud());
     classify(document);
     addDocumentRoles();
@@ -288,35 +288,36 @@ public class Reasoner {
    * Classifies an ontology using an OWL Reasoner from concepts help in a TTDocument
    *
    * @param document The TTDocument to classify
-   * @return set of child -  parent "isa" nodes
    * @throws OWLOntologyCreationException for invalid owl formats leading to inability to create ontology
-   * @throws DataFormatException          for invalid owl content
    */
 
-  public TTDocument classify(TTDocument document) throws OWLOntologyCreationException {
+  public void classify(TTDocument document) throws OWLOntologyCreationException {
     manager = new TTManager();
     manager.setDocument(document);
+
     if (document.getEntities() == null)
-      return document;
+      return;
+
     entityMap = new HashMap<>();
     //builds entity map for later look up
     document.getEntities().forEach(c -> entityMap.put(c.getIri(), c));
     TTToOWLEL transformer = new TTToOWLEL();
     TTManager dmanager = new TTManager();
     dmanager.setDocument(document);
-    OWLOntologyManager owlManager = transformer.transform(document, dmanager);
+    OWLOntologyManager owlManager = transformer.transform(document, dmanager, Graph.IM);
     Set<OWLOntology> owlOntologySet = owlManager.getOntologies();
     Optional<OWLOntology> owlOntology = owlOntologySet.stream().findFirst();
 
     if (owlOntology.isEmpty())
-      return document;
+      return;
 
     OWLReasonerConfiguration config = new SimpleConfiguration();
     OWLOntology o = owlOntology.get();
     OpenlletReasoner owlReasoner = OpenlletReasonerFactory.getInstance().createReasoner(o, config);
     owlReasoner.precomputeInferences();
+
     if (!owlReasoner.isConsistent())
-      return null;
+      return;
 
     OWLDataFactory dataFactory = new OWLDataFactoryImpl();
     for (TTEntity c : document.getEntities()) {
@@ -333,7 +334,6 @@ public class Reasoner {
         classifySuperClasses(owlReasoner, dataFactory, c);
       }
     }
-    return document;
   }
 
   private void classifyObjectProperty(OpenlletReasoner owlReasoner, OWLDataFactory dataFactory, TTEntity c) {

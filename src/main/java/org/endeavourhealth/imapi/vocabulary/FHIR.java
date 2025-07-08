@@ -2,6 +2,7 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.util.Values;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -30,6 +31,7 @@ public enum FHIR implements VocabEnum {
         this.value = value.toString();
     }
 
+    @JsonValue
     @Override
     public String toString() {
         return value;
@@ -49,6 +51,9 @@ public enum FHIR implements VocabEnum {
     }
 
     public static FHIR from(String text) {
+      if (text == null)
+        return null;
+
       for (FHIR b : FHIR.values()) {
         if (b.value.equals(text)) {
           return b;

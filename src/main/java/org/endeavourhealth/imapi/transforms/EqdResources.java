@@ -61,7 +61,6 @@ public class EqdResources {
   public EqdResources(TTDocument document, Properties dataMap) {
     this.dataMap = dataMap;
     this.document = document;
-    this.namespace = document.getNamespace().getIri();
     this.setVocabMaps();
   }
 

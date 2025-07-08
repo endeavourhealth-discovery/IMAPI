@@ -2,6 +2,7 @@
 
 package org.endeavourhealth.imapi.vocabulary;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.util.Values;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -14,6 +15,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum SCHEME implements VocabEnum {
 
     SNOMED("http://snomed.info/sct#"),
+    RDF("http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
     FHIR("http://hl7.org/fhir/"),
     SMARTLIFE("http://smartlifehealth.info/smh#"),
     QOF("http://endhealth.info/qof#"),
@@ -59,6 +61,7 @@ public enum SCHEME implements VocabEnum {
         this.value = value.toString();
     }
 
+    @JsonValue
     @Override
     public String toString() {
         return value;
@@ -78,6 +81,9 @@ public enum SCHEME implements VocabEnum {
     }
 
     public static SCHEME from(String text) {
+      if (text == null)
+        return null;
+
       for (SCHEME b : SCHEME.values()) {
         if (b.value.equals(text)) {
           return b;

@@ -62,7 +62,6 @@ public class EqdToIMQ {
   public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, Properties criteriaMaps, Graph graph) throws IOException, QueryException, EQDException {
     this.document = document;
     this.resources = new EqdResources(document, dataMap);
-    this.namespace = document.getNamespace().getIri();
     this.resources.setCriteriaMaps(criteriaMaps);
     this.addReportNames(eqd);
     this.convertFolders(eqd);

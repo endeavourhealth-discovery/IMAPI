@@ -247,9 +247,9 @@ public class FilerService {
     }
   }
 
-  public boolean userCanFile(String agentId, TTIriRef iriRef) throws JsonProcessingException {
+  public boolean userCanFile(String agentId, Graph graph) throws JsonProcessingException {
     List<String> orgList = userService.getUserOrganisations(agentId);
-    return orgList != null && iriRef != null && orgList.contains(iriRef.getIri());
+    return orgList != null && graph != null && orgList.contains(graph.toString());
   }
 
 }

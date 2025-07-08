@@ -68,8 +68,11 @@ public class FilerController {
       Map<String, String> response = new HashMap<>();
 
       String agentId = reqObjService.getRequestAgentId(request);
-      if (!filerService.userCanFile(agentId, document.getNamespace()))
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+      for(TTEntity entity : document.getEntities()) {
+        if (!filerService.userCanFile(agentId, entity.getGraph()))
+          return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      }
 
       try {
         filerService.fileDocument(document, agentName, taskId);
@@ -112,7 +115,7 @@ public class FilerController {
       if (crud != null && !crud.isEmpty()) entity.setCrud(iri(crud));
 
       String agentId = reqObjService.getRequestAgentId(request);
-      if (!filerService.userCanFile(agentId, graph.asIri()))
+      if (!filerService.userCanFile(agentId, graph))
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
       filerService.fileEntity(entity, agentName, usedEntity);

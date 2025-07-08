@@ -2196,108 +2196,144 @@
     "name": "IMPORT",
     "entries": [
       {
-        "name": "CEG",
-        "value": "\"ceg\""
-      },
-      {
-        "name": "IM1",
-        "value": "\"imv1\""
-      },
-      {
-        "name": "QOF",
-        "value": "\"qof\""
-      },
-      {
-        "name": "QUERY",
-        "value": "\"corequery\""
-      },
-      {
-        "name": "BNF",
-        "value": "\"bnf\""
-      },
-      {
-        "name": "PRSB",
-        "value": "\"prsb\""
-      },
-      {
-        "name": "CORE",
-        "value": "\"core\""
-      },
-      {
         "name": "SNOMED",
-        "value": "\"snomed\""
-      },
-      {
-        "name": "EMIS",
-        "value": "\"emis\""
-      },
-      {
-        "name": "CPRD_MED",
-        "value": "\"cprd\""
-      },
-      {
-        "name": "TPP",
-        "value": "\"tpp\""
-      },
-      {
-        "name": "OPCS4",
-        "value": "\"opcs4\""
-      },
-      {
-        "name": "ICD10",
-        "value": "\"icd10\""
-      },
-      {
-        "name": "ENCOUNTERS",
-        "value": "\"encounters\""
-      },
-      {
-        "name": "VISION",
-        "value": "\"vision\""
-      },
-      {
-        "name": "KINGS_APEX",
-        "value": "\"kingsapex\""
-      },
-      {
-        "name": "KINGS_WINPATH",
-        "value": "\"kingswinpath\""
-      },
-      {
-        "name": "SMARTLIFE",
-        "value": "\"smartlifequery\""
-      },
-      {
-        "name": "BARTS_CERNER",
-        "value": "\"barts\""
-      },
-      {
-        "name": "ODS",
-        "value": "\"ods\""
-      },
-      {
-        "name": "NHS_TFC",
-        "value": "\"nhstfc\""
-      },
-      {
-        "name": "CONFIG",
-        "value": "\"config\""
-      },
-      {
-        "name": "DELTAS",
-        "value": "\"deltas\""
-      },
-      {
-        "name": "SINGLE_FILE",
-        "value": "\"singlefile\""
-      },
-      {
-        "name": "QR",
-        "value": "\"qcodegroups\""
+        "value": "\"http://snomed.info/sct#\""
       },
       {
         "name": "FHIR",
-        "value": "\"fhir\""
+        "value": "\"http://hl7.org/fhir/\""
+      },
+      {
+        "name": "SMARTLIFE",
+        "value": "\"http://smartlifehealth.info/smh#\""
+      },
+      {
+        "name": "QOF",
+        "value": "\"http://endhealth.info/qof#\""
+      },
+      {
+        "name": "CORE",
+        "value": "\"http://endhealth.info/im#\""
+      },
+      {
+        "name": "SINGLE_FILE",
+        "value": "\"http://endhealth.info/im#singlefile\""
+      },
+      {
+        "name": "BNF",
+        "value": "\"http://bnf.info/bnf#\""
+      },
+      {
+        "name": "ICD10",
+        "value": "\"http://endhealth.info/icd10#\""
+      },
+      {
+        "name": "EMIS",
+        "value": "\"http://endhealth.info/emis#\""
+      },
+      {
+        "name": "CPRD_MED",
+        "value": "\"http://endhealth.info/cprdm#\""
+      },
+      {
+        "name": "CPRD_PROD",
+        "value": "\"http://endhealth.info/cprdp#\""
+      },
+      {
+        "name": "OPCS4",
+        "value": "\"http://endhealth.info/opcs4#\""
+      },
+      {
+        "name": "TPP",
+        "value": "\"http://endhealth.info/tpp#\""
+      },
+      {
+        "name": "ODS",
+        "value": "\"http://endhealth.info/ods#\""
+      },
+      {
+        "name": "PRSB",
+        "value": "\"http://endhealth.info/prsb#\""
+      },
+      {
+        "name": "KINGS_APEX",
+        "value": "\"http://endhealth.info/kpax#\""
+      },
+      {
+        "name": "KINGS_WINPATH",
+        "value": "\"http://endhealth.info/kwp#\""
+      },
+      {
+        "name": "VISION",
+        "value": "\"http://endhealth.info/vis#\""
+      },
+      {
+        "name": "READ2",
+        "value": "\"http://endhealth.info/read2#\""
+      },
+      {
+        "name": "BARTS_CERNER",
+        "value": "\"http://endhealth.info/bc#\""
+      },
+      {
+        "name": "NHSDD_ETHNIC_2001",
+        "value": "\"http://endhealth.info/nhsethnic2001#\""
+      },
+      {
+        "name": "IM1",
+        "value": "\"http://endhealth.info/im1#\""
+      },
+      {
+        "name": "ENCOUNTERS",
+        "value": "\"http://endhealth.info/enc#\""
+      },
+      {
+        "name": "CONFIG",
+        "value": "\"http://endhealth.info/config#\""
+      },
+      {
+        "name": "CEG",
+        "value": "\"http://endhealth.info/ceg#\""
+      },
+      {
+        "name": "NHS_TFC",
+        "value": "\"http://endhealth.info/nhstfc#\""
+      },
+      {
+        "name": "STATS",
+        "value": "\"http://endhealth.info/stats#\""
+      },
+      {
+        "name": "DELTAS",
+        "value": "\"http://endhealth.info/deltas#\""
+      },
+      {
+        "name": "PROV",
+        "value": "\"http://endhealth.info/prov#\""
+      },
+      {
+        "name": "QUERY",
+        "value": "\"http://endhealth.info/query#\""
+      },
+      {
+        "name": "REPORTS",
+        "value": "\"http://endhealth.info/reports#\""
+      },
+      {
+        "name": "OPS_ROLES",
+        "value": "\"https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-OrganizationRole-1#\""
+      },
+      {
+        "name": "XS",
+        "value": "\"http://www.w3.org/2001/XMLSchema#\""
+      },
+      {
+        "name": "SYSTEM",
+        "value": "\"http://sys.endhealth.info/im#\""
+      },
+      {
+        "name": "QR",
+        "value": "\"http://apiqcodes.org/qcodes#\""
       }
     ]
   },
@@ -2307,6 +2343,10 @@
       {
         "name": "SNOMED",
         "value": "\"http://snomed.info/sct#\""
+      },
+      {
+        "name": "RDF",
+        "value": "\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\""
       },
       {
         "name": "FHIR",

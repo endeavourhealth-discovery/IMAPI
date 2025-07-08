@@ -11,7 +11,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class ProvAgent extends Entry {
 
   public ProvAgent() {
-    this.setGraph(Graph.PROV);
     this.addType(iri(IM.PROVENANCE_AGENT));
   }
 

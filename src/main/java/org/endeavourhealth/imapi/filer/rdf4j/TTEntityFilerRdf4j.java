@@ -34,11 +34,13 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   private final Map<String, String> prefixMap;
   private final Update deleteTriples;
   private final BaseDB conn;
+  private final Graph graph;
   String blockers = "<http://snomed.info/sct#138875005>,<" + Namespace.IM + "Concept>";
 
-  public TTEntityFilerRdf4j(BaseDB conn, Map<String, String> prefixMap) {
+  public TTEntityFilerRdf4j(BaseDB conn, Map<String, String> prefixMap, Graph graph) {
     this.conn = conn;
     this.prefixMap = prefixMap;
+    this.graph = graph;
     String sparql = """
       DELETE {
         ?concept ?p1 ?o1.
@@ -72,8 +74,8 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     deleteTriples = conn.prepareDeleteSparql(sparql);
   }
 
-  public TTEntityFilerRdf4j(BaseDB conn) {
-    this(conn, new HashMap<>());
+  public TTEntityFilerRdf4j(BaseDB conn, Graph graph) {
+    this(conn, new HashMap<>(), graph);
   }
 
   @Override
@@ -100,10 +102,10 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
       entity.get(RDFS.SUBCLASS_OF.asIri()).stream().forEach(childOf -> isAs.add(childOf.asIriRef().getIri()));
 
     deleteAscendantIsas(entity.getIri());
-    if (!isAs.isEmpty()) saveAscendantIsas(entity.getIri(), isAs, entity.getGraph());
+    if (!isAs.isEmpty()) saveAscendantIsas(entity.getIri(), isAs);
   }
 
-  public void saveAscendantIsas(String entityIri, Set<String> isAs, Graph graph) {
+  public void saveAscendantIsas(String entityIri, Set<String> isAs) {
     StringJoiner iriLine = new StringJoiner(" ");
     for (String stringIri : isAs) {
       iri(stringIri);
@@ -211,7 +213,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   }
 
   @Override
-  public void fileIsAs(Map<String, Set<String>> isAs, Graph graph) {
+  public void fileIsAs(Map<String, Set<String>> isAs) {
     int count = 0;
     for (Map.Entry<String, Set<String>> child : isAs.entrySet()) {
       count++;

@@ -68,7 +68,6 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
         Map.Entry<String, JsonNode> field = fields.next();
         switch (field.getKey()) {
           case ID -> entity.setIri(helper.expand(field.getValue().textValue()));
-          case GRAPH -> entity.setGraph(Graph.from(helper.expand(field.getValue().get(ID).asText())));
           case DEFAULT_SCHEME -> entity.setScheme(iri(helper.expand(field.getValue().get(ID).asText())));
           case CRUD -> entity.setCrud(iri(helper.expand(field.getValue().get(ID).asText())));
           default -> {

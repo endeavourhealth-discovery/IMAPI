@@ -13,7 +13,7 @@ public interface TTEntityFiler {
 
   Set<String> getIsAs(String iri) throws TTFilerException;
 
-  void fileIsAs(Map<String, Set<String>> isAs, Graph graph);
+  void fileIsAs(Map<String, Set<String>> isAs);
 
   Set<TTEntity> getDescendants(Set<String> entities);
 

@@ -21,7 +21,6 @@ import java.util.Set;
 public class TTEntity extends TTNode implements Serializable {
   private TTContext context = new TTContext();
   private TTIriRef crud;
-  private Graph graph;
 
   public TTEntity() {
   }
@@ -222,16 +221,6 @@ public class TTEntity extends TTNode implements Serializable {
   @JsonSetter
   public TTEntity setCrud(TTIriRef crud) {
     this.crud = crud;
-    return this;
-  }
-
-  public Graph getGraph() {
-    return graph;
-  }
-
-  @JsonSetter
-  public TTEntity setGraph(Graph graph) {
-    this.graph = graph;
     return this;
   }
 }

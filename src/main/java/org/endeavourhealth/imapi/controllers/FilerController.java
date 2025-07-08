@@ -69,10 +69,8 @@ public class FilerController {
 
       String agentId = reqObjService.getRequestAgentId(request);
 
-      for(TTEntity entity : document.getEntities()) {
-        if (!filerService.userCanFile(agentId, entity.getGraph()))
+        if (!filerService.userCanFile(agentId, Graph.IM))
           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-      }
 
       try {
         filerService.fileDocument(document, agentName, taskId);
@@ -110,15 +108,13 @@ public class FilerController {
         entity.setVersion(usedEntity.getVersion() + 1);
       }
 
-      if (graph != null) entity.setGraph(graph);
-
       if (crud != null && !crud.isEmpty()) entity.setCrud(iri(crud));
 
       String agentId = reqObjService.getRequestAgentId(request);
       if (!filerService.userCanFile(agentId, graph))
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-      filerService.fileEntity(entity, agentName, usedEntity);
+      filerService.fileEntity(entity, agentName, usedEntity, Graph.IM);
       return ResponseEntity.ok().build();
     }
   }
@@ -164,7 +160,7 @@ public class FilerController {
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
 
       String agentName = reqObjService.getRequestAgentName(request);
-      filerService.fileEntity(entity, agentName, usedEntity);
+      filerService.fileEntity(entity, agentName, usedEntity, graph);
 
       return ResponseEntity.ok().build();
     }
@@ -198,7 +194,7 @@ public class FilerController {
       String agentName = reqObjService.getRequestAgentName(request);
       TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
-      filerService.fileEntity(entity, agentName, usedEntity);
+      filerService.fileEntity(entity, agentName, usedEntity, graph);
 
       return ResponseEntity.ok().build();
     }
@@ -261,7 +257,7 @@ public class FilerController {
       entity.set(iri(IM.CONTENT_TYPE), contentTypes);
 
       String agentName = reqObjService.getRequestAgentName(request);
-      filerService.fileEntity(entity, agentName, null);
+      filerService.fileEntity(entity, agentName, null, graph);
       return iri;
     }
   }

@@ -29,7 +29,7 @@ public class TTFilerFactory {
   }
 
   public static TTEntityFiler getEntityFiler(Graph graph) {
-    return new TTEntityFilerRdf4j(IMDB.getConnection(graph));
+    return new TTEntityFilerRdf4j(IMDB.getConnection(graph), graph);
   }
 
   public static TCGenerator getClosureGenerator() {

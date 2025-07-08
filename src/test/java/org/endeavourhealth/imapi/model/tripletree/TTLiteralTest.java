@@ -25,7 +25,6 @@ class TTLiteralTest {
   EntityService entityService = new EntityService();
 
   private final TTEntity testObject = (TTEntity) new TTEntity("http://endhealth.info/im#objectTest")
-    .setGraph(Graph.IM)
     .set(TTIriRef.iri(RDFS.LABEL), "Test object")
     .set(TTIriRef.iri(RDFS.COMMENT), "This is an entity to test object serialization")
     .set(TTIriRef.iri(IM.QUERY), literal(new SearchTermCode().setTerm("Mickey Mouse").setCode("EM-EYE-CEE").setStatus(TTIriRef.iri(IM.ACTIVE))));
@@ -33,10 +32,6 @@ class TTLiteralTest {
   private final String json = new StringJoiner(System.lineSeparator())
     .add("{")
     .add("  \"iri\" : \"http://endhealth.info/im#objectTest\",")
-    .add("  \"graph\" : {")
-    .add("    \"iri\" : \"http://endhealth.info/im#\",")
-    .add("    \"name\" : \"Im\"")
-    .add("  },")
     .add("  \"http://www.w3.org/2000/01/rdf-schema#label\" : \"Test object\",")
     .add("  \"http://www.w3.org/2000/01/rdf-schema#comment\" : \"This is an entity to test object serialization\",")
     .add("  \"http://endhealth.info/im#Query\" : \"{\\\"term\\\":\\\"Mickey Mouse\\\",\\\"code\\\":\\\"EM-EYE-CEE\\\",\\\"status\\\":{\\\"name\\\":\\\"Active\\\",\\\"iri\\\":\\\"http://endhealth.info/im#Active\\\"}}\"")

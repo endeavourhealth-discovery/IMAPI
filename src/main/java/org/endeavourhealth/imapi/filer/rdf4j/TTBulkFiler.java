@@ -198,7 +198,7 @@ public class TTBulkFiler implements TTDocumentFiler {
           continue;
 
         allEntities.write(entity.getIri() + "\n");
-        if (Graph.IM.equals(entity.getGraph()))
+        if (Graph.IM.equals(graph))
           coreIris.write(entity.getIri() + "\t" + entity.getName() + "\n");
 
         addToMaps(entity);
@@ -207,7 +207,7 @@ public class TTBulkFiler implements TTDocumentFiler {
 
         setStatusAndScheme(entity);
 
-        transformAndWriteQuads(converter, entity);
+        transformAndWriteQuads(converter, entity, graph);
         if (counter % 100000 == 0) {
           log.info("{} entities written", counter);
         }
@@ -222,8 +222,8 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void transformAndWriteQuads(TTToNQuad converter, TTEntity entity) throws IOException {
-    List<String> quadList = converter.transformEntity(entity);
+  private void transformAndWriteQuads(TTToNQuad converter, TTEntity entity, Graph graph) throws IOException {
+    List<String> quadList = converter.transformEntity(entity, graph);
     for (String quad : quadList) {
       quads.write(quad + "\n");
       incrementStatementCount();

@@ -27,9 +27,7 @@ public class ProvService {
   public ProvAgent buildProvenanceAgent(TTEntity targetEntity, String agentName) {
     String root;
 
-    if (null != targetEntity.getGraph())
-      root = targetEntity.getGraph().toString();
-    else if (null != targetEntity.getScheme() && null != targetEntity.getScheme().getIri())
+    if (null != targetEntity.getScheme() && null != targetEntity.getScheme().getIri())
       root = targetEntity.getScheme().getIri();
     else
       root = Namespace.IM.toString();
@@ -65,7 +63,6 @@ public class ProvService {
         .setIri(usedEntity.getIri() + "/" + (usedEntity.getVersion()))
         .setName(usedEntity.getName())
         .set(iri(IM.DEFINITION), new TTLiteral(om.writeValueAsString(usedEntity)))
-        .setGraph(Graph.PROV)
         .setCrud(iri(IM.ADD_QUADS));
     }
   }

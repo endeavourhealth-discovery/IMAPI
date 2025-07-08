@@ -60,8 +60,6 @@ public class TTEntityDeserializer extends StdDeserializer<TTEntity> {
         result.setIri(helper.expand(value.textValue()));
       else if ("crud".equals(key))
         result.setCrud(helper.getJsonNodeAsValue(value).asIriRef());
-      else if ("graph".equals(key))
-        result.setGraph(Graph.from(helper.getJsonNodeAsValue(value).asIriRef().getIri()));
       else if (!"context".equals(key)) {
         if (value.isArray())
           result.set(iri(helper.expand(key)), helper.getJsonNodeArrayAsValue(value));

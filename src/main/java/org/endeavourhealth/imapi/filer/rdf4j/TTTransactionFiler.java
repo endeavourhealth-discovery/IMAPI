@@ -49,23 +49,25 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   private Map<String, Set<String>> isAs;
   private TTManager manager;
   private Set<String> done;
+  private Graph graph;
 
 
   /**
    * Destination folder for transaction log files must be set.
    */
   public TTTransactionFiler(Graph graph) {
+    this.graph = graph;
     logPath = System.getenv("DELTA_PATH");
     log.info("Connecting");
     conn = IMDB.getConnection(graph);
 
     log.info("Initializing");
-    conceptFiler = new TTEntityFilerRdf4j(conn, prefixMap);
+    conceptFiler = new TTEntityFilerRdf4j(conn, prefixMap, graph);
     instanceFiler = conceptFiler;   // Concepts & Instances filed in the same way
     log.info("Done");
   }
 
-  private static Map<Graph, Set<String>> getEntitiesToCheckForUsage(TTDocument transaction) throws TTFilerException {
+  private static Map<Graph, Set<String>> getEntitiesToCheckForUsage(TTDocument transaction) {
     Map<Graph, Set<String>> toCheck = new HashMap<>();
     for (TTEntity entity : transaction.getEntities()) {
 
@@ -171,7 +173,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     document.getEntities().removeIf(e -> null == e.getIri());
 
     checkDeletes(document);
-    fileAsDocument(document);
+    fileAsDocument(document, graph);
   }
 
   public void fileDocument(TTDocument document, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
@@ -182,7 +184,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     document.getEntities().removeIf(e -> null == e.getIri());
 
     checkDeletes(document);
-    fileAsDocument(document, taskId);
+    fileAsDocument(document, taskId, graph);
   }
 
   private void checkDeletes(TTDocument transaction) throws TTFilerException {
@@ -192,7 +194,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
   }
 
-  private void fileAsDocument(TTDocument document) throws TTFilerException, JsonProcessingException, QueryException {
+  private void fileAsDocument(TTDocument document, Graph graph) throws TTFilerException, JsonProcessingException, QueryException {
     try {
       startTransaction();
       log.info("Filing entities.... ");
@@ -232,7 +234,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     return filingProgress;
   }
 
-  private synchronized void fileAsDocument(TTDocument document, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
+  private synchronized void fileAsDocument(TTDocument document, String taskId, Graph graph) throws TTFilerException, JsonProcessingException, QueryException {
 
     if (filingProgress != null)
       throw new TTFilerException("There is a document already filing, please try again later");
@@ -277,10 +279,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   }
 
   private void fileEntity(TTEntity entity) throws TTFilerException {
-    if (entity.getGraph() == null)
-      throw new TTFilerException("No graph specified for entity");
-
-    if (entity.has(iri(IM.HAS_SCHEME)) && entity.get(iri(IM.HAS_SCHEME)).asIriRef().getIri().equals(Namespace.ODS))
+    if (entity.has(iri(IM.HAS_SCHEME)) && entity.get(iri(IM.HAS_SCHEME)).asIriRef().getIri().equals(Namespace.ODS.toString()))
       instanceFiler.fileEntity(entity);
     else
       conceptFiler.fileEntity(entity);
@@ -290,9 +289,9 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     for (TTEntity entity : document.getEntities()) {
       if (entity.isType(iri(IM.CONCEPT_SET)) || entity.isType(iri(IM.VALUESET))) {
         log.info("Expanding set {}", entity.getIri());
-        new SetMemberGenerator().generateMembers(entity.getIri(), entity.getGraph());
+        new SetMemberGenerator().generateMembers(entity.getIri(), graph);
         log.info("Binding set {}", entity.getIri());
-        new SetBinder().bindSet(entity.getIri(), entity.getGraph());
+        new SetBinder().bindSet(entity.getIri(), graph);
       }
     }
   }
@@ -314,7 +313,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       getInternalIsAs(entity);
     }
     conceptFiler.deleteIsAs(isAs.keySet());
-    conceptFiler.fileIsAs(isAs, Graph.IM);
+    conceptFiler.fileIsAs(isAs);
   }
 
   private void setExternalIsas(Set<TTEntity> toClose) throws TTFilerException {
@@ -389,7 +388,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
   }
 
-  public void fileEntities(TTDocument document) throws TTFilerException {
+  public void fileEntities(TTDocument document, Graph graph) throws TTFilerException {
     log.info("Filing entities.... ");
 
     startTransaction();

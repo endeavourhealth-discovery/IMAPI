@@ -18,14 +18,6 @@ public class ProvActivity extends Entry {
 
   public ProvActivity() {
     this.addType(iri(IM.PROVENANCE_ACTIVITY));
-    super.setGraph(Graph.PROV);
-  }
-
-  @Override
-  @JsonSetter
-  public ProvActivity setGraph(Graph graph) {
-    log.error("Attempt to set graph on provenance");
-    return this;
   }
 
   @Override

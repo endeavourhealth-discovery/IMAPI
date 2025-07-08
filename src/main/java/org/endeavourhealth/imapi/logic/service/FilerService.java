@@ -54,8 +54,8 @@ public class FilerService {
     imdb = IMDB.getConnection(Graph.IM);
     provDB = ProvDB.getConnection();
     documentFiler = new TTTransactionFiler(Graph.IM);
-    entityFiler = new TTEntityFilerRdf4j(imdb);
-    entityProvFiler = new TTEntityFilerRdf4j(provDB);
+    entityFiler = new TTEntityFilerRdf4j(imdb, Graph.IM);
+    entityProvFiler = new TTEntityFilerRdf4j(provDB, Graph.PROV);
     provService = new ProvService();
     entityService = new EntityService();
     openSearchService = new OpenSearchService();
@@ -111,7 +111,7 @@ public class FilerService {
     return documentFiler.getFilingProgress(taskId);
   }
 
-  public void fileEntity(TTEntity entity,String agentName, TTEntity usedEntity) throws TTFilerException {
+  public void fileEntity(TTEntity entity, String agentName, TTEntity usedEntity, Graph graph) throws TTFilerException {
     try {
       entityFiler.fileEntity(entity);
 
@@ -119,7 +119,7 @@ public class FilerService {
         entityFiler.updateIsAs(entity);
 
       if (entity.isType(iri(IM.VALUESET)))
-        new SetMemberGenerator().generateMembers(entity.getIri(), entity.getGraph());
+        new SetMemberGenerator().generateMembers(entity.getIri(), graph);
 
 
       ProvAgent agent = fileProvAgent(entity, agentName);
@@ -127,7 +127,7 @@ public class FilerService {
       ProvActivity activity = fileProvActivity(entity, agent, provUsedEntity);
 
       writeDelta(entity, activity, provUsedEntity);
-      fileOpenSearch(entity.getIri(), entity.getGraph());
+      fileOpenSearch(entity.getIri(), graph);
     } catch (Exception e) {
       throw new TTFilerException("Error filing entity", e);
     }
@@ -191,8 +191,8 @@ public class FilerService {
 
   public TTEntity createEntity(EditRequest editRequest, String agentName, Graph graph) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
     isValid(editRequest.getEntity(), "Create", graph);
-    editRequest.getEntity().setCrud(iri(IM.ADD_QUADS)).setVersion(1).setGraph(graph);
-    fileEntity(editRequest.getEntity(), agentName, null);
+    editRequest.getEntity().setCrud(iri(IM.ADD_QUADS)).setVersion(1);
+    fileEntity(editRequest.getEntity(), agentName, null, graph);
     EntityApproval entityApproval = new EntityApproval();
     entityApproval
       .setEntityIri(iri(editRequest.getEntity().getIri()))
@@ -207,10 +207,10 @@ public class FilerService {
 
   public TTEntity updateEntity(TTEntity entity, String agentName, Graph graph) throws TTFilerException, JsonProcessingException {
     isValid(entity, "Update", graph);
-    entity.setCrud(iri(IM.UPDATE_ALL)).setGraph(graph);
+    entity.setCrud(iri(IM.UPDATE_ALL));
     TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
     entity.setVersion(usedEntity.getVersion() + 1);
-    fileEntity(entity, agentName, usedEntity);
+    fileEntity(entity, agentName, usedEntity, graph);
     return entity;
   }
 

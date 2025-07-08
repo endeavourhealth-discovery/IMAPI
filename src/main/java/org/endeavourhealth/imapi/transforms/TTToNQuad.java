@@ -11,16 +11,16 @@ public class TTToNQuad {
   private List<String> quads;
   private static int blank;
 
-  public List<String> transformEntity(TTEntity entity) {
+  public List<String> transformEntity(TTEntity entity, Graph graph) {
     quads = new ArrayList<>();
-    appendEntity(entity);
+    appendEntity(entity, graph);
     return quads;
   }
 
-  private void appendEntity(TTEntity entity) {
+  private void appendEntity(TTEntity entity, Graph graph) {
     String subject = "<" + entity.getIri() + "> ";
     if (entity.getPredicateMap() != null) {
-      setPredicateObjects(subject, entity, entity.getGraph());
+      setPredicateObjects(subject, entity, graph);
     }
 
   }

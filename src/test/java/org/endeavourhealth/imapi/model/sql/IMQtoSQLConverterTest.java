@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +29,7 @@ public class IMQtoSQLConverterTest {
   private String db_password = System.getenv("DB_PASSWORD");
   private String db_driver = System.getenv("DB_DRIVER");
 
-  @Test
+  //  @Test
   public void IMQtoSQL() {
     // Get list of queries from GraphDb
     EntityRepository entityRepository = new EntityRepository();

@@ -220,7 +220,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
         writeLog(document);
       updateTct(document);
       log.info("Updating range inheritances");
-      new RangeInheritor().inheritRanges(conn, Graph.IM);
+      new RangeInheritor().inheritRanges(conn, graph);
       commit();
 
     } catch (Exception e) {

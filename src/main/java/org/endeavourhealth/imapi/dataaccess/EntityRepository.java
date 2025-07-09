@@ -1590,7 +1590,7 @@ public class EntityRepository {
       String sql = """
         ASK {
           GRAPH ?g {
-            Values ?predicates {%s}
+            %s
             ?subject ?predicates ?value.
           }
         }

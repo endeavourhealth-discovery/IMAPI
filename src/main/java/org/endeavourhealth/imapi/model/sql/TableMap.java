@@ -18,11 +18,12 @@ public class TableMap {
   }
 
   public Table getTable(String iri) throws SQLConversionException {
+    if (null == iri) throw new SQLConversionException("iri is null");
     Table propTable = properties.get(iri);
     if (propTable != null) {
       String dataModel = propTable.getDataModel();
       Table dmTable = dataModels.get(dataModel);
-      if  (dmTable == null) {
+      if (dmTable == null) {
         throw new SQLConversionException("No table for Data model: " + dataModel + " not found.");
       }
       Table returnTable = new Table();
@@ -34,7 +35,7 @@ public class TableMap {
       return returnTable;
     }
     Table returnTable = dataModels.get(iri);
-    if  (returnTable == null) {
+    if (returnTable == null) {
       throw new SQLConversionException("No table for Data model: " + iri + " not found.");
     }
     returnTable.setDataModel(iri);

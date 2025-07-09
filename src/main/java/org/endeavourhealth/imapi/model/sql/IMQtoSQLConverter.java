@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class IMQtoSQLConverter {
@@ -52,7 +51,7 @@ public class IMQtoSQLConverter {
   public String IMQtoSQL() throws SQLConversionException {
     if (queryRequest.getQuery() == null) throw new SQLConversionException("Query is null");
     Query definition = queryRequest.getQuery();
-    if (definition.getTypeOf() == null) {
+    if (definition.getTypeOf() == null || definition.getTypeOf().getIri() == null) {
       throw new SQLConversionException("SQL Conversion Error: Query must have a main (model) type");
     }
 

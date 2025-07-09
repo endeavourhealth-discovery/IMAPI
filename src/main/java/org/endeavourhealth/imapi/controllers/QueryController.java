@@ -185,10 +185,10 @@ public class QueryController {
     summary = "Generate SQL from IRI",
     description = "Generates SQL from the given IMQ query IRI."
   )
-  public String getSQLFromIMQIri(@RequestParam(name = "queryIri") String queryIri) throws IOException, QueryException, SQLConversionException {
+  public String getSQLFromIMQIri(@RequestParam(name = "queryIri") String queryIri, @RequestParam(name = "lang", defaultValue = "MYSQL") DatabaseOption lang) throws IOException, QueryException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getSQLFromIMQIri");
-      return queryService.getSQLFromIMQIri(queryIri, new HashMap<>());
+      return queryService.getSQLFromIMQIri(queryIri, new HashMap<>(), lang);
     }
   }
 

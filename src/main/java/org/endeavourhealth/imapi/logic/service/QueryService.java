@@ -46,7 +46,7 @@ public class QueryService {
   public static void generateUUIdsForQuery(Query query) {
     new QueryDescriptor().generateUUIDs(query);
   }
-  
+
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
     return new QueryDescriptor().describeQuery(query, displayMode);
   }
@@ -91,11 +91,14 @@ public class QueryService {
     return new IMQtoSQLConverter(queryRequest, iriToUuidMap).IMQtoSQL();
   }
 
-  public String getSQLFromIMQIri(String queryIri, Map<String, String> iriToUuidMap) throws JsonProcessingException, QueryException, SQLConversionException {
+  public String getSQLFromIMQIri(String queryIri, Map<String, String> iriToUuidMap, DatabaseOption lang) throws JsonProcessingException, QueryException, SQLConversionException {
+    if (lang.equals(DatabaseOption.GRAPHDB)) {
+      throw new SQLConversionException("GRAPHDB is not currently supported for query to SQL");
+    }
     Query query = describeQuery(queryIri, DisplayMode.LOGICAL);
     if (query == null) return null;
     query = flattenQuery(query);
-    QueryRequest queryRequest = new QueryRequest().setQuery(query);
+    QueryRequest queryRequest = new QueryRequest().setQuery(query).setLanguage(lang);
     return getSQLFromIMQ(queryRequest, iriToUuidMap);
   }
 

@@ -383,7 +383,7 @@ public class QueryDescriptor {
         if (date) {
           if (!isRange) {
             qualifier = "before ";
-            relativity = " the ";
+            if (relativeTo) relativity = " the ";
           }
           if (past && relativeTo) relativity = " before the ";
         } else {
@@ -419,7 +419,7 @@ public class QueryDescriptor {
       case eq:
         if (date) if (!isRange) {
           qualifier = " on ";
-          relativity = " the ";
+          if (relativeTo) relativity = " the ";
         }
         break;
     }

@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"context", "textSearch", "argument", "referenceDate", "query", "pathQuery", "update"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@Getter
 public class QueryRequest implements ContextMap {
 
 
@@ -30,18 +31,15 @@ public class QueryRequest implements ContextMap {
   private String askIri;
   private List<Map<Long, String>> timings = new ArrayList<>();
   private List<TTIriRef> cohort;
-  @Getter
   @Setter
   private boolean includeNames;
-  @Getter
   @Setter
   private TextSearchStyle textSearchStyle;
   @Getter
   private DatabaseOption language;
 
 
-  public List<TTIriRef> getCohort() {
-    return cohort;
+  public QueryRequest() {
   }
 
   public QueryRequest setCohort(List<TTIriRef> cohort) {
@@ -57,10 +55,6 @@ public class QueryRequest implements ContextMap {
     return this;
   }
 
-
-  public List<Map<Long, String>> getTimings() {
-    return timings;
-  }
 
   public QueryRequest setTimings(List<Map<Long, String>> timings) {
     this.timings = timings;
@@ -96,26 +90,14 @@ public class QueryRequest implements ContextMap {
     return this;
   }
 
-  public PathQuery getPathQuery() {
-    return pathQuery;
-  }
-
   public QueryRequest setPathQuery(PathQuery pathQuery) {
     this.pathQuery = pathQuery;
     return this;
   }
 
-  public String getName() {
-    return name;
-  }
-
   public QueryRequest setName(String name) {
     this.name = name;
     return this;
-  }
-
-  public List<Argument> getArgument() {
-    return argument;
   }
 
   @JsonSetter
@@ -173,10 +155,6 @@ public class QueryRequest implements ContextMap {
     return this;
   }
 
-  public Page getPage() {
-    return page;
-  }
-
   @JsonSetter
   public QueryRequest setPage(Page page) {
     this.page = page;
@@ -188,10 +166,6 @@ public class QueryRequest implements ContextMap {
     this.page = page;
     builder.accept(page);
     return this;
-  }
-
-  public String getTextSearch() {
-    return textSearch;
   }
 
   public QueryRequest setTextSearch(String textSearch) {
@@ -248,10 +222,6 @@ public class QueryRequest implements ContextMap {
     context.put(XSD.NAMESPACE, "xsd");
     context.put(SHACL.NAMESPACE, "sh");
     return this;
-  }
-
-  public String getAskIri() {
-    return askIri;
   }
 
   public QueryRequest setAskIri(String askIri) {

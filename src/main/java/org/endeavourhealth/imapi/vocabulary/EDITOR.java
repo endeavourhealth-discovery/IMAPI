@@ -55,14 +55,14 @@ public enum EDITOR implements VocabEnum {
 
     public static EDITOR from(String text) {
       if (text == null)
-        return null;
+        throw new IllegalArgumentException("no text specified");
 
       for (EDITOR b : EDITOR.values()) {
         if (b.value.equals(text)) {
           return b;
         }
       }
-      return null;
+      throw new IllegalArgumentException("no enums match text specified");
     }
 
 }

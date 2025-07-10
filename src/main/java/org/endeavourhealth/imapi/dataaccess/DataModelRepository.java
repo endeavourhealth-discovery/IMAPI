@@ -30,10 +30,8 @@ public class DataModelRepository {
     String spql = """
       SELECT ?s ?name
       WHERE {
-        GRAPH ?g {
-          ?s rdf:type rdf:PropertyRef ;
-          rdfs:label ?name .
-        }
+        ?s rdf:type rdf:PropertyRef ;
+        rdfs:label ?name .
       }
       """;
 
@@ -57,11 +55,9 @@ public class DataModelRepository {
       String sparql = """
         SELECT ?dm ?dmName
         WHERE {
-          GRAPH ?g {
-            ?dm sh:property ?prop .
-            ?dm rdfs:label ?dmName .
-            ?prop sh:path ?propIri .
-          }
+          ?dm sh:property ?prop .
+          ?dm rdfs:label ?dmName .
+          ?prop sh:path ?propIri .
         }
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
@@ -82,10 +78,8 @@ public class DataModelRepository {
       String query = """
         SELECT ?objectProperty ?dataProperty
         WHERE {
-          GRAPH ?g {
-            bind(exists{?propIr i ?isA ?objProp} as ?objectProperty)
-            bind(exists{?propIri ?isA ?dataProp} as ?dataProperty)
-          }
+          bind(exists{?propIr i ?isA ?objProp} as ?objectProperty)
+          bind(exists{?propIri ?isA ?dataProp} as ?dataProperty)
         }
         """;
       TupleQuery qry = conn.prepareTupleSparql(query);
@@ -321,11 +315,9 @@ public class DataModelRepository {
     return """
       Select ?subdatamodel ?subdatamodelname
       WHERE {
-        GRAPH ?g {
-          optional  {
-            ?subdatamodel rdfs:subClassOf ?entity.
-            ?subdatamodel rdfs:label ?subdatamodelname
-          }
+        optional  {
+          ?subdatamodel rdfs:subClassOf ?entity.
+          ?subdatamodel rdfs:label ?subdatamodelname
         }
       }
       """;
@@ -346,80 +338,78 @@ public class DataModelRepository {
       ?comment ?propertyDefinition ?units ?unitsName ?operator ?operatorName ?isRelativeValue
       ?orderable ?ascending ?descending
       WHERE {
-        GRAPH ?g {
-          ?entity sh:property ?property.
-          ?entity rdfs:label ?entityName.
+        ?entity sh:property ?property.
+        ?entity rdfs:label ?entityName.
+        optional {
+          ?property sh:group ?group.
+          ?group rdfs:label ?groupName.
+          optional {?group sh:order ?groupOrder}
+        }
+        optional {?property sh:order ?order.}
+        optional {
+          ?property im:orderable ?orderable.
+          ?orderable im:ascending ?ascending.
+          ?orderable im:descending ?descending.
+        }
+        optional {
+          ?property sh:path ?path.
+          ?path rdf:type ?pathType.
+          ?path rdfs:label ?pathName.
+          optional {?path im:definition ?propertyDefinition}
           optional {
-            ?property sh:group ?group.
-            ?group rdfs:label ?groupName.
-            optional {?group sh:order ?groupOrder}
-          }
-          optional {?property sh:order ?order.}
-          optional {
-            ?property im:orderable ?orderable.
-            ?orderable im:ascending ?ascending.
-            ?orderable im:descending ?descending.
-          }
-          optional {
-            ?property sh:path ?path.
-            ?path rdf:type ?pathType.
-            ?path rdfs:label ?pathName.
-            optional {?path im:definition ?propertyDefinition}
+            ?path im:parameter ?parameter.
+            ?parameter rdfs:label ?parameterName.
+            ?parameter sh:class ?parameterType.
+            ?parameterType rdfs:label ?parameterTypeName.
             optional {
-              ?path im:parameter ?parameter.
-              ?parameter rdfs:label ?parameterName.
-              ?parameter sh:class ?parameterType.
-              ?parameterType rdfs:label ?parameterTypeName.
-              optional {
-                ?parameterSubtype im:isA ?parameterType.
-                ?parameterSubtype rdfs:label ?parameterSubtypeName
-              }
+              ?parameterSubtype im:isA ?parameterType.
+              ?parameterSubtype rdfs:label ?parameterSubtypeName
             }
           }
+        }
+        optional {
+          ?property sh:minCount ?minCount.
+        }
+        optional {
+          ?property rdfs:comment ?comment.
+        }
+        optional {
+          ?property sh:maxCount ?maxCount.
+        }
+        optional {
+          ?property sh:class ?class.
+          ?class rdfs:label ?className.
+          ?class rdf:type ?classType.
+          ?classType rdfs:label ?classTypeName.
+        }
+        optional {
+          ?property sh:datatype ?datatype.
+          ?datatype rdfs:label ?datatypeName.
+          ?datatype rdf:type ?datatypeType.
+          ?datatypeType rdfs:label ?datatypeTypeName.
           optional {
-            ?property sh:minCount ?minCount.
+            ?datatype im:intervalUnit ?intervalUnit.
+            ?intervalUnit rdfs:label ?intervalUnitName
+          }
+          optional { ?datatype sh:pattern ?pattern}
+          optional {
+            ?datatype im:units ?units.
+            ?units rdfs:label ?unitsName
+          }
+          optional {?datatype im:isRelativeValue ?isRelativeValue}
+          optional {
+            ?datatype im:operator ?operator.
+            ?operator rdfs:label ?operatorName
           }
           optional {
-            ?property rdfs:comment ?comment.
-          }
-          optional {
-            ?property sh:maxCount ?maxCount.
-          }
-          optional {
-            ?property sh:class ?class.
-            ?class rdfs:label ?className.
-            ?class rdf:type ?classType.
-            ?classType rdfs:label ?classTypeName.
-          }
-          optional {
-            ?property sh:datatype ?datatype.
-            ?datatype rdfs:label ?datatypeName.
-            ?datatype rdf:type ?datatypeType.
-            ?datatypeType rdfs:label ?datatypeTypeName.
+            ?datatype im:datatypeQualifier ?datatypeQualifier.
+            ?datatypeQualifier rdfs:label ?qualifierName.
+            optional {?datatypeQualifier sh:order ?qualifierOrder}
+            optional { ?datatypeQualifier sh:pattern ?qualifierPattern}
+            optional {?datatypeQualifier im:isRelativeValue ?isRelativeValue}
             optional {
-              ?datatype im:intervalUnit ?intervalUnit.
-              ?intervalUnit rdfs:label ?intervalUnitName
-            }
-            optional { ?datatype sh:pattern ?pattern}
-            optional {
-              ?datatype im:units ?units.
-              ?units rdfs:label ?unitsName
-            }
-            optional {?datatype im:isRelativeValue ?isRelativeValue}
-            optional {
-              ?datatype im:operator ?operator.
-              ?operator rdfs:label ?operatorName
-            }
-            optional {
-              ?datatype im:datatypeQualifier ?datatypeQualifier.
-              ?datatypeQualifier rdfs:label ?qualifierName.
-              optional {?datatypeQualifier sh:order ?qualifierOrder}
-              optional { ?datatypeQualifier sh:pattern ?qualifierPattern}
-              optional {?datatypeQualifier im:isRelativeValue ?isRelativeValue}
-              optional {
-                ?datatypeQualifier im:units ?qualifierIntervalUnit.
-                ?qualifierIntervalUnit rdfs:label ?qualifierIntervalUnitName
-              }
+              ?datatypeQualifier im:units ?qualifierIntervalUnit.
+              ?qualifierIntervalUnit rdfs:label ?qualifierIntervalUnitName
             }
           }
         }
@@ -449,18 +439,16 @@ public class DataModelRepository {
       Select ?entityName ?property ?order ?path ?pathName ?pathType
       ?node ?nodeName ?nodeType ?nodeTypeName
       WHERE {
-        GRAPH ?g {
-          ?enti  ty sh:property ?property.
-          ?entity rdfs:label ?entityName.
-          ?property sh:node ?node.
-          ?node rdfs:label ?nodeName.
-          ?node rdf:type ?nodeType.
-          ?nodeType rdfs:label ?nodeTypeName.
-          ?property sh:path ?path.
-          ?path rdf:type ?pathType.
-          ?path rdfs:label ?pathName.
-          OPTIONAL {?property sh:order ?order.}
-        }
+        ?enti  ty sh:property ?property.
+        ?entity rdfs:label ?entityName.
+        ?property sh:node ?node.
+        ?node rdfs:label ?nodeName.
+        ?node rdf:type ?nodeType.
+        ?nodeType rdfs:label ?nodeTypeName.
+        ?property sh:path ?path.
+        ?path rdf:type ?pathType.
+        ?path rdfs:label ?pathName.
+        OPTIONAL {?property sh:order ?order.}
       }
       order by ?order
       """;
@@ -483,24 +471,22 @@ public class DataModelRepository {
         }, "class", "None"))) AS ?propertyType)
         ?valueType ?intervalUnitIri ?unitsIri ?operatorIri ?qualifierIri ?qualifierName
         WHERE {
-          GRAPH ?g {
-            ?dmIri sh:property ?property .
-            ?property sh:path ?propIri .
-            ?propIri rdfs:label ?name .
-            ?property (sh:class | sh:node | sh:datatype) ?valueType .
-            OPTIONAL {
-               ?valueType im:datatypeQualifier ?qualifierIri .
-               ?qualifierIri rdfs:label ?qualifierName .
-            }
-            OPTIONAL{
-               ?valueType im:intervalUnit ?intervalUnitIri .
-            }
-            OPTIONAL{
-               ?valueType im:units ?unitsIri .
-            }
-            OPTIONAL {
-               ?valueType im:operator ?operatorIri .
-            }
+          ?dmIri sh:property ?property .
+          ?property sh:path ?propIri .
+          ?propIri rdfs:label ?name .
+          ?property (sh:class | sh:node | sh:datatype) ?valueType .
+          OPTIONAL {
+             ?valueType im:datatypeQualifier ?qualifierIri .
+             ?qualifierIri rdfs:label ?qualifierName .
+          }
+          OPTIONAL{
+             ?valueType im:intervalUnit ?intervalUnitIri .
+          }
+          OPTIONAL{
+             ?valueType im:units ?unitsIri .
+          }
+          OPTIONAL {
+             ?valueType im:operator ?operatorIri .
           }
         }
       """;

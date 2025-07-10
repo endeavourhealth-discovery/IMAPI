@@ -25,7 +25,7 @@ public class EqdToIMQ {
   public static Map<String, TTEntity> definitionToEntity = new HashMap<>();
   public static Map<String, TTEntity> setIriToEntity = new HashMap<>();
   public static Integer setNumber;
-  private String namespace;
+  private Namespace namespace;
   private EqdResources resources;
   private TTDocument document;
   private String singleEntity;
@@ -59,9 +59,10 @@ public class EqdToIMQ {
     return this;
   }
 
-  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, Properties criteriaMaps, Graph graph) throws IOException, QueryException, EQDException {
+  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, Properties criteriaMaps, Namespace namespace, Graph graph) throws IOException, QueryException, EQDException {
     this.document = document;
-    this.resources = new EqdResources(document, dataMap);
+    this.resources = new EqdResources(document, dataMap, namespace);
+    this.namespace = namespace;
     this.resources.setCriteriaMaps(criteriaMaps);
     this.addReportNames(eqd);
     this.convertFolders(eqd);
@@ -147,13 +148,9 @@ public class EqdToIMQ {
             throw new EQDException("No folder name");
           }
 
-          String var10000 = this.namespace;
-          String iri = var10000 + eqFolder.getId();
-          TTEntity folder = (new TTEntity()).setIri(iri).addType(TTIriRef.iri(IM.FOLDER)).setName(eqFolder.getName());
+          TTEntity folder = (new TTEntity()).setIri(this.namespace + eqFolder.getId()).addType(TTIriRef.iri(IM.FOLDER)).setName(eqFolder.getName());
           if (eqFolder.getParentFolder() != null) {
-            TTIriRef var10001 = TTIriRef.iri(IM.IS_CONTAINED_IN);
-            String var10002 = this.namespace;
-            folder.addObject(var10001, TTIriRef.iri(var10002 + eqFolder.getParentFolder()));
+            folder.addObject(TTIriRef.iri(IM.IS_CONTAINED_IN), TTIriRef.iri(this.namespace + eqFolder.getParentFolder()));
           }
 
           this.document.addEntity(folder);
@@ -172,9 +169,7 @@ public class EqdToIMQ {
     queryEntity.setName(eqReport.getName());
     queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
     if (eqReport.getFolder() != null) {
-      TTIriRef var10001 = TTIriRef.iri(IM.IS_CONTAINED_IN);
-      String var10002 = this.namespace;
-      queryEntity.addObject(var10001, TTIriRef.iri(var10002 + eqReport.getFolder()).setName(eqReport.getName()));
+      queryEntity.addObject(TTIriRef.iri(IM.IS_CONTAINED_IN), TTIriRef.iri(this.namespace + eqReport.getFolder()).setName(eqReport.getName()));
     }
 
     Query qry = new Query();

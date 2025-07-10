@@ -49,14 +49,14 @@ public enum MAP implements VocabEnum {
 
     public static MAP from(String text) {
       if (text == null)
-        return null;
+        throw new IllegalArgumentException("no text specified");
 
       for (MAP b : MAP.values()) {
         if (b.value.equals(text)) {
           return b;
         }
       }
-      return null;
+      throw new IllegalArgumentException("no enums match text specified");
     }
 
 }

@@ -77,6 +77,8 @@ public class TTIriRef implements TTValue, Serializable {
   }
 
   public TTIriRef setName(String name) {
+    if (name != null && name.startsWith("null"))
+      System.err.println("Its here!!!!");
     this.name = name;
     return this;
   }

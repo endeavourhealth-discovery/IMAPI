@@ -97,11 +97,11 @@ public abstract class BaseDB implements AutoCloseable {
     if (!sparql.toUpperCase().contains("INSERT"))
       throw new DALException("This doesnt appear to be an INSERT statement");
 
-    if (!sparql.toUpperCase().contains("GRAPH ?G"))
-      throw new DALException("Inserts must specify a (single) graph");
+    if (graph == null)
+      throw new DALException("A graph MUST be specified for an insert statement");
 
     Update insert = prepareSparql(sparql);
-    insert.setBinding("g", graph.asDbIri());
+    dataset.setDefaultInsertGraph(graph.asDbIri());
 
     return insert;
   }
@@ -110,11 +110,11 @@ public abstract class BaseDB implements AutoCloseable {
     if (!sparql.toUpperCase().contains("DELETE") || !sparql.toUpperCase().contains("INSERT"))
       throw new DALException("This doesnt appear to be an UPDATE statement");
 
-    if (!sparql.toUpperCase().contains("GRAPH ?G"))
-      throw new DALException("Updates must specify a (single) graph");
+    if (graph == null)
+      throw new DALException("A graph MUST be specified for an update statement");
 
     Update update = prepareSparql(sparql);
-    update.setBinding("g", graph.asDbIri());
+    dataset.setDefaultInsertGraph(graph.asDbIri());
 
     return update;
   }

@@ -23,6 +23,9 @@ public class TTNode implements TTValue, Serializable {
   private String iri;
 
   public TTNode setIri(String iri) {
+    if (iri != null && iri.startsWith("null"))
+      System.err.println("Its here!!!!");
+
     this.iri = iri;
     return this;
   }

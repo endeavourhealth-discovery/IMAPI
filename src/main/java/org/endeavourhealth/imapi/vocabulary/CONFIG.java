@@ -55,14 +55,14 @@ public enum CONFIG implements VocabEnum {
 
     public static CONFIG from(String text) {
       if (text == null)
-        return null;
+        throw new IllegalArgumentException("no text specified");
 
       for (CONFIG b : CONFIG.values()) {
         if (b.value.equals(text)) {
           return b;
         }
       }
-      return null;
+      throw new IllegalArgumentException("no enums match text specified");
     }
 
 }

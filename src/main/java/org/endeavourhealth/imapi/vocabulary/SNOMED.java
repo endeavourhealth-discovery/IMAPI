@@ -51,14 +51,14 @@ public enum SNOMED implements VocabEnum {
 
     public static SNOMED from(String text) {
       if (text == null)
-        return null;
+        throw new IllegalArgumentException("no text specified");
 
       for (SNOMED b : SNOMED.values()) {
         if (b.value.equals(text)) {
           return b;
         }
       }
-      return null;
+      throw new IllegalArgumentException("no enums match text specified");
     }
 
 }

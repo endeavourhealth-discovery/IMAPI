@@ -21,31 +21,21 @@ public class ConfigManager {
 
   private String DELETE_INSERT_SPARQL = """
     DELETE {
-      GRAPH ?g {
         ?s ?p ?oAny
-      }
     }
     INSERT {
-      GRAPH ?g {
         ?s ?p ?o
-      }
     }
     WHERE {
-      GRAPH ?g {
         ?s ?p ?oAny
-      }
     }
     """;
   private String INSERT_SPARQL = """
     DELETE {
-      GRAPH ?g {
         ?s ?p ?oAny
-      }
     }
     INSERT {
-      GRAPH ?g {
         ?s ?p ?o
-      }
     }
     WHERE {}
     """;

@@ -74,14 +74,14 @@ public enum WORKFLOW implements VocabEnum {
 
     public static WORKFLOW from(String text) {
       if (text == null)
-        return null;
+        throw new IllegalArgumentException("no text specified");
 
       for (WORKFLOW b : WORKFLOW.values()) {
         if (b.value.equals(text)) {
           return b;
         }
       }
-      return null;
+      throw new IllegalArgumentException("no enums match text specified");
     }
 
 }

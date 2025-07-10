@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
+import org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.*;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 
 @Slf4j
@@ -89,11 +91,9 @@ public class EntityRepository {
     String sql = """
       SELECT ?iri ?label ?description
       WHERE {
-        GRAPH ?g {
-          ?iri rdfs:label ?label.
-          Optional { ?iri rdfs:comment ?description }
-          filter (?iri in (%s))
-        }
+        ?iri rdfs:label ?label.
+        Optional { ?iri rdfs:comment ?description }
+        filter (?iri in (%s))
       }
       """.formatted(String.join(",", toFetch));
 
@@ -118,9 +118,7 @@ public class EntityRepository {
     String sql = """
       SELECT ?sname
       WHERE {
-        GRAPH ?g {
-          ?s rdfs:label ?sname
-        }
+        ?s rdfs:label ?sname
       }
       """;
 
@@ -196,11 +194,9 @@ public class EntityRepository {
     String sql = """
       SELECT ?s ?o ?oname
       WHERE {
-        GRAPH ?g {
-          ?s rdf:type ?o .
-          ?o rdfs:label ?oname .
-          VALUES ?s { %s }
-        }
+        ?s rdf:type ?o .
+        ?o rdfs:label ?oname .
+        VALUES ?s { %s }
       }
       """.formatted(iriLine.toString());
 
@@ -230,20 +226,18 @@ public class EntityRepository {
     String sql = """
       SELECT ?s ?sname ?scode ?sstatus ?sstatusname ?sdescription ?sscheme ?sschemename
       WHERE {
-        GRAPH ?g {
-          ?s rdfs:label ?sname .
-          OPTIONAL { ?s im:code ?scode . }
-          OPTIONAL {
-            ?s im:status ?sstatus .
-            ?sstatus rdfs:label ?sstatusname .
-          }
-          OPTIONAL {
-            ?s im:scheme ?sscheme .
-            ?sscheme rdfs:label ?sschemename
-          }
-          OPTIONAL { ?s rdfs:comment ?sdescription .}
-          VALUES ?s { %s }
+        ?s rdfs:label ?sname .
+        OPTIONAL { ?s im:code ?scode . }
+        OPTIONAL {
+          ?s im:status ?sstatus .
+          ?sstatus rdfs:label ?sstatusname .
         }
+        OPTIONAL {
+          ?s im:scheme ?sscheme .
+          ?sscheme rdfs:label ?sschemename
+        }
+        OPTIONAL { ?s rdfs:comment ?sdescription .}
+        VALUES ?s { %s }
       }
       """.formatted(iriLine.toString());
 
@@ -279,32 +273,30 @@ public class EntityRepository {
     String sql = """
       SELECT ?sname ?type ?typeName ?scode ?sstatus ?sstatusname ?sdescription ?sscheme ?sschemename ?intervalUnit ?intervalUnitName ?qualifier ?qualifierName
       WHERE {
-        GRAPH ?g {
-          ?s rdfs:label ?sname .
-          OPTIONAL { ?s im:code ?scode . }
-          OPTIONAL {
-            ?s im:status ?sstatus .
-            ?sstatus rdfs:label ?sstatusname .
-          }
-          OPTIONAL {
-            ?s im:scheme ?sscheme .
-            ?sscheme rdfs:label ?sschemename .
-          }
-          OPTIONAL {
-            ?s rdf:type ?type .
-            ?type rdfs:label ?typeName .
-          }
-          OPTIONAL { ?s rdfs:comment ?sdescription . }
-          OPTIONAL {
-            ?s im:intervalUnit ?intervals .
-            ?intervalUnit rdfs:subClassOf ?intervals .
-            ?intervalUnit rdfs:label ?intervalUnitName .
-            filter (?intervalUnit!= ?intervals)
-          }
-          OPTIONAL {
-            ?s im:datatypeQualifier ?qualifier .
-            ?qualifier rdfs:label ?qualifierName .
-          }
+        ?s rdfs:label ?sname .
+        OPTIONAL { ?s im:code ?scode . }
+        OPTIONAL {
+          ?s im:status ?sstatus .
+          ?sstatus rdfs:label ?sstatusname .
+        }
+        OPTIONAL {
+          ?s im:scheme ?sscheme .
+          ?sscheme rdfs:label ?sschemename .
+        }
+        OPTIONAL {
+          ?s rdf:type ?type .
+          ?type rdfs:label ?typeName .
+        }
+        OPTIONAL { ?s rdfs:comment ?sdescription . }
+        OPTIONAL {
+          ?s im:intervalUnit ?intervals .
+          ?intervalUnit rdfs:subClassOf ?intervals .
+          ?intervalUnit rdfs:label ?intervalUnitName .
+          filter (?intervalUnit!= ?intervals)
+        }
+        OPTIONAL {
+          ?s im:datatypeQualifier ?qualifier .
+          ?qualifier rdfs:label ?qualifierName .
         }
       }
       """;
@@ -352,10 +344,8 @@ public class EntityRepository {
     String spql = """
       SELECT *
       WHERE {
-        GRAPH ?g {
-          ?s (%s) ?o .
-          ?o rdfs:label ?name .
-        }
+        ?s (%s) ?o .
+        ?o rdfs:label ?name .
       }
       """.formatted(PARENT_PREDICATES);
 
@@ -380,9 +370,7 @@ public class EntityRepository {
       String sql = """
         SELECT *
         WHERE {
-          GRAPH ?g {
-            ?s ?p ?o.
-          }
+          ?s ?p ?o.
         }
         limit 1
         """;
@@ -403,9 +391,7 @@ public class EntityRepository {
     String sql = """
       SELECT DISTINCT ?o
       WHERE {
-        GRAPH ?g {
-          ?s ?im1Scheme ?o .
-        }
+        ?s ?im1Scheme ?o .
       }
       """;
 
@@ -426,7 +412,7 @@ public class EntityRepository {
     try (IMDB conn = IMDB.getConnection(graph)) {
       String sprql = """
           ASK {
-            GRAPH ?g {  ?s (?p)* ?o.}
+            ?s (?p)* ?o.
           }
         """;
       BooleanQuery qry = conn.prepareBooleanSparql(sprql);
@@ -450,27 +436,25 @@ public class EntityRepository {
     String spql = """
       SELECT ?iri ?name ?preferredName ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?usageTotal ?extraType ?extraTypeName
       WHERE {
-        GRAPH ?g {
-          ?iri rdf:type ?type .
-          Optional { ?iri rdfs:label ?name.}
-          Optional { ?iri im:preferredName ?preferredName.}
-          Optional {
-            ?iri im:isA ?extraType.
-            ?extraType rdfs:label ?extraTypeName.
-            filter (?extraType in (im:dataModelProperty, im:DataModelEntity))
-          }
-          Optional {?type rdfs:label ?typeName}
-          Optional {
-            ?iri im:status ?status.
-            Optional {?status rdfs:label ?statusName}
-          }
-          Optional {
-            ?iri im:scheme ?scheme
-            Optional {?scheme rdfs:label ?schemeName .}
-          }
-          Optional {?iri im:code ?code.}
-          Optional {?iri im:usageTotal ?usageTotal.}
+        ?iri rdf:type ?type .
+        Optional { ?iri rdfs:label ?name.}
+        Optional { ?iri im:preferredName ?preferredName.}
+        Optional {
+          ?iri im:isA ?extraType.
+          ?extraType rdfs:label ?extraTypeName.
+          filter (?extraType in (im:dataModelProperty, im:DataModelEntity))
         }
+        Optional {?type rdfs:label ?typeName}
+        Optional {
+          ?iri im:status ?status.
+          Optional {?status rdfs:label ?statusName}
+        }
+        Optional {
+          ?iri im:scheme ?scheme
+          Optional {?scheme rdfs:label ?schemeName .}
+        }
+        Optional {?iri im:code ?code.}
+        Optional {?iri im:usageTotal ?usageTotal.}
       }
       """;
 
@@ -489,12 +473,10 @@ public class EntityRepository {
     String sparql = """
       SELECT ?termCode ?synonym ?termCodeStatus
       WHERE {
-        GRAPH ?g {
-        ?iri im:hasTermCode ?tc.
-          Optional {?tc im:code ?termCode}
-          Optional  {?tc rdfs:label ?synonym}
-          Optional  {?tc im:status ?termCodeStatus}
-        }
+      ?iri im:hasTermCode ?tc.
+        Optional {?tc im:code ?termCode}
+        Optional  {?tc rdfs:label ?synonym}
+        Optional  {?tc im:status ?termCodeStatus}
       }
       """;
 
@@ -532,10 +514,8 @@ public class EntityRepository {
     String sparql = """
       SELECT (count(?subType) as ?subsumptions)
       WHERE {
-        GRAPH ?g {
-          ?iri ^im:isA ?subType.
-          ?subType im:status im:Active.
-        }
+        ?iri ^im:isA ?subType.
+        ?subType im:status im:Active.
       }
       """;
     try (IMDB conn = IMDB.getConnection(graph)) {
@@ -569,9 +549,7 @@ public class EntityRepository {
     String spql = """
       SELECT ?superType
       WHERE {
-        GRAPH ?g {
-          ?iri im:isA ?superType.
-        }
+        ?iri im:isA ?superType.
       }
       """;
 
@@ -593,9 +571,7 @@ public class EntityRepository {
       String sparql = """
         SELECT DISTINCT ?p
         WHERE {
-          GRAPH ?g {
-            ?s ?p ?o .
-          }
+          ?s ?p ?o .
         }
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
@@ -735,22 +711,20 @@ public class EntityRepository {
 
   public void inheritRanges(IMDB conn, Graph graph) {
     String sql = """
-      INSERT {?property rdfs:range ?range}
+      INSERT { ?property rdfs:range ?range }
       WHERE {
-        GRAPH ?g {
-          ?property rdf:type rdf:Property.
-          {
-            #filter (?property= <http://snomed.info/sct#10362801000001104> )
-            ?property (rdfs:subClassOf)* ?superclass.
-            filter not exists {
-              ?property (rdfs:subClassOf) [
-                (rdfs:subClassOf)+ ?superclass
-              ]
-            }
-            filter not exists {?property rdfs:range ?anyrange}
-            ?superclass rdfs:range ?range.
-            ?range rdfs:label ?rlabel.
+        ?property rdf:type rdf:Property.
+        {
+          #filter (?property= <http://snomed.info/sct#10362801000001104> )
+          ?property (rdfs:subClassOf)* ?superclass.
+          filter not exists {
+            ?property (rdfs:subClassOf) [
+              (rdfs:subClassOf)+ ?superclass
+            ]
           }
+          filter not exists {?property rdfs:range ?anyrange}
+          ?superclass rdfs:range ?range.
+          ?range rdfs:label ?rlabel.
         }
       }
       """;
@@ -765,11 +739,13 @@ public class EntityRepository {
    * @return iri and name of entity
    */
   public Set<Entity> getCoreFromCode(String code, List<Namespace> namespaces, Graph graph) {
+    List<String> schemes = namespaces.stream().map(Namespace::toString).toList();
+
     String sql = """
       SELECT ?concept ?label ?type
       WHERE {
         values ?codeProperty {im:code im:codeId im:alternativeCode}
-        values ?schemes {%s}
+        %s
         {
           ?concept ?codeProperty ?code.
           filter (isIri(?concept))
@@ -799,7 +775,7 @@ public class EntityRepository {
         }
         ?concept rdf:type ?type.
       }
-      """.formatted(namespaces.stream().map(Namespace::toString).collect(Collectors.joining(" ")));
+      """.formatted(SparqlHelper.valueList("scheme", schemes));
     try (IMDB conn = IMDB.getConnection(graph)) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("code", Values.literal(code));
@@ -819,14 +795,11 @@ public class EntityRepository {
     String sql = """
       SELECT ?concept ?label ?type
       WHERE {
-        GRAPH ?scheme {
           ?legacy rdfs:label ?term.
           ?legacy im:matchedTo ?concept.
-        }
-        {
+          ?legacy im:hasScheme ?scheme.
           ?concept rdfs:label ?label.
           ?concept rdf:type ?type.
-        }
       }
       """;
     try (IMDB conn = IMDB.getConnection(graph)) {
@@ -851,11 +824,9 @@ public class EntityRepository {
           ?ts im:scheme ?scheme .
           ?tc im:code ?code.
           ?concept im:hasTermCode ?tc.
-        }
-        {
           ?concept rdfs:label ?label.
           ?concept rdf:type ?type.
-        }
+      }
       """;
     try (IMDB conn = IMDB.getConnection(graph)) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
@@ -921,20 +892,20 @@ public class EntityRepository {
     List<String> schemes = asArrayList(Namespace.IM, Namespace.SNOMED);
     String sql = """
       select ?concept ?label
-      from ?g
       where {
+        %s
         {
-          VALUES ?scheme {%s}
-          ?concept im:scheme ?scheme
-          ?concept rdfs:label ?term.
+          ?concept rdfs:label ?term;
+                   im:scheme ?scheme.
           filter(isIri(?concept))
         }
         union {
-          ?concept im:hasTermCode ?tc.
           ?tc rdfs:label ?term.
+          ?concept im:hasTermCode ?tc;
+                   im:scheme ?scheme.
         }
       }
-      """.formatted(schemes);
+      """.formatted(SparqlHelper.valueList("s", schemes));
     try (IMDB conn = IMDB.getConnection(graph)) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("term", Values.literal(term));
@@ -1589,10 +1560,8 @@ public class EntityRepository {
     try (IMDB conn = IMDB.getConnection(graph)) {
       String sql = """
         ASK {
-          GRAPH ?g {
-            %s
-            ?subject ?predicates ?value.
-          }
+          %s
+          ?subject ?predicates ?value.
         }
         """.formatted(valueList("predicates", predicateIris));
       BooleanQuery sparql = conn.prepareBooleanSparql(sql);

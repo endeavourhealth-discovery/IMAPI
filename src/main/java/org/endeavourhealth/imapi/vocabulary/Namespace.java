@@ -97,14 +97,14 @@ public enum Namespace implements VocabEnum {
 
     public static Namespace from(String text) {
       if (text == null)
-        return null;
+        throw new IllegalArgumentException("no text specified");
 
       for (Namespace b : Namespace.values()) {
         if (b.value.equals(text)) {
           return b;
         }
       }
-      return null;
+      throw new IllegalArgumentException("no enums match text specified");
     }
 
 }

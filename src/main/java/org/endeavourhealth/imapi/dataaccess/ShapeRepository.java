@@ -27,23 +27,21 @@ public class ShapeRepository {
       ?superSubOb im:oLabel ?superSubObLabel.
     }
     WHERE {
-      GRAPH ?g {
-        ?entity rdf:type sh:NodeShape.
-        ?entity ?predicate ?object.
-        filter (?predicate!=im:isA)
-        Optional {?predicate rdfs:label ?predicateLabel}
-        OPTIONAL {
-          ?object rdfs:label ?objectLabel.
-          filter(isIri(?object))
-        }
-        OPTIONAL {
-          ?object ?subPredicate ?subObject.
-          filter (isBlank(?object))
-          Optional { ?subPredicate rdfs:label ?subPredicateLabel}
-          Optional {
-            ?subObject rdfs:label ?subObjectLabel.
-            filter(isIri(?subObject))
-          }
+      ?entity rdf:type sh:NodeShape.
+      ?entity ?predicate ?object.
+      filter (?predicate!=im:isA)
+      Optional {?predicate rdfs:label ?predicateLabel}
+      OPTIONAL {
+        ?object rdfs:label ?objectLabel.
+        filter(isIri(?object))
+      }
+      OPTIONAL {
+        ?object ?subPredicate ?subObject.
+        filter (isBlank(?object))
+        Optional { ?subPredicate rdfs:label ?subPredicateLabel}
+        Optional {
+          ?subObject rdfs:label ?subObjectLabel.
+          filter(isIri(?subObject))
         }
       }
     }
@@ -63,38 +61,36 @@ public class ShapeRepository {
       ?superSubOb im:oLabel ?superSubObLabel.
     }
     WHERE {
-      GRAPH ?g {
-        ?entity rdf:type sh:NodeShape.
-        ?entity ?predicate ?object.
-        filter (?predicate!=im:isA)
-        Optional {?predicate rdfs:label ?predicateLabel}
-        optional {
-          ?object rdfs:label ?objectLabel.
-          filter(isIri(?object))
-        }
-        OPTIONAL {
-          ?object ?subPredicate ?subObject.
-          filter (isBlank(?object))
-          Optional { ?subPredicate rdfs:label ?subPredicateLabel}
-          Optional {
-            ?subObject rdfs:label ?subObjectLabel.
-            filter(isIri(?subObject))
-          }
-        }
+      ?entity rdf:type sh:NodeShape.
+      ?entity ?predicate ?object.
+      filter (?predicate!=im:isA)
+      Optional {?predicate rdfs:label ?predicateLabel}
+      optional {
+        ?object rdfs:label ?objectLabel.
+        filter(isIri(?object))
+      }
+      OPTIONAL {
+        ?object ?subPredicate ?subObject.
+        filter (isBlank(?object))
+        Optional { ?subPredicate rdfs:label ?subPredicateLabel}
         Optional {
-          ?entity rdfs:subClassOf+ ?superShape.
-          ?superShape rdf:type sh:NodeShape.
-          ?superShape ?superPred ?superOb.
-          filter(?superPred!=im:isA)
-          Optional { ?superPred rdfs:label ?superPredLabel}
+          ?subObject rdfs:label ?subObjectLabel.
+          filter(isIri(?subObject))
+        }
+      }
+      Optional {
+        ?entity rdfs:subClassOf+ ?superShape.
+        ?superShape rdf:type sh:NodeShape.
+        ?superShape ?superPred ?superOb.
+        filter(?superPred!=im:isA)
+        Optional { ?superPred rdfs:label ?superPredLabel}
+        Optional {
+          ?superOb ?superSubPred ?superSubOb.
+          filter (isBlank(?superOb))
+          Optional { ?superSubPred rdfs:label ?superSubPredLabel}
           Optional {
-            ?superOb ?superSubPred ?superSubOb.
-            filter (isBlank(?superOb))
-            Optional { ?superSubPred rdfs:label ?superSubPredLabel}
-            Optional {
-              ?superSubOb rdfs:label ?superSubObLabel.
-              filter (isIri(?superSubOb))
-            }
+            ?superSubOb rdfs:label ?superSubObLabel.
+            filter (isIri(?superSubOb))
           }
         }
       }

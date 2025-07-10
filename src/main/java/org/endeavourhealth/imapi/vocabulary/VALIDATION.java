@@ -56,14 +56,14 @@ public enum VALIDATION implements VocabEnum {
 
     public static VALIDATION from(String text) {
       if (text == null)
-        return null;
+        throw new IllegalArgumentException("no text specified");
 
       for (VALIDATION b : VALIDATION.values()) {
         if (b.value.equals(text)) {
           return b;
         }
       }
-      return null;
+      throw new IllegalArgumentException("no enums match text specified");
     }
 
 }

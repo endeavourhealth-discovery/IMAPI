@@ -30,10 +30,8 @@ public class CodeGenRepository {
     String sparql = """
       SELECT ?name
       WHERE {
-        GRAPH ?g {
-          ?s ?type ?codeTemplate .
-          ?s ?label ?name
-        }
+        ?s ?type ?codeTemplate .
+        ?s ?label ?name
       }
       """;
     try (ConfigDB conn = ConfigDB.getConnection()) {
@@ -57,9 +55,7 @@ public class CodeGenRepository {
     String sparql = """
       SELECT ?p ?o
       WHERE {
-        GRAPH ?g {
-          ?s ?p ?o .
-        }
+        ?s ?p ?o .
       }
       """;
     try (ConfigDB conn = ConfigDB.getConnection()) {
@@ -102,9 +98,7 @@ public class CodeGenRepository {
 
     String deleteSparql = """
       DELETE WHERE {
-      GRAPH ?g {
-          ?s ?p ?o
-        }
+        ?s ?p ?o
       }
       """;
     try (ConfigDB conn = ConfigDB.getConnection()) {
@@ -114,15 +108,13 @@ public class CodeGenRepository {
     }
     String insertSparql = """
       INSERT {
-        GRAPH ?g {
-          ?iri ?label ?name .
-          ?iri ?extensionType ?extension .
-          ?iri ?type ?typeIri .
-          ?iri ?definition ?template .
-          ?iri ?typeMap ?datatypeMap .
-          ?iri ?wrapperType ?wrapper .
-          ?iri ?includeComplex ?complexTypes .
-        }
+        ?iri ?label ?name .
+        ?iri ?extensionType ?extension .
+        ?iri ?type ?typeIri .
+        ?iri ?definition ?template .
+        ?iri ?typeMap ?datatypeMap .
+        ?iri ?wrapperType ?wrapper .
+        ?iri ?includeComplex ?complexTypes .
       }
       WHERE {
         SELECT ?iri ?label ?extension {}

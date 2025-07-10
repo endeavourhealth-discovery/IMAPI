@@ -60,14 +60,14 @@ public enum IM_FUNCTION implements VocabEnum {
 
     public static IM_FUNCTION from(String text) {
       if (text == null)
-        return null;
+        throw new IllegalArgumentException("no text specified");
 
       for (IM_FUNCTION b : IM_FUNCTION.values()) {
         if (b.value.equals(text)) {
           return b;
         }
       }
-      return null;
+      throw new IllegalArgumentException("no enums match text specified");
     }
 
 }

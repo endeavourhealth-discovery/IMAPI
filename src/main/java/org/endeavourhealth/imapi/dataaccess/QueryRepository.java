@@ -98,13 +98,13 @@ public class QueryRepository {
       checkReferenceDate(queryRequest);
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getUpdateSparql();
-      graphUpdateSearch(spq, conn, queryRequest.getGraph());
+      graphDeleteSearch(spq, conn);
 
     }
   }
 
-  private void graphUpdateSearch(String spq, IMDB conn, Graph graph) throws QueryException {
-    org.eclipse.rdf4j.query.Update update = conn.prepareUpdateSparql(spq, graph);
+  private void graphDeleteSearch(String spq, IMDB conn) {
+    org.eclipse.rdf4j.query.Update update = conn.prepareDeleteSparql(spq);
     update.execute();
   }
 

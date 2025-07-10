@@ -145,9 +145,7 @@ public class SparqlConverter {
     StringBuilder askQl = new StringBuilder();
 
     askQl.append("ASK ");
-    askQl.append("GRAPH ?g {");
     addMatchWhereSparql(askQl, statusFilter, false, false);
-    askQl.append("}");
 
     return askQl.toString();
   }
@@ -813,7 +811,7 @@ public class SparqlConverter {
   public String getUpdateSparql() throws QueryException {
     StringBuilder updateQl = new StringBuilder();
     StringBuilder whereQl = new StringBuilder();
-    whereQl.append("WHERE { GRAPH ?g {");
+    whereQl.append("WHERE { ");
     for (Match match : update.getMatch()) {
       processMatch(whereQl, "entity", match, false);
     }
@@ -826,7 +824,7 @@ public class SparqlConverter {
     }
     updateQl.append("\n");
 
-    whereQl.append("}}");
+    whereQl.append("}");
 
     updateQl.append(whereQl).append("\n");
     return updateQl.toString();

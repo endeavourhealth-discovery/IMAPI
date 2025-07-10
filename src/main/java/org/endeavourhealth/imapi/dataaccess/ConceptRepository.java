@@ -25,13 +25,11 @@ public class ConceptRepository {
     String sql = """
       SELECT ?s ?code ?scheme ?name
       WHERE {
-        GRAPH ?g {
-          ?s im:matchedTo ?o .
-          ?s im:code ?code .
-          %s
-          ?s im:scheme ?scheme ;
-          rdfs:label ?name .
-        }
+        ?s im:matchedTo ?o .
+        ?s im:code ?code .
+        %s
+        ?s im:scheme ?scheme ;
+        rdfs:label ?name .
       }
       """.formatted(valueList("scheme", schemeIris));
     try (IMDB conn = IMDB.getConnection(graph)) {
@@ -52,13 +50,11 @@ public class ConceptRepository {
     String sql = """
       SELECT ?o ?code ?scheme ?name
       WHERE {
-        GRAPH ?g {
-          ?s im:matchedTo ?o .
-          ?o im:code ?code .
-          %s
-          ?o im:scheme ?scheme .
-          GRAPH ?g { ?o rdfs:label ?name } .
-        }
+        ?s im:matchedTo ?o .
+        ?o im:code ?code .
+        %s
+        ?o im:scheme ?scheme .
+        ?o rdfs:label ?name .
       }
       """.formatted(valueList("scheme", schemeIris));
 
@@ -80,11 +76,9 @@ public class ConceptRepository {
     String sql = """
       select distinct ?property
       where {
-        GRAPH ?g {
-          VALUES ?domains {%s}
-          ?domains im:isA ?superDomains.
-          ?property rdfs:domain ?superDomains
-        }
+        VALUES ?domains {%s}
+        ?domains im:isA ?superDomains.
+        ?property rdfs:domain ?superDomains
       }
       """.formatted(String.join(" ", iris.stream().map(iri -> "<" + iri + ">").toArray(String[]::new)));
     try (IMDB conn = IMDB.getConnection(graph)) {
@@ -104,11 +98,9 @@ public class ConceptRepository {
     String sql = """
       Select ?range
       where {
-        GRAPH ?g {
-          VALUES ?superProperty {%s}
-          ?property im:isA ?superProperty.
-          ?property rdfs:range ?range.
-        }
+        VALUES ?superProperty {%s}
+        ?property im:isA ?superProperty.
+        ?property rdfs:range ?range.
       }
       """.formatted("<" + conceptIri + ">");
 
@@ -131,25 +123,23 @@ public class ConceptRepository {
       String sparql = """
         SELECT ?nodeName ?sourceVal ?sourceRegex ?propertyName ?publisherName ?systemName ?schema ?table ?field
         WHERE {
-          GRAPH ?g {
-            ?map ?imConcept ?concept .
-            ?node ?imHasMap ?map ;
-            ?imTargetProperty ?property ;
-            ?rdfsLabel ?nodeName .
-            ?property ?rdfsLabel ?propertyName .
-            ?context ?imContextNode ?node ;
-            ?imSourcePublisher ?publisher .
-            ?publisher rdfs:label ?publisherName .
-            ?map ?imSourceValue ?sourceVal .
-            OPTIONAL {
-              ?context ?imSourceSystem ?system .
-              ?system ?rdfsLabel ?systemName
-            }
-            OPTIONAL { ?context ?imSourceSchema ?schema }
-            OPTIONAL { ?context ?imSourceTable ?table }
-            OPTIONAL { ?context ?imSourceField ?field }
-            OPTIONAL { ?context ?imSourceConcept ?concept }
+          ?map ?imConcept ?concept .
+          ?node ?imHasMap ?map ;
+          ?imTargetProperty ?property ;
+          ?rdfsLabel ?nodeName .
+          ?property ?rdfsLabel ?propertyName .
+          ?context ?imContextNode ?node ;
+          ?imSourcePublisher ?publisher .
+          ?publisher rdfs:label ?publisherName .
+          ?map ?imSourceValue ?sourceVal .
+          OPTIONAL {
+            ?context ?imSourceSystem ?system .
+            ?system ?rdfsLabel ?systemName
           }
+          OPTIONAL { ?context ?imSourceSchema ?schema }
+          OPTIONAL { ?context ?imSourceTable ?table }
+          OPTIONAL { ?context ?imSourceField ?field }
+          OPTIONAL { ?context ?imSourceConcept ?concept }
         }
         ORDER BY ?nodeName ?sourceVal ?publisherName
         """;

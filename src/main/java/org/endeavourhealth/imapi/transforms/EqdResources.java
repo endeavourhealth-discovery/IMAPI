@@ -30,7 +30,7 @@ public class EqdResources {
   @Getter
   Map<String, String> reportNames = new HashMap<>();
   @Getter
-  private String namespace;
+  private Namespace namespace;
   @Setter
   private Properties criteriaMaps;
   @Setter
@@ -58,9 +58,10 @@ public class EqdResources {
   @Getter
   private int subRule = 0;
 
-  public EqdResources(TTDocument document, Properties dataMap) {
+  public EqdResources(TTDocument document, Properties dataMap, Namespace namespace) {
     this.dataMap = dataMap;
     this.document = document;
+    this.namespace = namespace;
     this.setVocabMaps();
   }
 
@@ -81,7 +82,7 @@ public class EqdResources {
     ++this.subRule;
   }
 
-  public EqdResources setNamespace(String namespace) {
+  public EqdResources setNamespace(Namespace namespace) {
     this.namespace = namespace;
     return this;
   }
@@ -271,7 +272,7 @@ public class EqdResources {
     }
 
 
-    baseMatch.setIri(namespace + UUID.nameUUIDFromBytes(baseContent.getBytes()));
+    baseMatch.setIri(namespace.toString() + UUID.nameUUIDFromBytes(baseContent.getBytes()));
     if (baseMatch.getOr() != null && baseMatch.getOr().size() == 2) {
       Match lastMatch = baseMatch.getOr().get(baseMatch.getOr().size() - 1);
       baseMatch.setOrderBy(lastMatch.getOrderBy());
@@ -295,7 +296,7 @@ public class EqdResources {
       if (index == 0) {
         match.setIri(this.namespace + eqId);
       } else {
-        match.setIri(this.namespace + index + eqId);
+        match.setIri(this.namespace.toString() + index + eqId);
       }
     }
 
@@ -670,6 +671,7 @@ public class EqdResources {
       case "YEAR" -> assignable.setUnit(iri(IM.YEARS));
       case "MONTH" -> assignable.setUnit(iri(IM.MONTHS));
       case "DAY" -> assignable.setUnit(iri(IM.DAYS));
+      case "DATE" -> { /* No units to set */ }
       default -> throw new EQDException("unknown unit map: " + units);
     }
 

@@ -23,17 +23,17 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 public class UserRepository {
 
   public String getSparqlSelect() {
-    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("SELECT ?o WHERE { GRAPH ?g {").add("  ?s ?p ?o").add("}}");
+    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("SELECT ?o WHERE { ").add("  ?s ?p ?o").add("}");
     return sparql.toString();
   }
 
   public String getSparqlDelete() {
-    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("DELETE WHERE { GRAPH ?g {").add("  ?s ?p ?o").add("}}");
+    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("DELETE WHERE { ").add("  ?s ?p ?o").add("}");
     return sparql.toString();
   }
 
   public String getSparqlInsert() {
-    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("INSERT {").add("  ?s ?p ?o ").add("}").add("WHERE { GRAPH ?g { SELECT ?s ?p ?o {} }}");
+    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("INSERT {").add("  ?s ?p ?o ").add("}").add("WHERE { SELECT ?s ?p ?o {} }");
     return sparql.toString();
   }
 
@@ -182,7 +182,7 @@ public class UserRepository {
 
   public boolean getUserIdExists(String userId) {
     try (UserDB conn = UserDB.getConnection()) {
-      String sparql = "ASK { GRAPH ?g { ?s ?p ?o.}}";
+      String sparql = "ASK { ?s ?p ?o. }";
       BooleanQuery qry = conn.prepareBooleanSparql(sparql);
       qry.setBinding("s", iri(Namespace.USER + userId));
       return qry.evaluate();

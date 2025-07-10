@@ -50,21 +50,19 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
         ?o4 ?p5 ?o5.
       }
       where {
-        GRAPH ?graph {
-          ?concept ?p1 ?o1.
+        ?concept ?p1 ?o1.
+        OPTIONAL {
+          ?o1 ?p2 ?o2.
+          filter (isBlank(?o1))
           OPTIONAL {
-            ?o1 ?p2 ?o2.
-            filter (isBlank(?o1))
+            ?o2 ?p3 ?o3
+            filter (isBlank(?o2))
             OPTIONAL {
-              ?o2 ?p3 ?o3
-              filter (isBlank(?o2))
+              ?o3 ?p4 ?o4.
+              filter(isBlank(?o3))
               OPTIONAL {
-                ?o3 ?p4 ?o4.
-                filter(isBlank(?o3))
-                OPTIONAL {
-                  ?o4 ?p5 ?o5
-                  filter(isBlank(?o4))
-                }
+                ?o4 ?p5 ?o5
+                filter(isBlank(?o4))
               }
             }
           }
@@ -81,14 +79,21 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   @Override
   public void fileEntity(TTEntity entity) throws TTFilerException {
 
-    if (entity.get(TTIriRef.iri(RDFS.LABEL)) != null) {
-      if (entity.get(TTIriRef.iri(IM.HAS_STATUS)) == null) entity.set(IM.HAS_STATUS.asIri(), IM.ACTIVE.asIri());
+    if (entity.get(TTIriRef.iri(RDFS.LABEL)) != null
+      && entity.get(TTIriRef.iri(IM.HAS_STATUS)) == null)
+      entity.set(IM.HAS_STATUS.asIri(), IM.ACTIVE.asIri());
+
+    if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_PREDICATES))) {
+      updatePredicates(entity);
+    } else if (entity.getCrud().equals(TTIriRef.iri(IM.ADD_QUADS))) {
+      addQuads(entity);
+    } else if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_ALL))) {
+      replacePredicates(entity);
+    } else if (entity.getCrud().equals(TTIriRef.iri(IM.DELETE_ALL))) {
+      deleteTriples(entity);
+    } else {
+      throw new TTFilerException("Entity " + entity.getIri() + " has no crud assigned");
     }
-    if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_PREDICATES))) updatePredicates(entity);
-    else if (entity.getCrud().equals(TTIriRef.iri(IM.ADD_QUADS))) addQuads(entity);
-    else if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_ALL))) replacePredicates(entity);
-    else if (entity.getCrud().equals(TTIriRef.iri(IM.DELETE_ALL))) deleteTriples(entity);
-    else throw new TTFilerException("Entity " + entity.getIri() + " has no crud assigned");
 
   }
 
@@ -239,6 +244,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   private void addQuads(TTEntity entity) throws TTFilerException {
     try {
       ModelBuilder builder = new ModelBuilder();
+      builder.namedGraph(graph.asDbIri());
       for (Map.Entry<TTIriRef, TTArray> entry : entity.getPredicateMap().entrySet()) {
         addTriple(builder, toIri(entity.getIri()), toIri(entry.getKey().getIri()), entry.getValue());
       }

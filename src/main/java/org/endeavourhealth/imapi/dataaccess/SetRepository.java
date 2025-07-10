@@ -325,13 +325,11 @@ public class SetRepository {
     String deleteBinding = """
       DELETE { ?concept im:binding ?datamodel}
       WHERE {
-        GRAPH ?g {
-          ?concept im:binding ?datamodel
-        }
+        ?concept im:binding ?datamodel
       }
       """;
 
-    StringJoiner newBinding = new StringJoiner("\n").add("INSERT DATA { GRAPH ?g {");
+    StringJoiner newBinding = new StringJoiner("\n").add("INSERT DATA {");
     int blankCount = 0;
     for (TTNode dataModel : dataModels) {
       blankCount++;
@@ -343,7 +341,7 @@ public class SetRepository {
         _:b%s sh:node <%s> .
         """.formatted(iri, blankCount, blankCount, pathIri, blankCount, nodeIri));
     }
-    newBinding.add("}}");
+    newBinding.add("}");
 
     try (IMDB conn = IMDB.getConnection(graph)) {
       conn.begin();
@@ -383,35 +381,35 @@ public class SetRepository {
       String spq = """
         DELETE { ?concept im:hasMember ?x.}
         WHERE {
-          GRAPH ?g {
-            ?concept im:hasMember ?x.
-          }
+          ?concept im:hasMember ?x.
         }
         """;
       org.eclipse.rdf4j.query.Update upd = conn.prepareDeleteSparql(spq);
       upd.setBinding(CONCEPT, Values.iri(iri));
       upd.execute();
       StringJoiner sj = new StringJoiner("\n");
-      sj.add("INSERT DATA { GRAPH ?g {");
+      sj.add("INSERT DATA {");
       int batch = 0;
       for (Concept member : members) {
         batch++;
         if (batch == 1000) {
+          sj.add("}");
           sendUp(sj, conn, graph);
           sj = new StringJoiner("\n");
-          sj.add("INSERT DATA { GRAPH ?g {");
+          sj.add("INSERT DATA {");
           batch = 0;
         }
         sj.add("<" + iri + "> im:hasMember <" + member.getIri() + ">.");
       }
+      sj.add("}");
       sendUp(sj, conn, graph);
     }
   }
 
 
   private void sendUp(StringJoiner sj, IMDB conn, Graph graph) {
-    sj.add("}}");
     org.eclipse.rdf4j.query.Update upd = conn.prepareInsertSparql(sj.toString(),graph);
+    upd.setBinding("g", graph.asDbIri());
     conn.begin();
     upd.execute();
     conn.commit();
@@ -708,7 +706,7 @@ public class SetRepository {
     String sql = """
       select distinct ?member
       where {
-        Values ?set {?setIri}
+        Values ?set { <%s> }
         ?set im:entailedMember ?entailed.
         {
           ?entailed im:instanceOf ?member.
@@ -750,11 +748,10 @@ public class SetRepository {
           ?entailment2 im:exclude true.
         }
       }
-      """;
+      """.formatted(setIri);
     Set<Concept> expansion = new HashSet<>();
     try (IMDB conn = IMDB.getConnection(graph)) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("setIri", Values.iri(setIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

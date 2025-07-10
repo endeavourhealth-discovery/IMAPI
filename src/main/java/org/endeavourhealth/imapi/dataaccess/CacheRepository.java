@@ -31,16 +31,14 @@ public class CacheRepository {
         ?o ?p2 ?o2.
       }
       WHERE {
-        GRAPH ?g {
-          ?shape rdf:type sh:NodeShape.
-          ?shape ?p ?o.
-          filter (?p != im:isA)
-          OPTIONAL { ?o ?p2 ?o2
-            FILTER (
-              isBlank(?o) &&
-              (?p2 in(sh:path, sh:class,sh:node,sh:datatype,sh:order,sh:nodeKind))
-            )
-          }
+        ?shape rdf:type sh:NodeShape.
+        ?shape ?p ?o.
+        filter (?p != im:isA)
+        OPTIONAL { ?o ?p2 ?o2
+          FILTER (
+            isBlank(?o) &&
+            (?p2 in(sh:path, sh:class,sh:node,sh:datatype,sh:order,sh:nodeKind))
+          )
         }
       }
       """;

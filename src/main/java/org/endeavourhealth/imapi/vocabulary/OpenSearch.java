@@ -58,14 +58,14 @@ public enum OpenSearch implements VocabEnum {
 
     public static OpenSearch from(String text) {
       if (text == null)
-        return null;
+        throw new IllegalArgumentException("no text specified");
 
       for (OpenSearch b : OpenSearch.values()) {
         if (b.value.equals(text)) {
           return b;
         }
       }
-      return null;
+      throw new IllegalArgumentException("no enums match text specified");
     }
 
 }

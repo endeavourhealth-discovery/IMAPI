@@ -30,46 +30,44 @@ public class PropertyRepository {
       ?superSubOb ?superSubObPred ?superSubObOb.
     }
     WHERE {
-      GRAPH ?g {
-        ?entity rdf:type sh:NodeShape.
-        ?entity ?predicate ?object.
-        filter (?predicate!=im:isA)
-        Optional {?predicate rdfs:label ?predicateLabel}
-        OPTIONAL {
-          ?object rdfs:label ?objectLabel.
-          filter(isIri(?object))
-        }
-        OPTIONAL {
-          ?object ?subPredicate ?subObject.
-          filter (isBlank(?object))
-          Optional { ?subPredicate rdfs:label ?subPredicateLabel}
-          Optional {
-            ?subObject rdfs:label ?subObjectLabel
-            filter(isIri(?subObject))
-          }
-          Optional {
-            ?subObject ?subObPred ?subObOb.
-            filter(isBlank(?subObject))
-          }
+      ?entity rdf:type sh:NodeShape.
+      ?entity ?predicate ?object.
+      filter (?predicate!=im:isA)
+      Optional {?predicate rdfs:label ?predicateLabel}
+      OPTIONAL {
+        ?object rdfs:label ?objectLabel.
+        filter(isIri(?object))
+      }
+      OPTIONAL {
+        ?object ?subPredicate ?subObject.
+        filter (isBlank(?object))
+        Optional { ?subPredicate rdfs:label ?subPredicateLabel}
+        Optional {
+          ?subObject rdfs:label ?subObjectLabel
+          filter(isIri(?subObject))
         }
         Optional {
-          ?entity rdfs:subPropertyOf+ ?superShape.
-          ?superShape rdf:type sh:NodeShape.
-          ?superShape ?superPred ?superOb.
-          filter(?superPred!=im:isA)
-          Optional { ?superPred rdfs:label ?superPredLabel}
+          ?subObject ?subObPred ?subObOb.
+          filter(isBlank(?subObject))
+        }
+      }
+      Optional {
+        ?entity rdfs:subPropertyOf+ ?superShape.
+        ?superShape rdf:type sh:NodeShape.
+        ?superShape ?superPred ?superOb.
+        filter(?superPred!=im:isA)
+        Optional { ?superPred rdfs:label ?superPredLabel}
+        Optional {
+          ?superOb ?superSubPred ?superSubOb.
+          filter (isBlank(?superOb))
+          Optional { ?superSubPred rdfs:label ?superSubPredLabel}
           Optional {
-            ?superOb ?superSubPred ?superSubOb.
-            filter (isBlank(?superOb))
-            Optional { ?superSubPred rdfs:label ?superSubPredLabel}
-            Optional {
-              ?superSubOb rdfs:label ?superSubObLabel.
-              filter(isIri(?superSubOb)
-            }
-            Optional {
-              ?superSubOb ?superSubObPred ?superSubObOb.
-              filter(isBlank(?superSubOb))
-            }
+            ?superSubOb rdfs:label ?superSubObLabel.
+            filter(isIri(?superSubOb)
+          }
+          Optional {
+            ?superSubOb ?superSubObPred ?superSubObOb.
+            filter(isBlank(?superSubOb))
           }
         }
       }
@@ -86,27 +84,25 @@ public class PropertyRepository {
       ?subObject ?subObPred ?subObOb.
     }
     WHERE {
-      GRAPH ?g {
-        ?entity rdf:type rdf:PropertyRef.
-        ?entity ?predicate ?object.
-        filter (?predicate!=im:isA)
-        Optional {?predicate rdfs:label ?predicateLabel}
-        OPTIONAL {
-          ?object rdfs:label ?objectLabel.
-          filter (isIri(?object))
+      ?entity rdf:type rdf:PropertyRef.
+      ?entity ?predicate ?object.
+      filter (?predicate!=im:isA)
+      Optional {?predicate rdfs:label ?predicateLabel}
+      OPTIONAL {
+        ?object rdfs:label ?objectLabel.
+        filter (isIri(?object))
+      }
+      OPTIONAL {
+        ?object ?subPredicate ?subObject.
+        filter (isBlank(?object))
+        Optional { ?subPredicate rdfs:label ?subPredicateLabel}
+        Optional {
+          ?subObject rdfs:label ?subObjectLabel.
+          filter(isIri(?subObject))
         }
-        OPTIONAL {
-          ?object ?subPredicate ?subObject.
-          filter (isBlank(?object))
-          Optional { ?subPredicate rdfs:label ?subPredicateLabel}
-          Optional {
-            ?subObject rdfs:label ?subObjectLabel.
-            filter(isIri(?subObject))
-          }
-          Optional {
-            ?subObject ?subObPred ?subObOb.
-            filter (isBlank(?subObject))
-          }
+        Optional {
+          ?subObject ?subObPred ?subObOb.
+          filter (isBlank(?subObject))
         }
       }
     }

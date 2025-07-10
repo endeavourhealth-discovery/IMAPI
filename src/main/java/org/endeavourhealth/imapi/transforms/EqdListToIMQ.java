@@ -122,7 +122,7 @@ public class EqdListToIMQ {
 
   private void convertColumn(Return aReturn, String subPath, String as) {
     String[] elements = subPath.split(" ");
-    for (int i = 0; i < elements.length - 1; i++) {
+    for (int i = 0; i < elements.length - 1; i=i+2) {
       ReturnProperty path = new ReturnProperty();
       path.setIri(elements[i]);
       aReturn.addProperty(path);

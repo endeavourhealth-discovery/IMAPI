@@ -27,19 +27,8 @@ public class QueryService {
   public static final String ENTITIES = "entities";
   private final EntityRepository entityRepository = new EntityRepository();
 
-  public static void generateUUIdsForQuery(Query query) {
-    new QueryDescriptor().generateUUIDs(query);
-  }
-
-  public Query getQueryFromIri(String queryIri) throws JsonProcessingException {
-    TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
-    if (queryEntity.get(iri(IM.DEFINITION)) == null)
-      return null;
-    return queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
-  }
-
-  public Query describeQuery(Query query, DisplayMode displayMode, Graph graph) throws QueryException, JsonProcessingException {
-    return new QueryDescriptor().describeQuery(query, displayMode, graph);
+  public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
+    return new QueryDescriptor().describeQuery(query, displayMode);
   }
 
   public Match describeMatch(Match match, Graph graph) throws QueryException {

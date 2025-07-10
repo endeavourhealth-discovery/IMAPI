@@ -32,6 +32,8 @@ public class GithubDTO {
   private String draft;
   @JsonIgnore
   private String prerelease;
+  @JsonIgnore
+  private String immutable;
   private String created_at;
   private String published_at;
   private GithubAuthorDTO author;

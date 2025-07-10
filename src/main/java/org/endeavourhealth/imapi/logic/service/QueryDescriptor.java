@@ -52,13 +52,6 @@ public class QueryDescriptor {
     if (query.getGroupBy() != null) {
       describeGroupBys(query.getGroupBy());
     }
-    if (query.getDataSet() == null) {
-      Query dataSet = new Query();
-      dataSet.setName("Data set");
-      dataSet.return_(r -> r
-        .property(p -> p.setIri(Namespace.IM + "id").setAs("id")));
-      query.addDataSet(dataSet);
-    }
     return query;
   }
 
@@ -388,7 +381,7 @@ public class QueryDescriptor {
         if (date) {
           if (!isRange) {
             qualifier = "before ";
-            relativity = " the ";
+            if (relativeTo) relativity = " the ";
           }
           if (past && relativeTo) relativity = " before the ";
         } else {
@@ -424,7 +417,7 @@ public class QueryDescriptor {
       case eq:
         if (date) if (!isRange) {
           qualifier = " on ";
-          relativity = " the ";
+          if (relativeTo) relativity = " the ";
         }
         break;
     }

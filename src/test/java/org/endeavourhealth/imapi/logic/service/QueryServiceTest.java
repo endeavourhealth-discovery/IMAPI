@@ -18,6 +18,7 @@ public class QueryServiceTest {
   EntityService entityService = new EntityService();
   QueryService queryService = new QueryService();
 
+  //  @Test
   void testCohortQueriesToSQL() throws JsonProcessingException {
     List<TTIriRef> queries = entityService.getEntitiesByType(EntityType.QUERY, null);
     System.out.println("Queries: " + queries.size());

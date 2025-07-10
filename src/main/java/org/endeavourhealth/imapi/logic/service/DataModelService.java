@@ -192,7 +192,8 @@ public class DataModelService {
     String name = "";
     if (ttProperty.asNode().has(iri(SHACL.PATH))) {
       name += ttProperty.asNode().get(iri(SHACL.PATH)).get(0).asIriRef().getName() + " (";
-      if (!type.isEmpty() && !type.get(0).asIriRef().getName().isEmpty()) name += type.get(0).asIriRef().getName();
+      if (!type.isEmpty() && type.get(0).asIriRef().getName() != null && !type.get(0).asIriRef().getName().isEmpty())
+        name += type.get(0).asIriRef().getName();
       else if (!type.isEmpty() && !type.get(0).asIriRef().getIri().isEmpty()) name += type.get(0).asIriRef().getIri();
       name += ")";
     }

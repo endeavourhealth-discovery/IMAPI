@@ -110,6 +110,9 @@
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "(({alias}.json ->> 'patient')::UUID)", "toField": "id"}
       }
+    },
+    "http://endhealth.info/im#Team": {
+      "table": "team"
     }
   }
 }

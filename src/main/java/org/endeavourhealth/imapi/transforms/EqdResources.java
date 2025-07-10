@@ -166,9 +166,16 @@ public class EqdResources {
       if (eqCriteria.getCriterion() != null) {
         return this.convertCriterion(eqCriteria.getCriterion(), graph);
       } else {
-        Match library = new Match();
-        library.setLibraryItem(eqCriteria.getLibraryItem().getLibraryItem());
-        return library;
+        Map<String,EQDOCCriterion> libraryItems= EqdToIMQ.getLibraryItems();
+        String libraryId=eqCriteria.getLibraryItem().getLibraryItem();
+        if (!libraryItems.containsKey(libraryId)) {
+          System.err.println("Library item not found: " + libraryId);
+          return new Match().setIri(this.namespace + libraryId);
+        }
+        else {
+          System.out.println("Library item found : "+libraryId);
+          return this.convertCriterion(libraryItems.get(libraryId));
+        }
       }
     }
   }
@@ -192,7 +199,8 @@ public class EqdResources {
 
     EQDOCFilterAttribute filter = eqCriterion.getFilterAttribute();
     if (!filter.getColumnValue().isEmpty() || filter.getRestriction() != null) {
-      standardMatch = this.convertStandardCriterion(eqCriterion, baseMatch == null ? null : baseMatch.getReturn().getAs(), graph);
+      standardMatch = this.convertStandardCriterion(eqCriterion, baseMatch == null ? null : "IndexEvent");
+      if (eqCriterion.getDescription()!=null) standardMatch.setDescription(eqCriterion.getDescription(), graph);
       if (baseMatch != null) {
         baseMatch.setThen(standardMatch);
       }
@@ -218,13 +226,12 @@ public class EqdResources {
         }
 
         if (baseMatch != null) {
-          nodeRef = baseMatch.getReturn().getAs();
+          nodeRef = "IndexEvent";
         } else if (standardMatch.getReturn() != null) {
           nodeRef = standardMatch.getReturn().getAs();
         }
 
         linkedMatch = this.convertLinkedCriterion(eqCriterion, nodeRef, graph);
-        linkedMatch.setNodeRef(nodeRef);
         if (linkedMatch.getThen() == null) {
           linkedMatch.setOrderBy(null);
         }
@@ -234,7 +241,7 @@ public class EqdResources {
         standardMatch.setDescription(eqCriterion.getDescription());
         return standardMatch;
       } else {
-        matchHolder = (new Match()).setHasLinked(true);
+        matchHolder = new Match();
         if (baseMatch != null) {
           if (linkedMatch == null) {
             matchHolder = baseMatch;
@@ -265,10 +272,12 @@ public class EqdResources {
 
       for (EQDOCBaseCriteriaGroup baseGroup : eqCriterion.getBaseCriteriaGroup()) {
         Match subQuery = this.convertBaseCriteriaGroup(baseGroup, graph);
+        this.setBaseReturn(subQuery);
         baseMatch.addOr(subQuery);
       }
     } else {
       baseMatch = this.convertBaseCriteriaGroup((EQDOCBaseCriteriaGroup) eqCriterion.getBaseCriteriaGroup().get(0), graph);
+      this.setBaseReturn(baseMatch);
     }
 
 
@@ -278,7 +287,7 @@ public class EqdResources {
       baseMatch.setOrderBy(lastMatch.getOrderBy());
     }
 
-    this.setBaseReturn(baseMatch);
+
     return baseMatch;
   }
 
@@ -291,17 +300,7 @@ public class EqdResources {
     return this.getMatchFromGroup(baseGroup.getDefinition().getCriteria(), baseGroup.getDefinition().getMemberOperator(), graph);
   }
 
-  private void setMatchId(String eqId, int index, Match match) {
-    if (eqId != null && match.getIri() == null) {
-      if (index == 0) {
-        match.setIri(this.namespace + eqId);
-      } else {
-        match.setIri(this.namespace.toString() + index + eqId);
-      }
-    }
 
-
-  }
 
   private Match convertStandardCriterion(EQDOCCriterion eqCriterion, String nodeRef, Graph graph) throws IOException, EQDException {
     Match match = null;
@@ -365,7 +364,6 @@ public class EqdResources {
     addMatchWhere(match, where);
     where.setIri(fullPath[fullPath.length - 1]);
     this.convertColumnValue(cv, where, graph);
-    this.setMatchId(eqId, index, match);
   }
 
   private String setMatchPath(Match match, String[] paths) throws EQDException, IOException {
@@ -391,8 +389,8 @@ public class EqdResources {
       match.addPath(pathMatch);
       pathMatch.setIri(pathIri);
       pathMatch.setInverse(inverse);
-      ++this.counter;
-      pathMatch.setVariable("path" + this.counter);
+      counter++;
+      pathMatch.setVariable(paths[1].substring(paths[1].lastIndexOf("#") + 1)+counter);
       pathMatch.setTypeOf((new Node()).setIri(paths[1]));
       return paths.length == 3 ? pathMatch.getVariable() : this.getPathFromPath(pathMatch, paths, 2);
     }
@@ -418,8 +416,8 @@ public class EqdResources {
     pathMatch.addPath(subPathMatch);
     subPathMatch.setIri(pathIri);
     subPathMatch.setInverse(inverse);
-    ++this.counter;
-    subPathMatch.setVariable("path" + this.counter);
+    counter++;
+    subPathMatch.setVariable(paths[offset + 1].substring(paths[offset + 1].lastIndexOf("#") + 1)+counter);
     subPathMatch.setTypeOf((new Node()).setIri(paths[offset + 1]));
     return paths.length == offset + 3 ? pathMatch.getVariable() : this.getPathFromPath(pathMatch, paths, offset + 2);
   }
@@ -463,6 +461,9 @@ public class EqdResources {
     try {
       target = (String) this.dataMap.get(eqdPath);
     } catch (Exception e) {
+      throw new EQDException("unknown map : " + eqdPath);
+    }
+    if (target == null) {
       throw new EQDException("unknown map : " + eqdPath);
     }
 
@@ -510,7 +511,13 @@ public class EqdResources {
     String linkColumn = eqCriterion.getFilterAttribute().getRestriction().getColumnOrder().getColumns().get(0).getColumn().get(0);
     String table = eqCriterion.getTable();
     String orderBy = this.getIMPath(table + "/" + linkColumn);
-    restricted.orderBy((o) -> o.addProperty((new OrderDirection()).setIri(orderBy).setDirection(direction)).setLimit(restrict.getColumnOrder().getRecordCount()));
+    if (restrict.getColumnOrder().getRecordCount()!=1000) {
+      restricted.orderBy((o) -> o
+        .addProperty((new OrderDirection())
+          .setIri(orderBy)
+          .setDirection(direction))
+        .setLimit(restrict.getColumnOrder().getRecordCount()));
+    }
   }
 
   private void addMatchWhere(Match match, Where where) {
@@ -527,6 +534,7 @@ public class EqdResources {
   private Match convertLinkedCriterion(EQDOCCriterion eqCriterion, String nodeRef, Graph graph) throws IOException, QueryException, EQDException {
     EQDOCCriterion eqLinkedCriterion = eqCriterion.getLinkedCriterion().getCriterion();
     Match match = this.convertCriterion(eqLinkedCriterion, graph);
+    match.setLinkedMatch(nodeRef);
     match.setReturn(null);
     Where relationProperty = new Where();
     addMatchWhere(match, relationProperty);

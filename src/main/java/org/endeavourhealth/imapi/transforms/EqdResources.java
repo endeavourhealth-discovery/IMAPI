@@ -174,7 +174,7 @@ public class EqdResources {
         }
         else {
           System.out.println("Library item found : "+libraryId);
-          return this.convertCriterion(libraryItems.get(libraryId));
+          return this.convertCriterion(libraryItems.get(libraryId), graph);
         }
       }
     }
@@ -199,8 +199,8 @@ public class EqdResources {
 
     EQDOCFilterAttribute filter = eqCriterion.getFilterAttribute();
     if (!filter.getColumnValue().isEmpty() || filter.getRestriction() != null) {
-      standardMatch = this.convertStandardCriterion(eqCriterion, baseMatch == null ? null : "IndexEvent");
-      if (eqCriterion.getDescription()!=null) standardMatch.setDescription(eqCriterion.getDescription(), graph);
+      standardMatch = this.convertStandardCriterion(eqCriterion, baseMatch == null ? null : "IndexEvent", graph);
+      if (eqCriterion.getDescription()!=null) standardMatch.setDescription(eqCriterion.getDescription());
       if (baseMatch != null) {
         baseMatch.setThen(standardMatch);
       }

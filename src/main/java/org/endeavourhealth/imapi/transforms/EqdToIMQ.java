@@ -108,7 +108,7 @@ public class EqdToIMQ {
       if (matches != null) {
         for (Match match:matches){
           if (match.getLinkedMatch()==null&&match.getInstanceOf()==null) {
-            Match logicalMatch = new LogicOptimizer().getLogicalMatch(match,namespace);
+            Match logicalMatch = new LogicOptimizer().getLogicalMatch(match);
             String libraryIri = namespace + "Clause_" + (mapper.writeValueAsString(logicalMatch).hashCode());
             if (criteriaLibrary.containsKey(libraryIri) && criteriaLibraryCount.get(libraryIri) > 1) {
               match.setIri(libraryIri);
@@ -138,7 +138,7 @@ public class EqdToIMQ {
     for (TTEntity entity : this.document.getEntities()) {
       if (entity.isType(iri(IM.QUERY))){
         Query query= entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
-        new LogicOptimizer().deduplicateQuery(query,namespace);
+        new LogicOptimizer().deduplicateQuery(query, namespace);
         entity.set(IM.DEFINITION,TTLiteral.literal(query));
       }
     }
@@ -175,7 +175,7 @@ public class EqdToIMQ {
               if (subMatch.getInstanceOf() == null) {
                 if (subMatch.getLinkedMatch() == null) {
                   if (subMatch.getDescription() != null) {
-                    Match logicalMatch = new LogicOptimizer().getLogicalMatch(subMatch,namespace);
+                    Match logicalMatch = new LogicOptimizer().getLogicalMatch(subMatch);
                     addLibraryItem(subMatch, logicalMatch);
                   }
                 }

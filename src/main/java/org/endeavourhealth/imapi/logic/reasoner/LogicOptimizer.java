@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.*;
 
@@ -30,7 +31,7 @@ public class LogicOptimizer {
   }
 
 
-  public void deduplicateQuery(Query query,String namespace) throws JsonProcessingException {
+  public void deduplicateQuery(Query query, Namespace namespace) throws JsonProcessingException {
         if (query.getRule() != null) {
           for (Match rule:query.getRule()){
             deduplicateRule(rule,namespace);
@@ -38,14 +39,14 @@ public class LogicOptimizer {
         }
   }
 
-  private void deduplicateRule(Match rule,String namespace) throws JsonProcessingException {
+  private void deduplicateRule(Match rule,Namespace namespace) throws JsonProcessingException {
     Map<String,String> criteriaNodeRef= new HashMap<>();
     for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr(), rule.getNot())) {
       if (matches != null) {
         for (int i=0; i<matches.size(); i++) {
           Match match = matches.get(i);
           if (match.getLinkedMatch() != null) continue;
-          Match logicalMatch = getLogicalMatch(match,namespace);
+          Match logicalMatch = getLogicalMatch(match);
           String libraryIri = namespace + "Clause_" + (mapper.writeValueAsString(logicalMatch).hashCode());
           if (criteriaNodeRef.containsKey(libraryIri)) {
             if (matches.size() > i + 1) {
@@ -75,7 +76,7 @@ public class LogicOptimizer {
       }
     }
   }
-  public Match getLogicalMatch(Match match,String namespace) throws JsonProcessingException {
+  public Match getLogicalMatch(Match match) throws JsonProcessingException {
     String matchJson= mapper.writeValueAsString(match);
     Match logicalMatch=mapper.readValue(matchJson,Match.class);
     if (logicalMatch.getReturn()!=null){

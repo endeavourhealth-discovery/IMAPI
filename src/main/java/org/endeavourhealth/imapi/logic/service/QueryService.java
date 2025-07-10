@@ -27,8 +27,8 @@ public class QueryService {
   public static final String ENTITIES = "entities";
   private final EntityRepository entityRepository = new EntityRepository();
 
-  public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
-    return new QueryDescriptor().describeQuery(query, displayMode);
+  public Query describeQuery(Query query, DisplayMode displayMode, Graph graph) throws QueryException, JsonProcessingException {
+    return new QueryDescriptor().describeQuery(query, displayMode, graph);
   }
 
   public Match describeMatch(Match match, Graph graph) throws QueryException {

@@ -1,10 +1,11 @@
 package org.endeavourhealth.imapi.model.sql;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.EntityType;
@@ -19,6 +20,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class IMQtoSQLConverterTest {
   private static Logger LOG = LoggerFactory.getLogger(IMQtoSQLConverterTest.class);
@@ -49,14 +52,14 @@ public class IMQtoSQLConverterTest {
       for (TTIriRef cohortQueryIri : cohortQueryIris) {
         // Get the definition
         LOG.info("Checking [{} | {}]", cohortQueryIri.getIri(), cohortQueryIri.getName());
-        TTBundle bundle = entityRepository.getBundle(cohortQueryIri.getIri(), Set.of(IM.DEFINITION));
+        TTBundle bundle = entityRepository.getBundle(cohortQueryIri.getIri(), asHashSet(IM.DEFINITION));
 
-        if (bundle == null || bundle.getEntity() == null || !bundle.getEntity().has(iri(IM.DEFINITION))) {
+        if (bundle == null || bundle.getEntity() == null || !bundle.getEntity().has(IM.DEFINITION.asIri())) {
           LOG.error("Entity or definition not found!");
           continue;
         }
 
-        String definition = bundle.getEntity().get(iri(IM.DEFINITION)).asLiteral().getValue();
+        String definition = bundle.getEntity().get(IM.DEFINITION.asIri()).asLiteral().getValue();
         LOG.info("Definition found");
         try {
           // convert it

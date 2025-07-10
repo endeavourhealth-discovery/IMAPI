@@ -25,17 +25,6 @@ public class QueryService {
   public static final String ENTITIES = "entities";
   private final EntityRepository entityRepository = new EntityRepository();
 
-  public Query getQueryFromIri(String queryIri) throws JsonProcessingException {
-    TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
-    if (queryEntity.get(iri(IM.DEFINITION)) == null)
-      return null;
-    return queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
-  }
-
-  public static void generateUUIdsForQuery(Query query) {
-    new QueryDescriptor().generateUUIDs(query);
-  }
-
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
     return new QueryDescriptor().describeQuery(query, displayMode);
   }

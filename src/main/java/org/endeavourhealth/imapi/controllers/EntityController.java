@@ -151,7 +151,7 @@ public class EntityController {
 
   @GetMapping(value = "/public/asEntityReferenceNodes")
   @Operation(summary = "Get entity as reference node", description = "Fetches the specified entity iris as an EntityReferenceNode by IRI")
-  public List<EntityReferenceNode> getAsEntityReferenceNodes(@RequestParam(name = "iris") Set<String> iris) throws IOException {
+  public List<EntityReferenceNode> getAsEntityReferenceNodes(@RequestParam(name = "iris") List<String> iris) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.AsEntityReferenceNodes.GET")) {
       log.debug("getAsEntityReferenceNodes");
       return entityService.getAsEntityReferenceNodes(iris);
@@ -485,5 +485,16 @@ public class EntityController {
       return entityService.getAllowableChildTypes(iri);
     }
   }
+
+
+  @GetMapping(value = "/public/childIris")
+  @Operation(summary = "Get entity children not paged", description = "Fetches immediate child iris of the specified entity by IRI")
+  public List<String> getChildEntities(@RequestParam(name = "iri") String iri)  throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Children.GET")) {
+      log.debug("getChildIris");
+      return entityService.getChildIris(iri);
+    }
+  }
+
 
 }

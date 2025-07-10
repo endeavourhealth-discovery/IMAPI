@@ -47,6 +47,7 @@ public class IM {
     public static final String FUNCTION = IM.NAMESPACE + "FunctionClause";
     public static final String QUERY = IM.NAMESPACE + "Query";
     public static final String COHORT_QUERY = IM.NAMESPACE + "CohortQuery";
+    public static final String DEFAULT_COHORTS = IM.NAMESPACE + "Q_DefaultCohorts";
     public static final String DATASET_QUERY = IM.NAMESPACE + "DatasetQuery";
     public static final String DATA_UPDATE = IM.NAMESPACE + "DataUpdate";
     public static final String PATH_QUERY = IM.NAMESPACE + "PathQuery";
@@ -72,6 +73,8 @@ public class IM {
     public static final String SOME_OF = IM.NAMESPACE + "someOf";
     public static final String HAS_CHILDREN = IM.NAMESPACE + "hasChildren";
     public static final String IS_A = IM.NAMESPACE + "isA";
+    public static final String CONTEXT_ORDER = IM.NAMESPACE + "contextOrder";
+    public static final String CONTEXT = IM.NAMESPACE + "context";
     public static final String IS_CHILD_OF = IM.NAMESPACE + "isChildOf";
     public static final String PREVIOUS_ENTITY_OF = IM.NAMESPACE + "previousEntityOf";
     public static final String SUBSUMED_BY = IM.NAMESPACE + "subsumedBy";

@@ -26,9 +26,10 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EqdToIMQ {
   private static final Logger log = LoggerFactory.getLogger(EqdToIMQ.class);
-  public static Set<String> gmsPatients = new HashSet();
-  public static Map<String, TTEntity> definitionToEntity = new HashMap();
-  public static Map<String, TTEntity> setIriToEntity = new HashMap();
+  public static Set<String> gmsPatients = new HashSet<>();
+  public static Map<String, TTEntity> definitionToEntity = new HashMap<>();
+  public static Map<String, TTEntity> setIriToEntity = new HashMap<>();
+  public static Map<String,String> versionMap= new HashMap<>();
   public static Integer setNumber;
   private String namespace;
   private EqdResources resources;
@@ -41,7 +42,9 @@ public class EqdToIMQ {
   @Getter
   private static  Map<String, EQDOCCriterion> libraryItems;
 
+
   public EqdToIMQ() {
+    gmsPatients.add("c8d3ca80-ba23-418b-8cef-e5afac42764e");
   }
 
   public static Integer getSetNumber() {
@@ -76,13 +79,25 @@ public class EqdToIMQ {
     this.resources = new EqdResources(document, dataMap);
     this.namespace = document.getGraph().getIri();
     this.resources.setCriteriaMaps(criteriaMaps);
+    this.resources.setBaseCounter(0);
     this.addReportNames(eqd);
     this.convertFolders(eqd);
+    this.setVersionMap(eqd);
     this.convertReports(eqd);
     createLibrary();
     deduplicate();
     addLibraryEntities();
     assignLibraryClauses();
+  }
+
+  private void setVersionMap(EnquiryDocument eqd) {
+    for (EQDOCReport eqReport : eqd.getReport()) {
+      String id= eqReport.getId();
+      String persistentId= eqReport.getVersionIndependentGUID();
+      if (persistentId != null) {
+        versionMap.put(id,persistentId);
+      }
+    }
   }
 
   private void assignLibraryClauses() throws JsonProcessingException {
@@ -103,7 +118,7 @@ public class EqdToIMQ {
     for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr(), rule.getNot())) {
       if (matches != null) {
         for (Match match:matches){
-          if (match.getLinkedMatch()==null&&match.getInstanceOf()==null) {
+          if (match.getInstanceOf()==null) {
             Match logicalMatch = new LogicOptimizer().getLogicalMatch(match,namespace);
             String libraryIri = namespace + "Clause_" + (mapper.writeValueAsString(logicalMatch).hashCode());
             if (criteriaLibrary.containsKey(libraryIri) && criteriaLibraryCount.get(libraryIri) > 1) {
@@ -168,12 +183,10 @@ public class EqdToIMQ {
         for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr(), rule.getNot())) {
           if (matches != null) {
             for (Match subMatch : matches) {
-              if (subMatch.getInstanceOf() == null) {
-                if (subMatch.getLinkedMatch() == null) {
+              if (subMatch.getInstanceOf() == null&&!LogicOptimizer.isLinkedMatch(subMatch)) {
                   if (subMatch.getDescription() != null) {
                     Match logicalMatch = new LogicOptimizer().getLogicalMatch(subMatch,namespace);
                     addLibraryItem(subMatch, logicalMatch);
-                  }
                 }
               }
             }
@@ -265,7 +278,6 @@ public class EqdToIMQ {
         if (eqFolder.getId() == null) {
           throw new EQDException("No folder id");
         }
-
         if (this.singleEntity == null || eqFolder.getId().equals(this.singleEntity)) {
           if (eqFolder.getName() == null) {
             throw new EQDException("No folder name");
@@ -291,6 +303,9 @@ public class EqdToIMQ {
     this.resources.setActiveReport(eqReport.getId());
     this.resources.setActiveReportName(eqReport.getName());
     String id = getId(eqReport);
+    if (versionMap.containsKey(id)) {
+      id=versionMap.get(id);
+    }
     TTEntity queryEntity = new TTEntity();
     queryEntity.setIri(this.namespace + id);
     queryEntity.setName(eqReport.getName());

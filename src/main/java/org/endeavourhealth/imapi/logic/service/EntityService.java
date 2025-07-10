@@ -96,7 +96,7 @@ public class EntityService {
     if (page != null && size != null) rowNumber = (page - 1) * size;
 
     Pageable<TTIriRef> childrenAndTotalCount = entityRepository.findImmediateChildrenPagedByIriWithTotalCount(iri, schemeIris, rowNumber, size, inactive, entityTypes);
-    return iriRefPageableToEntityReferenceNodePageable(childrenAndTotalCount, schemeIris, inactive);
+    return iriRefPageableToEntityReferenceNodePageable(childrenAndTotalCount, schemeIris, inactive,iri);
   }
 
 
@@ -239,8 +239,9 @@ public class EntityService {
   }
 
   public List<List<TTIriRef>> getParentHierarchies(String iri) {
+    Set<String> done= new HashSet<>();
     ParentDto parentHierarchy = new ParentDto(iri, null, null);
-    addParentHierarchiesRecursively(parentHierarchy);
+    addParentHierarchiesRecursively(parentHierarchy,done);
     return getParentHierarchiesFlatLists(parentHierarchy);
   }
 
@@ -268,12 +269,15 @@ public class EntityService {
     }
   }
 
-  private void addParentHierarchiesRecursively(ParentDto parent) {
+  private void addParentHierarchiesRecursively(ParentDto parent,Set<String> done) {
     List<ParentDto> parents = entityRepository.findParentHierarchies(parent.getIri());
     if (!parents.isEmpty()) {
       parent.setParents(parents);
       for (ParentDto parentsParent : parents) {
-        addParentHierarchiesRecursively(parentsParent);
+        if (!done.contains(parentsParent.getIri())) {
+          done.add(parentsParent.getIri());
+          addParentHierarchiesRecursively(parentsParent, done);
+        }
       }
     }
   }
@@ -332,14 +336,15 @@ public class EntityService {
     return entityRepository.getIM1SchemeOptions();
   }
 
-  protected Pageable<EntityReferenceNode> iriRefPageableToEntityReferenceNodePageable(Pageable<TTIriRef> iriRefPageable, List<String> schemeIris, boolean inactive) {
+  protected Pageable<EntityReferenceNode> iriRefPageableToEntityReferenceNodePageable(Pageable<TTIriRef> iriRefPageable, List<String> schemeIris,
+                                                                                      boolean inactive,String parentContext) {
     Pageable<EntityReferenceNode> result = new Pageable<>();
     result.setTotalCount(iriRefPageable.getTotalCount());
     Set<String> iris = new HashSet<>();
     for (TTIriRef entity : iriRefPageable.getResult()) {
       iris.add(entity.getIri());
     }
-    List<EntityReferenceNode> nodes = entityRepository.getEntityReferenceNodes(iris, schemeIris, inactive);
+    List<EntityReferenceNode> nodes = entityRepository.getEntityReferenceNodes(iris, schemeIris, inactive,parentContext);
     nodes.sort(comparingInt(EntityReferenceNode::getOrderNumber).thenComparing(EntityReferenceNode::getName));
 
     result.setResult(nodes);
@@ -370,7 +375,7 @@ public class EntityService {
   public EntityReferenceNode getEntityAsEntityReferenceNode(String iri) {
     return getEntityAsEntityReferenceNode(iri, null, false);
   }
-  public List<EntityReferenceNode> getAsEntityReferenceNodes(Set<String> iris) {
+  public List<EntityReferenceNode> getAsEntityReferenceNodes(List<String> iris) {
     return entityRepository.getAsEntityReferenceNodes(iris);
   }
 
@@ -527,6 +532,10 @@ public class EntityService {
 
   public boolean checkEntityExists(String iri) {
     return entityRepository.hasPredicates(iri,Set.of(RDF.TYPE));
+  }
+
+  public List<String> getChildIris(String iri) {
+    return entityRepository.getChildIris(iri);
   }
 }
 

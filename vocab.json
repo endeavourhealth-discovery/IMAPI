@@ -242,6 +242,10 @@
         "value": "IM.NAMESPACE + \"CohortQuery\""
       },
       {
+        "name": "DEFAULT_COHORTS",
+        "value": "IM.NAMESPACE + \"Q_DefaultCohorts\""
+      },
+      {
         "name": "DATASET_QUERY",
         "value": "IM.NAMESPACE + \"DatasetQuery\""
       },
@@ -340,6 +344,14 @@
       {
         "name": "IS_A",
         "value": "IM.NAMESPACE + \"isA\""
+      },
+      {
+        "name": "CONTEXT_ORDER",
+        "value": "IM.NAMESPACE + \"contextOrder\""
+      },
+      {
+        "name": "CONTEXT",
+        "value": "IM.NAMESPACE + \"context\""
       },
       {
         "name": "IS_CHILD_OF",

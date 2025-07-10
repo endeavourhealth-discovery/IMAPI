@@ -96,6 +96,15 @@ public class QueryController {
     }
   }
 
+  public Query queryFromIri(
+    @RequestParam(name = "queryIri") String iri)
+    throws IOException, QueryException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
+      log.debug("getQueryfromIri");
+      return queryService.getQueryFromIri(iri);
+    }
+  }
+
   @PostMapping("/public/queryDisplayFromQuery")
   @Operation(
     summary = "Describe query content",
@@ -180,12 +189,4 @@ public class QueryController {
   }
 
 
-  @GetMapping(value = "/public/defaultQuery")
-  @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")
-  public Query getDefaultQuery() throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DefaultQuery.GET")) {
-      log.debug("getDefaultCohort");
-      return queryService.getDefaultQuery();
-    }
-  }
 }

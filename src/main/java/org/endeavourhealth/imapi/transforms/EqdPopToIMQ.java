@@ -37,7 +37,8 @@ public class EqdPopToIMQ {
       }
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
       String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
-      if (EqdToIMQ.gmsPatients.contains(id)) {
+      if (EqdToIMQ.versionMap.containsKey(id)) id = EqdToIMQ.versionMap.get(id);
+      if (EqdToIMQ.gmsPatients.contains(id)||EqdToIMQ.gmsPatients.contains(eqReport.getVersionIndependentGUID())) {
         query.addRule(new Match()
           .setIfTrue(RuleAction.NEXT)
           .setIfFalse(RuleAction.REJECT)

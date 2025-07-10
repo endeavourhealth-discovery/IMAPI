@@ -1223,14 +1223,14 @@ public class EntityRepository {
     }
   }
 
-  public List<EntityReferenceNode> getEntityReferenceNodes(Set<String> stringIris, List<String> schemeIris, boolean inactive) {
+  public List<EntityReferenceNode> getEntityReferenceNodes(Set<String> stringIris, List<String> schemeIris, boolean inactive,String parentContext) {
     StringJoiner iriLine = new StringJoiner(" ");
     for (String stringIri : stringIris) {
       iri(stringIri);
       iriLine.add("<" + stringIri + ">");
     }
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
-      SELECT ?s ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren
+      SELECT ?s ?name ?typeIri ?typeName ?order ?contextOrder ?hasChildren ?hasGrandchildren
       WHERE {
         GRAPH ?g { ?s rdfs:label ?name.
          ?s rdf:type ?typeIri.
@@ -1249,7 +1249,13 @@ public class EntityRepository {
     if (!inactive) {
       sql.add("  OPTIONAL { ?s im:status ?status FILTER (?status != im:Inactive) }");
     }
-
+    if (parentContext != null) {
+      sql.add("""
+        OPTIONAL {?s im:contextOrder ?co .
+        ?co im:context %s.
+        ?co sh:order ?contextOrder.}
+        """.formatted("<" + parentContext + ">"));
+    }
     sql.add("}");
 
     Map<String, EntityReferenceNode> iriMap = new HashMap<>();
@@ -1266,7 +1272,8 @@ public class EntityRepository {
           }
           refNode.getType().add(TTIriRef.iri(bs.getValue("typeIri").stringValue())
             .setName(bs.getValue("typeName").stringValue()));
-          if (bs.hasBinding("order")) refNode.setOrderNumber(((Literal) bs.getValue("order")).intValue());
+          if (bs.hasBinding("contextOrder")) refNode.setOrderNumber((((Literal) bs.getValue("contextOrder")).intValue()));
+          else if (bs.hasBinding("order")) refNode.setOrderNumber(((Literal) bs.getValue("order")).intValue());
           else refNode.setOrderNumber(Integer.MAX_VALUE);
           refNode.setHasChildren(((Literal) bs.getValue("hasChildren")).booleanValue()).setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue()).setName(bs.getValue("name").stringValue());
 
@@ -1276,9 +1283,12 @@ public class EntityRepository {
     return new ArrayList<>(new ArrayList<>(iriMap.values()));
   }
 
-  public List<EntityReferenceNode> getAsEntityReferenceNodes(Set<String> iris) {
-    TTArray types = new TTArray();
+  public List<EntityReferenceNode> getAsEntityReferenceNodes(List<String> iris) {
     List<EntityReferenceNode> result = new ArrayList<>();
+    Map<String,Integer> orderMap = new HashMap<>();
+    for (int i = 0; i < iris.size(); i++) {
+      orderMap.put(iris.get(i), i);
+    }
     String entities= iris.stream().map(iri->"<"+iri+">").collect(Collectors.joining(" "));
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
       SELECT distinct ?entity ?name ?typeIri ?typeName ?hasChildren ?hasGrandchildren
@@ -1303,9 +1313,10 @@ public class EntityRepository {
           String iri = bs.getValue("entity").stringValue();
           EntityReferenceNode refNode = entityMap.get(iri);
           if (refNode == null) {
-            refNode = new EntityReferenceNode(bs.getValue("entity").stringValue()).setType(types);
+            refNode = new EntityReferenceNode(bs.getValue("entity").stringValue());
             result.add(refNode);
             entityMap.put(iri, refNode);
+            refNode.setOrderNumber(orderMap.get(iri));
           }
           refNode.setName(bs.getValue("name").stringValue());
           if (bs.getValue("hasChildren")!=null) {
@@ -1315,13 +1326,14 @@ public class EntityRepository {
             refNode.setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue());
           }
           if (bs.getValue("typeIri") != null && bs.getValue("typeName") != null)
-            types.add(new TTIriRef(bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
+            refNode.addType(new TTIriRef(bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
         }
       }
     }
-    result = result.stream()
-      .sorted(Comparator.comparing(EntityReferenceNode::isHasChildren).reversed())
-      .collect(Collectors.toList());
+    //Sorted by initial list order?
+    //result = result.stream()
+     // .sorted(Comparator.comparing(EntityReferenceNode::isHasChildren).reversed())
+     // .collect(Collectors.toList());
     return result;
   }
 
@@ -1963,5 +1975,38 @@ public class EntityRepository {
       }
     }
     return result;
+  }
+
+  public List<String> getChildIris(String iri) {
+    String spq = """
+      select ?child ?name ?contextOrder ?order
+      where {
+       values ?iri {%s}
+        ?child im:isContainedIn|rdfs:subClassOf ?iri.
+        ?child rdfs:label ?name.
+        optional {?child sh:order ?order}
+        optional {?child im:contextOrder ?co.
+                  ?co im:context ?iri.
+                  ?co sh:order ?contextOrder}
+      
+      }
+      order by ?contextOrder ?order
+   
+      """.formatted(toIri(iri));
+    List<String> result = new ArrayList<>();
+    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+      TupleQuery qry = prepareSparql(conn, spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          result.add(bs.getValue("child").stringValue());
+        }
+      }
+    }
+    return result;
+  }
+
+  private Object toIri(String iri) {
+    return "<" + iri + ">";
   }
 }

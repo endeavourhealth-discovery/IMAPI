@@ -61,6 +61,7 @@
   },
   {
     "name": "IM",
+    "imports": ["Namespace"],
     "entries": [
       {
         "name": "DOMAIN",
@@ -1114,6 +1115,7 @@
   },
   {
     "name": "IM_FUNCTION",
+    "imports": ["Namespace"],
     "entries": [
       {
         "name": "DOMAIN",
@@ -1230,6 +1232,7 @@
   },
   {
     "name": "OWL",
+    "imports": ["Namespace"],
     "entries": [
       {
         "name": "PREFIX",
@@ -1386,6 +1389,7 @@
   },
   {
     "name": "RDF",
+    "imports": ["Namespace"],
     "entries": [
       {
         "name": "PREFIX",
@@ -1419,6 +1423,7 @@
   },
   {
     "name": "RDFS",
+    "imports": ["Namespace"],
     "entries": [
       {
         "name": "PREFIX",
@@ -1468,6 +1473,7 @@
   },
   {
     "name": "SHACL",
+    "imports": ["Namespace"],
     "entries": [
       {
         "name": "PREFIX",
@@ -1629,6 +1635,7 @@
   },
   {
     "name": "SNOMED",
+    "imports": ["Namespace"],
     "entries": [
       {
         "name": "DOMAIN",
@@ -1695,6 +1702,7 @@
   },
   {
     "name": "WORKFLOW",
+    "imports": ["Namespace"],
     "entries": [
       {
         "name": "DOMAIN",
@@ -1808,6 +1816,7 @@
   },
   {
     "name": "XSD",
+    "imports": ["Namespace"],
     "entries": [
       {
         "name": "PREFIX",
@@ -1869,6 +1878,7 @@
   },
   {
     "name": "COMPONENT",
+    "imports": ["Namespace"],
     "entries": [
       {
         "name": "DOMAIN",
@@ -1982,6 +1992,7 @@
   },
   {
     "name": "EDITOR",
+    "imports": ["Namespace"],
     "entries": [
       {
         "name": "DOMAIN",
@@ -2019,6 +2030,7 @@
   },
   {
     "name": "QUERY",
+    "imports": ["Namespace"],
     "entries": [
       {
         "name": "DOMAIN",
@@ -2112,6 +2124,7 @@
   },
   {
     "name": "VALIDATION",
+    "imports": ["Namespace"],
     "entries": [
       {
         "name": "DOMAIN",
@@ -2299,7 +2312,7 @@
   },
   {
     "name": "CodeTemplate",
-    "imports": ["IM", "RDFS"],
+    "imports": ["IM", "RDFS", "Namespace"],
     "entries": [
       {
         "name": "DOMAIN",
@@ -2387,7 +2400,7 @@
   },
   {
     "name":  "TransformFunction",
-    "imports": ["IM"],
+    "imports": ["Namespace","IM"],
     "entries": [
       {
         "name": "CONCATENATE",

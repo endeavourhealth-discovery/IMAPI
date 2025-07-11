@@ -165,7 +165,9 @@ public class IMQToECL {
           ecl.append("OR ");
         }
         first = false;
+        if (getEclType(subMatch)==ECLType.refined) ecl.append("(");
         expressionMatch(subMatch, ecl, includeNames, true, graph);
+        if (getEclType(subMatch)==ECLType.refined) ecl.append(")");
         ecl.append("\n");
       }
       if (match.getNot().size() > 1)

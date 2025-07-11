@@ -43,8 +43,6 @@ public class Match extends IriLD implements BoolGroup<Match>{
   @Getter
   private boolean baseRule;
   @Getter
-  private String linkedMatch;
-  @Getter
   private boolean union;
   @Getter
   @Setter
@@ -191,11 +189,6 @@ public class Match extends IriLD implements BoolGroup<Match>{
     return this;
   }
 
-
-  public Match setLinkedMatch(String linkedMatch) {
-    this.linkedMatch = linkedMatch;
-    return this;
-  }
 
 
   public Match setIsUnion(boolean union) {

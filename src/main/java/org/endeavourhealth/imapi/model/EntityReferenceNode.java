@@ -20,6 +20,13 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
   public EntityReferenceNode() {
   }
 
+  public EntityReferenceNode addType(TTIriRef type){
+    if (this.type == null)
+      this.type = new TTArray();
+    this.type.add(type);
+    return this;
+  }
+
   public EntityReferenceNode(String iri) {
     super(iri);
   }

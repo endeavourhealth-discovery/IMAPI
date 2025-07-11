@@ -101,6 +101,15 @@ public class QueryController {
       return queryService.describeQuery(iri, displayMode, Graph.from(graph));
     }
   }
+/*
+  public Query queryFromIri(
+    @RequestParam(name = "queryIri") String iri)
+    throws IOException, QueryException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
+      log.debug("getQueryfromIri");
+      return queryService.getQueryFromIri(iri);
+    }
+  }*/
 
   @PostMapping("/public/queryDisplayFromQuery")
   @Operation(

@@ -45,14 +45,12 @@ public class LogicOptimizer {
       if (matches != null) {
         for (int i=0; i<matches.size(); i++) {
           Match match = matches.get(i);
-          if (match.getLinkedMatch() != null) continue;
           Match logicalMatch = getLogicalMatch(match);
           String libraryIri = namespace + "Clause_" + (mapper.writeValueAsString(logicalMatch).hashCode());
           if (criteriaNodeRef.containsKey(libraryIri)) {
             if (matches.size() > i + 1) {
-              if (matches.get(i + 1).getLinkedMatch() != null) {
                 Match linkedMatch = matches.get(i + 1);
-                linkedMatch.setLinkedMatch(criteriaNodeRef.get(libraryIri));
+                if (isLinkedMatch(linkedMatch) &&linkedMatch.getWhere()!=null){
                 Where where = linkedMatch.getWhere();
                 if (where.getRelativeTo() != null && where.getRelativeTo().getNodeRef() != null) {
                   where.getRelativeTo().setNodeRef(criteriaNodeRef.get(libraryIri));
@@ -90,6 +88,15 @@ public class LogicOptimizer {
     if (logicalMatch.getWhere()!=null){
       logicalWhere(logicalMatch.getWhere());
     }
+    for (List<Match> matches : Arrays.asList(logicalMatch.getAnd(), logicalMatch.getOr(), logicalMatch.getNot())) {
+      if (matches != null) {
+        for (int i = 0; i < matches.size(); i++) {
+          Match subMatch = matches.get(i);
+          Match logicalSubMatch = getLogicalMatch(subMatch,namespace);
+          matches.set(i,logicalSubMatch);
+        }
+      }
+    }
 
     return logicalMatch;
   }
@@ -123,6 +130,18 @@ public class LogicOptimizer {
       Match andMatch= match.getAnd().getFirst();
       mergeMatch(match, andMatch);
     }
+  }
+  public static boolean isLinkedMatch(Match match){
+    if (match.getWhere()!=null){
+      Where where = match.getWhere();
+      if (where.getRelativeTo() != null && where.getRelativeTo().getNodeRef() != null) return true;
+      if (where.getAnd() != null) {
+        for (Where andWhere : where.getAnd()) {
+          if (andWhere.getRelativeTo() != null && andWhere.getRelativeTo().getNodeRef() != null) return true;
+          }
+        }
+      }
+    return false;
   }
 
   private static void mergeMatch(Match match, Match nestedMatch) {

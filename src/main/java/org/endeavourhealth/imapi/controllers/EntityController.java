@@ -525,10 +525,10 @@ public class EntityController {
 
   @GetMapping(value = "/public/childIris")
   @Operation(summary = "Get entity children not paged", description = "Fetches immediate child iris of the specified entity by IRI")
-  public List<String> getChildEntities(@RequestParam(name = "iri") String iri)  throws IOException {
+  public List<String> getChildEntities(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph)  throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Children.GET")) {
       log.debug("getChildIris");
-      return entityService.getChildIris(iri);
+      return entityService.getChildIris(iri, Graph.from(graph));
     }
   }
 

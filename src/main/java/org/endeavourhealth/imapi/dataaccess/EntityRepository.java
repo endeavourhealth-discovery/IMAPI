@@ -1163,7 +1163,7 @@ public class EntityRepository {
     }
   }
 
-  public List<EntityReferenceNode> getEntityReferenceNodes(Set<String> stringIris, List<String> schemeIris, boolean inactive, Graph graph) {
+  public List<EntityReferenceNode> getEntityReferenceNodes(Set<String> stringIris, List<String> schemeIris, boolean inactive,String parentContext, Graph graph) {
     for (String stringIri : stringIris) {
       iri(stringIri);
     }
@@ -1867,7 +1867,7 @@ public class EntityRepository {
     return result;
   }
 
-  public List<String> getChildIris(String iri) {
+  public List<String> getChildIris(String iri, Graph graph) {
     String spq = """
       select ?child ?name ?contextOrder ?order
       where {
@@ -1884,8 +1884,8 @@ public class EntityRepository {
    
       """.formatted(toIri(iri));
     List<String> result = new ArrayList<>();
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, spq);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

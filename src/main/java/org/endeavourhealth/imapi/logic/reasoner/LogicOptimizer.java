@@ -92,7 +92,7 @@ public class LogicOptimizer {
       if (matches != null) {
         for (int i = 0; i < matches.size(); i++) {
           Match subMatch = matches.get(i);
-          Match logicalSubMatch = getLogicalMatch(subMatch,namespace);
+          Match logicalSubMatch = getLogicalMatch(subMatch);
           matches.set(i,logicalSubMatch);
         }
       }

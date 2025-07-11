@@ -236,8 +236,8 @@
         "value": "Namespace.IM + \"Config\""
       },
       {
-        "name": "NAMESPACES",
-        "value": "Namespace.IM + \"Namespaces\""
+        "name": "NAMESPACE",
+        "value": "Namespace.IM + \"Namespace\""
       },
       {
         "name": "FUNCTION",

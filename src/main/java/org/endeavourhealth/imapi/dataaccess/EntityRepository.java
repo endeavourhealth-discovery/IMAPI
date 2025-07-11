@@ -1103,8 +1103,8 @@ public class EntityRepository {
       WHERE {
         { ?s ?p ?o . }
         UNION {
-          ?s shacl:property ?prop .
-          ?prop shacl:path ?propIri .
+          ?s sh:property ?prop .
+          ?prop sh:path ?propIri .
           FILTER(?propIri = ?o)
         }
         UNION {
@@ -1666,14 +1666,14 @@ public class EntityRepository {
     String sql = """
        select *
        where {
-         ?s im:isA ?namespaces .
+         ?s im:isA ?namespace .
          ?s rdfs:label ?name .
        }
       """;
 
     try (IMDB conn = IMDB.getConnection(graph)) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("namespaces", IM.NAMESPACES.asDbIri());
+      qry.setBinding("namespace", IM.NAMESPACE.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

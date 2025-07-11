@@ -43,7 +43,7 @@ public class CodeGenJava {
       SELECT ?iri
       WHERE {
         ?iri (im:isContainedIn|rdfs:subClassOf)* im:HealthDataModel ;
-        rdf:type shacl:NodeShape .
+        rdf:type sh:NodeShape .
       }
       """;
 
@@ -79,20 +79,20 @@ public class CodeGenJava {
     String sql = """      
       SELECT ?iri ?model ?comment ?propname ?type ?typeName ?dm ?min ?max ?propcomment ?order
       WHERE {
-        ?iri shacl:property ?prop .
+        ?iri sh:property ?prop .
         ?iri rdfs:label ?model .
         ?iri rdfs:comment ?comment .
-        ?prop shacl:path ?propIri .
+        ?prop sh:path ?propIri .
         ?propIri rdfs:label ?propname .
-        OPTIONAL { ?prop shacl:order ?order }
-        # OPTIONAL { ?prop shacl:class ?type }
-        OPTIONAL { ?prop shacl:datatype ?type }
-        # OPTIONAL { ?prop shacl:node ?type }
+        OPTIONAL { ?prop sh:order ?order }
+        # OPTIONAL { ?prop sh:class ?type }
+        OPTIONAL { ?prop sh:datatype ?type }
+        # OPTIONAL { ?prop sh:node ?type }
         OPTIONAL { ?type rdfs:label ?typeName }
         OPTIONAL { ?prop rdfs:comment ?propcomment }
-        OPTIONAL { ?prop shacl:maxCount ?max }
-        OPTIONAL { ?prop shacl:minCount ?min }
-        bind( exists { ?type rdf:type shacl:NodeShape } as ?dm)
+        OPTIONAL { ?prop sh:maxCount ?max }
+        OPTIONAL { ?prop sh:minCount ?min }
+        bind( exists { ?type rdf:type sh:NodeShape } as ?dm)
         FILTER not exists { ?prop im:inversePath ?inverse }
         } ORDER BY ?order
       """;

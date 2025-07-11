@@ -329,14 +329,20 @@ public class EntityService {
   protected Pageable<EntityReferenceNode> iriRefPageableToEntityReferenceNodePageable(Pageable<TTIriRef> iriRefPageable, List<String> schemeIris, boolean inactive, Graph graph) {
     Pageable<EntityReferenceNode> result = new Pageable<>();
     result.setTotalCount(iriRefPageable.getTotalCount());
-    Set<String> iris = new HashSet<>();
-    for (TTIriRef entity : iriRefPageable.getResult()) {
-      iris.add(entity.getIri());
-    }
-    List<EntityReferenceNode> nodes = entityRepository.getEntityReferenceNodes(iris, schemeIris, inactive, graph);
-    nodes.sort(comparingInt(EntityReferenceNode::getOrderNumber).thenComparing(EntityReferenceNode::getName));
 
-    result.setResult(nodes);
+    if (result.getTotalCount() > 0) {
+      Set<String> iris = new HashSet<>();
+      for (TTIriRef entity : iriRefPageable.getResult()) {
+        iris.add(entity.getIri());
+      }
+      List<EntityReferenceNode> nodes = entityRepository.getEntityReferenceNodes(iris, schemeIris, inactive, graph);
+      nodes.sort(comparingInt(EntityReferenceNode::getOrderNumber).thenComparing(EntityReferenceNode::getName));
+
+      result.setResult(nodes);
+    } else {
+      result.setResult(new ArrayList<>());
+    }
+
     return result;
   }
 
@@ -482,7 +488,7 @@ public class EntityService {
 
   public FilterOptionsDto getFilterOptions() {
     FilterOptionsDto filterOptions = new FilterOptionsDto();
-    filterOptions.setSchemes(getAllChildren(IM.HAS_SCHEME, Graph.IM));
+    filterOptions.setSchemes(getAllChildren(IM.NAMESPACE, Graph.IM));
     filterOptions.setStatus(getAllChildren(IM.STATUS, Graph.IM));
     filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_OPTIONS, Graph.IM));
     filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_OPTIONS, Graph.IM));

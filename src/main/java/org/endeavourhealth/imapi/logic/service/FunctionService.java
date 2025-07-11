@@ -68,7 +68,7 @@ public class FunctionService {
       throw new IllegalArgumentException(NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY);
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       String schemeIri = iri.substring(0, iri.lastIndexOf("#") + 1);
-      List<EntityReferenceNode> schemes = entityService.getImmediateChildren(IM.NAMESPACES.toString(), new ArrayList<>(), 1, 1000, false, graph);
+      List<EntityReferenceNode> schemes = entityService.getImmediateChildren(IM.NAMESPACE.toString(), new ArrayList<>(), 1, 1000, false, graph);
       List<EntityReferenceNode> schemesFiltered = schemes.stream().filter(s -> s.getIri().equals(schemeIri)).toList();
       List<TTIriRef> schemesFilteredIriRef = schemesFiltered.stream().map(s -> new TTIriRef().setIri(s.getIri()).setName(s.getName())).toList();
       if (schemesFiltered.isEmpty()) throw new IllegalArgumentException("Iri has invalid scheme");
@@ -113,7 +113,7 @@ public class FunctionService {
   }
 
   private JsonNode getSetEditorIriSchemes(Graph graph) {
-    List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.NAMESPACES.toString(), null, 1, 200, false, graph);
+    List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.NAMESPACE.toString(), null, 1, 200, false, graph);
     List<TTIriRef> resultsAsIri = results.stream().map(r -> new TTIriRef(r.getIri(), r.getName())).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.valueToTree(resultsAsIri);
@@ -121,7 +121,7 @@ public class FunctionService {
   }
 
   private JsonNode getUserEditableSchemes(HttpServletRequest request, Graph graph) throws JsonProcessingException {
-    List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.NAMESPACES.toString(), null, 1, 200, false, graph);
+    List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.NAMESPACE.toString(), null, 1, 200, false, graph);
     String userId = requestObjectService.getRequestAgentId(request);
     List<String> organisations = userService.getUserOrganisations(userId);
     List<TTIriRef> resultsAsIri = results.stream().filter(r -> organisations.stream().anyMatch(o -> o.equals(r.getIri()))).map(r -> new TTIriRef(r.getIri(), r.getName())).toList();

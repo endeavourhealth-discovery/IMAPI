@@ -453,11 +453,20 @@ public class EntityController {
   @Operation(summary = "Get schemes", description = "Fetches schemes and their prefixes available in the system")
   public Map<String, Namespace> getNamespacesWithPrefixes(@RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
-      log.debug("getSchemesWithPrefixes");
+      log.debug("getNamespacesWithPrefixes (getSchemes)");
       List<Namespace> namespaces = entityService.getNamespaces(Graph.from(graph));
       Map<String, Namespace> result = new HashMap<>();
       namespaces.forEach(namespace -> result.put(namespace.getIri(), namespace));
       return result;
+    }
+  }
+
+  @GetMapping(value = "/public/namespaces")
+  @Operation(summary = "Get schemes", description = "Fetches schemes and their prefixes available in the system")
+  public List<Namespace> getNamespaces(@RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
+      log.debug("getNamespaces");
+      return entityService.getNamespaces(Graph.from(graph));
     }
   }
 

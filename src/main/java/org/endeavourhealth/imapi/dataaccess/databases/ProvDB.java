@@ -4,7 +4,7 @@ import org.eclipse.rdf4j.repository.Repository;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 
 public class ProvDB extends BaseDB {
-  private static final Repository repository = BaseDB.getRepository("prov");
+  private static final Repository repository = BaseDB.getRepository("im");
   public static ProvDB getConnection() {
     return new ProvDB();
   }

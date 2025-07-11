@@ -1,8 +1,9 @@
-package org.endeavourhealth.imapi.model.set;
+package org.endeavourhealth.imapi.model.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.endeavourhealth.imapi.model.set.SetOptions;
 
 @Getter
 @NoArgsConstructor

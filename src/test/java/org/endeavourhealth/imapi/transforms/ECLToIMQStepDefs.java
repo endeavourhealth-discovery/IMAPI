@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.transforms;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
-import org.endeavourhealth.imapi.model.imq.ECLQuery;
+import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Query;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,19 +15,19 @@ public class ECLToIMQStepDefs {
 
   @Then("getEclFromQuery should equal original ecl {string}")
   public void GetEclFromQueryShouldEqualEcl(String ecl) throws Exception {
-    ECLQuery eclQuery = new ECLQuery();
+    ECLQueryRequest eclQuery = new ECLQueryRequest();
     eclQuery.setQuery(query);
     imqToECL.getECLFromQuery(eclQuery);
     assertEquals(ecl, eclQuery.getEcl().replaceAll("\n", "")
       .replaceAll("\t", "")
-      .replaceAll("or ","OR "));
+      .replaceAll("or ", "OR "));
   }
 
   @When("getQueryFromEcl is called with ecl {string}")
   public void getQueryFromECLIsCalledWithEclEcl(String ecl) throws EclFormatException {
-    ECLQuery eclQuery= new ECLQuery();
-    eclQuery.setEcl(ecl);
-    eclToIMQ.getQueryFromECL(eclQuery);
-    query= eclQuery.getQuery();
+    ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
+    eclQueryRequest.setEcl(ecl);
+    eclToIMQ.getQueryFromECL(eclQueryRequest);
+    query = eclQueryRequest.getQuery();
   }
 }

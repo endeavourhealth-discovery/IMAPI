@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.EntityType;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,12 +20,12 @@ public class QueryServiceTest {
 
   //  @Test
   void testCohortQueriesToSQL() throws JsonProcessingException {
-    List<TTIriRef> queries = entityService.getEntitiesByType(IM.QUERY);
+    List<TTIriRef> queries = entityService.getEntitiesByType(EntityType.QUERY, null);
     System.out.println("Queries: " + queries.size());
     for (TTIriRef ref : queries) {
       System.out.println("Testing " + ref.getName() + " " + ref.getIri());
       try {
-        String sql = queryService.getSQLFromIMQIri(ref.getIri(), null, new HashMap<>());
+        String sql = queryService.getSQLFromIMQIri(ref.getIri(), null, new HashMap<>(), null);
         assertNotNull(sql);
         if (!sql.startsWith("org.endeavourhealth.imapi.errorhandling.SQLConversionException")) {
           System.out.println("OK");

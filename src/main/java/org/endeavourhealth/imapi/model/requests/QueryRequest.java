@@ -1,10 +1,10 @@
-package org.endeavourhealth.imapi.model.imq;
+package org.endeavourhealth.imapi.model.requests;
 
 import com.fasterxml.jackson.annotation.*;
-
 import lombok.Getter;
 import lombok.Setter;
 import org.endeavourhealth.imapi.model.iml.Page;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
@@ -36,6 +36,9 @@ public class QueryRequest implements ContextMap {
   private boolean includeNames;
   @Setter
   private TextSearchStyle textSearchStyle;
+  @Getter
+  private Graph graph;
+
 
   public QueryRequest() {}
 
@@ -78,18 +81,9 @@ public class QueryRequest implements ContextMap {
     return ttContext;
   }
 
-
-  @JsonIgnore
-  public QueryRequest setContext(TTContext context) {
-    if (context == null)
-      this.context = null;
-    this.context = new HashMap<>();
-    for (TTPrefix prefix : context.getPrefixes()) {
-      this.context.put(prefix.getPrefix(), prefix.getIri());
-    }
-    return this;
+  public Update getUpdate() {
+    return update;
   }
-
 
   public QueryRequest setUpdate(Update update) {
     this.update = update;
@@ -111,7 +105,6 @@ public class QueryRequest implements ContextMap {
     this.argument = argument;
     return this;
   }
-
 
   public QueryRequest addArgument(Argument argument) {
     if (this.argument == null)
@@ -195,6 +188,17 @@ public class QueryRequest implements ContextMap {
     return this.context;
   }
 
+  @JsonIgnore
+  public QueryRequest setContext(TTContext context) {
+    if (context == null)
+      this.context = null;
+    this.context = new HashMap<>();
+    for (TTPrefix prefix : context.getPrefixes()) {
+      this.context.put(prefix.getPrefix(), prefix.getIri());
+    }
+    return this;
+  }
+
   @Override
   @JsonSetter
   public ContextMap setContext(Map<String, String> prefixMap) {
@@ -204,18 +208,23 @@ public class QueryRequest implements ContextMap {
 
   public QueryRequest setDefaultPrefixMap() {
     this.context = new HashMap<>();
-    context.put(IM.NAMESPACE, "im");
-    context.put(SNOMED.NAMESPACE, "sn");
-    context.put(OWL.NAMESPACE, "owl");
-    context.put(RDF.NAMESPACE, "rdf");
-    context.put(RDFS.NAMESPACE, "rdfs");
-    context.put(XSD.NAMESPACE, "xsd");
-    context.put(SHACL.NAMESPACE, "sh");
+    context.put(Namespace.IM.toString(), "im");
+    context.put(Namespace.SNOMED.toString(), "sn");
+    context.put(Namespace.OWL.toString(), "owl");
+    context.put(Namespace.RDF.toString(), "rdf");
+    context.put(Namespace.RDFS.toString(), "rdfs");
+    context.put(Namespace.XSD.toString(), "xsd");
+    context.put(Namespace.SHACL.toString(), "sh");
     return this;
   }
 
   public QueryRequest setAskIri(String askIri) {
     this.askIri = askIri;
+    return this;
+  }
+
+  public QueryRequest setGraph(Graph graph) {
+    this.graph = graph;
     return this;
   }
 }

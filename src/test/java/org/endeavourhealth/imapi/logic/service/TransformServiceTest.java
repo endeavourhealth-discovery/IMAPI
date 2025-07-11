@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
-import org.endeavourhealth.imapi.model.iml.TransformRequest;
 import org.endeavourhealth.imapi.model.map.MapObject;
+import org.endeavourhealth.imapi.model.requests.TransformRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.FHIR;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.MAP;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -39,7 +40,7 @@ class TransformServiceTest {
     TestMaps.patientDSTU2();
     ObjectMapper om = new ObjectMapper();
     //Adds map to the IM cache so it can be accessed by the service
-    TTEntity mapEntity = EntityCache.getEntity(MAP.NAMESPACE + "FHIR_2_PatientToIM").getEntity();
+    TTEntity mapEntity = EntityCache.getEntity(Namespace.MAP + "FHIR_2_PatientToIM").getEntity();
     MapObject map = mapEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(MapObject.class);
     writeObject(testMaps, "DSTUToIMPatient", map);
     System.out.println("Map written to" + testMaps + "\\" + mapEntity.getName());

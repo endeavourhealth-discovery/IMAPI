@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -163,7 +164,7 @@ public class SQLQuery {
     Table map = tableMap.getTable(model);
 
     if (map == null) {
-      map = tableMap.getTable(IM.NAMESPACE + model);
+      map = tableMap.getTable(Namespace.IM + model);
     }
 
     if (map != null) {

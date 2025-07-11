@@ -8,10 +8,9 @@ import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.transforms.TTManager;
-import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -21,32 +20,29 @@ import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 class SearchServiceTest {
 
-  private String succinctDefinitions;
   EntityService entityService = new EntityService();
+  private String succinctDefinitions;
 
-//@Test
+  //@Test
   void imq() throws Exception {
-  output(TestQueries.AllowablePropertiesForCovid());
-  output(TestQueries.subtypesParameterised());
-  output(TestQueries.dataModelPropertyRange());
-  output(TestQueries.getAllowableSubtypes());
-  output(TestQueries.getMembers());
+    output(TestQueries.AllowablePropertiesForCovid());
+    output(TestQueries.subtypesParameterised());
+    output(TestQueries.dataModelPropertyRange());
+    output(TestQueries.getAllowableSubtypes());
+    output(TestQueries.getMembers());
 
-  ask(TestQueries.isValidProperty());
+    ask(TestQueries.isValidProperty());
 
-  output(TestQueries.shapesWithDateOFBirth());
+    output(TestQueries.shapesWithDateOFBirth());
 
-   output(TestQueries.AllowablePropertiesForCovid());
-   output(TestQueries.getAllowableProperties());
-
-
+    output(TestQueries.AllowablePropertiesForCovid());
+    output(TestQueries.getAllowableProperties());
 
 
-    output(TestQueries.getMembers());;
+    output(TestQueries.getMembers());
+    ;
 
     output(TestQueries.getMembers());
     output(TestQueries.pathQuery());
@@ -69,8 +65,6 @@ class SearchServiceTest {
     output(TestQueries.query4());
 
 
-
-
   }
 
   private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
@@ -85,8 +79,8 @@ class SearchServiceTest {
       name = dataSet.getUpdate().getName();
     if (name != null)
       name = name.replaceAll(" ", "").replaceAll("\\(", "").replaceAll("\\)", "");
-    else if (dataSet.getName()!=null)
-      name= dataSet.getName();
+    else if (dataSet.getName() != null)
+      name = dataSet.getName();
     else name = "unnamed query";
     SearchService searchService = new SearchService();
     System.out.println("Testing " + name);
@@ -105,8 +99,8 @@ class SearchServiceTest {
       try (FileWriter wr = new FileWriter(path.toString())) {
         wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
         System.out.println("Found " + result.get("entities").size() + " entities");
-        if (result.get("entities").size() ==0) {
-          dataSet= new ObjectMapper().readValue(originalRequest, QueryRequest.class);
+        if (result.get("entities").size() == 0) {
+          dataSet = new ObjectMapper().readValue(originalRequest, QueryRequest.class);
           result = searchService.queryIM(dataSet);
           throw new RuntimeException("No results found for query " + name);
         }
@@ -126,7 +120,7 @@ class SearchServiceTest {
 
   private void ask(QueryRequest askQuery) throws Exception {
     SearchService searchService = new SearchService();
-    if (searchService.askQueryIM(askQuery)){
+    if (searchService.askQueryIM(askQuery)) {
       System.out.println("ask query Valid");
     } else
       throw new Exception("invalid ask query");
@@ -134,7 +128,7 @@ class SearchServiceTest {
 
   //@Test
   public void setTest() throws DataFormatException, JsonProcessingException, QueryException {
-    new SetMemberGenerator().generateMembers("http://apiqcodes.org/qcodes#QCodeGroup_713");
+    new SetMemberGenerator().generateMembers("http://apiqcodes.org/qcodes#QCodeGroup_713", null);
   }
 }
 

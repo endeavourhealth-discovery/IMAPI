@@ -30,9 +30,6 @@ public class TTEntitySerializer extends StdSerializer<TTEntity> {
     helper.serializeContexts(entity.getPrefixes(), gen);
     gen.writeStringField("iri", helper.prefix(entity.getIri()));
 
-    if (entity.getGraph() != null) {
-      outputIri(gen, "graph", entity.getGraph(), helper);
-    }
     if (entity.getCrud() != null) {
       outputIri(gen, "crud", entity.getCrud(), helper);
     }

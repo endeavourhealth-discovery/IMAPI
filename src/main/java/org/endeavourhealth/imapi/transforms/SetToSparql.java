@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.DataFormatException;
 
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
+
 public class SetToSparql {
   private EntityRepository entityRepository = new EntityRepository();
   private String tabs = "   ";
@@ -17,7 +19,7 @@ public class SetToSparql {
 
   public String getExpansionSparql(String entityVar, String iri) throws DataFormatException {
 
-    Set<String> predicates = Set.of(RDFS.LABEL, IM.DEFINITION);
+    Set<String> predicates = asHashSet(RDFS.LABEL, IM.DEFINITION);
     TTEntity entity = entityRepository.getEntityPredicates(iri, predicates).getEntity();
     StringBuilder subQuery = new StringBuilder();
     if (entity.get(TTIriRef.iri(IM.HAS_MEMBER)) != null) {
@@ -147,13 +149,13 @@ public class SetToSparql {
       if (group) {
         subQuery.append(tabs).append("?roleGroup ").append(pred).append(" ").append(obj).append(".\n");
         subQuery.append(tabs + " FILTER (isBlank(?roleGroup))");
-        subQuery.append(tabs).append("?superMember ").append(iri(IM.ROLE_GROUP)).append(" ?roleGroup.\n");
+        subQuery.append(tabs).append("?superMember ").append(IM.ROLE_GROUP.asIri()).append(" ?roleGroup.\n");
       } else {
         subQuery.append(tabs).append("?superMember ").append(pred).append(" ").append(obj).append(".\n");
         subQuery.append(tabs).append("  FILTER (isIri(?superMember))");
       }
     }
-    subQuery.append(tabs).append("?entity ").append(iri(IM.IS_A)).append(" ?superMember.\n");
+    subQuery.append(tabs).append("?entity ").append(IM.IS_A.asIri()).append(" ?superMember.\n");
 
   }
 

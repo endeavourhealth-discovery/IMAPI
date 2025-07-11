@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "org.endeavourhealth.imapi"
-version = "1.0-SNAPSHOT"
+version = "2.0-SNAPSHOT"
 description = "Information Model API"
 
 
@@ -82,6 +82,8 @@ tasks.generateTypeScript {
   optionalProperties = OptionalProperties.useLibraryDefinition
   classPatterns = listOf(
     "org.endeavourhealth.imapi.model.DataModelProperty",
+    "org.endeavourhealth.imapi.model.requests.*",
+    "org.endeavourhealth.imapi.model.responses.*",
     "org.endeavourhealth.imapi.model.iml.*",
     "org.endeavourhealth.imapi.model.search.*",
     "org.endeavourhealth.imapi.model.set.EclSearchRequest",
@@ -103,7 +105,8 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.validation.EntityValidationRequest",
     "org.endeavourhealth.imapi.model.tripletree.TTDocument",
     "org.endeavourhealth.imapi.model.ConceptContextMap",
-    "org.endeavourhealth.imapi.model.dto.CodeGenDto"
+    "org.endeavourhealth.imapi.model.dto.CodeGenDto",
+    "org.endeavourhealth.imapi.model.editor.*"
   )
   outputFile = "../IMDirectory/src/interfaces/AutoGen.ts"
   outputKind = TypeScriptOutputKind.module

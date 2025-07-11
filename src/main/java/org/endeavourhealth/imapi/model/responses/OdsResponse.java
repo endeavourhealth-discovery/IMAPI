@@ -1,7 +1,9 @@
-package org.endeavourhealth.imapi.model.ods;
+package org.endeavourhealth.imapi.model.responses;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.endeavourhealth.imapi.model.ods.OrgRole;
+import org.endeavourhealth.imapi.model.ods.Organisation;
 
 import java.util.List;
 

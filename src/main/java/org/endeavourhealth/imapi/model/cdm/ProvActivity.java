@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.model.cdm;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.List;
@@ -18,14 +18,6 @@ public class ProvActivity extends Entry {
 
   public ProvActivity() {
     this.addType(iri(IM.PROVENANCE_ACTIVITY));
-    super.setGraph(iri(GRAPH.PROV));
-  }
-
-  @Override
-  @JsonSetter
-  public ProvActivity setGraph(TTIriRef graph) {
-    log.error("Attempt to set graph on provenance");
-    return this;
   }
 
   @Override

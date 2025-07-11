@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
+
 @Component
 public class UserService {
   private final UserRepository userRepository = new UserRepository();
@@ -62,10 +64,10 @@ public class UserService {
   public List<RecentActivityItemDto> getUserMRU(String userId) throws JsonProcessingException {
     List<RecentActivityItemDto> mru = userRepository.getUserMRU(userId);
     boolean hasNoneExistingIris = mru.stream()
-      .anyMatch(mruDto -> !entityService.iriExists(mruDto.getIri()));
+      .anyMatch(mruDto -> !entityService.iriExists(mruDto.getIri(), null));
     if (hasNoneExistingIris) {
       List<RecentActivityItemDto> updatedMRUs = mru.stream()
-        .filter(mruDto -> entityService.iriExists(mruDto.getIri())).toList();
+        .filter(mruDto -> entityService.iriExists(mruDto.getIri(), null)).toList();
       updateUserMRU(userId, updatedMRUs);
       return userRepository.getUserMRU(userId);
     }
@@ -79,10 +81,10 @@ public class UserService {
   public List<String> getUserFavourites(String userId) throws JsonProcessingException {
     List<String> favourites = userRepository.getUserFavourites(userId);
     boolean hasNoneExistingIris = favourites.stream()
-      .anyMatch(favouriteIri -> !entityService.iriExists(favouriteIri));
+      .anyMatch(favouriteIri -> !entityService.iriExists(favouriteIri, null));
     if (hasNoneExistingIris) {
       List<String> updatedFavourites = favourites.stream()
-        .filter(entityService::iriExists).toList();
+        .filter(f -> entityService.iriExists(f, null)).toList();
       updateUserFavourites(userId, updatedFavourites);
       return userRepository.getUserFavourites(userId);
     }
@@ -107,7 +109,7 @@ public class UserService {
 
   public boolean getEditAccess(String userId, String entityIri) throws JsonProcessingException {
     List<String> organisations = this.getUserOrganisations(userId);
-    Set<String> predicates = Collections.singleton(IM.HAS_SCHEME);
+    Set<String> predicates = asHashSet(IM.HAS_SCHEME);
     TTEntity entity = entityService.getBundle(entityIri, predicates).getEntity();
     if (null == entity.getScheme()) return false;
     return organisations.contains(entity.getScheme().getIri());

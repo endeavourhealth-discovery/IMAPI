@@ -4,25 +4,19 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.ConceptService;
-import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.ConceptContextMap;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.Pageable;
-import org.endeavourhealth.imapi.model.SuperiorPropertiesBoolFocusPagedRequest;
-import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.zip.DataFormatException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/concept")
@@ -36,19 +30,19 @@ public class ConceptController {
 
   @GetMapping(value = "/public/matchedFrom", produces = "application/json")
   @Operation(summary = "Get matched terms from the specified entity", description = "Retrieves terms that are matched from the given entity IRI for further processing or analysis.")
-  public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri) throws IOException {
+  public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MatchedFrom.GET")) {
       log.debug("getMatchedFrom");
-      return conceptService.getMatchedFrom(iri);
+      return conceptService.getMatchedFrom(iri, Graph.from(graph));
     }
   }
 
   @GetMapping(value = "/public/matchedTo", produces = "application/json")
   @Operation(summary = "Get matched terms to the specified entity", description = "Retrieves terms that are matched to the given entity IRI for further processing or analysis.")
-  public Collection<SimpleMap> getMatchedTo(@RequestParam(name = "iri") String iri) throws IOException {
+  public Collection<SimpleMap> getMatchedTo(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MatchedTo.GET")) {
       log.debug("getMatchedTo");
-      return conceptService.getMatchedTo(iri);
+      return conceptService.getMatchedTo(iri, Graph.from(graph));
     }
   }
 
@@ -61,13 +55,12 @@ public class ConceptController {
     }
   }
 
-
   @GetMapping(value = "/public/conceptContextMaps")
   @Operation(summary = "Get concept context maps for the specified entity", description = "Retrieves mappings to various contexts for the given entity IRI, which can be used for contextual analysis.")
-  public List<ConceptContextMap> getConceptContextMaps(@RequestParam(name = "iri") String iri) throws IOException {
+  public List<ConceptContextMap> getConceptContextMaps(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ConceptContextMaps.GET")) {
       log.debug("getConceptContextMaps");
-      return conceptService.getConceptContextMaps(iri);
+      return conceptService.getConceptContextMaps(iri, Graph.from(graph));
     }
   }
 }

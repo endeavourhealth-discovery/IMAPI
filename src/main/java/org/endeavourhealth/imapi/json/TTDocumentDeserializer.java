@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.Map;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
+  private static final String DEFAULT_SCHEME = "defaultScheme";
   private static final String GRAPH = "graph";
   private static final String ID = "iri";
   private static final String CRUD = "crud";
@@ -42,8 +44,6 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
     helper.populatePrefixesFromJson(node, prefixes);
     if (!prefixes.isEmpty())
       result.setContext(context);
-    if (node.get(GRAPH) != null)
-      result.setGraph(iri(helper.expand(node.get(GRAPH).get(ID).asText())));
     if (node.get(CRUD) != null)
       result.setCrud(iri(helper.expand(node.get(CRUD).get(ID).asText())));
     if (node.get(ENTITIES) != null) {
@@ -68,7 +68,6 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
         Map.Entry<String, JsonNode> field = fields.next();
         switch (field.getKey()) {
           case ID -> entity.setIri(helper.expand(field.getValue().textValue()));
-          case GRAPH -> entity.setGraph(new TTIriRef(helper.expand(field.getValue().get(ID).asText())));
           case CRUD -> entity.setCrud(iri(helper.expand(field.getValue().get(ID).asText())));
           default -> {
             if (field.getValue().isArray())

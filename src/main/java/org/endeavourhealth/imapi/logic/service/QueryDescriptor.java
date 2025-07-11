@@ -9,40 +9,39 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.Context;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class QueryDescriptor {
-  private final EntityRepository entityRepository = new EntityRepository();
-  private Map<String, TTEntity> iriContext;
-  private final EntityRepository repo = new EntityRepository();
   private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
+  private final EntityRepository entityRepository = new EntityRepository();
+  private final EntityRepository repo = new EntityRepository();
+  private Map<String, TTEntity> iriContext;
 
-  public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
-    TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, Set.of(RDFS.LABEL, IM.DEFINITION)).getEntity();
+  public Query describeQuery(String queryIri, DisplayMode displayMode, Graph graph) throws JsonProcessingException, QueryException {
+    TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
     if (query.getIri() == null)
       query.setIri(queryIri);
-    query = describeQuery(query, displayMode);
+    query = describeQuery(query, displayMode, graph);
     queryCache.put(queryIri, new ObjectMapper().writeValueAsString(query));
     return query;
   }
 
-  public Match describeSingleMatch(Match match) throws QueryException {
-    setIriNames(match);
+  public Match describeSingleMatch(Match match, Graph graph) throws QueryException {
+    setIriNames(match, graph);
     describeMatch(match);
     return match;
   }
 
-  public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
-    setIriNames(query);
+  public Query describeQuery(Query query, DisplayMode displayMode, Graph graph) throws QueryException, JsonProcessingException {
+    setIriNames(query, graph);
     if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
     if (displayMode == DisplayMode.RULES && query.getRule() == null) {
       new LogicOptimizer().getRulesFromLogic(query);
@@ -73,24 +72,23 @@ public class QueryDescriptor {
     }
   }
 
-  private void setIriNames(Match match) throws QueryException {
+  private void setIriNames(Match match, Graph graph) throws QueryException {
     Set<String> iriSet = IriCollector.collectIris(match);
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, Set.of(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.NAMESPACE + "displayLabel"));
+      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL), graph);
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
   }
 
-  private void setIriNames(Query query) throws QueryException {
+  private void setIriNames(Query query, Graph graph) throws QueryException {
     Set<String> iriSet = IriCollector.collectIris(query);
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, Set.of(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.NAMESPACE + "displayLabel"));
+      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL), graph);
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
   }
-
 
 
   public String getTermInContext(String source, Context... contexts) {
@@ -103,10 +101,10 @@ public class QueryDescriptor {
     for (Context context : contexts) {
       if (context == Context.PLURAL) {
         if (entity != null) {
-          if (entity.get(iri(IM.NAMESPACE + "plural")) == null) {
+          if (entity.get(iri(Namespace.IM + "plural")) == null) {
             if (!term.toString().toLowerCase().endsWith("s")) term.append("s");
           } else {
-            term = new StringBuilder(entity.get(iri(IM.NAMESPACE + "plural")).asLiteral().getValue());
+            term = new StringBuilder(entity.get(iri(Namespace.IM + "plural")).asLiteral().getValue());
           }
         } else if (!term.toString().toLowerCase().endsWith("s")) term.append("s");
       }
@@ -115,7 +113,7 @@ public class QueryDescriptor {
       }
     }
     if (entity != null) {
-      if (entity.get(iri(IM.NAMESPACE + "displayLabel")) != null) {
+      if (entity.get(iri(Namespace.IM + "displayLabel")) != null) {
         term.setLength(0);
       }
       if (entity.get(iri(IM.PREPOSITION)) != null) {
@@ -304,7 +302,7 @@ public class QueryDescriptor {
 
   private Where getConceptWhere(List<Where> wheres) {
     for (Where where : wheres) {
-      if (where.getIri() != null) if (where.getIri().equals(IM.NAMESPACE + "concept")) return where;
+      if (where.getIri() != null) if (where.getIri().equals(Namespace.IM + "concept")) return where;
     }
     return null;
   }
@@ -316,7 +314,7 @@ public class QueryDescriptor {
     }
     if (where.getOr() != null) {
       describeWheres(where.getOr());
-    } else if (where.getAnd() == null && where.getOr() == null) {
+    } else if (where.getAnd() == null) {
       where.setName(getTermInContext(where, Context.PROPERTY));
       if (where.getRange() != null) {
         describeRangeWhere(where);

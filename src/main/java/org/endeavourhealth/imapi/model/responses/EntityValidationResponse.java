@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.validation;
+package org.endeavourhealth.imapi.model.responses;
 
 import lombok.Getter;
 
@@ -12,7 +12,8 @@ public class EntityValidationResponse {
     this.message = message;
   }
 
-  public EntityValidationResponse() {}
+  public EntityValidationResponse() {
+  }
 
   public EntityValidationResponse setValid(boolean valid) {
     this.valid = valid;

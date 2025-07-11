@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 import lombok.Setter;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.Objects;
 
@@ -77,7 +78,7 @@ public class IriLD {
   public String assignIri(String iri) {
     if (iri != null && !iri.isEmpty()) {
       if (!iri.matches("([a-z]+)?[:].*")) {
-        return IM.NAMESPACE + iri;
+        return Namespace.IM + iri;
       }
     }
     return iri;

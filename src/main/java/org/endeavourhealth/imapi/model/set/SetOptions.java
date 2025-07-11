@@ -1,27 +1,25 @@
 package org.endeavourhealth.imapi.model.set;
 
-import lombok.Getter;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.List;
 
 public class SetOptions {
-  @Getter
   private String setIri;
   private boolean includeDefinition;
   private boolean includeCore;
   private boolean includeLegacy;
   private boolean includeSubsets;
-  @Getter
   private List<String> schemes;
   private boolean includeIM1id;
-  @Getter
   private List<String> subsumptions;
+  private Graph graph;
 
   public SetOptions() {
   }
 
   public SetOptions(String setIri, boolean includeDefinition, boolean includeCore, boolean includeLegacy, boolean includeSubsets, List<String> schemes,
-                    List<String> subsumptions) {
+                    List<String> subsumptions, Graph graph) {
     this.setIri = setIri;
     this.includeDefinition = includeDefinition;
     this.includeCore = includeCore;
@@ -29,9 +27,24 @@ public class SetOptions {
     this.includeSubsets = includeSubsets;
     this.schemes = schemes;
     this.subsumptions = subsumptions;
-
+    this.graph = graph;
   }
 
+  public String getSetIri() {
+    return setIri;
+  }
+
+  public List<String> getSchemes() {
+    return schemes;
+  }
+
+  public List<String> getSubsumptions() {
+    return subsumptions;
+  }
+
+  public Graph getGraph() {
+    return graph;
+  }
 
   public boolean includeDefinition() {
     return includeDefinition;
@@ -90,6 +103,11 @@ public class SetOptions {
 
   public SetOptions setSubsumptions(List<String> subsumptions) {
     this.subsumptions = subsumptions;
+    return this;
+  }
+
+  public SetOptions setGraph(Graph graph) {
+    this.graph = graph;
     return this;
   }
 }

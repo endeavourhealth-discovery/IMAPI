@@ -6,11 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.ConceptService;
 import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
-import org.endeavourhealth.imapi.model.set.EclSearchRequest;
+import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
+import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -34,7 +36,7 @@ public class EclController {
     summary = "Retrieve ECL string",
     description = "Generates an ECL string from the provided IMQ Query object"
   )
-  public String getEcl(@RequestBody Query inferred) throws QueryException, IOException {
+  public String getEcl(@RequestBody EclSearchRequest inferred) throws QueryException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("ECL.Ecl.POST")) {
       log.debug("getEcl");
       return eclService.getEcl(inferred);
@@ -57,41 +59,39 @@ public class EclController {
   }
 
   @PostMapping("/public/eclFromQuery")
-  public ECLQuery getECLFromQuery(@RequestBody ECLQuery eclQuery) throws QueryException, IOException {
+  public ECLQueryRequest getECLFromQuery(@RequestBody ECLQueryRequest eclQueryRequest) throws QueryException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclFromQuery.POST")) {
       log.debug("getEclFromQuery");
-      return eclService.getECLFromQuery(eclQuery);
+      return eclService.getECLFromQuery(eclQueryRequest);
     }
   }
 
   @PostMapping("/public/validateModelFromQuery")
-  public ECLQuery validateModelFromQuery(@RequestBody ECLQuery eclQuery) throws QueryException, IOException {
+  public ECLQueryRequest validateModelFromQuery(@RequestBody ECLQueryRequest eclQueryRequest) throws QueryException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateModelFromQuery.POST")) {
       log.debug("validatesEclQuerymodel");
-      return eclService.validateModelFromQuery(eclQuery);
+      return eclService.validateModelFromQuery(eclQueryRequest);
     }
   }
 
 
   @PostMapping("/public/validateModelFromECL")
-  public ECLQuery validateModelFromEcl(@RequestBody ECLQuery eclQuery) throws QueryException, IOException {
+  public ECLQueryRequest validateModelFromEcl(@RequestBody ECLQueryRequest eclQueryRequest) throws QueryException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateModelFromECL.POST")) {
       log.debug("validatesModelFromECL");
-      return eclService.validateModelFromECL(eclQuery);
+      return eclService.validateModelFromECL(eclQueryRequest);
     }
   }
-
-
 
   @PostMapping(value = "/public/queryFromEcl", consumes = "application/json", produces = "application/json")
   @Operation(
     summary = "Convert ECL to Query",
     description = "Transforms a provided ECL string into an IM Query object"
   )
-  public ECLQuery getQueryFromECL(@RequestBody ECLQuery eclQuery) throws IOException, EclFormatException,QueryException {
+  public ECLQueryRequest getQueryFromECL(@RequestBody ECLQueryRequest eclQueryRequest) throws IOException, EclFormatException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.QueryFromEcl.POST")) {
       log.debug("getQueryFromEcl");
-      return eclService.getQueryFromECL(eclQuery);
+      return eclService.getQueryFromECL(eclQueryRequest);
     }
   }
 
@@ -100,44 +100,40 @@ public class EclController {
     summary = "Convert ECL to ECL with names",
     description = "Transforms a provided ECL string into an IM Query object"
   )
-  public ECLQuery getEclFromEcl(@RequestBody ECLQuery eclQuery) throws IOException, QueryException, EclFormatException {
+  public ECLQueryRequest getEclFromEcl(@RequestBody ECLQueryRequest eclQueryRequest) throws IOException, QueryException, EclFormatException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclWithNames.POST")) {
       log.debug("getEcl from ecl");
-      return eclService.getEclFromEcl(eclQuery);
+      return eclService.getEclFromEcl(eclQueryRequest);
     }
   }
-
-
-
 
   @PostMapping(value = "/public/validateEcl", consumes = "application/json", produces = "application/json")
   @Operation(
     summary = "Validate ECL format",
     description = "Checks if the provided ECL string is valid"
   )
-  public ECLQuery validateEcl(@RequestBody ECLQuery eclQuery) throws IOException {
+  public ECLQueryRequest validateEcl(@RequestBody ECLQueryRequest eclQueryRequest) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateEcl.POST")) {
-      return eclService.validateEcl(eclQuery);
+      return eclService.validateEcl(eclQueryRequest);
     }
   }
 
   @GetMapping(value = "/public/propertiesForDomains")
   @Operation(summary = "Get top level properties for an entity as a tree node", description = "Finds the highest parent (superior) properties for an entity and returns then in a tree node format for use in a hierarchy tree")
-  public Set<String> getPropertiesForDomains(@RequestParam(name = "conceptIri") Set<String> iris) throws IOException {
+  public Set<String> getPropertiesForDomains(@RequestParam(name = "conceptIri") Set<String> iris, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.propertiesForDomains.GET")) {
       log.debug("getPropertiesForDomains");
-      return conceptService.getPropertiesForDomains(iris);
+      return conceptService.getPropertiesForDomains(iris, Graph.from(graph));
     }
   }
 
 
-
   @GetMapping(value = "/public/rangesForProperty")
   @Operation(summary = "Get top level property ranges for an entity as a tree node", description = "Finds the highest parent (superior) property value for an entity and returns then in a tree node format for use in a hierarchy tree")
-  public Set<String> getRangesForProperty(@RequestParam(name = "propertyIri") String iri) throws IOException {
+  public Set<String> getRangesForProperty(@RequestParam(name = "propertyIri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.rangesForProperty.GET")) {
       log.debug("getRangesForProperty");
-      return conceptService.getRangesForProperty(iri);
+      return conceptService.getRangesForProperty(iri, Graph.from(graph));
     }
   }
 }

@@ -2,31 +2,32 @@ package org.endeavourhealth.imapi.transforms;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.cucumber.java.en.*;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.HashMap;
 
 public class IMQtoMySQLSteps {
+  private final ObjectMapper objectMapper = new ObjectMapper();
   private QueryRequest queryRequest;
   private String mysql;
-  private final ObjectMapper objectMapper = new ObjectMapper();
 
 //  private static final String URL = "jdbc:mysql://localhost:3306/compass?useSSL=false&allowPublicKeyRetrieval=true";
 //  private static final String USER = "root";
 //  private static final String PASSWORD = "8l0>f4AlADd2";
+
+  public static boolean isValidSQL(String mysql) {
+    return !mysql.isEmpty() && !mysql.contains("SQL Conversion Error:");
+  }
 
   @Given("a valid IMQ {string}")
   public void a_valid_query(String path) {
@@ -64,10 +65,6 @@ public class IMQtoMySQLSteps {
     } catch (Exception e) {
       return null;
     }
-  }
-
-  public static boolean isValidSQL(String mysql) {
-    return !mysql.isEmpty() && !mysql.contains("SQL Conversion Error:");
   }
 //    try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
 //         PreparedStatement stmt = conn.prepareStatement(mysql)) {

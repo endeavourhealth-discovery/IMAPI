@@ -18,9 +18,14 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriterion;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -31,7 +36,7 @@ public class EqdToIMQ {
   public static Map<String, TTEntity> setIriToEntity = new HashMap<>();
   public static Map<String,String> versionMap= new HashMap<>();
   public static Integer setNumber;
-  private String namespace;
+  private Namespace namespace;
   private EqdResources resources;
   private TTDocument document;
   private String singleEntity;
@@ -55,7 +60,6 @@ public class EqdToIMQ {
     if (setNumber == null) {
       setNumber = 1;
     } else {
-      Integer var0 = setNumber;
       setNumber = setNumber + 1;
     }
 
@@ -74,16 +78,16 @@ public class EqdToIMQ {
     return this;
   }
 
-  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, Properties criteriaMaps) throws IOException, QueryException, EQDException {
+  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, Properties criteriaMaps, Namespace namespace, Graph graph) throws IOException, QueryException, EQDException {
     this.document = document;
-    this.resources = new EqdResources(document, dataMap);
-    this.namespace = document.getGraph().getIri();
+    this.resources = new EqdResources(document, dataMap, namespace);
+    this.namespace = namespace;
     this.resources.setCriteriaMaps(criteriaMaps);
     this.resources.setBaseCounter(0);
     this.addReportNames(eqd);
     this.convertFolders(eqd);
     this.setVersionMap(eqd);
-    this.convertReports(eqd);
+    this.convertReports(eqd, graph);
     createLibrary();
     deduplicate();
     addLibraryEntities();
@@ -119,7 +123,7 @@ public class EqdToIMQ {
       if (matches != null) {
         for (Match match:matches){
           if (match.getInstanceOf()==null) {
-            Match logicalMatch = new LogicOptimizer().getLogicalMatch(match,namespace);
+            Match logicalMatch = new LogicOptimizer().getLogicalMatch(match);
             String libraryIri = namespace + "Clause_" + (mapper.writeValueAsString(logicalMatch).hashCode());
             if (criteriaLibrary.containsKey(libraryIri) && criteriaLibraryCount.get(libraryIri) > 1) {
               match.setIri(libraryIri);
@@ -149,7 +153,7 @@ public class EqdToIMQ {
     for (TTEntity entity : this.document.getEntities()) {
       if (entity.isType(iri(IM.QUERY))){
         Query query= entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
-        new LogicOptimizer().deduplicateQuery(query,namespace);
+        new LogicOptimizer().deduplicateQuery(query, namespace);
         entity.set(IM.DEFINITION,TTLiteral.literal(query));
       }
     }
@@ -185,7 +189,7 @@ public class EqdToIMQ {
             for (Match subMatch : matches) {
               if (subMatch.getInstanceOf() == null&&!LogicOptimizer.isLinkedMatch(subMatch)) {
                   if (subMatch.getDescription() != null) {
-                    Match logicalMatch = new LogicOptimizer().getLogicalMatch(subMatch,namespace);
+                    Match logicalMatch = new LogicOptimizer().getLogicalMatch(subMatch);
                     addLibraryItem(subMatch, logicalMatch);
                 }
               }
@@ -214,7 +218,7 @@ public class EqdToIMQ {
 
   }
 
-  private void convertReports(EnquiryDocument eqd) throws IOException, QueryException, EQDException {
+  private void convertReports(EnquiryDocument eqd, Graph graph) throws IOException, QueryException, EQDException {
     for (EQDOCReport eqReport : eqd.getReport()) {
       if (eqReport.getId() == null) {
         throw new EQDException("No report id");
@@ -226,7 +230,7 @@ public class EqdToIMQ {
         }
 
         log.info(eqReport.getName());
-        TTEntity qry = this.convertReport(eqReport);
+        TTEntity qry = this.convertReport(eqReport, graph);
         if (qry != null) {
           this.document.addEntity(qry);
         }
@@ -238,7 +242,7 @@ public class EqdToIMQ {
         if (report.get(IM.DEFINITION) != null) {
           Query query = (Query) report.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
           this.checkGms(query);
-          report.set(IM.DEFINITION, TTLiteral.literal(query));
+          report.set(IM.DEFINITION.asIri(), TTLiteral.literal(query));
         }
       }
     }
@@ -264,7 +268,7 @@ public class EqdToIMQ {
     if (match.getInstanceOf() != null) {
       for (Node node : match.getInstanceOf()) {
         if (gmsPatients.contains(node.getIri())) {
-          node.setIri(IM.NAMESPACE + "Q_RegisteredGMS").setName("Registered with GP for GMS services on the reference date");
+          node.setIri(Namespace.IM + "Q_RegisteredGMS").setName("Registered with GP for GMS services on the reference date");
         }
       }
     }
@@ -283,13 +287,9 @@ public class EqdToIMQ {
             throw new EQDException("No folder name");
           }
 
-          String var10000 = this.namespace;
-          String iri = var10000 + eqFolder.getId();
-          TTEntity folder = (new TTEntity()).setIri(iri).addType(iri(IM.FOLDER)).setName(eqFolder.getName());
+          TTEntity folder = (new TTEntity()).setIri(this.namespace + eqFolder.getId()).addType(iri(IM.FOLDER)).setName(eqFolder.getName());
           if (eqFolder.getParentFolder() != null) {
-            TTIriRef var10001 = iri(IM.IS_CONTAINED_IN);
-            String var10002 = this.namespace;
-            folder.addObject(var10001, iri(var10002 + eqFolder.getParentFolder()));
+            folder.addObject(TTIriRef.iri(IM.IS_CONTAINED_IN), TTIriRef.iri(this.namespace + eqFolder.getParentFolder()));
           }
 
           this.document.addEntity(folder);
@@ -299,7 +299,7 @@ public class EqdToIMQ {
 
   }
 
-  public TTEntity convertReport(EQDOCReport eqReport) throws IOException, QueryException, EQDException {
+  public TTEntity convertReport(EQDOCReport eqReport, Graph graph) throws IOException, QueryException, EQDException {
     this.resources.setActiveReport(eqReport.getId());
     this.resources.setActiveReportName(eqReport.getName());
     String id = getId(eqReport);
@@ -311,9 +311,7 @@ public class EqdToIMQ {
     queryEntity.setName(eqReport.getName());
     queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
     if (eqReport.getFolder() != null) {
-      TTIriRef var10001 = iri(IM.IS_CONTAINED_IN);
-      String var10002 = this.namespace;
-      queryEntity.addObject(var10001, iri(var10002 + eqReport.getFolder()).setName(eqReport.getName()));
+      queryEntity.addObject(TTIriRef.iri(IM.IS_CONTAINED_IN), TTIriRef.iri(this.namespace + eqReport.getFolder()).setName(eqReport.getName()));
     }
 
     Query qry = new Query();
@@ -321,10 +319,10 @@ public class EqdToIMQ {
     qry.setName(queryEntity.getName());
     if (eqReport.getPopulation() != null) {
       queryEntity.addType(iri(IM.QUERY));
-      qry = (new EqdPopToIMQ()).convertPopulation(eqReport, qry, this.resources);
+      qry = (new EqdPopToIMQ()).convertPopulation(eqReport, qry, this.resources, graph);
     } else if (eqReport.getListReport() != null) {
       queryEntity.addType(iri(IM.QUERY));
-      (new EqdListToIMQ()).convertReport(eqReport, this.document, qry, this.resources);
+      (new EqdListToIMQ()).convertReport(eqReport, this.document, qry, this.resources, graph);
     } else if (eqReport.getAuditReport() != null) {
       queryEntity.addType(iri(IM.QUERY));
       (new EqdAuditToIMQ()).convertReport(eqReport, qry, this.resources);
@@ -353,7 +351,7 @@ public class EqdToIMQ {
     if (qry.getRule() != null) {
       for (Match match : qry.getRule()) {
         if (match.getAnd() != null) {
-          List<Match> flatMatches = new ArrayList();
+          List<Match> flatMatches = new ArrayList<>();
           for (Match subMatch : match.getAnd()) {
             if (subMatch.getAnd() != null) {
               flatMatches.addAll(subMatch.getAnd());

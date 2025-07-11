@@ -7,10 +7,12 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.http.HTTPRepository;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.codegen.DataModel;
 import org.endeavourhealth.imapi.model.codegen.DataModelProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
@@ -27,46 +29,26 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class CodeGenJava {
   private final Queue<String> iris = new PriorityQueue<>();
   private final HashMap<String, DataModel> models = new HashMap<>();
-  private HTTPRepository repo;
 
-  public void generate(ZipOutputStream os) throws IOException {
-    connectToDatabase();
-    getModelList();
-    getDataModelRecursively();
+  public void generate(ZipOutputStream os, Graph graph) throws IOException {
+    getModelList(graph);
+    getDataModelRecursively(graph);
     generateJavaCode(os);
   }
 
-  private void connectToDatabase() {
-    log.debug("connecting to database");
-
-    String server = System.getenv("GRAPH_SERVER") != null
-      ? System.getenv("GRAPH_SERVER")
-      : "HTTP://localhost:7200";
-    String repoID = System.getenv("GRAPH_REPO") != null
-      ? System.getenv("GRAPH_REPO")
-      : "im";
-
-    repo = new HTTPRepository(server, repoID);
-
-  }
-
-  private void getModelList() {
+  private void getModelList(Graph graph) {
     log.debug("getting model list");
 
     String sql = """
-      PREFIX im: <http://endhealth.info/im#>
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      PREFIX shacl: <http://www.w3.org/ns/shacl#>
-      
       SELECT ?iri
       WHERE {
         ?iri (im:isContainedIn|rdfs:subClassOf)* im:HealthDataModel ;
-        rdf:type shacl:NodeShape .
+        rdf:type sh:NodeShape .
       }
       """;
 
-    try (RepositoryConnection con = repo.getConnection()) {
-      TupleQuery query = con.prepareTupleQuery(sql);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery query = conn.prepareTupleSparql(sql);
       try (TupleQueryResult result = query.evaluate()) {
         while (result.hasNext()) {
           BindingSet bindSet = result.next();
@@ -78,50 +60,45 @@ public class CodeGenJava {
     }
   }
 
-  private void getDataModelRecursively() {
+  private void getDataModelRecursively(Graph graph) {
     log.debug("getting models");
 
     while (!iris.isEmpty()) {
       String iri = iris.remove();
-      DataModel model = getDataModel(iri);
+      DataModel model = getDataModel(iri, graph);
       addMissingModelToQueue(model);
       models.put(iri, model);
     }
   }
 
-  private DataModel getDataModel(String iri) {
+  private DataModel getDataModel(String iri, Graph graph) {
     log.debug("get data model [{}]", iri);
 
     DataModel model = new DataModel().setIri(iri);
 
-    String sql = """
-      PREFIX im: <http://endhealth.info/im#>
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      PREFIX shacl: <http://www.w3.org/ns/shacl#>
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      
+    String sql = """      
       SELECT ?iri ?model ?comment ?propname ?type ?typeName ?dm ?min ?max ?propcomment ?order
       WHERE {
-        ?iri shacl:property ?prop .
+        ?iri sh:property ?prop .
         ?iri rdfs:label ?model .
         ?iri rdfs:comment ?comment .
-        ?prop shacl:path ?propIri .
+        ?prop sh:path ?propIri .
         ?propIri rdfs:label ?propname .
-        OPTIONAL { ?prop shacl:order ?order }
-        # OPTIONAL { ?prop shacl:class ?type }
-        OPTIONAL { ?prop shacl:datatype ?type }
-        # OPTIONAL { ?prop shacl:node ?type }
+        OPTIONAL { ?prop sh:order ?order }
+        # OPTIONAL { ?prop sh:class ?type }
+        OPTIONAL { ?prop sh:datatype ?type }
+        # OPTIONAL { ?prop sh:node ?type }
         OPTIONAL { ?type rdfs:label ?typeName }
         OPTIONAL { ?prop rdfs:comment ?propcomment }
-        OPTIONAL { ?prop shacl:maxCount ?max }
-        OPTIONAL { ?prop shacl:minCount ?min }
-        bind( exists { ?type rdf:type shacl:NodeShape } as ?dm)
+        OPTIONAL { ?prop sh:maxCount ?max }
+        OPTIONAL { ?prop sh:minCount ?min }
+        bind( exists { ?type rdf:type sh:NodeShape } as ?dm)
         FILTER not exists { ?prop im:inversePath ?inverse }
         } ORDER BY ?order
       """;
 
-    try (RepositoryConnection con = repo.getConnection()) {
-      TupleQuery query = con.prepareTupleQuery(sql);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery query = conn.prepareTupleSparql(sql);
       query.setBinding("iri", Values.iri(iri));
       try (TupleQueryResult result = query.evaluate()) {
         while (result.hasNext()) {
@@ -358,7 +335,7 @@ public class CodeGenJava {
 
   private String getDataType(TTIriRef dataType, boolean dataModel, boolean isArray) {
     String dataTypeName = null;
-    if (dataType.getIri().startsWith(XSD.NAMESPACE)) {
+    if (dataType.getIri().startsWith(Namespace.XSD.toString())) {
       dataTypeName = capitalise(getSuffix(dataType.getIri()));
     } else if (dataModel) {
       dataTypeName = "UUID";

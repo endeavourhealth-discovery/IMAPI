@@ -80,6 +80,14 @@
         "value": "Namespace.IM + \"hasSubtypes\""
       },
       {
+        "name": "CONTEXT",
+        "value": "Namespace.IM + \"context\""
+      },
+      {
+        "name": "CONTEXT_ORDER",
+        "value": "Namespace.IM + \"contextOrder\""
+      },
+      {
         "name": "HAS_VALUESET",
         "value": "Namespace.IM + \"hasValueSet\""
       },
@@ -228,8 +236,8 @@
         "value": "Namespace.IM + \"Config\""
       },
       {
-        "name": "SCHEMES",
-        "value": "Namespace.IM + \"Graph\""
+        "name": "NAMESPACES",
+        "value": "Namespace.IM + \"Namespaces\""
       },
       {
         "name": "FUNCTION",

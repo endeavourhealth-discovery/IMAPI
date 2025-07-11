@@ -82,6 +82,8 @@ tasks.generateTypeScript {
   optionalProperties = OptionalProperties.useLibraryDefinition
   classPatterns = listOf(
     "org.endeavourhealth.imapi.model.DataModelProperty",
+    "org.endeavourhealth.imapi.model.requests.*",
+    "org.endeavourhealth.imapi.model.responses.*",
     "org.endeavourhealth.imapi.model.iml.*",
     "org.endeavourhealth.imapi.model.search.*",
     "org.endeavourhealth.imapi.model.set.EclSearchRequest",

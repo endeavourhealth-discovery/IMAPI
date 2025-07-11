@@ -287,7 +287,7 @@ public class IMQToOS {
     if (match.getPath() != null) {
       for (Path pathMatch : match.getPath()) {
         String w = pathMatch.getIri();
-        if (IM.BINDING.equals(w)) {
+        if (IM.BINDING.toString().equals(w)) {
           return addBinding(match, match.getOr() != null ? Bool.or : Bool.and, boolBuilder);
         }
       }
@@ -312,19 +312,19 @@ public class IMQToOS {
 
   private boolean addProperty(Where where, Bool bool, BoolQueryBuilder boolBldr) throws QueryException {
     String w = where.getIri();
-    if (IM.HAS_SCHEME.equals(w)) {
+    if (IM.HAS_SCHEME.toString().equals(w)) {
       return addIsFilter("scheme", where, bool, boolBldr);
-    } else if (IM.IS_MEMBER_OF.equals(w)) {
+    } else if (IM.IS_MEMBER_OF.toString().equals(w)) {
       return addIsFilter("memberOf", where, bool, boolBldr);
-    } else if (IM.HAS_MEMBER.equals(w) && where.isInverse()) {
+    } else if (IM.HAS_MEMBER.toString().equals(w) && where.isInverse()) {
       return addIsFilter("memberOf", where, bool, boolBldr);
-    } else if (IM.HAS_STATUS.equals(w)) {
+    } else if (IM.HAS_STATUS.toString().equals(w)) {
       return addIsFilter("status", where, bool, boolBldr);
-    } else if (RDF.TYPE.equals(w)) {
+    } else if (RDF.TYPE.toString().equals(w)) {
       return addIsFilter("type", where, bool, boolBldr);
-    } else if (IM.IS_A.equals(w)) {
+    } else if (IM.IS_A.toString().equals(w)) {
       return addIsFilter("isA", where, bool, boolBldr);
-    } else if (IM.CONTENT_TYPE.equals(w)) {
+    } else if (IM.CONTENT_TYPE.toString().equals(w)) {
       return addIsFilter("contentType", where, bool, boolBldr);
     }
     return false;
@@ -409,16 +409,16 @@ public class IMQToOS {
       String path = null;
       if (match.getWhere().getIri() != null) {
         Where binding = match.getWhere();
-        if (binding.getIri().equals(SHACL.PATH)) {
+        if (binding.getIri().equals(SHACL.PATH.toString())) {
           path = binding.getIs().getFirst().getIri();
-        } else if (binding.getIri().equals(SHACL.NODE)) {
+        } else if (binding.getIri().equals(SHACL.NODE.toString())) {
           node = binding.getIs().getFirst().getIri();
         }
       } else if (match.getWhere().getAnd() != null) {
         for (Where binding : match.getWhere().getAnd()) {
-          if (binding.getIri().equals(SHACL.PATH)) {
+          if (binding.getIri().equals(SHACL.PATH.toString())) {
             path = binding.getIs().getFirst().getIri();
-          } else if (binding.getIri().equals(SHACL.NODE)) {
+          } else if (binding.getIri().equals(SHACL.NODE.toString())) {
             node = binding.getIs().getFirst().getIri();
           }
         }

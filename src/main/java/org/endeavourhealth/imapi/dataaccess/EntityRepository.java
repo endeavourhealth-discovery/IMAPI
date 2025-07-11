@@ -1171,7 +1171,7 @@ public class EntityRepository {
       SELECT ?s ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren
       WHERE {
         %s
-        ?s im:scheme ?schemes
+        ?s im:scheme ?schemes.
         ?s rdfs:label ?name.
         ?s rdf:type ?typeIri.
         ?typeIri rdfs:label ?typeName.
@@ -1666,14 +1666,14 @@ public class EntityRepository {
     String sql = """
        select *
        where {
-         ?s im:isA im:Scheme .
+         ?s im:isA ?namespaces .
          ?s rdfs:label ?name .
        }
       """;
 
     try (IMDB conn = IMDB.getConnection(graph)) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
-
+      qry.setBinding("namespaces", IM.NAMESPACES.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

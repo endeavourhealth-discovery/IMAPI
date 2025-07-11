@@ -63,7 +63,7 @@ public class CodeGenController {
                                          @Parameter(description = "The IRI for which to generate code") @RequestParam(name = "iri", required = false) String iri,
                                          @Parameter(description = "The name of the template to use for generating code") @RequestParam("template") String templateName,
                                          @Parameter(description = "The namespace to use for generating code") @RequestParam("namespace") String namespace,
-                                         @Parameter(description = "The graphdb graph the data is stored under") @RequestParam(name = "graph") String graph) throws IOException {
+                                         @Parameter(description = "The graphdb graph the data is stored under") @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.GenerateCode.GET")) {
       log.debug("GenerateCode");
 
@@ -77,7 +77,7 @@ public class CodeGenController {
                                     @Parameter(description = "The IRI for which to generate code") @RequestParam(name = "iri", required = false) String iri,
                                     @Parameter(description = "The namespace to use for generating code") @RequestParam("namespace") String namespace,
                                     @Parameter(description = "The template data to use") @RequestBody CodeGenDto template,
-                                    @Parameter(description = "The graphdb graph the data is stored under") @RequestParam(name = "graph") String graph
+                                    @Parameter(description = "The graphdb graph the data is stored under") @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.GenerateCode.GET")) {
       log.debug("GenerateCodePreview");

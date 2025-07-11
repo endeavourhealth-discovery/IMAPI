@@ -122,7 +122,7 @@ public class FilerController {
   @PostMapping("folder/move")
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
   @Operation(summary = "Moves an entity from one folder to another.")
-  public ResponseEntity<ProblemDetailResponse> moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, @RequestParam(name = "graph") String graphString, HttpServletRequest request) throws Exception {
+  public ResponseEntity<ProblemDetailResponse> moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graphString, HttpServletRequest request) throws Exception {
     Graph graph = Graph.from(graphString);
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Move.POST")) {
       log.debug("moveFolder");
@@ -172,7 +172,7 @@ public class FilerController {
   public ResponseEntity<ProblemDetailResponse> addToFolder(
     @RequestParam(name = "entity") String entityIri,
     @RequestParam(name = "folder") String folderIri,
-    @RequestParam(name = "graph") String graphString,
+    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graphString,
     HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Add.POST")) {
       log.debug("addToFolder");
@@ -206,7 +206,7 @@ public class FilerController {
   public String createFolder(
     @RequestParam(name = "container") String container,
     @RequestParam(name = "name") String name,
-    @RequestParam(name = "graph") String graphString,
+    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graphString,
     HttpServletRequest request) throws Exception {
 
     Graph graph = Graph.from(graphString);

@@ -34,7 +34,7 @@ public class GithubService {
     GithubRelease config = configManager.getConfig(CONFIG.IMDIRECTORY_LATEST_RELEASE, new TypeReference<>() {
     });
     if (null == config)
-      throw new ConfigException("Github release config not found.");
+      throw new ConfigException("Github latest release config not found.");
     return config;
   }
 

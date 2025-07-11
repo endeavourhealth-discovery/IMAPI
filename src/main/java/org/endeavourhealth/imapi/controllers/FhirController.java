@@ -26,7 +26,7 @@ public class FhirController {
 
   @GetMapping(value = "/ValueSet", produces = "application/json")
   @Operation(summary = "Retrieves the specified value set")
-  public String getValueSet(@RequestParam(name = "url") String iri, @RequestParam(name = "graph") String graph) throws IOException, QueryException {
+  public String getValueSet(@RequestParam(name = "url") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Fhir.ValueSet.GET")) {
       log.info("Retrieving valueSet");
       return fhirService.getFhirValueSet(iri, false, Graph.from(graph));
@@ -35,7 +35,7 @@ public class FhirController {
 
   @GetMapping(value = "/ValueSet/$expand", produces = "application/json")
   @Operation(summary = "Retrieves the specified value set and expands any subsets & members")
-  public String getValueSetExpanded(@RequestParam(name = "url") String iri, @RequestParam(name = "graph") String graph) throws IOException, QueryException {
+  public String getValueSetExpanded(@RequestParam(name = "url") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Fhir.ValueSet.Expand.GET")) {
       log.info("Retrieving expanded valueSet");
       return fhirService.getFhirValueSet(iri, true, Graph.from(graph));

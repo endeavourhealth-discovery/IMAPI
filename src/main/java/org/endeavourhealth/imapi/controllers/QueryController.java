@@ -95,7 +95,7 @@ public class QueryController {
       return queryService.describeQuery(iri, displayMode);
     }
   }
-
+/*
   public Query queryFromIri(
     @RequestParam(name = "queryIri") String iri)
     throws IOException, QueryException {
@@ -103,7 +103,7 @@ public class QueryController {
       log.debug("getQueryfromIri");
       return queryService.getQueryFromIri(iri);
     }
-  }
+  }*/
 
   @PostMapping("/public/queryDisplayFromQuery")
   @Operation(

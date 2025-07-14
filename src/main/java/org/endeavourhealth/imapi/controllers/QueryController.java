@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.postRequestPrimatives.UUIDBody;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
@@ -242,14 +243,14 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/cancelQuery")
+  @PostMapping(value = "/cancelQuery", consumes = "application/json")
   @Operation(
     summary = "Cancel a query from running either whilst in the queue or runner using the query uuid"
   )
-  public void cancelQuery(@RequestBody UUID id) throws IOException, SQLException {
+  public void cancelQuery(@RequestBody UUIDBody id) throws IOException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.CancelQuery.POST")) {
       log.debug("cancelQuery");
-      DBEntry entry = postgresService.getById(id);
+      DBEntry entry = postgresService.getById(id.getValue());
       entry.setStatus(QueryExecutorStatus.CANCELLED);
       postgresService.update(entry);
     }

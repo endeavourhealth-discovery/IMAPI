@@ -37,7 +37,6 @@ public class QueryService {
   public static final String ENTITIES = "entities";
   private final EntityRepository entityRepository = new EntityRepository();
   private ConnectionManager connectionManager;
-  private MYSQLConnectionManager mySQLConnectionManager;
   private ObjectMapper objectMapper = new ObjectMapper();
   private PostgresService postgresService = new PostgresService();
 
@@ -129,9 +128,9 @@ public class QueryService {
   }
 
   public List<String> executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException {
-    log.info("Executing query: {}", queryRequest.getQuery().toString());
+    log.info("Executing query: {}", queryRequest.getQuery().getIri());
     String sql = getSQLFromIMQ(queryRequest, new HashMap<>());
-    List<String> results = mySQLConnectionManager.executeQuery(sql);
+    List<String> results = MYSQLConnectionManager.executeQuery(sql);
     storeQueryResults(queryRequest, results);
     return results;
   }
@@ -172,7 +171,7 @@ public class QueryService {
   }
 
   public void killActiveQuery() throws SQLException {
-    mySQLConnectionManager.killCurrentQuery();
+    MYSQLConnectionManager.killCurrentQuery();
   }
 
   public Query getDefaultQuery() throws JsonProcessingException {

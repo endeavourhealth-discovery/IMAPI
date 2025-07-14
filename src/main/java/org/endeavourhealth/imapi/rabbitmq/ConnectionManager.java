@@ -28,7 +28,7 @@ import java.util.concurrent.TimeoutException;
 @Service
 public class ConnectionManager {
   private static final String EXCHANGE_NAME = "query_runner";
-  private static final String QUEUE_CONSUME_NAME = "query.execute.consume";
+  private static final String QUEUE_NAME = "query.execute";
   private CachingConnectionFactory connectionFactory;
   private Connection connection;
   private Logger LOG = LoggerFactory.getLogger(ConnectionManager.class);
@@ -56,8 +56,8 @@ public class ConnectionManager {
     channel.confirmSelect();
     channel.exchangeDeclare(EXCHANGE_NAME, "topic", true);
     LOG.info("Created exchange: query_runner");
-    AMQP.Queue.DeclareOk queue = channel.queueDeclare("query.execute.publish", true, false, false, null);
-    channel.queueBind("query.execute.publish", "query_runner", "query.execute." + userId);
+    AMQP.Queue.DeclareOk queue = channel.queueDeclare(QUEUE_NAME, true, false, false, null);
+    channel.queueBind(QUEUE_NAME, "query_runner", "query.execute." + userId);
     LOG.info("Created queue: {}", queue.getQueue());
     return channel;
   }
@@ -76,23 +76,26 @@ public class ConnectionManager {
     createExchange();
     Channel channel = getConnection().createChannel(false);
     channel.exchangeDeclare(EXCHANGE_NAME, "topic", true);
-    channel.queueDeclare(QUEUE_CONSUME_NAME, true, false, false, null);
-    channel.queueBind(QUEUE_CONSUME_NAME, "query_runner", "query.execute.#");
+    channel.queueDeclare(QUEUE_NAME, true, false, false, null);
+    channel.queueBind(QUEUE_NAME, "query_runner", "query.execute.#");
     DeliverCallback deliverCallback = (consumerTag, delivery) -> {
       String message = new String(delivery.getBody(), "UTF-8");
       String id = delivery.getProperties().getMessageId();
       UUID uuid = UUID.fromString(id);
-      LOG.info("Received a message: {}", message);
+      LOG.info("Received a message: {}", uuid);
       DBEntry entry;
       try {
         entry = postgresService.getById(uuid);
 //        Skip if cancelled. RabbitMQ has no remove functionality while queued
-        if (entry.getStatus().equals(QueryExecutorStatus.CANCELLED)) {
+        if (null != entry && entry.getStatus().equals(QueryExecutorStatus.CANCELLED)) {
           channel.basicReject(delivery.getEnvelope().getDeliveryTag(), false);
           return;
         }
       } catch (SQLException e) {
         throw new RuntimeException(e);
+      }
+      if (null == entry) {
+        throw new RuntimeException("Could not find entry with id " + id);
       }
       entry.setStatus(QueryExecutorStatus.RUNNING);
       try {
@@ -102,11 +105,15 @@ public class ConnectionManager {
       }
       try {
         QueryRequest queryRequest = om.readValue(message, QueryRequest.class);
+        if (null == queryService) {
+          queryService = new QueryService();
+        }
         queryService.executeQuery(queryRequest);
         entry.setStatus(QueryExecutorStatus.COMPLETED);
         postgresService.update(entry);
       } catch (Exception | SQLConversionException e) {
         entry.setStatus(QueryExecutorStatus.ERRORED);
+        entry.setError(e.getMessage());
         try {
           postgresService.update(entry);
         } catch (SQLException ex) {
@@ -115,20 +122,19 @@ public class ConnectionManager {
       }
     };
     LOG.info("Waiting for query executor messages...");
-    channel.basicConsume(QUEUE_CONSUME_NAME, true, deliverCallback, consumerTag -> {
+    channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> {
     });
   }
 
   public void publishToQueue(UUID userId, String userName, QueryRequest message) throws Exception {
     Channel channel = getPublisherChannel(userId);
-    LOG.info("Publishing to queue: {}", message.getQuery().getIri());
     UUID id = UUID.randomUUID();
+    LOG.info("Publishing to queue: {}", id);
     AMQP.BasicProperties.Builder propertiesBuilder = new AMQP.BasicProperties().builder();
     AMQP.BasicProperties properties = propertiesBuilder
       .messageId(id.toString())
       .build();
-    channel.basicPublish(EXCHANGE_NAME, "query.execute." + userId, properties, message.toString().getBytes());
-    channel.waitForConfirmsOrDie(5_000);
+    String jsonMessage = om.writeValueAsString(message);
     DBEntry entry = new DBEntry()
       .setId(id)
       .setQueryRequest(message)
@@ -139,5 +145,7 @@ public class ConnectionManager {
       .setUserName(userName)
       .setQueuedAt(LocalDateTime.now());
     postgresService.create(entry);
+    channel.basicPublish(EXCHANGE_NAME, "query.execute." + userId, properties, jsonMessage.getBytes());
+    channel.waitForConfirmsOrDie(5_000);
   }
 }

@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.EntityType;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +20,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class IMQtoSQLConverterTest {
   private static Logger LOG = LoggerFactory.getLogger(IMQtoSQLConverterTest.class);
@@ -30,10 +31,10 @@ public class IMQtoSQLConverterTest {
   private String db_driver = System.getenv("DB_DRIVER");
 
   //  @Test
-  public void IMQtoSQL() {
+  public void IMQtoSQL(Graph graph) {
     // Get list of queries from GraphDb
     EntityRepository entityRepository = new EntityRepository();
-    List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(IM.QUERY);
+    List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(EntityType.QUERY, graph);
     LOG.info("Found {} queries", cohortQueryIris.size());
 
     // Prepare
@@ -51,14 +52,14 @@ public class IMQtoSQLConverterTest {
       for (TTIriRef cohortQueryIri : cohortQueryIris) {
         // Get the definition
         LOG.info("Checking [{} | {}]", cohortQueryIri.getIri(), cohortQueryIri.getName());
-        TTBundle bundle = entityRepository.getBundle(cohortQueryIri.getIri(), Set.of(IM.DEFINITION));
+        TTBundle bundle = entityRepository.getBundle(cohortQueryIri.getIri(), asHashSet(IM.DEFINITION));
 
-        if (bundle == null || bundle.getEntity() == null || !bundle.getEntity().has(iri(IM.DEFINITION))) {
+        if (bundle == null || bundle.getEntity() == null || !bundle.getEntity().has(IM.DEFINITION.asIri())) {
           LOG.error("Entity or definition not found!");
           continue;
         }
 
-        String definition = bundle.getEntity().get(iri(IM.DEFINITION)).asLiteral().getValue();
+        String definition = bundle.getEntity().get(IM.DEFINITION.asIri()).asLiteral().getValue();
         LOG.info("Definition found");
         try {
           // convert it

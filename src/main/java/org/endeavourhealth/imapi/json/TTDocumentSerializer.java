@@ -24,12 +24,6 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
     super(t);
   }
 
-  private static void processGraph(TTDocument document, JsonGenerator gen, TTNodeSerializer helper) throws IOException {
-    if (document.getGraph() != null) {
-      outputIri(gen, "graph", document.getGraph(), helper);
-    }
-  }
-
   private static void processCrud(TTDocument document, JsonGenerator gen, TTNodeSerializer helper) throws IOException {
     if (document.getCrud() != null) {
       outputIri(gen, "crud", document.getCrud().asIriRef(), helper);
@@ -52,9 +46,6 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
         gen.writeStartObject();
         if (entity.getIri() != null)
           gen.writeStringField("iri", helper.prefix(entity.getIri()));
-        if (entity.getGraph() != null) {
-          outputIri(gen, "graph", entity.getGraph(), helper);
-        }
         if (entity.getCrud() != null) {
           outputIri(gen, "crud", entity.getCrud(), helper);
         }
@@ -73,7 +64,6 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
     TTNodeSerializer helper = new TTNodeSerializer(document.getContext(), usePrefixes);
     gen.writeStartObject();
     helper.serializeContexts(document.getPrefixes(), gen);
-    processGraph(document, gen, helper);
     processCrud(document, gen, helper);
     processEntities(document, gen, prov, helper);
 

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import lombok.Getter;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
 
 import java.util.UUID;
 

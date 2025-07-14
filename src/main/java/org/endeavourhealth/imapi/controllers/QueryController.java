@@ -15,10 +15,14 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.postRequestPrimatives.UUIDBody;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
+import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
+import org.endeavourhealth.imapi.model.requests.QueryDisplayRequest;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.postgress.PostgresService;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
@@ -29,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.zip.DataFormatException;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @RestController
 @RequestMapping("api/query")
@@ -102,13 +108,23 @@ public class QueryController {
   )
   public Query describeQuery(
     @RequestParam(name = "queryIri") String iri,
-    @RequestParam(name = "displayMode", defaultValue = "ORIGINAL") DisplayMode displayMode)
-    throws IOException, QueryException {
+    @RequestParam(name = "displayMode", defaultValue = "ORIGINAL") DisplayMode displayMode,
+    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph
+  ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("describeQuery");
-      return queryService.describeQuery(iri, displayMode);
+      return queryService.describeQuery(iri, displayMode, Graph.from(graph));
     }
   }
+/*
+  public Query queryFromIri(
+    @RequestParam(name = "queryIri") String iri)
+    throws IOException, QueryException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
+      log.debug("getQueryfromIri");
+      return queryService.getQueryFromIri(iri);
+    }
+  }*/
 
   @PostMapping("/public/queryDisplayFromQuery")
   @Operation(
@@ -116,13 +132,18 @@ public class QueryController {
     description = "Returns a query view, transforming an IMQ query into a viewable object."
   )
   public Query describeQueryContent(
-    @RequestBody Query query,
+    @RequestBody QueryDisplayRequest queryDisplayRequest,
     @RequestParam(value = "displayMode", required = false, defaultValue = "ORIGINAL") DisplayMode displayMode
   ) throws IOException, QueryException {
-
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.GET")) {
+      if (null == queryDisplayRequest.getQuery()) {
+        queryDisplayRequest.setDisplayMode(DisplayMode.ORIGINAL);
+      }
+      if (null == queryDisplayRequest.getGraph()) {
+        queryDisplayRequest.setGraph(iri(Graph.IM));
+      }
       log.debug("getQueryDisplayFromQuery with displayMode: {}", displayMode);
-      return queryService.describeQuery(query, displayMode);
+      return queryService.describeQuery(queryDisplayRequest.getQuery(), displayMode, Graph.from(queryDisplayRequest.getGraph().getIri()));
     }
   }
 
@@ -161,10 +182,10 @@ public class QueryController {
     description = "Returns a query view, transforming an IMQ query into a viewable object."
   )
   public Match describeMatchContent(
-    @RequestBody Match match) throws IOException, QueryException {
+    @RequestBody MatchDisplayRequest matchDisplayRequest) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
       log.debug("getMatchDisplayFromMatch");
-      return queryService.describeMatch(match);
+      return queryService.describeMatch(matchDisplayRequest.getMatch(), matchDisplayRequest.getGraph());
     }
   }
 
@@ -186,10 +207,14 @@ public class QueryController {
     summary = "Generate SQL from IRI",
     description = "Generates SQL from the given IMQ query IRI."
   )
-  public String getSQLFromIMQIri(@RequestParam(name = "queryIri") String queryIri, @RequestParam(name = "lang", defaultValue = "MYSQL") DatabaseOption lang) throws IOException, QueryException, SQLConversionException {
+  public String getSQLFromIMQIri(
+    @RequestParam(name = "queryIri") String queryIri,
+    @RequestParam(name = "lang", defaultValue = "MYSQL") DatabaseOption lang,
+    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph
+  ) throws IOException, QueryException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getSQLFromIMQIri");
-      return queryService.getSQLFromIMQIri(queryIri, new HashMap<>(), lang);
+      return queryService.getSQLFromIMQIri(queryIri, lang, new HashMap<>(), Graph.from(graph));
     }
   }
 
@@ -329,10 +354,10 @@ public class QueryController {
 
   @GetMapping(value = "/public/defaultQuery")
   @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")
-  public Query getDefaultQuery() throws IOException {
+  public Query getDefaultQuery(@RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DefaultQuery.GET")) {
       log.debug("getDefaultCohort");
-      return queryService.getDefaultQuery();
+      return queryService.getDefaultQuery(Graph.from(graph));
     }
   }
 

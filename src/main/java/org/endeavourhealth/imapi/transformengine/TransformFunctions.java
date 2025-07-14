@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.transformengine;
 
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.TransformFunction;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,11 +13,11 @@ public class TransformFunctions {
     throw new IllegalStateException("Utility class");
   }
 
-  public static Object runFunction(String iri, Map<String, Object> args) {
+  public static Object runFunction(TransformFunction iri, Map<String, Object> args) {
     return switch (iri) {
-      case IM.NAMESPACE + "Concatenate" -> concatenate(args);
-      case IM.NAMESPACE + "StringJoin" -> stringJoin(args);
-      case IM.NAMESPACE + "SchemedCodeConceptMap" -> schemeCodeConcept();
+      case TransformFunction.CONCATENATE -> concatenate(args);
+      case TransformFunction.STRING_JOIN -> stringJoin(args);
+      case TransformFunction.SNOMED_CODE_CONCEPT_MAP -> schemeCodeConcept();
       default -> throw new IllegalArgumentException("FunctionClause not supported : " + iri);
     };
   }

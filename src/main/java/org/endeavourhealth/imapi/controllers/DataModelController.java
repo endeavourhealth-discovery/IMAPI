@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -34,11 +35,12 @@ public class DataModelController {
   @GetMapping("/public/dataModelProperties")
   public NodeShape getDataModelProperties(
     @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri,
-     @RequestParam(name = "pathsOnly", required = false, defaultValue = "false") boolean pathsOnly
+    @RequestParam(name = "pathsOnly", required = false, defaultValue = "false") boolean pathsOnly,
+    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
-      log.debug("getDataModelProperties "+ (pathsOnly ?"paths only":"")+"for " + iri);
-      return dataModelService.getDataModelDisplayProperties(iri,pathsOnly);
+      log.debug("getDataModelProperties " + (pathsOnly ? "paths only" : "") + "for " + iri);
+      return dataModelService.getDataModelDisplayProperties(iri, pathsOnly, Graph.from(graph));
     }
   }
 
@@ -57,7 +59,6 @@ public class DataModelController {
   }
 
 
-
   @Operation(
     summary = "Retrieve UI property for query builder",
     description = "Returns the UI property metadata for a given data model IRI and property IRI."
@@ -65,11 +66,12 @@ public class DataModelController {
   @GetMapping(value = "public/UIPropertyForQB")
   public UIProperty getUIPropertyForQB(
     @Parameter(description = "IRI of the data model") @RequestParam(name = "dmIri") String dmIri,
-    @Parameter(description = "IRI of the property") @RequestParam(name = "propIri") String propIri
+    @Parameter(description = "IRI of the property") @RequestParam(name = "propIri") String propIri,
+    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.GetUIPropertyForQB.GET")) {
       log.debug("getUIPropertyForQB");
-      return dataModelService.getUIPropertyForQB(dmIri, propIri);
+      return dataModelService.getUIPropertyForQB(dmIri, propIri, Graph.from(graph));
     }
   }
 
@@ -80,10 +82,11 @@ public class DataModelController {
   @GetMapping(value = "/public/dataModels")
   public List<TTIriRef> getDataModelsFromProperty(
     @Parameter(description = "IRI of the property")
-    @RequestParam(name = "propIri") String propIri
+    @RequestParam(name = "propIri") String propIri,
+    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph
   ) {
     log.debug("getDataModelsFromProperty");
-    return dataModelService.getDataModelsFromProperty(propIri);
+    return dataModelService.getDataModelsFromProperty(propIri, Graph.from(graph));
   }
 
   @Operation(
@@ -92,11 +95,11 @@ public class DataModelController {
   )
   @GetMapping(value = "public/checkPropertyType")
   public String checkPropertyType(
-    @Parameter(description = "IRI of the property") @RequestParam(name = "propertyIri") String iri
+    @Parameter(description = "IRI of the property") @RequestParam(name = "propertyIri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.CheckPropertyType.GET")) {
       log.debug("checkPropertyType");
-      return dataModelService.checkPropertyType(iri);
+      return dataModelService.checkPropertyType(iri, Graph.from(graph));
     }
   }
 }

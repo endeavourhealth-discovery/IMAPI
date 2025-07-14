@@ -2,13 +2,13 @@ package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import org.endeavourhealth.imapi.json.TTNodeDeserializerV2;
 import org.endeavourhealth.imapi.json.TTNodeSerializerV2;
+import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
 import java.io.Serializable;
 import java.util.*;
@@ -23,6 +23,9 @@ public class TTNode implements TTValue, Serializable {
   private String iri;
 
   public TTNode setIri(String iri) {
+    if (iri != null && iri.startsWith("null"))
+      System.err.println("Its here!!!!");
+
     this.iri = iri;
     return this;
   }
@@ -76,6 +79,13 @@ public class TTNode implements TTValue, Serializable {
   }
 
   @JsonIgnore
+  public TTNode set(VocabEnum predicate, TTValue value) {
+    this.set(predicate.asIri(), value);
+    return this;
+  }
+
+
+  @JsonIgnore
   public TTNode set(String predicate, boolean value) {
     this.set(iri(predicate), value);
     return this;
@@ -86,6 +96,11 @@ public class TTNode implements TTValue, Serializable {
     return predicateValues.get(iri(predicate));
   }
 
+  @JsonIgnore
+  public TTArray get(VocabEnum predicate) {
+    return predicateValues.get(predicate.asIri());
+  }
+
   @JsonGetter
   public TTArray get(TTIriRef predicate) {
     return predicateValues.get(predicate);
@@ -93,6 +108,10 @@ public class TTNode implements TTValue, Serializable {
 
   public boolean has(TTIriRef predicate) {
     return predicateValues.containsKey(predicate);
+  }
+
+  public boolean has(VocabEnum predicate) {
+    return predicateValues.containsKey(predicate.asIri());
   }
 
   public Map<TTIriRef, TTArray> getPredicateMap() {

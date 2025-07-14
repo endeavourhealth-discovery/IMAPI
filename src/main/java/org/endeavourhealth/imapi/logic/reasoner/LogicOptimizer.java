@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.*;
 
@@ -30,7 +31,7 @@ public class LogicOptimizer {
   }
 
 
-  public void deduplicateQuery(Query query,String namespace) throws JsonProcessingException {
+  public void deduplicateQuery(Query query, Namespace namespace) throws JsonProcessingException {
         if (query.getRule() != null) {
           for (Match rule:query.getRule()){
             deduplicateRule(rule,namespace);
@@ -38,20 +39,18 @@ public class LogicOptimizer {
         }
   }
 
-  private void deduplicateRule(Match rule,String namespace) throws JsonProcessingException {
+  private void deduplicateRule(Match rule,Namespace namespace) throws JsonProcessingException {
     Map<String,String> criteriaNodeRef= new HashMap<>();
     for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr(), rule.getNot())) {
       if (matches != null) {
         for (int i=0; i<matches.size(); i++) {
           Match match = matches.get(i);
-          if (match.getLinkedMatch() != null) continue;
-          Match logicalMatch = getLogicalMatch(match,namespace);
+          Match logicalMatch = getLogicalMatch(match);
           String libraryIri = namespace + "Clause_" + (mapper.writeValueAsString(logicalMatch).hashCode());
           if (criteriaNodeRef.containsKey(libraryIri)) {
             if (matches.size() > i + 1) {
-              if (matches.get(i + 1).getLinkedMatch() != null) {
                 Match linkedMatch = matches.get(i + 1);
-                linkedMatch.setLinkedMatch(criteriaNodeRef.get(libraryIri));
+                if (isLinkedMatch(linkedMatch) &&linkedMatch.getWhere()!=null){
                 Where where = linkedMatch.getWhere();
                 if (where.getRelativeTo() != null && where.getRelativeTo().getNodeRef() != null) {
                   where.getRelativeTo().setNodeRef(criteriaNodeRef.get(libraryIri));
@@ -75,7 +74,7 @@ public class LogicOptimizer {
       }
     }
   }
-  public Match getLogicalMatch(Match match,String namespace) throws JsonProcessingException {
+  public Match getLogicalMatch(Match match) throws JsonProcessingException {
     String matchJson= mapper.writeValueAsString(match);
     Match logicalMatch=mapper.readValue(matchJson,Match.class);
     if (logicalMatch.getReturn()!=null){
@@ -88,6 +87,15 @@ public class LogicOptimizer {
     }
     if (logicalMatch.getWhere()!=null){
       logicalWhere(logicalMatch.getWhere());
+    }
+    for (List<Match> matches : Arrays.asList(logicalMatch.getAnd(), logicalMatch.getOr(), logicalMatch.getNot())) {
+      if (matches != null) {
+        for (int i = 0; i < matches.size(); i++) {
+          Match subMatch = matches.get(i);
+          Match logicalSubMatch = getLogicalMatch(subMatch);
+          matches.set(i,logicalSubMatch);
+        }
+      }
     }
 
     return logicalMatch;
@@ -122,6 +130,18 @@ public class LogicOptimizer {
       Match andMatch= match.getAnd().getFirst();
       mergeMatch(match, andMatch);
     }
+  }
+  public static boolean isLinkedMatch(Match match){
+    if (match.getWhere()!=null){
+      Where where = match.getWhere();
+      if (where.getRelativeTo() != null && where.getRelativeTo().getNodeRef() != null) return true;
+      if (where.getAnd() != null) {
+        for (Where andWhere : where.getAnd()) {
+          if (andWhere.getRelativeTo() != null && andWhere.getRelativeTo().getNodeRef() != null) return true;
+          }
+        }
+      }
+    return false;
   }
 
   private static void mergeMatch(Match match, Match nestedMatch) {

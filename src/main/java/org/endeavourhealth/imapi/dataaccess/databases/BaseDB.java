@@ -1,23 +1,26 @@
-package org.endeavourhealth.imapi.dataaccess.helpers;
+package org.endeavourhealth.imapi.dataaccess.databases;
 
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.rdf4j.query.TupleQuery;
-import org.eclipse.rdf4j.query.Update;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.query.*;
+import org.eclipse.rdf4j.query.impl.DatasetImpl;
+import org.eclipse.rdf4j.query.impl.SimpleDataset;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
+import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.StringJoiner;
 
+import static org.eclipse.rdf4j.model.util.Values.iri;
+
 @Slf4j
-public class ConnectionManager {
-  private static final Map<String, Repository> repos = new HashMap<>();
+public abstract class BaseDB implements AutoCloseable {
   private static final String DEFAULT_PREFIXES = """
     PREFIX bc: <http://endhealth.info/bc#>
     PREFIX reports: <http://endhealth.info/reports#>
@@ -52,68 +55,130 @@ public class ConnectionManager {
     PREFIX ods: <http://endhealth.info/ods#>
     """;
 
-  private ConnectionManager() {
-    throw new IllegalStateException("Utility class");
+  protected RepositoryConnection conn;
+  private final SimpleDataset dataset= new SimpleDataset();
+
+  protected BaseDB(Graph... graphs) {
+    for (Graph graph : graphs) {
+      if (graph == null)
+        dataset.addDefaultGraph(null);
+      else
+        dataset.addDefaultGraph(graph.asDbIri());
+    }
   }
 
-  public static RepositoryConnection getIMConnection() {
-    return getRepository("im").getConnection();
-  }
+  public TupleQuery prepareTupleSparql(String sparql) {
+    if (sparql.toUpperCase().contains("INSERT"))
+      throw new DALException("This appears to be an INSERT statement, use `prepareInsertSparql` instead");
 
-  public static RepositoryConnection getConfigConnection() {
-    return getRepository("config").getConnection();
-  }
+    if (sparql.toUpperCase().contains("DELETE"))
+      throw new DALException("This appears to be an DELETE statement, use `prepareDeleteSparql` instead");
 
-  public static RepositoryConnection getUserConnection() {
-    return getRepository("user").getConnection();
-  }
-
-  public static RepositoryConnection getWorkflowConnection() {
-    return getRepository("workflow").getConnection();
-  }
-
-
-  public static TupleQuery prepareSparql(RepositoryConnection conn, String sparql) {
     try {
       StringJoiner sj = new StringJoiner(System.lineSeparator());
       sj.add(DEFAULT_PREFIXES);
       sj.add(sparql);
-      return conn.prepareTupleQuery(sj.toString());
+      TupleQuery tq = conn.prepareTupleQuery(sj.toString());
+      tq.setDataset(dataset);
+      return tq;
     } catch (Exception e) {
       throw new DALException("Failed to prepare SPARQL query", e);
     }
   }
 
-  public static Update prepareUpdateSparql(RepositoryConnection conn, String sparql) {
+  public Update prepareDeleteSparql(String sparql) {
+    if (!sparql.toUpperCase().contains("DELETE"))
+      throw new DALException("This doesnt appear to be an DELETE statement");
+
+    return prepareSparql(sparql);
+  }
+
+  public Update prepareInsertSparql(String sparql, Graph graph) {
+    if (!sparql.toUpperCase().contains("INSERT"))
+      throw new DALException("This doesnt appear to be an INSERT statement");
+
+    if (graph == null)
+      throw new DALException("A graph MUST be specified for an insert statement");
+
+    Update insert = prepareSparql(sparql);
+    dataset.setDefaultInsertGraph(graph.asDbIri());
+
+    return insert;
+  }
+
+  public Update prepareUpdateSparql(String sparql, Graph graph) {
+    if (!sparql.toUpperCase().contains("DELETE") || !sparql.toUpperCase().contains("INSERT"))
+      throw new DALException("This doesnt appear to be an UPDATE statement");
+
+    if (graph == null)
+      throw new DALException("A graph MUST be specified for an update statement");
+
+    Update update = prepareSparql(sparql);
+    dataset.setDefaultInsertGraph(graph.asDbIri());
+
+    return update;
+  }
+
+  private Update prepareSparql(String sparql) {
     try {
       StringJoiner sj = new StringJoiner(System.lineSeparator());
       sj.add(DEFAULT_PREFIXES);
       sj.add(sparql);
-      return conn.prepareUpdate(sj.toString());
+      Update uq = conn.prepareUpdate(sj.toString());
+      uq.setDataset(dataset);
+      return uq;
     } catch (Exception e) {
       throw new DALException("Failed to prepare SPARQL query", e);
     }
   }
 
+  public GraphQuery prepareGraphSparql(String sparql) {
 
-  private static synchronized Repository getRepository(String repoId) {
-    Repository repo = repos.get(repoId);
-    if (repo == null) {
-      log.debug("Connecting to repository [{}]", repoId);
-      String type = System.getenv("GRAPH_TYPE");
-      if (type == null || type.isEmpty())
-        type = "http";
-
-      repo = switch (type.toLowerCase()) {
-        case "http" -> getHttpRepo(repoId);
-        case "file" -> getFileRepo(repoId);
-        case "sparql" -> getSparqlRepo(repoId);
-        default -> throw new DALException("Invalid graph connection parameters");
-      };
-      repos.put(repoId, repo);
+    try {
+      StringJoiner sj = new StringJoiner(System.lineSeparator());
+      sj.add(DEFAULT_PREFIXES);
+      sj.add(sparql);
+      GraphQuery gq = conn.prepareGraphQuery(sj.toString());
+      gq.setDataset(dataset);
+      return gq;
+    } catch (Exception e) {
+      throw new DALException("Failed to prepare SPARQL query", e);
     }
+  }
 
-    return repo;
+  public BooleanQuery prepareBooleanSparql(String sparql) {
+    if (!sparql.toUpperCase().contains("ASK"))
+      throw new DALException("This doesnt appear to be an ASK statement");
+
+    try {
+      StringJoiner sj = new StringJoiner(System.lineSeparator());
+      sj.add(DEFAULT_PREFIXES);
+      sj.add(sparql);
+      BooleanQuery bq = conn.prepareBooleanQuery(sj.toString());
+      bq.setDataset(dataset);
+      return bq;
+    } catch (Exception e) {
+      throw new DALException("Failed to prepare SPARQL query", e);
+    }
+  }
+
+  @Override
+  public void close() {
+    conn.close();
+  }
+
+  protected static synchronized Repository getRepository(String repoId) {
+    log.debug("Connecting to repository [{}]", repoId);
+    String type = System.getenv("GRAPH_TYPE");
+    if (type == null || type.isEmpty())
+      type = "http";
+
+    return switch (type.toLowerCase()) {
+      case "http" -> getHttpRepo(repoId);
+      case "file" -> getFileRepo(repoId);
+      case "sparql" -> getSparqlRepo(repoId);
+      default -> throw new DALException("Invalid graph connection parameters");
+    };
   }
 
   private static HTTPRepository getHttpRepo(String repoId) {
@@ -165,4 +230,21 @@ public class ConnectionManager {
 
     return new SPARQLRepository(repoId + "." + query, repoId + "." + update);
   }
+
+  public void add(Model build) {
+    conn.add(build);
+  }
+
+  public void begin() {
+    conn.begin();
+  }
+
+  public void commit() {
+    conn.commit();
+  }
+
+  public void rollback() {
+    conn.rollback();
+  }
 }
+

@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.OSQuery;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +20,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OSQueryTest_IM {
 
@@ -48,11 +51,11 @@ class OSQueryTest_IM {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
-            .setWhere(
-              new Where()
-                .setIri(IM.HAS_SCHEME)
-                .setIs(List.of(new Node().setIri(SNOMED.NAMESPACE)))
-            )
+        .setWhere(
+          new Where()
+            .setIri(IM.HAS_SCHEME)
+            .setIs(List.of(new Node().setIri(Namespace.SNOMED.toString())))
+        )
       );
 
     SearchResponse results = osq.openSearchQuery(req);
@@ -66,10 +69,9 @@ class OSQueryTest_IM {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
-            .addInstanceOf(new Node().setIri("http://snomed.info/sct#57148006")
-              .setDescendantsOrSelfOf(true)
-            ))
-      ;
+        .addInstanceOf(new Node().setIri("http://snomed.info/sct#57148006")
+          .setDescendantsOrSelfOf(true)
+        ));
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
@@ -85,9 +87,9 @@ class OSQueryTest_IM {
         List.of(TTIriRef.iri("http://snomed.info/sct#57148006", "http://snomed.info/sct#11164009"))
       ))
       .setQuery(new Query()
-            .addInstanceOf(new Node().setParameter("$isas")
-              .setDescendantsOrSelfOf(true)
-            ));
+        .addInstanceOf(new Node().setParameter("$isas")
+          .setDescendantsOrSelfOf(true)
+        ));
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
@@ -100,12 +102,12 @@ class OSQueryTest_IM {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
-            .setWhere(new Where()
-              .setIri(IM.HAS_MEMBER)
-              .setInverse(true)
-              .setIs(List.of(new Node().setIri("http://endhealth.info/im#VSET_ASD")))
-            )
-        );
+        .setWhere(new Where()
+          .setIri(IM.HAS_MEMBER)
+          .setInverse(true)
+          .setIs(List.of(new Node().setIri("http://endhealth.info/im#VSET_ASD")))
+        )
+      );
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());

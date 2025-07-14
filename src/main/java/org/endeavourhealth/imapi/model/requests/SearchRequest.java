@@ -1,9 +1,11 @@
-package org.endeavourhealth.imapi.model.search;
+package org.endeavourhealth.imapi.model.requests;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-
+import org.endeavourhealth.imapi.model.search.Filter;
+import org.endeavourhealth.imapi.model.search.OrderBy;
+import org.endeavourhealth.imapi.model.search.SearchBinding;
 
 import java.util.*;
 import java.util.function.Consumer;

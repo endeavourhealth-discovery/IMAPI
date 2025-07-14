@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.json.TTEntityDeserializer;
 import org.endeavourhealth.imapi.json.TTEntitySerializer;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -20,7 +21,6 @@ import java.util.Set;
 public class TTEntity extends TTNode implements Serializable {
   private TTContext context = new TTContext();
   private TTIriRef crud;
-  private TTIriRef graph;
 
   public TTEntity() {
   }
@@ -221,16 +221,6 @@ public class TTEntity extends TTNode implements Serializable {
   @JsonSetter
   public TTEntity setCrud(TTIriRef crud) {
     this.crud = crud;
-    return this;
-  }
-
-  public TTIriRef getGraph() {
-    return graph;
-  }
-
-  @JsonSetter
-  public TTEntity setGraph(TTIriRef graph) {
-    this.graph = graph;
     return this;
   }
 }

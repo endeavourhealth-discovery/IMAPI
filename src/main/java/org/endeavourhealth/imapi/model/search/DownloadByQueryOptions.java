@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.model.search;
 
 import lombok.Getter;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
-import org.endeavourhealth.imapi.model.set.EclSearchRequest;
+import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
 
 @Getter
 public class DownloadByQueryOptions {

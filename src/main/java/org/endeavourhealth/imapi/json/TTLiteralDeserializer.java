@@ -35,19 +35,19 @@ public class TTLiteralDeserializer extends StdDeserializer<TTLiteral> {
   public TTLiteral deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
-    if (!node.has(IM.TYPE)) {
+    if (!node.has(IM.TYPE.toString())) {
       if (node.isValueNode())
         return literal(node);
       else
-        return literal(node.get(IM.VALUE).textValue());
+        return literal(node.get(IM.VALUE.toString()).textValue());
     }
 
-    TTIriRef type = iri(helper == null ? node.get(IM.TYPE).asText() : helper.expand(node.get(IM.TYPE).asText()));
-    return switch (type.getIri()) {
-      case XSD.STRING -> literal(node.get(IM.VALUE).textValue());
-      case XSD.BOOLEAN -> literal(Boolean.valueOf(node.get(IM.VALUE).asText()));
-      case XSD.INTEGER -> literal(Integer.valueOf(node.get(IM.VALUE).asText()));
-      case XSD.PATTERN -> literal(Pattern.compile(node.get(IM.VALUE).textValue()));
+    TTIriRef type = iri(helper == null ? node.get(IM.TYPE.toString()).asText() : helper.expand(node.get(IM.TYPE.toString()).asText()));
+    return switch (XSD.from(type.getIri())) {
+      case XSD.STRING -> literal(node.get(IM.VALUE.toString()).textValue());
+      case XSD.BOOLEAN -> literal(Boolean.valueOf(node.get(IM.VALUE.toString()).asText()));
+      case XSD.INTEGER -> literal(Integer.valueOf(node.get(IM.VALUE.toString()).asText()));
+      case XSD.PATTERN -> literal(Pattern.compile(node.get(IM.VALUE.toString()).textValue()));
       case null, default -> throw new IOException("Unhandled literal type [" + type.getIri() + "]");
     };
   }

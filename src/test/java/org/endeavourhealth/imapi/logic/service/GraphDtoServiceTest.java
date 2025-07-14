@@ -40,7 +40,7 @@ public class GraphDtoServiceTest {
 
   @Test
   void getGraphData_NullIri() {
-    GraphDto actual = graphDtoService.getGraphData(null);
+    GraphDto actual = graphDtoService.getGraphData(null, null);
     assertNotNull(actual);
   }
 
@@ -48,7 +48,7 @@ public class GraphDtoServiceTest {
   void getGraphData_NotNullEntity() {
     TTEntity entity = new TTEntity();
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
-    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115");
+    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115", null);
     assertNotNull(actual);
   }
 
@@ -57,7 +57,7 @@ public class GraphDtoServiceTest {
     TTEntity entity = new TTEntity();
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
-    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115");
+    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115", null);
     assertNotNull(actual);
   }
 
@@ -65,7 +65,7 @@ public class GraphDtoServiceTest {
   void getGraphData_LeafNodes() {
     TTEntity entity = new TTEntity();
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
-    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115");
+    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115", null);
     assertNotNull(actual);
   }
 
@@ -78,7 +78,7 @@ public class GraphDtoServiceTest {
       );
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
-    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115");
+    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115", null);
     assertNotNull(actual);
   }
 }

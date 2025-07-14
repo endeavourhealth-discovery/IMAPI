@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
@@ -544,7 +545,7 @@ public class IMQtoSQLConverter {
 
   private String getUnitName(TTIriRef iriRef) throws SQLConversionException {
     if (iriRef.getName() != null) return iriRef.getName();
-    return switch (iriRef.getIri()) {
+    return switch (IM.from(iriRef.getIri())) {
       case IM.YEARS -> "Year";
       case IM.MONTHS -> "Month";
       case IM.DAYS -> "Day";

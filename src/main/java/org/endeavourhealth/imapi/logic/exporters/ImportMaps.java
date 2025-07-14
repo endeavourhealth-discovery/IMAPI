@@ -6,27 +6,22 @@ import org.eclipse.rdf4j.model.impl.ValidatingValueFactory;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.FileRepository;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.filer.rdf4j.TTBulkFiler;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.io.IOException;
 import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 
 public class ImportMaps implements AutoCloseable {
   private final FileRepository fileRepo = new FileRepository(TTBulkFiler.getDataPath());
@@ -39,13 +34,13 @@ public class ImportMaps implements AutoCloseable {
    *
    * @throws TTFilerException when code maps are missing
    */
-  public Map<String, Set<String>> importEmisToSnomed() throws TTFilerException, IOException {
+  public Map<String, Set<String>> importEmisToSnomed(Graph graph) throws TTFilerException, IOException {
     if (TTFilerFactory.isBulk())
-      return fileRepo.getCodeCoreMap(GRAPH.EMIS);
-    return importEmisToSnomedRdf4j();
+      return fileRepo.getCodeCoreMap(Namespace.EMIS);
+    return importEmisToSnomedRdf4j(graph);
   }
 
-  public String getCoreName(String iri) throws IOException {
+  public String getCoreName(String iri, Graph graph) throws IOException {
     if (cachedNames.get(iri) != null)
       return cachedNames.get(iri);
     String name;
@@ -54,7 +49,7 @@ public class ImportMaps implements AutoCloseable {
       cachedNames.put(iri, name);
       return name;
     } else {
-      name = new EntityRepository().getEntityReferenceByIri(iri).getName();
+      name = new EntityRepository().getEntityReferenceByIri(iri, graph).getName();
       cachedNames.put(iri, name);
       return name;
     }
@@ -68,67 +63,66 @@ public class ImportMaps implements AutoCloseable {
    * @param term the code or description id or term code
    * @return iri and name of entity
    */
-  public TTIriRef getReferenceFromCoreTerm(String term) throws IOException {
+  public TTIriRef getReferenceFromCoreTerm(String term, Graph graph) throws IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getReferenceFromCoreTerm(term);
     else
-      return new EntityRepository().getReferenceFromCoreTerm(term);
+      return new EntityRepository().getReferenceFromCoreTerm(term, graph);
   }
 
-  public Map<String, String> getCodeToIri() throws IOException {
+  public Map<String, String> getCodeToIri(Graph graph) throws IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getCodeToIri();
     else
-      return new EntityRepository().getCodeToIri();
+      return new EntityRepository().getCodeToIri(graph);
   }
 
 
-  public Map<String,String> getCodesToIri(String scheme) throws IOException {
+  public Map<String, String> getCodesToIri(Namespace scheme, Graph graph) throws IOException {
     Map<String, String> codeToIri;
     if (TTFilerFactory.isBulk())
-      codeToIri= fileRepo.getCodeToIri();
+      codeToIri = fileRepo.getCodeToIri();
     else
-      codeToIri= new EntityRepository().getCodesToIri(scheme);
-    Map<String, String> map= new HashMap<>();
+      codeToIri = new EntityRepository().getCodesToIri(scheme, graph);
+    Map<String, String> map = new HashMap<>();
     codeToIri.entrySet().stream().forEach(item -> {
       String entry = item.getKey();
       String value = item.getValue();
-      if (entry.startsWith(scheme)) {
-        String code = entry.split(scheme)[1];
-        map.put(code,value);
+      if (entry.startsWith(scheme.toString())) {
+        String code = entry.split(scheme.toString())[1];
+        map.put(code, value);
       }
     });
     return map;
   }
-  public Set<String> getCodes(String scheme) throws IOException {
-    Map<String, String> codeToIri = getCodeToIri();
+
+  public Set<String> getCodes(Namespace scheme, Graph graph) throws IOException {
+    Map<String, String> codeToIri = getCodeToIri(graph);
     Set<String> codes = new HashSet<>();
     codeToIri.forEach((entry, value) -> {
-      if (entry.startsWith(scheme)) {
-        String code = entry.split(scheme)[1];
+      if (entry.startsWith(scheme.toString())) {
+        String code = entry.split(scheme.toString())[1];
         codes.add(code);
       }
     });
     return codes;
   }
 
-  public Set<Entity> getCoreFromCode(String code, List<String> schemes) {
-      return new EntityRepository().getCoreFromCode(code, schemes);
+  public Set<Entity> getCoreFromCode(String code, List<Namespace> schemes, Graph graph) {
+    return new EntityRepository().getCoreFromCode(code, schemes, graph);
   }
 
-  public Map<String, Set<String>> getAllMatchedLegacy() throws IOException {
+  public Map<String, Set<String>> getAllMatchedLegacy(Graph graph) throws IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getAllMatchedLegacy();
     else
-      return new EntityRepository().getAllMatchedLegacy();
+      return new EntityRepository().getAllMatchedLegacy(graph);
   }
 
-  public Set<Entity> getCoreFromLegacyTerm(String term, String scheme) throws IOException {
-      return new EntityRepository().getCoreFromLegacyTerm(term, scheme);
+  public Set<Entity> getCoreFromLegacyTerm(String term, Namespace scheme, Graph graph) {
+    return new EntityRepository().getCoreFromLegacyTerm(term, scheme, graph);
 
   }
-
-
 
 
   /**
@@ -137,12 +131,12 @@ public class ImportMaps implements AutoCloseable {
    * @return a set of snomed codes
    * @throws TTFilerException if using rdf4j
    */
-  public Set<String> importEntities() throws TTFilerException, IOException {
+  public Set<String> importEntities(Graph graph) throws TTFilerException, IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getAllEntities();
     else {
       Set<String> entities = new HashSet<>();
-      return importAllRDF4J(entities);
+      return importAllRDF4J(entities, graph);
     }
   }
 
@@ -154,9 +148,9 @@ public class ImportMaps implements AutoCloseable {
    * @throws IOException      if using the file repository
    * @throws TTFilerException if using the graph repository
    */
-  public Map<String, Set<String>> getAllPlusMatches() throws IOException, TTFilerException {
-    Set<String> all = importEntities();
-    Map<String, Set<String>> legacyCore = getAllMatchedLegacy();
+  public Map<String, Set<String>> getAllPlusMatches(Graph graph) throws IOException, TTFilerException {
+    Set<String> all = importEntities(graph);
+    Map<String, Set<String>> legacyCore = getAllMatchedLegacy(graph);
     Map<String, Set<String>> allAndMatched = new HashMap<>();
     for (String iri : all) {
       allAndMatched.put(iri, legacyCore.get(iri));
@@ -170,12 +164,12 @@ public class ImportMaps implements AutoCloseable {
    * @return the code to Snomed code one to many map
    * @throws TTFilerException when code maps are missing
    */
-  public Map<String, Set<String>> importReadToSnomed() throws TTFilerException, IOException {
+  public Map<String, Set<String>> importReadToSnomed(Graph graph) throws TTFilerException, IOException {
     Map<String, Set<String>> readToSnomed = new HashMap<>();
     if (TTFilerFactory.isBulk()) {
-      return fileRepo.getCodeCoreMap(GRAPH.EMIS);
+      return fileRepo.getCodeCoreMap(Namespace.EMIS);
     }
-    return importReadToSnomedRdf4j(readToSnomed);
+    return importReadToSnomedRdf4j(readToSnomed, graph);
   }
 
   /**
@@ -185,48 +179,49 @@ public class ImportMaps implements AutoCloseable {
    * @return A map from code to many terms;
    * @throws TTFilerException when descendants of concept are missing. Set as specialConcept in TTBulkFiler
    */
-  public Map<String, Set<String>> getDescendants(String concept) throws TTFilerException, IOException {
+  public Map<String, Set<String>> getDescendants(String concept, Graph graph) throws TTFilerException, IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getDescendants(concept);
-    return getDescendantsRDF(concept);
+    return getDescendantsRDF(concept, graph);
   }
 
-  public Map<String, Set<String>> getDescendantsRDF(String concept) throws TTFilerException {
+  public Map<String, Set<String>> getDescendantsRDF(String concept, Graph graph) throws TTFilerException {
     Map<String, Set<String>> codeToTerm = new HashMap<>();
-    RepositoryConnection conn = ConnectionManager.getIMConnection();
-    String sparql = """
-      SELECT ?child ?name
-      WHERE {
-        GRAPH ?graph {
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      String sparql = """
+        SELECT ?child ?name
+        WHERE {
+          ?child ?scheme ?snomedNamespace
           ?child ?subClassOf ?concept.
           ?child ?label ?name.
         }
-      }
-      """;
-    TupleQuery qry = conn.prepareTupleQuery(sparql);
-    qry.setBinding("concept", valueFactory.createIRI(concept));
-    qry.setBinding("graph", iri(SNOMED.NAMESPACE));
-    qry.setBinding("subClassOf", iri(RDFS.SUBCLASS_OF));
-    qry.setBinding("label", iri(RDFS.LABEL));
-    try (TupleQueryResult rs = qry.evaluate();) {
-      while (rs.hasNext()) {
-        BindingSet bs = rs.next();
-        String child = bs.getValue("child").stringValue();
-        String term = bs.getValue("name").stringValue();
-        Set<String> maps = codeToTerm.computeIfAbsent(child, k -> new HashSet<>());
-        maps.add(term);
-      }
+        """;
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
+      qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
+      qry.setBinding("concept", valueFactory.createIRI(concept));
+      qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
+      qry.setBinding("subClassOf", RDFS.SUBCLASS_OF.asDbIri());
+      qry.setBinding("label", RDFS.LABEL.asDbIri());
+      try (TupleQueryResult rs = qry.evaluate();) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String child = bs.getValue("child").stringValue();
+          String term = bs.getValue("name").stringValue();
+          Set<String> maps = codeToTerm.computeIfAbsent(child, k -> new HashSet<>());
+          maps.add(term);
+        }
 
-    } catch (RepositoryException e) {
-      throw new TTFilerException("Unable to retrieve snomed codes");
+      } catch (RepositoryException e) {
+        throw new TTFilerException("Unable to retrieve snomed codes");
+      }
+      return codeToTerm;
     }
-    return codeToTerm;
   }
 
 
-  private Set<String> importAllRDF4J(Set<String> entities) throws TTFilerException {
+  private Set<String> importAllRDF4J(Set<String> entities, Graph graph) throws TTFilerException {
 
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sparql = """
         SELECT distinct ?entity
         WHERE {
@@ -234,8 +229,8 @@ public class ImportMaps implements AutoCloseable {
           filter (isIri(?entity))
         }
         """;
-      TupleQuery qry = conn.prepareTupleQuery(sparql);
-      qry.setBinding("rdfLabel", iri(RDFS.LABEL));
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
+      qry.setBinding("rdfLabel", RDFS.LABEL.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -249,19 +244,19 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  private Set<String> importSnomedRDF4J(Set<String> snomedCodes) throws TTFilerException {
+  private Set<String> importSnomedRDF4J(Set<String> snomedCodes, Graph graph) throws TTFilerException {
 
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sparql = """
         SELECT ?snomed
         WHERE {
           ?concept ?scheme ?snomedNamespace.
           ?concept ?code ?snomed}
         """;
-      TupleQuery qry = conn.prepareTupleQuery(sparql);
-      qry.setBinding("scheme", iri(IM.HAS_SCHEME));
-      qry.setBinding("code", iri(IM.CODE));
-      qry.setBinding("snomedNamespace", iri(SNOMED.NAMESPACE));
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
+      qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
+      qry.setBinding("code", IM.CODE.asDbIri());
+      qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -275,26 +270,25 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  private Map<String, Set<String>> importReadToSnomedRdf4j(Map<String, Set<String>> readToSnomed) throws TTFilerException {
+  private Map<String, Set<String>> importReadToSnomedRdf4j(Map<String, Set<String>> readToSnomed, Graph graph) throws TTFilerException {
 
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sparql = """
         SELECT ?code ?snomed
         WHERE {
-          GRAPH ?vision {
-            ?concept ?imCode ?code .
-            ?concept ?matchedTo ?snomedIri .
-          }
-          GRAPH ?snomedNamedspace {
-            ?snomedIri ?imCode ?snomed .
-          }
+          ?concept ?scheme ?vision .
+          ?concept ?imCode ?code .
+          ?concept ?matchedTo ?snomedIri .
+          ?snomedIri ?scheme ?snomedNamedspace .
+          ?snomedIri ?imCode ?snomed .
         }
         """;
-      TupleQuery qry = conn.prepareTupleQuery(sparql);
-      qry.setBinding("snomedNamespace", iri(SNOMED.NAMESPACE));
-      qry.setBinding("vision", iri(GRAPH.VISION));
-      qry.setBinding("imCode", iri(IM.CODE));
-      qry.setBinding("matchedTo", iri(IM.MATCHED_TO));
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
+      qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
+      qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
+      qry.setBinding("vision", Namespace.VISION.asDbIri());
+      qry.setBinding("imCode", IM.CODE.asDbIri());
+      qry.setBinding("matchedTo", IM.MATCHED_TO.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -310,9 +304,9 @@ public class ImportMaps implements AutoCloseable {
     return readToSnomed;
   }
 
-  public Map<String, TTEntity> getEMISReadAsVision() throws IOException {
+  public Map<String, TTEntity> getEMISReadAsVision(Graph graph) throws IOException {
     if (TTFilerFactory.isBulk()) {
-      Map<String, Set<String>> emisToCore = fileRepo.getCodeCoreMap(GRAPH.EMIS);
+      Map<String, Set<String>> emisToCore = fileRepo.getCodeCoreMap(Namespace.EMIS);
       Map<String, TTEntity> emisRead2 = new HashMap<>();
       for (Map.Entry<String, Set<String>> entry : emisToCore.entrySet()) {
         String code = entry.getKey();
@@ -320,8 +314,8 @@ public class ImportMaps implements AutoCloseable {
           code = (code + ".....").substring(0, 5);
           TTEntity entity = emisRead2.computeIfAbsent(code, k -> new TTEntity());
           entity.setCode(code);
-          entity.setScheme(TTIriRef.iri(GRAPH.VISION));
-          entity.setIri(GRAPH.VISION + code.replace(".", ""));
+          entity.setScheme(TTIriRef.iri(Namespace.VISION));
+          entity.setIri(Namespace.VISION + code.replace(".", ""));
           for (String snomed : entry.getValue()) {
             entity.addObject(TTIriRef.iri(IM.MATCHED_TO), TTIriRef.iri(snomed));
           }
@@ -330,31 +324,31 @@ public class ImportMaps implements AutoCloseable {
       return emisRead2;
 
     } else
-      return getEMISReadAsVisionRdf4j();
+      return getEMISReadAsVisionRdf4j(graph);
   }
 
-  private Map<String, TTEntity> getEMISReadAsVisionRdf4j() {
+  private Map<String, TTEntity> getEMISReadAsVisionRdf4j(Graph graph) {
     Map<String, TTEntity> emisRead2 = new HashMap<>();
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sql = """
         SELECT ?oldCode ?name ?snomedIri
         WHERE {
-          GRAPH ?emis {
-            ?concept ?label ?name.
-            ?concept ?matchedTo ?snomedIri .
-            OPTIONAL {
-              ?concept ?hasTermCode ?tc.
-              ?tc ?imCode ?oldCode)
-            }
+          ?concept ?scheme ?emis .
+          ?concept ?label ?name.
+          ?concept ?matchedTo ?snomedIri .
+          OPTIONAL {
+            ?concept ?hasTermCode ?tc.
+            ?tc ?imCode ?oldCode)
           }
         }
         """;
-      TupleQuery qry = conn.prepareTupleQuery(sql);
-      qry.setBinding("emis", iri(GRAPH.EMIS));
-      qry.setBinding("label", iri(RDFS.LABEL));
-      qry.setBinding("matchedTo", iri(IM.MATCHED_TO));
-      qry.setBinding("hasTermCode", iri(IM.HAS_TERM_CODE));
-      qry.setBinding("imCode", iri(IM.CODE));
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
+      qry.setBinding("emis", Namespace.EMIS.asDbIri());
+      qry.setBinding("label", RDFS.LABEL.asDbIri());
+      qry.setBinding("matchedTo", IM.MATCHED_TO.asDbIri());
+      qry.setBinding("hasTermCode", IM.HAS_TERM_CODE.asDbIri());
+      qry.setBinding("imCode", IM.CODE.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -366,7 +360,7 @@ public class ImportMaps implements AutoCloseable {
             TTEntity entity = emisRead2.computeIfAbsent(code, k -> new TTEntity());
             entity.setName(name);
             entity.setCode(code);
-            entity.setIri(GRAPH.VISION + code.replace(".", ""));
+            entity.setIri(Namespace.VISION + code.replace(".", ""));
             entity.addObject(TTIriRef.iri(IM.MATCHED_TO), TTIriRef.iri(snomedIri));
           }
         }
@@ -383,40 +377,40 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  private Map<String, Set<String>> importEmisToSnomedRdf4j() throws TTFilerException {
+  private Map<String, Set<String>> importEmisToSnomedRdf4j(Graph graph) throws TTFilerException {
     Map<String, Set<String>> emisToSnomed = new HashMap<>();
-    RepositoryConnection conn = ConnectionManager.getIMConnection();
-    String sparql = """
-      SELECT ?code ?snomedIri  ?name
-      WHERE {
-        GRAPH ?emis {
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      String sparql = """
+        SELECT ?code ?snomedIri  ?name
+        WHERE {
+          ?concept ?scheme ?emis .
           ?concept ?imCode ?code.
           ?concept ?label ?name.
           ?concept ?matchedTo ?snomedIri.
-        }
-        GRAPH ?snomedNamespace {
+          ?snomedIri ?scheme ?snomedNamespace .
           ?snomedIri ?imCode ?snomed.
         }
-      }
-      """;
-    TupleQuery qry = conn.prepareTupleQuery(sparql);
-    qry.setBinding("snomedNamespace", iri(SNOMED.NAMESPACE));
-    qry.setBinding("emis", iri(GRAPH.EMIS));
-    qry.setBinding("imCode", iri(IM.CODE));
-    qry.setBinding("matchedTo", iri(IM.MATCHED_TO));
-    qry.setBinding("label", iri(RDFS.LABEL));
-    try (TupleQueryResult rs = qry.evaluate()) {
-      while (rs.hasNext()) {
-        BindingSet bs = rs.next();
-        String read = bs.getValue("code").stringValue();
-        String snomed = bs.getValue("snomedIri").stringValue();
-        Set<String> maps = emisToSnomed.computeIfAbsent(read, k -> new HashSet<>());
-        maps.add(snomed);
-      }
-      return emisToSnomed;
+        """;
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
+      qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
+      qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
+      qry.setBinding("emis", Namespace.EMIS.asDbIri());
+      qry.setBinding("imCode", IM.CODE.asDbIri());
+      qry.setBinding("matchedTo", IM.MATCHED_TO.asDbIri());
+      qry.setBinding("label", RDFS.LABEL.asDbIri());
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String read = bs.getValue("code").stringValue();
+          String snomed = bs.getValue("snomedIri").stringValue();
+          Set<String> maps = emisToSnomed.computeIfAbsent(read, k -> new HashSet<>());
+          maps.add(snomed);
+        }
+        return emisToSnomed;
 
-    } catch (RepositoryException e) {
-      throw new TTFilerException("unable to retrieve vision/read " + e);
+      } catch (RepositoryException e) {
+        throw new TTFilerException("unable to retrieve vision/read " + e);
+      }
     }
   }
 
@@ -426,20 +420,20 @@ public class ImportMaps implements AutoCloseable {
    *
    * @return TransformMap of description code to entity
    */
-  public Map<String, String> getDescriptionIds() throws TTFilerException {
+  public Map<String, String> getDescriptionIds(Graph graph) throws TTFilerException {
     Map<String, String> termMap = new HashMap<>();
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection();) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sparql = """
         SELECT ?snomed ?descid
         WHERE {
-          GRAPH ?snomedNamespace {
-            ?snomed im:hasTermCode ?node.
-            ?node im:code ?descid.
-          }
+          ?snomed ?scheme ?snomedNamespace .
+          ?snomed im:hasTermCode ?node.
+          ?node im:code ?descid.
         }
         """;
-      TupleQuery qry = conn.prepareTupleQuery(addSparqlPrefixes(sparql));
-      qry.setBinding("snomedNamespace", iri(SNOMED.NAMESPACE));
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
+      qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
+      qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -453,8 +447,8 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  public Set<Entity> getLegacyFromTermCode(String originalCode, String iri) throws IOException {
-    return new EntityRepository().getReferenceFromTermCode(originalCode, iri);
+  public Set<Entity> getLegacyFromTermCode(String originalCode, Namespace scheme, Graph graph) {
+    return new EntityRepository().getReferenceFromTermCode(originalCode, scheme, graph);
   }
 
   @Override

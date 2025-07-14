@@ -42,13 +42,13 @@ public class TTManager implements AutoCloseable {
 
   public static TTContext createBasicContext() {
     TTContext context = new TTContext();
-    context.add(IM.NAMESPACE, "im", "Discovery namespace");
-    context.add(SNOMED.NAMESPACE, "sn", "Snomed-CT namespace");
-    context.add(OWL.NAMESPACE, "owl", "OWL2 namespace");
-    context.add(RDF.NAMESPACE, "rdf", "RDF namespace");
-    context.add(RDFS.NAMESPACE, "rdfs", "RDFS namespace");
-    context.add(XSD.NAMESPACE, "xsd", "xsd namespace");
-    context.add(SHACL.NAMESPACE, "sh", "SHACL namespace");
+    context.add(Namespace.IM, "im", "Discovery namespace");
+    context.add(Namespace.SNOMED, "sn", "Snomed-CT namespace");
+    context.add(Namespace.OWL, "owl", "OWL2 namespace");
+    context.add(Namespace.RDF, "rdf", "RDF namespace");
+    context.add(Namespace.RDFS, "rdfs", "RDFS namespace");
+    context.add(Namespace.XSD, "xsd", "xsd namespace");
+    context.add(Namespace.SHACL, "sh", "SHACL namespace");
     return context;
   }
 
@@ -268,13 +268,13 @@ public class TTManager implements AutoCloseable {
 
   public static TTContext getDefaultContext() {
     TTContext ctx = new TTContext();
-    ctx.add(IM.NAMESPACE, "");
-    ctx.add(IM.NAMESPACE, "im");
-    ctx.add(RDFS.NAMESPACE, "rdfs");
-    ctx.add(RDF.NAMESPACE, "rdf");
-    ctx.add(SNOMED.NAMESPACE, "sn");
-    ctx.add(SHACL.NAMESPACE, "sh");
-    ctx.add(XSD.NAMESPACE, "xsd");
+    ctx.add(Namespace.IM, "");
+    ctx.add(Namespace.IM, "im");
+    ctx.add(Namespace.RDFS, "rdfs");
+    ctx.add(Namespace.RDF, "rdf");
+    ctx.add(Namespace.SNOMED, "sn");
+    ctx.add(Namespace.SHACL, "sh");
+    ctx.add(Namespace.XSD, "xsd");
     return ctx;
   }
 
@@ -287,24 +287,10 @@ public class TTManager implements AutoCloseable {
     return this;
   }
 
-  public TTDocument createDocument(String graph) {
+  public TTDocument createDocument() {
     createDefaultContext();
     document = new TTDocument();
     document.setContext(context);
-    document.setGraph(TTIriRef.iri(graph));
-    return document;
-  }
-
-  public TTDocument createDocument() {
-    TTContext context = new TTContext();
-    context.add(XSD.NAMESPACE, "xsd");
-    context.add(SHACL.NAMESPACE, "sh");
-    context.add(IM.NAMESPACE, "im");
-    context.add(RDF.NAMESPACE, "rdf", "RDF namespace");
-    context.add(RDFS.NAMESPACE, "rdfs", "RDFS namespace");
-    document = new TTDocument();
-    document.setContext(context);
-    document.setGraph(TTIriRef.iri(GRAPH.DISCOVERY));
     return document;
   }
 
@@ -333,28 +319,12 @@ public class TTManager implements AutoCloseable {
 
   public TTContext createDefaultContext() {
     context = new TTContext();
-    context.add(IM.NAMESPACE, "im", "Discovery namespace");
-    context.add(SNOMED.NAMESPACE, "sn", "Snomed-CT namespace");
-    context.add(OWL.NAMESPACE, "owl", "OWL2 namespace");
-    context.add(RDF.NAMESPACE, "rdf", "RDF namespace");
-    context.add(RDFS.NAMESPACE, "rdfs", "RDFS namespace");
-    context.add(XSD.NAMESPACE, "xsd", "xsd namespace");
-    context.add(GRAPH.ICD10, "icd10", "ICD10 namespace");
-    context.add(GRAPH.OPCS4, "opcs4", "OPCS4 namespace");
-    context.add(GRAPH.EMIS, "emis", "EMIS (inc. Read2 like) namespace");
-    context.add(GRAPH.TPP, "tpp", "TPP (inc.CTV3) namespace");
-    context.add(GRAPH.BARTS_CERNER, "bc", "Barts Cerner namespace");
-    context.add(SHACL.NAMESPACE, "sh", "SHACL namespace");
-    context.add(GRAPH.PROV, "prov", "PROV namespace");
-    context.add(GRAPH.REPORTS, "reports", "IM internal reports");
-    context.add(GRAPH.OPS_ROLES, "orole", "OPS roles namespace");
-    context.add(GRAPH.ODS, "ods", "ODS code scheme");
-    context.add(GRAPH.PRSB, "prsb", "PRSB namespace");
-    context.add(GRAPH.KINGS_WINPATH, "kchwinpath", "KCH Winpath codes");
-    context.add(GRAPH.KINGS_APEX, "kchapex", "KCH Apex codes");
-    context.add(GRAPH.CEG, "ceg", "CEG ethnicity 16+ category");
-    context.add(GRAPH.NHSDD_ETHNIC_2001, "nhse2001", "NHS Ethnicitity categories 2001 census");
-    context.add(GRAPH.VISION, "vis", "Vision (incl. Read2) namespace");
+    context.add(Namespace.IM, "im", "Discovery namespace");
+    context.add(Namespace.SNOMED, "sn", "Snomed-CT namespace");
+    context.add(Namespace.OWL, "owl", "OWL2 namespace");
+    context.add(Namespace.RDF, "rdf", "RDF namespace");
+    context.add(Namespace.RDFS, "rdfs", "RDFS namespace");
+    context.add(Namespace.XSD, "xsd", "xsd namespace");
     return context;
   }
 
@@ -467,14 +437,15 @@ public class TTManager implements AutoCloseable {
     }
   }
 
-  public TTEntity createGraph(String iri, String name, String description) {
-    TTEntity graph = new TTEntity()
-      .setIri(iri)
-      .addType(iri(RDFS.CLASS))
+  public TTEntity createNamespaceEntity(Namespace namespace, String name, String description) {
+    TTEntity result = new TTEntity()
+      .setIri(namespace.toString())
+      .addType(RDFS.CLASS.asIri())
       .setName(name)
-      .setDescription(description);
-    graph.addObject(iri(RDFS.SUBCLASS_OF), iri(IM.GRAPH));
-    return graph;
+      .setDescription(description)
+      .setScheme(namespace.asIri());
+    result.addObject(iri(RDFS.SUBCLASS_OF), IM.NAMESPACE.asIri());
+    return result;
   }
 
   public void saveTurtleDocument(File outputFile) {

@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
 import org.endeavourhealth.imapi.vocabulary.FHIR;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.MAP;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -20,20 +21,20 @@ public class TestMaps {
   public static MapObject patientDSTU2() throws JsonProcessingException {
     TTEntity patientMapEntity = new TTEntity();
     patientMapEntity
-      .setIri(MAP.NAMESPACE + "FHIR_2_PatientToIM")
+      .setIri(Namespace.MAP + "FHIR_2_PatientToIM")
       .setName("FHIR DSTU2 Patient to IM Patient transformMap")
       .setDescription("Maps a FHIR DSTU2 Patient resource to IM Patient entity");
     MapObject patientMap = new MapObject();
     patientMap
       .setIri(patientMapEntity.getIri())
       .setSourceType(FHIR.DSTU2 + "Patient")
-      .setTargetType(IM.NAMESPACE + "Patient")
+      .setTargetType(Namespace.IM + "Patient")
       .propertyMap(r -> r
         .setSource("id")
         .setSourceVariable("fhirId")
         .setTarget("iri")
         .function(f -> f
-          .setIri(IM.NAMESPACE + "Concatenate")
+          .setIri(Namespace.IM + "Concatenate")
           .argument(a -> a
             .setValueData("urn:uuid:"))
           .argument(a -> a
@@ -44,7 +45,7 @@ public class TestMaps {
           .setSource("value")
           .where(w -> w
             .where(p -> p
-              .setIri(IM.NAMESPACE + "system")
+              .setIri(Namespace.IM + "system")
               .setValue("http://fhir.nhs.net/Id/nhs-number"))))
         .setTarget("nhsNumber"))
       .propertyMap(m -> m
@@ -62,7 +63,7 @@ public class TestMaps {
           .setListMode(ListMode.ALL)
           .setTarget("forenames")
           .function(f -> f
-            .setIri(IM.NAMESPACE + "StringJoin")
+            .setIri(Namespace.IM + "StringJoin")
             .argument(a -> a
               .setParameter("delimiter")
               .setValueData(" "))
@@ -75,9 +76,9 @@ public class TestMaps {
         .objectMap(m1 -> m1
           .where(w -> w
             .where(p -> p
-              .setIri(IM.NAMESPACE + "use")
+              .setIri(Namespace.IM + "use")
               .setValue("home")))))
-      .setTargetType(IM.NAMESPACE + "Address")
+      .setTargetType(Namespace.IM + "Address")
       .propertyMap(m2 -> m2
         .setSource("line")
         .setTarget("addressLine"))
@@ -94,10 +95,10 @@ public class TestMaps {
           .setSource("value")
           .where(w -> w
             .where(w1 -> w1
-              .setIri(IM.NAMESPACE + "system")
+              .setIri(Namespace.IM + "system")
               .setValue("phone"))
             .where(w1 -> w1
-              .setIri(IM.NAMESPACE + "use")
+              .setIri(Namespace.IM + "use")
               .setValue("mobile")))
           .setTarget("mobileTelephoneNumber")))
       .propertyMap(m -> m
@@ -106,11 +107,11 @@ public class TestMaps {
           .setSource("value"))
         .where(w -> w
           .where(w1 -> w1
-            .setIri(IM.NAMESPACE + "system")
+            .setIri(Namespace.IM + "system")
             .setValue("phone")
           )
           .where(w1 -> w1
-            .setIri(IM.NAMESPACE + "use")
+            .setIri(Namespace.IM + "use")
             .setValue("home")))
         .setTarget("homeTelephoneNumber"))
       .propertyMap(m -> m
@@ -124,7 +125,7 @@ public class TestMaps {
       .propertyMap(m -> m
         .setTarget("administrativeGender")
         .objectMap(m1 -> m1
-          .setTargetType(IM.NAMESPACE + "CodeableConcept")
+          .setTargetType(Namespace.IM + "CodeableConcept")
           .propertyMap(m2 -> m2
             .setSource("gender")
             .setTarget("originalCode"))

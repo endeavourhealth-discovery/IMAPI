@@ -4,11 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.dataaccess.databases.UserDB;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.USER;
+import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,18 +18,17 @@ import java.util.StringJoiner;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareUpdateSparql;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 
 public class UserRepository {
 
   public String getSparqlSelect() {
-    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("SELECT ?o WHERE {").add("  ?s ?p ?o").add("}");
+    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("SELECT ?o WHERE { ").add("  ?s ?p ?o").add("}");
     return sparql.toString();
   }
 
   public String getSparqlDelete() {
-    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("DELETE WHERE {").add("  ?s ?p ?o").add("}");
+    StringJoiner sparql = new StringJoiner(System.lineSeparator()).add("DELETE WHERE { ").add("  ?s ?p ?o").add("}");
     return sparql.toString();
   }
 
@@ -36,12 +37,16 @@ public class UserRepository {
     return sparql.toString();
   }
 
+  public String getByPredicate(String user, VocabEnum predicate) {
+    return getByPredicate(user, predicate.toString());
+  }
+
   public String getByPredicate(String user, String predicate) {
     String result = "";
     String sparql = getSparqlSelect();
-    try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-      TupleQuery qry = prepareSparql(conn, sparql);
-      qry.setBinding("s", iri(USER.NAMESPACE + user));
+    try (UserDB conn = UserDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
+      qry.setBinding("s", iri(Namespace.USER + user));
       qry.setBinding("p", iri(predicate));
 
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -58,10 +63,10 @@ public class UserRepository {
     List<RecentActivityItemDto> result = new ArrayList<>();
     String sparql = getSparqlSelect();
 
-    try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-      TupleQuery qry = prepareSparql(conn, sparql);
-      qry.setBinding("s", iri(USER.NAMESPACE + user));
-      qry.setBinding("p", iri(USER.USER_MRU));
+    try (UserDB conn = UserDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
+      qry.setBinding("s", iri(Namespace.USER + user));
+      qry.setBinding("p", USER.USER_MRU.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -79,10 +84,10 @@ public class UserRepository {
     List<String> result = new ArrayList<>();
     String sparql = getSparqlSelect();
 
-    try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-      TupleQuery qry = prepareSparql(conn, sparql);
-      qry.setBinding("s", iri(USER.NAMESPACE + user));
-      qry.setBinding("p", iri(USER.USER_FAVOURITES));
+    try (UserDB conn = UserDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
+      qry.setBinding("s", iri(Namespace.USER + user));
+      qry.setBinding("p", USER.USER_FAVOURITES.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -96,23 +101,23 @@ public class UserRepository {
     return result;
   }
 
-  public void delete(String user, String predicate) {
+  public void delete(String user, VocabEnum predicate) {
     String sparql = getSparqlDelete();
-    try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-      Update qry = conn.prepareUpdate(sparql);
-      qry.setBinding("s", iri(USER.NAMESPACE + user));
-      qry.setBinding("p", iri(predicate));
+    try (UserDB conn = UserDB.getConnection()) {
+      Update qry = conn.prepareInsertSparql(sparql);
+      qry.setBinding("s", iri(Namespace.USER + user));
+      qry.setBinding("p", predicate.asDbIri());
       qry.execute();
     }
   }
 
-  public void insert(String user, String predicate, Object object) throws JsonProcessingException {
+  public void insert(String user, VocabEnum predicate, Object object) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       String sparql = getSparqlInsert();
-      try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-        Update qry = prepareUpdateSparql(conn, sparql);
-        qry.setBinding("s", iri(USER.NAMESPACE + user));
-        qry.setBinding("p", iri(predicate));
+      try (UserDB conn = UserDB.getConnection()) {
+        Update qry = conn.prepareInsertSparql(sparql);
+        qry.setBinding("s", iri(Namespace.USER + user));
+        qry.setBinding("p", predicate.asDbIri());
         qry.setBinding("o", literal(om.writeValueAsString(object)));
         qry.execute();
       }
@@ -120,7 +125,10 @@ public class UserRepository {
   }
 
   public void updateUserMRU(String user, List<RecentActivityItemDto> mru) throws JsonProcessingException {
-    if (mru.isEmpty()) {delete(user, USER.USER_MRU);return;}
+    if (mru.isEmpty()) {
+      delete(user, USER.USER_MRU);
+      return;
+    }
     if (mru.stream().allMatch(this::isValidRecentActivityItem)) {
       delete(user, USER.USER_MRU);
       insert(user, USER.USER_MRU, mru);
@@ -136,22 +144,22 @@ public class UserRepository {
     insert(user, USER.USER_FAVOURITES, favourites);
   }
 
-  public void updateByPredicate(String user, String data, String predicate) throws JsonProcessingException {
+  public void updateByPredicate(String user, String data, VocabEnum predicate) throws JsonProcessingException {
     delete(user, predicate);
     insert(user, predicate, data);
   }
 
-  public void updateByPredicate(String user, Boolean data, String predicate) throws JsonProcessingException {
-    updateByPredicate(user, String.valueOf(data), predicate);
+  public void updateByPredicate(String user, Boolean data, VocabEnum predicate) throws JsonProcessingException {
+    updateByPredicate(user, data.toString(), predicate);
   }
 
   public List<String> getUserOrganisations(String user) throws JsonProcessingException {
-    List<String> result = new ArrayList<>(List.of(IM.NAMESPACE));
+    List<String> result = asArrayList(Namespace.IM);
     String sparql = getSparqlSelect();
-    try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-      TupleQuery qry = prepareSparql(conn, sparql);
-      qry.setBinding("s", iri(USER.NAMESPACE + user));
-      qry.setBinding("p", iri(USER.ORGANISATIONS));
+    try (UserDB conn = UserDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
+      qry.setBinding("s", iri(Namespace.USER + user));
+      qry.setBinding("p", USER.ORGANISATIONS.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -173,9 +181,10 @@ public class UserRepository {
   }
 
   public boolean getUserIdExists(String userId) {
-    try (RepositoryConnection conn = ConnectionManager.getUserConnection()) {
-      BooleanQuery qry = conn.prepareBooleanQuery("ASK { ?s ?p ?o.}");
-      qry.setBinding("s", iri(USER.NAMESPACE + userId));
+    try (UserDB conn = UserDB.getConnection()) {
+      String sparql = "ASK { ?s ?p ?o. }";
+      BooleanQuery qry = conn.prepareBooleanSparql(sparql);
+      qry.setBinding("s", iri(Namespace.USER + userId));
       return qry.evaluate();
     }
   }

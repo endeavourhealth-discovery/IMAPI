@@ -7,16 +7,16 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.GraphQuery;
 import org.eclipse.rdf4j.query.GraphQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 /**
@@ -24,12 +24,27 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
  */
 public class CacheRepository {
 
-
-  public Set<TTBundle> getSchema() {
-    String sql = getSchemaSql();
+  public Set<TTBundle> getSchema(Graph graph) throws Exception {
+    String sql = """
+      CONSTRUCT {
+        ?shape ?p ?o.
+        ?o ?p2 ?o2.
+      }
+      WHERE {
+        ?shape rdf:type sh:NodeShape.
+        ?shape ?p ?o.
+        filter (?p != im:isA)
+        OPTIONAL { ?o ?p2 ?o2
+          FILTER (
+            isBlank(?o) &&
+            (?p2 in(sh:path, sh:class,sh:node,sh:datatype,sh:order,sh:nodeKind))
+          )
+        }
+      }
+      """;
     Set<TTEntity> shapes = new HashSet<>();
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      GraphQuery qry = conn.prepareGraphQuery(sql);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      GraphQuery qry = conn.prepareGraphSparql(sql);
       try (GraphQueryResult gs = qry.evaluate()) {
         Map<String, TTValue> valueMap = new HashMap<>();
         Map<String, TTNode> subjectMap = new HashMap<>();
@@ -53,27 +68,6 @@ public class CacheRepository {
       return result;
     }
 
-  }
-
-  private String getSchemaSql() {
-    String sparql = """
-      CONSTRUCT {
-        ?shape ?p ?o.
-        ?o ?p2 ?o2.
-      }
-      WHERE {
-        ?shape rdf:type sh:NodeShape.
-        ?shape ?p ?o.
-        filter (?p != im:isA)
-        OPTIONAL { ?o ?p2 ?o2
-          FILTER (
-            isBlank(?o) &&
-            (?p2 in(sh:path, sh:class,sh:node,sh:datatype,sh:order,sh:nodeKind))
-          )
-        }
-      }
-      """;
-    return addSparqlPrefixes(sparql);
   }
 
   private void processStatement(Set<TTEntity> entities, Map<String, TTValue> valueMap, Map<String, TTNode> subjectMap, Statement st) {

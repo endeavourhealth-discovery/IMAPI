@@ -3,7 +3,9 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
@@ -27,8 +29,8 @@ public class QueryService {
   public static final String ENTITIES = "entities";
   private final EntityRepository entityRepository = new EntityRepository();
 
-  public Query describeQuery(Query query, DisplayMode displayMode, Graph graph) throws QueryException, JsonProcessingException {
-    return new QueryDescriptor().describeQuery(query, displayMode, graph);
+  public Query describeQuery(Query query, DisplayMode displayMode,Graph graph) throws QueryException, JsonProcessingException {
+    return new QueryDescriptor().describeQuery(query, displayMode,graph);
   }
 
   public Match describeMatch(Match match, Graph graph) throws QueryException {
@@ -131,7 +133,8 @@ public class QueryService {
     return query;
   }
 
-  public Query getQueryFromIri(String iri, Graph from) {
-    return null;
+  public Query getQueryFromIri(String iri, Graph from) throws JsonProcessingException {
+    TTEntity queryEntity= entityRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.toString())).getEntity();
+    return queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
   }
 }

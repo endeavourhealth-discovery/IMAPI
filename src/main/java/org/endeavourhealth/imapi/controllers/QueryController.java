@@ -121,18 +121,13 @@ public class QueryController {
     description = "Returns a query view, transforming an IMQ query into a viewable object."
   )
   public Query describeQueryContent(
-    @RequestBody QueryDisplayRequest queryDisplayRequest,
+    @RequestBody Query query,
     @RequestParam(value = "displayMode", required = false, defaultValue = "ORIGINAL") DisplayMode displayMode
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.GET")) {
-      if (null == queryDisplayRequest.getQuery()) {
-        queryDisplayRequest.setDisplayMode(DisplayMode.ORIGINAL);
-      }
-      if (null == queryDisplayRequest.getGraph()) {
-        queryDisplayRequest.setGraph(iri(Graph.IM));
-      }
       log.debug("getQueryDisplayFromQuery with displayMode: {}", displayMode);
-      return queryService.describeQuery(queryDisplayRequest.getQuery(), displayMode, Graph.from(queryDisplayRequest.getGraph().getIri()));
+      Graph graph= Graph.IM;
+      return queryService.describeQuery(query, displayMode,graph);
     }
   }
 

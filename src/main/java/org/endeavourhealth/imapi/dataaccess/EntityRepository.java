@@ -1170,8 +1170,6 @@ public class EntityRepository {
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
       SELECT ?s ?name ?typeIri ?typeName ?order ?contextOrder ?hasChildren ?hasGrandchildren
       WHERE {
-        %s
-        ?s im:scheme ?schemes.
         ?s rdfs:label ?name.
         ?s rdf:type ?typeIri.
         ?typeIri rdfs:label ?typeName.
@@ -1179,7 +1177,7 @@ public class EntityRepository {
         OPTIONAL { ?s sh:order ?order . }
         BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
         BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?s} AS ?hasGrandchildren)
-      """.formatted(valueList("schemes", schemeIris), valueList("s", stringIris), PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
+      """.formatted( valueList("s", stringIris), PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
 
     if (!inactive) {
       sql.add("  OPTIONAL { ?s im:status ?status FILTER (?status != im:Inactive) }");
@@ -1824,7 +1822,7 @@ public class EntityRepository {
     String spq = """
       SELECT distinct  ?entity ?label ?path ?pathLabel
       WHERE {
-           VALUES ?parent {?iri}
+           VALUES ?parent {%s}
           {
            ?parent rdf:type ?entity.
            ?entity rdfs:label ?label.
@@ -1841,12 +1839,11 @@ public class EntityRepository {
               ?path rdfs:label ?pathLabel.
           }
       }
-      """;
+      """.formatted("<"+iri+">");
     List<TTEntity> result = new ArrayList<>();
     Map<String, TTEntity> iriMap = new HashMap<>();
     try (IMDB conn = IMDB.getConnection(graph)) {
       TupleQuery qry = conn.prepareTupleSparql(spq);
-      qry.setBinding("iri", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

@@ -234,7 +234,7 @@ public class EntityService {
 
   public List<List<TTIriRef>> getParentHierarchies(String iri, Graph graph) {
     ParentDto parentHierarchy = new ParentDto(iri, null, null);
-    addParentHierarchiesRecursively(parentHierarchy, graph);
+    addParentHierarchiesRecursively(parentHierarchy,new HashSet<>(), graph);
     return getParentHierarchiesFlatLists(parentHierarchy);
   }
 
@@ -262,12 +262,15 @@ public class EntityService {
     }
   }
 
-  private void addParentHierarchiesRecursively(ParentDto parent, Graph graph) {
-    List<ParentDto> parents = entityRepository.findParentHierarchies(parent.getIri(), graph);
+  private void addParentHierarchiesRecursively(ParentDto parent,Set<String> done,Graph graph) {
+    List<ParentDto> parents = entityRepository.findParentHierarchies(parent.getIri(),graph);
     if (!parents.isEmpty()) {
       parent.setParents(parents);
       for (ParentDto parentsParent : parents) {
-        addParentHierarchiesRecursively(parentsParent, graph);
+        if (!done.contains(parentsParent.getIri())) {
+          done.add(parentsParent.getIri());
+          addParentHierarchiesRecursively(parentsParent, done,graph);
+        }
       }
     }
   }

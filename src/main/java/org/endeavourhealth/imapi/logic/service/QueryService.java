@@ -130,4 +130,8 @@ public class QueryService {
     LogicOptimizer.optimiseECLQuery(query);
     return query;
   }
+
+  public Query getQueryFromIri(String iri, Graph from) {
+    return null;
+  }
 }

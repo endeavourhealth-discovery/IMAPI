@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.iml.Page;
@@ -45,8 +47,8 @@ public class QueryService {
     new QueryDescriptor().generateUUIDs(query);
   }
 
-  public Query describeQuery(Query query, DisplayMode displayMode, Graph graph) throws QueryException, JsonProcessingException {
-    return new QueryDescriptor().describeQuery(query, displayMode, graph);
+  public Query describeQuery(Query query, DisplayMode displayMode,Graph graph) throws QueryException, JsonProcessingException {
+    return new QueryDescriptor().describeQuery(query, displayMode,graph);
   }
 
   public Match describeMatch(Match match, Graph graph) throws QueryException {
@@ -228,5 +230,10 @@ public class QueryService {
   public Query optimiseECLQuery(Query query) {
     LogicOptimizer.optimiseECLQuery(query);
     return query;
+  }
+
+  public Query getQueryFromIri(String iri, Graph from) throws JsonProcessingException {
+    TTEntity queryEntity= entityRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.toString())).getEntity();
+    return queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
   }
 }

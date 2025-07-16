@@ -116,34 +116,33 @@ public class QueryController {
       return queryService.describeQuery(iri, displayMode, Graph.from(graph));
     }
   }
-/*
+  @GetMapping(value = "/public/queryFromIri", produces = "application/json")
+  @Operation(
+    summary = "gets an original IM  query from its iri",
+    description = "Retrieves the original details of a query based on the given query IRI."
+  )
   public Query queryFromIri(
-    @RequestParam(name = "queryIri") String iri)
+    @RequestParam(name = "queryIri") String iri,
+    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph)
     throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("getQueryfromIri");
-      return queryService.getQueryFromIri(iri);
+      return queryService.getQueryFromIri(iri,Graph.from(graph));
     }
-  }*/
-
+  }
   @PostMapping("/public/queryDisplayFromQuery")
   @Operation(
     summary = "Describe query content",
     description = "Returns a query view, transforming an IMQ query into a viewable object."
   )
   public Query describeQueryContent(
-    @RequestBody QueryDisplayRequest queryDisplayRequest,
+    @RequestBody Query query,
     @RequestParam(value = "displayMode", required = false, defaultValue = "ORIGINAL") DisplayMode displayMode
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.GET")) {
-      if (null == queryDisplayRequest.getQuery()) {
-        queryDisplayRequest.setDisplayMode(DisplayMode.ORIGINAL);
-      }
-      if (null == queryDisplayRequest.getGraph()) {
-        queryDisplayRequest.setGraph(iri(Graph.IM));
-      }
       log.debug("getQueryDisplayFromQuery with displayMode: {}", displayMode);
-      return queryService.describeQuery(queryDisplayRequest.getQuery(), displayMode, Graph.from(queryDisplayRequest.getGraph().getIri()));
+      Graph graph= Graph.IM;
+      return queryService.describeQuery(query, displayMode,graph);
     }
   }
 

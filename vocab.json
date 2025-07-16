@@ -245,7 +245,7 @@
       },
       {
         "name": "DEFAULT_COHORTS",
-        "value": "IM.NAMESPACE + \"Q_DefaultCohorts\""
+        "value": "Namespace.IM + \"Q_DefaultCohorts\""
       },
       {
         "name": "DATASET_QUERY",
@@ -349,11 +349,11 @@
       },
       {
         "name": "CONTEXT_ORDER",
-        "value": "IM.NAMESPACE + \"contextOrder\""
+        "value": "Namespace.IM+ \"contextOrder\""
       },
       {
         "name": "CONTEXT",
-        "value": "IM.NAMESPACE + \"context\""
+        "value": "Namespace.IM + \"context\""
       },
       {
         "name": "IS_CHILD_OF",

@@ -104,7 +104,7 @@ public class UserRepository {
   public void delete(String user, VocabEnum predicate) {
     String sparql = getSparqlDelete();
     try (UserDB conn = UserDB.getConnection()) {
-      Update qry = conn.prepareInsertSparql(sparql);
+      Update qry = conn.prepareDeleteSparql(sparql);
       qry.setBinding("s", iri(Namespace.USER + user));
       qry.setBinding("p", predicate.asDbIri());
       qry.execute();

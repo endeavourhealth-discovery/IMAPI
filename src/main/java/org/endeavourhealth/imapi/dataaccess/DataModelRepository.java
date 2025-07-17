@@ -524,13 +524,13 @@ public class DataModelRepository {
        %s
        ?iri sh:property ?property.
        ?property sh:path ?path.
-       ?path im:isA im:definingProperty
+       ?path im:isA im:definingProperty.
        ?property sh:class ?valueSet.
        }
       """.formatted(valueList("iri", Set.of(iri)));
     PropertyShape property = new PropertyShape();
     try (IMDB conn = IMDB.getConnection(Graph.IM)) {
-      TupleQuery qry = conn.prepareTupleSparql(addSparqlPrefixes(sql));
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

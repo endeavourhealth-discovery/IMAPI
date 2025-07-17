@@ -110,8 +110,8 @@ public class DataModelController {
     description = "Restuens a property needed to define a type , typically im:concept, together with its value set"
   )
   public PropertyShape getDefiningProperty(
-    @RequestParam(name = "queryIri") String iri)
-    throws IOException, QueryException {
+    @RequestParam(name = "iri") String iri)
+    throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("getDefiningProperty");
       return dataModelService.getDefiningProperty(iri);

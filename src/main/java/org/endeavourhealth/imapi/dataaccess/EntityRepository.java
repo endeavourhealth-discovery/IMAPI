@@ -821,9 +821,9 @@ public class EntityRepository {
     String sql = """
       SELECT ?concept ?label ?type
       WHERE {
-          ?ts im:scheme ?scheme .
-          ?tc im:code ?code.
+          ?concept im:scheme ?scheme .
           ?concept im:hasTermCode ?tc.
+          ?tc im:code ?code.
           ?concept rdfs:label ?label.
           ?concept rdf:type ?type.
       }
@@ -1587,10 +1587,10 @@ public class EntityRepository {
     String sql = """
       select ?entity ?entityLabel ?predicate ?predicateLabel ?object ?objectLabel ?subPredicate ?subPredicateLabel ?subObject ?subObjectLabel
       where {
-        VALUES ?entity {%s}
+        %s
         ?entity rdfs:label ?entityLabel.
         optional {
-          VALUES ?predicate {%s}
+          %s
           ?entity ?predicate ?object.
           ?predicate rdfs:label ?predicateLabel.
           optional {

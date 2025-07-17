@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
+import lombok.Setter;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
@@ -85,6 +86,9 @@ public class PropertyShape{
   private String descending;
   @Getter
   private boolean orderable;
+  @Getter
+  @Setter
+  private TTIriRef hasValueSet;
 
   public PropertyShape setAscending(String ascending) {
     this.ascending = ascending;

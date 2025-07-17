@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.iml.PropertyShape;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryDisplayRequest;
@@ -115,6 +116,8 @@ public class QueryController {
       return queryService.getQueryFromIri(iri,Graph.from(graph));
     }
   }
+
+
   @PostMapping("/public/queryDisplayFromQuery")
   @Operation(
     summary = "Describe query content",

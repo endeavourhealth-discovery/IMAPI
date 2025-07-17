@@ -568,8 +568,8 @@
         "value": "Namespace.IM + \"contextNode\""
       },
       {
-        "name": "UPDATE_ALL",
-        "value": "Namespace.IM + \"UpdateAll\""
+        "name": "REPLACE_ALL_PREDICATES",
+        "value": "Namespace.IM + \"ReplaceAllPredicates\""
       },
       {
         "name": "ADD_QUADS",

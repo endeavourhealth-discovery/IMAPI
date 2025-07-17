@@ -87,8 +87,8 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
       updatePredicates(entity);
     } else if (entity.getCrud().equals(TTIriRef.iri(IM.ADD_QUADS))) {
       addQuads(entity);
-    } else if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_ALL))) {
-      replacePredicates(entity);
+    } else if (entity.getCrud().equals(TTIriRef.iri(IM.REPLACE_ALL_PREDICATES))) {
+      replaceAllPredicates(entity);
     } else if (entity.getCrud().equals(TTIriRef.iri(IM.DELETE_ALL))) {
       deleteTriples(entity);
     } else {
@@ -236,7 +236,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   }
 
 
-  private void replacePredicates(TTEntity entity) throws TTFilerException {
+  private void replaceAllPredicates(TTEntity entity) throws TTFilerException {
     deleteTriples(entity);
     addQuads(entity);
   }

@@ -812,7 +812,7 @@ public class EqdResources {
     } else {
       Set<Node> setContent = new HashSet<>();
       for (EQDOCValueSetValue ev : vs.getValues()) {
-        Set<Node> setMembers = this.processEQDOCValueSet(scheme, ev, graph);
+        Set<Node> setMembers = this.processEQDOCValueSetValue(scheme, ev, graph);
         if (!setMembers.isEmpty()) {
           for (Node memberOrConcept : setMembers) {
             if (memberOrConcept.isMemberOf()) {
@@ -927,7 +927,7 @@ public class EqdResources {
     }
   }
 
-  private Set<Node> processEQDOCValueSet(VocCodeSystemEx scheme, EQDOCValueSetValue ev, Graph graph) throws IOException {
+  private Set<Node> processEQDOCValueSetValue(VocCodeSystemEx scheme, EQDOCValueSetValue ev, Graph graph) throws IOException {
     Set<Node> concepts = this.getValueConcepts(scheme, ev, graph);
     if (concepts == null) {
       String eqValue = ev.getValue();

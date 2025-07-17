@@ -207,7 +207,7 @@ public class FilerService {
 
   public TTEntity updateEntity(TTEntity entity, String agentName, Graph graph) throws TTFilerException, JsonProcessingException {
     isValid(entity, "Update", graph);
-    entity.setCrud(iri(IM.UPDATE_ALL));
+    entity.setCrud(iri(IM.REPLACE_ALL_PREDICATES));
     TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
     entity.setVersion(usedEntity.getVersion() + 1);
     fileEntity(entity, agentName, usedEntity, graph);

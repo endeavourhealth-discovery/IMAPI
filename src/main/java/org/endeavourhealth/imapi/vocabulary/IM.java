@@ -140,7 +140,7 @@ public enum IM implements VocabEnum {
     SOURCE_HEADING(Namespace.IM + "sourceHeading"),
     TARGET_PROPERTY(Namespace.IM + "targetProperty"),
     CONTEXT_NODE(Namespace.IM + "contextNode"),
-    UPDATE_ALL(Namespace.IM + "UpdateAll"),
+    REPLACE_ALL_PREDICATES(Namespace.IM + "ReplaceAllPredicates"),
     ADD_QUADS(Namespace.IM + "AddQuads"),
     UPDATE_PREDICATES(Namespace.IM + "UpdatePredicates"),
     DELETE_ALL(Namespace.IM + "DeleteAll"),

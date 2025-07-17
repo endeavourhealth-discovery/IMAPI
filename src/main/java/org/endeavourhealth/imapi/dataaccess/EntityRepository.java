@@ -1001,7 +1001,7 @@ public class EntityRepository {
           """.formatted(inPredicates));
       }
 
-    } else sql.add("}}");
+    } else sql.add("}");
 
     sql.add("  OPTIONAL {?1Level rdfs:label ?1Name.").add("    FILTER (!isBlank(?1Level))}");
     for (int i = 1; i < depth; i++) {

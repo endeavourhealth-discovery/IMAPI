@@ -245,4 +245,80 @@ public class QueryService {
     TTEntity queryEntity = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.toString())).getEntity();
     return queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
   }
+
+  public List<ArgumentReference> findMissingArguments(QueryRequest queryRequest) throws JsonProcessingException {
+    List<ArgumentReference> missingArguments = new ArrayList<>();
+    Query query = queryRequest.getQuery();
+    List<Argument> arguments = queryRequest.getArgument();
+    recursivelyCheckQueryArguments(query, missingArguments, arguments);
+    return missingArguments;
+  }
+
+  private void recursivelyCheckQueryArguments(Query query, List<ArgumentReference> missingArguments, List<Argument> arguments) {
+    recursivelyCheckMatchArguments(query, missingArguments, arguments);
+    if (null != query.getSubquery()) {
+      recursivelyCheckQueryArguments(query.getSubquery(), missingArguments, arguments);
+    }
+  }
+
+  private void recursivelyCheckMatchArguments(Match match, List<ArgumentReference> missingArguments, List<Argument> arguments) {
+    if (null != match.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(match.getParameter()))) {
+      missingArguments.add(new ArgumentReference().setParameter(match.getParameter()).setReferenceIri(match.getIri()));
+    }
+    if (null != match.getInstanceOf()) {
+      List<Node> instances = match.getInstanceOf();
+      instances.stream().forEach(instance -> {
+        if (null != instance.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(instance.getParameter()))) {
+          missingArguments.add(new ArgumentReference().setParameter(instance.getParameter()).setReferenceIri(instance.getIri()));
+        }
+      });
+    }
+    if (null != match.getAnd()) {
+      List<Match> matches = match.getAnd();
+      matches.stream().forEach(andMatch -> recursivelyCheckMatchArguments(andMatch, missingArguments, arguments));
+    }
+    if (null != match.getOr()) {
+      List<Match> matches = match.getOr();
+      matches.stream().forEach(orMatch -> recursivelyCheckMatchArguments(orMatch, missingArguments, arguments));
+    }
+    if (null != match.getNot()) {
+      List<Match> matches = match.getNot();
+      matches.stream().forEach(notMatch -> recursivelyCheckMatchArguments(notMatch, missingArguments, arguments));
+    }
+    if (null != match.getWhere()) {
+      recursivelyCheckWhereArguments(match.getWhere(), missingArguments, arguments);
+    }
+  }
+
+  private void recursivelyCheckWhereArguments(Where where, List<ArgumentReference> missingArguments, List<Argument> arguments) {
+    if (null != where.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(where.getParameter()))) {
+      missingArguments.add(new ArgumentReference().setParameter(where.getParameter()).setReferenceIri(where.getIri()));
+    }
+    if (null != where.getAnd()) {
+      where.getAnd().stream().forEach(and -> recursivelyCheckWhereArguments(and, missingArguments, arguments));
+    }
+    if (null != where.getOr()) {
+      where.getOr().stream().forEach(or -> recursivelyCheckWhereArguments(or, missingArguments, arguments));
+    }
+    if (null != where.getNot()) {
+      where.getNot().stream().forEach(not -> recursivelyCheckWhereArguments(not, missingArguments, arguments));
+    }
+    if (null != where.getIs()) {
+      where.getIs().stream().forEach(is -> {
+        if (null != is.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(is.getParameter()))) {
+          missingArguments.add(new ArgumentReference().setParameter(is.getParameter()).setReferenceIri(is.getIri()));
+        }
+      });
+    }
+    if (null != where.getNotIs()) {
+      where.getNotIs().stream().forEach(notIs -> {
+        if (null != notIs.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(notIs.getParameter()))) {
+          missingArguments.add(new ArgumentReference().setParameter(notIs.getParameter()).setReferenceIri(notIs.getIri()));
+        }
+      });
+    }
+    if (null != where.getRelativeTo() && null != where.getRelativeTo().getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(where.getRelativeTo().getParameter()))) {
+      missingArguments.add(new ArgumentReference().setParameter(where.getRelativeTo().getParameter()).setReferenceIri(where.getRelativeTo().getIri()));
+    }
+  }
 }

@@ -3,11 +3,9 @@ package org.endeavourhealth.imapi.dataaccess;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.eclipse.rdf4j.query.*;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.UserDB;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.USER;
 import org.endeavourhealth.imapi.vocabulary.VocabEnum;
@@ -104,7 +102,7 @@ public class UserRepository {
   public void delete(String user, VocabEnum predicate) {
     String sparql = getSparqlDelete();
     try (UserDB conn = UserDB.getConnection()) {
-      Update qry = conn.prepareInsertSparql(sparql);
+      Update qry = conn.prepareDeleteSparql(sparql);
       qry.setBinding("s", iri(Namespace.USER + user));
       qry.setBinding("p", predicate.asDbIri());
       qry.execute();

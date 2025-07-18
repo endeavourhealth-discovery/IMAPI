@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
-import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.iml.Page;
@@ -28,6 +26,8 @@ import org.springframework.stereotype.Component;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
@@ -47,8 +47,8 @@ public class QueryService {
     new QueryDescriptor().generateUUIDs(query);
   }
 
-  public Query describeQuery(Query query, DisplayMode displayMode,Graph graph) throws QueryException, JsonProcessingException {
-    return new QueryDescriptor().describeQuery(query, displayMode,graph);
+  public Query describeQuery(Query query, DisplayMode displayMode, Graph graph) throws QueryException, JsonProcessingException {
+    return new QueryDescriptor().describeQuery(query, displayMode, graph);
   }
 
   public Match describeMatch(Match match, Graph graph) throws QueryException {
@@ -131,9 +131,18 @@ public class QueryService {
   public List<String> executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException {
     log.info("Executing query: {}", queryRequest.getQuery().getIri());
     String sql = getSQLFromIMQ(queryRequest, new HashMap<>());
+    createResultsTable(sql);
     List<String> results = MYSQLConnectionManager.executeQuery(sql);
     storeQueryResults(queryRequest, results);
     return results;
+  }
+
+  private void createResultsTable(String sql) throws SQLException {
+    Pattern pattern = Pattern.compile("(?<=JOIN\\s)(query_\\S+)(?=\\s+ON)");
+    Matcher matcher = pattern.matcher(sql);
+    if (matcher.find()) {
+      MYSQLConnectionManager.createTable(matcher.group());
+    }
   }
 
   public void storeQueryResults(QueryRequest queryRequest, List<String> results) {
@@ -233,7 +242,7 @@ public class QueryService {
   }
 
   public Query getQueryFromIri(String iri, Graph from) throws JsonProcessingException {
-    TTEntity queryEntity= entityRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.toString())).getEntity();
+    TTEntity queryEntity = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.toString())).getEntity();
     return queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
   }
 }

@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.*;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.getString;
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 
 @Slf4j
@@ -641,7 +641,7 @@ public class EntityRepository {
    * @param iri               of the entity
    * @param predicates        List of predicates
    * @param excludePredicates Flag denoting if predicate list is inclusion or exclusion
-   * @return                  Bundle
+   * @return Bundle
    */
   public TTBundle getBundle(String iri, Set<String> predicates, boolean excludePredicates, Graph graph) {
     return getBundle(iri, predicates, excludePredicates, 5, graph);
@@ -787,7 +787,7 @@ public class EntityRepository {
   /**
    * Returns a core entity iri and name from a legacy term
    *
-   * @param term   the code or description id or term code
+   * @param term      the code or description id or term code
    * @param namespace the legacy scheme of the term
    * @return iri and name of entity
    */
@@ -813,7 +813,7 @@ public class EntityRepository {
   /**
    * Returns an entity iri and name from a term code
    *
-   * @param code   the code that is a term code
+   * @param code      the code that is a term code
    * @param namespace the scheme of the term
    * @return set of iris and name of entity
    */
@@ -1163,7 +1163,7 @@ public class EntityRepository {
     }
   }
 
-  public List<EntityReferenceNode> getEntityReferenceNodes(Set<String> stringIris, List<String> schemeIris, boolean inactive,String parentContext, Graph graph) {
+  public List<EntityReferenceNode> getEntityReferenceNodes(Set<String> stringIris, List<String> schemeIris, boolean inactive, String parentContext, Graph graph) {
     for (String stringIri : stringIris) {
       iri(stringIri);
     }
@@ -1177,7 +1177,7 @@ public class EntityRepository {
         OPTIONAL { ?s sh:order ?order . }
         BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
         BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?s} AS ?hasGrandchildren)
-      """.formatted( valueList("s", stringIris), PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
+      """.formatted(valueList("s", stringIris), PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
 
     if (!inactive) {
       sql.add("  OPTIONAL { ?s im:status ?status FILTER (?status != im:Inactive) }");
@@ -1206,7 +1206,8 @@ public class EntityRepository {
           }
           refNode.getType().add(TTIriRef.iri(bs.getValue("typeIri").stringValue())
             .setName(bs.getValue("typeName").stringValue()));
-          if (bs.hasBinding("contextOrder")) refNode.setOrderNumber((((Literal) bs.getValue("contextOrder")).intValue()));
+          if (bs.hasBinding("contextOrder"))
+            refNode.setOrderNumber((((Literal) bs.getValue("contextOrder")).intValue()));
           else if (bs.hasBinding("order")) refNode.setOrderNumber(((Literal) bs.getValue("order")).intValue());
           else refNode.setOrderNumber(Integer.MAX_VALUE);
           refNode.setHasChildren(((Literal) bs.getValue("hasChildren")).booleanValue()).setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue()).setName(bs.getValue("name").stringValue());
@@ -1220,7 +1221,7 @@ public class EntityRepository {
   public List<EntityReferenceNode> getAsEntityReferenceNodes(List<String> iris, Graph graph) {
     List<EntityReferenceNode> result = new ArrayList<>();
 
-    Map<String,Integer> orderMap = new HashMap<>();
+    Map<String, Integer> orderMap = new HashMap<>();
     for (int i = 0; i < iris.size(); i++) {
       orderMap.put(iris.get(i), i);
     }
@@ -1265,8 +1266,8 @@ public class EntityRepository {
     }
     //Sorted by initial list order?
     //result = result.stream()
-     // .sorted(Comparator.comparing(EntityReferenceNode::isHasChildren).reversed())
-     // .collect(Collectors.toList());
+    // .sorted(Comparator.comparing(EntityReferenceNode::isHasChildren).reversed())
+    // .collect(Collectors.toList());
     return result;
   }
 
@@ -1587,10 +1588,10 @@ public class EntityRepository {
     String sql = """
       select ?entity ?entityLabel ?predicate ?predicateLabel ?object ?objectLabel ?subPredicate ?subPredicateLabel ?subObject ?subObjectLabel
       where {
-        VALUES ?entity {%s}
+        %s
         ?entity rdfs:label ?entityLabel.
         optional {
-          VALUES ?predicate {%s}
+          %s
           ?entity ?predicate ?object.
           ?predicate rdfs:label ?predicateLabel.
           optional {
@@ -1648,8 +1649,8 @@ public class EntityRepository {
   public List<TTIriRef> findEntitiesByType(EntityType typeIri, Graph graph) {
     String sparqlString =
       """
-          select *
-          FROM <""" + graph + ">" + """
+        select *
+        FROM <""" + graph + ">" + """
           where {
               ?s rdf:type ?c .
               ?s rdfs:label ?name .
@@ -1839,7 +1840,7 @@ public class EntityRepository {
               ?path rdfs:label ?pathLabel.
           }
       }
-      """.formatted("<"+iri+">");
+      """.formatted("<" + iri + ">");
     List<TTEntity> result = new ArrayList<>();
     Map<String, TTEntity> iriMap = new HashMap<>();
     try (IMDB conn = IMDB.getConnection(graph)) {
@@ -1878,7 +1879,7 @@ public class EntityRepository {
       
       }
       order by ?contextOrder ?order
-   
+      
       """.formatted(toIri(iri));
     List<String> result = new ArrayList<>();
     try (IMDB conn = IMDB.getConnection(graph)) {

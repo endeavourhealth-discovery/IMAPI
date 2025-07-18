@@ -47,6 +47,21 @@ public class MYSQLConnectionManager {
     }
   }
 
+  public static void createTable(String tableName) throws SQLException {
+    try (Connection conn = getConnection()) {
+      String sql = """
+        CREATE TABLE IF NOT EXISTS %s (
+            id BIGINT NOT NULL,
+            iri CHAR(255) NOT NULL,
+            PRIMARY KEY(id)
+        )
+        """.formatted(tableName);
+      try (PreparedStatement statement = conn.prepareStatement(sql)) {
+        statement.execute();
+      }
+    }
+  }
+
   private static int getConnectionId(Connection connection) throws SQLException {
     try (Statement statement = connection.createStatement()) {
       ResultSet resultSet = statement.executeQuery("SELECT CONNECTION_ID()");

@@ -276,6 +276,10 @@
         "value": "Namespace.IM + \"HealthModelOntology\""
       },
       {
+        "name": "CONCEPT_SET_PARENT_FOLDER",
+        "value": "Namespace.IM + \"QueryConceptSets\""
+      },
+      {
         "name": "PROPERTIES_FOLDER",
         "value": "Namespace.IM + \"Properties\""
       },

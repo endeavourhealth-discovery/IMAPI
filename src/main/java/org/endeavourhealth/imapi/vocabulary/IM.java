@@ -67,6 +67,7 @@ public enum IM implements VocabEnum {
     OPENSEARCH_QUERY(Namespace.IM + "OpenSearchQuery"),
     DATAMODEL_PROPERTY(Namespace.IM + "dataModelProperty"),
     ONTOLOGY_PARENT_FOLDER(Namespace.IM + "HealthModelOntology"),
+    CONCEPT_SET_PARENT_FOLDER(Namespace.IM + "QueryConceptSets"),
     PROPERTIES_FOLDER(Namespace.IM + "Properties"),
     TASK(Namespace.IM + "Task"),
     FIELD_GROUP(Namespace.IM + "FieldGroup"),

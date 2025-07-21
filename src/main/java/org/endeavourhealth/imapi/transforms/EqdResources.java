@@ -212,6 +212,7 @@ public class EqdResources {
         TTEntity baseEntity= new TTEntity()
           .setIri(this.namespace + "BaseCriteria_"+ baseHash)
           .setName("Base events ("+baseCounter+") (IndexEvents)")
+          .setScheme(iri(namespace))
           .addType(iri(IM.QUERY));
         baseEntity.set(IM.DEFINITION,TTLiteral.literal(baseMatch));
         baseMatchMap.put(baseHash, baseEntity.getIri());
@@ -285,8 +286,6 @@ public class EqdResources {
       this.setBaseReturn(baseMatch);
     }
 
-
-    baseMatch.setIri(namespace.toString() + UUID.nameUUIDFromBytes(baseContent.getBytes()));
     if (baseMatch.getOr() != null && baseMatch.getOr().size() == 2) {
       Match lastMatch = baseMatch.getOr().getLast();
       baseMatch.setOrderBy(lastMatch.getOrderBy());
@@ -812,7 +811,7 @@ public class EqdResources {
     } else {
       Set<Node> setContent = new HashSet<>();
       for (EQDOCValueSetValue ev : vs.getValues()) {
-        Set<Node> setMembers = this.processEQDOCValueSet(scheme, ev, graph);
+        Set<Node> setMembers = this.processEQDOCValueSetValue(scheme, ev, graph);
         if (!setMembers.isEmpty()) {
           for (Node memberOrConcept : setMembers) {
             if (memberOrConcept.isMemberOf()) {
@@ -927,7 +926,7 @@ public class EqdResources {
     }
   }
 
-  private Set<Node> processEQDOCValueSet(VocCodeSystemEx scheme, EQDOCValueSetValue ev, Graph graph) throws IOException {
+  private Set<Node> processEQDOCValueSetValue(VocCodeSystemEx scheme, EQDOCValueSetValue ev, Graph graph) throws IOException {
     Set<Node> concepts = this.getValueConcepts(scheme, ev, graph);
     if (concepts == null) {
       String eqValue = ev.getValue();
@@ -1087,6 +1086,7 @@ public class EqdResources {
 
   private void createLibraryValueSet(String iri, String name) {
     TTEntity valueSet = (new TTEntity()).setIri(iri).setName(name).addType(iri(IM.CONCEPT_SET));
+    valueSet.setScheme(iri(namespace));
     this.addUsedIn(valueSet);
     this.document.addEntity(valueSet);
   }
@@ -1111,6 +1111,7 @@ public class EqdResources {
       TTEntity valueSet = new TTEntity()
         .setIri(namespace + vs.getId())
         .setName(name)
+        .setScheme(iri(namespace))
         .addType(iri(IM.CONCEPT_SET))
         .set(iri(IM.DEFINITION), TTLiteral.literal(definition));
       this.addUsedIn(valueSet);
@@ -1136,6 +1137,7 @@ public class EqdResources {
     } else {
       TTEntity valueSet = new TTEntity()
         .setIri(namespace + vs.getId()).setName(name).addType(iri(IM.CONCEPT_SET));
+      valueSet.setScheme(iri(namespace));
       if (this.columnGroup != null) {
         valueSet.addObject(iri(IM.USED_IN), iri(this.columnGroup.getIri()));
       } else {

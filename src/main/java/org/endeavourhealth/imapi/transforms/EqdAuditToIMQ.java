@@ -15,13 +15,15 @@ public class EqdAuditToIMQ {
   public void convertReport(EQDOCReport eqReport, Query query, EqdResources resources) throws EQDException {
     resources.setQueryType(QueryType.AGGREGATE_REPORT);
     for (String popId : eqReport.getAuditReport().getPopulation()) {
+      if (EqdToIMQ.versionMap.containsKey(popId)) popId = EqdToIMQ.versionMap.get(popId);
       Query popQuery= new Query();
       query.addDataSet(popQuery);
+      String finalPopId = popId;
       popQuery
         .and(f -> f
           .setVariable(POPULATION)
-          .addInstanceOf(new Node().setIri(resources.getNamespace()+ popId).setMemberOf(true))
-          .setName(resources.reportNames.get(popId)));
+          .addInstanceOf(new Node().setIri(resources.getNamespace()+ finalPopId).setMemberOf(true))
+          .setName(resources.reportNames.get(finalPopId)));
       Return populationReturn = new Return();
       popQuery.setReturn(populationReturn);
       populationReturn.setNodeRef(POPULATION);

@@ -45,7 +45,7 @@ class TTLiteralTest {
   void saveTest() throws Exception {
     TTDocument doc = new TTDocument();
     doc.addEntity(testObject);
-    doc.setCrud(TTIriRef.iri(IM.UPDATE_ALL));
+    doc.setCrud(TTIriRef.iri(IM.REPLACE_ALL_PREDICATES));
 
     TTFilerFactory.getDocumentFiler(Graph.IM).fileDocument(doc);
   }

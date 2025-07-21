@@ -166,8 +166,12 @@ public class TTBulkFiler implements TTDocumentFiler {
 
   private void validateDocument(TTDocument document) throws TTFilerException {
     for (TTEntity entity : document.getEntities()) {
-      if (entity.getScheme() == null)
-        throw new TTFilerException("Missing entity scheme for entity " + entity.getIri());
+      if (entity.getScheme() == null) {
+        if (entity.getCrud() == null) {
+          throw new TTFilerException("Missing entity scheme for entity " + entity.getIri());
+        } else if (!Set.of(IM.ADD_QUADS.toString(), IM.UPDATE_PREDICATES.toString()).contains(entity.getCrud().getIri()))
+          throw new TTFilerException("Missing entity scheme for entity " + entity.getIri());
+      }
     }
   }
 
@@ -180,23 +184,23 @@ public class TTBulkFiler implements TTDocumentFiler {
       log.info("Writing document entities...");
       for (TTEntity entity : document.getEntities()) {
         counter++;
-
         if (entity.get(IM.PRIVACY_LEVEL.asIri()) != null && (entity.get(IM.PRIVACY_LEVEL.asIri()).asLiteral().intValue() > getPrivacyLevel()))
           continue;
 
         allEntities.write(entity.getIri() + "\n");
         if (Graph.IM.equals(graph))
           coreIris.write(entity.getIri() + "\t" + entity.getName() + "\n");
-
-        addToMaps(entity);
-        addSubtypes(entity);
-        addTerms(entity);
-
-        setStatus(entity);
-
-        transformAndWriteQuads(converter, entity, graph);
-        if (counter % 100000 == 0) {
-          log.info("{} entities written", counter);
+        if (entity.getScheme() == null){
+          transformAndWriteQuads(converter, entity, graph);
+        } else {
+          addToMaps(entity);
+          addSubtypes(entity);
+          addTerms(entity);
+          setStatus(entity);
+          transformAndWriteQuads(converter, entity, graph);
+          if (counter % 100000 == 0) {
+            log.info("{} entities written", counter);
+          }
         }
 
       }

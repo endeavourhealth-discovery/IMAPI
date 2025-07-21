@@ -20,8 +20,11 @@ import org.endeavourhealth.imapi.vocabulary.XSD;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList;
 
 public class DataModelRepository {
   public List<TTIriRef> getProperties(Graph graph) {
@@ -512,5 +515,30 @@ public class DataModelRepository {
     }
 
     return uiProp;
+  }
+
+  public PropertyShape getDefiningProperty(String iri) {
+    String sql = """
+      select ?path ?valueSet
+      where {
+       %s
+       ?iri sh:property ?property.
+       ?property sh:path ?path.
+       ?path im:isA im:definingProperty.
+       ?property sh:class ?valueSet.
+       }
+      """.formatted(valueList("iri", Set.of(iri)));
+    PropertyShape property = new PropertyShape();
+    try (IMDB conn = IMDB.getConnection(Graph.IM)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          property.setPath(TTIriRef.iri(bs.getValue("path").stringValue()));
+          property.setClazz(new PropertyRange().setIri(bs.getValue("valueSet").stringValue()));
+        }
+      }
+      return property;
+    }
   }
 }

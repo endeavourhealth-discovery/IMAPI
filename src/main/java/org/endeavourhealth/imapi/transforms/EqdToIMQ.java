@@ -90,8 +90,8 @@ public class EqdToIMQ {
     this.convertReports(eqd, graph);
     createLibrary();
     deduplicate();
-    addLibraryEntities();
-    assignLibraryClauses();
+   // addLibraryEntities();
+   // assignLibraryClauses();
   }
 
   private void setVersionMap(EnquiryDocument eqd) {
@@ -288,6 +288,7 @@ public class EqdToIMQ {
           }
 
           TTEntity folder = (new TTEntity()).setIri(this.namespace + eqFolder.getId()).addType(iri(IM.FOLDER)).setName(eqFolder.getName());
+          folder.setScheme(iri(namespace));
           if (eqFolder.getParentFolder() != null) {
             folder.addObject(TTIriRef.iri(IM.IS_CONTAINED_IN), TTIriRef.iri(this.namespace + eqFolder.getParentFolder()));
           }
@@ -309,6 +310,7 @@ public class EqdToIMQ {
     TTEntity queryEntity = new TTEntity();
     queryEntity.setIri(this.namespace + id);
     queryEntity.setName(eqReport.getName());
+    queryEntity.setScheme(iri(this.namespace));
     queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
     if (eqReport.getFolder() != null) {
       queryEntity.addObject(TTIriRef.iri(IM.IS_CONTAINED_IN), TTIriRef.iri(this.namespace + eqReport.getFolder()).setName(eqReport.getName()));

@@ -1,7 +1,11 @@
 [
   {
     "name": "CONFIG",
-    "imports": ["Namespace","IM", "RDFS"],
+    "imports": [
+      "Namespace",
+      "IM",
+      "RDFS"
+    ],
     "entries": [
       {
         "name": "DOMAIN",
@@ -61,7 +65,9 @@
   },
   {
     "name": "IM",
-    "imports": ["Namespace"],
+    "imports": [
+      "Namespace"
+    ],
     "entries": [
       {
         "name": "DOMAIN",
@@ -1131,7 +1137,9 @@
   },
   {
     "name": "IM_FUNCTION",
-    "imports": ["Namespace"],
+    "imports": [
+      "Namespace"
+    ],
     "entries": [
       {
         "name": "DOMAIN",
@@ -1248,7 +1256,9 @@
   },
   {
     "name": "OWL",
-    "imports": ["Namespace"],
+    "imports": [
+      "Namespace"
+    ],
     "entries": [
       {
         "name": "PREFIX",
@@ -1405,7 +1415,9 @@
   },
   {
     "name": "RDF",
-    "imports": ["Namespace"],
+    "imports": [
+      "Namespace"
+    ],
     "entries": [
       {
         "name": "PREFIX",
@@ -1439,7 +1451,9 @@
   },
   {
     "name": "RDFS",
-    "imports": ["Namespace"],
+    "imports": [
+      "Namespace"
+    ],
     "entries": [
       {
         "name": "PREFIX",
@@ -1489,7 +1503,9 @@
   },
   {
     "name": "SHACL",
-    "imports": ["Namespace"],
+    "imports": [
+      "Namespace"
+    ],
     "entries": [
       {
         "name": "PREFIX",
@@ -1651,7 +1667,9 @@
   },
   {
     "name": "SNOMED",
-    "imports": ["Namespace"],
+    "imports": [
+      "Namespace"
+    ],
     "entries": [
       {
         "name": "DOMAIN",
@@ -1718,7 +1736,9 @@
   },
   {
     "name": "WORKFLOW",
-    "imports": ["Namespace"],
+    "imports": [
+      "Namespace"
+    ],
     "entries": [
       {
         "name": "DOMAIN",
@@ -1832,7 +1852,9 @@
   },
   {
     "name": "XSD",
-    "imports": ["Namespace"],
+    "imports": [
+      "Namespace"
+    ],
     "entries": [
       {
         "name": "PREFIX",
@@ -1894,7 +1916,9 @@
   },
   {
     "name": "COMPONENT",
-    "imports": ["Namespace"],
+    "imports": [
+      "Namespace"
+    ],
     "entries": [
       {
         "name": "DOMAIN",
@@ -2008,7 +2032,9 @@
   },
   {
     "name": "EDITOR",
-    "imports": ["Namespace"],
+    "imports": [
+      "Namespace"
+    ],
     "entries": [
       {
         "name": "DOMAIN",
@@ -2046,7 +2072,9 @@
   },
   {
     "name": "QUERY",
-    "imports": ["Namespace"],
+    "imports": [
+      "Namespace"
+    ],
     "entries": [
       {
         "name": "DOMAIN",
@@ -2140,7 +2168,9 @@
   },
   {
     "name": "VALIDATION",
-    "imports": ["Namespace"],
+    "imports": [
+      "Namespace"
+    ],
     "entries": [
       {
         "name": "DOMAIN",
@@ -2328,7 +2358,12 @@
   },
   {
     "name": "CodeTemplate",
-    "imports": ["IM", "RDFS", "Namespace"],
+    "imports": [
+      "IM",
+      "RDF",
+      "RDFS",
+      "Namespace"
+    ],
     "entries": [
       {
         "name": "DOMAIN",
@@ -2351,6 +2386,10 @@
         "value": "IM.DEFINITION"
       },
       {
+        "name": "TYPE",
+        "value": "RDF.TYPE"
+      },
+      {
         "name": "DATATYPE_MAP",
         "value": "Namespace.IM_CODE_TEMPLATE + \"datatypeMap\""
       },
@@ -2365,8 +2404,12 @@
     ]
   },
   {
-    "name":  "OpenSearch",
-    "imports": ["IM", "RDF", "RDFS"],
+    "name": "OpenSearch",
+    "imports": [
+      "IM",
+      "RDF",
+      "RDFS"
+    ],
     "entries": [
       {
         "name": "NAME",
@@ -2415,8 +2458,11 @@
     ]
   },
   {
-    "name":  "TransformFunction",
-    "imports": ["Namespace","IM"],
+    "name": "TransformFunction",
+    "imports": [
+      "Namespace",
+      "IM"
+    ],
     "entries": [
       {
         "name": "CONCATENATE",
@@ -2434,7 +2480,10 @@
   },
   {
     "name": "EntityType",
-    "imports": ["IM", "SHACL"],
+    "imports": [
+      "IM",
+      "SHACL"
+    ],
     "entries": [
       {
         "name": "QUERY",
@@ -2497,7 +2546,6 @@
         "name": "CONFIG",
         "value": "\"http://endhealth.info/config#\""
       },
-
       {
         "name": "IMQ",
         "value": "\"http://endhealth.info/imq#\""
@@ -2518,12 +2566,10 @@
         "name": "FUNCTION",
         "value": "\"http://endhealth.info/im#Function_\""
       },
-
       {
         "name": "MAP",
         "value": "\"http://endhealth.info/map#\""
       },
-
       {
         "name": "OWL",
         "value": "\"http://www.w3.org/2002/07/owl#\""
@@ -2568,17 +2614,14 @@
         "name": "XSD",
         "value": "\"http://www.w3.org/2001/XMLSchema#\""
       },
-
       {
         "name": "IM_COMPONENT",
         "value": "\"http://endhealth.info/im#Component_\""
       },
-
       {
         "name": "IM_EDITOR",
         "value": "\"http://endhealth.info/im#Editor_\""
       },
-
       {
         "name": "IM_QUERY",
         "value": "\"http://endhealth.info/im#Query_\""
@@ -2587,10 +2630,9 @@
         "name": "IM_VALIDATION",
         "value": "\"http://endhealth.info/im#Validation_\""
       },
-
       {
         "name": "IM_CODE_TEMPLATE",
-        "value": "\"http://endhealth.info/im#codeTemplate#\""
+        "value": "\"http://endhealth.info/codeTemplate#\""
       },
       {
         "name": "TPP",

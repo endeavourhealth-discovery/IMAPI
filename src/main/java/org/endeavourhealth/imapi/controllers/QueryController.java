@@ -18,6 +18,7 @@ import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.postgress.PostgresService;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -374,6 +375,15 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.FindMissingArguments.POST")) {
       log.debug("findRequestMissingArguments");
       return queryService.findMissingArguments(queryRequest);
+    }
+  }
+
+  @GetMapping("/argumentType")
+  @Operation(summary = "Get the data type for a query argument by using the reference iri")
+  public TTIriRef getArgumentType(@RequestParam String referenceIri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
+      log.debug("getArgumentType");
+      return queryService.getArgumentType(referenceIri);
     }
   }
 }

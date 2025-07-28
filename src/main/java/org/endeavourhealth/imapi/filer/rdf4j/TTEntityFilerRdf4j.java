@@ -82,16 +82,16 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     if (entity.get(TTIriRef.iri(RDFS.LABEL)) != null
       && entity.get(TTIriRef.iri(IM.HAS_STATUS)) == null)
       entity.set(IM.HAS_STATUS.asIri(), IM.ACTIVE.asIri());
-
     if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_PREDICATES))) {
       updatePredicates(entity);
     } else if (entity.getCrud().equals(TTIriRef.iri(IM.ADD_QUADS))) {
       addQuads(entity);
-    } else if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_ALL))) {
-      replacePredicates(entity);
+    } else if (entity.getCrud().equals(TTIriRef.iri(IM.REPLACE_ALL_PREDICATES))) {
+      replaceAllPredicates(entity);
     } else if (entity.getCrud().equals(TTIriRef.iri(IM.DELETE_ALL))) {
       deleteTriples(entity);
     } else {
+      if (entity.getPredicateMap().isEmpty()) return;
       throw new TTFilerException("Entity " + entity.getIri() + " has no crud assigned");
     }
 
@@ -236,7 +236,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   }
 
 
-  private void replacePredicates(TTEntity entity) throws TTFilerException {
+  private void replaceAllPredicates(TTEntity entity) throws TTFilerException {
     deleteTriples(entity);
     addQuads(entity);
   }

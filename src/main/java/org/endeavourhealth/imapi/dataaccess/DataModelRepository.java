@@ -4,7 +4,6 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.dto.UIProperty;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
@@ -20,10 +19,29 @@ import org.endeavourhealth.imapi.vocabulary.XSD;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList;
 
 public class DataModelRepository {
+  private static void getPropertyOrderable(BindingSet bs, PropertyShape property) {
+    property.setOrderable(true);
+    property.setAscending(bs.getValue("ascending").stringValue());
+    property.setDescending(bs.getValue("descending").stringValue());
+  }
+
+  private static void getPropertyValue(BindingSet bs, PropertyShape property) {
+    Value hasValue = bs.getValue("hasValue");
+    if (hasValue.isIRI()) {
+      property.setHasValue(TTIriRef.iri(hasValue.stringValue()).setName(bs.getValue("hasValueName").stringValue()));
+      property.setHasValueType(TTIriRef.iri(RDFS.RESOURCE));
+    } else {
+      property.setHasValue(hasValue.stringValue());
+      property.setHasValueType(TTIriRef.iri(XSD.STRING));
+    }
+  }
+
   public List<TTIriRef> getProperties(Graph graph) {
     List<TTIriRef> result = new ArrayList<>();
 
@@ -47,7 +65,6 @@ public class DataModelRepository {
 
     return result;
   }
-
 
   public List<TTIriRef> findDataModelsFromProperty(String propIri, Graph graph) {
     List<TTIriRef> dmList = new ArrayList<>();
@@ -113,7 +130,6 @@ public class DataModelRepository {
       }
     }
   }
-
 
   public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly, Graph graph) {
     NodeShape nodeShape = new NodeShape();
@@ -239,23 +255,6 @@ public class DataModelRepository {
     }
     if (bs.getValue("datatypeQualifier") != null) {
       addDataTypeQualifier(datatype, bs);
-    }
-  }
-
-  private static void getPropertyOrderable(BindingSet bs, PropertyShape property) {
-    property.setOrderable(true);
-    property.setAscending(bs.getValue("ascending").stringValue());
-    property.setDescending(bs.getValue("descending").stringValue());
-  }
-
-  private static void getPropertyValue(BindingSet bs, PropertyShape property) {
-    Value hasValue = bs.getValue("hasValue");
-    if (hasValue.isIRI()) {
-      property.setHasValue(TTIriRef.iri(hasValue.stringValue()).setName(bs.getValue("hasValueName").stringValue()));
-      property.setHasValueType(TTIriRef.iri(RDFS.RESOURCE));
-    } else {
-      property.setHasValue(hasValue.stringValue());
-      property.setHasValueType(TTIriRef.iri(XSD.STRING));
     }
   }
 
@@ -512,5 +511,52 @@ public class DataModelRepository {
     }
 
     return uiProp;
+  }
+
+  public PropertyShape getDefiningProperty(String iri) {
+    String sql = """
+      select ?path ?valueSet
+      where {
+       %s
+       ?iri sh:property ?property.
+       ?property sh:path ?path.
+       ?path im:isA im:definingProperty.
+       ?property sh:class ?valueSet.
+       }
+      """.formatted(valueList("iri", Set.of(iri)));
+    PropertyShape property = new PropertyShape();
+    try (IMDB conn = IMDB.getConnection(Graph.IM)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          property.setPath(TTIriRef.iri(bs.getValue("path").stringValue()));
+          property.setClazz(new PropertyRange().setIri(bs.getValue("valueSet").stringValue()));
+        }
+      }
+      return property;
+    }
+  }
+
+  public TTIriRef getPathDatatype(String iri) {
+    String sql = """
+        select distinct ?dataType where {
+          ?property sh:path ?path.
+          ?property sh:datatype ?dataType.
+        } limit 1
+      """;
+    try (IMDB conn = IMDB.getConnection(Graph.IM)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      qry.setBinding("path", iri(iri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          if (bs.getValue("dataType") != null) {
+            return new TTIriRef(bs.getValue("dataType").stringValue());
+          }
+        }
+      }
+    }
+    return null;
   }
 }

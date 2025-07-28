@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
@@ -17,6 +18,7 @@ import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
 import org.endeavourhealth.imapi.postgress.PostgresService;
 import org.endeavourhealth.imapi.rabbitmq.ConnectionManager;
@@ -37,6 +39,7 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
 public class QueryService {
   public static final String ENTITIES = "entities";
   private final EntityRepository entityRepository = new EntityRepository();
+  private final DataModelRepository dataModelRepository = new DataModelRepository();
   private ConnectionManager connectionManager;
   private ObjectMapper objectMapper = new ObjectMapper();
   private PostgresService postgresService = new PostgresService();
@@ -244,5 +247,105 @@ public class QueryService {
   public Query getQueryFromIri(String iri, Graph from) throws JsonProcessingException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.toString())).getEntity();
     return queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+  }
+
+  public List<ArgumentReference> findMissingArguments(QueryRequest queryRequest) throws JsonProcessingException {
+    List<ArgumentReference> missingArguments = new ArrayList<>();
+    Query query = queryRequest.getQuery();
+    List<Argument> arguments = queryRequest.getArgument();
+    if (null == arguments) arguments = new ArrayList<>();
+    recursivelyCheckQueryArguments(query, missingArguments, arguments);
+    if (!missingArguments.isEmpty()) {
+      for (ArgumentReference argument : missingArguments) {
+        TTIriRef dataType = dataModelRepository.getPathDatatype(argument.getReferenceIri().getIri());
+        if (null != dataType) argument.setDataType(dataType);
+      }
+    }
+    return missingArguments;
+  }
+
+  private void recursivelyCheckQueryArguments(Query query, List<ArgumentReference> missingArguments, List<Argument> arguments) {
+    recursivelyCheckMatchArguments(query, missingArguments, arguments);
+    if (null != query.getSubquery()) {
+      recursivelyCheckQueryArguments(query.getSubquery(), missingArguments, arguments);
+    }
+  }
+
+  private void recursivelyCheckMatchArguments(Match match, List<ArgumentReference> missingArguments, List<Argument> arguments) {
+    if (null != match.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(match.getParameter()))) {
+      addMissingArgument(missingArguments, match.getParameter(), match.getIri());
+    }
+    if (null != match.getInstanceOf()) {
+      List<Node> instances = match.getInstanceOf();
+      instances.stream().forEach(instance -> {
+        if (null != instance.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(instance.getParameter()))) {
+          addMissingArgument(missingArguments, instance.getParameter(), instance.getIri());
+        }
+      });
+    }
+    if (null != match.getAnd()) {
+      List<Match> matches = match.getAnd();
+      matches.stream().forEach(andMatch -> recursivelyCheckMatchArguments(andMatch, missingArguments, arguments));
+    }
+    if (null != match.getOr()) {
+      List<Match> matches = match.getOr();
+      matches.stream().forEach(orMatch -> recursivelyCheckMatchArguments(orMatch, missingArguments, arguments));
+    }
+    if (null != match.getNot()) {
+      List<Match> matches = match.getNot();
+      matches.stream().forEach(notMatch -> recursivelyCheckMatchArguments(notMatch, missingArguments, arguments));
+    }
+    if (null != match.getWhere()) {
+      recursivelyCheckWhereArguments(match.getWhere(), missingArguments, arguments);
+    }
+    if (null != match.getRule()) {
+      List<Match> matches = match.getRule();
+      matches.stream().forEach(ruleMatch -> recursivelyCheckMatchArguments(ruleMatch, missingArguments, arguments));
+    }
+  }
+
+  private void recursivelyCheckWhereArguments(Where where, List<ArgumentReference> missingArguments, List<Argument> arguments) {
+    if (null != where.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(where.getParameter()))) {
+      missingArguments.add(new ArgumentReference().setParameter(where.getParameter()).setReferenceIri(iri(where.getIri())));
+    }
+    if (null != where.getAnd()) {
+      where.getAnd().stream().forEach(and -> recursivelyCheckWhereArguments(and, missingArguments, arguments));
+    }
+    if (null != where.getOr()) {
+      where.getOr().stream().forEach(or -> recursivelyCheckWhereArguments(or, missingArguments, arguments));
+    }
+    if (null != where.getNot()) {
+      where.getNot().stream().forEach(not -> recursivelyCheckWhereArguments(not, missingArguments, arguments));
+    }
+    if (null != where.getIs()) {
+      where.getIs().stream().forEach(is -> {
+        if (null != is.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(is.getParameter()))) {
+          addMissingArgument(missingArguments, is.getParameter(), is.getIri());
+        }
+      });
+    }
+    if (null != where.getNotIs()) {
+      where.getNotIs().stream().forEach(notIs -> {
+        if (null != notIs.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(notIs.getParameter()))) {
+          addMissingArgument(missingArguments, notIs.getParameter(), notIs.getIri());
+        }
+      });
+    }
+    if (null != where.getRelativeTo() && null != where.getRelativeTo().getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(where.getRelativeTo().getParameter()))) {
+      addMissingArgument(missingArguments, where.getRelativeTo().getParameter(), where.getIri());
+    }
+  }
+
+  private void addMissingArgument(List<ArgumentReference> missingArguments, String parameter, String referenceIri) {
+    if (missingArguments.stream().noneMatch(missingArgument -> missingArgument.getParameter().equals(parameter))) {
+      missingArguments.add(new ArgumentReference().setParameter(parameter).setReferenceIri(iri(referenceIri)));
+    }
+  }
+
+  public TTIriRef getArgumentType(String referenceIri) {
+    if (null == referenceIri) {
+      throw new IllegalArgumentException("referenceIri is null");
+    }
+    return dataModelRepository.getPathDatatype(referenceIri);
   }
 }

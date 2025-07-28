@@ -16,9 +16,9 @@ import org.endeavourhealth.imapi.model.postRequestPrimatives.UUIDBody;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
-import org.endeavourhealth.imapi.model.requests.QueryDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.postgress.PostgresService;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -33,8 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.zip.DataFormatException;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @RestController
 @RequestMapping("api/query")
@@ -116,6 +114,7 @@ public class QueryController {
       return queryService.describeQuery(iri, displayMode, Graph.from(graph));
     }
   }
+
   @GetMapping(value = "/public/queryFromIri", produces = "application/json")
   @Operation(
     summary = "gets an original IM  query from its iri",
@@ -127,9 +126,10 @@ public class QueryController {
     throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("getQueryfromIri");
-      return queryService.getQueryFromIri(iri,Graph.from(graph));
+      return queryService.getQueryFromIri(iri, Graph.from(graph));
     }
   }
+
   @PostMapping("/public/queryDisplayFromQuery")
   @Operation(
     summary = "Describe query content",
@@ -141,8 +141,8 @@ public class QueryController {
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.GET")) {
       log.debug("getQueryDisplayFromQuery with displayMode: {}", displayMode);
-      Graph graph= Graph.IM;
-      return queryService.describeQuery(query, displayMode,graph);
+      Graph graph = Graph.IM;
+      return queryService.describeQuery(query, displayMode, graph);
     }
   }
 
@@ -366,6 +366,24 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.TestRunQuery.POST")) {
       log.debug("testRunQuery");
       return queryService.testRunQuery(query.getQuery());
+    }
+  }
+
+  @PostMapping("/findRequestMissingArguments")
+  @Operation(summary = "Check that a query request has argument values for all required query parameters")
+  public List<ArgumentReference> findRequestMissingArguments(@RequestBody QueryRequest queryRequest) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.FindMissingArguments.POST")) {
+      log.debug("findRequestMissingArguments");
+      return queryService.findMissingArguments(queryRequest);
+    }
+  }
+
+  @GetMapping("/argumentType")
+  @Operation(summary = "Get the data type for a query argument by using the reference iri")
+  public TTIriRef getArgumentType(@RequestParam String referenceIri) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
+      log.debug("getArgumentType");
+      return queryService.getArgumentType(referenceIri);
     }
   }
 }

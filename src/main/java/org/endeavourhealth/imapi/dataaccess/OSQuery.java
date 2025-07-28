@@ -265,7 +265,7 @@ public class OSQuery {
 
   private SearchResponse getStandardResults(QueryRequest request) throws OpenSearchException {
     try {
-      JsonNode root = IMOSQuery(request);
+      JsonNode root = imOpenSearchQuery(request);
       if (root == null)
         return null;
       if (root.has("entities")) {
@@ -318,7 +318,7 @@ public class OSQuery {
     }
   }
 
-  public JsonNode IMOSQuery(QueryRequest request) throws OpenSearchException {
+  public JsonNode imOpenSearchQuery(QueryRequest request) throws OpenSearchException {
     try {
       JsonNode root = getOSResults(request);
       if (root == null)

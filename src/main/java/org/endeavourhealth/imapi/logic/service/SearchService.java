@@ -47,7 +47,7 @@ public class SearchService {
     repo.unpackQueryRequest(queryRequest, result);
     if (null != queryRequest.getTextSearch()) {
       OSQuery osq = new OSQuery();
-      JsonNode osResult = osq.IMOSQuery(queryRequest);
+      JsonNode osResult = osq.imOpenSearchQuery(queryRequest);
       if (osResult != null && osResult.get("entities") != null)
         return osResult;
       else {

@@ -73,7 +73,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
 
       setEntityCrudOperation(transaction, entity);
 
-      if (Objects.equals(entity.getCrud(), iri(IM.UPDATE_ALL))) {
+      if (Objects.equals(entity.getCrud(), iri(IM.REPLACE_ALL_PREDICATES))) {
         if (entity.getPredicateMap().isEmpty())
           toCheck.computeIfAbsent(Graph.IM, g -> new HashSet<>()).add("<" + entity.getIri() + ">");
       }
@@ -87,7 +87,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       if (transaction.getCrud() != null) {
         entity.setCrud(transaction.getCrud());
       } else
-        entity.setCrud(iri(IM.UPDATE_ALL));
+        entity.setCrud(iri(IM.REPLACE_ALL_PREDICATES));
     }
   }
 

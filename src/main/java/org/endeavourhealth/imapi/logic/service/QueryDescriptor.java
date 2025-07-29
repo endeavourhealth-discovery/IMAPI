@@ -34,9 +34,9 @@ public class QueryDescriptor {
     return query;
   }
 
-  public Match describeSingleMatch(Match match, Graph graph) throws QueryException {
+  public Match describeSingleMatch(Match match, String typeOf,Graph graph) throws QueryException {
     setIriNames(match, graph);
-    describeMatch(match);
+    describeMatch(match,typeOf);
     return match;
   }
 
@@ -48,7 +48,7 @@ public class QueryDescriptor {
     } else if (displayMode == DisplayMode.LOGICAL && query.getRule() != null) {
       new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     }
-    describeMatch(query);
+    describeMatch(query,null);
     if (query.getGroupBy() != null) {
       describeGroupBys(query.getGroupBy());
     }
@@ -150,7 +150,16 @@ public class QueryDescriptor {
   }
 
 
-  public void describeMatch(Match match) {
+  public void describeMatch(Match match,String inheritedType) {
+    String typeOf;
+    if (match.getTypeOf() == null){
+      if (inheritedType!=null) {
+        match.setTypeOf(new Node().setIri(inheritedType));
+        typeOf = inheritedType;
+      } else typeOf=null;
+    } else {
+      typeOf= match.getTypeOf().getIri();
+    }
     if (match.getUuid() == null) match.setUuid(UUID.randomUUID().toString());
     if (match.getOrderBy() != null) {
       describeOrderBy(match.getOrderBy());
@@ -171,26 +180,26 @@ public class QueryDescriptor {
       describeInstance(match.getInstanceOf());
     }
     if (match.getThen() != null) {
-      describeMatch(match.getThen());
+      describeMatch(match.getThen(),typeOf);
     }
     if (match.getRule() != null) {
       for (Match subMatch : match.getRule()) {
-        describeMatch(subMatch);
+        describeMatch(subMatch,typeOf);
       }
     }
     if (match.getOr() != null) {
       for (Match subMatch : match.getOr()) {
-        describeMatch(subMatch);
+        describeMatch(subMatch,typeOf);
       }
     }
     if (match.getAnd() != null) {
       for (Match subMatch : match.getAnd()) {
-        describeMatch(subMatch);
+        describeMatch(subMatch,typeOf);
       }
     }
     if (match.getNot() != null) {
       for (Match subMatch : match.getNot()) {
-        describeMatch(subMatch);
+        describeMatch(subMatch,typeOf);
       }
     }
     if (match.getPath() != null) {

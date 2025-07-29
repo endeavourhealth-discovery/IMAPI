@@ -17,10 +17,7 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
@@ -472,7 +469,7 @@ public class DataModelRepository {
         IF(EXISTS {
           ?property sh:class ?valueC
         }, "class", "None"))) AS ?propertyType)
-        ?valueType ?intervalUnitIri ?unitsIri ?operatorIri ?qualifierIri ?qualifierName
+        ?valueType ?intervalUnitIri ?unitsIri ?operatorIri ?qualifierIri ?qualifierName 
         WHERE {
           ?dmIri sh:property ?property .
           ?property sh:path ?propIri .
@@ -503,7 +500,9 @@ public class DataModelRepository {
           BindingSet bs = rs.next();
           uiProp.setName(bs.getValue("name").stringValue());
           uiProp.setPropertyType(bs.getValue("propertyType").stringValue());
-          uiProp.setValueType(bs.getValue("valueType").stringValue());
+          if (bs.getValue("valueType") != null) {
+            uiProp.setValueType(bs.getValue("valueType").stringValue());
+          }
           if (bs.getValue("intervalUnitIri") != null)
             uiProp.setIntervalUnitIri(bs.getValue("intervalUnitIri").stringValue());
           if (bs.getValue("unitsIri") != null) uiProp.setUnitIri(bs.getValue("unitsIri").stringValue());
@@ -513,7 +512,29 @@ public class DataModelRepository {
         }
       }
     }
-
+    if (uiProp.getPropertyType().equals("class")) {
+      spql= """
+        Select (count(?member) as ?setMemberCount)
+        where {
+         %s
+         %s
+          ?dmIri sh:property ?property.
+          ?property sh:path ?propIri.
+          ?property sh:class ?valueSet.
+          ?valueSet im:hasMember ?member.
+        }
+        """.formatted(valueList("dmIri", Set.of(dmIri)), valueList("propIri", Set.of(propIri)));
+      try (IMDB conn = IMDB.getConnection(graph)) {
+        TupleQuery qry = conn.prepareTupleSparql(spql);
+        try (TupleQueryResult rs = qry.evaluate()) {
+          while (rs.hasNext()) {
+            BindingSet bs = rs.next();
+            if (bs.getValue("setMemberCount") != null)
+              uiProp.setSetMemberCount(Integer.parseInt(bs.getValue("setMemberCount").stringValue()));
+          }
+        }
+      }
+    }
     return uiProp;
   }
 
@@ -541,4 +562,42 @@ public class DataModelRepository {
       return property;
     }
   }
+
+  public List<NodeShape> getDataModelPropertiesWithValueType(Set<String> iris, String valueType) {
+    List<NodeShape> results  = new ArrayList<>();
+    Map<String,NodeShape> iriMap= new HashMap<>();
+    String sql= """
+      select ?nodeShape ?path ?pathLabel
+      where {
+      %s
+      %s
+       ?nodeShape sh:property ?property.
+       ?property sh:path ?path.
+       ?property sh:datatype ?datatype.
+       ?path rdfs:label ?pathLabel.
+       }
+      """.formatted(valueList("nodeShape", iris), valueList("datatype", Set.of(valueType)));
+    try (IMDB conn = IMDB.getConnection(Graph.IM)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String nodeShapeIri = bs.getValue("nodeShape").stringValue();
+          if (!iriMap.containsKey(nodeShapeIri)) {
+            NodeShape shape= new NodeShape();
+            shape.setIri(nodeShapeIri);
+            shape.setProperty(new ArrayList<>());
+            iriMap.put(nodeShapeIri, shape);
+            results.add(shape);
+          }
+          NodeShape shape= iriMap.get(nodeShapeIri);
+          PropertyShape property= new PropertyShape();
+          shape.addProperty(property);
+          property.setPath(TTIriRef.iri(bs.getValue("path").stringValue()));
+          property.getPath().setName(bs.getValue("pathLabel").stringValue());
+          }
+        }
+      }
+    return results;
+    }
 }

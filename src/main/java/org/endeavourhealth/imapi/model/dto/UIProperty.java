@@ -17,18 +17,14 @@ public class UIProperty {
   private int maxCount;
   private int number;
   private String valueLabel;
-
   private String intervalUnitIri;
   private List<TTIriRef> intervalUnitOptions;
-
   private String unitIri;
   private List<TTIriRef> unitOptions;
-
   private String operatorIri;
   private List<String> operatorOptions;
-
   private List<TTIriRef> qualifierOptions;
-
+  private Integer setMemberCount;
   public UIProperty() {
   }
 

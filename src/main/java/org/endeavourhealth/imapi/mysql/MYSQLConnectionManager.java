@@ -10,7 +10,7 @@ import java.util.Properties;
 
 @Slf4j
 public class MYSQLConnectionManager {
-  private static final String url = "jdbc:mysql://localhost:3306/compassTest";
+  private static final String url = Optional.ofNullable(System.getenv("MYSQL_URL")).orElseThrow();;
   private static final String user = Optional.ofNullable(System.getenv("MYSQL_USERNAME")).orElseThrow();
   private static final String password = Optional.ofNullable(System.getenv("MYSQL_PASSWORD")).orElseThrow();
   private static Connection connection;

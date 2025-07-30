@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.protocol.HTTP;
+import org.endeavourhealth.imapi.logic.service.SmartLifeAuthService;
+import org.endeavourhealth.imapi.logic.service.SmartLifeQueryService;
+import org.endeavourhealth.imapi.model.smartlife.SmartLifeQueryRunDTO;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.springframework.http.HttpStatus;
@@ -21,16 +24,18 @@ import java.io.IOException;
 @Slf4j
 public class SmartLifeQueryController {
 
+  SmartLifeQueryService smartLifeQueryService = new SmartLifeQueryService();
+
   @PostMapping(value = "query/run")
   @Operation(
     summary = "TODO",
     description = "Queues a predefined query for execution based on a given query_id and optional date parameters. " +
       "Returns a query_execution_id to track the execution status."
   )
-  public ResponseEntity<Object> runSmartLifeQuery(@RequestBody String query) throws IOException {
+  public ResponseEntity<Object> runSmartLifeQuery(@RequestBody SmartLifeQueryRunDTO query) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("Query.RunSmartLifeQuery.POST")) {
       log.debug("runSmartLifeQuery");
-      String query_execution_id = "";
+      smartLifeQueryService.runQuery(query);
       return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
   }
@@ -44,6 +49,7 @@ public class SmartLifeQueryController {
   public ResponseEntity<Object> getSmartLifeQuery(@PathVariable String query_execution_id) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("Query.GetSmartLifeQuery.POST")) {
       log.debug("getSmartLifeQuery");
+      smartLifeQueryService.getQuery(query_execution_id);
       return new ResponseEntity<>(HttpStatus.OK);
     }
   }
@@ -57,6 +63,7 @@ public class SmartLifeQueryController {
   public ResponseEntity<Object> cancelSmartLifeQuery(@PathVariable String query_execution_id) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("Query.CancelSmartLifeQuery.POST")) {
       log.debug("cancelSmartLifeQuery");
+      smartLifeQueryService.cancelQuery(query_execution_id);
       return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
   }
@@ -69,6 +76,7 @@ public class SmartLifeQueryController {
   public ResponseEntity<Object> getSmartLifeQueryResults(@PathVariable String query_execution_id) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("Query.GetSmartLifeQueryResults.POST")) {
       log.debug("getSmartLifeQueryResults");
+      smartLifeQueryService.getQuery(query_execution_id);
       return new ResponseEntity<>(HttpStatus.OK);
     }
   }

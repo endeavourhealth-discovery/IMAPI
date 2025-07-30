@@ -102,7 +102,7 @@ public class CodeGenRepository {
       }
       """;
     try (ConfigDB conn = ConfigDB.getConnection()) {
-      Update qry = conn.prepareInsertSparql(deleteSparql);
+      Update qry = conn.prepareDeleteSparql(deleteSparql);
       qry.setBinding("s", iri(Namespace.IM_CODE_TEMPLATE + name));
       qry.execute();
     }

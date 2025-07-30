@@ -21,16 +21,14 @@ import java.util.Objects;
 @Slf4j
 public class IMQtoSQLConverter {
   private TableMap tableMap;
-  private String lang;
   private Map<String, String> iriToUuidMap;
   private QueryRequest queryRequest;
   private String currentDate;
 
-  public IMQtoSQLConverter(QueryRequest queryRequest, String lang, Map<String, String> iriToUuidMap) {
+  public IMQtoSQLConverter(QueryRequest queryRequest, Map<String, String> iriToUuidMap) {
     this.queryRequest = queryRequest;
     this.iriToUuidMap = iriToUuidMap;
-    this.lang = lang != null ? lang : "MYSQL";
-
+    if (null == queryRequest.getLanguage()) queryRequest.setLanguage(DatabaseOption.MYSQL);
     LocalDate today = LocalDate.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     this.currentDate = today.format(formatter);
@@ -46,7 +44,7 @@ public class IMQtoSQLConverter {
   }
 
   private boolean isPostgreSQL() {
-    return this.lang.equals("POSTGRESQL");
+    return queryRequest.getLanguage().equals(DatabaseOption.POSTGRESQL);
   }
 
   public String IMQtoSQL() throws SQLConversionException {
@@ -293,7 +291,7 @@ public class IMQtoSQLConverter {
     if (instanceOf.isEmpty())
       throw new SQLConversionException("SQL Conversion Error: MatchSet must have at least one element");
     String subQueryIri = instanceOf.getFirst().getIri();
-    String rsltTbl = "query." + iriToUuidMap.getOrDefault(subQueryIri, "uuid");
+    String rsltTbl = "query_" + iriToUuidMap.getOrDefault(subQueryIri, "uuid");
     qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.getAlias() + ".id");
     if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".iri IS NULL");
     qry.getWheres().add(rsltTbl + ".iri = '" + instanceOf.getFirst().getIri() + "'");
@@ -546,11 +544,13 @@ public class IMQtoSQLConverter {
   }
 
   private String getUnitName(TTIriRef iriRef) throws SQLConversionException {
-    if (iriRef.getName() != null) return iriRef.getName();
     return switch (IM.from(iriRef.getIri())) {
-      case IM.YEARS -> "Year";
-      case IM.MONTHS -> "Month";
-      case IM.DAYS -> "Day";
+      case IM.YEARS -> "YEAR";
+      case IM.MONTHS -> "MONTH";
+      case IM.DAYS -> "DAY";
+      case IM.HOURS -> "HOUR";
+      case IM.MINUTES -> "MINUTE";
+      case IM.SECONDS -> "SECOND";
       default -> throw new SQLConversionException("SQL Conversion Error: No unit name found for\n" + iriRef.getIri());
     };
   }

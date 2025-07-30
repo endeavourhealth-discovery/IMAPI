@@ -23,11 +23,13 @@ junitSuite = "1.11.4"
 logback = "1.5.18"
 lombok = "1.18.30"
 mockito = "5.14.2"
+mysql = "9.2.0"
 openLlet = "2.6.5"
 opensearchClient = "2.11.1"
 opensearchJava = "2.6.0"
 owlApi = "5.5.0"
 postgres = "42.7.4"
+rabbitmqAmqpClient = "5.24.0"
 rdf4j = "4.3.13"
 reactor = "3.6.10"
 servlet = "6.1.0"
@@ -69,9 +71,11 @@ jersey-inject = { module = "org.glassfish.jersey.inject:jersey-hk2", version.ref
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+mysql = { module = "com.mysql:mysql-connector-j", version.ref = "mysql" }
 open-llet = { module = "com.github.galigator.openllet:openllet-owlapi", version.ref = "openLlet" }
 owl-api = { module = "net.sourceforge.owlapi:owlapi-distribution", version.ref = "owlApi" }
 postgres = { module = "org.postgresql:postgresql", version.ref = "postgres" }
+rabbitmq-amqp-client = { module = "com.rabbitmq:amqp-client", version.ref = "rabbitmqAmqpClient" }
 rdf4j-query = { module = "org.eclipse.rdf4j:rdf4j-query", version.ref = "rdf4j" }
 rdf4j-common = { module = "org.eclipse.rdf4j:rdf4j-common-io", version.ref = "rdf4j" }
 rdf4j-iterator = { module = "org.eclipse.rdf4j:rdf4j-common-iterator", version.ref = "rdf4j" }
@@ -81,6 +85,7 @@ rdf4j-repo-sail = { module = "org.eclipse.rdf4j:rdf4j-repository-sail", version.
 rdf4j-sail-native = { module = "org.eclipse.rdf4j:rdf4j-sail-nativerdf", version.ref = "rdf4j" }
 reactor-core = { module = "io.projectreactor:reactor-core", version.ref = "reactor" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+spring-amqp = { module = "org.springframework.boot:spring-boot-starter-amqp", version.ref = "spring" }
 spring-context = { module = "org.springframework:spring-context", version.ref = "springContext" }
 spring-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa", version.ref = "spring" }
 spring-dev-tools = { module = "org.springframework.boot:spring-boot-devtools", version.ref = "spring" }

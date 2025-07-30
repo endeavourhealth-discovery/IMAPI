@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.Base64;
+import java.util.UUID;
 
 public class RequestObjectService {
 
@@ -19,6 +20,10 @@ public class RequestObjectService {
   public String getRequestAgentId(HttpServletRequest request) throws JsonProcessingException {
     String token = request.getHeader("Authorization");
     return getPropertyValueFromJwt("sub", token);
+  }
+
+  public UUID getRequestAgentIdAsUUID(HttpServletRequest request) throws JsonProcessingException {
+    return UUID.fromString(getRequestAgentId(request));
   }
 
   private String getPropertyValueFromJwt(String propertyValue, String jwt) throws JsonProcessingException {

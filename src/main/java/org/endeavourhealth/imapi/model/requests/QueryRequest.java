@@ -8,7 +8,8 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -37,10 +38,11 @@ public class QueryRequest implements ContextMap {
   @Setter
   private TextSearchStyle textSearchStyle;
   @Getter
+  private DatabaseOption language;
   private Graph graph;
 
-
-  public QueryRequest() {}
+  public QueryRequest() {
+  }
 
   public QueryRequest setCohort(List<TTIriRef> cohort) {
     this.cohort = cohort;
@@ -146,6 +148,9 @@ public class QueryRequest implements ContextMap {
 
   }
 
+  public String getReferenceDate() {
+    return referenceDate;
+  }
 
   public QueryRequest setReferenceDate(String referenceDate) {
     this.referenceDate = referenceDate;
@@ -170,6 +175,9 @@ public class QueryRequest implements ContextMap {
     return this;
   }
 
+  public Query getQuery() {
+    return query;
+  }
 
   @JsonSetter
   public QueryRequest setQuery(Query query) {
@@ -220,6 +228,11 @@ public class QueryRequest implements ContextMap {
 
   public QueryRequest setAskIri(String askIri) {
     this.askIri = askIri;
+    return this;
+  }
+
+  public QueryRequest setLanguage(DatabaseOption language) {
+    this.language = language;
     return this;
   }
 

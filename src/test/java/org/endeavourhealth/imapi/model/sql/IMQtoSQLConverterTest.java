@@ -64,7 +64,7 @@ public class IMQtoSQLConverterTest {
         try {
           // convert it
           Query query = om.readValue(definition, Query.class);
-          IMQtoSQLConverter imq2sql = new IMQtoSQLConverter(new QueryRequest().setQuery(query), "MYSQL", new HashMap<>());
+          IMQtoSQLConverter imq2sql = new IMQtoSQLConverter(new QueryRequest().setQuery(query), new HashMap<>());
           String sql = imq2sql.IMQtoSQL();
 
           // Replace variables

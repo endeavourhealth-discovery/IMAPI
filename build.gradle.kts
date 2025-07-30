@@ -106,6 +106,7 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.tripletree.TTDocument",
     "org.endeavourhealth.imapi.model.ConceptContextMap",
     "org.endeavourhealth.imapi.model.dto.CodeGenDto",
+    "org.endeavourhealth.imapi.model.postgres.*",
     "org.endeavourhealth.imapi.model.editor.*"
   )
   outputFile = "../IMDirectory/src/interfaces/AutoGen.ts"
@@ -144,9 +145,11 @@ dependencies {
   implementation(libs.hapi.fhir.r4)
   implementation(libs.jersey.client)
   implementation(libs.jersey.inject)
+  implementation(libs.mysql)
   implementation(libs.owl.api)
   implementation(libs.open.llet)
   implementation(libs.postgres)
+  implementation(libs.rabbitmq.amqp.client)
   implementation(libs.reactor.core)
   implementation(libs.rdf4j.common)
   implementation(libs.rdf4j.query)
@@ -156,6 +159,7 @@ dependencies {
   implementation(libs.rdf4j.repo.sail)
   implementation(libs.rdf4j.sail.native)
   implementation(libs.slf4j)
+  implementation(libs.spring.amqp)
   implementation(libs.spring.context)
   implementation(libs.spring.data.jpa)
   implementation(libs.spring.oauth.server)

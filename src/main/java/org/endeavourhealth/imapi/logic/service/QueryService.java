@@ -2,40 +2,61 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
-import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
-import org.endeavourhealth.imapi.model.iml.NodeShape;
-import org.endeavourhealth.imapi.model.iml.PropertyShape;
+import org.endeavourhealth.imapi.model.Pageable;
+import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.postgres.DBEntry;
+import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
+import org.endeavourhealth.imapi.postgress.PostgresService;
+import org.endeavourhealth.imapi.rabbitmq.ConnectionManager;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
 
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.*;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
 
 @Component
+@Slf4j
 public class QueryService {
   public static final String ENTITIES = "entities";
   private final EntityRepository entityRepository = new EntityRepository();
+  private final DataModelRepository dataModelRepository = new DataModelRepository();
   private final QueryRepository queryRepository = new QueryRepository();
+  private ConnectionManager connectionManager;
+  private ObjectMapper objectMapper = new ObjectMapper();
+  private PostgresService postgresService = new PostgresService();
+  private Map<Integer, List<String>> queryResultsMap = new HashMap<>();
 
-  public Query describeQuery(Query query, DisplayMode displayMode,Graph graph) throws QueryException, JsonProcessingException {
-    return new QueryDescriptor().describeQuery(query, displayMode,graph);
+  public static void generateUUIdsForQuery(Query query) {
+    new QueryDescriptor().generateUUIDs(query);
+  }
+
+  public Query describeQuery(Query query, DisplayMode displayMode, Graph graph) throws QueryException, JsonProcessingException {
+    return new QueryDescriptor().describeQuery(query, displayMode, graph);
   }
 
   public Match describeMatch(Match match, Graph graph) throws QueryException {
-    return new QueryDescriptor().describeSingleMatch(match, null,graph);
+    return new QueryDescriptor().describeSingleMatch(match, null, graph);
   }
 
   public Query describeQuery(String queryIri, DisplayMode displayMode, Graph graph) throws JsonProcessingException, QueryException {
@@ -70,20 +91,101 @@ public class QueryService {
     return searchResponse;
   }
 
-  public String getSQLFromIMQ(QueryRequest queryRequest, String lang, Map<String, String> iriToUuidMap) {
-    try {
-      return new IMQtoSQLConverter(queryRequest, lang, iriToUuidMap).IMQtoSQL();
-    } catch (SQLConversionException e) {
-      return e.getMessage();
-    }
+  public String getSQLFromIMQ(QueryRequest queryRequest, Map<String, String> iriToUuidMap) throws SQLConversionException {
+    return new IMQtoSQLConverter(queryRequest, iriToUuidMap).IMQtoSQL();
   }
 
-  public String getSQLFromIMQIri(String queryIri, String lang, Map<String, String> iriToUuidMap, Graph graph) throws JsonProcessingException, QueryException {
+  public String getSQLFromIMQIri(String queryIri, DatabaseOption lang, Map<String, String> iriToUuidMap, Graph graph) throws JsonProcessingException, QueryException, SQLConversionException {
+    if (lang.equals(DatabaseOption.GRAPHDB)) {
+      throw new SQLConversionException("GRAPHDB is not currently supported for query to SQL");
+    }
     Query query = describeQuery(queryIri, DisplayMode.LOGICAL, graph);
     if (query == null) return null;
     query = flattenQuery(query);
-    QueryRequest queryRequest = new QueryRequest().setQuery(query);
-    return getSQLFromIMQ(queryRequest, lang, iriToUuidMap);
+    QueryRequest queryRequest = new QueryRequest().setQuery(query).setLanguage(lang);
+    return getSQLFromIMQ(queryRequest, iriToUuidMap);
+  }
+
+  public void handleSQLConversionException(UUID userId, String userName, QueryRequest queryRequest, String error) throws SQLException {
+    DBEntry entry = new DBEntry()
+      .setId(UUID.randomUUID())
+      .setQueryRequest(queryRequest)
+      .setQueryIri(queryRequest.getQuery().getIri())
+      .setQueryName(queryRequest.getQuery().getName())
+      .setStatus(QueryExecutorStatus.ERRORED)
+      .setUserId(userId)
+      .setUserName(userName)
+      .setQueuedAt(LocalDateTime.now())
+      .setKilledAt(LocalDateTime.now())
+      .setError(error);
+    postgresService.create(entry);
+  }
+
+  public void addToExecutionQueue(UUID userId, String userName, QueryRequest queryRequest) throws Exception {
+    try {
+      getSQLFromIMQ(queryRequest, new HashMap<>());
+    } catch (SQLConversionException e) {
+      handleSQLConversionException(userId, userName, queryRequest, e.getMessage());
+      throw new QueryException("Unable to convert query to SQL", e);
+    }
+    if (null == connectionManager) connectionManager = new ConnectionManager();
+    connectionManager.publishToQueue(userId, userName, queryRequest);
+  }
+
+  public List<String> executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException {
+    log.info("Executing query: {}", queryRequest.getQuery().getIri());
+    String sql = getSQLFromIMQ(queryRequest, new HashMap<>());
+    createResultsTable(sql);
+    List<String> results = MYSQLConnectionManager.executeQuery(sql);
+    storeQueryResults(queryRequest, results);
+    return results;
+  }
+
+  private void createResultsTable(String sql) throws SQLException {
+    Pattern pattern = Pattern.compile("(?<=JOIN\\s)(query_\\S+)(?=\\s+ON)");
+    Matcher matcher = pattern.matcher(sql);
+    if (matcher.find()) {
+      MYSQLConnectionManager.createTable(matcher.group());
+    }
+  }
+
+  public void storeQueryResults(QueryRequest queryRequest, List<String> results) {
+    QueryRequest queryRequestCopy = cloneQueryRequestWithoutPage(queryRequest);
+    queryResultsMap.put(Objects.hash(queryRequestCopy), results);
+  }
+
+  public List<String> getQueryResults(QueryRequest queryRequest) throws SQLConversionException, SQLException {
+    QueryRequest queryRequestCopy = cloneQueryRequestWithoutPage(queryRequest);
+    return queryResultsMap.get(Objects.hash(queryRequestCopy));
+  }
+
+  private QueryRequest cloneQueryRequestWithoutPage(QueryRequest queryRequest) {
+    QueryRequest queryRequestCopy = objectMapper.convertValue(queryRequest, QueryRequest.class);
+    queryRequestCopy.setPage(null);
+    return queryRequestCopy;
+  }
+
+  public Pageable<String> getQueryResultsPaged(QueryRequest queryRequest) throws SQLConversionException, SQLException {
+    QueryRequest queryRequestCopy = cloneQueryRequestWithoutPage(queryRequest);
+    List<String> results = queryResultsMap.get(Objects.hash(queryRequestCopy));
+    if (results == null) return null;
+    if (queryRequest.getPage().getPageNumber() > 0 && queryRequest.getPage().getPageSize() > 0) {
+      Pageable<String> pageable = new Pageable<>();
+      pageable.setPageSize(queryRequest.getPage().getPageSize());
+      pageable.setCurrentPage(queryRequest.getPage().getPageNumber());
+      if (queryRequest.getPage().getPageSize() < results.size()) {
+        List<String> subList = results.subList((queryRequest.getPage().getPageNumber() - 1) * queryRequest.getPage().getPageSize(), queryRequest.getPage().getPageSize());
+        pageable.setResult(subList);
+      } else {
+        pageable.setResult(results);
+      }
+      return pageable;
+    }
+    throw new IllegalArgumentException("Page number and page size are required");
+  }
+
+  public void killActiveQuery() throws SQLException {
+    MYSQLConnectionManager.killCurrentQuery();
   }
 
   public Query getDefaultQuery(Graph graph) throws JsonProcessingException {
@@ -123,6 +225,15 @@ public class QueryService {
     return null;
   }
 
+  public List<String> testRunQuery(Query query) throws SQLException, SQLConversionException {
+    QueryRequest queryRequest = new QueryRequest();
+    Page page = new Page();
+    page.setPageNumber(1);
+    page.setPageSize(10);
+    queryRequest.setPage(page);
+    queryRequest.setQuery(query);
+    return executeQuery(queryRequest);
+  }
 
   public Query flattenQuery(Query query) throws JsonProcessingException {
     LogicOptimizer.flattenQuery(query);
@@ -135,9 +246,107 @@ public class QueryService {
   }
 
   public Query getQueryFromIri(String iri, Graph from) throws JsonProcessingException {
-    TTEntity queryEntity= entityRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.toString())).getEntity();
+    TTEntity queryEntity = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.toString())).getEntity();
     return queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
   }
 
+  public List<ArgumentReference> findMissingArguments(QueryRequest queryRequest) throws JsonProcessingException {
+    List<ArgumentReference> missingArguments = new ArrayList<>();
+    Query query = queryRequest.getQuery();
+    List<Argument> arguments = queryRequest.getArgument();
+    if (null == arguments) arguments = new ArrayList<>();
+    recursivelyCheckQueryArguments(query, missingArguments, arguments);
+    if (!missingArguments.isEmpty()) {
+      for (ArgumentReference argument : missingArguments) {
+        TTIriRef dataType = dataModelRepository.getPathDatatype(argument.getReferenceIri().getIri());
+        if (null != dataType) argument.setDataType(dataType);
+      }
+    }
+    return missingArguments;
+  }
 
+  private void recursivelyCheckQueryArguments(Query query, List<ArgumentReference> missingArguments, List<Argument> arguments) {
+    recursivelyCheckMatchArguments(query, missingArguments, arguments);
+    if (null != query.getSubquery()) {
+      recursivelyCheckQueryArguments(query.getSubquery(), missingArguments, arguments);
+    }
+  }
+
+  private void recursivelyCheckMatchArguments(Match match, List<ArgumentReference> missingArguments, List<Argument> arguments) {
+    if (null != match.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(match.getParameter()))) {
+      addMissingArgument(missingArguments, match.getParameter(), match.getIri());
+    }
+    if (null != match.getInstanceOf()) {
+      List<Node> instances = match.getInstanceOf();
+      instances.stream().forEach(instance -> {
+        if (null != instance.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(instance.getParameter()))) {
+          addMissingArgument(missingArguments, instance.getParameter(), instance.getIri());
+        }
+      });
+    }
+    if (null != match.getAnd()) {
+      List<Match> matches = match.getAnd();
+      matches.stream().forEach(andMatch -> recursivelyCheckMatchArguments(andMatch, missingArguments, arguments));
+    }
+    if (null != match.getOr()) {
+      List<Match> matches = match.getOr();
+      matches.stream().forEach(orMatch -> recursivelyCheckMatchArguments(orMatch, missingArguments, arguments));
+    }
+    if (null != match.getNot()) {
+      List<Match> matches = match.getNot();
+      matches.stream().forEach(notMatch -> recursivelyCheckMatchArguments(notMatch, missingArguments, arguments));
+    }
+    if (null != match.getWhere()) {
+      recursivelyCheckWhereArguments(match.getWhere(), missingArguments, arguments);
+    }
+    if (null != match.getRule()) {
+      List<Match> matches = match.getRule();
+      matches.stream().forEach(ruleMatch -> recursivelyCheckMatchArguments(ruleMatch, missingArguments, arguments));
+    }
+  }
+
+  private void recursivelyCheckWhereArguments(Where where, List<ArgumentReference> missingArguments, List<Argument> arguments) {
+    if (null != where.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(where.getParameter()))) {
+      missingArguments.add(new ArgumentReference().setParameter(where.getParameter()).setReferenceIri(iri(where.getIri())));
+    }
+    if (null != where.getAnd()) {
+      where.getAnd().stream().forEach(and -> recursivelyCheckWhereArguments(and, missingArguments, arguments));
+    }
+    if (null != where.getOr()) {
+      where.getOr().stream().forEach(or -> recursivelyCheckWhereArguments(or, missingArguments, arguments));
+    }
+    if (null != where.getNot()) {
+      where.getNot().stream().forEach(not -> recursivelyCheckWhereArguments(not, missingArguments, arguments));
+    }
+    if (null != where.getIs()) {
+      where.getIs().stream().forEach(is -> {
+        if (null != is.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(is.getParameter()))) {
+          addMissingArgument(missingArguments, is.getParameter(), is.getIri());
+        }
+      });
+    }
+    if (null != where.getNotIs()) {
+      where.getNotIs().stream().forEach(notIs -> {
+        if (null != notIs.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(notIs.getParameter()))) {
+          addMissingArgument(missingArguments, notIs.getParameter(), notIs.getIri());
+        }
+      });
+    }
+    if (null != where.getRelativeTo() && null != where.getRelativeTo().getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(where.getRelativeTo().getParameter()))) {
+      addMissingArgument(missingArguments, where.getRelativeTo().getParameter(), where.getIri());
+    }
+  }
+
+  private void addMissingArgument(List<ArgumentReference> missingArguments, String parameter, String referenceIri) {
+    if (missingArguments.stream().noneMatch(missingArgument -> missingArgument.getParameter().equals(parameter))) {
+      missingArguments.add(new ArgumentReference().setParameter(parameter).setReferenceIri(iri(referenceIri)));
+    }
+  }
+
+  public TTIriRef getArgumentType(String referenceIri) {
+    if (null == referenceIri) {
+      throw new IllegalArgumentException("referenceIri is null");
+    }
+    return dataModelRepository.getPathDatatype(referenceIri);
+  }
 }

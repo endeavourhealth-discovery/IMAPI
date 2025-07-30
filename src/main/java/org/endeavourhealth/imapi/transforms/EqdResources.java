@@ -367,7 +367,7 @@ public class EqdResources {
       }
     }
     addMatchWhere(match, where);
-    if (where.getIri().equals(Namespace.IM + "value")) {
+    if ((Namespace.IM + "value").equals(where.getIri())) {
       match.setTypeOf((new Node()).setIri(Namespace.IM+"Observation"));
       match.getPath().getFirst().setTypeOf((new Node()).setIri(Namespace.IM+"Observation"));
     }

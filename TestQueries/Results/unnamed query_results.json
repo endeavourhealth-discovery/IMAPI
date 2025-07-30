@@ -1,0 +1,8 @@
+{
+  "entities" : [ {
+    "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1118",
+    "http://www.w3.org/2000/01/rdf-schema#label" : {
+      "iri" : "http://endhealth.info/im#Organisation"
+    }
+  } ]
+}

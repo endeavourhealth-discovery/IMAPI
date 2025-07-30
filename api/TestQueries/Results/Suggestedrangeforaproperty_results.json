@@ -1,9 +1,0 @@
-{
-  "page" : 1,
-  "count" : 1,
-  "totalCount" : 1,
-  "entities" : [ {
-    "@id" : "http://endhealth.info/im#Organisation",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Organisation"
-  } ]
-}

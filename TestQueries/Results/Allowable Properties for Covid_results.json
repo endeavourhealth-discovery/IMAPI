@@ -1,0 +1,19 @@
+{
+  "entities" : [ {
+    "iri" : "http://snomed.info/sct#246075003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Causative agent (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b692721",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Causative agent"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b692722",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Causative agent (attribute)"
+    } ]
+  } ]
+}

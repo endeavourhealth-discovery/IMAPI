@@ -1,7 +1,0 @@
-{
-  "entities" : [ {
-    "@id" : "http://snomed.info/sct#246075003",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Causative agent (attribute)",
-    "http://endhealth.info/im#code" : "246075003"
-  } ]
-}

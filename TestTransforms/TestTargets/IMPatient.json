@@ -1,24 +1,24 @@
 {
-  "@context": {
+  "context": {
     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "im": "http://endhealth.info/im#",
     "sh": "http://www.w3.org/ns/shacl#",
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
     "entities": {
-      "@id": "http://envhealth.info/im#entities",
-      "@container": "@set"
+      "iri": "http://envhealth.info/im#entities",
+      "container": "set"
     }
   },
-  "@graph": {
-    "@id": "im:"
+  "graph": {
+    "iri": "im:"
   },
   "entities": [
     {
-      "@id": "urn:uuid:1",
+      "iri": "urn:uuid:1",
       "rdf:type": [
         {
-          "@id": "im:Patient"
+          "iri": "im:Patient"
         }
       ],
       "im:forenames": "Lindsey",
@@ -27,7 +27,7 @@
         {
           "rdf:type": [
             {
-              "@id": "im:CodeableConcept"
+              "iri": "im:CodeableConcept"
             }
           ],
           "im:originalCode": "F",
@@ -40,7 +40,7 @@
         {
           "rdf:type": [
             {
-              "@id": "im:Address"
+              "iri": "im:Address"
             }
           ],
           "im:addressLine": [

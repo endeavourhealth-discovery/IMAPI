@@ -1,0 +1,60 @@
+{
+  "name": "GMS registered practice on reference date",
+  "match": [
+    {
+      "path": {
+        "iri": "http://endhealth.info/im#gpRegistration",
+        "variable": "practice",
+        "node": {
+          "iri": "http://endhealth.info/im#GPRegistration"
+        }
+      },
+      "bool": "and",
+      "where": [
+        {
+          "iri": "http://endhealth.info/im#patientType",
+          "in": [
+            {
+              "iri": "http://endhealth.info/im#2751000252106",
+              "name": "Regular GMS patient"
+            }
+          ]
+        },
+        {
+          "iri": "http://endhealth.info/im#effectiveDate",
+          "operator": "<=",
+          "relativeTo": {
+            "parameter": "$referenceDate"
+          }
+        },
+        {
+          "bool": "or",
+          "where": [
+            {
+              "iri": "http://endhealth.info/im#endDate",
+              "null": true
+            },
+            {
+              "iri": "http://endhealth.info/im#endDate",
+              "operator": ">",
+              "relativeTo": {
+                "parameter": "$referenceDate"
+              }
+            }
+          ]
+        }
+      ],
+      "parameter": "this"
+    }
+  ],
+  "return": [
+    {
+      "nodeRef": "practice",
+      "property": [
+        {
+          "iri": "http://endhealth.info/im#recordOwner"
+        }
+      ]
+    }
+  ]
+}

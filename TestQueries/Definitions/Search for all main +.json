@@ -1,0 +1,49 @@
+{
+  "name": "Search for all main types",
+  "match": [
+    {
+      "boolMatch": "or",
+      "match": [
+        {
+          "type": "http://endhealth.info/im#Concept"
+        },
+        {
+          "type": "http://endhealth.info/im#ConceptSet"
+        },
+        {
+          "type": "http://endhealth.info/im#Folder"
+        },
+        {
+          "type": "http://endhealth.info/im#ValueSet"
+        },
+        {
+          "type": "http://endhealth.info/im#dataModelProperty"
+        }
+      ],
+      "variable": "type"
+    }
+  ],
+  "activeOnly": true,
+  "return": [
+    {
+      "nodeRef": "type",
+      "property": [
+        {
+          "iri": "http://www.w3.org/2000/01/rdf-schema#label"
+        },
+        {
+          "iri": "http://www.w3.org/2000/01/rdf-schema#comment"
+        },
+        {
+          "iri": "http://endhealth.info/im#status"
+        },
+        {
+          "iri": "http://endhealth.info/im#usageTotal"
+        },
+        {
+          "iri": "http://endhealth.info/im#scheme"
+        }
+      ]
+    }
+  ]
+}

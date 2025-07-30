@@ -1,0 +1,34 @@
+{
+  "query": {
+    "iri": "http://endhealth.info/im#Q_TestQuery",
+    "typeOf": {"iri": "http://endhealth.info/im#Patient"},
+    "and": [
+      {
+        "instanceOf": [
+          {
+            "iri": "http://endhealth.info/im#Q_RegisteredGMS",
+            "memberOf": true
+          }
+        ]
+      },
+      {
+        "where": {
+          "iri": "http://endhealth.info/im#concept",
+          "nodeRef": "Observation",
+          "is": [
+            {"iri": "http://snomed.info/sct#714628002", "descendantsOf": true}
+          ],
+          "valueLabel": "Prediabetes"
+        },
+        "path": [
+          {
+            "iri": "http://endhealth.info/im#observation",
+            "variable": "Observation",
+            "name": "has pre-diabetes",
+            "typeOf": {"iri": "http://endhealth.info/im#Observation"}
+          }
+        ]
+      }
+    ]
+  }
+}

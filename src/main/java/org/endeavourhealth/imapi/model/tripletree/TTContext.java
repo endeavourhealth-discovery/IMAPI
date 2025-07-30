@@ -1,0 +1,92 @@
+package org.endeavourhealth.imapi.model.tripletree;
+
+import org.endeavourhealth.imapi.vocabulary.VocabEnum;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class TTContext implements Serializable {
+  public static final String OUTPUT_CONTEXT = "OUTPUT_CONTEXT";
+
+  private final Map<String, String> byIri = new HashMap<>();
+  private final Map<String, String> byPrefix = new HashMap<>();
+  private final Map<String, String> toName = new HashMap<>();
+
+
+  public List<TTPrefix> getPrefixes() {
+    return byIri.entrySet().stream()
+      .map(e -> new TTPrefix(e.getKey(), e.getValue()))
+      .collect(Collectors.toList());
+  }
+
+  public List<TTPrefix> getNameSpaces() {
+    List<TTPrefix> prefixes = new ArrayList<>();
+    for (Map.Entry<String, String> entry : byIri.entrySet()) {
+      TTPrefix prefix = new TTPrefix()
+        .setIri(entry.getKey())
+        .setPrefix(entry.getValue())
+        .setName(toName.get(entry.getKey()));
+      prefixes.add(prefix);
+    }
+    return prefixes;
+  }
+
+  public TTContext add(VocabEnum iri, String prefix) {
+    return add(iri.toString(), prefix);
+  }
+
+  public TTContext add(String iri, String prefix) {
+    byIri.put(iri, prefix);
+    byPrefix.put(prefix, iri);
+    return this;
+  }
+
+  public TTContext add(VocabEnum iri, String prefix, String name) {
+    return add(iri.toString(), prefix, name);
+  }
+
+  public TTContext add(String iri, String prefix, String name) {
+    byIri.put(iri, prefix);
+    byPrefix.put(prefix, iri);
+    toName.put(iri, name);
+    return this;
+  }
+
+
+  public String prefix(String iri) {
+    int end = Integer.max(iri.lastIndexOf("/"), iri.lastIndexOf("#"));
+    String path = iri.substring(0, end + 1);
+    String prefix = byIri.get(path);
+    if (prefix == null)
+      return iri;
+    else if (end < iri.length() - 1)
+      return prefix + ":" + iri.substring(end + 1);
+    else if (end == iri.length() - 1)
+      return prefix + ":";
+    else return iri;
+  }
+
+  public String expand(String iri) {
+    int colonPos = iri.indexOf(":");
+    if (colonPos == -1)
+      return iri;
+    String prefix = iri.substring(0, colonPos);
+    String path = byPrefix.get(prefix);
+    if (path == null)
+      return iri;
+    else
+      return path + iri.substring(colonPos + 1);
+  }
+
+  public String getPrefix(String ns) {
+    return byIri.get(ns);
+  }
+
+  public String getNamespace(String prefix) {
+    return byPrefix.get(prefix);
+  }
+}

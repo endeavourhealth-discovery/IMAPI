@@ -1,0 +1,190 @@
+{
+  "iri": "http://endhealth.info/im#Q_TestQuery",
+  "name": "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
+  "match": [
+    {
+      "type": "Patient"
+    },
+    {
+      "set": "http://endhealth.info/im#Q_RegisteredGMS",
+      "name": "Registered for GMS services on reference date"
+    },
+    {
+      "boolMatch": "or",
+      "match": [
+        {
+          "where": [
+            {
+              "iri": "http://endhealth.info/im#age",
+              "range": {
+                "from": {
+                  "operator": ">=",
+                  "value": "65",
+                  "unit": "YEARS"
+                },
+                "to": {
+                  "operator": ">",
+                  "value": "70",
+                  "unit": "YEARS"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "set": "http://example/queries#Q_Diabetics"
+        },
+        {
+          "path": {
+            "iri": "http://endhealth.info/im#observation",
+            "node": {
+              "type": "Observation"
+            }
+          },
+          "where": [
+            {
+              "iri": "http://endhealth.info/im#concept",
+              "in": [
+                {
+                  "iri": "http://snomed.info/sct#714628002",
+                  "descendantsOf": true
+                }
+              ],
+              "valueVariable": "Prediabetes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": {
+        "iri": "http://endhealth.info/im#observation",
+        "node": {
+          "type": "Observation"
+        }
+      },
+      "bool": "and",
+      "where": [
+        {
+          "iri": "http://endhealth.info/im#concept",
+          "name": "concept",
+          "in": [
+            {
+              "iri": "http://snomed.info/sct#271649006",
+              "name": "Systolic blood pressure",
+              "descendantsOrSelfOf": true
+            },
+            {
+              "iri": "http://endhealth.info/emis#1994021000006104",
+              "name": "Home systolic blood pressure",
+              "descendantsOrSelfOf": true
+            }
+          ],
+          "valueLabel": "Office or home systolic blood pressure"
+        },
+        {
+          "iri": "http://endhealth.info/im#effectiveDate",
+          "operator": ">=",
+          "value": "-6",
+          "unit": "MONTHS",
+          "relativeTo": {
+            "parameter": "$referenceDate"
+          },
+          "valueLabel": "last 6 months"
+        }
+      ],
+      "orderBy": [
+        {
+          "direction": "descending",
+          "limit": 1,
+          "iri": "http://endhealth.info/im#effectiveDate"
+        }
+      ]
+    },
+    {
+      "boolMatch": "or",
+      "match": [
+        {
+          "bool": "and",
+          "where": [
+            {
+              "iri": "http://endhealth.info/im#numericValue",
+              "operator": ">",
+              "value": "140",
+              "nodeRef": "latestBP"
+            },
+            {
+              "iri": "http://endhealth.info/im#concept",
+              "in": [
+                {
+                  "iri": "http://snomed.info/sct#271649006",
+                  "name": "Systolic blood pressure",
+                  "descendantsOrSelfOf": true
+                }
+              ],
+              "nodeRef": "latestBP",
+              "valueLabel": "Office blood pressure"
+            }
+          ]
+        },
+        {
+          "bool": "and",
+          "where": [
+            {
+              "iri": "http://endhealth.info/im#numericValue",
+              "operator": ">",
+              "value": "130",
+              "nodeRef": "latestBP"
+            },
+            {
+              "iri": "http://endhealth.info/im#concept",
+              "in": [
+                {
+                  "iri": "http://endhealth.info/emis#1994021000006104",
+                  "name": "Home systolic blood pressure",
+                  "descendantsOrSelfOf": true
+                }
+              ],
+              "nodeRef": "latestBP",
+              "valueLabel": "Home blood pressure"
+            }
+          ]
+        }
+      ],
+      "variable": "highBPReading"
+    },
+    {
+      "exclude": true,
+      "path": {
+        "iri": "http://endhealth.info/im#observation",
+        "node": {
+          "type": "Observation"
+        }
+      },
+      "bool": "and",
+      "where": [
+        {
+          "iri": "http://endhealth.info/im#concept",
+          "in": [
+            {
+              "set": "http://endhealth.info/im#InvitedForScreening"
+            }
+          ]
+        },
+        {
+          "iri": "http://endhealth.info/im#effectiveDate",
+          "operator": ">=",
+          "relativeTo": {
+            "iri": "http://endhealth.info/im#effectiveDate",
+            "nodeRef": "highBPReading"
+          }
+        }
+      ]
+    },
+    {
+      "exclude": true,
+      "set": "http://endhealth.info/im#Q_Hypertensives",
+      "name": "Hypertensives"
+    }
+  ]
+}

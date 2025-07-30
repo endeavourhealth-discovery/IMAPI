@@ -1,0 +1,827 @@
+{
+  "entities" : [ {
+    "iri" : "http://snomed.info/sct#127489000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has active ingredient (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b351150",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has active ingredient"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b351151",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has active ingredient (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#762949000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has precise active ingredient (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1210335",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has precise active ingredient"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1210336",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has precise active ingredient (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#10362801000001104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has specific active ingredient (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1932314",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has specific active ingredient (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#10363001000001101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) basis of strength substance (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1932320"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1932321",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) basis of strength substance (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#411116001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has manufactured dose form (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1036495"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1036496",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has manufactured dose form (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#836358009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has device intended site (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1282672",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has device intended site (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#733722007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has concentration strength denominator unit (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1200824",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has concentration strength denominator unit"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1200825",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has concentration strength denominator unit (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#732943007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has basis of strength substance (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1198918",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has basis of strength substance (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#733725009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has concentration strength numerator unit (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1200829",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has concentration strength numerator unit"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1200830",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has concentration strength numerator unit (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#766939001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Plays role (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1218975",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Plays role"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1218976",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Plays role (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#763032000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has unit of presentation (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1210422",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has unit of presentation"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1210423",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has unit of presentation (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#732947008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has presentation strength denominator unit (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1198924",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has presentation strength denominator unit (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#732945000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has presentation strength numerator unit (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1198920",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has presentation strength numerator unit"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1198921",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has presentation strength numerator unit (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#10362901000001105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has dispensed dose form (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1932317",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has dispensed dose form (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#13088501000001100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) VMP (Virtual Medicinal Product) ontology form and route (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024433",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) VMP (Virtual Medicinal Product) ontology form and route"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024434",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) VMP (Virtual Medicinal Product) ontology form and route (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#13088701000001106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) dose form indicator (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024441",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d dose form indicator"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024442",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) dose form indicator (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#8940001000001105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "VMP prescribing status (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1881929"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1881930"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1881931",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "VMP prescribing status (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#13089101000001102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) controlled drug category (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024456",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d controlled drug category"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024457",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) controlled drug category (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#13088401000001104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) VMP (Virtual Medicinal Product) route of administration (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024429",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "VMP route of administration"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024430",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) VMP (Virtual Medicinal Product) route of administration (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#8940601000001102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "VMP non-availability indicator (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1881963",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "VMP non-availability indicator (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#13089701000001101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) freeness indicator (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024468",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) freeness indicator (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#1142135004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has presentation strength numerator value (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1301897",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has presentation strength numerator value (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#1142136003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has presentation strength denominator value (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1301898",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has presentation strength denominator value (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#1142137007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has concentration strength denominator value (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1301899",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has concentration strength denominator value (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#1142138002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has concentration strength numerator value (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1301900",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has concentration strength numerator value (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#1142139005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Count of base of active ingredient (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1301901",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Count of base of active ingredient"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1301902",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Count of base of active ingredient (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#1142140007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Count of active ingredient (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1301903",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Count of active ingredient (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#1142141006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Count of base and modification pair (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1301904",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Count of base and modification pair (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#774158006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has product name (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1236954",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has product name (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#774159003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has supplier (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1236955",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has supplier"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1236956",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has supplier (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#774160008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Contains clinical drug (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1236957",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Contains clinical drug"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1236958",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Contains clinical drug (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#774163005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has pack size unit (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1236960",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has pack size unit"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1236961",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has pack size unit (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#860779006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has ingredient characteristic (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1285536",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has ingredient characteristic (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#860781008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has product characteristic (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1285539",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has product characteristic"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1285540",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has product characteristic (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#1149367008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has target population (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1307054",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has target population"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1307055",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has target population (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#1149366004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has ingredient qualitative strength (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1307052",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has ingredient qualitative strength"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1307053",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has ingredient qualitative strength (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#1148793005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Unit of presentation size quantity (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1305853",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Unit of presentation size quantity"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1305854",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Unit of presentation size quantity (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#320091000221107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Unit of presentation size unit (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1403542",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Unit of presentation size unit"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1403543",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Unit of presentation size unit (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#13090501000001104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) AMP (actual medicinal product) availability restriction indicator (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024495",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "AMP availability restriction indicator"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024496",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) AMP (actual medicinal product) availability restriction indicator (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#8653101000001104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has excipient (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1871608",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has excipient (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#9191701000001107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has trade family group (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1890651",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has trade family group (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#8941101000001104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Flavour (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1881984",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Flavour (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#13090301000001106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) additional monitoring indicator (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024488",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d additional monitoring indicator"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024489",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) additional monitoring indicator (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#13085501000001109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has unit of administration (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024291",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has unit of administration"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024292",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has unit of administration (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#12223501000001103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "VRP prescribing status (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1993749",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Virtual radiopharmaceutical product prescribing status (attribute)"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1993750"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#10362601000001103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has VMP (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1932309",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has VMP (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#10362701000001108",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has AMP (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1932312",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has AMP (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#8941301000001102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Legal category (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1881992",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Legal category (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#8941901000001101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Discontinued indicator (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1882019",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Discontinued indicator (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#13088901000001108",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) VMP (Virtual Medicinal Product) combination product indicator (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024449",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) VMP (Virtual Medicinal Product) combination product indicator (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#13090201000001102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) parallel import indicator (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2024485",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has NHS dm+d (dictionary of medicines and devices) parallel import indicator (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#12223101000001108",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has VRP (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1993728",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has virtual radiopharmaceutical product (attribute)"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1993729"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#12223201000001101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has ARP (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1993733",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has actual radiopharmaceutical product (attribute)"
+    }, {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1993734"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#8653001000001100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "dm+d attribute (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1871602",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "dm+d attribute (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#10363401000001106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Had VMP (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1932335",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Had VMP (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#10363501000001105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Had AMP (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b1932338",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Had AMP (attribute)"
+    } ]
+  }, {
+    "iri" : "http://snomed.info/sct#13277801000001104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Has replacement (attribute)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : {
+      "iri" : "http://endhealth.info/im#Concept"
+    },
+    "http://endhealth.info/im#scheme" : {
+      "iri" : "http://snomed.info/sct#"
+    },
+    "http://endhealth.info/im#hasTermCode" : [ {
+      "bn" : "genid-c9d973dea08045738c3b09d759af641332-b2030776",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Has replacement (attribute)"
+    } ]
+  } ]
+}

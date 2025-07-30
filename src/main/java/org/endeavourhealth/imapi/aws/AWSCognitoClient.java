@@ -14,6 +14,7 @@ public class AWSCognitoClient {
   private static final Map<String, String> userCache = new HashMap<>();
   private static final String COGNITO_USER_POOL = System.getenv("COGNITO_USER_POOL");
   private static final String COGNITO_REGION = System.getenv("COGNITO_REGION");
+  private static final String COGNITO_WEB_CLIENT = System.getenv("COGNITO_WEB_CLIENT");
   private final CognitoIdentityProviderClient identityProvider;
 
   public AWSCognitoClient() {
@@ -214,5 +215,43 @@ public class AWSCognitoClient {
     user.setPassword("");
     return user;
   }
+
+  public AdminInitiateAuthResponse initiateAuth(String userName, String password) {
+    try {
+      Map<String, String> authParameters = new HashMap<>();
+      authParameters.put("USERNAME", userName);
+      authParameters.put("PASSWORD", password);
+
+      AdminInitiateAuthRequest authRequest = AdminInitiateAuthRequest.builder()
+        .clientId(COGNITO_WEB_CLIENT)
+        .userPoolId(COGNITO_USER_POOL)
+        .authParameters(authParameters)
+        .authFlow(AuthFlowType.ADMIN_USER_PASSWORD_AUTH)
+        .build();
+
+      AdminInitiateAuthResponse a = identityProvider.adminInitiateAuth(authRequest);
+
+      Map<String, String> b = a.challengeParameters();
+      AuthenticationResultType c = a.authenticationResult();
+      ChallengeNameType d = a.challengeName();
+      
+
+      return identityProvider.adminInitiateAuth(authRequest);
+
+    } catch (CognitoIdentityProviderException e) {
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+
+  public void revokeToken(String token, String clientId, String clientSecret) {
+    RevokeTokenRequest request = RevokeTokenRequest.builder()
+      .token(token)
+      .clientId(clientId)
+      .clientSecret(clientSecret)
+      .build();
+
+    identityProvider.revokeToken(request);
+  }
+
 }
 

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.aws;
 
 import org.endeavourhealth.imapi.model.admin.User;
+import org.endeavourhealth.imapi.model.smartlife.OAuthTokenResponse;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -216,7 +217,7 @@ public class AWSCognitoClient {
     return user;
   }
 
-  public AdminInitiateAuthResponse initiateAuth(String userName, String password) {
+  public OAuthTokenResponse initiateAuth(String userName, String password) {
     try {
       Map<String, String> authParameters = new HashMap<>();
       authParameters.put("USERNAME", userName);
@@ -231,12 +232,9 @@ public class AWSCognitoClient {
 
       AdminInitiateAuthResponse a = identityProvider.adminInitiateAuth(authRequest);
 
-      Map<String, String> b = a.challengeParameters();
-      AuthenticationResultType c = a.authenticationResult();
-      ChallengeNameType d = a.challengeName();
-      
-
-      return identityProvider.adminInitiateAuth(authRequest);
+      OAuthTokenResponse response = new OAuthTokenResponse();
+      //TODO add access token, token type, expires in?
+      return response;
 
     } catch (CognitoIdentityProviderException e) {
       throw new RuntimeException(e.getMessage());

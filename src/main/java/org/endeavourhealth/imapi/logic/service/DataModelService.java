@@ -213,4 +213,9 @@ public class DataModelService {
     DataModelRepository dataModelRepository= new DataModelRepository();
     return dataModelRepository.getDefiningProperty(iri);
   }
+
+
+  public List<NodeShape> getDataModelPropertiesWithValueType(Set<String> iris, String valueType) {
+    return dataModelRepository.getDataModelPropertiesWithValueType(iris,valueType);
+  }
 }

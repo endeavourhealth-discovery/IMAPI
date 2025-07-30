@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.Pageable;
@@ -40,10 +41,10 @@ public class QueryService {
   public static final String ENTITIES = "entities";
   private final EntityRepository entityRepository = new EntityRepository();
   private final DataModelRepository dataModelRepository = new DataModelRepository();
+  private final QueryRepository queryRepository = new QueryRepository();
   private ConnectionManager connectionManager;
   private ObjectMapper objectMapper = new ObjectMapper();
   private PostgresService postgresService = new PostgresService();
-
   private Map<Integer, List<String>> queryResultsMap = new HashMap<>();
 
   public static void generateUUIdsForQuery(Query query) {
@@ -55,7 +56,7 @@ public class QueryService {
   }
 
   public Match describeMatch(Match match, Graph graph) throws QueryException {
-    return new QueryDescriptor().describeSingleMatch(match, graph);
+    return new QueryDescriptor().describeSingleMatch(match, null, graph);
   }
 
   public Query describeQuery(String queryIri, DisplayMode displayMode, Graph graph) throws JsonProcessingException, QueryException {

@@ -19,6 +19,7 @@ public enum CodeTemplate implements VocabEnum {
     WRAPPER(Namespace.IM_CODE_TEMPLATE + "wrapper"),
     LABEL(RDFS.LABEL),
     DEFINITION(IM.DEFINITION),
+    TYPE(RDF.TYPE),
     DATATYPE_MAP(Namespace.IM_CODE_TEMPLATE + "datatypeMap"),
     EXTENSION(Namespace.IM_CODE_TEMPLATE + "extension"),
     INCLUDE_COMPLEX_TYPES(Namespace.IM_CODE_TEMPLATE + "includeComplexTypes"),

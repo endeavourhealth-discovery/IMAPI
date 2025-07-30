@@ -47,7 +47,7 @@ public enum Namespace implements VocabEnum {
     IM_EDITOR("http://endhealth.info/im#Editor_"),
     IM_QUERY("http://endhealth.info/im#Query_"),
     IM_VALIDATION("http://endhealth.info/im#Validation_"),
-    IM_CODE_TEMPLATE("http://endhealth.info/im#codeTemplate#"),
+    IM_CODE_TEMPLATE("http://endhealth.info/codeTemplate#"),
     TPP("http://endhealth.info/tpp#"),
     ENCOUNTERS("http://endhealth.info/enc#"),
     ICD10("http://endhealth.info/icd10#"),

@@ -23,6 +23,10 @@ import org.endeavourhealth.imapi.postgress.PostgresService;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
@@ -47,6 +51,9 @@ public class QueryController {
   private final SearchService searchService = new SearchService();
   private final QueryService queryService = new QueryService();
   private final PostgresService postgresService = new PostgresService();
+
+  @Autowired
+  private SimpMessagingTemplate simpMessagingTemplate;
 
   @PostMapping("/public/queryIM")
   @Operation(
@@ -231,6 +238,8 @@ public class QueryController {
     }
   }
 
+  @MessageMapping("/getUserQueryQueue")
+  @SendTo("/topic/userQueryQueue")
   @GetMapping("/userQueryQueue")
   @Operation(
     summary = "Get the query queue items and status for a user"
@@ -243,6 +252,8 @@ public class QueryController {
     }
   }
 
+  @MessageMapping("/getUserQueryQueueByStatus")
+  @SendTo("/topic/userQueryQueueByStatus")
   @GetMapping("/userQueryQueueByStatus")
   @Operation(
     summary = "Get query queue items by user id and status"

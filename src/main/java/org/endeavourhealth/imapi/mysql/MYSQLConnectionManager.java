@@ -10,7 +10,7 @@ import java.util.Properties;
 
 @Slf4j
 public class MYSQLConnectionManager {
-  private static final String url = Optional.ofNullable(System.getenv("MYSQL_URL")).orElseThrow();;
+  private static final String url = Optional.ofNullable(System.getenv("MYSQL_URL")).orElseThrow();
   private static final String user = Optional.ofNullable(System.getenv("MYSQL_USERNAME")).orElseThrow();
   private static final String password = Optional.ofNullable(System.getenv("MYSQL_PASSWORD")).orElseThrow();
   private static Connection connection;
@@ -39,7 +39,7 @@ public class MYSQLConnectionManager {
         ResultSet rs = statement.executeQuery();
         List<String> results = new ArrayList<>();
         while (rs.next()) {
-          String patientId = rs.getString("PATIENT_ID");
+          String patientId = rs.getString("id");
           results.add(patientId);
         }
         return results;

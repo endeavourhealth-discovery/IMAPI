@@ -43,7 +43,7 @@ public class ConnectionManager {
     connectionFactory.setVirtualHost(System.getenv("RABBITMQ_VIRTUALHOST"));
     connectionFactory.setUsername(System.getenv("RABBITMQ_USERNAME"));
     connectionFactory.setPassword(System.getenv("RABBITMQ_PASSWORD"));
-    connection = connectionFactory.createConnection();
+    //connection = connectionFactory.createConnection();
   }
 
   public Connection getConnection() {

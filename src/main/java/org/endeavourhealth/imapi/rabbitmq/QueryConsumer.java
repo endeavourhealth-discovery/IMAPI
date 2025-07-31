@@ -25,11 +25,16 @@ public class QueryConsumer implements ApplicationListener<ContextRefreshedEvent>
 
   @Override
   public void onApplicationEvent(ContextRefreshedEvent event) {
+    /*
     try {
       connectionManager.createConsumerChannel(postgresService);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
     LOG.info("Created inbound channel");
+
+     */
   }
+
+
 }

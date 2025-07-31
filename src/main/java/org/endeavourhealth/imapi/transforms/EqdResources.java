@@ -229,7 +229,6 @@ public class EqdResources {
       if (eqCriterion.getFilterAttribute().getRestriction() != null && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
         testMatch = this.convertTestCriterion(eqCriterion, graph);
         standardMatch.setThen(testMatch);
-        testMatch.setTypeOf(standardMatch.getTypeOf());
       }
     }
     if (eqCriterion.getLinkedCriterion() != null) {
@@ -243,7 +242,6 @@ public class EqdResources {
     if (baseMatch!=null) {
       if (standardMatch != null) {
         baseMatch.setThen(standardMatch);
-        baseMatch.setTypeOf(standardMatch.getTypeOf());
         if (linkedMatch != null) {
           matchHolder = new Match();
           matchHolder.addAnd(baseMatch);
@@ -367,17 +365,18 @@ public class EqdResources {
       }
     }
     addMatchWhere(match, where);
-    if ((Namespace.IM + "value").equals(where.getIri())) {
-      match.setTypeOf((new Node()).setIri(Namespace.IM+"Observation"));
-      match.getPath().getFirst().setTypeOf((new Node()).setIri(Namespace.IM+"Observation"));
-    }
     where.setIri(fullPath[fullPath.length - 1]);
+    if ((Namespace.IM + "value").equals(where.getIri())) {
+      if (match.getPath() != null) {
+        match.getPath().getFirst().setIri(Namespace.IM+"observation").setTypeOf((new Node()).setIri(Namespace.IM + "Observation"));
+      }
+    }
+
     this.convertColumnValue(cv, where, graph);
   }
 
   private String setMatchPath(Match match, String[] paths) throws EQDException, IOException {
     if (paths.length == 1) {
-      match.setTypeOf((new Node()).setIri(Namespace.IM+"Patient"));
       return null;
     } else {
       String path = paths[0];
@@ -402,7 +401,6 @@ public class EqdResources {
       counter++;
       pathMatch.setVariable(paths[1].substring(paths[1].lastIndexOf("#") + 1)+counter);
       pathMatch.setTypeOf((new Node()).setIri(paths[1]));
-      match.setTypeOf(new Node().setIri(paths[1]));
       return paths.length == 3 ? pathMatch.getVariable() : this.getPathFromPath(pathMatch, paths, 2);
     }
   }

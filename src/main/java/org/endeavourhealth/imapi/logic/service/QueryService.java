@@ -134,11 +134,19 @@ public class QueryService {
 
   public List<String> executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException {
     log.info("Executing query: {}", queryRequest.getQuery().getIri());
-    String sql = getSQLFromIMQ(queryRequest, new HashMap<>());
-    createResultsTable(sql);
-    List<String> results = MYSQLConnectionManager.executeQuery(sql);
-    storeQueryResults(queryRequest, results);
-    return results;
+    try {
+      String sql = getSQLFromIMQ(queryRequest, new HashMap<>());
+      createResultsTable(sql);
+      List<String> results = MYSQLConnectionManager.executeQuery(sql);
+      storeQueryResults(queryRequest, results);
+      return results;
+    } catch (SQLConversionException e) {
+      log.error("Error converting query: {}", e.getMessage());
+      throw e;
+    } catch (SQLException e) {
+      log.error("Error executing query: {}", e.getMessage());
+      throw e;
+    }
   }
 
   private void createResultsTable(String sql) throws SQLException {

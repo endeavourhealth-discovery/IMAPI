@@ -292,11 +292,7 @@ public class QueryController {
       if (!userId.equals(entry.getUserId())) {
         throw new IllegalArgumentException("Can only delete a query that belongs to the user making the request.");
       }
-      if (QueryExecutorStatus.CANCELLED.equals(entry.getStatus()) || QueryExecutorStatus.ERRORED.equals(entry.getStatus())) {
-        postgresService.delete(id);
-      } else {
-        throw new IllegalArgumentException("Can only delete an item that has already been cancelled or has errored.");
-      }
+      postgresService.delete(id);
     }
   }
 

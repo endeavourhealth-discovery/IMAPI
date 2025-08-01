@@ -274,9 +274,7 @@ public class QueryController {
   public void cancelQuery(@RequestBody UUIDBody id) throws IOException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.CancelQuery.POST")) {
       log.debug("cancelQuery");
-      DBEntry entry = postgresService.getById(id.getValue());
-      entry.setStatus(QueryExecutorStatus.CANCELLED);
-      postgresService.update(entry);
+      postgresService.cancelQuery(id.getValue());
     }
   }
 

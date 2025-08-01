@@ -2,19 +2,25 @@ package org.endeavourhealth.imapi.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.protocol.HTTP;
-import org.endeavourhealth.imapi.logic.service.SmartLifeAuthService;
+import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
+import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SmartLifeQueryService;
+import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.smartlife.SmartLifeQueryRunDTO;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.UUID;
 
 
 @RestController
@@ -24,7 +30,8 @@ import java.io.IOException;
 @Slf4j
 public class SmartLifeQueryController {
 
-  SmartLifeQueryService smartLifeQueryService = new SmartLifeQueryService();
+  private final SmartLifeQueryService smartLifeQueryService = new SmartLifeQueryService();
+  private final RequestObjectService reqObjService = new RequestObjectService();
 
   @PostMapping(value = "query/run")
   @Operation(
@@ -32,52 +39,54 @@ public class SmartLifeQueryController {
     description = "Queues a predefined query for execution based on a given query_id and optional date parameters. " +
       "Returns a query_execution_id to track the execution status."
   )
-  public ResponseEntity<Object> runSmartLifeQuery(@RequestBody SmartLifeQueryRunDTO query) throws IOException {
+  public UUID runSmartLifeQuery(
+    @RequestBody SmartLifeQueryRunDTO query,
+    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph,
+    HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("Query.RunSmartLifeQuery.POST")) {
       log.debug("runSmartLifeQuery");
-      smartLifeQueryService.runQuery(query);
-      return new ResponseEntity<>(HttpStatus.ACCEPTED);
+      UUID userId = reqObjService.getRequestAgentIdAsUUID(request);
+      String username = reqObjService.getRequestAgentName(request);
+      return smartLifeQueryService.runQuery(userId, username, query, Graph.from(graph));
     }
   }
 
-  @GetMapping(value = "/query/executions/{query_execution_id}")
+  @GetMapping(value = "/query/executions/{queryExecutionId}")
   @Operation(
     summary = "TODO",
     description = "Returns the current status and metadata of a specific query execution, " +
       "including its position in the queue if not yet running."
   )
-  public ResponseEntity<Object> getSmartLifeQuery(@PathVariable String query_execution_id) throws IOException {
+  public DBEntry getSmartLifeQueryInfo(@PathVariable String queryExecutionId) throws IOException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("Query.GetSmartLifeQuery.POST")) {
-      log.debug("getSmartLifeQuery");
-      smartLifeQueryService.getQuery(query_execution_id);
-      return new ResponseEntity<>(HttpStatus.OK);
+      log.debug("getSmartLifeQueryInfo");
+      return smartLifeQueryService.getQueryInfo(UUID.fromString(queryExecutionId));
     }
   }
 
-  @PostMapping(value = "/query/executions/{query_execution_id}/cancel")
+  @PostMapping(value = "/query/executions/{queryExecutionId}/cancel")
   @Operation(
     summary = "TODO",
     description = "Cancels a query execution that is in queued state. Has no effect if the execution is already completed, failed, or cancelled. " +
       "Will just be marked for cancellation and skipped when it gets picked up for execution."
   )
-  public ResponseEntity<Object> cancelSmartLifeQuery(@PathVariable String query_execution_id) throws IOException {
+  public ResponseEntity<Object> cancelSmartLifeQuery(@PathVariable String queryExecutionId) throws IOException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("Query.CancelSmartLifeQuery.POST")) {
       log.debug("cancelSmartLifeQuery");
-      smartLifeQueryService.cancelQuery(query_execution_id);
+      smartLifeQueryService.cancelQuery(UUID.fromString(queryExecutionId));
       return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
   }
 
-  @GetMapping(value = "/query/executions/{query_execution_id}/results")
+  @GetMapping(value = "/query/executions/{queryExecutionId}/results")
   @Operation(
     summary = "TODO",
     description = "Returns the result of a query execution once it has completed successfully."
   )
-  public ResponseEntity<Object> getSmartLifeQueryResults(@PathVariable String query_execution_id) throws IOException {
+  public List<String> getSmartLifeQueryResults(@PathVariable String queryExecutionId) throws IOException, SQLException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("Query.GetSmartLifeQueryResults.POST")) {
       log.debug("getSmartLifeQueryResults");
-      smartLifeQueryService.getQuery(query_execution_id);
-      return new ResponseEntity<>(HttpStatus.OK);
+      return smartLifeQueryService.getQueryResults(UUID.fromString(queryExecutionId));
     }
   }
 }

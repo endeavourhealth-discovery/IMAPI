@@ -121,7 +121,7 @@ public class QueryService {
     postgresService.create(entry);
   }
 
-  public void addToExecutionQueue(UUID userId, String userName, QueryRequest queryRequest) throws Exception {
+  public UUID addToExecutionQueue(UUID userId, String userName, QueryRequest queryRequest) throws Exception {
     try {
       getSQLFromIMQ(queryRequest, new HashMap<>());
     } catch (SQLConversionException e) {
@@ -129,7 +129,7 @@ public class QueryService {
       throw new QueryException("Unable to convert query to SQL", e);
     }
     if (null == connectionManager) connectionManager = new ConnectionManager();
-    connectionManager.publishToQueue(userId, userName, queryRequest);
+    return connectionManager.publishToQueue(userId, userName, queryRequest);
   }
 
   public List<String> executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException {

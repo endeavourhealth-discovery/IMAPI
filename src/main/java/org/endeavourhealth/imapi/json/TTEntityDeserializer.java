@@ -56,7 +56,7 @@ public class TTEntityDeserializer extends StdDeserializer<TTEntity> {
       JsonNode value = field.getValue();
       if ("iri".equals(key))
         result.setIri(helper.expand(value.textValue()));
-      else if (IM.ID.equals(key))
+      else if (IM.ID.toString().equals(key))
         result.setIri(helper.expand(value.textValue()));
       else if ("crud".equals(key))
         result.setCrud(helper.getJsonNodeAsValue(value).asIriRef());

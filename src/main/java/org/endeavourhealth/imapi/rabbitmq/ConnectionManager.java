@@ -17,6 +17,7 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.Connection;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
+@Lazy
 @Service
 public class ConnectionManager {
   private static final String EXCHANGE_NAME = "query_runner";
@@ -35,8 +37,9 @@ public class ConnectionManager {
   private ObjectMapper om = new ObjectMapper();
   private QueryService queryService = new QueryService();
   private PostgresService postgresService = new PostgresService();
+  private boolean createdChannel = false;
 
-  public ConnectionManager() throws IOException, TimeoutException {
+  public ConnectionManager() {
     connectionFactory = new CachingConnectionFactory();
     connectionFactory.setHost(System.getenv("RABBITMQ_HOST"));
     connectionFactory.setPort(5672);
@@ -127,6 +130,10 @@ public class ConnectionManager {
   }
 
   public UUID publishToQueue(UUID userId, String userName, QueryRequest message) throws Exception {
+    if (!createdChannel) {
+      createConsumerChannel(postgresService);
+      createdChannel = true;
+    }
     Channel channel = getPublisherChannel(userId);
     UUID id = UUID.randomUUID();
     LOG.info("Publishing to queue: {}", id);

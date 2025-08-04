@@ -9,12 +9,11 @@ import org.endeavourhealth.imapi.model.PropertyDisplay;
 import org.endeavourhealth.imapi.model.dto.UIProperty;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.iml.PropertyShape;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -44,7 +43,7 @@ public class DataModelController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
       log.debug("getDataModelProperties " + (pathsOnly ? "paths only" : "") + "for " + iri);
-      return dataModelService.getDataModelDisplayProperties(iri, pathsOnly, Graph.from(graph));
+      return dataModelService.getDataModelDisplayProperties(iri, pathsOnly, GRAPH.from(graph));
     }
   }
 
@@ -75,7 +74,7 @@ public class DataModelController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.GetUIPropertyForQB.GET")) {
       log.debug("getUIPropertyForQB");
-      return dataModelService.getUIPropertyForQB(dmIri, propIri, Graph.from(graph));
+      return dataModelService.getUIPropertyForQB(dmIri, propIri, GRAPH.from(graph));
     }
   }
 
@@ -90,7 +89,7 @@ public class DataModelController {
     @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph
   ) {
     log.debug("getDataModelsFromProperty");
-    return dataModelService.getDataModelsFromProperty(propIri, Graph.from(graph));
+    return dataModelService.getDataModelsFromProperty(propIri, GRAPH.from(graph));
   }
 
   @Operation(
@@ -103,7 +102,7 @@ public class DataModelController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.CheckPropertyType.GET")) {
       log.debug("checkPropertyType");
-      return dataModelService.checkPropertyType(iri, Graph.from(graph));
+      return dataModelService.checkPropertyType(iri, GRAPH.from(graph));
     }
   }
 

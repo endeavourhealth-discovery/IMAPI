@@ -26,7 +26,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.hl7.fhir.r4.model.CanonicalType;

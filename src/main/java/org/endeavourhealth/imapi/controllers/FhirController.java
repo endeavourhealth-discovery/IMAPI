@@ -8,7 +8,7 @@ import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -29,7 +29,7 @@ public class FhirController {
   public String getValueSet(@RequestParam(name = "url") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Fhir.ValueSet.GET")) {
       log.info("Retrieving valueSet");
-      return fhirService.getFhirValueSet(iri, false, Graph.from(graph));
+      return fhirService.getFhirValueSet(iri, false, GRAPH.from(graph));
     }
   }
 
@@ -38,7 +38,7 @@ public class FhirController {
   public String getValueSetExpanded(@RequestParam(name = "url") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Fhir.ValueSet.Expand.GET")) {
       log.info("Retrieving expanded valueSet");
-      return fhirService.getFhirValueSet(iri, true, Graph.from(graph));
+      return fhirService.getFhirValueSet(iri, true, GRAPH.from(graph));
     }
   }
 

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.io.IOException;
 import java.util.ArrayList;

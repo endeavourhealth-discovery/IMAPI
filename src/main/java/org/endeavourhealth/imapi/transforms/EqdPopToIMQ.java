@@ -6,8 +6,7 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriteriaGroup;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.VocPopulationParentType;
 import org.endeavourhealth.imapi.transforms.eqd.VocRuleAction;
-import org.endeavourhealth.imapi.vocabulary.Graph;
-import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.io.IOException;

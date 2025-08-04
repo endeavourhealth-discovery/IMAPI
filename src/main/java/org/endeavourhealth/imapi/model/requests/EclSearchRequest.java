@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.model.requests;
 
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 import java.util.HashSet;
 import java.util.Set;

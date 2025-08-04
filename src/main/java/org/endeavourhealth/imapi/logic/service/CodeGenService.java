@@ -8,8 +8,7 @@ import org.endeavourhealth.imapi.model.dto.CodeGenDto;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.EntityType;
-import org.endeavourhealth.imapi.vocabulary.Graph;
-import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.springframework.http.*;
 

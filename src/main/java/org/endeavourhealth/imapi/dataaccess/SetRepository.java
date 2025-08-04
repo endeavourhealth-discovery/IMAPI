@@ -20,6 +20,7 @@ import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 import java.util.*;
 import java.util.stream.Collectors;

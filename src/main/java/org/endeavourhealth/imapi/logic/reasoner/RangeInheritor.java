@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.logic.reasoner;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 public class RangeInheritor {
 

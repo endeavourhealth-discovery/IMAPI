@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 import java.util.*;
 

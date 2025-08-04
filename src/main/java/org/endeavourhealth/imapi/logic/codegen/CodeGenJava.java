@@ -6,14 +6,12 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.codegen.DataModel;
 import org.endeavourhealth.imapi.model.codegen.DataModelProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
-import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
 import java.io.StringWriter;

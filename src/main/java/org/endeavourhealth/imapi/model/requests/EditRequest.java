@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.model.requests;
 
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 @Getter
 public class EditRequest {

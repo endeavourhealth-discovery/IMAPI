@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.dataaccess.ShapeRepository;
 import org.endeavourhealth.imapi.logic.reasoner.Inferrer;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 import java.util.*;
 
@@ -237,7 +238,7 @@ public class EntityCache implements Runnable {
 
   @Override
   public void run() {
-    refreshCache(Graph.IM);
+    refreshCache(GRAPH.IM);
   }
 
 }

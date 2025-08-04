@@ -11,7 +11,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.parser.imecl.IMECLBaseVisitor;
 import org.endeavourhealth.imapi.parser.imecl.IMECLLexer;
 import org.endeavourhealth.imapi.parser.imecl.IMECLParser;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 /**
  * Converts ECL to Discovery syntax, supporting commonly used constructs
@@ -56,7 +57,7 @@ public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
       eclQueryRequest.setQuery(query);
       if (validateEntities) {
         ECLQueryValidator validator = new ECLQueryValidator();
-        ECLStatus status = validator.validateQuery(query, ValidationLevel.CONCEPT, Graph.valueOf(query.getGraph().getIri()));
+        ECLStatus status = validator.validateQuery(query, ValidationLevel.CONCEPT, GRAPH.from(query.getGraph().getIri()));
         if (!status.isValid()) {
           try {
             new IMQToECL().getECLFromQuery(eclQueryRequest);

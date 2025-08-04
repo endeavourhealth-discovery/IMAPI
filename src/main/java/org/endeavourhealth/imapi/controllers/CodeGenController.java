@@ -9,7 +9,8 @@ import org.endeavourhealth.imapi.logic.service.CodeGenService;
 import org.endeavourhealth.imapi.model.dto.CodeGenDto;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -67,7 +68,7 @@ public class CodeGenController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.GenerateCode.GET")) {
       log.debug("GenerateCode");
 
-      return codeGenService.generateCode(iri, templateName, namespace, Graph.from(graph));
+      return codeGenService.generateCode(iri, templateName, namespace, GRAPH.from(graph));
     }
   }
 
@@ -82,7 +83,7 @@ public class CodeGenController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.GenerateCode.GET")) {
       log.debug("GenerateCodePreview");
 
-      return codeGenService.generateCodeForModel(iri, template, namespace, Graph.from(graph));
+      return codeGenService.generateCodeForModel(iri, template, namespace, GRAPH.from(graph));
     }
   }
 }

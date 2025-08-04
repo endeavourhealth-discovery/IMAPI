@@ -303,7 +303,7 @@ public class Reasoner {
     TTToOWLEL transformer = new TTToOWLEL();
     TTManager dmanager = new TTManager();
     dmanager.setDocument(document);
-    OWLOntologyManager owlManager = transformer.transform(document, dmanager, Graph.IM);
+    OWLOntologyManager owlManager = transformer.transform(document, dmanager, GRAPH.IM);
     Set<OWLOntology> owlOntologySet = owlManager.getOntologies();
     Optional<OWLOntology> owlOntology = owlOntologySet.stream().findFirst();
 

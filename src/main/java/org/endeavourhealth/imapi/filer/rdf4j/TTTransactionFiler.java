@@ -18,7 +18,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.TTManager;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -75,7 +76,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
 
       if (Objects.equals(entity.getCrud(), iri(IM.REPLACE_ALL_PREDICATES))) {
         if (entity.getPredicateMap().isEmpty())
-          toCheck.computeIfAbsent(Graph.IM, g -> new HashSet<>()).add("<" + entity.getIri() + ">");
+          toCheck.computeIfAbsent(GRAPH.IM, g -> new HashSet<>()).add("<" + entity.getIri() + ">");
       }
 
     }
@@ -264,7 +265,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
         writeLog(document);
       updateTct(document);
       log.info("Updating range inheritances");
-      new RangeInheritor().inheritRanges(conn, Graph.IM);
+      new RangeInheritor().inheritRanges(conn, GRAPH.IM);
       commit();
     } catch (TTFilerException e) {
       rollback();
@@ -402,7 +403,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
           fileEntity(entity);
           i++;
           if (i % 10000 == 0) {
-            log.info("Filed {} entities from {} in graph {}", i, document.getEntities().size(), Graph.IM);
+            log.info("Filed {} entities from {} in graph {}", i, document.getEntities().size(), GRAPH.IM);
             commit();
             startTransaction();
           }

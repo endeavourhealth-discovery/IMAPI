@@ -5,7 +5,8 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
@@ -185,13 +186,13 @@ class EntityModelServiceTest {
         new EntityReferenceNode("http://endhealth.info/im#25451000252115",
           "Adverse reaction to Amlodipine Besilate")));
     when(entityRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null,
-      0, 20, true, Graph.IM))
+      0, 20, true, GRAPH.IM))
       .thenReturn(Collections.singletonList(entityReferenceNode));
     TTArray ttArray = new TTArray()
       .add(iri("http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
     when(entityRepository.getEntityTypes(any(), any())).thenReturn(ttArray);
     List<EntityReferenceNode> actual = entityService.getImmediateParents
-      ("http://endhealth.info/im#25451000252115", null, 1, 20, true, Graph.IM);
+      ("http://endhealth.info/im#25451000252115", null, 1, 20, true, GRAPH.IM);
 
     assertNotNull(actual);
 
@@ -203,12 +204,12 @@ class EntityModelServiceTest {
       .setChildren(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")))
       .setParents(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")));
     when(entityRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null,
-      0, 10, false, Graph.IM))
+      0, 10, false, GRAPH.IM))
       .thenReturn(Collections.singletonList(entityReferenceNode));
     TTArray ttArray = new TTArray().add(iri("http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
     when(entityRepository.getEntityTypes(any(), any())).thenReturn(ttArray);
     List<EntityReferenceNode> actual = entityService.getImmediateParents
-      ("http://endhealth.info/im#25451000252115", null, 1, 10, false, Graph.IM);
+      ("http://endhealth.info/im#25451000252115", null, 1, 10, false, GRAPH.IM);
 
     assertNotNull(actual);
 
@@ -265,21 +266,21 @@ class EntityModelServiceTest {
 
     List<TTIriRef> actual = entityService
       .isWhichType("http://endhealth.info/im#25451000252115",
-        Collections.singletonList("http://endhealth.info/im#25451000252115"), Graph.IM);
+        Collections.singletonList("http://endhealth.info/im#25451000252115"), GRAPH.IM);
 
     assertNotNull(actual);
   }
 
   @Test
   void usages_NullIri() {
-    List<TTEntity> actual = entityService.usages(null, null, null, Graph.IM);
+    List<TTEntity> actual = entityService.usages(null, null, null, GRAPH.IM);
 
     assertNotNull(actual);
   }
 
   @Test
   void usages_EmptyIri() {
-    List<TTEntity> actual = entityService.usages("", null, null, Graph.IM);
+    List<TTEntity> actual = entityService.usages("", null, null, GRAPH.IM);
 
     assertNotNull(actual);
   }
@@ -305,7 +306,7 @@ class EntityModelServiceTest {
     when(entityRepository.getConceptUsagesCount(any(), any())).thenReturn(1000);
     when(entityRepository.getByNamespace(any(), any())).thenReturn(Stream.of("http://www.w3.org/2001/XMLSchema#string").collect(Collectors.toSet()));
 
-    Integer actual = entityService.totalRecords("http://endhealth.info/im#25451000252115", Graph.IM);
+    Integer actual = entityService.totalRecords("http://endhealth.info/im#25451000252115", GRAPH.IM);
     assertEquals(1000, actual);
   }
 
@@ -313,13 +314,13 @@ class EntityModelServiceTest {
   void totalRecords_XMLIri() {
     when(entityRepository.getByNamespace(any(), any())).thenReturn(Stream.of("http://www.w3.org/2001/XMLSchema#string").collect(Collectors.toSet()));
 
-    Integer actual = entityService.totalRecords("http://www.w3.org/2001/XMLSchema#string", Graph.IM);
+    Integer actual = entityService.totalRecords("http://www.w3.org/2001/XMLSchema#string", GRAPH.IM);
     assertEquals(0, actual);
   }
 
   @Test
   void getSummary_NullIri() {
-    SearchResultSummary actual = entityService.getSummary(null, Graph.IM);
+    SearchResultSummary actual = entityService.getSummary(null, GRAPH.IM);
     assertNull(actual);
   }
 
@@ -327,7 +328,7 @@ class EntityModelServiceTest {
   void getSummary_NotNullIri() {
     SearchResultSummary summary = new SearchResultSummary();
     when(entityRepository.getEntitySummaryByIri(any(), any())).thenReturn(summary);
-    SearchResultSummary actual = entityService.getSummary("anyIri", Graph.IM);
+    SearchResultSummary actual = entityService.getSummary("anyIri", GRAPH.IM);
     assertNotNull(actual);
   }
 
@@ -396,7 +397,7 @@ class EntityModelServiceTest {
 
   @Test
   void getConceptList_NullIri() {
-    TTDocument actual = entityService.getConceptList(null, Graph.IM);
+    TTDocument actual = entityService.getConceptList(null, GRAPH.IM);
     assertNull(actual);
   }
 
@@ -405,7 +406,7 @@ class EntityModelServiceTest {
     TTEntity entity = new TTEntity();
     when(entityRepository.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
 
-    TTDocument actual = entityService.getConceptList(Collections.singletonList(""), Graph.IM);
+    TTDocument actual = entityService.getConceptList(Collections.singletonList(""), GRAPH.IM);
     assertNotNull(actual);
   }
 
@@ -413,7 +414,7 @@ class EntityModelServiceTest {
   void getConceptList_NotNullIri() {
     TTEntity entity = new TTEntity();
     when(entityRepository.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
-    TTDocument actual = entityService.getConceptList(Collections.singletonList("http://endhealth.info/im#25451000252115"), Graph.IM);
+    TTDocument actual = entityService.getConceptList(Collections.singletonList("http://endhealth.info/im#25451000252115"), GRAPH.IM);
     assertNotNull(actual);
   }
 }

@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTToNQuad;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -188,7 +189,7 @@ public class TTBulkFiler implements TTDocumentFiler {
           continue;
 
         allEntities.write(entity.getIri() + "\n");
-        if (Graph.IM.equals(graph))
+        if (GRAPH.IM.equals(graph))
           coreIris.write(entity.getIri() + "\t" + entity.getName() + "\n");
         if (entity.getScheme() == null){
           transformAndWriteQuads(converter, entity, graph);

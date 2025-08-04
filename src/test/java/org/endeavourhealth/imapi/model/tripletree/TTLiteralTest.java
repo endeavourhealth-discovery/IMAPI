@@ -7,7 +7,8 @@ import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
@@ -47,7 +48,7 @@ class TTLiteralTest {
     doc.addEntity(testObject);
     doc.setCrud(TTIriRef.iri(IM.REPLACE_ALL_PREDICATES));
 
-    TTFilerFactory.getDocumentFiler(Graph.IM).fileDocument(doc);
+    TTFilerFactory.getDocumentFiler(GRAPH.IM).fileDocument(doc);
   }
 
   // @Test

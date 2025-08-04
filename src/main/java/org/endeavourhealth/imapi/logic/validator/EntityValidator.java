@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

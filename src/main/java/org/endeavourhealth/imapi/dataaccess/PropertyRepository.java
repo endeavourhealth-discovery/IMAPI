@@ -2,11 +2,10 @@ package org.endeavourhealth.imapi.dataaccess;
 
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.GraphQuery;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper;
 import org.endeavourhealth.imapi.model.tripletree.TTEntityMap;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 /**
  * Data access class for accessing information about rdf properties

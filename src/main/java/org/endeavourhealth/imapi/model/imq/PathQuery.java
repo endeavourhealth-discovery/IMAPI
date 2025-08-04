@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 @Getter
 public class PathQuery extends TTIriRef {

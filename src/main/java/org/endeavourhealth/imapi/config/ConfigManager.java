@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.dataaccess.databases.ConfigDB;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.config.Config;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.springframework.context.annotation.Configuration;
 
 import static org.eclipse.rdf4j.model.util.Values.literal;
@@ -91,7 +92,7 @@ public class ConfigManager {
          ConfigDB conn = ConfigDB.getConnection()) {
       String query = DELETE_INSERT_SPARQL;
       if (null == getConfig(subject)) query = INSERT_SPARQL;
-      Update qry = conn.prepareInsertSparql(query, Graph.CONFIG);
+      Update qry = conn.prepareInsertSparql(query, GRAPH.CONFIG);
       qry.setBinding("s", subject.asDbIri());
       qry.setBinding("p", predicate.asDbIri());
       qry.setBinding("o", literal(object));

@@ -15,6 +15,7 @@ import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -141,7 +142,7 @@ public class EntityService {
     ArrayList<TTEntity> usageEntities = new ArrayList<>();
     if (iri == null || iri.isEmpty()) return Collections.emptyList();
 
-    Set<String> xmlDataTypes = entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD, Graph.IM);
+    Set<String> xmlDataTypes = entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD, GRAPH.IM);
     if (xmlDataTypes != null && xmlDataTypes.contains(iri)) return Collections.emptyList();
 
     int rowNumber = 0;
@@ -161,7 +162,7 @@ public class EntityService {
   public Integer totalRecords(String iri, Graph graph) {
     if (iri == null || iri.isEmpty()) return 0;
 
-    Set<String> xmlDataTypes = entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD, Graph.IM);
+    Set<String> xmlDataTypes = entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD, GRAPH.IM);
     if (xmlDataTypes != null && xmlDataTypes.contains(iri)) return 0;
 
     return entityRepository.getConceptUsagesCount(iri, graph);
@@ -482,7 +483,7 @@ public class EntityService {
   }
 
   public Set<String> getXmlSchemaDataTypes() {
-    return entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD, Graph.IM);
+    return entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD, GRAPH.IM);
   }
 
   public List<TTEntity> getEntitiesByType(String type, Integer offset, Integer limit, Graph graph, String... predicates) {
@@ -491,21 +492,21 @@ public class EntityService {
 
   public FilterOptionsDto getFilterOptions() {
     FilterOptionsDto filterOptions = new FilterOptionsDto();
-    filterOptions.setSchemes(getAllChildren(IM.NAMESPACE, Graph.IM));
-    filterOptions.setStatus(getAllChildren(IM.STATUS, Graph.IM));
-    filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_OPTIONS, Graph.IM));
-    filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_OPTIONS, Graph.IM));
-    filterOptions.setSortDirections(getAllChildren(IM.SORT_DIRECTION_FILTER_OPTIONS, Graph.IM));
+    filterOptions.setSchemes(getAllChildren(IM.NAMESPACE, GRAPH.IM));
+    filterOptions.setStatus(getAllChildren(IM.STATUS, GRAPH.IM));
+    filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_OPTIONS, GRAPH.IM));
+    filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_OPTIONS, GRAPH.IM));
+    filterOptions.setSortDirections(getAllChildren(IM.SORT_DIRECTION_FILTER_OPTIONS, GRAPH.IM));
     return filterOptions;
   }
 
   public FilterOptionsDto getFilterDefaults() {
     FilterOptionsDto filterOptions = new FilterOptionsDto();
-    filterOptions.setSchemes(getAllChildren(IM.SCHEME_FILTER_DEFAULTS, Graph.IM));
-    filterOptions.setStatus(getAllChildren(IM.STATUS_FILTER_DEFAULTS, Graph.IM));
-    filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_DEFAULTS, Graph.IM));
-    filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_DEFAULTS, Graph.IM));
-    filterOptions.setSortDirections(getAllChildren(IM.SORT_DIRECTION_FILTER_DEFAULTS, Graph.IM));
+    filterOptions.setSchemes(getAllChildren(IM.SCHEME_FILTER_DEFAULTS, GRAPH.IM));
+    filterOptions.setStatus(getAllChildren(IM.STATUS_FILTER_DEFAULTS, GRAPH.IM));
+    filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_DEFAULTS, GRAPH.IM));
+    filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_DEFAULTS, GRAPH.IM));
+    filterOptions.setSortDirections(getAllChildren(IM.SORT_DIRECTION_FILTER_DEFAULTS, GRAPH.IM));
     return filterOptions;
   }
 

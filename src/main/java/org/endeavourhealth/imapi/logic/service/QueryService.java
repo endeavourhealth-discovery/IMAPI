@@ -24,6 +24,7 @@ import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
 import org.endeavourhealth.imapi.postgress.PostgresService;
 import org.endeavourhealth.imapi.rabbitmq.ConnectionManager;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;

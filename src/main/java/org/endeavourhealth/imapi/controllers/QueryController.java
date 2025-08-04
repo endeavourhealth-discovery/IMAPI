@@ -22,7 +22,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.postgress.PostgresService;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
@@ -111,7 +112,7 @@ public class QueryController {
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("describeQuery");
-      return queryService.describeQuery(iri, displayMode, Graph.from(graph));
+      return queryService.describeQuery(iri, displayMode, GRAPH.from(graph));
     }
   }
 
@@ -126,7 +127,7 @@ public class QueryController {
     throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("getQueryfromIri");
-      return queryService.getQueryFromIri(iri, Graph.from(graph));
+      return queryService.getQueryFromIri(iri, GRAPH.from(graph));
     }
   }
 
@@ -141,7 +142,7 @@ public class QueryController {
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.GET")) {
       log.debug("getQueryDisplayFromQuery with displayMode: {}", displayMode);
-      Graph graph = Graph.IM;
+      Graph graph = GRAPH.IM;
       return queryService.describeQuery(query, displayMode, graph);
     }
   }
@@ -213,7 +214,7 @@ public class QueryController {
   ) throws IOException, QueryException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getSQLFromIMQIri");
-      return queryService.getSQLFromIMQIri(queryIri, lang, new HashMap<>(), Graph.from(graph));
+      return queryService.getSQLFromIMQIri(queryIri, lang, new HashMap<>(), GRAPH.from(graph));
     }
   }
 
@@ -356,7 +357,7 @@ public class QueryController {
   public Query getDefaultQuery(@RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DefaultQuery.GET")) {
       log.debug("getDefaultCohort");
-      return queryService.getDefaultQuery(Graph.from(graph));
+      return queryService.getDefaultQuery(GRAPH.from(graph));
     }
   }
 

@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.dataaccess.databases;
 
 import org.eclipse.rdf4j.repository.Repository;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 import java.util.ArrayList;
 import java.util.Arrays;

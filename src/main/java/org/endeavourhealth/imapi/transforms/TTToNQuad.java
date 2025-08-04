@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 import java.util.ArrayList;
 import java.util.List;

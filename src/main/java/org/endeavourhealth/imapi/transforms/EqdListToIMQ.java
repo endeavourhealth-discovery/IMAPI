@@ -7,7 +7,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.eqd.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 

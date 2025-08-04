@@ -17,6 +17,7 @@ import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 import java.io.IOException;
 import java.util.*;

@@ -102,7 +102,7 @@ public class EntityController {
   public TTEntity getFullEntity(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
       log.debug("getFullEntity");
-      return entityService.getBundleByPredicateExclusions(iri, null, Graph.from(graph)).getEntity();
+      return entityService.getBundleByPredicateExclusions(iri, null, GRAPH.from(graph)).getEntity();
     }
   }
 
@@ -138,7 +138,7 @@ public class EntityController {
       TTEntity entity = entityService.getBundle(iri, asHashSet(RDF.TYPE)).getEntity();
       boolean inactive = entity.getType() != null && entity.getType().contains(iri(IM.TASK));
 
-      return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive, graph == null ? Graph.IM : Graph.from(graph));
+      return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive, graph == null ? GRAPH.IM : GRAPH.from(graph));
     }
   }
 
@@ -147,7 +147,7 @@ public class EntityController {
   public EntityReferenceNode getEntityAsEntityReferenceNode(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.AsEntityReferenceNode.GET")) {
       log.debug("getEntityAsEntityReferenceNode");
-      return entityService.getEntityAsEntityReferenceNode(iri, Graph.from(graph));
+      return entityService.getEntityAsEntityReferenceNode(iri, GRAPH.from(graph));
     }
   }
 
@@ -156,7 +156,7 @@ public class EntityController {
   public List<EntityReferenceNode> getAsEntityReferenceNodes(@RequestParam(name = "iris") List<String> iris, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.AsEntityReferenceNodes.GET")) {
       log.debug("getAsEntityReferenceNodes");
-      return entityService.getAsEntityReferenceNodes(iris, Graph.from(graph));
+      return entityService.getAsEntityReferenceNodes(iris, GRAPH.from(graph));
     }
   }
 
@@ -175,7 +175,7 @@ public class EntityController {
         page = 1;
         size = 10;
       }
-      return entityService.getEntityChildrenPagedWithTotalCount(iri, schemeIris, page, size, false, typeFilter, Graph.from(graph));
+      return entityService.getEntityChildrenPagedWithTotalCount(iri, schemeIris, page, size, false, typeFilter, GRAPH.from(graph));
     }
   }
 
@@ -195,7 +195,7 @@ public class EntityController {
         page = 1;
         size = 10;
       }
-      return entityService.getPartialWithTotalCount(iri, predicate, schemeIris, page, size, false, Graph.from(graph));
+      return entityService.getPartialWithTotalCount(iri, predicate, schemeIris, page, size, false, GRAPH.from(graph));
     }
   }
 
@@ -223,7 +223,7 @@ public class EntityController {
   public List<EntityReferenceNode> getEntityParents(@RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Parents.GET")) {
       log.debug("getEntityParents");
-      return entityService.getImmediateParents(iri, schemeIris, page, size, false, Graph.from(graph));
+      return entityService.getImmediateParents(iri, schemeIris, page, size, false, GRAPH.from(graph));
     }
   }
 
@@ -232,7 +232,7 @@ public class EntityController {
   public List<TTEntity> entityUsages(@RequestParam(name = "iri") String iri, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Usages.GET")) {
       log.debug("entityUsages");
-      return entityService.usages(iri, page, size, Graph.from(graph));
+      return entityService.usages(iri, page, size, GRAPH.from(graph));
     }
   }
 
@@ -241,7 +241,7 @@ public class EntityController {
   public Integer totalRecords(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UsagesTotalRecords.GET")) {
       log.debug("totalRecords");
-      return entityService.totalRecords(iri, Graph.from(graph));
+      return entityService.totalRecords(iri, GRAPH.from(graph));
     }
   }
 
@@ -252,7 +252,7 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       log.debug("createEntity");
       String agentName = reqObjService.getRequestAgentName(request);
-      return filerService.createEntity(editRequest, agentName, Graph.IM);
+      return filerService.createEntity(editRequest, agentName, GRAPH.IM);
     }
   }
 
@@ -262,7 +262,7 @@ public class EntityController {
   public boolean checkExists(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws TTFilerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Exists.POST")) {
       log.debug("checkEntityExists");
-      return entityService.checkEntityExists(iri, Graph.from(graph));
+      return entityService.checkEntityExists(iri, GRAPH.from(graph));
     }
   }
 
@@ -273,7 +273,7 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       log.debug("updateEntity");
       String agentName = reqObjService.getRequestAgentName(request);
-      return filerService.updateEntityWithWorkflow(editRequest, agentName, request, Graph.IM);
+      return filerService.updateEntityWithWorkflow(editRequest, agentName, request, GRAPH.IM);
     }
   }
 
@@ -285,7 +285,7 @@ public class EntityController {
       log.debug("saveDraft");
       String agentName = reqObjService.getRequestAgentName(request);
       String userGraph = reqObjService.getUserGraph(request);
-      return filerService.createEntity(editRequest, agentName, Graph.from(userGraph));
+      return filerService.createEntity(editRequest, agentName, GRAPH.from(userGraph));
     }
   }
 
@@ -295,7 +295,7 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.draft.GET")) {
       log.debug("getDraft");
       String userGraph = reqObjService.getUserGraph(request);
-      return entityService.getBundleByPredicateExclusions(iri, null, Graph.from(userGraph)).getEntity();
+      return entityService.getBundleByPredicateExclusions(iri, null, GRAPH.from(userGraph)).getEntity();
     }
   }
 
@@ -304,7 +304,7 @@ public class EntityController {
   public SearchResultSummary getSummary(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Summary.GET")) {
       log.debug("getSummary");
-      return entityService.getSummary(iri, Graph.from(graph));
+      return entityService.getSummary(iri, GRAPH.from(graph));
     }
   }
 
@@ -349,7 +349,7 @@ public class EntityController {
   public List<TTIriRef> getFolderPath(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FolderPath.GET")) {
       log.debug("getFolderPath");
-      return entityService.getParentPath(iri, Graph.from(graph));
+      return entityService.getParentPath(iri, GRAPH.from(graph));
     }
   }
 
@@ -358,7 +358,7 @@ public class EntityController {
   public List<TTIriRef> getShortestPathBetweenNodes(@RequestParam(name = "ancestor") String ancestor, @RequestParam(name = "descendant") String descendant, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ShortestParentHierarchy.GET")) {
       log.debug("getShortestPathBetweenNodes");
-      return entityService.getShortestPathBetweenNodes(ancestor, descendant, Graph.from(graph));
+      return entityService.getShortestPathBetweenNodes(ancestor, descendant, GRAPH.from(graph));
     }
   }
 
@@ -367,7 +367,7 @@ public class EntityController {
   public Boolean iriExists(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.IriExists.GET")) {
       log.debug("iriExists");
-      return entityService.iriExists(iri, Graph.from(graph));
+      return entityService.iriExists(iri, GRAPH.from(graph));
     }
   }
 
@@ -376,7 +376,7 @@ public class EntityController {
   public TTEntity getEntityByPredicateExclusions(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.EntityByPredicateExclusions.GET")) {
       log.debug("getEntityByPredicateExclusions");
-      return entityService.getBundleByPredicateExclusions(iri, predicates, Graph.from(graph)).getEntity();
+      return entityService.getBundleByPredicateExclusions(iri, predicates, GRAPH.from(graph)).getEntity();
     }
   }
 
@@ -385,7 +385,7 @@ public class EntityController {
   public TTBundle getBundleByPredicateExclusions(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.BundleByPredicateExclusions.GET")) {
       log.debug("getBundleByPredicateExclusions");
-      return entityService.getBundleByPredicateExclusions(iri, predicates, Graph.from(graph));
+      return entityService.getBundleByPredicateExclusions(iri, predicates, GRAPH.from(graph));
     }
   }
 
@@ -394,7 +394,7 @@ public class EntityController {
   public Set<String> getPredicates(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Predicates.GET")) {
       log.debug("getPredicates");
-      return entityService.getPredicates(iri, Graph.from(graph));
+      return entityService.getPredicates(iri, GRAPH.from(graph));
     }
   }
 
@@ -412,7 +412,7 @@ public class EntityController {
   public TTBundle getDetailsDisplay(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DetailsDisplay.GET")) {
       log.debug("getDetailsDisplay");
-      return entityService.getDetailsDisplay(iri, Graph.from(graph));
+      return entityService.getDetailsDisplay(iri, GRAPH.from(graph));
     }
   }
 
@@ -427,7 +427,7 @@ public class EntityController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DetailsDisplay.LOADMORE.GET")) {
       log.debug("getDetailsDisplayLoadMore");
-      return entityService.loadMoreDetailsDisplay(iri, predicate, pageIndex, pageSize, Graph.from(graph));
+      return entityService.loadMoreDetailsDisplay(iri, predicate, pageIndex, pageSize, GRAPH.from(graph));
     }
   }
 
@@ -445,7 +445,7 @@ public class EntityController {
   public List<TTIriRef> getEntitiesByType(@RequestParam(name = "iri") String typeIri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Predicates.GET")) {
       log.debug("getEntitiesByType");
-      return entityService.getEntitiesByType(EntityType.from(typeIri), Graph.from(graph));
+      return entityService.getEntitiesByType(EntityType.from(typeIri), GRAPH.from(graph));
     }
   }
 
@@ -454,7 +454,7 @@ public class EntityController {
   public Map<String, Namespace> getNamespacesWithPrefixes(@RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
       log.debug("getNamespacesWithPrefixes (getSchemes)");
-      List<Namespace> namespaces = entityService.getNamespaces(Graph.from(graph));
+      List<Namespace> namespaces = entityService.getNamespaces(GRAPH.from(graph));
       Map<String, Namespace> result = new HashMap<>();
       namespaces.forEach(namespace -> result.put(namespace.getIri(), namespace));
       return result;
@@ -466,7 +466,7 @@ public class EntityController {
   public List<Namespace> getNamespaces(@RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
       log.debug("getNamespaces");
-      return entityService.getNamespaces(Graph.from(graph));
+      return entityService.getNamespaces(GRAPH.from(graph));
     }
   }
 
@@ -484,7 +484,7 @@ public class EntityController {
   public GraphDto getGraphData(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Graph.Graph.GET")) {
       log.debug("getGraphData");
-      return graphDtoService.getGraphData(iri, Graph.from(graph));
+      return graphDtoService.getGraphData(iri, GRAPH.from(graph));
     }
   }
 
@@ -518,7 +518,7 @@ public class EntityController {
   public List<TTEntity> getAllowableChildTypes(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.AllowableChildTypes.GET")) {
       log.debug("get AllowableChildTypes for " + iri);
-      return entityService.getAllowableChildTypes(iri, Graph.from(graph));
+      return entityService.getAllowableChildTypes(iri, GRAPH.from(graph));
     }
   }
 
@@ -528,7 +528,7 @@ public class EntityController {
   public List<String> getChildEntities(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph)  throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Children.GET")) {
       log.debug("getChildIris");
-      return entityService.getChildIris(iri, Graph.from(graph));
+      return entityService.getChildIris(iri, GRAPH.from(graph));
     }
   }
 

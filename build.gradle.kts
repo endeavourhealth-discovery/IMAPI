@@ -30,9 +30,9 @@ if (ENV == "prod") {
   tasks.build { finalizedBy("sonar") }
   tasks.build { finalizedBy("publish") }
 } else {
-  tasks.named<JavaCompile>("compileJava") {
-    dependsOn("staticConstGenerator")
-  }
+//  tasks.named<JavaCompile>("compileJava") {
+//    dependsOn("staticConstGenerator")
+//  }
 }
 
 publishing {

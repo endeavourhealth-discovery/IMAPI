@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.filer;
 
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.filer.rdf4j.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 public class TTFilerFactory {
   private static boolean bulk = false;

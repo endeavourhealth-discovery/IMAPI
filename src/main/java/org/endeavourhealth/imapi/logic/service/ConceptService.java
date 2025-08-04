@@ -9,7 +9,7 @@ import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;

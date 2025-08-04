@@ -20,6 +20,7 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -648,7 +649,7 @@ public class EntityRepository {
   }
 
   public TTBundle getBundle(String iri, Set<String> predicates, boolean excludePredicates, int depth, Graph graph) {
-    if (null == graph) graph = Graph.IM;
+    if (null == graph) graph = GRAPH.IM;
     TTBundle bundle = new TTBundle().setEntity(new TTEntity().setIri(iri)).setPredicates(new HashMap<>());
     if (null != predicates && predicates.contains(RDFS.LABEL.toString()) && !predicates.contains(RDFS.COMMENT.toString())) {
       Set<String> predicatesPlus = new HashSet<>(predicates);

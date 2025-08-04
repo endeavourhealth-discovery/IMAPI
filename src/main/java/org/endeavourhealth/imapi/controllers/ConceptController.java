@@ -9,7 +9,8 @@ import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -33,7 +34,7 @@ public class ConceptController {
   public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MatchedFrom.GET")) {
       log.debug("getMatchedFrom");
-      return conceptService.getMatchedFrom(iri, Graph.from(graph));
+      return conceptService.getMatchedFrom(iri, GRAPH.from(graph));
     }
   }
 
@@ -42,7 +43,7 @@ public class ConceptController {
   public Collection<SimpleMap> getMatchedTo(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MatchedTo.GET")) {
       log.debug("getMatchedTo");
-      return conceptService.getMatchedTo(iri, Graph.from(graph));
+      return conceptService.getMatchedTo(iri, GRAPH.from(graph));
     }
   }
 
@@ -60,7 +61,7 @@ public class ConceptController {
   public List<ConceptContextMap> getConceptContextMaps(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ConceptContextMaps.GET")) {
       log.debug("getConceptContextMaps");
-      return conceptService.getConceptContextMaps(iri, Graph.from(graph));
+      return conceptService.getConceptContextMaps(iri, GRAPH.from(graph));
     }
   }
 }

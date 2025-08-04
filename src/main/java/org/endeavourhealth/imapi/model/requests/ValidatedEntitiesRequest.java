@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.model.requests;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 import java.util.ArrayList;
 import java.util.List;

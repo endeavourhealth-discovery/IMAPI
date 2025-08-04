@@ -3,14 +3,13 @@ package org.endeavourhealth.imapi.logic.service;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.SetOptions;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.hl7.fhir.r4.model.ValueSet;
 
 import java.util.ArrayList;

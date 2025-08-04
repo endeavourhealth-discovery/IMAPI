@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.dataaccess.databases;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.query.*;
-import org.eclipse.rdf4j.query.impl.DatasetImpl;
 import org.eclipse.rdf4j.query.impl.SimpleDataset;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -12,12 +11,10 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 
 import java.io.File;
 import java.util.StringJoiner;
-
-import static org.eclipse.rdf4j.model.util.Values.iri;
 
 @Slf4j
 public abstract class BaseDB implements AutoCloseable {

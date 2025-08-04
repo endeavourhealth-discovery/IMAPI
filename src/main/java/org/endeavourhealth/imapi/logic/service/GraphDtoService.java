@@ -2,11 +2,9 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Graph;
-import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;

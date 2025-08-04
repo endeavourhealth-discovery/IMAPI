@@ -20,7 +20,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -69,7 +70,7 @@ public class FilerController {
 
       String agentId = reqObjService.getRequestAgentId(request);
 
-        if (!filerService.userCanFile(agentId, Graph.IM))
+        if (!filerService.userCanFile(agentId, GRAPH.IM))
           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
       try {
@@ -114,7 +115,7 @@ public class FilerController {
       if (!filerService.userCanFile(agentId, graph))
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-      filerService.fileEntity(entity, agentName, usedEntity, Graph.IM);
+      filerService.fileEntity(entity, agentName, usedEntity, GRAPH.IM);
       return ResponseEntity.ok().build();
     }
   }
@@ -123,7 +124,7 @@ public class FilerController {
   @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
   @Operation(summary = "Moves an entity from one folder to another.")
   public ResponseEntity<ProblemDetailResponse> moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graphString, HttpServletRequest request) throws Exception {
-    Graph graph = Graph.from(graphString);
+    Graph graph = GRAPH.from(graphString);
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Move.POST")) {
       log.debug("moveFolder");
 
@@ -176,7 +177,7 @@ public class FilerController {
     HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Add.POST")) {
       log.debug("addToFolder");
-      Graph graph = Graph.from(graphString);
+      Graph graph = GRAPH.from(graphString);
 
       if (!entityService.iriExists(entityIri, graph) || !entityService.iriExists(folderIri, graph)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot add to folder", "One of the IRIs does not exist");
@@ -209,7 +210,7 @@ public class FilerController {
     @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graphString,
     HttpServletRequest request) throws Exception {
 
-    Graph graph = Graph.from(graphString);
+    Graph graph = GRAPH.from(graphString);
 
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Create.POST")) {
       log.debug("createFolder");
@@ -241,7 +242,7 @@ public class FilerController {
 
       TTEntity entity = new TTEntity(iri)
         .setName(name)
-        .setScheme(iri(Graph.IM))
+        .setScheme(iri(GRAPH.IM))
         .addType(iri(IM.FOLDER))
         .set(iri(IM.IS_CONTAINED_IN), iri(container))
         .setVersion(1)

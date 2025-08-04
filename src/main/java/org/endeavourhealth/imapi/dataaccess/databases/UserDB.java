@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.dataaccess.databases;
 
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 
 public class UserDB extends BaseDB {
   private static final Repository repository = BaseDB.getRepository("user");
@@ -11,12 +11,12 @@ public class UserDB extends BaseDB {
   }
 
   private UserDB() {
-    super(Graph.USER);
+    super(GRAPH.USER);
     conn = repository.getConnection();
   }
 
   public Update prepareInsertSparql(String sparql) {
-    return super.prepareInsertSparql(sparql, Graph.USER);
+    return super.prepareInsertSparql(sparql, GRAPH.USER);
   }
 
 }

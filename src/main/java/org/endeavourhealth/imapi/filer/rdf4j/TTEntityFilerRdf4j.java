@@ -17,7 +17,7 @@ import org.endeavourhealth.imapi.dataaccess.databases.BaseDB;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.RDFS;

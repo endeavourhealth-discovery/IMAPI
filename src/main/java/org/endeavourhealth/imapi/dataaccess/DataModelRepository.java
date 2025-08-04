@@ -11,7 +11,8 @@ import org.endeavourhealth.imapi.model.iml.ParameterShape;
 import org.endeavourhealth.imapi.model.iml.PropertyRange;
 import org.endeavourhealth.imapi.model.iml.PropertyShape;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
@@ -546,7 +547,7 @@ public class DataModelRepository {
        }
       """.formatted(valueList("iri", Set.of(iri)));
     PropertyShape property = new PropertyShape();
-    try (IMDB conn = IMDB.getConnection(Graph.IM)) {
+    try (IMDB conn = IMDB.getConnection(GRAPH.IM)) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -566,7 +567,7 @@ public class DataModelRepository {
           ?property sh:datatype ?dataType.
         } limit 1
       """;
-    try (IMDB conn = IMDB.getConnection(Graph.IM)) {
+    try (IMDB conn = IMDB.getConnection(GRAPH.IM)) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("path", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -595,7 +596,7 @@ public class DataModelRepository {
        ?path rdfs:label ?pathLabel.
        }
       """.formatted(valueList("nodeShape", iris), valueList("datatype", Set.of(valueType)));
-    try (IMDB conn = IMDB.getConnection(Graph.IM)) {
+    try (IMDB conn = IMDB.getConnection(GRAPH.IM)) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {

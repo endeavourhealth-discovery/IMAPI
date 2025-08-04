@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.filer;
 
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.Map;
 import java.util.Set;

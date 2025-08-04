@@ -25,7 +25,8 @@ import org.endeavourhealth.imapi.model.workflow.EntityApproval;
 import org.endeavourhealth.imapi.model.workflow.entityApproval.ApprovalType;
 import org.endeavourhealth.imapi.model.workflow.task.TaskState;
 import org.endeavourhealth.imapi.model.workflow.task.TaskType;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
@@ -51,11 +52,11 @@ public class FilerService {
   private WorkflowService workflowService;
 
   public FilerService() {
-    imdb = IMDB.getConnection(Graph.IM);
+    imdb = IMDB.getConnection(GRAPH.IM);
     provDB = ProvDB.getConnection();
-    documentFiler = new TTTransactionFiler(Graph.IM);
-    entityFiler = new TTEntityFilerRdf4j(imdb, Graph.IM);
-    entityProvFiler = new TTEntityFilerRdf4j(provDB, Graph.PROV);
+    documentFiler = new TTTransactionFiler(GRAPH.IM);
+    entityFiler = new TTEntityFilerRdf4j(imdb, GRAPH.IM);
+    entityProvFiler = new TTEntityFilerRdf4j(provDB, GRAPH.PROV);
     provService = new ProvService();
     entityService = new EntityService();
     openSearchService = new OpenSearchService();

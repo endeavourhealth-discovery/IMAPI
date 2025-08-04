@@ -12,7 +12,8 @@ import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.types.Graph;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -123,7 +124,7 @@ public class EclController {
   public Set<String> getPropertiesForDomains(@RequestParam(name = "conceptIri") Set<String> iris, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.propertiesForDomains.GET")) {
       log.debug("getPropertiesForDomains");
-      return conceptService.getPropertiesForDomains(iris, Graph.from(graph));
+      return conceptService.getPropertiesForDomains(iris, GRAPH.from(graph));
     }
   }
 
@@ -133,7 +134,7 @@ public class EclController {
   public Set<String> getRangesForProperty(@RequestParam(name = "propertyIri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.rangesForProperty.GET")) {
       log.debug("getRangesForProperty");
-      return conceptService.getRangesForProperty(iri, Graph.from(graph));
+      return conceptService.getRangesForProperty(iri, GRAPH.from(graph));
     }
   }
 }

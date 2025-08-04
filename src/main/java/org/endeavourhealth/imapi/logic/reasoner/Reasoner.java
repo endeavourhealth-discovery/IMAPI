@@ -381,7 +381,7 @@ public class Reasoner {
             .asOWLClass()
             .getIRI()
             .toString());
-          if (!iri.getIri().equals(OWL.THING))
+          if (!iri.getIri().equals(OWL.THING.toString()))
             addSubClassOf(c, iri);
         }
       );

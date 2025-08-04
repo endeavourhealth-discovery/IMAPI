@@ -115,11 +115,11 @@ public class WorkflowRepository {
           TaskHistory taskHistory = new TaskHistory();
           BindingSet bs = rs.next();
           taskHistory.setPredicate(bs.getValue("predicateData").stringValue());
-          if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO) && !bs.getValue("originalObjectData").stringValue().equals("UNASSIGNED"))
+          if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO.toString()) && !bs.getValue("originalObjectData").stringValue().equals("UNASSIGNED"))
             taskHistory.setOriginalObject(awsCognitoClient.adminGetUsername(bs.getValue("originalObjectData").stringValue()));
           else if (null != bs.getValue("originalObjectData"))
             taskHistory.setOriginalObject(bs.getValue("originalObjectData").stringValue());
-          if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO) && !bs.getValue("newObjectData").stringValue().equals("UNASSIGNED"))
+          if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO.toString()) && !bs.getValue("newObjectData").stringValue().equals("UNASSIGNED"))
             taskHistory.setNewObject(awsCognitoClient.adminGetUsername(bs.getValue("newObjectData").stringValue()));
           else if (null != bs.getValue("newObjectData"))
             taskHistory.setNewObject(bs.getValue("newObjectData").stringValue());

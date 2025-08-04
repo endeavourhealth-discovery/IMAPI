@@ -34,8 +34,6 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 public class EntityRepository {
   static final String PARENT_PREDICATES = "rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf";
   private static final TimedCache<String, String> iriNameCache = new TimedCache<>("IriNameCache", 30, 5, 100);
-  private static final String EXECUTING = "Executing...";
-  private static final String RETRIEVING = "Retrieving...";
   private int row = 0;
 
   private static void hydrateCorePropertiesSetEntityDocumentProperties(EntityDocument entityDocument, TupleQueryResult qr) {
@@ -1489,9 +1487,9 @@ public class EntityRepository {
       TupleQuery qry = conn.prepareTupleSparql(sql.toString());
       qry.setBinding("c", iri(childIri));
 
-      log.debug(EXECUTING);
+      log.debug("Executing 'findImmediateParentsByIri'...");
       try (TupleQueryResult rs = qry.evaluate()) {
-        log.debug(RETRIEVING);
+        log.debug("Retrieving 'findImmediateParentsByIri'...");
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           result.add(new TTIriRef(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue()));
@@ -1555,9 +1553,9 @@ public class EntityRepository {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("c", iri(iri));
 
-      log.debug(EXECUTING);
+      log.debug("Executing 'findParentFolderRef'...");
       try (TupleQueryResult rs = qry.evaluate()) {
-        log.debug(RETRIEVING);
+        log.debug("Retrieving 'findParentFolderRef'...");
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
           return new TTIriRef(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue());

@@ -663,16 +663,12 @@ public class SparqlConverter {
     if (property.getIri() == null) {
       if (property.getNodeRef() != null) {
         selectQl.append(" ").append(inverse).append(property.getNodeRef());
-        // labelVariable = property.getNodeRef();
       } else if (property.getPropertyRef() != null) {
         selectQl.append(" ").append(inverse).append(property.getPropertyRef());
-        // labelVariable = property.getPropertyRef();
       } else if (property.getAs() != null) {
         selectQl.append(" ").append(inverse).append("?").append(property.getAs());
-        // labelVariable = property.getAs();
       } else if (property.getValueRef() != null) {
         selectQl.append(" ").append("?").append(property.getValueRef());
-        // labelVariable = property.getValueRef();
       }
       if (property.getReturn() != null) {
         convertReturn(selectQl, whereQl, property.getReturn());
@@ -701,8 +697,6 @@ public class SparqlConverter {
       }
       whereQl.append(" ?").append(object).append(".\n");
       if (!selectQl.toString().contains(object)) selectQl.append(" ?").append(object);
-      if (property.getIri() != null && property.getIri().equals(RDFS.LABEL))
-        // labelVariable = object;
       if (property.getReturn() != null) {
         convertReturn(selectQl, whereQl, property.getReturn());
       }

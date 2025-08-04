@@ -33,7 +33,7 @@ public class TransformController {
   )
   public TTDocument transformEqd(@RequestBody EnquiryDocument eqd) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Transform.TransformEqd.GET")) {
-      log.debug("run transform");
+      log.debug("transformEqd");
       return new TransformService().transformEqd(eqd, Namespace.IM, Graph.IM);
     }
   }

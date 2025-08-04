@@ -100,7 +100,7 @@ public class GraphDtoService {
     if (parent == null) return Collections.emptyList();
     List<GraphDto> result = new ArrayList<>();
     parent.getElements().forEach(item -> {
-      if (!OWL.THING.equals(item.asIriRef().getIri()))
+      if (!OWL.THING.toString().equals(item.asIriRef().getIri()))
         result.add(new GraphDto().setIri(item.asIriRef().getIri()).setName(item.asIriRef().getName()).setPropertyType(iri(RDFS.SUBCLASS_OF).getName()));
     });
 

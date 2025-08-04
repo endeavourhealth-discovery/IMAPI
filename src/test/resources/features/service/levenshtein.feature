@@ -17,14 +17,14 @@ Feature: Levenshtein is calculated
     Then the Levenshtein value should be <lev>
 
     Examples:
-      | start      | edited   | lev | comment
-      | "Asthma"   | "Bsthma" | 1   | Single change
-      | "Asthma"   | ""       | 6   | Edit to empty
-      | ""         | "Asthma" | 6   | Start with empty
-      | "Asthma"   | null     | 0   | Edit to null
-      | null       | "Asthma" | 0   | Start with null
-      | "Asthma"   | "sAthma" | 2   | Character swap
-      | null       | null     | 0   | Null check
+      | start      | edited   | lev | # comment
+      | "Asthma"   | "Bsthma" | 1   | # Single change
+      | "Asthma"   | ""       | 6   | # Edit to empty
+      | ""         | "Asthma" | 6   | # Start with empty
+      | "Asthma"   | null     | 0   | # Edit to null
+      | null       | "Asthma" | 0   | # Start with null
+      | "Asthma"   | "sAthma" | 2   | # Character swap
+      | null       | null     | 0   | # Null check
 
   Scenario: When the value is unchanged, Levenshtein should be 0
     Given start value is "Rich"

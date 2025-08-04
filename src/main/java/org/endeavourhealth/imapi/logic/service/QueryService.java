@@ -96,8 +96,8 @@ public class QueryService {
   }
 
   public String getSQLFromIMQIri(String queryIri, DatabaseOption lang, Map<String, String> iriToUuidMap, Graph graph) throws JsonProcessingException, QueryException, SQLConversionException {
-    if (lang.equals(DatabaseOption.GRAPHDB)) {
-      throw new SQLConversionException("GRAPHDB is not currently supported for query to SQL");
+    if (!lang.equals(DatabaseOption.MYSQL) && !lang.equals(DatabaseOption.POSTGRESQL)) {
+      throw new SQLConversionException("'" + lang + "' is not currently supported for query to SQL. Supported languages are MYSQL and POSTGRESQL.");
     }
     Query query = describeQuery(queryIri, DisplayMode.LOGICAL, graph);
     if (query == null) return null;

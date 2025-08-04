@@ -213,6 +213,7 @@ public class QueryController {
   ) throws IOException, QueryException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getSQLFromIMQIri");
+      // TODO: new HashMap<>() needs to be a map of query iris to uuids in postgres
       return queryService.getSQLFromIMQIri(queryIri, lang, new HashMap<>(), Graph.from(graph));
     }
   }

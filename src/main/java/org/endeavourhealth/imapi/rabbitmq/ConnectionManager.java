@@ -129,12 +129,11 @@ public class ConnectionManager {
     });
   }
 
-  public void publishToQueue(UUID userId, String userName, QueryRequest message) throws Exception {
+  public UUID publishToQueue(UUID userId, String userName, QueryRequest message) throws Exception {
     if (!createdChannel) {
       createConsumerChannel(postgresService);
       createdChannel = true;
     }
-
     Channel channel = getPublisherChannel(userId);
     UUID id = UUID.randomUUID();
     LOG.info("Publishing to queue: {}", id);
@@ -155,5 +154,7 @@ public class ConnectionManager {
     postgresService.create(entry);
     channel.basicPublish(EXCHANGE_NAME, "query.execute." + userId, properties, jsonMessage.getBytes());
     channel.waitForConfirmsOrDie(5_000);
+
+    return id;
   }
 }

@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.imapi.aws.AWSCognitoClient;
+import org.endeavourhealth.imapi.aws.*;
 import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.model.admin.User;
 import org.endeavourhealth.imapi.model.postRequestPrimatives.StringBody;

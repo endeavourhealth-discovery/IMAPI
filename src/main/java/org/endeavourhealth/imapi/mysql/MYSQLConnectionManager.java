@@ -20,7 +20,7 @@ public class MYSQLConnectionManager {
     throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
   }
 
-  private static Connection getConnection() throws SQLException {
+  public static Connection getConnection() throws SQLException {
     Connection connection = createNewConnection();
     connectionId = getConnectionId(connection);
     return connection;

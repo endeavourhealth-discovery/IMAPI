@@ -3,20 +3,26 @@ package org.endeavourhealth.imapi.model.sql;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+
+import static org.endeavourhealth.imapi.mysql.MYSQLConnectionManager.getConnection;
 
 @Slf4j
 public class IMQtoSQLConverter {
@@ -24,6 +30,8 @@ public class IMQtoSQLConverter {
   private Map<String, String> iriToUuidMap;
   private QueryRequest queryRequest;
   private String currentDate;
+  private final EntityRepository entityRepository = new EntityRepository();
+
 
   public IMQtoSQLConverter(QueryRequest queryRequest, Map<String, String> iriToUuidMap) {
     this.queryRequest = queryRequest;
@@ -383,12 +391,14 @@ public class IMQtoSQLConverter {
     ArrayList<String> ancestors = new ArrayList<>();
     ArrayList<String> descendants = new ArrayList<>();
     ArrayList<String> descendantsSelf = new ArrayList<>();
+    ArrayList<String> membersOf = new ArrayList<>();
 
     for (Node pIs : list) {
       if (pIs.getIri() != null) {
         if (pIs.isAncestorsOf()) ancestors.add(pIs.getIri());
         else if (pIs.isDescendantsOf()) descendants.add(pIs.getIri());
         else if (pIs.isDescendantsOrSelfOf()) descendantsSelf.add(pIs.getIri());
+        else if (pIs.isMemberOf()) membersOf.add(pIs.getIri());
         else direct.add(pIs.getIri());
       } else if (pIs.getParameter() != null) {
         descendantsSelf.add(pIs.getIri());
@@ -398,28 +408,35 @@ public class IMQtoSQLConverter {
     }
 
     if (!direct.isEmpty()) {
+      List<String> directIM11Ids = entityRepository.getIM1Ids(direct);
       String where = qry.getFieldName(property.getIri(), null, tableMap);
-
-      if (direct.size() == 1) where += (inverse ? " <> '" : " = '") + direct.getFirst() + "'\n";
-      else where += (inverse ? " NOT IN ('" : " IN ('") + StringUtils.join(direct, "',\n'") + "')\n";
-
+      List<String> im1ids = getDBIDs(directIM11Ids);
+      if (direct.size() == 1) where += (inverse ? " <> '" : " = '") + im1ids.getFirst() + "'\n";
+      else where += (inverse ? " NOT IN ('" : " IN ('") + StringUtils.join(im1ids, "',\n'") + "')\n";
       qry.getWheres().add(where);
     }
 
-    String tct = "tct_" + qry.getJoins().size();
     if (!descendants.isEmpty()) {
-      String join = isPostgreSQL() ? "JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap) : "JOIN concept_tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap);
-      qry.getJoins().add(join);
-      qry.getWheres().add(descendants.size() == 1 ? tct + ".iri = '" + descendants.getFirst() + "'" : tct + ".iri IN ('" + StringUtils.join(descendants, "',\n'") + "') AND " + tct + ".level > 0");
+      List<String> descendantIM11Ids = entityRepository.getDescendantIM1Ids(direct, false);
+      addPropertyIsWhere(qry, property, descendantIM11Ids, inverse);
     } else if (!descendantsSelf.isEmpty()) {
-      String join = isPostgreSQL() ? "JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap) : "JOIN concept_tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap);
-      qry.getJoins().add(join);
-      qry.getWheres().add(descendantsSelf.size() == 1 ? tct + ".iri = '" + descendantsSelf.getFirst() + "'" : tct + ".iri IN ('" + StringUtils.join(descendantsSelf, "',\n'") + "')");
+      List<String> descendantSelfIM11Ids = entityRepository.getDescendantIM1Ids(direct, true);
+      addPropertyIsWhere(qry, property, descendantSelfIM11Ids, inverse);
     } else if (!ancestors.isEmpty()) {
-      String join = isPostgreSQL() ? "JOIN tct AS " + tct + " ON " + tct + ".iri = " + qry.getFieldName(property.getIri(), null, tableMap) : "JOIN concept_tct AS " + tct + " ON " + tct + ".iri = " + qry.getFieldName(property.getIri(), null, tableMap);
-      qry.getJoins().add(join);
-      qry.getWheres().add(ancestors.size() == 1 ? tct + ".child = '" + ancestors.getFirst() + "'" : tct + ".child IN ('" + StringUtils.join(ancestors, "',\n'") + "') AND " + tct + ".level > 0");
+      List<String> ancestorIM11Ids = entityRepository.getAncestorIM1Ids(direct);
+      addPropertyIsWhere(qry, property, ancestorIM11Ids, inverse);
+    } else if (!membersOf.isEmpty()) {
+      List<String> memberOfIM11Ids = entityRepository.getMemberOfIM1Ids(direct);
+      addPropertyIsWhere(qry, property, memberOfIM11Ids, inverse);
     }
+  }
+
+  private void addPropertyIsWhere(SQLQuery qry, Where property, List<String> im11Ids, boolean inverse) throws SQLConversionException {
+    String where = qry.getFieldName(property.getIri(), null, tableMap);
+    List<String> im1ids = getDBIDs(im11Ids);
+    if (im11Ids.size() == 1) where += (inverse ? " <> '" : " = '") + im1ids.getFirst() + "'\n";
+    else where += (inverse ? " NOT IN ('" : " IN ('") + StringUtils.join(im1ids, "',\n'") + "')\n";
+    qry.getWheres().add(where);
   }
 
   private void convertMatchPropertyRange(SQLQuery qry, Where property) throws SQLConversionException {
@@ -553,5 +570,24 @@ public class IMQtoSQLConverter {
       case IM.SECONDS -> "SECOND";
       default -> throw new SQLConversionException("SQL Conversion Error: No unit name found for\n" + iriRef.getIri());
     };
+  }
+
+  private List<String> getDBIDs(List<String> im1ids) throws SQLConversionException {
+    String sql = """
+      SELECT c.dbid, c.id FROM concept c
+      WHERE c.id IN (%s);
+      """.formatted("'" + StringUtils.join(im1ids, "', '") + "'");
+    try (Connection executeConnection = getConnection()) {
+      try (PreparedStatement statement = executeConnection.prepareStatement(sql)) {
+        ResultSet rs = statement.executeQuery();
+        List<String> results = new ArrayList<>();
+        while (rs.next()) {
+          results.add(rs.getString("c.dbid"));
+        }
+        return results;
+      }
+    } catch (SQLException e) {
+      throw new SQLConversionException("SQL Conversion Error: SQLException for getting im1ids\n" + StringUtils.join(im1ids, ","));
+    }
   }
 }

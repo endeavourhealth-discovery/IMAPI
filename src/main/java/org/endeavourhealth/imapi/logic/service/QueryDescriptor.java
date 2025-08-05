@@ -537,7 +537,7 @@ public class QueryDescriptor {
     }
 
 
-    where.setQualifier(where.getQualifier() + " " + qualifier);
+    where.setQualifier(where.getQualifier() + " and " + qualifier);
   }
 
 

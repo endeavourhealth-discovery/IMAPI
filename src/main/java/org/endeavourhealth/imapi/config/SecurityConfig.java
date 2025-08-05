@@ -57,6 +57,7 @@ public class SecurityConfig {
     req.requestMatchers(HttpMethod.GET, "/").permitAll()
       .requestMatchers(HttpMethod.GET, "/index.html").permitAll()
       .requestMatchers(HttpMethod.GET, "/api/status/public/**").permitAll()
+      .requestMatchers(HttpMethod.POST, "/oauth/**").permitAll()
       .requestMatchers(HttpMethod.GET, "/api/cognito/public/config").permitAll()
       .anyRequest().authenticated();
   }

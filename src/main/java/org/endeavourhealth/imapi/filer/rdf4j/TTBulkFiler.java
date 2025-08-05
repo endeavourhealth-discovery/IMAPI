@@ -291,7 +291,7 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void addTerms(TTEntity entity) throws IOException {
-    if (entity.getScheme().equals(Namespace.IM.toString()) && entity.getName() != null)
+    if (entity.getScheme().getIri().equals(Namespace.IM.toString()) && entity.getName() != null)
       coreTerms.write(entity.getName() + "\t" + entity.getIri() + "\n");
   }
 

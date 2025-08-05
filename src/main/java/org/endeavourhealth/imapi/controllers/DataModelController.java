@@ -130,7 +130,7 @@ public class DataModelController {
     @RequestParam(name = "valueType") String valueType)
     throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
-      log.debug("getDefiningProperty");
+      log.debug("getDataModelPropertiesWithValueType");
       return dataModelService.getDataModelPropertiesWithValueType(iris,valueType);
     }
   }

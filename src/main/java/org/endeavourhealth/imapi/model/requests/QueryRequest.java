@@ -18,8 +18,6 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Getter
 public class QueryRequest implements ContextMap {
-
-
   private String name;
   private Page page;
   private Map<String, String> context;
@@ -239,5 +237,10 @@ public class QueryRequest implements ContextMap {
   public QueryRequest setGraph(Graph graph) {
     this.graph = graph;
     return this;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(query.getIri(), argument, referenceDate, cohort);
   }
 }

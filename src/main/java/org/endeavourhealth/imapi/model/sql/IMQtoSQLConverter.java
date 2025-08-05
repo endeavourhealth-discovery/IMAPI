@@ -27,19 +27,18 @@ import static org.endeavourhealth.imapi.mysql.MYSQLConnectionManager.getConnecti
 @Slf4j
 public class IMQtoSQLConverter {
   private TableMap tableMap;
-  private Map<String, String> iriToUuidMap;
   private QueryRequest queryRequest;
   private String currentDate;
   private final EntityRepository entityRepository = new EntityRepository();
+  private List<QueryRequest> subqueryRequests;
 
-
-  public IMQtoSQLConverter(QueryRequest queryRequest, Map<String, String> iriToUuidMap) {
+  public IMQtoSQLConverter(QueryRequest queryRequest) {
     this.queryRequest = queryRequest;
-    this.iriToUuidMap = iriToUuidMap;
     if (null == queryRequest.getLanguage()) queryRequest.setLanguage(DatabaseOption.MYSQL);
     LocalDate today = LocalDate.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     this.currentDate = today.format(formatter);
+    this.subqueryRequests = new ArrayList<>();
 
     try {
       String resourcePath = isPostgreSQL() ? "IMQtoSQL.json" : "IMQtoMYSQL.json";
@@ -55,7 +54,7 @@ public class IMQtoSQLConverter {
     return queryRequest.getLanguage().equals(DatabaseOption.POSTGRESQL);
   }
 
-  public String IMQtoSQL() throws SQLConversionException {
+  public SqlWithSubqueries IMQtoSQL() throws SQLConversionException {
     if (queryRequest.getQuery() == null) throw new SQLConversionException("Query is null");
     Query definition = queryRequest.getQuery();
     if (definition.getTypeOf() == null || definition.getTypeOf().getIri() == null) {
@@ -80,7 +79,7 @@ public class IMQtoSQLConverter {
         addBooleanMatchesToSQL(qry, definition);
         sql = new StringBuilder(qry.toSql(2));
       }
-      return replaceArgumentsWithValue(sql.toString());
+      return new SqlWithSubqueries(replaceArgumentsWithValue(sql.toString()), subqueryRequests);
     } catch (SQLConversionException e) {
       log.error("SQL Conversion Error!");
       throw e;
@@ -299,10 +298,19 @@ public class IMQtoSQLConverter {
     if (instanceOf.isEmpty())
       throw new SQLConversionException("SQL Conversion Error: MatchSet must have at least one element");
     String subQueryIri = instanceOf.getFirst().getIri();
-    String rsltTbl = "query_" + iriToUuidMap.getOrDefault(subQueryIri, "uuid");
+    String rsltTbl = "query_" + getHashFromQueryIri(subQueryIri);
     qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.getAlias() + ".id");
     if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".iri IS NULL");
     qry.getWheres().add(rsltTbl + ".iri = '" + instanceOf.getFirst().getIri() + "'");
+  }
+
+  private Integer getHashFromQueryIri(String subQueryIri) {
+//    SqlWithSubqueries
+//    get query definition
+//    create query request
+//    populate params
+//    generate hash
+    return 1234235342;
   }
 
   private void convertMatchBoolSubMatch(SQLQuery qry, Match match, Bool bool) throws SQLConversionException {
@@ -420,13 +428,13 @@ public class IMQtoSQLConverter {
       List<String> descendantIM11Ids = entityRepository.getDescendantIM1Ids(direct, false);
       addPropertyIsWhere(qry, property, descendantIM11Ids, inverse);
     } else if (!descendantsSelf.isEmpty()) {
-      List<String> descendantSelfIM11Ids = entityRepository.getDescendantIM1Ids(direct, true);
+      List<String> descendantSelfIM11Ids = entityRepository.getDescendantIM1Ids(descendantsSelf, true);
       addPropertyIsWhere(qry, property, descendantSelfIM11Ids, inverse);
     } else if (!ancestors.isEmpty()) {
-      List<String> ancestorIM11Ids = entityRepository.getAncestorIM1Ids(direct);
+      List<String> ancestorIM11Ids = entityRepository.getAncestorIM1Ids(ancestors);
       addPropertyIsWhere(qry, property, ancestorIM11Ids, inverse);
     } else if (!membersOf.isEmpty()) {
-      List<String> memberOfIM11Ids = entityRepository.getMemberOfIM1Ids(direct);
+      List<String> memberOfIM11Ids = entityRepository.getMemberOfIM1Ids(membersOf);
       addPropertyIsWhere(qry, property, memberOfIM11Ids, inverse);
     }
   }

@@ -1,12 +1,14 @@
 package org.endeavourhealth.imapi.mysql;
 
 import lombok.extern.slf4j.Slf4j;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class MYSQLConnectionManager {
@@ -47,15 +49,28 @@ public class MYSQLConnectionManager {
     }
   }
 
-  public static void createTable(String tableName) throws SQLException {
+  public static void saveResults(int hashCode, List<String> results) throws SQLException {
+    createTable(hashCode);
+    try (Connection connection = getConnection()) {
+      String values = "(" + String.join("), \n(", results) + ")";
+      String sql = """
+                INSERT INTO `%s` (id) \n VALUES \n %s;
+        """.formatted(hashCode, values);
+      try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        statement.execute();
+      }
+    }
+
+  }
+
+  public static void createTable(int hashCode) throws SQLException {
     try (Connection conn = getConnection()) {
       String sql = """
-        CREATE TABLE IF NOT EXISTS %s (
+        CREATE TABLE IF NOT EXISTS `%s` (
             id BIGINT NOT NULL,
-            iri CHAR(255) NOT NULL,
             PRIMARY KEY(id)
         )
-        """.formatted(tableName);
+        """.formatted(hashCode);
       try (PreparedStatement statement = conn.prepareStatement(sql)) {
         statement.execute();
       }

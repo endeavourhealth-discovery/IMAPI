@@ -197,7 +197,7 @@ public class QueryController {
   public String getSQLFromIMQ(@RequestBody QueryRequest queryRequest) throws IOException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQ.POST")) {
       log.debug("getSQLFromIMQ");
-      return queryService.getSQLFromIMQ(queryRequest, new HashMap<>());
+      return queryService.getSQLFromIMQ(queryRequest).getSql();
     }
   }
 
@@ -213,8 +213,7 @@ public class QueryController {
   ) throws IOException, QueryException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getSQLFromIMQIri");
-      // TODO: new HashMap<>() needs to be a map of query iris to uuids in postgres
-      return queryService.getSQLFromIMQIri(queryIri, lang, new HashMap<>(), Graph.from(graph));
+      return queryService.getSQLFromIMQIri(queryIri, lang, Graph.from(graph)).getSql();
     }
   }
 
@@ -319,7 +318,7 @@ public class QueryController {
     summary = "Kills the active running query"
   )
   @PreAuthorize("hasAuthority('IMAdmin')")
-  public void killActiveQuery() throws SQLConversionException, SQLException, IOException {
+  public void killActiveQuery() throws SQLException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.KillActiveQuery.POST")) {
       log.debug("killActiveQuery");
       queryService.killActiveQuery();

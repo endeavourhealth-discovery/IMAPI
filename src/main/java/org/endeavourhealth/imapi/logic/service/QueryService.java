@@ -18,6 +18,7 @@ import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
+import org.endeavourhealth.imapi.model.sql.SqlWithSubqueries;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
@@ -41,15 +42,9 @@ public class QueryService {
   public static final String ENTITIES = "entities";
   private final EntityRepository entityRepository = new EntityRepository();
   private final DataModelRepository dataModelRepository = new DataModelRepository();
-  private final QueryRepository queryRepository = new QueryRepository();
   private ConnectionManager connectionManager;
-  private ObjectMapper objectMapper = new ObjectMapper();
   private PostgresService postgresService = new PostgresService();
   private Map<Integer, List<String>> queryResultsMap = new HashMap<>();
-
-  public static void generateUUIdsForQuery(Query query) {
-    new QueryDescriptor().generateUUIDs(query);
-  }
 
   public Query describeQuery(Query query, DisplayMode displayMode, Graph graph) throws QueryException, JsonProcessingException {
     return new QueryDescriptor().describeQuery(query, displayMode, graph);
@@ -91,11 +86,11 @@ public class QueryService {
     return searchResponse;
   }
 
-  public String getSQLFromIMQ(QueryRequest queryRequest, Map<String, String> iriToUuidMap) throws SQLConversionException {
-    return new IMQtoSQLConverter(queryRequest, iriToUuidMap).IMQtoSQL();
+  public SqlWithSubqueries getSQLFromIMQ(QueryRequest queryRequest) throws SQLConversionException {
+    return new IMQtoSQLConverter(queryRequest).IMQtoSQL();
   }
 
-  public String getSQLFromIMQIri(String queryIri, DatabaseOption lang, Map<String, String> iriToUuidMap, Graph graph) throws JsonProcessingException, QueryException, SQLConversionException {
+  public SqlWithSubqueries getSQLFromIMQIri(String queryIri, DatabaseOption lang, Graph graph) throws JsonProcessingException, QueryException, SQLConversionException {
     if (!lang.equals(DatabaseOption.MYSQL) && !lang.equals(DatabaseOption.POSTGRESQL)) {
       throw new SQLConversionException("'" + lang + "' is not currently supported for query to SQL. Supported languages are MYSQL and POSTGRESQL.");
     }
@@ -103,7 +98,7 @@ public class QueryService {
     if (query == null) return null;
     query = flattenQuery(query);
     QueryRequest queryRequest = new QueryRequest().setQuery(query).setLanguage(lang);
-    return getSQLFromIMQ(queryRequest, iriToUuidMap);
+    return getSQLFromIMQ(queryRequest);
   }
 
   public void handleSQLConversionException(UUID userId, String userName, QueryRequest queryRequest, String error) throws SQLException {
@@ -123,7 +118,7 @@ public class QueryService {
 
   public void addToExecutionQueue(UUID userId, String userName, QueryRequest queryRequest) throws Exception {
     try {
-      getSQLFromIMQ(queryRequest, new HashMap<>());
+      getSQLFromIMQ(queryRequest);
     } catch (SQLConversionException e) {
       handleSQLConversionException(userId, userName, queryRequest, e.getMessage());
       throw new QueryException("Unable to convert query to SQL", e);
@@ -133,12 +128,17 @@ public class QueryService {
   }
 
   public List<String> executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException {
-    log.info("Executing query: {}", queryRequest.getQuery().getIri());
+    log.info("Executing query: {}-{}", queryRequest.getQuery().getIri(), queryRequest.hashCode());
+//    TODO: if query has is rules needs to be converted to match based query
     try {
-      String sql = getSQLFromIMQ(queryRequest, new HashMap<>());
-      createResultsTable(sql);
-      List<String> results = MYSQLConnectionManager.executeQuery(sql);
-      storeQueryResults(queryRequest, results);
+      List<String> results = queryResultsMap.get(queryRequest.hashCode());
+      if (results != null) return results;
+
+      SqlWithSubqueries sqlWithSubqueries = getSQLFromIMQ(queryRequest);
+      for (QueryRequest qr : sqlWithSubqueries.getSubqueryRequests())
+        executeQuery(qr);
+      results = MYSQLConnectionManager.executeQuery(sqlWithSubqueries.getSql());
+      storeQueryResultsAndCache(queryRequest, results);
       return results;
     } catch (SQLConversionException e) {
       log.error("Error converting query: {}", e.getMessage());
@@ -149,33 +149,17 @@ public class QueryService {
     }
   }
 
-  private void createResultsTable(String sql) throws SQLException {
-    Pattern pattern = Pattern.compile("(?<=JOIN\\s)(query_\\S+)(?=\\s+ON)");
-    Matcher matcher = pattern.matcher(sql);
-    if (matcher.find()) {
-      MYSQLConnectionManager.createTable(matcher.group());
-    }
-  }
-
-  public void storeQueryResults(QueryRequest queryRequest, List<String> results) {
-    QueryRequest queryRequestCopy = cloneQueryRequestWithoutPage(queryRequest);
-    queryResultsMap.put(Objects.hash(queryRequestCopy), results);
+  public void storeQueryResultsAndCache(QueryRequest queryRequest, List<String> results) throws SQLException {
+    queryResultsMap.put(queryRequest.hashCode(), results);
+    MYSQLConnectionManager.saveResults(queryRequest.hashCode(), results);
   }
 
   public List<String> getQueryResults(QueryRequest queryRequest) throws SQLConversionException, SQLException {
-    QueryRequest queryRequestCopy = cloneQueryRequestWithoutPage(queryRequest);
-    return queryResultsMap.get(Objects.hash(queryRequestCopy));
-  }
-
-  private QueryRequest cloneQueryRequestWithoutPage(QueryRequest queryRequest) {
-    QueryRequest queryRequestCopy = objectMapper.convertValue(queryRequest, QueryRequest.class);
-    queryRequestCopy.setPage(null);
-    return queryRequestCopy;
+    return queryResultsMap.get(queryRequest.hashCode());
   }
 
   public Pageable<String> getQueryResultsPaged(QueryRequest queryRequest) throws SQLConversionException, SQLException {
-    QueryRequest queryRequestCopy = cloneQueryRequestWithoutPage(queryRequest);
-    List<String> results = queryResultsMap.get(Objects.hash(queryRequestCopy));
+    List<String> results = queryResultsMap.get(queryRequest.hashCode());
     if (results == null) return null;
     if (queryRequest.getPage().getPageNumber() > 0 && queryRequest.getPage().getPageSize() > 0) {
       Pageable<String> pageable = new Pageable<>();

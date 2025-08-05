@@ -1911,7 +1911,7 @@ public class EntityRepository {
     String spq = """
       SELECT ?isA ?im1id WHERE {
         VALUES ?s {%s}
-        ?isA im:isA ?s
+        ?isA im:isA ?s .
         ?isA im:im1Id ?im1id .
       }""".formatted(getIriLine(iris));
     Map<String, String> iriToIM1IdsMap = new HashMap<>();
@@ -1937,7 +1937,7 @@ public class EntityRepository {
     String spq = """
       SELECT ?isA ?im1id WHERE {
         VALUES ?s {%s}
-        ?s im:isA ?isA
+        ?s im:isA ?isA .
         ?isA im:im1Id ?im1id .
       }""".formatted(getIriLine(iris));
     List<String> results = new ArrayList<>();
@@ -1957,7 +1957,7 @@ public class EntityRepository {
     String spq = """
       SELECT ?im1id WHERE {
         VALUES ?s {%s}
-        ?s im:hasMember ?memberOf
+        ?s im:hasMember ?memberOf .
         ?memberOf im:im1Id ?im1id .
       }""".formatted(getIriLine(iris));
     List<String> results = new ArrayList<>();

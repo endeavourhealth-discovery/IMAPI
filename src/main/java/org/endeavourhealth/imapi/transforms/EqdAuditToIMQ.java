@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCAggregateReport;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.VocStandardAuditReportType;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 public class EqdAuditToIMQ {
   public static final String POPULATION = "population_";
@@ -14,13 +15,15 @@ public class EqdAuditToIMQ {
   public void convertReport(EQDOCReport eqReport, Query query, EqdResources resources) throws EQDException {
     resources.setQueryType(QueryType.AGGREGATE_REPORT);
     for (String popId : eqReport.getAuditReport().getPopulation()) {
+      if (EqdToIMQ.versionMap.containsKey(popId)) popId = EqdToIMQ.versionMap.get(popId);
       Query popQuery= new Query();
       query.addDataSet(popQuery);
+      String finalPopId = popId;
       popQuery
         .and(f -> f
           .setVariable(POPULATION)
-          .addInstanceOf(new Node().setIri(resources.getNamespace()+ popId).setMemberOf(true))
-          .setName(resources.reportNames.get(popId)));
+          .addInstanceOf(new Node().setIri(resources.getNamespace()+ finalPopId).setMemberOf(true))
+          .setName(resources.reportNames.get(finalPopId)));
       Return populationReturn = new Return();
       popQuery.setReturn(populationReturn);
       populationReturn.setNodeRef(POPULATION);
@@ -40,7 +43,7 @@ public class EqdAuditToIMQ {
             String[] pathMap = pathString.split(" ");
             for (int i = 0; i < pathMap.length-1; i++) {
               ReturnProperty property = new ReturnProperty();
-              property.setIri(IM.NAMESPACE + pathMap[i]);
+              property.setIri(Namespace.IM + pathMap[i]);
               Return ret = new Return();
               property.setReturn(ret);
               populationReturn = ret;

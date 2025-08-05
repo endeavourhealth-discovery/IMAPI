@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,24 +10,22 @@ import java.util.Map;
 public class TTToNQuad {
   private List<String> quads;
   private static int blank;
-  String graph;
 
-  public List<String> transformEntity(TTEntity entity, String graph) {
+  public List<String> transformEntity(TTEntity entity, Graph graph) {
     quads = new ArrayList<>();
-    this.graph = graph;
-    appendEntity(entity);
+    appendEntity(entity, graph);
     return quads;
   }
 
-  private void appendEntity(TTEntity entity) {
+  private void appendEntity(TTEntity entity, Graph graph) {
     String subject = "<" + entity.getIri() + "> ";
     if (entity.getPredicateMap() != null) {
-      setPredicateObjects(subject, entity);
+      setPredicateObjects(subject, entity, graph);
     }
 
   }
 
-  private void setPredicateObjects(String subject, TTNode node) {
+  private void setPredicateObjects(String subject, TTNode node, Graph graph) {
     Map<TTIriRef, TTArray> predicateObjectList = node.getPredicateMap();
     if (predicateObjectList != null) {
       for (Map.Entry<TTIriRef, TTArray> entry : predicateObjectList.entrySet()) {
@@ -34,14 +33,14 @@ public class TTToNQuad {
         TTArray value = entry.getValue();
         if ((value != null) && (!value.isEmpty())) {
           for (TTValue val : value.getElements()) {
-            setObject(subject, predicate, val);
+            setObject(subject, predicate, val, graph);
           }
         }
       }
     }
   }
 
-  private void setObject(String subject, String predicate, TTValue value) {
+  private void setObject(String subject, String predicate, TTValue value, Graph graph) {
     if (value.isIriRef())
       quads.add(subject + predicate + "<" + value.asIriRef().getIri() + "> <" + graph + ">.");
     else if (value.isLiteral()) {
@@ -57,7 +56,7 @@ public class TTToNQuad {
       blank++;
       String blankNode = "_:b" + blank;
       quads.add(subject + predicate + blankNode + " <" + graph + ">.");
-      setPredicateObjects(blankNode, value.asNode());
+      setPredicateObjects(blankNode, value.asNode(),  graph);
 
     }
   }

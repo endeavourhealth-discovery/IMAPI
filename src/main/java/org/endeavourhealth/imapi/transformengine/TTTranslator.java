@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
 import org.endeavourhealth.imapi.model.map.MapProperty;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.Collection;
 import java.util.List;
@@ -52,7 +53,7 @@ public class TTTranslator implements SyntaxTranslator {
       for (Map.Entry<?, ?> entry : fromMap.entrySet()) {
         String key = (String) entry.getKey();
         if (!key.contains(":"))
-          key = IM.NAMESPACE + key;
+          key = Namespace.IM + key;
         Object value = convertToTargetSingle(entry.getValue());
         if (value instanceof TTArray valueTTArray)
           result.set(TTIriRef.iri(key), valueTTArray);
@@ -99,7 +100,7 @@ public class TTTranslator implements SyntaxTranslator {
       else {
         String predicate = property;
         if (!property.contains(":"))
-          predicate = IM.NAMESPACE + property;
+          predicate = Namespace.IM + property;
         switch (targetValue) {
           case List<?> targetValueList -> {
             TTArray array = new TTArray();

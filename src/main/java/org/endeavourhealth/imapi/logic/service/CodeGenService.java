@@ -7,8 +7,10 @@ import org.endeavourhealth.imapi.model.codegen.CodeGenTemplate;
 import org.endeavourhealth.imapi.model.dto.CodeGenDto;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.EntityType;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.springframework.http.*;
 
 import java.io.ByteArrayOutputStream;
@@ -37,30 +39,30 @@ public class CodeGenService {
     codeGenRepository.updateCodeTemplate(name, extension, wrapper, dataTypeMap, template, complexTypes);
   }
 
-  public String generateCodeForModel(String modelIri, CodeGenDto template, String namespace) {
-    TTIriRef model = getModelSummary(modelIri);
+  public String generateCodeForModel(String modelIri, CodeGenDto template, String namespace, Graph graph) {
+    TTIriRef model = getModelSummary(modelIri, graph);
     return generateCodeForModel(template, model, namespace);
   }
 
-  public HttpEntity<Object> generateCode(String iri, String templateName, String namespace) {
+  public HttpEntity<Object> generateCode(String iri, String templateName, String namespace, Graph graph) {
     List<TTIriRef> models = (iri == null || iri.isEmpty())
-      ? getIMModels()
-      : Collections.singletonList(getModelSummary(iri));
+      ? getIMModels(graph)
+      : Collections.singletonList(getModelSummary(iri, graph));
 
     CodeGenDto template = codeGenRepository.getCodeTemplate(templateName);
 
     return createModelCodeZip(namespace, models, template);
   }
 
-  private List<TTIriRef> getIMModels() {
-    List<TTIriRef> models = entityService.getEntitiesByType(SHACL.NODESHAPE);
+  private List<TTIriRef> getIMModels(Graph graph) {
+    List<TTIriRef> models = entityService.getEntitiesByType(EntityType.NODESHAPE, graph);
     return models.stream()
-      .filter(m -> m.getIri().startsWith(IM.NAMESPACE))
+      .filter(m -> m.getIri().startsWith(Namespace.IM.toString()))
       .toList();
   }
 
-  private TTIriRef getModelSummary(String iri) {
-    SearchResultSummary summary = entityService.getSummary(iri);
+  private TTIriRef getModelSummary(String iri, Graph graph) {
+    SearchResultSummary summary = entityService.getSummary(iri, graph);
     return new TTIriRef(summary.getIri(), summary.getName()).setDescription(summary.getDescription());
   }
 

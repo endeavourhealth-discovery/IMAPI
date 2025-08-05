@@ -2,8 +2,8 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.*;
 import lombok.Getter;
-import lombok.Setter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +42,8 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   private List<Where> or;
   @Getter
   private List<Where> and;
+
+
 
   public Where setRoleGroup(boolean roleGroup) {
     this.roleGroup = roleGroup;
@@ -218,6 +220,11 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
 
   public Where setIri(String iri) {
     super.setIri(iri);
+    return this;
+  }
+
+  public Where setIri(VocabEnum iri) {
+    super.setIri(iri.toString());
     return this;
   }
 

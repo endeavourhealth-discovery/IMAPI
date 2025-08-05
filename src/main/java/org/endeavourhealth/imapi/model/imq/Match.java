@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.endeavourhealth.imapi.transforms.ECLSyntaxError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +43,6 @@ public class Match extends IriLD implements BoolGroup<Match>{
   @Getter
   private boolean baseRule;
   @Getter
-  private boolean hasLinked;
-  @Getter
   private boolean union;
   @Getter
   @Setter
@@ -64,6 +61,9 @@ public class Match extends IriLD implements BoolGroup<Match>{
   private List<Match> rule;
   @Getter
   private String libraryItem;
+  @Getter
+  @Setter
+  private boolean invalid;
 
   public Match setLibraryItem(String libraryItem) {
     this.libraryItem = libraryItem;
@@ -189,13 +189,6 @@ public class Match extends IriLD implements BoolGroup<Match>{
     return this;
   }
 
-
-
-
-  public Match setHasLinked(boolean hasLinked) {
-    this.hasLinked = hasLinked;
-    return this;
-  }
 
 
   public Match setIsUnion(boolean union) {

@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.dataaccess.OSQuery;
 import org.endeavourhealth.imapi.dataaccess.PathRepository;
@@ -11,11 +10,9 @@ import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.vocabulary.IM;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Methods for searching open search / elastic repositories
@@ -50,8 +47,8 @@ public class SearchService {
     repo.unpackQueryRequest(queryRequest, result);
     if (null != queryRequest.getTextSearch()) {
       OSQuery osq = new OSQuery();
-      JsonNode osResult = osq.IMOSQuery(queryRequest);
-      if (osResult!=null && osResult.get("entities") != null)
+      JsonNode osResult = osq.imOpenSearchQuery(queryRequest);
+      if (osResult != null && osResult.get("entities") != null)
         return osResult;
       else {
         return repo.queryIM(queryRequest, false);
@@ -60,8 +57,6 @@ public class SearchService {
 
     return repo.queryIM(queryRequest, false);
   }
-
-
 
 
   public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
@@ -84,11 +79,11 @@ public class SearchService {
     repo.unpackQueryRequest(queryRequest, om.createObjectNode());
 
     if (null != queryRequest.getTextSearch()) {
-      SearchResponse results= new OSQuery().openSearchQuery(queryRequest);
-      if (results!=null) return results;
+      SearchResponse results = new OSQuery().openSearchQuery(queryRequest);
+      if (results != null) return results;
     }
     JsonNode queryResults = repo.queryIM(queryRequest, false);
-    return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, queryResults);
+    return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, queryResults, queryRequest.getGraph());
   }
 
   public void validateQueryRequest(QueryRequest queryRequest) throws QueryException {

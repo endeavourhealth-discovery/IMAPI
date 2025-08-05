@@ -2,13 +2,14 @@ package org.endeavourhealth.imapi.logic.validator;
 
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.model.validation.EntityValidationRequest;
-import org.endeavourhealth.imapi.model.validation.EntityValidationResponse;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
-import org.endeavourhealth.imapi.vocabulary.VALIDATION;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
+import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -23,14 +24,14 @@ public class EntityValidator {
 
   public EntityValidationResponse validate(EntityValidationRequest request, EntityService entityService) throws ValidationException {
     this.entityService = entityService;
-    return switch (request.getValidationIri()) {
+    return switch (VALIDATION.from(request.getValidationIri())) {
       case VALIDATION.HAS_PARENT -> hasValidParents(request.getEntity());
       case VALIDATION.IS_DEFINITION -> isValidDefinition(request.getEntity());
       case VALIDATION.IS_IRI -> isValidIri(request.getEntity());
       case VALIDATION.IS_TERMCODE -> isValidTermCodes(request.getEntity());
       case VALIDATION.IS_PROPERTY -> isValidProperties(request.getEntity());
-      case VALIDATION.IS_SCHEME -> isValidScheme(request.getEntity());
-      case VALIDATION.IS_STATUS -> isValidStatus(request.getEntity());
+      case VALIDATION.IS_SCHEME -> isValidScheme(request.getEntity(), request.getGraph());
+      case VALIDATION.IS_STATUS -> isValidStatus(request.getEntity(), request.getGraph());
       case VALIDATION.IS_ROLE_GROUP -> isValidRoleGroups(request.getEntity());
       default -> throw new ValidationException("Invalid validation IRI: " + request.getValidationIri());
     };
@@ -40,11 +41,11 @@ public class EntityValidator {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false);
     response.setMessage("Entity is missing a parent. Add a parent to 'Subset of', 'Subclass of' or 'Contained in'.");
-    if (hasParameterAndAllAreTTIriRefs(entity, RDFS.SUBCLASS_OF)) isValid(response);
-    if (hasParameterAndAllAreTTIriRefs(entity, IM.IS_CONTAINED_IN)) isValid(response);
-    if (hasParameterAndAllAreTTIriRefs(entity, IM.IS_SUBSET_OF)) isValid(response);
-    if (hasParameterAndAllAreTTIriRefs(entity, RDFS.SUB_PROPERTY_OF)) isValid(response);
-    if (hasParameterAndAllAreTTIriRefs(entity, IM.IS_CHILD_OF)) isValid(response);
+    if (hasParameterAndAllAreTTIriRefs(entity, RDFS.SUBCLASS_OF.toString())) isValid(response);
+    if (hasParameterAndAllAreTTIriRefs(entity, IM.IS_CONTAINED_IN.toString())) isValid(response);
+    if (hasParameterAndAllAreTTIriRefs(entity, IM.IS_SUBSET_OF.toString())) isValid(response);
+    if (hasParameterAndAllAreTTIriRefs(entity, RDFS.SUB_PROPERTY_OF.toString())) isValid(response);
+    if (hasParameterAndAllAreTTIriRefs(entity, IM.IS_CHILD_OF.toString())) isValid(response);
     return response;
   }
 
@@ -65,10 +66,26 @@ public class EntityValidator {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false);
     response.setMessage("Entity definition is invalid");
-    if (entity.has(iri(IM.DEFINITION)) || entity.has(iri(IM.IS_SUBSET_OF)) || entity.has(iri(IM.HAS_SUBSET)))
+    if (entity.has(IM.DEFINITION) || entity.has(IM.IS_SUBSET_OF) || entity.has(IM.HAS_SUBSET)) {
+      if (entity.has(IM.DEFINITION)) {
+        try {
+          Query query = entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+          if (query.isInvalid()) {
+            response.setMessage("Query definition has unknown concepts or is invalid. Check using editor.");
+            response.setValid(false);
+            return response;
+          }
+        } catch (Exception e) {
+          response.setMessage(e.getMessage());
+          response.setValid(false);
+          return response;
+        }
+      }
       isValid(response);
+    }
     return response;
   }
+
 
   private EntityValidationResponse isValidIri(TTEntity entity) {
     EntityValidationResponse response = new EntityValidationResponse();
@@ -167,10 +184,10 @@ public class EntityValidator {
     });
   }
 
-  private EntityValidationResponse isValidScheme(TTEntity entity) {
+  private EntityValidationResponse isValidScheme(TTEntity entity, Graph graph) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false).setMessage("Scheme is invalid");
-    List<TTIriRef> schemes = entityService.getChildren(IM.GRAPH, null, null, null, false);
+    List<TTIriRef> schemes = entityService.getChildren(IM.NAMESPACE.toString(), null, null, null, false, graph);
     if (entity.has(iri(IM.HAS_SCHEME)) && !entity.get(iri(IM.HAS_SCHEME)).isEmpty() && entity.get(iri(IM.HAS_SCHEME)).get(0).isIriRef()) {
       if (schemes.stream().anyMatch(s -> s.getIri().equals(entity.get(iri(IM.HAS_SCHEME)).get(0).asIriRef().getIri()))) {
         response.setValid(true);
@@ -180,10 +197,10 @@ public class EntityValidator {
     return response;
   }
 
-  private EntityValidationResponse isValidStatus(TTEntity entity) {
+  private EntityValidationResponse isValidStatus(TTEntity entity, Graph graph) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false).setMessage("Status is invalid");
-    List<TTIriRef> schemes = entityService.getChildren(IM.STATUS, null, null, null, false);
+    List<TTIriRef> schemes = entityService.getChildren(IM.STATUS.toString(), null, null, null, false, graph);
     if (entity.has(iri(IM.HAS_STATUS)) && !entity.get(iri(IM.HAS_STATUS)).isEmpty() && entity.get(iri(IM.HAS_STATUS)).get(0).isIriRef()) {
       if (schemes.stream().anyMatch(s -> s.getIri().equals(entity.get(iri(IM.HAS_STATUS)).get(0).asIriRef().getIri()))) {
         response.setValid(true);
@@ -206,7 +223,7 @@ public class EntityValidator {
           for (Map.Entry<TTIriRef, TTArray> groupData : group.asNode().getPredicateMap().entrySet()) {
             String key = groupData.getKey().getIri();
             TTArray value = groupData.getValue();
-            if (!key.equals(IM.GROUP_NUMBER)) {
+            if (!key.equals(IM.GROUP_NUMBER.toString())) {
               if (key.isEmpty() || value.isEmpty() || value.get(0).asIriRef().getIri().isEmpty() || value.get(0).asIriRef().getName().isEmpty()) {
                 response.setValid(false);
                 response.setMessage("1 or more role groups are invalid");

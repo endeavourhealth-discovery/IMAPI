@@ -86,13 +86,13 @@ public class TTNodeDeserializer {
     if (node.isValueNode())
       return TTLiteral.literal(node);
     else if (node.isObject()) {
-      if (node.has(IM.IRI)) {
+      if (node.has(IM.IRI.toString())) {
         if (node.has("name"))
-          return iri(expand(node.get(IM.IRI).asText()), node.get("name").asText());
+          return iri(expand(node.get(IM.IRI.toString()).asText()), node.get("name").asText());
         else
-          return iri(expand(node.get(IM.IRI).asText()));
+          return iri(expand(node.get(IM.IRI.toString()).asText()));
       } else {
-        if (node.has(IM.VALUE)) {
+        if (node.has(IM.VALUE.toString())) {
           return getJsonNodeAsLiteral(node);
         } else {
           TTNode result = new TTNode();
@@ -109,15 +109,15 @@ public class TTNodeDeserializer {
   }
 
   public TTLiteral getJsonNodeAsLiteral(JsonNode node) throws IOException {
-    if (!node.has(IM.TYPE))
-      return TTLiteral.literal(node.get(IM.VALUE).textValue());
+    if (!node.has(IM.TYPE.toString()))
+      return TTLiteral.literal(node.get(IM.VALUE.toString()).textValue());
 
-    TTIriRef type = iri(expand(node.get(IM.TYPE).asText()));
-    return switch (type.getIri()) {
-      case XSD.STRING -> TTLiteral.literal(node.get(IM.VALUE).textValue());
-      case XSD.BOOLEAN -> TTLiteral.literal(Boolean.valueOf(node.get(IM.VALUE).asText()));
-      case XSD.INTEGER -> TTLiteral.literal(Integer.valueOf(node.get(IM.VALUE).asText()));
-      case XSD.PATTERN -> TTLiteral.literal(Pattern.compile(node.get(IM.VALUE).textValue()));
+    TTIriRef type = iri(expand(node.get(IM.TYPE.toString()).asText()));
+    return switch (XSD.from(type.getIri())) {
+      case XSD.STRING -> TTLiteral.literal(node.get(IM.VALUE.toString()).textValue());
+      case XSD.BOOLEAN -> TTLiteral.literal(Boolean.valueOf(node.get(IM.VALUE.toString()).asText()));
+      case XSD.INTEGER -> TTLiteral.literal(Integer.valueOf(node.get(IM.VALUE.toString()).asText()));
+      case XSD.PATTERN -> TTLiteral.literal(Pattern.compile(node.get(IM.VALUE.toString()).textValue()));
       case null, default -> throw new IOException("Unhandled literal type [" + type.getIri() + "]");
     };
   }

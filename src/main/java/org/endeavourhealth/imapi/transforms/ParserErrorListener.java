@@ -24,8 +24,11 @@ public class ParserErrorListener extends BaseErrorListener {
       Parser parser = (Parser) recognizer;
       IntervalSet expectedTokens = parser.getExpectedTokens();
       String badSymbol = "";
-      if (offendingSymbol instanceof CommonToken)
-        badSymbol = ((CommonToken) offendingSymbol).getText().split(",")[0];
+      if (offendingSymbol instanceof CommonToken) {
+        String[] symbols = ((CommonToken) offendingSymbol).getText().split(",");
+        if (symbols.length > 0)
+          badSymbol = symbols[0];
+      }
       String message = "Expecting " + expectedTokens.toString(parser.getVocabulary());
       errorData.setMessage("Symbol '"+badSymbol + "' " + message);
       throw new ECLSyntaxError("Invalid ECL"

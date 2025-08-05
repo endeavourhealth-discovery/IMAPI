@@ -52,7 +52,7 @@ public class SparqlHelper {
       PREFIX sh: <%s>
       PREFIX xsd: <%s>
       
-      """.formatted(RDFS.NAMESPACE, IM.NAMESPACE, RDF.NAMESPACE, SNOMED.NAMESPACE, SHACL.NAMESPACE, XSD.NAMESPACE);
+      """.formatted(Namespace.RDFS, Namespace.IM, Namespace.RDF, Namespace.SNOMED, Namespace.SHACL, Namespace.XSD);
     StringJoiner sj = new StringJoiner(System.lineSeparator());
     sj.add(prefixes);
     sj.add(sparql);

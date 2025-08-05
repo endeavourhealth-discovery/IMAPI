@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.*;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -163,6 +164,11 @@ public class ReturnProperty {
 
   public ReturnProperty setIri(String iri) {
     this.iri = iri;
+    return this;
+  }
+
+  public ReturnProperty setIri(VocabEnum iri) {
+    this.iri = iri.toString();
     return this;
   }
 

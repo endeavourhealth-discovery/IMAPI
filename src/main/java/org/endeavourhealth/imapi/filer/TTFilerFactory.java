@@ -1,7 +1,9 @@
 package org.endeavourhealth.imapi.filer;
 
 
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.filer.rdf4j.*;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 public class TTFilerFactory {
   private static boolean bulk = false;
@@ -19,15 +21,15 @@ public class TTFilerFactory {
     TTFilerFactory.transactional = transactional;
   }
 
-  public static TTDocumentFiler getDocumentFiler() {
+  public static TTDocumentFiler getDocumentFiler(Graph graph) {
     if (!bulk)
-      return new TTTransactionFiler();
+      return new TTTransactionFiler(graph);
     else
-      return new TTBulkFiler();
+      return new TTBulkFiler(graph);
   }
 
-  public static TTEntityFiler getEntityFiler() {
-    return new TTEntityFilerRdf4j();
+  public static TTEntityFiler getEntityFiler(Graph graph) {
+    return new TTEntityFilerRdf4j(IMDB.getConnection(graph), graph);
   }
 
   public static TCGenerator getClosureGenerator() {

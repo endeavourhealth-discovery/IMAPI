@@ -1,12 +1,20 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.*;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class LogicOptimizer {
   Set<String> commonMatches;
+  ObjectMapper mapper = new ObjectMapper();
 
   public static void flattenQuery(Query query) {
    flattenMatch(query);
@@ -22,6 +30,97 @@ public class LogicOptimizer {
     mergeNested(query);
   }
 
+
+  public void deduplicateQuery(Query query, Namespace namespace) throws JsonProcessingException {
+        if (query.getRule() != null) {
+          for (Match rule:query.getRule()){
+            deduplicateRule(rule,namespace);
+          }
+        }
+  }
+
+  private void deduplicateRule(Match rule,Namespace namespace) throws JsonProcessingException {
+    Map<String,String> criteriaNodeRef= new HashMap<>();
+    for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr(), rule.getNot())) {
+      if (matches != null) {
+        for (int i=0; i<matches.size(); i++) {
+          Match match = matches.get(i);
+          Match logicalMatch = getLogicalMatch(match);
+          String libraryIri = namespace + "Clause_" + (mapper.writeValueAsString(logicalMatch).hashCode());
+          if (criteriaNodeRef.containsKey(libraryIri)) {
+            if (matches.size() > i + 1) {
+                Match linkedMatch = matches.get(i + 1);
+                if (isLinkedMatch(linkedMatch) &&linkedMatch.getWhere()!=null){
+                Where where = linkedMatch.getWhere();
+                if (where.getRelativeTo() != null && where.getRelativeTo().getNodeRef() != null) {
+                  where.getRelativeTo().setNodeRef(criteriaNodeRef.get(libraryIri));
+                }
+                if (where.getAnd() != null) {
+                  for (Where andWhere : where.getAnd()) {
+                    if (andWhere.getRelativeTo() != null && andWhere.getRelativeTo().getNodeRef() != null) {
+                      andWhere.getRelativeTo().setNodeRef(criteriaNodeRef.get(libraryIri));
+                    }
+                  }
+                }
+              }
+            }
+            matches.remove(i);
+            i--;
+          }
+          else if (match.getReturn()!=null &&match.getReturn().getAs()!=null){
+            criteriaNodeRef.put(libraryIri,match.getReturn().getAs());
+          }
+        }
+      }
+    }
+  }
+  public Match getLogicalMatch(Match match) throws JsonProcessingException {
+    String matchJson= mapper.writeValueAsString(match);
+    Match logicalMatch=mapper.readValue(matchJson,Match.class);
+    if (logicalMatch.getReturn()!=null){
+      logicalMatch.getReturn().setAs(null);
+    }
+    if (logicalMatch.getPath()!=null){
+      for (Path path:logicalMatch.getPath()){
+        logicalPath(path);
+      }
+    }
+    if (logicalMatch.getWhere()!=null){
+      logicalWhere(logicalMatch.getWhere());
+    }
+    for (List<Match> matches : Arrays.asList(logicalMatch.getAnd(), logicalMatch.getOr(), logicalMatch.getNot())) {
+      if (matches != null) {
+        for (int i = 0; i < matches.size(); i++) {
+          Match subMatch = matches.get(i);
+          Match logicalSubMatch = getLogicalMatch(subMatch);
+          matches.set(i,logicalSubMatch);
+        }
+      }
+    }
+
+    return logicalMatch;
+  }
+
+  private void logicalWhere(Where where) {
+    where.setNodeRef(null);
+    for (List<Where> wheres: Arrays.asList(where.getAnd(), where.getOr())) {
+      if (wheres != null) {
+        for (Where subWhere : wheres) {
+          logicalWhere(subWhere);
+        }
+      }
+    }
+  }
+
+  private static void logicalPath(Path path) {
+    if (path==null) return;
+    path.setVariable(null);
+    if (path.getPath()!=null)
+      for (Path subPath:path.getPath()){
+        logicalPath(subPath);
+      }
+  }
+
   private static void mergeNested(Match match) {
     if (match.getOr()!=null &&match.getOr().size()==1){
       Match orMatch= match.getOr().getFirst();
@@ -31,6 +130,18 @@ public class LogicOptimizer {
       Match andMatch= match.getAnd().getFirst();
       mergeMatch(match, andMatch);
     }
+  }
+  public static boolean isLinkedMatch(Match match){
+    if (match.getWhere()!=null){
+      Where where = match.getWhere();
+      if (where.getRelativeTo() != null && where.getRelativeTo().getNodeRef() != null) return true;
+      if (where.getAnd() != null) {
+        for (Where andWhere : where.getAnd()) {
+          if (andWhere.getRelativeTo() != null && andWhere.getRelativeTo().getNodeRef() != null) return true;
+          }
+        }
+      }
+    return false;
   }
 
   private static void mergeMatch(Match match, Match nestedMatch) {

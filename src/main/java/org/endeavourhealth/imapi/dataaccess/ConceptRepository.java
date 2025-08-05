@@ -1,45 +1,39 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.ConceptContextMap;
 import org.endeavourhealth.imapi.model.Context;
-import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.getString;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList;
 
 public class ConceptRepository {
 
-  public List<SimpleMap> getMatchedFrom(String iri, List<String> schemeIris) {
+  public List<SimpleMap> getMatchedFrom(String iri, List<String> schemeIris, Graph graph) {
     List<SimpleMap> simpleMaps = new ArrayList<>();
-    StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
+    String sql = """
       SELECT ?s ?code ?scheme ?name
-      WHERE{
+      WHERE {
         ?s im:matchedTo ?o .
         ?s im:code ?code .
-        ?s im:scheme ?scheme .
-        GRAPH ?g { ?s rdfs:label ?name } .
-      """);
-
-    if (schemeIris != null && !schemeIris.isEmpty()) {
-      sql.add(valueList("g", schemeIris));
-    }
-    sql.add("}");
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql.toString());
+        %s
+        ?s im:scheme ?scheme ;
+        rdfs:label ?name .
+      }
+      """.formatted(valueList("scheme", schemeIris));
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("o", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -51,23 +45,21 @@ public class ConceptRepository {
     return simpleMaps;
   }
 
-  public List<SimpleMap> getMatchedTo(String iri, List<String> schemeIris) {
+  public List<SimpleMap> getMatchedTo(String iri, List<String> schemeIris, Graph graph) {
     List<SimpleMap> simpleMaps = new ArrayList<>();
-    StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
+    String sql = """
       SELECT ?o ?code ?scheme ?name
       WHERE {
         ?s im:matchedTo ?o .
         ?o im:code ?code .
+        %s
         ?o im:scheme ?scheme .
-        GRAPH ?g { ?o rdfs:label ?name } .
-      """);
+        ?o rdfs:label ?name .
+      }
+      """.formatted(valueList("scheme", schemeIris));
 
-    if (schemeIris != null && !schemeIris.isEmpty()) {
-      sql.add(valueList("g", schemeIris));
-    }
-    sql.add("}");
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql.toString());
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("s", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -79,18 +71,18 @@ public class ConceptRepository {
     return simpleMaps;
   }
 
-  public Set<String> getPropertiesForDomains(Set<String> iris) {
-   Set<String> properties = new HashSet<>();
-   String sql= """
-     select distinct ?property
-     where {
-       VALUES ?domains {%s}
-       ?domains im:isA ?superDomains.
-       ?property rdfs:domain ?superDomains
+  public Set<String> getPropertiesForDomains(Set<String> iris, Graph graph) {
+    Set<String> properties = new HashSet<>();
+    String sql = """
+      select distinct ?property
+      where {
+        VALUES ?domains {%s}
+        ?domains im:isA ?superDomains.
+        ?property rdfs:domain ?superDomains
       }
-     """.formatted(String.join(" ",iris.stream().map(iri->"<"+iri+">").toArray(String[]::new)));
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql);
+      """.formatted(String.join(" ", iris.stream().map(iri -> "<" + iri + ">").toArray(String[]::new)));
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -101,19 +93,19 @@ public class ConceptRepository {
     return properties;
   }
 
-  public Set<String> getRangesForProperty(String conceptIri) {
+  public Set<String> getRangesForProperty(String conceptIri, Graph graph) {
     Set<String> ranges = new HashSet<>();
-    String sql= """
+    String sql = """
       Select ?range
       where {
         VALUES ?superProperty {%s}
         ?property im:isA ?superProperty.
         ?property rdfs:range ?range.
       }
-      """.formatted("<"+conceptIri+">");
+      """.formatted("<" + conceptIri + ">");
 
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-      TupleQuery qry = prepareSparql(conn, sql);
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -125,10 +117,9 @@ public class ConceptRepository {
   }
 
 
-
-  public List<ConceptContextMap> getConceptContextMaps(String iri) {
+  public List<ConceptContextMap> getConceptContextMaps(String iri, Graph graph) {
     List<ConceptContextMap> result = new ArrayList<>();
-    try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+    try (IMDB conn = IMDB.getConnection(graph)) {
       String sparql = """
         SELECT ?nodeName ?sourceVal ?sourceRegex ?propertyName ?publisherName ?systemName ?schema ?table ?field
         WHERE {
@@ -152,20 +143,20 @@ public class ConceptRepository {
         }
         ORDER BY ?nodeName ?sourceVal ?publisherName
         """;
-      TupleQuery qry = conn.prepareTupleQuery(sparql);
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("concept", iri(iri));
-      qry.setBinding("imConcept", iri(IM.CONCEPT));
-      qry.setBinding("imHasMap", iri(IM.HAS_MAP));
-      qry.setBinding("rdfsLabel", iri(RDFS.LABEL));
-      qry.setBinding("imContextNode", iri(IM.CONTEXT_NODE));
-      qry.setBinding("imTargetProperty", iri(IM.TARGET_PROPERTY));
-      qry.setBinding("imSourcePublisher", iri(IM.SOURCE_PUBLISHER));
-      qry.setBinding("imSourceSystem", iri(IM.SOURCE_SYSTEM));
-      qry.setBinding("imSourceSchema", iri(IM.SOURCE_SCHEMA));
-      qry.setBinding("imSourceTable", iri(IM.SOURCE_TABLE));
-      qry.setBinding("imSourceField", iri(IM.SOURCE_FIELD));
-      qry.setBinding("imSourceValue", iri(IM.SOURCE_VALUE));
-      qry.setBinding("imSourceRegex", iri(IM.SOURCE_REGEX));
+      qry.setBinding("imConcept", IM.CONCEPT.asDbIri());
+      qry.setBinding("imHasMap", IM.HAS_MAP.asDbIri());
+      qry.setBinding("rdfsLabel", RDFS.LABEL.asDbIri());
+      qry.setBinding("imContextNode", IM.CONTEXT_NODE.asDbIri());
+      qry.setBinding("imTargetProperty", IM.TARGET_PROPERTY.asDbIri());
+      qry.setBinding("imSourcePublisher", IM.SOURCE_PUBLISHER.asDbIri());
+      qry.setBinding("imSourceSystem", IM.SOURCE_SYSTEM.asDbIri());
+      qry.setBinding("imSourceSchema", IM.SOURCE_SCHEMA.asDbIri());
+      qry.setBinding("imSourceTable", IM.SOURCE_TABLE.asDbIri());
+      qry.setBinding("imSourceField", IM.SOURCE_FIELD.asDbIri());
+      qry.setBinding("imSourceValue", IM.SOURCE_VALUE.asDbIri());
+      qry.setBinding("imSourceRegex", IM.SOURCE_REGEX.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

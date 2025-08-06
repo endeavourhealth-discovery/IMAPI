@@ -12,11 +12,11 @@ import java.util.List;
 @NoArgsConstructor
 public class SqlWithSubqueries {
   private String sql;
-  private List<QueryRequest> subqueryRequests;
+  private List<String> subqueryIris;
 
-  public SqlWithSubqueries(String sql, List<QueryRequest> subqueryRequests) {
+  public SqlWithSubqueries(String sql, List<String> subqueryIris) {
     this.sql = sql;
-    this.subqueryRequests = subqueryRequests;
+    this.subqueryIris = subqueryIris;
   }
 
 }

@@ -6,7 +6,9 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -279,7 +281,7 @@ public class TestQueries {
         .setValueIri(TTIriRef.iri("http://snomed.info/sct#363698007")))
       .addArgument(new Argument()
         .setParameter("concept")
-        .setValueIriList(List.of(iri("http://snomed.info/sct#161891005"))))
+        .setValueIriList((Set.of(iri("http://snomed.info/sct#161891005")))))
       .setQuery(new Query()
         .setName("Allowable Properties for medications")
         .setIri(QUERY.IS_VALID_PROPERTY.toString()));

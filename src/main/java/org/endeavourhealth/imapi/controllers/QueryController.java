@@ -356,7 +356,7 @@ public class QueryController {
 
   @PostMapping("/testRunQuery")
   @Operation(summary = "Run a query with results limited results to test query")
-  public List<String> testRunQuery(@RequestBody QueryRequest query) throws IOException, SQLException, SQLConversionException {
+  public List<String> testRunQuery(@RequestBody QueryRequest query) throws IOException, SQLException, SQLConversionException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.TestRunQuery.POST")) {
       log.debug("testRunQuery");
       return queryService.testRunQuery(query.getQuery());

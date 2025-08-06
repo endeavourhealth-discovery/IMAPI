@@ -127,16 +127,24 @@ public class QueryService {
     return connectionManager.publishToQueue(userId, userName, queryRequest);
   }
 
-  public List<String> executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException {
-    log.info("Executing query: {}-{}", queryRequest.getQuery().getIri(), queryRequest.hashCode());
+  public List<String> executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException, QueryException {
+    int qrHashCode = getQueryRequestHashCode(queryRequest);
+    log.info("Executing query: {} with a hash code: {}", queryRequest.getQuery().getIri(), qrHashCode);
 //    TODO: if query has is rules needs to be converted to match based query
     try {
-      List<String> results = queryResultsMap.get(queryRequest.hashCode());
+      List<String> results = queryResultsMap.get(qrHashCode);
       if (results != null) return results;
 
       SqlWithSubqueries sqlWithSubqueries = getSQLFromIMQ(queryRequest);
-      for (QueryRequest qr : sqlWithSubqueries.getSubqueryRequests())
-        executeQuery(qr);
+      for (String subqueryIri : sqlWithSubqueries.getSubqueryIris()) {
+        Query subquery = describeQuery(subqueryIri, DisplayMode.LOGICAL, Graph.SMARTLIFE);
+        QueryRequest subqueryRequest = new QueryRequest().setQuery(subquery);
+        subqueryRequest.setArgument(queryRequest.getArgument());
+        int subqrHashCode = getQueryRequestHashCode(subqueryRequest);
+        executeQuery(subqueryRequest);
+        String updatedSql = sqlWithSubqueries.getSql().replace("query_[" + subqueryIri + "]", String.valueOf(subqrHashCode));
+        sqlWithSubqueries.setSql(updatedSql);
+      }
       results = MYSQLConnectionManager.executeQuery(sqlWithSubqueries.getSql());
       storeQueryResultsAndCache(queryRequest, results);
       return results;
@@ -146,7 +154,20 @@ public class QueryService {
     } catch (SQLException e) {
       log.error("Error executing query: {}", e.getMessage());
       throw e;
+    } catch (QueryException e) {
+      log.error("Error getting query definition: {}", e.getMessage());
+      throw e;
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
     }
+  }
+
+  public int getQueryRequestHashCode(QueryRequest queryRequest) {
+    if (queryRequest.getQueryStringDefinition() == null) {
+      String queryStringDefinition = entityRepository.getQueryStringDefinition(queryRequest.getQuery().getIri(), Graph.IM);
+      queryRequest.setQueryStringDefinition(queryStringDefinition);
+    }
+    return queryRequest.hashCode();
   }
 
   public void storeQueryResultsAndCache(QueryRequest queryRequest, List<String> results) throws SQLException {
@@ -217,7 +238,7 @@ public class QueryService {
     return null;
   }
 
-  public List<String> testRunQuery(Query query) throws SQLException, SQLConversionException {
+  public List<String> testRunQuery(Query query) throws SQLException, SQLConversionException, QueryException {
     QueryRequest queryRequest = new QueryRequest();
     Page page = new Page();
     page.setPageNumber(1);
@@ -245,8 +266,8 @@ public class QueryService {
   public List<ArgumentReference> findMissingArguments(QueryRequest queryRequest) throws JsonProcessingException {
     List<ArgumentReference> missingArguments = new ArrayList<>();
     Query query = queryRequest.getQuery();
-    List<Argument> arguments = queryRequest.getArgument();
-    if (null == arguments) arguments = new ArrayList<>();
+      Set<Argument> arguments = queryRequest.getArgument();
+    if (null == arguments) arguments = new HashSet<>();
     recursivelyCheckQueryArguments(query, missingArguments, arguments);
     if (!missingArguments.isEmpty()) {
       for (ArgumentReference argument : missingArguments) {
@@ -257,20 +278,20 @@ public class QueryService {
     return missingArguments;
   }
 
-  private void recursivelyCheckQueryArguments(Query query, List<ArgumentReference> missingArguments, List<Argument> arguments) {
+  private void recursivelyCheckQueryArguments(Query query, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
     recursivelyCheckMatchArguments(query, missingArguments, arguments);
     if (null != query.getSubquery()) {
       recursivelyCheckQueryArguments(query.getSubquery(), missingArguments, arguments);
     }
   }
 
-  private void recursivelyCheckMatchArguments(Match match, List<ArgumentReference> missingArguments, List<Argument> arguments) {
+  private void recursivelyCheckMatchArguments(Match match, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
     if (null != match.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(match.getParameter()))) {
       addMissingArgument(missingArguments, match.getParameter(), match.getIri());
     }
     if (null != match.getInstanceOf()) {
       List<Node> instances = match.getInstanceOf();
-      instances.stream().forEach(instance -> {
+      instances.forEach(instance -> {
         if (null != instance.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(instance.getParameter()))) {
           addMissingArgument(missingArguments, instance.getParameter(), instance.getIri());
         }
@@ -278,47 +299,47 @@ public class QueryService {
     }
     if (null != match.getAnd()) {
       List<Match> matches = match.getAnd();
-      matches.stream().forEach(andMatch -> recursivelyCheckMatchArguments(andMatch, missingArguments, arguments));
+      matches.forEach(andMatch -> recursivelyCheckMatchArguments(andMatch, missingArguments, arguments));
     }
     if (null != match.getOr()) {
       List<Match> matches = match.getOr();
-      matches.stream().forEach(orMatch -> recursivelyCheckMatchArguments(orMatch, missingArguments, arguments));
+      matches.forEach(orMatch -> recursivelyCheckMatchArguments(orMatch, missingArguments, arguments));
     }
     if (null != match.getNot()) {
       List<Match> matches = match.getNot();
-      matches.stream().forEach(notMatch -> recursivelyCheckMatchArguments(notMatch, missingArguments, arguments));
+      matches.forEach(notMatch -> recursivelyCheckMatchArguments(notMatch, missingArguments, arguments));
     }
     if (null != match.getWhere()) {
       recursivelyCheckWhereArguments(match.getWhere(), missingArguments, arguments);
     }
     if (null != match.getRule()) {
       List<Match> matches = match.getRule();
-      matches.stream().forEach(ruleMatch -> recursivelyCheckMatchArguments(ruleMatch, missingArguments, arguments));
+      matches.forEach(ruleMatch -> recursivelyCheckMatchArguments(ruleMatch, missingArguments, arguments));
     }
   }
 
-  private void recursivelyCheckWhereArguments(Where where, List<ArgumentReference> missingArguments, List<Argument> arguments) {
+  private void recursivelyCheckWhereArguments(Where where, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
     if (null != where.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(where.getParameter()))) {
       missingArguments.add(new ArgumentReference().setParameter(where.getParameter()).setReferenceIri(iri(where.getIri())));
     }
     if (null != where.getAnd()) {
-      where.getAnd().stream().forEach(and -> recursivelyCheckWhereArguments(and, missingArguments, arguments));
+      where.getAnd().forEach(and -> recursivelyCheckWhereArguments(and, missingArguments, arguments));
     }
     if (null != where.getOr()) {
-      where.getOr().stream().forEach(or -> recursivelyCheckWhereArguments(or, missingArguments, arguments));
+      where.getOr().forEach(or -> recursivelyCheckWhereArguments(or, missingArguments, arguments));
     }
     if (null != where.getNot()) {
-      where.getNot().stream().forEach(not -> recursivelyCheckWhereArguments(not, missingArguments, arguments));
+      where.getNot().forEach(not -> recursivelyCheckWhereArguments(not, missingArguments, arguments));
     }
     if (null != where.getIs()) {
-      where.getIs().stream().forEach(is -> {
+      where.getIs().forEach(is -> {
         if (null != is.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(is.getParameter()))) {
           addMissingArgument(missingArguments, is.getParameter(), is.getIri());
         }
       });
     }
     if (null != where.getNotIs()) {
-      where.getNotIs().stream().forEach(notIs -> {
+      where.getNotIs().forEach(notIs -> {
         if (null != notIs.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(notIs.getParameter()))) {
           addMissingArgument(missingArguments, notIs.getParameter(), notIs.getIri());
         }

@@ -1979,4 +1979,25 @@ public class EntityRepository {
     }
     return iriLine.toString();
   }
+
+  public String getQueryStringDefinition(String iri, Graph graph) {
+    String sql = """
+      SELECT ?definition
+      WHERE {
+        ?s im:definition ?definition .
+      }
+      """;
+
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      qry.setBinding("s", iri(iri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          return bs.getValue("definition").stringValue();
+        }
+      }
+    }
+    return null;
+  }
 }

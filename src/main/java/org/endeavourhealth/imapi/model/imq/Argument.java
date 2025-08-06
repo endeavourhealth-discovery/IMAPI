@@ -3,10 +3,10 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 
@@ -16,17 +16,13 @@ public class Argument {
   private String valueData;
   private String valueVariable;
   private TTIriRef valueIri;
-  private List<TTIriRef> valueIriList;
-  private List<String> valueDataList;
+  @Getter
+  private Set<TTIriRef> valueIriList;
+  private Set<String> valueDataList;
   private Object valueObject;
 
 
-
-  public List<TTIriRef> getValueIriList() {
-    return valueIriList;
-  }
-
-  public Argument setValueIriList(List<TTIriRef> valueIriList) {
+  public Argument setValueIriList(Set<TTIriRef> valueIriList) {
     this.valueIriList = valueIriList;
     return this;
   }
@@ -41,25 +37,25 @@ public class Argument {
     return this;
   }
 
-  public List<String> getValueDataList() {
+  public Set<String> getValueDataList() {
     return valueDataList;
   }
 
-  public Argument setValueDataList(List<String> valueDataList) {
+  public Argument setValueDataList(Set<String> valueDataList) {
     this.valueDataList = valueDataList;
     return this;
   }
 
   public Argument addToValueDataList(String value) {
     if (this.valueDataList == null)
-      this.valueDataList = new ArrayList<>();
+      this.valueDataList = new HashSet<>();
     this.valueDataList.add(value);
     return this;
   }
 
   public Argument addToValueIriList(TTIriRef value) {
     if (this.valueIriList == null)
-      this.valueIriList = new ArrayList<>();
+      this.valueIriList = new HashSet<>();
     this.valueIriList.add(value);
     return this;
   }
@@ -99,6 +95,11 @@ public class Argument {
   public Argument setValueData(String valueData) {
     this.valueData = valueData;
     return this;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(parameter, valueData, valueVariable, valueIri != null ? valueIri.getIri() : null, valueIriList, valueDataList, valueObject);
   }
 
 }

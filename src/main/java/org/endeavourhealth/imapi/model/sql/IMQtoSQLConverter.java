@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.nio.file.Files;
@@ -30,7 +31,7 @@ public class IMQtoSQLConverter {
   private QueryRequest queryRequest;
   private String currentDate;
   private final EntityRepository entityRepository = new EntityRepository();
-  private List<QueryRequest> subqueryRequests;
+  private List<String> subqueryIris;
 
   public IMQtoSQLConverter(QueryRequest queryRequest) {
     this.queryRequest = queryRequest;
@@ -38,7 +39,7 @@ public class IMQtoSQLConverter {
     LocalDate today = LocalDate.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     this.currentDate = today.format(formatter);
-    this.subqueryRequests = new ArrayList<>();
+    this.subqueryIris = new ArrayList<>();
 
     try {
       String resourcePath = isPostgreSQL() ? "IMQtoSQL.json" : "IMQtoMYSQL.json";
@@ -79,7 +80,7 @@ public class IMQtoSQLConverter {
         addBooleanMatchesToSQL(qry, definition);
         sql = new StringBuilder(qry.toSql(2));
       }
-      return new SqlWithSubqueries(replaceArgumentsWithValue(sql.toString()), subqueryRequests);
+      return new SqlWithSubqueries(replaceArgumentsWithValue(sql.toString()), subqueryIris);
     } catch (SQLConversionException e) {
       log.error("SQL Conversion Error!");
       throw e;
@@ -298,19 +299,10 @@ public class IMQtoSQLConverter {
     if (instanceOf.isEmpty())
       throw new SQLConversionException("SQL Conversion Error: MatchSet must have at least one element");
     String subQueryIri = instanceOf.getFirst().getIri();
-    String rsltTbl = "query_" + getHashFromQueryIri(subQueryIri);
+    subqueryIris.add(subQueryIri);
+    String rsltTbl = "`query_[" + subQueryIri + "]`";
     qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.getAlias() + ".id");
-    if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".iri IS NULL");
-    qry.getWheres().add(rsltTbl + ".iri = '" + instanceOf.getFirst().getIri() + "'");
-  }
-
-  private Integer getHashFromQueryIri(String subQueryIri) {
-//    SqlWithSubqueries
-//    get query definition
-//    create query request
-//    populate params
-//    generate hash
-    return 1234235342;
+    if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".id IS NULL");
   }
 
   private void convertMatchBoolSubMatch(SQLQuery qry, Match match, Bool bool) throws SQLConversionException {

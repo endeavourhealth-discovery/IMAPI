@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.Consumer;
 @JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "nodeRef", "header","typeOf", "instanceOf","and","or","not","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends IriLD implements BoolGroup<Match>{
+public class Match extends IriLD implements BoolGroup<Match>,HasPaths{
   private Element graph;
   @Getter
   private Where where;

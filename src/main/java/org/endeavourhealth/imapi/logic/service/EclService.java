@@ -101,7 +101,7 @@ public class EclService {
     Query query = eclQuery.getQuery();
     if (query != null && !query.isInvalid()) {
       try {
-        new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL, eclQuery.getGraph());
+        new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL);
       } catch (Exception e) {
         eclQuery.getStatus().setValid(false);
         eclQuery.getStatus().setMessage(e.getMessage());

@@ -213,6 +213,9 @@ public class DataModelRepository {
     if (bs.getValue("minCount") != null) {
       property.setMaxCount(Integer.parseInt(bs.getValue("minCount").stringValue()));
     }
+    if (bs.getValue("definingProperty") != null) {
+      property.setDefiningProperty(true);
+    }
     if (bs.getValue("orderable") != null) {
       getPropertyOrderable(bs, property);
     }
@@ -332,7 +335,7 @@ public class DataModelRepository {
       ?minCount ?maxCount
       ?parameter ?parameterName ?parameterType ?parameterTypeName ?parameterSubtype ?parameterSubtypeName
       ?comment ?propertyDefinition ?units ?unitsName ?operator ?operatorName ?isRelativeValue
-      ?orderable ?ascending ?descending
+      ?orderable ?ascending ?descending ?definingProperty
       WHERE {
         ?entity sh:property ?property.
         ?entity rdfs:label ?entityName.
@@ -351,6 +354,7 @@ public class DataModelRepository {
           ?property sh:path ?path.
           ?path rdf:type ?pathType.
           ?path rdfs:label ?pathName.
+          optional {?path im:definingProperty ?definingProperty.}
           optional {?path im:definition ?propertyDefinition}
           optional {
             ?path im:parameter ?parameter.
@@ -534,30 +538,6 @@ public class DataModelRepository {
     return uiProp;
   }
 
-  public PropertyShape getDefiningProperty(String iri) {
-    String sql = """
-      select ?path ?valueSet
-      where {
-       %s
-       ?iri sh:property ?property.
-       ?property sh:path ?path.
-       ?path im:isA im:definingProperty.
-       ?property sh:class ?valueSet.
-       }
-      """.formatted(valueList("iri", Set.of(iri)));
-    PropertyShape property = new PropertyShape();
-    try (IMDB conn = IMDB.getConnection(Graph.IM)) {
-      TupleQuery qry = conn.prepareTupleSparql(sql);
-      try (TupleQueryResult rs = qry.evaluate()) {
-        while (rs.hasNext()) {
-          BindingSet bs = rs.next();
-          property.setPath(TTIriRef.iri(bs.getValue("path").stringValue()));
-          property.setClazz(new PropertyRange().setIri(bs.getValue("valueSet").stringValue()));
-        }
-      }
-      return property;
-    }
-  }
 
   public TTIriRef getPathDatatype(String iri) {
     String sql = """

@@ -209,10 +209,7 @@ public class DataModelService {
     propertyList.add(propertyDisplay);
   }
 
-  public PropertyShape getDefiningProperty(String iri) {
-    DataModelRepository dataModelRepository= new DataModelRepository();
-    return dataModelRepository.getDefiningProperty(iri);
-  }
+
 
 
   public List<NodeShape> getDataModelPropertiesWithValueType(Set<String> iris, String valueType) {

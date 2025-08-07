@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.Pageable;
+import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
@@ -47,11 +48,11 @@ public class QueryService {
   private Map<Integer, List<String>> queryResultsMap = new HashMap<>();
 
   public Query describeQuery(Query query, DisplayMode displayMode, Graph graph) throws QueryException, JsonProcessingException {
-    return new QueryDescriptor().describeQuery(query, displayMode, graph);
+    return new QueryDescriptor().describeQuery(query, displayMode);
   }
 
   public Match describeMatch(Match match, Graph graph) throws QueryException {
-    return new QueryDescriptor().describeSingleMatch(match, null, graph);
+    return new QueryDescriptor().describeSingleMatch(match, null);
   }
 
   public Query describeQuery(String queryIri, DisplayMode displayMode, Graph graph) throws JsonProcessingException, QueryException {
@@ -358,4 +359,49 @@ public class QueryService {
     }
     return dataModelRepository.getPathDatatype(referenceIri);
   }
+
+
+
+  private NodeShape getTypeFromPath(Path path,Set<String> nodeRefs) {
+    if (path.getVariable()!=null) {
+      if (nodeRefs.contains(path.getVariable())) {
+            return dataModelRepository.getDataModelDisplayProperties(path.getTypeOf().getIri(), false, Graph.IM);
+          }
+          if(path.getPath()!=null){
+            for (Path subPath : path.getPath()) {
+              NodeShape nodeShape = getTypeFromPath(subPath,nodeRefs);
+              if (nodeShape != null) return nodeShape;
+            }
+          }
+        }
+      return null;
+  }
+
+  private void getNodeRefs(Match match, Set<String> nodeRefs) {
+    Where where = match.getWhere();
+    if (where != null) {
+      if (where.getNodeRef()!=null){
+        nodeRefs.add(where.getNodeRef());
+      }
+      for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr(), where.getNot())) {
+        if (whereList!=null){
+          for (Where subWhere:whereList)
+            getNodeRefs(subWhere,nodeRefs);
+        }
+      }
+    }
+  }
+
+  private void getNodeRefs(Where where, Set<String> nodeRefs) {
+    if (where.getNodeRef()!=null){
+      nodeRefs.add(where.getNodeRef());
+    }
+    for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr(), where.getNot())) {
+      if (whereList!=null){
+        for (Where subWhere:whereList)
+          getNodeRefs(subWhere,nodeRefs);
+      }
+    }
+  }
+
 }

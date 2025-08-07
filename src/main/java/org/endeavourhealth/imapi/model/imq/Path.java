@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class Path extends Element {
+public class Path extends Element implements HasPaths{
   @Getter
   private boolean inverse;
   @Getter

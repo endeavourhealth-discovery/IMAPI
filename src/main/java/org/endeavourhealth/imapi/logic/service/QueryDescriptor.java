@@ -22,6 +22,7 @@ public class QueryDescriptor {
   private final EntityRepository entityRepository = new EntityRepository();
   private final EntityRepository repo = new EntityRepository();
   private Map<String, TTEntity> iriContext;
+  private StringBuilder shortDescription = new StringBuilder();
 
   public Query describeQuery(String queryIri, DisplayMode displayMode, Graph graph) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
@@ -29,19 +30,19 @@ public class QueryDescriptor {
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
     if (query.getIri() == null)
       query.setIri(queryIri);
-    query = describeQuery(query, displayMode, graph);
+    query = describeQuery(query, displayMode);
     queryCache.put(queryIri, new ObjectMapper().writeValueAsString(query));
     return query;
   }
 
-  public Match describeSingleMatch(Match match, String typeOf,Graph graph) throws QueryException {
-    setIriNames(match, graph);
+  public Match describeSingleMatch(Match match, String typeOf) throws QueryException {
+    setIriNames(match);
     describeMatch(match,typeOf);
     return match;
   }
 
-  public Query describeQuery(Query query, DisplayMode displayMode, Graph graph) throws QueryException, JsonProcessingException {
-    setIriNames(query, graph);
+  public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
+    setIriNames(query);
     if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
     if (displayMode == DisplayMode.RULES && query.getRule() == null) {
       new LogicOptimizer().getRulesFromLogic(query);
@@ -72,10 +73,10 @@ public class QueryDescriptor {
     }
   }
 
-  private void setIriNames(Match match, Graph graph) throws QueryException {
+  private void setIriNames(Match match) throws QueryException {
     Set<String> iriSet = IriCollector.collectIris(match);
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL), graph);
+      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL),Graph.IM);
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
@@ -113,9 +114,9 @@ public class QueryDescriptor {
       }
     }
     if (entity != null) {
-      if (entity.get(iri(Namespace.IM + "displayLabel")) != null) {
-        term.setLength(0);
-      }
+     // if (entity.get(iri(Namespace.IM + "displayLabel")) != null) {
+       // term.setLength(0);
+     // }
       if (entity.get(iri(IM.PREPOSITION)) != null) {
         term.append(" ").append(entity.get(iri(IM.PREPOSITION)).asLiteral().getValue());
       }
@@ -307,6 +308,7 @@ public class QueryDescriptor {
     if (orderBy.getLimit() > 1)
       orderDisplay = orderDisplay + " " + orderBy.getLimit();
     orderBy.setDescription(orderDisplay);
+    shortDescription.append(orderDisplay);
   }
 
   private Where getConceptWhere(List<Where> wheres) {
@@ -601,6 +603,9 @@ public class QueryDescriptor {
       valueLabel.append(set.getQualifier() != null ? set.getQualifier() + " " : "").append(set.getName());
     }
     where.setValueLabel(valueLabel.toString());
+    if (where.getShortLabel()!=null)
+      shortDescription.append(where.getShortLabel()).append(" ");
+    else shortDescription.append(where.getValueLabel()).append(" ");
   }
 
   public void generateUUIDs(Match match) {
@@ -630,6 +635,18 @@ public class QueryDescriptor {
         }
       }
     }
+  }
+  public String getShortDescription(Match match) throws QueryException {
+    shortDescription = new StringBuilder();
+    setIriNames(match);
+    if (match.getOrderBy() != null) {
+      describeOrderBy(match.getOrderBy());
+      shortDescription.append(" ");
+    }
+    if (match.getWhere() != null) {
+      describeWhere(match.getWhere());
+    }
+    return shortDescription.toString();
   }
 }
 

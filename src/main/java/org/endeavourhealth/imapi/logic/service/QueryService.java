@@ -116,6 +116,15 @@ public class QueryService {
     postgresService.create(entry);
   }
 
+  public UUID reAddToExecutionQueue(UUID userId, String userName, RequeueQueryRequest requeueQueryRequest) throws Exception {
+    DBEntry entry = postgresService.getById(requeueQueryRequest.getQueueId());
+    if (!QueryExecutorStatus.QUEUED.equals(entry.getStatus()) && !QueryExecutorStatus.RUNNING.equals(entry.getStatus())) {
+      QueryRequest queryRequest = requeueQueryRequest.getQueryRequest();
+      return addToExecutionQueue(userId, userName, queryRequest);
+    }
+    return null;
+  }
+
   public UUID addToExecutionQueue(UUID userId, String userName, QueryRequest queryRequest) throws Exception {
     try {
       getSQLFromIMQ(queryRequest);
@@ -266,7 +275,7 @@ public class QueryService {
   public List<ArgumentReference> findMissingArguments(QueryRequest queryRequest) throws JsonProcessingException {
     List<ArgumentReference> missingArguments = new ArrayList<>();
     Query query = queryRequest.getQuery();
-      Set<Argument> arguments = queryRequest.getArgument();
+    Set<Argument> arguments = queryRequest.getArgument();
     if (null == arguments) arguments = new HashSet<>();
     recursivelyCheckQueryArguments(query, missingArguments, arguments);
     if (!missingArguments.isEmpty()) {

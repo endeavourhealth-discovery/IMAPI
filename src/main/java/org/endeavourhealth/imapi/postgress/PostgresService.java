@@ -57,7 +57,13 @@ public class PostgresService {
     return PostgresRepository.save(dbEntry);
   }
 
-  public void delete(UUID id) throws SQLException {
+  public void delete(UUID userId, UUID id) throws SQLException, JsonProcessingException {
+    DBEntry entry = getById(id);
+    if (!userId.equals(entry.getUserId())) {
+      throw new IllegalArgumentException("Can only delete a query that belongs to the user making the request.");
+    } else if (!QueryExecutorStatus.CANCELLED.equals(entry.getStatus()) && QueryExecutorStatus.ERRORED.equals(entry.getStatus())) {
+      throw new IllegalArgumentException("Can only delete an item that has already been cancelled or has errored.");
+    }
     PostgresRepository.deleteById(id);
   }
 

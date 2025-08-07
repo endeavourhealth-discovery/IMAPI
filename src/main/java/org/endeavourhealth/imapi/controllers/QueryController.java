@@ -285,12 +285,8 @@ public class QueryController {
   public void deleteFromQueue(HttpServletRequest request, @RequestParam(name = "id") UUID id) throws IOException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DeleteFromQueue.DELETE")) {
       log.debug("deleteFromQueue");
-      DBEntry entry = postgresService.getById(id);
       UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
-      if (!userId.equals(entry.getUserId())) {
-        throw new IllegalArgumentException("Can only delete a query that belongs to the user making the request.");
-      }
-      postgresService.delete(id);
+      postgresService.delete(userId, id);
     }
   }
 
@@ -301,13 +297,10 @@ public class QueryController {
   public void requeueQuery(HttpServletRequest request, @RequestBody RequeueQueryRequest requeueQueryRequest) throws Exception, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.RequeueQuery.POST")) {
       log.debug("requeueQuery");
-      DBEntry entry = postgresService.getById(requeueQueryRequest.getQueueId());
-      if (QueryExecutorStatus.CANCELLED.equals(entry.getStatus()) || QueryExecutorStatus.ERRORED.equals(entry.getStatus())) {
-        postgresService.delete(requeueQueryRequest.getQueueId());
-        UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
-        String userName = requestObjectService.getRequestAgentName(request);
-        queryService.addToExecutionQueue(userId, userName, requeueQueryRequest.getQueryRequest());
-      }
+      UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
+      String userName = requestObjectService.getRequestAgentName(request);
+      postgresService.delete(userId, requeueQueryRequest.getQueueId());
+      queryService.reAddToExecutionQueue(userId, userName, requeueQueryRequest);
     }
   }
 

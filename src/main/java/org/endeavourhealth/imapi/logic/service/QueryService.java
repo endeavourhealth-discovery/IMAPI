@@ -24,6 +24,8 @@ import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
 import org.endeavourhealth.imapi.postgress.PostgresService;
 import org.endeavourhealth.imapi.rabbitmq.ConnectionManager;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.websocket.WebSocketController;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
@@ -45,6 +47,8 @@ public class QueryService {
   private ConnectionManager connectionManager;
   private ObjectMapper objectMapper = new ObjectMapper();
   private PostgresService postgresService = new PostgresService();
+  @Autowired
+  private WebSocketController webSocketController;
   private Map<Integer, List<String>> queryResultsMap = new HashMap<>();
 
   public static void generateUUIdsForQuery(Query query) {
@@ -106,7 +110,7 @@ public class QueryService {
     return getSQLFromIMQ(queryRequest, iriToUuidMap);
   }
 
-  public void handleSQLConversionException(UUID userId, String userName, QueryRequest queryRequest, String error) throws SQLException {
+  public void handleSQLConversionException(UUID userId, String userName, QueryRequest queryRequest, String error) throws SQLException, JsonProcessingException {
     DBEntry entry = new DBEntry()
       .setId(UUID.randomUUID())
       .setQueryRequest(queryRequest)
@@ -119,6 +123,7 @@ public class QueryService {
       .setKilledAt(LocalDateTime.now())
       .setError(error);
     postgresService.create(entry);
+    webSocketController.updateUserQueryQueue(userId);
   }
 
   public void addToExecutionQueue(UUID userId, String userName, QueryRequest queryRequest) throws Exception {

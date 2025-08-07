@@ -23,10 +23,10 @@ import org.endeavourhealth.imapi.postgress.PostgresService;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.websocket.WebSocketController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
@@ -51,9 +51,8 @@ public class QueryController {
   private final SearchService searchService = new SearchService();
   private final QueryService queryService = new QueryService();
   private final PostgresService postgresService = new PostgresService();
-
   @Autowired
-  private SimpMessagingTemplate simpMessagingTemplate;
+  private WebSocketController webSocketController;
 
   @PostMapping("/public/queryIM")
   @Operation(
@@ -282,12 +281,14 @@ public class QueryController {
   @Operation(
     summary = "Cancel a query from running either whilst in the queue or runner using the query uuid"
   )
-  public void cancelQuery(@RequestBody UUIDBody id) throws IOException, SQLException {
+  public void cancelQuery(HttpServletRequest request, @RequestBody UUIDBody id) throws IOException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.CancelQuery.POST")) {
       log.debug("cancelQuery");
+      UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
       DBEntry entry = postgresService.getById(id.getValue());
       entry.setStatus(QueryExecutorStatus.CANCELLED);
       postgresService.update(entry);
+      webSocketController.updateUserQueryQueue(userId);
     }
   }
 

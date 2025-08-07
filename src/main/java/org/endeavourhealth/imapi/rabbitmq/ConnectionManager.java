@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.postgress.PostgresService;
+import org.endeavourhealth.imapi.websocket.WebSocketController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpAdmin;
@@ -17,6 +18,7 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.Connection;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -34,7 +36,10 @@ public class ConnectionManager {
   private Logger LOG = LoggerFactory.getLogger(ConnectionManager.class);
   private ObjectMapper om = new ObjectMapper();
   private QueryService queryService = new QueryService();
-  private PostgresService postgresService = new PostgresService();
+  @Autowired
+  private PostgresService postgresService;
+  @Autowired
+  private WebSocketController webSocketController;
 
   public ConnectionManager() throws IOException, TimeoutException {
     connectionFactory = new CachingConnectionFactory();
@@ -104,6 +109,11 @@ public class ConnectionManager {
         throw new RuntimeException(e);
       }
       try {
+        webSocketController.updateUserQueryQueue(uuid);
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
+      try {
         QueryRequest queryRequest = om.readValue(message, QueryRequest.class);
         if (null == queryService) {
           queryService = new QueryService();
@@ -111,6 +121,11 @@ public class ConnectionManager {
         queryService.executeQuery(queryRequest);
         entry.setStatus(QueryExecutorStatus.COMPLETED);
         postgresService.update(entry);
+        try {
+          webSocketController.updateUserQueryQueue(uuid);
+        } catch (SQLException e) {
+          throw new RuntimeException(e);
+        }
       } catch (Exception | SQLConversionException e) {
         entry.setStatus(QueryExecutorStatus.ERRORED);
         entry.setError(e.getMessage());
@@ -118,6 +133,11 @@ public class ConnectionManager {
           postgresService.update(entry);
         } catch (SQLException ex) {
           throw new RuntimeException(ex);
+        }
+        try {
+          webSocketController.updateUserQueryQueue(uuid);
+        } catch (SQLException err) {
+          throw new RuntimeException(err);
         }
       }
     };
@@ -145,6 +165,7 @@ public class ConnectionManager {
       .setUserName(userName)
       .setQueuedAt(LocalDateTime.now());
     postgresService.create(entry);
+    webSocketController.updateUserQueryQueue(id);
     channel.basicPublish(EXCHANGE_NAME, "query.execute." + userId, properties, jsonMessage.getBytes());
     channel.waitForConfirmsOrDie(5_000);
   }

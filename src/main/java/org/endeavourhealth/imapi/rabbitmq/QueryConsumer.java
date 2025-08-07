@@ -16,9 +16,10 @@ public class QueryConsumer implements ApplicationListener<ContextRefreshedEvent>
   private Logger LOG = LoggerFactory.getLogger(QueryConsumer.class);
 
   @Autowired
-  private ConnectionManager connectionManager = new ConnectionManager();
+  private ConnectionManager connectionManager;
 
-  private PostgresService postgresService = new PostgresService();
+  @Autowired
+  private PostgresService postgresService;
 
   public QueryConsumer() throws IOException, TimeoutException {
   }

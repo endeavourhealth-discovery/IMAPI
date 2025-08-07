@@ -58,6 +58,11 @@ public class SecurityConfig {
       .requestMatchers(HttpMethod.GET, "/index.html").permitAll()
       .requestMatchers(HttpMethod.GET, "/api/status/public/**").permitAll()
       .requestMatchers(HttpMethod.GET, "/api/cognito/public/config").permitAll()
+      .requestMatchers("/ws/**").permitAll()
+      .requestMatchers("/ws/info/**").permitAll()
+      .requestMatchers("/ws/**").permitAll()
+      .requestMatchers("/imapi/ws/**").permitAll()
+      .requestMatchers("/imapi/ws/info/**").permitAll()
       .anyRequest().authenticated();
   }
 

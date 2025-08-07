@@ -4,19 +4,26 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class WebsocketDTO {
+public class WebSocketDTO {
   private String toUser;
   private Object content;
 
-  public WebsocketDTO setToUser(String user) {
+  public WebSocketDTO setToUser(String user) {
     this.toUser = user;
     return this;
   }
 
-  public WebsocketDTO setContent(Object content) {
+  public WebSocketDTO setToUser(UUID user) {
+    this.toUser = user.toString();
+    return this;
+  }
+
+  public WebSocketDTO setContent(Object content) {
     this.content = content;
     return this;
   }

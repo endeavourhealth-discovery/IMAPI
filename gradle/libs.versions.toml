@@ -39,6 +39,7 @@ sockJSClient = "1.5.1"
 spring = "3.4.5"
 springContext = "6.2.5"
 springdoc = "2.8.6"
+springMessaging = "6.5.2"
 springTestSecurity = "6.2.0"
 stompWebsocket = "2.3.4"
 systemStubs = "2.1.7"
@@ -96,7 +97,7 @@ spring-dev-tools = { module = "org.springframework.boot:spring-boot-devtools", v
 springdoc = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
 spring-oauth-server = { module = "org.springframework.boot:spring-boot-starter-oauth2-resource-server", version.ref = "spring" }
 spring-security = { module = "org.springframework.boot:spring-boot-starter-security", version.ref = "spring" }
-spring-security-messaging = { module = "org.springgramework.boot:spring-security-messaging", version.ref = "spring" }
+spring-security-messaging = { module = "org.springframework.security:spring-security-messaging", version.ref = "springMessaging" }
 spring-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat", version.ref = "spring" }
 spring-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "spring" }
 spring-websocket = { module = "org.springframework.boot:spring-boot-starter-websocket", version.ref = "spring" }

@@ -26,7 +26,7 @@ public class QueryServiceTest {
     for (TTIriRef ref : queries) {
       System.out.println("Testing " + ref.getName() + " " + ref.getIri());
       try {
-        String sql = queryService.getSQLFromIMQIri(ref.getIri(), DatabaseOption.MYSQL, new HashMap<>(), null);
+        String sql = queryService.getSQLFromIMQIri(ref.getIri(), DatabaseOption.MYSQL, null).getSql();
         assertNotNull(sql);
         if (!sql.startsWith("org.endeavourhealth.imapi.errorhandling.SQLConversionException")) {
           System.out.println("OK");

@@ -18,21 +18,25 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Getter
 public class QueryRequest implements ContextMap {
-
-
   private String name;
   private Page page;
   private Map<String, String> context;
   private String textSearch;
-  private List<Argument> argument;
+  private Set<Argument> argument;
   @JsonProperty(required = true)
   private Query query;
   private PathQuery pathQuery;
   private Update update;
   private String referenceDate;
+  @Getter
+  @Setter
+  private String baselineDate;
+  @Getter
+  @Setter
+  private String queryStringDefinition;
   private String askIri;
   private List<Map<Long, String>> timings = new ArrayList<>();
-  private List<TTIriRef> cohort;
+  private Set<TTIriRef> cohort;
   @Setter
   private boolean includeNames;
   @Setter
@@ -44,14 +48,14 @@ public class QueryRequest implements ContextMap {
   public QueryRequest() {
   }
 
-  public QueryRequest setCohort(List<TTIriRef> cohort) {
+  public QueryRequest setCohort(Set<TTIriRef> cohort) {
     this.cohort = cohort;
     return this;
   }
 
   public QueryRequest addToCohort(TTIriRef cohort) {
     if (this.cohort == null) {
-      this.cohort = new ArrayList<>();
+      this.cohort = new HashSet<>();
     }
     this.cohort.add(cohort);
     return this;
@@ -103,14 +107,14 @@ public class QueryRequest implements ContextMap {
   }
 
   @JsonSetter
-  public QueryRequest setArgument(List<Argument> argument) {
+  public QueryRequest setArgument(Set<Argument> argument) {
     this.argument = argument;
     return this;
   }
 
   public QueryRequest addArgument(Argument argument) {
     if (this.argument == null)
-      this.argument = new ArrayList<>();
+      this.argument = new HashSet<>();
     this.argument.add(argument);
     return this;
   }
@@ -239,5 +243,10 @@ public class QueryRequest implements ContextMap {
   public QueryRequest setGraph(Graph graph) {
     this.graph = graph;
     return this;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(queryStringDefinition, referenceDate, baselineDate, argument, cohort);
   }
 }

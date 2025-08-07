@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DeliverCallback;
+import lombok.Getter;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.postgress.PostgresService;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpAdmin;
@@ -32,6 +34,7 @@ public class ConnectionManager {
   private static final String EXCHANGE_NAME = "query_runner";
   private static final String QUEUE_NAME = "query.execute";
   private CachingConnectionFactory connectionFactory;
+  @Getter
   private Connection connection;
   private Logger LOG = LoggerFactory.getLogger(ConnectionManager.class);
   private ObjectMapper om = new ObjectMapper();
@@ -47,10 +50,6 @@ public class ConnectionManager {
     connectionFactory.setUsername(System.getenv("RABBITMQ_USERNAME"));
     connectionFactory.setPassword(System.getenv("RABBITMQ_PASSWORD"));
     connection = connectionFactory.createConnection();
-  }
-
-  public Connection getConnection() {
-    return connection;
   }
 
   public Channel getPublisherChannel(UUID userId) throws IOException {
@@ -76,6 +75,7 @@ public class ConnectionManager {
   }
 
   public void createConsumerChannel(PostgresService postgresService) throws IOException {
+    Graph graph = Graph.IM;
     createExchange();
     Channel channel = getConnection().createChannel(false);
     channel.exchangeDeclare(EXCHANGE_NAME, "topic", true);
@@ -111,7 +111,7 @@ public class ConnectionManager {
         if (null == queryService) {
           queryService = new QueryService();
         }
-        queryService.executeQuery(queryRequest);
+        queryService.executeQuery(queryRequest, graph);
         entry.setStatus(QueryExecutorStatus.COMPLETED);
         postgresService.update(entry);
       } catch (Exception | SQLConversionException e) {
@@ -154,7 +154,6 @@ public class ConnectionManager {
     postgresService.create(entry);
     channel.basicPublish(EXCHANGE_NAME, "query.execute." + userId, properties, jsonMessage.getBytes());
     channel.waitForConfirmsOrDie(5_000);
-
     return id;
   }
 }

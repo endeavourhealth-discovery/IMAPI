@@ -136,7 +136,7 @@ public class QueryService {
     return connectionManager.publishToQueue(userId, userName, queryRequest);
   }
 
-  public List<String> executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException, QueryException {
+  public List<String> executeQuery(QueryRequest queryRequest, Graph graph) throws SQLConversionException, SQLException, QueryException {
     int qrHashCode = getQueryRequestHashCode(queryRequest);
     log.info("Executing query: {} with a hash code: {}", queryRequest.getQuery().getIri(), qrHashCode);
 //    TODO: if query has is rules needs to be converted to match based query
@@ -146,11 +146,11 @@ public class QueryService {
 
       SqlWithSubqueries sqlWithSubqueries = getSQLFromIMQ(queryRequest);
       for (String subqueryIri : sqlWithSubqueries.getSubqueryIris()) {
-        Query subquery = describeQuery(subqueryIri, DisplayMode.LOGICAL, Graph.SMARTLIFE);
+        Query subquery = describeQuery(subqueryIri, DisplayMode.LOGICAL, graph);
         QueryRequest subqueryRequest = new QueryRequest().setQuery(subquery);
         subqueryRequest.setArgument(queryRequest.getArgument());
         int subqrHashCode = getQueryRequestHashCode(subqueryRequest);
-        executeQuery(subqueryRequest);
+        executeQuery(subqueryRequest, graph);
         String updatedSql = sqlWithSubqueries.getSql().replace("query_[" + subqueryIri + "]", String.valueOf(subqrHashCode));
         sqlWithSubqueries.setSql(updatedSql);
       }
@@ -247,14 +247,14 @@ public class QueryService {
     return null;
   }
 
-  public List<String> testRunQuery(Query query) throws SQLException, SQLConversionException, QueryException {
+  public List<String> testRunQuery(Query query, Graph graph) throws SQLException, SQLConversionException, QueryException {
     QueryRequest queryRequest = new QueryRequest();
     Page page = new Page();
     page.setPageNumber(1);
     page.setPageSize(10);
     queryRequest.setPage(page);
     queryRequest.setQuery(query);
-    return executeQuery(queryRequest);
+    return executeQuery(queryRequest, graph);
   }
 
   public Query flattenQuery(Query query) throws JsonProcessingException {

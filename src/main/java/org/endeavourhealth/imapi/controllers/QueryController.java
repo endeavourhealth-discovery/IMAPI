@@ -352,7 +352,8 @@ public class QueryController {
   public List<String> testRunQuery(@RequestBody QueryRequest query) throws IOException, SQLException, SQLConversionException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.TestRunQuery.POST")) {
       log.debug("testRunQuery");
-      return queryService.testRunQuery(query.getQuery());
+      Graph graph = Graph.IM;
+      return queryService.testRunQuery(query.getQuery(), graph);
     }
   }
 

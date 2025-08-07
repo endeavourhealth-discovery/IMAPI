@@ -119,6 +119,7 @@ public class QueryService {
   public UUID reAddToExecutionQueue(UUID userId, String userName, RequeueQueryRequest requeueQueryRequest) throws Exception {
     DBEntry entry = postgresService.getById(requeueQueryRequest.getQueueId());
     if (!QueryExecutorStatus.QUEUED.equals(entry.getStatus()) && !QueryExecutorStatus.RUNNING.equals(entry.getStatus())) {
+      postgresService.delete(userId, requeueQueryRequest.getQueueId());
       QueryRequest queryRequest = requeueQueryRequest.getQueryRequest();
       return addToExecutionQueue(userId, userName, queryRequest);
     }
@@ -141,7 +142,7 @@ public class QueryService {
     log.info("Executing query: {} with a hash code: {}", queryRequest.getQuery().getIri(), qrHashCode);
 //    TODO: if query has is rules needs to be converted to match based query
     try {
-      List<String> results = queryResultsMap.get(qrHashCode);
+      List<String> results = getQueryResults(queryRequest);
       if (results != null) return results;
 
       SqlWithSubqueries sqlWithSubqueries = getSQLFromIMQ(queryRequest);
@@ -184,26 +185,12 @@ public class QueryService {
     MYSQLConnectionManager.saveResults(queryRequest.hashCode(), results);
   }
 
-  public List<String> getQueryResults(QueryRequest queryRequest) throws SQLConversionException, SQLException {
-    return queryResultsMap.get(queryRequest.hashCode());
-  }
-
-  public Pageable<String> getQueryResultsPaged(QueryRequest queryRequest) throws SQLConversionException, SQLException {
-    List<String> results = queryResultsMap.get(queryRequest.hashCode());
-    if (results == null) return null;
-    if (queryRequest.getPage().getPageNumber() > 0 && queryRequest.getPage().getPageSize() > 0) {
-      Pageable<String> pageable = new Pageable<>();
-      pageable.setPageSize(queryRequest.getPage().getPageSize());
-      pageable.setCurrentPage(queryRequest.getPage().getPageNumber());
-      if (queryRequest.getPage().getPageSize() < results.size()) {
-        List<String> subList = results.subList((queryRequest.getPage().getPageNumber() - 1) * queryRequest.getPage().getPageSize(), queryRequest.getPage().getPageSize());
-        pageable.setResult(subList);
-      } else {
-        pageable.setResult(results);
-      }
-      return pageable;
-    }
-    throw new IllegalArgumentException("Page number and page size are required");
+  public List<String> getQueryResults(QueryRequest queryRequest) throws SQLException {
+    int hashCode = getQueryRequestHashCode(queryRequest);
+    List<String> queryResults = queryResultsMap.get(hashCode);
+    if (queryResults != null) return queryResults;
+    if (!MYSQLConnectionManager.tableExists(hashCode)) return null;
+    return MYSQLConnectionManager.getResults(queryRequest);
   }
 
   public void killActiveQuery() throws SQLException {

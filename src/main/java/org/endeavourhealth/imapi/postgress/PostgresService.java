@@ -61,7 +61,7 @@ public class PostgresService {
     DBEntry entry = getById(id);
     if (!userId.equals(entry.getUserId())) {
       throw new IllegalArgumentException("Can only delete a query that belongs to the user making the request.");
-    } else if (!QueryExecutorStatus.CANCELLED.equals(entry.getStatus()) && !QueryExecutorStatus.ERRORED.equals(entry.getStatus())) {
+    } else if (QueryExecutorStatus.QUEUED.equals(entry.getStatus()) || QueryExecutorStatus.RUNNING.equals(entry.getStatus())) {
       throw new IllegalArgumentException("Can only delete an item that has already been cancelled or has errored.");
     }
     PostgresRepository.deleteById(id);

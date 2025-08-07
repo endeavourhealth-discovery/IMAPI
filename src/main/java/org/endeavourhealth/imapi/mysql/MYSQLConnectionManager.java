@@ -95,4 +95,32 @@ public class MYSQLConnectionManager {
     }
 
   }
+
+  public static List<String> getResults(QueryRequest queryRequest) throws SQLException {
+    List<String> ids = new ArrayList<>();
+    try (Connection getResultsConnection = getConnection()) {
+      try (Statement statement = getResultsConnection.createStatement()) {
+        String sql = "SELECT id FROM `" + queryRequest.hashCode() + "`";
+        if (queryRequest.getPage() != null && queryRequest.getPage().getPageNumber() > 0 && queryRequest.getPage().getPageSize() > 0) {
+          int offset = (queryRequest.getPage().getPageNumber() - 1) * queryRequest.getPage().getPageSize();
+          sql = sql + " LIMIT " + queryRequest.getPage().getPageSize() + " OFFSET " + offset + ";";
+        } else sql = sql + ";";
+        ResultSet resultSet = statement.executeQuery(sql);
+        while (resultSet.next()) {
+          ids.add(resultSet.getString("id"));
+        }
+      }
+    }
+    return ids;
+  }
+
+  public static boolean tableExists(int hashCode) throws SQLException {
+    try (Connection checkTableConnection = getConnection()) {
+      DatabaseMetaData meta = checkTableConnection.getMetaData();
+      try (ResultSet rs = meta.getTables(null, null, String.valueOf("`" + hashCode + "`"), new String[]{"TABLE"})) {
+        return rs.next();
+      }
+    }
+
+  }
 }

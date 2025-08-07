@@ -299,7 +299,6 @@ public class QueryController {
       log.debug("requeueQuery");
       UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
       String userName = requestObjectService.getRequestAgentName(request);
-      postgresService.delete(userId, requeueQueryRequest.getQueueId());
       queryService.reAddToExecutionQueue(userId, userName, requeueQueryRequest);
     }
   }
@@ -324,17 +323,6 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQueryResults.GET")) {
       log.debug("getQueryResults");
       return queryService.getQueryResults(queryRequest);
-    }
-  }
-
-  @PostMapping("/getQueryResultsPaged")
-  @Operation(
-    summary = "Get paged query results using a hash of the query request"
-  )
-  public Pageable<String> getQueryResultsPaged(@RequestBody QueryRequest queryRequest) throws IOException, SQLException, SQLConversionException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQueryResults.GET")) {
-      log.debug("getQueryResultsPaged");
-      return queryService.getQueryResultsPaged(queryRequest);
     }
   }
 

@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.sql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import openllet.shared.tools.Log;
 import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
@@ -595,6 +596,8 @@ public class IMQtoSQLConverter {
         return results;
       }
     } catch (SQLException e) {
+      log.error("Error running SQL [{}]", sql);
+      e.printStackTrace();
       throw new SQLConversionException("SQL Conversion Error: SQLException for getting im1ids\n" + StringUtils.join(im1ids, ","), e);
     }
   }

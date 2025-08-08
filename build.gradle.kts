@@ -168,7 +168,6 @@ dependencies {
   implementation(libs.validation)
   implementation(libs.woodstox)
   implementation(libs.wsrs)
-  implementation(libs.mysqlConncector)
 
   runtimeOnly(libs.h2database)
   runtimeOnly(libs.spring.dev.tools)
@@ -184,6 +183,7 @@ dependencies {
 
   providedCompile(libs.spring.tomcat)
 
+  compileOnly(libs.mysqlConncector)
   compileOnly(libs.postgres)
   compileOnly(libs.jackson.annotations)
   compileOnly(libs.lombok)

@@ -148,7 +148,6 @@ dependencies {
   implementation(libs.mysql)
   implementation(libs.owl.api)
   implementation(libs.open.llet)
-  implementation(libs.postgres)
   implementation(libs.rabbitmq.amqp.client)
   implementation(libs.reactor.core)
   implementation(libs.rdf4j.common)
@@ -185,6 +184,7 @@ dependencies {
 
   providedCompile(libs.spring.tomcat)
 
+  compileOnly(libs.postgres)
   compileOnly(libs.jackson.annotations)
   compileOnly(libs.lombok)
 

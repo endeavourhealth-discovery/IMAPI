@@ -595,7 +595,7 @@ public class IMQtoSQLConverter {
         return results;
       }
     } catch (SQLException e) {
-      throw new SQLConversionException("SQL Conversion Error: SQLException for getting im1ids\n" + StringUtils.join(im1ids, ","));
+      throw new SQLConversionException("SQL Conversion Error: SQLException for getting im1ids\n" + StringUtils.join(im1ids, ","), e);
     }
   }
 }

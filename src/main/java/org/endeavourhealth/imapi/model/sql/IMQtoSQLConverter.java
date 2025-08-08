@@ -82,7 +82,7 @@ public class IMQtoSQLConverter {
       }
       return new SqlWithSubqueries(replaceArgumentsWithValue(sql.toString()), subqueryIris);
     } catch (SQLConversionException e) {
-      log.error("SQL Conversion Error!");
+      log.error("SQL Conversion Error: {}", e.getMessage());
       throw e;
     }
   }

@@ -1887,12 +1887,12 @@ public class EntityRepository {
   }
 
   public List<String> getIM1Ids(List<String> iris) {
+    List<String> result = new ArrayList<>();
     String spq = """
       SELECT ?s ?im1id WHERE {
         VALUES ?s {%s}
         ?s im:im1Id ?im1id .
       }""".formatted(getIriLine(iris));
-    List<String> result = new ArrayList<>();
     try (IMDB conn = IMDB.getConnection(Graph.IM)) {
       TupleQuery qry = conn.prepareTupleSparql(spq);
       try (TupleQueryResult rs = qry.evaluate()) {

@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.Context;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.utility.Pluraliser;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -103,11 +104,11 @@ public class QueryDescriptor {
       if (context == Context.PLURAL) {
         if (entity != null) {
           if (entity.get(iri(Namespace.IM + "plural")) == null) {
-            if (!term.toString().toLowerCase().endsWith("s")) term.append("s");
+            term = new StringBuilder(Pluraliser.pluralise(term.toString()));
           } else {
             term = new StringBuilder(entity.get(iri(Namespace.IM + "plural")).asLiteral().getValue());
           }
-        } else if (!term.toString().toLowerCase().endsWith("s")) term.append("s");
+        } else  term = new StringBuilder(Pluraliser.pluralise(term.toString()));
       }
       if (context == Context.LOWERCASE) {
         term = new StringBuilder(term.toString().toLowerCase());

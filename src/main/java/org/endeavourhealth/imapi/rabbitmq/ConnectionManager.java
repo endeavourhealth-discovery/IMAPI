@@ -114,7 +114,7 @@ public class ConnectionManager {
         queryService.executeQuery(queryRequest, graph);
         entry.setStatus(QueryExecutorStatus.COMPLETED);
         postgresService.update(entry);
-      } catch (Exception | SQLConversionException e) {
+      } catch (Exception e) {
         entry.setStatus(QueryExecutorStatus.ERRORED);
         entry.setError(e.getMessage());
         try {

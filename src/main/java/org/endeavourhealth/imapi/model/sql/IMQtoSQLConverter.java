@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.sql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import openllet.shared.tools.Log;
 import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
@@ -82,7 +83,7 @@ public class IMQtoSQLConverter {
       }
       return new SqlWithSubqueries(replaceArgumentsWithValue(sql.toString()), subqueryIris);
     } catch (SQLConversionException e) {
-      log.error("SQL Conversion Error!");
+      log.error("SQL Conversion Error: {}", e.getMessage());
       throw e;
     }
   }
@@ -409,6 +410,8 @@ public class IMQtoSQLConverter {
 
     if (!direct.isEmpty()) {
       List<String> directIM11Ids = entityRepository.getIM1Ids(direct);
+      if (directIM11Ids.isEmpty())
+        throw new SQLConversionException("No IM1IDs found for '" + StringUtils.join(direct, "',\n'") + "'");
       String where = qry.getFieldName(property.getIri(), null, tableMap);
       List<String> im1ids = getDBIDs(directIM11Ids);
       if (direct.size() == 1) where += (inverse ? " <> '" : " = '") + im1ids.getFirst() + "'\n";
@@ -530,7 +533,13 @@ public class IMQtoSQLConverter {
     if (property.getIri() == null || property.getValue() == null) {
       throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyValue\n" + property);
     }
-    String where = "date".equals(qry.getFieldType(property.getIri(), null, tableMap)) ? convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), new Value().setValue(property.getValue()).setUnit(property.getUnit()).setOperator(property.getOperator())) : qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + property.getValue();
+    String where;
+    if ("date".equals(qry.getFieldType(property.getIri(), null, tableMap))) {
+      Assignable range = new Value().setValue(property.getValue()).setUnit(property.getUnit()).setOperator(property.getOperator());
+      where = convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), range);
+    } else {
+      where = qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + property.getValue();
+    }
     if (property.getUnit() != null) where += " -- CONVERT " + property.getUnit() + "\n";
     if (property.isAncestorsOf() || property.isDescendantsOf() || property.isDescendantsOrSelfOf()) {
       where += " -- TCT\n";
@@ -587,7 +596,9 @@ public class IMQtoSQLConverter {
         return results;
       }
     } catch (SQLException e) {
-      throw new SQLConversionException("SQL Conversion Error: SQLException for getting im1ids\n" + StringUtils.join(im1ids, ","));
+      log.error("Error running SQL [{}]", sql);
+      e.printStackTrace();
+      throw new SQLConversionException("SQL Conversion Error: SQLException for getting im1ids\n" + StringUtils.join(im1ids, ","), e);
     }
   }
 }

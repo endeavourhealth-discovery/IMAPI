@@ -92,9 +92,9 @@ public class IriCollector {
     }
     if (match.getReturn() != null) {
        collectReturnIris(match.getReturn(), iriSet);
-    }
-    if (match.getOrderBy()!=null){
-      collectOrderByIris(match.getOrderBy(),iriSet);
+       if (match.getReturn().getOrderBy()!=null){
+         collectOrderByIris(match.getReturn().getOrderBy(),iriSet);
+       }
     }
   }
 

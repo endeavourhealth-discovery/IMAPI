@@ -233,8 +233,8 @@ public class IMQtoSQLConverter {
 
     convertMatch(match, qry, bool);
 
-    if (match.getOrderBy() != null) {
-      wrapMatchPartition(qry, match.getOrderBy());
+    if (match.getReturn()!=null && match.getReturn().getOrderBy() != null) {
+      wrapMatchPartition(qry, match.getReturn().getOrderBy());
     }
 
     return qry;

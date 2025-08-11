@@ -5,7 +5,10 @@ import org.apache.commons.collections4.map.LRUMap;
 
 import java.util.ArrayList;
 
-public class TimedCache<K, T> {
+import static java.lang.Thread.interrupted;
+
+public class TimedCache<K, T> implements AutoCloseable {
+  private Thread t;
   private final String name;
   private final long timeToLive;
   private final LRUMap<K, CacheObject> cacheMap;
@@ -15,8 +18,8 @@ public class TimedCache<K, T> {
     this.timeToLive = timeToLive * 1000;
     cacheMap = new LRUMap<>(maxItems);
     if (this.timeToLive > 0 && interval > 0) {
-      Thread t = new Thread(() -> {
-        while (true) {
+      t = new Thread(() -> {
+        while (!interrupted()) {
           try {
             Thread.sleep(interval * 1000);
           } catch (InterruptedException ex) {
@@ -25,9 +28,11 @@ public class TimedCache<K, T> {
           }
           cleanup();
         }
+        System.out.println("Thread interrupted: [" + name + "]");
       });
       t.setDaemon(true);
       t.start();
+      System.out.println("Thread started: [" + name + "]");
     }
   }
 
@@ -92,6 +97,14 @@ public class TimedCache<K, T> {
       Thread.yield();
     }
 
+  }
+
+  @Override
+  public void close() throws Exception {
+    if (t!=null) {
+      t.interrupt();
+      t = null;
+    }
   }
 
   protected class CacheObject {

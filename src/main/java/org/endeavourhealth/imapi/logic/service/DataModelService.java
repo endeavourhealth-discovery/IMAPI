@@ -25,31 +25,31 @@ public class DataModelService {
   private DataModelRepository dataModelRepository = new DataModelRepository();
   private EntityService entityService = new EntityService();
 
-  public List<TTIriRef> getDataModelsFromProperty(String propIri, Graph graph) {
-    return dataModelRepository.findDataModelsFromProperty(propIri, graph);
+  public List<TTIriRef> getDataModelsFromProperty(String propIri, List<Graph> graphs) {
+    return dataModelRepository.findDataModelsFromProperty(propIri, graphs);
   }
 
-  public String checkPropertyType(String iri, Graph graph) {
-    return dataModelRepository.checkPropertyType(iri, graph);
+  public String checkPropertyType(String iri, List<Graph> graphs) {
+    return dataModelRepository.checkPropertyType(iri, graphs);
   }
 
-  public List<TTIriRef> getProperties(Graph graph) {
-    return dataModelRepository.getProperties(graph);
-  }
-
-
-  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly, Graph graph) {
-    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly, graph);
+  public List<TTIriRef> getProperties(List<Graph> graphs) {
+    return dataModelRepository.getProperties(graphs);
   }
 
 
-  public List<DataModelProperty> getDataModelProperties(String iri) {
-    return getDataModelProperties(iri, true);
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly, List<Graph> graphs) {
+    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly, graphs);
   }
 
 
-  public List<DataModelProperty> getDataModelProperties(String iri, Boolean includeComplexTypes) {
-    TTEntity entity = entityRepository.getBundle(iri, asHashSet(SHACL.PROPERTY, RDFS.LABEL)).getEntity();
+  public List<DataModelProperty> getDataModelProperties(String iri, List<Graph> graphs) {
+    return getDataModelProperties(iri, true, graphs);
+  }
+
+
+  public List<DataModelProperty> getDataModelProperties(String iri, Boolean includeComplexTypes, List<Graph> graphs) {
+    TTEntity entity = entityRepository.getBundle(iri, asHashSet(SHACL.PROPERTY, RDFS.LABEL), graphs).getEntity();
     return getDataModelProperties(entity, includeComplexTypes);
   }
 
@@ -110,27 +110,27 @@ public class DataModelService {
     return pv;
   }
 
-  public UIProperty getUIPropertyForQB(String dmIri, String propIri, Graph graph) {
-    UIProperty uiProp = dataModelRepository.findUIPropertyForQB(dmIri, propIri, graph);
+  public UIProperty getUIPropertyForQB(String dmIri, String propIri, List<Graph> graphs) {
+    UIProperty uiProp = dataModelRepository.findUIPropertyForQB(dmIri, propIri, graphs);
     if (null != uiProp.getIntervalUnitIri()) {
-      List<TTIriRef> isas = entityService.getIsas(uiProp.getIntervalUnitIri(), graph);
+      List<TTIriRef> isas = entityService.getIsas(uiProp.getIntervalUnitIri(), graphs);
       List<TTIriRef> intervalUnitOptions = isas.stream().filter(unit -> !unit.getIri().equals(uiProp.getIntervalUnitIri())).toList();
       uiProp.setIntervalUnitOptions(intervalUnitOptions);
     }
     if (null != uiProp.getUnitIri()) {
-      List<TTIriRef> isas = entityService.getIsas(uiProp.getUnitIri(), graph);
+      List<TTIriRef> isas = entityService.getIsas(uiProp.getUnitIri(), graphs);
       List<TTIriRef> unitOptions = isas.stream().filter(unit -> !unit.getIri().equals(uiProp.getUnitIri())).toList();
       uiProp.setUnitOptions(unitOptions);
     }
     if (null != uiProp.getOperatorIri())
-      uiProp.setOperatorOptions(entityService.getOperatorOptions(uiProp.getOperatorIri(), graph));
+      uiProp.setOperatorOptions(entityService.getOperatorOptions(uiProp.getOperatorIri(), graphs));
     return uiProp;
   }
 
-  public List<PropertyDisplay> getPropertiesDisplay(String iri) {
+  public List<PropertyDisplay> getPropertiesDisplay(String iri, List<Graph> graphs) {
     Set<String> predicates = new HashSet<>();
     predicates.add(SHACL.PROPERTY.toString());
-    TTEntity entity = entityRepository.getBundle(iri, predicates).getEntity();
+    TTEntity entity = entityRepository.getBundle(iri, predicates, graphs).getEntity();
     List<PropertyDisplay> propertyList = new ArrayList<>();
     TTArray ttProperties = entity.get(iri(SHACL.PROPERTY));
     if (null == ttProperties) return propertyList;
@@ -209,13 +209,13 @@ public class DataModelService {
     propertyList.add(propertyDisplay);
   }
 
-  public PropertyShape getDefiningProperty(String iri) {
-    DataModelRepository dataModelRepository= new DataModelRepository();
-    return dataModelRepository.getDefiningProperty(iri);
+  public PropertyShape getDefiningProperty(String iri, List<Graph> graphs) {
+    DataModelRepository dataModelRepository = new DataModelRepository();
+    return dataModelRepository.getDefiningProperty(iri, graphs);
   }
 
 
-  public List<NodeShape> getDataModelPropertiesWithValueType(Set<String> iris, String valueType) {
-    return dataModelRepository.getDataModelPropertiesWithValueType(iris,valueType);
+  public List<NodeShape> getDataModelPropertiesWithValueType(Set<String> iris, String valueType, List<Graph> graphs) {
+    return dataModelRepository.getDataModelPropertiesWithValueType(iris, valueType, graphs);
   }
 }

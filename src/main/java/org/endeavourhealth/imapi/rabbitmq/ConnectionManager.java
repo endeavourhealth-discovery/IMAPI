@@ -25,8 +25,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeoutException;
 
 @Lazy
 @Service
@@ -111,7 +111,7 @@ public class ConnectionManager {
         if (null == queryService) {
           queryService = new QueryService();
         }
-        queryService.executeQuery(queryRequest, graph);
+        queryService.executeQuery(queryRequest, List.of(graph));
         entry.setStatus(QueryExecutorStatus.COMPLETED);
         postgresService.update(entry);
       } catch (Exception | SQLConversionException e) {

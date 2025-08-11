@@ -8,7 +8,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,7 +29,7 @@ public class IMQToECL {
    * @param eclQuery An object containing a 'query' and 'showNames'
    * @return the object with a status, ecl and the query
    */
-  public void getECLFromQuery(ECLQueryRequest eclQuery) {
+  public void getECLFromQuery(ECLQueryRequest eclQuery, List<Graph> graphs) {
     eclStatus = new ECLStatus();
     eclStatus.setValid(true);
     eclQuery.setStatus(eclStatus);
@@ -44,7 +43,7 @@ public class IMQToECL {
       }
     }
     try {
-      expressionMatch(query, ecl, eclQuery.isShowNames(), false, eclQuery.getGraph());
+      expressionMatch(query, ecl, eclQuery.isShowNames(), false, graphs);
       eclQuery.setEcl(ecl.toString().trim());
     } catch (Exception ex) {
       eclStatus.setValid(false);
@@ -134,23 +133,23 @@ public class IMQToECL {
   }
 
 
-  private void expressionMatch(Match match, StringBuilder ecl, boolean includeNames, boolean isNested, Graph graph) throws QueryException {
+  private void expressionMatch(Match match, StringBuilder ecl, boolean includeNames, boolean isNested, List<Graph> graphs) throws QueryException {
     ECLType matchType = getEclType(match);
     boolean isExclusion = match.getNot() != null;
     if (matchType == null)
       return;
     if (matchType == ECLType.simple) {
-      matchInstanceOf(match, ecl, includeNames, graph);
+      matchInstanceOf(match, ecl, includeNames, graphs);
     } else if (matchType == ECLType.refined) {
       if (isExclusion) ecl.append("(");
-      match(match, ecl, includeNames, true, graph);
-      addRefinementsToMatch(match, ecl, includeNames, false, graph);
+      match(match, ecl, includeNames, true, graphs);
+      addRefinementsToMatch(match, ecl, includeNames, false, graphs);
       if (isExclusion) ecl.append(")");
       ecl.append("\n");
     } else if (matchType == ECLType.compound) {
       if (isNested || isExclusion)
         ecl.append("(");
-      compound(match, ecl, includeNames, graph);
+      compound(match, ecl, includeNames, graphs);
       if (isNested || isExclusion)
         ecl.append(")");
       ecl.append("\n");
@@ -165,9 +164,9 @@ public class IMQToECL {
           ecl.append("OR ");
         }
         first = false;
-        if (getEclType(subMatch)==ECLType.refined) ecl.append("(");
-        expressionMatch(subMatch, ecl, includeNames, true, graph);
-        if (getEclType(subMatch)==ECLType.refined) ecl.append(")");
+        if (getEclType(subMatch) == ECLType.refined) ecl.append("(");
+        expressionMatch(subMatch, ecl, includeNames, true, graphs);
+        if (getEclType(subMatch) == ECLType.refined) ecl.append(")");
         ecl.append("\n");
       }
       if (match.getNot().size() > 1)
@@ -175,7 +174,7 @@ public class IMQToECL {
     }
   }
 
-  private void match(Match match, StringBuilder ecl, boolean includeNames, boolean isNested, Graph graph) throws QueryException {
+  private void match(Match match, StringBuilder ecl, boolean includeNames, boolean isNested, List<Graph> graphs) throws QueryException {
     boolean isWild = false;
     if (match.getInstanceOf() == null && match.getOr() == null && match.getAnd() == null) {
       ecl.append("*");
@@ -183,26 +182,26 @@ public class IMQToECL {
       if (match.getInstanceOf().size() > 1) {
         ecl.append("(");
       }
-      matchInstanceOf(match, ecl, includeNames, graph);
+      matchInstanceOf(match, ecl, includeNames, graphs);
       if (match.getInstanceOf().size() > 1) {
         ecl.append(")");
       }
     } else {
       if (isNested)
         ecl.append("(");
-      compound(match, ecl, includeNames, graph);
+      compound(match, ecl, includeNames, graphs);
       if (isNested)
         ecl.append(")");
     }
     if (isWild) ecl.append(")");
   }
 
-  private boolean bracketNeeded(Match match, boolean first,boolean multiItems) {
+  private boolean bracketNeeded(Match match, boolean first, boolean multiItems) {
     if (match.getInstanceOf() == null && match.getOr() == null && match.getAnd() == null) return true;
     return match.getWhere() != null && (!first || multiItems);
   }
 
-  private void compound(Match match, StringBuilder ecl, boolean includeNames, Graph graph) throws QueryException {
+  private void compound(Match match, StringBuilder ecl, boolean includeNames, List<Graph> graphs) throws QueryException {
     boolean first = true;
     if (match.getAnd() != null) {
       boolean isConjunction = match.getAnd().size() > 1;
@@ -210,9 +209,9 @@ public class IMQToECL {
         if (!first) {
           ecl.append(" AND ");
         }
-        if (bracketNeeded(subMatch, first,isConjunction)) ecl.append("(");
-        expressionMatch(subMatch, ecl, includeNames, isConjunction, graph);
-        if (bracketNeeded(subMatch, first,isConjunction)) ecl.append(")");
+        if (bracketNeeded(subMatch, first, isConjunction)) ecl.append("(");
+        expressionMatch(subMatch, ecl, includeNames, isConjunction, graphs);
+        if (bracketNeeded(subMatch, first, isConjunction)) ecl.append(")");
         first = false;
       }
     }
@@ -222,19 +221,19 @@ public class IMQToECL {
         if (!first) {
           ecl.append(" OR ");
         }
-        if (bracketNeeded(subMatch, first,isDisjunction)) ecl.append("(");
-        expressionMatch(subMatch, ecl, includeNames, isDisjunction, graph);
-        if (bracketNeeded(subMatch, first,isDisjunction)) ecl.append(")");
+        if (bracketNeeded(subMatch, first, isDisjunction)) ecl.append("(");
+        expressionMatch(subMatch, ecl, includeNames, isDisjunction, graphs);
+        if (bracketNeeded(subMatch, first, isDisjunction)) ecl.append(")");
         first = false;
       }
     }
   }
 
-  private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames, Graph graph) {
+  private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames, List<Graph> graphs) {
     if (match.getInstanceOf().size() == 1) {
       if (match.getInstanceOf().get(0).isInvalid())
         setErrorStatus(ecl, "unknown concept");
-      addClass(match.getInstanceOf().get(0), ecl, includeNames, graph);
+      addClass(match.getInstanceOf().get(0), ecl, includeNames, graphs);
     } else {
       ecl.append("(");
       boolean first = true;
@@ -244,7 +243,7 @@ public class IMQToECL {
           ecl.append(" OR ");
         }
         first = false;
-        addClass(instance, ecl, includeNames, graph);
+        addClass(instance, ecl, includeNames, graphs);
         ecl.append("\n");
       }
       ecl.append(")");
@@ -252,12 +251,12 @@ public class IMQToECL {
   }
 
 
-  private void addRefinementsToMatch(Match match, StringBuilder ecl, boolean includeNames, boolean ignoreColon, Graph graph) throws QueryException {
+  private void addRefinementsToMatch(Match match, StringBuilder ecl, boolean includeNames, boolean ignoreColon, List<Graph> graphs) throws QueryException {
     if (!ignoreColon) ecl.append(": ");
-    addRefined(match.getWhere(), ecl, includeNames, false, graph);
+    addRefined(match.getWhere(), ecl, includeNames, false, graphs);
   }
 
-  private void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames, boolean nested, Graph graph) throws QueryException {
+  private void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames, boolean nested, List<Graph> graphs) throws QueryException {
     if (nested) ecl.append("(");
     boolean first = true;
     if (property.getAnd() != null) {
@@ -267,7 +266,7 @@ public class IMQToECL {
           ecl.append(" , ");
         }
         first = false;
-        addRefined(subProperty, ecl, includeNames, true, graph);
+        addRefined(subProperty, ecl, includeNames, true, graphs);
       }
     }
     if (property.getOr() != null) {
@@ -277,20 +276,20 @@ public class IMQToECL {
           ecl.append(" or ");
         }
         first = false;
-        addRefined(subProperty, ecl, includeNames, true, graph);
+        addRefined(subProperty, ecl, includeNames, true, graphs);
       }
     }
     if (nested) ecl.append(")");
   }
 
-  private void addRefined(Where where, StringBuilder ecl, Boolean includeNames, boolean nested, Graph graph) throws QueryException {
+  private void addRefined(Where where, StringBuilder ecl, Boolean includeNames, boolean nested, List<Graph> graphs) throws QueryException {
     if (where.isInvalid()) setErrorStatus(ecl, "unknown property concept : ");
     try {
       if (where.isRoleGroup()) ecl.append("{");
       if (where.getAnd() == null && where.getOr() == null) {
         if (null == where.getIs() && null == where.getNotIs())
           throw new QueryException("Where clause must contain a value or sub expressionMatch clause");
-        addProperty(where, ecl, includeNames, graph);
+        addProperty(where, ecl, includeNames, graphs);
         ecl.append(where.getIs() != null ? " = " : " != ");
         boolean first = true;
         for (List<Node> nodes : Arrays.asList(where.getIs(), where.getNotIs())) {
@@ -302,14 +301,14 @@ public class IMQToECL {
                 ecl.append("\n or ");
               first = false;
               if (value.isInvalid()) setErrorStatus(ecl, "unknown value concept : ");
-              addClass(value, ecl, includeNames, graph);
+              addClass(value, ecl, includeNames, graphs);
             }
             if (nodes.size() > 1)
               ecl.append(")");
           }
         }
       } else {
-        addRefinementsToWhere(where, ecl, includeNames, nested, graph);
+        addRefinementsToWhere(where, ecl, includeNames, nested, graphs);
       }
       if (where.isRoleGroup()) ecl.append("}");
     } catch (Exception e) {
@@ -318,19 +317,19 @@ public class IMQToECL {
   }
 
 
-  private void addProperty(Where exp, StringBuilder ecl, boolean includeName, Graph graph) {
+  private void addProperty(Where exp, StringBuilder ecl, boolean includeName, List<Graph> graphs) {
     if (exp.isInverse())
       ecl.append(" R ");
-    addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName(), graph);
+    addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName(), graphs);
   }
 
-  private void addConcept(StringBuilder ecl, boolean includeName, String subsumption, String id, String name, Graph graph) {
-    String iriRef = checkMember(id, name, includeName, graph);
+  private void addConcept(StringBuilder ecl, boolean includeName, String subsumption, String id, String name, List<Graph> graphs) {
+    String iriRef = checkMember(id, name, includeName, graphs);
     ecl.append(subsumption).append(iriRef);
   }
 
-  private void addClass(Node exp, StringBuilder ecl, boolean includeName, Graph graph) {
-    addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName(), graph);
+  private void addClass(Node exp, StringBuilder ecl, boolean includeName, List<Graph> graphs) {
+    addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName(), graphs);
   }
 
 
@@ -349,12 +348,12 @@ public class IMQToECL {
   }
 
 
-  private String checkMember(String iri, String name, boolean includeNames, Graph graph) {
+  private String checkMember(String iri, String name, boolean includeNames, List<Graph> graphs) {
     if (iri == null || iri.isEmpty())
       return "*";
     if (name == null && includeNames) {
       if (names.get(iri) == null) {
-        name = entityRepository.getEntityReferenceByIri(iri, graph).getName();
+        name = entityRepository.getEntityReferenceByIri(iri, graphs).getName();
         names.put(iri, name);
       }
       name = names.get(iri);
@@ -380,14 +379,14 @@ public class IMQToECL {
    * @return ECL String
    */
 
-  public String getMembersAsECL(TTArray members, Graph graph) {
+  public String getMembersAsECL(TTArray members, List<Graph> graphs) {
     StringBuilder ecl = new StringBuilder();
     boolean first = true;
     String or = " OR ";
     for (TTValue iriRef : members.getElements()) {
       if (!first)
         ecl.append(or).append("\n");
-      addClass(new Node().setIri(iriRef.asIriRef().getIri()), ecl, true, graph);
+      addClass(new Node().setIri(iriRef.asIriRef().getIri()), ecl, true, graphs);
       first = false;
     }
     return ecl.toString();

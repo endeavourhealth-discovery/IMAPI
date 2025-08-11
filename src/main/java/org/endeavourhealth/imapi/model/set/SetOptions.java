@@ -1,7 +1,5 @@
 package org.endeavourhealth.imapi.model.set;
 
-import org.endeavourhealth.imapi.vocabulary.Graph;
-
 import java.util.List;
 
 public class SetOptions {
@@ -13,13 +11,12 @@ public class SetOptions {
   private List<String> schemes;
   private boolean includeIM1id;
   private List<String> subsumptions;
-  private Graph graph;
 
   public SetOptions() {
   }
 
   public SetOptions(String setIri, boolean includeDefinition, boolean includeCore, boolean includeLegacy, boolean includeSubsets, List<String> schemes,
-                    List<String> subsumptions, Graph graph) {
+                    List<String> subsumptions) {
     this.setIri = setIri;
     this.includeDefinition = includeDefinition;
     this.includeCore = includeCore;
@@ -27,23 +24,33 @@ public class SetOptions {
     this.includeSubsets = includeSubsets;
     this.schemes = schemes;
     this.subsumptions = subsumptions;
-    this.graph = graph;
   }
 
   public String getSetIri() {
     return setIri;
   }
 
+  public SetOptions setSetIri(String setIri) {
+    this.setIri = setIri;
+    return this;
+  }
+
   public List<String> getSchemes() {
     return schemes;
+  }
+
+  public SetOptions setSchemes(List<String> schemes) {
+    this.schemes = schemes;
+    return this;
   }
 
   public List<String> getSubsumptions() {
     return subsumptions;
   }
 
-  public Graph getGraph() {
-    return graph;
+  public SetOptions setSubsumptions(List<String> subsumptions) {
+    this.subsumptions = subsumptions;
+    return this;
   }
 
   public boolean includeDefinition() {
@@ -60,11 +67,6 @@ public class SetOptions {
 
   public boolean includeSubsets() {
     return includeSubsets;
-  }
-
-  public SetOptions setSetIri(String setIri) {
-    this.setIri = setIri;
-    return this;
   }
 
   public SetOptions setIncludeDefinition(boolean includeDefinition) {
@@ -87,27 +89,12 @@ public class SetOptions {
     return this;
   }
 
-  public SetOptions setSchemes(List<String> schemes) {
-    this.schemes = schemes;
-    return this;
-  }
-
   public boolean isIncludeIM1id() {
     return includeIM1id;
   }
 
   public SetOptions setIncludeIM1id(boolean includeIM1id) {
     this.includeIM1id = includeIM1id;
-    return this;
-  }
-
-  public SetOptions setSubsumptions(List<String> subsumptions) {
-    this.subsumptions = subsumptions;
-    return this;
-  }
-
-  public SetOptions setGraph(Graph graph) {
-    this.graph = graph;
     return this;
   }
 }

@@ -1731,6 +1731,10 @@
       {
         "name": "ORGANISATIONS",
         "value": "USER.DOMAIN + \"ORGANISATIONS\""
+      },
+      {
+        "name": "GRAPHS",
+        "value": "USER.DOMAIN + \"GRAPHS\""
       }
     ]
   },

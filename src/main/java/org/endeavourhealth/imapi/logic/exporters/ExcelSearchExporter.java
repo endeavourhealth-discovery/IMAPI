@@ -15,6 +15,7 @@ import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,17 +37,17 @@ public class ExcelSearchExporter {
     headerStyle.setWrapText(true);
   }
 
-  public XSSFWorkbook getSearchAsExcel(DownloadByQueryOptions downloadByQueryOptions) throws OpenSearchException, JsonProcessingException, QueryException {
+  public XSSFWorkbook getSearchAsExcel(DownloadByQueryOptions downloadByQueryOptions, List<Graph> graphs) throws OpenSearchException, JsonProcessingException, QueryException {
     SearchResponse searchResponse = null;
     if (null != downloadByQueryOptions.getQueryRequest()) {
       QueryRequest queryRequest = downloadByQueryOptions.getQueryRequest();
       queryRequest.setPage(new Page().setPageNumber(1).setPageSize(downloadByQueryOptions.getTotalCount()));
-      searchResponse = searchService.queryIMSearch(downloadByQueryOptions.getQueryRequest());
+      searchResponse = searchService.queryIMSearch(downloadByQueryOptions.getQueryRequest(), graphs);
     } else if (null != downloadByQueryOptions.getEclSearchRequest()) {
       EclSearchRequest eclSearchRequest = downloadByQueryOptions.getEclSearchRequest();
       eclSearchRequest.setPage(1);
       eclSearchRequest.setSize(downloadByQueryOptions.getTotalCount());
-      searchResponse = eclService.eclSearch(eclSearchRequest);
+      searchResponse = eclService.eclSearch(eclSearchRequest, graphs);
     }
     if (null == searchResponse) throw new QueryException("Download must have either queryRequest or eclSearchRequest");
     List<SearchResultSummary> entities = searchResponse.getEntities();

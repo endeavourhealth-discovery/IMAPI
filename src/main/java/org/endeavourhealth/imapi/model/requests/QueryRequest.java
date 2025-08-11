@@ -8,7 +8,6 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.*;
@@ -43,7 +42,6 @@ public class QueryRequest implements ContextMap {
   private TextSearchStyle textSearchStyle;
   @Getter
   private DatabaseOption language;
-  private Graph graph;
 
   public QueryRequest() {
   }
@@ -237,11 +235,6 @@ public class QueryRequest implements ContextMap {
 
   public QueryRequest setLanguage(DatabaseOption language) {
     this.language = language;
-    return this;
-  }
-
-  public QueryRequest setGraph(Graph graph) {
-    this.graph = graph;
     return this;
   }
 

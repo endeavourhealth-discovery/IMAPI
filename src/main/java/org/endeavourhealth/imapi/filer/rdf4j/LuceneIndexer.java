@@ -5,7 +5,6 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.vocabulary.*;
 
@@ -15,9 +14,9 @@ import java.util.List;
 @Slf4j
 public class LuceneIndexer {
 
-  public void buildIndexes(Graph graph) {
-    try (IMDB conn = IMDB.getConnection(graph)) {
-      dropIndex(conn, graph);
+  public void buildIndexes(List<Graph> userGraphs, Graph insertGraph) {
+    try (IMDB conn = IMDB.getConnection(userGraphs)) {
+      dropIndex(conn, insertGraph);
       String sql = """
         PREFIX con: <http://www.ontotext.com/connectors/lucene#>
         PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>
@@ -57,7 +56,7 @@ public class LuceneIndexer {
         }
         """.formatted(RDFS.LABEL, IM.CODE, IM.CONCEPT, IM.FOLDER, IM.FORM_GENERATOR, IM.FUNCTION, IM.COHORT_QUERY, IM.DATASET_QUERY, IM.QUERY, SHACL.NODESHAPE, RDFS.CLASS, RDF.PROPERTY);
       log.info("Building lucene index... This will take an hour or so...");
-      Update upd = conn.prepareInsertSparql(sql, graph);
+      Update upd = conn.prepareInsertSparql(sql, insertGraph);
       upd.execute();
     }
   }

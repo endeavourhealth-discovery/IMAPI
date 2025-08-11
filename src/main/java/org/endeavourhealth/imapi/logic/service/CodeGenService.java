@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.EntityType;
 import org.endeavourhealth.imapi.vocabulary.Graph;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.springframework.http.*;
 
@@ -39,37 +38,37 @@ public class CodeGenService {
     codeGenRepository.updateCodeTemplate(name, extension, wrapper, dataTypeMap, template, complexTypes);
   }
 
-  public String generateCodeForModel(String modelIri, CodeGenDto template, String namespace, Graph graph) {
-    TTIriRef model = getModelSummary(modelIri, graph);
-    return generateCodeForModel(template, model, namespace);
+  public String generateCodeForModel(String modelIri, CodeGenDto template, String namespace, List<Graph> graphs) {
+    TTIriRef model = getModelSummary(modelIri, graphs);
+    return generateCodeForModel(template, model, namespace, graphs);
   }
 
-  public HttpEntity<Object> generateCode(String iri, String templateName, String namespace, Graph graph) {
+  public HttpEntity<Object> generateCode(String iri, String templateName, String namespace, List<Graph> graphs) {
     List<TTIriRef> models = (iri == null || iri.isEmpty())
-      ? getIMModels(graph)
-      : Collections.singletonList(getModelSummary(iri, graph));
+      ? getIMModels(graphs)
+      : Collections.singletonList(getModelSummary(iri, graphs));
 
     CodeGenDto template = codeGenRepository.getCodeTemplate(templateName);
 
-    return createModelCodeZip(namespace, models, template);
+    return createModelCodeZip(namespace, models, template, graphs);
   }
 
-  private List<TTIriRef> getIMModels(Graph graph) {
-    List<TTIriRef> models = entityService.getEntitiesByType(EntityType.NODESHAPE, graph);
+  private List<TTIriRef> getIMModels(List<Graph> graphs) {
+    List<TTIriRef> models = entityService.getEntitiesByType(EntityType.NODESHAPE, graphs);
     return models.stream()
       .filter(m -> m.getIri().startsWith(Namespace.IM.toString()))
       .toList();
   }
 
-  private TTIriRef getModelSummary(String iri, Graph graph) {
-    SearchResultSummary summary = entityService.getSummary(iri, graph);
+  private TTIriRef getModelSummary(String iri, List<Graph> graphs) {
+    SearchResultSummary summary = entityService.getSummary(iri, graphs);
     return new TTIriRef(summary.getIri(), summary.getName()).setDescription(summary.getDescription());
   }
 
-  private HttpEntity<Object> createModelCodeZip(String namespace, List<TTIriRef> models, CodeGenDto template) {
+  private HttpEntity<Object> createModelCodeZip(String namespace, List<TTIriRef> models, CodeGenDto template, List<Graph> graphs) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-      addModelsToZip(namespace, models, template, zos);
+      addModelsToZip(namespace, models, template, zos, graphs);
     } catch (IOException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to create zip:" + e.getMessage());
     }
@@ -80,9 +79,9 @@ public class CodeGenService {
     return new HttpEntity<>(baos.toByteArray(), headers);
   }
 
-  private void addModelsToZip(String namespace, List<TTIriRef> models, CodeGenDto template, ZipOutputStream zos) throws IOException {
+  private void addModelsToZip(String namespace, List<TTIriRef> models, CodeGenDto template, ZipOutputStream zos, List<Graph> graphs) throws IOException {
     for (TTIriRef model : models) {
-      String code = generateCodeForModel(template, model, namespace);
+      String code = generateCodeForModel(template, model, namespace, graphs);
 
       ZipEntry entry = new ZipEntry(clean(toTitleCase(codify(model.getName()))) + template.getExtension());
 
@@ -92,8 +91,8 @@ public class CodeGenService {
     }
   }
 
-  protected String generateCodeForModel(CodeGenDto template, TTIriRef model, String namespace) {
-    List<DataModelProperty> properties = dataModelService.getDataModelProperties(model.getIri(), template.getComplexTypes());
+  protected String generateCodeForModel(CodeGenDto template, TTIriRef model, String namespace, List<Graph> graphs) {
+    List<DataModelProperty> properties = dataModelService.getDataModelProperties(model.getIri(), template.getComplexTypes(), graphs);
     return generateCodeForModel(template, model, properties, namespace);
   }
 

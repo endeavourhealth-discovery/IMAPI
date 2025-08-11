@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -13,22 +12,17 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 import org.junit.jupiter.api.Test;
 
-
+import java.util.List;
 import java.util.StringJoiner;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TTLiteralTest {
-  EntityService entityService = new EntityService();
-
   private final TTEntity testObject = (TTEntity) new TTEntity("http://endhealth.info/im#objectTest")
     .set(TTIriRef.iri(RDFS.LABEL), "Test object")
     .set(TTIriRef.iri(RDFS.COMMENT), "This is an entity to test object serialization")
     .set(TTIriRef.iri(IM.QUERY), literal(new SearchTermCode().setTerm("Mickey Mouse").setCode("EM-EYE-CEE").setStatus(TTIriRef.iri(IM.ACTIVE))));
-
   private final String json = new StringJoiner(System.lineSeparator())
     .add("{")
     .add("  \"iri\" : \"http://endhealth.info/im#objectTest\",")
@@ -37,6 +31,7 @@ class TTLiteralTest {
     .add("  \"http://endhealth.info/im#Query\" : \"{\\\"term\\\":\\\"Mickey Mouse\\\",\\\"code\\\":\\\"EM-EYE-CEE\\\",\\\"status\\\":{\\\"name\\\":\\\"Active\\\",\\\"iri\\\":\\\"http://endhealth.info/im#Active\\\"}}\"")
     .add("}")
     .toString();
+  EntityService entityService = new EntityService();
 
   TTLiteralTest() throws JsonProcessingException {
   }
@@ -47,12 +42,12 @@ class TTLiteralTest {
     doc.addEntity(testObject);
     doc.setCrud(TTIriRef.iri(IM.REPLACE_ALL_PREDICATES));
 
-    TTFilerFactory.getDocumentFiler(Graph.IM).fileDocument(doc);
+    TTFilerFactory.getDocumentFiler(Graph.IM).fileDocument(doc, List.of(Graph.IM));
   }
 
   // @Test
   void loadTest() throws JsonProcessingException {
-    TTBundle bundle = entityService.getBundle("http://endhealth.info/im#objectTest", null);
+    TTBundle bundle = entityService.getBundle("http://endhealth.info/im#objectTest", null, List.of(Graph.IM));
     TTArray preds = bundle.getEntity().get(TTIriRef.iri(IM.QUERY));
     assertEquals(1, preds.size());
 
@@ -67,7 +62,7 @@ class TTLiteralTest {
 
   @Test
   void serializeTest() throws JsonProcessingException {
-    ObjectMapper om= new ObjectMapper();
+    ObjectMapper om = new ObjectMapper();
     om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     String actual = om.writerWithDefaultPrettyPrinter().writeValueAsString(testObject);
     assertEquals(json, actual);

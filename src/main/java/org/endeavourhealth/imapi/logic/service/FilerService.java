@@ -51,7 +51,7 @@ public class FilerService {
   private WorkflowService workflowService;
 
   public FilerService() {
-    imdb = IMDB.getConnection(Graph.IM);
+    imdb = IMDB.getConnection(List.of(Graph.IM));
     provDB = ProvDB.getConnection();
     documentFiler = new TTTransactionFiler(Graph.IM);
     entityFiler = new TTEntityFilerRdf4j(imdb, Graph.IM);
@@ -96,11 +96,11 @@ public class FilerService {
     return !(null != entity.get(predicate) && !entity.get(predicate).isEmpty() && (!entity.get(predicate).getElements().stream().allMatch(TTValue::isIriRef)));
   }
 
-  public void fileDocument(TTDocument document, String agentName, String taskId) {
+  public void fileDocument(TTDocument document, String agentName, String taskId, List<Graph> graphs) {
     new Thread(() -> {
       try {
-        documentFiler.fileDocument(document, taskId);
-        fileProvDoc(document, agentName);
+        documentFiler.fileDocument(document, taskId, graphs);
+        fileProvDoc(document, agentName, graphs);
       } catch (TTFilerException | JsonProcessingException | QueryException e) {
         throw new RuntimeException(e);
       }
@@ -111,7 +111,7 @@ public class FilerService {
     return documentFiler.getFilingProgress(taskId);
   }
 
-  public void fileEntity(TTEntity entity, String agentName, TTEntity usedEntity, Graph graph) throws TTFilerException {
+  public void fileEntity(TTEntity entity, String agentName, TTEntity usedEntity, List<Graph> userGraphs, Graph insertGraph) throws TTFilerException {
     try {
       entityFiler.fileEntity(entity);
 
@@ -119,7 +119,7 @@ public class FilerService {
         entityFiler.updateIsAs(entity);
 
       if (entity.isType(iri(IM.VALUESET)))
-        new SetMemberGenerator().generateMembers(entity.getIri(), graph);
+        new SetMemberGenerator().generateMembers(entity.getIri(), userGraphs, insertGraph);
 
 
       ProvAgent agent = fileProvAgent(entity, agentName);
@@ -127,7 +127,7 @@ public class FilerService {
       ProvActivity activity = fileProvActivity(entity, agent, provUsedEntity);
 
       writeDelta(entity, activity, provUsedEntity);
-      fileOpenSearch(entity.getIri(), graph);
+      fileOpenSearch(entity.getIri(), insertGraph);
     } catch (Exception e) {
       throw new TTFilerException("Error filing entity", e);
     }
@@ -143,11 +143,11 @@ public class FilerService {
     documentFiler.writeLog(document);
   }
 
-  private void fileProvDoc(TTDocument document, String agentName) throws JsonProcessingException, TTFilerException {
+  private void fileProvDoc(TTDocument document, String agentName, List<Graph> graphs) throws JsonProcessingException, TTFilerException {
     for (TTEntity entity : document.getEntities()) {
       TTEntity usedEntity = null;
       if (entityService.iriExists(entity.getIri(), null)) {
-        usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
+        usedEntity = entityService.getBundle(entity.getIri(), null, graphs).getEntity();
       }
       ProvAgent agent = fileProvAgent(entity, agentName);
       TTEntity provUsedEntity = fileUsedEntity(usedEntity);
@@ -189,10 +189,10 @@ public class FilerService {
     }
   }
 
-  public TTEntity createEntity(EditRequest editRequest, String agentName, Graph graph) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
-    isValid(editRequest.getEntity(), "Create", graph);
+  public TTEntity createEntity(EditRequest editRequest, String agentName, List<Graph> userGraphs, Graph insertGraph) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
+    isValid(editRequest.getEntity(), "Create", userGraphs);
     editRequest.getEntity().setCrud(iri(IM.ADD_QUADS)).setVersion(1);
-    fileEntity(editRequest.getEntity(), agentName, null, graph);
+    fileEntity(editRequest.getEntity(), agentName, null, userGraphs, insertGraph);
     EntityApproval entityApproval = new EntityApproval();
     entityApproval
       .setEntityIri(iri(editRequest.getEntity().getIri()))
@@ -205,17 +205,17 @@ public class FilerService {
     return editRequest.getEntity();
   }
 
-  public TTEntity updateEntity(TTEntity entity, String agentName, Graph graph) throws TTFilerException, JsonProcessingException {
-    isValid(entity, "Update", graph);
+  public TTEntity updateEntity(TTEntity entity, String agentName, List<Graph> userGraphs, Graph updateGraph) throws TTFilerException, JsonProcessingException {
+    isValid(entity, "Update", userGraphs);
     entity.setCrud(iri(IM.REPLACE_ALL_PREDICATES));
-    TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
+    TTEntity usedEntity = entityService.getBundle(entity.getIri(), null, userGraphs).getEntity();
     entity.setVersion(usedEntity.getVersion() + 1);
-    fileEntity(entity, agentName, usedEntity, graph);
+    fileEntity(entity, agentName, usedEntity, userGraphs, updateGraph);
     return entity;
   }
 
-  public TTEntity updateEntityWithWorkflow(EditRequest editRequest, String agentName, HttpServletRequest request, Graph graph) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
-    TTEntity entity = createEntity(editRequest, agentName, graph);
+  public TTEntity updateEntityWithWorkflow(EditRequest editRequest, String agentName, HttpServletRequest request, List<Graph> userGraphs, Graph updateGraph) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
+    TTEntity entity = createEntity(editRequest, agentName, userGraphs, updateGraph);
     EntityApproval entityApproval = new EntityApproval();
     entityApproval
       .setEntityIri(iri(editRequest.getEntity().getIri()))
@@ -228,13 +228,13 @@ public class FilerService {
     return entity;
   }
 
-  public void isValid(TTEntity entity, String mode, Graph graph) throws TTFilerException, JsonProcessingException {
+  public void isValid(TTEntity entity, String mode, List<Graph> graphs) throws TTFilerException, JsonProcessingException {
     ArrayList<String> errorMessages = new ArrayList<>();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       if (!isValidIri(entity)) errorMessages.add("Missing iri.");
-      if ("Create".equals(mode) && entityService.iriExists(entity.getIri(), graph))
+      if ("Create".equals(mode) && entityService.iriExists(entity.getIri(), graphs))
         errorMessages.add("Iri already exists.");
-      if ("Update".equals(mode) && !entityService.iriExists(entity.getIri(), graph))
+      if ("Update".equals(mode) && !entityService.iriExists(entity.getIri(), graphs))
         errorMessages.add("Iri doesn't exists.");
       if (!isValidName(entity)) errorMessages.add("Name is invalid.");
       if (!isValidType(entity)) errorMessages.add("Types are invalid.");

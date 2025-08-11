@@ -59,42 +59,53 @@ public class SetController {
   @GetMapping(value = "/publish")
   @Operation(summary = "Publish set", description = "Publishes an expanded set to IM1")
   @PreAuthorize("hasAuthority('IM1_PUBLISH')")
-  public void publish(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException, QueryException {
+  public void publish(
+    HttpServletRequest request,
+    @RequestParam(name = "iri") String iri
+  ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Publish.GET")) {
-      setService.publishSetToIM1(iri, Graph.from(graph));
+      log.debug("publish {}", iri);
+      List<Graph> graphs = reqObjService.getUserGraphs(request);
+      setService.publishSetToIM1(iri, graphs);
     }
   }
 
   @GetMapping(value = "/public/members")
   @Operation(summary = "Get entailed members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")
   public Pageable<Node> getMembers(
+    HttpServletRequest request,
     @RequestParam(name = "iri") String iri,
     @RequestParam(name = "entailments", required = false) Boolean entailments,
     @RequestParam(name = "page", required = false) Integer page,
-    @RequestParam(name = "size", required = false) Integer size,
-    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph
+    @RequestParam(name = "size", required = false) Integer size
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.EntailedMembers.GET")) {
       log.debug("getEntailedMembers");
+      List<Graph> graphs = reqObjService.getUserGraphs(request);
       if (page == null && size == null) {
         page = 1;
         size = 10;
       }
-      return setService.getDirectOrEntailedMembersFromIri(iri, entailments, page, size, Graph.from(graph));
+      return setService.getDirectOrEntailedMembersFromIri(iri, entailments, page, size, graphs);
     }
   }
 
   @GetMapping(value = "/public/export")
   @Operation(summary = "Export set", description = "Exporting an expanded set to IM1")
-  public HttpEntity<Object> exportSet(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws DownloadException, IOException {
+  public HttpEntity<Object> exportSet(
+    HttpServletRequest request,
+    @RequestParam(name = "iri") String iri
+  ) throws DownloadException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Export.GET")) {
-      TTIriRef entity = entityService.getEntityReference(iri, Graph.from(graph));
+      log.debug("exportSet");
+      List<Graph> graphs = reqObjService.getUserGraphs(request);
+      TTIriRef entity = entityService.getEntityReference(iri, graphs);
       String filename = entity.getName() + " " + LocalDate.now();
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(new MediaType("application", "force-download"));
       headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".txt\"");
       try {
-        Set<Concept> members = setService.getExpandedSetMembers(iri, true, true, true, List.of(), asArrayList(IM.SUBSUMED_BY), Graph.from(graph));
+        Set<Concept> members = setService.getExpandedSetMembers(iri, true, true, true, List.of(), asArrayList(IM.SUBSUMED_BY), graphs);
         String result = setExporter.generateForIm1(iri, entity.getName(), members).toString();
         return new HttpEntity<>(result, headers);
       } catch (QueryException | JsonProcessingException e) {
@@ -106,19 +117,21 @@ public class SetController {
 
   @GetMapping("/public/subsets")
   @Operation(summary = "Get subsets of entity", description = "Fetches all subsets for the given IRI.")
-  public Set<TTIriRef> getSubsets(@RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
+  public Set<TTIriRef> getSubsets(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Subsets.GET")) {
       log.debug("getSubsets");
-      return setService.getSubsets(iri, Graph.from(graph));
+      List<Graph> graphs = reqObjService.getUserGraphs(request);
+      return setService.getSubsets(iri, graphs);
     }
   }
 
   @PostMapping(value = "public/distillation")
   @Operation(summary = "Get semantic distillation", description = "Performs a semantic distillation process for the given list of concepts.")
-  public List<TTIriRef> getDistillation(@RequestBody SetDistillationRequest request) throws IOException {
+  public List<TTIriRef> getDistillation(HttpServletRequest request, @RequestBody SetDistillationRequest setDistillationRequest) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Distillation.POST")) {
       log.debug("getDistillation");
-      return setService.getDistillation(request.getConceptList(), request.getGraph());
+      List<Graph> graphs = reqObjService.getUserGraphs(request);
+      return setService.getDistillation(setDistillationRequest.getConceptList(), graphs);
     }
   }
 
@@ -128,19 +141,21 @@ public class SetController {
     description = "Exports a set of data according to the provided options, including various flags such as definition, core, legacy, subsets, etc."
   )
   public HttpEntity<Object> getSetExport(
-    @RequestBody SetExportRequest request
+    HttpServletRequest request,
+    @RequestBody SetExportRequest setExportRequest
   ) throws DownloadException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SetExport.GET")) {
       log.debug("getSetExport");
-      if (request.getOptions().getSubsumptions() == null || request.getOptions().getSubsumptions().isEmpty()) {
-        request.getOptions().setSubsumptions(asArrayList(IM.SUBSUMED_BY));
+      List<Graph> graphs = reqObjService.getUserGraphs(request);
+      if (setExportRequest.getOptions().getSubsumptions() == null || setExportRequest.getOptions().getSubsumptions().isEmpty()) {
+        setExportRequest.getOptions().setSubsumptions(asArrayList(IM.SUBSUMED_BY));
       }
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
-      headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + request.getFormat() + "\"");
+      headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + setExportRequest.getFormat() + "\"");
 
       try {
-        byte[] setExport = setService.getSetExport(request.getFormat(), request.getOptions().isIncludeIM1id(), request.getOptions());
+        byte[] setExport = setService.getSetExport(setExportRequest.getFormat(), setExportRequest.getOptions().isIncludeIM1id(), setExportRequest.getOptions(), graphs);
         return new HttpEntity<>(setExport, headers);
       } catch (IOException e) {
         throw new DownloadException("Failed to write to document.");
@@ -154,10 +169,15 @@ public class SetController {
 
   @GetMapping(value = "/public/setDiff")
   @Operation(summary = "Compare two sets", description = "Compares two sets identified by the provided IRIs and returns their differences.")
-  public SetDiffObject getSetComparison(@RequestParam(name = "setIriA") Optional<String> setIriA, @RequestParam(name = "setIriB") Optional<String> setIriB, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException, QueryException {
+  public SetDiffObject getSetComparison(
+    HttpServletRequest request,
+    @RequestParam(name = "setIriA") Optional<String> setIriA,
+    @RequestParam(name = "setIriB") Optional<String> setIriB
+  ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.SetDiff.GET")) {
       log.debug("getSetComparison");
-      return setService.getSetComparison(setIriA, setIriB, Graph.from(graph));
+      List<Graph> graphs = reqObjService.getUserGraphs(request);
+      return setService.getSetComparison(setIriA, setIriB, graphs);
     }
   }
 
@@ -168,7 +188,8 @@ public class SetController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UpdateSubsetsFromSuper.POST")) {
       log.debug("updateSubsetsFromSuper");
       String agentName = reqObjService.getRequestAgentName(request);
-      setService.updateSubsetsFromSuper(agentName, editRequest.getEntity(), editRequest.getGraph());
+      List<Graph> graphs = reqObjService.getUserGraphs(request);
+      setService.updateSubsetsFromSuper(agentName, editRequest.getEntity(), graphs, editRequest.getGraph());
     }
   }
 }

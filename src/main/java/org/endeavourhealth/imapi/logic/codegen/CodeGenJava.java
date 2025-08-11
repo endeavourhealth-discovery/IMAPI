@@ -6,18 +6,17 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.codegen.DataModel;
 import org.endeavourhealth.imapi.model.codegen.DataModelProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
-import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.zip.ZipEntry;
@@ -30,13 +29,13 @@ public class CodeGenJava {
   private final Queue<String> iris = new PriorityQueue<>();
   private final HashMap<String, DataModel> models = new HashMap<>();
 
-  public void generate(ZipOutputStream os, Graph graph) throws IOException {
-    getModelList(graph);
-    getDataModelRecursively(graph);
+  public void generate(ZipOutputStream os, List<Graph> graphs) throws IOException {
+    getModelList(graphs);
+    getDataModelRecursively(graphs);
     generateJavaCode(os);
   }
 
-  private void getModelList(Graph graph) {
+  private void getModelList(List<Graph> graphs) {
     log.debug("getting model list");
 
     String sql = """
@@ -47,7 +46,7 @@ public class CodeGenJava {
       }
       """;
 
-    try (IMDB conn = IMDB.getConnection(graph)) {
+    try (IMDB conn = IMDB.getConnection(graphs)) {
       TupleQuery query = conn.prepareTupleSparql(sql);
       try (TupleQueryResult result = query.evaluate()) {
         while (result.hasNext()) {
@@ -60,18 +59,18 @@ public class CodeGenJava {
     }
   }
 
-  private void getDataModelRecursively(Graph graph) {
+  private void getDataModelRecursively(List<Graph> graphs) {
     log.debug("getting models");
 
     while (!iris.isEmpty()) {
       String iri = iris.remove();
-      DataModel model = getDataModel(iri, graph);
+      DataModel model = getDataModel(iri, graphs);
       addMissingModelToQueue(model);
       models.put(iri, model);
     }
   }
 
-  private DataModel getDataModel(String iri, Graph graph) {
+  private DataModel getDataModel(String iri, List<Graph> graphs) {
     log.debug("get data model [{}]", iri);
 
     DataModel model = new DataModel().setIri(iri);
@@ -97,7 +96,7 @@ public class CodeGenJava {
         } ORDER BY ?order
       """;
 
-    try (IMDB conn = IMDB.getConnection(graph)) {
+    try (IMDB conn = IMDB.getConnection(graphs)) {
       TupleQuery query = conn.prepareTupleSparql(sql);
       query.setBinding("iri", Values.iri(iri));
       try (TupleQueryResult result = query.evaluate()) {

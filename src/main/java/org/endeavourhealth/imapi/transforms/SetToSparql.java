@@ -2,10 +2,12 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.DataFormatException;
@@ -17,10 +19,10 @@ public class SetToSparql {
   private String tabs = "   ";
 
 
-  public String getExpansionSparql(String entityVar, String iri) throws DataFormatException {
+  public String getExpansionSparql(String entityVar, String iri, List<Graph> graphs) throws DataFormatException {
 
     Set<String> predicates = asHashSet(RDFS.LABEL, IM.DEFINITION);
-    TTEntity entity = entityRepository.getEntityPredicates(iri, predicates).getEntity();
+    TTEntity entity = entityRepository.getEntityPredicates(iri, predicates, graphs).getEntity();
     StringBuilder subQuery = new StringBuilder();
     if (entity.get(TTIriRef.iri(IM.HAS_MEMBER)) != null) {
       subQuery.append("?").append(entityVar).append(" ")

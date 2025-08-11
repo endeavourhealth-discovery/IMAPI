@@ -24,6 +24,7 @@ public enum USER implements VocabEnum {
     USER_MRU(USER.DOMAIN + "UserMRU"),
     USER_FAVOURITES(USER.DOMAIN + "UserFavourites"),
     ORGANISATIONS(USER.DOMAIN + "ORGANISATIONS"),
+    GRAPHS(USER.DOMAIN + "GRAPHS"),
     ;
 
     private final String value;

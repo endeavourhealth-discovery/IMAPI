@@ -71,20 +71,20 @@ public class ConceptModelServiceTest {
       .setCode("24951000252112")
       .setTerm("Adverse reaction to Testogel")
       .setStatus(new TTIriRef().setIri(IM.ACTIVE).setName(TTIriRef.iri(IM.ACTIVE).getName()));
-    when(entityRepository.getBundle("http://endhealth.info/im#25451000252115", asHashSet(IM.HAS_TERM_CODE))).thenReturn(new TTBundle().setEntity(new TTEntity().set(TTIriRef.iri(IM.HAS_TERM_CODE), new TTArray().add(new TTNode().set(TTIriRef.iri(IM.CODE), new TTLiteral(termCode.getCode())).set(TTIriRef.iri(RDFS.LABEL), new TTLiteral(termCode.getTerm())).set(TTIriRef.iri(IM.HAS_STATUS), new TTArray().add(termCode.getStatus()))))));
+    when(entityRepository.getBundle("http://endhealth.info/im#25451000252115", asHashSet(IM.HAS_TERM_CODE), List.of(Graph.IM))).thenReturn(new TTBundle().setEntity(new TTEntity().set(TTIriRef.iri(IM.HAS_TERM_CODE), new TTArray().add(new TTNode().set(TTIriRef.iri(IM.CODE), new TTLiteral(termCode.getCode())).set(TTIriRef.iri(RDFS.LABEL), new TTLiteral(termCode.getTerm())).set(TTIriRef.iri(IM.HAS_STATUS), new TTArray().add(termCode.getStatus()))))));
     List<SearchTermCode> actual = conceptService.getEntityTermCodes("http://endhealth.info/im#25451000252115", false);
     assertNotNull(actual);
   }
 
   @Test
   void getSimpleMaps_NullIri() {
-    List<SimpleMap> actual = conceptService.getMatchedFrom(null, Graph.IM);
+    List<SimpleMap> actual = conceptService.getMatchedFrom(null, List.of(Graph.IM));
     assertNotNull(actual);
   }
 
   @Test
   void getSimpleMaps_EmptyIri() {
-    Collection<SimpleMap> actual = conceptService.getMatchedFrom("", Graph.IM);
+    Collection<SimpleMap> actual = conceptService.getMatchedFrom("", List.of(Graph.IM));
     assertNotNull(actual);
   }
 
@@ -92,7 +92,7 @@ public class ConceptModelServiceTest {
   void getSimpleMaps_NotNullIri() {
     when(entityRepository.findNamespaces(any())).thenReturn(new ArrayList<>());
     when(conceptRepository.getMatchedFrom(anyString(), anyList(), any())).thenReturn(new ArrayList<>());
-    Collection<SimpleMap> actual = conceptService.getMatchedFrom("http://endhealth.info/im#25451000252115", Graph.IM);
+    Collection<SimpleMap> actual = conceptService.getMatchedFrom("http://endhealth.info/im#25451000252115", List.of(Graph.IM));
     assertNotNull(actual);
   }
 }

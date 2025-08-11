@@ -88,6 +88,7 @@ public class QueryService {
   }
 
   public SqlWithSubqueries getSQLFromIMQ(QueryRequest queryRequest) throws SQLConversionException {
+    queryRequest.resolveArgs();
     return new IMQtoSQLConverter(queryRequest).IMQtoSQL();
   }
 
@@ -139,9 +140,10 @@ public class QueryService {
   }
 
   public List<String> executeQuery(QueryRequest queryRequest, Graph graph) throws SQLConversionException, SQLException, QueryException {
+    queryRequest.resolveArgs();
     int qrHashCode = getQueryRequestHashCode(queryRequest);
     log.info("Executing query: {} with a hash code: {}", queryRequest.getQuery().getIri(), qrHashCode);
-//    TODO: if query has is rules needs to be converted to match based query
+    // TODO: if query has is rules needs to be converted to match based query
     try {
       List<String> results = getQueryResults(queryRequest);
       if (results != null) return results;
@@ -361,45 +363,44 @@ public class QueryService {
   }
 
 
-
-  private NodeShape getTypeFromPath(Path path,Set<String> nodeRefs) {
-    if (path.getVariable()!=null) {
+  private NodeShape getTypeFromPath(Path path, Set<String> nodeRefs) {
+    if (path.getVariable() != null) {
       if (nodeRefs.contains(path.getVariable())) {
-            return dataModelRepository.getDataModelDisplayProperties(path.getTypeOf().getIri(), false, Graph.IM);
-          }
-          if(path.getPath()!=null){
-            for (Path subPath : path.getPath()) {
-              NodeShape nodeShape = getTypeFromPath(subPath,nodeRefs);
-              if (nodeShape != null) return nodeShape;
-            }
-          }
+        return dataModelRepository.getDataModelDisplayProperties(path.getTypeOf().getIri(), false, Graph.IM);
+      }
+      if (path.getPath() != null) {
+        for (Path subPath : path.getPath()) {
+          NodeShape nodeShape = getTypeFromPath(subPath, nodeRefs);
+          if (nodeShape != null) return nodeShape;
         }
-      return null;
+      }
+    }
+    return null;
   }
 
   private void getNodeRefs(Match match, Set<String> nodeRefs) {
     Where where = match.getWhere();
     if (where != null) {
-      if (where.getNodeRef()!=null){
+      if (where.getNodeRef() != null) {
         nodeRefs.add(where.getNodeRef());
       }
       for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr(), where.getNot())) {
-        if (whereList!=null){
-          for (Where subWhere:whereList)
-            getNodeRefs(subWhere,nodeRefs);
+        if (whereList != null) {
+          for (Where subWhere : whereList)
+            getNodeRefs(subWhere, nodeRefs);
         }
       }
     }
   }
 
   private void getNodeRefs(Where where, Set<String> nodeRefs) {
-    if (where.getNodeRef()!=null){
+    if (where.getNodeRef() != null) {
       nodeRefs.add(where.getNodeRef());
     }
     for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr(), where.getNot())) {
-      if (whereList!=null){
-        for (Where subWhere:whereList)
-          getNodeRefs(subWhere,nodeRefs);
+      if (whereList != null) {
+        for (Where subWhere : whereList)
+          getNodeRefs(subWhere, nodeRefs);
       }
     }
   }

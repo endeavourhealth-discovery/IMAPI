@@ -103,8 +103,8 @@ public class MYSQLConnectionManager {
 
   public static List<String> getResults(QueryRequest queryRequest) throws SQLException {
     List<String> ids = new ArrayList<>();
-    try (Connection getResultsConnection = getConnection()) {
-      try (Statement statement = getResultsConnection.createStatement()) {
+    try (Connection getResultsConnection = getConnection();
+         Statement statement = getResultsConnection.createStatement()) {
         String sql = "SELECT id FROM `" + queryRequest.hashCode() + "`";
         if (queryRequest.getPage() != null && queryRequest.getPage().getPageNumber() > 0 && queryRequest.getPage().getPageSize() > 0) {
           int offset = (queryRequest.getPage().getPageNumber() - 1) * queryRequest.getPage().getPageSize();
@@ -114,7 +114,6 @@ public class MYSQLConnectionManager {
         while (resultSet.next()) {
           ids.add(resultSet.getString("id"));
         }
-      }
     }
     return ids;
   }

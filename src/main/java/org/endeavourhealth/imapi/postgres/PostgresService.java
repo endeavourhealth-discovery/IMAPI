@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.postgress;
+package org.endeavourhealth.imapi.postgres;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.NoArgsConstructor;

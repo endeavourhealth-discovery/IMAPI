@@ -614,8 +614,8 @@ public class IMQtoSQLConverter {
       SELECT c.dbid, c.id FROM concept c
       WHERE c.id IN (%s);
       """.formatted("'" + StringUtils.join(im1ids, "', '") + "'");
-    try (Connection executeConnection = getConnection()) {
-      try (PreparedStatement statement = executeConnection.prepareStatement(sql)) {
+    try (Connection executeConnection = getConnection();
+         PreparedStatement statement = executeConnection.prepareStatement(sql)) {
         ResultSet rs = statement.executeQuery();
         List<String> results = new ArrayList<>();
         while (rs.next()) {
@@ -624,7 +624,6 @@ public class IMQtoSQLConverter {
         if (results.isEmpty())
           throw new SQLConversionException("No IM1IDs found for '" + StringUtils.join(im1ids, "',\n'") + "'");
         return results;
-      }
     } catch (SQLException e) {
       log.error("Error running SQL [{}]", sql);
       e.printStackTrace();

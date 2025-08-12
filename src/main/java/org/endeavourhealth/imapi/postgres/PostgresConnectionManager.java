@@ -1,10 +1,9 @@
-package org.endeavourhealth.imapi.postgress;
+package org.endeavourhealth.imapi.postgres;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 
@@ -26,14 +25,10 @@ public class PostgresConnectionManager {
     throw new IllegalStateException("Utility class");
   }
 
-  private static Connection getConnection() throws SQLException {
+  public static Connection getConnection() throws SQLException {
     if (ds == null)
       ds = new HikariDataSource(config);
 
     return ds.getConnection();
-  }
-
-  public static PreparedStatement prepareStatement(String sql) throws SQLException {
-    return getConnection().prepareStatement(sql);
   }
 }

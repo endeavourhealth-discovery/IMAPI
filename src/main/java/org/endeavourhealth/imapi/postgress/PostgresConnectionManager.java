@@ -14,6 +14,7 @@ public class PostgresConnectionManager {
 
   static {
     config.setJdbcUrl(Optional.ofNullable(System.getenv("POSTGRES_URL")).orElseThrow());
+    config.setDriverClassName("org.postgresql.Driver");
     config.setUsername(Optional.ofNullable(System.getenv("POSTGRES_USER")).orElseThrow());
     config.setPassword(Optional.ofNullable(System.getenv("POSTGRES_PASSWORD")).orElseThrow());
     config.addDataSourceProperty("cachePrepStmts", "true");

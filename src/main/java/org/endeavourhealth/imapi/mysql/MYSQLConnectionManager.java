@@ -18,6 +18,7 @@ public class MYSQLConnectionManager {
 
   static {
     config.setJdbcUrl(Optional.ofNullable(System.getenv("MYSQL_URL")).orElseThrow());
+    config.setDriverClassName("com.mysql.cj.jdbc.Driver");
     config.setUsername(Optional.ofNullable(System.getenv("MYSQL_USERNAME")).orElseThrow());
     config.setPassword(Optional.ofNullable(System.getenv("MYSQL_PASSWORD")).orElseThrow());
     config.addDataSourceProperty("cachePrepStmts", "true");

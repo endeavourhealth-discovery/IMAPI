@@ -1,31 +1,35 @@
 package org.endeavourhealth.imapi.postgress;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
-import java.util.Properties;
 
 public class PostgresConnectionManager {
-  private static final String POSTGRES_URL = Optional.ofNullable(System.getenv("POSTGRES_URL")).orElseThrow(() -> new IllegalArgumentException("Env var 'POSTGRES_URL' is not defined"));
-  private static final String POSTGRES_USER = Optional.ofNullable(System.getenv("POSTGRES_USER")).orElseThrow(() -> new IllegalArgumentException("Env var 'POSTGRES_USER' is not defined"));
-  private static final String POSTGRES_PASSWORD = Optional.ofNullable(System.getenv("POSTGRES_PASSWORD")).orElseThrow(() -> new IllegalArgumentException("Env var 'POSTGRES_PASSWORD' is not defined"));
-  private static Connection connection = null;
+  private static final HikariConfig config = new HikariConfig();
+  private static HikariDataSource ds = null;
+
+  static {
+    config.setJdbcUrl(Optional.ofNullable(System.getenv("POSTGRES_URL")).orElseThrow());
+    config.setUsername(Optional.ofNullable(System.getenv("POSTGRES_USER")).orElseThrow());
+    config.setPassword(Optional.ofNullable(System.getenv("POSTGRES_PASSWORD")).orElseThrow());
+    config.addDataSourceProperty("cachePrepStmts", "true");
+    config.addDataSourceProperty("prepStmtCacheSize", "250");
+    config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+  }
 
   private PostgresConnectionManager() {
     throw new IllegalStateException("Utility class");
   }
 
   private static Connection getConnection() throws SQLException {
-    if (connection != null) {
-      return connection;
-    }
-    Properties props = new Properties();
-    props.setProperty("user", POSTGRES_USER);
-    props.setProperty("password", POSTGRES_PASSWORD);
-    connection = DriverManager.getConnection(POSTGRES_URL, props);
-    return connection;
+    if (ds == null)
+      ds = new HikariDataSource(config);
+
+    return ds.getConnection();
   }
 
   public static PreparedStatement prepareStatement(String sql) throws SQLException {

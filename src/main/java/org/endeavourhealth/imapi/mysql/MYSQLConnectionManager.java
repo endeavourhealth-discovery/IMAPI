@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.mysql;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 
@@ -7,32 +9,33 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class MYSQLConnectionManager {
-  private static final String url = Optional.ofNullable(System.getenv("MYSQL_URL")).orElseThrow();
-  private static final String user = Optional.ofNullable(System.getenv("MYSQL_USERNAME")).orElseThrow();
-  private static final String password = Optional.ofNullable(System.getenv("MYSQL_PASSWORD")).orElseThrow();
-  private static Connection connection;
   private static int connectionId;
+  private static final HikariConfig config = new HikariConfig();
+  private static HikariDataSource ds = null;
+
+  static {
+    config.setJdbcUrl(Optional.ofNullable(System.getenv("MYSQL_URL")).orElseThrow());
+    config.setUsername(Optional.ofNullable(System.getenv("MYSQL_USERNAME")).orElseThrow());
+    config.setPassword(Optional.ofNullable(System.getenv("MYSQL_PASSWORD")).orElseThrow());
+    config.addDataSourceProperty("cachePrepStmts", "true");
+    config.addDataSourceProperty("prepStmtCacheSize", "250");
+    config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+  }
 
   private MYSQLConnectionManager() {
     throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
   }
 
   public static Connection getConnection() throws SQLException {
-    Connection connection = createNewConnection();
+    if (ds == null)
+      ds = new HikariDataSource(config);
+
+    Connection connection = ds.getConnection();
     connectionId = getConnectionId(connection);
     return connection;
-  }
-
-  private static Connection createNewConnection() throws SQLException {
-    Properties props = new Properties();
-    props.setProperty("user", user);
-    props.setProperty("password", password);
-    return DriverManager.getConnection(url, props);
   }
 
   public static List<String> executeQuery(String sql) throws SQLException {
@@ -54,13 +57,13 @@ public class MYSQLConnectionManager {
     try (Connection connection = getConnection()) {
       String values = "(" + String.join("), \n(", results) + ")";
       String sql = """
-                INSERT INTO `%s` (id) \n VALUES \n %s;
+                INSERT INTO `%s` (id)
+                VALUES %s;
         """.formatted(hashCode, values);
       try (PreparedStatement statement = connection.prepareStatement(sql)) {
         statement.execute();
       }
     }
-
   }
 
   public static void createTable(int hashCode) throws SQLException {
@@ -88,7 +91,8 @@ public class MYSQLConnectionManager {
   }
 
   public static void killCurrentQuery() throws SQLException {
-    try (Connection killConnection = createNewConnection(); Statement stmt = killConnection.createStatement()) {
+    try (Connection killConnection = ds.getConnection();
+         Statement stmt = killConnection.createStatement()) {
       String killSql = "KILL QUERY " + connectionId;
       stmt.execute(killSql);
       log.info("Killed active query for connection ID: {}", connectionId);

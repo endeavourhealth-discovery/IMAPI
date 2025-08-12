@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -100,6 +101,8 @@ public class GithubService {
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
     ObjectMapper mapper = new ObjectMapper();
+    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
     GithubDTO jsonReleaseMap = mapper.readValue(response.body(), GithubDTO.class);
     return processGithubRelease(jsonReleaseMap);
   }
@@ -119,6 +122,8 @@ public class GithubService {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     ObjectMapper mapper = new ObjectMapper();
+    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
     List<GithubRelease> results = new ArrayList<>();
     List<GithubDTO> githubDTOList = mapper.readValue(response.body(), new TypeReference<>() {
     });

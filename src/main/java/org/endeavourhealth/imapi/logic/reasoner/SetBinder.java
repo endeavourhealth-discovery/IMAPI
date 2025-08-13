@@ -63,7 +63,7 @@ public class SetBinder {
     if (!members.isEmpty()) {
       Set<String> memberIris = members.stream().map(Entity::getIri).collect(Collectors.toSet());
       Set<TTNode> dataModels = setRepository.getBindingsForConcept(memberIris, userGraphs);
-      setRepository.bindConceptSetToDataModel(iri, dataModels, insertGraph);
+      setRepository.bindConceptSetToDataModel(iri, dataModels, userGraphs, insertGraph);
       return dataModels;
     }
     return Collections.emptySet();

@@ -49,20 +49,20 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   private Map<String, Set<String>> isAs;
   private TTManager manager;
   private Set<String> done;
-  private Graph graph;
+  private Graph insertGraph;
 
 
   /**
    * Destination folder for transaction log files must be set.
    */
-  public TTTransactionFiler(Graph graph) {
-    this.graph = graph;
+  public TTTransactionFiler(Graph insertGraph) {
+    this.insertGraph = insertGraph;
     logPath = System.getenv("DELTA_PATH");
     log.info("Connecting");
-    conn = IMDB.getConnection(List.of(graph));
+    conn = IMDB.getConnection(List.of(insertGraph));
 
     log.info("Initializing");
-    conceptFiler = new TTEntityFilerRdf4j(conn, prefixMap, graph);
+    conceptFiler = new TTEntityFilerRdf4j(conn, prefixMap, insertGraph);
     instanceFiler = conceptFiler;   // Concepts & Instances filed in the same way
     log.info("Done");
   }
@@ -109,7 +109,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
   }
 
-  public void fileDeltas(String deltaPath, List<Graph> graphs) throws IOException, QueryException, TTFilerException {
+  public void fileDeltas(String deltaPath, Graph insertGraph) throws IOException, QueryException, TTFilerException {
     this.logPath = deltaPath;
     Map<Integer, String> transactionLogs = new HashMap<>();
     log.debug("Filing deltas from [{}]", logPath);
@@ -127,7 +127,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       for (Integer logNumber : transactionLogs.keySet().stream().sorted().toList()) {
         log.info("Filing TTLog-{}.json", logNumber);
         ttManager.loadDocument(new File(transactionLogs.get(logNumber)));
-        fileDocument(ttManager.getDocument(), graphs);
+        fileDocument(ttManager.getDocument(), insertGraph);
       }
     }
 
@@ -165,7 +165,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   }
 
   @Override
-  public void fileDocument(TTDocument document, List<Graph> userGraphs) throws TTFilerException, JsonProcessingException, QueryException {
+  public void fileDocument(TTDocument document, Graph insertGraph) throws TTFilerException, JsonProcessingException, QueryException {
     if (document.getEntities() == null) {
       throw new TTFilerException("Document has no entities");
     }
@@ -173,10 +173,10 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     document.getEntities().removeIf(e -> null == e.getIri());
 
     checkDeletes(document);
-    fileAsDocument(document, userGraphs);
+    fileAsDocument(document, insertGraph);
   }
 
-  public void fileDocument(TTDocument document, String taskId, List<Graph> userGraphs) throws TTFilerException, JsonProcessingException, QueryException {
+  public void fileDocument(TTDocument document, String taskId, Graph insertGraph) throws TTFilerException, JsonProcessingException, QueryException {
     if (document.getEntities() == null) {
       throw new TTFilerException("Document has no entities");
     }
@@ -184,7 +184,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     document.getEntities().removeIf(e -> null == e.getIri());
 
     checkDeletes(document);
-    fileAsDocument(document, taskId, userGraphs, graph);
+    fileAsDocument(document, taskId, insertGraph);
   }
 
   private void checkDeletes(TTDocument transaction) throws TTFilerException {
@@ -194,7 +194,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
   }
 
-  private void fileAsDocument(TTDocument document, List<Graph> graphs) throws TTFilerException, JsonProcessingException, QueryException {
+  private void fileAsDocument(TTDocument document, Graph insertGraph) throws TTFilerException, JsonProcessingException, QueryException {
     try {
       startTransaction();
       log.info("Filing entities.... ");
@@ -220,21 +220,21 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
         writeLog(document);
       updateTct(document);
       log.info("Updating range inheritances");
-      new RangeInheritor().inheritRanges(conn, graph);
+      new RangeInheritor().inheritRanges(conn, insertGraph);
       commit();
 
     } catch (Exception e) {
       rollback();
       throw new TTFilerException(e.getMessage());
     }
-    updateSets(document, graphs);
+    updateSets(document, insertGraph);
   }
 
   public synchronized Integer getFilingProgress(String taskId) {
     return filingProgress;
   }
 
-  private synchronized void fileAsDocument(TTDocument document, String taskId, List<Graph> userGraphs, Graph graph) throws TTFilerException, JsonProcessingException, QueryException {
+  private synchronized void fileAsDocument(TTDocument document, String taskId, Graph insertGraph) throws TTFilerException, JsonProcessingException, QueryException {
 
     if (filingProgress != null)
       throw new TTFilerException("There is a document already filing, please try again later");
@@ -274,7 +274,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       rollback();
       throw new TTFilerException(e.getMessage());
     }
-    updateSets(document, userGraphs);
+    updateSets(document, insertGraph);
     filingProgress = null;
   }
 
@@ -285,13 +285,13 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       conceptFiler.fileEntity(entity);
   }
 
-  public void updateSets(TTDocument document, List<Graph> userGraphs) throws QueryException, JsonProcessingException {
+  public void updateSets(TTDocument document, Graph insertGraph) throws QueryException, JsonProcessingException {
     for (TTEntity entity : document.getEntities()) {
       if (entity.isType(iri(IM.CONCEPT_SET)) || entity.isType(iri(IM.VALUESET))) {
         log.info("Expanding set {}", entity.getIri());
-        new SetMemberGenerator().generateMembers(entity.getIri(), List.of(graph), graph);
+        new SetMemberGenerator().generateMembers(entity.getIri(), List.of(insertGraph), insertGraph);
         log.info("Binding set {}", entity.getIri());
-        new SetBinder().bindSet(entity.getIri(), userGraphs, graph);
+        new SetBinder().bindSet(entity.getIri(), List.of(Graph.IM), insertGraph);
       }
     }
   }

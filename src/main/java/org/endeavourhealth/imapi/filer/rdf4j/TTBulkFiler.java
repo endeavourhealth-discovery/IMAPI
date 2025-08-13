@@ -156,7 +156,7 @@ public class TTBulkFiler implements TTDocumentFiler {
     statementCount++;
   }
 
-  public void fileDocument(TTDocument document, List<Graph> graphs) throws TTFilerException {
+  public void fileDocument(TTDocument document, Graph insertGraph) throws TTFilerException {
     if (document.getEntities() == null)
       return;
     if (document.getEntities().isEmpty())
@@ -164,7 +164,7 @@ public class TTBulkFiler implements TTDocumentFiler {
 
     validateDocument(document);
 
-    writeGraph(document, graph);
+    writeGraph(document, insertGraph);
   }
 
   private void validateDocument(TTDocument document) throws TTFilerException {

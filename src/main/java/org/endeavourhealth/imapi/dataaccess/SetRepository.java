@@ -321,7 +321,7 @@ public class SetRepository {
   }
 
 
-  public void bindConceptSetToDataModel(String iri, Set<TTNode> dataModels, Graph graph) {
+  public void bindConceptSetToDataModel(String iri, Set<TTNode> dataModels, List<Graph> userGraphs, Graph insertGraph) {
 
     String deleteBinding = """
       DELETE { ?concept im:binding ?datamodel}
@@ -344,12 +344,12 @@ public class SetRepository {
     }
     newBinding.add("}");
 
-    try (IMDB conn = IMDB.getConnection(List.of(graph))) {
+    try (IMDB conn = IMDB.getConnection(userGraphs)) {
       conn.begin();
       org.eclipse.rdf4j.query.Update upd = conn.prepareDeleteSparql(deleteBinding);
       upd.setBinding(CONCEPT, Values.iri(iri));
       upd.execute();
-      upd = conn.prepareInsertSparql(newBinding.toString(), graph);
+      upd = conn.prepareInsertSparql(newBinding.toString(), insertGraph);
       upd.execute();
       conn.commit();
     }

@@ -51,16 +51,17 @@ public class MYSQLConnectionManager {
 
   public static void saveResults(int hashCode, List<String> results) throws SQLException {
     createTable(hashCode);
-    try (Connection connection = getConnection()) {
-      String values = "(" + String.join("), \n(", results) + ")";
-      String sql = """
-                INSERT INTO `%s` (id) \n VALUES \n %s;
-        """.formatted(hashCode, values);
-      try (PreparedStatement statement = connection.prepareStatement(sql)) {
-        statement.execute();
+    if (!results.isEmpty()) {
+      try (Connection connection = getConnection()) {
+        String values = "(" + String.join("), \n(", results) + ")";
+        String sql = """
+                  INSERT INTO `%s` (id) \n VALUES \n %s;
+          """.formatted(hashCode, values);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+          statement.execute();
+        }
       }
     }
-
   }
 
   public static void createTable(int hashCode) throws SQLException {

@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -492,8 +493,8 @@ public class IMQtoSQLConverter {
   }
 
   private String convertMatchPropertyDateRangeNode(String fieldName, Assignable range) throws SQLConversionException {
-    if (range.getUnit() != null && "DATE".equals(range.getUnit().getName()))
-      return "'" + range.getValue() + "' " + range.getOperator().getValue() + " " + fieldName;
+    if (range.getUnit() == null)
+      return "'" + toMysqlDate(range.getValue()) + "' " + range.getOperator().getValue() + " " + fieldName;
     else {
       String returnString;
       if (isPostgreSQL())
@@ -627,4 +628,25 @@ public class IMQtoSQLConverter {
       throw new SQLConversionException("SQL Conversion Error: SQLException for getting im1ids\n" + StringUtils.join(im1ids, ","), e);
     }
   }
+
+  public static String toMysqlDate(String dateStr) {
+    List<String> POSSIBLE_PATTERNS = Arrays.asList(
+      "dd/MM/yyyy",
+      "dd-MM-yyyy",
+      "yyyy/MM/dd",
+      "yyyy-MM-dd"
+    );
+
+    for (String pattern : POSSIBLE_PATTERNS) {
+      try {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern(pattern);
+        LocalDate date = LocalDate.parse(dateStr, fmt);
+        return date.format(DateTimeFormatter.ISO_LOCAL_DATE);
+      } catch (DateTimeParseException ignored) {
+        // Try the next pattern
+      }
+    }
+    throw new IllegalArgumentException("Unrecognized date format: " + dateStr);
+  }
+
 }

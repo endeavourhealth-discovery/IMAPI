@@ -1572,6 +1572,9 @@ public class EntityRepository {
 
   public Map<String, TTEntity> getEntitiesWithPredicates(Set<String> iris, Set<String> predicates, Graph graph) {
     Map<String, TTEntity> result = new HashMap<>();
+    if (iris == null || iris.isEmpty())
+      return result;
+
     iris.remove(null);
     String sql = """
       select ?entity ?entityLabel ?predicate ?predicateLabel ?object ?objectLabel ?subPredicate ?subPredicateLabel ?subObject ?subObjectLabel

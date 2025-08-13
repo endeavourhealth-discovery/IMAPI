@@ -710,7 +710,6 @@ public class SetRepository {
         ?set im:entailedMember ?entailed.
         {
           ?entailed im:instanceOf ?member.
-          filter not exists {?entailed im:entailment ?entailment}
         }
         union {
           ?entailed im:instanceOf ?parent.

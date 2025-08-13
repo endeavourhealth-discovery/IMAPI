@@ -33,16 +33,12 @@ import static org.endeavourhealth.imapi.mysql.MYSQLConnectionManager.getConnecti
 public class IMQtoSQLConverter {
   private TableMap tableMap;
   private QueryRequest queryRequest;
-  private String currentDate;
   private final EntityRepository entityRepository = new EntityRepository();
   private List<String> subqueryIris;
 
   public IMQtoSQLConverter(QueryRequest queryRequest) {
     this.queryRequest = queryRequest;
     if (null == queryRequest.getLanguage()) queryRequest.setLanguage(DatabaseOption.MYSQL);
-    LocalDate today = LocalDate.now();
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-    this.currentDate = today.format(formatter);
     this.subqueryIris = new ArrayList<>();
 
     try {
@@ -412,10 +408,10 @@ public class IMQtoSQLConverter {
 
     for (Node pIs : list) {
       if (pIs.getIri() != null) {
-        if (pIs.isAncestorsOf()) ancestors.add(pIs.getIri());
+        if (pIs.isMemberOf()) membersOf.add(pIs.getIri());
+        else if (pIs.isAncestorsOf()) ancestors.add(pIs.getIri());
         else if (pIs.isDescendantsOf()) descendants.add(pIs.getIri());
         else if (pIs.isDescendantsOrSelfOf()) descendantsSelf.add(pIs.getIri());
-        else if (pIs.isMemberOf()) membersOf.add(pIs.getIri());
         else direct.add(pIs.getIri());
       } else if (pIs.getParameter() != null) {
         descendantsSelf.add(pIs.getIri());

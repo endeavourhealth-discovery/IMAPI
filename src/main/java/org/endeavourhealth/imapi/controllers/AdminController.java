@@ -7,11 +7,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.imapi.aws.*;
+import org.endeavourhealth.imapi.aws.AWSCognitoClient;
 import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.model.admin.User;
 import org.endeavourhealth.imapi.model.postRequestPrimatives.StringBody;
 import org.endeavourhealth.imapi.model.requests.CognitoGroupRequest;
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -70,7 +71,7 @@ public class AdminController {
 
   @GetMapping(value = "/cognito/groups")
   @Operation(summary = "List Cognito groups", description = "Retrieve a list of all Cognito user groups.")
-  public List<String> listGroups() throws IOException {
+  public List<UserRole> listGroups() throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Admin.Cognito.groups.GET")) {
       log.debug("getGroups");
       return awsCognitoClient.adminListGroups();

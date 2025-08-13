@@ -10,10 +10,7 @@ import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.WorkflowService;
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest;
 import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
-import org.endeavourhealth.imapi.model.workflow.BugReport;
-import org.endeavourhealth.imapi.model.workflow.EntityApproval;
-import org.endeavourhealth.imapi.model.workflow.RoleRequest;
-import org.endeavourhealth.imapi.model.workflow.Task;
+import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -163,6 +160,55 @@ public class WorkflowController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.rejectRoleRequest.POST")) {
       log.debug("rejectRoleRequest");
       workflowService.rejectRoleRequest(request, roleRequest);
+    }
+  }
+
+  @Operation(summary = "Create Graph Request", description = "Submit a graph request created by the user.")
+  @PostMapping(value = "/createGraphRequest")
+  public void createGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws IOException, TaskFilerException, UserNotFoundException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.createGraphRequest.POST")) {
+      String id = requestObjectService.getRequestAgentId(request);
+      if (null == graphRequest.getCreatedBy()) graphRequest.setCreatedBy(id);
+      workflowService.createGraphRequest(graphRequest);
+    }
+  }
+
+  @Operation(summary = "Get Graph Request", description = "Retrieve a graph request using its unique ID.")
+  @GetMapping(value = "/graphRequest", produces = "application/json")
+  @PreAuthorize("hasAuthority('IMAdmin')")
+  public GraphRequest getGraphRequest(@RequestParam(name = "id") String id) throws UserNotFoundException, IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.graphRequest.GET")) {
+      log.debug("getGraphRequest");
+      return workflowService.getGraphRequest(id);
+    }
+  }
+
+  @Operation(summary = "Update graph request", description = "Update a graph request workflow task")
+  @PostMapping(value = "/updateGraphRequest")
+  public void updateGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws IOException, TaskFilerException, UserNotFoundException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.updateGraphRequest.POST")) {
+      log.debug("updateGraphRequest");
+      workflowService.updateGraphRequest(graphRequest, request);
+    }
+  }
+
+  @Operation(summary = "Approve graph request")
+  @PostMapping(value = "/approveGraphRequest")
+  @PreAuthorize("hasAuthority('IMAdmin')")
+  public void approveGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws IOException, TaskFilerException, UserNotFoundException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.approveGraphRequest.POST")) {
+      log.debug("approveGraphRequest");
+      workflowService.approveGraphRequest(request, graphRequest);
+    }
+  }
+
+  @Operation(summary = "Reject graph request")
+  @PostMapping(value = "/rejectGraphRequest")
+  @PreAuthorize("hasAuthority('IMAdmin')")
+  public void rejectGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws IOException, TaskFilerException, UserNotFoundException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.rejectGraphRequest.POST")) {
+      log.debug("rejectGraphRequest");
+      workflowService.rejectGraphRequest(request, graphRequest);
     }
   }
 

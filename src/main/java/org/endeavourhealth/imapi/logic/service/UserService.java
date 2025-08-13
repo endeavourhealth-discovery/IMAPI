@@ -63,12 +63,13 @@ public class UserService {
   }
 
   public List<RecentActivityItemDto> getUserMRU(String userId) throws JsonProcessingException {
+    List<Graph> graphs = getUserGraphs(userId);
     List<RecentActivityItemDto> mru = userRepository.getUserMRU(userId);
     boolean hasNoneExistingIris = mru.stream()
-      .anyMatch(mruDto -> !entityService.iriExists(mruDto.getIri(), null));
+      .anyMatch(mruDto -> !entityService.iriExists(mruDto.getIri(), graphs));
     if (hasNoneExistingIris) {
       List<RecentActivityItemDto> updatedMRUs = mru.stream()
-        .filter(mruDto -> entityService.iriExists(mruDto.getIri(), null)).toList();
+        .filter(mruDto -> entityService.iriExists(mruDto.getIri(), graphs)).toList();
       updateUserMRU(userId, updatedMRUs);
       return userRepository.getUserMRU(userId);
     }
@@ -80,12 +81,13 @@ public class UserService {
   }
 
   public List<String> getUserFavourites(String userId) throws JsonProcessingException {
+    List<Graph> graphs = getUserGraphs(userId);
     List<String> favourites = userRepository.getUserFavourites(userId);
     boolean hasNoneExistingIris = favourites.stream()
-      .anyMatch(favouriteIri -> !entityService.iriExists(favouriteIri, null));
+      .anyMatch(favouriteIri -> !entityService.iriExists(favouriteIri, graphs));
     if (hasNoneExistingIris) {
       List<String> updatedFavourites = favourites.stream()
-        .filter(f -> entityService.iriExists(f, null)).toList();
+        .filter(f -> entityService.iriExists(f, graphs)).toList();
       updateUserFavourites(userId, updatedFavourites);
       return userRepository.getUserFavourites(userId);
     }

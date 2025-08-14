@@ -274,16 +274,6 @@ public class Query extends Match {
   }
 
 
-  public Query setOrderBy(OrderLimit orderBy) {
-    super.setOrderBy(orderBy);
-    return this;
-  }
-
-  public Query orderBy(Consumer<OrderLimit> builder) {
-    super.orderBy(builder);
-    return this;
-  }
-
 
   public List<GroupBy> getGroupBy() {
     return groupBy;

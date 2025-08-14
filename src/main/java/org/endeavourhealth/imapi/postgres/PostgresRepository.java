@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.postgress;
+package org.endeavourhealth.imapi.postgres;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,10 +7,7 @@ import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.*;
 
 public class PostgresRepository {
@@ -28,7 +25,8 @@ public class PostgresRepository {
         ON CONFLICT(id)
           DO UPDATE SET (query_iri, query_name, query_request, user_id, user_name, queued_at, started_at, pid, finished_at, killed_at, status, error) = (?, ?, ?::jsonb, ?, ?, ?::timestamp, ?::timestamp, ?, ?::timestamp, ?::timestamp, ?, ?);
       """;
-    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement(sql)) {
+    try (Connection conn = PostgresConnectionManager.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setObject(1, entry.getId());
       ps.setString(2, entry.getQueryIri());
       ps.setString(3, entry.getQueryName());
@@ -68,7 +66,8 @@ public class PostgresRepository {
   }
 
   public static Optional<DBEntry> findById(UUID id) throws SQLException, JsonProcessingException {
-    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement("SELECT * FROM query_queue WHERE id = ?")) {
+    try (Connection conn = PostgresConnectionManager.getConnection();
+      PreparedStatement ps = conn.prepareStatement("SELECT * FROM query_queue WHERE id = ?")) {
       ps.setObject(1, id);
       try (ResultSet rs = ps.executeQuery()) {
         if (rs.next()) {
@@ -81,7 +80,8 @@ public class PostgresRepository {
   }
 
   public static void deleteById(UUID id) throws SQLException {
-    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement("DELETE FROM query_queue WHERE id = ?")) {
+    try (Connection conn = PostgresConnectionManager.getConnection();
+         PreparedStatement ps = conn.prepareStatement("DELETE FROM query_queue WHERE id = ?")) {
       ps.setObject(1, id);
       ps.executeUpdate();
     }
@@ -92,7 +92,8 @@ public class PostgresRepository {
     stringJoiner.add("SELECT * FROM query_queue WHERE user_id = ?");
     stringJoiner.add("ORDER BY id DESC");
     if (page != 0 && size != 0) stringJoiner.add("LIMIT ? OFFSET ?");
-    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement(stringJoiner.toString())) {
+    try (Connection conn = PostgresConnectionManager.getConnection();
+         PreparedStatement ps = conn.prepareStatement(stringJoiner.toString())) {
       ps.setObject(1, userId);
       if (page != 0 && size != 0) {
         ps.setInt(2, size);
@@ -115,7 +116,8 @@ public class PostgresRepository {
 
   public static int getTotalCountByUserId(UUID userId) throws SQLException {
     String sql = "SELECT COUNT(query_iri) AS total FROM query_queue WHERE user_id = ?";
-    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement(sql)) {
+    try (Connection conn = PostgresConnectionManager.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setObject(1, userId);
       try (ResultSet rs = ps.executeQuery()) {
         if (rs.next()) {
@@ -130,7 +132,8 @@ public class PostgresRepository {
     StringJoiner stringJoiner = new StringJoiner("");
     stringJoiner.add("SELECT * FROM query_queue WHERE status = ?");
     if (page != 0 && size != 0) stringJoiner.add(" LIMIT ? OFFSET ?");
-    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement(stringJoiner.toString())) {
+    try (Connection conn = PostgresConnectionManager.getConnection();
+         PreparedStatement ps = conn.prepareStatement(stringJoiner.toString())) {
       ps.setString(1, status.toString());
       if (page != 0 && size != 0) {
         ps.setInt(2, size);
@@ -153,7 +156,8 @@ public class PostgresRepository {
 
   public static int getTotalCountByStatus(QueryExecutorStatus status) throws SQLException {
     String sql = "SELECT COUNT(query_iri) AS total FROM query_queue WHERE status = ?";
-    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement(sql)) {
+    try (Connection conn = PostgresConnectionManager.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setString(1, status.toString());
       try (ResultSet rs = ps.executeQuery()) {
         if (rs.next()) {
@@ -168,7 +172,8 @@ public class PostgresRepository {
     StringJoiner stringJoiner = new StringJoiner(" ");
     stringJoiner.add("SELECT * FROM query_queue WHERE user_id = ? AND status = ?");
     if (page != 0 && size != 0) stringJoiner.add(" LIMIT ? OFFSET ?");
-    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement(stringJoiner.toString())) {
+    try (Connection conn = PostgresConnectionManager.getConnection();
+         PreparedStatement ps = conn.prepareStatement(stringJoiner.toString())) {
       ps.setString(1, userId);
       ps.setString(2, status.toString());
       if (page != 0 && size != 0) {
@@ -192,7 +197,8 @@ public class PostgresRepository {
 
   public static int getTotalCountByUserIdAndStatus(String userId, QueryExecutorStatus status) throws SQLException {
     String sql = "SELECT COUNT(query_iri) AS total FROM query_queue WHERE user_id = ? AND status = ?";
-    try (PreparedStatement ps = PostgresConnectionManager.prepareStatement(sql)) {
+    try (Connection conn = PostgresConnectionManager.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
       ps.setString(1, userId);
       ps.setString(2, status.toString());
       try (ResultSet rs = ps.executeQuery()) {

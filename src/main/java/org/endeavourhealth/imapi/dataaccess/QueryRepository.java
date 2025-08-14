@@ -22,7 +22,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
 
-import java.time.LocalDate;
 import java.util.*;
 
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
@@ -52,7 +51,6 @@ public class QueryRepository {
     Integer page = queryRequest.getPage() != null ? queryRequest.getPage().getPageNumber() : 1;
     Integer count = queryRequest.getPage() != null ? queryRequest.getPage().getPageSize() : 0;
     try (IMDB conn = IMDB.getConnection(graphs)) {
-      checkReferenceDate(queryRequest);
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getSelectSparql(queryRequest.getQuery(), null, false, highestUsage);
       ObjectNode resultNode = graphSelectSearch(queryRequest, spq, conn, result);
@@ -65,10 +63,8 @@ public class QueryRepository {
     }
   }
 
-
   public Boolean askQueryIM(QueryRequest queryRequest, List<Graph> graphs) throws QueryException {
     try (IMDB conn = IMDB.getConnection(graphs)) {
-      checkReferenceDate(queryRequest);
       new QueryValidator().validateQuery(queryRequest.getQuery());
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getAskSparql(null);
@@ -91,12 +87,9 @@ public class QueryRepository {
         throw new QueryException("Update queries must reference a predefined definition. Dynamic update based queries not supported");
       TTEntity updateEntity = getEntity(queryRequest.getUpdate().getIri(), userGraphs);
       queryRequest.setUpdate(updateEntity.get(TTIriRef.iri(IM.UPDATE_PROCEDURE)).asLiteral().objectValue(Update.class));
-
-      checkReferenceDate(queryRequest);
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getUpdateSparql();
       graphDeleteSearch(spq, conn);
-
     }
   }
 
@@ -359,15 +352,6 @@ public class QueryRepository {
         return (ObjectNode) entry;
     }
     return null;
-  }
-
-
-  private void checkReferenceDate(QueryRequest queryRequest) {
-    if (queryRequest.getReferenceDate() == null) {
-      String now = LocalDate.now().toString();
-      queryRequest.setReferenceDate(now);
-    }
-
   }
 
   private TTEntity getEntity(String iri, List<Graph> graphs) {

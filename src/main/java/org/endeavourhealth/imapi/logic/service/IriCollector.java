@@ -93,6 +93,17 @@ public class IriCollector {
     if (match.getReturn() != null) {
        collectReturnIris(match.getReturn(), iriSet);
     }
+    if (match.getOrderBy()!=null){
+      collectOrderByIris(match.getOrderBy(),iriSet);
+    }
+  }
+
+  private static void collectOrderByIris(OrderLimit orderBy, Set<String> iriSet) {
+    if (orderBy.getProperty()!=null){
+      for (OrderDirection property : orderBy.getProperty()) {
+        iriSet.add(property.getIri());
+      }
+    }
   }
 
 

@@ -57,6 +57,12 @@ public class ImportMaps implements AutoCloseable {
 
   }
 
+  public String getIriFromLegacyCode(String scheme, String legacyCode, List<Graph> graphs) {
+    if (TTFilerFactory.isBulk())
+      throw new UnsupportedOperationException("Cannot use bulk file repository for this method");
+    else return new EntityRepository().getIriFromLegacy(scheme, legacyCode, graphs);
+  }
+
 
   /**
    * Returns A core entity iri and name from a core term

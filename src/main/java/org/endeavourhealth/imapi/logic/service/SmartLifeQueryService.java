@@ -5,7 +5,7 @@ import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.smartlife.SmartLifeQueryRunDTO;
-import org.endeavourhealth.imapi.postgress.PostgresService;
+import org.endeavourhealth.imapi.postgres.PostgresService;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.sql.SQLException;

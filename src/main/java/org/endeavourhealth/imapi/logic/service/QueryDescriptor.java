@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.Context;
+import org.endeavourhealth.imapi.utility.Pluraliser;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
@@ -22,6 +23,7 @@ public class QueryDescriptor {
   private final EntityRepository entityRepository = new EntityRepository();
   private final EntityRepository repo = new EntityRepository();
   private Map<String, TTEntity> iriContext;
+  private StringBuilder shortDescription = new StringBuilder();
 
   public Query describeQuery(String queryIri, DisplayMode displayMode, List<Graph> graphs) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION), graphs).getEntity();
@@ -102,20 +104,20 @@ public class QueryDescriptor {
       if (context == Context.PLURAL) {
         if (entity != null) {
           if (entity.get(iri(Namespace.IM + "plural")) == null) {
-            if (!term.toString().toLowerCase().endsWith("s")) term.append("s");
+            term = new StringBuilder(Pluraliser.pluralise(term.toString()));
           } else {
             term = new StringBuilder(entity.get(iri(Namespace.IM + "plural")).asLiteral().getValue());
           }
-        } else if (!term.toString().toLowerCase().endsWith("s")) term.append("s");
+        } else term = new StringBuilder(Pluraliser.pluralise(term.toString()));
       }
       if (context == Context.LOWERCASE) {
         term = new StringBuilder(term.toString().toLowerCase());
       }
     }
     if (entity != null) {
-      if (entity.get(iri(Namespace.IM + "displayLabel")) != null) {
-        term.setLength(0);
-      }
+      // if (entity.get(iri(Namespace.IM + "displayLabel")) != null) {
+      // term.setLength(0);
+      // }
       if (entity.get(iri(IM.PREPOSITION)) != null) {
         term.append(" ").append(entity.get(iri(IM.PREPOSITION)).asLiteral().getValue());
       }
@@ -307,6 +309,7 @@ public class QueryDescriptor {
     if (orderBy.getLimit() > 1)
       orderDisplay = orderDisplay + " " + orderBy.getLimit();
     orderBy.setDescription(orderDisplay);
+    shortDescription.append(orderDisplay);
   }
 
   private Where getConceptWhere(List<Where> wheres) {
@@ -601,6 +604,9 @@ public class QueryDescriptor {
       valueLabel.append(set.getQualifier() != null ? set.getQualifier() + " " : "").append(set.getName());
     }
     where.setValueLabel(valueLabel.toString());
+    if (where.getShortLabel() != null)
+      shortDescription.append(where.getShortLabel()).append(" ");
+    else shortDescription.append(where.getValueLabel()).append(" ");
   }
 
   public void generateUUIDs(Match match) {
@@ -630,6 +636,19 @@ public class QueryDescriptor {
         }
       }
     }
+  }
+
+  public String getShortDescription(Match match, List<Graph> graphs) throws QueryException {
+    shortDescription = new StringBuilder();
+    setIriNames(match, graphs);
+    if (match.getOrderBy() != null) {
+      describeOrderBy(match.getOrderBy());
+      shortDescription.append(" ");
+    }
+    if (match.getWhere() != null) {
+      describeWhere(match.getWhere());
+    }
+    return shortDescription.toString();
   }
 }
 

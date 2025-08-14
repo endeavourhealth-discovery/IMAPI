@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.databases.ProvDB;
@@ -21,10 +20,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.model.workflow.EntityApproval;
-import org.endeavourhealth.imapi.model.workflow.entityApproval.ApprovalType;
-import org.endeavourhealth.imapi.model.workflow.task.TaskState;
-import org.endeavourhealth.imapi.model.workflow.task.TaskType;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -213,15 +208,6 @@ public class FilerService {
     isValid(editRequest.getEntity(), "Create", userGraphs);
     editRequest.getEntity().setCrud(iri(IM.ADD_QUADS)).setVersion(1);
     fileEntity(editRequest.getEntity(), agentName, null, userGraphs, insertGraph);
-    EntityApproval entityApproval = new EntityApproval();
-    entityApproval
-      .setEntityIri(iri(editRequest.getEntity().getIri()))
-      .setApprovalType(ApprovalType.CREATE)
-      .setCreatedBy(agentName)
-      .setHostUrl(editRequest.getHostUrl())
-      .setState(TaskState.TODO)
-      .setType(TaskType.ENTITY_APPROVAL);
-    workflowService.createEntityApproval(entityApproval);
     return editRequest.getEntity();
   }
 
@@ -231,20 +217,6 @@ public class FilerService {
     TTEntity usedEntity = entityService.getBundle(entity.getIri(), null, userGraphs).getEntity();
     entity.setVersion(usedEntity.getVersion() + 1);
     fileEntity(entity, agentName, usedEntity, userGraphs, updateGraph);
-    return entity;
-  }
-
-  public TTEntity updateEntityWithWorkflow(EditRequest editRequest, String agentName, HttpServletRequest request, List<Graph> userGraphs, Graph updateGraph) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
-    TTEntity entity = createEntity(editRequest, agentName, userGraphs, updateGraph);
-    EntityApproval entityApproval = new EntityApproval();
-    entityApproval
-      .setEntityIri(iri(editRequest.getEntity().getIri()))
-      .setApprovalType(ApprovalType.EDIT)
-      .setCreatedBy(agentName)
-      .setHostUrl(editRequest.getHostUrl())
-      .setState(TaskState.TODO)
-      .setType(TaskType.ENTITY_APPROVAL);
-    workflowService.updateEntityApproval(entityApproval, request);
     return entity;
   }
 

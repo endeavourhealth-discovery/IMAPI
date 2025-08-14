@@ -150,7 +150,6 @@ public enum IM implements VocabEnum {
     USED_IN(Namespace.IM + "usedIn"),
     IN_RESULT_SET(Namespace.IM + "inResultSet"),
     HAS_PROFILE(Namespace.IM + "inResultSet"),
-    GMS_PATIENT(Namespace.IM + "2751000252106"),
     PROVENANCE_ACTIVITY(Namespace.IM + "ProvenanceActivity"),
     PROVENANCE_TARGET(Namespace.IM + "provenanceTarget"),
     PROVENANCE_ACTIVITY_TYPE(Namespace.IM + "provenanceActivityType"),

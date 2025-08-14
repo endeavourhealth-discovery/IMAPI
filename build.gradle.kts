@@ -138,6 +138,7 @@ dependencies {
   implementation(libs.dropwizard.graphite)
   implementation(libs.dropwizard.servlets)
   implementation(libs.fact.plus.plus)
+  implementation(libs.hikari)
   implementation(libs.jackson.databind)
   implementation(libs.logback.core)
   implementation(libs.logback.classic)
@@ -148,7 +149,6 @@ dependencies {
   implementation(libs.mysql)
   implementation(libs.owl.api)
   implementation(libs.open.llet)
-  implementation(libs.postgres)
   implementation(libs.rabbitmq.amqp.client)
   implementation(libs.reactor.core)
   implementation(libs.rdf4j.common)
@@ -169,7 +169,6 @@ dependencies {
   implementation(libs.validation)
   implementation(libs.woodstox)
   implementation(libs.wsrs)
-  implementation(libs.mysqlConncector)
 
   runtimeOnly(libs.h2database)
   runtimeOnly(libs.spring.dev.tools)
@@ -185,6 +184,8 @@ dependencies {
 
   providedCompile(libs.spring.tomcat)
 
+  compileOnly(libs.mysqlConncector)
+  compileOnly(libs.postgres)
   compileOnly(libs.jackson.annotations)
   compileOnly(libs.lombok)
 

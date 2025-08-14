@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.logic.exporters.ImportMaps;
+import org.endeavourhealth.imapi.logic.service.QueryDescriptor;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.imq.*;
@@ -30,6 +31,7 @@ public class EqdResources {
   private final Map<String, Set<Node>> valueMap = new HashMap<>();
   private final Properties dataMap;
   private final Map<Integer, String> baseMatchMap = new HashMap<>();
+  private final QueryDescriptor descriptor = new QueryDescriptor();
   @Getter
   Map<String, String> reportNames = new HashMap<>();
   @Getter
@@ -229,6 +231,7 @@ public class EqdResources {
       if (eqCriterion.getDescription() != null) standardMatch.setDescription(eqCriterion.getDescription());
       if (eqCriterion.getFilterAttribute().getRestriction() != null && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
         testMatch = this.convertTestCriterion(eqCriterion, graphs);
+        injectReturn(standardMatch, testMatch, graphs);
         standardMatch.setThen(testMatch);
       }
     }
@@ -242,6 +245,8 @@ public class EqdResources {
     }
     if (baseMatch != null) {
       if (standardMatch != null) {
+        counter++;
+        injectReturn(baseMatch, standardMatch, graphs);
         baseMatch.setThen(standardMatch);
         if (linkedMatch != null) {
           matchHolder = new Match();
@@ -403,6 +408,51 @@ public class EqdResources {
       return paths.length == 3 ? pathMatch.getVariable() : this.getPathFromPath(pathMatch, paths, 2);
     }
   }
+
+  private String getNodeRef(HasPaths path) throws EQDException, IOException {
+    if (path.getPath() != null) {
+      for (Path pathMatch : path.getPath()) {
+        if (pathMatch.getVariable() != null && pathMatch.getPath() == null) {
+          return pathMatch.getVariable();
+        } else return getNodeRef(pathMatch);
+      }
+      return "";
+    }
+    return "";
+  }
+
+  private void injectReturn(Match parentMatch, Match childMatch, List<Graph> graphs) throws EQDException, IOException, QueryException {
+    Return ret = null;
+    String asLabel;
+    if (parentMatch.getReturn() != null) {
+      ret = parentMatch.getReturn();
+      asLabel = ret.getAs();
+    } else {
+      asLabel = descriptor.getShortDescription(parentMatch, graphs).toLowerCase();
+      if (asLabel == "") {
+        counter++;
+        asLabel = "Match_" + counter;
+      }
+      ret = new Return();
+      ret.setAs(asLabel);
+      parentMatch.setReturn(ret);
+    }
+    String nodeRef = getNodeRef(parentMatch);
+    childMatch.setNodeRef(asLabel);
+    Where where = childMatch.getWhere();
+    if (where != null) {
+      if (where.getIri() != null) {
+        ret.addProperty(new ReturnProperty().setNodeRef(nodeRef).setIri(where.getIri()));
+      } else {
+        for (Where subWhere : where.getAnd()) {
+          if (subWhere.getIri() != null) {
+            ret.addProperty(new ReturnProperty().setNodeRef(nodeRef).setIri(subWhere.getIri()));
+          }
+        }
+      }
+    }
+  }
+
 
   private String getPathFromPath(Path pathMatch, String[] paths, int offset) {
     String path = paths[offset];
@@ -805,7 +855,7 @@ public class EqdResources {
   private void setInlineValues(EQDOCValueSet vs, Where pv, boolean in, List<Graph> graphs) throws IOException, EQDException {
     VocCodeSystemEx scheme = vs.getCodeSystem();
     if (vs.getDescription() != null) {
-      pv.setValueLabel(vs.getDescription());
+      pv.setShortLabel(pv.getShortLabel() != null ? pv.getShortLabel() + "_" + vs.getDescription() : vs.getDescription());
     }
 
     TTIriRef cluster = this.getClusterSet(vs, graphs);
@@ -939,7 +989,7 @@ public class EqdResources {
     } else {
       if (ev.isIncludeChildren()) {
         for (Node node : concepts) {
-          node.setDescendantsOrSelfOf(true);
+          if (!node.isMemberOf()) node.setDescendantsOrSelfOf(true);
         }
       }
 
@@ -952,7 +1002,6 @@ public class EqdResources {
                 if (val.isIncludeChildren()) {
                   node.setDescendantsOrSelfOf(true);
                 }
-
                 node.setExclude(true);
                 concepts.add(node);
               }
@@ -1007,7 +1056,7 @@ public class EqdResources {
           }
         }
 
-        return snomed;
+        return new HashSet<>(snomed);
       } else {
         return Collections.emptySet();
       }
@@ -1028,9 +1077,6 @@ public class EqdResources {
 
   private Set<Node> getValuesFromOriginal(String originalCode, String originalTerm, String legacyCode, List<Namespace> schemes, List<Graph> graphs) {
     Set<Entity> snomed = this.getCoreFromCode(originalCode, schemes, graphs);
-    if (snomed == null && legacyCode != null) {
-      snomed = this.getCoreFromCode(legacyCode, schemes, graphs);
-    }
 
     if (snomed == null && originalTerm != null) {
       snomed = this.getCoreFromLegacyTerm(originalTerm, graphs);

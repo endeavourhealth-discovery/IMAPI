@@ -11,7 +11,6 @@ import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.model.PropertyDisplay;
 import org.endeavourhealth.imapi.model.dto.UIProperty;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
-import org.endeavourhealth.imapi.model.iml.PropertyShape;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -113,23 +112,6 @@ public class DataModelController {
       log.debug("checkPropertyType");
       List<Graph> graphs = requestObjectService.getUserGraphs(request);
       return dataModelService.checkPropertyType(iri, graphs);
-    }
-  }
-
-  @GetMapping(value = "/public/definingProperty", produces = "application/json")
-  @Operation(
-    summary = "gets a property shape for the defining property of a type",
-    description = "Returns a property needed to define a type , typically im:concept, together with its value set"
-  )
-  public PropertyShape getDefiningProperty(
-    HttpServletRequest request,
-    @RequestParam(name = "iri") String iri
-  )
-    throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
-      log.debug("getDefiningProperty");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return dataModelService.getDefiningProperty(iri, graphs);
     }
   }
 

@@ -6,7 +6,6 @@ import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.PropertyDisplay;
 import org.endeavourhealth.imapi.model.dto.UIProperty;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
-import org.endeavourhealth.imapi.model.iml.PropertyShape;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -208,12 +207,6 @@ public class DataModelService {
     if (null != group) propertyDisplay.setGroup(group.asIriRef());
     propertyList.add(propertyDisplay);
   }
-
-  public PropertyShape getDefiningProperty(String iri, List<Graph> graphs) {
-    DataModelRepository dataModelRepository = new DataModelRepository();
-    return dataModelRepository.getDefiningProperty(iri, graphs);
-  }
-
 
   public List<NodeShape> getDataModelPropertiesWithValueType(Set<String> iris, String valueType, List<Graph> graphs) {
     return dataModelRepository.getDataModelPropertiesWithValueType(iris, valueType, graphs);

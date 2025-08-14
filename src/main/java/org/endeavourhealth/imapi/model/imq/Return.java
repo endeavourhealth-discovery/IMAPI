@@ -23,6 +23,20 @@ public class Return {
   private List<ReturnProperty> property;
   private FunctionClause function;
   private String as;
+  private OrderLimit orderBy;
+
+  public OrderLimit getOrderBy() {
+    return orderBy;
+  }
+  public Return setOrderBy(OrderLimit orderBy) {
+    this.orderBy = orderBy;
+    return this;
+  }
+  public Return orderBy(Consumer<OrderLimit> builder) {
+    this.orderBy = new OrderLimit();
+    builder.accept(this.orderBy);
+    return this;
+  }
 
 
   public Return setPropertyRef(String propertyRef) {

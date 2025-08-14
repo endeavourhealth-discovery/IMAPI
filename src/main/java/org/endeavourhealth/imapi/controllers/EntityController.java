@@ -291,7 +291,7 @@ public class EntityController {
       log.debug("updateEntity");
       List<Graph> graphs = requestObjectService.getUserGraphs(request);
       String agentName = requestObjectService.getRequestAgentName(request);
-      return filerService.updateEntityWithWorkflow(editRequest, agentName, request, graphs, editRequest.getGraph());
+      return filerService.updateEntity(editRequest.getEntity(), agentName, graphs, editRequest.getGraph());
     }
   }
 

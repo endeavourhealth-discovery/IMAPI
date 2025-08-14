@@ -19,7 +19,7 @@ import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.postgress.PostgresService;
+import org.endeavourhealth.imapi.postgres.PostgresService;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.Graph;

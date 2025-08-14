@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
+import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
@@ -19,7 +20,7 @@ import org.endeavourhealth.imapi.model.sql.SqlWithSubqueries;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
-import org.endeavourhealth.imapi.postgress.PostgresService;
+import org.endeavourhealth.imapi.postgres.PostgresService;
 import org.endeavourhealth.imapi.rabbitmq.ConnectionManager;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
@@ -82,6 +83,7 @@ public class QueryService {
   }
 
   public SqlWithSubqueries getSQLFromIMQ(QueryRequest queryRequest) throws SQLConversionException {
+    queryRequest.resolveArgs();
     return new IMQtoSQLConverter(queryRequest).IMQtoSQL();
   }
 
@@ -133,9 +135,10 @@ public class QueryService {
   }
 
   public List<String> executeQuery(QueryRequest queryRequest, List<Graph> graphs) throws SQLConversionException, SQLException, QueryException {
+    queryRequest.resolveArgs();
     int qrHashCode = getQueryRequestHashCode(queryRequest, graphs);
     log.info("Executing query: {} with a hash code: {}", queryRequest.getQuery().getIri(), qrHashCode);
-//    TODO: if query has is rules needs to be converted to match based query
+    // TODO: if query has is rules needs to be converted to match based query
     try {
       List<String> results = getQueryResults(queryRequest, graphs);
       if (results != null) return results;
@@ -353,4 +356,48 @@ public class QueryService {
     }
     return dataModelRepository.getPathDatatype(referenceIri, graphs);
   }
+
+
+  private NodeShape getTypeFromPath(Path path, Set<String> nodeRefs, List<Graph> graphs) {
+    if (path.getVariable() != null) {
+      if (nodeRefs.contains(path.getVariable())) {
+        return dataModelRepository.getDataModelDisplayProperties(path.getTypeOf().getIri(), false, graphs);
+      }
+      if (path.getPath() != null) {
+        for (Path subPath : path.getPath()) {
+          NodeShape nodeShape = getTypeFromPath(subPath, nodeRefs, graphs);
+          if (nodeShape != null) return nodeShape;
+        }
+      }
+    }
+    return null;
+  }
+
+  private void getNodeRefs(Match match, Set<String> nodeRefs) {
+    Where where = match.getWhere();
+    if (where != null) {
+      if (where.getNodeRef() != null) {
+        nodeRefs.add(where.getNodeRef());
+      }
+      for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr(), where.getNot())) {
+        if (whereList != null) {
+          for (Where subWhere : whereList)
+            getNodeRefs(subWhere, nodeRefs);
+        }
+      }
+    }
+  }
+
+  private void getNodeRefs(Where where, Set<String> nodeRefs) {
+    if (where.getNodeRef() != null) {
+      nodeRefs.add(where.getNodeRef());
+    }
+    for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr(), where.getNot())) {
+      if (whereList != null) {
+        for (Where subWhere : whereList)
+          getNodeRefs(subWhere, nodeRefs);
+      }
+    }
+  }
+
 }

@@ -614,10 +614,6 @@
         "value": "Namespace.IM + \"inResultSet\""
       },
       {
-        "name": "GMS_PATIENT",
-        "value": "Namespace.IM + \"2751000252106\""
-      },
-      {
         "name": "PROVENANCE_ACTIVITY",
         "value": "Namespace.IM + \"ProvenanceActivity\""
       },

@@ -89,6 +89,9 @@ public class PropertyShape{
   @Getter
   @Setter
   private TTIriRef hasValueSet;
+  @Getter
+  @Setter
+  private boolean definingProperty;
 
   public PropertyShape setAscending(String ascending) {
     this.ascending = ascending;

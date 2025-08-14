@@ -1577,6 +1577,9 @@ public class EntityRepository {
 
   public Map<String, TTEntity> getEntitiesWithPredicates(Set<String> iris, Set<String> predicates, List<Graph> graphs) {
     Map<String, TTEntity> result = new HashMap<>();
+    if (iris == null || iris.isEmpty())
+      return result;
+
     iris.remove(null);
     String sql = """
       select ?entity ?entityLabel ?predicate ?predicateLabel ?object ?objectLabel ?subPredicate ?subPredicateLabel ?subObject ?subObjectLabel
@@ -1891,12 +1894,12 @@ public class EntityRepository {
   }
 
   public List<String> getIM1Ids(List<String> iris) {
+    List<String> result = new ArrayList<>();
     String spq = """
       SELECT ?s ?im1id WHERE {
         VALUES ?s {%s}
         ?s im:im1Id ?im1id .
       }""".formatted(getIriLine(iris));
-    List<String> result = new ArrayList<>();
     try (IMDB conn = IMDB.getConnection(List.of(Graph.IM))) {
       TupleQuery qry = conn.prepareTupleSparql(spq);
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -1999,6 +2002,28 @@ public class EntityRepository {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
           return bs.getValue("definition").stringValue();
+        }
+      }
+    }
+    return null;
+  }
+
+  public String getIriFromLegacy(String scheme, String legacyCode, List<Graph> graphs) {
+    String sql = """
+      select ?iri
+      where {
+      Values ?legacyCode {%s}
+      Values ?scheme {%s}
+        ?iri im:alternativeCode ?legacyCode.
+        ?iri im:scheme ?scheme .
+      }
+      """.formatted("\"" + legacyCode + "\"", "<" + scheme + ">");
+    try (IMDB conn = IMDB.getConnection(graphs)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          return bs.getValue("iri").stringValue();
         }
       }
     }

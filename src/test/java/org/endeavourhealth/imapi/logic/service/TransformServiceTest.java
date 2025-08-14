@@ -11,13 +11,14 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.FHIR;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.MAP;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,7 @@ class TransformServiceTest {
     TestMaps.patientDSTU2();
     ObjectMapper om = new ObjectMapper();
     //Adds map to the IM cache so it can be accessed by the service
-    TTEntity mapEntity = EntityCache.getEntity(Namespace.MAP + "FHIR_2_PatientToIM").getEntity();
+    TTEntity mapEntity = EntityCache.getEntity(Namespace.MAP + "FHIR_2_PatientToIM", List.of(Graph.IM)).getEntity();
     MapObject map = mapEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(MapObject.class);
     writeObject(testMaps, "DSTUToIMPatient", map);
     System.out.println("Map written to" + testMaps + "\\" + mapEntity.getName());
@@ -58,7 +59,7 @@ class TransformServiceTest {
     System.out.println("Source written to" + testSources + "\\" + "DSTUPatient");
 
     //Perform transform
-    Set<Object> results = new TransformService().runTransform(request);
+    Set<Object> results = new TransformService().runTransform(request, List.of(Graph.IM));
 
     //Displays result
     TTManager manager = new TTManager();

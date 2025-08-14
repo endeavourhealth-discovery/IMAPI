@@ -6,7 +6,10 @@ import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTToNQuad;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -41,17 +44,6 @@ public class TTBulkFiler implements TTDocumentFiler {
 
   public TTBulkFiler(Graph graph) {
     this.graph = graph;
-  }
-
-  public void fileDocument(TTDocument document) throws TTFilerException {
-    if (document.getEntities() == null)
-      return;
-    if (document.getEntities().isEmpty())
-      return;
-
-    validateDocument(document);
-
-    writeGraph(document, graph);
   }
 
   private static void setStatus(TTEntity entity) {
@@ -164,6 +156,17 @@ public class TTBulkFiler implements TTDocumentFiler {
     statementCount++;
   }
 
+  public void fileDocument(TTDocument document, Graph insertGraph) throws TTFilerException {
+    if (document.getEntities() == null)
+      return;
+    if (document.getEntities().isEmpty())
+      return;
+
+    validateDocument(document);
+
+    writeGraph(document, insertGraph);
+  }
+
   private void validateDocument(TTDocument document) throws TTFilerException {
     for (TTEntity entity : document.getEntities()) {
       if (entity.getScheme() == null) {
@@ -190,7 +193,7 @@ public class TTBulkFiler implements TTDocumentFiler {
         allEntities.write(entity.getIri() + "\n");
         if (Graph.IM.equals(graph))
           coreIris.write(entity.getIri() + "\t" + entity.getName() + "\n");
-        if (entity.getScheme() == null){
+        if (entity.getScheme() == null) {
           transformAndWriteQuads(converter, entity, graph);
         } else {
           addToMaps(entity);

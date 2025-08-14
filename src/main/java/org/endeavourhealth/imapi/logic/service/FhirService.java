@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.logic.service;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
@@ -20,13 +19,13 @@ public class FhirService {
   SetService setService = new SetService();
   EclService eclService = new EclService();
 
-  public String getFhirValueSet(String iri, boolean expanded, Graph graph) throws JsonProcessingException, QueryException {
+  public String getFhirValueSet(String iri, boolean expanded, List<Graph> graphs) throws JsonProcessingException, QueryException {
     List<String> schemes = new ArrayList<>();
-    SetOptions setOptions = new SetOptions(iri, true, expanded, false, true, schemes, new ArrayList<>(), graph);
-    return setService.getFHIRSetExport(setOptions);
+    SetOptions setOptions = new SetOptions(iri, true, expanded, false, true, schemes, new ArrayList<>());
+    return setService.getFHIRSetExport(setOptions, graphs);
   }
 
-  public String eclToFhir(String data) throws QueryException {
+  public String eclToFhir(String data, List<Graph> graphs) throws QueryException {
     ValueSet result = new ValueSet();
     ValueSet.ValueSetExpansionComponent expansion = new ValueSet.ValueSetExpansionComponent();
     ValueSet.ConceptSetFilterComponent filter = new ValueSet.ConceptSetFilterComponent();
@@ -44,12 +43,12 @@ public class FhirService {
     result.setCompose(compose);
     ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
     eclQueryRequest.setEcl(data);
-    eclQueryRequest = eclService.getQueryFromECL(eclQueryRequest);
+    eclQueryRequest = eclService.getQueryFromECL(eclQueryRequest, graphs);
     EclSearchRequest request = new EclSearchRequest();
     request.setEclQuery(eclQueryRequest.getQuery());
     request.setIncludeLegacy(false);
     request.setSize(0);
-    SearchResponse evaluated = eclService.eclSearch(request);
+    SearchResponse evaluated = eclService.eclSearch(request, graphs);
     if (!evaluated.getEntities().isEmpty()) {
       for (SearchResultSummary entity : evaluated.getEntities()) {
         ValueSet.ValueSetExpansionContainsComponent contained = new ValueSet.ValueSetExpansionContainsComponent();

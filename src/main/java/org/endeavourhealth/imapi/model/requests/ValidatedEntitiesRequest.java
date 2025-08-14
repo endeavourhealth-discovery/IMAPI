@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.model.requests;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 public class ValidatedEntitiesRequest {
   private List<String> snomedCodes;
-  private Graph graph;
 
   public ValidatedEntitiesRequest setSnomedCodes(List<String> snomedCodes) {
     this.snomedCodes = snomedCodes;
@@ -23,10 +21,5 @@ public class ValidatedEntitiesRequest {
       snomedCodes = new ArrayList<>();
     }
     this.snomedCodes.add(code);
-  }
-
-  public ValidatedEntitiesRequest setGraph(Graph graph) {
-    this.graph = graph;
-    return this;
   }
 }

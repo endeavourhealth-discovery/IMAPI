@@ -18,7 +18,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
@@ -31,10 +30,10 @@ public class IMQtoSQLConverterTest {
   private String db_driver = System.getenv("DB_DRIVER");
 
   //  @Test
-  public void IMQtoSQL(Graph graph) {
+  public void IMQtoSQL(List<Graph> graphs) {
     // Get list of queries from GraphDb
     EntityRepository entityRepository = new EntityRepository();
-    List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(EntityType.QUERY, graph);
+    List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(EntityType.QUERY, graphs);
     LOG.info("Found {} queries", cohortQueryIris.size());
 
     // Prepare
@@ -52,7 +51,7 @@ public class IMQtoSQLConverterTest {
       for (TTIriRef cohortQueryIri : cohortQueryIris) {
         // Get the definition
         LOG.info("Checking [{} | {}]", cohortQueryIri.getIri(), cohortQueryIri.getName());
-        TTBundle bundle = entityRepository.getBundle(cohortQueryIri.getIri(), asHashSet(IM.DEFINITION));
+        TTBundle bundle = entityRepository.getBundle(cohortQueryIri.getIri(), asHashSet(IM.DEFINITION), graphs);
 
         if (bundle == null || bundle.getEntity() == null || !bundle.getEntity().has(IM.DEFINITION.asIri())) {
           LOG.error("Entity or definition not found!");

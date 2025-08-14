@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.dataaccess;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.vocabulary.Graph;
@@ -16,8 +15,8 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 public class PathRepository {
   private final PathDocument document = new PathDocument();
 
-  public PathDocument pathQuery(PathQuery pathQuery) {
-    try (IMDB conn = IMDB.getConnection(pathQuery.getGraph())) {
+  public PathDocument pathQuery(PathQuery pathQuery, List<Graph> graphs) {
+    try (IMDB conn = IMDB.getConnection(graphs)) {
       String targetIri = pathQuery.getTarget().getIri();
       String source = pathQuery.getSource().getIri();
       List<Match> paths = getPaths(conn, source, targetIri);

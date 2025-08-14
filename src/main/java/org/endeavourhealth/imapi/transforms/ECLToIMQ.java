@@ -13,6 +13,8 @@ import org.endeavourhealth.imapi.parser.imecl.IMECLLexer;
 import org.endeavourhealth.imapi.parser.imecl.IMECLParser;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 
+import java.util.List;
+
 /**
  * Converts ECL to Discovery syntax, supporting commonly used constructs
  */
@@ -29,9 +31,9 @@ public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
     this.parser.addErrorListener(new ParserErrorListener());
   }
 
-  public void getQueryFromECL(ECLQueryRequest eclQueryRequest, boolean validateEntities) {
+  public void getQueryFromECL(ECLQueryRequest eclQueryRequest, boolean validateEntities, List<Graph> graphs) {
     this.validateEntities = validateEntities;
-    getQueryFromECL(eclQueryRequest);
+    getQueryFromECL(eclQueryRequest, graphs);
   }
 
   /**
@@ -41,7 +43,7 @@ public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
    * @param eclQueryRequest An object containing an 'ecl' property which is an ecl string
    * @return the object with 'query' and 'status' and ecl  conforming to IM Query model JSON-LD when serialized.
    */
-  public void getQueryFromECL(ECLQueryRequest eclQueryRequest) {
+  public void getQueryFromECL(ECLQueryRequest eclQueryRequest, List<Graph> graphs) {
     eclQueryRequest.setStatus(new ECLStatus());
     eclQueryRequest.getStatus().setValid(true);
     eclQueryRequest.getStatus().setLine(null);
@@ -56,10 +58,10 @@ public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
       eclQueryRequest.setQuery(query);
       if (validateEntities) {
         ECLQueryValidator validator = new ECLQueryValidator();
-        ECLStatus status = validator.validateQuery(query, ValidationLevel.CONCEPT, Graph.valueOf(query.getGraph().getIri()));
+        ECLStatus status = validator.validateQuery(query, ValidationLevel.CONCEPT, graphs);
         if (!status.isValid()) {
           try {
-            new IMQToECL().getECLFromQuery(eclQueryRequest);
+            new IMQToECL().getECLFromQuery(eclQueryRequest, graphs);
           } catch (Exception e) {
             eclQueryRequest.getStatus().setValid(false);
             eclQueryRequest.getStatus().setMessage(e.getMessage());

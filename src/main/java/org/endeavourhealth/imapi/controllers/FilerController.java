@@ -13,9 +13,9 @@ import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.ProblemDetailResponse;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.requests.EditRequest;
+import org.endeavourhealth.imapi.model.requests.FileDocumentRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
@@ -44,7 +44,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @RestController
-@PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+@PreAuthorize("hasAuthority('CREATOR')")
 @RequestMapping("api/filer")
 @CrossOrigin(origins = "*")
 @Tag(name = "FilerController")
@@ -58,9 +58,9 @@ public class FilerController {
   private final SearchService searchService = new SearchService();
 
   @PostMapping("file/document")
-  @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  @PreAuthorize("hasAuthority('CREATOR')")
   @Operation(summary = "Files a document and returns the task ID.")
-  public ResponseEntity<Map<String, String>> fileDocument(@RequestBody TTDocument document, HttpServletRequest request) throws Exception {
+  public ResponseEntity<Map<String, String>> fileDocument(@RequestBody FileDocumentRequest fileDocumentRequest, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Document.POST")) {
       log.debug("fileDocument");
       String agentName = reqObjService.getRequestAgentName(request);
@@ -68,12 +68,13 @@ public class FilerController {
       Map<String, String> response = new HashMap<>();
 
       String agentId = reqObjService.getRequestAgentId(request);
+      List<Graph> graphs = reqObjService.getUserGraphs(request);
 
-        if (!filerService.userCanFile(agentId, Graph.IM))
-          return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      if (!filerService.userCanFile(agentId, Graph.IM))
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
       try {
-        filerService.fileDocument(document, agentName, taskId);
+        filerService.fileDocument(fileDocumentRequest.getDocument(), agentName, taskId, graphs, fileDocumentRequest.getInsertGraph());
         response.put("taskId", taskId);
       } catch (Exception e) {
         Integer taskProgress = filerService.getTaskProgress(taskId);
@@ -93,18 +94,19 @@ public class FilerController {
   }
 
   @PostMapping("file/entity")
-  @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  @PreAuthorize("hasAuthority('CREATOR')")
   @Operation(summary = "Files an entity with specified graph and CRUD operation.")
   public ResponseEntity<Void> fileEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws TTFilerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Entity.POST")) {
       log.debug("fileEntity");
       String agentName = reqObjService.getRequestAgentName(request);
+      List<Graph> graphs = reqObjService.getUserGraphs(request);
       TTEntity usedEntity = null;
       TTEntity entity = editRequest.getEntity();
       Graph graph = editRequest.getGraph();
       String crud = editRequest.getCrud();
-      if (entityService.iriExists(entity.getIri(), graph)) {
-        usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
+      if (entityService.iriExists(entity.getIri(), List.of(graph))) {
+        usedEntity = entityService.getBundle(entity.getIri(), null, graphs).getEntity();
         entity.setVersion(usedEntity.getVersion() + 1);
       }
 
@@ -114,21 +116,22 @@ public class FilerController {
       if (!filerService.userCanFile(agentId, graph))
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-      filerService.fileEntity(entity, agentName, usedEntity, Graph.IM);
+      filerService.fileEntity(entity, agentName, usedEntity, graphs, graph);
       return ResponseEntity.ok().build();
     }
   }
 
   @PostMapping("folder/move")
-  @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  @PreAuthorize("hasAuthority('CREATOR')")
   @Operation(summary = "Moves an entity from one folder to another.")
   public ResponseEntity<ProblemDetailResponse> moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graphString, HttpServletRequest request) throws Exception {
+    List<Graph> graphs = reqObjService.getUserGraphs(request);
     Graph graph = Graph.from(graphString);
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Move.POST")) {
       log.debug("moveFolder");
 
 
-      if (!entityService.iriExists(entityIri, graph) || !entityService.iriExists(oldFolderIri, graph) || !entityService.iriExists(newFolderIri, graph)) {
+      if (!entityService.iriExists(entityIri, graphs) || !entityService.iriExists(oldFolderIri, graphs) || !entityService.iriExists(newFolderIri, graphs)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "One of the IRIs does not exist");
       }
 
@@ -140,7 +143,7 @@ public class FilerController {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Source and target are the same");
       }
 
-      TTEntity entity = entityService.getBundle(entityIri, asHashSet(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
+      TTEntity entity = entityService.getBundle(entityIri, asHashSet(IM.IS_CONTAINED_IN, IM.HAS_SCHEME), graphs).getEntity();
       if (!entity.has(iri(IM.IS_CONTAINED_IN))) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in a folder");
       }
@@ -150,35 +153,37 @@ public class FilerController {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in the specified folder");
       }
 
-      if (entityService.isLinked(newFolderIri, iri(IM.IS_CONTAINED_IN), oldFolderIri, graph)) {
+      if (entityService.isLinked(newFolderIri, iri(IM.IS_CONTAINED_IN), oldFolderIri, graphs)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Target folder is a descendant of the Entity");
       }
-      TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
+      TTEntity usedEntity = entityService.getBundle(entity.getIri(), null, graphs).getEntity();
 
       folders.remove(iri(oldFolderIri));
       folders.add(iri(newFolderIri));
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
 
       String agentName = reqObjService.getRequestAgentName(request);
-      filerService.fileEntity(entity, agentName, usedEntity, graph);
+      filerService.fileEntity(entity, agentName, usedEntity, graphs, graph);
 
       return ResponseEntity.ok().build();
     }
   }
 
   @PostMapping("folder/add")
-  @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  @PreAuthorize("hasAuthority('CREATOR')")
   @Operation(summary = "Adds an entity to a specified folder.")
   public ResponseEntity<ProblemDetailResponse> addToFolder(
     @RequestParam(name = "entity") String entityIri,
     @RequestParam(name = "folder") String folderIri,
     @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graphString,
-    HttpServletRequest request) throws Exception {
+    HttpServletRequest request
+  ) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Add.POST")) {
       log.debug("addToFolder");
+      List<Graph> graphs = reqObjService.getUserGraphs(request);
       Graph graph = Graph.from(graphString);
 
-      if (!entityService.iriExists(entityIri, graph) || !entityService.iriExists(folderIri, graph)) {
+      if (!entityService.iriExists(entityIri, graphs) || !entityService.iriExists(folderIri, graphs)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot add to folder", "One of the IRIs does not exist");
       }
 
@@ -186,29 +191,30 @@ public class FilerController {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Cannot move entity into itself");
       }
 
-      TTEntity entity = entityService.getBundle(entityIri, asHashSet(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
+      TTEntity entity = entityService.getBundle(entityIri, asHashSet(IM.IS_CONTAINED_IN, IM.HAS_SCHEME), graphs).getEntity();
       TTArray folders = entity.get(iri(IM.IS_CONTAINED_IN));
       if (folders == null) folders = new TTArray();
       folders.add(iri(folderIri));
 
       String agentName = reqObjService.getRequestAgentName(request);
-      TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
+      TTEntity usedEntity = entityService.getBundle(entity.getIri(), null, graphs).getEntity();
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
-      filerService.fileEntity(entity, agentName, usedEntity, graph);
+      filerService.fileEntity(entity, agentName, usedEntity, graphs, graph);
 
       return ResponseEntity.ok().build();
     }
   }
 
   @PostMapping("folder/create")
-  @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  @PreAuthorize("hasAuthority('CREATOR')")
   @Operation(summary = "Creates a new folder within a specified container.")
   public String createFolder(
     @RequestParam(name = "container") String container,
     @RequestParam(name = "name") String name,
     @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graphString,
-    HttpServletRequest request) throws Exception {
-
+    HttpServletRequest request
+  ) throws Exception {
+    List<Graph> graphs = reqObjService.getUserGraphs(request);
     Graph graph = Graph.from(graphString);
 
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Create.POST")) {
@@ -218,13 +224,13 @@ public class FilerController {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, name is null");
       }
 
-      if (!entityService.iriExists(container, graph)) {
+      if (!entityService.iriExists(container, graphs)) {
         log.error("Cannot create, container does not exist");
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, container does not exist");
       }
 
       String iri = Namespace.IM + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8);
-      if (entityService.iriExists(iri, graph)) {
+      if (entityService.iriExists(iri, graphs)) {
         log.error("Entity with that name already exists");
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity with that name already exists");
       }
@@ -237,7 +243,7 @@ public class FilerController {
         .argument(a -> a
           .setParameter("this")
           .setValueIri(TTIriRef.iri(container)));
-      JsonNode results = searchService.queryIM(queryRequest);
+      JsonNode results = searchService.queryIM(queryRequest, graphs);
 
       TTEntity entity = new TTEntity(iri)
         .setName(name)
@@ -257,13 +263,13 @@ public class FilerController {
       entity.set(iri(IM.CONTENT_TYPE), contentTypes);
 
       String agentName = reqObjService.getRequestAgentName(request);
-      filerService.fileEntity(entity, agentName, null, graph);
+      filerService.fileEntity(entity, agentName, null, graphs, graph);
       return iri;
     }
   }
 
   @GetMapping("deltas/download")
-  @PreAuthorize("hasAuthority('IMAdmin')")
+  @PreAuthorize("hasAuthority('ADMIN')")
   @Operation(summary = "Downloads deltas as a zip file.")
   public HttpEntity<Object> downloadDeltas() throws NullPointerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Deltas.Download.GET")) {

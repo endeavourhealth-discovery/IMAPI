@@ -991,7 +991,7 @@ public class EqdResources {
     } else {
       if (ev.isIncludeChildren()) {
         for (Node node : concepts) {
-          node.setDescendantsOrSelfOf(true);
+          if (!node.isMemberOf()) node.setDescendantsOrSelfOf(true);
         }
       }
 
@@ -1004,7 +1004,6 @@ public class EqdResources {
                 if (val.isIncludeChildren()) {
                   node.setDescendantsOrSelfOf(true);
                 }
-
                 node.setExclude(true);
                 concepts.add(node);
               }
@@ -1059,7 +1058,7 @@ public class EqdResources {
           }
         }
 
-        return snomed;
+        return new HashSet<>(snomed);
       } else {
         return Collections.emptySet();
       }
@@ -1078,11 +1077,10 @@ public class EqdResources {
     return result;
   }
 
-  private Set<Node> getValuesFromOriginal(String originalCode, String originalTerm, String legacyCode, List<Namespace> schemes, Graph graph) {
+
+
+  private Set<Node> getValuesFromOriginal(String originalCode, String originalTerm, String legacyCode, List<Namespace> schemes, Graph graph) throws IOException {
     Set<Entity> snomed = this.getCoreFromCode(originalCode, schemes, graph);
-    if (snomed == null && legacyCode != null) {
-      snomed = this.getCoreFromCode(legacyCode, schemes, graph);
-    }
 
     if (snomed == null && originalTerm != null) {
       snomed = this.getCoreFromLegacyTerm(originalTerm, graph);

@@ -40,6 +40,7 @@ public class ImportMaps implements AutoCloseable {
     return importEmisToSnomedRdf4j(graph);
   }
 
+
   public String getCoreName(String iri, Graph graph) throws IOException {
     if (cachedNames.get(iri) != null)
       return cachedNames.get(iri);
@@ -54,6 +55,11 @@ public class ImportMaps implements AutoCloseable {
       return name;
     }
 
+  }
+  public String getIriFromLegacyCode(String scheme,String legacyCode){
+    if (TTFilerFactory.isBulk())
+      throw new UnsupportedOperationException("Cannot use bulk file repository for this method");
+    else return new EntityRepository().getIriFromLegacy(scheme,legacyCode);
   }
 
 

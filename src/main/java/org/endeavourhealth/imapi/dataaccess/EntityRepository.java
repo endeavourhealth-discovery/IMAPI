@@ -2003,4 +2003,26 @@ public class EntityRepository {
     }
     return null;
   }
+
+  public String getIriFromLegacy(String scheme,String legacyCode) {
+    String sql = """
+      select ?iri
+      where {
+      Values ?legacyCode {%s}
+      Values ?scheme {%s}
+        ?iri im:alternativeCode ?legacyCode.
+        ?iri im:scheme ?scheme .
+      }
+      """.formatted("\"" + legacyCode + "\"","<" + scheme + ">");
+    try (IMDB conn = IMDB.getConnection(Graph.IM)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          return bs.getValue("iri").stringValue();
+        }
+      }
+    }
+    return null;
+  }
 }

@@ -42,7 +42,7 @@ class EntityModelServiceTest {
   @Test
   void getEntityPredicates_nullIriPredicates() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(isNull(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(isNull(), isNull(), anyList())).thenReturn(new TTBundle().setEntity(entity));
 
     TTBundle actual = entityService.getBundle(null, null, List.of(Graph.IM));
     assertNotNull(actual);
@@ -52,7 +52,7 @@ class EntityModelServiceTest {
   @Test
   void getEntityPredicates_EmptyIri() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(any(), isNull(), anyList())).thenReturn(new TTBundle().setEntity(entity));
 
     TTBundle actual = entityService.getBundle("", null, List.of(Graph.IM));
     assertNotNull(actual);
@@ -390,30 +390,30 @@ class EntityModelServiceTest {
       );
     when(entityRepository.getBundle(any(), anySet(), anyList())).thenReturn(new TTBundle().setEntity(entity));
 
-    TTEntity actual = entityService.getSummaryFromConfig("http://endhealth.info/im#25451000252115", asArrayList(IM.IS_CHILD_OF), null);
+    TTEntity actual = entityService.getSummaryFromConfig("http://endhealth.info/im#25451000252115", asArrayList(IM.IS_CHILD_OF), List.of(Graph.IM));
     assertNotNull(actual);
   }
 
   @Test
   void getConceptList_NullIri() {
-    TTDocument actual = entityService.getConceptList(null, Graph.IM);
+    TTDocument actual = entityService.getConceptList(null, List.of(Graph.IM));
     assertNull(actual);
   }
 
   @Test
   void getConceptList_EmptyIri() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(any(), isNull(), anyList())).thenReturn(new TTBundle().setEntity(entity));
 
-    TTDocument actual = entityService.getConceptList(Collections.singletonList(""), Graph.IM);
+    TTDocument actual = entityService.getConceptList(Collections.singletonList(""), List.of(Graph.IM));
     assertNotNull(actual);
   }
 
   @Test
   void getConceptList_NotNullIri() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
-    TTDocument actual = entityService.getConceptList(Collections.singletonList("http://endhealth.info/im#25451000252115"), Graph.IM);
+    when(entityRepository.getBundle(any(), isNull(), anyList())).thenReturn(new TTBundle().setEntity(entity));
+    TTDocument actual = entityService.getConceptList(Collections.singletonList("http://endhealth.info/im#25451000252115"), List.of(Graph.IM));
     assertNotNull(actual);
   }
 }

@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.mockito.InjectMocks;
@@ -52,18 +53,18 @@ public class ConceptServiceStepDefs {
     termsBundle.setEntity(entity);
 
     MockitoAnnotations.initMocks(this);
-    when(entityRepository.getBundle(termsBundle.getEntity().getIri(), asHashSet(IM.HAS_TERM_CODE))).thenReturn(termsBundle);
+    when(entityRepository.getBundle(termsBundle.getEntity().getIri(), asHashSet(IM.HAS_TERM_CODE), List.of(Graph.IM))).thenReturn(termsBundle);
   }
 
 
   @When("the entity term codes are retrieved")
   public void getEntityTermCodes() {
-    entityTermCodes = conceptService.getEntityTermCodes(entityIri, true);
+    entityTermCodes = conceptService.getEntityTermCodes(entityIri, true, List.of(Graph.IM));
   }
 
   @When("the entity term codes are retrieved (excluding inactive)")
   public void getEntityTermCodesExcludingInactive() {
-    entityTermCodes = conceptService.getEntityTermCodes(entityIri, false);
+    entityTermCodes = conceptService.getEntityTermCodes(entityIri, false, List.of(Graph.IM));
   }
 
   @Then("they should all be received in status, then alphabetic, order")

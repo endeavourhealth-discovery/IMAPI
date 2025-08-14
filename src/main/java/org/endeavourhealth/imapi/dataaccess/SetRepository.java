@@ -39,6 +39,7 @@ public class SetRepository {
   public static final String LEGACY_STATUS_NAME = "legacyStatusName";
 
   public static final String CONCEPT = "concept";
+
   /**
    * Returns an expanded set members match an iml set definition. If already expanded then returns members
    * otherwise expands and retuens members
@@ -212,7 +213,7 @@ public class SetRepository {
 
   private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes, String entityVariable) {
     Set<Concept> result = new HashSet<>();
-    Set<String> coreSchemes =asHashSet(Namespace.SNOMED, Namespace.IM);
+    Set<String> coreSchemes = asHashSet(Namespace.SNOMED, Namespace.IM);
     Map<String, Concept> conceptMap = new HashMap<>();
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
@@ -408,7 +409,7 @@ public class SetRepository {
 
 
   private void sendUp(StringJoiner sj, IMDB conn, Graph graph) {
-    org.eclipse.rdf4j.query.Update upd = conn.prepareInsertSparql(sj.toString(),graph);
+    org.eclipse.rdf4j.query.Update upd = conn.prepareInsertSparql(sj.toString(), graph);
     upd.setBinding("g", graph.asDbIri());
     conn.begin();
     upd.execute();
@@ -710,6 +711,7 @@ public class SetRepository {
         ?set im:entailedMember ?entailed.
         {
           ?entailed im:instanceOf ?member.
+          filter not exists {?entailed im:entailment ?entailment}
         }
         union {
           ?entailed im:instanceOf ?parent.

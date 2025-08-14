@@ -68,20 +68,28 @@ public class EqdListToIMQ {
     }
   }
 
-
   private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery, List<Graph> graphs) throws IOException, QueryException, EQDException {
-    if (eqColGroup.getCriteria() != null) {
-      resources.setRule(1);
-      resources.setSubRule(1);
-      Match match = resources.convertCriteria(eqColGroup.getCriteria(), graphs);
-      subQuery.addAnd(match);
-    }
+    resources.setRule(1);
+    resources.setSubRule(1);
+    Match match = resources.convertCriteria(eqColGroup.getCriteria(), graphs);
+    subQuery.setInstanceOf(match.getInstanceOf());
+    subQuery.setWhere(match.getWhere());
+    subQuery.setPath(match.getPath());
+    subQuery.setThen(match.getThen());
+    subQuery.setAnd(match.getAnd());
+    subQuery.setOr(match.getOr());
+    subQuery.setNot(match.getNot());
+    subQuery.setTypeOf(match.getTypeOf());
     Return aReturn = new Return();
     subQuery.setReturn(aReturn);
+    String nodeRef = resources.getNodeRef(match);
+    aReturn.setAs(nodeRef);
     String tablePath = resources.getIMPath(eqTable);
     String[] paths = tablePath.split(" ");
-    for (int i = 0; i < paths.length - 1; i = i + 2) {
-      ReturnProperty property = new ReturnProperty().setIri(paths[i].replace("^", ""));
+    for (int i = 2; i < paths.length - 1; i = i + 2) {
+      ReturnProperty property = new ReturnProperty();
+      property.setNodeRef(nodeRef);
+      property.setIri(paths[i].replace("^", ""));
       aReturn.addProperty(property);
       aReturn = property.setReturn(new Return()).getReturn();
     }

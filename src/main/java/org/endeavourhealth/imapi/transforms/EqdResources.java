@@ -205,9 +205,11 @@ public class EqdResources {
     Match testMatch = null;
     Match linkedMatch = null;
     Match matchHolder = null;
+    boolean hasFilter = !eqCriterion.getFilterAttribute().getColumnValue().isEmpty() || eqCriterion.getFilterAttribute().getRestriction() != null;
+    boolean hasLinked = eqCriterion.getLinkedCriterion() != null;
     String nodeRef = null;
     if (!eqCriterion.getBaseCriteriaGroup().isEmpty()) {
-      baseMatch = this.convertBaseCriteriaGroups(eqCriterion, graphs);
+      baseMatch = this.convertBaseCriteriaGroups(eqCriterion, graphs, hasFilter || hasLinked);
       String baseDefinition = new ObjectMapper().writeValueAsString(baseMatch);
       Integer baseHash = baseDefinition.hashCode();
       if (baseMatchMap.get(baseHash) == null) {
@@ -241,7 +243,6 @@ public class EqdResources {
         nodeRef = "DOB";
       else nodeRef = "LinkedEvent";
       linkedMatch = this.convertLinkedCriterion(eqCriterion, nodeRef, graphs);
-      if (linkedMatch.getThen() == null) linkedMatch.setOrderBy(null);
     }
     if (baseMatch != null) {
       if (standardMatch != null) {
@@ -272,7 +273,7 @@ public class EqdResources {
     } else throw new EQDException("No match found for standard criterion");
   }
 
-  private Match convertBaseCriteriaGroups(EQDOCCriterion eqCriterion, List<Graph> graphs) throws QueryException, EQDException, IOException {
+  private Match convertBaseCriteriaGroups(EQDOCCriterion eqCriterion, List<Graph> graphs, boolean needsReturn) throws QueryException, EQDException, IOException {
     int originalCounter = counter;
     counter = 0;
     String baseContent = (new ObjectMapper()).writeValueAsString(eqCriterion.getBaseCriteriaGroup());
@@ -280,21 +281,22 @@ public class EqdResources {
     if (eqCriterion.getBaseCriteriaGroup().size() > 1) {
       baseMatch = new Match();
       baseMatch.setIsUnion(true);
-
       for (EQDOCBaseCriteriaGroup baseGroup : eqCriterion.getBaseCriteriaGroup()) {
         Match subQuery = this.convertBaseCriteriaGroup(baseGroup, graphs);
-        this.setBaseReturn(subQuery);
+        if (needsReturn) this.setBaseReturn(subQuery);
         baseMatch.addOr(subQuery);
+      }
+      if (needsReturn) {
+        if (baseMatch.getOr() != null && baseMatch.getOr().size() > 1) {
+          Match lastMatch = baseMatch.getOr().getLast();
+          baseMatch.setReturn(new Return().setOrderBy(lastMatch.getReturn().getOrderBy()));
+        }
       }
     } else {
       baseMatch = this.convertBaseCriteriaGroup(eqCriterion.getBaseCriteriaGroup().get(0), graphs);
       this.setBaseReturn(baseMatch);
     }
 
-    if (baseMatch.getOr() != null && baseMatch.getOr().size() == 2) {
-      Match lastMatch = baseMatch.getOr().getLast();
-      baseMatch.setOrderBy(lastMatch.getOrderBy());
-    }
     counter = originalCounter;
     return baseMatch;
   }
@@ -379,7 +381,7 @@ public class EqdResources {
     this.convertColumnValue(cv, where, graphs);
   }
 
-  private String setMatchPath(Match match, String[] paths) throws EQDException, IOException {
+  private String setMatchPath(Match match, String[] paths) {
     if (paths.length == 1) {
       return null;
     } else {
@@ -409,7 +411,7 @@ public class EqdResources {
     }
   }
 
-  private String getNodeRef(HasPaths path) throws EQDException, IOException {
+  public String getNodeRef(HasPaths path) {
     if (path.getPath() != null) {
       for (Path pathMatch : path.getPath()) {
         if (pathMatch.getVariable() != null && pathMatch.getPath() == null) {
@@ -557,7 +559,7 @@ public class EqdResources {
     return this.convertColumns(eqCriterion.getTable(), (String) null, testAtt.getColumnValue(), true, graphs);
   }
 
-  private void setRestriction(EQDOCCriterion eqCriterion, Match restricted) throws EQDException {
+  private void setRestriction(EQDOCCriterion eqCriterion, Match restricted) throws EQDException, IOException {
     EQDOCFilterRestriction restrict = eqCriterion.getFilterAttribute().getRestriction();
     Order direction;
     if (((EQDOCColumnOrder.Columns) restrict.getColumnOrder().getColumns().get(0)).getDirection() == VocOrderDirection.ASC) {
@@ -565,13 +567,15 @@ public class EqdResources {
     } else {
       direction = Order.descending;
     }
-
     String linkColumn = eqCriterion.getFilterAttribute().getRestriction().getColumnOrder().getColumns().get(0).getColumn().get(0);
     String table = eqCriterion.getTable();
     String orderBy = this.getIMPath(table + "/" + linkColumn);
     if (restrict.getColumnOrder().getRecordCount() != 1000) {
-      restricted.orderBy((o) -> o
-        .addProperty((new OrderDirection())
+      restricted.setReturn(new Return());
+      String nodeRef = getNodeRef(restricted);
+      restricted.getReturn().orderBy((o) -> o
+        .addProperty(new OrderDirection()
+          .setNodeRef(nodeRef)
           .setIri(orderBy)
           .setDirection(direction))
         .setLimit(restrict.getColumnOrder().getRecordCount()));
@@ -989,7 +993,7 @@ public class EqdResources {
     } else {
       if (ev.isIncludeChildren()) {
         for (Node node : concepts) {
-          if (!node.isMemberOf()) node.setDescendantsOrSelfOf(true);
+          node.setDescendantsOrSelfOf(true);
         }
       }
 
@@ -1002,6 +1006,7 @@ public class EqdResources {
                 if (val.isIncludeChildren()) {
                   node.setDescendantsOrSelfOf(true);
                 }
+
                 node.setExclude(true);
                 concepts.add(node);
               }
@@ -1055,7 +1060,6 @@ public class EqdResources {
             System.out.println("null snomed");
           }
         }
-
         return new HashSet<>(snomed);
       } else {
         return Collections.emptySet();
@@ -1077,6 +1081,9 @@ public class EqdResources {
 
   private Set<Node> getValuesFromOriginal(String originalCode, String originalTerm, String legacyCode, List<Namespace> schemes, List<Graph> graphs) {
     Set<Entity> snomed = this.getCoreFromCode(originalCode, schemes, graphs);
+    if (snomed == null && legacyCode != null) {
+      snomed = this.getCoreFromCode(legacyCode, schemes, graphs);
+    }
 
     if (snomed == null && originalTerm != null) {
       snomed = this.getCoreFromLegacyTerm(originalTerm, graphs);

@@ -163,12 +163,13 @@ public class QueryDescriptor {
       typeOf = match.getTypeOf().getIri();
     }
     if (match.getUuid() == null) match.setUuid(UUID.randomUUID().toString());
-    if (match.getOrderBy() != null) {
-      describeOrderBy(match.getOrderBy());
-    }
+
 
     if (match.getReturn() != null) {
       describeReturn(match.getReturn());
+      if (match.getReturn().getOrderBy() != null) {
+        describeOrderBy(match.getReturn().getOrderBy());
+      }
     }
     if (match.getName() == null && match.getDescription() != null) {
       match.setName(match.getDescription());
@@ -235,8 +236,10 @@ public class QueryDescriptor {
   }
 
   private void addReturnText(Match match, StringBuilder preface) {
-    if (match.getOrderBy() != null) {
-      preface.append(match.getOrderBy().getDescription()).append(" ");
+    if (match.getReturn() != null) {
+      if (match.getReturn().getOrderBy() != null) {
+        preface.append(match.getReturn().getOrderBy().getDescription()).append(" ");
+      }
     }
     if (match.getReturn().getProperty() != null)
       preface.append(match.getReturn().getProperty()
@@ -641,8 +644,8 @@ public class QueryDescriptor {
   public String getShortDescription(Match match, List<Graph> graphs) throws QueryException {
     shortDescription = new StringBuilder();
     setIriNames(match, graphs);
-    if (match.getOrderBy() != null) {
-      describeOrderBy(match.getOrderBy());
+    if (match.getReturn() != null && match.getReturn().getOrderBy() != null) {
+      describeOrderBy(match.getReturn().getOrderBy());
       shortDescription.append(" ");
     }
     if (match.getWhere() != null) {

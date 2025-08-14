@@ -15,6 +15,9 @@
     "http://endhealth.info/im#observation": {
       "dataModel": "http://endhealth.info/im#Observation"
     },
+    "http://endhealth.info/im#clinicalEntry": {
+      "dataModel": "http://endhealth.info/im#Observation"
+    },
     "http://endhealth.info/im#gPRegistration": {
       "dataModel": "http://endhealth.info/im#GPRegistration"
     },

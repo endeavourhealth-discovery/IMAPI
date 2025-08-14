@@ -15,7 +15,6 @@ public class Match extends IriLD implements BoolGroup<Match>,HasPaths{
   private Where where;
   @Getter
   private String description;
-  private OrderLimit orderBy;
   private String nodeRef;
   private boolean optional;
   private FunctionClause aggregate;
@@ -341,23 +340,7 @@ public class Match extends IriLD implements BoolGroup<Match>,HasPaths{
   }
 
 
-  public OrderLimit getOrderBy() {
-    return orderBy;
-  }
 
-  @JsonSetter
-  public Match setOrderBy(OrderLimit orderBy) {
-    this.orderBy = orderBy;
-    return this;
-  }
-
-
-  public Match orderBy(Consumer<OrderLimit> builder) {
-    OrderLimit orderBy = new OrderLimit();
-    setOrderBy(orderBy);
-    builder.accept(orderBy);
-    return this;
-  }
 
 
 

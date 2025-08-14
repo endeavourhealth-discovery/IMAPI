@@ -413,7 +413,7 @@ public class EqdResources {
     }
   }
 
-  private String getNodeRef(HasPaths path){
+  public String getNodeRef(HasPaths path){
     if (path.getPath() != null) {
       for (Path pathMatch : path.getPath()) {
         if (pathMatch.getVariable() != null && pathMatch.getPath() == null) {
@@ -1062,8 +1062,7 @@ public class EqdResources {
             System.out.println("null snomed");
           }
         }
-
-        return snomed;
+        return new HashSet<>(snomed);
       } else {
         return Collections.emptySet();
       }

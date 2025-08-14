@@ -892,7 +892,7 @@ public class EntityRepository {
                    im:scheme ?scheme.
         }
       }
-      """.formatted(SparqlHelper.valueList("s", schemes));
+      """.formatted(SparqlHelper.valueList("scheme", schemes));
     try (IMDB conn = IMDB.getConnection(graphs)) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("term", Values.literal(term));

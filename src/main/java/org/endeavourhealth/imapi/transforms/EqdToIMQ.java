@@ -43,9 +43,13 @@ public class EqdToIMQ {
   private EqdResources resources;
   private TTDocument document;
   private String singleEntity;
+  private boolean versionIndependent;
+  private List<Graph> graphs;
 
 
-  public EqdToIMQ() {
+  public EqdToIMQ(boolean versionIndependent,List<Graph> graphs) {
+    this.versionIndependent = versionIndependent;
+    this.graphs = graphs;
     gmsPatients.add("c8d3ca80-ba23-418b-8cef-e5afac42764e");
   }
 
@@ -75,7 +79,7 @@ public class EqdToIMQ {
     return this;
   }
 
-  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, Properties criteriaMaps, Namespace namespace, List<Graph> graphs) throws IOException, QueryException, EQDException {
+  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, Properties criteriaMaps, Namespace namespace) throws IOException, QueryException, EQDException {
     this.document = document;
     this.resources = new EqdResources(document, dataMap, namespace);
     this.namespace = namespace;
@@ -92,11 +96,15 @@ public class EqdToIMQ {
   }
 
   private void setVersionMap(EnquiryDocument eqd) {
-    for (EQDOCReport eqReport : eqd.getReport()) {
-      String id = eqReport.getId();
-      String persistentId = eqReport.getVersionIndependentGUID();
-      if (persistentId != null) {
-        versionMap.put(id, persistentId);
+    if (!versionIndependent)
+      versionMap.clear();
+    else {
+      for (EQDOCReport eqReport : eqd.getReport()) {
+        String id = eqReport.getId();
+        String persistentId = eqReport.getVersionIndependentGUID();
+        if (persistentId != null) {
+          versionMap.put(id, persistentId);
+        }
       }
     }
   }

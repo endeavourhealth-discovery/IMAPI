@@ -40,8 +40,8 @@ public class TransformService {
 
     TTDocument document = new TTDocument();
 
-    EqdToIMQ converter = new EqdToIMQ();
-    converter.convertEQD(document, eqDoc, dataMap, null, namespace, graphs);
+    EqdToIMQ converter = new EqdToIMQ(false,List.of(Graph.IM));
+    converter.convertEQD(document, eqDoc, dataMap, null, namespace);
     return document;
 
   }

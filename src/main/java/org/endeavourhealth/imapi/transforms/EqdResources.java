@@ -172,7 +172,9 @@ public class EqdResources {
     } else {
       this.incrementSubRule();
       if (eqCriteria.getCriterion() != null) {
-        return this.convertCriterion(eqCriteria.getCriterion(), graphs);
+        Match match= this.convertCriterion(eqCriteria.getCriterion(), graphs);
+        if (eqCriteria.getCriterion().getDescription()!=null) match.setDescription(eqCriteria.getCriterion().getDescription());
+        return match;
       } else {
         Map<String, EQDOCCriterion> libraryItems = EqdToIMQ.getLibraryItems();
         String libraryId = eqCriteria.getLibraryItem().getLibraryItem();
@@ -238,10 +240,11 @@ public class EqdResources {
       }
     }
     if (eqCriterion.getLinkedCriterion() != null) {
-      if (baseMatch != null) nodeRef = "IndexEvent";
+      baseCounter++;
+      if (baseMatch != null) nodeRef = "IndexEvent_"+baseCounter;
       else if (eqCriterion.getLinkedCriterion().getRelationship().getParentColumn().equals("DOB"))
         nodeRef = "DOB";
-      else nodeRef = "LinkedEvent";
+      else nodeRef = "LinkedEvent_"+baseCounter;
       linkedMatch = this.convertLinkedCriterion(eqCriterion, nodeRef, graphs);
     }
     if (baseMatch != null) {
@@ -342,18 +345,13 @@ public class EqdResources {
     Match match = new Match();
 
     for (EQDOCColumnValue cv : columns) {
-      if (!this.ignoreColumn(cv)) {
         ++index;
         this.convertColumn(table, eqId, cv, match, index, isTest, graphs);
-      }
     }
 
     return match;
   }
 
-  private boolean ignoreColumn(EQDOCColumnValue cv) {
-    return cv.getColumn().size() == 1 && ((String) cv.getColumn().get(0)).equals("DATE") && cv.getRangeValue() != null && cv.getRangeValue().getRangeFrom() == null && cv.getRangeValue().getRelativeTo() != null && cv.getRangeValue().getRelativeTo().equals("BASELINE") && cv.getRangeValue().getRangeTo() != null && cv.getRangeValue().getRangeTo().getValue() == null && cv.getRangeValue().getRangeTo().getOperator() == VocRangeToOperator.LTEQ;
-  }
 
   private void convertColumn(String table, String eqId, EQDOCColumnValue cv, Match match, int index, boolean isTest, List<Graph> graphs) throws EQDException, IOException {
     String tablePath = this.getIMPath(table);
@@ -853,7 +851,7 @@ public class EqdResources {
   }
 
   private TTIriRef getClusterSet(EQDOCValueSet vs, List<Graph> graphs) throws IOException {
-    return vs.getCodeSystem() == VocCodeSystemEx.SNOMED_CONCEPT && vs.getDescription() != null && vs.getClusterCode().contains("FlattenedCodeList") ? this.importMaps.getReferenceFromCoreTerm(vs.getDescription(), graphs) : null;
+    return vs.getCodeSystem() == VocCodeSystemEx.SNOMED_CONCEPT && vs.getDescription() != null && !vs.getClusterCode().contains("FlattenedCodeList") ? this.importMaps.getReferenceFromCoreTerm(vs.getDescription(), graphs) : null;
   }
 
   private void setInlineValues(EQDOCValueSet vs, Where pv, boolean in, List<Graph> graphs) throws IOException, EQDException {

@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -27,10 +28,6 @@ public class QueryRequest implements ContextMap {
   private Query query;
   private PathQuery pathQuery;
   private Update update;
-  private String referenceDate;
-  @Getter
-  @Setter
-  private String baselineDate;
   @Getter
   @Setter
   private String queryStringDefinition;
@@ -152,14 +149,6 @@ public class QueryRequest implements ContextMap {
 
   }
 
-  public String getReferenceDate() {
-    return referenceDate;
-  }
-
-  public QueryRequest setReferenceDate(String referenceDate) {
-    this.referenceDate = referenceDate;
-    return this;
-  }
 
   @JsonSetter
   public QueryRequest setPage(Page page) {
@@ -247,6 +236,14 @@ public class QueryRequest implements ContextMap {
 
   @Override
   public int hashCode() {
-    return Objects.hash(queryStringDefinition, referenceDate, baselineDate, argument, cohort);
+    return Objects.hash(queryStringDefinition, argument, cohort);
+  }
+
+  public void resolveArgs() {
+    if (this.argument == null) this.argument = new HashSet<>();
+    boolean hasRefDate = this.argument.stream()
+      .anyMatch(arg -> "$referenceDate".equals(arg.getParameter()));
+    if (!hasRefDate)
+      this.argument.add(new Argument().setParameter("$referenceDate").setValueData(LocalDate.now().toString()));
   }
 }

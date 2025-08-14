@@ -2,14 +2,11 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
-import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
@@ -23,7 +20,7 @@ import org.endeavourhealth.imapi.model.sql.SqlWithSubqueries;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
-import org.endeavourhealth.imapi.postgress.PostgresService;
+import org.endeavourhealth.imapi.postgres.PostgresService;
 import org.endeavourhealth.imapi.rabbitmq.ConnectionManager;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
@@ -31,8 +28,6 @@ import org.springframework.stereotype.Component;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
@@ -88,6 +83,7 @@ public class QueryService {
   }
 
   public SqlWithSubqueries getSQLFromIMQ(QueryRequest queryRequest) throws SQLConversionException {
+    queryRequest.resolveArgs();
     return new IMQtoSQLConverter(queryRequest).IMQtoSQL();
   }
 
@@ -139,9 +135,10 @@ public class QueryService {
   }
 
   public List<String> executeQuery(QueryRequest queryRequest, Graph graph) throws SQLConversionException, SQLException, QueryException {
+    queryRequest.resolveArgs();
     int qrHashCode = getQueryRequestHashCode(queryRequest);
     log.info("Executing query: {} with a hash code: {}", queryRequest.getQuery().getIri(), qrHashCode);
-//    TODO: if query has is rules needs to be converted to match based query
+    // TODO: if query has is rules needs to be converted to match based query
     try {
       List<String> results = getQueryResults(queryRequest);
       if (results != null) return results;
@@ -361,45 +358,44 @@ public class QueryService {
   }
 
 
-
-  private NodeShape getTypeFromPath(Path path,Set<String> nodeRefs) {
-    if (path.getVariable()!=null) {
+  private NodeShape getTypeFromPath(Path path, Set<String> nodeRefs) {
+    if (path.getVariable() != null) {
       if (nodeRefs.contains(path.getVariable())) {
-            return dataModelRepository.getDataModelDisplayProperties(path.getTypeOf().getIri(), false, Graph.IM);
-          }
-          if(path.getPath()!=null){
-            for (Path subPath : path.getPath()) {
-              NodeShape nodeShape = getTypeFromPath(subPath,nodeRefs);
-              if (nodeShape != null) return nodeShape;
-            }
-          }
+        return dataModelRepository.getDataModelDisplayProperties(path.getTypeOf().getIri(), false, Graph.IM);
+      }
+      if (path.getPath() != null) {
+        for (Path subPath : path.getPath()) {
+          NodeShape nodeShape = getTypeFromPath(subPath, nodeRefs);
+          if (nodeShape != null) return nodeShape;
         }
-      return null;
+      }
+    }
+    return null;
   }
 
   private void getNodeRefs(Match match, Set<String> nodeRefs) {
     Where where = match.getWhere();
     if (where != null) {
-      if (where.getNodeRef()!=null){
+      if (where.getNodeRef() != null) {
         nodeRefs.add(where.getNodeRef());
       }
       for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr(), where.getNot())) {
-        if (whereList!=null){
-          for (Where subWhere:whereList)
-            getNodeRefs(subWhere,nodeRefs);
+        if (whereList != null) {
+          for (Where subWhere : whereList)
+            getNodeRefs(subWhere, nodeRefs);
         }
       }
     }
   }
 
   private void getNodeRefs(Where where, Set<String> nodeRefs) {
-    if (where.getNodeRef()!=null){
+    if (where.getNodeRef() != null) {
       nodeRefs.add(where.getNodeRef());
     }
     for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr(), where.getNot())) {
-      if (whereList!=null){
-        for (Where subWhere:whereList)
-          getNodeRefs(subWhere,nodeRefs);
+      if (whereList != null) {
+        for (Where subWhere : whereList)
+          getNodeRefs(subWhere, nodeRefs);
       }
     }
   }

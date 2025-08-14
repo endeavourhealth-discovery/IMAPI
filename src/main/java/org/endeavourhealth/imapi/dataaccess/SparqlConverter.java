@@ -41,7 +41,7 @@ public class SparqlConverter {
   }
 
   /**
-   * Resolves a query $ vaiable value using the query request argument map
+   * Resolves a query $ variable value using the query request argument map
    *
    * @param value        the $alias is the query definition
    * @param queryRequest the Query request object submitted via the API
@@ -49,9 +49,6 @@ public class SparqlConverter {
    * @throws QueryException if the variable is unresolvable
    */
   public String resolveReference(String value, QueryRequest queryRequest) throws QueryException {
-    if (value.equalsIgnoreCase("$referenceDate") && null != queryRequest.getReferenceDate())
-      return queryRequest.getReferenceDate();
-
     value = value.replace("$", "");
     if (null != queryRequest.getArgument()) {
       for (Argument argument : queryRequest.getArgument()) {

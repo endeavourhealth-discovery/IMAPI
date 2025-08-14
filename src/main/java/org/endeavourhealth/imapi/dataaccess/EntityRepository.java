@@ -1572,6 +1572,9 @@ public class EntityRepository {
 
   public Map<String, TTEntity> getEntitiesWithPredicates(Set<String> iris, Set<String> predicates, Graph graph) {
     Map<String, TTEntity> result = new HashMap<>();
+    if (iris == null || iris.isEmpty())
+      return result;
+
     iris.remove(null);
     String sql = """
       select ?entity ?entityLabel ?predicate ?predicateLabel ?object ?objectLabel ?subPredicate ?subPredicateLabel ?subObject ?subObjectLabel
@@ -1995,6 +1998,28 @@ public class EntityRepository {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
           return bs.getValue("definition").stringValue();
+        }
+      }
+    }
+    return null;
+  }
+
+  public String getIriFromLegacy(String scheme,String legacyCode) {
+    String sql = """
+      select ?iri
+      where {
+      Values ?legacyCode {%s}
+      Values ?scheme {%s}
+        ?iri im:alternativeCode ?legacyCode.
+        ?iri im:scheme ?scheme .
+      }
+      """.formatted("\"" + legacyCode + "\"","<" + scheme + ">");
+    try (IMDB conn = IMDB.getConnection(Graph.IM)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          return bs.getValue("iri").stringValue();
         }
       }
     }

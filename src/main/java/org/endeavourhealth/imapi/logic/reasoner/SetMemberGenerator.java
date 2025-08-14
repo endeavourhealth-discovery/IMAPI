@@ -39,11 +39,11 @@ public class SetMemberGenerator {
     if (setDefinition.getEntity().get(iri(IM.DEFINITION)) == null) {
       Set<Concept> members = setRepo.getExpansionFromEntailedMembers(iri, graph); //might be an instance member definition
       if (!members.isEmpty()) {
-        log.info("Expanding members " + iri);
+        log.info("Expanding members {}", iri);
         setRepo.updateMembers(iri, members, graph);
       }
     } else {
-      log.info("Expanding from definition " + iri);
+      log.info("Expanding from definition {}", iri);
       Set<Concept> members = setRepo.getMembersFromDefinition(setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral()
         .objectValue(Query.class), graph);
       setRepo.updateMembers(iri, members, graph);

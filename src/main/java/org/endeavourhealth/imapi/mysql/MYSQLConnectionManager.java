@@ -55,14 +55,16 @@ public class MYSQLConnectionManager {
 
   public static void saveResults(int hashCode, List<String> results) throws SQLException {
     createTable(hashCode);
-    try (Connection connection = getConnection()) {
-      String values = "(" + String.join("), \n(", results) + ")";
-      String sql = """
-                INSERT INTO `%s` (id)
-                VALUES %s;
-        """.formatted(hashCode, values);
-      try (PreparedStatement statement = connection.prepareStatement(sql)) {
-        statement.execute();
+    if (!results.isEmpty()) {
+      try (Connection connection = getConnection()) {
+        String values = "(" + String.join("), \n(", results) + ")";
+        String sql = """
+                  INSERT INTO `%s` (id)
+                  VALUES %s;
+          """.formatted(hashCode, values);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+          statement.execute();
+        }
       }
     }
   }
@@ -105,15 +107,15 @@ public class MYSQLConnectionManager {
     List<String> ids = new ArrayList<>();
     try (Connection getResultsConnection = getConnection();
          Statement statement = getResultsConnection.createStatement()) {
-        String sql = "SELECT id FROM `" + queryRequest.hashCode() + "`";
-        if (queryRequest.getPage() != null && queryRequest.getPage().getPageNumber() > 0 && queryRequest.getPage().getPageSize() > 0) {
-          int offset = (queryRequest.getPage().getPageNumber() - 1) * queryRequest.getPage().getPageSize();
-          sql = sql + " LIMIT " + queryRequest.getPage().getPageSize() + " OFFSET " + offset + ";";
-        } else sql = sql + ";";
-        ResultSet resultSet = statement.executeQuery(sql);
-        while (resultSet.next()) {
-          ids.add(resultSet.getString("id"));
-        }
+      String sql = "SELECT id FROM `" + queryRequest.hashCode() + "`";
+      if (queryRequest.getPage() != null && queryRequest.getPage().getPageNumber() > 0 && queryRequest.getPage().getPageSize() > 0) {
+        int offset = (queryRequest.getPage().getPageNumber() - 1) * queryRequest.getPage().getPageSize();
+        sql = sql + " LIMIT " + queryRequest.getPage().getPageSize() + " OFFSET " + offset + ";";
+      } else sql = sql + ";";
+      ResultSet resultSet = statement.executeQuery(sql);
+      while (resultSet.next()) {
+        ids.add(resultSet.getString("id"));
+      }
     }
     return ids;
   }

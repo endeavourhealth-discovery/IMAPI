@@ -261,7 +261,7 @@ public class EntityController {
   }
 
   @PostMapping(value = "/create")
-  @PreAuthorize("hasAuthority('create')")
+  @PreAuthorize("hasAuthority('CREATOR')")
   @Operation(summary = "Create entity", description = "Creates a new entity in the system with the provided details")
   public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws TTFilerException, IOException, UserNotFoundException, TaskFilerException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
@@ -284,7 +284,7 @@ public class EntityController {
   }
 
   @PostMapping(value = "/update")
-  @PreAuthorize("hasAuthority('edit')")
+  @PreAuthorize("hasAuthority('EDITOR')")
   @Operation(summary = "Update entity", description = "Updates an existing entity with the provided details")
   public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException, UserNotFoundException, TaskFilerException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
@@ -296,7 +296,7 @@ public class EntityController {
   }
 
 //  @PostMapping(value = "/createDraft")
-//  @PreAuthorize("hasAuthority('edit')")
+//  @PreAuthorize("hasAuthority('EDITOR')")
 //  @Operation(summary = "Save draft entity", description = "Add an entity to the users draft graph to await approval process")
 //  public TTEntity saveDraft(@RequestBody EditRequest editRequest, HttpServletRequest request) throws TTFilerException, IOException, UserNotFoundException, TaskFilerException {
 //    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.draft.POST")) {

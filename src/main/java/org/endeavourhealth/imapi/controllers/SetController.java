@@ -58,7 +58,7 @@ public class SetController {
 
   @GetMapping(value = "/publish")
   @Operation(summary = "Publish set", description = "Publishes an expanded set to IM1")
-  @PreAuthorize("hasAuthority('IM1_PUBLISH')")
+  @PreAuthorize("hasAuthority('PUBLISHER')")
   public void publish(
     HttpServletRequest request,
     @RequestParam(name = "iri") String iri
@@ -183,7 +183,7 @@ public class SetController {
 
   @PostMapping(value = "/updateSubsetsFromSuper")
   @Operation(summary = "Update subsets from super", description = "Updates subsets from a superclass according to the provided entity details.")
-  @PreAuthorize("hasAuthority('edit') or hasAuthority('create')")
+  @PreAuthorize("hasAuthority('EDITOR') or hasAuthority('CREATOR')")
   public void updateSubsetsFromSuper(@RequestBody EditRequest editRequest, HttpServletRequest request) throws IOException, TTFilerException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UpdateSubsetsFromSuper.POST")) {
       log.debug("updateSubsetsFromSuper");

@@ -44,7 +44,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @RestController
-@PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+@PreAuthorize("hasAuthority('CREATOR')")
 @RequestMapping("api/filer")
 @CrossOrigin(origins = "*")
 @Tag(name = "FilerController")
@@ -58,7 +58,7 @@ public class FilerController {
   private final SearchService searchService = new SearchService();
 
   @PostMapping("file/document")
-  @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  @PreAuthorize("hasAuthority('CREATOR')")
   @Operation(summary = "Files a document and returns the task ID.")
   public ResponseEntity<Map<String, String>> fileDocument(@RequestBody FileDocumentRequest fileDocumentRequest, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Document.POST")) {
@@ -94,7 +94,7 @@ public class FilerController {
   }
 
   @PostMapping("file/entity")
-  @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  @PreAuthorize("hasAuthority('CREATOR')")
   @Operation(summary = "Files an entity with specified graph and CRUD operation.")
   public ResponseEntity<Void> fileEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws TTFilerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Entity.POST")) {
@@ -122,7 +122,7 @@ public class FilerController {
   }
 
   @PostMapping("folder/move")
-  @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  @PreAuthorize("hasAuthority('CREATOR')")
   @Operation(summary = "Moves an entity from one folder to another.")
   public ResponseEntity<ProblemDetailResponse> moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graphString, HttpServletRequest request) throws Exception {
     List<Graph> graphs = reqObjService.getUserGraphs(request);
@@ -170,7 +170,7 @@ public class FilerController {
   }
 
   @PostMapping("folder/add")
-  @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  @PreAuthorize("hasAuthority('CREATOR')")
   @Operation(summary = "Adds an entity to a specified folder.")
   public ResponseEntity<ProblemDetailResponse> addToFolder(
     @RequestParam(name = "entity") String entityIri,
@@ -206,7 +206,7 @@ public class FilerController {
   }
 
   @PostMapping("folder/create")
-  @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+  @PreAuthorize("hasAuthority('CREATOR')")
   @Operation(summary = "Creates a new folder within a specified container.")
   public String createFolder(
     @RequestParam(name = "container") String container,
@@ -269,7 +269,7 @@ public class FilerController {
   }
 
   @GetMapping("deltas/download")
-  @PreAuthorize("hasAuthority('IMAdmin')")
+  @PreAuthorize("hasAuthority('ADMIN')")
   @Operation(summary = "Downloads deltas as a zip file.")
   public HttpEntity<Object> downloadDeltas() throws NullPointerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Deltas.Download.GET")) {

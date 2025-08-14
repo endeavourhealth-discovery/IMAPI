@@ -28,7 +28,7 @@ import java.util.List;
 @Tag(name = "AdminController")
 @RequestScope
 @Slf4j
-@PreAuthorize("hasAuthority('IMAdmin')")
+@PreAuthorize("hasAuthority('ADMIN')")
 public class AdminController {
   AWSCognitoClient awsCognitoClient = new AWSCognitoClient();
 

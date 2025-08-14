@@ -278,7 +278,7 @@ public class QueryController {
   @Operation(
     summary = "get query queue items by status as admin"
   )
-  @PreAuthorize("hasAuthority('IMAdmin')")
+  @PreAuthorize("hasAuthority('ADMIN')")
   public Pageable<DBEntry> queryQueueByStatus(HttpServletRequest request, @RequestParam(name = "status") QueryExecutorStatus status, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLConversionException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryQueueByStatus.GET")) {
       log.debug("getQueryQueueByStatus");
@@ -326,7 +326,7 @@ public class QueryController {
   @Operation(
     summary = "Kills the active running query"
   )
-  @PreAuthorize("hasAuthority('IMAdmin')")
+  @PreAuthorize("hasAuthority('ADMIN')")
   public void killActiveQuery() throws SQLException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.KillActiveQuery.POST")) {
       log.debug("killActiveQuery");

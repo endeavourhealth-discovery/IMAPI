@@ -29,15 +29,13 @@ import java.util.Optional;
 public class ConceptController {
 
   private final ConceptService conceptService = new ConceptService();
-  private final RequestObjectService requestObjectService = new RequestObjectService();
 
   @GetMapping(value = "/public/matchedFrom", produces = "application/json")
   @Operation(summary = "Get matched terms from the specified entity", description = "Retrieves terms that are matched from the given entity IRI for further processing or analysis.")
   public Collection<SimpleMap> getMatchedFrom(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MatchedFrom.GET")) {
       log.debug("getMatchedFrom");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return conceptService.getMatchedFrom(iri, graphs);
+      return conceptService.getMatchedFrom(iri);
     }
   }
 
@@ -46,8 +44,7 @@ public class ConceptController {
   public Collection<SimpleMap> getMatchedTo(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MatchedTo.GET")) {
       log.debug("getMatchedTo");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return conceptService.getMatchedTo(iri, graphs);
+      return conceptService.getMatchedTo(iri);
     }
   }
 
@@ -56,8 +53,7 @@ public class ConceptController {
   public List<SearchTermCode> getTermCodes(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "includeInactive") Optional<Boolean> includeInactive) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.TermCode.GET")) {
       log.debug("getTermCodes");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return conceptService.getEntityTermCodes(iri, includeInactive.orElseGet(() -> false), graphs);
+      return conceptService.getEntityTermCodes(iri, includeInactive.orElseGet(() -> false));
     }
   }
 
@@ -69,8 +65,7 @@ public class ConceptController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ConceptContextMaps.GET")) {
       log.debug("getConceptContextMaps");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return conceptService.getConceptContextMaps(iri, graphs);
+      return conceptService.getConceptContextMaps(iri);
     }
   }
 }

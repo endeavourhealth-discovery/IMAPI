@@ -20,7 +20,7 @@ public class ECLToIMQStepDefs {
   public void GetEclFromQueryShouldEqualEcl(String ecl) throws Exception {
     ECLQueryRequest eclQuery = new ECLQueryRequest();
     eclQuery.setQuery(query);
-    imqToECL.getECLFromQuery(eclQuery, List.of(Graph.IM));
+    imqToECL.getECLFromQuery(eclQuery);
     assertEquals(ecl, eclQuery.getEcl().replaceAll("\n", "")
       .replaceAll("\t", "")
       .replaceAll("or ", "OR "));
@@ -30,7 +30,7 @@ public class ECLToIMQStepDefs {
   public void getQueryFromECLIsCalledWithEclEcl(String ecl) throws EclFormatException {
     ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
     eclQueryRequest.setEcl(ecl);
-    eclToIMQ.getQueryFromECL(eclQueryRequest, List.of(Graph.IM));
+    eclToIMQ.getQueryFromECL(eclQueryRequest);
     query = eclQueryRequest.getQuery();
   }
 }

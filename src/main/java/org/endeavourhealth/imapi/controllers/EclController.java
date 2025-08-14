@@ -33,7 +33,6 @@ public class EclController {
 
   private final EclService eclService = new EclService();
   private final ConceptService conceptService = new ConceptService();
-  private final RequestObjectService requestObjectService = new RequestObjectService();
 
   @PostMapping("/public/ecl")
   @Operation(
@@ -43,8 +42,7 @@ public class EclController {
   public String getEcl(HttpServletRequest request, @RequestBody EclSearchRequest inferred) throws QueryException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("ECL.Ecl.POST")) {
       log.debug("getEcl");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return eclService.getEcl(inferred, graphs);
+      return eclService.getEcl(inferred);
     }
   }
 
@@ -59,8 +57,7 @@ public class EclController {
   ) throws EclFormatException, IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("ECL.EclSearch.POST")) {
       log.debug("eclSearch");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return eclService.eclSearch(eclSearchRequest, graphs);
+      return eclService.eclSearch(eclSearchRequest);
     } catch (UnknownFormatConversionException ex) {
       throw new EclFormatException("Invalid ECL format", ex);
     }
@@ -73,8 +70,7 @@ public class EclController {
   ) throws QueryException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclFromQuery.POST")) {
       log.debug("getEclFromQuery");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return eclService.getECLFromQuery(eclQueryRequest, graphs);
+      return eclService.getECLFromQuery(eclQueryRequest);
     }
   }
 
@@ -85,8 +81,7 @@ public class EclController {
   ) throws QueryException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateModelFromQuery.POST")) {
       log.debug("validatesEclQuerymodel");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return eclService.validateModelFromQuery(eclQueryRequest, graphs);
+      return eclService.validateModelFromQuery(eclQueryRequest);
     }
   }
 
@@ -95,8 +90,7 @@ public class EclController {
   public ECLQueryRequest validateModelFromEcl(HttpServletRequest request, @RequestBody ECLQueryRequest eclQueryRequest) throws QueryException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateModelFromECL.POST")) {
       log.debug("validatesModelFromECL");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return eclService.validateModelFromECL(eclQueryRequest, graphs);
+      return eclService.validateModelFromECL(eclQueryRequest);
     }
   }
 
@@ -108,8 +102,7 @@ public class EclController {
   public ECLQueryRequest getQueryFromECL(HttpServletRequest request, @RequestBody ECLQueryRequest eclQueryRequest) throws IOException, EclFormatException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.QueryFromEcl.POST")) {
       log.debug("getQueryFromEcl");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return eclService.getQueryFromECL(eclQueryRequest, graphs);
+      return eclService.getQueryFromECL(eclQueryRequest);
     }
   }
 
@@ -124,8 +117,7 @@ public class EclController {
   ) throws IOException, QueryException, EclFormatException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclWithNames.POST")) {
       log.debug("getEcl from ecl");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return eclService.getEclFromEcl(eclQueryRequest, graphs);
+      return eclService.getEclFromEcl(eclQueryRequest);
     }
   }
 
@@ -140,8 +132,7 @@ public class EclController {
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateEcl.POST")) {
       log.debug("validatesEcl");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return eclService.validateEcl(eclQueryRequest, graphs);
+      return eclService.validateEcl(eclQueryRequest);
     }
   }
 
@@ -153,8 +144,7 @@ public class EclController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.propertiesForDomains.GET")) {
       log.debug("getPropertiesForDomains");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return conceptService.getPropertiesForDomains(iris, graphs);
+      return conceptService.getPropertiesForDomains(iris);
     }
   }
 
@@ -167,8 +157,7 @@ public class EclController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.rangesForProperty.GET")) {
       log.debug("getRangesForProperty");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return conceptService.getRangesForProperty(iri, graphs);
+      return conceptService.getRangesForProperty(iri);
     }
   }
 }

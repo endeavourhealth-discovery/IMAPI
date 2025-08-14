@@ -39,7 +39,7 @@ public class CacheRepository {
       }
       """;
     Set<TTEntity> shapes = new HashSet<>();
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       GraphQuery qry = conn.prepareGraphSparql(sql);
       try (GraphQueryResult gs = qry.evaluate()) {
         Map<String, TTValue> valueMap = new HashMap<>();

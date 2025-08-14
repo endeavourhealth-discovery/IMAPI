@@ -25,25 +25,25 @@ public class QueryDescriptor {
   private Map<String, TTEntity> iriContext;
   private StringBuilder shortDescription = new StringBuilder();
 
-  public Query describeQuery(String queryIri, DisplayMode displayMode, List<Graph> graphs) throws JsonProcessingException, QueryException {
-    TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION), graphs).getEntity();
+  public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
+    TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
     if (query.getIri() == null)
       query.setIri(queryIri);
-    query = describeQuery(query, displayMode, graphs);
+    query = describeQuery(query, displayMode);
     queryCache.put(queryIri, new ObjectMapper().writeValueAsString(query));
     return query;
   }
 
-  public Match describeSingleMatch(Match match, String typeOf, List<Graph> graphs) throws QueryException {
-    setIriNames(match, graphs);
+  public Match describeSingleMatch(Match match, String typeOf) throws QueryException {
+    setIriNames(match);
     describeMatch(match, typeOf);
     return match;
   }
 
-  public Query describeQuery(Query query, DisplayMode displayMode, List<Graph> graphs) throws QueryException, JsonProcessingException {
-    setIriNames(query, graphs);
+  public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
+    setIriNames(query);
     if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
     if (displayMode == DisplayMode.RULES && query.getRule() == null) {
       new LogicOptimizer().getRulesFromLogic(query);
@@ -74,19 +74,19 @@ public class QueryDescriptor {
     }
   }
 
-  private void setIriNames(Match match, List<Graph> graphs) throws QueryException {
+  private void setIriNames(Match match) throws QueryException {
     Set<String> iriSet = IriCollector.collectIris(match);
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL), graphs);
+      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL));
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
   }
 
-  private void setIriNames(Query query, List<Graph> graphs) throws QueryException {
+  private void setIriNames(Query query) throws QueryException {
     Set<String> iriSet = IriCollector.collectIris(query);
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL), graphs);
+      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL));
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
@@ -641,9 +641,9 @@ public class QueryDescriptor {
     }
   }
 
-  public String getShortDescription(Match match, List<Graph> graphs) throws QueryException {
+  public String getShortDescription(Match match) throws QueryException {
     shortDescription = new StringBuilder();
-    setIriNames(match, graphs);
+    setIriNames(match);
     if (match.getReturn() != null && match.getReturn().getOrderBy() != null) {
       describeOrderBy(match.getReturn().getOrderBy());
       shortDescription.append(" ");

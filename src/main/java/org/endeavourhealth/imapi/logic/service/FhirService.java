@@ -19,13 +19,13 @@ public class FhirService {
   SetService setService = new SetService();
   EclService eclService = new EclService();
 
-  public String getFhirValueSet(String iri, boolean expanded, List<Graph> graphs) throws JsonProcessingException, QueryException {
+  public String getFhirValueSet(String iri, boolean expanded) throws JsonProcessingException, QueryException {
     List<String> schemes = new ArrayList<>();
     SetOptions setOptions = new SetOptions(iri, true, expanded, false, true, schemes, new ArrayList<>());
-    return setService.getFHIRSetExport(setOptions, graphs);
+    return setService.getFHIRSetExport(setOptions);
   }
 
-  public String eclToFhir(String data, List<Graph> graphs) throws QueryException {
+  public String eclToFhir(String data) throws QueryException {
     ValueSet result = new ValueSet();
     ValueSet.ValueSetExpansionComponent expansion = new ValueSet.ValueSetExpansionComponent();
     ValueSet.ConceptSetFilterComponent filter = new ValueSet.ConceptSetFilterComponent();
@@ -43,12 +43,12 @@ public class FhirService {
     result.setCompose(compose);
     ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
     eclQueryRequest.setEcl(data);
-    eclQueryRequest = eclService.getQueryFromECL(eclQueryRequest, graphs);
+    eclQueryRequest = eclService.getQueryFromECL(eclQueryRequest);
     EclSearchRequest request = new EclSearchRequest();
     request.setEclQuery(eclQueryRequest.getQuery());
     request.setIncludeLegacy(false);
     request.setSize(0);
-    SearchResponse evaluated = eclService.eclSearch(request, graphs);
+    SearchResponse evaluated = eclService.eclSearch(request);
     if (!evaluated.getEntities().isEmpty()) {
       for (SearchResultSummary entity : evaluated.getEntities()) {
         ValueSet.ValueSetExpansionContainsComponent contained = new ValueSet.ValueSetExpansionContainsComponent();

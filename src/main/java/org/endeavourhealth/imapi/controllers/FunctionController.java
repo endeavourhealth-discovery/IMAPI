@@ -23,7 +23,6 @@ import java.util.List;
 @RequestScope
 @Slf4j
 public class FunctionController {
-  private final RequestObjectService requestObjectService = new RequestObjectService();
 
   @PostMapping("/public/callFunction")
   @Operation(
@@ -33,8 +32,7 @@ public class FunctionController {
   public JsonNode callFunction(HttpServletRequest request, @RequestBody FunctionRequest function) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Function.CallFunction.POST")) {
       log.debug("callFunction");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return new FunctionService().callFunction(request, function.getFunctionIri(), function.getArguments(), graphs);
+      return new FunctionService().callFunction(request, function.getFunctionIri(), function.getArguments());
     }
   }
 }

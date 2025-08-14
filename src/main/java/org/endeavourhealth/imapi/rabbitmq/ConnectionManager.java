@@ -110,7 +110,7 @@ public class ConnectionManager {
         if (null == queryService) {
           queryService = new QueryService();
         }
-        queryService.executeQuery(queryRequest, List.of(graph));
+        queryService.executeQuery(queryRequest);
         entry.setStatus(QueryExecutorStatus.COMPLETED);
         postgresService.update(entry);
       } catch (Exception e) {

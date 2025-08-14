@@ -100,23 +100,22 @@ public class FilerController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Entity.POST")) {
       log.debug("fileEntity");
       String agentName = reqObjService.getRequestAgentName(request);
-      List<Graph> graphs = reqObjService.getUserGraphs(request);
       TTEntity usedEntity = null;
       TTEntity entity = editRequest.getEntity();
-      Graph graph = editRequest.getGraph();
+      Graph filingGraph = editRequest.getGraph();
       String crud = editRequest.getCrud();
-      if (entityService.iriExists(entity.getIri(), List.of(graph))) {
-        usedEntity = entityService.getBundle(entity.getIri(), null, graphs).getEntity();
+      if (entityService.iriExists(entity.getIri())) {
+        usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
         entity.setVersion(usedEntity.getVersion() + 1);
       }
 
       if (crud != null && !crud.isEmpty()) entity.setCrud(iri(crud));
 
       String agentId = reqObjService.getRequestAgentId(request);
-      if (!filerService.userCanFile(agentId, graph))
+      if (!filerService.userCanFile(agentId, filingGraph))
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-      filerService.fileEntity(entity, agentName, usedEntity, graphs, graph);
+      filerService.fileEntity(entity, agentName, usedEntity, filingGraph);
       return ResponseEntity.ok().build();
     }
   }
@@ -125,13 +124,12 @@ public class FilerController {
   @PreAuthorize("hasAuthority('CREATOR')")
   @Operation(summary = "Moves an entity from one folder to another.")
   public ResponseEntity<ProblemDetailResponse> moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graphString, HttpServletRequest request) throws Exception {
-    List<Graph> graphs = reqObjService.getUserGraphs(request);
-    Graph graph = Graph.from(graphString);
+    Graph filingGraph = Graph.from(graphString);
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Move.POST")) {
       log.debug("moveFolder");
 
 
-      if (!entityService.iriExists(entityIri, graphs) || !entityService.iriExists(oldFolderIri, graphs) || !entityService.iriExists(newFolderIri, graphs)) {
+      if (!entityService.iriExists(entityIri) || !entityService.iriExists(oldFolderIri) || !entityService.iriExists(newFolderIri)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "One of the IRIs does not exist");
       }
 
@@ -143,7 +141,7 @@ public class FilerController {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Source and target are the same");
       }
 
-      TTEntity entity = entityService.getBundle(entityIri, asHashSet(IM.IS_CONTAINED_IN, IM.HAS_SCHEME), graphs).getEntity();
+      TTEntity entity = entityService.getBundle(entityIri, asHashSet(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
       if (!entity.has(iri(IM.IS_CONTAINED_IN))) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in a folder");
       }
@@ -153,17 +151,17 @@ public class FilerController {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in the specified folder");
       }
 
-      if (entityService.isLinked(newFolderIri, iri(IM.IS_CONTAINED_IN), oldFolderIri, graphs)) {
+      if (entityService.isLinked(newFolderIri, iri(IM.IS_CONTAINED_IN), oldFolderIri)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Target folder is a descendant of the Entity");
       }
-      TTEntity usedEntity = entityService.getBundle(entity.getIri(), null, graphs).getEntity();
+      TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
 
       folders.remove(iri(oldFolderIri));
       folders.add(iri(newFolderIri));
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
 
       String agentName = reqObjService.getRequestAgentName(request);
-      filerService.fileEntity(entity, agentName, usedEntity, graphs, graph);
+      filerService.fileEntity(entity, agentName, usedEntity, filingGraph);
 
       return ResponseEntity.ok().build();
     }
@@ -180,10 +178,9 @@ public class FilerController {
   ) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Add.POST")) {
       log.debug("addToFolder");
-      List<Graph> graphs = reqObjService.getUserGraphs(request);
-      Graph graph = Graph.from(graphString);
+      Graph filingGraph = Graph.from(graphString);
 
-      if (!entityService.iriExists(entityIri, graphs) || !entityService.iriExists(folderIri, graphs)) {
+      if (!entityService.iriExists(entityIri) || !entityService.iriExists(folderIri)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot add to folder", "One of the IRIs does not exist");
       }
 
@@ -191,15 +188,15 @@ public class FilerController {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Cannot move entity into itself");
       }
 
-      TTEntity entity = entityService.getBundle(entityIri, asHashSet(IM.IS_CONTAINED_IN, IM.HAS_SCHEME), graphs).getEntity();
+      TTEntity entity = entityService.getBundle(entityIri, asHashSet(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
       TTArray folders = entity.get(iri(IM.IS_CONTAINED_IN));
       if (folders == null) folders = new TTArray();
       folders.add(iri(folderIri));
 
       String agentName = reqObjService.getRequestAgentName(request);
-      TTEntity usedEntity = entityService.getBundle(entity.getIri(), null, graphs).getEntity();
+      TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
-      filerService.fileEntity(entity, agentName, usedEntity, graphs, graph);
+      filerService.fileEntity(entity, agentName, usedEntity, filingGraph);
 
       return ResponseEntity.ok().build();
     }
@@ -214,8 +211,7 @@ public class FilerController {
     @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graphString,
     HttpServletRequest request
   ) throws Exception {
-    List<Graph> graphs = reqObjService.getUserGraphs(request);
-    Graph graph = Graph.from(graphString);
+    Graph filingGraph = Graph.from(graphString);
 
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Create.POST")) {
       log.debug("createFolder");
@@ -224,13 +220,13 @@ public class FilerController {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, name is null");
       }
 
-      if (!entityService.iriExists(container, graphs)) {
+      if (!entityService.iriExists(container)) {
         log.error("Cannot create, container does not exist");
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, container does not exist");
       }
 
       String iri = Namespace.IM + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8);
-      if (entityService.iriExists(iri, graphs)) {
+      if (entityService.iriExists(iri)) {
         log.error("Entity with that name already exists");
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity with that name already exists");
       }
@@ -243,7 +239,7 @@ public class FilerController {
         .argument(a -> a
           .setParameter("this")
           .setValueIri(TTIriRef.iri(container)));
-      JsonNode results = searchService.queryIM(queryRequest, graphs);
+      JsonNode results = searchService.queryIM(queryRequest);
 
       TTEntity entity = new TTEntity(iri)
         .setName(name)
@@ -263,7 +259,7 @@ public class FilerController {
       entity.set(iri(IM.CONTENT_TYPE), contentTypes);
 
       String agentName = reqObjService.getRequestAgentName(request);
-      filerService.fileEntity(entity, agentName, null, graphs, graph);
+      filerService.fileEntity(entity, agentName, null, filingGraph);
       return iri;
     }
   }

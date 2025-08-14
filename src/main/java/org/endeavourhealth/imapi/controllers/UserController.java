@@ -204,8 +204,7 @@ public class UserController {
   public List<Graph> getGraphs(HttpServletRequest request) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Graphs.GET")) {
       log.debug(("getGraphs"));
-      String userId = requestObjectService.getRequestAgentId(request);
-      return userService.getUserGraphs(userId);
+      return requestObjectService.getUserGraphs(request);
     }
   }
 
@@ -227,8 +226,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.EditAccess.GET")) {
       log.debug(("getEditAccess"));
       String userId = requestObjectService.getRequestAgentId(request);
-      List<Graph> graphs = userService.getUserGraphs(userId);
-      return userService.getEditAccess(userId, iri, graphs);
+      return userService.getEditAccess(userId, iri);
     }
   }
 

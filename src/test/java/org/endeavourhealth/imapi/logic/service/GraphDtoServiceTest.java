@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,10 +15,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -47,25 +49,25 @@ public class GraphDtoServiceTest {
   @Test
   void getGraphData_NotNullEntity() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
-    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115", null);
+    when(entityRepository.getBundle(any(), anySet(), anyList())).thenReturn(new TTBundle().setEntity(entity));
+    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115", List.of(Graph.IM));
     assertNotNull(actual);
   }
 
   @Test
   void getGraphData_RoleGroup() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(any(), anySet(), anyList())).thenReturn(new TTBundle().setEntity(entity));
 
-    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115", null);
+    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115", List.of(Graph.IM));
     assertNotNull(actual);
   }
 
   @Test
   void getGraphData_LeafNodes() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
-    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115", null);
+    when(entityRepository.getBundle(any(), anySet(), anyList())).thenReturn(new TTBundle().setEntity(entity));
+    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115", List.of(Graph.IM));
     assertNotNull(actual);
   }
 
@@ -76,9 +78,9 @@ public class GraphDtoServiceTest {
         .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
         .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
       );
-    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(any(), anySet(), anyList())).thenReturn(new TTBundle().setEntity(entity));
 
-    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115", null);
+    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115", List.of(Graph.IM));
     assertNotNull(actual);
   }
 }

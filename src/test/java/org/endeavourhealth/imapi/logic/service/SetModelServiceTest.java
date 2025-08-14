@@ -33,20 +33,20 @@ public class SetModelServiceTest {
 
   @Test
   void getSetExport_NullIri() {
-    SetOptions setOptions = new SetOptions(null, false, true, true, true, List.of(), List.of(), Graph.IM);
-    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions));
+    SetOptions setOptions = new SetOptions(null, false, true, true, true, List.of(), List.of());
+    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions, List.of(Graph.IM)));
   }
 
   @Test
   void getSetExport_EmptyIri() {
-    SetOptions setOptions = new SetOptions("", false, true, true, true, List.of(), List.of(), Graph.IM);
-    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions));
+    SetOptions setOptions = new SetOptions("", false, true, true, true, List.of(), List.of());
+    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions, List.of(Graph.IM)));
   }
 
   @Test
   void getSetExport_EmptyFormat() {
-    SetOptions setOptions = new SetOptions("", false, true, true, true, List.of(), List.of(), Graph.IM);
-    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions));
+    SetOptions setOptions = new SetOptions("", false, true, true, true, List.of(), List.of());
+    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions, List.of(Graph.IM)));
   }
 
   @Test

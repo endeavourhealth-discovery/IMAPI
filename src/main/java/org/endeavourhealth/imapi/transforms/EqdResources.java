@@ -232,7 +232,6 @@ public class EqdResources {
     EQDOCFilterAttribute filter = eqCriterion.getFilterAttribute();
     if (!filter.getColumnValue().isEmpty() || filter.getRestriction() != null) {
       standardMatch = this.convertStandardCriterion(eqCriterion, baseMatch == null ? null : "IndexEvent", graphs);
-      if (eqCriterion.getDescription() != null) standardMatch.setDescription(eqCriterion.getDescription());
       if (eqCriterion.getFilterAttribute().getRestriction() != null && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
         testMatch = this.convertTestCriterion(eqCriterion, graphs);
         injectReturn(standardMatch, testMatch, graphs);
@@ -594,9 +593,14 @@ public class EqdResources {
   private Match convertLinkedCriterion(EQDOCCriterion eqCriterion, String nodeRef, List<Graph> graphs) throws IOException, QueryException, EQDException {
     EQDOCCriterion eqLinkedCriterion = eqCriterion.getLinkedCriterion().getCriterion();
     Match match = this.convertCriterion(eqLinkedCriterion, graphs);
+    if (eqLinkedCriterion.getDescription()!=null) match.setDescription(eqLinkedCriterion.getDescription());
     match.setReturn(null);
     Where relationProperty = new Where();
-    addMatchWhere(match, relationProperty);
+    Match linkTarget= match;
+    if (match.getAnd() != null) {
+      linkTarget = match.getAnd().get(0);
+    }
+    addMatchWhere(linkTarget, relationProperty);
     EQDOCRelationship eqRelationship = eqCriterion.getLinkedCriterion().getRelationship();
     String table = eqLinkedCriterion.getTable();
     String child = this.getIMPath(table + "/" + eqRelationship.getChildColumn());

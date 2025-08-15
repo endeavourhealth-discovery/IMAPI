@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.aws;
 
 import org.endeavourhealth.imapi.model.admin.User;
-import org.endeavourhealth.imapi.model.smartlife.OAuthTokenResponse;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;

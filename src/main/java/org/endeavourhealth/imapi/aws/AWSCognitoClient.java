@@ -217,30 +217,6 @@ public class AWSCognitoClient {
     return user;
   }
 
-  public OAuthTokenResponse initiateAuth(String userName, String password) {
-    try {
-      Map<String, String> authParameters = new HashMap<>();
-      authParameters.put("USERNAME", userName);
-      authParameters.put("PASSWORD", password);
-
-      AdminInitiateAuthRequest authRequest = AdminInitiateAuthRequest.builder()
-        .clientId(COGNITO_WEB_CLIENT)
-        .userPoolId(COGNITO_USER_POOL)
-        .authParameters(authParameters)
-        .authFlow(AuthFlowType.ADMIN_USER_PASSWORD_AUTH)
-        .build();
-
-      AdminInitiateAuthResponse a = identityProvider.adminInitiateAuth(authRequest);
-
-      OAuthTokenResponse response = new OAuthTokenResponse();
-      //TODO add access token, token type, expires in?
-      return response;
-
-    } catch (CognitoIdentityProviderException e) {
-      throw new RuntimeException(e.getMessage());
-    }
-  }
-
   public void revokeToken(String token, String clientId, String clientSecret) {
     RevokeTokenRequest request = RevokeTokenRequest.builder()
       .token(token)

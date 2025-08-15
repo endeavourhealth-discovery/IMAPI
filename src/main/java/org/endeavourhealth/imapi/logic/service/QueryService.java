@@ -45,7 +45,7 @@ public class QueryService {
   private final DataModelRepository dataModelRepository = new DataModelRepository();
   private ConnectionManager connectionManager;
   private PostgresService postgresService = new PostgresService();
-  private Map<Integer, List<String>> queryResultsMap = new HashMap<>();
+  private Map<Integer, Set<String>> queryResultsMap = new HashMap<>();
 
   public Query describeQuery(Query query, DisplayMode displayMode, Graph graph) throws QueryException, JsonProcessingException {
     return new QueryDescriptor().describeQuery(query, displayMode);
@@ -139,13 +139,13 @@ public class QueryService {
     return connectionManager.publishToQueue(userId, userName, queryRequest);
   }
 
-  public List<String> executeQuery(QueryRequest queryRequest, Graph graph) throws SQLConversionException, SQLException, QueryException {
+  public Set<String> executeQuery(QueryRequest queryRequest, Graph graph) throws SQLConversionException, SQLException, QueryException {
     queryRequest.resolveArgs();
     int qrHashCode = getQueryRequestHashCode(queryRequest);
     log.info("Executing query: {} with a hash code: {}", queryRequest.getQuery().getIri(), qrHashCode);
     // TODO: if query has is rules needs to be converted to match based query
     try {
-      List<String> results = getQueryResults(queryRequest);
+      Set<String> results = getQueryResults(queryRequest);
       if (results != null) return results;
 
       SqlWithSubqueries sqlWithSubqueries = getSQLFromIMQ(queryRequest);
@@ -183,14 +183,14 @@ public class QueryService {
     return queryRequest.hashCode();
   }
 
-  public void storeQueryResultsAndCache(QueryRequest queryRequest, List<String> results) throws SQLException {
+  public void storeQueryResultsAndCache(QueryRequest queryRequest, Set<String> results) throws SQLException {
     queryResultsMap.put(queryRequest.hashCode(), results);
     MYSQLConnectionManager.saveResults(queryRequest.hashCode(), results);
   }
 
-  public List<String> getQueryResults(QueryRequest queryRequest) throws SQLException {
+  public Set<String> getQueryResults(QueryRequest queryRequest) throws SQLException {
     int hashCode = getQueryRequestHashCode(queryRequest);
-    List<String> queryResults = queryResultsMap.get(hashCode);
+    Set<String> queryResults = queryResultsMap.get(hashCode);
     if (queryResults != null) return queryResults;
     if (!MYSQLConnectionManager.tableExists(hashCode)) return null;
     return MYSQLConnectionManager.getResults(queryRequest);
@@ -237,7 +237,7 @@ public class QueryService {
     return null;
   }
 
-  public List<String> testRunQuery(Query query, Graph graph) throws SQLException, SQLConversionException, QueryException {
+  public Set<String> testRunQuery(Query query, Graph graph) throws SQLException, SQLConversionException, QueryException {
     QueryRequest queryRequest = new QueryRequest();
     Page page = new Page();
     page.setPageNumber(1);

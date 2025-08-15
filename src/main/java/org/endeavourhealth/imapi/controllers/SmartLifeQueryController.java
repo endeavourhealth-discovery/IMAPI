@@ -20,6 +20,7 @@ import org.springframework.web.context.annotation.RequestScope;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 
@@ -83,7 +84,7 @@ public class SmartLifeQueryController {
     summary = "TODO",
     description = "Returns the result of a query execution once it has completed successfully."
   )
-  public List<String> getSmartLifeQueryResults(@PathVariable String queryExecutionId) throws IOException, SQLException, SQLConversionException {
+  public Set<String> getSmartLifeQueryResults(@PathVariable String queryExecutionId) throws IOException, SQLException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("Query.GetSmartLifeQueryResults.POST")) {
       log.debug("getSmartLifeQueryResults");
       return smartLifeQueryService.getQueryResults(UUID.fromString(queryExecutionId));

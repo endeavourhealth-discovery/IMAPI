@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.zip.DataFormatException;
 
@@ -320,7 +321,7 @@ public class QueryController {
   @Operation(
     summary = "Get query results using a hash of the query request"
   )
-  public List<String> getQueryResults(@RequestBody QueryRequest queryRequest) throws IOException, SQLException, SQLConversionException {
+  public Set<String> getQueryResults(@RequestBody QueryRequest queryRequest) throws IOException, SQLException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQueryResults.GET")) {
       log.debug("getQueryResults");
       return queryService.getQueryResults(queryRequest);
@@ -338,7 +339,7 @@ public class QueryController {
 
   @PostMapping("/testRunQuery")
   @Operation(summary = "Run a query with results limited results to test query")
-  public List<String> testRunQuery(@RequestBody QueryRequest query) throws IOException, SQLException, SQLConversionException, QueryException {
+  public Set<String> testRunQuery(@RequestBody QueryRequest query) throws IOException, SQLException, SQLConversionException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.TestRunQuery.POST")) {
       log.debug("testRunQuery");
       Graph graph = Graph.IM;

@@ -47,7 +47,7 @@ class TTLiteralTest {
 
   // @Test
   void loadTest() throws JsonProcessingException {
-    TTBundle bundle = entityService.getBundle("http://endhealth.info/im#objectTest", null, List.of(Graph.IM));
+    TTBundle bundle = entityService.getBundle("http://endhealth.info/im#objectTest", null);
     TTArray preds = bundle.getEntity().get(TTIriRef.iri(IM.QUERY));
     assertEquals(1, preds.size());
 

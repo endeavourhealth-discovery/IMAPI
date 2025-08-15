@@ -88,7 +88,7 @@ public class EqdToIMQ {
     this.addReportNames(eqd);
     this.convertFolders(eqd);
     this.setVersionMap(eqd);
-    this.convertReports(eqd, graphs);
+    this.convertReports(eqd);
     createLibrary();
     deduplicate();
     // addLibraryEntities();
@@ -222,7 +222,7 @@ public class EqdToIMQ {
 
   }
 
-  private void convertReports(EnquiryDocument eqd, List<Graph> graphs) throws IOException, QueryException, EQDException {
+  private void convertReports(EnquiryDocument eqd) throws IOException, QueryException, EQDException {
     for (EQDOCReport eqReport : eqd.getReport()) {
       if (eqReport.getId() == null) {
         throw new EQDException("No report id");
@@ -234,7 +234,7 @@ public class EqdToIMQ {
         }
 
         log.info(eqReport.getName());
-        TTEntity qry = this.convertReport(eqReport, graphs);
+        TTEntity qry = this.convertReport(eqReport);
         if (qry != null) {
           this.document.addEntity(qry);
         }
@@ -304,7 +304,7 @@ public class EqdToIMQ {
 
   }
 
-  public TTEntity convertReport(EQDOCReport eqReport, List<Graph> graphs) throws IOException, QueryException, EQDException {
+  public TTEntity convertReport(EQDOCReport eqReport) throws IOException, QueryException, EQDException {
     this.resources.setActiveReport(eqReport.getId());
     this.resources.setActiveReportName(eqReport.getName());
     String id = getId(eqReport);
@@ -325,10 +325,10 @@ public class EqdToIMQ {
     qry.setName(queryEntity.getName());
     if (eqReport.getPopulation() != null) {
       queryEntity.addType(iri(IM.QUERY));
-      qry = (new EqdPopToIMQ()).convertPopulation(eqReport, qry, this.resources, graphs);
+      qry = (new EqdPopToIMQ()).convertPopulation(eqReport, qry, this.resources);
     } else if (eqReport.getListReport() != null) {
       queryEntity.addType(iri(IM.QUERY));
-      (new EqdListToIMQ()).convertReport(eqReport, this.document, qry, this.resources, graphs);
+      (new EqdListToIMQ()).convertReport(eqReport, this.document, qry, this.resources);
     } else if (eqReport.getAuditReport() != null) {
       queryEntity.addType(iri(IM.QUERY));
       (new EqdAuditToIMQ()).convertReport(eqReport, qry, this.resources);

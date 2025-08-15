@@ -34,19 +34,19 @@ public class SetModelServiceTest {
   @Test
   void getSetExport_NullIri() {
     SetOptions setOptions = new SetOptions(null, false, true, true, true, List.of(), List.of());
-    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions, List.of(Graph.IM)));
+    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions));
   }
 
   @Test
   void getSetExport_EmptyIri() {
     SetOptions setOptions = new SetOptions("", false, true, true, true, List.of(), List.of());
-    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions, List.of(Graph.IM)));
+    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions));
   }
 
   @Test
   void getSetExport_EmptyFormat() {
     SetOptions setOptions = new SetOptions("", false, true, true, true, List.of(), List.of());
-    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions, List.of(Graph.IM)));
+    assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions));
   }
 
   @Test
@@ -59,13 +59,13 @@ public class SetModelServiceTest {
 
     String iris = "<http://snomed.info/sct#73211009> <http://snomed.info/sct#46635009> <http://snomed.info/sct#44054006> <http://endhealth.info/im#Q_RegisteredGMS>";
 
-    when(setRepository.getDistillation(iris, List.of(Graph.IM))).thenReturn(Set.of("http://snomed.info/sct#46635009", "http://snomed.info/sct#44054006"));
+    when(setRepository.getDistillation(iris)).thenReturn(Set.of("http://snomed.info/sct#46635009", "http://snomed.info/sct#44054006"));
 
     Set<String> distList = new HashSet<>();
     distList.add("http://snomed.info/sct#73211009");
     distList.add("http://endhealth.info/im#Q_RegisteredGMS");
 
-    List<TTIriRef> actual = setService.getDistillation(conceptList, List.of(Graph.IM));
+    List<TTIriRef> actual = setService.getDistillation(conceptList);
 
     assertEquals(actual, distList.stream().map(distIri -> new TTIriRef().setIri(distIri)).toList());
 

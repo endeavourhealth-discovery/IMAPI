@@ -32,7 +32,7 @@ public class SetReducer {
    * @return The entity redefined or as original
    * @throws InvalidAttributesException A message of "NOT CONVERTED TO EC ...."
    */
-  public TTEntity reduce(TTEntity set, List<Graph> graphs) throws InvalidAttributesException {
+  public TTEntity reduce(TTEntity set) throws InvalidAttributesException {
     String sql = null;
     int originalSize;
     if (set.get(iri(IM.DEFINITION)) != null) {
@@ -47,7 +47,7 @@ public class SetReducer {
       sql = getMemberSql();
       originalSize = set.get(iri(IM.HAS_MEMBER)).size();
     }
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("set", Values.iri(set.getIri()));
       try (TupleQueryResult rs = qry.evaluate()) {

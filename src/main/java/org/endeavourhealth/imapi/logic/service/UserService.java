@@ -63,13 +63,12 @@ public class UserService {
   }
 
   public List<RecentActivityItemDto> getUserMRU(String userId) throws JsonProcessingException {
-    List<Graph> graphs = getUserGraphs(userId);
     List<RecentActivityItemDto> mru = userRepository.getUserMRU(userId);
     boolean hasNoneExistingIris = mru.stream()
-      .anyMatch(mruDto -> !entityService.iriExists(mruDto.getIri(), graphs));
+      .anyMatch(mruDto -> !entityService.iriExists(mruDto.getIri()));
     if (hasNoneExistingIris) {
       List<RecentActivityItemDto> updatedMRUs = mru.stream()
-        .filter(mruDto -> entityService.iriExists(mruDto.getIri(), graphs)).toList();
+        .filter(mruDto -> entityService.iriExists(mruDto.getIri())).toList();
       updateUserMRU(userId, updatedMRUs);
       return userRepository.getUserMRU(userId);
     }
@@ -81,13 +80,12 @@ public class UserService {
   }
 
   public List<String> getUserFavourites(String userId) throws JsonProcessingException {
-    List<Graph> graphs = getUserGraphs(userId);
     List<String> favourites = userRepository.getUserFavourites(userId);
     boolean hasNoneExistingIris = favourites.stream()
-      .anyMatch(favouriteIri -> !entityService.iriExists(favouriteIri, graphs));
+      .anyMatch(favouriteIri -> !entityService.iriExists(favouriteIri));
     if (hasNoneExistingIris) {
       List<String> updatedFavourites = favourites.stream()
-        .filter(f -> entityService.iriExists(f, graphs)).toList();
+        .filter(f -> entityService.iriExists(f)).toList();
       updateUserFavourites(userId, updatedFavourites);
       return userRepository.getUserFavourites(userId);
     }
@@ -106,22 +104,18 @@ public class UserService {
     userRepository.updateUserOrganisations(userId, organisations);
   }
 
-  public List<Graph> getUserGraphs(String userId) throws JsonProcessingException {
-    return userRepository.getUserGraphs(userId);
-  }
-
-  public void updateUserGraphs(String userId, List<Graph> graphs) throws JsonProcessingException {
-    userRepository.updateUserGraphs(userId, graphs);
+  public void updateUserGraphs(String userId, List<Graph> userGraphs) throws JsonProcessingException {
+    userRepository.updateUserGraphs(userId, userGraphs);
   }
 
   public boolean userIdExists(String userId) {
     return userRepository.getUserIdExists(userId);
   }
 
-  public boolean getEditAccess(String userId, String entityIri, List<Graph> graphs) throws JsonProcessingException {
+  public boolean getEditAccess(String userId, String entityIri) throws JsonProcessingException {
     List<String> organisations = this.getUserOrganisations(userId);
     Set<String> predicates = asHashSet(IM.HAS_SCHEME);
-    TTEntity entity = entityService.getBundle(entityIri, predicates, graphs).getEntity();
+    TTEntity entity = entityService.getBundle(entityIri, predicates).getEntity();
     if (null == entity.getScheme()) return false;
     return organisations.contains(entity.getScheme().getIri());
   }

@@ -41,7 +41,7 @@ public class ImportMaps implements AutoCloseable {
     return importEmisToSnomedRdf4j(graphs);
   }
 
-  public String getCoreName(String iri, List<Graph> graphs) throws IOException {
+  public String getCoreName(String iri) throws IOException {
     if (cachedNames.get(iri) != null)
       return cachedNames.get(iri);
     String name;
@@ -50,17 +50,17 @@ public class ImportMaps implements AutoCloseable {
       cachedNames.put(iri, name);
       return name;
     } else {
-      name = new EntityRepository().getEntityReferenceByIri(iri, graphs).getName();
+      name = new EntityRepository().getEntityReferenceByIri(iri).getName();
       cachedNames.put(iri, name);
       return name;
     }
 
   }
 
-  public String getIriFromLegacyCode(String scheme, String legacyCode, List<Graph> graphs) {
+  public String getIriFromLegacyCode(String scheme, String legacyCode) {
     if (TTFilerFactory.isBulk())
       throw new UnsupportedOperationException("Cannot use bulk file repository for this method");
-    else return new EntityRepository().getIriFromLegacy(scheme, legacyCode, graphs);
+    else return new EntityRepository().getIriFromLegacy(scheme, legacyCode);
   }
 
 
@@ -70,27 +70,27 @@ public class ImportMaps implements AutoCloseable {
    * @param term the code or description id or term code
    * @return iri and name of entity
    */
-  public TTIriRef getReferenceFromCoreTerm(String term, List<Graph> graphs) throws IOException {
+  public TTIriRef getReferenceFromCoreTerm(String term) throws IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getReferenceFromCoreTerm(term);
     else
-      return new EntityRepository().getReferenceFromCoreTerm(term, graphs);
+      return new EntityRepository().getReferenceFromCoreTerm(term);
   }
 
-  public Map<String, String> getCodeToIri(List<Graph> graphs) throws IOException {
+  public Map<String, String> getCodeToIri() throws IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getCodeToIri();
     else
-      return new EntityRepository().getCodeToIri(graphs);
+      return new EntityRepository().getCodeToIri();
   }
 
 
-  public Map<String, String> getCodesToIri(Namespace scheme, List<Graph> graphs) throws IOException {
+  public Map<String, String> getCodesToIri(Namespace scheme) throws IOException {
     Map<String, String> codeToIri;
     if (TTFilerFactory.isBulk())
       codeToIri = fileRepo.getCodeToIri();
     else
-      codeToIri = new EntityRepository().getCodesToIri(scheme, graphs);
+      codeToIri = new EntityRepository().getCodesToIri(scheme);
     Map<String, String> map = new HashMap<>();
     codeToIri.entrySet().stream().forEach(item -> {
       String entry = item.getKey();
@@ -103,8 +103,8 @@ public class ImportMaps implements AutoCloseable {
     return map;
   }
 
-  public Set<String> getCodes(Namespace scheme, List<Graph> graphs) throws IOException {
-    Map<String, String> codeToIri = getCodeToIri(graphs);
+  public Set<String> getCodes(Namespace scheme) throws IOException {
+    Map<String, String> codeToIri = getCodeToIri();
     Set<String> codes = new HashSet<>();
     codeToIri.forEach((entry, value) -> {
       if (entry.startsWith(scheme.toString())) {
@@ -115,19 +115,19 @@ public class ImportMaps implements AutoCloseable {
     return codes;
   }
 
-  public Set<Entity> getCoreFromCode(String code, List<Namespace> schemes, List<Graph> graphs) {
-    return new EntityRepository().getCoreFromCode(code, schemes, graphs);
+  public Set<Entity> getCoreFromCode(String code, List<Namespace> schemes) {
+    return new EntityRepository().getCoreFromCode(code, schemes);
   }
 
-  public Map<String, Set<String>> getAllMatchedLegacy(List<Graph> graphs) throws IOException {
+  public Map<String, Set<String>> getAllMatchedLegacy() throws IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getAllMatchedLegacy();
     else
-      return new EntityRepository().getAllMatchedLegacy(graphs);
+      return new EntityRepository().getAllMatchedLegacy();
   }
 
-  public Set<Entity> getCoreFromLegacyTerm(String term, Namespace scheme, List<Graph> graphs) {
-    return new EntityRepository().getCoreFromLegacyTerm(term, scheme, graphs);
+  public Set<Entity> getCoreFromLegacyTerm(String term, Namespace scheme) {
+    return new EntityRepository().getCoreFromLegacyTerm(term, scheme);
 
   }
 
@@ -138,12 +138,12 @@ public class ImportMaps implements AutoCloseable {
    * @return a set of snomed codes
    * @throws TTFilerException if using rdf4j
    */
-  public Set<String> importEntities(List<Graph> graphs) throws TTFilerException, IOException {
+  public Set<String> importEntities() throws TTFilerException, IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getAllEntities();
     else {
       Set<String> entities = new HashSet<>();
-      return importAllRDF4J(entities, graphs);
+      return importAllRDF4J(entities);
     }
   }
 
@@ -155,9 +155,9 @@ public class ImportMaps implements AutoCloseable {
    * @throws IOException      if using the file repository
    * @throws TTFilerException if using the graph repository
    */
-  public Map<String, Set<String>> getAllPlusMatches(List<Graph> graphs) throws IOException, TTFilerException {
-    Set<String> all = importEntities(graphs);
-    Map<String, Set<String>> legacyCore = getAllMatchedLegacy(graphs);
+  public Map<String, Set<String>> getAllPlusMatches() throws IOException, TTFilerException {
+    Set<String> all = importEntities();
+    Map<String, Set<String>> legacyCore = getAllMatchedLegacy();
     Map<String, Set<String>> allAndMatched = new HashMap<>();
     for (String iri : all) {
       allAndMatched.put(iri, legacyCore.get(iri));
@@ -171,12 +171,12 @@ public class ImportMaps implements AutoCloseable {
    * @return the code to Snomed code one to many map
    * @throws TTFilerException when code maps are missing
    */
-  public Map<String, Set<String>> importReadToSnomed(List<Graph> graphs) throws TTFilerException, IOException {
+  public Map<String, Set<String>> importReadToSnomed() throws TTFilerException, IOException {
     Map<String, Set<String>> readToSnomed = new HashMap<>();
     if (TTFilerFactory.isBulk()) {
       return fileRepo.getCodeCoreMap(Namespace.EMIS);
     }
-    return importReadToSnomedRdf4j(readToSnomed, graphs);
+    return importReadToSnomedRdf4j(readToSnomed);
   }
 
   /**
@@ -186,15 +186,15 @@ public class ImportMaps implements AutoCloseable {
    * @return A map from code to many terms;
    * @throws TTFilerException when descendants of concept are missing. Set as specialConcept in TTBulkFiler
    */
-  public Map<String, Set<String>> getDescendants(String concept, List<Graph> graphs) throws TTFilerException, IOException {
+  public Map<String, Set<String>> getDescendants(String concept) throws TTFilerException, IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getDescendants(concept);
-    return getDescendantsRDF(concept, graphs);
+    return getDescendantsRDF(concept);
   }
 
-  public Map<String, Set<String>> getDescendantsRDF(String concept, List<Graph> graphs) throws TTFilerException {
+  public Map<String, Set<String>> getDescendantsRDF(String concept) throws TTFilerException {
     Map<String, Set<String>> codeToTerm = new HashMap<>();
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       String sparql = """
         SELECT ?child ?name
         WHERE {
@@ -226,9 +226,9 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  private Set<String> importAllRDF4J(Set<String> entities, List<Graph> graphs) throws TTFilerException {
+  private Set<String> importAllRDF4J(Set<String> entities) throws TTFilerException {
 
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       String sparql = """
         SELECT distinct ?entity
         WHERE {
@@ -251,9 +251,9 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  private Set<String> importSnomedRDF4J(Set<String> snomedCodes, List<Graph> graphs) throws TTFilerException {
+  private Set<String> importSnomedRDF4J(Set<String> snomedCodes) throws TTFilerException {
 
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       String sparql = """
         SELECT ?snomed
         WHERE {
@@ -277,9 +277,9 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  private Map<String, Set<String>> importReadToSnomedRdf4j(Map<String, Set<String>> readToSnomed, List<Graph> graphs) throws TTFilerException {
+  private Map<String, Set<String>> importReadToSnomedRdf4j(Map<String, Set<String>> readToSnomed) throws TTFilerException {
 
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       String sparql = """
         SELECT ?code ?snomed
         WHERE {
@@ -336,7 +336,7 @@ public class ImportMaps implements AutoCloseable {
 
   private Map<String, TTEntity> getEMISReadAsVisionRdf4j(List<Graph> graphs) {
     Map<String, TTEntity> emisRead2 = new HashMap<>();
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       String sql = """
         SELECT ?oldCode ?name ?snomedIri
         WHERE {
@@ -386,7 +386,7 @@ public class ImportMaps implements AutoCloseable {
 
   private Map<String, Set<String>> importEmisToSnomedRdf4j(List<Graph> graphs) throws TTFilerException {
     Map<String, Set<String>> emisToSnomed = new HashMap<>();
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       String sparql = """
         SELECT ?code ?snomedIri  ?name
         WHERE {
@@ -429,7 +429,7 @@ public class ImportMaps implements AutoCloseable {
    */
   public Map<String, String> getDescriptionIds(List<Graph> graphs) throws TTFilerException {
     Map<String, String> termMap = new HashMap<>();
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       String sparql = """
         SELECT ?snomed ?descid
         WHERE {
@@ -454,8 +454,8 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  public Set<Entity> getLegacyFromTermCode(String originalCode, Namespace scheme, List<Graph> graphs) {
-    return new EntityRepository().getReferenceFromTermCode(originalCode, scheme, graphs);
+  public Set<Entity> getLegacyFromTermCode(String originalCode, Namespace scheme) {
+    return new EntityRepository().getReferenceFromTermCode(originalCode, scheme);
   }
 
   @Override

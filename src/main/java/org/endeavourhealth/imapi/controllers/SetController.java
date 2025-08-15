@@ -65,8 +65,7 @@ public class SetController {
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Publish.GET")) {
       log.debug("publish {}", iri);
-      List<Graph> graphs = reqObjService.getUserGraphs(request);
-      setService.publishSetToIM1(iri, graphs);
+      setService.publishSetToIM1(iri);
     }
   }
 
@@ -81,12 +80,11 @@ public class SetController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.EntailedMembers.GET")) {
       log.debug("getEntailedMembers");
-      List<Graph> graphs = reqObjService.getUserGraphs(request);
       if (page == null && size == null) {
         page = 1;
         size = 10;
       }
-      return setService.getDirectOrEntailedMembersFromIri(iri, entailments, page, size, graphs);
+      return setService.getDirectOrEntailedMembersFromIri(iri, entailments, page, size);
     }
   }
 
@@ -98,14 +96,13 @@ public class SetController {
   ) throws DownloadException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Export.GET")) {
       log.debug("exportSet");
-      List<Graph> graphs = reqObjService.getUserGraphs(request);
-      TTIriRef entity = entityService.getEntityReference(iri, graphs);
+      TTIriRef entity = entityService.getEntityReference(iri);
       String filename = entity.getName() + " " + LocalDate.now();
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(new MediaType("application", "force-download"));
       headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".txt\"");
       try {
-        Set<Concept> members = setService.getExpandedSetMembers(iri, true, true, true, List.of(), asArrayList(IM.SUBSUMED_BY), graphs);
+        Set<Concept> members = setService.getExpandedSetMembers(iri, true, true, true, List.of(), asArrayList(IM.SUBSUMED_BY));
         String result = setExporter.generateForIm1(iri, entity.getName(), members).toString();
         return new HttpEntity<>(result, headers);
       } catch (QueryException | JsonProcessingException e) {
@@ -120,8 +117,7 @@ public class SetController {
   public Set<TTIriRef> getSubsets(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Subsets.GET")) {
       log.debug("getSubsets");
-      List<Graph> graphs = reqObjService.getUserGraphs(request);
-      return setService.getSubsets(iri, graphs);
+      return setService.getSubsets(iri);
     }
   }
 
@@ -130,8 +126,7 @@ public class SetController {
   public List<TTIriRef> getDistillation(HttpServletRequest request, @RequestBody SetDistillationRequest setDistillationRequest) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Distillation.POST")) {
       log.debug("getDistillation");
-      List<Graph> graphs = reqObjService.getUserGraphs(request);
-      return setService.getDistillation(setDistillationRequest.getConceptList(), graphs);
+      return setService.getDistillation(setDistillationRequest.getConceptList());
     }
   }
 
@@ -146,7 +141,6 @@ public class SetController {
   ) throws DownloadException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SetExport.GET")) {
       log.debug("getSetExport");
-      List<Graph> graphs = reqObjService.getUserGraphs(request);
       if (setExportRequest.getOptions().getSubsumptions() == null || setExportRequest.getOptions().getSubsumptions().isEmpty()) {
         setExportRequest.getOptions().setSubsumptions(asArrayList(IM.SUBSUMED_BY));
       }
@@ -155,7 +149,7 @@ public class SetController {
       headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + setExportRequest.getFormat() + "\"");
 
       try {
-        byte[] setExport = setService.getSetExport(setExportRequest.getFormat(), setExportRequest.getOptions().isIncludeIM1id(), setExportRequest.getOptions(), graphs);
+        byte[] setExport = setService.getSetExport(setExportRequest.getFormat(), setExportRequest.getOptions().isIncludeIM1id(), setExportRequest.getOptions());
         return new HttpEntity<>(setExport, headers);
       } catch (IOException e) {
         throw new DownloadException("Failed to write to document.");
@@ -176,8 +170,7 @@ public class SetController {
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.SetDiff.GET")) {
       log.debug("getSetComparison");
-      List<Graph> graphs = reqObjService.getUserGraphs(request);
-      return setService.getSetComparison(setIriA, setIriB, graphs);
+      return setService.getSetComparison(setIriA, setIriB);
     }
   }
 
@@ -188,8 +181,7 @@ public class SetController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UpdateSubsetsFromSuper.POST")) {
       log.debug("updateSubsetsFromSuper");
       String agentName = reqObjService.getRequestAgentName(request);
-      List<Graph> graphs = reqObjService.getUserGraphs(request);
-      setService.updateSubsetsFromSuper(agentName, editRequest.getEntity(), graphs, editRequest.getGraph());
+      setService.updateSubsetsFromSuper(agentName, editRequest.getEntity(), editRequest.getGraph());
     }
   }
 }

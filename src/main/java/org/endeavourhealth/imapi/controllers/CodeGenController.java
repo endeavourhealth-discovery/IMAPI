@@ -27,7 +27,6 @@ import java.util.List;
 @Slf4j
 public class CodeGenController {
   private final CodeGenService codeGenService = new CodeGenService();
-  private final RequestObjectService requestObjectService = new RequestObjectService();
 
   @Operation(summary = "Get a list of code templates", description = "Retrieve a list of available code templates.")
   @GetMapping(value = "/public/codeTemplates", produces = "application/json")
@@ -71,8 +70,7 @@ public class CodeGenController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.GenerateCode.GET")) {
       log.debug("GenerateCode");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return codeGenService.generateCode(iri, templateName, namespace, graphs);
+      return codeGenService.generateCode(iri, templateName, namespace);
     }
   }
 
@@ -85,8 +83,7 @@ public class CodeGenController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.GenerateCode.GET")) {
       log.debug("GenerateCodePreview");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return codeGenService.generateCodeForModel(iri, template, namespace, graphs);
+      return codeGenService.generateCodeForModel(iri, template, namespace);
     }
   }
 }

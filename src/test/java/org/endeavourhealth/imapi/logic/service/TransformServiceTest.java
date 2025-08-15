@@ -41,7 +41,7 @@ class TransformServiceTest {
     TestMaps.patientDSTU2();
     ObjectMapper om = new ObjectMapper();
     //Adds map to the IM cache so it can be accessed by the service
-    TTEntity mapEntity = EntityCache.getEntity(Namespace.MAP + "FHIR_2_PatientToIM", List.of(Graph.IM)).getEntity();
+    TTEntity mapEntity = EntityCache.getEntity(Namespace.MAP + "FHIR_2_PatientToIM").getEntity();
     MapObject map = mapEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(MapObject.class);
     writeObject(testMaps, "DSTUToIMPatient", map);
     System.out.println("Map written to" + testMaps + "\\" + mapEntity.getName());
@@ -59,7 +59,7 @@ class TransformServiceTest {
     System.out.println("Source written to" + testSources + "\\" + "DSTUPatient");
 
     //Perform transform
-    Set<Object> results = new TransformService().runTransform(request, List.of(Graph.IM));
+    Set<Object> results = new TransformService().runTransform(request);
 
     //Displays result
     TTManager manager = new TTManager();

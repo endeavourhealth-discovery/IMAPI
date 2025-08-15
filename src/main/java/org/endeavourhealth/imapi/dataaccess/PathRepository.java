@@ -15,8 +15,8 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 public class PathRepository {
   private final PathDocument document = new PathDocument();
 
-  public PathDocument pathQuery(PathQuery pathQuery, List<Graph> graphs) {
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+  public PathDocument pathQuery(PathQuery pathQuery) {
+    try (IMDB conn = IMDB.getConnection()) {
       String targetIri = pathQuery.getTarget().getIri();
       String source = pathQuery.getSource().getIri();
       List<Match> paths = getPaths(conn, source, targetIri);

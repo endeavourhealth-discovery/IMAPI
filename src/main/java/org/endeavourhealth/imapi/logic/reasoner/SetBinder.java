@@ -22,22 +22,22 @@ import java.util.stream.Collectors;
 public class SetBinder {
   private final SetRepository setRepository = new SetRepository();
 
-  public void bindSets(List<Graph> userGraphs, Graph insertGraph) {
+  public void bindSets(Graph insertGraph) {
     log.info("Getting value sets....");
-    Set<String> sets = getSets(userGraphs);
+    Set<String> sets = getSets();
     int count = 0;
     for (String iri : sets) {
       count++;
       if (count % 100 == 0) {
         log.info("{} sets bound", count);
       }
-      bindSet(iri, userGraphs, insertGraph);
+      bindSet(iri, insertGraph);
     }
   }
 
-  private Set<String> getSets(List<Graph> graphs) {
+  private Set<String> getSets() {
     Set<String> setIris = new HashSet<>();
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       String sparql = """
         SELECT distinct ?iri
         WHERE {
@@ -58,12 +58,12 @@ public class SetBinder {
     return setIris;
   }
 
-  public Set<TTNode> bindSet(String iri, List<Graph> userGraphs, Graph insertGraph) {
-    Set<Concept> members = setRepository.getSomeMembers(iri, 100, userGraphs);
+  public Set<TTNode> bindSet(String iri, Graph insertGraph) {
+    Set<Concept> members = setRepository.getSomeMembers(iri, 100);
     if (!members.isEmpty()) {
       Set<String> memberIris = members.stream().map(Entity::getIri).collect(Collectors.toSet());
-      Set<TTNode> dataModels = setRepository.getBindingsForConcept(memberIris, userGraphs);
-      setRepository.bindConceptSetToDataModel(iri, dataModels, userGraphs, insertGraph);
+      Set<TTNode> dataModels = setRepository.getBindingsForConcept(memberIris);
+      setRepository.bindConceptSetToDataModel(iri, dataModels, insertGraph);
       return dataModels;
     }
     return Collections.emptySet();

@@ -49,16 +49,16 @@ public class SetRepository {
    * @return a Set of concepts with matchedFrom legacy concepts and list of im1 ids
    * @throws QueryException if json definitino invalid
    */
-  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, List<Graph> graphs) throws QueryException {
+  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
     //add scheme filter
-    return getSetExpansionFromQuery(imQuery, includeLegacy, statusFilter, schemeFilter, null, graphs);
+    return getSetExpansionFromQuery(imQuery, includeLegacy, statusFilter, schemeFilter, null);
   }
 
-  public Set<Concept> getMembersFromDefinition(Query imQuery, List<Graph> graphs) throws QueryException {
+  public Set<Concept> getMembersFromDefinition(Query imQuery) throws QueryException {
     Set<Concept> result = new HashSet<>();
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     String sql = new SparqlConverter(newRequest).getSelectSparql(null);
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -70,12 +70,12 @@ public class SetRepository {
     return result;
   }
 
-  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page, List<Graph> graphs) throws QueryException {
+  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
     imQuery = getFullExpansionDefinition(imQuery, includeLegacy);
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     if (null != page && null != page.getPageNumber() && null != page.getPageSize()) newRequest.setPage(page);
     String sql = new SparqlConverter(newRequest).getSelectSparql(statusFilter);
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       return getCoreLegacyCodesForSparql(qry, includeLegacy, schemeFilter, imQuery.getVariable());
     }
@@ -166,18 +166,18 @@ public class SetRepository {
   }
 
 
-  public int getSetExpansionTotalCount(Query imQuery, Set<TTIriRef> statusFilter, List<Graph> graphs) throws QueryException {
+  public int getSetExpansionTotalCount(Query imQuery, Set<TTIriRef> statusFilter) throws QueryException {
     //add scheme filter
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     String sql = new SparqlConverter(newRequest).getCountSparql(statusFilter);
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       return getCountForSparql(qry);
 
     }
   }
 
-  public Set<TTIriRef> getSubsetIrisWithNames(String iri, List<Graph> graphs) {
+  public Set<TTIriRef> getSubsetIrisWithNames(String iri) {
     Set<TTIriRef> result = new HashSet<>();
 
     String sql = """
@@ -188,7 +188,7 @@ public class SetRepository {
       }
       """;
 
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("set", Values.iri(iri));
       qry.setBinding("isSubset", IM.IS_SUBSET_OF.asDbIri());
@@ -321,7 +321,7 @@ public class SetRepository {
   }
 
 
-  public void bindConceptSetToDataModel(String iri, Set<TTNode> dataModels, List<Graph> userGraphs, Graph insertGraph) {
+  public void bindConceptSetToDataModel(String iri, Set<TTNode> dataModels, Graph insertGraph) {
 
     String deleteBinding = """
       DELETE { ?concept im:binding ?datamodel}
@@ -344,7 +344,7 @@ public class SetRepository {
     }
     newBinding.add("}");
 
-    try (IMDB conn = IMDB.getConnection(userGraphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       conn.begin();
       org.eclipse.rdf4j.query.Update upd = conn.prepareDeleteSparql(deleteBinding);
       upd.setBinding(CONCEPT, Values.iri(iri));
@@ -356,9 +356,9 @@ public class SetRepository {
 
   }
 
-  public Set<String> getSets(List<Graph> graphs) {
+  public Set<String> getSets() {
     Set<String> setIris = new HashSet<>();
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       String spq = """
         SELECT distinct ?iri
         WHERE {
@@ -378,7 +378,7 @@ public class SetRepository {
   }
 
   public void updateMembers(String iri, Set<Concept> members, Graph graph) {
-    try (IMDB conn = IMDB.getConnection(List.of(graph))) {
+    try (IMDB conn = IMDB.getConnection()) {
       String spq = """
         DELETE { ?concept im:hasMember ?x.}
         WHERE {
@@ -457,7 +457,7 @@ public class SetRepository {
     return null;
   }
 
-  public Set<Concept> getSomeMembers(String setIri, Integer limit, List<Graph> graphs) {
+  public Set<Concept> getSomeMembers(String setIri, Integer limit) {
     String sparql = """
       SELECT *
       WHERE {
@@ -467,7 +467,7 @@ public class SetRepository {
       """.formatted(limit);
     Set<Concept> result = new HashSet<>();
 
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("setIri", Values.iri(setIri));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -483,7 +483,7 @@ public class SetRepository {
     return result;
   }
 
-  public Set<TTNode> getBindingsForConcept(Set<String> members, List<Graph> graphs) {
+  public Set<TTNode> getBindingsForConcept(Set<String> members) {
     Set<TTNode> result = new HashSet<>();
     Set<String> sparqlIris = members.stream().map(m -> "<" + m + ">").collect(Collectors.toSet());
     String iriList = String.join(",", sparqlIris);
@@ -503,7 +503,7 @@ public class SetRepository {
       }
       GROUP BY ?dataModel ?path
       """.formatted(iriList);
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(spql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -522,7 +522,7 @@ public class SetRepository {
 
 
   public Set<Concept> getExpansionFromIri(String setIri, boolean includeLegacy, List<String> schemes,
-                                          List<String> subsumptions, List<Graph> graphs) {
+                                          List<String> subsumptions) {
 
     StringJoiner spql = new StringJoiner(System.lineSeparator())
       .add("""
@@ -583,7 +583,7 @@ public class SetRepository {
 
     spql.add("}  ");
 
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(spql.toString());
       qry.setBinding("setIri", Values.iri(setIri));
       return getCoreLegacyCodesForSparql(qry, includeLegacy, List.of(), "entity");
@@ -595,10 +595,10 @@ public class SetRepository {
   }
 
 
-  public Set<String> getDistillation(String iris, List<Graph> graphs) {
+  public Set<String> getDistillation(String iris) {
     Set<String> isas = new HashSet<>();
 
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       String sql = """
         SELECT ?child
         WHERE {
@@ -621,16 +621,16 @@ public class SetRepository {
   }
 
 
-  public Pageable<Node> getMembers(String iri, boolean entailed, Integer pageNumber, Integer pageSize, List<Graph> graphs) {
+  public Pageable<Node> getMembers(String iri, boolean entailed, Integer pageNumber, Integer pageSize) {
 
     if (entailed) {
-      Pageable<Node> result = getMemberWithPredicate(iri, IM.ENTAILED_MEMBER.toString(), pageNumber, pageSize, graphs);
+      Pageable<Node> result = getMemberWithPredicate(iri, IM.ENTAILED_MEMBER.toString(), pageNumber, pageSize);
       if (result.getTotalCount() > 0) return result;
     }
-    return getMemberWithPredicate(iri, IM.HAS_MEMBER.toString(), pageNumber, pageSize, graphs);
+    return getMemberWithPredicate(iri, IM.HAS_MEMBER.toString(), pageNumber, pageSize);
   }
 
-  private Pageable<Node> getMemberWithPredicate(String iri, String predicate, Integer pageNumber, Integer pageSize, List<Graph> graphs) {
+  private Pageable<Node> getMemberWithPredicate(String iri, String predicate, Integer pageNumber, Integer pageSize) {
     Pageable<Node> result = new Pageable<>();
     result.setTotalCount(0);
     String sql = """
@@ -639,7 +639,7 @@ public class SetRepository {
       ?s ?p ?instance
       }
       """;
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("s", Values.iri(iri));
       qry.setBinding("p", Values.iri(predicate));
@@ -676,7 +676,7 @@ public class SetRepository {
         """.formatted(pageSize, offset);
     }
     List<Node> resultSet = new ArrayList<>();
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("s", Values.iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -703,7 +703,7 @@ public class SetRepository {
     return result;
   }
 
-  public Set<Concept> getExpansionFromEntailedMembers(String setIri, List<Graph> graphs) {
+  public Set<Concept> getExpansionFromEntailedMembers(String setIri) {
     String sql = """
       select distinct ?member
       where {
@@ -751,7 +751,7 @@ public class SetRepository {
       }
       """.formatted(setIri);
     Set<Concept> expansion = new HashSet<>();
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -764,7 +764,7 @@ public class SetRepository {
   }
 
 
-  public boolean isValidPropertyForDomains(String propertyIri, Set<String> entityIris, List<Graph> graphs) {
+  public boolean isValidPropertyForDomains(String propertyIri, Set<String> entityIris) {
     String spq = """
       ASK
       WHERE {?property im:isA ?superProperty.
@@ -774,12 +774,12 @@ public class SetRepository {
       ?concept im:isA ?domain.
       }
       """.formatted(valueList("property", List.of(propertyIri)), valueList("concept", entityIris));
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       return conn.prepareBooleanSparql(spq).evaluate();
     }
   }
 
-  public boolean isValidRangeForProperty(String propertyIri, String valueIri, List<Graph> graphs) {
+  public boolean isValidRangeForProperty(String propertyIri, String valueIri) {
     List<String> values = List.of(propertyIri, valueIri);
     String spq = """
       ASK
@@ -791,13 +791,13 @@ public class SetRepository {
       }
       
       """.formatted(valueList("property", values), valueList("concept", values));
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       return conn.prepareBooleanSparql(spq).evaluate();
     }
   }
 
 
-  public Map<String, Boolean> getValidConcepts(Set<String> conceptIris, List<Graph> graphs) {
+  public Map<String, Boolean> getValidConcepts(Set<String> conceptIris) {
     Map<String, Boolean> result = new HashMap<>();
     String spq = """
       SELECT ?concept ?type
@@ -806,7 +806,7 @@ public class SetRepository {
         optional {?concept rdf:type ?type.}
       }
       """.formatted(valueList("concept", conceptIris));
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(spq);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {

@@ -7,6 +7,6 @@ import java.util.List;
 public class Resolvers {
   // @Test
   public void resolveDomains() {
-    new DomainResolver().updateDomains(List.of(Graph.IM), Graph.IM);
+    new DomainResolver().updateDomains(Graph.IM);
   }
 }

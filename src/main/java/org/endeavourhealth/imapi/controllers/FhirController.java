@@ -26,7 +26,6 @@ import java.util.zip.DataFormatException;
 @Slf4j
 public class FhirController {
   private final FhirService fhirService = new FhirService();
-  private final RequestObjectService requestObjectService = new RequestObjectService();
 
   @GetMapping(value = "/ValueSet", produces = "application/json")
   @Operation(summary = "Retrieves the specified value set")
@@ -36,8 +35,7 @@ public class FhirController {
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Fhir.ValueSet.GET")) {
       log.info("Retrieving valueSet");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return fhirService.getFhirValueSet(iri, false, graphs);
+      return fhirService.getFhirValueSet(iri, false);
     }
   }
 
@@ -49,8 +47,7 @@ public class FhirController {
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Fhir.ValueSet.Expand.GET")) {
       log.info("Retrieving expanded valueSet");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return fhirService.getFhirValueSet(iri, true, graphs);
+      return fhirService.getFhirValueSet(iri, true);
     }
   }
 
@@ -59,8 +56,7 @@ public class FhirController {
   public String getEclToFhir(HttpServletRequest request, @RequestParam(name = "ecl") String ecl) throws IOException, QueryException, DataFormatException, EclFormatException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Fhir.ValueSet.Ecl.POST")) {
       log.info("Evaluating valueset ECL expression");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return fhirService.eclToFhir(ecl, graphs);
+      return fhirService.eclToFhir(ecl);
     }
   }
 

@@ -16,9 +16,9 @@ public class SmartLifeQueryService {
   private final QueryService queryService = new QueryService();
   private final PostgresService postgresService = new PostgresService();
 
-  public UUID runQuery(UUID userId, String userName, SmartLifeQueryRunDTO query, List<Graph> graphs) throws Exception {
+  public UUID runQuery(UUID userId, String userName, SmartLifeQueryRunDTO query) throws Exception {
     QueryRequest queryRequest = new QueryRequest();
-    queryRequest.setQuery(queryService.getQueryFromIri(query.getQuery_id(), graphs));
+    queryRequest.setQuery(queryService.getQueryFromIri(query.getQuery_id()));
     // Should this return an execution ID?
     return queryService.addToExecutionQueue(userId, userName, queryRequest);
   }
@@ -31,9 +31,9 @@ public class SmartLifeQueryService {
     postgresService.cancelQuery(id);
   }
 
-  public List<String> getQueryResults(UUID id, List<Graph> graphs) throws SQLException, SQLConversionException {
+  public List<String> getQueryResults(UUID id) throws SQLException {
     QueryRequest queryRequest = new QueryRequest();
     // This should be an execution id
-    return queryService.getQueryResults(queryRequest, graphs);
+    return queryService.getQueryResults(queryRequest);
   }
 }

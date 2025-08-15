@@ -40,8 +40,7 @@ public class TransformController {
   ) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Transform.TransformEqd.GET")) {
       log.debug("transformEqd");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return new TransformService().transformEqd(eqd, Namespace.IM, graphs);
+      return new TransformService().transformEqd(eqd, Namespace.IM);
     }
   }
 
@@ -56,8 +55,7 @@ public class TransformController {
   ) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Transform.Run.POST")) {
       log.debug("run transform");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return transformService.runTransform(transformRequest, graphs);
+      return transformService.runTransform(transformRequest);
     }
   }
 }

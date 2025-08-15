@@ -12,11 +12,11 @@ public class ECLQueryValidator {
   private ValidationLevel validationLevel;
 
 
-  public ECLStatus validateQuery(Query query, ValidationLevel validationLevel, List<Graph> graphs) {
+  public ECLStatus validateQuery(Query query, ValidationLevel validationLevel) {
     this.validationLevel = validationLevel;
     Set<String> iris = IriCollector.collectIris(query);
-    validConcepts = setRepository.getValidConcepts(iris, graphs);
-    query.setInvalid(isInvalidMatchWheres(query, graphs));
+    validConcepts = setRepository.getValidConcepts(iris);
+    query.setInvalid(isInvalidMatchWheres(query));
     ECLStatus status = new ECLStatus();
     status.setValid(!query.isInvalid());
     if (query.isInvalid()) {
@@ -25,7 +25,7 @@ public class ECLQueryValidator {
     return status;
   }
 
-  private boolean isInvalidMatchWheres(Match match, List<Graph> graphs) {
+  private boolean isInvalidMatchWheres(Match match) {
     boolean invalid = false;
     if (match.getInstanceOf() != null) {
       for (Node node : match.getInstanceOf()) {
@@ -41,14 +41,14 @@ public class ECLQueryValidator {
       Set<String> focusConcepts = new HashSet<>();
       if (validationLevel == ValidationLevel.ECL)
         getFocusConcepts(match, focusConcepts);
-      if (isInvalidWhere(match.getWhere(), focusConcepts, graphs)) {
+      if (isInvalidWhere(match.getWhere(), focusConcepts)) {
         invalid = true;
       }
     }
     for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd(), match.getNot())) {
       if (matches != null) {
         for (Match m : matches) {
-          if (isInvalidMatchWheres(m, graphs)) {
+          if (isInvalidMatchWheres(m)) {
             invalid = true;
           }
         }
@@ -57,7 +57,7 @@ public class ECLQueryValidator {
     return invalid;
   }
 
-  private boolean isInvalidWhere(Where where, Set<String> focusConcepts, List<Graph> graphs) {
+  private boolean isInvalidWhere(Where where, Set<String> focusConcepts) {
     boolean invalid = false;
     if (where.getIri() != null) {
       if (!validConcepts.get(where.getIri())) {
@@ -65,7 +65,7 @@ public class ECLQueryValidator {
         where.setInvalid(true);
       }
       if (validationLevel == ValidationLevel.ECL) {
-        if (!setRepository.isValidPropertyForDomains(where.getIri(), focusConcepts, graphs)) {
+        if (!setRepository.isValidPropertyForDomains(where.getIri(), focusConcepts)) {
           where.setInvalid(true);
           invalid = true;
         }
@@ -81,7 +81,7 @@ public class ECLQueryValidator {
                 node.setInvalid(true);
               }
               if (validationLevel == ValidationLevel.ECL) {
-                if (!setRepository.isValidRangeForProperty(where.getIri(), node.getIri(), graphs)) {
+                if (!setRepository.isValidRangeForProperty(where.getIri(), node.getIri())) {
                   node.setInvalid(true);
                   invalid = true;
                 }
@@ -95,7 +95,7 @@ public class ECLQueryValidator {
       for (List<Where> wheres : Arrays.asList(where.getOr(), where.getAnd())) {
         if (wheres != null) {
           for (Where w : wheres) {
-            if (isInvalidWhere(w, focusConcepts, graphs)) {
+            if (isInvalidWhere(w, focusConcepts)) {
               invalid = true;
             }
           }

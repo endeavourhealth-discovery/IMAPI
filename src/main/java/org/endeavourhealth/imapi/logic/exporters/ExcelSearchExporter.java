@@ -37,17 +37,17 @@ public class ExcelSearchExporter {
     headerStyle.setWrapText(true);
   }
 
-  public XSSFWorkbook getSearchAsExcel(DownloadByQueryOptions downloadByQueryOptions, List<Graph> graphs) throws OpenSearchException, JsonProcessingException, QueryException {
+  public XSSFWorkbook getSearchAsExcel(DownloadByQueryOptions downloadByQueryOptions) throws OpenSearchException, JsonProcessingException, QueryException {
     SearchResponse searchResponse = null;
     if (null != downloadByQueryOptions.getQueryRequest()) {
       QueryRequest queryRequest = downloadByQueryOptions.getQueryRequest();
       queryRequest.setPage(new Page().setPageNumber(1).setPageSize(downloadByQueryOptions.getTotalCount()));
-      searchResponse = searchService.queryIMSearch(downloadByQueryOptions.getQueryRequest(), graphs);
+      searchResponse = searchService.queryIMSearch(downloadByQueryOptions.getQueryRequest());
     } else if (null != downloadByQueryOptions.getEclSearchRequest()) {
       EclSearchRequest eclSearchRequest = downloadByQueryOptions.getEclSearchRequest();
       eclSearchRequest.setPage(1);
       eclSearchRequest.setSize(downloadByQueryOptions.getTotalCount());
-      searchResponse = eclService.eclSearch(eclSearchRequest, graphs);
+      searchResponse = eclService.eclSearch(eclSearchRequest);
     }
     if (null == searchResponse) throw new QueryException("Download must have either queryRequest or eclSearchRequest");
     List<SearchResultSummary> entities = searchResponse.getEntities();

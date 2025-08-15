@@ -21,12 +21,12 @@ public class QueryServiceTest {
 
   //  @Test
   void testCohortQueriesToSQL() throws JsonProcessingException, SQLConversionException {
-    List<TTIriRef> queries = entityService.getEntitiesByType(EntityType.QUERY, null);
+    List<TTIriRef> queries = entityService.getEntitiesByType(EntityType.QUERY);
     System.out.println("Queries: " + queries.size());
     for (TTIriRef ref : queries) {
       System.out.println("Testing " + ref.getName() + " " + ref.getIri());
       try {
-        String sql = queryService.getSQLFromIMQIri(ref.getIri(), DatabaseOption.MYSQL, null).getSql();
+        String sql = queryService.getSQLFromIMQIri(ref.getIri(), DatabaseOption.MYSQL).getSql();
         assertNotNull(sql);
         if (!sql.startsWith("org.endeavourhealth.imapi.errorhandling.SQLConversionException")) {
           System.out.println("OK");

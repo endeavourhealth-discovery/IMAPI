@@ -15,8 +15,8 @@ import java.util.StringJoiner;
 @Slf4j
 public class DomainResolver {
 
-  public void updateDomains(List<Graph> userGraphs, Graph insertGraph) {
-    try (IMDB conn = IMDB.getConnection(userGraphs)) {
+  public void updateDomains(Graph insertGraph) {
+    try (IMDB conn = IMDB.getConnection()) {
       Set<String> domains = getDomains(conn);
       for (String domain : domains) {
         updateDomain(conn, domain, insertGraph);

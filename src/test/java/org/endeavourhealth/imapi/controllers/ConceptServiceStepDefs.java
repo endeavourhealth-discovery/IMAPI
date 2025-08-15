@@ -53,18 +53,18 @@ public class ConceptServiceStepDefs {
     termsBundle.setEntity(entity);
 
     MockitoAnnotations.initMocks(this);
-    when(entityRepository.getBundle(termsBundle.getEntity().getIri(), asHashSet(IM.HAS_TERM_CODE), List.of(Graph.IM))).thenReturn(termsBundle);
+    when(entityRepository.getBundle(termsBundle.getEntity().getIri(), asHashSet(IM.HAS_TERM_CODE))).thenReturn(termsBundle);
   }
 
 
   @When("the entity term codes are retrieved")
   public void getEntityTermCodes() {
-    entityTermCodes = conceptService.getEntityTermCodes(entityIri, true, List.of(Graph.IM));
+    entityTermCodes = conceptService.getEntityTermCodes(entityIri, true);
   }
 
   @When("the entity term codes are retrieved (excluding inactive)")
   public void getEntityTermCodesExcludingInactive() {
-    entityTermCodes = conceptService.getEntityTermCodes(entityIri, false, List.of(Graph.IM));
+    entityTermCodes = conceptService.getEntityTermCodes(entityIri, false);
   }
 
   @Then("they should all be received in status, then alphabetic, order")

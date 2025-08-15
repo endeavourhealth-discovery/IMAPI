@@ -50,7 +50,7 @@ public class DataModelRepository {
       }
       """;
 
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(spql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -63,9 +63,9 @@ public class DataModelRepository {
     return result;
   }
 
-  public List<TTIriRef> findDataModelsFromProperty(String propIri, List<Graph> graphs) {
+  public List<TTIriRef> findDataModelsFromProperty(String propIri) {
     List<TTIriRef> dmList = new ArrayList<>();
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       String sparql = """
         SELECT ?dm ?dmName
         WHERE {
@@ -87,8 +87,8 @@ public class DataModelRepository {
 
   }
 
-  public String checkPropertyType(String propIri, List<Graph> graphs) {
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+  public String checkPropertyType(String propIri) {
+    try (IMDB conn = IMDB.getConnection()) {
       String query = """
         SELECT ?objectProperty ?dataProperty
         WHERE {
@@ -112,8 +112,8 @@ public class DataModelRepository {
     return null;
   }
 
-  public void addDataModelSubtypes(NodeShape dataModel, List<Graph> graphs) {
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+  public void addDataModelSubtypes(NodeShape dataModel) {
+    try (IMDB conn = IMDB.getConnection()) {
       String sql = getSubtypeSql();
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("entity", iri(dataModel.getIri()));
@@ -128,11 +128,11 @@ public class DataModelRepository {
     }
   }
 
-  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly, List<Graph> graphs) {
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly) {
     NodeShape nodeShape = new NodeShape();
     nodeShape.setIri(iri);
-    addDataModelSubtypes(nodeShape, graphs);
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    addDataModelSubtypes(nodeShape);
+    try (IMDB conn = IMDB.getConnection()) {
       String sql = pathsOnly ? getPathSql() : getPropertySql();
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("entity", iri(iri));
@@ -454,7 +454,7 @@ public class DataModelRepository {
       """;
   }
 
-  public UIProperty findUIPropertyForQB(String dmIri, String propIri, List<Graph> graphs) {
+  public UIProperty findUIPropertyForQB(String dmIri, String propIri) {
     UIProperty uiProp = new UIProperty();
     uiProp.setIri(propIri);
 
@@ -491,7 +491,7 @@ public class DataModelRepository {
         }
       """;
 
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(spql);
       qry.setBinding("dmIri", iri(dmIri));
       qry.setBinding("propIri", iri(propIri));
@@ -524,7 +524,7 @@ public class DataModelRepository {
           ?valueSet im:hasMember ?member.
         }
         """.formatted(valueList("dmIri", Set.of(dmIri)), valueList("propIri", Set.of(propIri)));
-      try (IMDB conn = IMDB.getConnection(graphs)) {
+      try (IMDB conn = IMDB.getConnection()) {
         TupleQuery qry = conn.prepareTupleSparql(spql);
         try (TupleQueryResult rs = qry.evaluate()) {
           while (rs.hasNext()) {
@@ -538,14 +538,14 @@ public class DataModelRepository {
     return uiProp;
   }
 
-  public TTIriRef getPathDatatype(String iri, List<Graph> graphs) {
+  public TTIriRef getPathDatatype(String iri) {
     String sql = """
         select distinct ?dataType where {
           ?property sh:path ?path.
           ?property sh:datatype ?dataType.
         } limit 1
       """;
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("path", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -560,7 +560,7 @@ public class DataModelRepository {
     return null;
   }
 
-  public List<NodeShape> getDataModelPropertiesWithValueType(Set<String> iris, String valueType, List<Graph> graphs) {
+  public List<NodeShape> getDataModelPropertiesWithValueType(Set<String> iris, String valueType) {
     List<NodeShape> results = new ArrayList<>();
     Map<String, NodeShape> iriMap = new HashMap<>();
     String sql = """
@@ -574,7 +574,7 @@ public class DataModelRepository {
        ?path rdfs:label ?pathLabel.
        }
       """.formatted(valueList("nodeShape", iris), valueList("datatype", Set.of(valueType)));
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {

@@ -14,8 +14,8 @@ import java.util.List;
 @Slf4j
 public class LuceneIndexer {
 
-  public void buildIndexes(List<Graph> userGraphs, Graph insertGraph) {
-    try (IMDB conn = IMDB.getConnection(userGraphs)) {
+  public void buildIndexes(Graph insertGraph) {
+    try (IMDB conn = IMDB.getConnection()) {
       dropIndex(conn, insertGraph);
       String sql = """
         PREFIX con: <http://www.ontotext.com/connectors/lucene#>

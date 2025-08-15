@@ -53,7 +53,7 @@ public class CodeGenJava {
         while (result.hasNext()) {
           BindingSet bindSet = result.next();
           String iri = bindSet.getValue("iri").stringValue();
-          log.trace("iri [{}]", iri);
+          log.trace("getModelList: iri [{}]", iri);
           iris.add(iri);
         }
       }
@@ -130,7 +130,7 @@ public class CodeGenJava {
               : null);
 
           model.addProperty(property);
-          log.trace("iri [{}]", iri);
+          log.trace("getDataModel: iri [{}]", iri);
         }
       }
     }

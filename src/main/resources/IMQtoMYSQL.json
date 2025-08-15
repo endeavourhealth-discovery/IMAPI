@@ -131,15 +131,19 @@
       "table": "episode_of_care",
       "fields": {
         "http://endhealth.info/im#concept": {"field": "{alias}.concept", "type": "iri"},
+        "http://endhealth.info/im#gmsPatientType": {
+          "field": "{alias}.registration_type_concept_id",
+          "type": "iri"
+        },
         "http://endhealth.info/im#gpPatientType": {
           "field": "{alias}.gpPatientType",
           "type": "iri"
         },
-        "http://endhealth.info/im#effectiveDate": {"field": "{alias}.clinical_effective_date", "type": "date"},
-        "http://endhealth.info/im#endDate": {"field": "{alias}.endDate", "type": "date"}
+        "http://endhealth.info/im#effectiveDate": {"field": "{alias}.date_registered", "type": "date"},
+        "http://endhealth.info/im#endDate": {"field": "{alias}.date_registered_end", "type": "date"}
       },
       "relationships": {
-        "http://endhealth.info/im#Patient": {"fromField": "{alias}.patient", "toField": "id"}
+        "http://endhealth.info/im#Patient": {"fromField": "{alias}.patient_id", "toField": "id"}
       }
     },
     "http://endhealth.info/im#Concept": {

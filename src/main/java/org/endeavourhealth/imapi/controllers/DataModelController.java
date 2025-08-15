@@ -107,19 +107,7 @@ public class DataModelController {
     }
   }
 
-  @GetMapping(value = "/public/definingProperty", produces = "application/json")
-  @Operation(
-    summary = "gets a property shape for the defining property of a type",
-    description = "Returns a property needed to define a type , typically im:concept, together with its value set"
-  )
-  public PropertyShape getDefiningProperty(
-    @RequestParam(name = "iri") String iri)
-    throws IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
-      log.debug("getDefiningProperty");
-      return dataModelService.getDefiningProperty(iri);
-    }
-  }
+
   @GetMapping(value = "/public/dataModelPropertiesWithValueType", produces = "application/json")
   @Operation(
     summary = "gets a property shape for the defining property of a type",
@@ -130,7 +118,7 @@ public class DataModelController {
     @RequestParam(name = "valueType") String valueType)
     throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
-      log.debug("getDefiningProperty");
+      log.debug("getDataModelPropertiesWithValueType");
       return dataModelService.getDataModelPropertiesWithValueType(iris,valueType);
     }
   }

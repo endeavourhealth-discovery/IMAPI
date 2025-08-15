@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.Pageable;
+import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
@@ -18,6 +19,7 @@ import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
+import org.endeavourhealth.imapi.model.sql.SqlWithSubqueries;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
@@ -41,22 +43,16 @@ public class QueryService {
   public static final String ENTITIES = "entities";
   private final EntityRepository entityRepository = new EntityRepository();
   private final DataModelRepository dataModelRepository = new DataModelRepository();
-  private final QueryRepository queryRepository = new QueryRepository();
   private ConnectionManager connectionManager;
-  private ObjectMapper objectMapper = new ObjectMapper();
   private PostgresService postgresService = new PostgresService();
   private Map<Integer, List<String>> queryResultsMap = new HashMap<>();
 
-  public static void generateUUIdsForQuery(Query query) {
-    new QueryDescriptor().generateUUIDs(query);
-  }
-
   public Query describeQuery(Query query, DisplayMode displayMode, Graph graph) throws QueryException, JsonProcessingException {
-    return new QueryDescriptor().describeQuery(query, displayMode, graph);
+    return new QueryDescriptor().describeQuery(query, displayMode);
   }
 
   public Match describeMatch(Match match, Graph graph) throws QueryException {
-    return new QueryDescriptor().describeSingleMatch(match, null, graph);
+    return new QueryDescriptor().describeSingleMatch(match, null);
   }
 
   public Query describeQuery(String queryIri, DisplayMode displayMode, Graph graph) throws JsonProcessingException, QueryException {
@@ -91,19 +87,20 @@ public class QueryService {
     return searchResponse;
   }
 
-  public String getSQLFromIMQ(QueryRequest queryRequest, Map<String, String> iriToUuidMap) throws SQLConversionException {
-    return new IMQtoSQLConverter(queryRequest, iriToUuidMap).IMQtoSQL();
+  public SqlWithSubqueries getSQLFromIMQ(QueryRequest queryRequest) throws SQLConversionException {
+    queryRequest.resolveArgs();
+    return new IMQtoSQLConverter(queryRequest).IMQtoSQL();
   }
 
-  public String getSQLFromIMQIri(String queryIri, DatabaseOption lang, Map<String, String> iriToUuidMap, Graph graph) throws JsonProcessingException, QueryException, SQLConversionException {
-    if (lang.equals(DatabaseOption.GRAPHDB)) {
-      throw new SQLConversionException("GRAPHDB is not currently supported for query to SQL");
+  public SqlWithSubqueries getSQLFromIMQIri(String queryIri, DatabaseOption lang, Graph graph) throws JsonProcessingException, QueryException, SQLConversionException {
+    if (!lang.equals(DatabaseOption.MYSQL) && !lang.equals(DatabaseOption.POSTGRESQL)) {
+      throw new SQLConversionException("'" + lang + "' is not currently supported for query to SQL. Supported languages are MYSQL and POSTGRESQL.");
     }
     Query query = describeQuery(queryIri, DisplayMode.LOGICAL, graph);
     if (query == null) return null;
     query = flattenQuery(query);
     QueryRequest queryRequest = new QueryRequest().setQuery(query).setLanguage(lang);
-    return getSQLFromIMQ(queryRequest, iriToUuidMap);
+    return getSQLFromIMQ(queryRequest);
   }
 
   public void handleSQLConversionException(UUID userId, String userName, QueryRequest queryRequest, String error) throws SQLException {
@@ -121,9 +118,19 @@ public class QueryService {
     postgresService.create(entry);
   }
 
+  public UUID reAddToExecutionQueue(UUID userId, String userName, RequeueQueryRequest requeueQueryRequest) throws Exception {
+    DBEntry entry = postgresService.getById(requeueQueryRequest.getQueueId());
+    if (!QueryExecutorStatus.QUEUED.equals(entry.getStatus()) && !QueryExecutorStatus.RUNNING.equals(entry.getStatus())) {
+      postgresService.delete(userId, requeueQueryRequest.getQueueId());
+      QueryRequest queryRequest = requeueQueryRequest.getQueryRequest();
+      return addToExecutionQueue(userId, userName, queryRequest);
+    }
+    return null;
+  }
+
   public UUID addToExecutionQueue(UUID userId, String userName, QueryRequest queryRequest) throws Exception {
     try {
-      getSQLFromIMQ(queryRequest, new HashMap<>());
+      getSQLFromIMQ(queryRequest);
     } catch (SQLConversionException e) {
       handleSQLConversionException(userId, userName, queryRequest, e.getMessage());
       throw new QueryException("Unable to convert query to SQL", e);
@@ -132,56 +139,61 @@ public class QueryService {
     return connectionManager.publishToQueue(userId, userName, queryRequest);
   }
 
-  public List<String> executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException {
-    log.info("Executing query: {}", queryRequest.getQuery().getIri());
-    String sql = getSQLFromIMQ(queryRequest, new HashMap<>());
-    createResultsTable(sql);
-    List<String> results = MYSQLConnectionManager.executeQuery(sql);
-    storeQueryResults(queryRequest, results);
-    return results;
-  }
+  public List<String> executeQuery(QueryRequest queryRequest, Graph graph) throws SQLConversionException, SQLException, QueryException {
+    queryRequest.resolveArgs();
+    int qrHashCode = getQueryRequestHashCode(queryRequest);
+    log.info("Executing query: {} with a hash code: {}", queryRequest.getQuery().getIri(), qrHashCode);
+    // TODO: if query has is rules needs to be converted to match based query
+    try {
+      List<String> results = getQueryResults(queryRequest);
+      if (results != null) return results;
 
-  private void createResultsTable(String sql) throws SQLException {
-    Pattern pattern = Pattern.compile("(?<=JOIN\\s)(query_\\S+)(?=\\s+ON)");
-    Matcher matcher = pattern.matcher(sql);
-    if (matcher.find()) {
-      MYSQLConnectionManager.createTable(matcher.group());
-    }
-  }
-
-  public void storeQueryResults(QueryRequest queryRequest, List<String> results) {
-    QueryRequest queryRequestCopy = cloneQueryRequestWithoutPage(queryRequest);
-    queryResultsMap.put(Objects.hash(queryRequestCopy), results);
-  }
-
-  public List<String> getQueryResults(QueryRequest queryRequest) throws SQLConversionException, SQLException {
-    QueryRequest queryRequestCopy = cloneQueryRequestWithoutPage(queryRequest);
-    return queryResultsMap.get(Objects.hash(queryRequestCopy));
-  }
-
-  private QueryRequest cloneQueryRequestWithoutPage(QueryRequest queryRequest) {
-    QueryRequest queryRequestCopy = objectMapper.convertValue(queryRequest, QueryRequest.class);
-    queryRequestCopy.setPage(null);
-    return queryRequestCopy;
-  }
-
-  public Pageable<String> getQueryResultsPaged(QueryRequest queryRequest) throws SQLConversionException, SQLException {
-    QueryRequest queryRequestCopy = cloneQueryRequestWithoutPage(queryRequest);
-    List<String> results = queryResultsMap.get(Objects.hash(queryRequestCopy));
-    if (results == null) return null;
-    if (queryRequest.getPage().getPageNumber() > 0 && queryRequest.getPage().getPageSize() > 0) {
-      Pageable<String> pageable = new Pageable<>();
-      pageable.setPageSize(queryRequest.getPage().getPageSize());
-      pageable.setCurrentPage(queryRequest.getPage().getPageNumber());
-      if (queryRequest.getPage().getPageSize() < results.size()) {
-        List<String> subList = results.subList((queryRequest.getPage().getPageNumber() - 1) * queryRequest.getPage().getPageSize(), queryRequest.getPage().getPageSize());
-        pageable.setResult(subList);
-      } else {
-        pageable.setResult(results);
+      SqlWithSubqueries sqlWithSubqueries = getSQLFromIMQ(queryRequest);
+      for (String subqueryIri : sqlWithSubqueries.getSubqueryIris()) {
+        Query subquery = describeQuery(subqueryIri, DisplayMode.LOGICAL, graph);
+        QueryRequest subqueryRequest = new QueryRequest().setQuery(subquery);
+        subqueryRequest.setArgument(queryRequest.getArgument());
+        int subqrHashCode = getQueryRequestHashCode(subqueryRequest);
+        executeQuery(subqueryRequest, graph);
+        String updatedSql = sqlWithSubqueries.getSql().replace("query_[" + subqueryIri + "]", String.valueOf(subqrHashCode));
+        sqlWithSubqueries.setSql(updatedSql);
       }
-      return pageable;
+      results = MYSQLConnectionManager.executeQuery(sqlWithSubqueries.getSql());
+      storeQueryResultsAndCache(queryRequest, results);
+      return results;
+    } catch (SQLConversionException e) {
+      log.error("Error converting query: {}", e.getMessage());
+      throw e;
+    } catch (SQLException e) {
+      log.error("Error executing query: {}", e.getMessage());
+      throw e;
+    } catch (QueryException e) {
+      log.error("Error getting query definition: {}", e.getMessage());
+      throw e;
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
     }
-    throw new IllegalArgumentException("Page number and page size are required");
+  }
+
+  public int getQueryRequestHashCode(QueryRequest queryRequest) {
+    if (queryRequest.getQueryStringDefinition() == null) {
+      String queryStringDefinition = entityRepository.getQueryStringDefinition(queryRequest.getQuery().getIri(), Graph.IM);
+      queryRequest.setQueryStringDefinition(queryStringDefinition);
+    }
+    return queryRequest.hashCode();
+  }
+
+  public void storeQueryResultsAndCache(QueryRequest queryRequest, List<String> results) throws SQLException {
+    queryResultsMap.put(queryRequest.hashCode(), results);
+    MYSQLConnectionManager.saveResults(queryRequest.hashCode(), results);
+  }
+
+  public List<String> getQueryResults(QueryRequest queryRequest) throws SQLException {
+    int hashCode = getQueryRequestHashCode(queryRequest);
+    List<String> queryResults = queryResultsMap.get(hashCode);
+    if (queryResults != null) return queryResults;
+    if (!MYSQLConnectionManager.tableExists(hashCode)) return null;
+    return MYSQLConnectionManager.getResults(queryRequest);
   }
 
   public void killActiveQuery() throws SQLException {
@@ -225,14 +237,14 @@ public class QueryService {
     return null;
   }
 
-  public List<String> testRunQuery(Query query) throws SQLException, SQLConversionException {
+  public List<String> testRunQuery(Query query, Graph graph) throws SQLException, SQLConversionException, QueryException {
     QueryRequest queryRequest = new QueryRequest();
     Page page = new Page();
     page.setPageNumber(1);
     page.setPageSize(10);
     queryRequest.setPage(page);
     queryRequest.setQuery(query);
-    return executeQuery(queryRequest);
+    return executeQuery(queryRequest, graph);
   }
 
   public Query flattenQuery(Query query) throws JsonProcessingException {
@@ -253,8 +265,8 @@ public class QueryService {
   public List<ArgumentReference> findMissingArguments(QueryRequest queryRequest) throws JsonProcessingException {
     List<ArgumentReference> missingArguments = new ArrayList<>();
     Query query = queryRequest.getQuery();
-    List<Argument> arguments = queryRequest.getArgument();
-    if (null == arguments) arguments = new ArrayList<>();
+    Set<Argument> arguments = queryRequest.getArgument();
+    if (null == arguments) arguments = new HashSet<>();
     recursivelyCheckQueryArguments(query, missingArguments, arguments);
     if (!missingArguments.isEmpty()) {
       for (ArgumentReference argument : missingArguments) {
@@ -265,20 +277,20 @@ public class QueryService {
     return missingArguments;
   }
 
-  private void recursivelyCheckQueryArguments(Query query, List<ArgumentReference> missingArguments, List<Argument> arguments) {
+  private void recursivelyCheckQueryArguments(Query query, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
     recursivelyCheckMatchArguments(query, missingArguments, arguments);
     if (null != query.getSubquery()) {
       recursivelyCheckQueryArguments(query.getSubquery(), missingArguments, arguments);
     }
   }
 
-  private void recursivelyCheckMatchArguments(Match match, List<ArgumentReference> missingArguments, List<Argument> arguments) {
+  private void recursivelyCheckMatchArguments(Match match, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
     if (null != match.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(match.getParameter()))) {
       addMissingArgument(missingArguments, match.getParameter(), match.getIri());
     }
     if (null != match.getInstanceOf()) {
       List<Node> instances = match.getInstanceOf();
-      instances.stream().forEach(instance -> {
+      instances.forEach(instance -> {
         if (null != instance.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(instance.getParameter()))) {
           addMissingArgument(missingArguments, instance.getParameter(), instance.getIri());
         }
@@ -286,47 +298,47 @@ public class QueryService {
     }
     if (null != match.getAnd()) {
       List<Match> matches = match.getAnd();
-      matches.stream().forEach(andMatch -> recursivelyCheckMatchArguments(andMatch, missingArguments, arguments));
+      matches.forEach(andMatch -> recursivelyCheckMatchArguments(andMatch, missingArguments, arguments));
     }
     if (null != match.getOr()) {
       List<Match> matches = match.getOr();
-      matches.stream().forEach(orMatch -> recursivelyCheckMatchArguments(orMatch, missingArguments, arguments));
+      matches.forEach(orMatch -> recursivelyCheckMatchArguments(orMatch, missingArguments, arguments));
     }
     if (null != match.getNot()) {
       List<Match> matches = match.getNot();
-      matches.stream().forEach(notMatch -> recursivelyCheckMatchArguments(notMatch, missingArguments, arguments));
+      matches.forEach(notMatch -> recursivelyCheckMatchArguments(notMatch, missingArguments, arguments));
     }
     if (null != match.getWhere()) {
       recursivelyCheckWhereArguments(match.getWhere(), missingArguments, arguments);
     }
     if (null != match.getRule()) {
       List<Match> matches = match.getRule();
-      matches.stream().forEach(ruleMatch -> recursivelyCheckMatchArguments(ruleMatch, missingArguments, arguments));
+      matches.forEach(ruleMatch -> recursivelyCheckMatchArguments(ruleMatch, missingArguments, arguments));
     }
   }
 
-  private void recursivelyCheckWhereArguments(Where where, List<ArgumentReference> missingArguments, List<Argument> arguments) {
+  private void recursivelyCheckWhereArguments(Where where, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
     if (null != where.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(where.getParameter()))) {
       missingArguments.add(new ArgumentReference().setParameter(where.getParameter()).setReferenceIri(iri(where.getIri())));
     }
     if (null != where.getAnd()) {
-      where.getAnd().stream().forEach(and -> recursivelyCheckWhereArguments(and, missingArguments, arguments));
+      where.getAnd().forEach(and -> recursivelyCheckWhereArguments(and, missingArguments, arguments));
     }
     if (null != where.getOr()) {
-      where.getOr().stream().forEach(or -> recursivelyCheckWhereArguments(or, missingArguments, arguments));
+      where.getOr().forEach(or -> recursivelyCheckWhereArguments(or, missingArguments, arguments));
     }
     if (null != where.getNot()) {
-      where.getNot().stream().forEach(not -> recursivelyCheckWhereArguments(not, missingArguments, arguments));
+      where.getNot().forEach(not -> recursivelyCheckWhereArguments(not, missingArguments, arguments));
     }
     if (null != where.getIs()) {
-      where.getIs().stream().forEach(is -> {
+      where.getIs().forEach(is -> {
         if (null != is.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(is.getParameter()))) {
           addMissingArgument(missingArguments, is.getParameter(), is.getIri());
         }
       });
     }
     if (null != where.getNotIs()) {
-      where.getNotIs().stream().forEach(notIs -> {
+      where.getNotIs().forEach(notIs -> {
         if (null != notIs.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(notIs.getParameter()))) {
           addMissingArgument(missingArguments, notIs.getParameter(), notIs.getIri());
         }
@@ -349,4 +361,48 @@ public class QueryService {
     }
     return dataModelRepository.getPathDatatype(referenceIri);
   }
+
+
+  private NodeShape getTypeFromPath(Path path, Set<String> nodeRefs) {
+    if (path.getVariable() != null) {
+      if (nodeRefs.contains(path.getVariable())) {
+        return dataModelRepository.getDataModelDisplayProperties(path.getTypeOf().getIri(), false, Graph.IM);
+      }
+      if (path.getPath() != null) {
+        for (Path subPath : path.getPath()) {
+          NodeShape nodeShape = getTypeFromPath(subPath, nodeRefs);
+          if (nodeShape != null) return nodeShape;
+        }
+      }
+    }
+    return null;
+  }
+
+  private void getNodeRefs(Match match, Set<String> nodeRefs) {
+    Where where = match.getWhere();
+    if (where != null) {
+      if (where.getNodeRef() != null) {
+        nodeRefs.add(where.getNodeRef());
+      }
+      for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr(), where.getNot())) {
+        if (whereList != null) {
+          for (Where subWhere : whereList)
+            getNodeRefs(subWhere, nodeRefs);
+        }
+      }
+    }
+  }
+
+  private void getNodeRefs(Where where, Set<String> nodeRefs) {
+    if (where.getNodeRef() != null) {
+      nodeRefs.add(where.getNodeRef());
+    }
+    for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr(), where.getNot())) {
+      if (whereList != null) {
+        for (Where subWhere : whereList)
+          getNodeRefs(subWhere, nodeRefs);
+      }
+    }
+  }
+
 }

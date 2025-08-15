@@ -34,8 +34,6 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 public class EntityRepository {
   static final String PARENT_PREDICATES = "rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf";
   private static final TimedCache<String, String> iriNameCache = new TimedCache<>("IriNameCache", 30, 5, 100);
-  private static final String EXECUTING = "Executing...";
-  private static final String RETRIEVING = "Retrieving...";
   private int row = 0;
 
   private static void hydrateCorePropertiesSetEntityDocumentProperties(EntityDocument entityDocument, TupleQueryResult qr) {
@@ -185,11 +183,6 @@ public class EntityRepository {
 
   public Map<String, Set<TTIriRef>> getTypesByIris(Set<String> stringIris, Graph graph) {
     Map<String, Set<TTIriRef>> iriToTypesMap = new HashMap<>();
-    StringJoiner iriLine = new StringJoiner(" ");
-    for (String stringIri : stringIris) {
-      iri(stringIri);
-      iriLine.add("<" + stringIri + ">");
-    }
 
     String sql = """
       SELECT ?s ?o ?oname
@@ -198,7 +191,7 @@ public class EntityRepository {
         ?o rdfs:label ?oname .
         VALUES ?s { %s }
       }
-      """.formatted(iriLine.toString());
+      """.formatted(getIriLine(stringIris));
 
     try (IMDB conn = IMDB.getConnection(graph)) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
@@ -217,11 +210,6 @@ public class EntityRepository {
 
   public List<SearchResultSummary> getEntitySummariesByIris(Set<String> stringIris, Graph graph) {
     List<SearchResultSummary> summaries = new ArrayList<>();
-    StringJoiner iriLine = new StringJoiner(" ");
-    for (String stringIri : stringIris) {
-      iri(stringIri);
-      iriLine.add("<" + stringIri + ">");
-    }
 
     String sql = """
       SELECT ?s ?sname ?scode ?sstatus ?sstatusname ?sdescription ?sscheme ?sschemename
@@ -239,7 +227,7 @@ public class EntityRepository {
         OPTIONAL { ?s rdfs:comment ?sdescription .}
         VALUES ?s { %s }
       }
-      """.formatted(iriLine.toString());
+      """.formatted(getIriLine(stringIris));
 
     Map<String, Set<TTIriRef>> iriToTypesMap = getTypesByIris(stringIris, graph);
 
@@ -1489,9 +1477,9 @@ public class EntityRepository {
       TupleQuery qry = conn.prepareTupleSparql(sql.toString());
       qry.setBinding("c", iri(childIri));
 
-      log.debug(EXECUTING);
+      log.debug("Executing 'findImmediateParentsByIri'...");
       try (TupleQueryResult rs = qry.evaluate()) {
-        log.debug(RETRIEVING);
+        log.debug("Retrieving 'findImmediateParentsByIri'...");
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           result.add(new TTIriRef(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue()));
@@ -1555,9 +1543,9 @@ public class EntityRepository {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("c", iri(iri));
 
-      log.debug(EXECUTING);
+      log.debug("Executing 'findParentFolderRef'...");
       try (TupleQueryResult rs = qry.evaluate()) {
-        log.debug(RETRIEVING);
+        log.debug("Retrieving 'findParentFolderRef'...");
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
           return new TTIriRef(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue());
@@ -1896,5 +1884,120 @@ public class EntityRepository {
 
   private Object toIri(String iri) {
     return "<" + iri + ">";
+  }
+
+  public List<String> getIM1Ids(List<String> iris) {
+    List<String> result = new ArrayList<>();
+    String spq = """
+      SELECT ?s ?im1id WHERE {
+        VALUES ?s {%s}
+        ?s im:im1Id ?im1id .
+      }""".formatted(getIriLine(iris));
+    try (IMDB conn = IMDB.getConnection(Graph.IM)) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          result.add(bs.getValue("im1id").stringValue());
+        }
+      }
+    }
+    return result;
+  }
+
+  public List<String> getDescendantIM1Ids(List<String> iris, boolean includeSelf) {
+    String spq = """
+      SELECT ?isA ?im1id WHERE {
+        VALUES ?s {%s}
+        ?isA im:isA ?s .
+        ?isA im:im1Id ?im1id .
+      }""".formatted(getIriLine(iris));
+    Map<String, String> iriToIM1IdsMap = new HashMap<>();
+    try (IMDB conn = IMDB.getConnection(Graph.IM)) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          iriToIM1IdsMap.put(bs.getValue("isA").stringValue(), bs.getValue("im1id").stringValue());
+        }
+      }
+    }
+    if (!includeSelf) {
+      for (String iri : iris) {
+        iriToIM1IdsMap.remove(iri);
+      }
+    }
+    return iriToIM1IdsMap.values().stream().toList();
+  }
+
+
+  public List<String> getAncestorIM1Ids(List<String> iris) {
+    String spq = """
+      SELECT ?isA ?im1id WHERE {
+        VALUES ?s {%s}
+        ?s im:isA ?isA .
+        ?isA im:im1Id ?im1id .
+      }""".formatted(getIriLine(iris));
+    List<String> results = new ArrayList<>();
+    try (IMDB conn = IMDB.getConnection(Graph.IM)) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          results.add(bs.getValue("im1id").stringValue());
+        }
+      }
+    }
+    return results;
+  }
+
+  public List<String> getMemberOfIM1Ids(List<String> iris) {
+    String spq = """
+      SELECT ?im1id WHERE {
+        VALUES ?s {%s}
+        ?s im:hasMember ?memberOf .
+        ?memberOf im:im1Id ?im1id .
+      }""".formatted(getIriLine(iris));
+    List<String> results = new ArrayList<>();
+    try (IMDB conn = IMDB.getConnection(Graph.IM)) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          results.add(bs.getValue("im1id").stringValue());
+        }
+      }
+    }
+    return results;
+  }
+
+  private String getIriLine(Collection<String> stringIris) {
+    StringJoiner iriLine = new StringJoiner(" ");
+    for (String stringIri : stringIris) {
+      iri(stringIri);
+      iriLine.add("<" + stringIri + ">");
+    }
+    return iriLine.toString();
+  }
+
+  public String getQueryStringDefinition(String iri, Graph graph) {
+    String sql = """
+      SELECT ?definition
+      WHERE {
+        ?s im:definition ?definition .
+      }
+      """;
+
+    try (IMDB conn = IMDB.getConnection(graph)) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      qry.setBinding("s", iri(iri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          return bs.getValue("definition").stringValue();
+        }
+      }
+    }
+    return null;
   }
 }

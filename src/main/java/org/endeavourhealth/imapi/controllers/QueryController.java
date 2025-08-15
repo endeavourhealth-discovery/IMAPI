@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.postRequestPrimatives.UUIDBody;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
@@ -197,7 +198,7 @@ public class QueryController {
   public String getSQLFromIMQ(@RequestBody QueryRequest queryRequest) throws IOException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQ.POST")) {
       log.debug("getSQLFromIMQ");
-      return queryService.getSQLFromIMQ(queryRequest, new HashMap<>());
+      return queryService.getSQLFromIMQ(queryRequest).getSql();
     }
   }
 
@@ -213,7 +214,7 @@ public class QueryController {
   ) throws IOException, QueryException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getSQLFromIMQIri");
-      return queryService.getSQLFromIMQIri(queryIri, lang, new HashMap<>(), Graph.from(graph));
+      return queryService.getSQLFromIMQIri(queryIri, lang, Graph.from(graph)).getSql();
     }
   }
 
@@ -285,16 +286,8 @@ public class QueryController {
   public void deleteFromQueue(HttpServletRequest request, @RequestParam(name = "id") UUID id) throws IOException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DeleteFromQueue.DELETE")) {
       log.debug("deleteFromQueue");
-      DBEntry entry = postgresService.getById(id);
       UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
-      if (!userId.equals(entry.getUserId())) {
-        throw new IllegalArgumentException("Can only delete a query that belongs to the user making the request.");
-      }
-      if (QueryExecutorStatus.CANCELLED.equals(entry.getStatus()) || QueryExecutorStatus.ERRORED.equals(entry.getStatus())) {
-        postgresService.delete(id);
-      } else {
-        throw new IllegalArgumentException("Can only delete an item that has already been cancelled or has errored.");
-      }
+      postgresService.delete(userId, id);
     }
   }
 
@@ -305,13 +298,9 @@ public class QueryController {
   public void requeueQuery(HttpServletRequest request, @RequestBody RequeueQueryRequest requeueQueryRequest) throws Exception, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.RequeueQuery.POST")) {
       log.debug("requeueQuery");
-      DBEntry entry = postgresService.getById(requeueQueryRequest.getQueueId());
-      if (QueryExecutorStatus.CANCELLED.equals(entry.getStatus()) || QueryExecutorStatus.ERRORED.equals(entry.getStatus())) {
-        postgresService.delete(requeueQueryRequest.getQueueId());
-        UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
-        String userName = requestObjectService.getRequestAgentName(request);
-        queryService.addToExecutionQueue(userId, userName, requeueQueryRequest.getQueryRequest());
-      }
+      UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
+      String userName = requestObjectService.getRequestAgentName(request);
+      queryService.reAddToExecutionQueue(userId, userName, requeueQueryRequest);
     }
   }
 
@@ -320,7 +309,7 @@ public class QueryController {
     summary = "Kills the active running query"
   )
   @PreAuthorize("hasAuthority('IMAdmin')")
-  public void killActiveQuery() throws SQLConversionException, SQLException, IOException {
+  public void killActiveQuery() throws SQLException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.KillActiveQuery.POST")) {
       log.debug("killActiveQuery");
       queryService.killActiveQuery();
@@ -338,17 +327,6 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/getQueryResultsPaged")
-  @Operation(
-    summary = "Get paged query results using a hash of the query request"
-  )
-  public Pageable<String> getQueryResultsPaged(@RequestBody QueryRequest queryRequest) throws IOException, SQLException, SQLConversionException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQueryResults.GET")) {
-      log.debug("getQueryResultsPaged");
-      return queryService.getQueryResultsPaged(queryRequest);
-    }
-  }
-
   @GetMapping(value = "/public/defaultQuery")
   @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")
   public Query getDefaultQuery(@RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
@@ -360,10 +338,11 @@ public class QueryController {
 
   @PostMapping("/testRunQuery")
   @Operation(summary = "Run a query with results limited results to test query")
-  public List<String> testRunQuery(@RequestBody QueryRequest query) throws IOException, SQLException, SQLConversionException {
+  public List<String> testRunQuery(@RequestBody QueryRequest query) throws IOException, SQLException, SQLConversionException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.TestRunQuery.POST")) {
       log.debug("testRunQuery");
-      return queryService.testRunQuery(query.getQuery());
+      Graph graph = Graph.IM;
+      return queryService.testRunQuery(query.getQuery(), graph);
     }
   }
 

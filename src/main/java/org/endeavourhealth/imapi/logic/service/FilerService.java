@@ -21,10 +21,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.model.workflow.EntityApproval;
-import org.endeavourhealth.imapi.model.workflow.entityApproval.ApprovalType;
-import org.endeavourhealth.imapi.model.workflow.task.TaskState;
-import org.endeavourhealth.imapi.model.workflow.task.TaskType;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -193,15 +189,15 @@ public class FilerService {
     isValid(editRequest.getEntity(), "Create", graph);
     editRequest.getEntity().setCrud(iri(IM.ADD_QUADS)).setVersion(1);
     fileEntity(editRequest.getEntity(), agentName, null, graph);
-    EntityApproval entityApproval = new EntityApproval();
-    entityApproval
-      .setEntityIri(iri(editRequest.getEntity().getIri()))
-      .setApprovalType(ApprovalType.CREATE)
-      .setCreatedBy(agentName)
-      .setHostUrl(editRequest.getHostUrl())
-      .setState(TaskState.TODO)
-      .setType(TaskType.ENTITY_APPROVAL);
-    workflowService.createEntityApproval(entityApproval);
+//    EntityApproval entityApproval = new EntityApproval();
+//    entityApproval
+//      .setEntityIri(iri(editRequest.getEntity().getIri()))
+//      .setApprovalType(ApprovalType.CREATE)
+//      .setCreatedBy(agentName)
+//      .setHostUrl(editRequest.getHostUrl())
+//      .setState(TaskState.TODO)
+//      .setType(TaskType.ENTITY_APPROVAL);
+//    workflowService.createEntityApproval(entityApproval);
     return editRequest.getEntity();
   }
 
@@ -215,16 +211,16 @@ public class FilerService {
   }
 
   public TTEntity updateEntityWithWorkflow(EditRequest editRequest, String agentName, HttpServletRequest request, Graph graph) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
-    TTEntity entity = createEntity(editRequest, agentName, graph);
-    EntityApproval entityApproval = new EntityApproval();
-    entityApproval
-      .setEntityIri(iri(editRequest.getEntity().getIri()))
-      .setApprovalType(ApprovalType.EDIT)
-      .setCreatedBy(agentName)
-      .setHostUrl(editRequest.getHostUrl())
-      .setState(TaskState.TODO)
-      .setType(TaskType.ENTITY_APPROVAL);
-    workflowService.updateEntityApproval(entityApproval, request);
+    TTEntity entity = updateEntity(editRequest.getEntity(), agentName, graph);
+//    EntityApproval entityApproval = new EntityApproval();
+//    entityApproval
+//      .setEntityIri(iri(editRequest.getEntity().getIri()))
+//      .setApprovalType(ApprovalType.EDIT)
+//      .setCreatedBy(agentName)
+//      .setHostUrl(editRequest.getHostUrl())
+//      .setState(TaskState.TODO)
+//      .setType(TaskType.ENTITY_APPROVAL);
+//    workflowService.updateEntityApproval(entityApproval, request);
     return entity;
   }
 

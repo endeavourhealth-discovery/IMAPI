@@ -2,36 +2,48 @@ package org.endeavourhealth.imapi.model.sql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import openllet.shared.tools.Log;
 import org.apache.commons.lang3.StringUtils;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static org.eclipse.rdf4j.model.util.Values.iri;
+import static org.endeavourhealth.imapi.mysql.MYSQLConnectionManager.getConnection;
 
 @Slf4j
 public class IMQtoSQLConverter {
   private TableMap tableMap;
-  private Map<String, String> iriToUuidMap;
   private QueryRequest queryRequest;
   private String currentDate;
+  private final EntityRepository entityRepository = new EntityRepository();
+  private List<String> subqueryIris;
 
-  public IMQtoSQLConverter(QueryRequest queryRequest, Map<String, String> iriToUuidMap) {
+  public IMQtoSQLConverter(QueryRequest queryRequest) {
     this.queryRequest = queryRequest;
-    this.iriToUuidMap = iriToUuidMap;
     if (null == queryRequest.getLanguage()) queryRequest.setLanguage(DatabaseOption.MYSQL);
     LocalDate today = LocalDate.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     this.currentDate = today.format(formatter);
+    this.subqueryIris = new ArrayList<>();
 
     try {
       String resourcePath = isPostgreSQL() ? "IMQtoSQL.json" : "IMQtoMYSQL.json";
@@ -47,7 +59,7 @@ public class IMQtoSQLConverter {
     return queryRequest.getLanguage().equals(DatabaseOption.POSTGRESQL);
   }
 
-  public String IMQtoSQL() throws SQLConversionException {
+  public SqlWithSubqueries IMQtoSQL() throws SQLConversionException {
     if (queryRequest.getQuery() == null) throw new SQLConversionException("Query is null");
     Query definition = queryRequest.getQuery();
     if (definition.getTypeOf() == null || definition.getTypeOf().getIri() == null) {
@@ -72,9 +84,9 @@ public class IMQtoSQLConverter {
         addBooleanMatchesToSQL(qry, definition);
         sql = new StringBuilder(qry.toSql(2));
       }
-      return replaceArgumentsWithValue(sql.toString());
+      return new SqlWithSubqueries(replaceArgumentsWithValue(sql.toString()), subqueryIris);
     } catch (SQLConversionException e) {
-      log.error("SQL Conversion Error!");
+      log.error("SQL Conversion Error: {}", e.getMessage());
       throw e;
     }
   }
@@ -196,15 +208,28 @@ public class IMQtoSQLConverter {
   }
 
   private String replaceArgumentsWithValue(String sql) {
-    String refDateValue = queryRequest.getReferenceDate() != null ? queryRequest.getReferenceDate() : this.currentDate;
-    sql = sql.replaceAll("\\$referenceDate", "'" + refDateValue + "'");
-
     if (queryRequest.getArgument() != null) for (Argument arg : queryRequest.getArgument()) {
-      if (arg.getValueData() != null) sql = sql.replaceAll("\\$" + arg.getParameter(), "'" + arg.getValueData() + "'");
-      else if (arg.getValueIri() != null)
-        sql = sql.replaceAll("\\$" + arg.getParameter(), "'" + arg.getValueIri().getIri() + "'");
+      String pattern = Pattern.quote(arg.getParameter());
+      if (arg.getValueData() != null)
+        sql = sql.replaceAll(pattern, "'" + arg.getValueData() + "'");
+      else if (arg.getValueIri() != null) {
+        iri(arg.getValueIri().getIri());
+        sql = sql.replaceAll(pattern, "'" + arg.getValueIri().getIri() + "'");
+      } else if (arg.getValueIriList() != null) {
+        Set<String> setOfIris = arg.getValueIriList().stream().map(TTIriRef::getIri).collect(Collectors.toSet());
+        sql = sql.replaceAll(pattern, getIriLine(setOfIris));
+      }
     }
     return sql;
+  }
+
+  private String getIriLine(Set<String> stringIris) {
+    StringJoiner iriLine = new StringJoiner(" ");
+    for (String stringIri : stringIris) {
+      iri(stringIri);
+      iriLine.add(stringIri);
+    }
+    return "(" + iriLine + ")";
   }
 
   private void addIMQueryToSQLQueryRecursively(SQLQuery qry, Match match, Bool bool) throws SQLConversionException {
@@ -291,10 +316,10 @@ public class IMQtoSQLConverter {
     if (instanceOf.isEmpty())
       throw new SQLConversionException("SQL Conversion Error: MatchSet must have at least one element");
     String subQueryIri = instanceOf.getFirst().getIri();
-    String rsltTbl = "query_" + iriToUuidMap.getOrDefault(subQueryIri, "uuid");
+    subqueryIris.add(subQueryIri);
+    String rsltTbl = "`query_[" + subQueryIri + "]`";
     qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.getAlias() + ".id");
-    if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".iri IS NULL");
-    qry.getWheres().add(rsltTbl + ".iri = '" + instanceOf.getFirst().getIri() + "'");
+    if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".id IS NULL");
   }
 
   private void convertMatchBoolSubMatch(SQLQuery qry, Match match, Bool bool) throws SQLConversionException {
@@ -383,12 +408,14 @@ public class IMQtoSQLConverter {
     ArrayList<String> ancestors = new ArrayList<>();
     ArrayList<String> descendants = new ArrayList<>();
     ArrayList<String> descendantsSelf = new ArrayList<>();
+    ArrayList<String> membersOf = new ArrayList<>();
 
     for (Node pIs : list) {
       if (pIs.getIri() != null) {
         if (pIs.isAncestorsOf()) ancestors.add(pIs.getIri());
         else if (pIs.isDescendantsOf()) descendants.add(pIs.getIri());
         else if (pIs.isDescendantsOrSelfOf()) descendantsSelf.add(pIs.getIri());
+        else if (pIs.isMemberOf()) membersOf.add(pIs.getIri());
         else direct.add(pIs.getIri());
       } else if (pIs.getParameter() != null) {
         descendantsSelf.add(pIs.getIri());
@@ -397,29 +424,47 @@ public class IMQtoSQLConverter {
       }
     }
 
+    List<String> dbids = new ArrayList<>();
     if (!direct.isEmpty()) {
-      String where = qry.getFieldName(property.getIri(), null, tableMap);
-
-      if (direct.size() == 1) where += (inverse ? " <> '" : " = '") + direct.getFirst() + "'\n";
-      else where += (inverse ? " NOT IN ('" : " IN ('") + StringUtils.join(direct, "',\n'") + "')\n";
-
-      qry.getWheres().add(where);
+      List<String> directIM11Ids = entityRepository.getIM1Ids(direct);
+      if (directIM11Ids.isEmpty())
+        throw new SQLConversionException("No IM1IDs found for '" + StringUtils.join(direct, "',\n'") + "'");
+      dbids.addAll(getDBIDs(directIM11Ids));
     }
-
-    String tct = "tct_" + qry.getJoins().size();
     if (!descendants.isEmpty()) {
-      String join = isPostgreSQL() ? "JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap) : "JOIN concept_tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap);
-      qry.getJoins().add(join);
-      qry.getWheres().add(descendants.size() == 1 ? tct + ".iri = '" + descendants.getFirst() + "'" : tct + ".iri IN ('" + StringUtils.join(descendants, "',\n'") + "') AND " + tct + ".level > 0");
-    } else if (!descendantsSelf.isEmpty()) {
-      String join = isPostgreSQL() ? "JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap) : "JOIN concept_tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property.getIri(), null, tableMap);
-      qry.getJoins().add(join);
-      qry.getWheres().add(descendantsSelf.size() == 1 ? tct + ".iri = '" + descendantsSelf.getFirst() + "'" : tct + ".iri IN ('" + StringUtils.join(descendantsSelf, "',\n'") + "')");
-    } else if (!ancestors.isEmpty()) {
-      String join = isPostgreSQL() ? "JOIN tct AS " + tct + " ON " + tct + ".iri = " + qry.getFieldName(property.getIri(), null, tableMap) : "JOIN concept_tct AS " + tct + " ON " + tct + ".iri = " + qry.getFieldName(property.getIri(), null, tableMap);
-      qry.getJoins().add(join);
-      qry.getWheres().add(ancestors.size() == 1 ? tct + ".child = '" + ancestors.getFirst() + "'" : tct + ".child IN ('" + StringUtils.join(ancestors, "',\n'") + "') AND " + tct + ".level > 0");
+      List<String> descendantIM11Ids = entityRepository.getDescendantIM1Ids(direct, false);
+      if (descendantIM11Ids.isEmpty())
+        throw new SQLConversionException("No IM1IDs found for descendants of '" + StringUtils.join(descendants, "',\n'") + "'");
+      dbids.addAll(getDBIDs(descendantIM11Ids));
     }
+    if (!descendantsSelf.isEmpty()) {
+      List<String> descendantSelfIM11Ids = entityRepository.getDescendantIM1Ids(descendantsSelf, true);
+      if (descendantSelfIM11Ids.isEmpty())
+        throw new SQLConversionException("No IM1IDs found for descendants of '" + StringUtils.join(descendantsSelf, "',\n'") + "'");
+      dbids.addAll(getDBIDs(descendantSelfIM11Ids));
+    }
+    if (!ancestors.isEmpty()) {
+      List<String> ancestorIM11Ids = entityRepository.getAncestorIM1Ids(ancestors);
+      if (ancestorIM11Ids.isEmpty())
+        throw new SQLConversionException("No IM1IDs found for ancestors of '" + StringUtils.join(ancestors, "',\n'") + "'");
+      dbids.addAll(getDBIDs(ancestorIM11Ids));
+    }
+    if (!membersOf.isEmpty()) {
+      List<String> memberOfIM11Ids = entityRepository.getMemberOfIM1Ids(membersOf);
+      if (memberOfIM11Ids.isEmpty())
+        throw new SQLConversionException("No IM1IDs found for members of '" + StringUtils.join(membersOf, "',\n'") + "'");
+      dbids.addAll(getDBIDs(memberOfIM11Ids));
+    }
+    if (dbids.isEmpty())
+      throw new SQLConversionException("No IM1 dbids'");
+    addPropertyIsWhere(qry, property, dbids, inverse);
+  }
+
+  private void addPropertyIsWhere(SQLQuery qry, Where property, List<String> dbids, boolean inverse) throws SQLConversionException {
+    String where = qry.getFieldName(property.getIri(), null, tableMap);
+    if (dbids.size() == 1) where += (inverse ? " <> '" : " = '") + dbids.getFirst() + "'\n";
+    else where += (inverse ? " NOT IN ('" : " IN ('") + StringUtils.join(dbids, "',\n'") + "')\n";
+    qry.getWheres().add(where);
   }
 
   private void convertMatchPropertyRange(SQLQuery qry, Where property) throws SQLConversionException {
@@ -454,8 +499,11 @@ public class IMQtoSQLConverter {
     if (range.getUnit() != null && "DATE".equals(range.getUnit().getName()))
       return "'" + range.getValue() + "' " + range.getOperator().getValue() + " " + fieldName;
     else {
-      String referenceDate = queryRequest.getReferenceDate() != null ? "'" + queryRequest.getReferenceDate() + "'" : "NOW()";
-      String returnString = isPostgreSQL() ? "(" + referenceDate + " - INTERVAL '" + range.getValue() + (range.getUnit() != null ? " " + getUnitName(range.getUnit()) : "") + "') " + range.getOperator().getValue() + " " + fieldName : "DATE_SUB(" + referenceDate + ", INTERVAL " + range.getValue() + (range.getUnit() != null ? " " + getUnitName(range.getUnit()) : "") + ") " + range.getOperator().getValue() + " " + fieldName;
+      String returnString;
+      if (isPostgreSQL())
+        returnString = "($referenceDate" + " - INTERVAL '" + range.getValue() + (range.getUnit() != null ? " " + getUnitName(range.getUnit()) : "") + "') " + range.getOperator().getValue() + " " + fieldName;
+      else
+        returnString = "DATE_SUB($referenceDate" + ", INTERVAL " + range.getValue() + (range.getUnit() != null ? " " + getUnitName(range.getUnit()) : "") + ") " + range.getOperator().getValue() + " " + fieldName;
       return returnString;
     }
   }
@@ -513,7 +561,13 @@ public class IMQtoSQLConverter {
     if (property.getIri() == null || property.getValue() == null) {
       throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyValue\n" + property);
     }
-    String where = "date".equals(qry.getFieldType(property.getIri(), null, tableMap)) ? convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), new Value().setValue(property.getValue()).setUnit(property.getUnit()).setOperator(property.getOperator())) : qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + property.getValue();
+    String where;
+    if ("date".equals(qry.getFieldType(property.getIri(), null, tableMap))) {
+      Assignable range = new Value().setValue(property.getValue()).setUnit(property.getUnit()).setOperator(property.getOperator());
+      where = convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), range);
+    } else {
+      where = qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + property.getValue();
+    }
     if (property.getUnit() != null) where += " -- CONVERT " + property.getUnit() + "\n";
     if (property.isAncestorsOf() || property.isDescendantsOf() || property.isDescendantsOrSelfOf()) {
       where += " -- TCT\n";
@@ -553,5 +607,28 @@ public class IMQtoSQLConverter {
       case IM.SECONDS -> "SECOND";
       default -> throw new SQLConversionException("SQL Conversion Error: No unit name found for\n" + iriRef.getIri());
     };
+  }
+
+  private List<String> getDBIDs(List<String> im1ids) throws SQLConversionException {
+    String sql = """
+      SELECT c.dbid, c.id FROM concept c
+      WHERE c.id IN (%s);
+      """.formatted("'" + StringUtils.join(im1ids, "', '") + "'");
+    try (Connection executeConnection = getConnection()) {
+      try (PreparedStatement statement = executeConnection.prepareStatement(sql)) {
+        ResultSet rs = statement.executeQuery();
+        List<String> results = new ArrayList<>();
+        while (rs.next()) {
+          results.add(rs.getString("c.dbid"));
+        }
+        if (results.isEmpty())
+          throw new SQLConversionException("No IM1IDs found for '" + StringUtils.join(im1ids, "',\n'") + "'");
+        return results;
+      }
+    } catch (SQLException e) {
+      log.error("Error running SQL [{}]", sql);
+      e.printStackTrace();
+      throw new SQLConversionException("SQL Conversion Error: SQLException for getting im1ids\n" + StringUtils.join(im1ids, ","), e);
+    }
   }
 }

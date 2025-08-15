@@ -42,6 +42,13 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   private List<Where> or;
   @Getter
   private List<Where> and;
+  @Getter
+  private String shortLabel;
+
+  public Where setShortLabel(String shortLabel) {
+    this.shortLabel = shortLabel;
+    return this;
+  }
 
 
 

@@ -55,7 +55,6 @@ public class QueryRepository {
     Integer page = queryRequest.getPage() != null ? queryRequest.getPage().getPageNumber() : 1;
     Integer count = queryRequest.getPage() != null ? queryRequest.getPage().getPageSize() : 0;
     try (IMDB conn = IMDB.getConnection(queryRequest.getGraph())) {
-      checkReferenceDate(queryRequest);
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getSelectSparql(queryRequest.getQuery(), null, false, highestUsage);
       ObjectNode resultNode = graphSelectSearch(queryRequest, spq, conn, result);
@@ -71,7 +70,6 @@ public class QueryRepository {
 
   public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
     try (IMDB conn = IMDB.getConnection(queryRequest.getGraph())) {
-      checkReferenceDate(queryRequest);
       new QueryValidator().validateQuery(queryRequest.getQuery());
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getAskSparql(null);
@@ -94,12 +92,9 @@ public class QueryRepository {
         throw new QueryException("Update queries must reference a predefined definition. Dynamic update based queries not supported");
       TTEntity updateEntity = getEntity(queryRequest.getUpdate().getIri());
       queryRequest.setUpdate(updateEntity.get(TTIriRef.iri(IM.UPDATE_PROCEDURE)).asLiteral().objectValue(Update.class));
-
-      checkReferenceDate(queryRequest);
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getUpdateSparql();
       graphDeleteSearch(spq, conn);
-
     }
   }
 
@@ -364,18 +359,8 @@ public class QueryRepository {
     return null;
   }
 
-
-  private void checkReferenceDate(QueryRequest queryRequest) {
-    if (queryRequest.getReferenceDate() == null) {
-      String now = LocalDate.now().toString();
-      queryRequest.setReferenceDate(now);
-    }
-
-  }
-
   private TTEntity getEntity(String iri) {
     return new EntityRepository().getBundle(iri,
       asHashSet(IM.DEFINITION, RDF.TYPE, IM.FUNCTION_DEFINITION, IM.UPDATE_PROCEDURE, SHACL.PARAMETER)).getEntity();
-
   }
 }

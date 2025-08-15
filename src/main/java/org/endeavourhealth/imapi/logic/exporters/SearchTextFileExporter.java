@@ -14,6 +14,7 @@ import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.List;
 import java.util.Set;
@@ -24,18 +25,18 @@ public class SearchTextFileExporter {
   private SearchService searchService = new SearchService();
   private EclService eclService = new EclService();
 
-  public String getSearchFile(DownloadByQueryOptions downloadByQueryOptions) throws OpenSearchException, JsonProcessingException, QueryException, DownloadException {
+  public String getSearchFile(DownloadByQueryOptions downloadByQueryOptions, List<Graph> graphs) throws OpenSearchException, JsonProcessingException, QueryException, DownloadException {
     log.debug("Exporting search results to {}", downloadByQueryOptions.getFormat());
     SearchResponse searchResponse = null;
     if (null != downloadByQueryOptions.getQueryRequest()) {
       QueryRequest queryRequest = downloadByQueryOptions.getQueryRequest();
       queryRequest.setPage(new Page().setPageNumber(1).setPageSize(downloadByQueryOptions.getTotalCount()));
-      searchResponse = searchService.queryIMSearch(downloadByQueryOptions.getQueryRequest());
+      searchResponse = searchService.queryIMSearch(downloadByQueryOptions.getQueryRequest(), graphs);
     } else if (null != downloadByQueryOptions.getEclSearchRequest()) {
       EclSearchRequest eclSearchRequest = downloadByQueryOptions.getEclSearchRequest();
       eclSearchRequest.setPage(1);
       eclSearchRequest.setSize(downloadByQueryOptions.getTotalCount());
-      searchResponse = eclService.eclSearch(eclSearchRequest);
+      searchResponse = eclService.eclSearch(eclSearchRequest, graphs);
     }
     if (null == searchResponse) throw new QueryException("Download must have either queryRequest or eclSearchRequest");
     List<SearchResultSummary> entities = searchResponse.getEntities();

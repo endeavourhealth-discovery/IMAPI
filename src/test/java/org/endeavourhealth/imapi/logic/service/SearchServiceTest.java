@@ -11,12 +11,14 @@ import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.transforms.TTManager;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
@@ -94,25 +96,25 @@ class SearchServiceTest {
 
     Path of = Path.of("TestQueries/Results/" + name + "_results.json");
     if (dataSet.getQuery() != null) {
-      JsonNode result = searchService.queryIM(dataSet);
+      JsonNode result = searchService.queryIM(dataSet, List.of(Graph.IM));
       path = of.toAbsolutePath();
       try (FileWriter wr = new FileWriter(path.toString())) {
         wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
         System.out.println("Found " + result.get("entities").size() + " entities");
         if (result.get("entities").size() == 0) {
           dataSet = new ObjectMapper().readValue(originalRequest, QueryRequest.class);
-          result = searchService.queryIM(dataSet);
+          result = searchService.queryIM(dataSet, List.of(Graph.IM));
           throw new RuntimeException("No results found for query " + name);
         }
       }
     } else if (dataSet.getPathQuery() != null) {
-      PathDocument result = searchService.pathQuery(dataSet.getPathQuery());
+      PathDocument result = searchService.pathQuery(dataSet.getPathQuery(), List.of(Graph.IM));
       path = of.toAbsolutePath();
       try (FileWriter wr = new FileWriter(path.toString())) {
         wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
       }
     } else if (dataSet.getUpdate() != null) {
-      searchService.updateIM(dataSet);
+      searchService.updateIM(dataSet, List.of(Graph.IM), Graph.IM);
     }
 
 
@@ -120,7 +122,7 @@ class SearchServiceTest {
 
   private void ask(QueryRequest askQuery) throws Exception {
     SearchService searchService = new SearchService();
-    if (searchService.askQueryIM(askQuery)) {
+    if (searchService.askQueryIM(askQuery, List.of(Graph.IM))) {
       System.out.println("ask query Valid");
     } else
       throw new Exception("invalid ask query");
@@ -128,7 +130,7 @@ class SearchServiceTest {
 
   //@Test
   public void setTest() throws DataFormatException, JsonProcessingException, QueryException {
-    new SetMemberGenerator().generateMembers("http://apiqcodes.org/qcodes#QCodeGroup_713", null);
+    new SetMemberGenerator().generateMembers("http://apiqcodes.org/qcodes#QCodeGroup_713", null, Graph.IM);
   }
 }
 

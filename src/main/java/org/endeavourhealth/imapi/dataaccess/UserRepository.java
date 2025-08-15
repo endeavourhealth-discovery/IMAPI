@@ -6,6 +6,7 @@ import org.eclipse.rdf4j.query.*;
 import org.endeavourhealth.imapi.dataaccess.databases.UserDB;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.USER;
 import org.endeavourhealth.imapi.vocabulary.VocabEnum;
@@ -176,6 +177,33 @@ public class UserRepository {
   public void updateUserOrganisations(String user, List<String> organisations) throws JsonProcessingException {
     delete(user, USER.ORGANISATIONS);
     insert(user, USER.ORGANISATIONS, organisations);
+  }
+
+  public List<Graph> getUserGraphs(String user) throws JsonProcessingException {
+    List<Graph> result = new ArrayList<>(List.of(Graph.IM));
+    String sparql = getSparqlSelect();
+    try (UserDB conn = UserDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
+      qry.setBinding("s", iri(Namespace.USER + user));
+      qry.setBinding("p", USER.GRAPHS.asDbIri());
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          try (CachedObjectMapper om = new CachedObjectMapper()) {
+            List<Graph> graphs = om.readValue(bs.getValue("o").stringValue(), new TypeReference<>() {
+            });
+            if (!graphs.isEmpty()) result.addAll(graphs);
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  public void updateUserGraphs(String user, List<Graph> graphs) throws JsonProcessingException {
+    delete(user, USER.GRAPHS);
+    insert(user, USER.GRAPHS, graphs);
   }
 
   public boolean getUserIdExists(String userId) {

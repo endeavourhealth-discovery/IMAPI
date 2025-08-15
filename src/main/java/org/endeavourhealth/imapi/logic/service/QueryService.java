@@ -2,14 +2,11 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
-import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
@@ -23,7 +20,7 @@ import org.endeavourhealth.imapi.model.sql.SqlWithSubqueries;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
-import org.endeavourhealth.imapi.postgress.PostgresService;
+import org.endeavourhealth.imapi.postgres.PostgresService;
 import org.endeavourhealth.imapi.rabbitmq.ConnectionManager;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
@@ -31,8 +28,6 @@ import org.springframework.stereotype.Component;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
@@ -47,19 +42,19 @@ public class QueryService {
   private PostgresService postgresService = new PostgresService();
   private Map<Integer, Set<String>> queryResultsMap = new HashMap<>();
 
-  public Query describeQuery(Query query, DisplayMode displayMode, Graph graph) throws QueryException, JsonProcessingException {
-    return new QueryDescriptor().describeQuery(query, displayMode);
+  public Query describeQuery(Query query, DisplayMode displayMode, List<Graph> graphs) throws QueryException, JsonProcessingException {
+    return new QueryDescriptor().describeQuery(query, displayMode, graphs);
   }
 
-  public Match describeMatch(Match match, Graph graph) throws QueryException {
-    return new QueryDescriptor().describeSingleMatch(match, null);
+  public Match describeMatch(Match match, List<Graph> graphs) throws QueryException {
+    return new QueryDescriptor().describeSingleMatch(match, null, graphs);
   }
 
-  public Query describeQuery(String queryIri, DisplayMode displayMode, Graph graph) throws JsonProcessingException, QueryException {
-    return new QueryDescriptor().describeQuery(queryIri, displayMode, graph);
+  public Query describeQuery(String queryIri, DisplayMode displayMode, List<Graph> graphs) throws JsonProcessingException, QueryException {
+    return new QueryDescriptor().describeQuery(queryIri, displayMode, graphs);
   }
 
-  public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults, JsonNode highestUsageResults, Graph graph) {
+  public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults, JsonNode highestUsageResults, List<Graph> graphs) {
     SearchResponse searchResponse = new SearchResponse();
 
     if (queryResults.has(ENTITIES)) {
@@ -69,7 +64,7 @@ public class QueryService {
         for (JsonNode entity : queryResults.get(ENTITIES)) {
           iris.add(entity.get("iri").asText());
         }
-        List<SearchResultSummary> summaries = entityRepository.getEntitySummariesByIris(iris, graph);
+        List<SearchResultSummary> summaries = entityRepository.getEntitySummariesByIris(iris, graphs);
         searchResponse.setEntities(summaries);
       }
     }
@@ -92,11 +87,11 @@ public class QueryService {
     return new IMQtoSQLConverter(queryRequest).IMQtoSQL();
   }
 
-  public SqlWithSubqueries getSQLFromIMQIri(String queryIri, DatabaseOption lang, Graph graph) throws JsonProcessingException, QueryException, SQLConversionException {
+  public SqlWithSubqueries getSQLFromIMQIri(String queryIri, DatabaseOption lang, List<Graph> graphs) throws JsonProcessingException, QueryException, SQLConversionException {
     if (!lang.equals(DatabaseOption.MYSQL) && !lang.equals(DatabaseOption.POSTGRESQL)) {
       throw new SQLConversionException("'" + lang + "' is not currently supported for query to SQL. Supported languages are MYSQL and POSTGRESQL.");
     }
-    Query query = describeQuery(queryIri, DisplayMode.LOGICAL, graph);
+    Query query = describeQuery(queryIri, DisplayMode.LOGICAL, graphs);
     if (query == null) return null;
     query = flattenQuery(query);
     QueryRequest queryRequest = new QueryRequest().setQuery(query).setLanguage(lang);
@@ -139,22 +134,22 @@ public class QueryService {
     return connectionManager.publishToQueue(userId, userName, queryRequest);
   }
 
-  public Set<String> executeQuery(QueryRequest queryRequest, Graph graph) throws SQLConversionException, SQLException, QueryException {
+  public Set<String> executeQuery(QueryRequest queryRequest, List<Graph> graphs) throws SQLConversionException, SQLException, QueryException {
     queryRequest.resolveArgs();
-    int qrHashCode = getQueryRequestHashCode(queryRequest);
+    int qrHashCode = getQueryRequestHashCode(queryRequest, graphs);
     log.info("Executing query: {} with a hash code: {}", queryRequest.getQuery().getIri(), qrHashCode);
     // TODO: if query has is rules needs to be converted to match based query
     try {
-      Set<String> results = getQueryResults(queryRequest);
+      Set<String> results = getQueryResults(queryRequest, graphs);
       if (results != null) return results;
 
       SqlWithSubqueries sqlWithSubqueries = getSQLFromIMQ(queryRequest);
       for (String subqueryIri : sqlWithSubqueries.getSubqueryIris()) {
-        Query subquery = describeQuery(subqueryIri, DisplayMode.LOGICAL, graph);
+        Query subquery = describeQuery(subqueryIri, DisplayMode.LOGICAL, graphs);
         QueryRequest subqueryRequest = new QueryRequest().setQuery(subquery);
         subqueryRequest.setArgument(queryRequest.getArgument());
-        int subqrHashCode = getQueryRequestHashCode(subqueryRequest);
-        executeQuery(subqueryRequest, graph);
+        int subqrHashCode = getQueryRequestHashCode(subqueryRequest, graphs);
+        executeQuery(subqueryRequest, graphs);
         String updatedSql = sqlWithSubqueries.getSql().replace("query_[" + subqueryIri + "]", String.valueOf(subqrHashCode));
         sqlWithSubqueries.setSql(updatedSql);
       }
@@ -175,9 +170,9 @@ public class QueryService {
     }
   }
 
-  public int getQueryRequestHashCode(QueryRequest queryRequest) {
+  public int getQueryRequestHashCode(QueryRequest queryRequest, List<Graph> graphs) {
     if (queryRequest.getQueryStringDefinition() == null) {
-      String queryStringDefinition = entityRepository.getQueryStringDefinition(queryRequest.getQuery().getIri(), Graph.IM);
+      String queryStringDefinition = entityRepository.getQueryStringDefinition(queryRequest.getQuery().getIri(), graphs);
       queryRequest.setQueryStringDefinition(queryStringDefinition);
     }
     return queryRequest.hashCode();
@@ -188,8 +183,8 @@ public class QueryService {
     MYSQLConnectionManager.saveResults(queryRequest.hashCode(), results);
   }
 
-  public Set<String> getQueryResults(QueryRequest queryRequest) throws SQLException {
-    int hashCode = getQueryRequestHashCode(queryRequest);
+  public Set<String> getQueryResults(QueryRequest queryRequest, List<Graph> graphs) throws SQLException {
+    int hashCode = getQueryRequestHashCode(queryRequest, graphs);
     Set<String> queryResults = queryResultsMap.get(hashCode);
     if (queryResults != null) {
       log.debug("Query Results for hashcode {} found in local cache", hashCode);
@@ -208,13 +203,13 @@ public class QueryService {
     MYSQLConnectionManager.killCurrentQuery();
   }
 
-  public Query getDefaultQuery(Graph graph) throws JsonProcessingException {
-    List<TTEntity> children = entityRepository.getFolderChildren(Namespace.IM + "Q_DefaultCohorts", graph, asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL,
+  public Query getDefaultQuery(List<Graph> graphs) throws JsonProcessingException {
+    List<TTEntity> children = entityRepository.getFolderChildren(Namespace.IM + "Q_DefaultCohorts", graphs, asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL,
       IM.DEFINITION));
     if (children.isEmpty()) {
       return new Query().setTypeOf(Namespace.IM + "Patient");
     }
-    TTEntity cohort = findFirstQuery(children, graph);
+    TTEntity cohort = findFirstQuery(children, graphs);
     Query defaultQuery = new Query();
     if (cohort != null) {
       Query cohortQuery = cohort.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
@@ -224,7 +219,7 @@ public class QueryService {
     } else return null;
   }
 
-  private TTEntity findFirstQuery(List<TTEntity> children, Graph graph) {
+  private TTEntity findFirstQuery(List<TTEntity> children, List<Graph> graphs) {
     for (TTEntity child : children) {
       if (child.isType(iri(IM.QUERY)) && child.get(iri(IM.DEFINITION)) != null) {
         return child;
@@ -233,26 +228,26 @@ public class QueryService {
     }
     for (TTEntity child : children) {
       if (child.isType(iri(IM.FOLDER))) {
-        List<TTEntity> subchildren = entityRepository.getFolderChildren(Namespace.IM + "DefaultCohorts", graph, asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL,
+        List<TTEntity> subchildren = entityRepository.getFolderChildren(Namespace.IM + "DefaultCohorts", graphs, asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL,
           IM.DEFINITION));
         if (subchildren == null || subchildren.isEmpty()) {
           return null;
         }
-        TTEntity cohort = findFirstQuery(subchildren, graph);
+        TTEntity cohort = findFirstQuery(subchildren, graphs);
         if (cohort != null) return cohort;
       }
     }
     return null;
   }
 
-  public Set<String> testRunQuery(Query query, Graph graph) throws SQLException, SQLConversionException, QueryException {
+  public Set<String> testRunQuery(Query query, List<Graph> graphs) throws SQLException, SQLConversionException, QueryException {
     QueryRequest queryRequest = new QueryRequest();
     Page page = new Page();
     page.setPageNumber(1);
     page.setPageSize(10);
     queryRequest.setPage(page);
     queryRequest.setQuery(query);
-    return executeQuery(queryRequest, graph);
+    return executeQuery(queryRequest, graphs);
   }
 
   public Query flattenQuery(Query query) throws JsonProcessingException {
@@ -265,12 +260,12 @@ public class QueryService {
     return query;
   }
 
-  public Query getQueryFromIri(String iri, Graph from) throws JsonProcessingException {
-    TTEntity queryEntity = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.toString())).getEntity();
+  public Query getQueryFromIri(String iri, List<Graph> graphs) throws JsonProcessingException {
+    TTEntity queryEntity = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.toString()), graphs).getEntity();
     return queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
   }
 
-  public List<ArgumentReference> findMissingArguments(QueryRequest queryRequest) throws JsonProcessingException {
+  public List<ArgumentReference> findMissingArguments(QueryRequest queryRequest, List<Graph> graphs) throws JsonProcessingException {
     List<ArgumentReference> missingArguments = new ArrayList<>();
     Query query = queryRequest.getQuery();
     Set<Argument> arguments = queryRequest.getArgument();
@@ -278,7 +273,7 @@ public class QueryService {
     recursivelyCheckQueryArguments(query, missingArguments, arguments);
     if (!missingArguments.isEmpty()) {
       for (ArgumentReference argument : missingArguments) {
-        TTIriRef dataType = dataModelRepository.getPathDatatype(argument.getReferenceIri().getIri());
+        TTIriRef dataType = dataModelRepository.getPathDatatype(argument.getReferenceIri().getIri(), graphs);
         if (null != dataType) argument.setDataType(dataType);
       }
     }
@@ -363,22 +358,22 @@ public class QueryService {
     }
   }
 
-  public TTIriRef getArgumentType(String referenceIri) {
+  public TTIriRef getArgumentType(String referenceIri, List<Graph> graphs) {
     if (null == referenceIri) {
       throw new IllegalArgumentException("referenceIri is null");
     }
-    return dataModelRepository.getPathDatatype(referenceIri);
+    return dataModelRepository.getPathDatatype(referenceIri, graphs);
   }
 
 
-  private NodeShape getTypeFromPath(Path path, Set<String> nodeRefs) {
+  private NodeShape getTypeFromPath(Path path, Set<String> nodeRefs, List<Graph> graphs) {
     if (path.getVariable() != null) {
       if (nodeRefs.contains(path.getVariable())) {
-        return dataModelRepository.getDataModelDisplayProperties(path.getTypeOf().getIri(), false, Graph.IM);
+        return dataModelRepository.getDataModelDisplayProperties(path.getTypeOf().getIri(), false, graphs);
       }
       if (path.getPath() != null) {
         for (Path subPath : path.getPath()) {
-          NodeShape nodeShape = getTypeFromPath(subPath, nodeRefs);
+          NodeShape nodeShape = getTypeFromPath(subPath, nodeRefs, graphs);
           if (nodeShape != null) return nodeShape;
         }
       }

@@ -12,7 +12,10 @@ import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
+
+import java.util.List;
 
 /**
  * Methods for searching open search / elastic repositories
@@ -23,13 +26,13 @@ public class SearchService {
 
   public static final String USAGE_TOTAL = "usageTotal";
 
-  private static QueryRequest getHighestUseRequestFromQuery(QueryRequest queryRequest, ObjectMapper om, QueryRepository repo) throws JsonProcessingException, QueryException {
+  private static QueryRequest getHighestUseRequestFromQuery(QueryRequest queryRequest, ObjectMapper om, QueryRepository repo, List<Graph> graphs) throws JsonProcessingException, QueryException {
     QueryRequest highestUsageRequest = om.readValue(om.writeValueAsString(queryRequest), QueryRequest.class);
-    repo.unpackQueryRequest(highestUsageRequest, om.createObjectNode());
+    repo.unpackQueryRequest(highestUsageRequest, om.createObjectNode(), graphs);
     highestUsageRequest.getQuery().setReturn(new Return().property(p -> p.setIri(IM.USAGE_TOTAL)));
     OrderDirection od = new OrderDirection().setDirection(Order.descending);
     od.setValueVariable(USAGE_TOTAL);
-    highestUsageRequest.getQuery().setOrderBy(new OrderLimit().addProperty(od));
+    highestUsageRequest.getQuery().setReturn(new Return().setOrderBy(new OrderLimit().addProperty(od)));
     highestUsageRequest.setPage(new Page().setPageNumber(1).setPageSize(1));
     return highestUsageRequest;
   }
@@ -41,28 +44,28 @@ public class SearchService {
    * @return a generic JSONDocument containing the results in a format defined by the select statement and including predicate map
    * @throws QueryException if query format is invalid
    */
-  public JsonNode queryIM(QueryRequest queryRequest) throws QueryException, OpenSearchException {
+  public JsonNode queryIM(QueryRequest queryRequest, List<Graph> graphs) throws QueryException, OpenSearchException {
     ObjectNode result = new ObjectMapper().createObjectNode();
     QueryRepository repo = new QueryRepository();
-    repo.unpackQueryRequest(queryRequest, result);
+    repo.unpackQueryRequest(queryRequest, result, graphs);
     if (null != queryRequest.getTextSearch()) {
       OSQuery osq = new OSQuery();
       JsonNode osResult = osq.imOpenSearchQuery(queryRequest);
       if (osResult != null && osResult.get("entities") != null)
         return osResult;
       else {
-        return repo.queryIM(queryRequest, false);
+        return repo.queryIM(queryRequest, false, graphs);
       }
     }
 
-    return repo.queryIM(queryRequest, false);
+    return repo.queryIM(queryRequest, false, graphs);
   }
 
 
-  public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
+  public Boolean askQueryIM(QueryRequest queryRequest, List<Graph> graphs) throws QueryException {
     QueryRepository repo = new QueryRepository();
-    repo.unpackQueryRequest(queryRequest);
-    return repo.askQueryIM(queryRequest);
+    repo.unpackQueryRequest(queryRequest, graphs);
+    return repo.askQueryIM(queryRequest, graphs);
   }
 
   /**
@@ -72,18 +75,18 @@ public class SearchService {
    * @return a list of SearchResultSummary
    * @throws QueryException if query format is invalid
    */
-  public SearchResponse queryIMSearch(QueryRequest queryRequest) throws JsonProcessingException, OpenSearchException, QueryException {
+  public SearchResponse queryIMSearch(QueryRequest queryRequest, List<Graph> graphs) throws JsonProcessingException, OpenSearchException, QueryException {
     ObjectMapper om = new ObjectMapper();
 
     QueryRepository repo = new QueryRepository();
-    repo.unpackQueryRequest(queryRequest, om.createObjectNode());
+    repo.unpackQueryRequest(queryRequest, om.createObjectNode(), graphs);
 
     if (null != queryRequest.getTextSearch()) {
       SearchResponse results = new OSQuery().openSearchQuery(queryRequest);
       if (results != null) return results;
     }
-    JsonNode queryResults = repo.queryIM(queryRequest, false);
-    return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, queryResults, queryRequest.getGraph());
+    JsonNode queryResults = repo.queryIM(queryRequest, false, graphs);
+    return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, queryResults, graphs);
   }
 
   public void validateQueryRequest(QueryRequest queryRequest) throws QueryException {
@@ -107,8 +110,8 @@ public class SearchService {
    * @param pathQuery Query inside a request with parameters
    * @return a generic JSONDocument containing the results in a format defined by the selecr staement and including predicate map
    */
-  public PathDocument pathQuery(PathQuery pathQuery) {
-    return new PathRepository().pathQuery(pathQuery);
+  public PathDocument pathQuery(PathQuery pathQuery, List<Graph> graphs) {
+    return new PathRepository().pathQuery(pathQuery, graphs);
   }
 
   /**
@@ -117,8 +120,8 @@ public class SearchService {
    * @param queryRequest Query inside a request with parameters
    * @throws QueryException if query format is invalid
    */
-  public void updateIM(QueryRequest queryRequest) throws JsonProcessingException, QueryException {
-    new QueryRepository().updateIM(queryRequest);
+  public void updateIM(QueryRequest queryRequest, List<Graph> userGraphs, Graph insertGraph) throws JsonProcessingException, QueryException {
+    new QueryRepository().updateIM(queryRequest, userGraphs, insertGraph);
   }
 
 }

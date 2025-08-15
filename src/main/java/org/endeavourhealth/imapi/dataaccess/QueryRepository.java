@@ -22,11 +22,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
 
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
@@ -50,11 +46,11 @@ public class QueryRepository {
    * @throws QueryException if query syntax is invalid
    */
 
-  public JsonNode queryIM(QueryRequest queryRequest, boolean highestUsage) throws QueryException {
+  public JsonNode queryIM(QueryRequest queryRequest, boolean highestUsage, List<Graph> graphs) throws QueryException {
     ObjectNode result = mapper.createObjectNode();
     Integer page = queryRequest.getPage() != null ? queryRequest.getPage().getPageNumber() : 1;
     Integer count = queryRequest.getPage() != null ? queryRequest.getPage().getPageSize() : 0;
-    try (IMDB conn = IMDB.getConnection(queryRequest.getGraph())) {
+    try (IMDB conn = IMDB.getConnection(graphs)) {
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getSelectSparql(queryRequest.getQuery(), null, false, highestUsage);
       ObjectNode resultNode = graphSelectSearch(queryRequest, spq, conn, result);
@@ -67,9 +63,8 @@ public class QueryRepository {
     }
   }
 
-
-  public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
-    try (IMDB conn = IMDB.getConnection(queryRequest.getGraph())) {
+  public Boolean askQueryIM(QueryRequest queryRequest, List<Graph> graphs) throws QueryException {
+    try (IMDB conn = IMDB.getConnection(graphs)) {
       new QueryValidator().validateQuery(queryRequest.getQuery());
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getAskSparql(null);
@@ -84,13 +79,13 @@ public class QueryRepository {
    * @throws QueryException          if query syntax is invalid
    * @throws JsonProcessingException if the json is invalid
    */
-  public void updateIM(QueryRequest queryRequest) throws JsonProcessingException, QueryException {
-    try (IMDB conn = IMDB.getConnection(queryRequest.getGraph())) {
+  public void updateIM(QueryRequest queryRequest, List<Graph> userGraphs, Graph insertGraph) throws JsonProcessingException, QueryException {
+    try (IMDB conn = IMDB.getConnection(userGraphs)) {
       if (queryRequest.getUpdate() == null)
         throw new QueryException("Missing update in query request");
       if (queryRequest.getUpdate().getIri() == null)
         throw new QueryException("Update queries must reference a predefined definition. Dynamic update based queries not supported");
-      TTEntity updateEntity = getEntity(queryRequest.getUpdate().getIri());
+      TTEntity updateEntity = getEntity(queryRequest.getUpdate().getIri(), userGraphs);
       queryRequest.setUpdate(updateEntity.get(TTIriRef.iri(IM.UPDATE_PROCEDURE)).asLiteral().objectValue(Update.class));
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getUpdateSparql();
@@ -103,20 +98,20 @@ public class QueryRepository {
     update.execute();
   }
 
-  public void unpackQueryRequest(QueryRequest queryRequest, ObjectNode result) throws QueryException {
-    Query unpackedQuery = unpackQuery(queryRequest.getQuery(), queryRequest);
+  public void unpackQueryRequest(QueryRequest queryRequest, ObjectNode result, List<Graph> graphs) throws QueryException {
+    Query unpackedQuery = unpackQuery(queryRequest.getQuery(), queryRequest, graphs);
     queryRequest.setQuery(unpackedQuery);
     if (null != queryRequest.getContext() && null != result)
       result.set("context", mapper.convertValue(queryRequest.getContext(), JsonNode.class));
   }
 
-  public void unpackQueryRequest(QueryRequest queryRequest) throws QueryException {
-    unpackQueryRequest(queryRequest, null);
+  public void unpackQueryRequest(QueryRequest queryRequest, List<Graph> graphs) throws QueryException {
+    unpackQueryRequest(queryRequest, null, graphs);
   }
 
-  private Query unpackQuery(Query query, QueryRequest queryRequest) throws QueryException {
+  private Query unpackQuery(Query query, QueryRequest queryRequest, List<Graph> graphs) throws QueryException {
     if (query.getIri() != null && query.getReturn() == null && query.getAnd() == null && query.getOr() == null) {
-      TTEntity entity = getEntity(query.getIri());
+      TTEntity entity = getEntity(query.getIri(), graphs);
       if (entity.get(TTIriRef.iri(SHACL.PARAMETER)) != null) {
         for (TTValue param : entity.get(TTIriRef.iri(SHACL.PARAMETER)).getElements()) {
           processParam(param, queryRequest);
@@ -359,8 +354,8 @@ public class QueryRepository {
     return null;
   }
 
-  private TTEntity getEntity(String iri) {
+  private TTEntity getEntity(String iri, List<Graph> graphs) {
     return new EntityRepository().getBundle(iri,
-      asHashSet(IM.DEFINITION, RDF.TYPE, IM.FUNCTION_DEFINITION, IM.UPDATE_PROCEDURE, SHACL.PARAMETER)).getEntity();
+      asHashSet(IM.DEFINITION, RDF.TYPE, IM.FUNCTION_DEFINITION, IM.UPDATE_PROCEDURE, SHACL.PARAMETER), graphs).getEntity();
   }
 }

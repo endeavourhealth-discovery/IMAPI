@@ -3,14 +3,17 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
+import org.endeavourhealth.imapi.dataaccess.UserRepository;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 public class RequestObjectService {
-
+  private UserRepository userRepository = new UserRepository();
 
   public String getRequestAgentName(HttpServletRequest request) throws JsonProcessingException {
     String token = request.getHeader("Authorization");
@@ -27,6 +30,9 @@ public class RequestObjectService {
   }
 
   private String getPropertyValueFromJwt(String propertyValue, String jwt) throws JsonProcessingException {
+    if (null == jwt || jwt.isEmpty()) {
+      throw new IllegalArgumentException("jwt is null or empty");
+    }
     String token = jwt.replace("Bearer ", "");
     String[] chunks = token.split("\\.");
     Base64.Decoder decoder = Base64.getUrlDecoder();
@@ -36,8 +42,17 @@ public class RequestObjectService {
     }
   }
 
-  public String getUserGraph(HttpServletRequest request) throws JsonProcessingException {
+  public String getUserDraftGraph(HttpServletRequest request) throws JsonProcessingException {
     String userId = getRequestAgentId(request);
     return IM.DOMAIN + "draft/" + userId + "#";
+  }
+
+  public List<Graph> getUserGraphs(HttpServletRequest request) throws JsonProcessingException {
+    try {
+      String userId = getRequestAgentId(request);
+      return userRepository.getUserGraphs(userId);
+    } catch (IllegalArgumentException e) {
+      return List.of(Graph.IM);
+    }
   }
 }

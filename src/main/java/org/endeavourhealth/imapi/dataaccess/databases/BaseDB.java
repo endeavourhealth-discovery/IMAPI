@@ -142,7 +142,10 @@ public abstract class BaseDB implements AutoCloseable {
 
   @Override
   public void close() {
-    conn.close();
+    if (conn != null) {
+      conn.close();
+      conn = null;
+    }
   }
 
   protected static synchronized Repository getRepository(String repoId) {

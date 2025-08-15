@@ -30,7 +30,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @PropertySource("classpath:eqdmap.properties")
 public class TransformService {
 
-  public TTDocument transformEqd(EnquiryDocument eqDoc, Namespace namespace, Graph graph) throws IOException, QueryException, EQDException {
+  public TTDocument transformEqd(EnquiryDocument eqDoc, Namespace namespace, List<Graph> graphs) throws IOException, QueryException, EQDException {
     Properties dataMap = new Properties();
 
     File file = ResourceUtils.getFile("classpath:eqdmap.properties");
@@ -40,8 +40,8 @@ public class TransformService {
 
     TTDocument document = new TTDocument();
 
-    EqdToIMQ converter = new EqdToIMQ();
-    converter.convertEQD(document, eqDoc, dataMap, null, namespace, graph);
+    EqdToIMQ converter = new EqdToIMQ(false,List.of(Graph.IM));
+    converter.convertEQD(document, eqDoc, dataMap, null, namespace);
     return document;
 
   }
@@ -54,14 +54,14 @@ public class TransformService {
    * @throws JsonProcessingException With a reference to the underlying reason for failure to transform.
    */
 
-  public Set<Object> runTransform(TransformRequest request) throws JsonProcessingException {
+  public Set<Object> runTransform(TransformRequest request, List<Graph> graphs) throws JsonProcessingException {
     validateInputs(request.getSourceFormat(), request.getTargetFormat(), request.getTransformMap(), request.getSource());
     String mapIri = request.getTransformMap().getIri();
-    TTEntity mapEntity = EntityCache.getEntity(mapIri).getEntity();
+    TTEntity mapEntity = EntityCache.getEntity(mapIri, graphs).getEntity();
 
     //Is it a graph map
     if (mapEntity.get(iri(IM.ENTITY_MAP)) != null) {
-      return transformGraph(request, mapEntity);
+      return transformGraph(request, mapEntity, graphs);
     } else if (mapEntity.get(TTIriRef.iri(IM.DEFINITION)) == null) {
       throw new IllegalStateException("IRI sent as graph map is not a graph map or entity map?");
     } else {
@@ -88,11 +88,11 @@ public class TransformService {
     return targetObjects;
   }
 
-  private Set<Object> transformGraph(TransformRequest request, TTEntity graphMapEntity) throws JsonProcessingException {
+  private Set<Object> transformGraph(TransformRequest request, TTEntity graphMapEntity, List<Graph> graphs) throws JsonProcessingException {
     Transformer transform = new Transformer(request.getSourceFormat(), request.getTargetFormat());
     Set<Object> targetObjects = new HashSet<>();
     for (TTValue map : graphMapEntity.get(TTIriRef.iri(IM.ENTITY_MAP)).getElements()) {
-      TTEntity mapEntity = EntityCache.getEntity(map.asIriRef().getIri()).getEntity();
+      TTEntity mapEntity = EntityCache.getEntity(map.asIriRef().getIri(), graphs).getEntity();
       MapObject mapObject = mapEntity.get(TTIriRef.iri(IM.DEFINITION)).asLiteral().objectValue(MapObject.class);
 
       //Matches the entity map with the typed source map

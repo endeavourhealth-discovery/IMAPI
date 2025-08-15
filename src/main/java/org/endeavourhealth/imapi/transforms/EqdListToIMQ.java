@@ -12,13 +12,14 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EqdListToIMQ {
   private EqdResources resources;
 
-  public void convertReport(EQDOCReport eqReport, TTDocument document, Query query, EqdResources resources, Graph graph) throws IOException, QueryException, EQDException {
+  public void convertReport(EQDOCReport eqReport, TTDocument document, Query query, EqdResources resources, List<Graph> graphs) throws IOException, QueryException, EQDException {
     this.resources = resources;
     this.resources.setQueryType(QueryType.LIST);
     query.setTypeOf(new Node().setIri(Namespace.IM + "Patient"));
@@ -36,21 +37,21 @@ public class EqdListToIMQ {
         .addType(IM.FIELD_GROUP.asIri());
       columnGroup.addObject(IM.USED_IN.asIri(), iri(query.getIri()));
       query.addDataSet(subQuery);
-      convertListGroup(eqColGroup, subQuery, query.getName(), graph);
+      convertListGroup(eqColGroup, subQuery, query.getName(), graphs);
       columnGroup.set(IM.DEFINITION.asIri(), TTLiteral.literal(subQuery));
       document.addEntity(columnGroup);
     }
   }
 
 
-  private void convertListGroup(EQDOCListColumnGroup eqColGroup, Query subQuery, String reportName, Graph graph) throws IOException, QueryException, EQDException {
+  private void convertListGroup(EQDOCListColumnGroup eqColGroup, Query subQuery, String reportName, List<Graph> graphs) throws IOException, QueryException, EQDException {
     String eqTable = eqColGroup.getLogicalTableName();
     subQuery.setName(eqColGroup.getDisplayName());
     resources.setColumnGroup(iri(subQuery.getIri()).setName(subQuery.getName() + " in " + reportName));
     if (eqColGroup.getCriteria() == null) {
       convertPatientColumns(eqColGroup, eqTable, subQuery);
     } else {
-      convertEventColumns(eqColGroup, eqTable, subQuery, graph);
+      convertEventColumns(eqColGroup, eqTable, subQuery, graphs);
     }
     resources.setColumnGroup(null);
   }
@@ -67,20 +68,28 @@ public class EqdListToIMQ {
     }
   }
 
-
-  private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery, Graph graph) throws IOException, QueryException, EQDException {
-    if (eqColGroup.getCriteria() != null) {
-      resources.setRule(1);
-      resources.setSubRule(1);
-      Match match = resources.convertCriteria(eqColGroup.getCriteria(), graph);
-      subQuery.addAnd(match);
-    }
+  private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery, List<Graph> graphs) throws IOException, QueryException, EQDException {
+    resources.setRule(1);
+    resources.setSubRule(1);
+    Match match = resources.convertCriteria(eqColGroup.getCriteria(), graphs);
+    subQuery.setInstanceOf(match.getInstanceOf());
+    subQuery.setWhere(match.getWhere());
+    subQuery.setPath(match.getPath());
+    subQuery.setThen(match.getThen());
+    subQuery.setAnd(match.getAnd());
+    subQuery.setOr(match.getOr());
+    subQuery.setNot(match.getNot());
+    subQuery.setTypeOf(match.getTypeOf());
     Return aReturn = new Return();
     subQuery.setReturn(aReturn);
+    String nodeRef = resources.getNodeRef(match);
+    aReturn.setAs(nodeRef);
     String tablePath = resources.getIMPath(eqTable);
     String[] paths = tablePath.split(" ");
-    for (int i = 0; i < paths.length - 1; i = i + 2) {
-      ReturnProperty property = new ReturnProperty().setIri(paths[i].replace("^", ""));
+    for (int i = 2; i < paths.length - 1; i = i + 2) {
+      ReturnProperty property = new ReturnProperty();
+      property.setNodeRef(nodeRef);
+      property.setIri(paths[i].replace("^", ""));
       aReturn.addProperty(property);
       aReturn = property.setReturn(new Return()).getReturn();
     }
@@ -123,7 +132,7 @@ public class EqdListToIMQ {
 
   private void convertColumn(Return aReturn, String subPath, String as) {
     String[] elements = subPath.split(" ");
-    for (int i = 0; i < elements.length - 1; i=i+2) {
+    for (int i = 0; i < elements.length - 1; i = i + 2) {
       ReturnProperty path = new ReturnProperty();
       path.setIri(elements[i]);
       aReturn.addProperty(path);

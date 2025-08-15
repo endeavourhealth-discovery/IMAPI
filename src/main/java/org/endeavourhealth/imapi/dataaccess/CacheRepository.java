@@ -6,16 +6,12 @@ import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.GraphQuery;
 import org.eclipse.rdf4j.query.GraphQueryResult;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
@@ -24,7 +20,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
  */
 public class CacheRepository {
 
-  public Set<TTBundle> getSchema(Graph graph) throws Exception {
+  public Set<TTBundle> getSchema(List<Graph> graphs) throws Exception {
     String sql = """
       CONSTRUCT {
         ?shape ?p ?o.
@@ -43,7 +39,7 @@ public class CacheRepository {
       }
       """;
     Set<TTEntity> shapes = new HashSet<>();
-    try (IMDB conn = IMDB.getConnection(graph)) {
+    try (IMDB conn = IMDB.getConnection(graphs)) {
       GraphQuery qry = conn.prepareGraphSparql(sql);
       try (GraphQueryResult gs = qry.evaluate()) {
         Map<String, TTValue> valueMap = new HashMap<>();

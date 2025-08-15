@@ -9,8 +9,8 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.Context;
-import org.endeavourhealth.imapi.vocabulary.*;
 import org.endeavourhealth.imapi.utility.Pluraliser;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,32 +25,32 @@ public class QueryDescriptor {
   private Map<String, TTEntity> iriContext;
   private StringBuilder shortDescription = new StringBuilder();
 
-  public Query describeQuery(String queryIri, DisplayMode displayMode, Graph graph) throws JsonProcessingException, QueryException {
-    TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
+  public Query describeQuery(String queryIri, DisplayMode displayMode, List<Graph> graphs) throws JsonProcessingException, QueryException {
+    TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION), graphs).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
     if (query.getIri() == null)
       query.setIri(queryIri);
-    query = describeQuery(query, displayMode);
+    query = describeQuery(query, displayMode, graphs);
     queryCache.put(queryIri, new ObjectMapper().writeValueAsString(query));
     return query;
   }
 
-  public Match describeSingleMatch(Match match, String typeOf) throws QueryException {
-    setIriNames(match);
-    describeMatch(match,typeOf);
+  public Match describeSingleMatch(Match match, String typeOf, List<Graph> graphs) throws QueryException {
+    setIriNames(match, graphs);
+    describeMatch(match, typeOf);
     return match;
   }
 
-  public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
-    setIriNames(query);
+  public Query describeQuery(Query query, DisplayMode displayMode, List<Graph> graphs) throws QueryException, JsonProcessingException {
+    setIriNames(query, graphs);
     if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
     if (displayMode == DisplayMode.RULES && query.getRule() == null) {
       new LogicOptimizer().getRulesFromLogic(query);
     } else if (displayMode == DisplayMode.LOGICAL && query.getRule() != null) {
       new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     }
-    describeMatch(query,null);
+    describeMatch(query, null);
     if (query.getGroupBy() != null) {
       describeGroupBys(query.getGroupBy());
     }
@@ -74,19 +74,19 @@ public class QueryDescriptor {
     }
   }
 
-  private void setIriNames(Match match) throws QueryException {
+  private void setIriNames(Match match, List<Graph> graphs) throws QueryException {
     Set<String> iriSet = IriCollector.collectIris(match);
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL),Graph.IM);
+      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL), graphs);
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
   }
 
-  private void setIriNames(Query query, Graph graph) throws QueryException {
+  private void setIriNames(Query query, List<Graph> graphs) throws QueryException {
     Set<String> iriSet = IriCollector.collectIris(query);
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL), graph);
+      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL), graphs);
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
@@ -108,16 +108,16 @@ public class QueryDescriptor {
           } else {
             term = new StringBuilder(entity.get(iri(Namespace.IM + "plural")).asLiteral().getValue());
           }
-        } else  term = new StringBuilder(Pluraliser.pluralise(term.toString()));
+        } else term = new StringBuilder(Pluraliser.pluralise(term.toString()));
       }
       if (context == Context.LOWERCASE) {
         term = new StringBuilder(term.toString().toLowerCase());
       }
     }
     if (entity != null) {
-     // if (entity.get(iri(Namespace.IM + "displayLabel")) != null) {
-       // term.setLength(0);
-     // }
+      // if (entity.get(iri(Namespace.IM + "displayLabel")) != null) {
+      // term.setLength(0);
+      // }
       if (entity.get(iri(IM.PREPOSITION)) != null) {
         term.append(" ").append(entity.get(iri(IM.PREPOSITION)).asLiteral().getValue());
       }
@@ -152,23 +152,24 @@ public class QueryDescriptor {
   }
 
 
-  public void describeMatch(Match match,String inheritedType) {
+  public void describeMatch(Match match, String inheritedType) {
     String typeOf;
-    if (match.getTypeOf() == null){
-      if (inheritedType!=null) {
+    if (match.getTypeOf() == null) {
+      if (inheritedType != null) {
         match.setTypeOf(new Node().setIri(inheritedType));
         typeOf = inheritedType;
-      } else typeOf=null;
+      } else typeOf = null;
     } else {
-      typeOf= match.getTypeOf().getIri();
+      typeOf = match.getTypeOf().getIri();
     }
     if (match.getUuid() == null) match.setUuid(UUID.randomUUID().toString());
-    if (match.getOrderBy() != null) {
-      describeOrderBy(match.getOrderBy());
-    }
+
 
     if (match.getReturn() != null) {
       describeReturn(match.getReturn());
+      if (match.getReturn().getOrderBy() != null) {
+        describeOrderBy(match.getReturn().getOrderBy());
+      }
     }
     if (match.getName() == null && match.getDescription() != null) {
       match.setName(match.getDescription());
@@ -182,26 +183,26 @@ public class QueryDescriptor {
       describeInstance(match.getInstanceOf());
     }
     if (match.getThen() != null) {
-      describeMatch(match.getThen(),typeOf);
+      describeMatch(match.getThen(), typeOf);
     }
     if (match.getRule() != null) {
       for (Match subMatch : match.getRule()) {
-        describeMatch(subMatch,typeOf);
+        describeMatch(subMatch, typeOf);
       }
     }
     if (match.getOr() != null) {
       for (Match subMatch : match.getOr()) {
-        describeMatch(subMatch,typeOf);
+        describeMatch(subMatch, typeOf);
       }
     }
     if (match.getAnd() != null) {
       for (Match subMatch : match.getAnd()) {
-        describeMatch(subMatch,typeOf);
+        describeMatch(subMatch, typeOf);
       }
     }
     if (match.getNot() != null) {
       for (Match subMatch : match.getNot()) {
-        describeMatch(subMatch,typeOf);
+        describeMatch(subMatch, typeOf);
       }
     }
     if (match.getPath() != null) {
@@ -235,8 +236,10 @@ public class QueryDescriptor {
   }
 
   private void addReturnText(Match match, StringBuilder preface) {
-    if (match.getOrderBy() != null) {
-      preface.append(match.getOrderBy().getDescription()).append(" ");
+    if (match.getReturn() != null) {
+      if (match.getReturn().getOrderBy() != null) {
+        preface.append(match.getReturn().getOrderBy().getDescription()).append(" ");
+      }
     }
     if (match.getReturn().getProperty() != null)
       preface.append(match.getReturn().getProperty()
@@ -604,7 +607,7 @@ public class QueryDescriptor {
       valueLabel.append(set.getQualifier() != null ? set.getQualifier() + " " : "").append(set.getName());
     }
     where.setValueLabel(valueLabel.toString());
-    if (where.getShortLabel()!=null)
+    if (where.getShortLabel() != null)
       shortDescription.append(where.getShortLabel()).append(" ");
     else shortDescription.append(where.getValueLabel()).append(" ");
   }
@@ -637,11 +640,12 @@ public class QueryDescriptor {
       }
     }
   }
-  public String getShortDescription(Match match) throws QueryException {
+
+  public String getShortDescription(Match match, List<Graph> graphs) throws QueryException {
     shortDescription = new StringBuilder();
-    setIriNames(match);
-    if (match.getOrderBy() != null) {
-      describeOrderBy(match.getOrderBy());
+    setIriNames(match, graphs);
+    if (match.getReturn() != null && match.getReturn().getOrderBy() != null) {
+      describeOrderBy(match.getReturn().getOrderBy());
       shortDescription.append(" ");
     }
     if (match.getWhere() != null) {

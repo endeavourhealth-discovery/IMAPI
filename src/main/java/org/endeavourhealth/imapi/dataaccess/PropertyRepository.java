@@ -2,11 +2,12 @@ package org.endeavourhealth.imapi.dataaccess;
 
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.GraphQuery;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper;
 import org.endeavourhealth.imapi.model.tripletree.TTEntityMap;
 import org.endeavourhealth.imapi.vocabulary.Graph;
+
+import java.util.List;
 
 /**
  * Data access class for accessing information about rdf properties
@@ -112,8 +113,8 @@ public class PropertyRepository {
     throw new IllegalStateException("Utility class");
   }
 
-  public static TTEntityMap getProperty(String focusIri, Graph graph) {
-    try (IMDB conn = IMDB.getConnection(graph)) {
+  public static TTEntityMap getProperty(String focusIri, List<Graph> graphs) {
+    try (IMDB conn = IMDB.getConnection(graphs)) {
       GraphQuery qry = conn.prepareGraphSparql(PROPERTIES_SQL);
       qry.setBinding("entity", Values.iri(focusIri));
       return GraphHelper.getEntityMap(qry);
@@ -126,8 +127,8 @@ public class PropertyRepository {
    * @return maps from iri to shapes and predicate names for the property entity predicates.
    * All iris referenced include their labels as names, except for the mode predicates themselves
    */
-  public static TTEntityMap getProperties(Graph graph) {
-    try (IMDB conn = IMDB.getConnection(graph)) {
+  public static TTEntityMap getProperties(List<Graph> graphs) {
+    try (IMDB conn = IMDB.getConnection(graphs)) {
       GraphQuery qry = conn.prepareGraphSparql(GET_ALL_PROPERTIES_SQL);
       return GraphHelper.getEntityMap(qry);
     }

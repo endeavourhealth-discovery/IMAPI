@@ -42,9 +42,9 @@ class EntityModelServiceTest {
   @Test
   void getEntityPredicates_nullIriPredicates() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(isNull(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(isNull(), isNull(), anyList())).thenReturn(new TTBundle().setEntity(entity));
 
-    TTBundle actual = entityService.getBundle(null, null);
+    TTBundle actual = entityService.getBundle(null, null, List.of(Graph.IM));
     assertNotNull(actual);
     assertNotNull(actual.getEntity());
   }
@@ -52,16 +52,16 @@ class EntityModelServiceTest {
   @Test
   void getEntityPredicates_EmptyIri() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(any(), isNull(), anyList())).thenReturn(new TTBundle().setEntity(entity));
 
-    TTBundle actual = entityService.getBundle("", null);
+    TTBundle actual = entityService.getBundle("", null, List.of(Graph.IM));
     assertNotNull(actual);
     assertNotNull(actual.getEntity());
   }
 
   @Test
   void getEntityReference_NullIri() {
-    TTIriRef actual = entityService.getEntityReference(null, null);
+    TTIriRef actual = entityService.getEntityReference(null, List.of(Graph.IM));
 
     assertNull(actual);
 
@@ -69,8 +69,8 @@ class EntityModelServiceTest {
 
   @Test
   void getEntityReference_NullEntity() {
-    when(entityRepository.getEntityReferenceByIri("http://endhealth.info/im#25451000252115", null)).thenReturn(null);
-    TTIriRef actual = entityService.getEntityReference("http://endhealth.info/im#25451000252115", null);
+    when(entityRepository.getEntityReferenceByIri("http://endhealth.info/im#25451000252115", List.of(Graph.IM))).thenReturn(null);
+    TTIriRef actual = entityService.getEntityReference("http://endhealth.info/im#25451000252115", List.of(Graph.IM));
 
     assertNull(actual);
 
@@ -79,8 +79,8 @@ class EntityModelServiceTest {
   @Test
   void getEntityReference_NotNullEntity() {
     TTIriRef ttIriRef = new TTIriRef().setIri("http://endhealth.info/im#25451000252115").setName("http://endhealth.info/im#25451000252115");
-    when(entityRepository.getEntityReferenceByIri("http://endhealth.info/im#25451000252115", null)).thenReturn(ttIriRef);
-    TTIriRef actual = entityService.getEntityReference("http://endhealth.info/im#25451000252115", null);
+    when(entityRepository.getEntityReferenceByIri("http://endhealth.info/im#25451000252115", List.of(Graph.IM))).thenReturn(ttIriRef);
+    TTIriRef actual = entityService.getEntityReference("http://endhealth.info/im#25451000252115", List.of(Graph.IM));
 
     assertNotNull(actual);
 
@@ -89,7 +89,7 @@ class EntityModelServiceTest {
   @Test
   void getImmediateChildren_NullIri() {
     List<EntityReferenceNode> actual = entityService
-      .getImmediateChildren(null, null, 1, 10, true, null);
+      .getImmediateChildren(null, null, 1, 10, true, List.of(Graph.IM));
 
     assertNotNull(actual);
 
@@ -98,7 +98,7 @@ class EntityModelServiceTest {
   @Test
   void getImmediateChildren_EmptyIri() {
     List<EntityReferenceNode> actual = entityService
-      .getImmediateChildren("", null, 1, 10, true, null);
+      .getImmediateChildren("", null, 1, 10, true, List.of(Graph.IM));
 
     assertNotNull(actual);
 
@@ -107,7 +107,7 @@ class EntityModelServiceTest {
   @Test
   void getImmediateChildren_NullIndexSize() {
     List<EntityReferenceNode> actual = entityService
-      .getImmediateChildren("http://endhealth.info/im#25451000252115", null, null, null, true, null);
+      .getImmediateChildren("http://endhealth.info/im#25451000252115", null, null, null, true, List.of(Graph.IM));
 
     assertNotNull(actual);
 
@@ -124,10 +124,10 @@ class EntityModelServiceTest {
         new EntityReferenceNode("http://snomed.info/sct#62014003",
           "Adverse reaction to Amlodipine Besilate")));
     when(entityRepository.findImmediateChildrenByIri("http://snomed.info/sct#62014003", null,
-      0, 20, true, null))
+      0, 20, true, List.of(Graph.IM)))
       .thenReturn(Collections.singletonList(entityReferenceNode));
     List<EntityReferenceNode> actual = entityService.getImmediateChildren
-      ("http://snomed.info/sct#62014003", null, 1, 20, true, null);
+      ("http://snomed.info/sct#62014003", null, 1, 20, true, List.of(Graph.IM));
     assertNotNull(actual);
   }
 
@@ -141,10 +141,10 @@ class EntityModelServiceTest {
         new EntityReferenceNode("http://snomed.info/sct#62014003",
           "Adverse reaction to Amlodipine Besilate")));
     when(entityRepository.findImmediateChildrenByIri("http://snomed.info/sct#62014003", null,
-      0, 20, false, null))
+      0, 20, false, List.of(Graph.IM)))
       .thenReturn(Collections.singletonList(entityReferenceNode));
     List<EntityReferenceNode> actual = entityService.getImmediateChildren
-      ("http://snomed.info/sct#62014003", null, 1, 20, false, null);
+      ("http://snomed.info/sct#62014003", null, 1, 20, false, List.of(Graph.IM));
 
     assertNotNull(actual);
 
@@ -153,7 +153,7 @@ class EntityModelServiceTest {
   @Test
   void getImmediateParents_NullIri() {
     List<EntityReferenceNode> actual = entityService
-      .getImmediateParents(null, null, 1, 10, true, null);
+      .getImmediateParents(null, null, 1, 10, true, List.of(Graph.IM));
 
     assertNotNull(actual);
   }
@@ -161,7 +161,7 @@ class EntityModelServiceTest {
   @Test
   void getImmediateParents_EmptyIri() {
     List<EntityReferenceNode> actual = entityService
-      .getImmediateParents("", null, 1, 10, true, null);
+      .getImmediateParents("", null, 1, 10, true, List.of(Graph.IM));
 
     assertNotNull(actual);
   }
@@ -169,7 +169,7 @@ class EntityModelServiceTest {
   @Test
   void getImmediateParents_NullIndexSize() {
     List<EntityReferenceNode> actual = entityService
-      .getImmediateParents("http://endhealth.info/im#25451000252115", null, null, null, true, null);
+      .getImmediateParents("http://endhealth.info/im#25451000252115", null, null, null, true, List.of(Graph.IM));
 
     assertNotNull(actual);
   }
@@ -185,13 +185,13 @@ class EntityModelServiceTest {
         new EntityReferenceNode("http://endhealth.info/im#25451000252115",
           "Adverse reaction to Amlodipine Besilate")));
     when(entityRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null,
-      0, 20, true, Graph.IM))
+      0, 20, true, List.of(Graph.IM)))
       .thenReturn(Collections.singletonList(entityReferenceNode));
     TTArray ttArray = new TTArray()
       .add(iri("http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
     when(entityRepository.getEntityTypes(any(), any())).thenReturn(ttArray);
     List<EntityReferenceNode> actual = entityService.getImmediateParents
-      ("http://endhealth.info/im#25451000252115", null, 1, 20, true, Graph.IM);
+      ("http://endhealth.info/im#25451000252115", null, 1, 20, true, List.of(Graph.IM));
 
     assertNotNull(actual);
 
@@ -203,12 +203,12 @@ class EntityModelServiceTest {
       .setChildren(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")))
       .setParents(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")));
     when(entityRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null,
-      0, 10, false, Graph.IM))
+      0, 10, false, List.of(Graph.IM)))
       .thenReturn(Collections.singletonList(entityReferenceNode));
     TTArray ttArray = new TTArray().add(iri("http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
     when(entityRepository.getEntityTypes(any(), any())).thenReturn(ttArray);
     List<EntityReferenceNode> actual = entityService.getImmediateParents
-      ("http://endhealth.info/im#25451000252115", null, 1, 10, false, Graph.IM);
+      ("http://endhealth.info/im#25451000252115", null, 1, 10, false, List.of(Graph.IM));
 
     assertNotNull(actual);
 
@@ -217,7 +217,7 @@ class EntityModelServiceTest {
   @Test
   void isWhichType_NullIri() {
     List<TTIriRef> actual = entityService
-      .isWhichType(null, Arrays.asList("A", "B"), null);
+      .isWhichType(null, Arrays.asList("A", "B"), List.of(Graph.IM));
 
     assertNotNull(actual);
   }
@@ -225,7 +225,7 @@ class EntityModelServiceTest {
   @Test
   void isWhichType_EmptyIri() {
     List<TTIriRef> actual = entityService
-      .isWhichType("", Arrays.asList("A", "B"), null);
+      .isWhichType("", Arrays.asList("A", "B"), List.of(Graph.IM));
 
     assertNotNull(actual);
   }
@@ -233,7 +233,7 @@ class EntityModelServiceTest {
   @Test
   void isWhichType_EmptyCandidates() {
     List<TTIriRef> actual = entityService
-      .isWhichType("http://endhealth.info/im#25451000252115", Collections.emptyList(), null);
+      .isWhichType("http://endhealth.info/im#25451000252115", Collections.emptyList(), List.of(Graph.IM));
 
     assertNotNull(actual);
   }
@@ -241,7 +241,7 @@ class EntityModelServiceTest {
   @Test
   void isWhichType_NullCandidates() {
     List<TTIriRef> actual = entityService
-      .isWhichType("http://endhealth.info/im#25451000252115", null, null);
+      .isWhichType("http://endhealth.info/im#25451000252115", null, List.of(Graph.IM));
 
     assertNotNull(actual);
   }
@@ -249,7 +249,7 @@ class EntityModelServiceTest {
   @Test
   void isWhichType_NullIriAndCandidates() {
     List<TTIriRef> actual = entityService
-      .isWhichType(null, null, null);
+      .isWhichType(null, null, List.of(Graph.IM));
 
     assertNotNull(actual);
   }
@@ -265,21 +265,21 @@ class EntityModelServiceTest {
 
     List<TTIriRef> actual = entityService
       .isWhichType("http://endhealth.info/im#25451000252115",
-        Collections.singletonList("http://endhealth.info/im#25451000252115"), Graph.IM);
+        Collections.singletonList("http://endhealth.info/im#25451000252115"), List.of(Graph.IM));
 
     assertNotNull(actual);
   }
 
   @Test
   void usages_NullIri() {
-    List<TTEntity> actual = entityService.usages(null, null, null, Graph.IM);
+    List<TTEntity> actual = entityService.usages(null, null, null, List.of(Graph.IM));
 
     assertNotNull(actual);
   }
 
   @Test
   void usages_EmptyIri() {
-    List<TTEntity> actual = entityService.usages("", null, null, Graph.IM);
+    List<TTEntity> actual = entityService.usages("", null, null, List.of(Graph.IM));
 
     assertNotNull(actual);
   }
@@ -289,14 +289,14 @@ class EntityModelServiceTest {
 
     when(entityRepository.getByNamespace(any(), any())).thenReturn(Stream.of("http://endhealth.info/im#25451000252115").collect(Collectors.toSet()));
 
-    List<TTEntity> actual = entityService.usages("http://endhealth.info/im#25451000252115", 1, 10, null);
+    List<TTEntity> actual = entityService.usages("http://endhealth.info/im#25451000252115", 1, 10, List.of(Graph.IM));
 
     assertNotNull(actual);
   }
 
   @Test
   void totalRecords_NullIri() {
-    Integer actual = entityService.totalRecords(null, null);
+    Integer actual = entityService.totalRecords(null, List.of(Graph.IM));
     assertNotNull(actual);
   }
 
@@ -305,7 +305,7 @@ class EntityModelServiceTest {
     when(entityRepository.getConceptUsagesCount(any(), any())).thenReturn(1000);
     when(entityRepository.getByNamespace(any(), any())).thenReturn(Stream.of("http://www.w3.org/2001/XMLSchema#string").collect(Collectors.toSet()));
 
-    Integer actual = entityService.totalRecords("http://endhealth.info/im#25451000252115", Graph.IM);
+    Integer actual = entityService.totalRecords("http://endhealth.info/im#25451000252115", List.of(Graph.IM));
     assertEquals(1000, actual);
   }
 
@@ -313,13 +313,13 @@ class EntityModelServiceTest {
   void totalRecords_XMLIri() {
     when(entityRepository.getByNamespace(any(), any())).thenReturn(Stream.of("http://www.w3.org/2001/XMLSchema#string").collect(Collectors.toSet()));
 
-    Integer actual = entityService.totalRecords("http://www.w3.org/2001/XMLSchema#string", Graph.IM);
+    Integer actual = entityService.totalRecords("http://www.w3.org/2001/XMLSchema#string", List.of(Graph.IM));
     assertEquals(0, actual);
   }
 
   @Test
   void getSummary_NullIri() {
-    SearchResultSummary actual = entityService.getSummary(null, Graph.IM);
+    SearchResultSummary actual = entityService.getSummary(null, List.of(Graph.IM));
     assertNull(actual);
   }
 
@@ -327,13 +327,13 @@ class EntityModelServiceTest {
   void getSummary_NotNullIri() {
     SearchResultSummary summary = new SearchResultSummary();
     when(entityRepository.getEntitySummaryByIri(any(), any())).thenReturn(summary);
-    SearchResultSummary actual = entityService.getSummary("anyIri", Graph.IM);
+    SearchResultSummary actual = entityService.getSummary("anyIri", List.of(Graph.IM));
     assertNotNull(actual);
   }
 
   @Test
   void getConceptShape_NullIri() {
-    TTEntity actual = entityService.getConceptShape(null);
+    TTEntity actual = entityService.getConceptShape(null, List.of(Graph.IM));
     assertNull(actual);
   }
 
@@ -343,9 +343,9 @@ class EntityModelServiceTest {
       .set(TTIriRef.iri(RDF.TYPE), new TTArray()
         .add(TTIriRef.iri(IM.CONCEPT))
       );
-    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(any(), anySet(), anyList())).thenReturn(new TTBundle().setEntity(entity));
 
-    TTEntity actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115");
+    TTEntity actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115", List.of(Graph.IM));
     assertNull(actual);
   }
 
@@ -355,29 +355,29 @@ class EntityModelServiceTest {
       .set(TTIriRef.iri(RDF.TYPE), new TTArray()
         .add(TTIriRef.iri(SHACL.NODESHAPE))
       );
-    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(any(), anySet(), anyList())).thenReturn(new TTBundle().setEntity(entity));
 
-    TTEntity actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115");
+    TTEntity actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115", List.of(Graph.IM));
     assertNotNull(actual);
   }
 
   @Test
   void getSummaryFromConfig_NullIri() {
     List<String> configs = new ArrayList<>();
-    TTEntity actual = entityService.getSummaryFromConfig(null, configs);
+    TTEntity actual = entityService.getSummaryFromConfig(null, configs, List.of(Graph.IM));
     assertNotNull(actual);
   }
 
   @Test
   void getSummaryFromConfig_EmptyIri() {
     List<String> configs = new ArrayList<>();
-    TTEntity actual = entityService.getSummaryFromConfig("", configs);
+    TTEntity actual = entityService.getSummaryFromConfig("", configs, List.of(Graph.IM));
     assertNotNull(actual);
   }
 
   @Test
   void getSummaryFromConfig_NullConfig() {
-    TTEntity actual = entityService.getSummaryFromConfig("http://endhealth.info/im#25451000252115", null);
+    TTEntity actual = entityService.getSummaryFromConfig("http://endhealth.info/im#25451000252115", null, List.of(Graph.IM));
     assertNotNull(actual);
   }
 
@@ -388,32 +388,32 @@ class EntityModelServiceTest {
         .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
         .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
       );
-    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(any(), anySet(), anyList())).thenReturn(new TTBundle().setEntity(entity));
 
-    TTEntity actual = entityService.getSummaryFromConfig("http://endhealth.info/im#25451000252115", asArrayList(IM.IS_CHILD_OF));
+    TTEntity actual = entityService.getSummaryFromConfig("http://endhealth.info/im#25451000252115", asArrayList(IM.IS_CHILD_OF), List.of(Graph.IM));
     assertNotNull(actual);
   }
 
   @Test
   void getConceptList_NullIri() {
-    TTDocument actual = entityService.getConceptList(null, Graph.IM);
+    TTDocument actual = entityService.getConceptList(null, List.of(Graph.IM));
     assertNull(actual);
   }
 
   @Test
   void getConceptList_EmptyIri() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(any(), isNull(), anyList())).thenReturn(new TTBundle().setEntity(entity));
 
-    TTDocument actual = entityService.getConceptList(Collections.singletonList(""), Graph.IM);
+    TTDocument actual = entityService.getConceptList(Collections.singletonList(""), List.of(Graph.IM));
     assertNotNull(actual);
   }
 
   @Test
   void getConceptList_NotNullIri() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
-    TTDocument actual = entityService.getConceptList(Collections.singletonList("http://endhealth.info/im#25451000252115"), Graph.IM);
+    when(entityRepository.getBundle(any(), isNull(), anyList())).thenReturn(new TTBundle().setEntity(entity));
+    TTDocument actual = entityService.getConceptList(Collections.singletonList("http://endhealth.info/im#25451000252115"), List.of(Graph.IM));
     assertNotNull(actual);
   }
 }

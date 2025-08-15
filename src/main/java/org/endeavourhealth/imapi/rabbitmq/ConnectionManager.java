@@ -5,12 +5,11 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DeliverCallback;
 import lombok.Getter;
-import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.postgress.PostgresService;
+import org.endeavourhealth.imapi.postgres.PostgresService;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +24,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeoutException;
 
 @Lazy
 @Service
@@ -111,7 +110,7 @@ public class ConnectionManager {
         if (null == queryService) {
           queryService = new QueryService();
         }
-        queryService.executeQuery(queryRequest, graph);
+        queryService.executeQuery(queryRequest, List.of(graph));
         entry.setStatus(QueryExecutorStatus.COMPLETED);
         postgresService.update(entry);
       } catch (Exception e) {

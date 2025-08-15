@@ -138,6 +138,7 @@ dependencies {
   implementation(libs.dropwizard.graphite)
   implementation(libs.dropwizard.servlets)
   implementation(libs.fact.plus.plus)
+  implementation(libs.hikari)
   implementation(libs.jackson.databind)
   implementation(libs.logback.core)
   implementation(libs.logback.classic)

@@ -11,7 +11,6 @@ import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.postRequestPrimatives.UUIDBody;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
@@ -20,7 +19,7 @@ import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.postgress.PostgresService;
+import org.endeavourhealth.imapi.postgres.PostgresService;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.Graph;
@@ -30,7 +29,6 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -55,19 +53,27 @@ public class QueryController {
     summary = "Query IM",
     description = "Runs a generic query on IM"
   )
-  public JsonNode queryIM(@RequestBody QueryRequest queryRequest) throws IOException, QueryException, OpenSearchException {
+  public JsonNode queryIM(
+    HttpServletRequest request,
+    @RequestBody QueryRequest queryRequest
+  ) throws IOException, QueryException, OpenSearchException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIM.POST")) {
       log.debug("queryIM");
-      return searchService.queryIM(queryRequest);
+      List<Graph> graphs = requestObjectService.getUserGraphs(request);
+      return searchService.queryIM(queryRequest, graphs);
     }
   }
 
   @PostMapping("/public/askQueryIM")
   @Operation(summary = "Check if an iri is within a query's results")
-  public Boolean askQueryIM(@RequestBody QueryRequest queryRequest) throws QueryException, IOException {
+  public Boolean askQueryIM(
+    HttpServletRequest request,
+    @RequestBody QueryRequest queryRequest
+  ) throws QueryException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.AskQueryIM.POST")) {
       log.debug("askQueryIM");
-      return searchService.askQueryIM(queryRequest);
+      List<Graph> graphs = requestObjectService.getUserGraphs(request);
+      return searchService.askQueryIM(queryRequest, graphs);
     }
   }
 
@@ -76,13 +82,17 @@ public class QueryController {
     summary = "Query IM returning conceptSummaries",
     description = "Runs a generic query on IM and returns results as ConceptSummary items."
   )
-  public SearchResponse queryIMSearch(@RequestBody QueryRequest queryRequest) throws IOException, OpenSearchException, QueryException {
+  public SearchResponse queryIMSearch(
+    HttpServletRequest request,
+    @RequestBody QueryRequest queryRequest
+  ) throws IOException, OpenSearchException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIMSearch.POST")) {
       log.debug("queryIMSearch  {} : {} ", queryRequest.getTextSearchStyle(), queryRequest.getTextSearch());
       if (queryRequest.getPage() != null) {
         log.debug("page {} rows per page {}", queryRequest.getPage().getPageNumber(), queryRequest.getPage().getPageSize());
       }
-      SearchResponse response = searchService.queryIMSearch(queryRequest);
+      List<Graph> graphs = requestObjectService.getUserGraphs(request);
+      SearchResponse response = searchService.queryIMSearch(queryRequest, graphs);
       log.debug("queryIMSearch response {}", response.getEntities() != null ? response.getEntities().size() : 0);
       return response;
     }
@@ -93,10 +103,11 @@ public class QueryController {
     summary = "Path Query ",
     description = "Query IM for a path between source and target"
   )
-  public PathDocument pathQuery(@RequestBody PathQuery pathQuery) throws DataFormatException, IOException {
+  public PathDocument pathQuery(HttpServletRequest request, @RequestBody PathQuery pathQuery) throws DataFormatException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.PathQuery.POST")) {
       log.debug("pathQuery");
-      return searchService.pathQuery(pathQuery);
+      List<Graph> graphs = requestObjectService.getUserGraphs(request);
+      return searchService.pathQuery(pathQuery, graphs);
     }
   }
 
@@ -107,13 +118,14 @@ public class QueryController {
     description = "Retrieves the details of a query based on the given query IRI."
   )
   public Query describeQuery(
+    HttpServletRequest request,
     @RequestParam(name = "queryIri") String iri,
-    @RequestParam(name = "displayMode", defaultValue = "ORIGINAL") DisplayMode displayMode,
-    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph
+    @RequestParam(name = "displayMode", defaultValue = "ORIGINAL") DisplayMode displayMode
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("describeQuery");
-      return queryService.describeQuery(iri, displayMode, Graph.from(graph));
+      List<Graph> graphs = requestObjectService.getUserGraphs(request);
+      return queryService.describeQuery(iri, displayMode, graphs);
     }
   }
 
@@ -123,12 +135,13 @@ public class QueryController {
     description = "Retrieves the original details of a query based on the given query IRI."
   )
   public Query queryFromIri(
-    @RequestParam(name = "queryIri") String iri,
-    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph)
-    throws IOException, QueryException {
+    HttpServletRequest request,
+    @RequestParam(name = "queryIri") String iri
+  ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("getQueryfromIri");
-      return queryService.getQueryFromIri(iri, Graph.from(graph));
+      List<Graph> graphs = requestObjectService.getUserGraphs(request);
+      return queryService.getQueryFromIri(iri, graphs);
     }
   }
 
@@ -138,13 +151,14 @@ public class QueryController {
     description = "Returns a query view, transforming an IMQ query into a viewable object."
   )
   public Query describeQueryContent(
+    HttpServletRequest request,
     @RequestBody Query query,
     @RequestParam(value = "displayMode", required = false, defaultValue = "ORIGINAL") DisplayMode displayMode
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.GET")) {
       log.debug("getQueryDisplayFromQuery with displayMode: {}", displayMode);
-      Graph graph = Graph.IM;
-      return queryService.describeQuery(query, displayMode, graph);
+      List<Graph> graphs = requestObjectService.getUserGraphs(request);
+      return queryService.describeQuery(query, displayMode, graphs);
     }
   }
 
@@ -168,8 +182,8 @@ public class QueryController {
     description = "Returns the query with boolean optimisation"
   )
   public Query optimiseECLQuery(
-    @RequestBody Query query) throws IOException, QueryException {
-
+    @RequestBody Query query
+  ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
       log.debug("optimiseECLQuery");
       return queryService.optimiseECLQuery(query);
@@ -183,10 +197,13 @@ public class QueryController {
     description = "Returns a query view, transforming an IMQ query into a viewable object."
   )
   public Match describeMatchContent(
-    @RequestBody MatchDisplayRequest matchDisplayRequest) throws IOException, QueryException {
+    HttpServletRequest request,
+    @RequestBody MatchDisplayRequest matchDisplayRequest
+  ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
       log.debug("getMatchDisplayFromMatch");
-      return queryService.describeMatch(matchDisplayRequest.getMatch(), matchDisplayRequest.getGraph());
+      List<Graph> graphs = requestObjectService.getUserGraphs(request);
+      return queryService.describeMatch(matchDisplayRequest.getMatch(), graphs);
     }
   }
 
@@ -209,13 +226,14 @@ public class QueryController {
     description = "Generates SQL from the given IMQ query IRI."
   )
   public String getSQLFromIMQIri(
+    HttpServletRequest request,
     @RequestParam(name = "queryIri") String queryIri,
-    @RequestParam(name = "lang", defaultValue = "MYSQL") DatabaseOption lang,
-    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph
+    @RequestParam(name = "lang", defaultValue = "MYSQL") DatabaseOption lang
   ) throws IOException, QueryException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getSQLFromIMQIri");
-      return queryService.getSQLFromIMQIri(queryIri, lang, Graph.from(graph)).getSql();
+      List<Graph> graphs = requestObjectService.getUserGraphs(request);
+      return queryService.getSQLFromIMQIri(queryIri, lang, graphs).getSql();
     }
   }
 
@@ -261,7 +279,7 @@ public class QueryController {
   @Operation(
     summary = "get query queue items by status as admin"
   )
-  @PreAuthorize("hasAuthority('IMAdmin')")
+  @PreAuthorize("hasAuthority('ADMIN')")
   public Pageable<DBEntry> queryQueueByStatus(HttpServletRequest request, @RequestParam(name = "status") QueryExecutorStatus status, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLConversionException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryQueueByStatus.GET")) {
       log.debug("getQueryQueueByStatus");
@@ -309,7 +327,7 @@ public class QueryController {
   @Operation(
     summary = "Kills the active running query"
   )
-  @PreAuthorize("hasAuthority('IMAdmin')")
+  @PreAuthorize("hasAuthority('ADMIN')")
   public void killActiveQuery() throws SQLException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.KillActiveQuery.POST")) {
       log.debug("killActiveQuery");
@@ -321,47 +339,57 @@ public class QueryController {
   @Operation(
     summary = "Get query results using a hash of the query request"
   )
-  public Set<String> getQueryResults(@RequestBody QueryRequest queryRequest) throws IOException, SQLException, SQLConversionException {
+  public Set<String> getQueryResults(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws IOException, SQLException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQueryResults.GET")) {
       log.debug("getQueryResults");
-      return queryService.getQueryResults(queryRequest);
+      List<Graph> graphs = requestObjectService.getUserGraphs(request);
+      return queryService.getQueryResults(queryRequest, graphs);
     }
   }
 
   @GetMapping(value = "/public/defaultQuery")
   @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")
-  public Query getDefaultQuery(@RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
+  public Query getDefaultQuery(HttpServletRequest request) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DefaultQuery.GET")) {
       log.debug("getDefaultCohort");
-      return queryService.getDefaultQuery(Graph.from(graph));
+      List<Graph> graphs = requestObjectService.getUserGraphs(request);
+      return queryService.getDefaultQuery(graphs);
     }
   }
 
   @PostMapping("/testRunQuery")
   @Operation(summary = "Run a query with results limited results to test query")
-  public Set<String> testRunQuery(@RequestBody QueryRequest query) throws IOException, SQLException, SQLConversionException, QueryException {
+  public Set<String> testRunQuery(HttpServletRequest request, @RequestBody QueryRequest query) throws IOException, SQLException, SQLConversionException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.TestRunQuery.POST")) {
       log.debug("testRunQuery");
-      Graph graph = Graph.IM;
-      return queryService.testRunQuery(query.getQuery(), graph);
+      List<Graph> graphs = requestObjectService.getUserGraphs(request);
+      return queryService.testRunQuery(query.getQuery(), graphs);
     }
   }
 
   @PostMapping("/findRequestMissingArguments")
   @Operation(summary = "Check that a query request has argument values for all required query parameters")
-  public List<ArgumentReference> findRequestMissingArguments(@RequestBody QueryRequest queryRequest) throws IOException {
+  public List<ArgumentReference> findRequestMissingArguments(
+    HttpServletRequest request,
+    @RequestBody QueryRequest queryRequest
+  ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.FindMissingArguments.POST")) {
       log.debug("findRequestMissingArguments");
-      return queryService.findMissingArguments(queryRequest);
+      List<Graph> graphs = requestObjectService.getUserGraphs(request);
+      return queryService.findMissingArguments(queryRequest, graphs);
     }
   }
 
   @GetMapping("/argumentType")
   @Operation(summary = "Get the data type for a query argument by using the reference iri")
-  public TTIriRef getArgumentType(@RequestParam String referenceIri) throws IOException {
+  public TTIriRef getArgumentType(
+    HttpServletRequest request,
+    @RequestParam String referenceIri
+  ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
       log.debug("getArgumentType");
-      return queryService.getArgumentType(referenceIri);
+      List<Graph> graphs = requestObjectService.getUserGraphs(request);
+      return queryService.getArgumentType(referenceIri, graphs);
     }
   }
 }

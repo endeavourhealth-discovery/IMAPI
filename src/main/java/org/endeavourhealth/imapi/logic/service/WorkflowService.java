@@ -4,21 +4,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.aws.AWSCognitoClient;
 import org.endeavourhealth.imapi.aws.UserNotFoundException;
+import org.endeavourhealth.imapi.dataaccess.UserRepository;
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest;
 import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.workflow.BugReport;
-import org.endeavourhealth.imapi.model.workflow.EntityApproval;
-import org.endeavourhealth.imapi.model.workflow.RoleRequest;
-import org.endeavourhealth.imapi.model.workflow.Task;
+import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.model.workflow.task.TaskState;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.WORKFLOW;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Objects;
 
 @Component
@@ -26,6 +26,7 @@ public class WorkflowService {
 
   private final WorkflowRepository workflowRepository = new WorkflowRepository();
   private final RequestObjectService requestObjectService = new RequestObjectService();
+  private final UserRepository userRepository = new UserRepository();
 
   public void createBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
     bugReport.setId(generateId());
@@ -111,7 +112,7 @@ public class WorkflowService {
 
   public void approveRoleRequest(HttpServletRequest request, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     String userId = requestObjectService.getRequestAgentId(request);
-    new AWSCognitoClient().adminAddUserToGroup(roleRequest.getCreatedBy(), roleRequest.getRole().toString());
+    new AWSCognitoClient().adminAddUserToGroup(roleRequest.getCreatedBy(), roleRequest.getRole());
     workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.APPROVED.toString(), userId);
     workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), userId);
   }
@@ -119,6 +120,42 @@ public class WorkflowService {
   public void rejectRoleRequest(HttpServletRequest request, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     String userId = requestObjectService.getRequestAgentId(request);
     workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.REJECTED.toString(), userId);
+  }
+
+  public void createGraphRequest(GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException {
+    graphRequest.setId(generateId());
+    workflowRepository.createGraphRequest(graphRequest);
+  }
+
+  public GraphRequest getGraphRequest(String id) throws UserNotFoundException {
+    return workflowRepository.getGraphRequest(id);
+  }
+
+  public void updateGraphRequest(GraphRequest graphRequest, HttpServletRequest request) throws JsonProcessingException, TaskFilerException, UserNotFoundException {
+    String username = requestObjectService.getRequestAgentName(request);
+    String userId = requestObjectService.getRequestAgentId(request);
+    if (!username.equals(graphRequest.getCreatedBy()))
+      throw new TaskFilerException("User does not have permission to update graph request");
+    GraphRequest originalGraphRequest = getGraphRequest(graphRequest.getId().getIri());
+    if (!originalGraphRequest.getGraph().equals(graphRequest.getGraph()))
+      workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.REQUESTED_GRAPH, originalGraphRequest.getGraph().toString(), graphRequest.getGraph().toString(), userId);
+    updateTask(graphRequest, userId);
+  }
+
+  public void approveGraphRequest(HttpServletRequest request, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    String userId = requestObjectService.getRequestAgentId(request);
+    List<Graph> graphs = userRepository.getUserGraphs(userId);
+    if (!graphs.contains(graphRequest.getGraph())) {
+      graphs.add(graphRequest.getGraph());
+      userRepository.updateUserGraphs(userId, graphs);
+    }
+    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, graphRequest.getState().toString(), TaskState.APPROVED.toString(), userId);
+    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), userId);
+  }
+
+  public void rejectGraphRequest(HttpServletRequest request, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    String userId = requestObjectService.getRequestAgentId(request);
+    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, graphRequest.getState().toString(), TaskState.REJECTED.toString(), userId);
   }
 
   public void createEntityApproval(EntityApproval entityApproval) throws UserNotFoundException, TaskFilerException {

@@ -4,27 +4,27 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 
 @Slf4j
 public class DomainResolver {
 
-  public void updateDomains(Graph graph) {
-    try (IMDB conn = IMDB.getConnection(graph)) {
+  public void updateDomains(List<Graph> userGraphs, Graph insertGraph) {
+    try (IMDB conn = IMDB.getConnection(userGraphs)) {
       Set<String> domains = getDomains(conn);
       for (String domain : domains) {
-        updateDomain(conn, domain, graph);
+        updateDomain(conn, domain, insertGraph);
       }
     }
   }
 
-  private void updateDomain(IMDB conn, String domain, Graph graph) {
+  private void updateDomain(IMDB conn, String domain, Graph insertGraph) {
     String sql = """
       select distinct ?property
       where {
@@ -69,7 +69,7 @@ public class DomainResolver {
       missingProperties.forEach(p -> insertSql.add(" <" + p + "> rdfs:domain <" + domain + ">."));
       insertSql.add("}");
       String insertQuery = insertSql.toString();
-      conn.prepareInsertSparql(insertQuery, graph).execute();
+      conn.prepareInsertSparql(insertQuery, insertGraph).execute();
     }
   }
 

@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "org.endeavourhealth.imapi"
-version = "2.0-SNAPSHOT"
+version = "2.1-SNAPSHOT"
 description = "Information Model API"
 
 
@@ -138,6 +138,7 @@ dependencies {
   implementation(libs.dropwizard.graphite)
   implementation(libs.dropwizard.servlets)
   implementation(libs.fact.plus.plus)
+  implementation(libs.hikari)
   implementation(libs.jackson.databind)
   implementation(libs.logback.core)
   implementation(libs.logback.classic)

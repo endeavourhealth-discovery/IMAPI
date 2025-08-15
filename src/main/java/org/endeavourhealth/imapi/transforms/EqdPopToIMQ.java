@@ -7,10 +7,10 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.VocPopulationParentType;
 import org.endeavourhealth.imapi.transforms.eqd.VocRuleAction;
 import org.endeavourhealth.imapi.vocabulary.Graph;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.io.IOException;
+import java.util.List;
 
 
 public class EqdPopToIMQ {
@@ -18,7 +18,7 @@ public class EqdPopToIMQ {
   private EqdResources resources;
 
 
-  public Query convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources, Graph graph) throws IOException, QueryException, EQDException {
+  public Query convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws IOException, QueryException, EQDException {
     String activeReport = eqReport.getId();
     if (eqReport.getVersionIndependentGUID() != null) activeReport = eqReport.getVersionIndependentGUID();
     if (eqReport.getName().equals("All currently registered patients"))
@@ -43,7 +43,7 @@ public class EqdPopToIMQ {
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
       String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
       if (EqdToIMQ.versionMap.containsKey(id)) id = EqdToIMQ.versionMap.get(id);
-      if (EqdToIMQ.gmsPatients.contains(id)||EqdToIMQ.gmsPatients.contains(eqReport.getVersionIndependentGUID())) {
+      if (EqdToIMQ.gmsPatients.contains(id) || EqdToIMQ.gmsPatients.contains(eqReport.getVersionIndependentGUID())) {
         query.addRule(new Match()
           .setIfTrue(RuleAction.NEXT)
           .setIfFalse(RuleAction.REJECT)
@@ -65,7 +65,7 @@ public class EqdPopToIMQ {
     resources.setRule(0);
     resources.setSubRule(0);
     for (EQDOCCriteriaGroup eqGroup : eqReport.getPopulation().getCriteriaGroup()) {
-      Match rule = resources.convertGroup(eqGroup, graph);
+      Match rule = resources.convertGroup(eqGroup);
       query.addRule(rule);
       VocRuleAction ifTrue = eqGroup.getActionIfTrue();
       VocRuleAction ifFalse = eqGroup.getActionIfFalse();

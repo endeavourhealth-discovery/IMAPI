@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.EntityType;
 import org.endeavourhealth.imapi.vocabulary.Graph;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.springframework.http.*;
 
@@ -39,30 +38,30 @@ public class CodeGenService {
     codeGenRepository.updateCodeTemplate(name, extension, wrapper, dataTypeMap, template, complexTypes);
   }
 
-  public String generateCodeForModel(String modelIri, CodeGenDto template, String namespace, Graph graph) {
-    TTIriRef model = getModelSummary(modelIri, graph);
+  public String generateCodeForModel(String modelIri, CodeGenDto template, String namespace) {
+    TTIriRef model = getModelSummary(modelIri);
     return generateCodeForModel(template, model, namespace);
   }
 
-  public HttpEntity<Object> generateCode(String iri, String templateName, String namespace, Graph graph) {
+  public HttpEntity<Object> generateCode(String iri, String templateName, String namespace) {
     List<TTIriRef> models = (iri == null || iri.isEmpty())
-      ? getIMModels(graph)
-      : Collections.singletonList(getModelSummary(iri, graph));
+      ? getIMModels()
+      : Collections.singletonList(getModelSummary(iri));
 
     CodeGenDto template = codeGenRepository.getCodeTemplate(templateName);
 
     return createModelCodeZip(namespace, models, template);
   }
 
-  private List<TTIriRef> getIMModels(Graph graph) {
-    List<TTIriRef> models = entityService.getEntitiesByType(EntityType.NODESHAPE, graph);
+  private List<TTIriRef> getIMModels() {
+    List<TTIriRef> models = entityService.getEntitiesByType(EntityType.NODESHAPE);
     return models.stream()
       .filter(m -> m.getIri().startsWith(Namespace.IM.toString()))
       .toList();
   }
 
-  private TTIriRef getModelSummary(String iri, Graph graph) {
-    SearchResultSummary summary = entityService.getSummary(iri, graph);
+  private TTIriRef getModelSummary(String iri) {
+    SearchResultSummary summary = entityService.getSummary(iri);
     return new TTIriRef(summary.getIri(), summary.getName()).setDescription(summary.getDescription());
   }
 

@@ -2,11 +2,12 @@ package org.endeavourhealth.imapi.dataaccess;
 
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.GraphQuery;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper;
 import org.endeavourhealth.imapi.model.tripletree.TTEntityMap;
 import org.endeavourhealth.imapi.vocabulary.Graph;
+
+import java.util.List;
 
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 
@@ -108,8 +109,8 @@ public class ShapeRepository {
    * @return maps from iri to shapes and predicate names for the Node shape predicates.
    * All iris referenced include their labels as names, except for the mode predicates themselves
    */
-  public static TTEntityMap getShapes(Graph graph) {
-    try (IMDB conn = IMDB.getConnection(graph)) {
+  public static TTEntityMap getShapes(List<Graph> graphs) {
+    try (IMDB conn = IMDB.getConnection()) {
       GraphQuery qry = conn.prepareGraphSparql(addSparqlPrefixes(GET_ALL_SHAPES_SQL));
       return GraphHelper.getEntityMap(qry);
     }
@@ -124,9 +125,9 @@ public class ShapeRepository {
    * @param focusIri the iri for the shape of interest. Null if all shapes
    * @return a set of iri to shape maps and a map of predoicate names
    */
-  public static TTEntityMap getShapeAndAncestors(String focusIri, Graph graph) {
+  public static TTEntityMap getShapeAndAncestors(String focusIri) {
 
-    try (IMDB conn = IMDB.getConnection(graph)) {
+    try (IMDB conn = IMDB.getConnection()) {
       GraphQuery qry = conn.prepareGraphSparql(addSparqlPrefixes(GET_SHAPES_SQL));
       qry.setBinding("entity", Values.iri(focusIri));
       return GraphHelper.getEntityMap(qry);

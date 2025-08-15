@@ -2,8 +2,13 @@ package org.endeavourhealth.imapi.filer;
 
 
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.filer.rdf4j.*;
+import org.endeavourhealth.imapi.filer.rdf4j.ClosureGeneratorBulk;
+import org.endeavourhealth.imapi.filer.rdf4j.TTBulkFiler;
+import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
+import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
 import org.endeavourhealth.imapi.vocabulary.Graph;
+
+import java.util.List;
 
 public class TTFilerFactory {
   private static boolean bulk = false;
@@ -28,8 +33,8 @@ public class TTFilerFactory {
       return new TTBulkFiler(graph);
   }
 
-  public static TTEntityFiler getEntityFiler(Graph graph) {
-    return new TTEntityFilerRdf4j(IMDB.getConnection(graph), graph);
+  public static TTEntityFiler getEntityFiler(Graph insertGraph) {
+    return new TTEntityFilerRdf4j(IMDB.getConnection(), insertGraph);
   }
 
   public static TCGenerator getClosureGenerator() {

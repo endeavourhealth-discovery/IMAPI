@@ -41,13 +41,13 @@ public class SmartLifeQueryController {
   )
   public UUID runSmartLifeQuery(
     @RequestBody SmartLifeQueryRunDTO query,
-    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph,
-    HttpServletRequest request) throws Exception {
+    HttpServletRequest request
+  ) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("Query.RunSmartLifeQuery.POST")) {
       log.debug("runSmartLifeQuery");
       UUID userId = reqObjService.getRequestAgentIdAsUUID(request);
       String username = reqObjService.getRequestAgentName(request);
-      return smartLifeQueryService.runQuery(userId, username, query, Graph.from(graph));
+      return smartLifeQueryService.runQuery(userId, username, query);
     }
   }
 
@@ -83,7 +83,10 @@ public class SmartLifeQueryController {
     summary = "TODO",
     description = "Returns the result of a query execution once it has completed successfully."
   )
-  public List<String> getSmartLifeQueryResults(@PathVariable String queryExecutionId) throws IOException, SQLException, SQLConversionException {
+  public List<String> getSmartLifeQueryResults(
+    HttpServletRequest request,
+    @PathVariable String queryExecutionId
+  ) throws IOException, SQLException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("Query.GetSmartLifeQueryResults.POST")) {
       log.debug("getSmartLifeQueryResults");
       return smartLifeQueryService.getQueryResults(UUID.fromString(queryExecutionId));

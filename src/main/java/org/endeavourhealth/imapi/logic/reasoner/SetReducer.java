@@ -6,7 +6,6 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.Graph;
@@ -14,6 +13,7 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import javax.naming.directory.InvalidAttributesException;
+import java.util.List;
 import java.util.StringJoiner;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -32,7 +32,7 @@ public class SetReducer {
    * @return The entity redefined or as original
    * @throws InvalidAttributesException A message of "NOT CONVERTED TO EC ...."
    */
-  public TTEntity reduce(TTEntity set, Graph graph) throws InvalidAttributesException {
+  public TTEntity reduce(TTEntity set) throws InvalidAttributesException {
     String sql = null;
     int originalSize;
     if (set.get(iri(IM.DEFINITION)) != null) {
@@ -47,7 +47,7 @@ public class SetReducer {
       sql = getMemberSql();
       originalSize = set.get(iri(IM.HAS_MEMBER)).size();
     }
-    try (IMDB conn = IMDB.getConnection(graph)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("set", Values.iri(set.getIri()));
       try (TupleQueryResult rs = qry.evaluate()) {

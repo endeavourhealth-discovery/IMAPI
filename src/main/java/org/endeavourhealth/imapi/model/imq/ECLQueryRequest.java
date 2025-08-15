@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.model.imq;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 
 @Getter
 @NoArgsConstructor
@@ -11,7 +10,6 @@ public class ECLQueryRequest {
   private Query query;
   private boolean showNames;
   private ECLStatus status;
-  private Graph graph;
 
   public ECLQueryRequest setEcl(String ecl) {
     this.ecl = ecl;
@@ -30,11 +28,6 @@ public class ECLQueryRequest {
 
   public ECLQueryRequest setStatus(ECLStatus status) {
     this.status = status;
-    return this;
-  }
-
-  public ECLQueryRequest setGraph(Graph graph) {
-    this.graph = graph;
     return this;
   }
 }

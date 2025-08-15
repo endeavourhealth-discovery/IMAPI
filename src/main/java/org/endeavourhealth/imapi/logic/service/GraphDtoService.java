@@ -2,16 +2,16 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.Graph;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
@@ -21,7 +21,7 @@ public class GraphDtoService {
   private EntityService entityService = new EntityService();
   private DataModelService dataModelService = new DataModelService();
 
-  public GraphDto getGraphData(String iri, Graph graph) {
+  public GraphDto getGraphData(String iri) {
     if (null == iri || iri.isEmpty()) return new GraphDto();
 
     TTEntity entity = entityService.getBundle(iri, asHashSet(RDFS.SUBCLASS_OF, RDFS.LABEL)).getEntity();
@@ -36,7 +36,7 @@ public class GraphDtoService {
 
     List<GraphDto> isas = getEntityDefinedParents(entity);
 
-    List<GraphDto> subtypes = getDefinitionSubTypes(iri, graph).stream().map(subtype -> new GraphDto().setName(subtype.getName()).setIri(subtype.getIri())).toList();
+    List<GraphDto> subtypes = getDefinitionSubTypes(iri).stream().map(subtype -> new GraphDto().setName(subtype.getName()).setIri(subtype.getIri())).toList();
 
     GraphDto axiom = new GraphDto().setKey("0_2").setName("Axioms");
     GraphDto axiomWrapper = getWrapper(axiomGraph, "0_2_0");
@@ -107,7 +107,7 @@ public class GraphDtoService {
     return result;
   }
 
-  private List<TTIriRef> getDefinitionSubTypes(String iri, Graph graph) {
-    return entityService.getChildren(iri, null, null, null, false, graph).stream().map(t -> new TTIriRef(t.getIri(), t.getName())).toList();
+  private List<TTIriRef> getDefinitionSubTypes(String iri) {
+    return entityService.getChildren(iri, null, null, null, false).stream().map(t -> new TTIriRef(t.getIri(), t.getName())).toList();
   }
 }

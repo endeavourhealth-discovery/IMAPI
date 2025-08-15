@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
 import org.endeavourhealth.imapi.model.dto.UserDataDto;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -189,13 +190,34 @@ public class UserController {
   @Operation(summary = "Update user organisations", description = "Updates the list of organisations for a user. Requires admin authority.")
   @PostMapping(value = "/organisations", produces = "application/json")
   @ResponseStatus(HttpStatus.ACCEPTED)
-  @PreAuthorize("hasAuthority('IMAdmin')")
+  @PreAuthorize("hasAuthority('ADMIN')")
   public void updateUserOrganisations(@RequestParam("UserId") String userId, @RequestBody List<String> organisations) throws JsonProcessingException, Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Organisations.POST")) {
       log.debug("updateUserOrganisations");
       if (!userService.userIdExists(userId))
         throw new GeneralCustomException("user not found", HttpStatus.BAD_REQUEST);
       userService.updateUserOrganisations(userId, organisations);
+    }
+  }
+
+  @GetMapping(value = "/graphs", produces = "application/json")
+  public List<Graph> getGraphs(HttpServletRequest request) throws IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.User.Graphs.GET")) {
+      log.debug(("getGraphs"));
+      return requestObjectService.getUserGraphs(request);
+    }
+  }
+
+  @Operation(summary = "Update user graphs", description = "Updates the list of graphs for a user. Requires admin authority.")
+  @PostMapping(value = "/graphs", produces = "application/json")
+  @ResponseStatus(HttpStatus.ACCEPTED)
+  @PreAuthorize("hasAuthority('ADMIN')")
+  public void updateUserGraphs(@RequestParam("UserId") String userId, @RequestBody List<Graph> graphs) throws JsonProcessingException, Exception {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.User.Graphs.POST")) {
+      log.debug("updateUserGraphs");
+      if (!userService.userIdExists(userId))
+        throw new GeneralCustomException("user not found", HttpStatus.BAD_REQUEST);
+      userService.updateUserGraphs(userId, graphs);
     }
   }
 

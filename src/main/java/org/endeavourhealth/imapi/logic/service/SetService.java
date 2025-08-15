@@ -118,12 +118,12 @@ public class SetService {
     return setDiffObject;
   }
 
-  public Pageable<Node> getMembers(String iri, boolean entailments, Integer rowNumber, Integer pageSize, Graph graph) {
-    return setRepository.getMembers(iri, entailments, rowNumber, pageSize, graph);
+  public Pageable<Node> getMembers(String iri, boolean entailments, Integer rowNumber, Integer pageSize) {
+    return setRepository.getMembers(iri, entailments, rowNumber, pageSize);
   }
 
-  public Pageable<Node> getDirectOrEntailedMembersFromIri(String iri, boolean entailments, Integer pageNumber, Integer pageSize, Graph graph) {
-    return setRepository.getMembers(iri, entailments, pageNumber, pageSize, graph);
+  public Pageable<Node> getDirectOrEntailedMembersFromIri(String iri, boolean entailments, Integer pageNumber, Integer pageSize) {
+    return setRepository.getMembers(iri, entailments, pageNumber, pageSize);
   }
 
   public SetContent getSetContent(SetOptions options) throws QueryException, JsonProcessingException {
@@ -149,12 +149,12 @@ public class SetService {
 
     if (options.includeSubsets()) {
       log.trace("Fetching subsets...");
-      result.setSubsets(setRepository.getSubsetIrisWithNames(options.getSetIri(), options.getGraph()).stream().map(TTIriRef::getIri).collect(Collectors.toSet()));
+      result.setSubsets(setRepository.getSubsetIrisWithNames(options.getSetIri()).stream().map(TTIriRef::getIri).collect(Collectors.toSet()));
     }
 
     if (options.includeCore() || options.includeLegacy() || options.includeSubsets()) {
       log.trace("Expanding...");
-      result.setConcepts(getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes(), options.getSubsumptions(), options.getGraph()));
+      result.setConcepts(getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes(), options.getSubsumptions()));
     }
 
     return result;
@@ -197,29 +197,33 @@ public class SetService {
     return parser.encodeResourceToString(valueSet);
   }
 
-  public Set<Concept> getFullyExpandedMembers(String iri, boolean includeLegacy, boolean includeSubset, List<String> schemes,
-                                              List<String> subsumptions, Graph graph) throws QueryException, JsonProcessingException {
-    return getExpandedSetMembers(iri, true, includeLegacy, includeSubset, schemes, subsumptions, graph);
+  public Set<Concept> getFullyExpandedMembers(
+    String iri,
+    boolean includeLegacy,
+    boolean includeSubset,
+    List<String> schemes,
+    List<String> subsumptions
+  ) throws QueryException, JsonProcessingException {
+    return getExpandedSetMembers(iri, true, includeLegacy, includeSubset, schemes, subsumptions);
   }
 
-  public Set<TTIriRef> getSubsets(String iri, Graph graph) {
-    return setRepository.getSubsetIrisWithNames(iri, graph);
+  public Set<TTIriRef> getSubsets(String iri) {
+    return setRepository.getSubsetIrisWithNames(iri);
   }
 
-  public List<TTIriRef> getDistillation(List<TTIriRef> conceptList, Graph graph) {
+  public List<TTIriRef> getDistillation(List<TTIriRef> conceptList) {
     List<String> iriList = conceptList.stream().map(c -> "<" + c.getIri() + ">").toList();
     String iris = String.join(" ", iriList);
-    Set<String> isas = setRepository.getDistillation(iris, graph);
+    Set<String> isas = setRepository.getDistillation(iris);
     conceptList.removeIf(c -> isas.contains(c.getIri()));
     return conceptList;
   }
 
-  private String getEcl(TTEntity entity, Graph graph) throws QueryException, JsonProcessingException {
+  private String getEcl(TTEntity entity) throws JsonProcessingException {
     if (entity.get(iri(IM.DEFINITION)) == null) return null;
     ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
     eclQueryRequest.setQuery(entity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class));
     eclQueryRequest.setShowNames(true);
-    eclQueryRequest.setGraph(graph);
     new IMQToECL().getECLFromQuery(eclQueryRequest);
     return eclQueryRequest.getEcl();
   }
@@ -234,19 +238,19 @@ public class SetService {
     TTEntity setEntity = entityRepository.getBundle(options.getSetIri(), asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
 
     if (options.includeDefinition()) {
-      String ecl = getEcl(setEntity, options.getGraph());
+      String ecl = getEcl(setEntity);
       if (null != ecl) return ecl.getBytes();
       else throw new GeneralCustomException("Set does not have a definition.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     LinkedHashSet<Concept> concepts = getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes(),
-      options.getSubsumptions(), options.getGraph()).stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
+      options.getSubsumptions()).stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
     if (concepts.isEmpty()) {
       if (setEntity.get(iri(IM.DEFINITION)) != null) {
-        new SetMemberGenerator().generateMembers(options.getSetIri(), options.getGraph());
+        new SetMemberGenerator().generateMembers(options.getSetIri(), Graph.IM);
         concepts = getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(),
           options.getSchemes(),
-          options.getSubsumptions(), options.getGraph()).stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
+          options.getSubsumptions()).stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
 
       }
     }
@@ -270,26 +274,32 @@ public class SetService {
     }
   }
 
-  public Set<Concept> getExpandedSetMembers(String iri, boolean core, boolean legacy, boolean subsets, List<String> schemes,
-                                            List<String> subsumptions, Graph graph) throws QueryException, JsonProcessingException {
+  public Set<Concept> getExpandedSetMembers(
+    String iri,
+    boolean core,
+    boolean legacy,
+    boolean subsets,
+    List<String> schemes,
+    List<String> subsumptions
+  ) throws QueryException, JsonProcessingException {
     if (!(core || legacy || subsets)) return new HashSet<>();
-    boolean hasMembers = entityRepository.hasPredicates(iri, asHashSet(IM.HAS_MEMBER), graph);
+    boolean hasMembers = entityRepository.hasPredicates(iri, asHashSet(IM.HAS_MEMBER));
     if (!hasMembers) {
-      if (entityRepository.hasPredicates(iri, asHashSet(IM.DEFINITION), graph)) {
-        new SetMemberGenerator().generateMembers(iri, graph);
+      if (entityRepository.hasPredicates(iri, asHashSet(IM.DEFINITION))) {
+        new SetMemberGenerator().generateMembers(iri, Graph.IM);
       } else return new HashSet<>();
     }
 
     Set<Concept> result = null;
 
     if (core || legacy) {
-      result = setRepository.getExpansionFromIri(iri, legacy, schemes, subsumptions, graph);
+      result = setRepository.getExpansionFromIri(iri, legacy, schemes, subsumptions);
     }
 
     if (null == result) result = new HashSet<>();
 
     if (subsets) {
-      expandSubsets(iri, core, legacy, schemes, result, subsumptions, graph);
+      expandSubsets(iri, core, legacy, schemes, result, subsumptions);
       result = result.stream().sorted(Comparator.comparing(m -> (null == m.getIsContainedIn() || m.getIsContainedIn().isEmpty()) ? "" : m.getIsContainedIn().iterator().next().getName())).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
@@ -297,12 +307,12 @@ public class SetService {
   }
 
   private void expandSubsets(String iri, boolean core, boolean legacy, List<String> schemes, Set<Concept> result,
-                             List<String> subsumptions, Graph graph) throws QueryException, JsonProcessingException {
+                             List<String> subsumptions) throws QueryException, JsonProcessingException {
     log.trace("Expanding subsets for {}...", iri);
-    Set<TTIriRef> subSetIris = setRepository.getSubsetIrisWithNames(iri, graph);
+    Set<TTIriRef> subSetIris = setRepository.getSubsetIrisWithNames(iri);
     log.trace("Found {} subsets...", subSetIris.size());
     for (TTIriRef subset : subSetIris) {
-      Set<Concept> subsetMembers = getExpandedSetMembers(subset.getIri(), core, legacy, true, schemes, subsumptions, graph);
+      Set<Concept> subsetMembers = getExpandedSetMembers(subset.getIri(), core, legacy, true, schemes, subsumptions);
       if (null != subsetMembers && !subsetMembers.isEmpty()) {
         TTEntity subsetEntity = new TTEntity(subset.getIri()).setName(subset.getName());
         subsetMembers.forEach(ss -> {
@@ -315,10 +325,10 @@ public class SetService {
     }
   }
 
-  public void updateSubsetsFromSuper(String agentName, TTEntity entity, Graph graph) throws TTFilerException, JsonProcessingException {
+  public void updateSubsetsFromSuper(String agentName, TTEntity entity, Graph updateGraph) throws TTFilerException, JsonProcessingException {
     TTArray subsets = entity.get(iri(IM.HAS_SUBSET));
     String entityIri = entity.getIri();
-    Set<TTIriRef> subsetsOriginal = getSubsets(entityIri, graph);
+    Set<TTIriRef> subsetsOriginal = getSubsets(entityIri);
     List<TTIriRef> subsetsArray = subsets.stream().map(TTValue::asIriRef).toList();
     for (TTIriRef subset : subsetsArray) {
       TTEntity subsetEntity = entityRepository.getBundle(subset.getIri()).getEntity();
@@ -328,10 +338,10 @@ public class SetService {
         TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
         if (null == isSubsetOf) {
           subsetEntity.set(iri(IM.IS_SUBSET_OF), new TTArray().add(iri(entityIri)));
-          filerService.updateEntity(subsetEntity, agentName, graph);
+          filerService.updateEntity(subsetEntity, agentName, updateGraph);
         } else if (isSubsetOf.getElements().stream().noneMatch(i -> Objects.equals(i.asIriRef().getIri(), entityIri))) {
           isSubsetOf.add(iri(entityIri));
-          filerService.updateEntity(subsetEntity, agentName, graph);
+          filerService.updateEntity(subsetEntity, agentName, updateGraph);
         }
       }
     }
@@ -340,30 +350,30 @@ public class SetService {
         TTEntity subsetEntity = entityRepository.getBundle(subsetOriginal.getIri()).getEntity();
         TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
         isSubsetOf.remove(iri(entityIri));
-        filerService.updateEntity(subsetEntity, agentName, graph);
+        filerService.updateEntity(subsetEntity, agentName, updateGraph);
       }
     }
   }
 
-  public SetDiffObject getSetComparison(Optional<String> setIriA, Optional<String> setIriB, Graph graph) throws QueryException, JsonProcessingException {
+  public SetDiffObject getSetComparison(Optional<String> setIriA, Optional<String> setIriB) throws QueryException, JsonProcessingException {
     if (setIriA.isEmpty() && setIriB.isEmpty()) {
       throw new IllegalArgumentException("One of SetIriA or SetIriB are required");
     }
     Set<Concept> membersA = null;
     Set<Concept> membersB = null;
     if (setIriA.isPresent() && !setIriA.get().isEmpty()) {
-      membersA = getFullyExpandedMembers(setIriA.get(), false, false, null, new ArrayList<>(), graph);
+      membersA = getFullyExpandedMembers(setIriA.get(), false, false, null, new ArrayList<>());
     }
     if (setIriB.isPresent() && !setIriB.get().isEmpty()) {
-      membersB = getFullyExpandedMembers(setIriB.get(), false, false, null, new ArrayList<>(), graph);
+      membersB = getFullyExpandedMembers(setIriB.get(), false, false, null, new ArrayList<>());
     }
     return getSetDiffObject(membersA, membersB);
   }
 
-  public void publishSetToIM1(String iri, Graph graph) throws QueryException, JsonProcessingException {
+  public void publishSetToIM1(String iri) throws QueryException, JsonProcessingException {
     log.trace("Looking up set...");
     String name = entityRepository.getBundle(iri, asHashSet(RDFS.LABEL)).getEntity().getName();
-    Set<Concept> members = getExpandedSetMembers(iri, true, true, true, List.of(), asArrayList(IM.SUBSUMED_BY), graph);
+    Set<Concept> members = getExpandedSetMembers(iri, true, true, true, List.of(), asArrayList(IM.SUBSUMED_BY));
     setExporter.publishSetToIM1(iri, name, members);
   }
 }

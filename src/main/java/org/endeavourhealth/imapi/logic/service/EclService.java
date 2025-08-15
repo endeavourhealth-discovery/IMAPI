@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.transforms.ECLToIMQ;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class EclService {
   private final SetRepository setRepository = new SetRepository();
 
   public ECLQueryRequest validateModelFromQuery(ECLQueryRequest eclQuery) {
-    eclQuery.setStatus(new ECLQueryValidator().validateQuery(eclQuery.getQuery(), ValidationLevel.ECL, eclQuery.getGraph()));
+    eclQuery.setStatus(new ECLQueryValidator().validateQuery(eclQuery.getQuery(), ValidationLevel.ECL));
     return eclQuery;
   }
 
@@ -51,7 +52,7 @@ public class EclService {
   }
 
   public int getEclSearchTotalCount(EclSearchRequest request) throws QueryException {
-    return setRepository.getSetExpansionTotalCount(request.getEclQuery(), request.getStatusFilter(), request.getGraph());
+    return setRepository.getSetExpansionTotalCount(request.getEclQuery(), request.getStatusFilter());
   }
 
   public Set<Concept> evaluateECLQuery(EclSearchRequest request) throws QueryException {
@@ -62,8 +63,7 @@ public class EclService {
       List.of(),
       new Page()
         .setPageNumber(request.getPage())
-        .setPageSize(request.getSize()),
-      request.getGraph());
+        .setPageSize(request.getSize()));
   }
 
   public SearchResponse eclSearch(EclSearchRequest request) throws QueryException {

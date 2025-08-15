@@ -5,7 +5,7 @@ import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.smartlife.SmartLifeQueryRunDTO;
-import org.endeavourhealth.imapi.postgress.PostgresService;
+import org.endeavourhealth.imapi.postgres.PostgresService;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.sql.SQLException;
@@ -16,9 +16,9 @@ public class SmartLifeQueryService {
   private final QueryService queryService = new QueryService();
   private final PostgresService postgresService = new PostgresService();
 
-  public UUID runQuery(UUID userId, String userName, SmartLifeQueryRunDTO query, Graph from) throws Exception {
+  public UUID runQuery(UUID userId, String userName, SmartLifeQueryRunDTO query) throws Exception {
     QueryRequest queryRequest = new QueryRequest();
-    queryRequest.setQuery(queryService.getQueryFromIri(query.getQuery_id(), from));
+    queryRequest.setQuery(queryService.getQueryFromIri(query.getQuery_id()));
     // Should this return an execution ID?
     return queryService.addToExecutionQueue(userId, userName, queryRequest);
   }
@@ -31,7 +31,7 @@ public class SmartLifeQueryService {
     postgresService.cancelQuery(id);
   }
 
-  public List<String> getQueryResults(UUID id) throws SQLException, SQLConversionException {
+  public List<String> getQueryResults(UUID id) throws SQLException {
     QueryRequest queryRequest = new QueryRequest();
     // This should be an execution id
     return queryService.getQueryResults(queryRequest);

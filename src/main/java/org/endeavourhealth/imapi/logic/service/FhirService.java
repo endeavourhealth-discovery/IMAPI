@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.logic.service;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
@@ -20,9 +19,9 @@ public class FhirService {
   SetService setService = new SetService();
   EclService eclService = new EclService();
 
-  public String getFhirValueSet(String iri, boolean expanded, Graph graph) throws JsonProcessingException, QueryException {
+  public String getFhirValueSet(String iri, boolean expanded) throws JsonProcessingException, QueryException {
     List<String> schemes = new ArrayList<>();
-    SetOptions setOptions = new SetOptions(iri, true, expanded, false, true, schemes, new ArrayList<>(), graph);
+    SetOptions setOptions = new SetOptions(iri, true, expanded, false, true, schemes, new ArrayList<>());
     return setService.getFHIRSetExport(setOptions);
   }
 

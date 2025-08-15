@@ -11,12 +11,14 @@ import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.transforms.TTManager;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
@@ -112,7 +114,7 @@ class SearchServiceTest {
         wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
       }
     } else if (dataSet.getUpdate() != null) {
-      searchService.updateIM(dataSet);
+      searchService.updateIM(dataSet, Graph.IM);
     }
 
 
@@ -128,7 +130,7 @@ class SearchServiceTest {
 
   //@Test
   public void setTest() throws DataFormatException, JsonProcessingException, QueryException {
-    new SetMemberGenerator().generateMembers("http://apiqcodes.org/qcodes#QCodeGroup_713", null);
+    new SetMemberGenerator().generateMembers("http://apiqcodes.org/qcodes#QCodeGroup_713", Graph.IM);
   }
 }
 

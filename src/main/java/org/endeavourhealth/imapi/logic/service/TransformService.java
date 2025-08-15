@@ -30,7 +30,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @PropertySource("classpath:eqdmap.properties")
 public class TransformService {
 
-  public TTDocument transformEqd(EnquiryDocument eqDoc, Namespace namespace, Graph graph) throws IOException, QueryException, EQDException {
+  public TTDocument transformEqd(EnquiryDocument eqDoc, Namespace namespace) throws IOException, QueryException, EQDException {
     Properties dataMap = new Properties();
 
     File file = ResourceUtils.getFile("classpath:eqdmap.properties");
@@ -40,8 +40,8 @@ public class TransformService {
 
     TTDocument document = new TTDocument();
 
-    EqdToIMQ converter = new EqdToIMQ();
-    converter.convertEQD(document, eqDoc, dataMap, null, namespace, graph);
+    EqdToIMQ converter = new EqdToIMQ(false,List.of(Graph.IM));
+    converter.convertEQD(document, eqDoc, dataMap, null, namespace);
     return document;
 
   }

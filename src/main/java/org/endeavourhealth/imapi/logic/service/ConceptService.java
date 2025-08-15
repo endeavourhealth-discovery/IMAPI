@@ -30,22 +30,22 @@ public class ConceptService {
   private EntityRepository entityRepository = new EntityRepository();
   private ConceptRepository conceptRepository = new ConceptRepository();
 
-  public List<SimpleMap> getMatchedFrom(String iri, Graph graph) {
+  public List<SimpleMap> getMatchedFrom(String iri) {
     if (iri == null || iri.isEmpty()) return new ArrayList<>();
     String scheme = iri.substring(0, iri.indexOf("#") + 1);
-    List<Namespace> namespaces = entityRepository.findNamespaces(graph);
+    List<Namespace> namespaces = entityRepository.findNamespaces();
     List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
     schemes.remove(scheme);
-    return conceptRepository.getMatchedFrom(iri, schemes, graph);
+    return conceptRepository.getMatchedFrom(iri, schemes);
   }
 
-  public List<SimpleMap> getMatchedTo(String iri, Graph graph) {
+  public List<SimpleMap> getMatchedTo(String iri) {
     if (iri == null || iri.isEmpty()) return new ArrayList<>();
     String scheme = iri.substring(0, iri.indexOf("#") + 1);
-    List<Namespace> namespaces = entityRepository.findNamespaces(graph);
+    List<Namespace> namespaces = entityRepository.findNamespaces();
     List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
     schemes.remove(scheme);
-    return conceptRepository.getMatchedTo(iri, schemes, graph);
+    return conceptRepository.getMatchedTo(iri, schemes);
   }
 
   public List<SearchTermCode> getEntityTermCodes(String iri, boolean includeInactive) {
@@ -64,20 +64,20 @@ public class ConceptService {
       .toList();
   }
 
-  public Set<String> getPropertiesForDomains(Set<String> iris, Graph graph) {
+  public Set<String> getPropertiesForDomains(Set<String> iris) {
     if (null == iris || iris.isEmpty()) return null;
-    return conceptRepository.getPropertiesForDomains(iris, graph);
+    return conceptRepository.getPropertiesForDomains(iris);
 
   }
 
 
-  public Set<String> getRangesForProperty(String iri, Graph graph) {
+  public Set<String> getRangesForProperty(String iri) {
     if (null == iri || iri.isEmpty()) return null;
-    return conceptRepository.getRangesForProperty(iri, graph);
+    return conceptRepository.getRangesForProperty(iri);
   }
 
-  public List<ConceptContextMap> getConceptContextMaps(String iri, Graph graph) {
-    return conceptRepository.getConceptContextMaps(iri, graph);
+  public List<ConceptContextMap> getConceptContextMaps(String iri) {
+    return conceptRepository.getConceptContextMaps(iri);
   }
 
   private void processTerm(TTValue term, List<SearchTermCode> termsSummary) {

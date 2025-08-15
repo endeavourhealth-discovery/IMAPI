@@ -18,7 +18,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
@@ -31,10 +30,10 @@ public class IMQtoSQLConverterTest {
   private String db_driver = System.getenv("DB_DRIVER");
 
   //  @Test
-  public void IMQtoSQL(Graph graph) {
+  public void IMQtoSQL() {
     // Get list of queries from GraphDb
     EntityRepository entityRepository = new EntityRepository();
-    List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(EntityType.QUERY, graph);
+    List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(EntityType.QUERY);
     LOG.info("Found {} queries", cohortQueryIris.size());
 
     // Prepare

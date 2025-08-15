@@ -1727,6 +1727,10 @@
       {
         "name": "ORGANISATIONS",
         "value": "USER.DOMAIN + \"ORGANISATIONS\""
+      },
+      {
+        "name": "GRAPHS",
+        "value": "USER.DOMAIN + \"GRAPHS\""
       }
     ]
   },
@@ -1815,6 +1819,10 @@
       {
         "name": "REQUESTED_ROLE",
         "value": "Namespace.WORKFLOW + \"requestedRole\""
+      },
+      {
+        "name": "REQUESTED_GRAPH",
+        "value": "Namespace.WORKFLOW + \"requestedGraph\""
       },
       {
         "name": "APPROVAL_TYPE",

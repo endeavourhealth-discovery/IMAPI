@@ -66,26 +66,26 @@ public class AWSCognitoClient {
         .username(username)
         .build();
       AdminListGroupsForUserResponse adminListGroupsForUserResult = identityProvider.adminListGroupsForUser(adminListGroupsForUserRequest);
-      user.setRoles(adminListGroupsForUserResult.groups().stream().map(GroupType::groupName).toList());
+      user.setRoles(adminListGroupsForUserResult.groups().stream().map(GroupType::groupName).map(UserRole::valueOf).toList());
       return user;
     } catch (CognitoIdentityProviderException e) {
       throw new UserNotFoundException("User with id: " + username + " not found.");
     }
   }
 
-  public void adminAddUserToGroup(String username, String group) {
+  public void adminAddUserToGroup(String username, UserRole group) {
     AdminAddUserToGroupRequest adminAddUserToGroupRequest = AdminAddUserToGroupRequest.builder()
       .userPoolId(COGNITO_USER_POOL)
       .username(username)
-      .groupName(group)
+      .groupName(group.toString())
       .build();
     identityProvider.adminAddUserToGroup(adminAddUserToGroupRequest);
   }
 
-  public void adminRemoveUserFromGroup(String username, String group) {
+  public void adminRemoveUserFromGroup(String username, UserRole group) {
     AdminRemoveUserFromGroupRequest adminRemoveUserFromGroupRequest = AdminRemoveUserFromGroupRequest.builder()
       .userPoolId(COGNITO_USER_POOL)
-      .username(username).groupName(group)
+      .username(username).groupName(group.toString())
       .build();
     identityProvider.adminRemoveUserFromGroup(adminRemoveUserFromGroupRequest);
   }
@@ -118,12 +118,12 @@ public class AWSCognitoClient {
     return listUsersResult.users().stream().map(UserType::username).sorted().toList();
   }
 
-  public List<String> adminListGroups() {
+  public List<UserRole> adminListGroups() {
     ListGroupsRequest listGroupsRequest = ListGroupsRequest.builder()
       .userPoolId(COGNITO_USER_POOL)
       .build();
     ListGroupsResponse listGroupsResult = identityProvider.listGroups(listGroupsRequest);
-    return listGroupsResult.groups().stream().map(GroupType::groupName).sorted().toList();
+    return listGroupsResult.groups().stream().map(GroupType::groupName).map(UserRole::valueOf).sorted().toList();
   }
 
   public List<String> adminListUsersInGroup(String groupName) {

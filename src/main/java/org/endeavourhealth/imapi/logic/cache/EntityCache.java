@@ -6,7 +6,9 @@ import org.endeavourhealth.imapi.dataaccess.PropertyRepository;
 import org.endeavourhealth.imapi.dataaccess.ShapeRepository;
 import org.endeavourhealth.imapi.logic.reasoner.Inferrer;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.*;
 
@@ -43,13 +45,13 @@ public class EntityCache implements Runnable {
   /**
    * Refreshes the node shape cache, predicate orders and domains and ranges
    */
-  public static void refreshCache(Graph graph) {
-    refreshShapes(graph);
+  public static void refreshCache(List<Graph> graphs) {
+    refreshShapes(graphs);
   }
 
-  public static void refreshShapes(Graph graph) {
+  public static void refreshShapes(List<Graph> graphs) {
     synchronized (EntityCache.shapeLock) {
-      TTEntityMap shapeMap = ShapeRepository.getShapes(graph);
+      TTEntityMap shapeMap = ShapeRepository.getShapes(graphs);
       cacheShapes(shapeMap);
     }
   }
@@ -61,11 +63,11 @@ public class EntityCache implements Runnable {
    * @param iri the iri of the shape
    * @return a TTEntity representing the shape
    */
-  public static TTBundle getProperty(String iri, Graph graph) {
+  public static TTBundle getProperty(String iri) {
     TTEntity property = properties.get(iri);
     if (property == null) {
       synchronized (propertyLock) {
-        TTEntityMap propertyMap = PropertyRepository.getProperty(iri, graph);
+        TTEntityMap propertyMap = PropertyRepository.getProperty(iri);
         if (propertyMap.getEntities() == null)
           return null;
         cacheProperties(propertyMap);
@@ -118,11 +120,11 @@ public class EntityCache implements Runnable {
    * @param iri the iri of the shape
    * @return a TTEntity representing the shape
    */
-  public static TTBundle getShape(String iri, Graph graph) {
+  public static TTBundle getShape(String iri) {
     TTEntity shape = shapes.get(iri);
     if (shape == null) {
       synchronized (shapeLock) {
-        TTEntityMap shapeMap = ShapeRepository.getShapeAndAncestors(iri, graph);
+        TTEntityMap shapeMap = ShapeRepository.getShapeAndAncestors(iri);
         if (shapeMap.getEntities() == null)
           return null;
         synchronized (EntityCache.shapeLock) {
@@ -237,7 +239,7 @@ public class EntityCache implements Runnable {
 
   @Override
   public void run() {
-    refreshCache(Graph.IM);
+    refreshCache(List.of(Graph.IM));
   }
 
 }

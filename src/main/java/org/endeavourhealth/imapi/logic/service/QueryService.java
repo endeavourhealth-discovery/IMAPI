@@ -191,9 +191,17 @@ public class QueryService {
   public Set<String> getQueryResults(QueryRequest queryRequest) throws SQLException {
     int hashCode = getQueryRequestHashCode(queryRequest);
     Set<String> queryResults = queryResultsMap.get(hashCode);
-    if (queryResults != null) return queryResults;
+    if (queryResults != null) {
+      log.debug("Query Results for hashcode {} found in local cache", hashCode);
+      return queryResults;
+    }
     if (!MYSQLConnectionManager.tableExists(hashCode)) return null;
-    return MYSQLConnectionManager.getResults(queryRequest);
+    queryResults = MYSQLConnectionManager.getResults(queryRequest);
+    if (queryResults != null) {
+      log.debug("Query Results for hashcode {} found in db cache", hashCode);
+      return queryResults;
+    }
+    return null;
   }
 
   public void killActiveQuery() throws SQLException {

@@ -311,7 +311,7 @@ public class ImportMaps implements AutoCloseable {
     return readToSnomed;
   }
 
-  public Map<String, TTEntity> getEMISReadAsVision(List<Graph> graphs) throws IOException {
+  public Map<String, TTEntity> getEMISReadAsVision() throws IOException {
     if (TTFilerFactory.isBulk()) {
       Map<String, Set<String>> emisToCore = fileRepo.getCodeCoreMap(Namespace.EMIS);
       Map<String, TTEntity> emisRead2 = new HashMap<>();
@@ -331,10 +331,10 @@ public class ImportMaps implements AutoCloseable {
       return emisRead2;
 
     } else
-      return getEMISReadAsVisionRdf4j(graphs);
+      return getEMISReadAsVisionRdf4j();
   }
 
-  private Map<String, TTEntity> getEMISReadAsVisionRdf4j(List<Graph> graphs) {
+  private Map<String, TTEntity> getEMISReadAsVisionRdf4j() {
     Map<String, TTEntity> emisRead2 = new HashMap<>();
     try (IMDB conn = IMDB.getConnection()) {
       String sql = """
@@ -427,7 +427,7 @@ public class ImportMaps implements AutoCloseable {
    *
    * @return TransformMap of description code to entity
    */
-  public Map<String, String> getDescriptionIds(List<Graph> graphs) throws TTFilerException {
+  public Map<String, String> getDescriptionIds() throws TTFilerException {
     Map<String, String> termMap = new HashMap<>();
     try (IMDB conn = IMDB.getConnection()) {
       String sparql = """

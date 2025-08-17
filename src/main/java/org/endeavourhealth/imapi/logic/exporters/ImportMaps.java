@@ -35,10 +35,10 @@ public class ImportMaps implements AutoCloseable {
    *
    * @throws TTFilerException when code maps are missing
    */
-  public Map<String, Set<String>> importEmisToSnomed(List<Graph> graphs) throws TTFilerException, IOException {
+  public Map<String, Set<String>> importEmisToSnomed() throws TTFilerException, IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getCodeCoreMap(Namespace.EMIS);
-    return importEmisToSnomedRdf4j(graphs);
+    return importEmisToSnomedRdf4j();
   }
 
   public String getCoreName(String iri) throws IOException {
@@ -384,7 +384,7 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  private Map<String, Set<String>> importEmisToSnomedRdf4j(List<Graph> graphs) throws TTFilerException {
+  private Map<String, Set<String>> importEmisToSnomedRdf4j() throws TTFilerException {
     Map<String, Set<String>> emisToSnomed = new HashMap<>();
     try (IMDB conn = IMDB.getConnection()) {
       String sparql = """

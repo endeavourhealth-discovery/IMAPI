@@ -641,6 +641,25 @@ public class QueryDescriptor {
     }
   }
 
+  public String getDescriptions(Match match){
+    if (match.getDescription()!=null) return match.getDescription();
+    StringBuilder description = new StringBuilder();
+    String operators= "or,and,not";
+    int opIndex=-1;
+    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd(), match.getNot())) {
+      opIndex++;
+      if (matches != null) {
+        for (Match subMatch : matches) {
+          if (subMatch.getDescription() != null) {
+            if (description.isEmpty()) description.append(subMatch.getDescription());
+            else description.append(", " + operators.split(",")[opIndex] + " " + subMatch.getDescription());
+          }
+        }
+      }
+    }
+    return description.toString();
+  }
+
   public String getShortDescription(Match match) throws QueryException {
     shortDescription = new StringBuilder();
     setIriNames(match);

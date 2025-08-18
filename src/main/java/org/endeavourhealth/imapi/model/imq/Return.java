@@ -24,7 +24,15 @@ public class Return {
   private FunctionClause function;
   private String as;
   private OrderLimit orderBy;
+  private String sourceLabel;
 
+  public String getSourceLabel() {
+    return sourceLabel;
+  }
+  public Return setSourceLabel(String sourceLabel) {
+    this.sourceLabel = sourceLabel;
+    return this;
+  }
   public OrderLimit getOrderBy() {
     return orderBy;
   }

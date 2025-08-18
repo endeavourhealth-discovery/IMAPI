@@ -5,6 +5,15 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 public class RelativeTo extends Node {
   private String valueVariable;
   private String propertyRef;
+  private String targetLabel;
+
+  public String getTargetLabel() {
+    return targetLabel;
+  }
+  public RelativeTo setTargetLabel(String targetLabel) {
+    this.targetLabel = targetLabel;
+    return this;
+  }
 
   public String getPropertyRef() {
     return propertyRef;

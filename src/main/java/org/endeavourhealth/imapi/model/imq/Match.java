@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"ifTrue", "ifFalse", "name", "description", "nodeRef", "header", "typeOf", "instanceOf", "and", "or", "not", "where"})
+@JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "nodeRef", "header","typeOf", "instanceOf","and","or","not","where","return","then"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends IriLD implements BoolGroup<Match>, HasPaths {
   private Element graph;

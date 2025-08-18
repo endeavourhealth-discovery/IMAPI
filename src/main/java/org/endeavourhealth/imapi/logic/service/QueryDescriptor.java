@@ -24,6 +24,7 @@ public class QueryDescriptor {
   private final EntityRepository repo = new EntityRepository();
   private Map<String, TTEntity> iriContext;
   private StringBuilder shortDescription = new StringBuilder();
+  private Map<String, String> nodeRefToLabel = new HashMap<>();
 
   public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
@@ -64,6 +65,9 @@ public class QueryDescriptor {
   }
 
   private void describeReturn(Return ret) {
+    if (ret.getAs()!=null &&ret.getSourceLabel()!=null){
+      nodeRefToLabel.put(ret.getAs(),ret.getSourceLabel());
+    }
     if (ret.getProperty() != null) {
       for (ReturnProperty prop : ret.getProperty()) {
         if (prop.getIri() != null) prop.setName(getTermInContext(prop.getIri()));
@@ -112,14 +116,6 @@ public class QueryDescriptor {
       }
       if (context == Context.LOWERCASE) {
         term = new StringBuilder(term.toString().toLowerCase());
-      }
-    }
-    if (entity != null) {
-      // if (entity.get(iri(Namespace.IM + "displayLabel")) != null) {
-      // term.setLength(0);
-      // }
-      if (entity.get(iri(IM.PREPOSITION)) != null) {
-        term.append(" ").append(entity.get(iri(IM.PREPOSITION)).asLiteral().getValue());
       }
     }
 
@@ -258,28 +254,12 @@ public class QueryDescriptor {
   }
 
   private void describeWheres(List<Where> wheres) {
-    Where conceptWhere = getConceptWhere(wheres);
-    if (conceptWhere != null) {
-      wheres.remove(conceptWhere);
-      wheres.addFirst(conceptWhere);
-      describeWhere(conceptWhere);
-    }
     for (Where where : wheres) {
-      if (where != conceptWhere) {
         describeWhere(where);
-
-      }
     }
   }
 
-  private String getPreposition(IriLD node) {
-    if (node.getIri() != null) {
-      TTEntity entity = iriContext.get(node.getIri());
-      if (entity.get(iri(IM.PREPOSITION)) != null) {
-        return entity.get(iri(IM.PREPOSITION)).asLiteral().getValue();
-      } else return null;
-    } else return null;
-  }
+
 
 
   private void describeInstance(List<Node> inSets) {
@@ -313,13 +293,6 @@ public class QueryDescriptor {
       orderDisplay = orderDisplay + " " + orderBy.getLimit();
     orderBy.setDescription(orderDisplay);
     shortDescription.append(orderDisplay);
-  }
-
-  private Where getConceptWhere(List<Where> wheres) {
-    for (Where where : wheres) {
-      if (where.getIri() != null) if (where.getIri().equals(Namespace.IM + "concept")) return where;
-    }
-    return null;
   }
 
   private void describeWhere(Where where) {
@@ -564,6 +537,12 @@ public class QueryDescriptor {
   private void describeRelativeTo(Where where) {
     RelativeTo relativeTo = where.getRelativeTo();
     if (relativeTo != null) {
+      if (relativeTo.getNodeRef()!=null) {
+        if (nodeRefToLabel.get(relativeTo.getNodeRef())!=null) {
+          relativeTo.setTargetLabel(nodeRefToLabel.get(relativeTo.getNodeRef()));
+        }
+        else relativeTo.setTargetLabel(relativeTo.getNodeRef());
+      }
       String relation = null;
       if (relativeTo.getIri() != null) {
         String propertyName = getTermInContext(relativeTo);
@@ -571,8 +550,8 @@ public class QueryDescriptor {
       }
       if (relativeTo.getParameter() != null) {
         if (relativeTo.getParameter().toLowerCase().contains("referencedate")) {
-          relation = (relation != null ? relation : "") + "the reference date";
-        } else if (relativeTo.getParameter().toLowerCase().contains("baselinedate")) {
+          relation = (relation != null ? relation : "") + "the search date";
+        } else if (relativeTo.getParameter().toLowerCase().contains("baseline")) {
           relation = (relation != null ? relation : "") + "the achievement date";
         } else relation = (relation != null ? relation : "") + relativeTo.getParameter();
       }

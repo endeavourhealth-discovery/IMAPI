@@ -206,19 +206,20 @@ public class EqdResources {
     Match standardMatch = null;
     Match testMatch = null;
     Match linkedMatch = null;
-    Match matchHolder = null;
+    EQDOCFilterAttribute filter = eqCriterion.getFilterAttribute();
     boolean hasFilter = !eqCriterion.getFilterAttribute().getColumnValue().isEmpty() || eqCriterion.getFilterAttribute().getRestriction() != null;
     boolean hasLinked = eqCriterion.getLinkedCriterion() != null;
-    String nodeRef = null;
+    boolean hasStandard= (!filter.getColumnValue().isEmpty() || filter.getRestriction() != null);
     if (!eqCriterion.getBaseCriteriaGroup().isEmpty()) {
-      baseMatch = this.convertBaseCriteriaGroups(eqCriterion, hasFilter || hasLinked);
+      baseMatch = this.convertBaseCriteriaGroups(eqCriterion);
+      String baseName= new QueryDescriptor().getDescriptions(baseMatch);
       String baseDefinition = new ObjectMapper().writeValueAsString(baseMatch);
       Integer baseHash = baseDefinition.hashCode();
       if (baseMatchMap.get(baseHash) == null) {
         baseCounter++;
         TTEntity baseEntity = new TTEntity()
           .setIri(this.namespace + "BaseCriteria_" + baseHash)
-          .setName("Base events (" + baseCounter + ") (IndexEvents)")
+          .setName(baseName)
           .setScheme(iri(namespace))
           .addType(iri(IM.QUERY));
         baseEntity.set(IM.DEFINITION, TTLiteral.literal(baseMatch));
@@ -226,11 +227,10 @@ public class EqdResources {
         document.addEntity(baseEntity);
       }
       baseMatch = new Match();
-      baseMatch.addInstanceOf(new Node().setIri(baseMatchMap.get(baseHash)).setName("Index events").setMemberOf(true));
+      baseMatch.addInstanceOf(new Node().setIri(baseMatchMap.get(baseHash)).setName(baseName).setMemberOf(true));
     }
 
-    EQDOCFilterAttribute filter = eqCriterion.getFilterAttribute();
-    if (!filter.getColumnValue().isEmpty() || filter.getRestriction() != null) {
+    if (hasStandard) {
       standardMatch = this.convertStandardCriterion(eqCriterion, baseMatch == null ? null : "IndexEvent");
       if (eqCriterion.getFilterAttribute().getRestriction() != null && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
         testMatch = this.convertTestCriterion(eqCriterion);
@@ -238,44 +238,28 @@ public class EqdResources {
         standardMatch.setThen(testMatch);
       }
     }
-    if (eqCriterion.getLinkedCriterion() != null) {
-      baseCounter++;
-      if (baseMatch != null) nodeRef = "IndexEvent_"+baseCounter;
-      else if (eqCriterion.getLinkedCriterion().getRelationship().getParentColumn().equals("DOB"))
-        nodeRef = "DOB";
-      else nodeRef = "LinkedEvent_"+baseCounter;
-      linkedMatch = this.convertLinkedCriterion(eqCriterion, nodeRef);
-    }
-    if (baseMatch != null) {
-      if (standardMatch != null) {
-        counter++;
-        injectReturn(baseMatch, standardMatch);
-        baseMatch.setThen(standardMatch);
-        if (linkedMatch != null) {
-          matchHolder = new Match();
-          matchHolder.addAnd(baseMatch);
-          matchHolder.addAnd(linkedMatch);
-          return matchHolder;
-        } else return baseMatch;
-      } else if (linkedMatch != null) {
-        matchHolder = new Match();
-        matchHolder.addAnd(baseMatch);
-        matchHolder.addAnd(linkedMatch);
-        return matchHolder;
-      } else return baseMatch;
+    if (baseMatch!=null){
+      if (hasStandard||hasLinked) setReturn(baseMatch,"BaseIndex");
+      if (standardMatch!=null) baseMatch.setThen(standardMatch);
     }
     if (standardMatch != null) {
-      if (linkedMatch != null) {
-        matchHolder = new Match();
-        matchHolder.addAnd(standardMatch);
-        standardMatch.setReturn((new Return()).setAs(nodeRef));
-        matchHolder.addAnd(linkedMatch);
-        return matchHolder;
-      } else return standardMatch;
-    } else throw new EQDException("No match found for standard criterion");
+      counter++;
+      String as="Match_"+counter;
+      if (hasLinked) setReturn(standardMatch, as);
+    }
+    if (eqCriterion.getLinkedCriterion() != null) {
+      String nodeRef= standardMatch != null ? standardMatch.getReturn().getNodeRef(): baseMatch!=null ? baseMatch.getNodeRef() : "error";
+      linkedMatch = this.convertLinkedCriterion(eqCriterion, nodeRef);
+      if (testMatch != null) testMatch.setThen(linkedMatch);
+      else if (standardMatch != null) standardMatch.setThen(linkedMatch);
+      else if (baseMatch != null) baseMatch.setThen(linkedMatch);
+      else throw new EQDException("No match found for linked criterion");
+    }
+    if (baseMatch != null) return baseMatch;
+    else return standardMatch;
   }
 
-  private Match convertBaseCriteriaGroups(EQDOCCriterion eqCriterion, boolean needsReturn) throws QueryException, EQDException, IOException {
+  private Match convertBaseCriteriaGroups(EQDOCCriterion eqCriterion) throws QueryException, EQDException, IOException {
     int originalCounter = counter;
     counter = 0;
     String baseContent = (new ObjectMapper()).writeValueAsString(eqCriterion.getBaseCriteriaGroup());
@@ -285,27 +269,30 @@ public class EqdResources {
       baseMatch.setIsUnion(true);
       for (EQDOCBaseCriteriaGroup baseGroup : eqCriterion.getBaseCriteriaGroup()) {
         Match subQuery = this.convertBaseCriteriaGroup(baseGroup);
-        if (needsReturn) this.setBaseReturn(subQuery);
         baseMatch.addOr(subQuery);
       }
-      if (needsReturn) {
-        if (baseMatch.getOr() != null && baseMatch.getOr().size() > 1) {
-          Match lastMatch = baseMatch.getOr().getLast();
-          baseMatch.setReturn(new Return().setOrderBy(lastMatch.getReturn().getOrderBy()));
-        }
-      }
+
     } else {
       baseMatch = this.convertBaseCriteriaGroup(eqCriterion.getBaseCriteriaGroup().get(0));
-      this.setBaseReturn(baseMatch);
     }
 
     counter = originalCounter;
     return baseMatch;
   }
 
-  private void setBaseReturn(Match match) {
-    String base = "IndexEvent";
-    match.setReturn((new Return()).setAs(base).property((p) -> p.setIri(Namespace.IM + "effectiveDate")));
+  private void setReturn(Match match,String as) {
+    if (match.getReturn() == null) {
+      if (match.getOr() != null) {
+        int orIndex = 0;
+        for (Match subQuery : match.getOr()) {
+          orIndex++;
+          if (subQuery.getReturn() == null) {
+            match.setReturn((new Return()).setAs(as + orIndex).property((p) -> p.setIri(Namespace.IM + "effectiveDate")));
+          }
+        }
+      }
+      match.setReturn((new Return()).setAs(as).property((p) -> p.setIri(Namespace.IM + "effectiveDate")));
+    }
   }
 
   private Match convertBaseCriteriaGroup(EQDOCBaseCriteriaGroup baseGroup) throws QueryException, EQDException, IOException {
@@ -437,7 +424,6 @@ public class EqdResources {
       parentMatch.setReturn(ret);
     }
     String nodeRef = getNodeRef(parentMatch);
-    childMatch.setNodeRef(asLabel);
     Where where = childMatch.getWhere();
     if (where != null) {
       if (where.getIri() != null) {
@@ -568,7 +554,10 @@ public class EqdResources {
     String table = eqCriterion.getTable();
     String orderBy = this.getIMPath(table + "/" + linkColumn);
     if (restrict.getColumnOrder().getRecordCount() != 1000) {
+      counter++;
+      String asLabel = "Match_" + counter;
       restricted.setReturn(new Return());
+      restricted.getReturn().setAs(asLabel);
       String nodeRef = getNodeRef(restricted);
       restricted.getReturn().orderBy((o) -> o
         .addProperty(new OrderDirection()

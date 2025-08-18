@@ -46,6 +46,7 @@ public class EqdToIMQ {
   private boolean versionIndependent;
 
 
+
   public EqdToIMQ(boolean versionIndependent) {
     this.versionIndependent = versionIndependent;
     gmsPatients.add("c8d3ca80-ba23-418b-8cef-e5afac42764e");

@@ -33,8 +33,8 @@ public class TTFilerFactory {
       return new TTBulkFiler(graph);
   }
 
-  public static TTEntityFiler getEntityFiler(List<Graph> userGraphs, Graph insertGraph) {
-    return new TTEntityFilerRdf4j(IMDB.getConnection(userGraphs), insertGraph);
+  public static TTEntityFiler getEntityFiler(Graph insertGraph) {
+    return new TTEntityFilerRdf4j(IMDB.getConnection(), insertGraph);
   }
 
   public static TCGenerator getClosureGenerator() {

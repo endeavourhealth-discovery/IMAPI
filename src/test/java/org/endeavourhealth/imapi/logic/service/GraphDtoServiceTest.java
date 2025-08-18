@@ -42,32 +42,32 @@ public class GraphDtoServiceTest {
 
   @Test
   void getGraphData_NullIri() {
-    GraphDto actual = graphDtoService.getGraphData(null, null);
+    GraphDto actual = graphDtoService.getGraphData(null);
     assertNotNull(actual);
   }
 
   @Test
   void getGraphData_NotNullEntity() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(any(), anySet(), anyList())).thenReturn(new TTBundle().setEntity(entity));
-    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115", List.of(Graph.IM));
+    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115");
     assertNotNull(actual);
   }
 
   @Test
   void getGraphData_RoleGroup() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(any(), anySet(), anyList())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
-    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115", List.of(Graph.IM));
+    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115");
     assertNotNull(actual);
   }
 
   @Test
   void getGraphData_LeafNodes() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(any(), anySet(), anyList())).thenReturn(new TTBundle().setEntity(entity));
-    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115", List.of(Graph.IM));
+    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115");
     assertNotNull(actual);
   }
 
@@ -78,9 +78,9 @@ public class GraphDtoServiceTest {
         .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
         .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
       );
-    when(entityRepository.getBundle(any(), anySet(), anyList())).thenReturn(new TTBundle().setEntity(entity));
+    when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
-    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115", List.of(Graph.IM));
+    GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115");
     assertNotNull(actual);
   }
 }

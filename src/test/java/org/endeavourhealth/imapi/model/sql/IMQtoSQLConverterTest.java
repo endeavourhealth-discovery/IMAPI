@@ -30,10 +30,10 @@ public class IMQtoSQLConverterTest {
   private String db_driver = System.getenv("DB_DRIVER");
 
   //  @Test
-  public void IMQtoSQL(List<Graph> graphs) {
+  public void IMQtoSQL() {
     // Get list of queries from GraphDb
     EntityRepository entityRepository = new EntityRepository();
-    List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(EntityType.QUERY, graphs);
+    List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(EntityType.QUERY);
     LOG.info("Found {} queries", cohortQueryIris.size());
 
     // Prepare
@@ -51,7 +51,7 @@ public class IMQtoSQLConverterTest {
       for (TTIriRef cohortQueryIri : cohortQueryIris) {
         // Get the definition
         LOG.info("Checking [{} | {}]", cohortQueryIri.getIri(), cohortQueryIri.getName());
-        TTBundle bundle = entityRepository.getBundle(cohortQueryIri.getIri(), asHashSet(IM.DEFINITION), graphs);
+        TTBundle bundle = entityRepository.getBundle(cohortQueryIri.getIri(), asHashSet(IM.DEFINITION));
 
         if (bundle == null || bundle.getEntity() == null || !bundle.getEntity().has(IM.DEFINITION.asIri())) {
           LOG.error("Entity or definition not found!");

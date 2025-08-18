@@ -31,9 +31,9 @@ public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
     this.parser.addErrorListener(new ParserErrorListener());
   }
 
-  public void getQueryFromECL(ECLQueryRequest eclQueryRequest, boolean validateEntities, List<Graph> graphs) {
+  public void getQueryFromECL(ECLQueryRequest eclQueryRequest, boolean validateEntities) {
     this.validateEntities = validateEntities;
-    getQueryFromECL(eclQueryRequest, graphs);
+    getQueryFromECL(eclQueryRequest);
   }
 
   /**
@@ -43,7 +43,7 @@ public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
    * @param eclQueryRequest An object containing an 'ecl' property which is an ecl string
    * @return the object with 'query' and 'status' and ecl  conforming to IM Query model JSON-LD when serialized.
    */
-  public void getQueryFromECL(ECLQueryRequest eclQueryRequest, List<Graph> graphs) {
+  public void getQueryFromECL(ECLQueryRequest eclQueryRequest) {
     eclQueryRequest.setStatus(new ECLStatus());
     eclQueryRequest.getStatus().setValid(true);
     eclQueryRequest.getStatus().setLine(null);
@@ -58,10 +58,10 @@ public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
       eclQueryRequest.setQuery(query);
       if (validateEntities) {
         ECLQueryValidator validator = new ECLQueryValidator();
-        ECLStatus status = validator.validateQuery(query, ValidationLevel.CONCEPT, graphs);
+        ECLStatus status = validator.validateQuery(query, ValidationLevel.CONCEPT);
         if (!status.isValid()) {
           try {
-            new IMQToECL().getECLFromQuery(eclQueryRequest, graphs);
+            new IMQToECL().getECLFromQuery(eclQueryRequest);
           } catch (Exception e) {
             eclQueryRequest.getStatus().setValid(false);
             eclQueryRequest.getStatus().setMessage(e.getMessage());

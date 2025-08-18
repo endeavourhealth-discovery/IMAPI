@@ -48,8 +48,7 @@ public class SmartLifeQueryController {
       log.debug("runSmartLifeQuery");
       UUID userId = reqObjService.getRequestAgentIdAsUUID(request);
       String username = reqObjService.getRequestAgentName(request);
-      List<Graph> graphs = reqObjService.getUserGraphs(request);
-      return smartLifeQueryService.runQuery(userId, username, query, graphs);
+      return smartLifeQueryService.runQuery(userId, username, query);
     }
   }
 
@@ -91,8 +90,7 @@ public class SmartLifeQueryController {
   ) throws IOException, SQLException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("Query.GetSmartLifeQueryResults.POST")) {
       log.debug("getSmartLifeQueryResults");
-      List<Graph> graphs = reqObjService.getUserGraphs(request);
-      return smartLifeQueryService.getQueryResults(UUID.fromString(queryExecutionId), graphs);
+      return smartLifeQueryService.getQueryResults(UUID.fromString(queryExecutionId));
     }
   }
 }

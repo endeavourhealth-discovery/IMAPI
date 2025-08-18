@@ -113,8 +113,8 @@ public class PropertyRepository {
     throw new IllegalStateException("Utility class");
   }
 
-  public static TTEntityMap getProperty(String focusIri, List<Graph> graphs) {
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+  public static TTEntityMap getProperty(String focusIri) {
+    try (IMDB conn = IMDB.getConnection()) {
       GraphQuery qry = conn.prepareGraphSparql(PROPERTIES_SQL);
       qry.setBinding("entity", Values.iri(focusIri));
       return GraphHelper.getEntityMap(qry);
@@ -128,7 +128,7 @@ public class PropertyRepository {
    * All iris referenced include their labels as names, except for the mode predicates themselves
    */
   public static TTEntityMap getProperties(List<Graph> graphs) {
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       GraphQuery qry = conn.prepareGraphSparql(GET_ALL_PROPERTIES_SQL);
       return GraphHelper.getEntityMap(qry);
     }

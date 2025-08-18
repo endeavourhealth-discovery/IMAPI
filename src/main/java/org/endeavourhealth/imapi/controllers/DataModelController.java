@@ -31,7 +31,6 @@ import java.util.Set;
 public class DataModelController {
 
   private final DataModelService dataModelService = new DataModelService();
-  private final RequestObjectService requestObjectService = new RequestObjectService();
 
   @Operation(
     summary = "Retrieve a node shape with data model properties",
@@ -45,8 +44,7 @@ public class DataModelController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
       log.debug("getDataModelProperties " + (pathsOnly ? "paths only" : "") + "for " + iri);
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return dataModelService.getDataModelDisplayProperties(iri, pathsOnly, graphs);
+      return dataModelService.getDataModelDisplayProperties(iri, pathsOnly);
     }
   }
 
@@ -61,8 +59,7 @@ public class DataModelController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PropertiesDisplay.GET")) {
       log.debug("getPropertiesDisplay");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return dataModelService.getPropertiesDisplay(iri, graphs);
+      return dataModelService.getPropertiesDisplay(iri);
     }
   }
 
@@ -79,8 +76,7 @@ public class DataModelController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.GetUIPropertyForQB.GET")) {
       log.debug("getUIPropertyForQB");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return dataModelService.getUIPropertyForQB(dmIri, propIri, graphs);
+      return dataModelService.getUIPropertyForQB(dmIri, propIri);
     }
   }
 
@@ -95,8 +91,7 @@ public class DataModelController {
     @RequestParam(name = "propIri") String propIri
   ) throws JsonProcessingException {
     log.debug("getDataModelsFromProperty");
-    List<Graph> graphs = requestObjectService.getUserGraphs(request);
-    return dataModelService.getDataModelsFromProperty(propIri, graphs);
+    return dataModelService.getDataModelsFromProperty(propIri);
   }
 
   @Operation(
@@ -110,8 +105,7 @@ public class DataModelController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.CheckPropertyType.GET")) {
       log.debug("checkPropertyType");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return dataModelService.checkPropertyType(iri, graphs);
+      return dataModelService.checkPropertyType(iri);
     }
   }
 
@@ -127,8 +121,7 @@ public class DataModelController {
     throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("getDataModelPropertiesWithValueType");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return dataModelService.getDataModelPropertiesWithValueType(iris, valueType, graphs);
+      return dataModelService.getDataModelPropertiesWithValueType(iris, valueType);
     }
   }
 

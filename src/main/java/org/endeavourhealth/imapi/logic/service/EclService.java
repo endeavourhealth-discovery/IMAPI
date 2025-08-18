@@ -19,18 +19,18 @@ import java.util.Set;
 public class EclService {
   private final SetRepository setRepository = new SetRepository();
 
-  public ECLQueryRequest validateModelFromQuery(ECLQueryRequest eclQuery, List<Graph> graphs) {
-    eclQuery.setStatus(new ECLQueryValidator().validateQuery(eclQuery.getQuery(), ValidationLevel.ECL, graphs));
+  public ECLQueryRequest validateModelFromQuery(ECLQueryRequest eclQuery) {
+    eclQuery.setStatus(new ECLQueryValidator().validateQuery(eclQuery.getQuery(), ValidationLevel.ECL));
     return eclQuery;
   }
 
 
-  public ECLQueryRequest validateModelFromECL(ECLQueryRequest eclQuery, List<Graph> graphs) {
+  public ECLQueryRequest validateModelFromECL(ECLQueryRequest eclQuery) {
     try {
-      getQueryFromECL(eclQuery, graphs);
-      validateModelFromQuery(eclQuery, graphs);
+      getQueryFromECL(eclQuery);
+      validateModelFromQuery(eclQuery);
       if (!eclQuery.getStatus().isValid()) {
-        new IMQToECL().getECLFromQuery(eclQuery, graphs);
+        new IMQToECL().getECLFromQuery(eclQuery);
       }
       return eclQuery;
     } catch (Exception e) {
@@ -43,19 +43,19 @@ public class EclService {
   }
 
 
-  public String getEcl(EclSearchRequest inferred, List<Graph> graphs) throws QueryException {
+  public String getEcl(EclSearchRequest inferred) throws QueryException {
     if (inferred == null) throw new QueryException("Missing data for ECL conversion");
     ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
     eclQueryRequest.setQuery(inferred.getEclQuery());
-    new IMQToECL().getECLFromQuery(eclQueryRequest, graphs);
+    new IMQToECL().getECLFromQuery(eclQueryRequest);
     return eclQueryRequest.getEcl();
   }
 
-  public int getEclSearchTotalCount(EclSearchRequest request, List<Graph> graphs) throws QueryException {
-    return setRepository.getSetExpansionTotalCount(request.getEclQuery(), request.getStatusFilter(), graphs);
+  public int getEclSearchTotalCount(EclSearchRequest request) throws QueryException {
+    return setRepository.getSetExpansionTotalCount(request.getEclQuery(), request.getStatusFilter());
   }
 
-  public Set<Concept> evaluateECLQuery(EclSearchRequest request, List<Graph> graphs) throws QueryException {
+  public Set<Concept> evaluateECLQuery(EclSearchRequest request) throws QueryException {
     return setRepository.getSetExpansionFromQuery(
       request.getEclQuery(),
       request.isIncludeLegacy(),
@@ -63,13 +63,12 @@ public class EclService {
       List.of(),
       new Page()
         .setPageNumber(request.getPage())
-        .setPageSize(request.getSize()),
-      graphs);
+        .setPageSize(request.getSize()));
   }
 
-  public SearchResponse eclSearch(EclSearchRequest request, List<Graph> graphs) throws QueryException {
-    int totalCount = getEclSearchTotalCount(request, graphs);
-    Set<Concept> evaluated = evaluateECLQuery(request, graphs);
+  public SearchResponse eclSearch(EclSearchRequest request) throws QueryException {
+    int totalCount = getEclSearchTotalCount(request);
+    Set<Concept> evaluated = evaluateECLQuery(request);
     List<SearchResultSummary> evaluatedAsSummary = evaluated
       .stream()
       .map(concept ->
@@ -88,21 +87,21 @@ public class EclService {
     return result;
   }
 
-  public ECLQueryRequest getECLFromQuery(ECLQueryRequest eclQuery, List<Graph> graphs) throws QueryException {
-    new IMQToECL().getECLFromQuery(eclQuery, graphs);
+  public ECLQueryRequest getECLFromQuery(ECLQueryRequest eclQuery) {
+    new IMQToECL().getECLFromQuery(eclQuery);
     return eclQuery;
   }
 
 
-  public ECLQueryRequest getQueryFromECL(ECLQueryRequest eclQuery, List<Graph> graphs) throws QueryException {
+  public ECLQueryRequest getQueryFromECL(ECLQueryRequest eclQuery) {
     String ecl = eclQuery.getEcl();
     if (ecl == null || ecl.isEmpty())
       return eclQuery;
-    new ECLToIMQ().getQueryFromECL(eclQuery, true, graphs);
+    new ECLToIMQ().getQueryFromECL(eclQuery, true);
     Query query = eclQuery.getQuery();
     if (query != null && !query.isInvalid()) {
       try {
-        new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL, graphs);
+        new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL);
       } catch (Exception e) {
         eclQuery.getStatus().setValid(false);
         eclQuery.getStatus().setMessage(e.getMessage());
@@ -111,20 +110,20 @@ public class EclService {
     return eclQuery;
   }
 
-  public ECLQueryRequest validateEcl(ECLQueryRequest eclQuery, List<Graph> graphs) throws QueryException {
+  public ECLQueryRequest validateEcl(ECLQueryRequest eclQuery) {
     String ecl = eclQuery.getEcl();
     if (ecl == null || ecl.isEmpty())
       return eclQuery;
-    new ECLToIMQ().getQueryFromECL(eclQuery, true, graphs);
+    new ECLToIMQ().getQueryFromECL(eclQuery, true);
     return eclQuery;
   }
 
-  public ECLQueryRequest getEclFromEcl(ECLQueryRequest eclQuery, List<Graph> graphs) {
+  public ECLQueryRequest getEclFromEcl(ECLQueryRequest eclQuery) {
     String ecl = eclQuery.getEcl();
     if (ecl == null || ecl.isEmpty())
       return eclQuery;
-    new ECLToIMQ().getQueryFromECL(eclQuery, true, graphs);
-    new IMQToECL().getECLFromQuery(eclQuery, graphs);
+    new ECLToIMQ().getQueryFromECL(eclQuery, true);
+    new IMQToECL().getECLFromQuery(eclQuery);
     return eclQuery;
   }
 }

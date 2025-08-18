@@ -28,7 +28,7 @@ public class EntityValidatorTest {
       actual.addObject(iri(IM.IS_CONTAINED_IN), iri(IM.QUERY.toString(), "Query"));
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.HAS_PARENT).setEntity(actual);
       EntityValidationResponse response = new EntityValidationResponse().setValid(true).setMessage(null);
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -37,7 +37,7 @@ public class EntityValidatorTest {
       actual.addObject(iri(Namespace.IM + "foo"), iri(IM.QUERY.toString(), "Query"));
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.HAS_PARENT).setEntity(actual);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity is missing a parent. Add a parent to 'Subset of', 'Subclass of' or 'Contained in'.");
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -46,7 +46,7 @@ public class EntityValidatorTest {
       actual.addObject(iri(IM.IS_CONTAINED_IN), "foo");
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.HAS_PARENT).setEntity(actual);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity is missing a parent. Add a parent to 'Subset of', 'Subclass of' or 'Contained in'.");
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -55,7 +55,7 @@ public class EntityValidatorTest {
       actual.addObject(iri(Namespace.IM + "foo"), "bar");
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.HAS_PARENT).setEntity(actual);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity is missing a parent. Add a parent to 'Subset of', 'Subclass of' or 'Contained in'.");
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
   }
 
@@ -67,7 +67,7 @@ public class EntityValidatorTest {
       entity.setIri("http://endhealth.info/im#903031000252104");
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_IRI).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(true).setMessage(null);
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class EntityValidatorTest {
       entity.setIri("http://endhealth.info/im#90303 1000252104");
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_IRI).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Iri code contains invalid characters");
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class EntityValidatorTest {
       entity.setIri("http://endhealth.info/im#90303 10+00$25&21/04");
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_IRI).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Iri code contains invalid characters");
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -94,7 +94,7 @@ public class EntityValidatorTest {
       entity.setIri("http://endhealth.info/im#9030310002521#04");
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_IRI).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity IRI contains invalid character # within identifier");
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class EntityValidatorTest {
       entity.setIri("http://endhealth.info/im903031000252104");
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_IRI).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity IRI must contain #");
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class EntityValidatorTest {
       entity.setIri("http://endhealthinfo/im#903031000252104");
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_IRI).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Iri URL is invalid");
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -121,7 +121,7 @@ public class EntityValidatorTest {
       entity.setIri("http://endhealthinfo/im#");
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_IRI).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Iri URL is invalid");
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
   }
 
@@ -133,7 +133,7 @@ public class EntityValidatorTest {
       entity.set(iri(SHACL.PROPERTY), new TTArray());
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Data models must have at least 1 property");
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -144,7 +144,7 @@ public class EntityValidatorTest {
       entity.set(iri(SHACL.PROPERTY), ttArray);
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("One or more invalid properties");
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class EntityValidatorTest {
       entity.set(iri(SHACL.PROPERTY), ttArray);
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("One or more invalid properties");
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -170,7 +170,7 @@ public class EntityValidatorTest {
       entity.set(iri(SHACL.PROPERTY), ttArray);
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("One or more invalid properties");
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -184,7 +184,7 @@ public class EntityValidatorTest {
       entity.set(iri(SHACL.PROPERTY), ttArray);
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("One or more invalid properties");
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -198,7 +198,7 @@ public class EntityValidatorTest {
       entity.set(iri(SHACL.PROPERTY), ttArray);
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("One or more invalid properties");
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -212,7 +212,7 @@ public class EntityValidatorTest {
       entity.set(iri(SHACL.PROPERTY), ttArray);
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(true).setMessage(null);
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -226,7 +226,7 @@ public class EntityValidatorTest {
       entity.set(iri(SHACL.PROPERTY), ttArray);
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(true).setMessage(null);
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 
     @Test
@@ -240,7 +240,7 @@ public class EntityValidatorTest {
       entity.set(iri(SHACL.PROPERTY), ttArray);
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(true).setMessage(null);
-      assertThat(entityValidator.validate(request, entityService, List.of(Graph.IM))).usingRecursiveComparison().isEqualTo(response);
+      assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
   }
 }

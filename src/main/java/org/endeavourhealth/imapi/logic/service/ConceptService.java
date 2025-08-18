@@ -30,28 +30,28 @@ public class ConceptService {
   private EntityRepository entityRepository = new EntityRepository();
   private ConceptRepository conceptRepository = new ConceptRepository();
 
-  public List<SimpleMap> getMatchedFrom(String iri, List<Graph> graphs) {
+  public List<SimpleMap> getMatchedFrom(String iri) {
     if (iri == null || iri.isEmpty()) return new ArrayList<>();
     String scheme = iri.substring(0, iri.indexOf("#") + 1);
-    List<Namespace> namespaces = entityRepository.findNamespaces(graphs);
+    List<Namespace> namespaces = entityRepository.findNamespaces();
     List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
     schemes.remove(scheme);
-    return conceptRepository.getMatchedFrom(iri, schemes, graphs);
+    return conceptRepository.getMatchedFrom(iri, schemes);
   }
 
-  public List<SimpleMap> getMatchedTo(String iri, List<Graph> graphs) {
+  public List<SimpleMap> getMatchedTo(String iri) {
     if (iri == null || iri.isEmpty()) return new ArrayList<>();
     String scheme = iri.substring(0, iri.indexOf("#") + 1);
-    List<Namespace> namespaces = entityRepository.findNamespaces(graphs);
+    List<Namespace> namespaces = entityRepository.findNamespaces();
     List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
     schemes.remove(scheme);
-    return conceptRepository.getMatchedTo(iri, schemes, graphs);
+    return conceptRepository.getMatchedTo(iri, schemes);
   }
 
-  public List<SearchTermCode> getEntityTermCodes(String iri, boolean includeInactive, List<Graph> graphs) {
+  public List<SearchTermCode> getEntityTermCodes(String iri, boolean includeInactive) {
     if (iri == null || iri.isEmpty())
       return Collections.emptyList();
-    TTBundle termsBundle = entityRepository.getBundle(iri, asHashSet(IM.HAS_TERM_CODE), graphs);
+    TTBundle termsBundle = entityRepository.getBundle(iri, asHashSet(IM.HAS_TERM_CODE));
     if (!includeInactive) filterOutInactiveTermCodes(termsBundle);
     TTArray terms = termsBundle.getEntity().get(iri(IM.HAS_TERM_CODE));
     if (null == terms) return Collections.emptyList();
@@ -64,20 +64,20 @@ public class ConceptService {
       .toList();
   }
 
-  public Set<String> getPropertiesForDomains(Set<String> iris, List<Graph> graphs) {
+  public Set<String> getPropertiesForDomains(Set<String> iris) {
     if (null == iris || iris.isEmpty()) return null;
-    return conceptRepository.getPropertiesForDomains(iris, graphs);
+    return conceptRepository.getPropertiesForDomains(iris);
 
   }
 
 
-  public Set<String> getRangesForProperty(String iri, List<Graph> graphs) {
+  public Set<String> getRangesForProperty(String iri) {
     if (null == iri || iri.isEmpty()) return null;
-    return conceptRepository.getRangesForProperty(iri, graphs);
+    return conceptRepository.getRangesForProperty(iri);
   }
 
-  public List<ConceptContextMap> getConceptContextMaps(String iri, List<Graph> graphs) {
-    return conceptRepository.getConceptContextMaps(iri, graphs);
+  public List<ConceptContextMap> getConceptContextMaps(String iri) {
+    return conceptRepository.getConceptContextMaps(iri);
   }
 
   private void processTerm(TTValue term, List<SearchTermCode> termsSummary) {

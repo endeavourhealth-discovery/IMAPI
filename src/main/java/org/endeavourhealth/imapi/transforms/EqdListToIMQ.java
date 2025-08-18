@@ -19,7 +19,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class EqdListToIMQ {
   private EqdResources resources;
 
-  public void convertReport(EQDOCReport eqReport, TTDocument document, Query query, EqdResources resources, List<Graph> graphs) throws IOException, QueryException, EQDException {
+  public void convertReport(EQDOCReport eqReport, TTDocument document, Query query, EqdResources resources) throws IOException, QueryException, EQDException {
     this.resources = resources;
     this.resources.setQueryType(QueryType.LIST);
     query.setTypeOf(new Node().setIri(Namespace.IM + "Patient"));
@@ -37,21 +37,21 @@ public class EqdListToIMQ {
         .addType(IM.FIELD_GROUP.asIri());
       columnGroup.addObject(IM.USED_IN.asIri(), iri(query.getIri()));
       query.addDataSet(subQuery);
-      convertListGroup(eqColGroup, subQuery, query.getName(), graphs);
+      convertListGroup(eqColGroup, subQuery, query.getName());
       columnGroup.set(IM.DEFINITION.asIri(), TTLiteral.literal(subQuery));
       document.addEntity(columnGroup);
     }
   }
 
 
-  private void convertListGroup(EQDOCListColumnGroup eqColGroup, Query subQuery, String reportName, List<Graph> graphs) throws IOException, QueryException, EQDException {
+  private void convertListGroup(EQDOCListColumnGroup eqColGroup, Query subQuery, String reportName) throws IOException, QueryException, EQDException {
     String eqTable = eqColGroup.getLogicalTableName();
     subQuery.setName(eqColGroup.getDisplayName());
     resources.setColumnGroup(iri(subQuery.getIri()).setName(subQuery.getName() + " in " + reportName));
     if (eqColGroup.getCriteria() == null) {
       convertPatientColumns(eqColGroup, eqTable, subQuery);
     } else {
-      convertEventColumns(eqColGroup, eqTable, subQuery, graphs);
+      convertEventColumns(eqColGroup, eqTable, subQuery);
     }
     resources.setColumnGroup(null);
   }
@@ -68,10 +68,10 @@ public class EqdListToIMQ {
     }
   }
 
-  private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery, List<Graph> graphs) throws IOException, QueryException, EQDException {
+  private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws IOException, QueryException, EQDException {
     resources.setRule(1);
     resources.setSubRule(1);
-    Match match = resources.convertCriteria(eqColGroup.getCriteria(), graphs);
+    Match match = resources.convertCriteria(eqColGroup.getCriteria());
     subQuery.setInstanceOf(match.getInstanceOf());
     subQuery.setWhere(match.getWhere());
     subQuery.setPath(match.getPath());

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.dataaccess.databases;
 
 import org.eclipse.rdf4j.repository.Repository;
+import org.endeavourhealth.imapi.utility.ThreadContext;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.List;
@@ -13,7 +14,8 @@ public class IMDB extends BaseDB {
     conn = repository.getConnection();
   }
 
-  public static IMDB getConnection(List<Graph> graphs) {
-    return new IMDB(graphs.toArray(new Graph[0]));
+  public static IMDB getConnection() {
+    List<Graph> userGraphs = ThreadContext.getUserGraphs();
+    return new IMDB(userGraphs.toArray(new Graph[0]));
   }
 }

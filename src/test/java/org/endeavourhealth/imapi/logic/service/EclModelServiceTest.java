@@ -21,7 +21,7 @@ public class EclModelServiceTest {
   @Test
   @Disabled
   void getEcl_NotNullInferred() throws QueryException {
-    String actual = eclService.getEcl(new EclSearchRequest(), List.of(Graph.IM));
+    String actual = eclService.getEcl(new EclSearchRequest());
     assertNotNull(actual);
   }
 

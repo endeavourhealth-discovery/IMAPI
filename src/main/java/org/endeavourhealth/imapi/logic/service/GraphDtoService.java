@@ -21,10 +21,10 @@ public class GraphDtoService {
   private EntityService entityService = new EntityService();
   private DataModelService dataModelService = new DataModelService();
 
-  public GraphDto getGraphData(String iri, List<Graph> graphs) {
+  public GraphDto getGraphData(String iri) {
     if (null == iri || iri.isEmpty()) return new GraphDto();
 
-    TTEntity entity = entityService.getBundle(iri, asHashSet(RDFS.SUBCLASS_OF, RDFS.LABEL), graphs).getEntity();
+    TTEntity entity = entityService.getBundle(iri, asHashSet(RDFS.SUBCLASS_OF, RDFS.LABEL)).getEntity();
 
     GraphDto graphData = new GraphDto().setKey("0").setIri(entity.getIri()).setName(entity.getName());
     GraphDto graphParents = new GraphDto().setKey("0_0").setName("Is a");
@@ -32,11 +32,11 @@ public class GraphDtoService {
 
     List<GraphDto> axiomGraph = new ArrayList<>();
 
-    List<GraphDto> dataModelProps = dataModelService.getDataModelProperties(iri, graphs).stream().map(prop -> new GraphDto(prop.getProperty().getIri(), prop.getProperty().getName(), prop.getType() != null ? prop.getType().getIri() : "", prop.getType() != null ? prop.getType().getName() : "", prop.getInheritedFrom() != null ? prop.getInheritedFrom().getIri() : "", prop.getInheritedFrom() != null ? prop.getInheritedFrom().getName() : "")).toList();
+    List<GraphDto> dataModelProps = dataModelService.getDataModelProperties(iri).stream().map(prop -> new GraphDto(prop.getProperty().getIri(), prop.getProperty().getName(), prop.getType() != null ? prop.getType().getIri() : "", prop.getType() != null ? prop.getType().getName() : "", prop.getInheritedFrom() != null ? prop.getInheritedFrom().getIri() : "", prop.getInheritedFrom() != null ? prop.getInheritedFrom().getName() : "")).toList();
 
     List<GraphDto> isas = getEntityDefinedParents(entity);
 
-    List<GraphDto> subtypes = getDefinitionSubTypes(iri, graphs).stream().map(subtype -> new GraphDto().setName(subtype.getName()).setIri(subtype.getIri())).toList();
+    List<GraphDto> subtypes = getDefinitionSubTypes(iri).stream().map(subtype -> new GraphDto().setName(subtype.getName()).setIri(subtype.getIri())).toList();
 
     GraphDto axiom = new GraphDto().setKey("0_2").setName("Axioms");
     GraphDto axiomWrapper = getWrapper(axiomGraph, "0_2_0");
@@ -107,7 +107,7 @@ public class GraphDtoService {
     return result;
   }
 
-  private List<TTIriRef> getDefinitionSubTypes(String iri, List<Graph> graphs) {
-    return entityService.getChildren(iri, null, null, null, false, graphs).stream().map(t -> new TTIriRef(t.getIri(), t.getName())).toList();
+  private List<TTIriRef> getDefinitionSubTypes(String iri) {
+    return entityService.getChildren(iri, null, null, null, false).stream().map(t -> new TTIriRef(t.getIri(), t.getName())).toList();
   }
 }

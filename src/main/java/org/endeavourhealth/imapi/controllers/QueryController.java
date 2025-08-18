@@ -59,8 +59,7 @@ public class QueryController {
   ) throws IOException, QueryException, OpenSearchException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIM.POST")) {
       log.debug("queryIM");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return searchService.queryIM(queryRequest, graphs);
+      return searchService.queryIM(queryRequest);
     }
   }
 
@@ -72,8 +71,7 @@ public class QueryController {
   ) throws QueryException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.AskQueryIM.POST")) {
       log.debug("askQueryIM");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return searchService.askQueryIM(queryRequest, graphs);
+      return searchService.askQueryIM(queryRequest);
     }
   }
 
@@ -91,8 +89,7 @@ public class QueryController {
       if (queryRequest.getPage() != null) {
         log.debug("page {} rows per page {}", queryRequest.getPage().getPageNumber(), queryRequest.getPage().getPageSize());
       }
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      SearchResponse response = searchService.queryIMSearch(queryRequest, graphs);
+      SearchResponse response = searchService.queryIMSearch(queryRequest);
       log.debug("queryIMSearch response {}", response.getEntities() != null ? response.getEntities().size() : 0);
       return response;
     }
@@ -106,8 +103,7 @@ public class QueryController {
   public PathDocument pathQuery(HttpServletRequest request, @RequestBody PathQuery pathQuery) throws DataFormatException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.PathQuery.POST")) {
       log.debug("pathQuery");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return searchService.pathQuery(pathQuery, graphs);
+      return searchService.pathQuery(pathQuery);
     }
   }
 
@@ -124,8 +120,7 @@ public class QueryController {
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("describeQuery");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return queryService.describeQuery(iri, displayMode, graphs);
+      return queryService.describeQuery(iri, displayMode);
     }
   }
 
@@ -140,8 +135,7 @@ public class QueryController {
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("getQueryfromIri");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return queryService.getQueryFromIri(iri, graphs);
+      return queryService.getQueryFromIri(iri);
     }
   }
 
@@ -157,8 +151,7 @@ public class QueryController {
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.GET")) {
       log.debug("getQueryDisplayFromQuery with displayMode: {}", displayMode);
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return queryService.describeQuery(query, displayMode, graphs);
+      return queryService.describeQuery(query, displayMode);
     }
   }
 
@@ -202,8 +195,7 @@ public class QueryController {
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
       log.debug("getMatchDisplayFromMatch");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return queryService.describeMatch(matchDisplayRequest.getMatch(), graphs);
+      return queryService.describeMatch(matchDisplayRequest.getMatch());
     }
   }
 
@@ -232,8 +224,7 @@ public class QueryController {
   ) throws IOException, QueryException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getSQLFromIMQIri");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return queryService.getSQLFromIMQIri(queryIri, lang, graphs).getSql();
+      return queryService.getSQLFromIMQIri(queryIri, lang).getSql();
     }
   }
 
@@ -342,8 +333,7 @@ public class QueryController {
   public Set<String> getQueryResults(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws IOException, SQLException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQueryResults.GET")) {
       log.debug("getQueryResults");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return queryService.getQueryResults(queryRequest, graphs);
+      return queryService.getQueryResults(queryRequest);
     }
   }
 
@@ -352,8 +342,7 @@ public class QueryController {
   public Query getDefaultQuery(HttpServletRequest request) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DefaultQuery.GET")) {
       log.debug("getDefaultCohort");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return queryService.getDefaultQuery(graphs);
+      return queryService.getDefaultQuery();
     }
   }
 
@@ -362,8 +351,7 @@ public class QueryController {
   public Set<String> testRunQuery(HttpServletRequest request, @RequestBody QueryRequest query) throws IOException, SQLException, SQLConversionException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.TestRunQuery.POST")) {
       log.debug("testRunQuery");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return queryService.testRunQuery(query.getQuery(), graphs);
+      return queryService.testRunQuery(query.getQuery());
     }
   }
 
@@ -375,8 +363,7 @@ public class QueryController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.FindMissingArguments.POST")) {
       log.debug("findRequestMissingArguments");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return queryService.findMissingArguments(queryRequest, graphs);
+      return queryService.findMissingArguments(queryRequest);
     }
   }
 
@@ -388,8 +375,7 @@ public class QueryController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
       log.debug("getArgumentType");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return queryService.getArgumentType(referenceIri, graphs);
+      return queryService.getArgumentType(referenceIri);
     }
   }
 }

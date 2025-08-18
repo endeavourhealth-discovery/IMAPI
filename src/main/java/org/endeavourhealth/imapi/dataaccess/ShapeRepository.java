@@ -110,7 +110,7 @@ public class ShapeRepository {
    * All iris referenced include their labels as names, except for the mode predicates themselves
    */
   public static TTEntityMap getShapes(List<Graph> graphs) {
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       GraphQuery qry = conn.prepareGraphSparql(addSparqlPrefixes(GET_ALL_SHAPES_SQL));
       return GraphHelper.getEntityMap(qry);
     }
@@ -125,9 +125,9 @@ public class ShapeRepository {
    * @param focusIri the iri for the shape of interest. Null if all shapes
    * @return a set of iri to shape maps and a map of predoicate names
    */
-  public static TTEntityMap getShapeAndAncestors(String focusIri, List<Graph> graphs) {
+  public static TTEntityMap getShapeAndAncestors(String focusIri) {
 
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       GraphQuery qry = conn.prepareGraphSparql(addSparqlPrefixes(GET_SHAPES_SQL));
       qry.setBinding("entity", Values.iri(focusIri));
       return GraphHelper.getEntityMap(qry);

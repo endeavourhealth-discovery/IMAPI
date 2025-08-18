@@ -18,7 +18,7 @@ public class EqdPopToIMQ {
   private EqdResources resources;
 
 
-  public Query convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources, List<Graph> graphs) throws IOException, QueryException, EQDException {
+  public Query convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws IOException, QueryException, EQDException {
     String activeReport = eqReport.getId();
     if (eqReport.getVersionIndependentGUID() != null) activeReport = eqReport.getVersionIndependentGUID();
     if (eqReport.getName().equals("All currently registered patients"))
@@ -65,7 +65,7 @@ public class EqdPopToIMQ {
     resources.setRule(0);
     resources.setSubRule(0);
     for (EQDOCCriteriaGroup eqGroup : eqReport.getPopulation().getCriteriaGroup()) {
-      Match rule = resources.convertGroup(eqGroup, graphs);
+      Match rule = resources.convertGroup(eqGroup);
       query.addRule(rule);
       VocRuleAction ifTrue = eqGroup.getActionIfTrue();
       VocRuleAction ifFalse = eqGroup.getActionIfFalse();

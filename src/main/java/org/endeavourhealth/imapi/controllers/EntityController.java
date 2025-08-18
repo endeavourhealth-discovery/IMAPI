@@ -78,8 +78,7 @@ public class EntityController {
   public TTEntity getPartialEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Partial.GET")) {
       log.debug("getPartialEntity");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getBundle(iri, predicates, graphs).getEntity();
+      return entityService.getBundle(iri, predicates).getEntity();
     }
   }
 
@@ -88,14 +87,13 @@ public class EntityController {
   public List<TTEntity> getPartialEntities(HttpServletRequest request, @RequestBody Map<String, Object> map) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Partials.POST")) {
       log.debug("getPartialEntities");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
       Set<String> iris = new HashSet<>();
       Set<String> predicates = new HashSet<>();
       if (!map.get("iris").toString().isEmpty())
         iris = new HashSet<>(Arrays.asList(map.get("iris").toString().split(",")));
       if (!map.get("predicates").toString().isEmpty())
         predicates = new HashSet<>(Arrays.asList(map.get("predicates").toString().split(",")));
-      return entityService.getPartialEntities(iris, predicates, graphs);
+      return entityService.getPartialEntities(iris, predicates);
     }
   }
 
@@ -104,8 +102,7 @@ public class EntityController {
   public TTEntity getFullEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
       log.debug("getFullEntity");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getBundleByPredicateExclusions(iri, null, graphs).getEntity();
+      return entityService.getBundleByPredicateExclusions(iri, null).getEntity();
     }
   }
 
@@ -114,8 +111,7 @@ public class EntityController {
   public Set<String> getEntityType(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
       log.debug("getEntityTypes");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getBundle(iri, asHashSet(RDF.TYPE), graphs).getEntity()
+      return entityService.getBundle(iri, asHashSet(RDF.TYPE)).getEntity()
         .getType().getElements().stream().map(e -> e.asIriRef().getIri()).collect(Collectors.toSet());
     }
   }
@@ -126,8 +122,7 @@ public class EntityController {
   public TTBundle getPartialEntityBundle(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PartialBundle.GET")) {
       log.debug("getPartialEntityBundle");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getBundle(iri, predicates, graphs);
+      return entityService.getBundle(iri, predicates);
     }
   }
 
@@ -136,15 +131,14 @@ public class EntityController {
   public List<EntityReferenceNode> getEntityChildren(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", required = false) Graph graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Children.GET")) {
       log.debug("getEntityChildren");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
       if (page == null && size == null) {
         page = 1;
         size = EntityService.MAX_CHILDREN;
       }
-      TTEntity entity = entityService.getBundle(iri, asHashSet(RDF.TYPE), graphs).getEntity();
+      TTEntity entity = entityService.getBundle(iri, asHashSet(RDF.TYPE)).getEntity();
       boolean inactive = entity.getType() != null && entity.getType().contains(iri(IM.TASK));
 
-      return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive, graphs);
+      return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive);
     }
   }
 
@@ -153,8 +147,7 @@ public class EntityController {
   public EntityReferenceNode getEntityAsEntityReferenceNode(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.AsEntityReferenceNode.GET")) {
       log.debug("getEntityAsEntityReferenceNode");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getEntityAsEntityReferenceNode(iri, graphs);
+      return entityService.getEntityAsEntityReferenceNode(iri);
     }
   }
 
@@ -163,8 +156,7 @@ public class EntityController {
   public List<EntityReferenceNode> getAsEntityReferenceNodes(HttpServletRequest request, @RequestParam(name = "iris") List<String> iris) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.AsEntityReferenceNodes.GET")) {
       log.debug("getAsEntityReferenceNodes");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getAsEntityReferenceNodes(iris, graphs);
+      return entityService.getAsEntityReferenceNodes(iris);
     }
   }
 
@@ -180,12 +172,11 @@ public class EntityController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ChildrenPaged.GET")) {
       log.debug("getEntityChildrenPagedWithTotalCount" + ((typeFilter != null) ? "entity types= " + typeFilter : ""));
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
       if (page == null && size == null) {
         page = 1;
         size = 10;
       }
-      return entityService.getEntityChildrenPagedWithTotalCount(iri, schemeIris, page, size, false, typeFilter, graphs);
+      return entityService.getEntityChildrenPagedWithTotalCount(iri, schemeIris, page, size, false, typeFilter);
     }
   }
 
@@ -201,12 +192,11 @@ public class EntityController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PartialAndTotalCount.GET")) {
       log.debug("getPartialAndTotalCount");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
       if (page == null && size == null) {
         page = 1;
         size = 10;
       }
-      return entityService.getPartialWithTotalCount(iri, predicate, schemeIris, page, size, false, graphs);
+      return entityService.getPartialWithTotalCount(iri, predicate, schemeIris, page, size, false);
     }
   }
 
@@ -215,8 +205,7 @@ public class EntityController {
   public HttpEntity<Object> downloadEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DownloadEntity.GET")) {
       log.debug("Download entity");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      TTBundle entity = entityService.getBundle(iri, null, graphs);
+      TTBundle entity = entityService.getBundle(iri, null);
       TTManager manager = new TTManager();
       TTDocument document = manager.createDocument();
       List<TTEntity> entityList = new ArrayList<>();
@@ -235,8 +224,7 @@ public class EntityController {
   public List<EntityReferenceNode> getEntityParents(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Parents.GET")) {
       log.debug("getEntityParents");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getImmediateParents(iri, schemeIris, page, size, false, graphs);
+      return entityService.getImmediateParents(iri, schemeIris, page, size, false);
     }
   }
 
@@ -245,8 +233,7 @@ public class EntityController {
   public List<TTEntity> entityUsages(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Usages.GET")) {
       log.debug("entityUsages");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.usages(iri, page, size, graphs);
+      return entityService.usages(iri, page, size);
     }
   }
 
@@ -255,8 +242,7 @@ public class EntityController {
   public Integer totalRecords(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UsagesTotalRecords.GET")) {
       log.debug("totalRecords");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.totalRecords(iri, graphs);
+      return entityService.totalRecords(iri);
     }
   }
 
@@ -267,8 +253,7 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       log.debug("createEntity");
       String agentName = requestObjectService.getRequestAgentName(request);
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return filerService.createEntity(editRequest, agentName, graphs, editRequest.getGraph());
+      return filerService.createEntity(editRequest, agentName, editRequest.getGraph());
     }
   }
 
@@ -278,8 +263,7 @@ public class EntityController {
   public boolean checkExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws TTFilerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Exists.POST")) {
       log.debug("checkEntityExists");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.checkEntityExists(iri, graphs);
+      return entityService.checkEntityExists(iri);
     }
   }
 
@@ -289,41 +273,17 @@ public class EntityController {
   public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException, UserNotFoundException, TaskFilerException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       log.debug("updateEntity");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
       String agentName = requestObjectService.getRequestAgentName(request);
-      return filerService.updateEntity(editRequest.getEntity(), agentName, graphs, editRequest.getGraph());
+      return filerService.updateEntity(editRequest.getEntity(), agentName, editRequest.getGraph());
     }
   }
-
-//  @PostMapping(value = "/createDraft")
-//  @PreAuthorize("hasAuthority('EDITOR')")
-//  @Operation(summary = "Save draft entity", description = "Add an entity to the users draft graph to await approval process")
-//  public TTEntity saveDraft(@RequestBody EditRequest editRequest, HttpServletRequest request) throws TTFilerException, IOException, UserNotFoundException, TaskFilerException {
-//    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.draft.POST")) {
-//      log.debug("saveDraft");
-//      String agentName = requestObjectService.getRequestAgentName(request);
-//      String userGraph = requestObjectService.getUserDraftGraph(request);
-//      return filerService.createEntity(editRequest, agentName, Graph.from(userGraph));
-//    }
-//  }
-
-//  @GetMapping(value = "/draft")
-//  @Operation(summary = "get draft entity", description = "Get a users draft entity by entity iri")
-//  public TTEntity getDraft(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws TTFilerException, IOException, UserNotFoundException, TaskFilerException {
-//    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.draft.GET")) {
-//      log.debug("getDraft");
-//      String userGraph = requestObjectService.getUserDraftGraph(request);
-//      return entityService.getBundleByPredicateExclusions(iri, null, Graph.from(userGraph)).getEntity();
-//    }
-//  }
 
   @GetMapping("/public/summary")
   @Operation(summary = "Get entity summary", description = "Fetches a summary of the search results for the specified entity by IRI")
   public SearchResultSummary getSummary(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Summary.GET")) {
       log.debug("getSummary");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getSummary(iri, graphs);
+      return entityService.getSummary(iri);
     }
   }
 
@@ -335,7 +295,6 @@ public class EntityController {
   ) throws IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, DownloadException, QueryException, DataFormatException {
     try (MetricsTimer t = MetricsHelper.recordTime("API/Entity.DownloadSearchResults.POST")) {
       log.debug("downloadSearchResults");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
       headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "searchResults." + downloadByQueryOptions.getFormat() + "\"");
@@ -344,7 +303,7 @@ public class EntityController {
         switch (downloadByQueryOptions.getFormat()) {
           case "xlsx": {
             ExcelSearchExporter excelSearchExporter = new ExcelSearchExporter();
-            XSSFWorkbook workbook = excelSearchExporter.getSearchAsExcel(downloadByQueryOptions, graphs);
+            XSSFWorkbook workbook = excelSearchExporter.getSearchAsExcel(downloadByQueryOptions);
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
               workbook.write(outputStream);
               workbook.close();
@@ -355,7 +314,7 @@ public class EntityController {
           }
           case "csv", "tsv": {
             SearchTextFileExporter searchTextFileExporter = new SearchTextFileExporter();
-            String result = searchTextFileExporter.getSearchFile(downloadByQueryOptions, graphs);
+            String result = searchTextFileExporter.getSearchFile(downloadByQueryOptions);
             return new HttpEntity<>(result, headers);
           }
           default:
@@ -372,8 +331,7 @@ public class EntityController {
   public List<TTIriRef> getFolderPath(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FolderPath.GET")) {
       log.debug("getFolderPath");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getParentPath(iri, graphs);
+      return entityService.getParentPath(iri);
     }
   }
 
@@ -382,8 +340,7 @@ public class EntityController {
   public List<TTIriRef> getShortestPathBetweenNodes(HttpServletRequest request, @RequestParam(name = "ancestor") String ancestor, @RequestParam(name = "descendant") String descendant) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ShortestParentHierarchy.GET")) {
       log.debug("getShortestPathBetweenNodes");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getShortestPathBetweenNodes(ancestor, descendant, graphs);
+      return entityService.getShortestPathBetweenNodes(ancestor, descendant);
     }
   }
 
@@ -392,8 +349,7 @@ public class EntityController {
   public Boolean iriExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.IriExists.GET")) {
       log.debug("iriExists");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.iriExists(iri, graphs);
+      return entityService.iriExists(iri);
     }
   }
 
@@ -402,8 +358,7 @@ public class EntityController {
   public TTEntity getEntityByPredicateExclusions(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.EntityByPredicateExclusions.GET")) {
       log.debug("getEntityByPredicateExclusions");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getBundleByPredicateExclusions(iri, predicates, graphs).getEntity();
+      return entityService.getBundleByPredicateExclusions(iri, predicates).getEntity();
     }
   }
 
@@ -412,8 +367,7 @@ public class EntityController {
   public TTBundle getBundleByPredicateExclusions(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.BundleByPredicateExclusions.GET")) {
       log.debug("getBundleByPredicateExclusions");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getBundleByPredicateExclusions(iri, predicates, graphs);
+      return entityService.getBundleByPredicateExclusions(iri, predicates);
     }
   }
 
@@ -422,8 +376,7 @@ public class EntityController {
   public Set<String> getPredicates(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Predicates.GET")) {
       log.debug("getPredicates");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getPredicates(iri, graphs);
+      return entityService.getPredicates(iri);
     }
   }
 
@@ -432,8 +385,7 @@ public class EntityController {
   public List<ValidatedEntity> getValidatedEntitiesBySnomedCodes(HttpServletRequest request, @RequestBody ValidatedEntitiesRequest validatedEntitiesRequest) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ValidatedEntity.POST")) {
       log.debug("getValidatedEntitiesBySnomedCodes");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getValidatedEntitiesBySnomedCodes(validatedEntitiesRequest.getSnomedCodes(), graphs);
+      return entityService.getValidatedEntitiesBySnomedCodes(validatedEntitiesRequest.getSnomedCodes());
     }
   }
 
@@ -442,8 +394,7 @@ public class EntityController {
   public TTBundle getDetailsDisplay(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DetailsDisplay.GET")) {
       log.debug("getDetailsDisplay");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getDetailsDisplay(iri, graphs);
+      return entityService.getDetailsDisplay(iri);
     }
   }
 
@@ -458,8 +409,7 @@ public class EntityController {
   ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DetailsDisplay.LOADMORE.GET")) {
       log.debug("getDetailsDisplayLoadMore");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.loadMoreDetailsDisplay(iri, predicate, pageIndex, pageSize, graphs);
+      return entityService.loadMoreDetailsDisplay(iri, predicate, pageIndex, pageSize);
     }
   }
 
@@ -471,8 +421,7 @@ public class EntityController {
   ) throws IOException, ValidationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.validate.POST")) {
       log.debug("validateEntity");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.validate(entityValidationRequest, graphs);
+      return entityService.validate(entityValidationRequest);
     }
   }
 
@@ -481,8 +430,7 @@ public class EntityController {
   public List<TTIriRef> getEntitiesByType(HttpServletRequest request, @RequestParam(name = "iri") String typeIri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Predicates.GET")) {
       log.debug("getEntitiesByType");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getEntitiesByType(EntityType.from(typeIri), graphs);
+      return entityService.getEntitiesByType(EntityType.from(typeIri));
     }
   }
 
@@ -491,8 +439,7 @@ public class EntityController {
   public Map<String, Namespace> getNamespacesWithPrefixes(HttpServletRequest request) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
       log.debug("getNamespacesWithPrefixes (getSchemes)");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      List<Namespace> namespaces = entityService.getNamespaces(graphs);
+      List<Namespace> namespaces = entityService.getNamespaces();
       Map<String, Namespace> result = new HashMap<>();
       namespaces.forEach(namespace -> result.put(namespace.getIri(), namespace));
       return result;
@@ -504,8 +451,7 @@ public class EntityController {
   public List<Namespace> getNamespaces(HttpServletRequest request) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
       log.debug("getNamespaces");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getNamespaces(graphs);
+      return entityService.getNamespaces();
     }
   }
 
@@ -514,8 +460,7 @@ public class EntityController {
   public Set<String> getXmlSchemaDataTypes(HttpServletRequest request) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.XmlSchemaDataTypes.GET")) {
       log.debug("getXmlSchemaDataTypes");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getXmlSchemaDataTypes(graphs);
+      return entityService.getXmlSchemaDataTypes();
     }
   }
 
@@ -524,8 +469,7 @@ public class EntityController {
   public GraphDto getGraphData(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Graph.Graph.GET")) {
       log.debug("getGraphData");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return graphDtoService.getGraphData(iri, graphs);
+      return graphDtoService.getGraphData(iri);
     }
   }
 
@@ -559,8 +503,7 @@ public class EntityController {
   public List<TTEntity> getAllowableChildTypes(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.AllowableChildTypes.GET")) {
       log.debug("get AllowableChildTypes for " + iri);
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getAllowableChildTypes(iri, graphs);
+      return entityService.getAllowableChildTypes(iri);
     }
   }
 
@@ -570,8 +513,7 @@ public class EntityController {
   public List<String> getChildEntities(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Children.GET")) {
       log.debug("getChildIris");
-      List<Graph> graphs = requestObjectService.getUserGraphs(request);
-      return entityService.getChildIris(iri, graphs);
+      return entityService.getChildIris(iri);
     }
   }
 

@@ -19,10 +19,10 @@ public class SetToSparql {
   private String tabs = "   ";
 
 
-  public String getExpansionSparql(String entityVar, String iri, List<Graph> graphs) throws DataFormatException {
+  public String getExpansionSparql(String entityVar, String iri) throws DataFormatException {
 
     Set<String> predicates = asHashSet(RDFS.LABEL, IM.DEFINITION);
-    TTEntity entity = entityRepository.getEntityPredicates(iri, predicates, graphs).getEntity();
+    TTEntity entity = entityRepository.getEntityPredicates(iri, predicates).getEntity();
     StringBuilder subQuery = new StringBuilder();
     if (entity.get(TTIriRef.iri(IM.HAS_MEMBER)) != null) {
       subQuery.append("?").append(entityVar).append(" ")

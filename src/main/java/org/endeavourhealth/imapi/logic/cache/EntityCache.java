@@ -63,11 +63,11 @@ public class EntityCache implements Runnable {
    * @param iri the iri of the shape
    * @return a TTEntity representing the shape
    */
-  public static TTBundle getProperty(String iri, List<Graph> graphs) {
+  public static TTBundle getProperty(String iri) {
     TTEntity property = properties.get(iri);
     if (property == null) {
       synchronized (propertyLock) {
-        TTEntityMap propertyMap = PropertyRepository.getProperty(iri, graphs);
+        TTEntityMap propertyMap = PropertyRepository.getProperty(iri);
         if (propertyMap.getEntities() == null)
           return null;
         cacheProperties(propertyMap);
@@ -94,12 +94,12 @@ public class EntityCache implements Runnable {
    * @param iri the iri of the entity
    * @return a bundle consisting of the entity and a predicate name map
    */
-  public static TTBundle getEntity(String iri, List<Graph> graphs) {
+  public static TTBundle getEntity(String iri) {
     TTEntity entity = entities.get(iri);
     if (entity == null) {
       synchronized (entityLock) {
         EntityRepository entityRepository = new EntityRepository();
-        TTBundle bundle = entityRepository.getBundle(iri, graphs);
+        TTBundle bundle = entityRepository.getBundle(iri);
         if (bundle != null) {
           entities.put(iri, bundle.getEntity());
           predicateNames.putAll(bundle.getPredicates());
@@ -120,11 +120,11 @@ public class EntityCache implements Runnable {
    * @param iri the iri of the shape
    * @return a TTEntity representing the shape
    */
-  public static TTBundle getShape(String iri, List<Graph> graphs) {
+  public static TTBundle getShape(String iri) {
     TTEntity shape = shapes.get(iri);
     if (shape == null) {
       synchronized (shapeLock) {
-        TTEntityMap shapeMap = ShapeRepository.getShapeAndAncestors(iri, graphs);
+        TTEntityMap shapeMap = ShapeRepository.getShapeAndAncestors(iri);
         if (shapeMap.getEntities() == null)
           return null;
         synchronized (EntityCache.shapeLock) {

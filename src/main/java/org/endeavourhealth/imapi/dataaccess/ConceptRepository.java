@@ -19,7 +19,7 @@ import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueLis
 
 public class ConceptRepository {
 
-  public List<SimpleMap> getMatchedFrom(String iri, List<String> schemeIris, List<Graph> graphs) {
+  public List<SimpleMap> getMatchedFrom(String iri, List<String> schemeIris) {
     List<SimpleMap> simpleMaps = new ArrayList<>();
     String sql = """
       SELECT ?s ?code ?scheme ?name
@@ -31,7 +31,7 @@ public class ConceptRepository {
         rdfs:label ?name .
       }
       """.formatted(valueList("scheme", schemeIris));
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("o", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -44,7 +44,7 @@ public class ConceptRepository {
     return simpleMaps;
   }
 
-  public List<SimpleMap> getMatchedTo(String iri, List<String> schemeIris, List<Graph> graphs) {
+  public List<SimpleMap> getMatchedTo(String iri, List<String> schemeIris) {
     List<SimpleMap> simpleMaps = new ArrayList<>();
     String sql = """
       SELECT ?o ?code ?scheme ?name
@@ -57,7 +57,7 @@ public class ConceptRepository {
       }
       """.formatted(valueList("scheme", schemeIris));
 
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("s", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -70,7 +70,7 @@ public class ConceptRepository {
     return simpleMaps;
   }
 
-  public Set<String> getPropertiesForDomains(Set<String> iris, List<Graph> graphs) {
+  public Set<String> getPropertiesForDomains(Set<String> iris) {
     Set<String> properties = new HashSet<>();
     String sql = """
       select distinct ?property
@@ -80,7 +80,7 @@ public class ConceptRepository {
         ?property rdfs:domain ?superDomains
       }
       """.formatted(String.join(" ", iris.stream().map(iri -> "<" + iri + ">").toArray(String[]::new)));
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -92,7 +92,7 @@ public class ConceptRepository {
     return properties;
   }
 
-  public Set<String> getRangesForProperty(String conceptIri, List<Graph> graphs) {
+  public Set<String> getRangesForProperty(String conceptIri) {
     Set<String> ranges = new HashSet<>();
     String sql = """
       Select ?range
@@ -103,7 +103,7 @@ public class ConceptRepository {
       }
       """.formatted("<" + conceptIri + ">");
 
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -116,9 +116,9 @@ public class ConceptRepository {
   }
 
 
-  public List<ConceptContextMap> getConceptContextMaps(String iri, List<Graph> graphs) {
+  public List<ConceptContextMap> getConceptContextMaps(String iri) {
     List<ConceptContextMap> result = new ArrayList<>();
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       String sparql = """
         SELECT ?nodeName ?sourceVal ?sourceRegex ?propertyName ?publisherName ?systemName ?schema ?table ?field
         WHERE {

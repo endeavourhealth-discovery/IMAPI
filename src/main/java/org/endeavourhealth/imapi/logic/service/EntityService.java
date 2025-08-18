@@ -55,33 +55,33 @@ public class EntityService {
     }
   }
 
-  public TTBundle getBundle(String iri, Set<String> predicates, List<Graph> graphs) {
-    return entityRepository.getBundle(iri, predicates, graphs);
+  public TTBundle getBundle(String iri, Set<String> predicates) {
+    return entityRepository.getBundle(iri, predicates);
   }
 
-  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates, List<Graph> graphs) {
-    TTBundle bundle = entityRepository.getBundle(iri, excludePredicates, true, graphs);
+  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) {
+    TTBundle bundle = entityRepository.getBundle(iri, excludePredicates, true);
     filterOutSpecifiedPredicates(excludePredicates, bundle);
     filterOutInactiveTermCodes(bundle);
     return bundle;
   }
 
-  public List<TTEntity> getPartialEntities(Set<String> iris, Set<String> predicates, List<Graph> graphs) {
+  public List<TTEntity> getPartialEntities(Set<String> iris, Set<String> predicates) {
     List<TTEntity> entities = new ArrayList<>();
     if (iris.stream().anyMatch(str -> str == null || str.isEmpty())) {
       throw new IllegalArgumentException("Iri list contains an empty or null string");
     }
 
     for (String iri : iris) {
-      TTEntity entity = getBundle(iri, predicates, graphs).getEntity();
+      TTEntity entity = getBundle(iri, predicates).getEntity();
       entities.add(entity);
     }
     return entities;
   }
 
-  public TTIriRef getEntityReference(String iri, List<Graph> graphs) {
+  public TTIriRef getEntityReference(String iri) {
     if (iri == null || iri.isEmpty()) return null;
-    return entityRepository.getEntityReferenceByIri(iri, graphs);
+    return entityRepository.getEntityReferenceByIri(iri);
   }
 
 
@@ -91,105 +91,104 @@ public class EntityService {
     Integer page,
     Integer size,
     boolean inactive,
-    List<String> entityTypes,
-    List<Graph> graphs
+    List<String> entityTypes
   ) {
     if (iri == null || iri.isEmpty()) return null;
 
     int rowNumber = 0;
     if (page != null && size != null) rowNumber = (page - 1) * size;
 
-    Pageable<TTIriRef> childrenAndTotalCount = entityRepository.findImmediateChildrenPagedByIriWithTotalCount(iri, schemeIris, rowNumber, size, inactive, entityTypes, graphs);
-    return iriRefPageableToEntityReferenceNodePageable(childrenAndTotalCount, schemeIris, inactive, iri, graphs);
+    Pageable<TTIriRef> childrenAndTotalCount = entityRepository.findImmediateChildrenPagedByIriWithTotalCount(iri, schemeIris, rowNumber, size, inactive, entityTypes);
+    return iriRefPageableToEntityReferenceNodePageable(childrenAndTotalCount, schemeIris, inactive, iri);
   }
 
 
-  public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive, List<Graph> graphs) {
-    return getEntityChildrenPagedWithTotalCount(iri, schemeIris, page, size, inactive, null, graphs);
+  public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+    return getEntityChildrenPagedWithTotalCount(iri, schemeIris, page, size, inactive, null);
   }
 
-  public Pageable<TTIriRef> getPartialWithTotalCount(String iri, String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive, List<Graph> graphs) {
+  public Pageable<TTIriRef> getPartialWithTotalCount(String iri, String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
     if (iri == null || iri.isEmpty()) return null;
 
     int rowNumber = 0;
     if (page != null && size != null) rowNumber = (page - 1) * size;
 
-    return entityRepository.findPartialWithTotalCount(iri, predicateList, schemeIris, rowNumber, size, inactive, graphs);
+    return entityRepository.findPartialWithTotalCount(iri, predicateList, schemeIris, rowNumber, size, inactive);
   }
 
 
-  public List<EntityReferenceNode> getImmediateParents(String iri, List<String> schemeIris, Integer pageIndex, Integer pageSize, boolean inactive, List<Graph> graphs) {
+  public List<EntityReferenceNode> getImmediateParents(String iri, List<String> schemeIris, Integer pageIndex, Integer pageSize, boolean inactive) {
 
     if (iri == null || iri.isEmpty()) return Collections.emptyList();
 
     int rowNumber = 0;
     if (pageIndex != null && pageSize != null) rowNumber = (pageIndex - 1) * pageSize;
 
-    List<EntityReferenceNode> parents = getParents(iri, schemeIris, rowNumber, pageSize, inactive, graphs).stream().map(p -> new EntityReferenceNode(p.getIri(), p.getName())).toList();
+    List<EntityReferenceNode> parents = getParents(iri, schemeIris, rowNumber, pageSize, inactive).stream().map(p -> new EntityReferenceNode(p.getIri(), p.getName())).toList();
 
     for (EntityReferenceNode parent : parents)
-      parent.setType(entityRepository.getEntityTypes(parent.getIri(), graphs));
+      parent.setType(entityRepository.getEntityTypes(parent.getIri()));
 
     return parents;
   }
 
-  private List<TTIriRef> getParents(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive, List<Graph> graphs) {
+  private List<TTIriRef> getParents(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
 
-    return entityRepository.findImmediateParentsByIri(iri, schemeIris, rowNumber, pageSize, inactive, graphs);
+    return entityRepository.findImmediateParentsByIri(iri, schemeIris, rowNumber, pageSize, inactive);
   }
 
-  public List<TTIriRef> isWhichType(String iri, List<String> candidates, List<Graph> graphs) {
+  public List<TTIriRef> isWhichType(String iri, List<String> candidates) {
     if (iri == null || iri.isEmpty() || candidates == null || candidates.isEmpty()) return Collections.emptyList();
-    return entityRepository.findAncestorsByType(iri, RDFS.SUBCLASS_OF, candidates, graphs).stream().sorted(Comparator.comparing(TTIriRef::getName)).toList();
+    return entityRepository.findAncestorsByType(iri, RDFS.SUBCLASS_OF, candidates).stream().sorted(Comparator.comparing(TTIriRef::getName)).toList();
   }
 
-  public List<TTEntity> usages(String iri, Integer pageIndex, Integer pageSize, List<Graph> graphs) {
+  public List<TTEntity> usages(String iri, Integer pageIndex, Integer pageSize) {
     ArrayList<TTEntity> usageEntities = new ArrayList<>();
     if (iri == null || iri.isEmpty()) return Collections.emptyList();
 
-    Set<String> xmlDataTypes = entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD, graphs);
+    Set<String> xmlDataTypes = entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD);
     if (xmlDataTypes != null && xmlDataTypes.contains(iri)) return Collections.emptyList();
 
     int rowNumber = 0;
     if (pageIndex != null && pageSize != null) rowNumber = pageIndex * pageSize;
 
-    List<TTIriRef> usageRefs = entityRepository.getConceptUsages(iri, rowNumber, pageSize, graphs).stream().sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder()))).distinct().toList();
+    List<TTIriRef> usageRefs = entityRepository.getConceptUsages(iri, rowNumber, pageSize).stream().sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder()))).distinct().toList();
 
     usageRefs = usageRefs.stream().filter(usage -> !usage.getIri().equals(iri)).toList();
     for (TTIriRef usage : usageRefs) {
-      TTArray type = getBundle(usage.getIri(), Collections.singleton(RDF.TYPE.toString()), graphs).getEntity().getType();
+      TTArray type = getBundle(usage.getIri(), Collections.singleton(RDF.TYPE.toString())).getEntity().getType();
       usageEntities.add(new TTEntity().setIri(usage.getIri()).setName(usage.getName()).setType(type));
     }
 
     return usageEntities;
   }
 
-  public Integer totalRecords(String iri, List<Graph> graphs) {
+  public Integer totalRecords(String iri) {
     if (iri == null || iri.isEmpty()) return 0;
 
-    Set<String> xmlDataTypes = entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD, graphs);
+    Set<String> xmlDataTypes = entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD);
     if (xmlDataTypes != null && xmlDataTypes.contains(iri)) return 0;
 
-    return entityRepository.getConceptUsagesCount(iri, graphs);
+    return entityRepository.getConceptUsagesCount(iri);
   }
 
-  public TTEntity getSummaryFromConfig(String iri, List<String> configs, List<Graph> graphs) {
+  public TTEntity getSummaryFromConfig(String iri, List<String> configs) {
     if (iri == null || iri.isEmpty() || configs == null || configs.isEmpty()) {
       return new TTEntity();
     }
     List<String> excludedForSummary = Arrays.asList("None", RDFS.SUBCLASS_OF.toString(), "subtypes", IM.IS_CHILD_OF.toString(), IM.HAS_CHILDREN.toString(), "termCodes", "semanticProperties", "dataModelProperties");
     List<String> predicates = configs.stream().filter(config -> !excludedForSummary.contains(config)).toList();
-    return getBundle(iri, new HashSet<>(predicates), graphs).getEntity();
+    return getBundle(iri, new HashSet<>(predicates)).getEntity();
   }
 
-  public SearchResultSummary getSummary(String iri, List<Graph> graphs) {
+  public SearchResultSummary getSummary(String iri) {
     if (iri == null || iri.isEmpty()) return null;
-    return entityRepository.getEntitySummaryByIri(iri, graphs);
+    return entityRepository.getEntitySummaryByIri(iri);
   }
 
-  public TTEntity getConceptShape(String iri, List<Graph> graphs) {
+  public TTEntity getConceptShape(String iri) {
     if (iri == null || iri.isEmpty()) return null;
-    TTEntity entity = getBundle(iri, Set.of(SHACL.PROPERTY.toString(), SHACL.OR.toString(), RDF.TYPE.toString()), graphs).getEntity();
+    TTEntity entity = getBundle(iri, Set.of(SHACL.PROPERTY.toString(), SHACL.OR.toString(), RDF.TYPE.toString())).getEntity();
     TTArray value = entity.get(RDF.TYPE.asIri());
     if (!value.getElements().contains(SHACL.NODESHAPE.asIri())) {
       return null;
@@ -197,50 +196,50 @@ public class EntityService {
     return entity;
   }
 
-  public TTDocument getConceptList(List<String> iris, List<Graph> graphs) {
+  public TTDocument getConceptList(List<String> iris) {
     if (iris == null || iris.isEmpty()) {
       return null;
     }
     TTDocument document = new TTDocument();
-    List<Namespace> namespaces = getNamespaces(graphs);
+    List<Namespace> namespaces = getNamespaces();
     TTContext context = new TTContext();
     for (Namespace namespace : namespaces) {
       context.add(namespace.getIri(), namespace.getPrefix(), namespace.getName());
     }
     document.setContext(context);
     for (String iri : iris) {
-      TTBundle bundle = getBundle(iri, null, graphs);
+      TTBundle bundle = getBundle(iri, null);
       document.addEntity(bundle.getEntity());
     }
     return document;
   }
 
-  public List<TTIriRef> getParentPath(String iri, List<Graph> graphs) {
-    TTEntity entity = getBundle(iri, new HashSet<>(List.of(RDFS.LABEL.toString())), graphs).getEntity();
+  public List<TTIriRef> getParentPath(String iri) {
+    TTEntity entity = getBundle(iri, new HashSet<>(List.of(RDFS.LABEL.toString()))).getEntity();
     List<TTIriRef> parents = new ArrayList<>();
-    getParentPathRecursive(iri, parents, graphs);
+    getParentPathRecursive(iri, parents);
     Collections.reverse(parents);
     parents.add(new TTIriRef(iri, entity.getName()));
     return parents;
   }
 
-  private void getParentPathRecursive(String iri, List<TTIriRef> parents, List<Graph> graphs) {
-    TTIriRef parent = entityRepository.findParentFolderRef(iri, graphs);
+  private void getParentPathRecursive(String iri, List<TTIriRef> parents) {
+    TTIriRef parent = entityRepository.findParentFolderRef(iri);
     if (parent != null) {
       parents.add(parent);
-      getParentPathRecursive(parent.getIri(), parents, graphs);
+      getParentPathRecursive(parent.getIri(), parents);
     }
   }
 
-  public Set<TTIriRef> getNames(Set<String> iris, List<Graph> graphs) {
+  public Set<TTIriRef> getNames(Set<String> iris) {
     Set<TTIriRef> result = iris.stream().map(TTIriRef::new).collect(Collectors.toSet());
-    entityRepository.getNames(result, graphs);
+    entityRepository.getNames(result);
     return result;
   }
 
-  public List<List<TTIriRef>> getParentHierarchies(String iri, List<Graph> graphs) {
+  public List<List<TTIriRef>> getParentHierarchies(String iri) {
     ParentDto parentHierarchy = new ParentDto(iri, null, null);
-    addParentHierarchiesRecursively(parentHierarchy, new HashSet<>(), graphs);
+    addParentHierarchiesRecursively(parentHierarchy, new HashSet<>());
     return getParentHierarchiesFlatLists(parentHierarchy);
   }
 
@@ -268,22 +267,22 @@ public class EntityService {
     }
   }
 
-  private void addParentHierarchiesRecursively(ParentDto parent, Set<String> done, List<Graph> graphs) {
-    List<ParentDto> parents = entityRepository.findParentHierarchies(parent.getIri(), graphs);
+  private void addParentHierarchiesRecursively(ParentDto parent, Set<String> done) {
+    List<ParentDto> parents = entityRepository.findParentHierarchies(parent.getIri());
     if (!parents.isEmpty()) {
       parent.setParents(parents);
       for (ParentDto parentsParent : parents) {
         if (!done.contains(parentsParent.getIri())) {
           done.add(parentsParent.getIri());
-          addParentHierarchiesRecursively(parentsParent, done, graphs);
+          addParentHierarchiesRecursively(parentsParent, done);
         }
       }
     }
   }
 
-  public List<TTIriRef> getShortestPathBetweenNodes(String ancestor, String descendant, List<Graph> graphs) {
+  public List<TTIriRef> getShortestPathBetweenNodes(String ancestor, String descendant) {
     List<TTIriRef> shortestPath = new ArrayList<>();
-    List<List<TTIriRef>> paths = getParentHierarchies(descendant, graphs);
+    List<List<TTIriRef>> paths = getParentHierarchies(descendant);
     paths = paths.stream().filter(list -> indexOf(list, ancestor) != -1).collect(Collectors.toList());
 
     paths.sort((a1, a2) ->
@@ -311,31 +310,31 @@ public class EntityService {
     return found ? i : -1;
   }
 
-  public boolean iriExists(String iri, List<Graph> graphs) {
-    return entityRepository.iriExists(iri, graphs);
+  public boolean iriExists(String iri) {
+    return entityRepository.iriExists(iri);
   }
 
-  public String getName(String iri, List<Graph> graphs) {
-    return entityRepository.getEntityReferenceByIri(iri, graphs).getName();
+  public String getName(String iri) {
+    return entityRepository.getEntityReferenceByIri(iri).getName();
   }
 
-  public boolean isLinked(String subject, TTIriRef predicate, String object, List<Graph> graphs) {
-    return entityRepository.predicatePathExists(subject, predicate, object, graphs);
+  public boolean isLinked(String subject, TTIriRef predicate, String object) {
+    return entityRepository.predicatePathExists(subject, predicate, object);
   }
 
-  public EntityDocument getOSDocument(String iri, Graph graph) {
-    return entityRepository.getOSDocument(iri, graph);
+  public EntityDocument getOSDocument(String iri) {
+    return entityRepository.getOSDocument(iri);
   }
 
-  public Set<String> getPredicates(String iri, List<Graph> graphs) {
-    return entityRepository.getPredicates(iri, graphs);
+  public Set<String> getPredicates(String iri) {
+    return entityRepository.getPredicates(iri);
   }
 
-  public List<String> getIM1SchemeOptions(List<Graph> graphs) {
-    return entityRepository.getIM1SchemeOptions(graphs);
+  public List<String> getIM1SchemeOptions() {
+    return entityRepository.getIM1SchemeOptions();
   }
 
-  protected Pageable<EntityReferenceNode> iriRefPageableToEntityReferenceNodePageable(Pageable<TTIriRef> iriRefPageable, List<String> schemeIris, boolean inactive, String parentContext, List<Graph> graphs) {
+  protected Pageable<EntityReferenceNode> iriRefPageableToEntityReferenceNodePageable(Pageable<TTIriRef> iriRefPageable, List<String> schemeIris, boolean inactive, String parentContext) {
     Pageable<EntityReferenceNode> result = new Pageable<>();
     result.setTotalCount(iriRefPageable.getTotalCount());
 
@@ -344,7 +343,7 @@ public class EntityService {
       for (TTIriRef entity : iriRefPageable.getResult()) {
         iris.add(entity.getIri());
       }
-      List<EntityReferenceNode> nodes = entityRepository.getEntityReferenceNodes(iris, schemeIris, inactive, parentContext, graphs);
+      List<EntityReferenceNode> nodes = entityRepository.getEntityReferenceNodes(iris, schemeIris, inactive, parentContext);
       nodes.sort(comparingInt(EntityReferenceNode::getOrderNumber).thenComparing(EntityReferenceNode::getName));
 
       result.setResult(nodes);
@@ -355,15 +354,15 @@ public class EntityService {
     return result;
   }
 
-  public List<EntityReferenceNode> getImmediateChildren(String iri, List<String> schemeIris, Integer pageIndex, Integer pageSize, boolean inactive, List<Graph> graphs) {
+  public List<EntityReferenceNode> getImmediateChildren(String iri, List<String> schemeIris, Integer pageIndex, Integer pageSize, boolean inactive) {
     if (iri == null || iri.isEmpty()) return Collections.emptyList();
 
     List<EntityReferenceNode> result = new ArrayList<>();
     int rowNumber = 0;
     if (pageIndex != null && pageSize != null) rowNumber = (pageIndex - 1) * pageSize;
 
-    for (TTIriRef c : getChildren(iri, schemeIris, rowNumber, pageSize, inactive, graphs)) {
-      result.add(getEntityAsEntityReferenceNode(c.getIri(), graphs));
+    for (TTIriRef c : getChildren(iri, schemeIris, rowNumber, pageSize, inactive)) {
+      result.add(getEntityAsEntityReferenceNode(c.getIri()));
     }
 
     result.sort(comparingInt(EntityReferenceNode::getOrderNumber).thenComparing(EntityReferenceNode::getName));
@@ -371,30 +370,30 @@ public class EntityService {
     return result;
   }
 
-  public List<TTIriRef> getChildren(String iri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive, List<Graph> graphs) {
-    return entityRepository.findImmediateChildrenByIri(iri, schemeIris, rowNumber, pageSize, inactive, graphs);
+  public List<TTIriRef> getChildren(String iri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+    return entityRepository.findImmediateChildrenByIri(iri, schemeIris, rowNumber, pageSize, inactive);
   }
 
 
-  public EntityReferenceNode getEntityAsEntityReferenceNode(String iri, List<Graph> graphs) {
-    return getEntityAsEntityReferenceNode(iri, null, false, graphs);
+  public EntityReferenceNode getEntityAsEntityReferenceNode(String iri) {
+    return getEntityAsEntityReferenceNode(iri, null, false);
   }
 
-  public List<EntityReferenceNode> getAsEntityReferenceNodes(List<String> iris, List<Graph> graphs) {
-    return entityRepository.getAsEntityReferenceNodes(iris, graphs);
+  public List<EntityReferenceNode> getAsEntityReferenceNodes(List<String> iris) {
+    return entityRepository.getAsEntityReferenceNodes(iris);
   }
 
-  public EntityReferenceNode getEntityAsEntityReferenceNode(String iri, List<String> schemeIris, boolean inactive, List<Graph> graphs) {
+  public EntityReferenceNode getEntityAsEntityReferenceNode(String iri, List<String> schemeIris, boolean inactive) {
     if (null == iri) throw new IllegalArgumentException("Missing iri parameter");
 
-    return entityRepository.getEntityReferenceNode(iri, schemeIris, inactive, graphs);
+    return entityRepository.getEntityReferenceNode(iri, schemeIris, inactive);
   }
 
-  public List<ValidatedEntity> getValidatedEntitiesBySnomedCodes(List<String> codes, List<Graph> graphs) {
+  public List<ValidatedEntity> getValidatedEntitiesBySnomedCodes(List<String> codes) {
     List<String> snomedCodes = codes.stream().map(code -> org.endeavourhealth.imapi.vocabulary.Namespace.SNOMED + code).toList();
-    List<TTEntity> entities = getPartialEntities(new HashSet<>(snomedCodes), Set.of(RDFS.LABEL.toString(), IM.CODE.toString()), graphs);
+    List<TTEntity> entities = getPartialEntities(new HashSet<>(snomedCodes), Set.of(RDFS.LABEL.toString(), IM.CODE.toString()));
     SetService setService = new SetService();
-    List<TTIriRef> needed = setService.getDistillation(entities.stream().map(e -> iri(e.getIri())).toList(), graphs);
+    List<TTIriRef> needed = setService.getDistillation(entities.stream().map(e -> iri(e.getIri())).toList());
     List<ValidatedEntity> validatedEntities = new ArrayList<>();
     for (TTEntity entity : entities) {
       ValidatedEntity validatedEntity = validateEntity(entity, needed);
@@ -429,14 +428,14 @@ public class EntityService {
     return validatedEntity;
   }
 
-  public TTBundle getDetailsDisplay(String iri, List<Graph> graphs) {
+  public TTBundle getDetailsDisplay(String iri) {
     Set<String> excludedPredicates = asHashSet(IM.CODE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT);
-    Set<String> entityPredicates = getPredicates(iri, graphs);
+    Set<String> entityPredicates = getPredicates(iri);
     TTBundle response;
     if (entityPredicates.contains(IM.HAS_MEMBER.toString())) {
-      response = getBundleByPredicateExclusions(iri, excludedPredicates, null);
+      response = getBundleByPredicateExclusions(iri, excludedPredicates);
       excludedPredicates.add(IM.HAS_MEMBER.toString());
-      Pageable<TTIriRef> partialAndCount = getPartialWithTotalCount(iri, IM.HAS_MEMBER.toString(), null, 1, 10, false, graphs);
+      Pageable<TTIriRef> partialAndCount = getPartialWithTotalCount(iri, IM.HAS_MEMBER.toString(), null, 1, 10, false);
       TTArray partialAsTTArray = new TTArray();
       for (TTIriRef partial : partialAndCount.getResult()) {
         partialAsTTArray.add(partial);
@@ -449,14 +448,14 @@ public class EntityService {
       response.addPredicate(iri(IM.HAS_MEMBER));
       response.getEntity().set(iri(IM.HAS_MEMBER), partialAsTTArray);
     } else {
-      response = getBundleByPredicateExclusions(iri, excludedPredicates, graphs);
+      response = getBundleByPredicateExclusions(iri, excludedPredicates);
     }
     response.getEntity().removeObject(iri(RDF.TYPE));
     return response;
   }
 
-  public TTBundle loadMoreDetailsDisplay(String iri, String predicate, int pageIndex, int pageSize, List<Graph> graphs) {
-    Pageable<TTIriRef> response = getPartialWithTotalCount(iri, predicate, null, pageIndex, pageSize, false, graphs);
+  public TTBundle loadMoreDetailsDisplay(String iri, String predicate, int pageIndex, int pageSize) {
+    Pageable<TTIriRef> response = getPartialWithTotalCount(iri, predicate, null, pageIndex, pageSize, false);
     TTEntity entity = new TTEntity();
     entity.addObject(iri(predicate), response.getTotalCount());
     TTBundle bundle = new TTBundle();
@@ -464,71 +463,71 @@ public class EntityService {
     return bundle;
   }
 
-  public EntityValidationResponse validate(EntityValidationRequest request, List<Graph> graphs) throws ValidationException {
+  public EntityValidationResponse validate(EntityValidationRequest request) throws ValidationException {
     if (request.getValidationIri().isEmpty()) throw new IllegalArgumentException("Missing validation iri");
-    return validator.validate(request, this, graphs);
+    return validator.validate(request, this);
   }
 
-  public List<TTIriRef> getEntitiesByType(EntityType typeIri, List<Graph> graphs) {
-    return entityRepository.findEntitiesByType(typeIri, graphs);
+  public List<TTIriRef> getEntitiesByType(EntityType typeIri) {
+    return entityRepository.findEntitiesByType(typeIri);
   }
 
-  public List<Namespace> getNamespaces(List<Graph> graphs) {
-    return entityRepository.findNamespaces(graphs);
-  }
-
-
-  public List<TTIriRef> getIsas(String iri, List<Graph> graphs) {
-    return entityRepository.findInvertedIsas(iri, graphs);
+  public List<Namespace> getNamespaces() {
+    return entityRepository.findNamespaces();
   }
 
 
-  public List<String> getOperatorOptions(String iri, List<Graph> graphs) {
-    return entityRepository.findOperatorOptions(iri, graphs);
+  public List<TTIriRef> getIsas(String iri) {
+    return entityRepository.findInvertedIsas(iri);
   }
 
-  public Set<String> getXmlSchemaDataTypes(List<Graph> graphs) {
-    return entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD, graphs);
+
+  public List<String> getOperatorOptions(String iri) {
+    return entityRepository.findOperatorOptions(iri);
   }
 
-  public List<TTEntity> getEntitiesByType(String type, Integer offset, Integer limit, List<Graph> graphs, String... predicates) {
-    return entityRepository.getEntitiesByType(type, offset, limit, graphs, predicates);
+  public Set<String> getXmlSchemaDataTypes() {
+    return entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD);
+  }
+
+  public List<TTEntity> getEntitiesByType(String type, Integer offset, Integer limit, String... predicates) {
+    return entityRepository.getEntitiesByType(type, offset, limit, predicates);
   }
 
   public FilterOptionsDto getFilterOptions() {
     FilterOptionsDto filterOptions = new FilterOptionsDto();
-    filterOptions.setSchemes(getAllChildren(IM.NAMESPACE, List.of(Graph.IM)));
-    filterOptions.setStatus(getAllChildren(IM.STATUS, List.of(Graph.IM)));
-    filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_OPTIONS, List.of(Graph.IM)));
-    filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_OPTIONS, List.of(Graph.IM)));
-    filterOptions.setSortDirections(getAllChildren(IM.SORT_DIRECTION_FILTER_OPTIONS, List.of(Graph.IM)));
+    filterOptions.setSchemes(getAllChildren(IM.NAMESPACE));
+    filterOptions.setStatus(getAllChildren(IM.STATUS));
+    filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_OPTIONS));
+    filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_OPTIONS));
+    filterOptions.setSortDirections(getAllChildren(IM.SORT_DIRECTION_FILTER_OPTIONS));
     return filterOptions;
   }
 
   public FilterOptionsDto getFilterDefaults() {
     FilterOptionsDto filterOptions = new FilterOptionsDto();
-    filterOptions.setSchemes(getAllChildren(IM.SCHEME_FILTER_DEFAULTS, List.of(Graph.IM)));
-    filterOptions.setStatus(getAllChildren(IM.STATUS_FILTER_DEFAULTS, List.of(Graph.IM)));
-    filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_DEFAULTS, List.of(Graph.IM)));
-    filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_DEFAULTS, List.of(Graph.IM)));
-    filterOptions.setSortDirections(getAllChildren(IM.SORT_DIRECTION_FILTER_DEFAULTS, List.of(Graph.IM)));
+    filterOptions.setSchemes(getAllChildren(IM.SCHEME_FILTER_DEFAULTS));
+    filterOptions.setStatus(getAllChildren(IM.STATUS_FILTER_DEFAULTS));
+    filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_DEFAULTS));
+    filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_DEFAULTS));
+    filterOptions.setSortDirections(getAllChildren(IM.SORT_DIRECTION_FILTER_DEFAULTS));
     return filterOptions;
   }
 
-  private List<TTIriRef> getAllChildren(IM iri, List<Graph> graphs) {
-    return getChildren(iri.toString(), null, null, null, false, graphs);
+  private List<TTIriRef> getAllChildren(IM iri) {
+    return getChildren(iri.toString(), null, null, null, false);
   }
 
-  public List<TTEntity> getAllowableChildTypes(String iri, List<Graph> graphs) {
-    return entityRepository.getAllowableChildTypes(iri, graphs);
+  public List<TTEntity> getAllowableChildTypes(String iri) {
+    return entityRepository.getAllowableChildTypes(iri);
   }
 
-  public boolean checkEntityExists(String iri, List<Graph> graphs) {
-    return entityRepository.hasPredicates(iri, asHashSet(RDF.TYPE), graphs);
+  public boolean checkEntityExists(String iri) {
+    return entityRepository.hasPredicates(iri, asHashSet(RDF.TYPE));
   }
 
-  public List<String> getChildIris(String iri, List<Graph> graphs) {
-    return entityRepository.getChildIris(iri, graphs);
+  public List<String> getChildIris(String iri) {
+    return entityRepository.getChildIris(iri);
   }
 }
 

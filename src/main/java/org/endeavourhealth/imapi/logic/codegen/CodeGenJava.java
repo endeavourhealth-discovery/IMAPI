@@ -29,13 +29,13 @@ public class CodeGenJava {
   private final Queue<String> iris = new PriorityQueue<>();
   private final HashMap<String, DataModel> models = new HashMap<>();
 
-  public void generate(ZipOutputStream os, List<Graph> graphs) throws IOException {
-    getModelList(graphs);
-    getDataModelRecursively(graphs);
+  public void generate(ZipOutputStream os) throws IOException {
+    getModelList();
+    getDataModelRecursively();
     generateJavaCode(os);
   }
 
-  private void getModelList(List<Graph> graphs) {
+  private void getModelList() {
     log.debug("getting model list");
 
     String sql = """
@@ -46,7 +46,7 @@ public class CodeGenJava {
       }
       """;
 
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery query = conn.prepareTupleSparql(sql);
       try (TupleQueryResult result = query.evaluate()) {
         while (result.hasNext()) {
@@ -59,18 +59,18 @@ public class CodeGenJava {
     }
   }
 
-  private void getDataModelRecursively(List<Graph> graphs) {
+  private void getDataModelRecursively() {
     log.debug("getting models");
 
     while (!iris.isEmpty()) {
       String iri = iris.remove();
-      DataModel model = getDataModel(iri, graphs);
+      DataModel model = getDataModel(iri);
       addMissingModelToQueue(model);
       models.put(iri, model);
     }
   }
 
-  private DataModel getDataModel(String iri, List<Graph> graphs) {
+  private DataModel getDataModel(String iri) {
     log.debug("get data model [{}]", iri);
 
     DataModel model = new DataModel().setIri(iri);
@@ -96,7 +96,7 @@ public class CodeGenJava {
         } ORDER BY ?order
       """;
 
-    try (IMDB conn = IMDB.getConnection(graphs)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery query = conn.prepareTupleSparql(sql);
       query.setBinding("iri", Values.iri(iri));
       try (TupleQueryResult result = query.evaluate()) {

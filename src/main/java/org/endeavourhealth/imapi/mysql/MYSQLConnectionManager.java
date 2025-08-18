@@ -6,9 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class MYSQLConnectionManager {
@@ -39,11 +38,11 @@ public class MYSQLConnectionManager {
     return connection;
   }
 
-  public static List<String> executeQuery(String sql) throws SQLException {
+  public static Set<String> executeQuery(String sql) throws SQLException {
     try (Connection executeConnection = getConnection()) {
       try (PreparedStatement statement = executeConnection.prepareStatement(sql)) {
         ResultSet rs = statement.executeQuery();
-        List<String> results = new ArrayList<>();
+        Set<String> results = new HashSet<>();
         while (rs.next()) {
           String patientId = rs.getString("id");
           results.add(patientId);
@@ -53,7 +52,7 @@ public class MYSQLConnectionManager {
     }
   }
 
-  public static void saveResults(int hashCode, List<String> results) throws SQLException {
+  public static void saveResults(int hashCode, Set<String> results) throws SQLException {
     createTable(hashCode);
     if (!results.isEmpty()) {
       try (Connection connection = getConnection()) {
@@ -103,8 +102,8 @@ public class MYSQLConnectionManager {
 
   }
 
-  public static List<String> getResults(QueryRequest queryRequest) throws SQLException {
-    List<String> ids = new ArrayList<>();
+  public static Set<String> getResults(QueryRequest queryRequest) throws SQLException {
+    Set<String> ids = new HashSet<>();
     try (Connection getResultsConnection = getConnection();
          Statement statement = getResultsConnection.createStatement()) {
       String sql = "SELECT id FROM `" + queryRequest.hashCode() + "`";

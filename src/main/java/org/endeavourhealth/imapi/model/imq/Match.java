@@ -7,9 +7,10 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-@JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "nodeRef", "header","typeOf", "instanceOf","and","or","not","where"})
+
+@JsonPropertyOrder({"ifTrue", "ifFalse", "name", "description", "nodeRef", "header", "typeOf", "instanceOf", "and", "or", "not", "where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends IriLD implements BoolGroup<Match>,HasPaths{
+public class Match extends IriLD implements BoolGroup<Match>, HasPaths {
   private Element graph;
   @Getter
   private Where where;
@@ -87,6 +88,7 @@ public class Match extends IriLD implements BoolGroup<Match>,HasPaths{
     this.rule = rule;
     return this;
   }
+
   public Match addRule(Match rule) {
     if (this.rule == null) {
       this.rule = new ArrayList<>();
@@ -94,7 +96,6 @@ public class Match extends IriLD implements BoolGroup<Match>,HasPaths{
     this.rule.add(rule);
     return this;
   }
-
 
 
   public Match setOr(List<Match> ors) {
@@ -109,6 +110,7 @@ public class Match extends IriLD implements BoolGroup<Match>,HasPaths{
     this.or.add(or);
     return this;
   }
+
   public Match or(Consumer<Match> builder) {
     Match or = new Match();
     addOr(or);
@@ -117,7 +119,7 @@ public class Match extends IriLD implements BoolGroup<Match>,HasPaths{
   }
 
   public Match setAnd(List<Match> and) {
-    this.and= and;
+    this.and = and;
     return this;
   }
 
@@ -128,12 +130,14 @@ public class Match extends IriLD implements BoolGroup<Match>,HasPaths{
     this.and.add(and);
     return this;
   }
+
   public Match and(Consumer<Match> builder) {
     Match and = new Match();
     addAnd(and);
     builder.accept(and);
     return this;
   }
+
   public Match setNot(List<Match> not) {
     this.not = not;
     return this;
@@ -172,15 +176,16 @@ public class Match extends IriLD implements BoolGroup<Match>,HasPaths{
     this.baseRule = baseRule;
     return this;
   }
+
   public Match setParameter(String parameter) {
     this.parameter = parameter;
     return this;
   }
+
   public Match setInverse(boolean inverse) {
     this.inverse = inverse;
     return this;
   }
-
 
 
   public Match setReturx(Return returx) {
@@ -189,14 +194,10 @@ public class Match extends IriLD implements BoolGroup<Match>,HasPaths{
   }
 
 
-
   public Match setIsUnion(boolean union) {
     this.union = union;
     return this;
   }
-
-
-
 
 
   public Match setIfTrue(RuleAction ifTrue) {
@@ -243,8 +244,6 @@ public class Match extends IriLD implements BoolGroup<Match>,HasPaths{
     builder.accept(function);
     return this;
   }
-
-
 
 
   public Match setPath(List<Path> path) {
@@ -340,10 +339,6 @@ public class Match extends IriLD implements BoolGroup<Match>,HasPaths{
   }
 
 
-
-
-
-
   public Element getGraph() {
     return graph;
   }
@@ -358,9 +353,6 @@ public class Match extends IriLD implements BoolGroup<Match>,HasPaths{
     this.typeOf = new Node().setIri(type);
     return this;
   }
-
-
-
 
 
   public Match setName(String name) {

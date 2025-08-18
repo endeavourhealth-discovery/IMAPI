@@ -28,10 +28,12 @@ public class Return {
   public OrderLimit getOrderBy() {
     return orderBy;
   }
+
   public Return setOrderBy(OrderLimit orderBy) {
     this.orderBy = orderBy;
     return this;
   }
+
   public Return orderBy(Consumer<OrderLimit> builder) {
     this.orderBy = new OrderLimit();
     builder.accept(this.orderBy);

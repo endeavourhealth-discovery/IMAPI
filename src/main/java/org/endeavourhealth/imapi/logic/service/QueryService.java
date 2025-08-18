@@ -40,7 +40,7 @@ public class QueryService {
   private final DataModelRepository dataModelRepository = new DataModelRepository();
   private ConnectionManager connectionManager;
   private PostgresService postgresService = new PostgresService();
-  private Map<Integer, List<String>> queryResultsMap = new HashMap<>();
+  private Map<Integer, Set<String>> queryResultsMap = new HashMap<>();
 
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
     return new QueryDescriptor().describeQuery(query, displayMode);
@@ -134,13 +134,13 @@ public class QueryService {
     return connectionManager.publishToQueue(userId, userName, queryRequest);
   }
 
-  public List<String> executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException, QueryException {
+  public Set<String> executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException, QueryException {
     queryRequest.resolveArgs();
     int qrHashCode = getQueryRequestHashCode(queryRequest);
     log.info("Executing query: {} with a hash code: {}", queryRequest.getQuery().getIri(), qrHashCode);
     // TODO: if query has is rules needs to be converted to match based query
     try {
-      List<String> results = getQueryResults(queryRequest);
+      Set<String> results = getQueryResults(queryRequest);
       if (results != null) return results;
 
       SqlWithSubqueries sqlWithSubqueries = getSQLFromIMQ(queryRequest);
@@ -178,17 +178,25 @@ public class QueryService {
     return queryRequest.hashCode();
   }
 
-  public void storeQueryResultsAndCache(QueryRequest queryRequest, List<String> results) throws SQLException {
+  public void storeQueryResultsAndCache(QueryRequest queryRequest, Set<String> results) throws SQLException {
     queryResultsMap.put(queryRequest.hashCode(), results);
     MYSQLConnectionManager.saveResults(queryRequest.hashCode(), results);
   }
 
-  public List<String> getQueryResults(QueryRequest queryRequest) throws SQLException {
+  public Set<String> getQueryResults(QueryRequest queryRequest) throws SQLException {
     int hashCode = getQueryRequestHashCode(queryRequest);
-    List<String> queryResults = queryResultsMap.get(hashCode);
-    if (queryResults != null) return queryResults;
+    Set<String> queryResults = queryResultsMap.get(hashCode);
+    if (queryResults != null) {
+      log.debug("Query Results for hashcode {} found in local cache", hashCode);
+      return queryResults;
+    }
     if (!MYSQLConnectionManager.tableExists(hashCode)) return null;
-    return MYSQLConnectionManager.getResults(queryRequest);
+    queryResults = MYSQLConnectionManager.getResults(queryRequest);
+    if (queryResults != null) {
+      log.debug("Query Results for hashcode {} found in db cache", hashCode);
+      return queryResults;
+    }
+    return null;
   }
 
   public void killActiveQuery() throws SQLException {
@@ -232,7 +240,7 @@ public class QueryService {
     return null;
   }
 
-  public List<String> testRunQuery(Query query) throws SQLException, SQLConversionException, QueryException {
+  public Set<String> testRunQuery(Query query) throws SQLException, SQLConversionException, QueryException {
     QueryRequest queryRequest = new QueryRequest();
     Page page = new Page();
     page.setPageNumber(1);

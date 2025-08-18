@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class SmartLifeQueryService {
@@ -31,7 +32,7 @@ public class SmartLifeQueryService {
     postgresService.cancelQuery(id);
   }
 
-  public List<String> getQueryResults(UUID id) throws SQLException {
+  public Set<String> getQueryResults(UUID id) throws SQLException {
     QueryRequest queryRequest = new QueryRequest();
     // This should be an execution id
     return queryService.getQueryResults(queryRequest);

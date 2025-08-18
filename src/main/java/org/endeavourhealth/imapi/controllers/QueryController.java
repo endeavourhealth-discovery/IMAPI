@@ -30,6 +30,7 @@ import org.springframework.web.context.annotation.RequestScope;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.zip.DataFormatException;
 
@@ -329,7 +330,7 @@ public class QueryController {
   @Operation(
     summary = "Get query results using a hash of the query request"
   )
-  public List<String> getQueryResults(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws IOException, SQLException, SQLConversionException {
+  public Set<String> getQueryResults(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws IOException, SQLException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQueryResults.GET")) {
       log.debug("getQueryResults");
       return queryService.getQueryResults(queryRequest);
@@ -347,7 +348,7 @@ public class QueryController {
 
   @PostMapping("/testRunQuery")
   @Operation(summary = "Run a query with results limited results to test query")
-  public List<String> testRunQuery(HttpServletRequest request, @RequestBody QueryRequest query) throws IOException, SQLException, SQLConversionException, QueryException {
+  public Set<String> testRunQuery(HttpServletRequest request, @RequestBody QueryRequest query) throws IOException, SQLException, SQLConversionException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.TestRunQuery.POST")) {
       log.debug("testRunQuery");
       return queryService.testRunQuery(query.getQuery());

@@ -112,19 +112,22 @@ public class IMQtoSQLConverter {
     if (definition.getAnd() != null) {
       for (Match match : definition.getAnd()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.and);
-        if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
+        if (match.getThen() != null)
+          addIMQueryToSQLQueryRecursively(qry, match.getThen().setPath(match.getPath()), Bool.and);
       }
     }
     if (definition.getOr() != null) {
       for (Match match : definition.getOr()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.or);
-        if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
+        if (match.getThen() != null)
+          addIMQueryToSQLQueryRecursively(qry, match.getThen().setPath(match.getPath()), Bool.and);
       }
     }
     if (definition.getNot() != null) {
       for (Match match : definition.getNot()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.not);
-        if (match.getThen() != null) addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
+        if (match.getThen() != null)
+          addIMQueryToSQLQueryRecursively(qry, match.getThen().setPath(match.getPath()), Bool.and);
       }
     }
   }
@@ -246,7 +249,7 @@ public class IMQtoSQLConverter {
 
     convertMatch(match, qry, bool);
 
-    if (match.getReturn()!=null && match.getReturn().getOrderBy() != null) {
+    if (match.getReturn() != null && match.getReturn().getOrderBy() != null) {
       wrapMatchPartition(qry, match.getReturn().getOrderBy());
     }
 
@@ -613,14 +616,14 @@ public class IMQtoSQLConverter {
       """.formatted("'" + StringUtils.join(im1ids, "', '") + "'");
     try (Connection executeConnection = getConnection();
          PreparedStatement statement = executeConnection.prepareStatement(sql)) {
-        ResultSet rs = statement.executeQuery();
-        List<String> results = new ArrayList<>();
-        while (rs.next()) {
-          results.add(rs.getString("c.dbid"));
-        }
-        if (results.isEmpty())
-          throw new SQLConversionException("No IM1IDs found for '" + StringUtils.join(im1ids, "',\n'") + "'");
-        return results;
+      ResultSet rs = statement.executeQuery();
+      List<String> results = new ArrayList<>();
+      while (rs.next()) {
+        results.add(rs.getString("c.dbid"));
+      }
+      if (results.isEmpty())
+        throw new SQLConversionException("No IM1IDs found for '" + StringUtils.join(im1ids, "',\n'") + "'");
+      return results;
     } catch (SQLException e) {
       log.error("Error running SQL [{}]", sql);
       e.printStackTrace();

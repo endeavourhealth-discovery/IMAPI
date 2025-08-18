@@ -109,7 +109,7 @@ public class ShapeRepository {
    * @return maps from iri to shapes and predicate names for the Node shape predicates.
    * All iris referenced include their labels as names, except for the mode predicates themselves
    */
-  public static TTEntityMap getShapes(List<Graph> graphs) {
+  public static TTEntityMap getShapes() {
     try (IMDB conn = IMDB.getConnection()) {
       GraphQuery qry = conn.prepareGraphSparql(addSparqlPrefixes(GET_ALL_SHAPES_SQL));
       return GraphHelper.getEntityMap(qry);

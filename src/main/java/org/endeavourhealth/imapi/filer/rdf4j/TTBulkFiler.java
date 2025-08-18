@@ -40,10 +40,10 @@ public class TTBulkFiler implements TTDocumentFiler {
   private Map<Namespace, FileWriter> codeCoreMap;
   private Map<Namespace, FileWriter> codeIds;
 
-  private Graph graph;
+  private Graph insertGraph;
 
-  public TTBulkFiler(Graph graph) {
-    this.graph = graph;
+  public TTBulkFiler(Graph insertGraph) {
+    this.insertGraph = insertGraph;
   }
 
   private static void setStatus(TTEntity entity) {
@@ -156,7 +156,7 @@ public class TTBulkFiler implements TTDocumentFiler {
     statementCount++;
   }
 
-  public void fileDocument(TTDocument document, Graph insertGraph) throws TTFilerException {
+  public void fileDocument(TTDocument document) throws TTFilerException {
     if (document.getEntities() == null)
       return;
     if (document.getEntities().isEmpty())

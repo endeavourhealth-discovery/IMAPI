@@ -32,8 +32,8 @@ public class DataModelService {
     return dataModelRepository.checkPropertyType(iri);
   }
 
-  public List<TTIriRef> getProperties(List<Graph> graphs) {
-    return dataModelRepository.getProperties(graphs);
+  public List<TTIriRef> getProperties() {
+    return dataModelRepository.getProperties();
   }
 
 

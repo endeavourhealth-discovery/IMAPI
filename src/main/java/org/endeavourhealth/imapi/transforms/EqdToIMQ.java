@@ -44,12 +44,10 @@ public class EqdToIMQ {
   private TTDocument document;
   private String singleEntity;
   private boolean versionIndependent;
-  private List<Graph> graphs;
 
 
-  public EqdToIMQ(boolean versionIndependent,List<Graph> graphs) {
+  public EqdToIMQ(boolean versionIndependent) {
     this.versionIndependent = versionIndependent;
-    this.graphs = graphs;
     gmsPatients.add("c8d3ca80-ba23-418b-8cef-e5afac42764e");
   }
 

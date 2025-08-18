@@ -127,7 +127,7 @@ public class PropertyRepository {
    * @return maps from iri to shapes and predicate names for the property entity predicates.
    * All iris referenced include their labels as names, except for the mode predicates themselves
    */
-  public static TTEntityMap getProperties(List<Graph> graphs) {
+  public static TTEntityMap getProperties() {
     try (IMDB conn = IMDB.getConnection()) {
       GraphQuery qry = conn.prepareGraphSparql(GET_ALL_PROPERTIES_SQL);
       return GraphHelper.getEntityMap(qry);

@@ -107,11 +107,11 @@ public class FilerService {
     }
   }
 
-  public void fileDocument(TTDocument document, String agentName, String taskId, List<Graph> userGraphs, Graph insertGraph) {
+  public void fileDocument(TTDocument document, String agentName, String taskId, Graph insertGraph) {
     new Thread(() -> {
       try {
         setupDocumentFiler(insertGraph);
-        documentFiler.fileDocument(document, taskId, insertGraph);
+        documentFiler.fileDocument(document, taskId);
         fileProvDoc(document, agentName);
       } catch (TTFilerException | JsonProcessingException | QueryException e) {
         throw new RuntimeException(e);

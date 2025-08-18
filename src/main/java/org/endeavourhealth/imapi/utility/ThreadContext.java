@@ -11,6 +11,9 @@ public class ThreadContext {
     userGraphs.set(graphs);
   }
   public static List<Graph> getUserGraphs() {
+    if (userGraphs.get() == null)
+      userGraphs.set(List.of(Graph.IM));
+
     return userGraphs.get();
   }
 

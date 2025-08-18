@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "org.endeavourhealth.imapi"
-version = "2.1-SNAPSHOT"
+version = "2.2-SNAPSHOT"
 description = "Information Model API"
 
 

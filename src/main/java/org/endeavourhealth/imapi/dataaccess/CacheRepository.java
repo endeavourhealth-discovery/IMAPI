@@ -20,7 +20,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
  */
 public class CacheRepository {
 
-  public Set<TTBundle> getSchema(List<Graph> graphs) throws Exception {
+  public Set<TTBundle> getSchema() throws Exception {
     String sql = """
       CONSTRUCT {
         ?shape ?p ?o.

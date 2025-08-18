@@ -39,7 +39,7 @@ public class DataModelRepository {
     }
   }
 
-  public List<TTIriRef> getProperties(List<Graph> graphs) {
+  public List<TTIriRef> getProperties() {
     List<TTIriRef> result = new ArrayList<>();
 
     String spql = """

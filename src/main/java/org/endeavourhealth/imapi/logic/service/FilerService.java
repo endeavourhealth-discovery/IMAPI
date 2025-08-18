@@ -111,7 +111,7 @@ public class FilerService {
     new Thread(() -> {
       try {
         setupDocumentFiler(insertGraph);
-        documentFiler.fileDocument(document, taskId, insertGraph);
+        documentFiler.fileDocument(document, taskId);
         fileProvDoc(document, agentName);
       } catch (TTFilerException | JsonProcessingException | QueryException e) {
         throw new RuntimeException(e);

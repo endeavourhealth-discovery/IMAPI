@@ -42,7 +42,7 @@ class TTLiteralTest {
     doc.addEntity(testObject);
     doc.setCrud(TTIriRef.iri(IM.REPLACE_ALL_PREDICATES));
 
-    TTFilerFactory.getDocumentFiler(Graph.IM).fileDocument(doc, Graph.IM);
+    TTFilerFactory.getDocumentFiler(Graph.IM).fileDocument(doc);
   }
 
   // @Test

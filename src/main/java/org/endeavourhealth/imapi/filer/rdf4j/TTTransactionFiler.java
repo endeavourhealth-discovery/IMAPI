@@ -109,7 +109,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
   }
 
-  public void fileDeltas(String deltaPath, Graph insertGraph) throws IOException, QueryException, TTFilerException {
+  public void fileDeltas(String deltaPath) throws IOException, QueryException, TTFilerException {
     this.logPath = deltaPath;
     Map<Integer, String> transactionLogs = new HashMap<>();
     log.debug("Filing deltas from [{}]", logPath);
@@ -127,7 +127,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       for (Integer logNumber : transactionLogs.keySet().stream().sorted().toList()) {
         log.info("Filing TTLog-{}.json", logNumber);
         ttManager.loadDocument(new File(transactionLogs.get(logNumber)));
-        fileDocument(ttManager.getDocument(), insertGraph);
+        fileDocument(ttManager.getDocument());
       }
     }
 
@@ -165,7 +165,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   }
 
   @Override
-  public void fileDocument(TTDocument document, Graph insertGraph) throws TTFilerException, JsonProcessingException, QueryException {
+  public void fileDocument(TTDocument document) throws TTFilerException, JsonProcessingException, QueryException {
     if (document.getEntities() == null) {
       throw new TTFilerException("Document has no entities");
     }
@@ -173,10 +173,10 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     document.getEntities().removeIf(e -> null == e.getIri());
 
     checkDeletes(document);
-    fileAsDocument(document, insertGraph);
+    fileAsDocument(document);
   }
 
-  public void fileDocument(TTDocument document, String taskId, Graph insertGraph) throws TTFilerException, JsonProcessingException, QueryException {
+  public void fileDocument(TTDocument document, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
     if (document.getEntities() == null) {
       throw new TTFilerException("Document has no entities");
     }
@@ -184,7 +184,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     document.getEntities().removeIf(e -> null == e.getIri());
 
     checkDeletes(document);
-    fileAsDocument(document, taskId, insertGraph);
+    fileAsDocument(document, taskId);
   }
 
   private void checkDeletes(TTDocument transaction) throws TTFilerException {
@@ -194,7 +194,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
   }
 
-  private void fileAsDocument(TTDocument document, Graph insertGraph) throws TTFilerException, JsonProcessingException, QueryException {
+  private void fileAsDocument(TTDocument document) throws TTFilerException, JsonProcessingException, QueryException {
     try {
       startTransaction();
       log.info("Filing entities.... ");
@@ -227,14 +227,14 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       rollback();
       throw new TTFilerException(e.getMessage());
     }
-    updateSets(document, insertGraph);
+    updateSets(document);
   }
 
   public synchronized Integer getFilingProgress(String taskId) {
     return filingProgress;
   }
 
-  private synchronized void fileAsDocument(TTDocument document, String taskId, Graph insertGraph) throws TTFilerException, JsonProcessingException, QueryException {
+  private synchronized void fileAsDocument(TTDocument document, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
 
     if (filingProgress != null)
       throw new TTFilerException("There is a document already filing, please try again later");
@@ -274,7 +274,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       rollback();
       throw new TTFilerException(e.getMessage());
     }
-    updateSets(document, insertGraph);
+    updateSets(document);
     filingProgress = null;
   }
 
@@ -285,7 +285,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       conceptFiler.fileEntity(entity);
   }
 
-  public void updateSets(TTDocument document, Graph insertGraph) throws QueryException, JsonProcessingException {
+  public void updateSets(TTDocument document) throws QueryException, JsonProcessingException {
     for (TTEntity entity : document.getEntities()) {
       if (entity.isType(iri(IM.CONCEPT_SET)) || entity.isType(iri(IM.VALUESET))) {
         log.info("Expanding set {}", entity.getIri());
@@ -388,7 +388,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
   }
 
-  public void fileEntities(TTDocument document, Graph graph) throws TTFilerException {
+  public void fileEntities(TTDocument document) throws TTFilerException {
     log.info("Filing entities.... ");
 
     startTransaction();

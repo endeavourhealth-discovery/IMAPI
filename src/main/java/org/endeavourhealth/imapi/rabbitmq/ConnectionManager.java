@@ -6,10 +6,12 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DeliverCallback;
 import lombok.Getter;
 import org.endeavourhealth.imapi.logic.service.QueryService;
+import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.postgres.PostgresService;
+import org.endeavourhealth.imapi.utility.ThreadContext;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,7 @@ public class ConnectionManager {
   private QueryService queryService = new QueryService();
   private PostgresService postgresService = new PostgresService();
   private boolean createdChannel = false;
+  private final RequestObjectService requestObjectService = new RequestObjectService();
 
   public ConnectionManager() {
     connectionFactory = new CachingConnectionFactory();
@@ -74,7 +77,6 @@ public class ConnectionManager {
   }
 
   public void createConsumerChannel(PostgresService postgresService) throws IOException {
-    Graph graph = Graph.IM;
     createExchange();
     Channel channel = getConnection().createChannel(false);
     channel.exchangeDeclare(EXCHANGE_NAME, "topic", true);
@@ -105,6 +107,8 @@ public class ConnectionManager {
       } catch (SQLException e) {
         throw new RuntimeException(e);
       }
+      List<Graph> userGraphs = requestObjectService.getUserGraphs(String.valueOf(entry.getUserId()));
+      ThreadContext.setUserGraphs(userGraphs);
       try {
         QueryRequest queryRequest = om.readValue(message, QueryRequest.class);
         if (null == queryService) {

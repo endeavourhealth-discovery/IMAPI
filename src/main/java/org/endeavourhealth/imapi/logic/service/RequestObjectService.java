@@ -55,4 +55,13 @@ public class RequestObjectService {
       return List.of(Graph.IM);
     }
   }
+
+  public List<Graph> getUserGraphs(String userId) throws JsonProcessingException {
+    try {
+      return userRepository.getUserGraphs(userId);
+    } catch (IllegalArgumentException e) {
+      return List.of(Graph.IM);
+    }
+  }
+
 }

@@ -107,7 +107,7 @@ public class FilerService {
     }
   }
 
-  public void fileDocument(TTDocument document, String agentName, String taskId, List<Graph> userGraphs, Graph insertGraph) {
+  public void fileDocument(TTDocument document, String agentName, String taskId, Graph insertGraph) {
     new Thread(() -> {
       try {
         setupDocumentFiler(insertGraph);

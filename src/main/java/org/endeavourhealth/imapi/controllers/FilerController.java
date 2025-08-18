@@ -68,13 +68,12 @@ public class FilerController {
       Map<String, String> response = new HashMap<>();
 
       String agentId = reqObjService.getRequestAgentId(request);
-      List<Graph> graphs = reqObjService.getUserGraphs(request);
 
       if (!filerService.userCanFile(agentId, Graph.IM))
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
       try {
-        filerService.fileDocument(fileDocumentRequest.getDocument(), agentName, taskId, graphs, fileDocumentRequest.getInsertGraph());
+        filerService.fileDocument(fileDocumentRequest.getDocument(), agentName, taskId, fileDocumentRequest.getInsertGraph());
         response.put("taskId", taskId);
       } catch (Exception e) {
         Integer taskProgress = filerService.getTaskProgress(taskId);

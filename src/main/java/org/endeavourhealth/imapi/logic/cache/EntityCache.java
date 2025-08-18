@@ -45,13 +45,13 @@ public class EntityCache implements Runnable {
   /**
    * Refreshes the node shape cache, predicate orders and domains and ranges
    */
-  public static void refreshCache(List<Graph> graphs) {
-    refreshShapes(graphs);
+  public static void refreshCache() {
+    refreshShapes();
   }
 
-  public static void refreshShapes(List<Graph> graphs) {
+  public static void refreshShapes() {
     synchronized (EntityCache.shapeLock) {
-      TTEntityMap shapeMap = ShapeRepository.getShapes(graphs);
+      TTEntityMap shapeMap = ShapeRepository.getShapes();
       cacheShapes(shapeMap);
     }
   }
@@ -239,7 +239,7 @@ public class EntityCache implements Runnable {
 
   @Override
   public void run() {
-    refreshCache(List.of(Graph.IM));
+    refreshCache();
   }
 
 }

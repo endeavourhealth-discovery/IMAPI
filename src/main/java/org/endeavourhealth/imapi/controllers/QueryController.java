@@ -1,11 +1,13 @@
 package org.endeavourhealth.imapi.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
@@ -146,11 +148,16 @@ public class QueryController {
   )
   public Query describeQueryContent(
     HttpServletRequest request,
-    @RequestBody Query query,
-    @RequestParam(value = "displayMode", required = false, defaultValue = "ORIGINAL") DisplayMode displayMode
+    @RequestBody JsonNode body
   ) throws IOException, QueryException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.GET")) {
-      log.debug("getQueryDisplayFromQuery with displayMode: {}", displayMode);
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.GET");
+    CachedObjectMapper mapper = new CachedObjectMapper()) {
+      log.debug("getQueryDisplayFromQuery");
+
+      DisplayMode displayMode = DisplayMode.valueOf(body.get("displayMode").asText());
+      Query query = mapper.treeToValue(body.get("query"), Query.class);
+      log.debug("displayMode: {}", displayMode);
+
       return queryService.describeQuery(query, displayMode);
     }
   }

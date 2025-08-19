@@ -113,14 +113,13 @@ public class QueryService {
     postgresService.create(entry);
   }
 
-  public UUID reAddToExecutionQueue(UUID userId, String userName, RequeueQueryRequest requeueQueryRequest) throws Exception {
+  public void reAddToExecutionQueue(UUID userId, String userName, RequeueQueryRequest requeueQueryRequest) throws Exception {
     DBEntry entry = postgresService.getById(requeueQueryRequest.getQueueId());
     if (!QueryExecutorStatus.QUEUED.equals(entry.getStatus()) && !QueryExecutorStatus.RUNNING.equals(entry.getStatus())) {
       postgresService.delete(userId, requeueQueryRequest.getQueueId());
       QueryRequest queryRequest = requeueQueryRequest.getQueryRequest();
-      return addToExecutionQueue(userId, userName, queryRequest);
+      addToExecutionQueue(userId, userName, queryRequest);
     }
-    return null;
   }
 
   public UUID addToExecutionQueue(UUID userId, String userName, QueryRequest queryRequest) throws Exception {

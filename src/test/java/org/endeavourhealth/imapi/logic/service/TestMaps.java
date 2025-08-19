@@ -16,7 +16,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class TestMaps {
 
 
-  public static MapObject patientDSTU2() throws JsonProcessingException {
+  public static void patientDSTU2() throws JsonProcessingException {
     TTEntity patientMapEntity = new TTEntity();
     patientMapEntity
       .setIri(Namespace.MAP + "FHIR_2_PatientToIM")
@@ -132,6 +132,5 @@ public class TestMaps {
             .setValueData("http://hl7.org/fhir/administrative-gender"))));
     patientMapEntity.set(iri(IM.DEFINITION), TTLiteral.literal(patientMap));
     EntityCache.addEntity(patientMapEntity);
-    return patientMap;
   }
 }

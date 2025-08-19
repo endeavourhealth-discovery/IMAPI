@@ -57,15 +57,13 @@ public class SetBinder {
     return setIris;
   }
 
-  public Set<TTNode> bindSet(String iri, Graph insertGraph) {
+  public void bindSet(String iri, Graph insertGraph) {
     Set<Concept> members = setRepository.getSomeMembers(iri, 100);
     if (!members.isEmpty()) {
       Set<String> memberIris = members.stream().map(Entity::getIri).collect(Collectors.toSet());
       Set<TTNode> dataModels = setRepository.getBindingsForConcept(memberIris);
       setRepository.bindConceptSetToDataModel(iri, dataModels, insertGraph);
-      return dataModels;
     }
-    return Collections.emptySet();
   }
 
 }

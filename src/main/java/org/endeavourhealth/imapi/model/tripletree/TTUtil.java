@@ -64,7 +64,8 @@ public class TTUtil {
   public static <T> List<T> getOrderedList(TTNode node, TTIriRef predicate, Class clazz) {
     List<T> result = getList(node, predicate, clazz);
     try {
-      Collections.sort(result, Comparator.comparing(o -> ((TTNode) o).get(iri(SHACL.ORDER)).asLiteral().intValue()));
+      assert result != null;
+      result.sort(Comparator.comparing(o -> ((TTNode) o).get(iri(SHACL.ORDER)).asLiteral().intValue()));
       return result;
     } catch (Exception e) {
       return result;

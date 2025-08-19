@@ -107,7 +107,7 @@ public class TTArray implements Serializable {
   public boolean equals(Object object) {
     if (getElements().size() == 1) {
       if (!(object instanceof TTArray)) {
-        if (getElements().get(0).equals(object))
+        if (getElements().getFirst().equals(object))
           return true;
       }
     }

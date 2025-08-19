@@ -54,8 +54,8 @@ private static  double avgBestMatch(List<String> wordsA, List<String> wordsB) {
 
   private static double hasPrefixMatch(String searchToken,List<String> synonymTokens) {
     int score=10;
-    for (int i=0;i<synonymTokens.size();i++){
-      if (synonymTokens.get(i).startsWith(searchToken)) return score;
+    for (String synonymToken : synonymTokens) {
+      if (synonymToken.startsWith(searchToken)) return score;
       else score--;
     }
    return 0;
@@ -74,7 +74,7 @@ private static  double avgBestMatch(List<String> wordsA, List<String> wordsB) {
 
     double jaroScore = jw.apply(String.join(",",searchTokens), (String.join(",",synonymTokens)));
     double jaccardScore = jaccardSimilarity(new HashSet<>(searchTokens), new HashSet<>(synonymTokens));
-    double prefixBonus = hasPrefixMatch(searchTokens.get(0),synonymTokens);
+    double prefixBonus = hasPrefixMatch(searchTokens.getFirst(),synonymTokens);
 
     double hybridScore = 0.5 * jaroScore + 0.5 * jaccardScore + prefixBonus;
     return hybridScore >= FUZZY_THRESHOLD;

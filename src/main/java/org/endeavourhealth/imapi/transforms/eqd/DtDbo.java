@@ -13,6 +13,7 @@ import jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.Objects;
 
 
 /**
@@ -65,11 +66,7 @@ public class DtDbo {
    * {@link VocUpdateMode }
    */
   public VocUpdateMode getUpdateMode() {
-    if (updateMode == null) {
-      return VocUpdateMode.NONE;
-    } else {
-      return updateMode;
-    }
+    return Objects.requireNonNullElse(updateMode, VocUpdateMode.NONE);
   }
 
   /**

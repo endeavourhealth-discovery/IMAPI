@@ -61,8 +61,7 @@ public class IriLD {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof IriLD)) return false;
-    IriLD ttIriRef = (IriLD) o;
+    if (!(o instanceof IriLD ttIriRef)) return false;
     if (ttIriRef.iri == null || iri == null)
       return false;
     return iri.equals(ttIriRef.iri);

@@ -85,7 +85,7 @@ public class UserService {
       .anyMatch(favouriteIri -> !entityService.iriExists(favouriteIri));
     if (hasNoneExistingIris) {
       List<String> updatedFavourites = favourites.stream()
-        .filter(f -> entityService.iriExists(f)).toList();
+        .filter(entityService::iriExists).toList();
       updateUserFavourites(userId, updatedFavourites);
       return userRepository.getUserFavourites(userId);
     }

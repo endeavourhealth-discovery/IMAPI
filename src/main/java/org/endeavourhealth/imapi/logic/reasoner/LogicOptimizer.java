@@ -406,7 +406,7 @@ public class LogicOptimizer {
         match.setIfFalse(RuleAction.REJECT);
       }
       if (query.getOr() == null && query.getNot() == null) {
-        Match lastRule = query.getRule().get(query.getRule().size() - 1);
+        Match lastRule = query.getRule().getLast();
         lastRule.setIfTrue(RuleAction.SELECT);
         lastRule.setIfFalse(RuleAction.REJECT);
       }
@@ -419,7 +419,7 @@ public class LogicOptimizer {
       for (Match match : query.getOr()) {
         orRule.addOr(match);
       }
-      Match lastRule = orRule.getRule().get(orRule.getRule().size() - 1);
+      Match lastRule = orRule.getRule().getLast();
       if (query.getNot() == null) {
         lastRule.setIfTrue(RuleAction.SELECT);
         lastRule.setIfFalse(RuleAction.REJECT);
@@ -434,7 +434,7 @@ public class LogicOptimizer {
         match.setIfTrue(RuleAction.REJECT);
         match.setIfFalse(RuleAction.NEXT);
       }
-      Match lastRule = query.getRule().get(query.getRule().size() - 1);
+      Match lastRule = query.getRule().getLast();
       lastRule.setIfTrue(RuleAction.REJECT);
       lastRule.setIfFalse(RuleAction.SELECT);
     }

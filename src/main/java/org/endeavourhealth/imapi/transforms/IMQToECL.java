@@ -26,7 +26,6 @@ public class IMQToECL {
    * Takes a IM ECL compliant definition of a set and returns is ECL language
    *
    * @param eclQuery An object containing a 'query' and 'showNames'
-   * @return the object with a status, ecl and the query
    */
   public void getECLFromQuery(ECLQueryRequest eclQuery) {
     eclStatus = new ECLStatus();
@@ -228,9 +227,9 @@ public class IMQToECL {
 
   private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames) {
     if (match.getInstanceOf().size() == 1) {
-      if (match.getInstanceOf().get(0).isInvalid())
+      if (match.getInstanceOf().getFirst().isInvalid())
         setErrorStatus(ecl, "unknown concept");
-      addClass(match.getInstanceOf().get(0), ecl, includeNames);
+      addClass(match.getInstanceOf().getFirst(), ecl, includeNames);
     } else {
       ecl.append("(");
       boolean first = true;

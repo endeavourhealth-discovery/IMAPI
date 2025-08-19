@@ -47,11 +47,7 @@ public class TTToTurtle {
   private void nl() {
     turtle.append("\n");
     if (level > 0) {
-      StringBuilder indent = new StringBuilder();
-      for (int i = 0; i < level; i++) {
-        indent.append(" ");
-      }
-      turtle.append(indent);
+      turtle.append(" ".repeat(level));
     }
   }
 

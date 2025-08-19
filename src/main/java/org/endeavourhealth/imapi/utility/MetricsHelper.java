@@ -216,17 +216,4 @@ public class MetricsHelper {
       }
     }
   }
-
-  /*    *//**
-   * simple gauge that just reports a value of 1 whenever polled, to report the application is running
-   *//*
-    class HeartbeatGaugeImpl implements Gauge<Integer> {
-
-        public HeartbeatGaugeImpl() {}
-
-        @Override
-        public Integer getValue() {
-            return 1;
-        }
-    }*/
 }

@@ -134,12 +134,12 @@ public class EqdResources {
   private Match getMatchFromGroup(List<EQDOCCriteria> groupCriteria, VocMemberOperator memberOp) throws QueryException, EQDException, IOException {
     this.subRule = 0;
     if (groupCriteria.size() <= 1) {
-      EQDOCCriteria eqCriteria = (EQDOCCriteria) groupCriteria.get(0);
+      EQDOCCriteria eqCriteria = groupCriteria.getFirst();
       if (isNegatedCriteria(eqCriteria)) {
         Match match = new Match();
         match.addNot(convertCriteria(eqCriteria));
         return match;
-      } else return convertCriteria(groupCriteria.get(0));
+      } else return convertCriteria(groupCriteria.getFirst());
     } else {
       Match boolMatch = new Match();
       if (memberOp == null) {
@@ -271,7 +271,7 @@ public class EqdResources {
       }
 
     } else {
-      baseMatch = this.convertBaseCriteriaGroup(eqCriterion.getBaseCriteriaGroup().get(0));
+      baseMatch = this.convertBaseCriteriaGroup(eqCriterion.getBaseCriteriaGroup().getFirst());
     }
 
     counter = originalCounter;
@@ -543,12 +543,12 @@ public class EqdResources {
   private void setRestriction(EQDOCCriterion eqCriterion, Match restricted) throws EQDException {
     EQDOCFilterRestriction restrict = eqCriterion.getFilterAttribute().getRestriction();
     Order direction;
-    if ((restrict.getColumnOrder().getColumns().get(0)).getDirection() == VocOrderDirection.ASC) {
+    if ((restrict.getColumnOrder().getColumns().getFirst()).getDirection() == VocOrderDirection.ASC) {
       direction = Order.ascending;
     } else {
       direction = Order.descending;
     }
-    String linkColumn = eqCriterion.getFilterAttribute().getRestriction().getColumnOrder().getColumns().get(0).getColumn().get(0);
+    String linkColumn = eqCriterion.getFilterAttribute().getRestriction().getColumnOrder().getColumns().getFirst().getColumn().getFirst();
     String table = eqCriterion.getTable();
     String orderBy = this.getIMPath(table + "/" + linkColumn);
     if (restrict.getColumnOrder().getRecordCount() != 1000) {
@@ -589,7 +589,7 @@ public class EqdResources {
     Where relationProperty = new Where();
     Match linkTarget= match;
     if (match.getAnd() != null) {
-      linkTarget = match.getAnd().get(0);
+      linkTarget = match.getAnd().getFirst();
     }
     addMatchWhere(linkTarget, relationProperty,0);
     EQDOCRelationship eqRelationship = eqCriterion.getLinkedCriterion().getRelationship();

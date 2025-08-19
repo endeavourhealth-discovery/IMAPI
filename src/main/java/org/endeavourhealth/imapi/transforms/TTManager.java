@@ -109,7 +109,7 @@ public class TTManager implements AutoCloseable {
     TTValue oldExpression;
     TTArray expressions = entity.get(axiom);
     if (!expressions.isEmpty()) {
-      oldExpression = expressions.getElements().get(0);
+      oldExpression = expressions.getElements().getFirst();
       if (oldExpression.isIriRef() || oldExpression.isNode()) {
         TTNode intersection = new TTNode();
         intersection.set(andOr, new TTArray());
@@ -365,7 +365,7 @@ public class TTManager implements AutoCloseable {
    *
    * @param manager    OWL ontology manager with at least one ontology
    * @param outputFile output fle name
-   * @throws IOException in the event of an IO file creation failure
+   * @throws FileNotFoundException in the event of an IO file creation failure
    */
 
   public void saveOWLOntology(OWLOntologyManager manager, File outputFile) throws FileNotFoundException, OWLOntologyStorageException {
@@ -398,8 +398,8 @@ public class TTManager implements AutoCloseable {
   /**
    * Expands a prefixed iri string to a full iri
    *
-   * @param iri
-   * @return
+   * @param iri Iri to expand
+   * @return Expanded iri, or the original iri if no expansion is required
    */
   public String expand(String iri) {
     if (context == null)
@@ -482,7 +482,7 @@ public class TTManager implements AutoCloseable {
    *
    * @param entity the TTEntity holding the entity
    * @return the json serialization of the document
-   * @throws JsonProcessingException
+   * @throws JsonProcessingException in on serialization failure
    */
   public String getJson(TTEntity entity) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {

@@ -38,7 +38,6 @@ public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
    * <p>To include only active concepts use method with boolean activeOnly= true</p>
    *
    * @param eclQueryRequest An object containing an 'ecl' property which is an ecl string
-   * @return the object with 'query' and 'status' and ecl  conforming to IM Query model JSON-LD when serialized.
    */
   public void getQueryFromECL(ECLQueryRequest eclQueryRequest) {
     eclQueryRequest.setStatus(new ECLStatus());

@@ -60,7 +60,7 @@ class OSQueryTest_IM {
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
-    assertEquals("http://snomed.info/sct#702450004", results.getEntities().get(0).getIri());
+    assertEquals("http://snomed.info/sct#702450004", results.getEntities().getFirst().getIri());
   }
 
   @Test
@@ -75,7 +75,7 @@ class OSQueryTest_IM {
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
-    assertEquals("http://snomed.info/sct#702450004", results.getEntities().get(0).getIri());
+    assertEquals("http://snomed.info/sct#702450004", results.getEntities().getFirst().getIri());
   }
 
   @Test
@@ -93,7 +93,7 @@ class OSQueryTest_IM {
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
-    assertEquals("http://snomed.info/sct#702450004", results.getEntities().get(0).getIri());
+    assertEquals("http://snomed.info/sct#702450004", results.getEntities().getFirst().getIri());
   }
 
   @Test
@@ -111,6 +111,6 @@ class OSQueryTest_IM {
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
-    assertEquals("http://snomed.info/sct#702450004", results.getEntities().get(0).getIri());
+    assertEquals("http://snomed.info/sct#702450004", results.getEntities().getFirst().getIri());
   }
 }

@@ -77,10 +77,7 @@ private static  double avgBestMatch(List<String> wordsA, List<String> wordsB) {
     double prefixBonus = hasPrefixMatch(searchTokens.get(0),synonymTokens);
 
     double hybridScore = 0.5 * jaroScore + 0.5 * jaccardScore + prefixBonus;
-    if (hybridScore >= FUZZY_THRESHOLD) {
-      return true;
-    }
-    return false;
+    return hybridScore >= FUZZY_THRESHOLD;
   }
 }
 

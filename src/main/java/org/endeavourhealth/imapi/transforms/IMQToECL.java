@@ -105,9 +105,7 @@ public class IMQToECL {
 
 
   private boolean isBlankMatch(Match match) {
-    if (match.getInstanceOf() != null && match.getInstanceOf().getFirst().getIri() == null && match.getWhere() == null)
-      return true;
-    return false;
+    return match.getInstanceOf() != null && match.getInstanceOf().getFirst().getIri() == null && match.getWhere() == null;
   }
 
   public ECLType getEclType(Match match) {

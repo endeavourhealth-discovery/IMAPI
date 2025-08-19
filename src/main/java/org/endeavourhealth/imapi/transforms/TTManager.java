@@ -382,8 +382,8 @@ public class TTManager implements AutoCloseable {
    * Indexes the entities held in the manager's TTDocument document so they can be quicly retrieced via their IRI.
    */
   public void createIndex() {
-    entityMap = new HashMap();
-    nameMap = new HashMap();
+    entityMap = new HashMap<>();
+    nameMap = new HashMap<>();
 
     //Loops through the 3 main entity types and add them to the IRI map
     //Note that an IRI may be both a class and a property so both are added

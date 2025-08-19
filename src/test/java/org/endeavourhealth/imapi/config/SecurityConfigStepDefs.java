@@ -25,7 +25,7 @@ public class SecurityConfigStepDefs {
   AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry reqMatcher;
 
   @Mock
-  AuthorizeHttpRequestsConfigurer.AuthorizedUrl authorisedUrl;
+  AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorisedUrl;
 
   List<String> permittedEndpoints = new ArrayList<>();
 

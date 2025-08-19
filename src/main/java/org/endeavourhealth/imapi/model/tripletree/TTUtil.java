@@ -48,7 +48,7 @@ public class TTUtil {
   public static <T> List<T> getList(TTNode node, TTIriRef predicate, Class clazz) {
     if (node.get(predicate) == null)
       return null;
-    List<T> result = new ArrayList();
+    List<T> result = new ArrayList<>();
     for (TTValue v : node.get(predicate).getElements()) {
       if (v.isIriRef())
         result.add((T) v);

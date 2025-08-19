@@ -63,94 +63,94 @@ class TransformServiceTest {
   }
 
   private String getPatient() {
-    String patient = "{\n" +
-      "\t \"active\": true,\n" +
-      "\t \"address\": [\n" +
-      "\t\t{\n" +
-      "\t\t\t \"city\": \"STOCKPORT\",\n" +
-      "\t\t\t \"district\": \"\",\n" +
-      "\t\t\t \"line\": [\n" +
-      "\t\t\t\t29,\n" +
-      "\t\t\t\t\"\",\n" +
-      "\t\t\t\t\"GREENWAY\"\n" +
-      "\t\t\t],\n" +
-      "\t\t\t \"postalCode\": \"SK6 4HH\",\n" +
-      "\t\t\t \"text\": \"29,,GREENWAY,,STOCKPORT,SK6 4HH\",\n" +
-      "\t\t\t \"use\": \"home\"\n" +
-      "\t\t}\n" +
-      "\t],\n" +
-      "\t \"birthDate\": \"2011-09-07\",\n" +
-      "\t \"careProvider\": [\n" +
-      "\t\t{\n" +
-      "\t\t\t \"reference\": \"Organization/328\"\n" +
-      "\t\t},\n" +
-      "\t\t{\n" +
-      "\t\t\t \"reference\": \"Practitioner/1272\"\n" +
-      "\t\t}\n" +
-      "\t],\n" +
-      "\t \"extension\": [\n" +
-      "\t\t{\n" +
-      "\t\t\t \"url\": \"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-ethnic-category-extension\",\n" +
-      "\t\t\t \"valueCodeableConcept\": {\n" +
-      "\t\t\t\t \"coding\": [\n" +
-      "\t\t\t\t\t{\n" +
-      "\t\t\t\t\t\t \"code\": \"K\",\n" +
-      "\t\t\t\t\t\t \"display\": \"Bangladeshi\",\n" +
-      "\t\t\t\t\t\t \"system\": \"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-ethnic-category-extension\"\n" +
-      "\t\t\t\t\t}\n" +
-      "\t\t\t\t]\n" +
-      "\t\t\t}\n" +
-      "\t\t}\n" +
-      "\t],\n" +
-      "\t \"gender\": \"F\",\n" +
-      "\t \"id\": 1,\n" +
-      "\t \"identifier\": [\n" +
-      "\t\t{\n" +
-      "\t\t\t \"system\": \"http://fhir.nhs.net/Id/nhs-number\",\n" +
-      "\t\t\t \"use\": \"official\",\n" +
-      "\t\t\t \"value\": 3127565459\n" +
-      "\t\t},\n" +
-      "\t\t{\n" +
-      "\t\t\t \"system\": \"http://endeavourhealth.org/identifier/patient-number\",\n" +
-      "\t\t\t \"use\": \"secondary\",\n" +
-      "\t\t\t \"value\": 1\n" +
-      "\t\t}\n" +
-      "\t],\n" +
-      "\t \"managingOrganization\": {\n" +
-      "\t\t \"reference\": \"Organization/328\"\n" +
-      "\t},\n" +
-      "\t \"meta\": {\n" +
-      "\t\t \"profile\": [\n" +
-      "\t\t\t\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-patient\"\n" +
-      "\t\t]\n" +
-      "\t},\n" +
-      "\t \"name\": [\n" +
-      "\t\t{\n" +
-      "\t\t\t \"family\": [\n" +
-      "\t\t\t\t\"Albergaria\"\n" +
-      "\t\t\t],\n" +
-      "\t\t\t \"given\": [\n" +
-      "\t\t\t\t\"Lindsey\"\n" +
-      "\t\t\t],\n" +
-      "\t\t\t \"text\": \"Albergaria, Lindsey (Ms)\",\n" +
-      "\t\t\t \"use\": \"official\"\n" +
-      "\t\t}\n" +
-      "\t],\n" +
-      "\t \"resourceType\": \"Patient\",\n" +
-      "\t \"telecom\": [\n" +
-      "\t\t{\n" +
-      "\t\t\t \"system\": \"phone\",\n" +
-      "\t\t\t \"use\": \"mobile\",\n" +
-      "\t\t\t \"value\": \"07456223456\"\n" +
-      "\t\t},\n" +
-      "\t\t{\n" +
-      "\t\t\t \"system\": \"phone\",\n" +
-      "\t\t\t \"use\": \"home\",\n" +
-      "\t\t\t \"value\": \"01945 668768\"\n" +
-      "\t\t}\n" +
-      "\t]\n" +
-      "}";
-    return patient;
+    return """
+      {
+         "active": true,
+         "address": [
+          {
+             "city": "STOCKPORT",
+             "district": "",
+             "line": [
+              29,
+              "",
+              "GREENWAY"
+            ],
+             "postalCode": "SK6 4HH",
+             "text": "29,,GREENWAY,,STOCKPORT,SK6 4HH",
+             "use": "home"
+          }
+        ],
+         "birthDate": "2011-09-07",
+         "careProvider": [
+          {
+             "reference": "Organization/328"
+          },
+          {
+             "reference": "Practitioner/1272"
+          }
+        ],
+         "extension": [
+          {
+             "url": "http://endeavourhealth.org/fhir/StructureDefinition/primarycare-ethnic-category-extension",
+             "valueCodeableConcept": {
+               "coding": [
+                {
+                   "code": "K",
+                   "display": "Bangladeshi",
+                   "system": "http://endeavourhealth.org/fhir/StructureDefinition/primarycare-ethnic-category-extension"
+                }
+              ]
+            }
+          }
+        ],
+         "gender": "F",
+         "id": 1,
+         "identifier": [
+          {
+             "system": "http://fhir.nhs.net/Id/nhs-number",
+             "use": "official",
+             "value": 3127565459
+          },
+          {
+             "system": "http://endeavourhealth.org/identifier/patient-number",
+             "use": "secondary",
+             "value": 1
+          }
+        ],
+         "managingOrganization": {
+           "reference": "Organization/328"
+        },
+         "meta": {
+           "profile": [
+            "http://endeavourhealth.org/fhir/StructureDefinition/primarycare-patient"
+          ]
+        },
+         "name": [
+          {
+             "family": [
+              "Albergaria"
+            ],
+             "given": [
+              "Lindsey"
+            ],
+             "text": "Albergaria, Lindsey (Ms)",
+             "use": "official"
+          }
+        ],
+         "resourceType": "Patient",
+         "telecom": [
+          {
+             "system": "phone",
+             "use": "mobile",
+             "value": "07456223456"
+          },
+          {
+             "system": "phone",
+             "use": "home",
+             "value": "01945 668768"
+          }
+        ]
+      }""";
   }
 
   private void writeObject(String path, String fileName, Object object) throws JsonProcessingException, IOException {

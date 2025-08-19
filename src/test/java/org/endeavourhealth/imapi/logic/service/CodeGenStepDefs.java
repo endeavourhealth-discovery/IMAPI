@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -51,7 +52,7 @@ public class CodeGenStepDefs {
   @Given("a datatype map")
   public void setDataTypeMap(String arg0) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      this.template.setDatatypeMap(om.readValue(arg0, HashMap.class));
+      this.template.setDatatypeMap(om.readValue(arg0, new TypeReference<>() {}));
     }
   }
 

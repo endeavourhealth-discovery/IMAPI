@@ -235,8 +235,8 @@ public class QueryRequest implements ContextMap {
   public void resolveArgs() {
     if (this.argument == null) this.argument = new HashSet<>();
     boolean hasRefDate = this.argument.stream()
-      .anyMatch(arg -> "$referenceDate".equals(arg.getParameter()));
+      .anyMatch(arg -> "$baselineDate".equals(arg.getParameter()));
     if (!hasRefDate)
-      this.argument.add(new Argument().setParameter("$referenceDate").setValueData(LocalDate.now().toString()));
+      this.argument.add(new Argument().setParameter("$baselineDate").setValueData(LocalDate.now().toString()));
   }
 }

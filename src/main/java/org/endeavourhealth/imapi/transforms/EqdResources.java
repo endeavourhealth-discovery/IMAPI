@@ -715,7 +715,7 @@ public class EqdResources {
 
   private void setCompare(Where where, Value pv, Operator comp, String value, String units, VocRelation relation) throws EQDException {
     if (relation == VocRelation.RELATIVE) {
-      where.setRelativeTo((new RelativeTo()).setParameter("$referenceDate"));
+      where.setRelativeTo((new RelativeTo()).setParameter("$baselineDate"));
     }
 
     pv.setOperator(comp);
@@ -739,7 +739,7 @@ public class EqdResources {
 
   private void setCompare(Where where, Operator comp, String value, String units, VocRelation relation) throws EQDException {
     if (relation == VocRelation.RELATIVE) {
-      where.setRelativeTo((new RelativeTo()).setParameter("$referenceDate"));
+      where.setRelativeTo((new RelativeTo()).setParameter("$baselineDate"));
     }
 
     if (comp != null) {

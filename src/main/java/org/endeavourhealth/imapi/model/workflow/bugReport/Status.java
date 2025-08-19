@@ -7,7 +7,7 @@ public enum Status {
     VERIFIED("verified"),
     REOPENED("reopened"),
     WONT_FIX("won't fix");
-    private String text;
+    private final String text;
     Status(String text) {
         this.text = text;
     }

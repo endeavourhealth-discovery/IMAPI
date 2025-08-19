@@ -17,7 +17,7 @@ public enum Operator {
   contains("contains");
 
   // declaring private variable for getting values
-  private String value;
+  private final String value;
 
 
   @JsonValue

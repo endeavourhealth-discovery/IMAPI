@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.utility;
 import com.codahale.metrics.Timer;
 
 import java.io.Closeable;
-import java.io.IOException;
 
 public class MetricsTimer implements Closeable {
   private final Timer.Context context;

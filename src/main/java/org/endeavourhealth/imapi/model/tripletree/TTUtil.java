@@ -5,7 +5,6 @@ import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 

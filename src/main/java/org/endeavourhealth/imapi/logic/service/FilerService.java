@@ -1,12 +1,10 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.databases.ProvDB;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;

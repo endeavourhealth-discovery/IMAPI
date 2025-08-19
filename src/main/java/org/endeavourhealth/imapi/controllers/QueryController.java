@@ -32,7 +32,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.zip.DataFormatException;
 
 @RestController
 @RequestMapping("api/query")

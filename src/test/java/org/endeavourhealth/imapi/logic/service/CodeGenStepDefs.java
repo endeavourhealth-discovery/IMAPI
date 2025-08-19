@@ -11,9 +11,7 @@ import org.endeavourhealth.imapi.model.dto.CodeGenDto;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

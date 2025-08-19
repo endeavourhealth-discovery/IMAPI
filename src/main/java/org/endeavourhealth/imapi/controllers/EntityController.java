@@ -44,11 +44,8 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;

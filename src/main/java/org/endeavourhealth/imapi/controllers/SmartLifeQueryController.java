@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SmartLifeQueryService;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;

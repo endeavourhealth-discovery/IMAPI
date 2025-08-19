@@ -1,7 +1,5 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.DatabaseOption;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.EntityType;

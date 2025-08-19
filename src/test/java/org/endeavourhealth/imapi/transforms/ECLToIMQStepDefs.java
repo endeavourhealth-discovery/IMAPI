@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.transforms;
 
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Query;
 

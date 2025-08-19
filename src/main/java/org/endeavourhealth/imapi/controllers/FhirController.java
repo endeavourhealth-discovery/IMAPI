@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.FhirService;
-import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
-import java.util.zip.DataFormatException;
 
 @RestController
 @RequestMapping("api/fhir/r4")

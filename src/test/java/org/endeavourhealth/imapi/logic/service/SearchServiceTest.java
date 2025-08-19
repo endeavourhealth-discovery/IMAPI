@@ -15,11 +15,8 @@ import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.ExecutionException;
-import java.util.zip.DataFormatException;
 
 class SearchServiceTest {
 

@@ -72,10 +72,6 @@ public class ConnectionManager {
     admin.declareExchange(topicExchange);
   }
 
-  public void createDeadLetterExchange() {
-
-  }
-
   public void createConsumerChannel(PostgresService postgresService) throws IOException {
     createExchange();
     Channel channel = getConnection().createChannel(false);

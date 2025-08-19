@@ -191,7 +191,7 @@ public class UserController {
   @PostMapping(value = "/organisations", produces = "application/json")
   @ResponseStatus(HttpStatus.ACCEPTED)
   @PreAuthorize("hasAuthority('ADMIN')")
-  public void updateUserOrganisations(@RequestParam("UserId") String userId, @RequestBody List<String> organisations) throws JsonProcessingException, Exception {
+  public void updateUserOrganisations(@RequestParam("UserId") String userId, @RequestBody List<String> organisations) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Organisations.POST")) {
       log.debug("updateUserOrganisations");
       if (!userService.userIdExists(userId))
@@ -212,7 +212,7 @@ public class UserController {
   @PostMapping(value = "/graphs", produces = "application/json")
   @ResponseStatus(HttpStatus.ACCEPTED)
   @PreAuthorize("hasAuthority('ADMIN')")
-  public void updateUserGraphs(@RequestParam("UserId") String userId, @RequestBody List<Graph> graphs) throws JsonProcessingException, Exception {
+  public void updateUserGraphs(@RequestParam("UserId") String userId, @RequestBody List<Graph> graphs) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Graphs.POST")) {
       log.debug("updateUserGraphs");
       if (!userService.userIdExists(userId))

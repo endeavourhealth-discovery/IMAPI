@@ -310,7 +310,7 @@ public class QueryController {
   @Operation(
     summary = "Requeue a cancelled or errored query"
   )
-  public void requeueQuery(HttpServletRequest request, @RequestBody RequeueQueryRequest requeueQueryRequest) throws Exception, SQLConversionException {
+  public void requeueQuery(HttpServletRequest request, @RequestBody RequeueQueryRequest requeueQueryRequest) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.RequeueQuery.POST")) {
       log.debug("requeueQuery");
       UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);

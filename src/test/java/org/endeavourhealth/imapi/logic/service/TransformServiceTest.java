@@ -153,7 +153,7 @@ class TransformServiceTest {
       }""";
   }
 
-  private void writeObject(String path, String fileName, Object object) throws JsonProcessingException, IOException {
+  private void writeObject(String path, String fileName, Object object) throws IOException {
     try (FileWriter wr = new FileWriter(path + "\\" + fileName + ".json")) {
       wr.write(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(object));
     }

@@ -643,8 +643,56 @@ public class EqdResources {
     }
 
     relationProperty.setRelativeTo((new RelativeTo()).setNodeRef(nodeRef).setIri(parentProperty));
-    return match;
+    if (match.getDescription()!=null){
+      match.setDescription(match.getDescription()+" (where "+getRelationship(eqRelationship)+")");
+    }
+    if (eqLinkedCriterion.isNegation()){
+      Match linkedMatch= new Match();
+      linkedMatch.addNot(match);
+      return linkedMatch;
+    } else return match;
   }
+
+  private String getRelationship(EQDOCRelationship eqRelationship) throws QueryException {
+    StringBuilder relationship = new StringBuilder();
+    relationship.append(eqRelationship.getParentColumnDisplayName());
+    if (eqRelationship.getRangeValue()==null){
+      relationship.append(" on same date as");
+    }
+    else {
+      EQDOCRangeFrom eqFrom= eqRelationship.getRangeValue().getRangeFrom();
+      if (eqFrom!=null) {
+        VocRangeFromOperator op = eqFrom.getOperator();
+        switch (op) {
+          case GT:
+            relationship.append(" after");
+            break;
+          case GTEQ:
+            relationship.append(" on or after");
+            break;
+          default:
+            throw new QueryException("Unknown operator " + op);
+        }
+      }
+      else {
+        EQDOCRangeTo eqTo= eqRelationship.getRangeValue().getRangeTo();
+        if (eqTo!=null) {
+          VocRangeToOperator op = eqTo.getOperator();
+          switch (op) {
+            case LT:
+              relationship.append(" before");
+              break;
+            case LTEQ:
+              relationship.append(" on or before");
+              break;
+          }
+        }
+
+      }
+    }
+    return relationship.toString();
+  }
+
 
   private void setRangeValue(EQDOCRangeValue rv, Where pv) throws EQDException {
     EQDOCRangeFrom rFrom = rv.getRangeFrom();

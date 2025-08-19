@@ -149,14 +149,14 @@ public interface mappingListener extends ParseTreeListener {
   void exitTypeMode(mappingParser.TypeModeContext ctx);
 
   /**
-   * Enter a parse tree produced by {@link mappingParser#extends}.
+   * Enter a parse tree produced by {@link mappingParser#extends_}.
    *
    * @param ctx the parse tree
    */
   void enterExtends(mappingParser.ExtendsContext ctx);
 
   /**
-   * Exit a parse tree produced by {@link mappingParser#extends}.
+   * Exit a parse tree produced by {@link mappingParser#extends_}.
    *
    * @param ctx the parse tree
    */
@@ -205,14 +205,14 @@ public interface mappingListener extends ParseTreeListener {
   void exitType(mappingParser.TypeContext ctx);
 
   /**
-   * Enter a parse tree produced by {@link mappingParser#rule}.
+   * Enter a parse tree produced by {@link mappingParser#rule_}.
    *
    * @param ctx the parse tree
    */
   void enterRule(mappingParser.RuleContext ctx);
 
   /**
-   * Exit a parse tree produced by {@link mappingParser#rule}.
+   * Exit a parse tree produced by {@link mappingParser#rule_}.
    *
    * @param ctx the parse tree
    */

@@ -39,25 +39,27 @@ public class OpenSearchService {
 
       WebTarget target = client.target(osUrl).path(index + "/_search");
 
-      Response response = target
+      JsonNode root;
+      try (Response response = target
         .request()
         .header(AUTHORIZATION, BASIC + osAuth)
         .header("Content-Type", "application/json")
         .post(Entity.entity(
           bld.toString(),
           MediaType.APPLICATION_JSON
-        ));
+        ))) {
 
-      if (response.getStatus() != 200) {
-        String responseData = response.readEntity(String.class);
-        log.error(responseData);
-        throw new OpenSearchException(ERROR_CALLING_OPEN_SEARCH);
+        if (response.getStatus() != 200) {
+          String responseData = response.readEntity(String.class);
+          log.error(responseData);
+          throw new OpenSearchException(ERROR_CALLING_OPEN_SEARCH);
+        }
+
+        if (!response.hasEntity())
+          return null;
+
+        root = om.readTree(response.readEntity(String.class));
       }
-
-      if (!response.hasEntity())
-        return null;
-
-      JsonNode root = om.readTree(response.readEntity(String.class));
 
       JsonNode hits = root.at("/hits/total/value");
       if (hits == null || hits.asInt() == 0)
@@ -92,18 +94,19 @@ public class OpenSearchService {
     WebTarget target = client.target(osUrl).path(index + "/_doc/" + entityDocument.getId());
 
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      Response response = target
+      try (Response response = target
         .request()
         .header(AUTHORIZATION, BASIC + osAuth)
         .put(Entity.entity(
           om.writeValueAsString(entityDocument),
           MediaType.APPLICATION_JSON
-        ));
+        ))) {
 
-      if (response.getStatus() != 200 && response.getStatus() != 201) {
-        String responseData = response.readEntity(String.class);
-        log.error(responseData);
-        throw new IllegalStateException(ERROR_CALLING_OPEN_SEARCH);
+        if (response.getStatus() != 200 && response.getStatus() != 201) {
+          String responseData = response.readEntity(String.class);
+          log.error(responseData);
+          throw new IllegalStateException(ERROR_CALLING_OPEN_SEARCH);
+        }
       }
     } catch (Exception e) {
       throw new OpenSearchException("Error sending document to OpenSearch", e);
@@ -128,30 +131,31 @@ public class OpenSearchService {
       }
       """;
 
-    Response response = target
+    try (Response response = target
       .request()
       .header(AUTHORIZATION, BASIC + osAuth)
-      .post(Entity.entity(json, MediaType.APPLICATION_JSON));
+      .post(Entity.entity(json, MediaType.APPLICATION_JSON))) {
 
-    if (response.getStatus() != 200) {
-      String responseData = response.readEntity(String.class);
-      if (responseData.contains("index_not_found_exception")) {
-        log.info("Index not found, starting from zero");
-        return 0;
-      } else {
-        log.error(responseData);
-        throw new OpenSearchException(ERROR_CALLING_OPEN_SEARCH);
-      }
-    } else {
-      try (CachedObjectMapper om = new CachedObjectMapper()) {
+      if (response.getStatus() != 200) {
         String responseData = response.readEntity(String.class);
-        JsonNode root = om.readTree(responseData);
-        int maxId = root.get("aggregations").get("max_id").get("value").asInt();
-        if (maxId > 0)
-          log.info("Max document ID {}", maxId);
-        return maxId;
-      } catch (Exception e) {
-        throw new OpenSearchException("Error getting max document id from Opensearch", e);
+        if (responseData.contains("index_not_found_exception")) {
+          log.info("Index not found, starting from zero");
+          return 0;
+        } else {
+          log.error(responseData);
+          throw new OpenSearchException(ERROR_CALLING_OPEN_SEARCH);
+        }
+      } else {
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+          String responseData = response.readEntity(String.class);
+          JsonNode root = om.readTree(responseData);
+          int maxId = root.get("aggregations").get("max_id").get("value").asInt();
+          if (maxId > 0)
+            log.info("Max document ID {}", maxId);
+          return maxId;
+        } catch (Exception e) {
+          throw new OpenSearchException("Error getting max document id from Opensearch", e);
+        }
       }
     }
   }

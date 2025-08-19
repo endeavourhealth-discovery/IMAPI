@@ -40,14 +40,14 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
    * @return the TTDocument
    */
   public TTDocument getDocument(String turtle) throws DataFormatException {
-    TTManager manager;
     lexer.setInputStream(CharStreams.fromString(turtle));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     parser.setTokenStream(tokens);
     TurtliteParser.TurtleDocContext tdoc = parser.turtleDoc();
-    manager = new TTManager();
-    document = new TTDocument();
-    manager.setDocument(document);
+    try (TTManager manager = new TTManager()) {
+      document = new TTDocument();
+      manager.setDocument(document);
+    }
     document.setContext(new TTContext());
     convertDoc(tdoc);
 

@@ -55,10 +55,11 @@ class TransformServiceTest {
     Set<Object> results = new TransformService().runTransform(request);
 
     //Displays result
-    TTManager manager = new TTManager();
-    TTDocument document = manager.createDocument();
-    document.setEntities(results.stream().map(r -> (TTEntity) r).collect(Collectors.toList()));
-    manager.saveDocument(new File(testTargets + "\\IMPatient.json"));
+    try (TTManager manager = new TTManager()) {
+      TTDocument document = manager.createDocument();
+      document.setEntities(results.stream().map(r -> (TTEntity) r).collect(Collectors.toList()));
+      manager.saveDocument(new File(testTargets + "\\IMPatient.json"));
+    }
     System.out.println("Target written to " + testTargets + "\\IMPatient");
   }
 

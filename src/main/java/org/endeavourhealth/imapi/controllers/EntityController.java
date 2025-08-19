@@ -206,12 +206,14 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DownloadEntity.GET")) {
       log.debug("Download entity");
       TTBundle entity = entityService.getBundle(iri, null);
-      TTManager manager = new TTManager();
-      TTDocument document = manager.createDocument();
-      List<TTEntity> entityList = new ArrayList<>();
-      entityList.add(entity.getEntity());
-      document.setEntities(entityList);
-      String json = manager.getJson(document);
+      String json;
+      try (TTManager manager = new TTManager()) {
+        TTDocument document = manager.createDocument();
+        List<TTEntity> entityList = new ArrayList<>();
+        entityList.add(entity.getEntity());
+        document.setEntities(entityList);
+        json = manager.getJson(document);
+      }
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_JSON);
       headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + entity.getEntity().get(iri(RDFS.LABEL)) + ".json\"");

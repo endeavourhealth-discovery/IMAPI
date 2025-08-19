@@ -95,11 +95,12 @@ public class MetricsHelper {
 
       int frequency = con.getFrequency();
 
-      ConsoleReporter reporter = ConsoleReporter.forRegistry(registry)
+      try (ConsoleReporter reporter = ConsoleReporter.forRegistry(registry)
         .convertRatesTo(TimeUnit.SECONDS)
         .convertDurationsTo(TimeUnit.MILLISECONDS)
-        .build();
-      reporter.start(frequency, TimeUnit.SECONDS);
+        .build()) {
+        reporter.start(frequency, TimeUnit.SECONDS);
+      }
       log.info("Console metrics reporter started");
     }
   }

@@ -10,7 +10,9 @@ import org.eclipse.rdf4j.query.Update;
 import org.endeavourhealth.imapi.dataaccess.databases.ConfigDB;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.config.Config;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.CONFIG;
+import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 import org.springframework.context.annotation.Configuration;
 
 import static org.eclipse.rdf4j.model.util.Values.literal;

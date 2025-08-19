@@ -1,7 +1,5 @@
 package org.endeavourhealth.imapi.model.fhir;
 
-import org.endeavourhealth.imapi.vocabulary.Graph;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;

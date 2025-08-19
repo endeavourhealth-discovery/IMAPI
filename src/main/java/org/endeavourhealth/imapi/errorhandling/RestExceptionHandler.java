@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.errorhandling;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.catalina.connector.ClientAbortException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.customexceptions.*;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Set;
 import java.util.zip.DataFormatException;

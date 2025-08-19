@@ -1,17 +1,6 @@
 package org.endeavourhealth.imapi.model.query;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.service.QueryService;
-import org.endeavourhealth.imapi.model.imq.DisplayMode;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.vocabulary.Graph;
-import org.junit.jupiter.api.Test;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class QueryRequestTest {
 

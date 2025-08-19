@@ -1,8 +1,6 @@
 package org.endeavourhealth.imapi.model.fhir;
 
-import com.fasterxml.jackson.annotation.*;
-
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Extension  {
     private String url;

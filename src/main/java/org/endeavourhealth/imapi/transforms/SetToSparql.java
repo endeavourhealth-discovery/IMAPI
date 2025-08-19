@@ -2,12 +2,10 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.DataFormatException;

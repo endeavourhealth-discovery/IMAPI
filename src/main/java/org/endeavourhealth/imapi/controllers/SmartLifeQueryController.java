@@ -11,7 +11,6 @@ import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.smartlife.SmartLifeQueryRunDTO;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,6 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 

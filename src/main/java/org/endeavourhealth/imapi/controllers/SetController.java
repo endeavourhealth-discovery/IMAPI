@@ -23,7 +23,6 @@ import org.endeavourhealth.imapi.model.requests.SetExportRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

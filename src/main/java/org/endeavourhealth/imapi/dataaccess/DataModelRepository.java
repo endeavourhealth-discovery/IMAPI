@@ -11,7 +11,6 @@ import org.endeavourhealth.imapi.model.iml.ParameterShape;
 import org.endeavourhealth.imapi.model.iml.PropertyRange;
 import org.endeavourhealth.imapi.model.iml.PropertyShape;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;

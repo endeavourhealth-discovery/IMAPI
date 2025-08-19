@@ -4,7 +4,6 @@ import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
 import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

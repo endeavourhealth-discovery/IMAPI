@@ -1,15 +1,12 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.smartlife.SmartLifeQueryRunDTO;
 import org.endeavourhealth.imapi.postgres.PostgresService;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 

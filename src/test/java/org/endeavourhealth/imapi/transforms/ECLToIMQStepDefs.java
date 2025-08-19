@@ -5,9 +5,6 @@ import io.cucumber.java.en.When;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.vocabulary.Graph;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

@@ -8,7 +8,6 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 

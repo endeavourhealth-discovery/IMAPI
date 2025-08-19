@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.dto;
 
-import lombok.*;
+import lombok.Data;
 
 import java.util.List;
 

@@ -8,12 +8,10 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import javax.naming.directory.InvalidAttributesException;
-import java.util.List;
 import java.util.StringJoiner;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;

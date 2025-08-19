@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.SetOptions;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.hl7.fhir.r4.model.ValueSet;
 
 import java.util.ArrayList;

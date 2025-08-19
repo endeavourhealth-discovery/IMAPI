@@ -3,14 +3,9 @@ package org.endeavourhealth.imapi.logic.reasoner;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.*;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class LogicOptimizer {
   Set<String> commonMatches;

@@ -1,7 +1,5 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
-
 public class RelativeTo extends Node {
   private String valueVariable;
   private String propertyRef;

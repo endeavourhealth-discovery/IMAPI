@@ -1,12 +1,11 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.junit.jupiter.api.Test;
 
 import java.util.zip.DataFormatException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TTToSCGTest {
 

@@ -3,12 +3,6 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.springframework.security.core.parameters.P;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 
 @JsonPropertyOrder({"parameter", "iri", "type", "set", "variable", "qualifier","name"})

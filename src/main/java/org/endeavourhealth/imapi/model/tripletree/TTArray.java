@@ -6,7 +6,9 @@ import org.endeavourhealth.imapi.json.TTArrayDeserializer;
 import org.endeavourhealth.imapi.json.TTArraySerializer;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.stream.Stream;
 
 @JsonSerialize(using = TTArraySerializer.class)

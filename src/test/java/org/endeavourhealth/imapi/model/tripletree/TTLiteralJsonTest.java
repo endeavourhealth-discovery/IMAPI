@@ -8,11 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.regex.Pattern;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 class TTLiteralJsonTest {
   private static final String LIT_STR_JSON = "\"Test name\"";

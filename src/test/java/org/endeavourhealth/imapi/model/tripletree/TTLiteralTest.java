@@ -12,7 +12,6 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.StringJoiner;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;

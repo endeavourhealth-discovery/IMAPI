@@ -6,8 +6,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;

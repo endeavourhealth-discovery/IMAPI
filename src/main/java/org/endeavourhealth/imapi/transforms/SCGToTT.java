@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.parser.scg.SCGLexer;
 import org.endeavourhealth.imapi.parser.scg.SCGParser;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.util.zip.DataFormatException;
 

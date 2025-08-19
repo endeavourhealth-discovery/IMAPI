@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.model.sql;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
 
 import java.util.List;
 

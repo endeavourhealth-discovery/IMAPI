@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.parser.imecl.IMECLBaseVisitor;
 import org.endeavourhealth.imapi.parser.imecl.IMECLParser;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.net.MalformedURLException;
 import java.net.URI;

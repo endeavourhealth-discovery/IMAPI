@@ -17,10 +17,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
   private TTDocument document;
-  private TTManager manager;
   private final TurtliteParser parser;
   private final TurtliteLexer lexer;
-  private String turtle;
   private Map<String, TTNode> blankNodes = new HashMap<>();
   private Map<String, TTEntity> iriMap = new HashMap<>();
 
@@ -39,11 +37,10 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
    * Creates and returns a TTDocument from a turtle document string
    *
    * @param turtle the string of turtle.
-   * @param graph  the iri of the graph for the document
    * @return the TTDocument
    */
-  public TTDocument getDocument(String turtle, TTIriRef graph) throws DataFormatException {
-    this.turtle = turtle;
+  public TTDocument getDocument(String turtle) throws DataFormatException {
+    TTManager manager;
     lexer.setInputStream(CharStreams.fromString(turtle));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     parser.setTokenStream(tokens);

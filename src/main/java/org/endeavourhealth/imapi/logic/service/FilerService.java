@@ -38,21 +38,18 @@ public class FilerService {
   private EntityService entityService;
   private OpenSearchService openSearchService;
   private UserService userService;
-  private WorkflowService workflowService;
   private TTTransactionFiler documentFiler;
   private TTEntityFiler entityFiler;
   private TTEntityFiler entityProvFiler;
   private IMDB imdb;
-  private ProvDB provDB;
 
   public FilerService() {
-    provDB = ProvDB.getConnection();
+    ProvDB provDB = ProvDB.getConnection();
     entityProvFiler = new TTEntityFilerRdf4j(provDB, Graph.PROV);
     provService = new ProvService();
     entityService = new EntityService();
     openSearchService = new OpenSearchService();
     userService = new UserService();
-    workflowService = new WorkflowService();
   }
 
   private static boolean isValidIri(TTEntity entity) {

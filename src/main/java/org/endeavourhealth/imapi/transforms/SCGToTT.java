@@ -19,7 +19,6 @@ public class SCGToTT {
   private TTEntity entity;
   private final SCGLexer lexer;
   private final SCGParser parser;
-  private String scg;
 
   public SCGToTT() {
     this.lexer = new SCGLexer(null);
@@ -29,7 +28,6 @@ public class SCGToTT {
   }
 
   public TTEntity setDefinition(TTEntity entity, String scgInput) throws DataFormatException {
-    this.scg = scgInput;
     this.entity = entity;
     lexer.setInputStream(CharStreams.fromString(scgInput));
     CommonTokenStream tokens = new CommonTokenStream(lexer);

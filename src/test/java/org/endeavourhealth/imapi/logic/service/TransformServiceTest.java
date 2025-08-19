@@ -18,7 +18,6 @@ import org.endeavourhealth.imapi.vocabulary.Namespace;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,17 +25,12 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 class TransformServiceTest {
 
-  private String testSources;
-  private String testTargets;
-  private String testMaps;
-
-
   //@Test
   void transform() throws Exception {
     String root = new File(System.getProperty("user.dir")).getParent();
-    testSources = root + "\\TestTransforms\\TestSources";
-    testTargets = root + "\\TestTransforms\\TestTargets";
-    testMaps = root + "\\TestTransforms\\TestMaps";
+    String testSources = root + "\\TestTransforms\\TestSources";
+    String testTargets = root + "\\TestTransforms\\TestTargets";
+    String testMaps = root + "\\TestTransforms\\TestMaps";
     //Creates an example transform map and adds to ebntity cache
     TestMaps.patientDSTU2();
     ObjectMapper om = new ObjectMapper();

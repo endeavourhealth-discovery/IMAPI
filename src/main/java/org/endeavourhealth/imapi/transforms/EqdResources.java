@@ -247,7 +247,7 @@ public class EqdResources {
       if (testMatch != null) setReturn(testMatch,as);
       else if (standardMatch != null) setReturn(standardMatch,as);
       else setReturn(baseMatch,as);
-      String nodeRef= standardMatch != null ? standardMatch.getReturn().getAs(): baseMatch!=null ? baseMatch.getReturn().getAs() : "error";
+      String nodeRef= standardMatch != null ? standardMatch.getReturn().getAs(): baseMatch.getReturn().getAs();
       linkedMatch = this.convertLinkedCriterion(eqCriterion, nodeRef);
       if (testMatch != null) testMatch.setThen(linkedMatch);
       else if (standardMatch != null) standardMatch.setThen(linkedMatch);
@@ -406,14 +406,13 @@ public class EqdResources {
   }
 
   private void injectReturn(Match parentMatch, Match childMatch) throws QueryException {
-    Return ret = null;
+    Return ret;
     String asLabel;
     if (parentMatch.getReturn() != null) {
       ret = parentMatch.getReturn();
-      asLabel = ret.getAs();
     } else {
       asLabel = descriptor.getShortDescription(parentMatch).toLowerCase();
-      if (asLabel == "") {
+      if (asLabel.isEmpty()) {
         counter++;
         asLabel = "Match_" + counter;
       }

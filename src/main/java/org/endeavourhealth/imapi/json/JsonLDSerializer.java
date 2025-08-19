@@ -118,9 +118,11 @@ public class JsonLDSerializer extends StdSerializer<Object> {
       return prefixed;
     String prefix = prefixed.substring(0, colonPos);
     String namespace = prefixIriMap.get(prefix);
+
     if (namespace != null) {
       return namespace + prefixed.substring(colonPos + 1);
     }
+
     for (Map.Entry<String, String> iriPrefix : iriPrefixMap.entrySet()) {
       if (iriPrefix.getValue().equals(prefix)) {
         prefixIriMap.put(namespace, prefix);
@@ -129,5 +131,4 @@ public class JsonLDSerializer extends StdSerializer<Object> {
     }
     return prefixed;
   }
-
 }

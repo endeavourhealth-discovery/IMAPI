@@ -51,7 +51,7 @@ public class DomainResolver {
           ?rg ?property ?value.
           ?value rdf:type im:Concept.
       }
-      """.formatted("<" + domain + ">", current);
+      """.formatted("<" + domain + ">");
     Set<String> allProperties = new HashSet<>();
     TupleQuery allPropertyQuery = conn.prepareTupleSparql(sql);
     try (TupleQueryResult allResults = allPropertyQuery.evaluate()) {

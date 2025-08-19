@@ -511,29 +511,20 @@ public class TTManager implements AutoCloseable {
   }
 
   private boolean replaceNode(TTNode node, TTIriRef from, TTIriRef to) {
-    boolean replaced = false;
     if (node.get(from) != null) {
       node.set(to, node.get(from));
       node.getPredicateMap().remove(from);
       return true;
     }
     if (node.getPredicateMap() != null) {
-      HashMap<TTIriRef, TTValue> newPredicates = new HashMap<>();
       for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
         replaceNodeValueChange(from, to, entry);
-      }
-      if (!newPredicates.isEmpty()) {
-        for (Map.Entry<TTIriRef, TTValue> entry : newPredicates.entrySet()) {
-          node.getPredicateMap().remove(entry.getKey());
-          node.set(entry.getKey(), entry.getValue());
-        }
       }
     }
     return false;
   }
 
   private void replaceNodeValueChange(TTIriRef from, TTIriRef to, Map.Entry<TTIriRef, TTArray> entry) {
-    boolean replaced;
     TTArray value = entry.getValue();
 
     List<TTValue> toRemove = new ArrayList<>();
@@ -543,7 +534,7 @@ public class TTManager implements AutoCloseable {
           toRemove.add(arrayValue);
         }
       } else if (arrayValue.isNode()) {
-        replaced = replaceNode(arrayValue.asNode(), from, to);
+        replaceNode(arrayValue.asNode(), from, to);
       }
     }
     if (!toRemove.isEmpty()) {

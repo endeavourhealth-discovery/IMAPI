@@ -190,12 +190,10 @@ public class QueryService {
       return queryResults;
     }
     if (!MYSQLConnectionManager.tableExists(hashCode)) return null;
+
     queryResults = MYSQLConnectionManager.getResults(queryRequest);
-    if (queryResults != null) {
-      log.debug("Query Results for hashcode {} found in db cache", hashCode);
-      return queryResults;
-    }
-    return null;
+    log.debug("Query Results for hashcode {} found in db cache", hashCode);
+    return queryResults;
   }
 
   public void killActiveQuery() throws SQLException {

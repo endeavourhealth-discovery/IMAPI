@@ -171,7 +171,6 @@ public class IMQToECL {
   }
 
   private void match(Match match, StringBuilder ecl, boolean includeNames, boolean isNested) throws QueryException {
-    boolean isWild = false;
     if (match.getInstanceOf() == null && match.getOr() == null && match.getAnd() == null) {
       ecl.append("*");
     } else if (match.getInstanceOf() != null) {
@@ -189,7 +188,6 @@ public class IMQToECL {
       if (isNested)
         ecl.append(")");
     }
-    if (isWild) ecl.append(")");
   }
 
   private boolean bracketNeeded(Match match, boolean first, boolean multiItems) {

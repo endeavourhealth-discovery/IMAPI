@@ -470,10 +470,6 @@ public class SparqlConverter {
     if (pathVariable != null) {
       subject = pathVariable;
     }
-    String propertyVariable = null;
-    if (!where.isInverse()) {
-      if (where.getVariable() != null) propertyVariable = where.getVariable();
-    }
     if (where.getNodeRef() != null) {
       subject = where.getNodeRef();
     }

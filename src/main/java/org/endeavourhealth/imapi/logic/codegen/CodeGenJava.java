@@ -331,7 +331,7 @@ public class CodeGenJava {
   }
 
   private String getDataType(TTIriRef dataType, boolean dataModel, boolean isArray) {
-    String dataTypeName = null;
+    String dataTypeName;
     if (dataType.getIri().startsWith(Namespace.XSD.toString())) {
       dataTypeName = capitalise(getSuffix(dataType.getIri()));
     } else if (dataModel) {

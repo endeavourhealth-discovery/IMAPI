@@ -433,16 +433,12 @@ public class QueryDescriptor {
 
 
   private void describeFrom(Where where, Value from) {
-    String qualifier = null;
+    String qualifier;
     boolean inclusive = false;
     boolean past = false;
     Operator operator = from.getOperator();
     String value = from.getValue();
     TTIriRef units = from.getUnit();
-    boolean date = false;
-    if (where.getIri() != null) {
-      date = where.getIri().toLowerCase().contains("date");
-    }
     if (value != null) if (value.startsWith("-")) past = true;
     qualifier = "is between ";
     if (null != operator) if (operator == Operator.gte) {
@@ -465,7 +461,6 @@ public class QueryDescriptor {
   private void describeTo(Where where, Value from) {
     String qualifier = null;
     boolean inclusive = false;
-    boolean past = false;
     Operator operator = from.getOperator();
     String value = from.getValue();
     TTIriRef units = from.getUnit();
@@ -473,8 +468,6 @@ public class QueryDescriptor {
     if (where.getIri() != null) {
       date = where.getIri().toLowerCase().contains("date");
     }
-    if (value != null) if (value.startsWith("-")) past = true;
-    String relativity = null;
     if (null != operator) switch (operator) {
       case gt:
         qualifier = "and ";
@@ -517,7 +510,6 @@ public class QueryDescriptor {
         } else qualifier = qualifier + " before ";
       }
     }
-
 
     where.setQualifier(where.getQualifier() + " and " + qualifier);
   }
@@ -565,10 +557,9 @@ public class QueryDescriptor {
   private void describeWhereIs(Where where) {
     for (Node set : where.getIs()) {
       if (iriContext.get(set.getIri()) != null) {
-        String modifier = "";
         TTEntity nodeEntity = (iriContext.get(set.getIri()));
         set.setCode(nodeEntity.getCode());
-        modifier = set.isExclude() ? " but not: " : " ";
+        String modifier = set.isExclude() ? " but not: " : " ";
         set.setQualifier(modifier);
       }
       String value = getTermInContext(set);

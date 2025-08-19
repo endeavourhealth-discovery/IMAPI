@@ -31,7 +31,7 @@ public class SetReducer {
    * @throws InvalidAttributesException A message of "NOT CONVERTED TO EC ...."
    */
   public TTEntity reduce(TTEntity set) throws InvalidAttributesException {
-    String sql = null;
+    String sql;
     int originalSize;
     if (set.get(iri(IM.DEFINITION)) != null) {
       sql = getOrSql(set);

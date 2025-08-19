@@ -101,7 +101,7 @@ class SearchServiceTest {
         System.out.println("Found " + result.get("entities").size() + " entities");
         if (result.get("entities").isEmpty()) {
           dataSet = new ObjectMapper().readValue(originalRequest, QueryRequest.class);
-          result = searchService.queryIM(dataSet);
+          searchService.queryIM(dataSet);
           throw new RuntimeException("No results found for query " + name);
         }
       }

@@ -51,7 +51,7 @@ public class ConceptController {
   public List<SearchTermCode> getTermCodes(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "includeInactive") Optional<Boolean> includeInactive) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.TermCode.GET")) {
       log.debug("getTermCodes");
-      return conceptService.getEntityTermCodes(iri, includeInactive.orElseGet(() -> false));
+      return conceptService.getEntityTermCodes(iri, includeInactive.orElse(false));
     }
   }
 

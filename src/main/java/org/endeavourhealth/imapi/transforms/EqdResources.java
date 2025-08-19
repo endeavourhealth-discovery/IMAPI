@@ -123,7 +123,7 @@ public class EqdResources {
     if (eqGroup.getDefinition().getParentPopulationGuid() != null) {
       String parent = eqGroup.getDefinition().getParentPopulationGuid();
       Match match = new Match();
-      match.addInstanceOf((new Node()).setIri(this.namespace + parent).setMemberOf(true)).setName((String) this.reportNames.get(parent));
+      match.addInstanceOf((new Node()).setIri(this.namespace + parent).setMemberOf(true)).setName(this.reportNames.get(parent));
       return match;
     } else {
       List<EQDOCCriteria> groupCriteria = eqGroup.getDefinition().getCriteria();
@@ -196,7 +196,7 @@ public class EqdResources {
       searchId = EqdToIMQ.versionMap.get(searchId);
     }
     Match match = new Match();
-    match.addInstanceOf(new Node().setIri(namespace + searchId).setName((String) this.reportNames.get(search.getReportGuid())).setMemberOf(true));
+    match.addInstanceOf(new Node().setIri(namespace + searchId).setName(this.reportNames.get(search.getReportGuid())).setMemberOf(true));
     return match;
   }
 
@@ -536,7 +536,7 @@ public class EqdResources {
 
   private Match convertTestCriterion(EQDOCCriterion eqCriterion) throws EQDException, IOException {
     EQDOCTestAttribute testAtt = eqCriterion.getFilterAttribute().getRestriction().getTestAttribute();
-    return this.convertColumns(eqCriterion.getTable(), (String) null, testAtt.getColumnValue(), true);
+    return this.convertColumns(eqCriterion.getTable(), null, testAtt.getColumnValue(), true);
   }
 
   private void setRestriction(EQDOCCriterion eqCriterion, Match restricted) throws EQDException {
@@ -915,7 +915,7 @@ public class EqdResources {
           for (Node memberOrConcept : setMembers) {
             if (memberOrConcept.isMemberOf()) {
               String setIri = memberOrConcept.getIri();
-              TTEntity usedIn = (TTEntity) EqdToIMQ.setIriToEntity.get(setIri);
+              TTEntity usedIn = EqdToIMQ.setIriToEntity.get(setIri);
               if (usedIn == null) {
                 usedIn = (new TTEntity()).setIri(setIri).setCrud(iri(IM.ADD_QUADS));
                 this.document.addEntity(usedIn);
@@ -948,7 +948,7 @@ public class EqdResources {
             if (in) pv.addIs(node);
             else pv.addNotIs(node);
             if (node.getName() != null && name == null) {
-              name = this.getShortName(node.getName(), (String) null);
+              name = this.getShortName(node.getName(), null);
             }
           }
         } else {
@@ -958,7 +958,7 @@ public class EqdResources {
             }
 
             if (node.getName() != null && name == null) {
-              name = this.getShortName(node.getName(), (String) null);
+              name = this.getShortName(node.getName(), null);
             }
 
             if (node.isMemberOf()) {
@@ -1222,7 +1222,7 @@ public class EqdResources {
     String description = vs.getDescription();
     String name = description == null ? this.getNameFromSet(setContent) : description;
     String entailedMembers = (new ObjectMapper()).writeValueAsString(setContent);
-    TTEntity duplicate = (TTEntity) EqdToIMQ.definitionToEntity.get(entailedMembers);
+    TTEntity duplicate = EqdToIMQ.definitionToEntity.get(entailedMembers);
     if (duplicate != null) {
       this.addUsedIn(duplicate);
       if (this.columnGroup != null) {
@@ -1274,7 +1274,7 @@ public class EqdResources {
   }
 
   private String getNameFromSet(Set<Node> set) {
-    String name = (String) set.stream().limit(1L).map(IriLD::getName).collect(Collectors.joining(","));
+    String name = set.stream().limit(1L).map(IriLD::getName).collect(Collectors.joining(","));
     if (set.size() > 1) {
       name = name + " ... etc";
     }

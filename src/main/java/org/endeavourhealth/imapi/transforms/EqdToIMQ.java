@@ -242,7 +242,7 @@ public class EqdToIMQ {
     if (this.document.getEntities() != null) {
       for (TTEntity report : this.document.getEntities()) {
         if (report.get(IM.DEFINITION) != null) {
-          Query query = (Query) report.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+          Query query = report.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
           this.checkGms(query);
           report.set(IM.DEFINITION.asIri(), TTLiteral.literal(query));
         }

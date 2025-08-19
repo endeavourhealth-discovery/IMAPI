@@ -125,7 +125,7 @@ public class IriCollector {
       for (Node node : where.getIs())
         iriSet.add(node.getIri());
     }
-    collectAssignableIris((Assignable) where, iriSet);
+    collectAssignableIris(where, iriSet);
     if (where.getRange() != null) {
       if (where.getRange().getFrom() != null) {
         collectAssignableIris(where.getRange().getFrom(), iriSet);

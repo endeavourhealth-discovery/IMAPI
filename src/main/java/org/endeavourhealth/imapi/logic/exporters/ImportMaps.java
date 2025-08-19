@@ -91,9 +91,7 @@ public class ImportMaps implements AutoCloseable {
     else
       codeToIri = new EntityRepository().getCodesToIri(scheme);
     Map<String, String> map = new HashMap<>();
-    codeToIri.entrySet().stream().forEach(item -> {
-      String entry = item.getKey();
-      String value = item.getValue();
+    codeToIri.forEach((entry, value) -> {
       if (entry.startsWith(scheme.toString())) {
         String code = entry.split(scheme.toString())[1];
         map.put(code, value);

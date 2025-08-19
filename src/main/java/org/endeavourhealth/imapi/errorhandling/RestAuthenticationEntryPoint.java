@@ -15,7 +15,7 @@ import java.util.Optional;
 @Component
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
   @Override
-  public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException ex) throws IOException, ServletException {
+  public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException ex) throws IOException {
     if (Optional.ofNullable(System.getenv("HOSTING_MODE")).orElse("").equals("private")) {
       httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
       try (OutputStream out = httpServletResponse.getOutputStream()) {

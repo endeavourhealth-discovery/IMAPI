@@ -64,7 +64,7 @@ public class EclController {
   public ECLQueryRequest getECLFromQuery(
     HttpServletRequest request,
     @RequestBody ECLQueryRequest eclQueryRequest
-  ) throws QueryException, IOException {
+  ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclFromQuery.POST")) {
       log.debug("getEclFromQuery");
       return eclService.getECLFromQuery(eclQueryRequest);
@@ -75,7 +75,7 @@ public class EclController {
   public ECLQueryRequest validateModelFromQuery(
     HttpServletRequest request,
     @RequestBody ECLQueryRequest eclQueryRequest
-  ) throws QueryException, IOException {
+  ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateModelFromQuery.POST")) {
       log.debug("validatesEclQuerymodel");
       return eclService.validateModelFromQuery(eclQueryRequest);
@@ -84,7 +84,7 @@ public class EclController {
 
 
   @PostMapping("/public/validateModelFromECL")
-  public ECLQueryRequest validateModelFromEcl(HttpServletRequest request, @RequestBody ECLQueryRequest eclQueryRequest) throws QueryException, IOException {
+  public ECLQueryRequest validateModelFromEcl(HttpServletRequest request, @RequestBody ECLQueryRequest eclQueryRequest) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateModelFromECL.POST")) {
       log.debug("validatesModelFromECL");
       return eclService.validateModelFromECL(eclQueryRequest);
@@ -96,7 +96,7 @@ public class EclController {
     summary = "Convert ECL to Query",
     description = "Transforms a provided ECL string into an IM Query object"
   )
-  public ECLQueryRequest getQueryFromECL(HttpServletRequest request, @RequestBody ECLQueryRequest eclQueryRequest) throws IOException, EclFormatException, QueryException {
+  public ECLQueryRequest getQueryFromECL(HttpServletRequest request, @RequestBody ECLQueryRequest eclQueryRequest) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.QueryFromEcl.POST")) {
       log.debug("getQueryFromEcl");
       return eclService.getQueryFromECL(eclQueryRequest);
@@ -111,7 +111,7 @@ public class EclController {
   public ECLQueryRequest getEclFromEcl(
     HttpServletRequest request,
     @RequestBody ECLQueryRequest eclQueryRequest
-  ) throws IOException, QueryException, EclFormatException {
+  ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclWithNames.POST")) {
       log.debug("getEcl from ecl");
       return eclService.getEclFromEcl(eclQueryRequest);
@@ -126,7 +126,7 @@ public class EclController {
   public ECLQueryRequest validateEcl(
     HttpServletRequest request,
     @RequestBody ECLQueryRequest eclQueryRequest
-  ) throws IOException, QueryException {
+  ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateEcl.POST")) {
       log.debug("validatesEcl");
       return eclService.validateEcl(eclQueryRequest);

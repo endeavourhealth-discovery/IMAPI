@@ -14,7 +14,7 @@ public class ECLToIMQStepDefs {
   private Query query;
 
   @Then("getEclFromQuery should equal original ecl {string}")
-  public void GetEclFromQueryShouldEqualEcl(String ecl) throws Exception {
+  public void GetEclFromQueryShouldEqualEcl(String ecl) {
     ECLQueryRequest eclQuery = new ECLQueryRequest();
     eclQuery.setQuery(query);
     imqToECL.getECLFromQuery(eclQuery);
@@ -24,7 +24,7 @@ public class ECLToIMQStepDefs {
   }
 
   @When("getQueryFromEcl is called with ecl {string}")
-  public void getQueryFromECLIsCalledWithEclEcl(String ecl) throws EclFormatException {
+  public void getQueryFromECLIsCalledWithEclEcl(String ecl) {
     ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
     eclQueryRequest.setEcl(ecl);
     eclToIMQ.getQueryFromECL(eclQueryRequest);

@@ -19,7 +19,7 @@ public class QueryServiceTest {
   QueryService queryService = new QueryService();
 
   //  @Test
-  void testCohortQueriesToSQL() throws JsonProcessingException, SQLConversionException {
+  void testCohortQueriesToSQL() {
     List<TTIriRef> queries = entityService.getEntitiesByType(EntityType.QUERY);
     System.out.println("Queries: " + queries.size());
     for (TTIriRef ref : queries) {

@@ -95,7 +95,7 @@ public class TimedCache<K, T> implements AutoCloseable {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     if (t!=null) {
       t.interrupt();
       t = null;

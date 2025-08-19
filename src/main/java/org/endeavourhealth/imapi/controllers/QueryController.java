@@ -100,7 +100,7 @@ public class QueryController {
     summary = "Path Query ",
     description = "Query IM for a path between source and target"
   )
-  public PathDocument pathQuery(HttpServletRequest request, @RequestBody PathQuery pathQuery) throws DataFormatException, IOException {
+  public PathDocument pathQuery(HttpServletRequest request, @RequestBody PathQuery pathQuery) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.PathQuery.POST")) {
       log.debug("pathQuery");
       return searchService.pathQuery(pathQuery);
@@ -132,7 +132,7 @@ public class QueryController {
   public Query queryFromIri(
     HttpServletRequest request,
     @RequestParam(name = "queryIri") String iri
-  ) throws IOException, QueryException {
+  ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("getQueryfromIri");
       return queryService.getQueryFromIri(iri);
@@ -166,7 +166,7 @@ public class QueryController {
     description = "Returns the query with boolean optimisation"
   )
   public Query flattenBooleans(
-    @RequestBody Query query) throws IOException, QueryException {
+    @RequestBody Query query) throws IOException {
 
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
       log.debug("flattenQuery");
@@ -181,7 +181,7 @@ public class QueryController {
   )
   public Query optimiseECLQuery(
     @RequestBody Query query
-  ) throws IOException, QueryException {
+  ) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
       log.debug("optimiseECLQuery");
       return queryService.optimiseECLQuery(query);
@@ -251,7 +251,7 @@ public class QueryController {
   @Operation(
     summary = "Get the query queue items and status for a user"
   )
-  public Pageable<DBEntry> userQueryQueue(HttpServletRequest request, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLConversionException, SQLException {
+  public Pageable<DBEntry> userQueryQueue(HttpServletRequest request, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.UserQueryQueue.GET")) {
       log.debug("getUserQueryQueue");
       UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
@@ -263,7 +263,7 @@ public class QueryController {
   @Operation(
     summary = "Get query queue items by user id and status"
   )
-  public Pageable<DBEntry> userQueryQueueByStatus(HttpServletRequest request, @RequestParam(name = "status") QueryExecutorStatus status, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLConversionException, SQLException {
+  public Pageable<DBEntry> userQueryQueueByStatus(HttpServletRequest request, @RequestParam(name = "status") QueryExecutorStatus status, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.UserQueryQueueByStatus.GET")) {
       log.debug("getUserQueryQueueByStatus");
       String userId = requestObjectService.getRequestAgentId(request);
@@ -276,7 +276,7 @@ public class QueryController {
     summary = "get query queue items by status as admin"
   )
   @PreAuthorize("hasAuthority('ADMIN')")
-  public Pageable<DBEntry> queryQueueByStatus(HttpServletRequest request, @RequestParam(name = "status") QueryExecutorStatus status, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLConversionException, SQLException {
+  public Pageable<DBEntry> queryQueueByStatus(HttpServletRequest request, @RequestParam(name = "status") QueryExecutorStatus status, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryQueueByStatus.GET")) {
       log.debug("getQueryQueueByStatus");
       return postgresService.findAllByStatus(status, page, size);
@@ -335,7 +335,7 @@ public class QueryController {
   @Operation(
     summary = "Get query results using a hash of the query request"
   )
-  public Set<String> getQueryResults(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws IOException, SQLException, SQLConversionException {
+  public Set<String> getQueryResults(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws IOException, SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQueryResults.GET")) {
       log.debug("getQueryResults");
       return queryService.getQueryResults(queryRequest);

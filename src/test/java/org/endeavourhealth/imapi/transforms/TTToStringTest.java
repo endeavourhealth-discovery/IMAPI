@@ -123,7 +123,7 @@ class TTToStringTest {
   }
 
   @Test
-  void bundleToString() throws Exception {
+  void bundleToString() {
     String expected = """
       Subclass Of :\s
       Combination of :\s
@@ -165,7 +165,7 @@ class TTToStringTest {
   }
 
   @Test
-  void ttNodeToString() throws Exception {
+  void ttNodeToString() {
     String expected = """
       Combination of :\s
         <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23128084001">Duane's syndrome, type 3</a>

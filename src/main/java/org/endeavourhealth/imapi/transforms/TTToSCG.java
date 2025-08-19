@@ -34,7 +34,7 @@ public class TTToSCG {
     return scg.toString();
   }
 
-  private void convertRoles(TTNode node, StringBuilder scg, boolean includeName) throws DataFormatException {
+  private void convertRoles(TTNode node, StringBuilder scg, boolean includeName) {
     if (node.get(iri(IM.ROLE_GROUP)) != null) {
       scg.append(":");
       this.refinedSet = true;
@@ -53,7 +53,7 @@ public class TTToSCG {
 
   }
 
-  private void refined(TTNode node, StringBuilder scg, Boolean includeName) throws DataFormatException {
+  private void refined(TTNode node, StringBuilder scg, Boolean includeName) {
     boolean first = true;
     for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
       if (!excludeCorePredicates(entry.getKey())) {

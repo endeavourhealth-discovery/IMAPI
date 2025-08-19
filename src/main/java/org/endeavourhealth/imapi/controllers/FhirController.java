@@ -50,7 +50,7 @@ public class FhirController {
 
   @GetMapping(value = "/ValueSet/ECL", consumes = "text/plain", produces = "application/json")
   @Operation(summary = "Evaluates an ECL expression and returns the result as a FHIR r4 value set")
-  public String getEclToFhir(HttpServletRequest request, @RequestParam(name = "ecl") String ecl) throws IOException, QueryException, DataFormatException, EclFormatException {
+  public String getEclToFhir(HttpServletRequest request, @RequestParam(name = "ecl") String ecl) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Fhir.ValueSet.Ecl.POST")) {
       log.info("Evaluating valueset ECL expression");
       return fhirService.eclToFhir(ecl);

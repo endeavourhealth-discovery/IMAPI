@@ -13,7 +13,7 @@ public class MetricsTimer implements Closeable {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     this.context.stop();
   }
 }

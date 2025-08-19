@@ -260,7 +260,7 @@ public class EntityController {
 
   @GetMapping(value = "/checkExists")
   @Operation(summary = "Check entity exists", description = "Checks whether an entity exists. ")
-  public boolean checkExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws TTFilerException, IOException {
+  public boolean checkExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Exists.POST")) {
       log.debug("checkEntityExists");
       return entityService.checkEntityExists(iri);
@@ -270,7 +270,7 @@ public class EntityController {
   @PostMapping(value = "/update")
   @PreAuthorize("hasAuthority('EDITOR')")
   @Operation(summary = "Update entity", description = "Updates an existing entity with the provided details")
-  public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException, UserNotFoundException, TaskFilerException {
+  public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       log.debug("updateEntity");
       String agentName = requestObjectService.getRequestAgentName(request);
@@ -292,7 +292,7 @@ public class EntityController {
   public HttpEntity<Object> downloadSearchResults(
     HttpServletRequest request,
     @RequestBody DownloadByQueryOptions downloadByQueryOptions
-  ) throws IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, DownloadException, QueryException, DataFormatException {
+  ) throws IOException, OpenSearchException, DownloadException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API/Entity.DownloadSearchResults.POST")) {
       log.debug("downloadSearchResults");
       HttpHeaders headers = new HttpHeaders();

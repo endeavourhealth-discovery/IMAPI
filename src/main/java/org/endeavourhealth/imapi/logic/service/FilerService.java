@@ -201,7 +201,7 @@ public class FilerService {
     }
   }
 
-  public TTEntity createEntity(EditRequest editRequest, String agentName, Graph insertGraph) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
+  public TTEntity createEntity(EditRequest editRequest, String agentName, Graph insertGraph) throws TTFilerException, JsonProcessingException {
     isValid(editRequest.getEntity(), "Create");
     editRequest.getEntity().setCrud(iri(IM.ADD_QUADS)).setVersion(1);
     fileEntity(editRequest.getEntity(), agentName, null, insertGraph);

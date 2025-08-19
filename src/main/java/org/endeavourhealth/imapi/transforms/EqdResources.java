@@ -405,7 +405,7 @@ public class EqdResources {
     return "";
   }
 
-  private void injectReturn(Match parentMatch, Match childMatch) throws EQDException, IOException, QueryException {
+  private void injectReturn(Match parentMatch, Match childMatch) throws QueryException {
     Return ret = null;
     String asLabel;
     if (parentMatch.getReturn() != null) {
@@ -540,10 +540,10 @@ public class EqdResources {
     return this.convertColumns(eqCriterion.getTable(), (String) null, testAtt.getColumnValue(), true);
   }
 
-  private void setRestriction(EQDOCCriterion eqCriterion, Match restricted) throws EQDException, IOException {
+  private void setRestriction(EQDOCCriterion eqCriterion, Match restricted) throws EQDException {
     EQDOCFilterRestriction restrict = eqCriterion.getFilterAttribute().getRestriction();
     Order direction;
-    if (((EQDOCColumnOrder.Columns) restrict.getColumnOrder().getColumns().get(0)).getDirection() == VocOrderDirection.ASC) {
+    if ((restrict.getColumnOrder().getColumns().get(0)).getDirection() == VocOrderDirection.ASC) {
       direction = Order.ascending;
     } else {
       direction = Order.descending;

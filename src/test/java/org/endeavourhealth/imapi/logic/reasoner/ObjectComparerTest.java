@@ -9,27 +9,23 @@ import org.junit.jupiter.api.Test;
 
 class ObjectComparerTest {
 
-@Test
-public void compare() throws IllegalAccessException, JsonProcessingException {
+  @Test
+  public void compare() throws JsonProcessingException {
 
-  Match match1 = new Match()
-    .setIri(Namespace.IM + "123")
-    .setName("match")
-      .where(w1->w1.setIri(Namespace.IM+"abc")
-        .relativeTo(r->r.setNodeRef("ssss").setIri(Namespace.IM+"x")));
-  Match match2 = new Match()
-    .setIri(Namespace.IM + "124")
-    .setName("match")
-      .where(w1->w1.setIri(Namespace.IM+"abc")
+    Match match1 = new Match()
+      .setIri(Namespace.IM + "123")
+      .setName("match")
+      .where(w1 -> w1.setIri(Namespace.IM + "abc")
+        .relativeTo(r -> r.setNodeRef("ssss").setIri(Namespace.IM + "x")));
+    Match match2 = new Match()
+      .setIri(Namespace.IM + "124")
+      .setName("match")
+      .where(w1 -> w1.setIri(Namespace.IM + "abc")
         .setValueVariable("1234")
-        .relativeTo(r->r.setNodeRef("ttt").setIri(Namespace.IM+"y")));
+        .relativeTo(r -> r.setNodeRef("ttt").setIri(Namespace.IM + "y")));
 
-  String content1= new ObjectMapper().writeValueAsString(match1);
-  System.out.println(LogicComparer.compareMatches(match1,match2));
-
-
-}
+    System.out.println(LogicComparer.compareMatches(match1, match2));
 
 
-
+  }
 }

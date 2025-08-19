@@ -67,7 +67,7 @@ class SearchServiceTest {
 
   }
 
-  private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
+  private void output(QueryRequest dataSet) throws IOException, OpenSearchException, QueryException {
     String name = null;
     String originalRequest = new ObjectMapper().writeValueAsString(dataSet);
 
@@ -127,7 +127,7 @@ class SearchServiceTest {
   }
 
   //@Test
-  public void setTest() throws DataFormatException, JsonProcessingException, QueryException {
+  public void setTest() throws JsonProcessingException, QueryException {
     new SetMemberGenerator().generateMembers("http://apiqcodes.org/qcodes#QCodeGroup_713", Graph.IM);
   }
 }

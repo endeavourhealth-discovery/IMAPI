@@ -34,7 +34,7 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void imQuery_term() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1");
 
@@ -47,7 +47,7 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term_multiScheme() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void imQuery_term_multiScheme() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
@@ -65,7 +65,7 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term_isA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void imQuery_term_isA() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
@@ -80,7 +80,7 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term_multiIsA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void imQuery_term_multiIsA() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .addArgument(new Argument().setParameter("isas").setValueIriList(
@@ -98,7 +98,7 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term_multiMember() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void imQuery_term_multiMember() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()

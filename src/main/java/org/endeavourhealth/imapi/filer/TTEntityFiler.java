@@ -8,9 +8,9 @@ import java.util.Set;
 public interface TTEntityFiler {
   void fileEntity(TTEntity entity) throws TTFilerException;
 
-  void updateIsAs(TTEntity entity) throws TTFilerException;
+  void updateIsAs(TTEntity entity);
 
-  Set<String> getIsAs(String iri) throws TTFilerException;
+  Set<String> getIsAs(String iri);
 
   void fileIsAs(Map<String, Set<String>> isAs);
 

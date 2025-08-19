@@ -458,7 +458,7 @@ public class ImportMaps implements AutoCloseable {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     cachedNames.clear();
   }
 }

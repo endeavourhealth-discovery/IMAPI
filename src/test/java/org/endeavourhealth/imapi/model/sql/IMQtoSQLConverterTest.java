@@ -67,7 +67,7 @@ public class IMQtoSQLConverterTest {
           SqlWithSubqueries sqlWithSubqueries = imq2sql.IMQtoSQL();
 
           // Replace variables
-          String sql = sqlWithSubqueries.getSql().replace("$baselineDate", "NOW()");
+          String sql = sqlWithSubqueries.getSql().replace("$searchDate", "NOW()");
 
           // run on postgres
           try (PreparedStatement preparedStatement = connection.prepareStatement("EXPLAIN " + sql)) {

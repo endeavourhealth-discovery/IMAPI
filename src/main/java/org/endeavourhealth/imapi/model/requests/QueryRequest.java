@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"context", "textSearch", "argument", "referenceDate", "query", "pathQuery", "update"})
+@JsonPropertyOrder({"context", "textSearch", "argument", "query", "pathQuery", "update"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Getter
 public class QueryRequest implements ContextMap {
@@ -235,8 +235,8 @@ public class QueryRequest implements ContextMap {
   public void resolveArgs() {
     if (this.argument == null) this.argument = new HashSet<>();
     boolean hasRefDate = this.argument.stream()
-      .anyMatch(arg -> "$baselineDate".equals(arg.getParameter()));
+      .anyMatch(arg -> "$searchDate".equals(arg.getParameter()));
     if (!hasRefDate)
-      this.argument.add(new Argument().setParameter("$baselineDate").setValueData(LocalDate.now().toString()));
+      this.argument.add(new Argument().setParameter("$searchDate").setValueData(LocalDate.now().toString()));
   }
 }

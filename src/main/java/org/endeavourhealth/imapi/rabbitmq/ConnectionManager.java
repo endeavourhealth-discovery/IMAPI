@@ -101,6 +101,7 @@ public class ConnectionManager {
       if (null == entry) {
         throw new RuntimeException("Could not find entry with id " + id);
       }
+      entry.setStartedAt(LocalDateTime.now());
       entry.setStatus(QueryExecutorStatus.RUNNING);
       try {
         postgresService.update(entry);
@@ -116,6 +117,7 @@ public class ConnectionManager {
         }
         queryService.executeQuery(queryRequest);
         entry.setStatus(QueryExecutorStatus.COMPLETED);
+        entry.setFinishedAt(LocalDateTime.now());
         postgresService.update(entry);
       } catch (Exception e) {
         entry.setStatus(QueryExecutorStatus.ERRORED);

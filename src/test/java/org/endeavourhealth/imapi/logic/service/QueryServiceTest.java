@@ -33,7 +33,7 @@ public class QueryServiceTest {
         } else {
           System.err.println("SQLConversionException: " + sql);
         }
-//        String sqlExplain = "EXPLAIN " + sql.replaceAll("\\$referenceDate", "NOW()");
+//        String sqlExplain = "EXPLAIN " + sql.replaceAll("\\$searchDate", "NOW()");
 //        try {
 ////          Statement st = conn.createStatement();
 ////          ResultSet rs = st.executeQuery(sqlExplain);

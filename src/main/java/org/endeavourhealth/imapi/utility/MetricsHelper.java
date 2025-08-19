@@ -83,7 +83,7 @@ public class MetricsHelper {
 
   private static String getHostName() throws IOException {
     Runtime r = Runtime.getRuntime();
-    Process p = r.exec("hostname");
+    Process p = r.exec(new String[] { "hostname" });
     try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
       return br.readLine();
     }

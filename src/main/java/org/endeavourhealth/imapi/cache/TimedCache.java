@@ -21,16 +21,13 @@ public class TimedCache<K, T> implements AutoCloseable {
           try {
             Thread.sleep(interval * 1000);
           } catch (InterruptedException ex) {
-            ex.printStackTrace();
             Thread.currentThread().interrupt();
           }
           cleanup();
         }
-        System.out.println("Thread interrupted: [" + name + "]");
       });
       t.setDaemon(true);
       t.start();
-      System.out.println("Thread started: [" + name + "]");
     }
   }
 

@@ -222,7 +222,6 @@ public class LogicOptimizer {
           else {
             topOr = new Match();
             match.addAnd(topOr);
-            ;
             topOr.addOr(subMatch);
           }
           break;

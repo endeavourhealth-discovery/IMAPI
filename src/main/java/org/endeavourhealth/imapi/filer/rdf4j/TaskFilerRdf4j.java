@@ -153,14 +153,7 @@ public class TaskFilerRdf4j {
       if (null != originalObject) originalObject = usernameToId(originalObject);
     }
     try {
-      StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
-      stringJoiner.add("DELETE { ?subject ?predicate ?originalObject }");
-      stringJoiner.add("INSERT { ?subject ?predicate ?newObject }");
-      stringJoiner.add("WHERE { ?subject ?predicate ?o ");
-      if (null != originalObject) stringJoiner.add("FILTER (?o = ?originalObject)");
-      stringJoiner.add("BIND(?o AS ?originalObject)");
-      if (null != newObject) stringJoiner.add("BIND(?newVal AS ?newObject)");
-      stringJoiner.add("}");
+      StringJoiner stringJoiner = getTaskUpdateSparql(originalObject, newObject);
       Update update = conn.prepareInsertSparql(stringJoiner.toString());
       update.setBinding("subject", iri(subject));
       update.setBinding("predicate", predicate.asDbIri());
@@ -171,6 +164,18 @@ public class TaskFilerRdf4j {
     } catch (UpdateExecutionException e) {
       throw new TaskFilerException("Failed to update task", e);
     }
+  }
+
+  private static StringJoiner getTaskUpdateSparql(String originalObject, String newObject) {
+    StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
+    stringJoiner.add("DELETE { ?subject ?predicate ?originalObject }");
+    stringJoiner.add("INSERT { ?subject ?predicate ?newObject }");
+    stringJoiner.add("WHERE { ?subject ?predicate ?o ");
+    if (null != originalObject) stringJoiner.add("FILTER (?o = ?originalObject)");
+    stringJoiner.add("BIND(?o AS ?originalObject)");
+    if (null != newObject) stringJoiner.add("BIND(?newVal AS ?newObject)");
+    stringJoiner.add("}");
+    return stringJoiner;
   }
 
   private void updateHistory(String subject, VocabEnum predicate, String originalObject, String newObject, String userId) throws TaskFilerException {

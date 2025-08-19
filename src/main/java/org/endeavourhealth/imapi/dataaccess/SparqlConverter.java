@@ -225,7 +225,7 @@ public class SparqlConverter {
         whereQl.append("?").append(subject).append(" <").append(IM.IS_A).append("> ?").append(subject).append(o).append(".\n");
         subject = subject + o;
       } else {
-        throw new QueryException("Match entailment " + match.getEntailment().toString() + " is not yet supported");
+        throw new QueryException("Match entailment " + match.getEntailment() + " is not yet supported");
       }
     }
     String pathVariable = null;

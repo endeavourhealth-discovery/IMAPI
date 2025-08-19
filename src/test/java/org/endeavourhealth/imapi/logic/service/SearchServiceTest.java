@@ -43,7 +43,6 @@ class SearchServiceTest {
 
 
     output(TestQueries.getMembers());
-    ;
 
     output(TestQueries.getMembers());
     output(TestQueries.pathQuery());
@@ -100,7 +99,7 @@ class SearchServiceTest {
       try (FileWriter wr = new FileWriter(path.toString())) {
         wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
         System.out.println("Found " + result.get("entities").size() + " entities");
-        if (result.get("entities").size() == 0) {
+        if (result.get("entities").isEmpty()) {
           dataSet = new ObjectMapper().readValue(originalRequest, QueryRequest.class);
           result = searchService.queryIM(dataSet);
           throw new RuntimeException("No results found for query " + name);

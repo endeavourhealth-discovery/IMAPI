@@ -123,7 +123,7 @@ public class MYSQLConnectionManager {
   public static boolean tableExists(int hashCode) throws SQLException {
     try (Connection checkTableConnection = getConnection()) {
       DatabaseMetaData meta = checkTableConnection.getMetaData();
-      try (ResultSet rs = meta.getTables(null, null, String.valueOf("`" + hashCode + "`"), new String[]{"TABLE"})) {
+      try (ResultSet rs = meta.getTables(null, null, "`" + hashCode + "`", new String[]{"TABLE"})) {
         return rs.next();
       }
     }

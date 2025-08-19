@@ -468,7 +468,7 @@ public class DataModelRepository {
         IF(EXISTS {
           ?property sh:class ?valueC
         }, "class", "None"))) AS ?propertyType)
-        ?valueType ?intervalUnitIri ?unitsIri ?operatorIri ?qualifierIri ?qualifierName 
+        ?valueType ?intervalUnitIri ?unitsIri ?operatorIri ?qualifierIri ?qualifierName
         WHERE {
           ?dmIri sh:property ?property .
           ?property sh:path ?propIri .

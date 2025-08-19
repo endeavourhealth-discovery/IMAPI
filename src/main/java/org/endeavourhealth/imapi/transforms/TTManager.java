@@ -108,7 +108,7 @@ public class TTManager implements AutoCloseable {
       entity.set(axiom, new TTArray());
     TTValue oldExpression;
     TTArray expressions = entity.get(axiom);
-    if (expressions.size() > 0) {
+    if (!expressions.isEmpty()) {
       oldExpression = expressions.getElements().get(0);
       if (oldExpression.isIriRef() || oldExpression.isNode()) {
         TTNode intersection = new TTNode();

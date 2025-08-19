@@ -622,7 +622,6 @@ public class IMQtoSQLConverter {
       return results;
     } catch (SQLException e) {
       log.error("Error running SQL [{}]", sql);
-      e.printStackTrace();
       throw new SQLConversionException("SQL Conversion Error: SQLException for getting im1ids\n" + StringUtils.join(im1ids, ","), e);
     }
   }

@@ -127,7 +127,7 @@ public class ExcelSearchExporter {
     for (Object item : list) {
       addItemToJoiner(item, stringJoiner, list.size() > 1);
     }
-    if (list.size() > 1) return "[" + stringJoiner.toString() + "]";
+    if (list.size() > 1) return "[" + stringJoiner + "]";
     return stringJoiner.toString();
   }
 
@@ -136,7 +136,7 @@ public class ExcelSearchExporter {
     for (Object item : set) {
       addItemToJoiner(item, stringJoiner, set.size() > 1);
     }
-    if (set.size() > 1) return "[" + stringJoiner.toString() + "]";
+    if (set.size() > 1) return "[" + stringJoiner + "]";
     return stringJoiner.toString();
   }
 

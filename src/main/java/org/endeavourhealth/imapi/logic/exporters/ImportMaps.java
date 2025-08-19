@@ -208,7 +208,7 @@ public class ImportMaps implements AutoCloseable {
       qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
       qry.setBinding("subClassOf", RDFS.SUBCLASS_OF.asDbIri());
       qry.setBinding("label", RDFS.LABEL.asDbIri());
-      try (TupleQueryResult rs = qry.evaluate();) {
+      try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String child = bs.getValue("child").stringValue();

@@ -80,7 +80,7 @@ public class SearchTextFileExporter {
     for (Object item : list) {
       addItemToJoiner(stringJoiner, item, list.size() > 1);
     }
-    if (list.size() > 1) return "[" + stringJoiner.toString() + "]";
+    if (list.size() > 1) return "[" + stringJoiner + "]";
     return stringJoiner.toString();
   }
 
@@ -89,7 +89,7 @@ public class SearchTextFileExporter {
     for (Object item : set) {
       addItemToJoiner(stringJoiner, item, set.size() > 1);
     }
-    if (set.size() > 1) return "[" + stringJoiner.toString() + "]";
+    if (set.size() > 1) return "[" + stringJoiner + "]";
     return stringJoiner.toString();
   }
 

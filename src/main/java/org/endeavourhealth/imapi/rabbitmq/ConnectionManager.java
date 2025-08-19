@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -79,7 +80,7 @@ public class ConnectionManager {
     channel.queueDeclare(QUEUE_NAME, true, false, false, null);
     channel.queueBind(QUEUE_NAME, "query_runner", "query.execute.#");
     DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-      String message = new String(delivery.getBody(), "UTF-8");
+      String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
       String id = delivery.getProperties().getMessageId();
       UUID uuid = UUID.fromString(id);
       LOG.info("Received a message: {}", uuid);

@@ -96,7 +96,7 @@ class TTNodeJsonTest {
       TTIriRef.iri(RDFS.COMMENT), TTIriRef.iri(IM.CODE), TTIriRef.iri(IM.HAS_SCHEME), TTIriRef.iri(IM.HAS_STATUS),
       TTIriRef.iri(RDFS.SUBCLASS_OF)));
 
-    SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null));
+    SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null, null, null));
     mod.addSerializer(TTEntity.class, ser);
 
     // Serialize
@@ -121,7 +121,7 @@ class TTNodeJsonTest {
       TTIriRef.iri(RDFS.COMMENT), TTIriRef.iri(IM.CODE), TTIriRef.iri(IM.HAS_SCHEME), TTIriRef.iri(IM.HAS_STATUS),
       TTIriRef.iri(RDFS.SUBCLASS_OF)));
 
-    SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null));
+    SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null, null, null));
     mod.addSerializer(TTEntity.class, ser);
 
     // Serialize

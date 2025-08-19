@@ -32,9 +32,8 @@ public enum Operator {
       .findFirst();
   }
 
-
   // enum constructor - cannot be public or protected
-  private Operator(String value) {
+  Operator(String value) {
     this.value = value;
   }
 }

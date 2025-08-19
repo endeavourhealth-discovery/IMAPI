@@ -32,9 +32,7 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   private boolean roleGroup;
   private RelativeTo relativeTo;
   private boolean isNotNull;
-  private FunctionClause function;
   private TTIriRef unit;
-  private String valueParameter;
   private String valueVariable;
   @Getter
   private boolean inverse;
@@ -44,12 +42,14 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   private List<Where> and;
   @Getter
   private String shortLabel;
+  private List<Argument> argument;
+  private TTIriRef units;
+
 
   public Where setShortLabel(String shortLabel) {
     this.shortLabel = shortLabel;
     return this;
   }
-
 
 
   public Where setRoleGroup(boolean roleGroup) {
@@ -148,24 +148,8 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
     return this;
   }
 
-  public String getValueParameter() {
-    return valueParameter;
-  }
-
-  public Where setValueParameter(String valueParameter) {
-    this.valueParameter = valueParameter;
-    return this;
-  }
 
 
-  public FunctionClause getFunction() {
-    return function;
-  }
-
-  public Where setFunction(FunctionClause function) {
-    this.function = function;
-    return this;
-  }
 
 
 
@@ -346,14 +330,44 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
     return this;
   }
 
+
   @Override
-  public Where setUnit(TTIriRef intervalUnit) {
-    this.unit = intervalUnit;
+  public Where setArgument(List<Argument> arguments) {
+    this.argument = arguments;
     return this;
   }
 
+  @Override
+  public List<Argument> getArgument() {
+    return this.argument;
+  }
+
+  @Override
   public TTIriRef getUnit() {
     return this.unit;
   }
+
+  @Override
+  public Where setUnit(TTIriRef units) {
+    this.units= unit;
+    return this;
+  }
+
+  public Where addArgument(Argument argument) {
+    if (this.argument == null) {
+      this.argument = new ArrayList<>();
+    }
+    this.argument.add(argument);
+    return this;
+  }
+
+  public Where argument(Consumer<Argument> builder) {
+    Argument argument = new Argument();
+    addArgument(argument);
+    builder.accept(argument);
+    return this;
+  }
+
+
 
 }

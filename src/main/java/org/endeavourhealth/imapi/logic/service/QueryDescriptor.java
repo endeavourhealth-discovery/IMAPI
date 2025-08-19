@@ -428,6 +428,16 @@ public class QueryDescriptor {
     if (relativity != null) assignable.setValueLabel(assignable.getValueLabel() + relativity);
   }
 
+  public static TTIriRef getUnits(Assignable assignable) {
+    if (assignable.getArgument()!=null){
+      for (Argument arg : assignable.getArgument()){
+        if (arg.getParameter()!=null && arg.getParameter().toLowerCase().contains("units")) return arg.getValueIri();
+      }
+    }
+    if (assignable.getUnit() != null) return assignable.getUnit();
+    else return null;
+  }
+
 
   private void describeFrom(Where where, Value from) {
     String qualifier = null;
@@ -435,8 +445,8 @@ public class QueryDescriptor {
     boolean past = false;
     Operator operator = from.getOperator();
     String value = from.getValue();
-    TTIriRef units = from.getUnit();
     boolean date = false;
+    TTIriRef units = getUnits(from);
     if (where.getIri() != null) {
       date = where.getIri().toLowerCase().contains("date");
     }
@@ -465,7 +475,7 @@ public class QueryDescriptor {
     boolean past = false;
     Operator operator = from.getOperator();
     String value = from.getValue();
-    TTIriRef units = from.getUnit();
+    TTIriRef units = getUnits(from);
     boolean date = false;
     if (where.getIri() != null) {
       date = where.getIri().toLowerCase().contains("date");
@@ -524,7 +534,7 @@ public class QueryDescriptor {
     boolean date = false;
     if (where.getIri() != null) date = where.getIri().toLowerCase().contains("date");
     Operator operator = where.getOperator();
-    describeValue(where, operator, date, where.getValue(), where.getUnit(), where.getRelativeTo() != null, false);
+    describeValue(where, operator, date, where.getValue(), getUnits(where), where.getRelativeTo() != null, false);
     describeRelativeTo(where);
   }
 
@@ -537,6 +547,12 @@ public class QueryDescriptor {
   private void describeRelativeTo(Where where) {
     RelativeTo relativeTo = where.getRelativeTo();
     if (relativeTo != null) {
+      String relation = getRelation(where.getRelativeTo());
+      if (relation != null) relativeTo.setQualifier(relation);
+    }
+  }
+
+  private String getRelation(RelativeTo relativeTo) {
       if (relativeTo.getNodeRef()!=null) {
         if (nodeRefToLabel.get(relativeTo.getNodeRef())!=null) {
           relativeTo.setTargetLabel(nodeRefToLabel.get(relativeTo.getNodeRef()));
@@ -549,15 +565,16 @@ public class QueryDescriptor {
         relation = propertyName + " of ";
       }
       if (relativeTo.getParameter() != null) {
-        if (relativeTo.getParameter().toLowerCase().contains("referencedate")) {
+        if (relativeTo.getParameter().toLowerCase().contains("searchdate")) {
           relation = (relation != null ? relation : "") + "the search date";
-        } else if (relativeTo.getParameter().toLowerCase().contains("baseline")) {
+        } else if (relativeTo.getParameter().toLowerCase().contains("achievementdate")) {
           relation = (relation != null ? relation : "") + "the achievement date";
         } else relation = (relation != null ? relation : "") + relativeTo.getParameter();
       }
-      if (relation != null) relativeTo.setQualifier(relation);
-    }
+      return relation;
   }
+
+
 
   private void describeWhereIs(Where where) {
     for (Node set : where.getIs()) {

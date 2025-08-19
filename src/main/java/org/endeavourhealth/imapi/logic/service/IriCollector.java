@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -140,8 +141,13 @@ public class IriCollector {
   }
 
   private static void collectAssignableIris(Assignable assignable, Set<String> iriSet) {
-    if (assignable.getUnit() != null) {
-      iriSet.add(assignable.getUnit().getIri());
+    if (assignable.getArgument()!=null){
+      for (Argument argument : assignable.getArgument()){
+        if (argument.getValueIri()!=null) iriSet.add(argument.getValueIri().getIri());
+        if (argument.getValueIriList()!=null){
+          for (TTIriRef valueIri : argument.getValueIriList()) iriSet.add(valueIri.getIri());
+        }
+      }
     }
   }
 }

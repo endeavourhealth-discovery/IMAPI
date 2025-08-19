@@ -2,13 +2,17 @@ package org.endeavourhealth.imapi.model.imq;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 public class Value implements Assignable {
   private Operator operator;
   private String value;
   private String qualifier;
   private String valueLabel;
   private String valueParameter;
-  private TTIriRef unit;
+  private List<Argument> argument;
+  private TTIriRef units;
 
   public String getValueParameter() {
     return valueParameter;
@@ -61,14 +65,41 @@ public class Value implements Assignable {
     return this;
   }
 
+
+
   @Override
-  public TTIriRef getUnit() {
-    return this.unit;
+  public Value setArgument(List<Argument> arguments) {
+    this.argument = arguments;
+    return this;
   }
 
   @Override
-  public Assignable setUnit(TTIriRef intervalUnit) {
-    this.unit = intervalUnit;
+  public List<Argument> getArgument() {
+    return this.argument;
+  }
+
+  @Override
+  public TTIriRef getUnit() {
+    return this.units;
+  }
+
+  @Override
+  public Value setUnit(TTIriRef units) {
+    this.units = units;
+    return this;
+  }
+
+  public Value addArgument(Argument argument) {
+    if (this.argument == null)
+      this.argument = new java.util.ArrayList<>();
+    this.argument.add(argument);
+    return this;
+  }
+
+  public Value argument(Consumer<Argument> builder) {
+    Argument argument = new Argument();
+    addArgument(argument);
+    builder.accept(argument);
     return this;
   }
 

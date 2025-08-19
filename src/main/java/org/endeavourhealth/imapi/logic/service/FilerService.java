@@ -54,7 +54,7 @@ public class FilerService {
 
   private static boolean isValidIri(TTEntity entity) {
     if (null == entity.getIri()) return false;
-    return !"".equals(entity.getIri());
+    return !entity.getIri().isEmpty();
   }
 
   private static boolean isValidName(TTEntity entity) {

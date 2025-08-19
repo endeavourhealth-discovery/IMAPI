@@ -29,7 +29,7 @@ class TTToStringTest {
   }
 
   public List<String> getTestBlockedIris() {
-    return Arrays.asList("http://www.w3.org/2001/XMLSchema#string");
+    return List.of("http://www.w3.org/2001/XMLSchema#string");
   }
 
   public TTIriRef getTestIri() {

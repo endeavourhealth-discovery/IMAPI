@@ -43,7 +43,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
   protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
     StringBuilder builder = new StringBuilder();
     Set<HttpMethod> methods = ex.getSupportedHttpMethods();
-    if (methods != null) methods.forEach(t -> builder.append(t + " "));
+    if (methods != null) methods.forEach(t -> builder.append(t).append(" "));
     String message = "Method: " + ex.getMethod() + " is not supported for this API. Supported methods are " + builder;
     ApiError error = new ApiError(HttpStatus.METHOD_NOT_ALLOWED, message, ex, ErrorCodes.HTTP_REQUEST_METHOD_NOT_SUPPORTED);
     return buildResponseEntity(error);

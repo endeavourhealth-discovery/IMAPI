@@ -85,7 +85,7 @@ public class TTToSCG {
   private static void addClass(TTIriRef exp, StringBuilder scg, boolean includeName) {
     String iri = checkMember(exp.asIriRef().getIri());
     if (includeName) {
-      scg.append(iri + " |" + exp.asIriRef().getName() + " |");
+      scg.append(iri).append(" |").append(exp.asIriRef().getName()).append(" |");
     } else {
       scg.append(iri);
     }

@@ -625,7 +625,7 @@ public class QueryDescriptor {
         for (Match subMatch : matches) {
           if (subMatch.getDescription() != null) {
             if (description.isEmpty()) description.append(subMatch.getDescription());
-            else description.append(", " + operators.split(",")[opIndex] + " " + subMatch.getDescription());
+            else description.append(", ").append(operators.split(",")[opIndex]).append(" ").append(subMatch.getDescription());
           }
         }
       }

@@ -11,7 +11,7 @@ public class ClauseUtils {
     TTIriRef units= where.getUnits();
     RelativeTo relativeTo = where.getRelativeTo();
     if (relativeTo == null) {
-      relativeTo = new RelativeTo().setVariable("$searchDate");
+      relativeTo = new RelativeTo().setParameter("$searchDate");
     }
     if (iri.contains("age")) {
       where.setFunction(buildFunction(

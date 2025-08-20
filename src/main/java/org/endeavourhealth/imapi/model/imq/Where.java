@@ -35,9 +35,8 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   private boolean roleGroup;
   private RelativeTo relativeTo;
   private boolean isNotNull;
-  private FunctionClause function;
-  private TTIriRef unit;
-  private String valueParameter;
+  @Getter
+  private TTIriRef units;
   private String valueVariable;
   @Getter
   private boolean inverse;
@@ -47,12 +46,12 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   private List<Where> and;
   @Getter
   private String shortLabel;
+  private FunctionClause function;
 
   public Where setShortLabel(String shortLabel) {
     this.shortLabel = shortLabel;
     return this;
   }
-
 
 
   public Where setRoleGroup(boolean roleGroup) {
@@ -151,24 +150,8 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
     return this;
   }
 
-  public String getValueParameter() {
-    return valueParameter;
-  }
-
-  public Where setValueParameter(String valueParameter) {
-    this.valueParameter = valueParameter;
-    return this;
-  }
 
 
-  public FunctionClause getFunction() {
-    return function;
-  }
-
-  public Where setFunction(FunctionClause function) {
-    this.function = function;
-    return this;
-  }
 
 
 
@@ -349,14 +332,27 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
     return this;
   }
 
-  @Override
-  public Where setUnit(TTIriRef intervalUnit) {
-    this.unit = intervalUnit;
+
+  public Where setUnits(TTIriRef units) {
+    this.units = units;
     return this;
   }
 
-  public TTIriRef getUnit() {
-    return this.unit;
+  @Override
+  public FunctionClause getFunction() {
+    return this.function;
   }
+
+  @Override
+  public Where setFunction(FunctionClause function) {
+    this.function = function;
+    return this;
+  }
+  public Where function(Consumer<FunctionClause> builder) {
+    this.function = new FunctionClause();
+    builder.accept(this.function);
+    return this;
+  }
+
 
 }

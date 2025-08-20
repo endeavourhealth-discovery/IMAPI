@@ -69,6 +69,7 @@ public class PostgresService {
 
   public void cancelQuery(UUID id) throws SQLException, JsonProcessingException {
     DBEntry entry = getById(id);
+    entry.setKilledAt(entry.getKilledAt());
     entry.setStatus(QueryExecutorStatus.CANCELLED);
     update(entry);
   }

@@ -1,14 +1,37 @@
 package org.endeavourhealth.imapi.model.imq;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.util.List;
+import java.util.function.Consumer;
+
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Value implements Assignable {
   private Operator operator;
   private String value;
   private String qualifier;
   private String valueLabel;
   private String valueParameter;
-  private TTIriRef unit;
+  private FunctionClause function;
+
+
+  @Override
+  public FunctionClause getFunction() {
+    return this.function;
+  }
+
+  @Override
+  public Value setFunction(FunctionClause function) {
+    this.function = function;
+    return this;
+  }
+  public Value function(Consumer<FunctionClause> builder) {
+    this.function = new FunctionClause();
+    builder.accept(this.function);
+    return this;
+  }
+
 
   public String getValueParameter() {
     return valueParameter;
@@ -56,21 +79,16 @@ public class Value implements Assignable {
     return this;
   }
 
+
   public Value setQualifier(String qualifier) {
     this.qualifier = qualifier;
     return this;
   }
 
-  @Override
-  public TTIriRef getUnit() {
-    return this.unit;
-  }
 
-  @Override
-  public Assignable setUnit(TTIriRef intervalUnit) {
-    this.unit = intervalUnit;
-    return this;
-  }
+
+
+
 
 
 }

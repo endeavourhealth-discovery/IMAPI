@@ -380,10 +380,10 @@ public class IMQToOS {
               throw new QueryException("Argument parameter " + value + " valueDataList cannot be empty");
             iris.addAll(argument.getValueDataList());
           } else {
-            if (null == argument.getValueObject()) {
+            if (null == argument.getValuePath()) {
               return iris;
             }
-            iris.add(argument.getValueObject().toString());
+            iris.add(argument.getValuePath().getIri());
           }
         }
         return iris;

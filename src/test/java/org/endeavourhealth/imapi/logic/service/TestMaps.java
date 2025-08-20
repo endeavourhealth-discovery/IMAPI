@@ -2,8 +2,6 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
-import org.endeavourhealth.imapi.model.iml.ListMode;
-import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
 import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
@@ -36,7 +34,7 @@ public class TestMaps {
           .argument(a -> a
             .setValueData("urn:uuid:"))
           .argument(a -> a
-            .setValueVariable("fhirId"))))
+            .setValueParameter("fhirId"))))
       .propertyMap(m -> m
         .setSource("identifier")
         .propertyMap(m1 -> m1
@@ -67,7 +65,7 @@ public class TestMaps {
               .setValueData(" "))
             .argument(a -> a
               .setParameter("elements")
-              .setValueVariable("fhirGiven")))))
+              .setValueParameter("fhirGiven")))))
       .propertyMap(m -> m
         .setSource("address")
         .setTarget("homeAddress")

@@ -33,6 +33,7 @@ public class IMQtoSQLConverter {
   private final EntityRepository entityRepository = new EntityRepository();
   private final List<String> subqueryIris;
 
+
   public IMQtoSQLConverter(QueryRequest queryRequest) {
     this.queryRequest = queryRequest;
     if (null == queryRequest.getLanguage()) queryRequest.setLanguage(DatabaseOption.MYSQL);
@@ -151,13 +152,15 @@ public class IMQtoSQLConverter {
 
   private void addFunction(SQLQuery qry, Return aReturn, ReturnProperty parentProperty) throws SQLConversionException {
     String propertyName = parentProperty.getName();
-    switch (aReturn.getFunction().getName()) {
-      case Function.count -> qry.getSelects().add("COUNT(*) AS count");
-      case Function.average -> qry.getSelects().add(String.format("AVG(%s) AS average_%s", propertyName, propertyName));
-      case Function.sum -> qry.getSelects().add(String.format("SUM(%s) AS sum_%s", propertyName, propertyName));
-      case Function.max -> qry.getSelects().add(String.format("MAX(%s) AS max_%s", propertyName, propertyName));
-      case Function.min -> qry.getSelects().add(String.format("MIN(%s) AS min_%s", propertyName, propertyName));
-      case Function.concatenate ->
+    IM function = IM.valueOf(aReturn.getFunction().getIri());
+
+    switch (function) {
+      case COUNT -> qry.getSelects().add("COUNT(*) AS count");
+      case AVERAGE -> qry.getSelects().add(String.format("AVG(%s) AS average_%s", propertyName, propertyName));
+      case SUM -> qry.getSelects().add(String.format("SUM(%s) AS sum_%s", propertyName, propertyName));
+      case MAX -> qry.getSelects().add(String.format("MAX(%s) AS max_%s", propertyName, propertyName));
+      case MIN -> qry.getSelects().add(String.format("MIN(%s) AS min_%s", propertyName, propertyName));
+      case CONCATENATE ->
         qry.getSelects().add(String.format("GROUP_CONCAT(DISTINCT %s SEPARATOR ', ' as concat_%s)", propertyName, propertyName));
       default ->
         throw new SQLConversionException("SQL Conversion Error: Function not recognised: " + aReturn.getFunction().getName());
@@ -486,22 +489,16 @@ public class IMQtoSQLConverter {
   }
 
   private String convertMatchPropertyNumberRangeNode(String fieldName, Assignable range) {
-    if (range.getUnit() != null)
-      return fieldName + " " + range.getOperator().getValue() + " " + range.getValue() + " -- CONVERT " + range.getUnit();
-    else return fieldName + " " + range.getOperator().getValue() + " " + range.getValue();
+    return fieldName + " " + range.getOperator().getValue() + " " + range.getValue();
   }
 
   private String convertMatchPropertyDateRangeNode(String fieldName, Assignable range) throws SQLConversionException {
-    if (range.getUnit() == null)
-      return "'" + toMysqlDate(range.getValue()) + "' " + range.getOperator().getValue() + " " + fieldName;
-    else {
       String returnString;
       if (isPostgreSQL())
-        returnString = "($referenceDate" + " - INTERVAL '" + range.getValue() + (range.getUnit() != null ? " " + getUnitName(range.getUnit()) : "") + "') " + range.getOperator().getValue() + " " + fieldName;
+        returnString = "($searchDate" + " - INTERVAL '" + range.getValue()  + "') " + range.getOperator().getValue() + " " + fieldName;
       else
-        returnString = "DATE_SUB($referenceDate" + ", INTERVAL " + range.getValue() + (range.getUnit() != null ? " " + getUnitName(range.getUnit()) : "") + ") " + range.getOperator().getValue() + " " + fieldName;
+        returnString = "DATE_SUB($searchDate" + ", INTERVAL " + range.getValue() + ") " + range.getOperator().getValue() + " " + fieldName;
       return returnString;
-    }
   }
 
   private void convertMatchPropertyInSet(SQLQuery qry, Where property) throws SQLConversionException {
@@ -546,7 +543,7 @@ public class IMQtoSQLConverter {
   private String convertMatchPropertyRelativeTo(SQLQuery qry, Where property, String field) throws SQLConversionException {
     String fieldType = qry.getFieldType(property.getIri(), null, tableMap);
     if ("date".equals(fieldType)) if (property.getValue() != null) {
-      return "(" + field + " + INTERVAL " + property.getValue() + " " + getUnitName(property.getUnit()) + ")";
+      return "(" + field + " + INTERVAL " + property.getValue() + " " + getUnitName(property.getUnits()) + ")";
     } else return field;
     else {
       throw new SQLConversionException("SQL Conversion Error: UNHANDLED RELATIVE TYPE (" + fieldType + ")\n" + property);
@@ -559,12 +556,12 @@ public class IMQtoSQLConverter {
     }
     String where;
     if ("date".equals(qry.getFieldType(property.getIri(), null, tableMap))) {
-      Assignable range = new Value().setValue(property.getValue()).setUnit(property.getUnit()).setOperator(property.getOperator());
+      Assignable range = new Value().setValue(property.getValue()).setOperator(property.getOperator());
       where = convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), range);
     } else {
       where = qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + property.getValue();
     }
-    if (property.getUnit() != null) where += " -- CONVERT " + property.getUnit() + "\n";
+    if (property.getUnits() != null) where += " -- CONVERT " + property.getUnits() + "\n";
     if (property.isAncestorsOf() || property.isDescendantsOf() || property.isDescendantsOrSelfOf()) {
       where += " -- TCT\n";
     }

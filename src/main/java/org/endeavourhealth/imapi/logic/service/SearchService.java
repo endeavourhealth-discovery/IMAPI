@@ -15,8 +15,6 @@ import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
-import java.util.List;
-
 /**
  * Methods for searching open search / elastic repositories
  */

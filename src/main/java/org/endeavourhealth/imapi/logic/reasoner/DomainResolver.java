@@ -8,7 +8,6 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -52,7 +51,7 @@ public class DomainResolver {
           ?rg ?property ?value.
           ?value rdf:type im:Concept.
       }
-      """.formatted("<" + domain + ">", current);
+      """.formatted("<" + domain + ">");
     Set<String> allProperties = new HashSet<>();
     TupleQuery allPropertyQuery = conn.prepareTupleSparql(sql);
     try (TupleQueryResult allResults = allPropertyQuery.evaluate()) {

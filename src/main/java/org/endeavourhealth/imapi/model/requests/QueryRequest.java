@@ -189,8 +189,6 @@ public class QueryRequest implements ContextMap {
 
   @JsonIgnore
   public QueryRequest setContext(TTContext context) {
-    if (context == null)
-      this.context = null;
     this.context = new HashMap<>();
     for (TTPrefix prefix : context.getPrefixes()) {
       this.context.put(prefix.getPrefix(), prefix.getIri());

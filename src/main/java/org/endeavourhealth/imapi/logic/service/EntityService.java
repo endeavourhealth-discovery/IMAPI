@@ -27,8 +27,16 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 @Component
 public class EntityService {
   public static final int MAX_CHILDREN = 200;
-  private EntityRepository entityRepository = new EntityRepository();
-  private EntityValidator validator = new EntityValidator();
+  private final EntityRepository entityRepository;
+  private final EntityValidator validator = new EntityValidator();
+
+  public EntityService() {
+    entityRepository = new EntityRepository();
+  }
+
+  public EntityService(EntityRepository entityRepository) {
+    this.entityRepository = entityRepository;
+  }
 
   private static void filterOutSpecifiedPredicates(Set<String> excludePredicates, TTBundle bundle) {
     if (excludePredicates != null) {

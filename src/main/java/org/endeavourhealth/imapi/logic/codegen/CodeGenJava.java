@@ -10,13 +10,11 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.codegen.DataModel;
 import org.endeavourhealth.imapi.model.codegen.DataModelProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.zip.ZipEntry;
@@ -333,7 +331,7 @@ public class CodeGenJava {
   }
 
   private String getDataType(TTIriRef dataType, boolean dataModel, boolean isArray) {
-    String dataTypeName = null;
+    String dataTypeName;
     if (dataType.getIri().startsWith(Namespace.XSD.toString())) {
       dataTypeName = capitalise(getSuffix(dataType.getIri()));
     } else if (dataModel) {

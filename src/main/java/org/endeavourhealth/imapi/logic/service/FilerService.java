@@ -1,12 +1,10 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.databases.ProvDB;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
@@ -34,30 +32,27 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
 @Component
 public class FilerService {
 
-  private ProvService provService;
-  private EntityService entityService;
-  private OpenSearchService openSearchService;
-  private UserService userService;
-  private WorkflowService workflowService;
+  private final ProvService provService;
+  private final EntityService entityService;
+  private final OpenSearchService openSearchService;
+  private final UserService userService;
+  private final TTEntityFiler entityProvFiler;
   private TTTransactionFiler documentFiler;
   private TTEntityFiler entityFiler;
-  private TTEntityFiler entityProvFiler;
   private IMDB imdb;
-  private ProvDB provDB;
 
   public FilerService() {
-    provDB = ProvDB.getConnection();
+    ProvDB provDB = ProvDB.getConnection();
     entityProvFiler = new TTEntityFilerRdf4j(provDB, Graph.PROV);
     provService = new ProvService();
     entityService = new EntityService();
     openSearchService = new OpenSearchService();
     userService = new UserService();
-    workflowService = new WorkflowService();
   }
 
   private static boolean isValidIri(TTEntity entity) {
     if (null == entity.getIri()) return false;
-    return !"".equals(entity.getIri());
+    return !entity.getIri().isEmpty();
   }
 
   private static boolean isValidName(TTEntity entity) {
@@ -204,7 +199,7 @@ public class FilerService {
     }
   }
 
-  public TTEntity createEntity(EditRequest editRequest, String agentName, Graph insertGraph) throws TTFilerException, JsonProcessingException, UserNotFoundException, TaskFilerException {
+  public TTEntity createEntity(EditRequest editRequest, String agentName, Graph insertGraph) throws TTFilerException, JsonProcessingException {
     isValid(editRequest.getEntity(), "Create");
     editRequest.getEntity().setCrud(iri(IM.ADD_QUADS)).setVersion(1);
     fileEntity(editRequest.getEntity(), agentName, null, insertGraph);

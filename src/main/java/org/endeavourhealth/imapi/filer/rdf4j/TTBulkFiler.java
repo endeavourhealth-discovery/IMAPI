@@ -40,17 +40,15 @@ public class TTBulkFiler implements TTDocumentFiler {
   private Map<Namespace, FileWriter> codeCoreMap;
   private Map<Namespace, FileWriter> codeIds;
 
-  private Graph insertGraph;
+  private final Graph insertGraph;
 
   public TTBulkFiler(Graph insertGraph) {
     this.insertGraph = insertGraph;
   }
 
   private static void setStatus(TTEntity entity) {
-    if (entity.get(iri(RDFS.LABEL)) != null) {
-      if (entity.get(iri(IM.HAS_STATUS)) == null)
+    if (entity.get(iri(RDFS.LABEL)) != null && entity.get(iri(IM.HAS_STATUS)) == null)
         entity.set(iri(IM.HAS_STATUS), iri(IM.ACTIVE));
-    }
   }
 
   public static void createRepository() throws TTFilerException {
@@ -72,7 +70,7 @@ public class TTBulkFiler implements TTDocumentFiler {
       log.info("Executing command [{}{}]", startCommand, command);
 
       Process process = Runtime.getRuntime()
-        .exec(startCommand + command,
+        .exec(new String[] { startCommand + command },
           null, new File(preloadPath));
       BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
       BufferedReader e = new BufferedReader(new InputStreamReader(process.getErrorStream()));

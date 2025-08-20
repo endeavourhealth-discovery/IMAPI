@@ -1,26 +1,23 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.OSQuery;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Argument;
+import org.endeavourhealth.imapi.model.imq.Node;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.zip.DataFormatException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -36,7 +33,7 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void imQuery_term() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1");
 
@@ -49,7 +46,7 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term_multiScheme() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void imQuery_term_multiScheme() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
@@ -62,12 +59,12 @@ class OSQueryTest_IM {
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
-    assertEquals("http://snomed.info/sct#702450004", results.getEntities().get(0).getIri());
+    assertEquals("http://snomed.info/sct#702450004", results.getEntities().getFirst().getIri());
   }
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term_isA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void imQuery_term_isA() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
@@ -77,12 +74,12 @@ class OSQueryTest_IM {
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
-    assertEquals("http://snomed.info/sct#702450004", results.getEntities().get(0).getIri());
+    assertEquals("http://snomed.info/sct#702450004", results.getEntities().getFirst().getIri());
   }
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term_multiIsA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void imQuery_term_multiIsA() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .addArgument(new Argument().setParameter("isas").setValueIriList(
@@ -95,12 +92,12 @@ class OSQueryTest_IM {
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
-    assertEquals("http://snomed.info/sct#702450004", results.getEntities().get(0).getIri());
+    assertEquals("http://snomed.info/sct#702450004", results.getEntities().getFirst().getIri());
   }
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term_multiMember() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, QueryException, DataFormatException {
+  void imQuery_term_multiMember() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
@@ -113,6 +110,6 @@ class OSQueryTest_IM {
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
-    assertEquals("http://snomed.info/sct#702450004", results.getEntities().get(0).getIri());
+    assertEquals("http://snomed.info/sct#702450004", results.getEntities().getFirst().getIri());
   }
 }

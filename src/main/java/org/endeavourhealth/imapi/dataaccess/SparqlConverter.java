@@ -225,7 +225,7 @@ public class SparqlConverter {
         whereQl.append("?").append(subject).append(" <").append(IM.IS_A).append("> ?").append(subject).append(o).append(".\n");
         subject = subject + o;
       } else {
-        throw new QueryException("Match entailment " + match.getEntailment().toString() + " is not yet supported");
+        throw new QueryException("Match entailment " + match.getEntailment() + " is not yet supported");
       }
     }
     String pathVariable = null;
@@ -469,10 +469,6 @@ public class SparqlConverter {
   private void processWhere(StringBuilder whereQl, String subject, Where where, String pathVariable, boolean isInRoleGroup) throws QueryException {
     if (pathVariable != null) {
       subject = pathVariable;
-    }
-    String propertyVariable = null;
-    if (!where.isInverse()) {
-      if (where.getVariable() != null) propertyVariable = where.getVariable();
     }
     if (where.getNodeRef() != null) {
       subject = where.getNodeRef();

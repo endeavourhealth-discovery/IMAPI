@@ -14,7 +14,6 @@ import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.List;
 import java.util.Set;
@@ -22,8 +21,8 @@ import java.util.StringJoiner;
 
 @Slf4j
 public class SearchTextFileExporter {
-  private SearchService searchService = new SearchService();
-  private EclService eclService = new EclService();
+  private final SearchService searchService = new SearchService();
+  private final EclService eclService = new EclService();
 
   public String getSearchFile(DownloadByQueryOptions downloadByQueryOptions) throws OpenSearchException, JsonProcessingException, QueryException, DownloadException {
     log.debug("Exporting search results to {}", downloadByQueryOptions.getFormat());
@@ -81,7 +80,7 @@ public class SearchTextFileExporter {
     for (Object item : list) {
       addItemToJoiner(stringJoiner, item, list.size() > 1);
     }
-    if (list.size() > 1) return "[" + stringJoiner.toString() + "]";
+    if (list.size() > 1) return "[" + stringJoiner + "]";
     return stringJoiner.toString();
   }
 
@@ -90,7 +89,7 @@ public class SearchTextFileExporter {
     for (Object item : set) {
       addItemToJoiner(stringJoiner, item, set.size() > 1);
     }
-    if (set.size() > 1) return "[" + stringJoiner.toString() + "]";
+    if (set.size() > 1) return "[" + stringJoiner + "]";
     return stringJoiner.toString();
   }
 

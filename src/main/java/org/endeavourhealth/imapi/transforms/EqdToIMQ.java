@@ -15,7 +15,6 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriterion;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.slf4j.Logger;
@@ -28,24 +27,22 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EqdToIMQ {
   private static final Logger log = LoggerFactory.getLogger(EqdToIMQ.class);
-  public static Set<String> gmsPatients = new HashSet<>();
-  public static Map<String, TTEntity> definitionToEntity = new HashMap<>();
-  public static Map<String, TTEntity> setIriToEntity = new HashMap<>();
-  public static Map<String, String> versionMap = new HashMap<>();
-  public static Integer setNumber;
+  protected static final Set<String> gmsPatients = new HashSet<>();
+  protected static final Map<String, TTEntity> definitionToEntity = new HashMap<>();
+  protected static final Map<String, TTEntity> setIriToEntity = new HashMap<>();
+  protected static final Map<String, String> versionMap = new HashMap<>();
+  private static Integer setNumber;
   @Setter
   @Getter
   private static Map<String, EQDOCCriterion> libraryItems;
   private final Map<String, Match> criteriaLibrary = new HashMap<>();
   private final Map<String, Integer> criteriaLibraryCount = new HashMap<>();
   private final ObjectMapper mapper = new ObjectMapper();
+  private final boolean versionIndependent;
   private Namespace namespace;
   private EqdResources resources;
   private TTDocument document;
   private String singleEntity;
-  private boolean versionIndependent;
-
-
 
   public EqdToIMQ(boolean versionIndependent) {
     this.versionIndependent = versionIndependent;
@@ -76,6 +73,10 @@ public class EqdToIMQ {
   public EqdToIMQ setSingleEntity(String singleEntity) {
     this.singleEntity = singleEntity;
     return this;
+  }
+
+  public static void addGmsPatient(String patientId) {
+    gmsPatients.add(patientId);
   }
 
   public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, Properties criteriaMaps, Namespace namespace) throws IOException, QueryException, EQDException {
@@ -243,7 +244,7 @@ public class EqdToIMQ {
     if (this.document.getEntities() != null) {
       for (TTEntity report : this.document.getEntities()) {
         if (report.get(IM.DEFINITION) != null) {
-          Query query = (Query) report.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+          Query query = report.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
           this.checkGms(query);
           report.set(IM.DEFINITION.asIri(), TTLiteral.literal(query));
         }

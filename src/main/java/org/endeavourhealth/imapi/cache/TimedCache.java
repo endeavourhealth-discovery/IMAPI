@@ -9,12 +9,10 @@ import static java.lang.Thread.interrupted;
 
 public class TimedCache<K, T> implements AutoCloseable {
   private Thread t;
-  private final String name;
   private final long timeToLive;
   private final LRUMap<K, CacheObject> cacheMap;
 
   public TimedCache(String name, long timeToLive, final long interval, int maxItems) {
-    this.name = name;
     this.timeToLive = timeToLive * 1000;
     cacheMap = new LRUMap<>(maxItems);
     if (this.timeToLive > 0 && interval > 0) {
@@ -23,16 +21,13 @@ public class TimedCache<K, T> implements AutoCloseable {
           try {
             Thread.sleep(interval * 1000);
           } catch (InterruptedException ex) {
-            ex.printStackTrace();
             Thread.currentThread().interrupt();
           }
           cleanup();
         }
-        System.out.println("Thread interrupted: [" + name + "]");
       });
       t.setDaemon(true);
       t.start();
-      System.out.println("Thread started: [" + name + "]");
     }
   }
 
@@ -100,7 +95,7 @@ public class TimedCache<K, T> implements AutoCloseable {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     if (t!=null) {
       t.interrupt();
       t = null;

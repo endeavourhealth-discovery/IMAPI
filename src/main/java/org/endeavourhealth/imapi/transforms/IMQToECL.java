@@ -6,7 +6,6 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.Arrays;
@@ -17,7 +16,7 @@ import java.util.Map;
 public class IMQToECL {
 
   private final EntityRepository entityRepository = new EntityRepository();
-  private Map<String, String> names = new HashMap<>();
+  private final Map<String, String> names = new HashMap<>();
   private Prefixes prefixes;
   @Getter
   @Setter
@@ -27,7 +26,6 @@ public class IMQToECL {
    * Takes a IM ECL compliant definition of a set and returns is ECL language
    *
    * @param eclQuery An object containing a 'query' and 'showNames'
-   * @return the object with a status, ecl and the query
    */
   public void getECLFromQuery(ECLQueryRequest eclQuery) {
     eclStatus = new ECLStatus();
@@ -106,9 +104,7 @@ public class IMQToECL {
 
 
   private boolean isBlankMatch(Match match) {
-    if (match.getInstanceOf() != null && match.getInstanceOf().getFirst().getIri() == null && match.getWhere() == null)
-      return true;
-    return false;
+    return match.getInstanceOf() != null && match.getInstanceOf().getFirst().getIri() == null && match.getWhere() == null;
   }
 
   public ECLType getEclType(Match match) {
@@ -175,7 +171,6 @@ public class IMQToECL {
   }
 
   private void match(Match match, StringBuilder ecl, boolean includeNames, boolean isNested) throws QueryException {
-    boolean isWild = false;
     if (match.getInstanceOf() == null && match.getOr() == null && match.getAnd() == null) {
       ecl.append("*");
     } else if (match.getInstanceOf() != null) {
@@ -193,7 +188,6 @@ public class IMQToECL {
       if (isNested)
         ecl.append(")");
     }
-    if (isWild) ecl.append(")");
   }
 
   private boolean bracketNeeded(Match match, boolean first, boolean multiItems) {
@@ -231,9 +225,9 @@ public class IMQToECL {
 
   private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames) {
     if (match.getInstanceOf().size() == 1) {
-      if (match.getInstanceOf().get(0).isInvalid())
+      if (match.getInstanceOf().getFirst().isInvalid())
         setErrorStatus(ecl, "unknown concept");
-      addClass(match.getInstanceOf().get(0), ecl, includeNames);
+      addClass(match.getInstanceOf().getFirst(), ecl, includeNames);
     } else {
       ecl.append("(");
       boolean first = true;

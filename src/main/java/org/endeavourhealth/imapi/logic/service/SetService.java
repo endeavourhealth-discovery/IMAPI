@@ -50,11 +50,19 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 @Component
 public class SetService {
 
-  private SetTextFileExporter setTextFileExporter = new SetTextFileExporter();
-  private SetRepository setRepository = new SetRepository();
-  private EntityRepository entityRepository = new EntityRepository();
-  private FilerService filerService = new FilerService();
-  private SetExporter setExporter = new SetExporter();
+  private final SetTextFileExporter setTextFileExporter = new SetTextFileExporter();
+  private final SetRepository setRepository;
+  private final EntityRepository entityRepository = new EntityRepository();
+  private final FilerService filerService = new FilerService();
+  private final SetExporter setExporter = new SetExporter();
+
+  public SetService() {
+    setRepository = new SetRepository();
+  }
+
+  SetService(SetRepository setRepository) {
+    this.setRepository = setRepository;
+  }
 
   private static void getContains(SetContent result, List<ValueSet.ValueSetExpansionContainsComponent> contains) {
     if (null != result.getConcepts() && !result.getConcepts().isEmpty()) {

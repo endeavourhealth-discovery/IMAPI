@@ -6,8 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 
 import java.sql.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 public class MYSQLConnectionManager {
@@ -122,7 +123,7 @@ public class MYSQLConnectionManager {
   public static boolean tableExists(int hashCode) throws SQLException {
     try (Connection checkTableConnection = getConnection()) {
       DatabaseMetaData meta = checkTableConnection.getMetaData();
-      try (ResultSet rs = meta.getTables(null, null, String.valueOf("`" + hashCode + "`"), new String[]{"TABLE"})) {
+      try (ResultSet rs = meta.getTables(null, null, "`" + hashCode + "`", new String[]{"TABLE"})) {
         return rs.next();
       }
     }

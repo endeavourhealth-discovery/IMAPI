@@ -1,19 +1,19 @@
-package org.endeavourhealth.imapi.controllers;
+package org.endeavourhealth.imapi.logic.service;
 
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.logic.service.ConceptService;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -27,13 +27,25 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.when;
 
 public class ConceptServiceStepDefs {
+  private AutoCloseable mocks;
   private final String entityIri = "http://snomed.info/sct#44054006";
   private List<SearchTermCode> entityTermCodes;
 
-  @InjectMocks
-  private ConceptService conceptService = new ConceptService();
-  @Mock
-  private EntityRepository entityRepository = new EntityRepository();
+  private ConceptService conceptService;
+
+  @Mock private EntityRepository entityRepository;
+  @Mock private ConceptRepository conceptRepository;
+
+  @Before
+  public void initMocks() {
+    mocks = MockitoAnnotations.openMocks(this);
+    conceptService = new ConceptService(entityRepository, conceptRepository);
+  }
+
+  @After
+  public void closeMocks() throws Exception {
+    mocks.close();
+  }
 
   @Given("a Diabetes entity with out-of-order term codes")
   public void anEntityWithTermCodes() {
@@ -52,7 +64,6 @@ public class ConceptServiceStepDefs {
     TTBundle termsBundle = new TTBundle();
     termsBundle.setEntity(entity);
 
-    MockitoAnnotations.initMocks(this);
     when(entityRepository.getBundle(termsBundle.getEntity().getIri(), asHashSet(IM.HAS_TERM_CODE))).thenReturn(termsBundle);
   }
 

@@ -15,6 +15,7 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -380,11 +381,7 @@ public class EnquiryDocument {
    * {@link String }
    */
   public String getSchemaVersion() {
-    if (schemaVersion == null) {
-      return "32.0.0";
-    } else {
-      return schemaVersion;
-    }
+    return Objects.requireNonNullElse(schemaVersion, "32.0.0");
   }
 
   /**

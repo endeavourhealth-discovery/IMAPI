@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.transforms.ECLToIMQ;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

@@ -38,9 +38,9 @@ public class QueryService {
   public static final String ENTITIES = "entities";
   private final EntityRepository entityRepository = new EntityRepository();
   private final DataModelRepository dataModelRepository = new DataModelRepository();
+  private final PostgresService postgresService = new PostgresService();
+  private final Map<Integer, Set<String>> queryResultsMap = new HashMap<>();
   private ConnectionManager connectionManager;
-  private PostgresService postgresService = new PostgresService();
-  private Map<Integer, Set<String>> queryResultsMap = new HashMap<>();
 
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
     return new QueryDescriptor().describeQuery(query, displayMode);
@@ -113,14 +113,13 @@ public class QueryService {
     postgresService.create(entry);
   }
 
-  public UUID reAddToExecutionQueue(UUID userId, String userName, RequeueQueryRequest requeueQueryRequest) throws Exception {
+  public void reAddToExecutionQueue(UUID userId, String userName, RequeueQueryRequest requeueQueryRequest) throws Exception {
     DBEntry entry = postgresService.getById(requeueQueryRequest.getQueueId());
     if (!QueryExecutorStatus.QUEUED.equals(entry.getStatus()) && !QueryExecutorStatus.RUNNING.equals(entry.getStatus())) {
       postgresService.delete(userId, requeueQueryRequest.getQueueId());
       QueryRequest queryRequest = requeueQueryRequest.getQueryRequest();
-      return addToExecutionQueue(userId, userName, queryRequest);
+      addToExecutionQueue(userId, userName, queryRequest);
     }
-    return null;
   }
 
   public UUID addToExecutionQueue(UUID userId, String userName, QueryRequest queryRequest) throws Exception {
@@ -191,12 +190,10 @@ public class QueryService {
       return queryResults;
     }
     if (!MYSQLConnectionManager.tableExists(hashCode)) return null;
+
     queryResults = MYSQLConnectionManager.getResults(queryRequest);
-    if (queryResults != null) {
-      log.debug("Query Results for hashcode {} found in db cache", hashCode);
-      return queryResults;
-    }
-    return null;
+    log.debug("Query Results for hashcode {} found in db cache", hashCode);
+    return queryResults;
   }
 
   public void killActiveQuery() throws SQLException {

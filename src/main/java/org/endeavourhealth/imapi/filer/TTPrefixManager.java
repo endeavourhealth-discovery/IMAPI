@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Slf4j
 public class TTPrefixManager {
-  Map<String, String> prefixMap = new HashMap<>();
+  final Map<String, String> prefixMap = new HashMap<>();
 
   public String expand(String iri) {
     if (prefixMap == null)

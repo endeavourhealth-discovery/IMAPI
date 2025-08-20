@@ -14,7 +14,6 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 
 public class IMQtoMySQLSteps {
   private final ObjectMapper objectMapper = new ObjectMapper();

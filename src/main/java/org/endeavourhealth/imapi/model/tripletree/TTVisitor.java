@@ -75,7 +75,7 @@ public class TTVisitor {
   }
 
   public void visit(TTNode node) {
-    visit((TTIriRef) null, node);
+    visit(null, node);
   }
 
   public void visit(TTArray array) {

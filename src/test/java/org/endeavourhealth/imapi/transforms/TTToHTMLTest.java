@@ -5,10 +5,9 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.OWL;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class TTToHTMLTest {
 

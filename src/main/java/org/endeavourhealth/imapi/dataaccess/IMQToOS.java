@@ -15,7 +15,10 @@ import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.OpenSearch;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.*;
 
@@ -288,7 +291,8 @@ public class IMQToOS {
       for (Path pathMatch : match.getPath()) {
         String w = pathMatch.getIri();
         if (IM.BINDING.toString().equals(w)) {
-          return addBinding(match, match.getOr() != null ? Bool.or : Bool.and, boolBuilder);
+          addBinding(match, match.getOr() != null ? Bool.or : Bool.and, boolBuilder);
+          return true;
         }
       }
     }
@@ -403,7 +407,7 @@ public class IMQToOS {
     return iris;
   }
 
-  private boolean addBinding(Match match, Bool bool, BoolQueryBuilder boolBldr) throws QueryException {
+  private void addBinding(Match match, Bool bool, BoolQueryBuilder boolBldr) throws QueryException {
     try {
       String node = null;
       String path = null;
@@ -426,7 +430,6 @@ public class IMQToOS {
       if (path == null || node == null)
         throw new QueryException("Invalid binding in where clause. Should have match where path and match where node");
       addFilter(Set.of(path + " " + node), bool, boolBldr);
-      return true;
     } catch (Exception e) {
       throw new QueryException("Invalid binding in where clause. Should have match where path and match where node");
     }

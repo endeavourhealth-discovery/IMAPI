@@ -1,11 +1,9 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 import lombok.Setter;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.Objects;
@@ -63,8 +61,7 @@ public class IriLD {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof IriLD)) return false;
-    IriLD ttIriRef = (IriLD) o;
+    if (!(o instanceof IriLD ttIriRef)) return false;
     if (ttIriRef.iri == null || iri == null)
       return false;
     return iri.equals(ttIriRef.iri);

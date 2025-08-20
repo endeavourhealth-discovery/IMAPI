@@ -3,18 +3,13 @@ package org.endeavourhealth.imapi.logic.reasoner;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.*;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 public class LogicOptimizer {
   Set<String> commonMatches;
-  ObjectMapper mapper = new ObjectMapper();
+  final ObjectMapper mapper = new ObjectMapper();
 
   public static void flattenQuery(Query query) {
     flattenMatch(query);
@@ -227,7 +222,6 @@ public class LogicOptimizer {
           else {
             topOr = new Match();
             match.addAnd(topOr);
-            ;
             topOr.addOr(subMatch);
           }
           break;
@@ -412,7 +406,7 @@ public class LogicOptimizer {
         match.setIfFalse(RuleAction.REJECT);
       }
       if (query.getOr() == null && query.getNot() == null) {
-        Match lastRule = query.getRule().get(query.getRule().size() - 1);
+        Match lastRule = query.getRule().getLast();
         lastRule.setIfTrue(RuleAction.SELECT);
         lastRule.setIfFalse(RuleAction.REJECT);
       }
@@ -425,7 +419,7 @@ public class LogicOptimizer {
       for (Match match : query.getOr()) {
         orRule.addOr(match);
       }
-      Match lastRule = orRule.getRule().get(orRule.getRule().size() - 1);
+      Match lastRule = orRule.getRule().getLast();
       if (query.getNot() == null) {
         lastRule.setIfTrue(RuleAction.SELECT);
         lastRule.setIfFalse(RuleAction.REJECT);
@@ -440,7 +434,7 @@ public class LogicOptimizer {
         match.setIfTrue(RuleAction.REJECT);
         match.setIfFalse(RuleAction.NEXT);
       }
-      Match lastRule = query.getRule().get(query.getRule().size() - 1);
+      Match lastRule = query.getRule().getLast();
       lastRule.setIfTrue(RuleAction.REJECT);
       lastRule.setIfFalse(RuleAction.SELECT);
     }

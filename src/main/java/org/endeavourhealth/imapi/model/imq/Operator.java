@@ -17,7 +17,7 @@ public enum Operator {
   contains("contains");
 
   // declaring private variable for getting values
-  private String value;
+  private final String value;
 
 
   @JsonValue
@@ -32,9 +32,8 @@ public enum Operator {
       .findFirst();
   }
 
-
   // enum constructor - cannot be public or protected
-  private Operator(String value) {
+  Operator(String value) {
     this.value = value;
   }
 }

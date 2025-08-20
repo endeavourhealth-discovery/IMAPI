@@ -4,11 +4,10 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.OWL;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class TTToTurtleTest {
 

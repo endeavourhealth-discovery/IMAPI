@@ -11,7 +11,8 @@ import org.endeavourhealth.imapi.json.TTNodeSerializerV2;
 import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 

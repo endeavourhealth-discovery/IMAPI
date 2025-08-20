@@ -23,7 +23,7 @@ public enum ErrorCodes {
 
   ECL_BUILDER_EXCEPTION("EclBuilderException");
 
-  private String code;
+  private final String code;
 
   public String asString() {
     return code;

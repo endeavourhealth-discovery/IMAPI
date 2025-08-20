@@ -1,8 +1,5 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -103,40 +100,6 @@ public class TestHelper {
       .add("  \"scheme\" : [ {")
       .add("    \"iri\" : \"http://snomed.info/sct#\"")
       .add("  } ]")
-      .add("}")
-      .toString();
-  }
-
-  public static String getTestEntityJsonPrefix() {
-    return new StringJoiner(System.lineSeparator())
-      .add("{")
-      .add("  \"iri\" : \"im:25451000252115\",")
-      .add("  \"im:isA\" : [ {")
-      .add("    \"iri\" : \"sn:371186005\",")
-      .add("    \"name\" : \"Amputation of toe (procedure)\"")
-      .add("  }, {")
-      .add("    \"iri\" : \"sn:732214009\",")
-      .add("    \"name\" : \"Amputation of left lower limb\"")
-      .add("  } ],")
-      .add("  \"im:code\" : \"787213005\",")
-      .add("  \"rdfs:comment\" : \"Partial amputation of toe of left foot (procedure)\",")
-      .add("  \"im:roleGroup\" : [ {")
-      .add("    \"sn:260686004\" : [ {")
-      .add("      \"iri\" : \"sn:129309007\",")
-      .add("      \"name\" : \"Amputation - action\"")
-      .add("    } ],")
-      .add("    \"sn:405813007\" : [ {")
-      .add("      \"iri\" : \"sn:732939008\",")
-      .add("      \"name\" : \"Part of toe of left foot\"")
-      .add("    } ]")
-      .add("  } ],")
-      .add("  \"im:scheme\" : [ {")
-      .add("    \"iri\" : \"sn:\"")
-      .add("  } ],")
-      .add("  \"rdf:type\" : [ {")
-      .add("    \"iri\" : \"im:Concept\"")
-      .add("  } ],")
-      .add("  \"rdfs:label\" : \"Partial amputation of toe of left foot\"")
       .add("}")
       .toString();
   }

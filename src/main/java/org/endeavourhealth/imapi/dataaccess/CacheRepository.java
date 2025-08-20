@@ -9,9 +9,11 @@ import org.eclipse.rdf4j.query.GraphQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
@@ -20,7 +22,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
  */
 public class CacheRepository {
 
-  public Set<TTBundle> getSchema() throws Exception {
+  public Set<TTBundle> getSchema() {
     String sql = """
       CONSTRUCT {
         ?shape ?p ?o.

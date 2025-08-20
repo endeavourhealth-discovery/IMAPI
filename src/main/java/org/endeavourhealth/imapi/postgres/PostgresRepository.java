@@ -11,7 +11,7 @@ import java.sql.*;
 import java.util.*;
 
 public class PostgresRepository {
-  private static ObjectMapper om = new ObjectMapper();
+  private static final ObjectMapper om = new ObjectMapper();
 
   public PostgresRepository() {
     throw new IllegalStateException("Utility class");

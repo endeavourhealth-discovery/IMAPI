@@ -8,7 +8,7 @@ public enum TaskModule {
     UPRN("uprn"),
     AUTH("auth");
 
-    private String text;
+    private final String text;
     TaskModule(String text) {
         this.text = text;
     }

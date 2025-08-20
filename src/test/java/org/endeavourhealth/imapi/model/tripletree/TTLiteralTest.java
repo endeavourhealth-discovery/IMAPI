@@ -12,7 +12,6 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.StringJoiner;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
@@ -31,7 +30,7 @@ class TTLiteralTest {
     .add("  \"http://endhealth.info/im#Query\" : \"{\\\"term\\\":\\\"Mickey Mouse\\\",\\\"code\\\":\\\"EM-EYE-CEE\\\",\\\"status\\\":{\\\"name\\\":\\\"Active\\\",\\\"iri\\\":\\\"http://endhealth.info/im#Active\\\"}}\"")
     .add("}")
     .toString();
-  EntityService entityService = new EntityService();
+  final EntityService entityService = new EntityService();
 
   TTLiteralTest() throws JsonProcessingException {
   }

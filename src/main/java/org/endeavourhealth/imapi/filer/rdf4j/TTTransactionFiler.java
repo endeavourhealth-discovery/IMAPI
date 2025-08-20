@@ -40,16 +40,16 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   private static final String TTLOG = "TTLog-";
   private static Integer filingProgress = null;
+  private final IMDB conn;
+  private final Graph insertGraph;
   protected TTEntityFiler conceptFiler;
   protected TTEntityFiler instanceFiler;
   protected Map<String, String> prefixMap = new HashMap<>();
-  private IMDB conn;
   private Set<String> entitiesFiled;
   private String logPath;
   private Map<String, Set<String>> isAs;
   private TTManager manager;
   private Set<String> done;
-  private Graph insertGraph;
 
 
   /**

@@ -38,11 +38,11 @@ public class EqdToIMQ {
   private final Map<String, Match> criteriaLibrary = new HashMap<>();
   private final Map<String, Integer> criteriaLibraryCount = new HashMap<>();
   private final ObjectMapper mapper = new ObjectMapper();
+  private final boolean versionIndependent;
   private Namespace namespace;
   private EqdResources resources;
   private TTDocument document;
   private String singleEntity;
-  private boolean versionIndependent;
 
 
 

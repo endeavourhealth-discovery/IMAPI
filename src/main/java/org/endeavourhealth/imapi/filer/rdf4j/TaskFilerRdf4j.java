@@ -25,7 +25,7 @@ import java.util.StringJoiner;
 import static org.eclipse.rdf4j.model.util.Values.*;
 
 public class TaskFilerRdf4j {
-  private WorkflowDB conn;
+  private final WorkflowDB conn;
   private EmailService emailService;
 
   public TaskFilerRdf4j() {

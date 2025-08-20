@@ -26,8 +26,18 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 @Component
 public class ConceptService {
 
-  private EntityRepository entityRepository = new EntityRepository();
-  private ConceptRepository conceptRepository = new ConceptRepository();
+  private final EntityRepository entityRepository;
+  private final ConceptRepository conceptRepository;
+
+  public ConceptService() {
+    entityRepository = new EntityRepository();
+    conceptRepository = new ConceptRepository();
+  }
+
+  ConceptService(EntityRepository entityRepository, ConceptRepository conceptRepository) {
+    this.entityRepository = entityRepository;
+    this.conceptRepository = conceptRepository;
+  }
 
   public List<SimpleMap> getMatchedFrom(String iri) {
     if (iri == null || iri.isEmpty()) return new ArrayList<>();

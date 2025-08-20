@@ -32,13 +32,13 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
 @Component
 public class FilerService {
 
-  private ProvService provService;
-  private EntityService entityService;
-  private OpenSearchService openSearchService;
-  private UserService userService;
+  private final ProvService provService;
+  private final EntityService entityService;
+  private final OpenSearchService openSearchService;
+  private final UserService userService;
+  private final TTEntityFiler entityProvFiler;
   private TTTransactionFiler documentFiler;
   private TTEntityFiler entityFiler;
-  private TTEntityFiler entityProvFiler;
   private IMDB imdb;
 
   public FilerService() {

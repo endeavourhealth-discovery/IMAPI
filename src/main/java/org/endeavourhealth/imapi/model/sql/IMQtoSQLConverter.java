@@ -28,10 +28,10 @@ import static org.endeavourhealth.imapi.mysql.MYSQLConnectionManager.getConnecti
 
 @Slf4j
 public class IMQtoSQLConverter {
-  private TableMap tableMap;
-  private QueryRequest queryRequest;
+  private final TableMap tableMap;
+  private final QueryRequest queryRequest;
   private final EntityRepository entityRepository = new EntityRepository();
-  private List<String> subqueryIris;
+  private final List<String> subqueryIris;
 
   public IMQtoSQLConverter(QueryRequest queryRequest) {
     this.queryRequest = queryRequest;

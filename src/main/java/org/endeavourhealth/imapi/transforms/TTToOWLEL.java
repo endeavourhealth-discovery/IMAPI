@@ -26,9 +26,9 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
  * <p>Thus a transform back from the OWL EL version will not match the source unless the source is EL only.
  */
 public class TTToOWLEL {
-  private DefaultPrefixManager prefixManager;
-  private OWLDataFactory dataFactory;
-  private OWLOntologyManager manager;
+  private final DefaultPrefixManager prefixManager;
+  private final OWLDataFactory dataFactory;
+  private final OWLOntologyManager manager;
   private OWLOntology ontology;
   private TTManager ttManager;
 

@@ -16,7 +16,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CodeGenStepDefs {
-  private CodeGenDto template = new CodeGenDto();
+  private final CodeGenDto template = new CodeGenDto();
   private TTIriRef model;
   private List<DataModelProperty> properties = new ArrayList<>();
   private String namespace;

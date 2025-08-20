@@ -36,36 +36,36 @@ substance, and return iri, code and name
 
 (n.b. prefix im: = http://endhealth.info/im#)
 
- Parameter    | meaning                                                                                     |
+| Parameter    | meaning                                                                                     |
 --------------|---------------------------------------------------------------------------------------------| 
- termFilter   | the word, code, iri, phrase, partial phrase to search on                                    |
- statusFilter | whether active, inactive, draft, unassigned. Without this all statuses will be returned     |
- typeFilter   | the high level types of entity e.g. im:Concept im:ConceptSet im:Query im:DataModelEntity    |
- isA          | the iris of the concepts that the results must be a subtype of (including itself)           |
- select       | list of fields to return (defaults to iri, name, entityType, code, scheme, status,termCode) 
- page         | page number                                                                                 
- size         | size per page                                                                               
+| termFilter   | the word, code, iri, phrase, partial phrase to search on                                    |
+| statusFilter | whether active, inactive, draft, unassigned. Without this all statuses will be returned     |
+| typeFilter   | the high level types of entity e.g. im:Concept im:ConceptSet im:Query im:DataModelEntity    |
+| isA          | the iris of the concepts that the results must be a subtype of (including itself)           |
+| select       | list of fields to return (defaults to iri, name, entityType, code, scheme, status,termCode) |
+| page         | page number                                                                                 |
+| size         | size per page                                                                               |
 
 ### Response body
 
 An array of json documents conforming to a SearchReultSummary class, from the following optional fields
 
- field       | meaning                                                                                   |
--------------|-------------------------------------------------------------------------------------------|
- iri         | iri of the entity                                                                         
- name        | name of the entity                                                                        
- match       | the term or synonym that matched the search term (may or may not be the same as the name) 
- code        | code of the concept                                                                       
- description | description of the concept                                                                
- status      | status of entity                                                                          
- scheme      | scheme of the entity i.e. the owner of the entity                                         
- entityType  | the entity type of the entity                                                             
- usageTotal  | an integer representing how often used in real systems                                    
- key         | list of keys for this entity                                                              
- isA         | list of super types that this entity is a subtype of                                      
- termCode    | object containing a term and code                                                         
- ...code     | code of the term code                                                                     
- ...term     | term of the term code                                                                     
+| field       | meaning                                                                                   |
+|-------------|-------------------------------------------------------------------------------------------|
+| iri         | iri of the entity                                                                         |
+| name        | name of the entity                                                                        |
+| match       | the term or synonym that matched the search term (may or may not be the same as the name) |
+| code        | code of the concept                                                                       |
+| description | description of the concept                                                                |
+| status      | status of entity                                                                          |
+| scheme      | scheme of the entity i.e. the owner of the entity                                         |
+| entityType  | the entity type of the entity                                                             |
+| usageTotal  | an integer representing how often used in real systems                                    |
+| key         | list of keys for this entity                                                              |
+| isA         | list of super types that this entity is a subtype of                                      |
+| termCode    | object containing a term and code                                                         |
+| ...code     | code of the term code                                                                     |
+| ...term     | term of the term code                                                                     |
 
 ### Logic
 

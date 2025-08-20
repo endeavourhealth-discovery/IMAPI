@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,8 +30,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ConceptModelServiceTest {
-  @InjectMocks
-  ConceptService conceptService = new ConceptService();
+  ConceptService conceptService;
 
   @Mock
   EntityRepository entityRepository;
@@ -38,20 +38,10 @@ public class ConceptModelServiceTest {
   @Mock
   ConceptRepository conceptRepository;
 
-  @Mock
-  ConfigManager configManager;
-
-  @Mock
-  SetRepository setRepository;
-
-  @InjectMocks
-  EclService eclService = spy(EclService.class);
-
-  @InjectMocks
-  EntityService entityService = spy(EntityService.class);
-
-  @InjectMocks
-  EntityValidator entityValidator = spy(EntityValidator.class);
+  @BeforeEach
+  void initMocks() {
+    conceptService = new ConceptService(entityRepository, conceptRepository);
+  }
 
   @Test
   void getEntityTermCodes_NullIri() {

@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,20 +24,18 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GraphDtoServiceTest {
-  @InjectMocks
-  GraphDtoService graphDtoService = new GraphDtoService();
 
-  @InjectMocks
-  EntityService entityService = spy(EntityService.class);
+  @Mock EntityRepository entityRepository;
+  @Mock DataModelRepository dataModelRepository;
 
-  @InjectMocks
-  DataModelService dataModelService = spy(DataModelService.class);
+  GraphDtoService graphDtoService;
 
-  @Mock
-  EntityRepository entityRepository;
-
-  @Mock
-  DataModelRepository dataModelRepository;
+  @BeforeEach
+  void initMocks() {
+    EntityService entityService = new EntityService(entityRepository);
+    DataModelService dataModelService = new DataModelService(dataModelRepository, entityRepository);
+    graphDtoService = new GraphDtoService(entityService, dataModelService);
+  }
 
   @Test
   void getGraphData_NullIri() {

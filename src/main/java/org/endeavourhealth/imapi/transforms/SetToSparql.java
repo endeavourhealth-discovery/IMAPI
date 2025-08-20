@@ -13,8 +13,8 @@ import java.util.zip.DataFormatException;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class SetToSparql {
-  private EntityRepository entityRepository = new EntityRepository();
-  private String tabs = "   ";
+  private final EntityRepository entityRepository = new EntityRepository();
+  private final String tabs = "   ";
 
 
   public String getExpansionSparql(String entityVar, String iri) throws DataFormatException {

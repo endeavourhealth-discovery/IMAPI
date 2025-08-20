@@ -22,10 +22,10 @@ import java.util.Set;
 import java.util.StringJoiner;
 
 public class ExcelSearchExporter {
-  private XSSFWorkbook workbook;
-  private CellStyle headerStyle;
-  private SearchService searchService = new SearchService();
-  private EclService eclService = new EclService();
+  private final XSSFWorkbook workbook;
+  private final CellStyle headerStyle;
+  private final SearchService searchService = new SearchService();
+  private final EclService eclService = new EclService();
 
   public ExcelSearchExporter() {
     workbook = new XSSFWorkbook();

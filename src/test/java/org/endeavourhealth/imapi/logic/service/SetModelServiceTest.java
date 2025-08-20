@@ -1,12 +1,11 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
-import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
 import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -21,14 +20,15 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class SetModelServiceTest {
-  @InjectMocks
-  SetService setService = new SetService();
 
-  @Mock
-  SetRepository setRepository;
+  @Mock SetRepository setRepository;
 
-  @Mock
-  WorkflowRepository workflowRepository;
+  SetService setService;
+
+  @BeforeEach
+  void initMocks() {
+    setService = new SetService(setRepository);
+  }
 
   @Test
   void getSetExport_NullIri() {

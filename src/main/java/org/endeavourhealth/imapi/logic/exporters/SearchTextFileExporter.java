@@ -21,8 +21,8 @@ import java.util.StringJoiner;
 
 @Slf4j
 public class SearchTextFileExporter {
-  private SearchService searchService = new SearchService();
-  private EclService eclService = new EclService();
+  private final SearchService searchService = new SearchService();
+  private final EclService eclService = new EclService();
 
   public String getSearchFile(DownloadByQueryOptions downloadByQueryOptions) throws OpenSearchException, JsonProcessingException, QueryException, DownloadException {
     log.debug("Exporting search results to {}", downloadByQueryOptions.getFormat());

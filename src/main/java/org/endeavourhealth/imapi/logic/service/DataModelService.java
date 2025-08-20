@@ -23,9 +23,21 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Component
 public class DataModelService {
-  private EntityRepository entityRepository = new EntityRepository();
-  private DataModelRepository dataModelRepository = new DataModelRepository();
-  private EntityService entityService = new EntityService();
+  private final EntityRepository entityRepository;
+  private final DataModelRepository dataModelRepository;
+  private final EntityService entityService;
+
+  public DataModelService() {
+    entityRepository = new EntityRepository();
+    dataModelRepository = new DataModelRepository();
+    entityService = new EntityService(entityRepository);
+  }
+
+  public DataModelService(DataModelRepository dataModelRepository, EntityRepository entityRepository) {
+    this.dataModelRepository = dataModelRepository;
+    this.entityRepository = entityRepository;
+    entityService = new EntityService(entityRepository);
+  }
 
   public List<TTIriRef> getDataModelsFromProperty(String propIri) {
     return dataModelRepository.findDataModelsFromProperty(propIri);

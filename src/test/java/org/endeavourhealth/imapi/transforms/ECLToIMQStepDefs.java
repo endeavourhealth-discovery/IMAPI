@@ -8,8 +8,8 @@ import org.endeavourhealth.imapi.model.imq.Query;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ECLToIMQStepDefs {
-  private ECLToIMQ eclToIMQ = new ECLToIMQ();
-  private IMQToECL imqToECL = new IMQToECL();
+  private final ECLToIMQ eclToIMQ = new ECLToIMQ();
+  private final IMQToECL imqToECL = new IMQToECL();
   private Query query;
 
   @Then("getEclFromQuery should equal original ecl {string}")

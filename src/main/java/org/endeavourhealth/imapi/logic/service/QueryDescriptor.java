@@ -25,9 +25,9 @@ public class QueryDescriptor {
   private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
   private final EntityRepository entityRepository = new EntityRepository();
   private final EntityRepository repo = new EntityRepository();
+  private final Map<String, String> nodeRefToLabel = new HashMap<>();
   private Map<String, TTEntity> iriContext;
   private StringBuilder shortDescription = new StringBuilder();
-  private Map<String, String> nodeRefToLabel = new HashMap<>();
 
   public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();

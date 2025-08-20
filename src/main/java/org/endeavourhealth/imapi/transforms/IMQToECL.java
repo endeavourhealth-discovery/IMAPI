@@ -16,7 +16,7 @@ import java.util.Map;
 public class IMQToECL {
 
   private final EntityRepository entityRepository = new EntityRepository();
-  private Map<String, String> names = new HashMap<>();
+  private final Map<String, String> names = new HashMap<>();
   private Prefixes prefixes;
   @Getter
   @Setter

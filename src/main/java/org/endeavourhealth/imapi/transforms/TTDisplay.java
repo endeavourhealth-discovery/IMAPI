@@ -16,7 +16,7 @@ public class TTDisplay {
     throw new IllegalStateException("Utility class");
   }
 
-  private static TTIriRef[] entity = {iri(RDF.TYPE), iri(RDFS.LABEL), iri(IM.DEFINITION)};
+  private static final TTIriRef[] entity = {iri(RDF.TYPE), iri(RDFS.LABEL), iri(IM.DEFINITION)};
 
   public static TTIriRef[] getTemplate(TTNode node) {
     return entity;

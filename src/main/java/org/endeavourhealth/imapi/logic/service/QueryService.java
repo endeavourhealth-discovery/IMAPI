@@ -38,9 +38,9 @@ public class QueryService {
   public static final String ENTITIES = "entities";
   private final EntityRepository entityRepository = new EntityRepository();
   private final DataModelRepository dataModelRepository = new DataModelRepository();
+  private final PostgresService postgresService = new PostgresService();
+  private final Map<Integer, Set<String>> queryResultsMap = new HashMap<>();
   private ConnectionManager connectionManager;
-  private PostgresService postgresService = new PostgresService();
-  private Map<Integer, Set<String>> queryResultsMap = new HashMap<>();
 
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
     return new QueryDescriptor().describeQuery(query, displayMode);

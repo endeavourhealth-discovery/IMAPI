@@ -16,11 +16,11 @@ import java.util.zip.DataFormatException;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
-  private TTDocument document;
   private final TurtliteParser parser;
   private final TurtliteLexer lexer;
-  private Map<String, TTNode> blankNodes = new HashMap<>();
-  private Map<String, TTEntity> iriMap = new HashMap<>();
+  private final Map<String, TTNode> blankNodes = new HashMap<>();
+  private final Map<String, TTEntity> iriMap = new HashMap<>();
+  private TTDocument document;
 
 
   /**

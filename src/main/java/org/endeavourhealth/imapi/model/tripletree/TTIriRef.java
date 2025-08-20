@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(name = "TTIriRef", description = "Class representing an IRI")
 public class TTIriRef implements TTValue, Serializable {
-  private static Pattern iriPattern = Pattern.compile("([a-z]+)?[:].*");
+  private static final Pattern iriPattern = Pattern.compile("([a-z]+)?[:].*");
 
   @Schema(description = "The actual iri")
   private String iri;

@@ -34,17 +34,17 @@ import java.util.concurrent.TimeoutException;
 @Lazy
 @Service
 public class ConnectionManager {
+  private static final Logger LOG = LoggerFactory.getLogger(ConnectionManager.class);
   private static final String EXCHANGE_NAME = "query_runner";
   private static final String QUEUE_NAME = "query.execute";
-  private CachingConnectionFactory connectionFactory;
   @Getter
-  private Connection connection;
-  private Logger LOG = LoggerFactory.getLogger(ConnectionManager.class);
-  private ObjectMapper om = new ObjectMapper();
-  private QueryService queryService = new QueryService();
-  private PostgresService postgresService = new PostgresService();
-  private boolean createdChannel = false;
+  private final Connection connection;
+  private final ObjectMapper om = new ObjectMapper();
   private final RequestObjectService requestObjectService = new RequestObjectService();
+  private final CachingConnectionFactory connectionFactory;
+  private final PostgresService postgresService = new PostgresService();
+  private QueryService queryService = new QueryService();
+  private boolean createdChannel = false;
 
   public ConnectionManager() {
     connectionFactory = new CachingConnectionFactory();

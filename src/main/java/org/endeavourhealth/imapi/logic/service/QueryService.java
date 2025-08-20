@@ -99,17 +99,7 @@ public class QueryService {
   }
 
   public void handleSQLConversionException(UUID userId, String userName, QueryRequest queryRequest, String error) throws SQLException {
-    DBEntry entry = new DBEntry()
-      .setId(UUID.randomUUID())
-      .setQueryRequest(queryRequest)
-      .setQueryIri(queryRequest.getQuery().getIri())
-      .setQueryName(queryRequest.getQuery().getName())
-      .setStatus(QueryExecutorStatus.ERRORED)
-      .setUserId(userId)
-      .setUserName(userName)
-      .setQueuedAt(LocalDateTime.now())
-      .setKilledAt(LocalDateTime.now())
-      .setError(error);
+    DBEntry entry = new DBEntry().setId(UUID.randomUUID()).setQueryRequest(queryRequest).setQueryIri(queryRequest.getQuery().getIri()).setQueryName(queryRequest.getQuery().getName()).setStatus(QueryExecutorStatus.ERRORED).setUserId(userId).setUserName(userName).setQueuedAt(LocalDateTime.now()).setKilledAt(LocalDateTime.now()).setError(error);
     postgresService.create(entry);
   }
 
@@ -134,9 +124,10 @@ public class QueryService {
     return connectionManager.publishToQueue(userId, userName, queryRequest);
   }
 
-  public Set<String> executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException, QueryException {
+  public Set<String> executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException, QueryException, JsonProcessingException {
     queryRequest.resolveArgs();
     int qrHashCode = getQueryRequestHashCode(queryRequest);
+//    List<String> subQueries = getSubqueryIris(queryRequest.getQuery().getIri());
     log.info("Executing query: {} with a hash code: {}", queryRequest.getQuery().getIri(), qrHashCode);
     // TODO: if query has is rules needs to be converted to match based query
     try {
@@ -204,8 +195,7 @@ public class QueryService {
   }
 
   public Query getDefaultQuery() throws JsonProcessingException {
-    List<TTEntity> children = entityRepository.getFolderChildren(Namespace.IM + "Q_DefaultCohorts", asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL,
-      IM.DEFINITION));
+    List<TTEntity> children = entityRepository.getFolderChildren(Namespace.IM + "Q_DefaultCohorts", asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL, IM.DEFINITION));
     if (children.isEmpty()) {
       return new Query().setTypeOf(Namespace.IM + "Patient");
     }
@@ -228,8 +218,7 @@ public class QueryService {
     }
     for (TTEntity child : children) {
       if (child.isType(iri(IM.FOLDER))) {
-        List<TTEntity> subchildren = entityRepository.getFolderChildren(Namespace.IM + "DefaultCohorts", asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL,
-          IM.DEFINITION));
+        List<TTEntity> subchildren = entityRepository.getFolderChildren(Namespace.IM + "DefaultCohorts", asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL, IM.DEFINITION));
         if (subchildren == null || subchildren.isEmpty()) {
           return null;
         }
@@ -240,7 +229,7 @@ public class QueryService {
     return null;
   }
 
-  public Set<String> testRunQuery(Query query) throws SQLException, SQLConversionException, QueryException {
+  public Set<String> testRunQuery(Query query) throws SQLException, SQLConversionException, QueryException, JsonProcessingException {
     QueryRequest queryRequest = new QueryRequest();
     Page page = new Page();
     page.setPageNumber(1);
@@ -402,6 +391,41 @@ public class QueryService {
           getNodeRefs(subWhere, nodeRefs);
       }
     }
+  }
+
+  private List<String> getSubqueryIris(String queryIri) throws QueryException, JsonProcessingException {
+    ArrayList<String> subQueryIris = new ArrayList<>();
+    populateSubqueryIrisConclusively(queryIri, subQueryIris);
+    return subQueryIris;
+  }
+
+  private void populateSubqueryIrisConclusively(String queryIri, List<String> subQueryIris) throws QueryException, JsonProcessingException {
+    Query query = describeQuery(queryIri, DisplayMode.LOGICAL);
+    if (null != query.getAnd())
+      for (Match and : query.getAnd()) {
+        if (and.getInstanceOf() != null && !and.getInstanceOf().isEmpty()) {
+          String subQueryIri = and.getInstanceOf().getFirst().getIri();
+          populateSubqueryIrisConclusively(subQueryIri, subQueryIris);
+          subQueryIris.add(and.getInstanceOf().getFirst().getIri());
+        }
+      }
+    if (null != query.getOr())
+      for (Match or : query.getOr()) {
+        if (or.getInstanceOf() != null && !or.getInstanceOf().isEmpty()) {
+          String subQueryIri = or.getInstanceOf().getFirst().getIri();
+          populateSubqueryIrisConclusively(subQueryIri, subQueryIris);
+          subQueryIris.add(or.getInstanceOf().getFirst().getIri());
+        }
+      }
+    if (null != query.getNot())
+      for (Match not : query.getNot()) {
+        if (not.getInstanceOf() != null && !not.getInstanceOf().isEmpty()) {
+          String subQueryIri = not.getInstanceOf().getFirst().getIri();
+          populateSubqueryIrisConclusively(subQueryIri, subQueryIris);
+          subQueryIris.add(not.getInstanceOf().getFirst().getIri());
+        }
+      }
+
   }
 
 }

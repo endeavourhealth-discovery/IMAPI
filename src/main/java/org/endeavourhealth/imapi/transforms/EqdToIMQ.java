@@ -75,6 +75,10 @@ public class EqdToIMQ {
     return this;
   }
 
+  public static void addGmsPatient(String patientId) {
+    gmsPatients.add(patientId);
+  }
+
   public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, Properties criteriaMaps, Namespace namespace) throws IOException, QueryException, EQDException {
     this.document = document;
     this.resources = new EqdResources(document, dataMap, namespace);

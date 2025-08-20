@@ -265,9 +265,9 @@ public class QueryService {
     return queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
   }
 
-  public List<ArgumentReference> findMissingArguments(QueryRequest queryRequest) {
+  public List<ArgumentReference> findMissingArguments(QueryRequest queryRequest) throws QueryException, JsonProcessingException {
     List<ArgumentReference> missingArguments = new ArrayList<>();
-    Query query = queryRequest.getQuery();
+    Query query = describeQuery(queryRequest.getQuery().getIri(), DisplayMode.LOGICAL);
     Set<Argument> arguments = queryRequest.getArgument();
     if (null == arguments) arguments = new HashSet<>();
     recursivelyCheckQueryArguments(query, missingArguments, arguments);
@@ -313,10 +313,6 @@ public class QueryService {
     }
     if (null != match.getWhere()) {
       recursivelyCheckWhereArguments(match.getWhere(), missingArguments, arguments);
-    }
-    if (null != match.getRule()) {
-      List<Match> matches = match.getRule();
-      matches.forEach(ruleMatch -> recursivelyCheckMatchArguments(ruleMatch, missingArguments, arguments));
     }
   }
 

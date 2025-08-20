@@ -440,10 +440,6 @@ public class QueryDescriptor {
     boolean past = false;
     Operator operator = from.getOperator();
     String value = from.getValue();
-    boolean date = false;
-    if (where.getIri() != null) {
-      date = where.getIri().toLowerCase().contains("date");
-    }
     if (value != null) if (value.startsWith("-")) past = true;
     qualifier = "is between ";
     if (null != operator) if (operator == Operator.gte) {
@@ -461,7 +457,6 @@ public class QueryDescriptor {
     if (past) qualifier = qualifier + " before";
     where.setQualifier(qualifier);
   }
-
 
   private void describeTo(Where where, Value from) {
     String qualifier = null;

@@ -492,7 +492,7 @@ public class IMQtoSQLConverter {
     return fieldName + " " + range.getOperator().getValue() + " " + range.getValue();
   }
 
-  private String convertMatchPropertyDateRangeNode(String fieldName, Assignable range) throws SQLConversionException {
+  private String convertMatchPropertyDateRangeNode(String fieldName, Assignable range) {
       String returnString;
       if (isPostgreSQL())
         returnString = "($searchDate" + " - INTERVAL '" + range.getValue()  + "') " + range.getOperator().getValue() + " " + fieldName;

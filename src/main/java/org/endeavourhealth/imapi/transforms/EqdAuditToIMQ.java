@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCAggregateGroup;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCAggregateReport;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.VocStandardAuditReportType;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 public class EqdAuditToIMQ {

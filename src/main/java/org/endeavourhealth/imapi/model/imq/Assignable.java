@@ -1,10 +1,5 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
-import java.util.List;
-import java.util.function.Consumer;
-
 public interface Assignable {
   Operator getOperator();
 

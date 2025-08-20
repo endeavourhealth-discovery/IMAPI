@@ -47,6 +47,9 @@ public class EqdToIMQ {
   public EqdToIMQ(boolean versionIndependent) {
     this.versionIndependent = versionIndependent;
     gmsPatients.add("c8d3ca80-ba23-418b-8cef-e5afac42764e");
+    gmsPatients.add("71154095-0C58-4193-B58F-21F05EA0BE2F");
+    gmsPatients.add("DA05DBF2-72AB-41A3-968F-E4A061F411A4");
+    gmsPatients.add("591C5738-2F6B-4A6F-A2B3-05FA538A1B3B");
   }
 
   public static Integer getSetNumber() {
@@ -127,7 +130,7 @@ public class EqdToIMQ {
     for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr(), rule.getNot())) {
       if (matches != null) {
         for (Match match : matches) {
-          if (match.getInstanceOf() == null) {
+          if (match.getIsCohort() == null) {
             Match logicalMatch = new LogicOptimizer().getLogicalMatch(match);
             String libraryIri = namespace + "Clause_" + (mapper.writeValueAsString(logicalMatch).hashCode());
             if (criteriaLibrary.containsKey(libraryIri) && criteriaLibraryCount.get(libraryIri) > 1) {
@@ -188,11 +191,11 @@ public class EqdToIMQ {
   private void createLibrary(Query query) throws JsonProcessingException {
     if (query.getRule() == null) return;
     for (Match rule : query.getRule()) {
-      if (rule.getInstanceOf() == null) {
+      if (rule.getIsCohort() == null) {
         for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr(), rule.getNot())) {
           if (matches != null) {
             for (Match subMatch : matches) {
-              if (subMatch.getInstanceOf() == null && !LogicOptimizer.isLinkedMatch(subMatch)) {
+              if (subMatch.getIsCohort() == null && !LogicOptimizer.isLinkedMatch(subMatch)) {
                 if (subMatch.getDescription() != null) {
                   Match logicalMatch = new LogicOptimizer().getLogicalMatch(subMatch);
                   addLibraryItem(subMatch, logicalMatch);
@@ -269,14 +272,11 @@ public class EqdToIMQ {
   }
 
   private void checkGms(Match match) {
-    if (match.getInstanceOf() != null) {
-      for (Node node : match.getInstanceOf()) {
-        if (gmsPatients.contains(node.getIri())) {
-          node.setIri(Namespace.IM + "Q_RegisteredGMS").setName("Registered with GP for GMS services on the reference date");
+    if (match.getIsCohort() != null) {
+        if (gmsPatients.contains(match.getIsCohort().getIri())) {
+          match.getIsCohort().setIri(Namespace.IM + "Q_RegisteredGMS").setName("Registered with GP for GMS services on the reference date");
         }
-      }
     }
-
   }
 
   private void convertFolders(EnquiryDocument eqd) throws EQDException {

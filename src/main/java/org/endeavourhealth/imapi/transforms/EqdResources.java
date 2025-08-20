@@ -124,7 +124,7 @@ public class EqdResources {
     if (eqGroup.getDefinition().getParentPopulationGuid() != null) {
       String parent = eqGroup.getDefinition().getParentPopulationGuid();
       Match match = new Match();
-      match.addInstanceOf((new Node()).setIri(this.namespace + parent).setMemberOf(true)).setName(this.reportNames.get(parent));
+      match.setIsCohort(iri(this.namespace + parent).setName(this.reportNames.get(parent)));
       return match;
     } else {
       List<EQDOCCriteria> groupCriteria = eqGroup.getDefinition().getCriteria();
@@ -197,7 +197,7 @@ public class EqdResources {
       searchId = EqdToIMQ.versionMap.get(searchId);
     }
     Match match = new Match();
-    match.addInstanceOf(new Node().setIri(namespace + searchId).setName(this.reportNames.get(search.getReportGuid())).setMemberOf(true));
+    match.setIsCohort(new TTIriRef().setIri(namespace + searchId).setName((String) this.reportNames.get(search.getReportGuid())));
     return match;
   }
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
 import lombok.Setter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +68,13 @@ public class Match extends IriLD implements BoolGroup<Match>, HasPaths {
   @Getter
   @Setter
   private boolean invalid;
+  @Getter
+  private TTIriRef isCohort;
+
+  public Match setIsCohort(TTIriRef isCohort) {
+    this.isCohort = isCohort;
+    return this;
+  }
 
   public Match setLibraryItem(String libraryItem) {
     this.libraryItem = libraryItem;

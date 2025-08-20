@@ -23,7 +23,7 @@ public class EqdListToIMQ {
     query.setTypeOf(new Node().setIri(Namespace.IM + "Patient"));
     String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
     if (EqdToIMQ.versionMap.containsKey(id)) id = EqdToIMQ.versionMap.get(id);
-    query.addInstanceOf(new Node().setIri(resources.getNamespace() + id).setMemberOf(true)
+    query.setIsCohort(iri(resources.getNamespace() + id)
       .setName(resources.reportNames.get(id)));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
       EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();

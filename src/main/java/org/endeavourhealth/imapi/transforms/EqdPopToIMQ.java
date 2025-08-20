@@ -7,8 +7,8 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.VocPopulationParentType;
 import org.endeavourhealth.imapi.transforms.eqd.VocRuleAction;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
-
 import java.io.IOException;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 
 public class EqdPopToIMQ {
@@ -26,10 +26,8 @@ public class EqdPopToIMQ {
         .setIfTrue(RuleAction.NEXT)
         .setIfFalse(RuleAction.REJECT)
         .setBaseRule(true)
-        .addInstanceOf(
-          new Node().setIri(Namespace.IM + "Q_RegisteredGMS")
-            .setName("Registered with GP for GMS services on the reference date")
-            .setMemberOf(true)));
+        .setIsCohort(iri(Namespace.IM + "Q_RegisteredGMS")
+            .setName("Registered with GP for GMS services on the reference date")));
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()) {
         EqdToIMQ.gmsPatients.add(activeReport);
         EqdToIMQ.gmsPatients.add(resources.getNamespace() + activeReport);
@@ -43,18 +41,15 @@ public class EqdPopToIMQ {
           .setIfTrue(RuleAction.NEXT)
           .setIfFalse(RuleAction.REJECT)
           .setBaseRule(true)
-          .addInstanceOf(
-            new Node().setIri(Namespace.IM + "Q_RegisteredGMS")
-              .setName("Registered with GP for GMS services on the reference date")
-              .setMemberOf(true)));
+          .setIsCohort(iri(Namespace.IM + "Q_RegisteredGMS")
+            .setName("Registered with GP for GMS services on the reference date")));
       } else {
         query.addRule(new Match()
           .setIfTrue(RuleAction.NEXT)
           .setIfFalse(RuleAction.REJECT)
           .setBaseRule(true)
-          .addInstanceOf(new Node().setIri(resources.getNamespace() + id)
-            .setName(resources.reportNames.get(id))
-            .setMemberOf(true)));
+          .setIsCohort(iri(resources.getNamespace() + id)
+            .setName(resources.reportNames.get(id))));
       }
     }
     resources.setRule(0);

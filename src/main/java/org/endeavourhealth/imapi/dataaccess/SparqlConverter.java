@@ -5,7 +5,6 @@ import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -71,8 +70,8 @@ public class SparqlConverter {
         if (argument.getValueIriList().isEmpty())
           throw new QueryException("Argument parameter " + value + " valueIriList cannot be empty");
         return argument.getValueIriList().stream().map(iri -> "<" + iri.getIri() + ">").collect(Collectors.joining(" "));
-      } else if (null != argument.getValueVariable()) {
-        return argument.getValueVariable();
+      } else if (null != argument.getValueParameter()) {
+        return argument.getValueParameter();
       } else if (null != argument.getValueDataList()) {
         if (argument.getValueDataList().isEmpty())
           throw new QueryException("Argument parameter " + value + " valueDataList cannot be empty");

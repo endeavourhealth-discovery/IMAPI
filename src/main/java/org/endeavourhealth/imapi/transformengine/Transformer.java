@@ -205,11 +205,11 @@ public class Transformer {
         parameter = String.valueOf(argIndex);
       if (argument.getValueData() != null)
         result.put(parameter, argument.getValueData());
-      else if (argument.getValueVariable() != null) {
-        Object variableValue = varToObject.get(argument.getValueVariable());
+      else if (argument.getValueParameter() != null) {
+        Object variableValue = varToObject.get(argument.getValueParameter());
         if (variableValue == null)
-          throw new IllegalArgumentException("argument : " + parameter + ",  variable: " + argument.getValueVariable() + "  in function has not been defined");
-        result.put(parameter, varToObject.get(argument.getValueVariable()));
+          throw new IllegalArgumentException("argument : " + parameter + ",  variable: " + argument.getValueParameter() + "  in function has not been defined");
+        result.put(parameter, varToObject.get(argument.getValueParameter()));
       }
 
     }

@@ -55,7 +55,7 @@ public class ClauseUtils {
       argument.setValuePath(new Path().setIri(relativeTo.getIri()));
 
     else if (relativeTo.getParameter() != null)
-      argument.setParameter("relativeTo").setValueVariable(relativeTo.getParameter());
+      argument.setParameter("relativeTo").setValueParameter(relativeTo.getParameter());
     return argument;
   }
 
@@ -73,9 +73,9 @@ public class ClauseUtils {
   private static Argument buildValueArgument(RelativeTo relativeTo) {
     Argument arg = new Argument().setParameter("secondValue");
     if (relativeTo.getNodeRef() != null) {
-      arg.setValueVariable(relativeTo.getNodeRef());
+      arg.setValueParameter(relativeTo.getNodeRef());
     } else if (relativeTo.getParameter() != null) {
-      arg.setValueVariable(relativeTo.getParameter());
+      arg.setValueParameter(relativeTo.getParameter());
     } else if (relativeTo.getIri() != null) {
       Path path = new Path().setIri(relativeTo.getIri());
       if (relativeTo.getNodeRef() != null) {

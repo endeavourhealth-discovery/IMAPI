@@ -14,7 +14,7 @@ public class Argument {
 
   private String parameter;
   private String valueData;
-  private String valueVariable;
+  private String valueParameter;
   private TTIriRef valueIri;
   @Getter
   private Set<TTIriRef> valueIriList;
@@ -80,12 +80,12 @@ public class Argument {
     return this;
   }
 
-  public String getValueVariable() {
-    return valueVariable;
+  public String getValueParameter() {
+    return valueParameter;
   }
 
-  public Argument setValueVariable(String valueVariable) {
-    this.valueVariable = valueVariable;
+  public Argument setValueParameter(String valueParameter) {
+    this.valueParameter = valueParameter;
     return this;
   }
 
@@ -109,7 +109,7 @@ public class Argument {
 
   @Override
   public int hashCode() {
-    return Objects.hash(parameter, valueData, valueVariable, valueIri != null ? valueIri.getIri() : null, valueIriList, valueDataList, valuePath);
+    return Objects.hash(parameter, valueData, valueParameter, valueIri != null ? valueIri.getIri() : null, valueIriList, valueDataList, valuePath);
   }
 
 }

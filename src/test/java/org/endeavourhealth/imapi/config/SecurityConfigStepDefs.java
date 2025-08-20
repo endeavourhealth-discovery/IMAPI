@@ -21,12 +21,11 @@ import static org.mockito.Mockito.when;
 public class SecurityConfigStepDefs {
   AutoCloseable mocks;
 
+  final SecurityConfig securityConfig = new SecurityConfig();
+  final List<String> permittedEndpoints = new ArrayList<>();
+
   @Mock AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry reqMatcher;
   @Mock AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorisedUrl;
-
-  SecurityConfig securityConfig = new SecurityConfig();
-
-  List<String> permittedEndpoints = new ArrayList<>();
 
   @Before
   public void initMocks() {

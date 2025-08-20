@@ -76,7 +76,7 @@ public class SetController {
     @RequestParam(name = "entailments", required = false) Boolean entailments,
     @RequestParam(name = "page", required = false) Integer page,
     @RequestParam(name = "size", required = false) Integer size
-  ) throws IOException {
+  ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.EntailedMembers.GET")) {
       log.debug("getEntailedMembers");
       if (page == null && size == null) {
@@ -92,7 +92,7 @@ public class SetController {
   public HttpEntity<Object> exportSet(
     HttpServletRequest request,
     @RequestParam(name = "iri") String iri
-  ) throws DownloadException, IOException {
+  ) throws DownloadException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Export.GET")) {
       log.debug("exportSet");
       TTIriRef entity = entityService.getEntityReference(iri);
@@ -113,7 +113,7 @@ public class SetController {
 
   @GetMapping("/public/subsets")
   @Operation(summary = "Get subsets of entity", description = "Fetches all subsets for the given IRI.")
-  public Set<TTIriRef> getSubsets(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws IOException {
+  public Set<TTIriRef> getSubsets(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Subsets.GET")) {
       log.debug("getSubsets");
       return setService.getSubsets(iri);
@@ -122,7 +122,7 @@ public class SetController {
 
   @PostMapping(value = "public/distillation")
   @Operation(summary = "Get semantic distillation", description = "Performs a semantic distillation process for the given list of concepts.")
-  public List<TTIriRef> getDistillation(HttpServletRequest request, @RequestBody SetDistillationRequest setDistillationRequest) throws IOException {
+  public List<TTIriRef> getDistillation(HttpServletRequest request, @RequestBody SetDistillationRequest setDistillationRequest) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Distillation.POST")) {
       log.debug("getDistillation");
       return setService.getDistillation(setDistillationRequest.getConceptList());
@@ -137,7 +137,7 @@ public class SetController {
   public HttpEntity<Object> getSetExport(
     HttpServletRequest request,
     @RequestBody SetExportRequest setExportRequest
-  ) throws DownloadException, IOException {
+  ) throws DownloadException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SetExport.GET")) {
       log.debug("getSetExport");
       if (setExportRequest.getOptions().getSubsumptions() == null || setExportRequest.getOptions().getSubsumptions().isEmpty()) {

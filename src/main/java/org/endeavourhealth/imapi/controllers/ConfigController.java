@@ -46,7 +46,7 @@ public class ConfigController {
 
   @GetMapping(value = "public/graphs")
   @Operation(summary = "Get the list of available graphs")
-  public List<Graph> getGraphs() throws Exception {
+  public List<Graph> getGraphs() {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.Monitoring.GET")) {
       log.debug("getGraphs");
       List<Graph> graphs = new ArrayList<>(EnumSet.allOf(Graph.class));

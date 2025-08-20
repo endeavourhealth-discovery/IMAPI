@@ -42,9 +42,9 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   private static Integer filingProgress = null;
   private final IMDB conn;
   private final Graph insertGraph;
-  protected TTEntityFiler conceptFiler;
-  protected TTEntityFiler instanceFiler;
-  protected Map<String, String> prefixMap = new HashMap<>();
+  protected final TTEntityFiler conceptFiler;
+  protected final TTEntityFiler instanceFiler;
+  protected final Map<String, String> prefixMap = new HashMap<>();
   private Set<String> entitiesFiled;
   private String logPath;
   private Map<String, Set<String>> isAs;
@@ -296,7 +296,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
   }
 
-  public void updateTct(TTDocument document) throws TTFilerException {
+  public void updateTct(TTDocument document) {
     isAs = new HashMap<>();
     done = new HashSet<>();
     manager = new TTManager();
@@ -316,7 +316,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     conceptFiler.fileIsAs(isAs);
   }
 
-  private void setExternalIsas(Set<TTEntity> toClose) throws TTFilerException {
+  private void setExternalIsas(Set<TTEntity> toClose) {
     for (TTEntity entity : toClose) {
       for (String iriRef : asArrayList(RDFS.SUBCLASS_OF, IM.LOCAL_SUBCLASS_OF)) {
         String subclass = entity.getIri();

@@ -238,9 +238,8 @@ public class EqdResources {
         standardMatch.setThen(testMatch);
       }
     }
-    if (baseMatch!=null){
-      if (standardMatch!=null) baseMatch.setThen(standardMatch);
-    }
+    if (baseMatch!=null && standardMatch!=null) baseMatch.setThen(standardMatch);
+
     if (hasLinked) {
       counter++;
       String as="Match_"+counter;

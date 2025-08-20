@@ -68,7 +68,7 @@ public class ProvActivity extends Entry {
   }
 
   public List<TTIriRef> getAgent() {
-    return TTUtil.getList(this, iri(IM.PROVENANCE_AGENT), TTIriRef.class);
+    return TTUtil.getIriList(this, IM.PROVENANCE_AGENT.asIri());
   }
 
   public ProvActivity setAgent(TTArray agent) {
@@ -82,7 +82,7 @@ public class ProvActivity extends Entry {
   }
 
   public List<TTIriRef> getUsed() {
-    return TTUtil.getList(this, iri(IM.PROVENANCE_USED), TTIriRef.class);
+    return TTUtil.getIriList(this, IM.PROVENANCE_USED.asIri());
   }
 
   public ProvActivity setUsed(TTArray used) {

@@ -21,7 +21,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class ProvService {
 
-  ProvRepository provRepository = new ProvRepository();
+  final ProvRepository provRepository = new ProvRepository();
 
   public ProvAgent buildProvenanceAgent(TTEntity targetEntity, String agentName) {
     String root;

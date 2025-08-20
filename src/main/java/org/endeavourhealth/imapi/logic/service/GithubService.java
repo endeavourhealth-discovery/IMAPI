@@ -29,7 +29,7 @@ import java.util.List;
 @Slf4j
 @Component
 public class GithubService {
-  ConfigManager configManager = new ConfigManager();
+  final ConfigManager configManager = new ConfigManager();
 
   public GithubRelease getGithubLatestRelease() throws ConfigException, JsonProcessingException {
     GithubRelease config = configManager.getConfig(CONFIG.IMDIRECTORY_LATEST_RELEASE, new TypeReference<>() {

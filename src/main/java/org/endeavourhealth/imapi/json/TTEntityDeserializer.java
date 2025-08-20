@@ -18,7 +18,7 @@ import java.util.Map;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TTEntityDeserializer extends StdDeserializer<TTEntity> {
-  protected TTContext context = new TTContext();
+  protected final TTContext context = new TTContext();
   protected transient TTNodeDeserializer helper;
 
   public TTEntityDeserializer() {

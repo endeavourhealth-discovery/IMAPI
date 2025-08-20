@@ -18,8 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EntityValidatorTest {
-  EntityValidator entityValidator = new EntityValidator();
-  EntityService entityService = new EntityService();
+  final EntityValidator entityValidator = new EntityValidator();
+  final EntityService entityService = new EntityService();
 
   @Nested
   class hasValidParents {

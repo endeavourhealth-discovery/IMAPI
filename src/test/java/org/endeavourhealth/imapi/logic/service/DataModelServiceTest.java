@@ -6,7 +6,6 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -15,8 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
 public class DataModelServiceTest {
-  @InjectMocks
-  DataModelService dataModelService = new DataModelService();
+  final DataModelService dataModelService = new DataModelService();
 
   @Test
   void getDataModelProperties_NullEntity() {

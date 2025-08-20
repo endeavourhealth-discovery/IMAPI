@@ -30,7 +30,7 @@ class TTLiteralTest {
     .add("  \"http://endhealth.info/im#Query\" : \"{\\\"term\\\":\\\"Mickey Mouse\\\",\\\"code\\\":\\\"EM-EYE-CEE\\\",\\\"status\\\":{\\\"name\\\":\\\"Active\\\",\\\"iri\\\":\\\"http://endhealth.info/im#Active\\\"}}\"")
     .add("}")
     .toString();
-  EntityService entityService = new EntityService();
+  final EntityService entityService = new EntityService();
 
   TTLiteralTest() throws JsonProcessingException {
   }

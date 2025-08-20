@@ -31,10 +31,6 @@ class TTToStringTest {
     return List.of("http://www.w3.org/2001/XMLSchema#string");
   }
 
-  public TTIriRef getTestIri() {
-    return iri("http://snomed.info/sct#370135005", "Pathological process (attribute)");
-  }
-
   public TTArray getTestArray() {
     return new TTArray()
       .add(iri("http://snomed.info/sct#128084001", "Duane's syndrome, type 3 (disorder)"))

@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ExtendWith(MockitoExtension.class)
 public class QueryServiceTest {
 
-  EntityService entityService = new EntityService();
-  QueryService queryService = new QueryService();
+  final EntityService entityService = new EntityService();
+  final QueryService queryService = new QueryService();
 
   //  @Test
   void testCohortQueriesToSQL() {

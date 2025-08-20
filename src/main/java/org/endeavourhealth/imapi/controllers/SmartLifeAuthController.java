@@ -23,7 +23,7 @@ import java.util.Map;
 @Slf4j
 public class SmartLifeAuthController {
 
-  SmartLifeAuthService smartLifeAuthService = new SmartLifeAuthService();
+  final SmartLifeAuthService smartLifeAuthService = new SmartLifeAuthService();
 
   @PostMapping(value = "oauth/token", consumes = "application/x-www-form-urlencoded", produces = "application/json")
   @Operation(
@@ -43,7 +43,7 @@ public class SmartLifeAuthController {
     summary = "TODO",
     description = "TODO"
   )
-  public void revokeCredentials(@RequestParam Map<String, String> request) throws IOException {
+  public void revokeCredentials(@RequestParam Map<String, String> request) {
     try (MetricsTimer t = MetricsHelper.recordTime("Oauth.Revoke.POST")) {
       log.debug("revokeCredentials");
       smartLifeAuthService.revokeToken(request);

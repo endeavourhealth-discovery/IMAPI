@@ -519,7 +519,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Boolean asBoolean && Boolean.TRUE.equals(asBoolean)) {
+        if (result instanceof Boolean asBoolean && asBoolean) {
           reverseFlag = true;
         }
         if (result instanceof Match asMatch) {

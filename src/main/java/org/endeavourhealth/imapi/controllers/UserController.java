@@ -230,7 +230,7 @@ public class UserController {
   }
 
   @PostMapping(value = "/valid")
-  public void isValidUser() throws IOException {
+  public void isValidUser() {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Valid.GET")) {
       log.debug("isValidUser");
     }

@@ -9,7 +9,7 @@ import java.util.*;
 
 public class LogicOptimizer {
   Set<String> commonMatches;
-  ObjectMapper mapper = new ObjectMapper();
+  final ObjectMapper mapper = new ObjectMapper();
 
   public static void flattenQuery(Query query) {
     flattenMatch(query);

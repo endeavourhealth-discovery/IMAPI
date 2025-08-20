@@ -5,7 +5,6 @@ import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -44,31 +43,15 @@ public class TTUtil {
 
   }
 
-  public static <T> List<T> getList(TTNode node, TTIriRef predicate, Class clazz) {
+  public static List<TTIriRef> getIriList(TTNode node, TTIriRef predicate) {
     if (node.get(predicate) == null)
       return null;
-    List<T> result = new ArrayList<>();
+    List<TTIriRef> result = new ArrayList<>();
     for (TTValue v : node.get(predicate).getElements()) {
       if (v.isIriRef())
-        result.add((T) v);
-      else if (v.isLiteral())
-        result.add((T) v.asLiteral());
-      else {
-        result.add((T) clazz.cast(v.asNode()));
-      }
+        result.add(v.asIriRef());
     }
     return result;
-  }
-
-  public static <T> List<T> getOrderedList(TTNode node, TTIriRef predicate, Class clazz) {
-    List<T> result = getList(node, predicate, clazz);
-    try {
-      assert result != null;
-      result.sort(Comparator.comparing(o -> ((TTNode) o).get(iri(SHACL.ORDER)).asLiteral().intValue()));
-      return result;
-    } catch (Exception e) {
-      return result;
-    }
   }
 
   public static TTContext getDefaultContext() {

@@ -84,7 +84,7 @@ public class SmartLifeQueryController {
   public Set<String> getSmartLifeQueryResults(
     HttpServletRequest request,
     @PathVariable String queryExecutionId
-  ) throws IOException, SQLException {
+  ) throws SQLException {
     try (MetricsTimer t = MetricsHelper.recordTime("Query.GetSmartLifeQueryResults.POST")) {
       log.debug("getSmartLifeQueryResults");
       return smartLifeQueryService.getQueryResults(UUID.fromString(queryExecutionId));

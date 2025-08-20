@@ -44,7 +44,7 @@ public class WorkflowController {
   @Operation(summary = "Get Bug Report", description = "Fetch a bug report using its unique ID.")
   @GetMapping(value = "/getBugReport", produces = "application/json")
   @PreAuthorize("hasAuthority('ADMIN')")
-  public BugReport getBugReport(@RequestParam(name = "id") String id) throws UserNotFoundException, IOException {
+  public BugReport getBugReport(@RequestParam(name = "id") String id) throws UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.bugReport.GET")) {
       log.debug("getBugReport");
       return workflowService.getBugReport(id);
@@ -99,7 +99,7 @@ public class WorkflowController {
 
   @Operation(summary = "Get a Task", description = "Fetch a task using its unique ID.")
   @GetMapping(value = "/getTask", produces = "application/json")
-  public Task getTask(@RequestParam(name = "id") String id) throws UserNotFoundException, IOException {
+  public Task getTask(@RequestParam(name = "id") String id) throws UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workfflow.task.GET")) {
       log.debug("getTask");
       return workflowService.getTask(id);
@@ -108,7 +108,7 @@ public class WorkflowController {
 
   @Operation(summary = "Delete a Task", description = "Delete a task by its unique ID.")
   @DeleteMapping(value = "/deleteTask")
-  public void deleteTask(@RequestParam(name = "id") String id) throws TaskFilerException, IOException {
+  public void deleteTask(@RequestParam(name = "id") String id) throws TaskFilerException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.task.DELETE")) {
       workflowService.deleteTask(id);
     }
@@ -127,7 +127,7 @@ public class WorkflowController {
   @Operation(summary = "Get Role Request", description = "Retrieve a role request using its unique ID.")
   @GetMapping(value = "/roleRequest", produces = "application/json")
   @PreAuthorize("hasAuthority('ADMIN')")
-  public RoleRequest getRoleRequest(@RequestParam(name = "id") String id) throws UserNotFoundException, IOException {
+  public RoleRequest getRoleRequest(@RequestParam(name = "id") String id) throws UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.roleRequest.GET")) {
       log.debug("getRoleRequest");
       return workflowService.getRoleRequest(id);
@@ -176,7 +176,7 @@ public class WorkflowController {
   @Operation(summary = "Get Graph Request", description = "Retrieve a graph request using its unique ID.")
   @GetMapping(value = "/graphRequest", produces = "application/json")
   @PreAuthorize("hasAuthority('ADMIN')")
-  public GraphRequest getGraphRequest(@RequestParam(name = "id") String id) throws UserNotFoundException, IOException {
+  public GraphRequest getGraphRequest(@RequestParam(name = "id") String id) throws UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.graphRequest.GET")) {
       log.debug("getGraphRequest");
       return workflowService.getGraphRequest(id);
@@ -225,7 +225,7 @@ public class WorkflowController {
 
   @Operation(summary = "Get entity approval", description = "Get an approval request for an entity by id")
   @GetMapping(value = "/entityApproval")
-  public EntityApproval getEntityApproval(@RequestParam(name = "id") String id) throws UserNotFoundException, IOException {
+  public EntityApproval getEntityApproval(@RequestParam(name = "id") String id) throws UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.entityApproval.GET")) {
       log.debug("getEntityApproval");
       return workflowService.getEntityApproval(id);

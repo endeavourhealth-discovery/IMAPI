@@ -27,11 +27,11 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EqdToIMQ {
   private static final Logger log = LoggerFactory.getLogger(EqdToIMQ.class);
-  public static Set<String> gmsPatients = new HashSet<>();
-  public static Map<String, TTEntity> definitionToEntity = new HashMap<>();
-  public static Map<String, TTEntity> setIriToEntity = new HashMap<>();
-  public static Map<String, String> versionMap = new HashMap<>();
-  public static Integer setNumber;
+  protected static final Set<String> gmsPatients = new HashSet<>();
+  protected static final Map<String, TTEntity> definitionToEntity = new HashMap<>();
+  protected static final Map<String, TTEntity> setIriToEntity = new HashMap<>();
+  protected static final Map<String, String> versionMap = new HashMap<>();
+  private static Integer setNumber;
   @Setter
   @Getter
   private static Map<String, EQDOCCriterion> libraryItems;
@@ -43,8 +43,6 @@ public class EqdToIMQ {
   private EqdResources resources;
   private TTDocument document;
   private String singleEntity;
-
-
 
   public EqdToIMQ(boolean versionIndependent) {
     this.versionIndependent = versionIndependent;

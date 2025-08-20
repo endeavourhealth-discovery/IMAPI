@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FhirService {
-  SetService setService = new SetService();
-  EclService eclService = new EclService();
+  final SetService setService = new SetService();
+  final EclService eclService = new EclService();
 
   public String getFhirValueSet(String iri, boolean expanded) throws JsonProcessingException, QueryException {
     List<String> schemes = new ArrayList<>();

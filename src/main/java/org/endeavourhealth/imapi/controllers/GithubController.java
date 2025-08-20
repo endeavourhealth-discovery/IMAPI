@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 public class GithubController {
 
-  GithubService githubService = new GithubService();
+  final GithubService githubService = new GithubService();
 
   @Operation(summary = "Retrieve the latest GitHub release", description = "Gets the latest release information from the GitHub repository.")
   @GetMapping(value = "public/githubLatest")

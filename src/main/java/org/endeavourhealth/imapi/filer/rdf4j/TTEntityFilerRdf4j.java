@@ -35,7 +35,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   private final Update deleteTriples;
   private final BaseDB conn;
   private final Graph graph;
-  String blockers = "<http://snomed.info/sct#138875005>,<" + Namespace.IM + "Concept>";
+  private final String blockers = "<http://snomed.info/sct#138875005>,<" + Namespace.IM + "Concept>";
 
   public TTEntityFilerRdf4j(BaseDB conn, Map<String, String> prefixMap, Graph graph) {
     this.conn = conn;

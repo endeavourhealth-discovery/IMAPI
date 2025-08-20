@@ -19,7 +19,17 @@ public class Argument {
   @Getter
   private Set<TTIriRef> valueIriList;
   private Set<String> valueDataList;
-  private Object valueObject;
+  private Path valuePath;
+  private String valueNodeRef;
+
+  public String getValueNodeRef() {
+    return valueNodeRef;
+  }
+
+  public Argument setValueNodeRef(String valueNodeRef) {
+    this.valueNodeRef = valueNodeRef;
+    return this;
+  }
 
 
   public Argument setValueIriList(Set<TTIriRef> valueIriList) {
@@ -28,12 +38,12 @@ public class Argument {
   }
 
 
-  public Object getValueObject() {
-    return valueObject;
+  public Path getValuePath() {
+    return valuePath;
   }
 
-  public Argument setValueObject(Object valueObject) {
-    this.valueObject = valueObject;
+  public Argument setValuePath(Path valuePath) {
+    this.valuePath = valuePath;
     return this;
   }
 
@@ -99,7 +109,7 @@ public class Argument {
 
   @Override
   public int hashCode() {
-    return Objects.hash(parameter, valueData, valueVariable, valueIri != null ? valueIri.getIri() : null, valueIriList, valueDataList, valueObject);
+    return Objects.hash(parameter, valueData, valueVariable, valueIri != null ? valueIri.getIri() : null, valueIriList, valueDataList, valuePath);
   }
 
 }

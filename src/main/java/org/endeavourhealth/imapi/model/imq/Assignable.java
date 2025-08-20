@@ -22,14 +22,10 @@ public interface Assignable {
 
   Assignable setValueLabel(String label);
 
-  Assignable setArgument(List<Argument> arguments);
-  List<Argument> getArgument();
 
-  TTIriRef getUnit();
-  Assignable setUnit(TTIriRef units);
 
-  Assignable addArgument(Argument argument);
-  Assignable argument(Consumer<Argument> builder);
+  FunctionClause getFunction();
+  Assignable setFunction(FunctionClause function);
 
 
 

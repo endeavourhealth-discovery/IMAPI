@@ -77,8 +77,8 @@ public class SparqlConverter {
         if (argument.getValueDataList().isEmpty())
           throw new QueryException("Argument parameter " + value + " valueDataList cannot be empty");
         return String.join(",", argument.getValueDataList());
-      } else if (null != argument.getValueObject()) {
-        return argument.getValueObject().toString();
+      } else if (null != argument.getValuePath()) {
+        return argument.getValuePath().getIri();
       }
     }
     return null;

@@ -11,8 +11,8 @@ import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.queryengine.ClauseUtils;
 import org.endeavourhealth.imapi.transforms.eqd.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.slf4j.Logger;
@@ -605,7 +605,6 @@ public class EqdResources {
       if (!eqRelationship.getParentColumn().contains("DOB")) {
         throw new QueryException("Non date linked criteria not managed yet");
       }
-
       parentProperty = Namespace.IM + "dateOfBirth";
     }
 
@@ -617,32 +616,24 @@ public class EqdResources {
         Value from = new Value();
         range.setFrom(from);
         from.setOperator((Operator) this.vocabMap.get(eqRange.getRangeFrom().getOperator())).setValue(eqRange.getRangeFrom().getValue().getValue());
-        if (eqRange.getRangeFrom().getValue().getUnit() != null) {
-          this.setUnitsOrArgument(relationProperty, from,eqRange.getRangeFrom().getValue().getUnit().value());
-        }
+
 
         Value to = new Value();
         range.setTo(to);
         to.setOperator((Operator) this.vocabMap.get(eqRange.getRangeTo().getOperator())).setValue(eqRange.getRangeTo().getValue().getValue());
-        if (eqRange.getRangeTo().getValue().getUnit() != null) {
-          this.setUnitsOrArgument(relationProperty,to, eqRange.getRangeTo().getValue().getUnit().value());
-        }
+
       } else if (eqRelationship.getRangeValue().getRangeFrom() != null) {
         relationProperty.setOperator((Operator) this.vocabMap.get(eqRange.getRangeFrom().getOperator())).setValue(eqRange.getRangeFrom().getValue().getValue());
-        if (eqRange.getRangeFrom().getValue().getUnit() != null) {
-          this.setUnitsOrArgument(relationProperty,relationProperty, eqRange.getRangeFrom().getValue().getUnit().value());
-        }
+
       } else {
         relationProperty.setOperator((Operator) this.vocabMap.get(eqRange.getRangeTo().getOperator())).setValue(eqRange.getRangeTo().getValue().getValue());
-        if (eqRange.getRangeTo().getValue().getUnit() != null) {
-          this.setUnitsOrArgument(relationProperty, relationProperty,eqRange.getRangeTo().getValue().getUnit().value());
-        }
       }
     } else {
       relationProperty.setOperator(Operator.eq);
     }
 
     relationProperty.setRelativeTo((new RelativeTo()).setNodeRef(nodeRef).setIri(parentProperty));
+    ClauseUtils.assignFunction(relationProperty);
     if (match.getDescription()!=null){
       match.setDescription(match.getDescription()+" (where "+getRelationship(eqRelationship)+")");
     }
@@ -718,10 +709,12 @@ public class EqdResources {
       }
     }
 
-    if (rv.getRelativeTo() != null && rv.getRelativeTo().equals("BASELINE")) {
-      pv.setRelativeTo((new RelativeTo()).setParameter("$achievementDate"));
+    if (rv.getRelativeTo() != null){
+      if (rv.getRelativeTo().equals("BASELINE"))
+        pv.setRelativeTo((new RelativeTo()).setParameter("$achievementDate"));
+      else throw new EQDException("unknown relativeTo value : " + rv.getRelativeTo());
     }
-
+    ClauseUtils.assignFunction(pv);
   }
 
   private void setFiscalYear(Where where, EQDOCRangeTo rTo) throws EQDException {
@@ -766,31 +759,20 @@ public class EqdResources {
 
 
   private void setCompare(Where where, Assignable pv, Operator comp, String value, String units, VocRelation relation,String relativeTo) throws EQDException {
-    if (where.getIri().contains("age")) {
-      Argument argument = new Argument();
-      where.addArgument(argument);
-      argument.setParameter("relativeTo");
-      if (relation == VocRelation.RELATIVE) {
-        if (relativeTo!=null)
-          argument.setValueVariable(relativeTo.equals("BASELINE") ? "$achievementDate" : "$searchDate");
-        else argument.setValueVariable("$searchDate");
-      }
-    } else if (relation == VocRelation.RELATIVE) {
-      if (relativeTo!=null)
-        where.setRelativeTo((new RelativeTo()).setParameter(relativeTo.equals("BASELINE") ? "$achievementDate" : "$searchDate"));
-      else where.setRelativeTo((new RelativeTo()).setParameter("$searchDate"));
-    }
 
+    if (relation == VocRelation.RELATIVE &&relativeTo!=null)
+        where.setRelativeTo((new RelativeTo()).setParameter(relativeTo.equals("BASELINE") ? "$achievementDate" : "$searchDate"));
     pv.setOperator(comp);
     pv.setValue(value);
     if (units != null) {
-      this.setUnitsOrArgument(where,pv, units);
+      where.setUnits(getIMUnits(units));
     }
 
   }
 
-  private void setUnitsOrArgument(Where where,Assignable assignable, String units) throws EQDException {
-    boolean isAge= where.getIri().contains("age");
+
+
+  private TTIriRef getIMUnits(String units) throws EQDException {
     TTIriRef imUnits=null;
     switch (units) {
       case "YEAR" :imUnits=iri(IM.YEARS);break;
@@ -799,12 +781,10 @@ public class EqdResources {
       case "DATE" :break;
       default :throw new EQDException("unknown unit map: " + units);
     }
-    if (imUnits!=null){
-      if (isAge) assignable.addArgument(new Argument().setParameter("units").setValueIri(imUnits));
-      else where.setUnit(imUnits);
-    }
-
+    return imUnits;
   }
+
+
 
 
 

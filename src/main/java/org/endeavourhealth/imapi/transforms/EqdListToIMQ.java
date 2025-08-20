@@ -98,7 +98,7 @@ public class EqdListToIMQ {
       if (eqColGroup.getSummary() != null) {
         if (eqColGroup.getSummary() == VocListGroupSummary.COUNT) {
           aReturn.function(f -> f
-            .setName(Function.count));
+            .setName(IM.COUNT.toString()));
         } else if (eqColGroup.getSummary() == VocListGroupSummary.EXISTS) {
           aReturn
             .property(p -> p

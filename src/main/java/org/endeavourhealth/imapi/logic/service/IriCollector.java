@@ -141,11 +141,15 @@ public class IriCollector {
   }
 
   private static void collectAssignableIris(Assignable assignable, Set<String> iriSet) {
-    if (assignable.getArgument()!=null){
-      for (Argument argument : assignable.getArgument()){
-        if (argument.getValueIri()!=null) iriSet.add(argument.getValueIri().getIri());
-        if (argument.getValueIriList()!=null){
-          for (TTIriRef valueIri : argument.getValueIriList()) iriSet.add(valueIri.getIri());
+      if (assignable.getFunction()!=null){
+        FunctionClause functionClause = assignable.getFunction();
+        iriSet.add(functionClause.getIri());
+        if (functionClause.getArgument()!=null){
+        for (Argument argument : functionClause.getArgument()) {
+          if (argument.getValueIri() != null) iriSet.add(argument.getValueIri().getIri());
+          if (argument.getValueIriList() != null) {
+            for (TTIriRef valueIri : argument.getValueIriList()) iriSet.add(valueIri.getIri());
+          }
         }
       }
     }

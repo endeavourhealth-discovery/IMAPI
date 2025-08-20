@@ -428,15 +428,7 @@ public class QueryDescriptor {
     if (relativity != null) assignable.setValueLabel(assignable.getValueLabel() + relativity);
   }
 
-  public static TTIriRef getUnits(Assignable assignable) {
-    if (assignable.getArgument()!=null){
-      for (Argument arg : assignable.getArgument()){
-        if (arg.getParameter()!=null && arg.getParameter().toLowerCase().contains("units")) return arg.getValueIri();
-      }
-    }
-    if (assignable.getUnit() != null) return assignable.getUnit();
-    else return null;
-  }
+
 
 
   private void describeFrom(Where where, Value from) {
@@ -446,7 +438,6 @@ public class QueryDescriptor {
     Operator operator = from.getOperator();
     String value = from.getValue();
     boolean date = false;
-    TTIriRef units = getUnits(from);
     if (where.getIri() != null) {
       date = where.getIri().toLowerCase().contains("date");
     }
@@ -458,8 +449,8 @@ public class QueryDescriptor {
     if (value != null) {
       qualifier = qualifier + value.replace("-", "");
     }
-    if (units != null) {
-      qualifier = qualifier + " " + getTermInContext(units.getIri(), Context.LOWERCASE);
+    if (where.getUnits() != null) {
+      qualifier = qualifier + " " + getTermInContext(where.getUnits().getIri(), Context.LOWERCASE);
     }
     if (inclusive) {
       qualifier = qualifier + " (inc.)";
@@ -475,7 +466,6 @@ public class QueryDescriptor {
     boolean past = false;
     Operator operator = from.getOperator();
     String value = from.getValue();
-    TTIriRef units = getUnits(from);
     boolean date = false;
     if (where.getIri() != null) {
       date = where.getIri().toLowerCase().contains("date");
@@ -510,8 +500,8 @@ public class QueryDescriptor {
     if (value != null) {
       qualifier = qualifier + value.replace("-", "");
     }
-    if (units != null) {
-      qualifier = qualifier + " " + getTermInContext(units.getIri(), Context.LOWERCASE);
+    if (where.getUnits()!= null) {
+      qualifier = qualifier + " " + getTermInContext(where.getUnits().getIri(), Context.LOWERCASE);
     }
     if (inclusive) {
       qualifier = qualifier + " (inc.)";
@@ -534,7 +524,7 @@ public class QueryDescriptor {
     boolean date = false;
     if (where.getIri() != null) date = where.getIri().toLowerCase().contains("date");
     Operator operator = where.getOperator();
-    describeValue(where, operator, date, where.getValue(), getUnits(where), where.getRelativeTo() != null, false);
+    describeValue(where, operator, date, where.getValue(), where.getUnits(), where.getRelativeTo() != null, false);
     describeRelativeTo(where);
   }
 
@@ -566,9 +556,9 @@ public class QueryDescriptor {
       }
       if (relativeTo.getParameter() != null) {
         if (relativeTo.getParameter().toLowerCase().contains("searchdate")) {
-          relation = (relation != null ? relation : "") + "the search date";
+          relation = (relation != null ? relation : "") + "search date";
         } else if (relativeTo.getParameter().toLowerCase().contains("achievementdate")) {
-          relation = (relation != null ? relation : "") + "the achievement date";
+          relation = (relation != null ? relation : "") + "achievement date";
         } else relation = (relation != null ? relation : "") + relativeTo.getParameter();
       }
       return relation;

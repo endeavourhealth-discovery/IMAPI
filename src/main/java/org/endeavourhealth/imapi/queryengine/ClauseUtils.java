@@ -15,7 +15,7 @@ public class ClauseUtils {
         relativeTo = new RelativeTo().setParameter("$searchDate");
       }
       where.setFunction(buildFunction(
-        Namespace.IM + "AgeFunction",
+        Namespace.IM + "age",
         argPath("dateOfBirth", new Path().setIri(Namespace.IM + "dateOfBirth")),
         argRelativeTo(relativeTo),
         argUnits(units)

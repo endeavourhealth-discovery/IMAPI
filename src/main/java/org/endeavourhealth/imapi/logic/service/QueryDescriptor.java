@@ -181,6 +181,9 @@ public class QueryDescriptor {
     if (match.getInstanceOf() != null) {
       describeInstance(match.getInstanceOf());
     }
+    if (match.getIsCohort() != null) {
+      match.getIsCohort().setName(getTermInContext(match.getIsCohort().getIri(),Context.MATCH));
+    }
     if (match.getThen() != null) {
       describeMatch(match.getThen(), typeOf);
     }
@@ -279,6 +282,7 @@ public class QueryDescriptor {
       set.setQualifier(qualifier);
     }
   }
+
 
   private void describeOrderBy(OrderLimit orderBy) {
     String orderDisplay = "";
@@ -419,7 +423,7 @@ public class QueryDescriptor {
       if (!date || !value.equals("0")) {
         assignable.setValueLabel(value.replace("-", ""));
         if (unit != null) {
-          assignable.setValueLabel(assignable.getValueLabel() + " " + getTermInContext(unit.getIri(), Context.LOWERCASE));
+          assignable.setValueLabel(assignable.getValueLabel() + " " + getTermInContext(unit.getIri(), Context.PLURAL));
         }
       }
     }
@@ -449,7 +453,7 @@ public class QueryDescriptor {
       qualifier = qualifier + value.replace("-", "");
     }
     if (where.getUnits() != null) {
-      qualifier = qualifier + " " + getTermInContext(where.getUnits().getIri(), Context.LOWERCASE);
+      qualifier = qualifier + " " + getTermInContext(where.getUnits().getIri(), Context.PLURAL);
     }
     if (inclusive) {
       qualifier = qualifier + " (inc.)";
@@ -496,7 +500,7 @@ public class QueryDescriptor {
       qualifier = qualifier + value.replace("-", "");
     }
     if (where.getUnits()!= null) {
-      qualifier = qualifier + " " + getTermInContext(where.getUnits().getIri(), Context.LOWERCASE);
+      qualifier = qualifier + " " + getTermInContext(where.getUnits().getIri(), Context.PLURAL);
     }
     if (inclusive) {
       qualifier = qualifier + " (inc.)";

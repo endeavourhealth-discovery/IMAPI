@@ -56,6 +56,9 @@ public class IriCollector {
     if (match.getTypeOf() != null) {
       iriSet.add(match.getTypeOf().getIri());
     }
+    if (match.getIsCohort() != null) {
+      iriSet.add(match.getIsCohort().getIri());
+    }
     if (match.getPath() != null) {
       for (Path path : match.getPath()) {
         collectPathIris(path, iriSet);
@@ -127,6 +130,9 @@ public class IriCollector {
         iriSet.add(node.getIri());
     }
     collectAssignableIris(where, iriSet);
+    if (where.getUnits()!=null){
+      iriSet.add(where.getUnits().getIri());
+    }
     if (where.getRange() != null) {
       if (where.getRange().getFrom() != null) {
         collectAssignableIris(where.getRange().getFrom(), iriSet);

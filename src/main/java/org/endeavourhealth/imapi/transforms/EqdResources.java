@@ -480,6 +480,9 @@ public class EqdResources {
       }
     } else if (cv.getRangeValue() != null) {
       this.setRangeValue(cv.getRangeValue(), pv);
+      if (pv.getIri().toLowerCase().contains("age")||pv.getRelativeTo()!=null) {
+        ClauseUtils.assignFunction(pv);
+      }
     }
   }
 
@@ -855,7 +858,6 @@ public class EqdResources {
       relation = VocRelation.RELATIVE;
     }
 
-    this.setCompare(where, toValue, comp, value, units, relation,relativeTo);
   }
 
   private List<Node> getExceptionSet(EQDOCException set) throws IOException {

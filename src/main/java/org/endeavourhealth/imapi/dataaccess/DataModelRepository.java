@@ -356,10 +356,14 @@ public class DataModelRepository {
           optional {?path im:definingProperty ?definingProperty.}
           optional {?path im:definition ?propertyDefinition}
           optional {
-            ?path im:parameter ?parameter.
+            ?path sh:parameter ?parameter.
             ?parameter rdfs:label ?parameterName.
-            ?parameter sh:class ?parameterType.
-            ?parameterType rdfs:label ?parameterTypeName.
+            optional {?parameter sh:class ?parameterType.
+            ?parameterType rdfs:label ?parameterTypeName.}
+            optional {?parameter sh:datatype ?parameterType.
+            ?parameterType rdfs:label ?parameterTypeName.}
+            optional {?parameter sh:node ?parameterType.
+            ?parameterType rdfs:label ?parameterTypeName.}
             optional {
               ?parameterSubtype im:isA ?parameterType.
               ?parameterSubtype rdfs:label ?parameterSubtypeName

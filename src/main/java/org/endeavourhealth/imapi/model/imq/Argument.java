@@ -23,6 +23,7 @@ public class Argument {
   private Set<String> valueDataList;
   private Path valuePath;
   private String valueNodeRef;
+  private TTIriRef dataType;
 
   public String getValueNodeRef() {
     return valueNodeRef;
@@ -109,9 +110,18 @@ public class Argument {
     return this;
   }
 
+  public TTIriRef getDataType() {
+    return dataType;
+  }
+
+  public Argument setDataType(TTIriRef dataType) {
+    this.dataType = dataType;
+    return this;
+  }
+
   @Override
   public int hashCode() {
-    return Objects.hash(parameter, valueData, valueParameter, valueIri != null ? valueIri.getIri() : null, valueIriList, valueDataList, valuePath);
+    return Objects.hash(parameter, valueData, valueParameter, valueIri != null ? valueIri.getIri() : null, valueIriList, valueDataList, valuePath, dataType);
   }
 
 }

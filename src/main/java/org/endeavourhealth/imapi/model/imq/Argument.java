@@ -23,6 +23,7 @@ public class Argument {
   private Set<String> valueDataList;
   private Path valuePath;
   private String valueNodeRef;
+  private TTIriRef dataType;
 
   public String getValueNodeRef() {
     return valueNodeRef;
@@ -32,8 +33,6 @@ public class Argument {
     this.valueNodeRef = valueNodeRef;
     return this;
   }
-  private Object valueObject;
-  private TTIriRef dataType;
 
 
   public Argument setValueIriList(Set<TTIriRef> valueIriList) {

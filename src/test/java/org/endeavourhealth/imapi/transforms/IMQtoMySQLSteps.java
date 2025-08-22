@@ -37,7 +37,7 @@ public class IMQtoMySQLSteps {
   @When("I convert to MySQL")
   public void i_convert_to_MySQL() {
     try {
-      this.mysql = new IMQtoSQLConverter(queryRequest).IMQtoSQL().getSql();
+      this.mysql = new IMQtoSQLConverter(queryRequest).getSql();
     } catch (SQLConversionException e) {
       this.mysql = e.getMessage();
     }

@@ -28,7 +28,6 @@ public class QueryRequest implements ContextMap {
   private PathQuery pathQuery;
   private Update update;
   @Getter
-  @Setter
   private String queryStringDefinition;
   private String askIri;
   private List<Map<Long, String>> timings = new ArrayList<>();
@@ -229,14 +228,23 @@ public class QueryRequest implements ContextMap {
 
   @Override
   public int hashCode() {
-    return Objects.hash(queryStringDefinition, argument, cohort);
+    resolveArgs();
+    return Objects.hash(queryStringDefinition, argument);
+  }
+
+  public QueryRequest setQueryStringDefinition(String queryStringDefinition) {
+    this.queryStringDefinition = queryStringDefinition;
+    return this;
   }
 
   public void resolveArgs() {
     if (this.argument == null) this.argument = new HashSet<>();
-    boolean hasRefDate = this.argument.stream()
-      .anyMatch(arg -> "$searchDate".equals(arg.getParameter()));
-    if (!hasRefDate)
-      this.argument.add(new Argument().setParameter("$searchDate").setValueData(LocalDate.now().toString()));
+    List<String> defaultDates = List.of("$searchDate", "$achievementDate");
+    for (String date : defaultDates) {
+      boolean hasDate = this.argument.stream()
+        .anyMatch(arg -> date.equals(arg.getParameter()));
+      if (!hasDate)
+        this.argument.add(new Argument().setParameter(date).setValueData(LocalDate.now().toString()));
+    }
   }
 }

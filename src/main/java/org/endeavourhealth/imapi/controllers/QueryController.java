@@ -212,10 +212,11 @@ public class QueryController {
     summary = "Generate SQL",
     description = "Generates SQL from the provided IMQ query."
   )
-  public String getSQLFromIMQ(@RequestBody QueryRequest queryRequest) throws IOException, SQLConversionException {
+  public String getSQLFromIMQ(@RequestBody QueryRequest queryRequest) throws IOException, SQLConversionException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQ.POST")) {
       log.debug("getSQLFromIMQ");
-      return queryService.getSQLFromIMQ(queryRequest).getSql();
+      // TODO: should accept a variable for resolved or not
+      return queryService.getSQLFromIMQ(queryRequest);
     }
   }
 
@@ -231,7 +232,8 @@ public class QueryController {
   ) throws IOException, QueryException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getSQLFromIMQIri");
-      return queryService.getSQLFromIMQIri(queryIri, lang).getSql();
+      // TODO: should accept a variable for resolved or not
+      return queryService.getSQLFromIMQIri(queryIri, lang);
     }
   }
 

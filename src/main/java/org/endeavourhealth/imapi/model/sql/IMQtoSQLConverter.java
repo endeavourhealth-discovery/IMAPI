@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.model.sql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
@@ -31,13 +33,12 @@ public class IMQtoSQLConverter {
   private TableMap tableMap;
   private QueryRequest queryRequest;
   private final EntityRepository entityRepository = new EntityRepository();
-  private List<String> subqueryIris;
+  @Getter
+  private String sql;
 
-
-  public IMQtoSQLConverter(QueryRequest queryRequest) {
+  public IMQtoSQLConverter(QueryRequest queryRequest) throws SQLConversionException {
     this.queryRequest = queryRequest;
     if (null == queryRequest.getLanguage()) queryRequest.setLanguage(DatabaseOption.MYSQL);
-    this.subqueryIris = new ArrayList<>();
 
     try {
       String resourcePath = isPostgreSQL() ? "IMQtoSQL.json" : "IMQtoMYSQL.json";
@@ -47,13 +48,14 @@ public class IMQtoSQLConverter {
       log.error("Could not parse datamodel map!");
       throw new RuntimeException(e);
     }
+    IMQtoSQL();
   }
 
   private boolean isPostgreSQL() {
     return queryRequest.getLanguage().equals(DatabaseOption.POSTGRESQL);
   }
 
-  public SqlWithSubqueries IMQtoSQL() throws SQLConversionException {
+  public void IMQtoSQL() throws SQLConversionException {
     if (queryRequest.getQuery() == null) throw new SQLConversionException("Query is null");
     Query definition = queryRequest.getQuery();
     if (definition.getTypeOf() == null || definition.getTypeOf().getIri() == null) {
@@ -78,7 +80,7 @@ public class IMQtoSQLConverter {
         addBooleanMatchesToSQL(qry, definition);
         sql = new StringBuilder(qry.toSql(2));
       }
-      return new SqlWithSubqueries(replaceArgumentsWithValue(sql.toString()), subqueryIris);
+      this.sql = sql.toString();
     } catch (SQLConversionException e) {
       log.error("SQL Conversion Error: {}", e.getMessage());
       throw e;
@@ -206,22 +208,6 @@ public class IMQtoSQLConverter {
     return returnSelects;
   }
 
-  private String replaceArgumentsWithValue(String sql) {
-    if (queryRequest.getArgument() != null) for (Argument arg : queryRequest.getArgument()) {
-      String pattern = Pattern.quote(arg.getParameter());
-      if (arg.getValueData() != null)
-        sql = sql.replaceAll(pattern, "'" + arg.getValueData() + "'");
-      else if (arg.getValueIri() != null) {
-        iri(arg.getValueIri().getIri());
-        sql = sql.replaceAll(pattern, "'" + arg.getValueIri().getIri() + "'");
-      } else if (arg.getValueIriList() != null) {
-        Set<String> setOfIris = arg.getValueIriList().stream().map(TTIriRef::getIri).collect(Collectors.toSet());
-        sql = sql.replaceAll(pattern, getIriLine(setOfIris));
-      }
-    }
-    return sql;
-  }
-
   private String getIriLine(Set<String> stringIris) {
     StringJoiner iriLine = new StringJoiner(" ");
     for (String stringIri : stringIris) {
@@ -315,7 +301,6 @@ public class IMQtoSQLConverter {
     if (instanceOf.isEmpty())
       throw new SQLConversionException("SQL Conversion Error: MatchSet must have at least one element");
     String subQueryIri = instanceOf.getFirst().getIri();
-    subqueryIris.add(subQueryIri);
     String rsltTbl = "`query_[" + subQueryIri + "]`";
     qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.getAlias() + ".id");
     if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".id IS NULL");
@@ -493,12 +478,12 @@ public class IMQtoSQLConverter {
   }
 
   private String convertMatchPropertyDateRangeNode(String fieldName, Assignable range) throws SQLConversionException {
-      String returnString;
-      if (isPostgreSQL())
-        returnString = "($searchDate" + " - INTERVAL '" + range.getValue()  + "') " + range.getOperator().getValue() + " " + fieldName;
-      else
-        returnString = "DATE_SUB($searchDate" + ", INTERVAL " + range.getValue() + ") " + range.getOperator().getValue() + " " + fieldName;
-      return returnString;
+    String returnString;
+    if (isPostgreSQL())
+      returnString = "($searchDate" + " - INTERVAL '" + range.getValue() + "') " + range.getOperator().getValue() + " " + fieldName;
+    else
+      returnString = "DATE_SUB($searchDate" + ", INTERVAL " + range.getValue() + ") " + range.getOperator().getValue() + " " + fieldName;
+    return returnString;
   }
 
   private void convertMatchPropertyInSet(SQLQuery qry, Where property) throws SQLConversionException {
@@ -642,6 +627,29 @@ public class IMQtoSQLConverter {
       }
     }
     throw new IllegalArgumentException("Unrecognized date format: " + dateStr);
+  }
+
+  public String getResolvedSql(Map<String, Integer> queryIrisToHashCodes) {
+    String resolvedSql = this.sql;
+    if (queryRequest.getArgument() != null) for (Argument arg : queryRequest.getArgument()) {
+      String pattern = Pattern.quote(arg.getParameter());
+      if (arg.getValueData() != null)
+        resolvedSql = resolvedSql.replaceAll(pattern, "'" + arg.getValueData() + "'");
+      else if (arg.getValueIri() != null) {
+        iri(arg.getValueIri().getIri());
+        resolvedSql = resolvedSql.replaceAll(pattern, "'" + arg.getValueIri().getIri() + "'");
+      } else if (arg.getValueIriList() != null) {
+        Set<String> setOfIris = arg.getValueIriList().stream().map(TTIriRef::getIri).collect(Collectors.toSet());
+        resolvedSql = resolvedSql.replaceAll(pattern, getIriLine(setOfIris));
+      }
+    }
+
+    if (queryIrisToHashCodes != null && !queryIrisToHashCodes.isEmpty()) {
+      for (String iri : queryIrisToHashCodes.keySet()) {
+        resolvedSql = resolvedSql.replace("query_[" + iri + "]", String.valueOf(queryIrisToHashCodes.get(iri)));
+      }
+    }
+    return resolvedSql;
   }
 
 }

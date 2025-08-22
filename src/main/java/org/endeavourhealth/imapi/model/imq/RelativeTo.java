@@ -1,11 +1,17 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
+import lombok.Getter;
 
-public class RelativeTo extends Node {
+public class RelativeTo extends IriLD {
   private String valueVariable;
   private String propertyRef;
   private String targetLabel;
+  @Getter
+  private String nodeRef;
+  @Getter
+  private String parameter;
+
+
 
   public String getTargetLabel() {
     return targetLabel;
@@ -30,7 +36,7 @@ public class RelativeTo extends Node {
   }
 
   public RelativeTo setNodeRef(String nodeRef) {
-    super.setNodeRef(nodeRef);
+    this.nodeRef=nodeRef;
     return this;
   }
 
@@ -44,20 +50,11 @@ public class RelativeTo extends Node {
   }
 
 
-  public RelativeTo setInverse(boolean inverse) {
-    super.setInverse(inverse);
-    return this;
-  }
-
   public RelativeTo setParameter(String parameter) {
-    super.setParameter(parameter);
+    this.parameter= parameter;
     return this;
   }
 
 
-  public RelativeTo setVariable(String variable) {
-    super.setVariable(variable);
-    return this;
-  }
 
 }

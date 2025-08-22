@@ -11,7 +11,6 @@ import org.endeavourhealth.imapi.model.iml.ParameterShape;
 import org.endeavourhealth.imapi.model.iml.PropertyRange;
 import org.endeavourhealth.imapi.model.iml.PropertyShape;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
@@ -357,10 +356,14 @@ public class DataModelRepository {
           optional {?path im:definingProperty ?definingProperty.}
           optional {?path im:definition ?propertyDefinition}
           optional {
-            ?path im:parameter ?parameter.
+            ?path sh:parameter ?parameter.
             ?parameter rdfs:label ?parameterName.
-            ?parameter sh:class ?parameterType.
-            ?parameterType rdfs:label ?parameterTypeName.
+            optional {?parameter sh:class ?parameterType.
+            ?parameterType rdfs:label ?parameterTypeName.}
+            optional {?parameter sh:datatype ?parameterType.
+            ?parameterType rdfs:label ?parameterTypeName.}
+            optional {?parameter sh:node ?parameterType.
+            ?parameterType rdfs:label ?parameterTypeName.}
             optional {
               ?parameterSubtype im:isA ?parameterType.
               ?parameterSubtype rdfs:label ?parameterSubtypeName
@@ -469,7 +472,7 @@ public class DataModelRepository {
         IF(EXISTS {
           ?property sh:class ?valueC
         }, "class", "None"))) AS ?propertyType)
-        ?valueType ?intervalUnitIri ?unitsIri ?operatorIri ?qualifierIri ?qualifierName 
+        ?valueType ?intervalUnitIri ?unitsIri ?operatorIri ?qualifierIri ?qualifierName
         WHERE {
           ?dmIri sh:property ?property .
           ?property sh:path ?propIri .

@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
@@ -27,8 +26,18 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 @Component
 public class ConceptService {
 
-  private EntityRepository entityRepository = new EntityRepository();
-  private ConceptRepository conceptRepository = new ConceptRepository();
+  private final EntityRepository entityRepository;
+  private final ConceptRepository conceptRepository;
+
+  public ConceptService() {
+    entityRepository = new EntityRepository();
+    conceptRepository = new ConceptRepository();
+  }
+
+  ConceptService(EntityRepository entityRepository, ConceptRepository conceptRepository) {
+    this.entityRepository = entityRepository;
+    this.conceptRepository = conceptRepository;
+  }
 
   public List<SimpleMap> getMatchedFrom(String iri) {
     if (iri == null || iri.isEmpty()) return new ArrayList<>();

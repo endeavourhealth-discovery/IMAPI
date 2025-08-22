@@ -56,6 +56,9 @@ public class IriCollector {
     if (match.getTypeOf() != null) {
       iriSet.add(match.getTypeOf().getIri());
     }
+    if (match.getIsCohort() != null) {
+      iriSet.add(match.getIsCohort().getIri());
+    }
     if (match.getPath() != null) {
       for (Path path : match.getPath()) {
         collectPathIris(path, iriSet);
@@ -126,7 +129,10 @@ public class IriCollector {
       for (Node node : where.getIs())
         iriSet.add(node.getIri());
     }
-    collectAssignableIris((Assignable) where, iriSet);
+    collectAssignableIris(where, iriSet);
+    if (where.getUnits()!=null){
+      iriSet.add(where.getUnits().getIri());
+    }
     if (where.getRange() != null) {
       if (where.getRange().getFrom() != null) {
         collectAssignableIris(where.getRange().getFrom(), iriSet);
@@ -141,11 +147,15 @@ public class IriCollector {
   }
 
   private static void collectAssignableIris(Assignable assignable, Set<String> iriSet) {
-    if (assignable.getArgument()!=null){
-      for (Argument argument : assignable.getArgument()){
-        if (argument.getValueIri()!=null) iriSet.add(argument.getValueIri().getIri());
-        if (argument.getValueIriList()!=null){
-          for (TTIriRef valueIri : argument.getValueIriList()) iriSet.add(valueIri.getIri());
+      if (assignable.getFunction()!=null){
+        FunctionClause functionClause = assignable.getFunction();
+        iriSet.add(functionClause.getIri());
+        if (functionClause.getArgument()!=null){
+        for (Argument argument : functionClause.getArgument()) {
+          if (argument.getValueIri() != null) iriSet.add(argument.getValueIri().getIri());
+          if (argument.getValueIriList() != null) {
+            for (TTIriRef valueIri : argument.getValueIriList()) iriSet.add(valueIri.getIri());
+          }
         }
       }
     }

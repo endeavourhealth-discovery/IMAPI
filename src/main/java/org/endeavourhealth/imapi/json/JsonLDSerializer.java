@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -50,7 +51,7 @@ public class JsonLDSerializer extends StdSerializer<Object> {
       node = (ObjectNode) value;
     JsonNode context = node.get("context");
     if (context != null) {
-      Map<String, String> map = defaultMapper.convertValue(context, HashMap.class);
+      Map<String, String> map = defaultMapper.convertValue(context, new TypeReference<>() {});
       setPrefixIriMap(map);
     }
     gen.writeStartObject();
@@ -117,9 +118,11 @@ public class JsonLDSerializer extends StdSerializer<Object> {
       return prefixed;
     String prefix = prefixed.substring(0, colonPos);
     String namespace = prefixIriMap.get(prefix);
+
     if (namespace != null) {
       return namespace + prefixed.substring(colonPos + 1);
     }
+
     for (Map.Entry<String, String> iriPrefix : iriPrefixMap.entrySet()) {
       if (iriPrefix.getValue().equals(prefix)) {
         prefixIriMap.put(namespace, prefix);
@@ -128,5 +131,4 @@ public class JsonLDSerializer extends StdSerializer<Object> {
     }
     return prefixed;
   }
-
 }

@@ -2,12 +2,10 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.DataFormatException;
@@ -15,8 +13,8 @@ import java.util.zip.DataFormatException;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class SetToSparql {
-  private EntityRepository entityRepository = new EntityRepository();
-  private String tabs = "   ";
+  private final EntityRepository entityRepository = new EntityRepository();
+  private final String tabs = "   ";
 
 
   public String getExpansionSparql(String entityVar, String iri) throws DataFormatException {
@@ -63,7 +61,7 @@ public class SetToSparql {
       if (superClass.isIriRef())
         values.append(tabs).append(iri(superClass.asIriRef().getIri())).append(" ");
     }
-    if (!values.toString().equals("")) {
+    if (!values.toString().isEmpty()) {
       subQuery.append(tabs).append(tabs).append("?entity im:isA").append(" ?superClass.\n");
       values = new StringBuilder(tabs + "VALUES ?superClass {" + values + "}\n");
       subQuery.append(tabs).append(values);
@@ -76,7 +74,7 @@ public class SetToSparql {
         addUnion(complexClass.asNode(), subQuery);
       }
     }
-    subQuery.append(tabs + "}\n");
+    subQuery.append(tabs).append("}\n");
   }
 
 
@@ -150,7 +148,7 @@ public class SetToSparql {
       subQuery.append(tabs).append(pred).append(" im:isA ").append(iri(entry.getKey().getIri())).append(".\n");
       if (group) {
         subQuery.append(tabs).append("?roleGroup ").append(pred).append(" ").append(obj).append(".\n");
-        subQuery.append(tabs + " FILTER (isBlank(?roleGroup))");
+        subQuery.append(tabs).append(" FILTER (isBlank(?roleGroup))");
         subQuery.append(tabs).append("?superMember ").append(IM.ROLE_GROUP.asIri()).append(" ?roleGroup.\n");
       } else {
         subQuery.append(tabs).append("?superMember ").append(pred).append(" ").append(obj).append(".\n");

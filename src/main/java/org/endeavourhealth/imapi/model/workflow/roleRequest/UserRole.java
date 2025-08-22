@@ -8,5 +8,5 @@ public enum UserRole {
     EDITOR,
     TASK_MANAGER,
     AUTHORISER,
-    APPROVER;
+    APPROVER
 }

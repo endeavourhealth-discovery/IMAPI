@@ -15,7 +15,6 @@ import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +22,10 @@ import java.util.Set;
 import java.util.StringJoiner;
 
 public class ExcelSearchExporter {
-  private XSSFWorkbook workbook;
-  private CellStyle headerStyle;
-  private SearchService searchService = new SearchService();
-  private EclService eclService = new EclService();
+  private final XSSFWorkbook workbook;
+  private final CellStyle headerStyle;
+  private final SearchService searchService = new SearchService();
+  private final EclService eclService = new EclService();
 
   public ExcelSearchExporter() {
     workbook = new XSSFWorkbook();
@@ -128,7 +127,7 @@ public class ExcelSearchExporter {
     for (Object item : list) {
       addItemToJoiner(item, stringJoiner, list.size() > 1);
     }
-    if (list.size() > 1) return "[" + stringJoiner.toString() + "]";
+    if (list.size() > 1) return "[" + stringJoiner + "]";
     return stringJoiner.toString();
   }
 
@@ -137,7 +136,7 @@ public class ExcelSearchExporter {
     for (Object item : set) {
       addItemToJoiner(item, stringJoiner, set.size() > 1);
     }
-    if (set.size() > 1) return "[" + stringJoiner.toString() + "]";
+    if (set.size() > 1) return "[" + stringJoiner + "]";
     return stringJoiner.toString();
   }
 

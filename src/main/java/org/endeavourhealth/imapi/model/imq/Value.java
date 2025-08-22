@@ -1,18 +1,35 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.util.List;
 import java.util.function.Consumer;
 
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Value implements Assignable {
   private Operator operator;
   private String value;
   private String qualifier;
   private String valueLabel;
   private String valueParameter;
-  private List<Argument> argument;
-  private TTIriRef units;
+  private FunctionClause function;
+
+
+  @Override
+  public FunctionClause getFunction() {
+    return this.function;
+  }
+
+  @Override
+  public Value setFunction(FunctionClause function) {
+    this.function = function;
+    return this;
+  }
+  public Value function(Consumer<FunctionClause> builder) {
+    this.function = new FunctionClause();
+    builder.accept(this.function);
+    return this;
+  }
+
 
   public String getValueParameter() {
     return valueParameter;
@@ -60,6 +77,7 @@ public class Value implements Assignable {
     return this;
   }
 
+
   public Value setQualifier(String qualifier) {
     this.qualifier = qualifier;
     return this;
@@ -67,41 +85,8 @@ public class Value implements Assignable {
 
 
 
-  @Override
-  public Value setArgument(List<Argument> arguments) {
-    this.argument = arguments;
-    return this;
-  }
 
-  @Override
-  public List<Argument> getArgument() {
-    return this.argument;
-  }
 
-  @Override
-  public TTIriRef getUnit() {
-    return this.units;
-  }
-
-  @Override
-  public Value setUnit(TTIriRef units) {
-    this.units = units;
-    return this;
-  }
-
-  public Value addArgument(Argument argument) {
-    if (this.argument == null)
-      this.argument = new java.util.ArrayList<>();
-    this.argument.add(argument);
-    return this;
-  }
-
-  public Value argument(Consumer<Argument> builder) {
-    Argument argument = new Argument();
-    addArgument(argument);
-    builder.accept(argument);
-    return this;
-  }
 
 
 }

@@ -2,11 +2,7 @@ package org.endeavourhealth.imapi.model.github;
 
 import lombok.Getter;
 
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 public class GithubRelease {

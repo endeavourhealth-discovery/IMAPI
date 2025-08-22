@@ -5,9 +5,6 @@ import org.eclipse.rdf4j.query.GraphQuery;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper;
 import org.endeavourhealth.imapi.model.tripletree.TTEntityMap;
-import org.endeavourhealth.imapi.vocabulary.Graph;
-
-import java.util.List;
 
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.addSparqlPrefixes;
 

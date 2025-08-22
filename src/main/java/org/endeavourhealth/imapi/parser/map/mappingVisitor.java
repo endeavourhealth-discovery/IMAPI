@@ -92,7 +92,7 @@ public interface mappingVisitor<T> extends ParseTreeVisitor<T> {
   T visitTypeMode(mappingParser.TypeModeContext ctx);
 
   /**
-   * Visit a parse tree produced by {@link mappingParser#extends}.
+   * Visit a parse tree produced by {@link mappingParser#extends_}.
    *
    * @param ctx the parse tree
    * @return the visitor result
@@ -124,7 +124,7 @@ public interface mappingVisitor<T> extends ParseTreeVisitor<T> {
   T visitType(mappingParser.TypeContext ctx);
 
   /**
-   * Visit a parse tree produced by {@link mappingParser#rule}.
+   * Visit a parse tree produced by {@link mappingParser#rule_}.
    *
    * @param ctx the parse tree
    * @return the visitor result

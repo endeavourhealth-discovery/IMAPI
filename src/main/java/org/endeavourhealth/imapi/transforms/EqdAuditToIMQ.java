@@ -9,6 +9,8 @@ import org.endeavourhealth.imapi.transforms.eqd.VocStandardAuditReportType;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class EqdAuditToIMQ {
   public static final String POPULATION = "population_";
 
@@ -22,15 +24,15 @@ public class EqdAuditToIMQ {
       popQuery
         .and(f -> f
           .setVariable(POPULATION)
-          .addInstanceOf(new Node().setIri(resources.getNamespace()+ finalPopId).setMemberOf(true))
-          .setName(resources.reportNames.get(finalPopId)));
+          .setIsCohort(iri(resources.getNamespace()+ finalPopId)
+          .setName(resources.reportNames.get(finalPopId))));
       Return populationReturn = new Return();
       popQuery.setReturn(populationReturn);
       populationReturn.setNodeRef(POPULATION);
       if (eqReport.getAuditReport().getStandard() != null) {
         if (eqReport.getAuditReport().getStandard() == VocStandardAuditReportType.COUNTS) {
           populationReturn.function(f -> f
-            .setName(Function.count));
+            .setName(IM.COUNT.toString()));
         }
       }
       else  if (eqReport.getAuditReport().getCustomAggregate() != null) {

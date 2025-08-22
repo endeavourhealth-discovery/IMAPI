@@ -7,7 +7,10 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.IM_FUNCTION;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +49,7 @@ public class FunctionService {
     for (Argument arg : arguments) {
       if (null == arg.getParameter())
         throw new IllegalArgumentException(ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY);
-      if (ENTITY_IRI.equals(arg.getParameter())) iri = arg.getValueVariable();
+      if (ENTITY_IRI.equals(arg.getParameter())) iri = arg.getValueParameter();
       if ("fieldName".equals(arg.getParameter())) fieldName = arg.getValueData();
     }
     if (null == iri)
@@ -65,7 +68,7 @@ public class FunctionService {
     for (Argument arg : arguments) {
       if (null == arg.getParameter())
         throw new IllegalArgumentException(ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY);
-      if (ENTITY_IRI.equals(arg.getParameter())) iri = arg.getValueVariable();
+      if (ENTITY_IRI.equals(arg.getParameter())) iri = arg.getValueParameter();
     }
     if (null == iri)
       throw new IllegalArgumentException(NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY);

@@ -4,7 +4,6 @@ import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
@@ -18,8 +17,18 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Component
 public class GraphDtoService {
-  private EntityService entityService = new EntityService();
-  private DataModelService dataModelService = new DataModelService();
+  private final EntityService entityService;
+  private final DataModelService dataModelService;
+
+  public GraphDtoService() {
+    entityService = new EntityService();
+    dataModelService = new DataModelService();
+  }
+
+  GraphDtoService(EntityService entityService, DataModelService dataModelService) {
+    this.entityService = entityService;
+    this.dataModelService = dataModelService;
+  }
 
   public GraphDto getGraphData(String iri) {
     if (null == iri || iri.isEmpty()) return new GraphDto();

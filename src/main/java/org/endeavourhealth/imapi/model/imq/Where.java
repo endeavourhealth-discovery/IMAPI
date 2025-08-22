@@ -1,6 +1,9 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.VocabEnum;
@@ -32,7 +35,8 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   private boolean roleGroup;
   private RelativeTo relativeTo;
   private boolean isNotNull;
-  private TTIriRef unit;
+  @Getter
+  private TTIriRef units;
   private String valueVariable;
   @Getter
   private boolean inverse;
@@ -42,9 +46,7 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   private List<Where> and;
   @Getter
   private String shortLabel;
-  private List<Argument> argument;
-  private TTIriRef units;
-
+  private FunctionClause function;
 
   public Where setShortLabel(String shortLabel) {
     this.shortLabel = shortLabel;
@@ -331,43 +333,26 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   }
 
 
-  @Override
-  public Where setArgument(List<Argument> arguments) {
-    this.argument = arguments;
+  public Where setUnits(TTIriRef units) {
+    this.units = units;
     return this;
   }
 
   @Override
-  public List<Argument> getArgument() {
-    return this.argument;
+  public FunctionClause getFunction() {
+    return this.function;
   }
 
   @Override
-  public TTIriRef getUnit() {
-    return this.unit;
-  }
-
-  @Override
-  public Where setUnit(TTIriRef units) {
-    this.units= unit;
+  public Where setFunction(FunctionClause function) {
+    this.function = function;
     return this;
   }
-
-  public Where addArgument(Argument argument) {
-    if (this.argument == null) {
-      this.argument = new ArrayList<>();
-    }
-    this.argument.add(argument);
+  public Where function(Consumer<FunctionClause> builder) {
+    this.function = new FunctionClause();
+    builder.accept(this.function);
     return this;
   }
-
-  public Where argument(Consumer<Argument> builder) {
-    Argument argument = new Argument();
-    addArgument(argument);
-    builder.accept(argument);
-    return this;
-  }
-
 
 
 }

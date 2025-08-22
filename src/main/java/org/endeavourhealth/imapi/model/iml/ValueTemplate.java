@@ -4,7 +4,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class ValueTemplate extends Entity {
   private String parameter;

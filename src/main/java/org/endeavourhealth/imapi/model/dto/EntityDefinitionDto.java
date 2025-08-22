@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.model.dto;
 
-import java.util.List;
-
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.List;
 
 public class EntityDefinitionDto {
 

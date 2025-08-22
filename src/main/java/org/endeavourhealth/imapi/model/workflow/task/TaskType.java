@@ -6,7 +6,7 @@ public enum TaskType {
   GRAPH_REQUEST("graph request"),
   ENTITY_APPROVAL("entity approval");
 
-  private String text;
+  private final String text;
 
   TaskType(String text) {
     this.text = text;

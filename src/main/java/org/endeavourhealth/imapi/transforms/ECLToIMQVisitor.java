@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.parser.imecl.IMECLBaseVisitor;
 import org.endeavourhealth.imapi.parser.imecl.IMECLParser;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -520,7 +519,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Boolean asBoolean && Boolean.TRUE.equals(asBoolean)) {
+        if (result instanceof Boolean asBoolean && asBoolean) {
           reverseFlag = true;
         }
         if (result instanceof Match asMatch) {

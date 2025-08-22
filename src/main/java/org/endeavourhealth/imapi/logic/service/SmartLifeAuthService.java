@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class SmartLifeAuthService {
 
-  AWSCognitoClient awsCognitoClient = new AWSCognitoClient();
+  final AWSCognitoClient awsCognitoClient = new AWSCognitoClient();
 
   public HttpResponse<String> getCredentials(Map<String, String> request) throws IOException, InterruptedException {
     try (HttpClient client = HttpClient.newBuilder()

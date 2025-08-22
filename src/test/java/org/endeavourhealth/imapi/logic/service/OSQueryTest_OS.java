@@ -50,7 +50,7 @@ class OSQueryTest_OS {
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
-    SearchResultSummary result = results.getEntities().get(0);
+    SearchResultSummary result = results.getEntities().getFirst();
     assertEquals("http://snomed.info/sct#702450004", result.getIri());
   }
 
@@ -65,7 +65,7 @@ class OSQueryTest_OS {
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
-    SearchResultSummary result = results.getEntities().get(0);
+    SearchResultSummary result = results.getEntities().getFirst();
     assertEquals("http://snomed.info/sct#702450004", result.getIri());
   }
 
@@ -80,7 +80,7 @@ class OSQueryTest_OS {
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
-    SearchResultSummary result = results.getEntities().get(0);
+    SearchResultSummary result = results.getEntities().getFirst();
     assertEquals("http://snomed.info/sct#702450004", result.getIri());
   }
 
@@ -97,7 +97,7 @@ class OSQueryTest_OS {
 
     SearchResponse results = osq.openSearchQuery(req);
     assertEquals(1, results.getEntities().size());
-    SearchResultSummary result = results.getEntities().get(0);
+    SearchResultSummary result = results.getEntities().getFirst();
     assertEquals("http://snomed.info/sct#702450004", result.getIri());
   }
 

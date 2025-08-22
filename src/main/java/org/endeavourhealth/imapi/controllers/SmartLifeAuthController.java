@@ -6,7 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.SmartLifeAuthService;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
@@ -20,7 +23,7 @@ import java.util.Map;
 @Slf4j
 public class SmartLifeAuthController {
 
-  SmartLifeAuthService smartLifeAuthService = new SmartLifeAuthService();
+  final SmartLifeAuthService smartLifeAuthService = new SmartLifeAuthService();
 
   @PostMapping(value = "oauth/token", consumes = "application/x-www-form-urlencoded", produces = "application/json")
   @Operation(
@@ -40,7 +43,7 @@ public class SmartLifeAuthController {
     summary = "TODO",
     description = "TODO"
   )
-  public void revokeCredentials(@RequestParam Map<String, String> request) throws IOException {
+  public void revokeCredentials(@RequestParam Map<String, String> request) {
     try (MetricsTimer t = MetricsHelper.recordTime("Oauth.Revoke.POST")) {
       log.debug("revokeCredentials");
       smartLifeAuthService.revokeToken(request);

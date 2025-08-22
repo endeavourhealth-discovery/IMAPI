@@ -8,8 +8,6 @@ import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 
-import java.util.List;
-
 public class TTFilerFactory {
   private static boolean bulk = false;
   private static int privacyLevel = 0;

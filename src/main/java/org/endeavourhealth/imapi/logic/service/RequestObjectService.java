@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class RequestObjectService {
-  private UserRepository userRepository = new UserRepository();
+  private final UserRepository userRepository = new UserRepository();
 
   public String getRequestAgentName(HttpServletRequest request) throws JsonProcessingException {
     String token = request.getHeader("Authorization");

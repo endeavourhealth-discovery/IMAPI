@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.model.cdm;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.List;
@@ -69,7 +68,7 @@ public class ProvActivity extends Entry {
   }
 
   public List<TTIriRef> getAgent() {
-    return TTUtil.getList(this, iri(IM.PROVENANCE_AGENT), TTIriRef.class);
+    return TTUtil.getIriList(this, IM.PROVENANCE_AGENT.asIri());
   }
 
   public ProvActivity setAgent(TTArray agent) {
@@ -83,7 +82,7 @@ public class ProvActivity extends Entry {
   }
 
   public List<TTIriRef> getUsed() {
-    return TTUtil.getList(this, iri(IM.PROVENANCE_USED), TTIriRef.class);
+    return TTUtil.getIriList(this, IM.PROVENANCE_USED.asIri());
   }
 
   public ProvActivity setUsed(TTArray used) {

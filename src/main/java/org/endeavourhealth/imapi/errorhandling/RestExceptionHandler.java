@@ -155,6 +155,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     return buildResponseEntity(error);
   }
 
+  @ExceptionHandler(SQLConversionException.class)
+  protected ResponseEntity<Object> handleSQLConversionException(SQLConversionException ex) {
+    ApiError error = new ApiError(HttpStatus.FAILED_DEPENDENCY, ex.getMessage(), ex, ErrorCodes.SQL_CONVERSION_EXCEPTION);
+    return buildResponseEntity(error);
+  }
+
   private ResponseEntity<Object> buildResponseEntity(ApiError apiError) {
     return new ResponseEntity<>(apiError, apiError.getStatus());
   }

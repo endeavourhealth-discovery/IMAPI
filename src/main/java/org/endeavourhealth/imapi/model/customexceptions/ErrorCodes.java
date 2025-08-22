@@ -20,7 +20,7 @@ public enum ErrorCodes {
   CONFIG_EXCEPTION("ConfigException"),
   DOWNLOAD_EXCEPTION("DownloadException"),
   ILLEGAL_ARGUMENT_EXCEPTION("IllegalArgumentException"),
-
+  SQL_CONVERSION_EXCEPTION("SQLConversionException"),
   ECL_BUILDER_EXCEPTION("EclBuilderException");
 
   private final String code;

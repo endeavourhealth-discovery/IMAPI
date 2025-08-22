@@ -121,7 +121,7 @@ public class Argument {
 
   @Override
   public int hashCode() {
-    return Objects.hash(parameter, valueData, valueParameter, valueIri != null ? valueIri.getIri() : null, valueIriList, valueDataList, valuePath);
+    return Objects.hash(parameter, valueData, valueParameter, valueIri != null ? valueIri.getIri() : null, valueIriList, valueDataList, valuePath, dataType);
   }
 
 }

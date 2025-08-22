@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -148,7 +149,7 @@ public class QueryController {
     @RequestBody JsonNode body
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.GET");
-    CachedObjectMapper mapper = new CachedObjectMapper()) {
+         CachedObjectMapper mapper = new CachedObjectMapper()) {
       log.debug("getQueryDisplayFromQuery");
 
       DisplayMode displayMode = DisplayMode.valueOf(body.get("displayMode").asText());
@@ -207,12 +208,12 @@ public class QueryController {
   @PostMapping("/public/sql")
   @Operation(
     summary = "Generate SQL",
-    description = "Generates SQL from the provided IMQ query."
+    description = "Generates SQL from the provided IMQ query request."
   )
-  public String getSQLFromIMQ(@RequestBody QueryRequest queryRequest) throws SQLConversionException {
+  public String getSQLFromIMQR(@RequestBody QueryRequest queryRequest) throws SQLConversionException, QueryException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQ.POST")) {
-      log.debug("getSQLFromIMQ");
-      return queryService.getSQLFromIMQ(queryRequest).getSql();
+      log.debug("getSQLFromIMQR");
+      return queryService.getSQLFromIMQ(queryRequest);
     }
   }
 
@@ -228,7 +229,7 @@ public class QueryController {
   ) throws IOException, QueryException, SQLConversionException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getSQLFromIMQIri");
-      return queryService.getSQLFromIMQIri(queryIri, lang).getSql();
+      return queryService.getSQLFromIMQIri(queryIri, lang);
     }
   }
 
@@ -352,7 +353,7 @@ public class QueryController {
 
   @PostMapping("/testRunQuery")
   @Operation(summary = "Run a query with results limited results to test query")
-  public Set<String> testRunQuery(HttpServletRequest request, @RequestBody QueryRequest query) throws SQLException, SQLConversionException, QueryException {
+  public Set<String> testRunQuery(HttpServletRequest request, @RequestBody QueryRequest query) throws SQLException, SQLConversionException, QueryException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.TestRunQuery.POST")) {
       log.debug("testRunQuery");
       return queryService.testRunQuery(query.getQuery());
@@ -364,7 +365,7 @@ public class QueryController {
   public List<ArgumentReference> findRequestMissingArguments(
     HttpServletRequest request,
     @RequestBody QueryRequest queryRequest
-  ) {
+  ) throws QueryException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.FindMissingArguments.POST")) {
       log.debug("findRequestMissingArguments");
       return queryService.findMissingArguments(queryRequest);

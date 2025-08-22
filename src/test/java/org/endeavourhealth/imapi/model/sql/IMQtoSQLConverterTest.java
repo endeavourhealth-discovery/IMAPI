@@ -63,10 +63,7 @@ public class IMQtoSQLConverterTest {
           // convert it
           Query query = om.readValue(definition, Query.class);
           IMQtoSQLConverter imq2sql = new IMQtoSQLConverter(new QueryRequest().setQuery(query));
-          SqlWithSubqueries sqlWithSubqueries = imq2sql.IMQtoSQL();
-
-          // Replace variables
-          String sql = sqlWithSubqueries.getSql().replace("$searchDate", "NOW()");
+          String sql = imq2sql.getSql().replace("$searchDate", "NOW()");
 
           // run on postgres
           try (PreparedStatement preparedStatement = connection.prepareStatement("EXPLAIN " + sql)) {

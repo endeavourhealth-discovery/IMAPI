@@ -20,6 +20,7 @@ public class Argument {
   private Set<TTIriRef> valueIriList;
   private Set<String> valueDataList;
   private Object valueObject;
+  private TTIriRef dataType;
 
 
   public Argument setValueIriList(Set<TTIriRef> valueIriList) {
@@ -94,6 +95,15 @@ public class Argument {
 
   public Argument setValueData(String valueData) {
     this.valueData = valueData;
+    return this;
+  }
+
+  public TTIriRef getDataType() {
+    return dataType;
+  }
+
+  public Argument setDataType(TTIriRef dataType) {
+    this.dataType = dataType;
     return this;
   }
 

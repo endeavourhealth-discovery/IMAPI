@@ -15,12 +15,8 @@ import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.zip.DataFormatException;
 
 class SearchServiceTest {
 
@@ -44,7 +40,6 @@ class SearchServiceTest {
 
 
     output(TestQueries.getMembers());
-    ;
 
     output(TestQueries.getMembers());
     output(TestQueries.pathQuery());
@@ -69,7 +64,7 @@ class SearchServiceTest {
 
   }
 
-  private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
+  private void output(QueryRequest dataSet) throws IOException, OpenSearchException, QueryException {
     String name = null;
     String originalRequest = new ObjectMapper().writeValueAsString(dataSet);
 
@@ -101,9 +96,9 @@ class SearchServiceTest {
       try (FileWriter wr = new FileWriter(path.toString())) {
         wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
         System.out.println("Found " + result.get("entities").size() + " entities");
-        if (result.get("entities").size() == 0) {
+        if (result.get("entities").isEmpty()) {
           dataSet = new ObjectMapper().readValue(originalRequest, QueryRequest.class);
-          result = searchService.queryIM(dataSet);
+          searchService.queryIM(dataSet);
           throw new RuntimeException("No results found for query " + name);
         }
       }
@@ -129,7 +124,7 @@ class SearchServiceTest {
   }
 
   //@Test
-  public void setTest() throws DataFormatException, JsonProcessingException, QueryException {
+  public void setTest() throws JsonProcessingException, QueryException {
     new SetMemberGenerator().generateMembers("http://apiqcodes.org/qcodes#QCodeGroup_713", Graph.IM);
   }
 }

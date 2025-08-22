@@ -29,7 +29,7 @@ import java.util.List;
 @Slf4j
 @Component
 public class GithubService {
-  ConfigManager configManager = new ConfigManager();
+  final ConfigManager configManager = new ConfigManager();
 
   public GithubRelease getGithubLatestRelease() throws ConfigException, JsonProcessingException {
     GithubRelease config = configManager.getConfig(CONFIG.IMDIRECTORY_LATEST_RELEASE, new TypeReference<>() {
@@ -86,19 +86,21 @@ public class GithubService {
   }
 
   private GithubRelease getLatestReleaseFromGithub(String owner, String repo) throws IOException, InterruptedException {
-    HttpClient client = HttpClient.newBuilder()
+    HttpResponse<String> response;
+    try (HttpClient client = HttpClient.newBuilder()
       .followRedirects(HttpClient.Redirect.NORMAL)
-      .build();
+      .build()) {
 
-    HttpRequest request = HttpRequest.newBuilder()
-      .uri(URI.create("https://api.github.com/repos/%s/%s/releases/latest".formatted(owner, repo)))
-      .GET()
-      .setHeader("Accept", "application/vnd.github+json")
-      .setHeader("Authorization", "Bearer %s".formatted(System.getenv("GITHUB_TOKEN")))
-      .setHeader("X-GitHub-Api-Version", "2022-11-28")
-      .build();
+      HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create("https://api.github.com/repos/%s/%s/releases/latest".formatted(owner, repo)))
+        .GET()
+        .setHeader("Accept", "application/vnd.github+json")
+        .setHeader("Authorization", "Bearer %s".formatted(System.getenv("GITHUB_TOKEN")))
+        .setHeader("X-GitHub-Api-Version", "2022-11-28")
+        .build();
 
-    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+      response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
 
     ObjectMapper mapper = new ObjectMapper();
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -108,19 +110,21 @@ public class GithubService {
   }
 
   private List<GithubRelease> getAllReleasesFromGithub(String owner, String repo) throws IOException, InterruptedException {
-    HttpClient client = HttpClient.newBuilder()
+    HttpResponse<String> response;
+    try (HttpClient client = HttpClient.newBuilder()
       .followRedirects(HttpClient.Redirect.NORMAL)
-      .build();
+      .build()) {
 
-    HttpRequest request = HttpRequest.newBuilder()
-      .uri(URI.create("https://api.github.com/repos/%s/%s/releases".formatted(owner, repo)))
-      .GET()
-      .setHeader("Accept", "application/vnd.github+json")
-      .setHeader("Authorization", "Bearer %s".formatted(System.getenv("GITHUB_TOKEN")))
-      .setHeader("X-GitHub-Api-Version", "2022-11-28")
-      .build();
+      HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create("https://api.github.com/repos/%s/%s/releases".formatted(owner, repo)))
+        .GET()
+        .setHeader("Accept", "application/vnd.github+json")
+        .setHeader("Authorization", "Bearer %s".formatted(System.getenv("GITHUB_TOKEN")))
+        .setHeader("X-GitHub-Api-Version", "2022-11-28")
+        .build();
 
-    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+      response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
     ObjectMapper mapper = new ObjectMapper();
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 

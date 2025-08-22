@@ -22,7 +22,10 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 

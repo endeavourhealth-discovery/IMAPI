@@ -16,7 +16,6 @@ import org.endeavourhealth.imapi.filer.rdf4j.TTBulkFiler;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -92,9 +91,7 @@ public class ImportMaps implements AutoCloseable {
     else
       codeToIri = new EntityRepository().getCodesToIri(scheme);
     Map<String, String> map = new HashMap<>();
-    codeToIri.entrySet().stream().forEach(item -> {
-      String entry = item.getKey();
-      String value = item.getValue();
+    codeToIri.forEach((entry, value) -> {
       if (entry.startsWith(scheme.toString())) {
         String code = entry.split(scheme.toString())[1];
         map.put(code, value);
@@ -209,7 +206,7 @@ public class ImportMaps implements AutoCloseable {
       qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
       qry.setBinding("subClassOf", RDFS.SUBCLASS_OF.asDbIri());
       qry.setBinding("label", RDFS.LABEL.asDbIri());
-      try (TupleQueryResult rs = qry.evaluate();) {
+      try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String child = bs.getValue("child").stringValue();
@@ -459,7 +456,7 @@ public class ImportMaps implements AutoCloseable {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     cachedNames.clear();
   }
 }

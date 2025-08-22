@@ -1,17 +1,15 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -30,14 +28,14 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EntityModelServiceTest {
-  @InjectMocks
-  EntityService entityService = new EntityService();
+  @Mock EntityRepository entityRepository;
 
-  @Mock
-  EntityRepository entityRepository;
+  EntityService entityService;
 
-  @Mock
-  ConfigManager configManager = new ConfigManager();
+  @BeforeEach
+  void initMocks() {
+    entityService = new EntityService(entityRepository);
+  }
 
   @Test
   void getEntityPredicates_nullIriPredicates() {

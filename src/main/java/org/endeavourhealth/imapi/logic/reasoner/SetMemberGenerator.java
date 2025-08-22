@@ -11,7 +11,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;

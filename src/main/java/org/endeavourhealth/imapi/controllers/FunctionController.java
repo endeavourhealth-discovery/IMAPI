@@ -6,15 +6,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.FunctionService;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.model.requests.FunctionRequest;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("api/function")

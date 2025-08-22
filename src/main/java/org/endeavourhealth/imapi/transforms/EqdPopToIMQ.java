@@ -6,16 +6,12 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriteriaGroup;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.VocPopulationParentType;
 import org.endeavourhealth.imapi.transforms.eqd.VocRuleAction;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
-
 import java.io.IOException;
-import java.util.List;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 
 public class EqdPopToIMQ {
-
-  private EqdResources resources;
 
 
   public Query convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws IOException, QueryException, EQDException {
@@ -23,18 +19,15 @@ public class EqdPopToIMQ {
     if (eqReport.getVersionIndependentGUID() != null) activeReport = eqReport.getVersionIndependentGUID();
     if (eqReport.getName().equals("All currently registered patients"))
       EqdToIMQ.gmsPatients.add(activeReport);
-    this.resources = resources;
-    this.resources.setQueryType(QueryType.POP);
+    resources.setQueryType(QueryType.POP);
     query.setTypeOf(new Node().setIri(Namespace.IM + "Patient"));
     if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
       query.addRule(new Match()
         .setIfTrue(RuleAction.NEXT)
         .setIfFalse(RuleAction.REJECT)
         .setBaseRule(true)
-        .addInstanceOf(
-          new Node().setIri(Namespace.IM + "Q_RegisteredGMS")
-            .setName("Registered with GP for GMS services on the reference date")
-            .setMemberOf(true)));
+        .setIsCohort(iri(Namespace.IM + "Q_RegisteredGMS")
+            .setName("Registered with GP for GMS services on the reference date")));
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()) {
         EqdToIMQ.gmsPatients.add(activeReport);
         EqdToIMQ.gmsPatients.add(resources.getNamespace() + activeReport);
@@ -48,18 +41,15 @@ public class EqdPopToIMQ {
           .setIfTrue(RuleAction.NEXT)
           .setIfFalse(RuleAction.REJECT)
           .setBaseRule(true)
-          .addInstanceOf(
-            new Node().setIri(Namespace.IM + "Q_RegisteredGMS")
-              .setName("Registered with GP for GMS services on the reference date")
-              .setMemberOf(true)));
+          .setIsCohort(iri(Namespace.IM + "Q_RegisteredGMS")
+            .setName("Registered with GP for GMS services on the reference date")));
       } else {
         query.addRule(new Match()
           .setIfTrue(RuleAction.NEXT)
           .setIfFalse(RuleAction.REJECT)
           .setBaseRule(true)
-          .addInstanceOf(new Node().setIri(resources.getNamespace() + id)
-            .setName(resources.reportNames.get(id))
-            .setMemberOf(true)));
+          .setIsCohort(iri(resources.getNamespace() + id)
+            .setName(resources.reportNames.get(id))));
       }
     }
     resources.setRule(0);

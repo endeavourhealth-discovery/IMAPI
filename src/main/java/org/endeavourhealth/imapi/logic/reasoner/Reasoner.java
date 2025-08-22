@@ -15,7 +15,6 @@ import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
 import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl;
 
 import java.util.*;
-import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -49,6 +48,17 @@ public class Reasoner {
             return true;
         } else if (prop.asNode().get(iri(SHACL.INVERSEPATH)) != null && prop.asNode().get(iri(SHACL.INVERSEPATH)).asIriRef().equals(path))
           return true;
+      }
+    }
+    return false;
+  }
+  private boolean hasParameter(TTArray subProperties, String parameterName) {
+    if (subProperties != null) {
+      for (TTValue prop : subProperties.getElements()) {
+        if (prop.asNode().get(iri(RDFS.LABEL)) != null) {
+          if (prop.asNode().get(iri(RDFS.LABEL)).asLiteral().getValue().equals(parameterName))
+            return true;
+        }
       }
     }
     return false;
@@ -425,8 +435,10 @@ public class Reasoner {
     done = new HashSet<>();
     manager.setDocument(document);
     for (TTEntity entity : document.getEntities()) {
+      if (entity.isType(iri(SHACL.FUNCTION)))
+        inheritProperties(SHACL.PARAMETER,entity);
       if (entity.isType(iri(SHACL.NODESHAPE))) {
-        inheritProperties(entity);
+        inheritProperties(SHACL.PROPERTY,entity);
         inheritTemplates(entity);
       }
     }
@@ -449,11 +461,11 @@ public class Reasoner {
     }
   }
 
-  private void processSuperClasses(TTArray properties, List<TTValue> mergedProperties, TTEntity shape) {
+  private void processSuperClasses(SHACL predicate,TTArray properties, List<TTValue> mergedProperties, TTEntity shape) {
     for (TTValue superClass : shape.get(iri(RDFS.SUBCLASS_OF)).getElements()) {
       TTEntity superEntity = manager.getEntity(superClass.asIriRef().getIri());
       if (superEntity != null) {
-        mergeInheritedProperties(properties, mergedProperties, superClass, superEntity);
+        mergeInheritedProperties(predicate,properties, mergedProperties, superClass, superEntity);
         if (shape.get(iri(IM.CONCEPT)) == null && superEntity.get(iri(IM.CONCEPT)) != null) {
           shape.set(iri(IM.CONCEPT), superEntity.get(iri(IM.CONCEPT)));
         }
@@ -464,15 +476,16 @@ public class Reasoner {
     }
   }
 
-  private void inheritProperties(TTEntity shape) {
+
+  private void inheritProperties(SHACL predicate,TTEntity shape) {
     if (done.contains(shape.getIri()))
       return;
     TTArray properties = null;
-    if (shape.get(iri(SHACL.PROPERTY)) != null)
-      properties = shape.get(iri(SHACL.PROPERTY));
+    if (shape.get(iri(predicate)) != null)
+      properties = shape.get(iri(predicate));
     List<TTValue> mergedProperties = new ArrayList<>();
     if (shape.get(iri(RDFS.SUBCLASS_OF)) != null) {
-      processSuperClasses(properties, mergedProperties, shape);
+      processSuperClasses(predicate,properties, mergedProperties, shape);
       if (properties != null) {
         for (TTValue p : properties.getElements()) {
           if (p.asNode().get(iri(SHACL.ORDER)) == null) {
@@ -483,15 +496,24 @@ public class Reasoner {
       }
       TTArray newValue = new TTArray();
       mergedProperties.forEach(newValue::add);
-      shape.set(iri(SHACL.PROPERTY), newValue);
+      shape.set(iri(predicate), newValue);
       done.add(shape.getIri());
     }
   }
 
-  public void mergeInheritedProperties(TTArray properties, List<TTValue> mergedProperties, TTValue superClass, TTEntity superEntity) {
-    inheritProperties(superEntity);
-    if (superEntity.get(iri(SHACL.PROPERTY)) != null) {
-      for (TTValue superP : superEntity.get(iri(SHACL.PROPERTY)).getElements()) {
+
+
+  public void mergeInheritedProperties(SHACL predicate,TTArray properties, List<TTValue> mergedProperties, TTValue superClass, TTEntity superEntity) {
+    inheritProperties(predicate,superEntity);
+    if (superEntity.get(iri(predicate)) != null) {
+      for (TTValue superP : superEntity.get(iri(predicate)).getElements()) {
+        if (predicate == SHACL.PARAMETER) {
+          if (!hasParameter(properties,superP.asNode().get(iri(RDFS.LABEL)).asLiteral().getValue())){
+            TTNode inherited = copyNode(superP.asNode());
+            inherited.set(iri(IM.INHERITED_FROM), superClass);
+            mergedProperties.add(inherited);
+          }
+        }
         if (superP.asNode().get(iri(SHACL.PATH)) != null) {
           if (!hasProperty(properties, superP.asNode().get(iri(SHACL.PATH)).asIriRef())
             && !hasPath(mergedProperties, superP.asNode().get(iri(SHACL.PATH)).asIriRef())) {
@@ -518,5 +540,6 @@ public class Reasoner {
     }
     return false;
   }
+
 
 }

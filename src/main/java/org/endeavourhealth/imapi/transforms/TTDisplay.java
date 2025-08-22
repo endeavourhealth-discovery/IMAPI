@@ -2,7 +2,9 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -14,7 +16,7 @@ public class TTDisplay {
     throw new IllegalStateException("Utility class");
   }
 
-  private static TTIriRef[] entity = {iri(RDF.TYPE), iri(RDFS.LABEL), iri(IM.DEFINITION)};
+  private static final TTIriRef[] entity = {iri(RDF.TYPE), iri(RDFS.LABEL), iri(IM.DEFINITION)};
 
   public static TTIriRef[] getTemplate(TTNode node) {
     return entity;

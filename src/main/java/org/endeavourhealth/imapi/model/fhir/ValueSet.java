@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.fhir;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Map;
 

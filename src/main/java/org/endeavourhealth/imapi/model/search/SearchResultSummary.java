@@ -1,6 +1,9 @@
 package org.endeavourhealth.imapi.model.search;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -12,13 +15,13 @@ import java.util.function.Consumer;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class SearchResultSummary {
-  @JsonProperty(defaultValue = "")
+  @JsonProperty()
   private String name;
   @JsonProperty(value = "iri", required = true)
   private String iri;
-  @JsonProperty(defaultValue = "")
+  @JsonProperty()
   private String code;
-  @JsonProperty(defaultValue = "")
+  @JsonProperty()
   private String description;
   @JsonProperty(required = true)
   private TTIriRef status;
@@ -28,7 +31,7 @@ public class SearchResultSummary {
   private Set<TTIriRef> type = new HashSet<>();
   @JsonProperty(defaultValue = "0")
   private Integer usageTotal;
-  @JsonProperty(defaultValue = "")
+  @JsonProperty()
   private String bestMatch;
   private String preferredName;
   private Set<String> key;

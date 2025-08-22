@@ -2,8 +2,10 @@ package org.endeavourhealth.imapi.dataaccess.databases;
 
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.query.*;
-import org.eclipse.rdf4j.query.impl.DatasetImpl;
+import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.GraphQuery;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.query.impl.SimpleDataset;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -16,8 +18,6 @@ import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.io.File;
 import java.util.StringJoiner;
-
-import static org.eclipse.rdf4j.model.util.Values.iri;
 
 @Slf4j
 public abstract class BaseDB implements AutoCloseable {

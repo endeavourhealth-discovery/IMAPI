@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.ConceptService;
 import org.endeavourhealth.imapi.logic.service.EclService;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
@@ -14,12 +13,9 @@ import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
-import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 import java.util.UnknownFormatConversionException;
 
@@ -39,7 +35,7 @@ public class EclController {
     summary = "Retrieve ECL string",
     description = "Generates an ECL string from the provided IMQ Query object"
   )
-  public String getEcl(HttpServletRequest request, @RequestBody EclSearchRequest inferred) throws QueryException, IOException {
+  public String getEcl(HttpServletRequest request, @RequestBody EclSearchRequest inferred) throws QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("ECL.Ecl.POST")) {
       log.debug("getEcl");
       return eclService.getEcl(inferred);
@@ -54,7 +50,7 @@ public class EclController {
   public SearchResponse eclSearch(
     HttpServletRequest request,
     @RequestBody EclSearchRequest eclSearchRequest
-  ) throws EclFormatException, IOException, QueryException {
+  ) throws EclFormatException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("ECL.EclSearch.POST")) {
       log.debug("eclSearch");
       return eclService.eclSearch(eclSearchRequest);
@@ -67,7 +63,7 @@ public class EclController {
   public ECLQueryRequest getECLFromQuery(
     HttpServletRequest request,
     @RequestBody ECLQueryRequest eclQueryRequest
-  ) throws QueryException, IOException {
+  ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclFromQuery.POST")) {
       log.debug("getEclFromQuery");
       return eclService.getECLFromQuery(eclQueryRequest);
@@ -78,7 +74,7 @@ public class EclController {
   public ECLQueryRequest validateModelFromQuery(
     HttpServletRequest request,
     @RequestBody ECLQueryRequest eclQueryRequest
-  ) throws QueryException, IOException {
+  ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateModelFromQuery.POST")) {
       log.debug("validatesEclQuerymodel");
       return eclService.validateModelFromQuery(eclQueryRequest);
@@ -87,7 +83,7 @@ public class EclController {
 
 
   @PostMapping("/public/validateModelFromECL")
-  public ECLQueryRequest validateModelFromEcl(HttpServletRequest request, @RequestBody ECLQueryRequest eclQueryRequest) throws QueryException, IOException {
+  public ECLQueryRequest validateModelFromEcl(HttpServletRequest request, @RequestBody ECLQueryRequest eclQueryRequest) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateModelFromECL.POST")) {
       log.debug("validatesModelFromECL");
       return eclService.validateModelFromECL(eclQueryRequest);
@@ -99,7 +95,7 @@ public class EclController {
     summary = "Convert ECL to Query",
     description = "Transforms a provided ECL string into an IM Query object"
   )
-  public ECLQueryRequest getQueryFromECL(HttpServletRequest request, @RequestBody ECLQueryRequest eclQueryRequest) throws IOException, EclFormatException, QueryException {
+  public ECLQueryRequest getQueryFromECL(HttpServletRequest request, @RequestBody ECLQueryRequest eclQueryRequest) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.QueryFromEcl.POST")) {
       log.debug("getQueryFromEcl");
       return eclService.getQueryFromECL(eclQueryRequest);
@@ -114,7 +110,7 @@ public class EclController {
   public ECLQueryRequest getEclFromEcl(
     HttpServletRequest request,
     @RequestBody ECLQueryRequest eclQueryRequest
-  ) throws IOException, QueryException, EclFormatException {
+  ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclWithNames.POST")) {
       log.debug("getEcl from ecl");
       return eclService.getEclFromEcl(eclQueryRequest);
@@ -129,7 +125,7 @@ public class EclController {
   public ECLQueryRequest validateEcl(
     HttpServletRequest request,
     @RequestBody ECLQueryRequest eclQueryRequest
-  ) throws IOException, QueryException {
+  ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateEcl.POST")) {
       log.debug("validatesEcl");
       return eclService.validateEcl(eclQueryRequest);
@@ -141,7 +137,7 @@ public class EclController {
   public Set<String> getPropertiesForDomains(
     HttpServletRequest request,
     @RequestParam(name = "conceptIri") Set<String> iris
-  ) throws IOException {
+  ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.propertiesForDomains.GET")) {
       log.debug("getPropertiesForDomains");
       return conceptService.getPropertiesForDomains(iris);
@@ -154,7 +150,7 @@ public class EclController {
   public Set<String> getRangesForProperty(
     HttpServletRequest request,
     @RequestParam(name = "propertyIri") String iri
-  ) throws IOException {
+  ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.rangesForProperty.GET")) {
       log.debug("getRangesForProperty");
       return conceptService.getRangesForProperty(iri);

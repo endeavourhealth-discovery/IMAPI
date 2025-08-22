@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.model;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.endeavourhealth.imapi.model.iml.Concept;
 
 import java.util.ArrayList;

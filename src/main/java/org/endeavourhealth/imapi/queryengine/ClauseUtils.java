@@ -10,24 +10,24 @@ public class ClauseUtils {
     String iri = where.getIri();
     TTIriRef units= where.getUnits();
     RelativeTo relativeTo = where.getRelativeTo();
-    if (relativeTo == null) {
-      relativeTo = new RelativeTo().setParameter("$searchDate");
-    }
     if (iri.contains("age")) {
+      if (relativeTo == null) {
+        relativeTo = new RelativeTo().setParameter("$searchDate");
+      }
       where.setFunction(buildFunction(
-        Namespace.IM + "AgeFunction",
+        Namespace.IM + "age",
         argPath("dateOfBirth", new Path().setIri(Namespace.IM + "dateOfBirth")),
         argRelativeTo(relativeTo),
         argUnits(units)
       ));
-    } else if (iri.toLowerCase().contains("date")) {
+    } else if (iri.toLowerCase().contains("date")&&relativeTo!=null&&(where.getValue()!=null||where.getRange()!=null)) {
       where.setFunction(buildFunction(
         Namespace.IM + "TimeDifference",
         argPath("firstDateTime", new Path().setIri(iri)),
         argRelativeTo(relativeTo),
         argUnits(units)
       ));
-    } else if (iri.toLowerCase().contains("value")) {
+    } else if (iri.toLowerCase().contains("value")&&relativeTo!=null) {
       where.setFunction(buildFunction(
         Namespace.IM + "NumericDifference",
         argPath("firstValue", new Path().setIri(iri)),

@@ -1,12 +1,12 @@
 package org.endeavourhealth.imapi.model.dto;
 
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.DataModelProperty;
+import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.model.set.ExportSet;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.model.set.ExportSet;
 
 import java.io.Serializable;
 import java.util.List;

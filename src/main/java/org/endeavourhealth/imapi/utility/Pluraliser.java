@@ -29,6 +29,9 @@ public class Pluraliser {
       case "ox":
         return preserveCase(word, "oxen");
     }
+    if (word.endsWith("s")) {
+      return word;
+    }
 
     if (word.matches("(?i).+[^aeiou]y$")) {
       return word.substring(0, word.length() - 1) + "ies";

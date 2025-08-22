@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.errorhandling;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.catalina.connector.ClientAbortException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.customexceptions.*;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Set;
 import java.util.zip.DataFormatException;
@@ -44,7 +43,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
   protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
     StringBuilder builder = new StringBuilder();
     Set<HttpMethod> methods = ex.getSupportedHttpMethods();
-    if (methods != null) methods.forEach(t -> builder.append(t + " "));
+    if (methods != null) methods.forEach(t -> builder.append(t).append(" "));
     String message = "Method: " + ex.getMethod() + " is not supported for this API. Supported methods are " + builder;
     ApiError error = new ApiError(HttpStatus.METHOD_NOT_ALLOWED, message, ex, ErrorCodes.HTTP_REQUEST_METHOD_NOT_SUPPORTED);
     return buildResponseEntity(error);
@@ -82,7 +81,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(Throwable.class)
   protected ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
-    ex.printStackTrace();
     String message = "Unhandled server error occurred";
     ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, message, new Exception("Unhandled server error"), ErrorCodes.UNHANDLED_EXCEPTION);
     return buildResponseEntity(error);

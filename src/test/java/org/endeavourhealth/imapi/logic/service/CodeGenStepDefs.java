@@ -11,13 +11,12 @@ import org.endeavourhealth.imapi.model.dto.CodeGenDto;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CodeGenStepDefs {
-  private CodeGenDto template = new CodeGenDto();
+  private final CodeGenDto template = new CodeGenDto();
   private TTIriRef model;
   private List<DataModelProperty> properties = new ArrayList<>();
   private String namespace;
@@ -51,7 +50,7 @@ public class CodeGenStepDefs {
   @Given("a datatype map")
   public void setDataTypeMap(String arg0) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      this.template.setDatatypeMap(om.readValue(arg0, HashMap.class));
+      this.template.setDatatypeMap(om.readValue(arg0, new TypeReference<>() {}));
     }
   }
 

@@ -6,7 +6,9 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 

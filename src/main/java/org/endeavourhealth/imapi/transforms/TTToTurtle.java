@@ -12,10 +12,10 @@ import java.util.Map;
 
 
 public class TTToTurtle {
+  private final Map<String, String> prefixes = new HashMap<>();
   private TTContext context;
   private StringBuilder turtle;
   private int level;
-  private Map<String, String> prefixes = new HashMap<>();
 
   /**
    * Transforms a document to Turtle format.
@@ -47,11 +47,7 @@ public class TTToTurtle {
   private void nl() {
     turtle.append("\n");
     if (level > 0) {
-      StringBuilder indent = new StringBuilder();
-      for (int i = 0; i < level; i++) {
-        indent.append(" ");
-      }
-      turtle.append(indent);
+      turtle.append(" ".repeat(level));
     }
   }
 

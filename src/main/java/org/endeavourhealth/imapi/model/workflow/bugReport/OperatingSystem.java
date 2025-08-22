@@ -5,7 +5,7 @@ public enum OperatingSystem {
     MACOS("macos"),
     LINUX("linux"),
     OTHER("other");
-    private String text;
+    private final String text;
     OperatingSystem(String text) {
         this.text = text;
     }

@@ -15,7 +15,6 @@ public class AWSCognitoClient {
   private static final Map<String, String> userCache = new HashMap<>();
   private static final String COGNITO_USER_POOL = System.getenv("COGNITO_USER_POOL");
   private static final String COGNITO_REGION = System.getenv("COGNITO_REGION");
-  private static final String COGNITO_WEB_CLIENT = System.getenv("COGNITO_WEB_CLIENT");
   private final CognitoIdentityProviderClient identityProvider;
 
   public AWSCognitoClient() {

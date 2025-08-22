@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import org.endeavourhealth.imapi.model.iml.Entity;
-
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 
 import java.util.Set;

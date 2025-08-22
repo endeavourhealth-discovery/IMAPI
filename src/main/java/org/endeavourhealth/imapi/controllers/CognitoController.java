@@ -75,7 +75,7 @@ public class CognitoController {
     summary = "Check Email Registration",
     description = "Checks if the provided email address is already registered in AWS Cognito."
   )
-  public boolean isEmailRegistered(@RequestParam("email") String email) throws IOException {
+  public boolean isEmailRegistered(@RequestParam("email") String email) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.COGNITO.isEmailRegistered.GET")) {
       log.debug("isEmailRegistered");
       return awsCognitoClient.isEmailRegistered(email);

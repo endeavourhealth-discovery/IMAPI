@@ -7,7 +7,7 @@ public enum Browser {
     IE("internet explorer"),
     OTHER("other");
 
-    private String text;
+    private final String text;
     Browser(String text) {
         this.text = text;
     }

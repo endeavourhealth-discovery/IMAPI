@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import lombok.Getter;
 
 public class RelativeTo extends IriLD {

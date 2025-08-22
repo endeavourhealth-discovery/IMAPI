@@ -7,7 +7,7 @@ public enum Severity {
     TRIVIAL("trivial"),
     ENHANCEMENT("enhancement"),
     UNASSIGNED("unassigned");
-    private String text;
+    private final String text;
     Severity(String text) {
         this.text = text;
     }

@@ -1,9 +1,7 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)

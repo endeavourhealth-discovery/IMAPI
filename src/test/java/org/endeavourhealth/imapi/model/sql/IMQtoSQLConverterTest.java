@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.EntityType;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +22,11 @@ import java.util.List;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class IMQtoSQLConverterTest {
-  private static Logger LOG = LoggerFactory.getLogger(IMQtoSQLConverterTest.class);
-  private String db_url = System.getenv("DB_URL");
-  private String db_user = System.getenv("DB_USER");
-  private String db_password = System.getenv("DB_PASSWORD");
-  private String db_driver = System.getenv("DB_DRIVER");
+  private static final Logger LOG = LoggerFactory.getLogger(IMQtoSQLConverterTest.class);
+  private final String db_url = System.getenv("DB_URL");
+  private final String db_user = System.getenv("DB_USER");
+  private final String db_password = System.getenv("DB_PASSWORD");
+  private final String db_driver = System.getenv("DB_DRIVER");
 
   //  @Test
   public void IMQtoSQL() {

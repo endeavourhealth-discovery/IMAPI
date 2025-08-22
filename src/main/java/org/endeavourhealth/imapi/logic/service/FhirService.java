@@ -9,15 +9,14 @@ import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.SetOptions;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.hl7.fhir.r4.model.ValueSet;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FhirService {
-  SetService setService = new SetService();
-  EclService eclService = new EclService();
+  final SetService setService = new SetService();
+  final EclService eclService = new EclService();
 
   public String getFhirValueSet(String iri, boolean expanded) throws JsonProcessingException, QueryException {
     List<String> schemes = new ArrayList<>();

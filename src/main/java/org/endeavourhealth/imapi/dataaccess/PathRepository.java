@@ -5,7 +5,6 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.util.ArrayList;
 import java.util.List;

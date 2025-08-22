@@ -30,8 +30,8 @@ import static org.endeavourhealth.imapi.mysql.MYSQLConnectionManager.getConnecti
 
 @Slf4j
 public class IMQtoSQLConverter {
-  private TableMap tableMap;
-  private QueryRequest queryRequest;
+  private final TableMap tableMap;
+  private final QueryRequest queryRequest;
   private final EntityRepository entityRepository = new EntityRepository();
   @Getter
   private String sql;
@@ -477,7 +477,7 @@ public class IMQtoSQLConverter {
     return fieldName + " " + range.getOperator().getValue() + " " + range.getValue();
   }
 
-  private String convertMatchPropertyDateRangeNode(String fieldName, Assignable range) throws SQLConversionException {
+  private String convertMatchPropertyDateRangeNode(String fieldName, Assignable range) {
     String returnString;
     if (isPostgreSQL())
       returnString = "($searchDate" + " - INTERVAL '" + range.getValue() + "') " + range.getOperator().getValue() + " " + fieldName;
@@ -525,7 +525,8 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private String convertMatchPropertyRelativeTo(SQLQuery qry, Where property, String field) throws SQLConversionException {
+  private String convertMatchPropertyRelativeTo(SQLQuery qry, Where property, String field) throws
+    SQLConversionException {
     String fieldType = qry.getFieldType(property.getIri(), null, tableMap);
     if ("date".equals(fieldType)) if (property.getValue() != null) {
       return "(" + field + " + INTERVAL " + property.getValue() + " " + getUnitName(property.getUnits()) + ")";
@@ -604,7 +605,6 @@ public class IMQtoSQLConverter {
       return results;
     } catch (SQLException e) {
       log.error("Error running SQL [{}]", sql);
-      e.printStackTrace();
       throw new SQLConversionException("SQL Conversion Error: SQLException for getting im1ids\n" + StringUtils.join(im1ids, ","), e);
     }
   }

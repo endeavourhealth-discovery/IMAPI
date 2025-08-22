@@ -124,7 +124,7 @@ public class EqdResources {
     if (eqGroup.getDefinition().getParentPopulationGuid() != null) {
       String parent = eqGroup.getDefinition().getParentPopulationGuid();
       Match match = new Match();
-      match.addInstanceOf((new Node()).setIri(this.namespace + parent).setMemberOf(true)).setName((String) this.reportNames.get(parent));
+      match.setIsCohort(iri(this.namespace + parent).setName(this.reportNames.get(parent)));
       return match;
     } else {
       List<EQDOCCriteria> groupCriteria = eqGroup.getDefinition().getCriteria();
@@ -135,12 +135,12 @@ public class EqdResources {
   private Match getMatchFromGroup(List<EQDOCCriteria> groupCriteria, VocMemberOperator memberOp) throws QueryException, EQDException, IOException {
     this.subRule = 0;
     if (groupCriteria.size() <= 1) {
-      EQDOCCriteria eqCriteria = (EQDOCCriteria) groupCriteria.get(0);
+      EQDOCCriteria eqCriteria = groupCriteria.getFirst();
       if (isNegatedCriteria(eqCriteria)) {
         Match match = new Match();
         match.addNot(convertCriteria(eqCriteria));
         return match;
-      } else return convertCriteria(groupCriteria.get(0));
+      } else return convertCriteria(groupCriteria.getFirst());
     } else {
       Match boolMatch = new Match();
       if (memberOp == null) {
@@ -197,7 +197,7 @@ public class EqdResources {
       searchId = EqdToIMQ.versionMap.get(searchId);
     }
     Match match = new Match();
-    match.addInstanceOf(new Node().setIri(namespace + searchId).setName((String) this.reportNames.get(search.getReportGuid())).setMemberOf(true));
+    match.setIsCohort(new TTIriRef().setIri(namespace + searchId).setName((String) this.reportNames.get(search.getReportGuid())));
     return match;
   }
 
@@ -239,16 +239,15 @@ public class EqdResources {
         standardMatch.setThen(testMatch);
       }
     }
-    if (baseMatch!=null){
-      if (standardMatch!=null) baseMatch.setThen(standardMatch);
-    }
+    if (baseMatch!=null && standardMatch!=null) baseMatch.setThen(standardMatch);
+
     if (hasLinked) {
       counter++;
       String as="Match_"+counter;
       if (testMatch != null) setReturn(testMatch,as);
       else if (standardMatch != null) setReturn(standardMatch,as);
       else setReturn(baseMatch,as);
-      String nodeRef= standardMatch != null ? standardMatch.getReturn().getAs(): baseMatch!=null ? baseMatch.getReturn().getAs() : "error";
+      String nodeRef= standardMatch != null ? standardMatch.getReturn().getAs(): baseMatch.getReturn().getAs();
       linkedMatch = this.convertLinkedCriterion(eqCriterion, nodeRef);
       if (testMatch != null) testMatch.setThen(linkedMatch);
       else if (standardMatch != null) standardMatch.setThen(linkedMatch);
@@ -272,7 +271,7 @@ public class EqdResources {
       }
 
     } else {
-      baseMatch = this.convertBaseCriteriaGroup(eqCriterion.getBaseCriteriaGroup().get(0));
+      baseMatch = this.convertBaseCriteriaGroup(eqCriterion.getBaseCriteriaGroup().getFirst());
     }
 
     counter = originalCounter;
@@ -406,15 +405,14 @@ public class EqdResources {
     return "";
   }
 
-  private void injectReturn(Match parentMatch, Match childMatch) throws EQDException, IOException, QueryException {
-    Return ret = null;
+  private void injectReturn(Match parentMatch, Match childMatch) throws QueryException {
+    Return ret;
     String asLabel;
     if (parentMatch.getReturn() != null) {
       ret = parentMatch.getReturn();
-      asLabel = ret.getAs();
     } else {
       asLabel = descriptor.getShortDescription(parentMatch).toLowerCase();
-      if (asLabel == "") {
+      if (asLabel.isEmpty()) {
         counter++;
         asLabel = "Match_" + counter;
       }
@@ -482,6 +480,9 @@ public class EqdResources {
       }
     } else if (cv.getRangeValue() != null) {
       this.setRangeValue(cv.getRangeValue(), pv);
+      if (pv.getIri().toLowerCase().contains("age")||pv.getRelativeTo()!=null) {
+        ClauseUtils.assignFunction(pv);
+      }
     }
   }
 
@@ -538,18 +539,18 @@ public class EqdResources {
 
   private Match convertTestCriterion(EQDOCCriterion eqCriterion) throws EQDException, IOException {
     EQDOCTestAttribute testAtt = eqCriterion.getFilterAttribute().getRestriction().getTestAttribute();
-    return this.convertColumns(eqCriterion.getTable(), (String) null, testAtt.getColumnValue(), true);
+    return this.convertColumns(eqCriterion.getTable(), null, testAtt.getColumnValue(), true);
   }
 
-  private void setRestriction(EQDOCCriterion eqCriterion, Match restricted) throws EQDException, IOException {
+  private void setRestriction(EQDOCCriterion eqCriterion, Match restricted) throws EQDException {
     EQDOCFilterRestriction restrict = eqCriterion.getFilterAttribute().getRestriction();
     Order direction;
-    if (((EQDOCColumnOrder.Columns) restrict.getColumnOrder().getColumns().get(0)).getDirection() == VocOrderDirection.ASC) {
+    if ((restrict.getColumnOrder().getColumns().getFirst()).getDirection() == VocOrderDirection.ASC) {
       direction = Order.ascending;
     } else {
       direction = Order.descending;
     }
-    String linkColumn = eqCriterion.getFilterAttribute().getRestriction().getColumnOrder().getColumns().get(0).getColumn().get(0);
+    String linkColumn = eqCriterion.getFilterAttribute().getRestriction().getColumnOrder().getColumns().getFirst().getColumn().getFirst();
     String table = eqCriterion.getTable();
     String orderBy = this.getIMPath(table + "/" + linkColumn);
     if (restrict.getColumnOrder().getRecordCount() != 1000) {
@@ -590,7 +591,7 @@ public class EqdResources {
     Where relationProperty = new Where();
     Match linkTarget= match;
     if (match.getAnd() != null) {
-      linkTarget = match.getAnd().get(0);
+      linkTarget = match.getAnd().getFirst();
     }
     addMatchWhere(linkTarget, relationProperty,0);
     EQDOCRelationship eqRelationship = eqCriterion.getLinkedCriterion().getRelationship();
@@ -857,7 +858,6 @@ public class EqdResources {
       relation = VocRelation.RELATIVE;
     }
 
-    this.setCompare(where, toValue, comp, value, units, relation,relativeTo);
   }
 
   private List<Node> getExceptionSet(EQDOCException set) throws IOException {
@@ -898,7 +898,7 @@ public class EqdResources {
           for (Node memberOrConcept : setMembers) {
             if (memberOrConcept.isMemberOf()) {
               String setIri = memberOrConcept.getIri();
-              TTEntity usedIn = (TTEntity) EqdToIMQ.setIriToEntity.get(setIri);
+              TTEntity usedIn = EqdToIMQ.setIriToEntity.get(setIri);
               if (usedIn == null) {
                 usedIn = (new TTEntity()).setIri(setIri).setCrud(iri(IM.ADD_QUADS));
                 this.document.addEntity(usedIn);
@@ -931,7 +931,7 @@ public class EqdResources {
             if (in) pv.addIs(node);
             else pv.addNotIs(node);
             if (node.getName() != null && name == null) {
-              name = this.getShortName(node.getName(), (String) null);
+              name = this.getShortName(node.getName(), null);
             }
           }
         } else {
@@ -941,7 +941,7 @@ public class EqdResources {
             }
 
             if (node.getName() != null && name == null) {
-              name = this.getShortName(node.getName(), (String) null);
+              name = this.getShortName(node.getName(), null);
             }
 
             if (node.isMemberOf()) {
@@ -1205,7 +1205,7 @@ public class EqdResources {
     String description = vs.getDescription();
     String name = description == null ? this.getNameFromSet(setContent) : description;
     String entailedMembers = (new ObjectMapper()).writeValueAsString(setContent);
-    TTEntity duplicate = (TTEntity) EqdToIMQ.definitionToEntity.get(entailedMembers);
+    TTEntity duplicate = EqdToIMQ.definitionToEntity.get(entailedMembers);
     if (duplicate != null) {
       this.addUsedIn(duplicate);
       if (this.columnGroup != null) {
@@ -1257,7 +1257,7 @@ public class EqdResources {
   }
 
   private String getNameFromSet(Set<Node> set) {
-    String name = (String) set.stream().limit(1L).map(IriLD::getName).collect(Collectors.joining(","));
+    String name = set.stream().limit(1L).map(IriLD::getName).collect(Collectors.joining(","));
     if (set.size() > 1) {
       name = name + " ... etc";
     }

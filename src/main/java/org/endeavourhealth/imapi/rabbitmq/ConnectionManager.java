@@ -24,25 +24,27 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 @Lazy
 @Service
 public class ConnectionManager {
+  private static final Logger LOG = LoggerFactory.getLogger(ConnectionManager.class);
   private static final String EXCHANGE_NAME = "query_runner";
   private static final String QUEUE_NAME = "query.execute";
-  private CachingConnectionFactory connectionFactory;
   @Getter
-  private Connection connection;
-  private Logger LOG = LoggerFactory.getLogger(ConnectionManager.class);
-  private ObjectMapper om = new ObjectMapper();
-  private QueryService queryService = new QueryService();
-  private PostgresService postgresService = new PostgresService();
-  private boolean createdChannel = false;
+  private final Connection connection;
+  private final ObjectMapper om = new ObjectMapper();
   private final RequestObjectService requestObjectService = new RequestObjectService();
+  private final CachingConnectionFactory connectionFactory;
+  private final PostgresService postgresService = new PostgresService();
+  private QueryService queryService = new QueryService();
+  private boolean createdChannel = false;
 
   public ConnectionManager() {
     connectionFactory = new CachingConnectionFactory();
@@ -72,66 +74,65 @@ public class ConnectionManager {
     admin.declareExchange(topicExchange);
   }
 
-  public void createDeadLetterExchange() {
-
-  }
-
   public void createConsumerChannel(PostgresService postgresService) throws IOException {
     createExchange();
-    Channel channel = getConnection().createChannel(false);
-    channel.exchangeDeclare(EXCHANGE_NAME, "topic", true);
-    channel.queueDeclare(QUEUE_NAME, true, false, false, null);
-    channel.queueBind(QUEUE_NAME, "query_runner", "query.execute.#");
-    DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-      String message = new String(delivery.getBody(), "UTF-8");
-      String id = delivery.getProperties().getMessageId();
-      UUID uuid = UUID.fromString(id);
-      LOG.info("Received a message: {}", uuid);
-      DBEntry entry;
-      try {
-        entry = postgresService.getById(uuid);
-//        Skip if cancelled. RabbitMQ has no remove functionality while queued
-        if (null != entry && entry.getStatus().equals(QueryExecutorStatus.CANCELLED)) {
-          channel.basicReject(delivery.getEnvelope().getDeliveryTag(), false);
-          return;
+    try (Channel channel = getConnection().createChannel(false)) {
+      channel.exchangeDeclare(EXCHANGE_NAME, "topic", true);
+      channel.queueDeclare(QUEUE_NAME, true, false, false, null);
+      channel.queueBind(QUEUE_NAME, "query_runner", "query.execute.#");
+      DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+        String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
+        String id = delivery.getProperties().getMessageId();
+        UUID uuid = UUID.fromString(id);
+        LOG.info("Received a message: {}", uuid);
+        DBEntry entry;
+        try {
+          entry = postgresService.getById(uuid);
+  //        Skip if cancelled. RabbitMQ has no remove functionality while queued
+          if (null != entry && entry.getStatus().equals(QueryExecutorStatus.CANCELLED)) {
+            channel.basicReject(delivery.getEnvelope().getDeliveryTag(), false);
+            return;
+          }
+        } catch (SQLException e) {
+          throw new RuntimeException(e);
         }
-      } catch (SQLException e) {
-        throw new RuntimeException(e);
-      }
-      if (null == entry) {
-        throw new RuntimeException("Could not find entry with id " + id);
-      }
+        if (null == entry) {
+          throw new RuntimeException("Could not find entry with id " + id);
+        }
       entry.setStartedAt(LocalDateTime.now());
-      entry.setStatus(QueryExecutorStatus.RUNNING);
-      try {
-        postgresService.update(entry);
-      } catch (SQLException e) {
-        throw new RuntimeException(e);
-      }
-      List<Graph> userGraphs = requestObjectService.getUserGraphs(String.valueOf(entry.getUserId()));
-      ThreadContext.setUserGraphs(userGraphs);
-      try {
-        QueryRequest queryRequest = om.readValue(message, QueryRequest.class);
-        if (null == queryService) {
-          queryService = new QueryService();
-        }
-        queryService.executeQuery(queryRequest);
-        entry.setStatus(QueryExecutorStatus.COMPLETED);
-        entry.setFinishedAt(LocalDateTime.now());
-        postgresService.update(entry);
-      } catch (Exception e) {
-        entry.setStatus(QueryExecutorStatus.ERRORED);
-        entry.setError(e.getMessage());
+        entry.setStatus(QueryExecutorStatus.RUNNING);
         try {
           postgresService.update(entry);
-        } catch (SQLException ex) {
-          throw new RuntimeException(ex);
+        } catch (SQLException e) {
+          throw new RuntimeException(e);
         }
-      }
-    };
-    LOG.info("Waiting for query executor messages...");
-    channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> {
-    });
+        List<Graph> userGraphs = requestObjectService.getUserGraphs(String.valueOf(entry.getUserId()));
+        ThreadContext.setUserGraphs(userGraphs);
+        try {
+          QueryRequest queryRequest = om.readValue(message, QueryRequest.class);
+          if (null == queryService) {
+            queryService = new QueryService();
+          }
+          queryService.executeQuery(queryRequest);
+          entry.setStatus(QueryExecutorStatus.COMPLETED);
+        entry.setFinishedAt(LocalDateTime.now());
+          postgresService.update(entry);
+        } catch (Exception e) {
+          entry.setStatus(QueryExecutorStatus.ERRORED);
+          entry.setError(e.getMessage());
+          try {
+            postgresService.update(entry);
+          } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+          }
+        }
+      };
+      LOG.info("Waiting for query executor messages...");
+      channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> {
+      });
+    } catch (TimeoutException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public UUID publishToQueue(UUID userId, String userName, QueryRequest message) throws Exception {

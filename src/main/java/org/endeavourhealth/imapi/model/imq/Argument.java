@@ -34,12 +34,10 @@ public class Argument {
     return this;
   }
 
-
   public Argument setValueIriList(Set<TTIriRef> valueIriList) {
     this.valueIriList = valueIriList;
     return this;
   }
-
 
   public Path getValuePath() {
     return valuePath;

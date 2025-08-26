@@ -51,7 +51,7 @@
       "table": "patient",
       "fields": {
         "http://endhealth.info/im#age": {
-          "field": "TIMESTAMPDIFF(YEAR, {alias}.date_of_birth, $searchDate)", "type": "date"
+          "field": "TIMESTAMPDIFF({units}, {dateOfBirth}, {relativeTo})", "type": "number", "function": true
         },
         "http://endhealth.info/im#dateOfBirth": {"field": "{alias}.date_of_birth", "type": "date"}
       },

@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -263,6 +264,8 @@ public class IMQtoSQLConverter {
   private void convertMatch(Match match, SQLQuery qry, Bool bool) throws SQLConversionException {
     if (match.getInstanceOf() != null) {
       convertInstanceOf(qry, match.getInstanceOf(), bool);
+    } else if (null != match.getIsCohort()) {
+      convertIsCohort(qry, match.getIsCohort(), bool);
     } else if (match.getAnd() != null) {
       convertMatchBoolSubMatch(qry, match, Bool.and);
     }
@@ -301,6 +304,13 @@ public class IMQtoSQLConverter {
     if (instanceOf.isEmpty())
       throw new SQLConversionException("SQL Conversion Error: MatchSet must have at least one element");
     String subQueryIri = instanceOf.getFirst().getIri();
+    String rsltTbl = "`query_[" + subQueryIri + "]`";
+    qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.getAlias() + ".id");
+    if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".id IS NULL");
+  }
+
+  private void convertIsCohort(SQLQuery qry, TTIriRef isCohort, Bool bool) {
+    String subQueryIri = isCohort.getIri();
     String rsltTbl = "`query_[" + subQueryIri + "]`";
     qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.getAlias() + ".id");
     if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".id IS NULL");
@@ -381,6 +391,38 @@ public class IMQtoSQLConverter {
     } else {
       throw new SQLConversionException("SQL Conversion Error: UNHANDLED PROPERTY PATTERN\n" + property);
     }
+    if (null != property.getFunction()) {
+      resolveFunctionArgs(qry, property.getFunction());
+    }
+  }
+
+  private void resolveFunctionArgs(SQLQuery qry, FunctionClause function) throws SQLConversionException {
+    Map<String, String> paramsToValue = new HashMap<>();
+    for (Argument argument : function.getArgument()) {
+      String value = getArgumentValueForFunction(qry, argument);
+      paramsToValue.put(argument.getParameter(), value);
+    }
+    qry.getWheres().replaceAll(where -> {
+      String updated = where;
+      for (Map.Entry<String, String> entry : paramsToValue.entrySet()) {
+        updated = updated.replace("{" + entry.getKey() + "}", entry.getValue());
+      }
+      return updated;
+    });
+  }
+
+  private String getArgumentValueForFunction(SQLQuery qry, Argument argument) throws SQLConversionException {
+    if (null != argument.getValuePath()) {
+      return qry.getFieldName(argument.getValuePath().getIri(), null, tableMap);
+    } else if (null != argument.getValueParameter()) {
+      return argument.getValueParameter();
+    } else if (null != argument.getValueIri()) {
+      if ("units".equals(argument.getParameter())) return getUnitName(argument.getValueIri());
+      return argument.getValueIri().getIri();
+    } else if (null != argument.getValueData()) {
+      return argument.getValueData();
+    }
+    throw new SQLConversionException("Argument type not implemented");
   }
 
   private void convertMatchPropertyIs(SQLQuery qry, Where property, List<Node> list, boolean inverse) throws SQLConversionException {

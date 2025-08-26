@@ -111,9 +111,10 @@ public class SQLQuery {
 
   public String getFieldName(String field, String table, TableMap tableMap) throws SQLConversionException {
     String alias = table != null ? table : this.alias;
-    String fieldName = getField(field, table, tableMap).getField();
-
+    Field fieldObject = getField(field, table, tableMap);
+    String fieldName = fieldObject.getField();
     if (fieldName.contains("{alias}")) return fieldName.replaceAll("\\{alias}", alias);
+    else if (fieldObject.isFunction()) return fieldName;
     else return alias + "." + fieldName;
   }
 

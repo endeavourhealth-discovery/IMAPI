@@ -184,7 +184,7 @@ public class QueryService {
           log.debug("Executing subquery: {} with hash: {}", subQueryIri, hashCode);
           String resolvedSql = new IMQtoSQLConverter(subqueryRequest).getResolvedSql(queryIrisToHashCodes);
           Set<String> results = MYSQLConnectionManager.executeQuery(resolvedSql);
-          storeQueryResultsAndCache(queryRequest, results);
+          storeQueryResultsAndCache(subqueryRequest, results);
         } else {
           log.debug("Query results already exist for subquery: {} with hash: {}", subQueryIri, hashCode);
         }
@@ -466,8 +466,8 @@ public class QueryService {
   }
 
   private void processMatch(Match match, List<String> subQueryIris) throws QueryException, JsonProcessingException, SQLConversionException {
-    if (match.getInstanceOf() != null && !match.getInstanceOf().isEmpty()) {
-      String iri = match.getInstanceOf().getFirst().getIri();
+    if (null != match.getIsCohort()) {
+      String iri = match.getIsCohort().getIri();
       subQueryIris.add(iri);
       Query subQuery = describeQuery(iri, DisplayMode.LOGICAL);
       if (null == subQuery) throw new SQLConversionException("Sub query with iri:" + iri + " not found");

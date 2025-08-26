@@ -68,8 +68,8 @@ public class QueryDescriptor {
   }
 
   private void describeReturn(Return ret) {
-    if (ret.getAs()!=null &&ret.getSourceLabel()!=null){
-      nodeRefToLabel.put(ret.getAs(),ret.getSourceLabel());
+    if (ret.getAs() != null && ret.getSourceLabel() != null) {
+      nodeRefToLabel.put(ret.getAs(), ret.getSourceLabel());
     }
     if (ret.getProperty() != null) {
       for (ReturnProperty prop : ret.getProperty()) {
@@ -182,7 +182,7 @@ public class QueryDescriptor {
       describeInstance(match.getInstanceOf());
     }
     if (match.getIsCohort() != null) {
-      match.getIsCohort().setName(getTermInContext(match.getIsCohort().getIri(),Context.MATCH));
+      match.getIsCohort().setName(getTermInContext(match.getIsCohort().getIri(), Context.MATCH));
     }
     if (match.getThen() != null) {
       describeMatch(match.getThen(), typeOf);
@@ -261,11 +261,9 @@ public class QueryDescriptor {
 
   private void describeWheres(List<Where> wheres) {
     for (Where where : wheres) {
-        describeWhere(where);
+      describeWhere(where);
     }
   }
-
-
 
 
   private void describeInstance(List<Node> inSets) {
@@ -436,8 +434,6 @@ public class QueryDescriptor {
   }
 
 
-
-
   private void describeFrom(Where where, Value from) {
     String qualifier;
     boolean inclusive = false;
@@ -499,7 +495,7 @@ public class QueryDescriptor {
     if (value != null) {
       qualifier = qualifier + value.replace("-", "");
     }
-    if (where.getUnits()!= null) {
+    if (where.getUnits() != null) {
       qualifier = qualifier + " " + getTermInContext(where.getUnits().getIri(), Context.PLURAL);
     }
     if (inclusive) {
@@ -541,27 +537,25 @@ public class QueryDescriptor {
   }
 
   private String getRelation(RelativeTo relativeTo) {
-      if (relativeTo.getNodeRef()!=null) {
-        if (nodeRefToLabel.get(relativeTo.getNodeRef())!=null) {
-          relativeTo.setTargetLabel(nodeRefToLabel.get(relativeTo.getNodeRef()));
-        }
-        else relativeTo.setTargetLabel(relativeTo.getNodeRef());
-      }
-      String relation = null;
-      if (relativeTo.getIri() != null) {
-        String propertyName = getTermInContext(relativeTo);
-        relation = propertyName + " of ";
-      }
-      if (relativeTo.getParameter() != null) {
-        if (relativeTo.getParameter().toLowerCase().contains("searchdate")) {
-          relation = (relation != null ? relation : "") + "search date";
-        } else if (relativeTo.getParameter().toLowerCase().contains("achievementdate")) {
-          relation = (relation != null ? relation : "") + "achievement date";
-        } else relation = (relation != null ? relation : "") + relativeTo.getParameter();
-      }
-      return relation;
+    if (relativeTo.getNodeRef() != null) {
+      if (nodeRefToLabel.get(relativeTo.getNodeRef()) != null) {
+        relativeTo.setTargetLabel(nodeRefToLabel.get(relativeTo.getNodeRef()));
+      } else relativeTo.setTargetLabel(relativeTo.getNodeRef());
+    }
+    String relation = null;
+    if (relativeTo.getIri() != null) {
+      String propertyName = getTermInContext(relativeTo);
+      relation = propertyName + " of ";
+    }
+    if (relativeTo.getParameter() != null) {
+      if (relativeTo.getParameter().toLowerCase().contains("searchdate")) {
+        relation = (relation != null ? relation : "") + "search date";
+      } else if (relativeTo.getParameter().toLowerCase().contains("achievementdate")) {
+        relation = (relation != null ? relation : "") + "achievement date";
+      } else relation = (relation != null ? relation : "") + relativeTo.getParameter();
+    }
+    return relation;
   }
-
 
 
   private void describeWhereIs(Where where) {
@@ -624,18 +618,19 @@ public class QueryDescriptor {
     }
   }
 
-  public String getDescriptions(Match match){
-    if (match.getDescription()!=null) return match.getDescription();
+  public String getDescriptions(Match match) {
+    if (match.getDescription() != null) return match.getDescription();
     StringBuilder description = new StringBuilder();
-    String operators= "or,and,not";
-    int opIndex=-1;
+    String operators = "or,and,not";
+    int opIndex = -1;
     for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd(), match.getNot())) {
       opIndex++;
       if (matches != null) {
         for (Match subMatch : matches) {
           if (subMatch.getDescription() != null) {
             if (description.isEmpty()) description.append(subMatch.getDescription());
-            else description.append(", ").append(operators.split(",")[opIndex]).append(" ").append(subMatch.getDescription());
+            else
+              description.append(", ").append(operators.split(",")[opIndex]).append(" ").append(subMatch.getDescription());
           }
         }
       }

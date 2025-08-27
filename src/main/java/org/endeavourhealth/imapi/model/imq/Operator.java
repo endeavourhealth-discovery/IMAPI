@@ -14,6 +14,7 @@ public enum Operator {
   lte("<="),
   lt("<"),
   start("startsWith"),
+  isTrue("isTrue"),
   contains("contains");
 
   // declaring private variable for getting values

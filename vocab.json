@@ -654,6 +654,10 @@
         "value": "Namespace.IM + \"provenanceAgent\""
       },
       {
+        "name": "INDICATOR",
+        "value": "Namespace.IM + \"Indicator\""
+      },
+      {
         "name": "START_TIME",
         "value": "Namespace.IM + \"startTime\""
       },

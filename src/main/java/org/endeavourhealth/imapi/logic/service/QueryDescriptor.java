@@ -581,7 +581,7 @@ public class QueryDescriptor {
         if (i > 0) valueLabel.append(", or ");
       }
       Node set = where.getIs().get(i);
-      valueLabel.append(set.getQualifier() != null ? set.getQualifier() + " " : "").append(set.getName());
+      valueLabel.append(set.getQualifier() != null ? set.getQualifier() + " " : "").append(getShortName(set.getName()));
     }
     where.setValueLabel(valueLabel.toString());
     if (where.getShortLabel() != null)
@@ -603,6 +603,27 @@ public class QueryDescriptor {
         }
       }
     }
+  }
+
+  public static String getShortName(String name) {
+    if (name == null) return null;
+    int length= name.length()-1;
+    StringBuilder startShort= new StringBuilder(name.substring(0, Math.min(length, 50)));
+    if (length>50){
+      boolean bracket=false;
+      for (int i=50;i<Math.min(length, 70);i++){
+        Character c=name.charAt(i);
+        if (c=='(') bracket=true;
+        if (c==')') bracket=false;
+        if (c==' ') {
+          if (!bracket) return startShort+"...";
+          else startShort.append(c);
+        }
+        else startShort.append(c);
+      }
+      return startShort.toString()+"...";
+    }
+    else return startShort.toString();
   }
 
   public void generateUUIDs(Where where) {

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.dataaccess;
 
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
@@ -183,4 +184,24 @@ public class ConceptRepository {
     return result;
   }
 
+  public boolean hasAttributeValue(String candidate, String attribute, String value) {
+    String sql= """
+      Ask
+      Where {
+      %s
+      %s
+      %s
+        ?candidate im:isA ?concept.
+        ?concept im:roleGroup ?roleGroup.
+        ?roleGroup ?superAttribute ?superValue.
+        ?attribute im:isA ?superAttribute.
+        ?value im:isA ?superValue.
+      }
+      """.formatted(valueList("candidate",List.of(candidate)),valueList("attribute",List.of(attribute)),
+      valueList("value",List.of(value)));
+    try (IMDB conn = IMDB.getConnection()) {
+      BooleanQuery qry = conn.prepareBooleanSparql(sql);
+      return qry.evaluate();
+    }
+  }
 }

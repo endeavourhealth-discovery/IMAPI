@@ -17,8 +17,6 @@ public interface Assignable {
 
   Assignable setValueLabel(String label);
 
-
-
   FunctionClause getFunction();
   Assignable setFunction(FunctionClause function);
 

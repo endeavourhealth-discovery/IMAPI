@@ -21,7 +21,14 @@ public class EqdListToIMQ {
     this.resources = resources;
     this.resources.setQueryType(QueryType.LIST);
     query.setTypeOf(new Node().setIri(Namespace.IM + "Patient"));
-    String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
+    String id;
+    if (eqReport.getParent().getSearchIdentifier() != null){
+      id = eqReport.getParent().getSearchIdentifier().getReportGuid();
+    }
+    else if (eqReport.getParent().getParentType()==VocPopulationParentType.ACTIVE){
+      id= Namespace.IM+"Q_RegisteredGMS";
+    }
+    else throw new EQDException("parent population at definition level");
     if (EqdToIMQ.versionMap.containsKey(id)) id = EqdToIMQ.versionMap.get(id);
     query.setIsCohort(iri(resources.getNamespace() + id)
       .setName(resources.reportNames.get(id)));

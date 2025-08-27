@@ -160,6 +160,7 @@ public enum IM implements VocabEnum {
     PROVENANCE_TARGET(Namespace.IM + "provenanceTarget"),
     PROVENANCE_ACTIVITY_TYPE(Namespace.IM + "provenanceActivityType"),
     PROVENANCE_AGENT(Namespace.IM + "provenanceAgent"),
+    INDICATOR(Namespace.IM + "Indicator"),
     START_TIME(Namespace.IM + "startTime"),
     EFFECTIVE_DATE(Namespace.IM + "effectiveDate"),
     END_DATE(Namespace.IM + "endDate"),

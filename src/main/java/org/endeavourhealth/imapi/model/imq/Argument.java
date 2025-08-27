@@ -7,6 +7,7 @@ import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -24,6 +25,22 @@ public class Argument {
   private Path valuePath;
   private String valueNodeRef;
   private TTIriRef dataType;
+  private List<Path> valuePathList;
+
+  public List<Path> getValuePathList() {
+    return valuePathList;
+  }
+  public Argument setValuePathList(List<Path> valuePathList) {
+    this.valuePathList = valuePathList;
+    return this;
+  }
+  public Argument addValuePath(Path valuePath) {
+    if (this.valuePathList == null)
+      this.valuePathList = List.of();
+    this.valuePathList.add(valuePath);
+    return this;
+  }
+
 
   public String getValueNodeRef() {
     return valueNodeRef;

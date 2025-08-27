@@ -764,9 +764,21 @@ public class EqdResources {
     if (relation == VocRelation.RELATIVE &&relativeTo!=null)
         where.setRelativeTo((new RelativeTo()).setParameter(relativeTo.equals("BASELINE") ? "$achievementDate" : "$searchDate"));
     pv.setOperator(comp);
-    pv.setValue(value);
-    if (units != null) {
-      where.setUnits(getIMUnits(units));
+    if (value!=null && value.equals("This")) {
+      if (units.equals("FISCALYEAR")) {
+        pv.setOperator(Operator.isTrue);
+        FunctionClause functionClause = new FunctionClause();
+        functionClause.setIri(Namespace.IM+"FiscalYear").setName("Fiscal year");
+        functionClause.argument(a->a.setParameter("testDate").setValuePath(new Path().setIri(Namespace.IM+"effectiveDate").setName("event date")));
+        functionClause.argument(a->a.setParameter("relativeTo").setValueParameter("$searchDate"));
+        pv.setFunction(functionClause);
+      }
+    }
+    else {
+      pv.setValue(value);
+      if (units != null) {
+        where.setUnits(getIMUnits(units));
+      }
     }
 
   }

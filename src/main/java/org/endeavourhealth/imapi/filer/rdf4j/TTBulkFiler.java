@@ -70,8 +70,7 @@ public class TTBulkFiler implements TTDocumentFiler {
       log.info("Executing command [{}{}]", startCommand, command);
 
       Process process = Runtime.getRuntime()
-        .exec(new String[] { startCommand + command },
-          null, new File(preloadPath));
+        .exec((startCommand + command).split(" "),null, new File(preloadPath));
       BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
       BufferedReader e = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 

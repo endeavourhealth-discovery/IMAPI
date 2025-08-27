@@ -130,7 +130,8 @@ public class EqdListToIMQ {
         String eqColumn = String.join("/", eqCol.getColumn());
         String eqURL = eqTable + "/" + eqColumn;
         String subPath = resources.getIMPath(eqURL);
-        convertColumn(aReturn, subPath, eqCol.getDisplayName());
+        if (!subPath.contains("notSupported"))
+          convertColumn(aReturn, subPath, eqCol.getDisplayName());
       }
     }
   }

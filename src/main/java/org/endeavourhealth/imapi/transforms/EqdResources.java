@@ -766,11 +766,13 @@ public class EqdResources {
     pv.setOperator(comp);
     if (value!=null && value.equals("This")) {
       if (units.equals("FISCALYEAR")) {
-        pv.setOperator(Operator.isTrue);
+        pv.setOperator(Operator.eq);
+        pv.setValue("0");
         FunctionClause functionClause = new FunctionClause();
-        functionClause.setIri(Namespace.IM+"FiscalYear").setName("Fiscal year");
-        functionClause.argument(a->a.setParameter("testDate").setValuePath(new Path().setIri(Namespace.IM+"effectiveDate").setName("event date")));
-        functionClause.argument(a->a.setParameter("relativeTo").setValueParameter("$searchDate"));
+        functionClause.setIri(Namespace.IM+"timeDifference").setName("TimeDifference");
+        functionClause.argument(a->a.setParameter("firstDate").setValuePath(new Path().setIri(Namespace.IM+"effectiveDate").setName("event date")));
+        functionClause.argument(a->a.setParameter("secondDate").setValueParameter("$searchDate"));
+        functionClause.argument(a->a.setParameter("units").setValueIri(iri(Namespace.IM+"fiscalYear").setName("fiscal year")));
         pv.setFunction(functionClause);
       }
     }

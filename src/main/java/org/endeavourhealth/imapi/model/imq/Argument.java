@@ -28,6 +28,13 @@ public class Argument {
   private List<Path> valuePathList;
   @Getter
   private Object valueObject;
+  @Getter
+  private String valueVariable;
+
+  public Argument setValueVariable(String valueVariable) {
+    this.valueVariable = valueVariable;
+    return this;
+  }
 
   public Argument setValueObject(Object valueObject) {
     this.valueObject = valueObject;

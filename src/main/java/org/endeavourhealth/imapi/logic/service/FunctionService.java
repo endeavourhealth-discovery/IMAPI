@@ -49,7 +49,7 @@ public class FunctionService {
     for (Argument arg : arguments) {
       if (null == arg.getParameter())
         throw new IllegalArgumentException(ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY);
-      if (ENTITY_IRI.equals(arg.getParameter())) iri = arg.getValueParameter();
+      if (ENTITY_IRI.equals(arg.getParameter())) iri = arg.getValueVariable();
       if ("fieldName".equals(arg.getParameter())) fieldName = arg.getValueData();
     }
     if (null == iri)
@@ -68,7 +68,7 @@ public class FunctionService {
     for (Argument arg : arguments) {
       if (null == arg.getParameter())
         throw new IllegalArgumentException(ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY);
-      if (ENTITY_IRI.equals(arg.getParameter())) iri = arg.getValueParameter();
+      if (ENTITY_IRI.equals(arg.getParameter())) iri = arg.getValueVariable();
     }
     if (null == iri)
       throw new IllegalArgumentException(NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY);

@@ -26,6 +26,13 @@ public class Argument {
   private String valueNodeRef;
   private TTIriRef dataType;
   private List<Path> valuePathList;
+  @Getter
+  private Object valueObject;
+
+  public Argument setValueObject(Object valueObject) {
+    this.valueObject = valueObject;
+    return this;
+  }
 
   public List<Path> getValuePathList() {
     return valuePathList;

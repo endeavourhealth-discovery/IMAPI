@@ -20,6 +20,8 @@ public class Query extends Match {
   @Getter
   private boolean activeOnly;
   private List<Query> dataSet;
+  @Getter
+  private List<Query> query;
   private List<GroupBy> groupBy;
   private String iri;
   private String name;
@@ -27,27 +29,26 @@ public class Query extends Match {
   private JsonNode parentResult;
   @Getter
   private TTIriRef persistentIri;
-  @Getter
-  private Query subquery;
+
   @Getter
   private String bindAs;
+
+  public Query setQuery(List<Query> query) {
+    this.query = query;
+    return this;
+  }
+  public Query addQuery(Query query) {
+    if (this.query == null)
+      this.query = new ArrayList<>();
+    this.query.add(query);
+    return this;
+  }
 
   public Query setBindAs(String bindAs) {
     this.bindAs = bindAs;
     return this;
   }
 
-  public Query setSubquery(Query subquery) {
-    this.subquery = subquery;
-    return this;
-  }
-
-  public Query subquery(Consumer<Query> builder) {
-    Query subquery = new Query();
-    this.subquery = subquery;
-    builder.accept(subquery);
-    return this;
-  }
 
 
   public Query setRule(List<Match> rule) {

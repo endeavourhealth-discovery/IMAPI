@@ -106,15 +106,17 @@ public class SparqlConverter {
 
   public String subQuery(Set<TTIriRef> statusFilter, boolean countOnly, boolean highestUsage) throws QueryException {
     StringBuilder subSelectQl = new StringBuilder();
-    if (query.getSubquery() != null) {
+    if (query.getQuery() != null) {
       o++;
       Query rootQuery = query;
-      query = rootQuery.getSubquery();
-      subSelectQl.append("{\n");
-      subSelectQl.append(getSelectSparql(statusFilter, countOnly, highestUsage));
-      subSelectQl.append("}\n");
-      subSelectQl.append("{\n BIND (?").append(query.getVariable()).append(" AS ?").append(rootQuery.getVariable()).append(") \n}\n");
-      query = rootQuery;
+      for (Query subQuery : query.getQuery()) {
+        query = subQuery;
+        subSelectQl.append("{\n");
+        subSelectQl.append(getSelectSparql(statusFilter, countOnly, highestUsage));
+        subSelectQl.append("}\n");
+        subSelectQl.append("{\n BIND (?").append(query.getVariable()).append(" AS ?").append(rootQuery.getVariable()).append(") \n}\n");
+        query = rootQuery;
+      }
     }
     return subSelectQl.toString();
   }
@@ -154,8 +156,13 @@ public class SparqlConverter {
     StringBuilder whereQl = new StringBuilder();
     whereQl.append("WHERE {");
     boolean hasSubQuery = false;
-    if (query.getSubquery() != null) {
-      whereQl.append(subQuery(statusFilter, false, false));
+    if (query.getQuery() != null) {
+      Query rootQuery = query;
+      for (Query subQuery : query.getQuery()) {
+        query = subQuery;
+        whereQl.append(subQuery(statusFilter, false, false));
+        query = rootQuery;
+      }
       hasSubQuery = true;
     }
     if (query.getTypeOf() != null) {

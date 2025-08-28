@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
+
 import java.io.IOException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -77,14 +78,17 @@ public class EqdListToIMQ {
     resources.setRule(1);
     resources.setSubRule(1);
     Match match = resources.convertCriteria(eqColGroup.getCriteria());
-    subQuery.setInstanceOf(match.getInstanceOf());
-    subQuery.setWhere(match.getWhere());
-    subQuery.setPath(match.getPath());
-    subQuery.setThen(match.getThen());
-    subQuery.setAnd(match.getAnd());
-    subQuery.setOr(match.getOr());
-    subQuery.setNot(match.getNot());
-    subQuery.setTypeOf(match.getTypeOf());
+    Query matchQuery = new Query();
+    subQuery.addQuery(matchQuery);
+    matchQuery.setInstanceOf(match.getInstanceOf());
+    matchQuery.setWhere(match.getWhere());
+    matchQuery.setPath(match.getPath());
+    matchQuery.setThen(match.getThen());
+    matchQuery.setAnd(match.getAnd());
+    matchQuery.setOr(match.getOr());
+    matchQuery.setNot(match.getNot());
+    matchQuery.setTypeOf(match.getTypeOf());
+    matchQuery.setReturn(match.getReturn());
     Return aReturn = new Return();
     subQuery.setReturn(aReturn);
     String nodeRef = resources.getNodeRef(match);

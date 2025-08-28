@@ -83,7 +83,7 @@ public class SetRepository {
 
   private Query getFullExpansionDefinition(Query imQuery, boolean includeLegacy) {
     Query fullQuery = new Query();
-    fullQuery.setSubquery(imQuery);
+    fullQuery.addQuery(imQuery);
     setReturn(fullQuery, includeLegacy);
     fullQuery.setVariable(EXPANDED_ENTITY);
     fullQuery

@@ -356,7 +356,7 @@ public class EqdResources {
     where.setIri(fullPath[fullPath.length - 1]);
     if ((Namespace.IM + "value").equals(where.getIri())) {
       if (match.getPath() != null) {
-        match.getPath().getFirst().setTypeOf((new Node()).setIri(Namespace.IM + "Observation"));
+        match.getPath().getFirst().setIri(Namespace.IM+"observation").setTypeOf((new Node()).setIri(Namespace.IM + "Observation"));
       }
     }
 

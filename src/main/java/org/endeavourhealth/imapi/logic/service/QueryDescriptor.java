@@ -58,6 +58,10 @@ public class QueryDescriptor {
     if (query.getGroupBy() != null) {
       describeGroupBys(query.getGroupBy());
     }
+    if (query.getQuery()!=null){
+      for (Query matchQuery:query.getQuery())
+        describeQuery(matchQuery, displayMode);
+    }
     return query;
   }
 

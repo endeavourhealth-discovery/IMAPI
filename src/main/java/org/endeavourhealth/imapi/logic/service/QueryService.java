@@ -304,8 +304,10 @@ public class QueryService {
 
   private void recursivelyCheckQueryArguments(Query query, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
     recursivelyCheckMatchArguments(query, missingArguments, arguments);
-    if (null != query.getSubquery()) {
-      recursivelyCheckQueryArguments(query.getSubquery(), missingArguments, arguments);
+    if (null != query.getQuery()) {
+      for (Query subquery : query.getQuery()) {
+        recursivelyCheckQueryArguments(query, missingArguments, arguments);
+      }
     }
   }
 

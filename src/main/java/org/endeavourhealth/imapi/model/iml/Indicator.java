@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.model.iml;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.imq.Bool;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -8,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+@JsonPropertyOrder({"name", "operator","indicator", "failAction", "successAction","iri","query"})
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Indicator extends TTIriRef {
   @Getter
   private List<Indicator> indicator;
@@ -18,6 +22,49 @@ public class Indicator extends TTIriRef {
   @Getter
   private List<IndicatorAction> failAction;
   private List<IndicatorAction> successAction;
+  private List<Indicator> stateIfTrue;
+  private List<Indicator> stateIfFalse;
+  private IndicatorType indicatorType;
+
+  public IndicatorType getIndicatorType() {
+    return indicatorType;
+  }
+  public Indicator setIndicatorType(IndicatorType indicatorType) {
+    this.indicatorType = indicatorType;
+    return this;
+  }
+
+  public List<Indicator> getStateIfTrue() {
+    return stateIfTrue;
+  }
+  public Indicator setStateIfTrue(List<Indicator> stateIfTrue) {
+    this.stateIfTrue = stateIfTrue;
+    return this;
+  }
+  public Indicator addStateIfTrue (Indicator stateIfTrue){
+      if (this.stateIfTrue == null) {
+        this.stateIfTrue = new ArrayList<>();
+      }
+      this.stateIfTrue.add(stateIfTrue);
+      return this;
+  }
+
+  public List<Indicator> getStateIfFalse() {
+    return stateIfFalse;
+  }
+  public Indicator setStateIfFalse(List<Indicator> stateIfFalse) {
+    this.stateIfFalse = stateIfFalse;
+    return this;
+  }
+  public Indicator addStateIfFalse (Indicator stateIfFalse){
+      if (this.stateIfFalse == null) {
+        this.stateIfFalse = new ArrayList<>();
+      }
+      this.stateIfFalse.add(stateIfFalse);
+      return this;
+  }
+
+
 
   public Indicator setOperator(Bool operator) {
     this.operator = operator;

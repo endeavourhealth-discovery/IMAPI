@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.model.imq;
 
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
 public interface Assignable {
   Operator getOperator();
 
@@ -19,6 +21,8 @@ public interface Assignable {
 
   FunctionClause getFunction();
   Assignable setFunction(FunctionClause function);
+  TTIriRef getUnits();
+  Assignable setUnits(TTIriRef unit);
 
 
 

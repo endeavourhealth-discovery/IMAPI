@@ -779,7 +779,7 @@ public class EqdResources {
     else {
       pv.setValue(value);
       if (units != null) {
-        where.setUnits(getIMUnits(units));
+        pv.setUnits(getIMUnits(units));
       }
     }
 
@@ -871,7 +871,7 @@ public class EqdResources {
     if (rTo.getValue().getRelation() != null && rTo.getValue().getRelation() == VocRelation.RELATIVE) {
       relation = VocRelation.RELATIVE;
     }
-
+    this.setCompare(where, toValue, comp, value, units, relation,relativeTo);
   }
 
   private List<Node> getExceptionSet(EQDOCException set) throws IOException {

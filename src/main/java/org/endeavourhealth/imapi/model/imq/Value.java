@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.function.Consumer;
 
@@ -12,6 +14,13 @@ public class Value implements Assignable {
   private String valueLabel;
   private String valueParameter;
   private FunctionClause function;
+  @Getter
+  private TTIriRef units;
+
+  public Value setUnits(TTIriRef units) {
+    this.units = units;
+    return this;
+  }
 
 
   @Override

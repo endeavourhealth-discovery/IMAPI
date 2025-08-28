@@ -690,6 +690,12 @@ public class EqdResources {
     EQDOCRangeFrom rFrom = rv.getRangeFrom();
     String relativeTo= rv.getRelativeTo();
     EQDOCRangeTo rTo = rv.getRangeTo();
+    if (relativeTo==null) {
+      if (rFrom!=null && rFrom.getValue() != null && rFrom.getValue().getRelation() == VocRelation.RELATIVE)
+        relativeTo = "SEARCHDATE";
+      if (rTo!=null && rTo.getValue() != null && rTo.getValue().getRelation() == VocRelation.RELATIVE)
+        relativeTo = "SEARCHDATE";
+    }
     if (rFrom != null) {
       if (rTo == null) {
         this.setCompareFrom(pv, rFrom,relativeTo);

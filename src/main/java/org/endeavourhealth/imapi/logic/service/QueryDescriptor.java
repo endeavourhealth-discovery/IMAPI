@@ -448,8 +448,8 @@ public class QueryDescriptor {
     if (value != null) {
       qualifier = qualifier + value.replace("-", "");
     }
-    if (where.getUnits() != null) {
-      qualifier = qualifier + " " + getTermInContext(where.getUnits().getIri(), Context.PLURAL);
+    if (from.getUnits() != null) {
+      qualifier = qualifier + " " + getTermInContext(from.getUnits().getIri(), Context.PLURAL);
     }
     if (inclusive) {
       qualifier = qualifier + " (inc.)";
@@ -458,11 +458,11 @@ public class QueryDescriptor {
     where.setQualifier(qualifier);
   }
 
-  private void describeTo(Where where, Value from) {
+  private void describeTo(Where where, Value to) {
     String qualifier = null;
     boolean inclusive = false;
-    Operator operator = from.getOperator();
-    String value = from.getValue();
+    Operator operator = to.getOperator();
+    String value = to.getValue();
     boolean date = false;
     if (where.getIri() != null) {
       date = where.getIri().toLowerCase().contains("date");
@@ -495,8 +495,8 @@ public class QueryDescriptor {
     if (value != null) {
       qualifier = qualifier + value.replace("-", "");
     }
-    if (where.getUnits() != null) {
-      qualifier = qualifier + " " + getTermInContext(where.getUnits().getIri(), Context.PLURAL);
+    if (to.getUnits() != null) {
+      qualifier = qualifier + " " + getTermInContext(to.getUnits().getIri(), Context.PLURAL);
     }
     if (inclusive) {
       qualifier = qualifier + " (inc.)";

@@ -147,7 +147,8 @@ public class IriCollector {
   }
 
   private static void collectAssignableIris(Assignable assignable, Set<String> iriSet) {
-      if (assignable.getFunction()!=null){
+    if (assignable.getUnits()!=null) iriSet.add(assignable.getUnits().getIri());
+    if (assignable.getFunction()!=null){
         FunctionClause functionClause = assignable.getFunction();
         iriSet.add(functionClause.getIri());
         if (functionClause.getArgument()!=null){

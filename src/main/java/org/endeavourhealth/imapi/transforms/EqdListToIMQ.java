@@ -92,7 +92,6 @@ public class EqdListToIMQ {
     Return aReturn = new Return();
     subQuery.setReturn(aReturn);
     String nodeRef = resources.getNodeRef(match);
-    aReturn.setAs(nodeRef);
     String tablePath = resources.getIMPath(eqTable);
     String[] paths = tablePath.split(" ");
     for (int i = 2; i < paths.length - 1; i = i + 2) {

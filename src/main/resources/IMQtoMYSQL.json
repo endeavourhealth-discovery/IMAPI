@@ -76,7 +76,8 @@
         "http://endhealth.info/im#concept": {"field": "{alias}.core_concept_id", "type": "iri"},
         "http://endhealth.info/im#effectiveDate": {"field": "{alias}.clinical_effective_date", "type": "date"},
         "http://endhealth.info/im#value": {"field": "{alias}.result_value", "type": "number"},
-        "http://endhealth.info/im#ageAtEvent": {"field": "{alias}.age_at_event", "type": "age"}
+        "http://endhealth.info/im#ageAtEvent": {"field": "{alias}.age_at_event", "type": "number"},
+        "http://endhealth.info/im#problemEpisode": {"field": "{alias}.episodicity_concept_id", "type": "iri"}
       },
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "{alias}.patient_id", "toField": "id"}

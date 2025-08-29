@@ -429,61 +429,55 @@ public class IMQtoSQLConverter {
     if (list == null) {
       throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyIs\n" + property);
     }
+    String concept_alias = "c_" + property.getName();
+    String csm_alias = "csm_" + property.getName();
 
-    ArrayList<String> direct = new ArrayList<>();
-    ArrayList<String> ancestors = new ArrayList<>();
-    ArrayList<String> descendants = new ArrayList<>();
-    ArrayList<String> descendantsSelf = new ArrayList<>();
-    ArrayList<String> membersOf = new ArrayList<>();
+    String sql = """
+            JOIN concept `{concept_alias}` ON `{concept_alias}`.dbid = {join_condition}
+            JOIN concept_set_member `{csm_alias}` ON `{csm_alias}`.im1id = `{concept_alias}`.id
+            AND ({conditions})
+      """;
+    sql = sql.replaceAll("\\{concept_alias}", concept_alias).replaceAll("\\{csm_alias}", csm_alias);
 
-    for (Node pIs : list) {
-      if (pIs.getIri() != null) {
-        if (pIs.isMemberOf()) membersOf.add(pIs.getIri());
-        else if (pIs.isAncestorsOf()) ancestors.add(pIs.getIri());
-        else if (pIs.isDescendantsOf()) descendants.add(pIs.getIri());
-        else if (pIs.isDescendantsOrSelfOf()) descendantsSelf.add(pIs.getIri());
-        else direct.add(pIs.getIri());
-      } else if (pIs.getParameter() != null) {
-        descendantsSelf.add(pIs.getIri());
-      } else {
-        throw new SQLConversionException("SQL Conversion Error: UNHANDLED 'IN'/'NOT IN' ENTRY\n" + pIs);
-      }
+    if (!list.isEmpty()) {
+      String filedName = qry.getFieldName(property.getIri(), null, tableMap);
+      List<String> conditions = getIriConditions(csm_alias, list);
+      String conditionsSQL = StringUtils.join(conditions, " OR ");
+      sql = sql.replace("{join_condition}", filedName).replace("{conditions}", conditionsSQL);
+      qry.getJoins().add(sql);
     }
+  }
 
-    List<String> dbids = new ArrayList<>();
-    if (!direct.isEmpty()) {
-      List<String> directIM11Ids = entityRepository.getIM1Ids(direct);
-      if (directIM11Ids.isEmpty())
-        throw new SQLConversionException("No IM1IDs found for '" + StringUtils.join(direct, "',\n'") + "'");
-      dbids.addAll(getDBIDs(directIM11Ids));
-    }
-    if (!descendants.isEmpty()) {
-      List<String> descendantIM11Ids = entityRepository.getDescendantIM1Ids(direct, false);
-      if (descendantIM11Ids.isEmpty())
-        throw new SQLConversionException("No IM1IDs found for descendants of '" + StringUtils.join(descendants, "',\n'") + "'");
-      dbids.addAll(getDBIDs(descendantIM11Ids));
-    }
-    if (!descendantsSelf.isEmpty()) {
-      List<String> descendantSelfIM11Ids = entityRepository.getDescendantIM1Ids(descendantsSelf, true);
-      if (descendantSelfIM11Ids.isEmpty())
-        throw new SQLConversionException("No IM1IDs found for descendants of '" + StringUtils.join(descendantsSelf, "',\n'") + "'");
-      dbids.addAll(getDBIDs(descendantSelfIM11Ids));
-    }
-    if (!ancestors.isEmpty()) {
-      List<String> ancestorIM11Ids = entityRepository.getAncestorIM1Ids(ancestors);
-      if (ancestorIM11Ids.isEmpty())
-        throw new SQLConversionException("No IM1IDs found for ancestors of '" + StringUtils.join(ancestors, "',\n'") + "'");
-      dbids.addAll(getDBIDs(ancestorIM11Ids));
-    }
-    if (!membersOf.isEmpty()) {
-      List<String> memberOfIM11Ids = entityRepository.getMemberOfIM1Ids(membersOf);
-      if (memberOfIM11Ids.isEmpty())
-        throw new SQLConversionException("No IM1IDs found for members of '" + StringUtils.join(membersOf, "',\n'") + "'");
-      dbids.addAll(getDBIDs(memberOfIM11Ids));
-    }
-    if (dbids.isEmpty())
-      throw new SQLConversionException("No IM1 dbids'");
-    addPropertyIsWhere(qry, property, dbids, inverse);
+  private List<String> getIriConditions(String csmAlias, List<Node> list) {
+    return list.stream()
+      .map(node -> {
+        try {
+          String csm_table = "`" + csmAlias + "`";
+          String condition = csm_table + "." + getJoiningProperty(node) + " = '" + node.getIri() + "'";
+          if (node.isDescendantsOf() || node.isMemberOf())
+            condition = "(" + condition + " AND " + csm_table + ".self = 0)";
+          else if (node.isDescendantsOrSelfOf()) {
+            // nothing
+          } else if (node.isAncestorsOf()) {
+            // not implemented yet
+          } else condition = "(" + condition + " AND " + csm_table + ".self = 1)";
+          return condition;
+        } catch (SQLConversionException e) {
+          throw new RuntimeException(e);
+        }
+      }).toList();
+  }
+
+  private String getJoiningProperty(Node node) throws SQLConversionException {
+    if (node.isMemberOf()) {
+      return "set";
+    } else if (node.isDescendantsOf()) {
+      return "set";
+    } else if (node.isAncestorsOrSelfOf()) {
+      return "set";
+    } else if (node.isAncestorsOf()) {
+      throw new SQLConversionException("SQL Conversion Error: Ancestor joining currently not supported");
+    } else return "member";
   }
 
   private void addPropertyIsWhere(SQLQuery qry, Where property, List<String> dbids, boolean inverse) throws SQLConversionException {
@@ -525,6 +519,7 @@ public class IMQtoSQLConverter {
       returnString = "($searchDate" + " - INTERVAL '" + range.getValue() + "') " + range.getOperator().getValue() + " " + fieldName;
     else
       returnString = "DATE_SUB($searchDate" + ", INTERVAL " + range.getValue() + ") " + range.getOperator().getValue() + " " + fieldName;
+//    needs units
     return returnString;
   }
 
@@ -589,7 +584,6 @@ public class IMQtoSQLConverter {
     } else {
       where = qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + property.getValue();
     }
-    if (property.getUnits() != null) where += " -- CONVERT " + property.getUnits() + "\n";
     if (property.isAncestorsOf() || property.isDescendantsOf() || property.isDescendantsOrSelfOf()) {
       where += " -- TCT\n";
     }
@@ -607,7 +601,10 @@ public class IMQtoSQLConverter {
         convertMatchProperty(subQuery, p);
       }
     }
-    qry.getWheres().add("(" + StringUtils.join(subQuery.getWheres(), " " + bool.toString().toUpperCase() + " ") + ")");
+    if (!subQuery.getWheres().isEmpty())
+      qry.getWheres().add("(" + StringUtils.join(subQuery.getWheres(), " " + bool.toString().toUpperCase() + " ") + ")");
+    if (!subQuery.getJoins().isEmpty())
+      qry.getJoins().add(StringUtils.join(subQuery.getJoins(), " "));
   }
 
   private void convertMatchPropertyNull(SQLQuery qry, Where property) throws SQLConversionException {

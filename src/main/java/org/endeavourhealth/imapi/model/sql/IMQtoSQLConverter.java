@@ -452,7 +452,16 @@ public class IMQtoSQLConverter {
     return list.stream()
       .map(node -> {
         try {
-          return "`" + csmAlias + "`." + getJoiningProperty(node) + " = '" + node.getIri() + "'";
+          String csm_table = "`" + csmAlias + "`";
+          String condition = csm_table + "." + getJoiningProperty(node) + " = '" + node.getIri() + "'";
+          if (node.isDescendantsOf() || node.isMemberOf())
+            condition = "(" + condition + " AND " + csm_table + ".self = 0)";
+          else if (node.isDescendantsOrSelfOf()) {
+            // nothing
+          } else if (node.isAncestorsOf()) {
+            // not implemented yet
+          } else condition = "(" + condition + " AND " + csm_table + ".self = 1)";
+          return condition;
         } catch (SQLConversionException e) {
           throw new RuntimeException(e);
         }
@@ -510,6 +519,7 @@ public class IMQtoSQLConverter {
       returnString = "($searchDate" + " - INTERVAL '" + range.getValue() + "') " + range.getOperator().getValue() + " " + fieldName;
     else
       returnString = "DATE_SUB($searchDate" + ", INTERVAL " + range.getValue() + ") " + range.getOperator().getValue() + " " + fieldName;
+//    needs units
     return returnString;
   }
 

@@ -513,13 +513,12 @@ public class IMQtoSQLConverter {
     return fieldName + " " + range.getOperator().getValue() + " " + range.getValue();
   }
 
-  private String convertMatchPropertyDateRangeNode(String fieldName, Assignable range) {
+  private String convertMatchPropertyDateRangeNode(String fieldName, Assignable range) throws SQLConversionException {
     String returnString;
     if (isPostgreSQL())
       returnString = "($searchDate" + " - INTERVAL '" + range.getValue() + "') " + range.getOperator().getValue() + " " + fieldName;
     else
-      returnString = "DATE_SUB($searchDate" + ", INTERVAL " + range.getValue() + ") " + range.getOperator().getValue() + " " + fieldName;
-//    needs units
+      returnString = "DATE_SUB($searchDate" + ", INTERVAL " + range.getValue() + " " + getUnitName(range.getUnits()) + ") " + range.getOperator().getValue() + " " + fieldName;
     return returnString;
   }
 

@@ -44,6 +44,11 @@ public class Query extends Match {
     return this;
   }
 
+  public Query setParameter(String parameter) {
+    super.setParameter(parameter);
+    return this;
+  }
+
   public Query setBindAs(String bindAs) {
     this.bindAs = bindAs;
     return this;

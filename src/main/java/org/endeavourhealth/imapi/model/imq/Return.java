@@ -22,13 +22,13 @@ public class Return {
   private FunctionClause function;
   private String as;
   private OrderLimit orderBy;
-  private String sourceLabel;
+  private String asDescription;
 
-  public String getSourceLabel() {
-    return sourceLabel;
+  public String getAsDescription() {
+    return asDescription;
   }
-  public Return setSourceLabel(String sourceLabel) {
-    this.sourceLabel = sourceLabel;
+  public Return setAsDescription(String asDescription) {
+    this.asDescription = asDescription;
     return this;
   }
   public OrderLimit getOrderBy() {

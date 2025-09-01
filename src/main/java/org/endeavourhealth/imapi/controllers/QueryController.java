@@ -169,7 +169,7 @@ public class QueryController {
     @RequestBody Query query) {
 
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
-      log.debug("flattenQuery");
+      log.debug("optimizeQuery");
       return queryService.flattenQuery(query);
     }
   }

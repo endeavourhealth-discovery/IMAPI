@@ -205,6 +205,7 @@ public enum IM implements VocabEnum {
     ENTITY(Namespace.IM + "Entity"),
     QUERY_SET(Namespace.IM + "QuerySet"),
     QUERY_TEMPLATE(Namespace.IM + "QueryTemplate"),
+    HAS_QUERY(Namespace.IM + "hasQuery"),
     RECORD_TYPE(Namespace.IM + "RecordType"),
     FEATURE(Namespace.IM + "MatchClause"),
     DATA_PROPERTY(Namespace.IM + "DataProperty"),

@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.reasoner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
@@ -11,13 +12,16 @@ public class LogicOptimizer {
   Set<String> commonMatches;
   final ObjectMapper mapper = new ObjectMapper();
 
-  public static void flattenQuery(Query query) {
+
+
+
+  public static void optimizeQuery(Query query) {
     flattenMatch(query);
     cleanBooleans(query);
   }
 
   public static void optimiseECLQuery(Query query) {
-    flattenQuery(query);
+    optimizeQuery(query);
     optimiseECL(query);
   }
 
@@ -68,6 +72,7 @@ public class LogicOptimizer {
       }
     }
   }
+
 
   public Match getLogicalMatch(Match match) throws JsonProcessingException {
     String matchJson = mapper.writeValueAsString(match);

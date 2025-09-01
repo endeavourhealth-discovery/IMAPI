@@ -243,12 +243,11 @@ public class EqdResources {
 
     if (hasLinked) {
       counter++;
-      String as="Match_"+counter;
+      String as ="Match_"+counter;
       if (testMatch != null) setReturn(testMatch,as);
       else if (standardMatch != null) setReturn(standardMatch,as);
       else setReturn(baseMatch,as);
-      String nodeRef= standardMatch != null ? standardMatch.getReturn().getAs(): baseMatch.getReturn().getAs();
-      linkedMatch = this.convertLinkedCriterion(eqCriterion, nodeRef);
+      linkedMatch = this.convertLinkedCriterion(eqCriterion, as);
       if (testMatch != null) testMatch.setThen(linkedMatch);
       else if (standardMatch != null) standardMatch.setThen(linkedMatch);
       else baseMatch.setThen(linkedMatch);
@@ -387,7 +386,7 @@ public class EqdResources {
       pathMatch.setIri(pathIri);
       pathMatch.setInverse(inverse);
       counter++;
-      pathMatch.setVariable(paths[1].substring(paths[1].lastIndexOf("#") + 1) + counter);
+      pathMatch.setVariable(paths[1].substring(paths[1].lastIndexOf("#") + 1));
       pathMatch.setTypeOf((new Node()).setIri(paths[1]));
       return paths.length == 3 ? pathMatch.getVariable() : this.getPathFromPath(pathMatch, paths, 2);
     }
@@ -407,20 +406,17 @@ public class EqdResources {
 
   private void injectReturn(Match parentMatch, Match childMatch) throws QueryException {
     Return ret;
-    String asLabel;
     if (parentMatch.getReturn() != null) {
       ret = parentMatch.getReturn();
     } else {
-      asLabel = descriptor.getShortDescription(parentMatch).toLowerCase();
-      if (asLabel.isEmpty()) {
-        counter++;
-        asLabel = "Match_" + counter;
-      }
+      counter++;
+      String as = "Match_" + counter;
       ret = new Return();
-      ret.setAs(asLabel);
+      ret.setAs(as);
       parentMatch.setReturn(ret);
     }
-    String nodeRef = getNodeRef(parentMatch);
+    String nodeRef = ret.getAs();
+    childMatch.setNodeRef(nodeRef);
     Where where = childMatch.getWhere();
     if (where != null) {
       if (where.getIri() != null) {

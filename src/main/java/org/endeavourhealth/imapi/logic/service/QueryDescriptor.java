@@ -72,8 +72,8 @@ public class QueryDescriptor {
   }
 
   private void describeReturn(Return ret) {
-    if (ret.getAs() != null && ret.getSourceLabel() != null) {
-      nodeRefToLabel.put(ret.getAs(), ret.getSourceLabel());
+    if (ret.getAs() != null && ret.getAsDescription() != null) {
+      nodeRefToLabel.put(ret.getAs(), ret.getAsDescription());
     }
     if (ret.getProperty() != null) {
       for (ReturnProperty prop : ret.getProperty()) {
@@ -544,7 +544,7 @@ public class QueryDescriptor {
     if (relativeTo.getNodeRef() != null) {
       if (nodeRefToLabel.get(relativeTo.getNodeRef()) != null) {
         relativeTo.setTargetLabel(nodeRefToLabel.get(relativeTo.getNodeRef()));
-      } else relativeTo.setTargetLabel(relativeTo.getNodeRef());
+      } else relativeTo.setTargetLabel("the above");
     }
     String relation = null;
     if (relativeTo.getIri() != null) {

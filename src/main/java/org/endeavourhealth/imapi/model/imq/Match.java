@@ -70,6 +70,19 @@ public class Match extends IriLD implements BoolGroup<Match>, HasPaths {
   private boolean invalid;
   @Getter
   private TTIriRef isCohort;
+  @Getter Query retainAs;
+
+
+  public Match setRetainAs(Query retainAs) {
+    this.retainAs = retainAs;
+    return this;
+  }
+  public Query retainAs(Consumer<Query> builder) {
+    Query query = new Query();
+    setRetainAs(query);
+    builder.accept(query);
+    return query;
+  }
 
   public Match setIsCohort(TTIriRef isCohort) {
     this.isCohort = isCohort;

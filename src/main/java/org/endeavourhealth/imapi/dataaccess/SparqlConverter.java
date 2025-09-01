@@ -149,11 +149,14 @@ public class SparqlConverter {
   }
 
   private void addMatchWhereSparql(StringBuilder sparql, Set<TTIriRef> statusFilter, boolean includeReturns, boolean countOnly) throws QueryException {
-    mainEntity = "entity";
-    if (query.getVariable() != null) {
-      mainEntity = query.getVariable();
-    }
     StringBuilder whereQl = new StringBuilder();
+    mainEntity="entity";
+    if (query.getVariable() != null)
+      mainEntity = query.getVariable();
+    if (query.getNodeRef() != null)
+      mainEntity = query.getNodeRef();
+    if (query.getParameter() != null)
+      mainEntity = query.getParameter().replace("$","");
     whereQl.append("WHERE {");
     boolean hasSubQuery = false;
     if (query.getQuery() != null) {
@@ -217,7 +220,7 @@ public class SparqlConverter {
     else if (match.getNodeRef() != null)
       subject = match.getNodeRef();
     else if (match.getParameter() != null) {
-      subject = match.getParameter();
+      subject = match.getParameter().replace("$","");
       whereQl.append(" VALUES ").append("?").append(subject).append("{").append(getIriFromAlias(null, match.getParameter(), null, null)).append("}\n");
     } else
       subject = parent;
@@ -607,7 +610,7 @@ public class SparqlConverter {
     }
     String inString = String.join(" ", inList);
     o++;
-    String object = nodeRef != null ? nodeRef : parameter != null ? parameter : "object" + o;
+    String object = nodeRef != null ? nodeRef : parameter != null ? parameter.replace("$","") : "object" + o;
     if (subTypes) {
       String superObject = "super" + o;
       whereQl.append(" ?").append(object).append(".\n");

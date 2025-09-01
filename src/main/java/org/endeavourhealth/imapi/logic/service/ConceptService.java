@@ -89,9 +89,7 @@ public class ConceptService {
     return conceptRepository.getConceptContextMaps(iri);
   }
 
- public boolean hasAttributeValue(String candidate,String attribute,String value) {
-    return conceptRepository.hasAttributeValue(candidate,attribute,value);
- }
+
 
   private void processTerm(TTValue term, List<SearchTermCode> termsSummary) {
     if (null != term.asNode().get(iri(IM.CODE)) && null == termsSummary.stream().filter(t -> term.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue().equals(t.getCode())).findAny().orElse(null)) {

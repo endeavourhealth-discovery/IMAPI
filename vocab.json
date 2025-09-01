@@ -834,6 +834,10 @@
         "value": "Namespace.IM + \"QueryTemplate\""
       },
       {
+        "name": "HAS_QUERY",
+        "value": "Namespace.IM + \"hasQuery\""
+      },
+      {
         "name": "RECORD_TYPE",
         "value": "Namespace.IM + \"RecordType\""
       },
@@ -2152,6 +2156,7 @@
         "name": "ALLOWABLE_PROPERTIES",
         "value": "Namespace.IM_QUERY + \"AllowableProperties\""
       },
+
       {
         "name": "ALLOWABLE_PROPERTY_ANCESTORS",
         "value": "Namespace.IM_QUERY + \"AllowablePropertyAncestors\""

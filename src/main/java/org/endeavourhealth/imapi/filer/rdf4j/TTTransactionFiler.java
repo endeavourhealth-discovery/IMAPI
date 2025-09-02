@@ -10,12 +10,14 @@ import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
+import org.endeavourhealth.imapi.logic.exporters.SetMemberExport;
 import org.endeavourhealth.imapi.logic.reasoner.RangeInheritor;
 import org.endeavourhealth.imapi.logic.reasoner.SetBinder;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.Graph;
@@ -25,6 +27,7 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -40,6 +43,7 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   private static final String TTLOG = "TTLog-";
   private static Integer filingProgress = null;
+  private static boolean generateIm1Deltas = true;
   private final IMDB conn;
   private final Graph insertGraph;
   protected final TTEntityFiler conceptFiler;
@@ -51,6 +55,9 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   private TTManager manager;
   private Set<String> done;
 
+  public static void disableIm1Deltas() {
+    generateIm1Deltas = false;
+  }
 
   /**
    * Destination folder for transaction log files must be set.
@@ -218,7 +225,10 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       }
       if (logPath != null)
         writeLog(document);
+
+      log.info("Updating TCT");
       updateTct(document);
+
       log.info("Updating range inheritances");
       new RangeInheritor().inheritRanges(conn, insertGraph);
       commit();
@@ -227,7 +237,14 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       rollback();
       throw new TTFilerException(e.getMessage());
     }
+
+    log.info("Updating set members");
     updateSets(document);
+
+    if (generateIm1Deltas) {
+      log.info("Generating IM1 deltas");
+      SetMemberExport.execute(new File("tct-delta").toPath(), document.getEntities().stream().map(TTNode::getIri).toList());
+    }
   }
 
   public synchronized Integer getFilingProgress(String taskId) {
@@ -262,7 +279,10 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       }
       if (logPath != null)
         writeLog(document);
+
+      log.info("Updating TCT");
       updateTct(document);
+
       log.info("Updating range inheritances");
       new RangeInheritor().inheritRanges(conn, Graph.IM);
       commit();
@@ -274,7 +294,14 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       rollback();
       throw new TTFilerException(e.getMessage());
     }
+    log.info("Updating set memberships");
     updateSets(document);
+
+    if (generateIm1Deltas) {
+      log.info("Generating IM1 Deltas");
+      SetMemberExport.execute(new File("tct-delta").toPath(), document.getEntities().stream().map(TTNode::getIri).toList());
+    }
+
     filingProgress = null;
   }
 

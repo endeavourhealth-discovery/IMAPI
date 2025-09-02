@@ -9,32 +9,42 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 public class SmartLifeAuthService {
 
   final AWSCognitoClient awsCognitoClient = new AWSCognitoClient();
 
-  public HttpResponse<String> getCredentials(Map<String, String> request) throws IOException, InterruptedException {
+  public HttpResponse<String> getCredentials(String clientId, String clientSecret) throws IOException, InterruptedException {
     try (HttpClient client = HttpClient.newBuilder()
       .followRedirects(HttpClient.Redirect.NORMAL)
       .build()) {
 
-      StringBuilder formBodyBuilder = new StringBuilder();
-      for (Map.Entry<String, String> singleEntry : request.entrySet()) {
-        if (!formBodyBuilder.isEmpty()) {
-          formBodyBuilder.append("&");
-        }
-        formBodyBuilder.append(URLEncoder.encode(singleEntry.getKey(), StandardCharsets.UTF_8));
-        formBodyBuilder.append("=");
-        formBodyBuilder.append(URLEncoder.encode(singleEntry.getValue(), StandardCharsets.UTF_8));
-      }
+      String clientHash = Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes(StandardCharsets.UTF_8));
+
+      Map<String, String> params = new HashMap<>();
+      params.put("grant_type", "client_credentials");
+      params.put("client_id", clientId);
+
+      String formData = params.entrySet()
+        .stream()
+        .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
+        .collect(Collectors.joining("&"));
+
+      URI uri = URI.create(String.format("https://%s.auth.%s.amazoncognito.com/oauth2/token",
+        System.getenv("COGNITO_USER_POOL").replace("_","").toLowerCase(),
+        System.getenv("COGNITO_REGION").toLowerCase()
+      ));
 
       HttpRequest httpRequest = HttpRequest.newBuilder()
-        .uri(URI.create("https://eu-west-2vt5scfwss.auth.eu-west-2.amazoncognito.com/oauth2/token"))
-        .POST(HttpRequest.BodyPublishers.ofString(formBodyBuilder.toString()))
+        .uri(uri)
         .setHeader("Content-Type", "application/x-www-form-urlencoded")
+        .setHeader("Authorization", "Basic " + clientHash)
+        .POST(HttpRequest.BodyPublishers.ofString(formData))
         .build();
       
       return client.send(httpRequest, HttpResponse.BodyHandlers.ofString());

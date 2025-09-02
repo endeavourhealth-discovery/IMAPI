@@ -1095,7 +1095,7 @@ public class EntityRepository {
           FILTER(?propIri = ?o)
         }
         UNION {
-        ?o im:usedIn ?s.
+        ?s im:uses ?o.
         }
         ?s rdfs:label ?name .
         ?s im:status ?status .

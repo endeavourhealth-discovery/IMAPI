@@ -46,10 +46,10 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   public TupleQuery prepareTupleSparql(String sparql) {
-    if (sparql.toUpperCase().contains("\nINSERT"))
+    if (sparql.toUpperCase().startsWith("INSERT"))
       throw new DALException("This appears to be an INSERT statement, use `prepareInsertSparql` instead");
 
-    if (sparql.toUpperCase().contains("\nDELETE"))
+    if (sparql.toUpperCase().startsWith("DELETE"))
       throw new DALException("This appears to be an DELETE statement, use `prepareDeleteSparql` instead");
 
     try {
@@ -65,14 +65,14 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   public Update prepareDeleteSparql(String sparql) {
-    if (!sparql.toUpperCase().contains("\nDELETE"))
+    if (!sparql.toUpperCase().startsWith("DELETE"))
       throw new DALException("This doesnt appear to be an DELETE statement");
 
     return prepareSparql(sparql);
   }
 
   public Update prepareInsertSparql(String sparql, Graph graph) {
-    if (!sparql.toUpperCase().contains("\nINSERT"))
+    if (!sparql.toUpperCase().startsWith("INSERT"))
       throw new DALException("This doesnt appear to be an INSERT statement");
 
     if (graph == null)
@@ -85,7 +85,7 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   public Update prepareUpdateSparql(String sparql, Graph graph) {
-    if (!sparql.toUpperCase().contains("\nDELETE") || !sparql.toUpperCase().contains("\nINSERT"))
+    if (!sparql.toUpperCase().startsWith("DELETE") || !sparql.toUpperCase().startsWith("INSERT"))
       throw new DALException("This doesnt appear to be an UPDATE statement");
 
     if (graph == null)
@@ -125,7 +125,7 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   public BooleanQuery prepareBooleanSparql(String sparql) {
-    if (!sparql.toUpperCase().contains("\nASK"))
+    if (!sparql.toUpperCase().startsWith("ASK"))
       throw new DALException("This doesnt appear to be an ASK statement");
 
     try {

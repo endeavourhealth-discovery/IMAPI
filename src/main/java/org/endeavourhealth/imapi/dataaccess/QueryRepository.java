@@ -66,6 +66,7 @@ public class QueryRepository {
     }
   }
 
+
   public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
     try (IMDB conn = IMDB.getConnection()) {
       new QueryValidator().validateQuery(queryRequest.getQuery());

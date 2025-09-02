@@ -31,6 +31,7 @@ public class EqdToIMQ {
   protected static final Map<String, TTEntity> definitionToEntity = new HashMap<>();
   protected static final Map<String, TTEntity> setIriToEntity = new HashMap<>();
   protected static final Map<String, String> versionMap = new HashMap<>();
+  @Getter
   private static Integer setNumber;
   @Setter
   @Getter
@@ -42,6 +43,7 @@ public class EqdToIMQ {
   private Namespace namespace;
   private EqdResources resources;
   private TTDocument document;
+  @Getter
   private String singleEntity;
 
   public EqdToIMQ(boolean versionIndependent) {
@@ -50,10 +52,6 @@ public class EqdToIMQ {
     gmsPatients.add("71154095-0C58-4193-B58F-21F05EA0BE2F");
     gmsPatients.add("DA05DBF2-72AB-41A3-968F-E4A061F411A4");
     gmsPatients.add("591C5738-2F6B-4A6F-A2B3-05FA538A1B3B");
-  }
-
-  public static Integer getSetNumber() {
-    return setNumber;
   }
 
   public static void incrementSetNumber() {
@@ -67,10 +65,6 @@ public class EqdToIMQ {
 
   public static String getId(EQDOCReport report) {
     return report.getId();
-  }
-
-  public String getSingleEntity() {
-    return this.singleEntity;
   }
 
   public EqdToIMQ setSingleEntity(String singleEntity) {
@@ -315,6 +309,7 @@ public class EqdToIMQ {
     queryEntity.setIri(this.namespace + id);
     queryEntity.setName(eqReport.getName());
     queryEntity.setScheme(iri(this.namespace));
+    resources.setQueryEntity(queryEntity);
     queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
     if (eqReport.getFolder() != null) {
       queryEntity.addObject(TTIriRef.iri(IM.IS_CONTAINED_IN), TTIriRef.iri(this.namespace + eqReport.getFolder()).setName(eqReport.getName()));

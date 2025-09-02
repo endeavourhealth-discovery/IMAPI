@@ -89,6 +89,10 @@ public class ConceptService {
     return conceptRepository.getConceptContextMaps(iri);
   }
 
+  public String getShortestTerm(String iri){
+    return conceptRepository.getShortestTerm(iri);
+  }
+
 
 
   private void processTerm(TTValue term, List<SearchTermCode> termsSummary) {

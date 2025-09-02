@@ -65,6 +65,8 @@ public class EqdResources {
   @Setter
   @Getter
   private int subRule = 0;
+  @Setter
+  @Getter TTEntity queryEntity;
 
   public EqdResources(TTDocument document, Properties dataMap, Namespace namespace) {
     this.dataMap = dataMap;
@@ -125,6 +127,7 @@ public class EqdResources {
       String parent = eqGroup.getDefinition().getParentPopulationGuid();
       Match match = new Match();
       match.setIsCohort(iri(this.namespace + parent).setName(this.reportNames.get(parent)));
+      queryEntity.addObject(iri(IM.DEPENDENT_ON),iri(namespace+parent));
       return match;
     } else {
       List<EQDOCCriteria> groupCriteria = eqGroup.getDefinition().getCriteria();
@@ -198,6 +201,7 @@ public class EqdResources {
     }
     Match match = new Match();
     match.setIsCohort(new TTIriRef().setIri(namespace + searchId).setName((String) this.reportNames.get(search.getReportGuid())));
+    queryEntity.addObject(iri(IM.DEPENDENT_ON),iri(namespace+searchId));
     return match;
   }
 
@@ -211,23 +215,6 @@ public class EqdResources {
     boolean hasStandard= (!filter.getColumnValue().isEmpty() || filter.getRestriction() != null);
     if (!eqCriterion.getBaseCriteriaGroup().isEmpty()) {
       baseMatch = this.convertBaseCriteriaGroups(eqCriterion);
-      /*String baseName= new QueryDescriptor().getDescriptions(baseMatch);
-      String baseDefinition = new ObjectMapper().writeValueAsString(baseMatch);
-      Integer baseHash = baseDefinition.hashCode();
-      if (baseMatchMap.get(baseHash) == null) {
-        baseCounter++;
-        TTEntity baseEntity = new TTEntity()
-          .setIri(this.namespace + "BaseCriteria_" + baseHash)
-          .setName(baseName)
-          .setScheme(iri(namespace))
-          .addType(iri(IM.QUERY));
-        baseEntity.set(IM.DEFINITION, TTLiteral.literal(baseMatch));
-        baseMatchMap.put(baseHash, baseEntity.getIri());
-        document.addEntity(baseEntity);
-      }
-      baseMatch = new Match();
-      baseMatch.addInstanceOf(new Node().setIri(baseMatchMap.get(baseHash)).setName(baseName).setMemberOf(true));
-       */
     }
 
 
@@ -1178,7 +1165,7 @@ public class EqdResources {
     if (EqdToIMQ.versionMap.containsKey(usedIn)) {
       usedIn = EqdToIMQ.versionMap.get(usedIn);
     }
-    set.addObject(iri(IM.USED_IN), iri(this.namespace + usedIn));
+    queryEntity.addObject(iri(IM.USES),iri(set.getIri()));
   }
 
   private void createLibraryValueSet(String iri, String name) {
@@ -1236,13 +1223,13 @@ public class EqdResources {
         .setIri(namespace + vs.getId()).setName(name).addType(iri(IM.CONCEPT_SET));
       valueSet.setScheme(iri(namespace));
       if (this.columnGroup != null) {
-        valueSet.addObject(iri(IM.USED_IN), iri(this.columnGroup.getIri()));
+        queryEntity.addObject(iri(IM.USES), iri(valueSet.getIri()));
       } else {
         String usedIn = activeReport;
         if (EqdToIMQ.versionMap.containsKey(usedIn)) {
           usedIn = EqdToIMQ.versionMap.get(usedIn);
         }
-        valueSet.addObject(iri(IM.USED_IN), iri(this.namespace + usedIn));
+        queryEntity.addObject(iri(IM.USES), iri(valueSet.getIri()));
       }
 
       for (Node node : setContent) {

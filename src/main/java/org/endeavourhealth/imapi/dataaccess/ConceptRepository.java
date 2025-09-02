@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.dataaccess;
 
 import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
@@ -184,4 +183,29 @@ public class ConceptRepository {
     return result;
   }
 
+  public String getShortestTerm(String iri) {
+    String sql = """
+      Select ?term
+      where {
+        values ?entity {%s}
+         {
+      ?entity im:hasTermCode ?termCode.
+      ?termCode rdfs:label ?term.
+      }
+     
+      }
+      order by strlen(?term)
+      limit 1
+      """.formatted("<" + iri + ">");
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          return bs.getValue("term").stringValue();
+        }
+      }
+    }
+    return null;
+  }
 }

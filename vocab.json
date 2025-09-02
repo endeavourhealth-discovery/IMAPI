@@ -602,8 +602,8 @@
         "value": "Namespace.IM + \"1661000252106\""
       },
       {
-        "name": "USED_IN",
-        "value": "Namespace.IM + \"usedIn\""
+        "name": "USES",
+        "value": "Namespace.IM + \"uses\""
       },
       {
         "name": "COUNT",
@@ -828,6 +828,10 @@
       {
         "name": "QUERY_SET",
         "value": "Namespace.IM + \"QuerySet\""
+      },
+      {
+        "name": "DEPENDENT_ON",
+        "value": "Namespace.IM + \"dependentOn\""
       },
       {
         "name": "QUERY_TEMPLATE",

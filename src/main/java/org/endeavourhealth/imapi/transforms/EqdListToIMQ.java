@@ -25,13 +25,14 @@ public class EqdListToIMQ {
     String id;
     if (eqReport.getParent().getSearchIdentifier() != null){
       id = eqReport.getParent().getSearchIdentifier().getReportGuid();
+      if (EqdToIMQ.versionMap.containsKey(id)) id = resources.getNamespace()+EqdToIMQ.versionMap.get(id);
     }
     else if (eqReport.getParent().getParentType()==VocPopulationParentType.ACTIVE){
       id= Namespace.IM+"Q_RegisteredGMS";
     }
     else throw new EQDException("parent population at definition level");
-    if (EqdToIMQ.versionMap.containsKey(id)) id = EqdToIMQ.versionMap.get(id);
-    query.setIsCohort(iri(resources.getNamespace() + id)
+
+    query.setIsCohort(iri(id)
       .setName(resources.reportNames.get(id)));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
       EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();
@@ -41,7 +42,6 @@ public class EqdListToIMQ {
         .setIri(subQuery.getIri())
         .setName(eqColGroup.getDisplayName() + " in " + eqReport.getName())
         .addType(IM.FIELD_GROUP.asIri());
-      columnGroup.addObject(IM.USED_IN.asIri(), iri(query.getIri()));
       query.addDataSet(subQuery);
       convertListGroup(eqColGroup, subQuery, query.getName());
       columnGroup.set(IM.DEFINITION.asIri(), TTLiteral.literal(subQuery));
@@ -80,7 +80,7 @@ public class EqdListToIMQ {
     Match match = resources.convertCriteria(eqColGroup.getCriteria());
     Query matchQuery = new Query();
     subQuery.addQuery(matchQuery);
-    matchQuery.setInstanceOf(match.getInstanceOf());
+    matchQuery.setIsCohort(match.getIsCohort());
     matchQuery.setWhere(match.getWhere());
     matchQuery.setPath(match.getPath());
     matchQuery.setThen(match.getThen());

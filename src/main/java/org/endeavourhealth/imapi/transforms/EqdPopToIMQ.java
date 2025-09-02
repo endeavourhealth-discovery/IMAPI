@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriteriaGroup;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.VocPopulationParentType;
 import org.endeavourhealth.imapi.transforms.eqd.VocRuleAction;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import java.io.IOException;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -28,9 +29,11 @@ public class EqdPopToIMQ {
         .setBaseRule(true)
         .setIsCohort(iri(Namespace.IM + "Q_RegisteredGMS")
             .setName("Registered with GP for GMS services on the reference date")));
+      resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri((Namespace.IM + "Q_RegisteredGMS")));
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()) {
         EqdToIMQ.gmsPatients.add(activeReport);
         EqdToIMQ.gmsPatients.add(resources.getNamespace() + activeReport);
+        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri(resources.getNamespace() + activeReport));
         return null;
       }
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
@@ -43,6 +46,7 @@ public class EqdPopToIMQ {
           .setBaseRule(true)
           .setIsCohort(iri(Namespace.IM + "Q_RegisteredGMS")
             .setName("Registered with GP for GMS services on the reference date")));
+        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri((Namespace.IM + "Q_RegisteredGMS")));
       } else {
         query.addRule(new Match()
           .setIfTrue(RuleAction.NEXT)
@@ -50,6 +54,7 @@ public class EqdPopToIMQ {
           .setBaseRule(true)
           .setIsCohort(iri(resources.getNamespace() + id)
             .setName(resources.reportNames.get(id))));
+        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri(resources.getNamespace() + id));
       }
     }
     resources.setRule(0);

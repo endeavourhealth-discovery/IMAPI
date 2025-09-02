@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"prefix", "iri", "name", "description", "activeOnly", "typeOf", "instanceOf", "and", "or", "not", "path", "where", "return", "groupBy", "dataSet"})
+@JsonPropertyOrder({"prefix", "iri", "name", "description", "query","activeOnly", "typeOf", "instanceOf", "and", "or", "not", "path", "where", "return", "groupBy", "dataSet"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends Match {
   private Prefixes prefixes;

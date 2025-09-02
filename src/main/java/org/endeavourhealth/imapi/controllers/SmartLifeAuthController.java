@@ -33,7 +33,12 @@ public class SmartLifeAuthController {
   public String requestCredentials(@RequestParam Map<String, String> request) throws IOException, InterruptedException {
     try (MetricsTimer t = MetricsHelper.recordTime("Oauth.Token.POST")) {
       log.debug("requestCredentials");
-      HttpResponse<String> response = smartLifeAuthService.getCredentials(request);
+      String client_id = request.get("client_id");
+      String client_secret = request.get("client_secret");
+      HttpResponse<String> response = smartLifeAuthService.getCredentials(client_id, client_secret);
+
+      log.info("response: {}", response.body());
+
       return response.body();
     }
   }

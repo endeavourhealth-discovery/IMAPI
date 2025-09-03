@@ -230,10 +230,11 @@ public class EqdResources {
 
     if (hasLinked) {
       counter++;
-      String as ="Match_"+counter;
-      if (testMatch != null) setReturn(testMatch,as);
-      else if (standardMatch != null) setReturn(standardMatch,as);
-      else setReturn(baseMatch,as);
+      String as;
+      if (testMatch != null) as=setAndGetReturnAs(testMatch);
+      else if (standardMatch != null) as= setAndGetReturnAs(standardMatch);
+      else if (baseMatch==null) throw new EQDException("No match found for linked criterion");
+      else as= setAndGetReturnAs(baseMatch);
       linkedMatch = this.convertLinkedCriterion(eqCriterion, as);
       if (testMatch != null) testMatch.setThen(linkedMatch);
       else if (standardMatch != null) standardMatch.setThen(linkedMatch);
@@ -264,8 +265,10 @@ public class EqdResources {
     return baseMatch;
   }
 
-  private void setReturn(Match match,String as) {
+  private String setAndGetReturnAs(Match match) {
     if (match.getReturn() == null) {
+      counter++;
+      String as = "Match_" + counter;
       if (match.getOr() != null) {
         int orIndex = 0;
         for (Match subQuery : match.getOr()) {
@@ -276,7 +279,9 @@ public class EqdResources {
         }
       }
       match.setReturn((new Return()).setAs(as).property((p) -> p.setIri(Namespace.IM + "effectiveDate")));
+      return as;
     }
+    return match.getReturn().getAs();
   }
 
   private Match convertBaseCriteriaGroup(EQDOCBaseCriteriaGroup baseGroup) throws QueryException, EQDException, IOException {
@@ -580,7 +585,7 @@ public class EqdResources {
     EQDOCRelationship eqRelationship = eqCriterion.getLinkedCriterion().getRelationship();
     String table = eqLinkedCriterion.getTable();
     String child = this.getIMPath(table + "/" + eqRelationship.getChildColumn());
-    relationProperty.setNodeRef(nodeRef);
+    relationProperty.setNodeRef(getNodeRef(linkTarget));
     relationProperty.setIri(child.substring(child.lastIndexOf(" ") + 1));
     String parentProperty;
     if (eqRelationship.getParentColumn().contains("DATE")) {

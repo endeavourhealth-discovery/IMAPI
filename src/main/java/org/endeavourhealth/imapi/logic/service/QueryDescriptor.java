@@ -58,8 +58,8 @@ public class QueryDescriptor {
     if (query.getGroupBy() != null) {
       describeGroupBys(query.getGroupBy());
     }
-    if (query.getQuery()!=null){
-      for (Query matchQuery:query.getQuery())
+    if (query.getQuery() != null) {
+      for (Query matchQuery : query.getQuery())
         describeQuery(matchQuery, displayMode);
     }
     return query;
@@ -158,7 +158,7 @@ public class QueryDescriptor {
   public void describeMatch(Match match, String inheritedType) {
     String typeOf;
     if (match.getTypeOf() == null) {
-      if (inheritedType != null) {
+      if (inheritedType != null && match.getPath() == null) {
         match.setTypeOf(new Node().setIri(inheritedType));
         typeOf = inheritedType;
       } else typeOf = null;
@@ -611,23 +611,21 @@ public class QueryDescriptor {
 
   public static String getShortName(String name) {
     if (name == null) return null;
-    int length= name.length()-1;
-    StringBuilder startShort= new StringBuilder(name.substring(0, Math.min(length, 50)));
-    if (length>50){
-      boolean bracket=false;
-      for (int i=50;i<Math.min(length, 70);i++){
-        Character c=name.charAt(i);
-        if (c=='(') bracket=true;
-        if (c==')') bracket=false;
-        if (c==' ') {
-          if (!bracket) return startShort+"...";
+    int length = name.length() - 1;
+    StringBuilder startShort = new StringBuilder(name.substring(0, Math.min(length, 50)));
+    if (length > 50) {
+      boolean bracket = false;
+      for (int i = 50; i < Math.min(length, 70); i++) {
+        Character c = name.charAt(i);
+        if (c == '(') bracket = true;
+        if (c == ')') bracket = false;
+        if (c == ' ') {
+          if (!bracket) return startShort + "...";
           else startShort.append(c);
-        }
-        else startShort.append(c);
+        } else startShort.append(c);
       }
-      return startShort.toString()+"...";
-    }
-    else return startShort.toString();
+      return startShort.toString() + "...";
+    } else return startShort.toString();
   }
 
   public void generateUUIDs(Where where) {

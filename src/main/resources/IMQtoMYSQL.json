@@ -3,6 +3,9 @@
     "http://endhealth.info/im#patient": {
       "dataModel": "http://endhealth.info/im#Patient"
     },
+    "http://endhealth.info/im#mobileTelephoneNumber": {
+      "dataModel": "http://endhealth.info/im#MobileTelephoneNumber"
+    },
     "http://endhealth.info/im#provider": {
       "dataModel": "http://endhealth.info/im#Organisation"
     },
@@ -41,6 +44,13 @@
     }
   },
   "dataModels": {
+    "http://endhealth.info/im#MobileTelephoneNumber": {
+      "table": "patient_contact",
+      "condition": "type_concept_id = 1335362",
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "patient_id", "toField": "{alias}.id"}
+      }
+    },
     "http://endhealth.info/im#Address": {
       "table": "patient_address",
       "relationships": {

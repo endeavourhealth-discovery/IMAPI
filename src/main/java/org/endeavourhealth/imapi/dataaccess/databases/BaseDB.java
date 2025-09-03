@@ -18,6 +18,7 @@ import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.io.File;
 import java.util.StringJoiner;
+import java.util.regex.Pattern;
 
 @Slf4j
 public abstract class BaseDB implements AutoCloseable {
@@ -32,121 +33,6 @@ public abstract class BaseDB implements AutoCloseable {
     PREFIX im: <http://endhealth.info/im#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     """;
-
-  protected RepositoryConnection conn;
-  private final SimpleDataset dataset= new SimpleDataset();
-
-  protected BaseDB(Graph... graphs) {
-    for (Graph graph : graphs) {
-      if (graph == null)
-        dataset.addDefaultGraph(null);
-      else
-        dataset.addDefaultGraph(graph.asDbIri());
-    }
-  }
-
-  public TupleQuery prepareTupleSparql(String sparql) {
-    if (sparql.toUpperCase().startsWith("INSERT"))
-      throw new DALException("This appears to be an INSERT statement, use `prepareInsertSparql` instead");
-
-    if (sparql.toUpperCase().startsWith("DELETE"))
-      throw new DALException("This appears to be an DELETE statement, use `prepareDeleteSparql` instead");
-
-    try {
-      StringJoiner sj = new StringJoiner(System.lineSeparator());
-      sj.add(DEFAULT_PREFIXES);
-      sj.add(sparql);
-      TupleQuery tq = conn.prepareTupleQuery(sj.toString());
-      tq.setDataset(dataset);
-      return tq;
-    } catch (Exception e) {
-      throw new DALException("Failed to prepare SPARQL query", e);
-    }
-  }
-
-  public Update prepareDeleteSparql(String sparql) {
-    if (!sparql.toUpperCase().startsWith("DELETE"))
-      throw new DALException("This doesnt appear to be an DELETE statement");
-
-    return prepareSparql(sparql);
-  }
-
-  public Update prepareInsertSparql(String sparql, Graph graph) {
-    if (!sparql.toUpperCase().startsWith("INSERT"))
-      throw new DALException("This doesnt appear to be an INSERT statement");
-
-    if (graph == null)
-      throw new DALException("A graph MUST be specified for an insert statement");
-
-    Update insert = prepareSparql(sparql);
-    dataset.setDefaultInsertGraph(graph.asDbIri());
-
-    return insert;
-  }
-
-  public Update prepareUpdateSparql(String sparql, Graph graph) {
-    if (!sparql.toUpperCase().startsWith("DELETE") || !sparql.toUpperCase().contains("INSERT"))
-      throw new DALException("This doesnt appear to be an UPDATE statement");
-
-    if (graph == null)
-      throw new DALException("A graph MUST be specified for an update statement");
-
-    Update update = prepareSparql(sparql);
-    dataset.setDefaultInsertGraph(graph.asDbIri());
-
-    return update;
-  }
-
-  private Update prepareSparql(String sparql) {
-    try {
-      StringJoiner sj = new StringJoiner(System.lineSeparator());
-      sj.add(DEFAULT_PREFIXES);
-      sj.add(sparql);
-      Update uq = conn.prepareUpdate(sj.toString());
-      uq.setDataset(dataset);
-      return uq;
-    } catch (Exception e) {
-      throw new DALException("Failed to prepare SPARQL query", e);
-    }
-  }
-
-  public GraphQuery prepareGraphSparql(String sparql) {
-
-    try {
-      StringJoiner sj = new StringJoiner(System.lineSeparator());
-      sj.add(DEFAULT_PREFIXES);
-      sj.add(sparql);
-      GraphQuery gq = conn.prepareGraphQuery(sj.toString());
-      gq.setDataset(dataset);
-      return gq;
-    } catch (Exception e) {
-      throw new DALException("Failed to prepare SPARQL query", e);
-    }
-  }
-
-  public BooleanQuery prepareBooleanSparql(String sparql) {
-    if (!sparql.toUpperCase().startsWith("ASK"))
-      throw new DALException("This doesnt appear to be an ASK statement");
-
-    try {
-      StringJoiner sj = new StringJoiner(System.lineSeparator());
-      sj.add(DEFAULT_PREFIXES);
-      sj.add(sparql);
-      BooleanQuery bq = conn.prepareBooleanQuery(sj.toString());
-      bq.setDataset(dataset);
-      return bq;
-    } catch (Exception e) {
-      throw new DALException("Failed to prepare SPARQL query", e);
-    }
-  }
-
-  @Override
-  public void close() {
-    if (conn != null) {
-      conn.close();
-      conn = null;
-    }
-  }
 
   protected static synchronized Repository getRepository(String repoId) {
     log.debug("Connecting to repository [{}]", repoId);
@@ -212,6 +98,111 @@ public abstract class BaseDB implements AutoCloseable {
     return new SPARQLRepository(repoId + "." + query, repoId + "." + update);
   }
 
+  protected RepositoryConnection conn;
+  private final SimpleDataset dataset = new SimpleDataset();
+  private final Pattern updatePattern = Pattern.compile("^(?i)\\bDELETE\\b.*?\\bINSERT\\b.*?}$", Pattern.DOTALL);
+  private final Pattern insertPattern = Pattern.compile("^(?i)\\bINSERT\\b.*?}$", Pattern.DOTALL);
+  private final Pattern deletePattern = Pattern.compile("^(?i)\\bDELETE\\b.*?(?!.*\\bINSERT\\b)}$", Pattern.DOTALL);
+
+  protected BaseDB(Graph... graphs) {
+    for (Graph graph : graphs) {
+      if (graph == null)
+        dataset.addDefaultGraph(null);
+      else
+        dataset.addDefaultGraph(graph.asDbIri());
+    }
+  }
+
+  public TupleQuery prepareTupleSparql(String sparql) {
+    if (isInsertStatement(sparql))
+      throw new DALException("This appears to be an INSERT statement, use `prepareInsertSparql` instead");
+
+    if (isDeleteStatement(sparql))
+      throw new DALException("This appears to be an DELETE statement, use `prepareDeleteSparql` instead");
+
+    try {
+      StringJoiner sj = new StringJoiner(System.lineSeparator());
+      sj.add(DEFAULT_PREFIXES);
+      sj.add(sparql);
+      TupleQuery tq = conn.prepareTupleQuery(sj.toString());
+      tq.setDataset(dataset);
+      return tq;
+    } catch (Exception e) {
+      throw new DALException("Failed to prepare SPARQL query", e);
+    }
+  }
+
+  public Update prepareDeleteSparql(String sparql) {
+    if (!isDeleteStatement(sparql))
+      throw new DALException("This doesnt appear to be an DELETE statement");
+
+    return prepareSparql(sparql);
+  }
+
+  public Update prepareInsertSparql(String sparql, Graph graph) {
+    if (!isInsertStatement(sparql))
+      throw new DALException("This doesnt appear to be an INSERT statement");
+
+    if (graph == null)
+      throw new DALException("A graph MUST be specified for an insert statement");
+
+    Update insert = prepareSparql(sparql);
+    dataset.setDefaultInsertGraph(graph.asDbIri());
+
+    return insert;
+  }
+
+  public Update prepareUpdateSparql(String sparql, Graph graph) {
+    if (!isUpdateStatement(sparql))
+      throw new DALException("This doesnt appear to be an UPDATE statement");
+
+    if (graph == null)
+      throw new DALException("A graph MUST be specified for an update statement");
+
+    Update update = prepareSparql(sparql);
+    dataset.setDefaultInsertGraph(graph.asDbIri());
+
+    return update;
+  }
+
+  public GraphQuery prepareGraphSparql(String sparql) {
+
+    try {
+      StringJoiner sj = new StringJoiner(System.lineSeparator());
+      sj.add(DEFAULT_PREFIXES);
+      sj.add(sparql);
+      GraphQuery gq = conn.prepareGraphQuery(sj.toString());
+      gq.setDataset(dataset);
+      return gq;
+    } catch (Exception e) {
+      throw new DALException("Failed to prepare SPARQL query", e);
+    }
+  }
+
+  public BooleanQuery prepareBooleanSparql(String sparql) {
+    if (!sparql.toUpperCase().startsWith("ASK"))
+      throw new DALException("This doesnt appear to be an ASK statement");
+
+    try {
+      StringJoiner sj = new StringJoiner(System.lineSeparator());
+      sj.add(DEFAULT_PREFIXES);
+      sj.add(sparql);
+      BooleanQuery bq = conn.prepareBooleanQuery(sj.toString());
+      bq.setDataset(dataset);
+      return bq;
+    } catch (Exception e) {
+      throw new DALException("Failed to prepare SPARQL query", e);
+    }
+  }
+
+  @Override
+  public void close() {
+    if (conn != null) {
+      conn.close();
+      conn = null;
+    }
+  }
+
   public void add(Model build) {
     conn.add(build);
   }
@@ -226,6 +217,31 @@ public abstract class BaseDB implements AutoCloseable {
 
   public void rollback() {
     conn.rollback();
+  }
+
+  private Update prepareSparql(String sparql) {
+    try {
+      StringJoiner sj = new StringJoiner(System.lineSeparator());
+      sj.add(DEFAULT_PREFIXES);
+      sj.add(sparql);
+      Update uq = conn.prepareUpdate(sj.toString());
+      uq.setDataset(dataset);
+      return uq;
+    } catch (Exception e) {
+      throw new DALException("Failed to prepare SPARQL query", e);
+    }
+  }
+
+  private boolean isInsertStatement(String sparql) {
+    return insertPattern.matcher(sparql).find();
+  }
+
+  private boolean isDeleteStatement(String sparql) {
+    return deletePattern.matcher(sparql).find();
+  }
+
+  private boolean isUpdateStatement(String sparql) {
+    return updatePattern.matcher(sparql).find();
   }
 }
 

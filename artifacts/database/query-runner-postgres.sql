@@ -29,3 +29,6 @@ CREATE TABLE query_runner.query_result (
 );
 
 CREATE INDEX idx_query_result_iri ON query_runner.query_result(iri);
+
+SELECT * FROM query_runner.query_queue;
+SELECT * FROM query_runner.query_result;

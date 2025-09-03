@@ -85,7 +85,7 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   public Update prepareUpdateSparql(String sparql, Graph graph) {
-    if (!sparql.toUpperCase().startsWith("DELETE") || !sparql.toUpperCase().startsWith("INSERT"))
+    if (!sparql.toUpperCase().startsWith("DELETE") || !sparql.toUpperCase().contains("INSERT"))
       throw new DALException("This doesnt appear to be an UPDATE statement");
 
     if (graph == null)

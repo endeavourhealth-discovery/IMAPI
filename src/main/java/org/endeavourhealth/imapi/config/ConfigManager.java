@@ -83,7 +83,7 @@ public class ConfigManager {
         ? "WHERE {}"
         : "WHERE { ?s ?p ?oAny }";
 
-      Update qry = conn.prepareInsertSparql(query, Graph.CONFIG);
+      Update qry = conn.prepareUpdateSparql(query, Graph.CONFIG);
       qry.setBinding("s", subject.asDbIri());
       qry.setBinding("p", predicate.asDbIri());
       qry.setBinding("o", literal(object));

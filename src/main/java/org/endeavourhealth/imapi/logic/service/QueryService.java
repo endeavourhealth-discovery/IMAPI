@@ -306,7 +306,7 @@ public class QueryService {
     recursivelyCheckMatchArguments(query, missingArguments, arguments);
     if (null != query.getQuery()) {
       for (Query subquery : query.getQuery()) {
-        recursivelyCheckQueryArguments(query, missingArguments, arguments);
+        recursivelyCheckQueryArguments(subquery, missingArguments, arguments);
       }
     }
   }

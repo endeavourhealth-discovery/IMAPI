@@ -3,7 +3,8 @@ package org.endeavourhealth.imapi.model.iml;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
-import org.endeavourhealth.imapi.model.imq.Bool;
+import lombok.Setter;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -14,10 +15,41 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Indicator extends TTIriRef {
   @Getter
-  private List<Indicator> indicator;
+  private List<Indicator> must;
+  @Getter
+  private List<Indicator> alternative;
   @Getter
   private TTIriRef query;
+  @Getter
+  @Setter
+  private Query definition;
+  @Getter
+  @Setter
+  private List<TTIriRef> actionIfFalse;
+  @Getter
+  @Setter
+  private List<TTIriRef> actionIfTrue;
 
+
+
+
+  public Indicator setAlternative(List<Indicator> alternative) {
+    this.alternative = alternative;
+    return this;
+  }
+  public Indicator addAlternative (Indicator indicator){
+      if (this.alternative == null) {
+        this.alternative = new ArrayList<>();
+      }
+      this.alternative.add(indicator);
+      return this;
+  }
+  public Indicator alternative (Consumer< Indicator > builder) {
+      Indicator indicator = new Indicator();
+      addAlternative(indicator);
+      builder.accept(indicator);
+      return this;
+  }
 
 
 
@@ -26,20 +58,20 @@ public class Indicator extends TTIriRef {
     return this;
   }
 
-  public Indicator setIndicator(List<Indicator> indicator) {
-    this.indicator = indicator;
+  public Indicator setMust(List<Indicator> must) {
+    this.must = must;
     return this;
   }
-  public Indicator addIndicator (Indicator indicator){
-      if (this.indicator == null) {
-        this.indicator = new ArrayList<>();
+  public Indicator addMust (Indicator indicator){
+      if (this.must == null) {
+        this.must = new ArrayList<>();
       }
-      this.indicator.add(indicator);
+      this.must.add(indicator);
       return this;
   }
-  public Indicator indicator (Consumer< Indicator > builder) {
+  public Indicator must (Consumer< Indicator > builder) {
       Indicator indicator = new Indicator();
-      addIndicator(indicator);
+      addMust(indicator);
       builder.accept(indicator);
       return this;
     }

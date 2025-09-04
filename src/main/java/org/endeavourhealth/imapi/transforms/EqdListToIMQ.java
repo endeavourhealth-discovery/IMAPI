@@ -25,7 +25,7 @@ public class EqdListToIMQ {
     String id;
     if (eqReport.getParent().getSearchIdentifier() != null){
       id = eqReport.getParent().getSearchIdentifier().getReportGuid();
-      if (EqdToIMQ.versionMap.containsKey(id)) id = resources.getNamespace()+EqdToIMQ.versionMap.get(id);
+      id = resources.getNamespace() + EqdToIMQ.versionMap.getOrDefault(id, id);
     }
     else if (eqReport.getParent().getParentType()==VocPopulationParentType.ACTIVE){
       id= Namespace.IM+"Q_RegisteredGMS";

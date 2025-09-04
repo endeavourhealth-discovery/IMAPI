@@ -378,7 +378,7 @@ public class IMQtoSQLConverter {
       convertMatchPropertyIs(qry, property, property.getNotIs(), true);
     } else if (property.getRange() != null) {
       convertMatchPropertyRange(qry, property);
-    } else if (property.getRelativeTo() != null) {
+    } else if (property.getRelativeTo() != null && !isRelativeToFunctionParam(property)) {
       convertMatchPropertyRelative(qry, property);
     } else if (property.getValue() != null) {
       convertMatchPropertyValue(qry, property);
@@ -561,14 +561,24 @@ public class IMQtoSQLConverter {
     }
   }
 
+  private boolean isRelativeToFunctionParam(Where property) {
+    if (null == property.getFunction() || null == property.getRelativeTo() || null == property.getRelativeTo().getParameter())
+      return false;
+    return property.getFunction().getArgument().stream()
+      .anyMatch(arg -> "relativeTo".equals(arg.getParameter()) && property.getRelativeTo().getParameter().equals(arg.getValueParameter()));
+  }
+
   private String convertMatchPropertyRelativeTo(SQLQuery qry, Where property, String field) throws
     SQLConversionException {
     String fieldType = qry.getFieldType(property.getIri(), null, tableMap);
-    if ("date".equals(fieldType)) if (property.getValue() != null) {
+    if ("date".equals(fieldType)) {
+      if (property.getValue() != null) {
+        return "(" + field + " + INTERVAL " + property.getValue() + " " + getUnitName(property.getUnits()) + ")";
+      } else return field;
+    } else if ("number".equals(fieldType)) {
       return "(" + field + " + INTERVAL " + property.getValue() + " " + getUnitName(property.getUnits()) + ")";
-    } else return field;
-    else {
-      throw new SQLConversionException("SQL Conversion Error: UNHANDLED RELATIVE TYPE (" + fieldType + ")\n" + property);
+    } else {
+      throw new SQLConversionException("SQL Conversion Error: UNHANDLED RELATIVE TYPE (" + fieldType + ")\n" + property.getIri());
     }
   }
 

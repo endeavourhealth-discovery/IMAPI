@@ -55,9 +55,14 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   private TTManager manager;
   private Set<String> done;
 
-  public static void disableIm1Deltas() {
-    generateIm1Deltas = false;
+  public static void generateIm1Deltas(boolean flag) {
+    generateIm1Deltas = flag;
   }
+
+  public static boolean generateIm1Deltas() {
+    return generateIm1Deltas;
+  }
+
 
   /**
    * Destination folder for transaction log files must be set.

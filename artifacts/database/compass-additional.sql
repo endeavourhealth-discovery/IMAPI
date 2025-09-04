@@ -12,12 +12,14 @@ CREATE TABLE concept_set_member
   CONSTRAINT fk_set FOREIGN KEY (`set`) REFERENCES concept_set (`set`)
 ) ENGINE = INNODB DEFAULT CHARSET= UTF8MB4;
 
-load data infile 'Z:\\Data\\tct_20250826105134.csv'
+truncate table concept_set_member;
+
+load data infile 'Z:\\Data\\LVDump\\20250903161123_tct_members.csv'
 into table concept_set_member
 FIELDS TERMINATED BY '\t'
 (@s, @m, @i)
 SET `set` = @s,
      `member` = @m,
      `im1Id` = @i,
-     `self` = (`set` == `member`)
+     `self` = (`set` = `member`)
 ;

@@ -6,6 +6,7 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
+import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -20,7 +21,7 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 @Slf4j
 public class SetMemberExport {
   public static void execute(Path basePath) {
-    SetMemberExport.execute(basePath, Collections.emptyList());
+    execute(basePath, Collections.emptyList());
   }
 
   public static void execute(Path basePath, String iri) {
@@ -28,6 +29,9 @@ public class SetMemberExport {
   }
 
   public static void execute(Path basePath, List<String> iris) {
+    if (!TTTransactionFiler.generateIm1Deltas())
+      return;
+
     Format formatter = new SimpleDateFormat("yyyyMMddHHmmss");
     String date = formatter.format(new java.util.Date());
     String baseFilename = date + "_" + basePath.getFileName();
@@ -56,12 +60,14 @@ public class SetMemberExport {
             ?member im:im1Id ?im1Id .
         }
         """, iri);
+
       SetMemberExport.runExport(fw, conn, """
         select ?set ?member ?im1Id
         where {
-            ?set rdf:type im:ConceptSet ;
+            ?set rdf:type ?type ;
                 im:hasMember ?member .
             ?member im:im1Id ?im1Id .
+            values ?type { im:ConceptSet im:ValueSet } .
         }
         """, iri);
     }

@@ -21,6 +21,10 @@ public class ClauseUtils {
         argUnits(units)
       ));
     } else if (iri.toLowerCase().contains("date")&&relativeTo!=null&&(where.getValue()!=null||where.getRange()!=null)) {
+      if (where.getValue().equals("0")){
+        where.setValue(null);
+        return;
+      }
       where.setFunction(buildFunction(
         Namespace.IM + "TimeDifference",
         argPath("firstDateTime", new Path().setIri(iri)),

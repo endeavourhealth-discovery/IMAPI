@@ -82,12 +82,25 @@ public class EqdToIMQ {
     this.namespace = namespace;
     this.resources.setCriteriaMaps(criteriaMaps);
     this.resources.setBaseCounter(0);
-    this.addReportNames(eqd);
-    this.convertFolders(eqd);
-    this.setVersionMap(eqd);
-    this.convertReports(eqd);
-    createLibrary();
-    deduplicate();
+    if (singleEntity==null){
+      this.addReportNames(eqd);
+      this.convertFolders(eqd);
+      this.setVersionMap(eqd);
+      this.convertReports(eqd);
+      createLibrary();
+      deduplicate();
+    }
+    else {
+      this.addReportNames(eqd);
+      for (EQDOCReport eqReport : eqd.getReport()) {
+        if (eqReport.getId() != null && eqReport.getId().equals(this.singleEntity)) {
+          TTEntity qry = this.convertReport(eqReport);
+          if (qry != null) {
+            this.document.addEntity(qry);
+          }
+        }
+      }
+    }
     // addLibraryEntities();
     // assignLibraryClauses();
   }

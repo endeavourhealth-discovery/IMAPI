@@ -21,7 +21,7 @@ public class ClauseUtils {
         argUnits(units)
       ));
     } else if (iri.toLowerCase().contains("date")&&relativeTo!=null&&(where.getValue()!=null||where.getRange()!=null)) {
-      if (where.getValue().equals("0")){
+      if ("0".equals(where.getValue())){
         where.setValue(null);
         return;
       }

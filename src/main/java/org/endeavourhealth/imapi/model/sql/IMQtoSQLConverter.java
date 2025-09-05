@@ -74,6 +74,9 @@ public class IMQtoSQLConverter {
             addDatasetSubQuery(qry, dataset, definition.getTypeOf().getIri());
           if (dataset.getReturn() != null)
             addSelectFromReturnRecursively(qry, dataset.getReturn(), null, definition.getTypeOf().getIri(), null, false);
+          if (null != definition.getIsCohort()) {
+            convertIsCohort(qry, definition.getIsCohort(), Bool.and);
+          }
           sql.append(qry.toSql(2)).append(";\n\n");
         }
       } else {

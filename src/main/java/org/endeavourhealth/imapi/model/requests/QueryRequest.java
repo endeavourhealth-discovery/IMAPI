@@ -8,48 +8,48 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"context", "textSearch", "argument", "referenceDate", "query", "pathQuery", "update"})
+@JsonPropertyOrder({"context", "textSearch", "argument", "query", "pathQuery", "update"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Getter
 public class QueryRequest implements ContextMap {
-
-
   private String name;
   private Page page;
   private Map<String, String> context;
   private String textSearch;
-  private List<Argument> argument;
+  private Set<Argument> argument;
   @JsonProperty(required = true)
   private Query query;
   private PathQuery pathQuery;
   private Update update;
-  private String referenceDate;
+  @Getter
+  private String queryStringDefinition;
   private String askIri;
   private List<Map<Long, String>> timings = new ArrayList<>();
-  private List<TTIriRef> cohort;
+  private Set<TTIriRef> cohort;
   @Setter
   private boolean includeNames;
   @Setter
   private TextSearchStyle textSearchStyle;
   @Getter
-  private Graph graph;
+  private DatabaseOption language;
 
+  public QueryRequest() {
+  }
 
-  public QueryRequest() {}
-
-  public QueryRequest setCohort(List<TTIriRef> cohort) {
+  public QueryRequest setCohort(Set<TTIriRef> cohort) {
     this.cohort = cohort;
     return this;
   }
 
   public QueryRequest addToCohort(TTIriRef cohort) {
     if (this.cohort == null) {
-      this.cohort = new ArrayList<>();
+      this.cohort = new HashSet<>();
     }
     this.cohort.add(cohort);
     return this;
@@ -101,14 +101,14 @@ public class QueryRequest implements ContextMap {
   }
 
   @JsonSetter
-  public QueryRequest setArgument(List<Argument> argument) {
+  public QueryRequest setArgument(Set<Argument> argument) {
     this.argument = argument;
     return this;
   }
 
   public QueryRequest addArgument(Argument argument) {
     if (this.argument == null)
-      this.argument = new ArrayList<>();
+      this.argument = new HashSet<>();
     this.argument.add(argument);
     return this;
   }
@@ -147,11 +147,6 @@ public class QueryRequest implements ContextMap {
   }
 
 
-  public QueryRequest setReferenceDate(String referenceDate) {
-    this.referenceDate = referenceDate;
-    return this;
-  }
-
   @JsonSetter
   public QueryRequest setPage(Page page) {
     this.page = page;
@@ -170,6 +165,9 @@ public class QueryRequest implements ContextMap {
     return this;
   }
 
+  public Query getQuery() {
+    return query;
+  }
 
   @JsonSetter
   public QueryRequest setQuery(Query query) {
@@ -190,8 +188,6 @@ public class QueryRequest implements ContextMap {
 
   @JsonIgnore
   public QueryRequest setContext(TTContext context) {
-    if (context == null)
-      this.context = null;
     this.context = new HashMap<>();
     for (TTPrefix prefix : context.getPrefixes()) {
       this.context.put(prefix.getPrefix(), prefix.getIri());
@@ -223,8 +219,30 @@ public class QueryRequest implements ContextMap {
     return this;
   }
 
-  public QueryRequest setGraph(Graph graph) {
-    this.graph = graph;
+  public QueryRequest setLanguage(DatabaseOption language) {
+    this.language = language;
     return this;
+  }
+
+  @Override
+  public int hashCode() {
+    resolveArgs();
+    return Objects.hash(queryStringDefinition, argument);
+  }
+
+  public QueryRequest setQueryStringDefinition(String queryStringDefinition) {
+    this.queryStringDefinition = queryStringDefinition;
+    return this;
+  }
+
+  public void resolveArgs() {
+    if (this.argument == null) this.argument = new HashSet<>();
+    List<String> defaultDates = List.of("$searchDate", "$achievementDate");
+    for (String date : defaultDates) {
+      boolean hasDate = this.argument.stream()
+        .anyMatch(arg -> date.equals(arg.getParameter()));
+      if (!hasDate)
+        this.argument.add(new Argument().setParameter(date).setValueData(LocalDate.now().toString()));
+    }
   }
 }

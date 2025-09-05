@@ -5,18 +5,13 @@ import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.query.UpdateExecutionException;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.endeavourhealth.imapi.aws.AWSCognitoClient;
 import org.endeavourhealth.imapi.aws.UserNotFoundException;
-import org.endeavourhealth.imapi.dataaccess.databases.BaseDB;
 import org.endeavourhealth.imapi.dataaccess.databases.WorkflowDB;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.logic.service.EmailService;
-import org.endeavourhealth.imapi.model.workflow.BugReport;
-import org.endeavourhealth.imapi.model.workflow.EntityApproval;
-import org.endeavourhealth.imapi.model.workflow.RoleRequest;
-import org.endeavourhealth.imapi.model.workflow.Task;
+import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Browser;
 import org.endeavourhealth.imapi.model.workflow.bugReport.OperatingSystem;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Severity;
@@ -30,7 +25,7 @@ import java.util.StringJoiner;
 import static org.eclipse.rdf4j.model.util.Values.*;
 
 public class TaskFilerRdf4j {
-  private WorkflowDB conn;
+  private final WorkflowDB conn;
   private EmailService emailService;
 
   public TaskFilerRdf4j() {
@@ -94,6 +89,24 @@ public class TaskFilerRdf4j {
     }
   }
 
+  public void fileGraphRequest(GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException {
+    replaceUsernameWithId(graphRequest);
+    try {
+      ModelBuilder builder = new ModelBuilder();
+      buildTask(builder, graphRequest);
+      builder.namedGraph(Graph.IM.toString())
+        .add(iri(graphRequest.getId().getIri()), WORKFLOW.REQUESTED_GRAPH.asDbIri(), literal(graphRequest.getGraph()));
+      conn.add(builder.build());
+      String emailSubject = "New graph request added: [" + graphRequest.getId().getIri() + "]";
+      String emailContent = "Click <a href=\"" + graphRequest.getHostUrl() + "/#/workflow/graphRequest/" + graphRequest.getId().getIri() + "\">here</a>";
+      getEmailService().sendMail(emailSubject, emailContent, "graphrequest@endeavourhealth.net");
+    } catch (RepositoryException e) {
+      throw new TaskFilerException("Failed to file task", e);
+    } catch (MessagingException e) {
+      throw new TaskFilerException("Failed to send email", e);
+    }
+  }
+
   public void fileEntityApproval(EntityApproval entityApproval) throws UserNotFoundException, TaskFilerException {
     replaceUsernameWithId(entityApproval);
     try {
@@ -140,14 +153,7 @@ public class TaskFilerRdf4j {
       if (null != originalObject) originalObject = usernameToId(originalObject);
     }
     try {
-      StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
-      stringJoiner.add("DELETE { ?subject ?predicate ?originalObject }");
-      stringJoiner.add("INSERT { ?subject ?predicate ?newObject }");
-      stringJoiner.add("WHERE { ?subject ?predicate ?o ");
-      if (null != originalObject) stringJoiner.add("FILTER (?o = ?originalObject)");
-      stringJoiner.add("BIND(?o AS ?originalObject)");
-      if (null != newObject) stringJoiner.add("BIND(?newVal AS ?newObject)");
-      stringJoiner.add("}");
+      StringJoiner stringJoiner = getTaskUpdateSparql(originalObject, newObject);
       Update update = conn.prepareInsertSparql(stringJoiner.toString());
       update.setBinding("subject", iri(subject));
       update.setBinding("predicate", predicate.asDbIri());
@@ -158,6 +164,18 @@ public class TaskFilerRdf4j {
     } catch (UpdateExecutionException e) {
       throw new TaskFilerException("Failed to update task", e);
     }
+  }
+
+  private static StringJoiner getTaskUpdateSparql(String originalObject, String newObject) {
+    StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
+    stringJoiner.add("DELETE { ?subject ?predicate ?originalObject }");
+    stringJoiner.add("INSERT { ?subject ?predicate ?newObject }");
+    stringJoiner.add("WHERE { ?subject ?predicate ?o ");
+    if (null != originalObject) stringJoiner.add("FILTER (?o = ?originalObject)");
+    stringJoiner.add("BIND(?o AS ?originalObject)");
+    if (null != newObject) stringJoiner.add("BIND(?newVal AS ?newObject)");
+    stringJoiner.add("}");
+    return stringJoiner;
   }
 
   private void updateHistory(String subject, VocabEnum predicate, String originalObject, String newObject, String userId) throws TaskFilerException {

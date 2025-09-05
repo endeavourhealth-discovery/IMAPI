@@ -1,15 +1,14 @@
 package org.endeavourhealth.imapi.transformengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.model.iml.MapFunction;
 import org.endeavourhealth.imapi.model.iml.ListMode;
+import org.endeavourhealth.imapi.model.iml.MapFunction;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.map.MapProperty;
 import org.endeavourhealth.imapi.vocabulary.TransformFunction;
-
 
 import java.util.*;
 
@@ -205,11 +204,11 @@ public class Transformer {
         parameter = String.valueOf(argIndex);
       if (argument.getValueData() != null)
         result.put(parameter, argument.getValueData());
-      else if (argument.getValueVariable() != null) {
-        Object variableValue = varToObject.get(argument.getValueVariable());
+      else if (argument.getValueParameter() != null) {
+        Object variableValue = varToObject.get(argument.getValueParameter());
         if (variableValue == null)
-          throw new IllegalArgumentException("argument : " + parameter + ",  variable: " + argument.getValueVariable() + "  in function has not been defined");
-        result.put(parameter, varToObject.get(argument.getValueVariable()));
+          throw new IllegalArgumentException("argument : " + parameter + ",  variable: " + argument.getValueParameter() + "  in function has not been defined");
+        result.put(parameter, varToObject.get(argument.getValueParameter()));
       }
 
     }

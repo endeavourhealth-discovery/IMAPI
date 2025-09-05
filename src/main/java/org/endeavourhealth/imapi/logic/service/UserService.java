@@ -5,11 +5,11 @@ import org.endeavourhealth.imapi.dataaccess.UserRepository;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
 import org.endeavourhealth.imapi.model.dto.UserDataDto;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.USER;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -19,6 +19,7 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 public class UserService {
   private final UserRepository userRepository = new UserRepository();
   private final EntityService entityService = new EntityService();
+  private final RequestObjectService requestObjectService = new RequestObjectService();
 
 
   public String getUserPreset(String userId) {
@@ -64,10 +65,10 @@ public class UserService {
   public List<RecentActivityItemDto> getUserMRU(String userId) throws JsonProcessingException {
     List<RecentActivityItemDto> mru = userRepository.getUserMRU(userId);
     boolean hasNoneExistingIris = mru.stream()
-      .anyMatch(mruDto -> !entityService.iriExists(mruDto.getIri(), null));
+      .anyMatch(mruDto -> !entityService.iriExists(mruDto.getIri()));
     if (hasNoneExistingIris) {
       List<RecentActivityItemDto> updatedMRUs = mru.stream()
-        .filter(mruDto -> entityService.iriExists(mruDto.getIri(), null)).toList();
+        .filter(mruDto -> entityService.iriExists(mruDto.getIri())).toList();
       updateUserMRU(userId, updatedMRUs);
       return userRepository.getUserMRU(userId);
     }
@@ -81,10 +82,10 @@ public class UserService {
   public List<String> getUserFavourites(String userId) throws JsonProcessingException {
     List<String> favourites = userRepository.getUserFavourites(userId);
     boolean hasNoneExistingIris = favourites.stream()
-      .anyMatch(favouriteIri -> !entityService.iriExists(favouriteIri, null));
+      .anyMatch(favouriteIri -> !entityService.iriExists(favouriteIri));
     if (hasNoneExistingIris) {
       List<String> updatedFavourites = favourites.stream()
-        .filter(f -> entityService.iriExists(f, null)).toList();
+        .filter(entityService::iriExists).toList();
       updateUserFavourites(userId, updatedFavourites);
       return userRepository.getUserFavourites(userId);
     }
@@ -101,6 +102,10 @@ public class UserService {
 
   public void updateUserOrganisations(String userId, List<String> organisations) throws JsonProcessingException {
     userRepository.updateUserOrganisations(userId, organisations);
+  }
+
+  public void updateUserGraphs(String userId, List<Graph> userGraphs) throws JsonProcessingException {
+    userRepository.updateUserGraphs(userId, userGraphs);
   }
 
   public boolean userIdExists(String userId) {

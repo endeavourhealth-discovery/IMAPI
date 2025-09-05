@@ -6,7 +6,10 @@ import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTToNQuad;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -37,28 +40,15 @@ public class TTBulkFiler implements TTDocumentFiler {
   private Map<Namespace, FileWriter> codeCoreMap;
   private Map<Namespace, FileWriter> codeIds;
 
-  private Graph graph;
+  private final Graph insertGraph;
 
-  public TTBulkFiler(Graph graph) {
-    this.graph = graph;
-  }
-
-  public void fileDocument(TTDocument document) throws TTFilerException {
-    if (document.getEntities() == null)
-      return;
-    if (document.getEntities().isEmpty())
-      return;
-
-    validateDocument(document);
-
-    writeGraph(document, graph);
+  public TTBulkFiler(Graph insertGraph) {
+    this.insertGraph = insertGraph;
   }
 
   private static void setStatus(TTEntity entity) {
-    if (entity.get(iri(RDFS.LABEL)) != null) {
-      if (entity.get(iri(IM.HAS_STATUS)) == null)
+    if (entity.get(iri(RDFS.LABEL)) != null && entity.get(iri(IM.HAS_STATUS)) == null)
         entity.set(iri(IM.HAS_STATUS), iri(IM.ACTIVE));
-    }
   }
 
   public static void createRepository() throws TTFilerException {
@@ -80,8 +70,7 @@ public class TTBulkFiler implements TTDocumentFiler {
       log.info("Executing command [{}{}]", startCommand, command);
 
       Process process = Runtime.getRuntime()
-        .exec(startCommand + command,
-          null, new File(preloadPath));
+        .exec((startCommand + command).split(" "),null, new File(preloadPath));
       BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
       BufferedReader e = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
@@ -164,6 +153,17 @@ public class TTBulkFiler implements TTDocumentFiler {
     statementCount++;
   }
 
+  public void fileDocument(TTDocument document) throws TTFilerException {
+    if (document.getEntities() == null)
+      return;
+    if (document.getEntities().isEmpty())
+      return;
+
+    validateDocument(document);
+
+    writeGraph(document, insertGraph);
+  }
+
   private void validateDocument(TTDocument document) throws TTFilerException {
     for (TTEntity entity : document.getEntities()) {
       if (entity.getScheme() == null) {
@@ -190,7 +190,7 @@ public class TTBulkFiler implements TTDocumentFiler {
         allEntities.write(entity.getIri() + "\n");
         if (Graph.IM.equals(graph))
           coreIris.write(entity.getIri() + "\t" + entity.getName() + "\n");
-        if (entity.getScheme() == null){
+        if (entity.getScheme() == null) {
           transformAndWriteQuads(converter, entity, graph);
         } else {
           addToMaps(entity);
@@ -291,7 +291,7 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void addTerms(TTEntity entity) throws IOException {
-    if (entity.getScheme().equals(Namespace.IM.toString()) && entity.getName() != null)
+    if (entity.getScheme().getIri().equals(Namespace.IM.toString()) && entity.getName() != null)
       coreTerms.write(entity.getName() + "\t" + entity.getIri() + "\n");
   }
 

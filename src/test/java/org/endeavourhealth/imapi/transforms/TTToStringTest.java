@@ -7,7 +7,9 @@ import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,11 +28,7 @@ class TTToStringTest {
   }
 
   public List<String> getTestBlockedIris() {
-    return Arrays.asList("http://www.w3.org/2001/XMLSchema#string");
-  }
-
-  public TTIriRef getTestIri() {
-    return iri("http://snomed.info/sct#370135005", "Pathological process (attribute)");
+    return List.of("http://www.w3.org/2001/XMLSchema#string");
   }
 
   public TTArray getTestArray() {
@@ -120,7 +118,7 @@ class TTToStringTest {
   }
 
   @Test
-  void bundleToString() throws Exception {
+  void bundleToString() {
     String expected = """
       Subclass Of :\s
       Combination of :\s
@@ -162,7 +160,7 @@ class TTToStringTest {
   }
 
   @Test
-  void ttNodeToString() throws Exception {
+  void ttNodeToString() {
     String expected = """
       Combination of :\s
         <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23128084001">Duane's syndrome, type 3</a>

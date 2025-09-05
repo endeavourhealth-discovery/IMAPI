@@ -2,15 +2,13 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
-import org.endeavourhealth.imapi.model.imq.Bool;
+import org.endeavourhealth.imapi.model.iml.ListMode;
+import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
 import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.model.iml.ListMode;
-import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
 import org.endeavourhealth.imapi.vocabulary.FHIR;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.MAP;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -18,7 +16,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class TestMaps {
 
 
-  public static MapObject patientDSTU2() throws JsonProcessingException {
+  public static void patientDSTU2() throws JsonProcessingException {
     TTEntity patientMapEntity = new TTEntity();
     patientMapEntity
       .setIri(Namespace.MAP + "FHIR_2_PatientToIM")
@@ -38,7 +36,7 @@ public class TestMaps {
           .argument(a -> a
             .setValueData("urn:uuid:"))
           .argument(a -> a
-            .setValueVariable("fhirId"))))
+            .setValueParameter("fhirId"))))
       .propertyMap(m -> m
         .setSource("identifier")
         .propertyMap(m1 -> m1
@@ -69,7 +67,7 @@ public class TestMaps {
               .setValueData(" "))
             .argument(a -> a
               .setParameter("elements")
-              .setValueVariable("fhirGiven")))))
+              .setValueParameter("fhirGiven")))))
       .propertyMap(m -> m
         .setSource("address")
         .setTarget("homeAddress")
@@ -134,6 +132,5 @@ public class TestMaps {
             .setValueData("http://hl7.org/fhir/administrative-gender"))));
     patientMapEntity.set(iri(IM.DEFINITION), TTLiteral.literal(patientMap));
     EntityCache.addEntity(patientMapEntity);
-    return patientMap;
   }
 }

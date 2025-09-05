@@ -9,7 +9,7 @@ public enum TaskState {
     CANCELLED("cancelled"),
     UNDER_REVIEW("under review");
 
-    private String text;
+    private final String text;
     TaskState (String text) {
         this.text = text;
     }

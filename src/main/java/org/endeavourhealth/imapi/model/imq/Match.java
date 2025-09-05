@@ -1,21 +1,25 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
 import lombok.Setter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-@JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "nodeRef", "header","typeOf", "instanceOf","and","or","not","where"})
+
+@JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "nodeRef", "header","typeOf", "instanceOf","and","or","not","where","return","then"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends IriLD implements BoolGroup<Match>{
+public class Match extends IriLD implements BoolGroup<Match>, HasPaths {
   private Element graph;
   @Getter
   private Where where;
   @Getter
   private String description;
-  private OrderLimit orderBy;
   private String nodeRef;
   private boolean optional;
   private FunctionClause aggregate;
@@ -64,6 +68,26 @@ public class Match extends IriLD implements BoolGroup<Match>{
   @Getter
   @Setter
   private boolean invalid;
+  @Getter
+  private TTIriRef isCohort;
+  @Getter Query retainAs;
+
+
+  public Match setRetainAs(Query retainAs) {
+    this.retainAs = retainAs;
+    return this;
+  }
+  public Query retainAs(Consumer<Query> builder) {
+    Query query = new Query();
+    setRetainAs(query);
+    builder.accept(query);
+    return query;
+  }
+
+  public Match setIsCohort(TTIriRef isCohort) {
+    this.isCohort = isCohort;
+    return this;
+  }
 
   public Match setLibraryItem(String libraryItem) {
     this.libraryItem = libraryItem;
@@ -88,6 +112,7 @@ public class Match extends IriLD implements BoolGroup<Match>{
     this.rule = rule;
     return this;
   }
+
   public Match addRule(Match rule) {
     if (this.rule == null) {
       this.rule = new ArrayList<>();
@@ -95,7 +120,6 @@ public class Match extends IriLD implements BoolGroup<Match>{
     this.rule.add(rule);
     return this;
   }
-
 
 
   public Match setOr(List<Match> ors) {
@@ -110,6 +134,7 @@ public class Match extends IriLD implements BoolGroup<Match>{
     this.or.add(or);
     return this;
   }
+
   public Match or(Consumer<Match> builder) {
     Match or = new Match();
     addOr(or);
@@ -118,7 +143,7 @@ public class Match extends IriLD implements BoolGroup<Match>{
   }
 
   public Match setAnd(List<Match> and) {
-    this.and= and;
+    this.and = and;
     return this;
   }
 
@@ -129,12 +154,14 @@ public class Match extends IriLD implements BoolGroup<Match>{
     this.and.add(and);
     return this;
   }
+
   public Match and(Consumer<Match> builder) {
     Match and = new Match();
     addAnd(and);
     builder.accept(and);
     return this;
   }
+
   public Match setNot(List<Match> not) {
     this.not = not;
     return this;
@@ -173,15 +200,16 @@ public class Match extends IriLD implements BoolGroup<Match>{
     this.baseRule = baseRule;
     return this;
   }
+
   public Match setParameter(String parameter) {
     this.parameter = parameter;
     return this;
   }
+
   public Match setInverse(boolean inverse) {
     this.inverse = inverse;
     return this;
   }
-
 
 
   public Match setReturx(Return returx) {
@@ -190,14 +218,10 @@ public class Match extends IriLD implements BoolGroup<Match>{
   }
 
 
-
   public Match setIsUnion(boolean union) {
     this.union = union;
     return this;
   }
-
-
-
 
 
   public Match setIfTrue(RuleAction ifTrue) {
@@ -244,8 +268,6 @@ public class Match extends IriLD implements BoolGroup<Match>{
     builder.accept(function);
     return this;
   }
-
-
 
 
   public Match setPath(List<Path> path) {
@@ -341,26 +363,6 @@ public class Match extends IriLD implements BoolGroup<Match>{
   }
 
 
-  public OrderLimit getOrderBy() {
-    return orderBy;
-  }
-
-  @JsonSetter
-  public Match setOrderBy(OrderLimit orderBy) {
-    this.orderBy = orderBy;
-    return this;
-  }
-
-
-  public Match orderBy(Consumer<OrderLimit> builder) {
-    OrderLimit orderBy = new OrderLimit();
-    setOrderBy(orderBy);
-    builder.accept(orderBy);
-    return this;
-  }
-
-
-
   public Element getGraph() {
     return graph;
   }
@@ -375,9 +377,6 @@ public class Match extends IriLD implements BoolGroup<Match>{
     this.typeOf = new Node().setIri(type);
     return this;
   }
-
-
-
 
 
   public Match setName(String name) {

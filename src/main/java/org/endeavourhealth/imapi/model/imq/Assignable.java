@@ -3,13 +3,13 @@ package org.endeavourhealth.imapi.model.imq;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public interface Assignable {
-  public Operator getOperator();
+  Operator getOperator();
 
-  public Assignable setOperator(Operator operator);
+  Assignable setOperator(Operator operator);
 
-  public String getValue();
+  String getValue();
 
-  public Assignable setValue(String value);
+  Assignable setValue(String value);
 
   Assignable setQualifier(String qualifier);
 
@@ -19,12 +19,11 @@ public interface Assignable {
 
   Assignable setValueLabel(String label);
 
-  TTIriRef getUnit();
+  FunctionClause getFunction();
+  Assignable setFunction(FunctionClause function);
+  TTIriRef getUnits();
+  Assignable setUnits(TTIriRef unit);
 
-  Assignable setUnit(TTIriRef unit);
 
-  Assignable setValueParameter(String parameter);
-
-  String getValueParameter();
 
 }

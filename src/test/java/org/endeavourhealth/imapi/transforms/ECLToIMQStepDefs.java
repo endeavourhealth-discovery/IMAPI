@@ -2,19 +2,18 @@ package org.endeavourhealth.imapi.transforms;
 
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Query;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ECLToIMQStepDefs {
-  private ECLToIMQ eclToIMQ = new ECLToIMQ();
-  private IMQToECL imqToECL = new IMQToECL();
+  private final ECLToIMQ eclToIMQ = new ECLToIMQ();
+  private final IMQToECL imqToECL = new IMQToECL();
   private Query query;
 
   @Then("getEclFromQuery should equal original ecl {string}")
-  public void GetEclFromQueryShouldEqualEcl(String ecl) throws Exception {
+  public void GetEclFromQueryShouldEqualEcl(String ecl) {
     ECLQueryRequest eclQuery = new ECLQueryRequest();
     eclQuery.setQuery(query);
     imqToECL.getECLFromQuery(eclQuery);
@@ -24,7 +23,7 @@ public class ECLToIMQStepDefs {
   }
 
   @When("getQueryFromEcl is called with ecl {string}")
-  public void getQueryFromECLIsCalledWithEclEcl(String ecl) throws EclFormatException {
+  public void getQueryFromECLIsCalledWithEclEcl(String ecl) {
     ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
     eclQueryRequest.setEcl(ecl);
     eclToIMQ.getQueryFromECL(eclQueryRequest);

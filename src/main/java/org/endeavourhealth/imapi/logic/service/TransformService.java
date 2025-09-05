@@ -13,7 +13,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transformengine.Transformer;
 import org.endeavourhealth.imapi.transforms.EqdToIMQ;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.springframework.context.annotation.PropertySource;
@@ -30,7 +29,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @PropertySource("classpath:eqdmap.properties")
 public class TransformService {
 
-  public TTDocument transformEqd(EnquiryDocument eqDoc, Namespace namespace, Graph graph) throws IOException, QueryException, EQDException {
+  public TTDocument transformEqd(EnquiryDocument eqDoc, Namespace namespace) throws IOException, QueryException, EQDException {
     Properties dataMap = new Properties();
 
     File file = ResourceUtils.getFile("classpath:eqdmap.properties");
@@ -40,8 +39,8 @@ public class TransformService {
 
     TTDocument document = new TTDocument();
 
-    EqdToIMQ converter = new EqdToIMQ();
-    converter.convertEQD(document, eqDoc, dataMap, null, namespace, graph);
+    EqdToIMQ converter = new EqdToIMQ(false);
+    converter.convertEQD(document, eqDoc, dataMap, null, namespace);
     return document;
 
   }

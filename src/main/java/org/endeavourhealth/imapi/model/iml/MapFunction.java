@@ -51,11 +51,6 @@ public class MapFunction extends TTIriRef {
   }
 
   @Override
-  public String getName() {
-    return super.getName();
-  }
-
-  @Override
   public MapFunction setName(String name) {
     super.setName(name);
     return this;

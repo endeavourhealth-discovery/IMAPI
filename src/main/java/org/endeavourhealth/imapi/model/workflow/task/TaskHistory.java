@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.model.workflow.task;
 
 import lombok.Getter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.time.LocalDateTime;
 

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
 import org.endeavourhealth.imapi.model.map.MapProperty;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.Collection;

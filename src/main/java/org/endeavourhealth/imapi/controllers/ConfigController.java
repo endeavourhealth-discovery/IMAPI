@@ -8,11 +8,17 @@ import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.annotation.RequestScope;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/config")
@@ -35,6 +41,20 @@ public class ConfigController {
       log.debug("getMonitoring");
       return configManager.getConfig(CONFIG.MONITORING, new TypeReference<>() {
       });
+    }
+  }
+
+  @GetMapping(value = "public/graphs")
+  @Operation(summary = "Get the list of available graphs")
+  public List<Graph> getGraphs() {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Config.Monitoring.GET")) {
+      log.debug("getGraphs");
+      List<Graph> graphs = new ArrayList<>(EnumSet.allOf(Graph.class));
+      graphs.remove(Graph.CONFIG);
+      graphs.remove(Graph.WORKFLOW);
+      graphs.remove(Graph.USER);
+      graphs.remove(Graph.PROV);
+      return graphs;
     }
   }
 }

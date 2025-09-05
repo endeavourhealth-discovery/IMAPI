@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.EntityType;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,23 +17,22 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class IMQtoSQLConverterTest {
-  private static Logger LOG = LoggerFactory.getLogger(IMQtoSQLConverterTest.class);
-  private String db_url = System.getenv("DB_URL");
-  private String db_user = System.getenv("DB_USER");
-  private String db_password = System.getenv("DB_PASSWORD");
-  private String db_driver = System.getenv("DB_DRIVER");
+  private static final Logger LOG = LoggerFactory.getLogger(IMQtoSQLConverterTest.class);
+  private final String db_url = System.getenv("DB_URL");
+  private final String db_user = System.getenv("DB_USER");
+  private final String db_password = System.getenv("DB_PASSWORD");
+  private final String db_driver = System.getenv("DB_DRIVER");
 
   //  @Test
-  public void IMQtoSQL(Graph graph) {
+  public void IMQtoSQL() {
     // Get list of queries from GraphDb
     EntityRepository entityRepository = new EntityRepository();
-    List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(EntityType.QUERY, graph);
+    List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(EntityType.QUERY);
     LOG.info("Found {} queries", cohortQueryIris.size());
 
     // Prepare
@@ -64,11 +62,8 @@ public class IMQtoSQLConverterTest {
         try {
           // convert it
           Query query = om.readValue(definition, Query.class);
-          IMQtoSQLConverter imq2sql = new IMQtoSQLConverter(new QueryRequest().setQuery(query), "MYSQL", new HashMap<>());
-          String sql = imq2sql.IMQtoSQL();
-
-          // Replace variables
-          sql = sql.replace("$referenceDate", "NOW()");
+          IMQtoSQLConverter imq2sql = new IMQtoSQLConverter(new QueryRequest().setQuery(query));
+          String sql = imq2sql.getSql().replace("$searchDate", "NOW()");
 
           // run on postgres
           try (PreparedStatement preparedStatement = connection.prepareStatement("EXPLAIN " + sql)) {

@@ -5,11 +5,10 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 @Getter
 @Setter
@@ -113,9 +112,10 @@ public class SQLQuery {
 
   public String getFieldName(String field, String table, TableMap tableMap) throws SQLConversionException {
     String alias = table != null ? table : this.alias;
-    String fieldName = getField(field, table, tableMap).getField();
-
+    Field fieldObject = getField(field, table, tableMap);
+    String fieldName = fieldObject.getField();
     if (fieldName.contains("{alias}")) return fieldName.replaceAll("\\{alias}", alias);
+    else if (fieldObject.isFunction()) return fieldName;
     else return alias + "." + fieldName;
   }
 
@@ -176,6 +176,16 @@ public class SQLQuery {
 
   public String getAlias(String tableName) {
     return tableName + SQLQuery.aliasIndex++;
+  }
+
+  public List<String> getGetForeignKeys() {
+    ArrayList<String> foreignKeys = new ArrayList<>();
+    if (null != this.map && null != this.map.getRelationships()) {
+      this.map.getRelationships().values().forEach(relationship -> {
+        foreignKeys.add(relationship.getFromField());
+      });
+    }
+    return foreignKeys;
   }
 }
 

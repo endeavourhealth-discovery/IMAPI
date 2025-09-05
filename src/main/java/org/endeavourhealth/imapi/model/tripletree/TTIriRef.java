@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
@@ -16,18 +15,18 @@ import java.util.regex.Pattern;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(name = "TTIriRef", description = "Class representing an IRI")
 public class TTIriRef implements TTValue, Serializable {
-  private static Pattern iriPattern = Pattern.compile("([a-z]+)?[:].*");
+  private static final Pattern iriPattern = Pattern.compile("([a-z]+)?[:].*");
 
   @Schema(description = "The actual iri")
   private String iri;
 
   @Getter
-  @JsonProperty(defaultValue = "")
+  @JsonProperty()
   @Schema(description = "The name of the concept the IRI represents")
   private String name;
 
   @Getter
-  @JsonProperty(defaultValue = "")
+  @JsonProperty()
   @Schema(description = "Longer/fuller description of the represented concept")
   private String description;
 

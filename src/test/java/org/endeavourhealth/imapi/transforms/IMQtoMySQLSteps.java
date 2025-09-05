@@ -14,7 +14,6 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 
 public class IMQtoMySQLSteps {
   private final ObjectMapper objectMapper = new ObjectMapper();
@@ -37,7 +36,7 @@ public class IMQtoMySQLSteps {
   @When("I convert to MySQL")
   public void i_convert_to_MySQL() {
     try {
-      this.mysql = new IMQtoSQLConverter(queryRequest, null, new HashMap<>()).IMQtoSQL();
+      this.mysql = new IMQtoSQLConverter(queryRequest).getSql();
     } catch (SQLConversionException e) {
       this.mysql = e.getMessage();
     }

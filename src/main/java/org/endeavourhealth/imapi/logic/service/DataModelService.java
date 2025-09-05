@@ -6,12 +6,14 @@ import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.PropertyDisplay;
 import org.endeavourhealth.imapi.model.dto.UIProperty;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
-import org.endeavourhealth.imapi.model.iml.PropertyShape;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.OWL;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -21,25 +23,37 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Component
 public class DataModelService {
-  private EntityRepository entityRepository = new EntityRepository();
-  private DataModelRepository dataModelRepository = new DataModelRepository();
-  private EntityService entityService = new EntityService();
+  private final EntityRepository entityRepository;
+  private final DataModelRepository dataModelRepository;
+  private final EntityService entityService;
 
-  public List<TTIriRef> getDataModelsFromProperty(String propIri, Graph graph) {
-    return dataModelRepository.findDataModelsFromProperty(propIri, graph);
+  public DataModelService() {
+    entityRepository = new EntityRepository();
+    dataModelRepository = new DataModelRepository();
+    entityService = new EntityService(entityRepository);
   }
 
-  public String checkPropertyType(String iri, Graph graph) {
-    return dataModelRepository.checkPropertyType(iri, graph);
+  public DataModelService(DataModelRepository dataModelRepository, EntityRepository entityRepository) {
+    this.dataModelRepository = dataModelRepository;
+    this.entityRepository = entityRepository;
+    entityService = new EntityService(entityRepository);
   }
 
-  public List<TTIriRef> getProperties(Graph graph) {
-    return dataModelRepository.getProperties(graph);
+  public List<TTIriRef> getDataModelsFromProperty(String propIri) {
+    return dataModelRepository.findDataModelsFromProperty(propIri);
+  }
+
+  public String checkPropertyType(String iri) {
+    return dataModelRepository.checkPropertyType(iri);
+  }
+
+  public List<TTIriRef> getProperties() {
+    return dataModelRepository.getProperties();
   }
 
 
-  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly, Graph graph) {
-    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly, graph);
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly) {
+    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly);
   }
 
 
@@ -110,20 +124,20 @@ public class DataModelService {
     return pv;
   }
 
-  public UIProperty getUIPropertyForQB(String dmIri, String propIri, Graph graph) {
-    UIProperty uiProp = dataModelRepository.findUIPropertyForQB(dmIri, propIri, graph);
+  public UIProperty getUIPropertyForQB(String dmIri, String propIri) {
+    UIProperty uiProp = dataModelRepository.findUIPropertyForQB(dmIri, propIri);
     if (null != uiProp.getIntervalUnitIri()) {
-      List<TTIriRef> isas = entityService.getIsas(uiProp.getIntervalUnitIri(), graph);
+      List<TTIriRef> isas = entityService.getIsas(uiProp.getIntervalUnitIri());
       List<TTIriRef> intervalUnitOptions = isas.stream().filter(unit -> !unit.getIri().equals(uiProp.getIntervalUnitIri())).toList();
       uiProp.setIntervalUnitOptions(intervalUnitOptions);
     }
     if (null != uiProp.getUnitIri()) {
-      List<TTIriRef> isas = entityService.getIsas(uiProp.getUnitIri(), graph);
+      List<TTIriRef> isas = entityService.getIsas(uiProp.getUnitIri());
       List<TTIriRef> unitOptions = isas.stream().filter(unit -> !unit.getIri().equals(uiProp.getUnitIri())).toList();
       uiProp.setUnitOptions(unitOptions);
     }
     if (null != uiProp.getOperatorIri())
-      uiProp.setOperatorOptions(entityService.getOperatorOptions(uiProp.getOperatorIri(), graph));
+      uiProp.setOperatorOptions(entityService.getOperatorOptions(uiProp.getOperatorIri()));
     return uiProp;
   }
 
@@ -209,13 +223,7 @@ public class DataModelService {
     propertyList.add(propertyDisplay);
   }
 
-  public PropertyShape getDefiningProperty(String iri) {
-    DataModelRepository dataModelRepository= new DataModelRepository();
-    return dataModelRepository.getDefiningProperty(iri);
-  }
-
-
   public List<NodeShape> getDataModelPropertiesWithValueType(Set<String> iris, String valueType) {
-    return dataModelRepository.getDataModelPropertiesWithValueType(iris,valueType);
+    return dataModelRepository.getDataModelPropertiesWithValueType(iris, valueType);
   }
 }

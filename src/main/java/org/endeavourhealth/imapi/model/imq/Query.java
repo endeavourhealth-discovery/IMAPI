@@ -7,14 +7,12 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.transforms.ECLSyntaxError;
-
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"prefix", "iri", "name", "description", "activeOnly", "typeOf","instanceOf","and","or","not","path","where","return", "groupBy", "orderBy","dataSet"})
+@JsonPropertyOrder({"prefix", "iri", "name", "description", "query","activeOnly", "typeOf", "instanceOf", "and", "or", "not", "path", "where", "return", "groupBy", "dataSet"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends Match {
   private Prefixes prefixes;
@@ -22,6 +20,8 @@ public class Query extends Match {
   @Getter
   private boolean activeOnly;
   private List<Query> dataSet;
+  @Getter
+  private List<Query> query;
   private List<GroupBy> groupBy;
   private String iri;
   private String name;
@@ -29,27 +29,31 @@ public class Query extends Match {
   private JsonNode parentResult;
   @Getter
   private TTIriRef persistentIri;
-  @Getter
-  private Query subquery;
+
   @Getter
   private String bindAs;
+
+  public Query setQuery(List<Query> query) {
+    this.query = query;
+    return this;
+  }
+  public Query addQuery(Query query) {
+    if (this.query == null)
+      this.query = new ArrayList<>();
+    this.query.add(query);
+    return this;
+  }
+
+  public Query setParameter(String parameter) {
+    super.setParameter(parameter);
+    return this;
+  }
 
   public Query setBindAs(String bindAs) {
     this.bindAs = bindAs;
     return this;
   }
 
-  public Query setSubquery(Query subquery) {
-    this.subquery = subquery;
-    return this;
-  }
-
-  public Query subquery (Consumer < Query > builder) {
-      Query subquery = new Query();
-      this.subquery = subquery;
-      builder.accept(subquery);
-      return this;
-    }
 
 
   public Query setRule(List<Match> rule) {
@@ -270,17 +274,6 @@ public class Query extends Match {
 
   public Query setName(String name) {
     this.name = name;
-    return this;
-  }
-
-
-  public Query setOrderBy(OrderLimit orderBy) {
-    super.setOrderBy(orderBy);
-    return this;
-  }
-
-  public Query orderBy(Consumer<OrderLimit> builder) {
-    super.orderBy(builder);
     return this;
   }
 

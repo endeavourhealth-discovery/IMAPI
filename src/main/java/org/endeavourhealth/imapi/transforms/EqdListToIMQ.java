@@ -7,9 +7,9 @@ import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.eqd.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
+
 
 import java.io.IOException;
 
@@ -18,13 +18,21 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class EqdListToIMQ {
   private EqdResources resources;
 
-  public void convertReport(EQDOCReport eqReport, TTDocument document, Query query, EqdResources resources, Graph graph) throws IOException, QueryException, EQDException {
+  public void convertReport(EQDOCReport eqReport, TTDocument document, Query query, EqdResources resources) throws IOException, QueryException, EQDException {
     this.resources = resources;
     this.resources.setQueryType(QueryType.LIST);
     query.setTypeOf(new Node().setIri(Namespace.IM + "Patient"));
-    String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
-    if (EqdToIMQ.versionMap.containsKey(id)) id = EqdToIMQ.versionMap.get(id);
-    query.addInstanceOf(new Node().setIri(resources.getNamespace() + id).setMemberOf(true)
+    String id;
+    if (eqReport.getParent().getSearchIdentifier() != null){
+      id = eqReport.getParent().getSearchIdentifier().getReportGuid();
+      id = resources.getNamespace() + EqdToIMQ.versionMap.getOrDefault(id, id);
+    }
+    else if (eqReport.getParent().getParentType()==VocPopulationParentType.ACTIVE){
+      id= Namespace.IM+"Q_RegisteredGMS";
+    }
+    else throw new EQDException("parent population at definition level");
+
+    query.setIsCohort(iri(id)
       .setName(resources.reportNames.get(id)));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
       EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();
@@ -34,23 +42,22 @@ public class EqdListToIMQ {
         .setIri(subQuery.getIri())
         .setName(eqColGroup.getDisplayName() + " in " + eqReport.getName())
         .addType(IM.FIELD_GROUP.asIri());
-      columnGroup.addObject(IM.USED_IN.asIri(), iri(query.getIri()));
       query.addDataSet(subQuery);
-      convertListGroup(eqColGroup, subQuery, query.getName(), graph);
+      convertListGroup(eqColGroup, subQuery, query.getName());
       columnGroup.set(IM.DEFINITION.asIri(), TTLiteral.literal(subQuery));
       document.addEntity(columnGroup);
     }
   }
 
 
-  private void convertListGroup(EQDOCListColumnGroup eqColGroup, Query subQuery, String reportName, Graph graph) throws IOException, QueryException, EQDException {
+  private void convertListGroup(EQDOCListColumnGroup eqColGroup, Query subQuery, String reportName) throws IOException, QueryException, EQDException {
     String eqTable = eqColGroup.getLogicalTableName();
     subQuery.setName(eqColGroup.getDisplayName());
     resources.setColumnGroup(iri(subQuery.getIri()).setName(subQuery.getName() + " in " + reportName));
     if (eqColGroup.getCriteria() == null) {
       convertPatientColumns(eqColGroup, eqTable, subQuery);
     } else {
-      convertEventColumns(eqColGroup, eqTable, subQuery, graph);
+      convertEventColumns(eqColGroup, eqTable, subQuery);
     }
     resources.setColumnGroup(null);
   }
@@ -67,20 +74,30 @@ public class EqdListToIMQ {
     }
   }
 
-
-  private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery, Graph graph) throws IOException, QueryException, EQDException {
-    if (eqColGroup.getCriteria() != null) {
-      resources.setRule(1);
-      resources.setSubRule(1);
-      Match match = resources.convertCriteria(eqColGroup.getCriteria(), graph);
-      subQuery.addAnd(match);
-    }
+  private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws IOException, QueryException, EQDException {
+    resources.setRule(1);
+    resources.setSubRule(1);
+    Match match = resources.convertCriteria(eqColGroup.getCriteria());
+    Query matchQuery = new Query();
+    subQuery.addQuery(matchQuery);
+    matchQuery.setIsCohort(match.getIsCohort());
+    matchQuery.setWhere(match.getWhere());
+    matchQuery.setPath(match.getPath());
+    matchQuery.setThen(match.getThen());
+    matchQuery.setAnd(match.getAnd());
+    matchQuery.setOr(match.getOr());
+    matchQuery.setNot(match.getNot());
+    matchQuery.setTypeOf(match.getTypeOf());
+    matchQuery.setReturn(match.getReturn());
     Return aReturn = new Return();
     subQuery.setReturn(aReturn);
+    String nodeRef = resources.getNodeRef(match);
     String tablePath = resources.getIMPath(eqTable);
     String[] paths = tablePath.split(" ");
-    for (int i = 0; i < paths.length - 1; i = i + 2) {
-      ReturnProperty property = new ReturnProperty().setIri(paths[i].replace("^", ""));
+    for (int i = 2; i < paths.length - 1; i = i + 2) {
+      ReturnProperty property = new ReturnProperty();
+      property.setNodeRef(nodeRef);
+      property.setIri(paths[i].replace("^", ""));
       aReturn.addProperty(property);
       aReturn = property.setReturn(new Return()).getReturn();
     }
@@ -89,7 +106,7 @@ public class EqdListToIMQ {
       if (eqColGroup.getSummary() != null) {
         if (eqColGroup.getSummary() == VocListGroupSummary.COUNT) {
           aReturn.function(f -> f
-            .setName(Function.count));
+            .setName(IM.COUNT.toString()));
         } else if (eqColGroup.getSummary() == VocListGroupSummary.EXISTS) {
           aReturn
             .property(p -> p
@@ -116,14 +133,15 @@ public class EqdListToIMQ {
         String eqColumn = String.join("/", eqCol.getColumn());
         String eqURL = eqTable + "/" + eqColumn;
         String subPath = resources.getIMPath(eqURL);
-        convertColumn(aReturn, subPath, eqCol.getDisplayName());
+        if (!subPath.contains("notSupported"))
+          convertColumn(aReturn, subPath, eqCol.getDisplayName());
       }
     }
   }
 
   private void convertColumn(Return aReturn, String subPath, String as) {
     String[] elements = subPath.split(" ");
-    for (int i = 0; i < elements.length - 1; i=i+2) {
+    for (int i = 0; i < elements.length - 1; i = i + 2) {
       ReturnProperty path = new ReturnProperty();
       path.setIri(elements[i]);
       aReturn.addProperty(path);

@@ -5,7 +5,6 @@ import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,7 +40,7 @@ public class SparqlConverter {
   }
 
   /**
-   * Resolves a query $ vaiable value using the query request argument map
+   * Resolves a query $ variable value using the query request argument map
    *
    * @param value        the $alias is the query definition
    * @param queryRequest the Query request object submitted via the API
@@ -49,9 +48,6 @@ public class SparqlConverter {
    * @throws QueryException if the variable is unresolvable
    */
   public String resolveReference(String value, QueryRequest queryRequest) throws QueryException {
-    if (value.equalsIgnoreCase("$referenceDate") && null != queryRequest.getReferenceDate())
-      return queryRequest.getReferenceDate();
-
     value = value.replace("$", "");
     if (null != queryRequest.getArgument()) {
       for (Argument argument : queryRequest.getArgument()) {
@@ -74,14 +70,14 @@ public class SparqlConverter {
         if (argument.getValueIriList().isEmpty())
           throw new QueryException("Argument parameter " + value + " valueIriList cannot be empty");
         return argument.getValueIriList().stream().map(iri -> "<" + iri.getIri() + ">").collect(Collectors.joining(" "));
-      } else if (null != argument.getValueVariable()) {
-        return argument.getValueVariable();
+      } else if (null != argument.getValueParameter()) {
+        return argument.getValueParameter();
       } else if (null != argument.getValueDataList()) {
         if (argument.getValueDataList().isEmpty())
           throw new QueryException("Argument parameter " + value + " valueDataList cannot be empty");
         return String.join(",", argument.getValueDataList());
-      } else if (null != argument.getValueObject()) {
-        return argument.getValueObject().toString();
+      } else if (null != argument.getValuePath()) {
+        return argument.getValuePath().getIri();
       }
     }
     return null;
@@ -110,15 +106,17 @@ public class SparqlConverter {
 
   public String subQuery(Set<TTIriRef> statusFilter, boolean countOnly, boolean highestUsage) throws QueryException {
     StringBuilder subSelectQl = new StringBuilder();
-    if (query.getSubquery() != null) {
+    if (query.getQuery() != null) {
       o++;
       Query rootQuery = query;
-      query = rootQuery.getSubquery();
-      subSelectQl.append("{\n");
-      subSelectQl.append(getSelectSparql(statusFilter, countOnly, highestUsage));
-      subSelectQl.append("}\n");
-      subSelectQl.append("{\n BIND (?").append(query.getVariable()).append(" AS ?").append(rootQuery.getVariable()).append(") \n}\n");
-      query = rootQuery;
+      for (Query subQuery : query.getQuery()) {
+        query = subQuery;
+        subSelectQl.append("{\n");
+        subSelectQl.append(getSelectSparql(statusFilter, countOnly, highestUsage));
+        subSelectQl.append("}\n");
+        subSelectQl.append("{\n BIND (?").append(query.getVariable()).append(" AS ?").append(rootQuery.getVariable()).append(") \n}\n");
+        query = rootQuery;
+      }
     }
     return subSelectQl.toString();
   }
@@ -151,15 +149,23 @@ public class SparqlConverter {
   }
 
   private void addMatchWhereSparql(StringBuilder sparql, Set<TTIriRef> statusFilter, boolean includeReturns, boolean countOnly) throws QueryException {
-    mainEntity = "entity";
-    if (query.getVariable() != null) {
-      mainEntity = query.getVariable();
-    }
     StringBuilder whereQl = new StringBuilder();
+    mainEntity="entity";
+    if (query.getVariable() != null)
+      mainEntity = query.getVariable();
+    if (query.getNodeRef() != null)
+      mainEntity = query.getNodeRef();
+    if (query.getParameter() != null)
+      mainEntity = query.getParameter().replace("$","");
     whereQl.append("WHERE {");
     boolean hasSubQuery = false;
-    if (query.getSubquery() != null) {
-      whereQl.append(subQuery(statusFilter, false, false));
+    if (query.getQuery() != null) {
+      Query rootQuery = query;
+      for (Query subQuery : query.getQuery()) {
+        query = subQuery;
+        whereQl.append(subQuery(statusFilter, false, false));
+        query = rootQuery;
+      }
       hasSubQuery = true;
     }
     if (query.getTypeOf() != null) {
@@ -214,7 +220,7 @@ public class SparqlConverter {
     else if (match.getNodeRef() != null)
       subject = match.getNodeRef();
     else if (match.getParameter() != null) {
-      subject = match.getParameter();
+      subject = match.getParameter().replace("$","");
       whereQl.append(" VALUES ").append("?").append(subject).append("{").append(getIriFromAlias(null, match.getParameter(), null, null)).append("}\n");
     } else
       subject = parent;
@@ -229,7 +235,7 @@ public class SparqlConverter {
         whereQl.append("?").append(subject).append(" <").append(IM.IS_A).append("> ?").append(subject).append(o).append(".\n");
         subject = subject + o;
       } else {
-        throw new QueryException("Match entailment " + match.getEntailment().toString() + " is not yet supported");
+        throw new QueryException("Match entailment " + match.getEntailment() + " is not yet supported");
       }
     }
     String pathVariable = null;
@@ -474,10 +480,6 @@ public class SparqlConverter {
     if (pathVariable != null) {
       subject = pathVariable;
     }
-    String propertyVariable = null;
-    if (!where.isInverse()) {
-      if (where.getVariable() != null) propertyVariable = where.getVariable();
-    }
     if (where.getNodeRef() != null) {
       subject = where.getNodeRef();
     }
@@ -608,7 +610,7 @@ public class SparqlConverter {
     }
     String inString = String.join(" ", inList);
     o++;
-    String object = nodeRef != null ? nodeRef : parameter != null ? parameter : "object" + o;
+    String object = nodeRef != null ? nodeRef : parameter != null ? parameter.replace("$","") : "object" + o;
     if (subTypes) {
       String superObject = "super" + o;
       whereQl.append(" ?").append(object).append(".\n");
@@ -663,16 +665,12 @@ public class SparqlConverter {
     if (property.getIri() == null) {
       if (property.getNodeRef() != null) {
         selectQl.append(" ").append(inverse).append(property.getNodeRef());
-        // labelVariable = property.getNodeRef();
       } else if (property.getPropertyRef() != null) {
         selectQl.append(" ").append(inverse).append(property.getPropertyRef());
-        // labelVariable = property.getPropertyRef();
       } else if (property.getAs() != null) {
         selectQl.append(" ").append(inverse).append("?").append(property.getAs());
-        // labelVariable = property.getAs();
       } else if (property.getValueRef() != null) {
         selectQl.append(" ").append("?").append(property.getValueRef());
-        // labelVariable = property.getValueRef();
       }
       if (property.getReturn() != null) {
         convertReturn(selectQl, whereQl, property.getReturn());
@@ -701,8 +699,6 @@ public class SparqlConverter {
       }
       whereQl.append(" ?").append(object).append(".\n");
       if (!selectQl.toString().contains(object)) selectQl.append(" ?").append(object);
-      if (property.getIri() != null && property.getIri().equals(RDFS.LABEL))
-        // labelVariable = object;
       if (property.getReturn() != null) {
         convertReturn(selectQl, whereQl, property.getReturn());
       }
@@ -744,7 +740,7 @@ public class SparqlConverter {
         }
       }
     }
-    if (null != clause.getOrderBy() && !countOnly && null != clause.getOrderBy().getProperty()) {
+    if (null != clause.getReturn().getOrderBy() && !countOnly && null != clause.getReturn().getOrderBy().getProperty()) {
       generateOrderBy(selectQl, clause);
     }
 
@@ -757,7 +753,7 @@ public class SparqlConverter {
 
   private void generateOrderBy(StringBuilder selectQl, Query clause) throws QueryException {
     selectQl.append("Order by ");
-    for (OrderDirection order : clause.getOrderBy().getProperty()) {
+    for (OrderDirection order : clause.getReturn().getOrderBy().getProperty()) {
       if (null != order.getDirection() && order.getDirection().equals(Order.descending))
         selectQl.append("DESC(");
       else
@@ -767,8 +763,8 @@ public class SparqlConverter {
       else throw new QueryException("Order by missing identifier: iri / valueVariable");
       selectQl.append(")");
     }
-    if (null == queryRequest.getPage() && clause.getOrderBy().getLimit() > 0) {
-      selectQl.append("LIMIT ").append(clause.getOrderBy().getLimit()).append("\n");
+    if (null == queryRequest.getPage() && clause.getReturn().getOrderBy().getLimit() > 0) {
+      selectQl.append("LIMIT ").append(clause.getReturn().getOrderBy().getLimit()).append("\n");
     } else {
       selectQl.append("\n");
     }

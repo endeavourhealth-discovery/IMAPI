@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.IOException;
@@ -19,7 +18,7 @@ import java.util.Map;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TTEntityDeserializer extends StdDeserializer<TTEntity> {
-  protected TTContext context = new TTContext();
+  protected final TTContext context = new TTContext();
   protected transient TTNodeDeserializer helper;
 
   public TTEntityDeserializer() {
@@ -56,7 +55,7 @@ public class TTEntityDeserializer extends StdDeserializer<TTEntity> {
       JsonNode value = field.getValue();
       if ("iri".equals(key))
         result.setIri(helper.expand(value.textValue()));
-      else if (IM.ID.equals(key))
+      else if (IM.ID.toString().equals(key))
         result.setIri(helper.expand(value.textValue()));
       else if ("crud".equals(key))
         result.setCrud(helper.getJsonNodeAsValue(value).asIriRef());

@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.logic.reasoner;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.iml.Concept;
@@ -13,33 +12,30 @@ import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.eclipse.rdf4j.model.util.Values.iri;
 
 @Slf4j
 public class SetBinder {
   private final SetRepository setRepository = new SetRepository();
 
-  public void bindSets(Graph graph) {
+  public void bindSets(Graph insertGraph) {
     log.info("Getting value sets....");
-    Set<String> sets = getSets(graph);
+    Set<String> sets = getSets();
     int count = 0;
     for (String iri : sets) {
       count++;
       if (count % 100 == 0) {
         log.info("{} sets bound", count);
       }
-      bindSet(iri, graph);
+      bindSet(iri, insertGraph);
     }
   }
 
-  private Set<String> getSets(Graph graph) {
+  private Set<String> getSets() {
     Set<String> setIris = new HashSet<>();
-    try (IMDB conn = IMDB.getConnection(graph)) {
+    try (IMDB conn = IMDB.getConnection()) {
       String sparql = """
         SELECT distinct ?iri
         WHERE {
@@ -60,15 +56,13 @@ public class SetBinder {
     return setIris;
   }
 
-  public Set<TTNode> bindSet(String iri, Graph graph) {
-    Set<Concept> members = setRepository.getSomeMembers(iri, 100, graph);
+  public void bindSet(String iri, Graph insertGraph) {
+    Set<Concept> members = setRepository.getSomeMembers(iri, 100);
     if (!members.isEmpty()) {
       Set<String> memberIris = members.stream().map(Entity::getIri).collect(Collectors.toSet());
-      Set<TTNode> dataModels = setRepository.getBindingsForConcept(memberIris, graph);
-      setRepository.bindConceptSetToDataModel(iri, dataModels, graph);
-      return dataModels;
+      Set<TTNode> dataModels = setRepository.getBindingsForConcept(memberIris);
+      setRepository.bindConceptSetToDataModel(iri, dataModels, insertGraph);
     }
-    return Collections.emptySet();
   }
 
 }

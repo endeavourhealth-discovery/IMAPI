@@ -1,11 +1,9 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +21,30 @@ public class Return {
   private List<ReturnProperty> property;
   private FunctionClause function;
   private String as;
+  private OrderLimit orderBy;
+  private String asDescription;
+
+  public String getAsDescription() {
+    return asDescription;
+  }
+  public Return setAsDescription(String asDescription) {
+    this.asDescription = asDescription;
+    return this;
+  }
+  public OrderLimit getOrderBy() {
+    return orderBy;
+  }
+
+  public Return setOrderBy(OrderLimit orderBy) {
+    this.orderBy = orderBy;
+    return this;
+  }
+
+  public Return orderBy(Consumer<OrderLimit> builder) {
+    this.orderBy = new OrderLimit();
+    builder.accept(this.orderBy);
+    return this;
+  }
 
 
   public Return setPropertyRef(String propertyRef) {

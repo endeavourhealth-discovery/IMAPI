@@ -63,7 +63,11 @@
         "http://endhealth.info/im#age": {
           "field": "TIMESTAMPDIFF({units}, {dateOfBirth}, {relativeTo})", "type": "number", "function": true
         },
-        "http://endhealth.info/im#dateOfBirth": {"field": "{alias}.date_of_birth", "type": "date"}
+        "http://endhealth.info/im#dateOfBirth": {"field": "{alias}.date_of_birth", "type": "date"},
+        "http://endhealth.info/im#pseudonymisedId": {"field": "{alias}.id", "type": "string"},
+        "http://endhealth.info/im#id": {"field": "{alias}.person_id", "type": "string"},
+        "http://endhealth.info/im#statedGender": {"field": "{alias}.gender_concept_id", "type": "string"},
+        "http://endhealth.info/im#nhsNumber": {"field": "{alias}.nhs_number", "type": "string"}
       },
       "relationships": {
         "http://endhealth.info/im#Observation": {"fromField": "id", "toField": "{alias}.patient_id"}

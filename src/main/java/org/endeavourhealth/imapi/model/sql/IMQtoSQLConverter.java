@@ -73,7 +73,7 @@ public class IMQtoSQLConverter {
           if (dataset.getAnd() != null || dataset.getOr() != null || dataset.getNot() != null)
             addDatasetSubQuery(qry, dataset, definition.getTypeOf().getIri());
           if (dataset.getReturn() != null)
-            addSelectFromReturnRecursively(qry, dataset.getReturn(), null, definition.getTypeOf().getIri(), null);
+            addSelectFromReturnRecursively(qry, dataset.getReturn(), null, definition.getTypeOf().getIri(), null, false);
           sql.append(qry.toSql(2)).append(";\n\n");
         }
       } else {
@@ -132,7 +132,7 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private void addSelectFromReturnRecursively(SQLQuery qry, Return aReturn, ReturnProperty parentProperty, String gParentTypeOf, String tableAlias) throws SQLConversionException {
+  private void addSelectFromReturnRecursively(SQLQuery qry, Return aReturn, ReturnProperty parentProperty, String gParentTypeOf, String tableAlias, boolean isNested) throws SQLConversionException {
     if (aReturn.getProperty() != null) {
       for (ReturnProperty property : aReturn.getProperty()) {
         if (property.getReturn() != null) {
@@ -143,6 +143,8 @@ public class IMQtoSQLConverter {
               throw new SQLConversionException("Parent Property is null: " + property.getIri());
             addYNCase(qry, parentProperty, gParentTypeOf, tableAlias);
           } else {
+            if (isNested)
+              qry.getSelects().addAll(qry.getGetForeignKeys());
             String select = qry.getFieldName(property.getIri(), null, tableMap) + " AS `" + property.getAs() + "`";
             qry.getSelects().add(select);
           }
@@ -176,7 +178,7 @@ public class IMQtoSQLConverter {
     if (typeOf == null)
       throw new SQLConversionException("Property not mapped to datamodel: " + property.getIri());
     SQLQuery subQuery = qry.subQuery(typeOf, null, tableMap);
-    addSelectFromReturnRecursively(subQuery, property.getReturn(), property, parentProperty != null ? parentProperty.getIri() : gParentTypeOf, subQuery.getAlias());
+    addSelectFromReturnRecursively(subQuery, property.getReturn(), property, parentProperty != null ? parentProperty.getIri() : gParentTypeOf, subQuery.getAlias(), true);
     if (subQuery.getWiths() == null)
       subQuery.setWiths(new ArrayList<>());
     qry.getWiths().add(subQuery.getAlias() + " AS (" + subQuery.toSql(2) + "\n)");
@@ -477,7 +479,7 @@ public class IMQtoSQLConverter {
       return "set";
     } else if (node.isAncestorsOf()) {
       throw new SQLConversionException("SQL Conversion Error: Ancestor joining currently not supported");
-    } else return "member";
+    } else return "set";
   }
 
   private void addPropertyIsWhere(SQLQuery qry, Where property, List<String> dbids, boolean inverse) throws SQLConversionException {

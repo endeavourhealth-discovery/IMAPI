@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -175,6 +176,16 @@ public class SQLQuery {
 
   public String getAlias(String tableName) {
     return tableName + SQLQuery.aliasIndex++;
+  }
+
+  public List<String> getGetForeignKeys() {
+    ArrayList<String> foreignKeys = new ArrayList<>();
+    if (null != this.map && null != this.map.getRelationships()) {
+      this.map.getRelationships().values().forEach(relationship -> {
+        foreignKeys.add(relationship.getFromField());
+      });
+    }
+    return foreignKeys;
   }
 }
 

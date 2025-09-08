@@ -2028,4 +2028,41 @@ public class EntityRepository {
     }
     return null;
   }
+
+  public List<TTBundle> getEntityFromTerm(String term, Set<String> schemes) {
+    String sql = """
+      select ?concept ?label
+      where {
+        Values ?term {%s}
+        %s
+        {
+          ?concept rdfs:label ?term;
+                   im:scheme ?scheme.
+          filter(isIri(?concept))
+        }
+        union {
+          ?tc rdfs:label ?term.
+          ?concept im:hasTermCode ?tc;
+                   im:scheme ?scheme.
+        }
+      }
+      """.formatted("\""+term+"\"",SparqlHelper.valueList("scheme", schemes));
+    List<TTBundle> result = new ArrayList<>();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          TTBundle bundle = new TTBundle();
+          result.add(bundle);
+          TTEntity entity = new TTEntity();
+          bundle.setEntity(entity);
+          entity.setName(term);
+          entity.setIri(bs.getValue("concept").stringValue());
+          entity.setName(bs.getValue("label").stringValue());
+        }
+      }
+    }
+    return result;
+  }
 }

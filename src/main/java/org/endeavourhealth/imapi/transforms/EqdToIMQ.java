@@ -149,20 +149,7 @@ public class EqdToIMQ {
     }
   }
 
-  private void addLibraryEntities() throws JsonProcessingException {
-    for (Map.Entry<String, Match> entries : criteriaLibrary.entrySet()) {
-      String iri = entries.getKey();
-      if (criteriaLibraryCount.get(iri) > 1) {
-        Match match = entries.getValue();
-        TTEntity matchClause = new TTEntity()
-          .setIri(iri)
-          .addType(iri(IM.MATCH_CLAUSE))
-          .setName(match.getDescription());
-        matchClause.set(IM.DEFINITION, TTLiteral.literal(match));
-        document.addEntity(matchClause);
-      }
-    }
-  }
+
 
   private void deduplicate() throws JsonProcessingException {
     for (TTEntity entity : this.document.getEntities()) {
@@ -188,6 +175,7 @@ public class EqdToIMQ {
         TTEntity entity = new TTEntity()
           .setIri(libraryIri)
           .addType(iri(IM.QUERY))
+          .setScheme(iri(namespace))
           .setName(match.getDescription())
           .set(iri(IM.DEFINITION), TTLiteral.literal(match));
         document.addEntity(entity);

@@ -23,12 +23,9 @@ public class EqdPopToIMQ {
     resources.setQueryType(QueryType.POP);
     query.setTypeOf(new Node().setIri(Namespace.IM + "Patient"));
     if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
-      query.addRule(new Match()
-        .setIfTrue(RuleAction.NEXT)
-        .setIfFalse(RuleAction.REJECT)
-        .setBaseRule(true)
+      query
         .setIsCohort(iri(Namespace.IM + "Q_RegisteredGMS")
-            .setName("Registered with GP for GMS services on the reference date")));
+            .setName("Registered with GP for GMS services on the reference date"));
       resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri((Namespace.IM + "Q_RegisteredGMS")));
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()) {
         EqdToIMQ.gmsPatients.add(activeReport);
@@ -40,20 +37,14 @@ public class EqdPopToIMQ {
       String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
       if (EqdToIMQ.versionMap.containsKey(id)) id = EqdToIMQ.versionMap.get(id);
       if (EqdToIMQ.gmsPatients.contains(id) || EqdToIMQ.gmsPatients.contains(eqReport.getVersionIndependentGUID())) {
-        query.addRule(new Match()
-          .setIfTrue(RuleAction.NEXT)
-          .setIfFalse(RuleAction.REJECT)
-          .setBaseRule(true)
+        query
           .setIsCohort(iri(Namespace.IM + "Q_RegisteredGMS")
-            .setName("Registered with GP for GMS services on the reference date")));
+            .setName("Registered with GP for GMS services on the reference date"));
         resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri((Namespace.IM + "Q_RegisteredGMS")));
       } else {
-        query.addRule(new Match()
-          .setIfTrue(RuleAction.NEXT)
-          .setIfFalse(RuleAction.REJECT)
-          .setBaseRule(true)
+        query
           .setIsCohort(iri(resources.getNamespace() + id)
-            .setName(resources.reportNames.get(id))));
+            .setName(resources.reportNames.get(id)));
         resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri(resources.getNamespace() + id));
       }
     }

@@ -284,6 +284,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
           ?o3 ?p4 ?o4.
         }
         WHERE {
+        Values ?concept {%s}
           {
             ?concept ?p1 ?o1.
             filter(?p1 in(%s))
@@ -301,9 +302,8 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             }
           }
         }
-      """.formatted(predList);
+      """.formatted("<"+entity.getIri()+">",predList);
     Update deletePredicates = conn.prepareDeleteSparql(spq);
-    deletePredicates.setBinding("concept", iri(entity.getIri()));
     try {
       deletePredicates.execute();
     } catch (RepositoryException e) {

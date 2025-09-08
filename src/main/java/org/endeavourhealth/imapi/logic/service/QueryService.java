@@ -105,6 +105,8 @@ public class QueryService {
     Query query;
     if (queryRequest.getQuery().getIri() != null && !queryRequest.getQuery().getIri().isEmpty()) {
       TTEntity queryEntity = entityRepository.getEntityPredicates(queryRequest.getQuery().getIri(), asHashSet(IM.DEFINITION)).getEntity();
+      if (!queryEntity.has(iri(IM.DEFINITION)))
+        throw new SQLConversionException("Query: " + queryRequest.getQuery().getIri() + " not found.");
       query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       query.setIri(queryEntity.getIri());
     } else {

@@ -13,6 +13,7 @@ import java.util.HashMap;
 public class TableMap {
   private HashMap<String, Table> properties;
   private HashMap<String, Table> dataModels;
+  private HashMap<String, String> functions;
 
   public TableMap() {
   }

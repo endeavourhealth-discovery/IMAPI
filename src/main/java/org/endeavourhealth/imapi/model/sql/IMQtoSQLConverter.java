@@ -154,25 +154,16 @@ public class IMQtoSQLConverter {
         }
       }
     } else if (aReturn.getFunction() != null) {
-      addFunction(qry, aReturn, parentProperty);
+      String fn = getFunction(aReturn.getFunction().getIri());
+      fn = fn.replaceAll("\\{propertyName}", parentProperty.getName());
+      qry.getSelects().add(fn);
     }
   }
 
-  private void addFunction(SQLQuery qry, Return aReturn, ReturnProperty parentProperty) throws SQLConversionException {
-    String propertyName = parentProperty.getName();
-    IM function = IM.valueOf(aReturn.getFunction().getIri());
-
-    switch (function) {
-      case COUNT -> qry.getSelects().add("COUNT(*) AS count");
-      case AVERAGE -> qry.getSelects().add(String.format("AVG(%s) AS average_%s", propertyName, propertyName));
-      case SUM -> qry.getSelects().add(String.format("SUM(%s) AS sum_%s", propertyName, propertyName));
-      case MAX -> qry.getSelects().add(String.format("MAX(%s) AS max_%s", propertyName, propertyName));
-      case MIN -> qry.getSelects().add(String.format("MIN(%s) AS min_%s", propertyName, propertyName));
-      case CONCATENATE ->
-        qry.getSelects().add(String.format("GROUP_CONCAT(DISTINCT %s SEPARATOR ', ' as concat_%s)", propertyName, propertyName));
-      default ->
-        throw new SQLConversionException("SQL Conversion Error: Function not recognised: " + aReturn.getFunction().getName());
-    }
+  private String getFunction(String functionIri) throws SQLConversionException {
+    if (!tableMap.getFunctions().containsKey(functionIri))
+      throw new SQLConversionException("SQL Conversion Error: Function not recognised: " + functionIri);
+    return tableMap.getFunctions().get(functionIri);
   }
 
   private void addNestedProperty(SQLQuery qry, ReturnProperty property, ReturnProperty parentProperty, String gParentTypeOf) throws SQLConversionException {
@@ -591,10 +582,16 @@ public class IMQtoSQLConverter {
     if (property.getIri() == null || property.getValue() == null) {
       throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyValue\n" + property);
     }
-    String where;
+    String where = "";
+
     if ("date".equals(qry.getFieldType(property.getIri(), null, tableMap))) {
-      Assignable range = new Value().setValue(property.getValue()).setOperator(property.getOperator());
-      where = convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), range);
+      Assignable range = new Value().setValue(property.getValue()).setOperator(property.getOperator()).setUnits(property.getUnits());
+      if (null != property.getFunction()) {
+        String mysqlFunction = getFunction(property.getFunction().getIri());
+        where = mysqlFunction + " " + range.getOperator().getValue() + " " + range.getValue() + ")";
+      } else {
+        where = convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), range);
+      }
     } else {
       where = qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + property.getValue();
     }

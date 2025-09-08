@@ -554,6 +554,10 @@
         "value": "Namespace.IM + \"sourceField\""
       },
       {
+        "name": "TIME_DIFFERENCE",
+        "value": "Namespace.IM + \"TimeDifference\""
+      },
+      {
         "name": "SOURCE_CODE_SCHEME",
         "value": "Namespace.IM + \"sourceCodeScheme\""
       },

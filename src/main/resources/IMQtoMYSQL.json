@@ -170,6 +170,16 @@
         "http://endhealth.info/im#Observation": {"fromField": "id", "toField": "{alias}.core_concept_id"}
       }
     }
+  },
+  "functions": {
+    "http://endhealth.info/im#age": "TIMESTAMPDIFF({units}, {dateOfBirth}, {relativeTo})",
+    "http://endhealth.info/im#TimeDifference": "TIMESTAMPDIFF({units}, {firstDateTime}, {relativeTo}",
+    "http//endhealth.info/im#Count": "COUNT(*) AS count",
+    "http//endhealth.info/im#Average": "AVG({propertyName}) AS average_{propertyName}",
+    "http//endhealth.info/im#Sum": "SUM({propertyName}) AS sum_{propertyName}",
+    "http//endhealth.info/im#Max": "MAX({propertyName}) AS max_{propertyName}",
+    "http//endhealth.info/im#Min": "MIN({propertyName}) AS min_{propertyName}",
+    "http//endhealth.info/im#Concatenate": "GROUP_CONCAT(DISTINCT {propertyName} SEPARATOR ', ') AS concat_{propertyName}"
   }
 }
 

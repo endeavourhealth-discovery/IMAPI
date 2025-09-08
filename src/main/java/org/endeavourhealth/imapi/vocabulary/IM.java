@@ -135,6 +135,7 @@ public enum IM implements VocabEnum {
     SOURCE_SCHEMA(Namespace.IM + "sourceSchema"),
     SOURCE_TABLE(Namespace.IM + "sourceTable"),
     SOURCE_FIELD(Namespace.IM + "sourceField"),
+    TIME_DIFFERENCE(Namespace.IM + "TimeDifference"),
     SOURCE_CODE_SCHEME(Namespace.IM + "sourceCodeScheme"),
     SOURCE_VALUE(Namespace.IM + "sourceValue"),
     SOURCE_REGEX(Namespace.IM + "sourceRegex"),

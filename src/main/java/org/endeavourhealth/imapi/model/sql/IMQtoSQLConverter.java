@@ -561,12 +561,15 @@ public class IMQtoSQLConverter {
     if (null == property.getFunction() || null == property.getRelativeTo() || (null == property.getRelativeTo().getParameter() && null == property.getRelativeTo().getNodeRef()))
       return false;
     return property.getFunction().getArgument().stream()
-      .anyMatch(arg -> "relativeTo".equals(arg.getParameter())
-        && (
-        (null != property.getRelativeTo().getParameter() && property.getRelativeTo().getParameter().equals(arg.getValueParameter())
-          || (null != property.getRelativeTo().getNodeRef() && property.getRelativeTo().getNodeRef().equals(arg.getValueNodeRef()))))
-      )
-      ;
+      .anyMatch(arg -> "relativeTo".equals(arg.getParameter()) && (argIsRelativeToParam(arg, property) || argIsRelativeToNodeRef(arg, property)));
+  }
+
+  private boolean argIsRelativeToParam(Argument arg, Where property) {
+    return null != property.getRelativeTo().getParameter() && property.getRelativeTo().getParameter().equals(arg.getValueParameter());
+  }
+
+  private boolean argIsRelativeToNodeRef(Argument arg, Where property) {
+    return null != property.getRelativeTo().getNodeRef() && property.getRelativeTo().getNodeRef().equals(arg.getValueNodeRef());
   }
 
   private String convertMatchPropertyRelativeTo(SQLQuery qry, Where property, String field) throws

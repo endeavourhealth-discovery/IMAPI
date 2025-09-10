@@ -118,22 +118,16 @@ public class IMQtoSQLConverter {
     if (definition.getAnd() != null) {
       for (Match match : definition.getAnd()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.and);
-        if (match.getThen() != null)
-          addIMQueryToSQLQueryRecursively(qry, match.getThen().setPath(match.getPath()), Bool.and);
       }
     }
     if (definition.getOr() != null) {
       for (Match match : definition.getOr()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.or);
-        if (match.getThen() != null)
-          addIMQueryToSQLQueryRecursively(qry, match.getThen().setPath(match.getPath()), Bool.and);
       }
     }
     if (definition.getNot() != null) {
       for (Match match : definition.getNot()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.not);
-        if (match.getThen() != null)
-          addIMQueryToSQLQueryRecursively(qry, match.getThen().setPath(match.getPath()), Bool.and);
       }
     }
   }
@@ -227,6 +221,8 @@ public class IMQtoSQLConverter {
     if (bool == Bool.not) qry.getWheres().add(subQry.getAlias() + ".id IS NULL");
 
     qry.getJoins().add(createJoin(qry, subQry, joiner));
+    if (null != match.getThen())
+      addIMQueryToSQLQueryRecursively(qry, match.getThen().setPath(match.getPath()), Bool.and);
   }
 
   private SQLQuery convertMatchToQuery(SQLQuery parent, Match match, Bool bool) throws SQLConversionException {

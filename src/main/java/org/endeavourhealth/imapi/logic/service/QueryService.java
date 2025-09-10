@@ -264,14 +264,9 @@ public class QueryService {
     return null;
   }
 
-  public Set<String> testRunQuery(Query query) throws SQLException, SQLConversionException, QueryException, JsonProcessingException {
-    QueryRequest queryRequest = getQueryRequestForSqlConversion(new QueryRequest().setQuery(query));
-    Page page = new Page();
-    page.setPageNumber(1);
-    page.setPageSize(10);
-    queryRequest.setPage(page);
-    queryRequest.setQuery(query);
-    return executeQuery(queryRequest);
+  public Set<String> testRunQuery(QueryRequest queryRequest) throws SQLException, SQLConversionException, QueryException, JsonProcessingException {
+//    should connect to test data database (current one)
+    return executeQuery(getQueryRequestForSqlConversion(queryRequest));
   }
 
   public Query flattenQuery(Query query) {

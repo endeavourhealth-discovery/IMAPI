@@ -44,10 +44,12 @@ public class Argument {
   public List<Path> getValuePathList() {
     return valuePathList;
   }
+
   public Argument setValuePathList(List<Path> valuePathList) {
     this.valuePathList = valuePathList;
     return this;
   }
+
   public Argument addValuePath(Path valuePath) {
     if (this.valuePathList == null)
       this.valuePathList = List.of();
@@ -150,7 +152,30 @@ public class Argument {
 
   @Override
   public int hashCode() {
-    return Objects.hash(parameter, valueData, valueParameter, valueIri != null ? valueIri.getIri() : null, valueIriList, valueDataList, valuePath, dataType);
+
+    return Objects.hash(getHashString());
+  }
+
+  public String getHashString() {
+    StringBuilder hs = new StringBuilder();
+    if (null != parameter) hs.append(parameter);
+    if (null != valueData) hs.append(valueData);
+    if (null != valueParameter) hs.append(valueParameter);
+    if (null != valueIri) hs.append(valueIri.getIri());
+    if (null != valueDataList) {
+      List<String> sorted = valueDataList.stream().sorted().toList();
+      for (String s : sorted) hs.append(s);
+    }
+    if (null != valuePath) hs.append(valuePath.getIri());
+    if (null != valueNodeRef) hs.append(valueNodeRef);
+    if (null != dataType) hs.append(dataType.getIri());
+    if (null != valuePathList) {
+      List<Path> sorted = valuePathList.stream().sorted().toList();
+      for (Path p : sorted) hs.append(p.getIri());
+    }
+    if (null != valueObject) hs.append(valueObject);
+    if (null != valueVariable) hs.append(valueVariable);
+    return hs.toString();
   }
 
 }

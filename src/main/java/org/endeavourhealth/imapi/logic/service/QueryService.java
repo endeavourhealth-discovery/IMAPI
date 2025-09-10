@@ -115,7 +115,7 @@ public class QueryService {
 
     query = describeQuery(query, DisplayMode.LOGICAL);
     if (query == null) return null;
-    return new QueryRequest().setQuery(query).setLanguage(queryRequest.getLanguage()).setArgument(queryRequest.getArgument()).setQueryStringDefinition(objectMapper.writeValueAsString(query));
+    return new QueryRequest().setQuery(query).setLanguage(queryRequest.getLanguage()).setArgument(queryRequest.getArgument()); // need to add update info instead of queryString
   }
 
   public void handleSQLConversionException(UUID userId, String userName, QueryRequest queryRequest, String error) throws SQLException {

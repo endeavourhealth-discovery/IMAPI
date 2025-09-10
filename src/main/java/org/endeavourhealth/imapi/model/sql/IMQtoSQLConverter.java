@@ -293,7 +293,14 @@ public class IMQtoSQLConverter {
     qry.initialize(qry.getAlias() + "_part", qry.getAlias(), tableMap);
     qry.getWiths().add(innerSql);
     qry.getWiths().add(partition.getAlias() + " AS (" + partition.toSql(2) + "\n)");
-    qry.getWheres().add("rn = 1");
+    qry.getWheres().add(getRowNumberTest(order));
+  }
+
+  private String getRowNumberTest(OrderLimit order) {
+    if (order.getLimit() > 1) {
+      return "rn <= " + order.getLimit();
+    }
+    return "rn = " + order.getLimit();
   }
 
   private void convertInstanceOf(SQLQuery qry, List<Node> instanceOf, Bool bool) throws SQLConversionException {

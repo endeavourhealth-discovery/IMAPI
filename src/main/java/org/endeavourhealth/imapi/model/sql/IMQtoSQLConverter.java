@@ -82,6 +82,9 @@ public class IMQtoSQLConverter {
       } else {
         SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null, tableMap);
         addBooleanMatchesToSQL(qry, definition);
+        if (null != definition.getIsCohort()) {
+          convertIsCohort(qry, definition.getIsCohort(), Bool.and);
+        }
         sql = new StringBuilder(qry.toSql(2));
       }
       this.sql = sql.toString();

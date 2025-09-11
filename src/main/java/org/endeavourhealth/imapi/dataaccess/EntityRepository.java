@@ -2059,7 +2059,6 @@ public class EntityRepository {
           bundle.setEntity(entity);
           entity.setName(term);
           entity.setIri(bs.getValue("concept").stringValue());
-          entity.setName(bs.getValue("label").stringValue());
         }
       }
     }

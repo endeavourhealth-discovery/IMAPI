@@ -838,6 +838,14 @@
         "value": "Namespace.IM + \"dependentOn\""
       },
       {
+        "name": "CARE_ACTIVITY",
+        "value": "Namespace.IM + \"CareActivity\""
+      },
+      {
+        "name": "CARE_TARGET",
+        "value": "Namespace.IM + \"CareTarget\""
+      },
+      {
         "name": "QUERY_TEMPLATE",
         "value": "Namespace.IM + \"QueryTemplate\""
       },

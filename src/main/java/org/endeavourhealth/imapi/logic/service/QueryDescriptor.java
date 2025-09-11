@@ -611,7 +611,7 @@ public class QueryDescriptor {
 
   public static String getShortName(String name) {
     if (name == null) return null;
-    int length = name.length() - 1;
+    int length = name.length();
     StringBuilder startShort = new StringBuilder(name.substring(0, Math.min(length, 50)));
     if (length > 50) {
       boolean bracket = false;

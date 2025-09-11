@@ -115,6 +115,7 @@ public class QueryService {
 
     query = describeQuery(query, DisplayMode.LOGICAL);
     if (query == null) return null;
+    if (null == query.getIri()) query.setIri(UUID.randomUUID().toString());
     return new QueryRequest().setQuery(query).setLanguage(queryRequest.getLanguage()).setArgument(queryRequest.getArgument()); // need to add update info instead of queryString
   }
 

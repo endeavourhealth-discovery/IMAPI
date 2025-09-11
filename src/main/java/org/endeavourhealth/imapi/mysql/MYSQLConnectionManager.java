@@ -45,7 +45,7 @@ public class MYSQLConnectionManager {
         ResultSet rs = statement.executeQuery();
         Set<String> results = new HashSet<>();
         while (rs.next()) {
-          String patientId = rs.getString("id");
+          String patientId = rs.getString("patient_id");
           results.add(patientId);
         }
         return results;
@@ -59,7 +59,7 @@ public class MYSQLConnectionManager {
       try (Connection connection = getConnection()) {
         String values = "(" + String.join("), \n(", results) + ")";
         String sql = """
-                  INSERT INTO `%s` (id)
+                  INSERT INTO `%s` (patient_id)
                   VALUES %s;
           """.formatted(hashCode, values);
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -73,8 +73,8 @@ public class MYSQLConnectionManager {
     try (Connection conn = getConnection()) {
       String sql = """
         CREATE TABLE IF NOT EXISTS `%s` (
-            id BIGINT NOT NULL,
-            PRIMARY KEY(id)
+            patient_id BIGINT NOT NULL,
+            PRIMARY KEY(patient_id)
         )
         """.formatted(hashCode);
       try (PreparedStatement statement = conn.prepareStatement(sql)) {
@@ -107,14 +107,14 @@ public class MYSQLConnectionManager {
     Set<String> ids = new HashSet<>();
     try (Connection getResultsConnection = getConnection();
          Statement statement = getResultsConnection.createStatement()) {
-      String sql = "SELECT id FROM `" + queryRequest.hashCode() + "`";
+      String sql = "SELECT patient_id FROM `" + queryRequest.hashCode() + "`";
       if (queryRequest.getPage() != null && queryRequest.getPage().getPageNumber() > 0 && queryRequest.getPage().getPageSize() > 0) {
         int offset = (queryRequest.getPage().getPageNumber() - 1) * queryRequest.getPage().getPageSize();
         sql = sql + " LIMIT " + queryRequest.getPage().getPageSize() + " OFFSET " + offset + ";";
       } else sql = sql + ";";
       ResultSet resultSet = statement.executeQuery(sql);
       while (resultSet.next()) {
-        ids.add(resultSet.getString("id"));
+        ids.add(resultSet.getString("patient_id"));
       }
     }
     return ids;

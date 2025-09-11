@@ -16,15 +16,15 @@ import java.util.List;
 public class SQLQuery {
   private static Integer aliasIndex = 0;
 
-  private ArrayList<String> withs = new ArrayList<>();
-  private ArrayList<String> selects = new ArrayList<>();
+  private List<String> withs = new ArrayList<>();
+  private List<String> selects = new ArrayList<>();
   private String model = "";
   private Table map = new Table();
   private String alias = "";
-  private ArrayList<String> joins = new ArrayList<>();
+  private List<String> joins = new ArrayList<>();
   private String whereBool = "AND";
-  private ArrayList<String> wheres = new ArrayList<>();
-  private ArrayList<String> dependencies = new ArrayList<>();
+  private List<String> wheres = new ArrayList<>();
+  private List<String> dependencies = new ArrayList<>();
 
   public SQLQuery create(String model, String variable, TableMap tableMap) throws SQLConversionException {
     aliasIndex = 0;
@@ -54,11 +54,11 @@ public class SQLQuery {
     tableMap.putTable(this.alias, new Table(this.alias, null, this.map.getFields(), this.map.getRelationships(), null));
   }
 
-  public String toSql(Integer indent) {
+  public String toSql(Integer indent, boolean isFinal) {
     String sql = "";
     sql += this.generateWiths();
-    sql += this.generateSelects();
-    sql += this.generateFroms();
+    sql += this.generateSelects(isFinal);
+    sql += this.generateFroms(isFinal);
     sql += this.generateWheres();
 
     return sql.replaceAll("\n", "\n" + " ".repeat(indent));
@@ -74,20 +74,35 @@ public class SQLQuery {
     return sql;
   }
 
-  private String generateSelects() {
+  private String generateSelects(boolean isFinal) {
     String sql = "\nSELECT ";
 
     if (selects != null && !selects.isEmpty()) sql += StringUtils.join(selects, ", ");
+    else if (isFinal) sql += "patient_id";
     else sql += this.alias + ".*";
 
     return sql;
   }
 
-  private String generateFroms() {
-    String sql = "\nFROM " + map.getTable() + " AS " + alias;
+  private String getFirstWithAlias() {
+    if (withs != null && !withs.isEmpty()) {
+      String[] splits = withs.getFirst().split(" ");
+      if (splits.length != 0) return splits[0];
+    }
+    return this.alias;
+  }
 
-    if (joins != null && !joins.isEmpty()) sql += "\n" + StringUtils.join(joins, "\n");
-    return sql;
+  private String generateFroms(boolean isFinal) {
+    String from = "";
+    if (joins != null && !joins.isEmpty() && isFinal) {
+      joins.removeFirst();
+      from = "\nFROM " + getFirstWithAlias();
+      joins = joins.stream().map(join -> join.replace(alias, getFirstWithAlias())).toList();
+    } else
+      from = "\nFROM " + map.getTable() + " AS " + alias;
+
+    if (joins != null && !joins.isEmpty()) from += "\n" + StringUtils.join(joins, "\n");
+    return from;
   }
 
   private String generateWheres() {

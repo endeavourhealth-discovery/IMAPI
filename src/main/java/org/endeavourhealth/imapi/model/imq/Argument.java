@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.imq;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
@@ -156,6 +157,7 @@ public class Argument {
     return Objects.hash(getHashString());
   }
 
+  @JsonIgnore
   public String getHashString() {
     StringBuilder hs = new StringBuilder();
     if (null != parameter) hs.append(parameter);

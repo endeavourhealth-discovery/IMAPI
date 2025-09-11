@@ -227,7 +227,12 @@ public class QueryRequest implements ContextMap {
   @Override
   public int hashCode() {
     resolveArgs();
-    return Objects.hash(queryStringDefinition, argument);
+    StringBuilder hs = new StringBuilder();
+    for (Argument arg : argument) {
+      String argumentString = arg.getHashString();
+      hs.append(argumentString);
+    }
+    return Objects.hash(hs.toString()); // add update datetime
   }
 
   public QueryRequest setQueryStringDefinition(String queryStringDefinition) {

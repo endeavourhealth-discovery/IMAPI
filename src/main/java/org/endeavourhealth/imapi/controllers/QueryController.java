@@ -351,12 +351,12 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/testRunQuery")
+  @PostMapping("/public/testRunQuery")
   @Operation(summary = "Run a query with results limited results to test query")
-  public Set<String> testRunQuery(HttpServletRequest request, @RequestBody QueryRequest query) throws SQLException, SQLConversionException, QueryException, JsonProcessingException {
+  public Set<String> testRunQuery(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws SQLException, SQLConversionException, QueryException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.TestRunQuery.POST")) {
       log.debug("testRunQuery");
-      return queryService.testRunQuery(query.getQuery());
+      return queryService.testRunQuery(queryRequest);
     }
   }
 

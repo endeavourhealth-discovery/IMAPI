@@ -82,6 +82,9 @@ public class IMQtoSQLConverter {
       } else {
         SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null, tableMap);
         addBooleanMatchesToSQL(qry, definition);
+        if (null != definition.getIsCohort()) {
+          convertIsCohort(qry, definition.getIsCohort(), Bool.and);
+        }
         sql = new StringBuilder(qry.toSql(2));
       }
       this.sql = sql.toString();
@@ -115,22 +118,16 @@ public class IMQtoSQLConverter {
     if (definition.getAnd() != null) {
       for (Match match : definition.getAnd()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.and);
-        if (match.getThen() != null)
-          addIMQueryToSQLQueryRecursively(qry, match.getThen().setPath(match.getPath()), Bool.and);
       }
     }
     if (definition.getOr() != null) {
       for (Match match : definition.getOr()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.or);
-        if (match.getThen() != null)
-          addIMQueryToSQLQueryRecursively(qry, match.getThen().setPath(match.getPath()), Bool.and);
       }
     }
     if (definition.getNot() != null) {
       for (Match match : definition.getNot()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.not);
-        if (match.getThen() != null)
-          addIMQueryToSQLQueryRecursively(qry, match.getThen().setPath(match.getPath()), Bool.and);
       }
     }
   }
@@ -224,6 +221,8 @@ public class IMQtoSQLConverter {
     if (bool == Bool.not) qry.getWheres().add(subQry.getAlias() + ".id IS NULL");
 
     qry.getJoins().add(createJoin(qry, subQry, joiner));
+    if (null != match.getThen())
+      addIMQueryToSQLQueryRecursively(qry, match.getThen().setPath(match.getPath()), Bool.and);
   }
 
   private SQLQuery convertMatchToQuery(SQLQuery parent, Match match, Bool bool) throws SQLConversionException {
@@ -293,7 +292,14 @@ public class IMQtoSQLConverter {
     qry.initialize(qry.getAlias() + "_part", qry.getAlias(), tableMap);
     qry.getWiths().add(innerSql);
     qry.getWiths().add(partition.getAlias() + " AS (" + partition.toSql(2) + "\n)");
-    qry.getWheres().add("rn = 1");
+    qry.getWheres().add(getRowNumberTest(order));
+  }
+
+  private String getRowNumberTest(OrderLimit order) {
+    if (order.getLimit() > 1) {
+      return "rn <= " + order.getLimit();
+    }
+    return "rn = " + order.getLimit();
   }
 
   private void convertInstanceOf(SQLQuery qry, List<Node> instanceOf, Bool bool) throws SQLConversionException {

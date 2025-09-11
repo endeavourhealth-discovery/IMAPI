@@ -232,6 +232,7 @@ public class QueryRequest implements ContextMap {
       String argumentString = arg.getHashString();
       hs.append(argumentString);
     }
+    if (null != query.getIri()) hs.append(query.getIri());
     return Objects.hash(hs.toString()); // add update datetime
   }
 

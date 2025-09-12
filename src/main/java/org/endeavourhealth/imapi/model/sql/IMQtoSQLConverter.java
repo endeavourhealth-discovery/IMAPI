@@ -261,14 +261,8 @@ public class IMQtoSQLConverter {
       convertInstanceOf(qry, match.getInstanceOf(), bool);
     } else if (null != match.getIsCohort()) {
       convertIsCohort(qry, match.getIsCohort(), bool);
-    } else if (match.getAnd() != null) {
+    } else if (null != match.getAnd() || null != match.getOr() || null != match.getNot()) {
       convertMatchBoolSubMatch(qry, match, Bool.and);
-    }
-    if (match.getOr() != null) {
-      convertMatchBoolSubMatch(qry, match, Bool.or);
-    }
-    if (match.getNot() != null) {
-      convertMatchBoolSubMatch(qry, match, Bool.not);
     }
     if (match.getWhere() != null) convertMatchProperties(qry, match);
   }
@@ -324,7 +318,8 @@ public class IMQtoSQLConverter {
       for (Match subMatch : subMatches) {
         convertSubQuery(qry, subMatch, Bool.and, "JOIN ");
       }
-    } else if (match.getOr() != null) {
+    }
+    if (match.getOr() != null) {
       List<String> orConditions = new ArrayList<>();
       for (Match subMatch : match.getOr()) {
         SQLQuery subQuery = convertMatchToQuery(qry, subMatch, Bool.or);
@@ -337,7 +332,8 @@ public class IMQtoSQLConverter {
       if (!orConditions.isEmpty()) {
         qry.getWheres().add("(" + String.join(" OR ", orConditions) + ")");
       }
-    } else if (match.getNot() != null) {
+    }
+    if (match.getNot() != null) {
       for (Match subMatch : match.getNot()) {
         convertSubQuery(qry, subMatch, Bool.not, "LEFT JOIN ");
       }

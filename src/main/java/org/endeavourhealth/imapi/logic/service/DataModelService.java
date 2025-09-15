@@ -146,14 +146,14 @@ public class DataModelService {
 
     for (TTValue ttProperty : ttProperties.getElements()) {
       String cardinality = getCardinality(ttProperty);
-      String newCardinality = "0 : * ";
+      String reverseCardinality = "0 : * ";
       if (ttProperty.asNode().has(iri(SHACL.NODE))) {
-        newCardinality = getReverseCardinality(ttProperty, predicates, newCardinality, entityIri);
+        reverseCardinality = getReverseCardinality(ttProperty, predicates, reverseCardinality, entityIri);
       }
       if (ttProperty.asNode().has(iri(SHACL.OR))) {
-        handleOr(ttProperty, cardinality, newCardinality, propertyList);
+        handleOr(ttProperty, cardinality, reverseCardinality, propertyList);
       } else {
-        handleNotOr(ttProperty, cardinality, newCardinality, propertyList);
+        handleNotOr(ttProperty, cardinality, reverseCardinality, propertyList);
       }
     }
     return propertyList;
@@ -176,10 +176,9 @@ public class DataModelService {
     if (newEntity.get(iri(SHACL.PROPERTY)) != null) {
       TTArray newProps = newEntity.get(iri(SHACL.PROPERTY));
       for (TTValue newttProperty : newProps.getElements()) {
-        if (newttProperty.asNode().get(iri(SHACL.NODE)) != null) {
-          if (Objects.equals(newttProperty.asNode().get(iri(SHACL.NODE)).get(0).asIriRef().getIri(), entityIri))
-            newCardinality = getCardinality(newttProperty);
-        }
+        if (newttProperty.asNode().get(iri(SHACL.NODE)) != null && Objects.equals(newttProperty.asNode().get(iri(SHACL.NODE)).get(0).asIriRef().getIri(), entityIri))
+          newCardinality = getCardinality(newttProperty);
+
       }
     }
     return newCardinality;

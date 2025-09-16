@@ -261,14 +261,8 @@ public class IMQtoSQLConverter {
       convertInstanceOf(qry, match.getInstanceOf(), bool);
     } else if (null != match.getIsCohort()) {
       convertIsCohort(qry, match.getIsCohort(), bool);
-    } else if (match.getAnd() != null) {
+    } else if (null != match.getAnd() || null != match.getOr() || null != match.getNot()) {
       convertMatchBoolSubMatch(qry, match, Bool.and);
-    }
-    if (match.getOr() != null) {
-      convertMatchBoolSubMatch(qry, match, Bool.or);
-    }
-    if (match.getNot() != null) {
-      convertMatchBoolSubMatch(qry, match, Bool.not);
     }
     if (match.getWhere() != null) convertMatchProperties(qry, match);
   }
@@ -306,14 +300,14 @@ public class IMQtoSQLConverter {
     if (instanceOf.isEmpty())
       throw new SQLConversionException("SQL Conversion Error: MatchSet must have at least one element");
     String subQueryIri = instanceOf.getFirst().getIri();
-    String rsltTbl = "`query_[" + subQueryIri + "]`";
+    String rsltTbl = "`q_" + subQueryIri + "`";
     qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.getAlias() + ".id");
     if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".id IS NULL");
   }
 
   private void convertIsCohort(SQLQuery qry, TTIriRef isCohort, Bool bool) {
     String subQueryIri = isCohort.getIri();
-    String rsltTbl = "`query_[" + subQueryIri + "]`";
+    String rsltTbl = "`q_" + subQueryIri + "`";
     qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.getAlias() + ".id");
     if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".id IS NULL");
   }
@@ -324,7 +318,8 @@ public class IMQtoSQLConverter {
       for (Match subMatch : subMatches) {
         convertSubQuery(qry, subMatch, Bool.and, "JOIN ");
       }
-    } else if (match.getOr() != null) {
+    }
+    if (match.getOr() != null) {
       List<String> orConditions = new ArrayList<>();
       for (Match subMatch : match.getOr()) {
         SQLQuery subQuery = convertMatchToQuery(qry, subMatch, Bool.or);
@@ -337,7 +332,8 @@ public class IMQtoSQLConverter {
       if (!orConditions.isEmpty()) {
         qry.getWheres().add("(" + String.join(" OR ", orConditions) + ")");
       }
-    } else if (match.getNot() != null) {
+    }
+    if (match.getNot() != null) {
       for (Match subMatch : match.getNot()) {
         convertSubQuery(qry, subMatch, Bool.not, "LEFT JOIN ");
       }
@@ -434,19 +430,24 @@ public class IMQtoSQLConverter {
     String concept_alias = "c_" + property.getName();
     String csm_alias = "csm_" + property.getName();
 
-    String sql = """
+    String joins = """
             JOIN concept `{concept_alias}` ON `{concept_alias}`.dbid = {join_condition}
             JOIN concept_set_member `{csm_alias}` ON `{csm_alias}`.im1id = `{concept_alias}`.id
-            AND ({conditions})
       """;
-    sql = sql.replaceAll("\\{concept_alias}", concept_alias).replaceAll("\\{csm_alias}", csm_alias);
+    String conditions = "({conditions})";
+    if (inverse) conditions += conditions + "where {concept_alias}.dbid is NULL";
+
+    joins = joins.replaceAll("\\{concept_alias}", concept_alias).replaceAll("\\{csm_alias}", csm_alias);
+    conditions = conditions.replaceAll("\\{concept_alias}", concept_alias).replaceAll("\\{csm_alias}", csm_alias);
 
     if (!list.isEmpty()) {
       String filedName = qry.getFieldName(property.getIri(), null, tableMap);
-      List<String> conditions = getIriConditions(csm_alias, list);
-      String conditionsSQL = StringUtils.join(conditions, " OR ");
-      sql = sql.replace("{join_condition}", filedName).replace("{conditions}", conditionsSQL);
-      qry.getJoins().add(sql);
+      List<String> stringConditions = getIriConditions(csm_alias, list);
+      String conditionsSQL = StringUtils.join(stringConditions, " OR ");
+      joins = joins.replace("{join_condition}", filedName).replace("{conditions}", conditionsSQL);
+      conditions = conditions.replace("{join_condition}", filedName).replace("{conditions}", conditionsSQL);
+      qry.getWheres().add(conditions);
+      qry.getJoins().add(joins);
     }
   }
 
@@ -522,30 +523,6 @@ public class IMQtoSQLConverter {
     else
       returnString = "DATE_SUB($searchDate" + ", INTERVAL " + range.getValue() + " " + getUnitName(range.getUnits()) + ") " + range.getOperator().getValue() + " " + fieldName;
     return returnString;
-  }
-
-  private void convertMatchPropertyInSet(SQLQuery qry, Where property) throws SQLConversionException {
-    if (property.getIri() == null)
-      throw new SQLConversionException("SQL Conversion Error: INVALID PROPERTY\n" + property);
-
-    if (property.getIs() == null) {
-      throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyIn\n" + property);
-    }
-
-    ArrayList<String> inList = new ArrayList<>();
-
-    for (Node pIn : property.getIs()) {
-      if (pIn.getIri() != null) inList.add(pIn.getIri());
-      else {
-        throw new SQLConversionException("SQL Conversion Error: UNHANDLED 'IN' ENTRY\n" + pIn);
-      }
-    }
-    String mmbrTbl = qry.getAlias() + "_mmbr";
-
-    qry.getJoins().add("JOIN set_member " + mmbrTbl + " ON " + mmbrTbl + ".member = " + qry.getFieldName(property.getIri(), null, tableMap));
-
-    if (inList.size() == 1) qry.getWheres().add(mmbrTbl + ".iri = '" + StringUtils.join(inList, "',\n'") + "'");
-    else qry.getWheres().add(mmbrTbl + ".iri IN ('" + StringUtils.join(inList, "',\n'") + "')");
   }
 
   private void convertMatchPropertyRelative(SQLQuery qry, Where property) throws SQLConversionException {
@@ -628,8 +605,13 @@ public class IMQtoSQLConverter {
     }
     if (!subQuery.getWheres().isEmpty())
       qry.getWheres().add("(" + StringUtils.join(subQuery.getWheres(), " " + bool.toString().toUpperCase() + " ") + ")");
-    if (!subQuery.getJoins().isEmpty())
-      qry.getJoins().add(StringUtils.join(subQuery.getJoins(), " "));
+    if (!subQuery.getJoins().isEmpty()) {
+      for (String join : subQuery.getJoins()) {
+        ArrayList<String> joinsToAdd = new ArrayList<>();
+        if (!qry.getJoins().contains(join)) joinsToAdd.add(join);
+        qry.getJoins().add(StringUtils.join(joinsToAdd, " "));
+      }
+    }
   }
 
   private void convertMatchPropertyNull(SQLQuery qry, Where property) throws SQLConversionException {
@@ -710,7 +692,7 @@ public class IMQtoSQLConverter {
 
     if (queryIrisToHashCodes != null && !queryIrisToHashCodes.isEmpty()) {
       for (String iri : queryIrisToHashCodes.keySet()) {
-        resolvedSql = resolvedSql.replace("query_[" + iri + "]", String.valueOf(queryIrisToHashCodes.get(iri)));
+        resolvedSql = resolvedSql.replace("q_" + iri, String.valueOf(queryIrisToHashCodes.get(iri)));
       }
     }
     return resolvedSql;

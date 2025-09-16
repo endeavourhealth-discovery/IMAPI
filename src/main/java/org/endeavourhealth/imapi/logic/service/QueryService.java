@@ -446,6 +446,10 @@ public class QueryService {
   }
 
   private void populateSubqueryIrisConclusively(Query query, List<String> subQueryIris) throws QueryException, JsonProcessingException, SQLConversionException {
+    if (query.getIsCohort() != null) {
+      subQueryIris.add(query.getIsCohort().getIri());
+    }
+
     if (query.getAnd() != null) {
       for (Match and : query.getAnd()) {
         processMatch(and, subQueryIris);

@@ -59,6 +59,7 @@ public class SecurityConfig {
       .requestMatchers(HttpMethod.GET, "/api/status/public/**").permitAll()
       .requestMatchers(HttpMethod.POST, "/oauth/**").permitAll()
       .requestMatchers(HttpMethod.GET, "/api/cognito/public/config").permitAll()
+      .requestMatchers(HttpMethod.POST, "/api/query/public/sql").permitAll()
       .anyRequest().authenticated();
   }
 

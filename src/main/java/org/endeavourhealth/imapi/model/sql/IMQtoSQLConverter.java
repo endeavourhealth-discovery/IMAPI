@@ -60,7 +60,9 @@ public class IMQtoSQLConverter {
     if (queryRequest.getQuery() == null) throw new SQLConversionException("Query is null");
     Query definition = queryRequest.getQuery();
     if (definition.getTypeOf() == null || definition.getTypeOf().getIri() == null) {
-      throw new SQLConversionException("SQL Conversion Error: Query must have a main (model) type");
+      if (null == definition.getPath() || null == definition.getPath().getFirst() || null == definition.getPath().getFirst().getIri())
+        throw new SQLConversionException("SQL Conversion Error: Query must have a main (model) type");
+      definition.setTypeOf(definition.getPath().getFirst().getIri());
     }
 
     try {
@@ -483,46 +485,27 @@ public class IMQtoSQLConverter {
     } else return "set";
   }
 
-  private void addPropertyIsWhere(SQLQuery qry, Where property, List<String> dbids, boolean inverse) throws SQLConversionException {
-    String where = qry.getFieldName(property.getIri(), null, tableMap);
-    if (dbids.size() == 1) where += (inverse ? " <> '" : " = '") + dbids.getFirst() + "'\n";
-    else where += (inverse ? " NOT IN ('" : " IN ('") + StringUtils.join(dbids, "',\n'") + "')\n";
-    qry.getWheres().add(where);
-  }
-
   private void convertMatchPropertyRange(SQLQuery qry, Where property) throws SQLConversionException {
     if (property.getRange() == null) {
       throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyRange\n" + property);
     }
-
     String fieldType = qry.getFieldType(property.getIri(), null, tableMap);
+    qry.getWheres().add(convertMatchPropertyRangeNode(qry.getFieldName(property.getIri(), null, tableMap), fieldType, property.getRange()));
+  }
 
+  private String convertMatchPropertyRangeNode(String fieldName, String fieldType, Range range) throws SQLConversionException {
+
+    String from = null != range.getFrom().getValue() ? range.getFrom().getValue() : range.getFrom().getValueParameter();
+    String to = null != range.getTo().getValue() ? range.getTo().getValue() : range.getTo().getValueParameter();
     if ("date".equals(fieldType)) {
-      if (property.getRange().getFrom() != null)
-        qry.getWheres().add(convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), property.getRange().getFrom()));
-      if (property.getRange().getTo() != null)
-        qry.getWheres().add(convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), property.getRange().getTo()));
-    } else if ("number".equals(fieldType)) {
-      if (property.getRange().getFrom() != null)
-        qry.getWheres().add(convertMatchPropertyNumberRangeNode(qry.getFieldName(property.getIri(), null, tableMap), property.getRange().getFrom()));
-      if (property.getRange().getTo() != null)
-        qry.getWheres().add(convertMatchPropertyNumberRangeNode(qry.getFieldName(property.getIri(), null, tableMap), property.getRange().getTo()));
-    } else {
-      throw new SQLConversionException("SQL Conversion Error: UNHANDLED PROPERTY FIELD TYPE (" + fieldType + ")\n" + property);
+      from = "'" + from + "'";
+      to = "'" + to + "'";
     }
+    return fieldName + " BETWEEN " + from + " AND " + to;
   }
 
-  private String convertMatchPropertyNumberRangeNode(String fieldName, Assignable range) {
-    return fieldName + " " + range.getOperator().getValue() + " " + range.getValue();
-  }
-
-  private String convertMatchPropertyDateRangeNode(String fieldName, Assignable range) throws SQLConversionException {
-    String returnString;
-    if (isPostgreSQL())
-      returnString = "($searchDate" + " - INTERVAL '" + range.getValue() + "') " + range.getOperator().getValue() + " " + fieldName;
-    else
-      returnString = "DATE_SUB($searchDate" + ", INTERVAL " + range.getValue() + " " + getUnitName(range.getUnits()) + ") " + range.getOperator().getValue() + " " + fieldName;
-    return returnString;
+  private String convertMatchPropertyDateValue(String fieldName, Assignable range) throws SQLConversionException {
+    return "DATE_SUB($searchDate" + ", INTERVAL " + range.getValue() + " " + getUnitName(range.getUnits()) + ") ";
   }
 
   private void convertMatchPropertyRelative(SQLQuery qry, Where property) throws SQLConversionException {
@@ -581,7 +564,7 @@ public class IMQtoSQLConverter {
         String mysqlFunction = getFunction(property.getFunction().getIri());
         where = mysqlFunction + " " + range.getOperator().getValue() + " " + range.getValue() + ")";
       } else {
-        where = convertMatchPropertyDateRangeNode(qry.getFieldName(property.getIri(), null, tableMap), range);
+        where = convertMatchPropertyDateValue(qry.getFieldName(property.getIri(), null, tableMap), range);
       }
     } else {
       where = qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + property.getValue();

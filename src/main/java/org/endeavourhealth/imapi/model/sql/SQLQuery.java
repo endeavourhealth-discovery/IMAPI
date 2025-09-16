@@ -135,7 +135,6 @@ public class SQLQuery {
     // Default to string field in JSON blob
     String fieldName = field.substring(field.indexOf("#") + 1);
     Field returnField = new Field();
-    // POSTGRES returnField.setField("(({alias}.json ->> '" + fieldName + "')::VARCHAR)");
     returnField.setField("{alias}." + fieldName);
     returnField.setType("string");
     return returnField;
@@ -143,7 +142,6 @@ public class SQLQuery {
 
   public Relationship getRelationshipTo(String targetModel) throws SQLConversionException {
     if (map.getRelationships().get(targetModel) != null) return map.getRelationships().get(targetModel);
-
     throw new SQLConversionException("SQL Conversion Error: Unknown relationship from [" + this.model + "] to [" + targetModel + "]");
   }
 

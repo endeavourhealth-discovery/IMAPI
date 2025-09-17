@@ -59,6 +59,7 @@ public class SecurityConfig {
       .requestMatchers(HttpMethod.GET, "/api/status/public/**").permitAll()
       .requestMatchers(HttpMethod.POST, "/oauth/**").permitAll()
       .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
+      .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll()
       .requestMatchers(HttpMethod.GET, "/api/cognito/public/config").permitAll()
       // Temporary for testing Smartlife API
       .requestMatchers(HttpMethod.GET, "/api/entity/public/partial").permitAll()

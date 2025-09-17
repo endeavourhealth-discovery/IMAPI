@@ -65,6 +65,10 @@ public class IMQtoSQLConverter {
       definition.setTypeOf(definition.getPath().getFirst().getIri());
     }
 
+//    if (null == definition.getAnd() && null == definition.getOr() && null == definition.getNot() && definition.getIsCohort() == null) {
+//      throw new SQLConversionException("SQL Conversion Error: Query must have at least one of: and/or/not/isCohort");
+//    }
+
     try {
       StringBuilder sql = new StringBuilder();
       if (definition.getDataSet() != null) {
@@ -224,7 +228,7 @@ public class IMQtoSQLConverter {
 
     qry.getJoins().add(createJoin(qry, subQry, joiner));
     if (null != match.getThen())
-      addIMQueryToSQLQueryRecursively(qry, match.getThen().setPath(match.getPath()), Bool.and);
+      addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
   }
 
   private SQLQuery convertMatchToQuery(SQLQuery parent, Match match, Bool bool) throws SQLConversionException {

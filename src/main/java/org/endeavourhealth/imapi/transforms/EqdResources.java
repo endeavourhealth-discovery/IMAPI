@@ -875,7 +875,10 @@ public class EqdResources {
   }
 
   private TTIriRef getClusterSet(EQDOCValueSet vs) throws IOException {
-    return vs.getCodeSystem() == VocCodeSystemEx.SNOMED_CONCEPT && vs.getDescription() != null && !vs.getClusterCode().contains("FlattenedCodeList") ? this.importMaps.getReferenceFromCoreTerm(vs.getDescription()) : null;
+    if (vs.getCodeSystem() == VocCodeSystemEx.SNOMED_CONCEPT && vs.getDescription() != null && !vs.getClusterCode().contains("FlattenedCodeList")) {
+      return this.importMaps.getReferenceFromCoreTerm(vs.getDescription());
+    }
+    return null;
   }
 
   private void setInlineValues(EQDOCValueSet vs, Where pv, boolean in) throws IOException, EQDException {

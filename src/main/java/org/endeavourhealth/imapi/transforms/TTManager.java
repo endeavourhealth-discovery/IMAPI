@@ -154,6 +154,21 @@ public class TTManager implements AutoCloseable {
     }
     return false;
   }
+  public static boolean termCodeUsed(TTEntity entity, String term,String code) {
+    if (entity.get(iri(IM.HAS_TERM_CODE)) != null) {
+      for (TTValue val : entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
+        if (val.asNode().get(iri(RDFS.LABEL)) != null && val.asNode().get(iri(RDFS.LABEL)).asLiteral().getValue().equals(term)){
+          if (code!=null){
+            if (val.asNode().get(iri(IM.CODE)) != null && val.asNode().get(iri(IM.CODE)).asLiteral().getValue().equals(code)) {
+              return true;
+            }
+          }
+          else return true;
+        }
+      }
+    }
+    return false;
+  }
 
   public static TTEntity addTermCode(TTEntity entity,
                                      String term, String code) {
@@ -162,15 +177,17 @@ public class TTManager implements AutoCloseable {
 
   public static TTEntity addTermCode(TTEntity entity,
                                      String term, String code, TTIriRef status) {
-    TTNode termCode = new TTNode();
-    if (status != null)
-      termCode.set(iri(IM.HAS_STATUS), status);
-    if (term != null) {
-      termCode.set(iri(RDFS.LABEL), TTLiteral.literal(term));
+    if (!termCodeUsed(entity, term,code)) {
+      TTNode termCode = new TTNode();
+      if (status != null)
+        termCode.set(iri(IM.HAS_STATUS), status);
+      if (term != null) {
+        termCode.set(iri(RDFS.LABEL), TTLiteral.literal(term));
+      }
+      if (code != null)
+        termCode.set(iri(IM.CODE), TTLiteral.literal(code));
+      entity.addObject(iri(IM.HAS_TERM_CODE), termCode);
     }
-    if (code != null)
-      termCode.set(iri(IM.CODE), TTLiteral.literal(code));
-    entity.addObject(iri(IM.HAS_TERM_CODE), termCode);
     return entity;
   }
 
